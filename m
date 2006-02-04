@@ -1,87 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945948AbWBDJyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945967AbWBDJ5s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945948AbWBDJyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 04:54:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945994AbWBDJyQ
+	id S1945967AbWBDJ5s (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 04:57:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945993AbWBDJ5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 04:54:16 -0500
-Received: from lug-owl.de ([195.71.106.12]:22723 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1945948AbWBDJyQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 04:54:16 -0500
-Date: Sat, 4 Feb 2006 10:54:14 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Richard Purdie <rpurdie@rpsys.net>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: [PATCH 10/11] LED: Add IDE disk activity LED trigger
-Message-ID: <20060204095414.GT18336@lug-owl.de>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>,
-	Richard Purdie <rpurdie@rpsys.net>,
-	Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-	Jan Engelhardt <jengelh@linux01.gwdg.de>
-References: <1138714918.6869.139.camel@localhost.localdomain> <Pine.LNX.4.61.0602011707460.22529@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wp5PKWxpqHjYm/ls"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0602011707460.22529@yvahk01.tjqt.qr>
-X-Operating-System: Linux mail 2.6.12.3lug-owl
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+	Sat, 4 Feb 2006 04:57:48 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:17544 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S1945967AbWBDJ5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 04:57:47 -0500
+From: Nigel Cunningham <nigel@suspend2.net>
+Organization: Suspend2.net
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [ 00/10] [Suspend2] Modules support.
+Date: Sat, 4 Feb 2006 19:54:18 +1000
+User-Agent: KMail/1.9.1
+Cc: suspend2-devel@lists.suspend2.net, linux-kernel@vger.kernel.org
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602041120.59830.nigel@suspend2.net> <20060204090112.GJ3291@elf.ucw.cz>
+In-Reply-To: <20060204090112.GJ3291@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart10778138.PrVhlJYjQD";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200602041954.22484.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---wp5PKWxpqHjYm/ls
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+--nextPart10778138.PrVhlJYjQD
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
-
-On Wed, 2006-02-01 17:09:06 +0100, Jan Engelhardt <jengelh@linux01.gwdg.de>=
- wrote:
-> >Add an LED trigger for IDE disk activity to the IDE subsystem.
->=20
-> Since I am not a real user of the led subsystem - what LED should be lit=
-=20
-> anyway? only the motherboard one does, and it seems to be connected=20
-> directly to the IDE chip - I would want this as a compile-time option so =
-I=20
-> don't pay any extra time for any led stuff.
-
-Well, look at PARISC. These machines do have a HDD LED, but it needs
-to be manually driven by the I/O subsystem.
-
-The same would be for PCMCIA-attached ATA drives, where some embedded
-stuff has a HDD LED, which is GPIO-connected.
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---wp5PKWxpqHjYm/ls
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
 Content-Disposition: inline
+
+Hi.
+
+On Saturday 04 February 2006 19:01, Pavel Machek wrote:
+> On So 04-02-06 11:20:54, Nigel Cunningham wrote:
+> > Hi Pavel.
+> >
+> > On Friday 03 February 2006 21:44, Pavel Machek wrote:
+> > > [Pavel is willing to take patches, as his cooperation with Rafael
+> > > shows, but is scared by both big patches and series of 10 small
+> > > patches he does not understand. He likes patches removing code.]
+> >
+> > Assuming you're refering to the patches that started this thread, what
+> > don't you understand? I'm more than happy to explain.
+>
+> For "suspend2: modules support", it is pretty clear that I do not need
+> or want that complexity. But for "refrigerator improvements", I did
+
+=2E.. and yet you're perfectly happy to add the complexity of sticking half=
+=20
+the code in userspace. I don't think I'll ever dare to try to understand=20
+you, Pavel :)
+
+> not understand which parts are neccessary because of suspend2
+> vs. swsusp differences, and if there is simpler way towards the same
+> goal. (And thanks for a stress hint...)
+
+I think virtually everything is relevant to you. A couple of possible=20
+exceptions might be (1) freezing bdevs, because you don't care so much=20
+about making xfs really sync and really stop it's activity and (2) the=20
+ability to thaw kernel space without thawing userspace. I want this for=20
+eating memory, to avoid deadlocking against kjournald etc. I haven't=20
+checked carefully as to why you don't need it in vanilla.
+
+Regards,
+
+Nigel
+
+=2D-=20
+See our web page for Howtos, FAQs, the Wiki and mailing list info.
+http://www.suspend2.net                IRC: #suspend2 on Freenode
+
+--nextPart10778138.PrVhlJYjQD
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFD5HnGHb1edYOZ4bsRAhj0AJ997SrQhXWlWWmdjm30JoT/B1DcSACdGgUR
-/Oh1JuYns3WFwQqYyzz0zKk=
-=zpyU
+iD8DBQBD5HnON0y+n1M3mo0RAlmSAJ9T3VqjyTqHQMxnTRqVwEF8SiWtUQCg77R5
+XQHyodcQ+UpkGUK46KG+eO4=
+=LUXd
 -----END PGP SIGNATURE-----
 
---wp5PKWxpqHjYm/ls--
+--nextPart10778138.PrVhlJYjQD--

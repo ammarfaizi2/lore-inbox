@@ -1,67 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946108AbWBDACI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946112AbWBDADM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946108AbWBDACI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 19:02:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751536AbWBDACH
+	id S1946112AbWBDADM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 19:03:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030249AbWBDADM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 19:02:07 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:3600 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1751503AbWBDACH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 19:02:07 -0500
-Date: Sat, 4 Feb 2006 01:02:05 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060204000205.GA4845@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org
-References: <20060202062840.GI5501@mail> <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo> <787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com> <Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr> <20060202210949.GD10352@voodoo> <20060203180421.GA57965@dspnet.fr.eu.org> <43E3B3F3.8060107@cfl.rr.com> <20060203204712.GA84752@dspnet.fr.eu.org> <43E3C5C5.5070301@cfl.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43E3C5C5.5070301@cfl.rr.com>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 3 Feb 2006 19:03:12 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:29634 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S1751503AbWBDADK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 19:03:10 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 2/2] megaraid_sas: support for 1078 type controlleradded
+Date: Fri, 3 Feb 2006 17:03:00 -0700
+Message-ID: <0631C836DBF79F42B5A60C8C8D4E82292C6937@NAMAIL2.ad.lsil.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2/2] megaraid_sas: support for 1078 type controlleradded
+Thread-Index: AcYpHTxPBjioytaLShaa0c75lJXjXQAAMCOQ
+From: "Patro, Sumant" <Sumant.Patro@lsil.com>
+To: "James Bottomley" <James.Bottomley@SteelEye.com>,
+       "Moore, Eric" <Eric.Moore@lsil.com>
+Cc: <hch@lst.de>, <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
+       "Bagalkote, Sreenivas" <Sreenivas.Bagalkote@engenio.com>,
+       "Kolli, Neela" <Neela.Kolli@engenio.com>,
+       "Yang, Bo" <Bo.Yang@engenio.com>,
+       "Doelfel, Hardy" <Hardy.Doelfel@engenio.com>
+X-OriginalArrivalTime: 04 Feb 2006 00:03:02.0019 (UTC) FILETIME=[5D72A530:01C6291E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 03, 2006 at 04:06:13PM -0500, Phillip Susi wrote:
-> Olivier Galibert wrote:
-> >No, it isn't.  OTOH, udev maintains it, so I guess that's good enough.
-> >It makes udev the kernel interface though.  I hope they now care about
-> >compatibility (/dev/.udev.pdb vs. /dev/.udev/db/* anyone?).
-> >
-> 
-> Yes, it is, where do you think udev gets it's information from?
+Yes the device id issue has been resolved.
 
-The device node name?  From the rules in /etc/udev/rules.d/*.  Udev is
-the one which creates it in the first place, deriving it in a
-user-defined way from the sysfs information.  It does _not_ give back
-that information to the kernel.  Maybe it should.
+The device id has been changed for 1078 controllers for megaraid_sas to
+60 
+from 62.
+
+Thanks,
+
+Sumant
 
 
-> >Bullshit.  If <x> is the only interface available to a kernel service,
-> >then <x> is part of the kernel whether you like it or not.  Case in
-> >point, the ALSA library.
-> 
-> Bullshit yourself.  If cdrecord is the only application for burning cds, 
-> that does not make it the kernel interface for cds, and certainly does 
-> not make it part of the kernel.  The kernel interface is the point of 
-> interaction between user and kernel code, which is sysfs.
+-----Original Message-----
+From: James Bottomley [mailto:James.Bottomley@SteelEye.com] 
+Sent: Friday, February 03, 2006 3:55 PM
+To: Moore, Eric; Patro, Sumant
+Cc: hch@lst.de; linux-kernel@vger.kernel.org;
+linux-scsi@vger.kernel.org; Bagalkote, Sreenivas; Kolli, Neela; Yang,
+Bo; Doelfel, Hardy
+Subject: Re: [PATCH 2/2] megaraid_sas: support for 1078 type
+controlleradded
 
-The kernel does not provide a cd burning service, only a scsi packet
-transport service called SG_IO.
+On Fri, 2006-02-03 at 15:34 -0800, Sumant Patro wrote:
+>         {
+> +        PCI_VENDOR_ID_LSI_LOGIC,
+> +        PCI_DEVICE_ID_LSI_SAS1078R, // ppc IOP
+> +        PCI_ANY_ID,
+> +        PCI_ANY_ID,
+> +       },
 
-The kernel *does* provide a device enumeration service, only it does
-it at this point through udev for reasons that are 50% technical and
-50% political.  If you want to be able to use a 2.6 kernel with
-hotplug devices udev[1] is mandatory.  As such, from an engineering
-point of view, udev is part of the kernel even if it isn't in the
-source tarball on kernel.org.  And for now it is the lowest level
-interface to device enumeration.
+I thought the fusion people objected to this because they also have a
+fusion card with this id; has that now been resolved?
 
-  OG.
+James
 
-[1] Or hotplug, maybe.
 

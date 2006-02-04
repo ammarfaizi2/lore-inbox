@@ -1,97 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWBDNKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751461AbWBDNOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbWBDNKk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 08:10:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWBDNKk
+	id S1751461AbWBDNOf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 08:14:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbWBDNOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 08:10:40 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:60064 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751241AbWBDNKj (ORCPT
+	Sat, 4 Feb 2006 08:14:35 -0500
+Received: from verein.lst.de ([213.95.11.210]:6083 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S1751461AbWBDNOe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 08:10:39 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [ 00/10] [Suspend2] Modules support.
-Date: Sat, 4 Feb 2006 14:09:42 +0100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, suspend2-devel@lists.suspend2.net,
+	Sat, 4 Feb 2006 08:14:34 -0500
+Date: Sat, 4 Feb 2006 14:14:19 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Stefan Weinhuber <wein@de.ibm.com>,
+       Horst Hummel <horst.hummel@de.ibm.com>, Christoph Hellwig <hch@lst.de>,
        linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602041238.06395.rjw@sisk.pl> <200602042141.23685.nigel@suspend2.net>
-In-Reply-To: <200602042141.23685.nigel@suspend2.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 1/3] s390: dasd extended error reporting module.
+Message-ID: <20060204131418.GA24721@lst.de>
+References: <20060201115649.GA9361@osiris.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602041409.43298.rjw@sisk.pl>
+In-Reply-To: <20060201115649.GA9361@osiris.boeblingen.de.ibm.com>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Feb 01, 2006 at 12:56:49PM +0100, Heiko Carstens wrote:
+> From: Stefan Weinhuber <wein@de.ibm.com>
+> 
+> The DASD extended error reporting is a facility that allows to
+> get detailed information about certain problems in the DASD I/O.
+> This information can be used to implement fail-over applications
+> that can recover these problems.
+> This is a resubmit of this patch because at first submission it
+> didn't get included due to Christoph's ioctl changes.
+> Since these aren't in the -mm tree anymore this one should be
+> merged now.
 
-On Saturday 04 February 2006 12:41, Nigel Cunningham wrote:
-> On Saturday 04 February 2006 21:38, Rafael J. Wysocki wrote:
-> > > > My personal view is that:
-> > > > 1) turning the freezing of kernel threads upside-down is not
-> > > > necessary and would cause problems in the long run,
-> > >
-> > > Upside down?
-> >
-> > I mean now they should freeze voluntarily and your patches change that
-> > so they would have to be created as non-freezeable if need be, AFAICT.
-> 
-> Ah. Now I'm on the same page. Lost the context.
-> 
-> > > > 2) the todo lists are not necessary and add a lot of complexity,
-> > >
-> > > Sorry. Forgot about this. I liked it for solving the SMP problem, but
-> > > IIRC, we're downing other cpus before this now, so that issue has gone
-> > > away. I should check whether I'm right there.
-> > >
-> > > > 3) trying to treat uninterruptible tasks as non-freezeable should
-> > > > better be avoided (I tried to implement this in swsusp last year but
-> > > > it caused vigorous opposition to appear, and it was not Pavel ;-))
-> > >
-> > > I'm not suggesting treating them as unfreezeable in the fullest sense.
-> > > I still signal them, but don't mind if they don't respond. This way,
-> > > if they do leave that state for some reason (timeout?) at some point,
-> > > they still get frozen.
-> >
-> > Yes, that's exactly what I wanted to do in swsusp. ;-)
-> 
-> Oh. What's Pavel's solution? Fail freezing if uninterruptible threads don't 
-> freeze?
-> 
-> > > > > A couple of possible  exceptions might be (1) freezing bdevs,
-> > > > > because you don't care so much about making xfs really sync and
-> > > > > really stop it's activity
-> > > >
-> > > > As I have already stated, in my view this one is at least worth
-> > > > considering in the long run.
-> > > >
-> > > > > and (2) the  ability to thaw kernel space without thawing
-> > > > > userspace. I want this for eating memory, to avoid deadlocking
-> > > > > against kjournald etc. I haven't checked carefully as to why you
-> > > > > don't need it in vanilla.
-> > > >
-> > > > Because it does not deadlock?  I will say we need this if I see a
-> > > > testcase showing such a deadlock clearly.
-> > >
-> > > I've been surprised that you haven't already seen them while eating
-> > > memory such that filesystems come into play. Perhaps you guys only use
-> > > swap partitions, and something like a swapfile with some memory
-> > > pressure might trigger this? Or it could be a side effect of one of
-> > > the other changes.
-> >
-> > In fact, we only use swap partitions, so this will be needed if we are
-> > going to use files, I guess.  Nice to know in advance, thanks. ;-)
-> 
-> k. Just so you don't confuse me, can I ask you not to refer to swapfiles as 
-> 'files'? I support swap partitions, swapfiles and ordinary files, so the 
-> latter will come to mind first for me.
+NACK again.  (although andrew unfortunately pushed this to Linus
+already, it would be good if this went out again before 2.6.16).
 
-Sure.  In fact I was referring to both swapfiles and regular files as just
-"files".
+If you really want this functionality in a separate module you need
+to call try_module_get on the module structure of the eer module
+everytime before calling into it.  You need to register a structure
+ala
 
-Greetings,
-Rafael
+struct dasd_eer_ops {
+	struct module *owner;
+	void (*disable_on_device)(struct dasd_device *);
+	void (*write_trigger)(struct dasd_eer_trigger *);
+};
+
+and then have wrappers in the core dasd code ala
+
+eer_disable_on_device(struct dasd_device *dev)
+{
+	if (try_module_get(eer_ops->owner)) {
+		eer_ops->write_trigger(dev);
+		module_put(eer_ops->owner);
+	}
+}
+
+the module_get/put on THIS_MODULE in the patch are completely broken.
+
+the ioctl registration is also totally not acceptable.  firtly this
+interface is absolutely suitable for sysfs, although that might only work
+if it's in the main module.  But even if you go for ioctls it should be
+on your separate char device and not use the broken dynamic ioctl
+registration which _must_ not be used in any new code.
+
+Besides that there's tons of the usual style issues on the code, please
+use mutexes, please make lots of variables that could be static, etc.
+

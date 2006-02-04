@@ -1,74 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945926AbWBDMIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWBDNKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945926AbWBDMIh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 07:08:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945944AbWBDMIh
+	id S1751241AbWBDNKk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 08:10:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWBDNKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 07:08:37 -0500
-Received: from fep01-0.kolumbus.fi ([193.229.0.41]:17346 "EHLO
-	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S1945926AbWBDMIg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 07:08:36 -0500
-Date: Sat, 4 Feb 2006 14:10:34 +0200 (EET)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: Hugh Dickins <hugh@veritas.com>
-cc: Mike Christie <michaelc@cs.wisc.edu>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Doug Gilbert <dougg@torque.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] st: don't doublefree pages from scatterlist
-In-Reply-To: <Pine.LNX.4.61.0602032100400.15678@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.63.0602041403460.3923@kai.makisara.local>
-References: <Pine.LNX.4.63.0512271807130.4955@kai.makisara.local>
- <20060104172727.GA320@tau.solarneutrino.net> <Pine.LNX.4.63.0601042334310.5087@kai.makisara.local>
- <20060105201249.GB1795@tau.solarneutrino.net> <Pine.LNX.4.64.0601051312380.3169@g5.osdl.org>
- <20060109033149.GC283@tau.solarneutrino.net> <Pine.LNX.4.64.0601082000450.3169@g5.osdl.org>
- <Pine.LNX.4.61.0601090933160.7632@goblin.wat.veritas.com>
- <20060109185350.GG283@tau.solarneutrino.net> <Pine.LNX.4.61.0601091922550.15426@goblin.wat.veritas.com>
- <20060118001252.GB821@tau.solarneutrino.net> <Pine.LNX.4.61.0601181556050.9110@goblin.wat.veritas.com>
- <Pine.LNX.4.61.0602031842290.14065@goblin.wat.veritas.com>
- <Pine.LNX.4.61.0602031951280.14829@goblin.wat.veritas.com> <43E3BF33.6050705@cs.wisc.edu>
- <Pine.LNX.4.61.0602032100400.15678@goblin.wat.veritas.com>
+	Sat, 4 Feb 2006 08:10:40 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:60064 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751241AbWBDNKj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 08:10:39 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <nigel@suspend2.net>
+Subject: Re: [ 00/10] [Suspend2] Modules support.
+Date: Sat, 4 Feb 2006 14:09:42 +0100
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, suspend2-devel@lists.suspend2.net,
+       linux-kernel@vger.kernel.org
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602041238.06395.rjw@sisk.pl> <200602042141.23685.nigel@suspend2.net>
+In-Reply-To: <200602042141.23685.nigel@suspend2.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602041409.43298.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Feb 2006, Hugh Dickins wrote:
+Hi,
 
-> On Fri, 3 Feb 2006, Mike Christie wrote:
-...
-> > I ask becuase in that kernel the scatterlist passed into scsi_execute_async
-> > 
-> > if (scsi_execute_async(STp->device, cmd, direction,
-> > &((STp->buffer)->sg[0]), bytes,
-> > 
-> > is not the same one that gets send down to the device/HBA.
+On Saturday 04 February 2006 12:41, Nigel Cunningham wrote:
+> On Saturday 04 February 2006 21:38, Rafael J. Wysocki wrote:
+> > > > My personal view is that:
+> > > > 1) turning the freezing of kernel threads upside-down is not
+> > > > necessary and would cause problems in the long run,
+> > >
+> > > Upside down?
+> >
+> > I mean now they should freeze voluntarily and your patches change that
+> > so they would have to be created as non-freezeable if need be, AFAICT.
 > 
-> Wow, great info, thanks.
+> Ah. Now I'm on the same page. Lost the context.
 > 
-> > scsi_execute_async takes the scatterlist passed to it from st or sg, uses it
-> > as a hint to build a request + bios, then later when the request is sent to
-> > the device a new scatterlist is sent to the device and the device does the
-> > pci/dma operation on that scatterlist from the block/scsi layer.
+> > > > 2) the todo lists are not necessary and add a lot of complexity,
+> > >
+> > > Sorry. Forgot about this. I liked it for solving the SMP problem, but
+> > > IIRC, we're downing other cpus before this now, so that issue has gone
+> > > away. I should check whether I'm right there.
+> > >
+> > > > 3) trying to treat uninterruptible tasks as non-freezeable should
+> > > > better be avoided (I tried to implement this in swsusp last year but
+> > > > it caused vigorous opposition to appear, and it was not Pavel ;-))
+> > >
+> > > I'm not suggesting treating them as unfreezeable in the fullest sense.
+> > > I still signal them, but don't mind if they don't respond. This way,
+> > > if they do leave that state for some reason (timeout?) at some point,
+> > > they still get frozen.
+> >
+> > Yes, that's exactly what I wanted to do in swsusp. ;-)
 > 
-> Very interesting.  James can confirm, but I think that means everybody
-> can ignore my drivers/scsi/st.c patch for 2.6.16-rc, and the unposted
-> sg.c patches for the same issue that I was going to send Doug.
+> Oh. What's Pavel's solution? Fail freezing if uninterruptible threads don't 
+> freeze?
 > 
-The patch st is not necessary now but I don't think it would be a bad idea 
-to include it anyway. My reasoning is based on that the patch is very 
-inexpensive, it basically moves freeing of an array to another place. 
-The reasons for inclusion are:
-- someone reviewing the code may wonder why the change to 2.6.15.x is
-  not in 2.6.x >= 16; 2.6.16 would need at least a comment about this
-- it does decouple st from any dependencies about what happens to
-  the s/g array at the lower levels
-- if the s/g array will at some future time be again passed directly to 
-  dma mapping, we would not face the problem again
+> > > > > A couple of possible  exceptions might be (1) freezing bdevs,
+> > > > > because you don't care so much about making xfs really sync and
+> > > > > really stop it's activity
+> > > >
+> > > > As I have already stated, in my view this one is at least worth
+> > > > considering in the long run.
+> > > >
+> > > > > and (2) the  ability to thaw kernel space without thawing
+> > > > > userspace. I want this for eating memory, to avoid deadlocking
+> > > > > against kjournald etc. I haven't checked carefully as to why you
+> > > > > don't need it in vanilla.
+> > > >
+> > > > Because it does not deadlock?  I will say we need this if I see a
+> > > > testcase showing such a deadlock clearly.
+> > >
+> > > I've been surprised that you haven't already seen them while eating
+> > > memory such that filesystems come into play. Perhaps you guys only use
+> > > swap partitions, and something like a swapfile with some memory
+> > > pressure might trigger this? Or it could be a side effect of one of
+> > > the other changes.
+> >
+> > In fact, we only use swap partitions, so this will be needed if we are
+> > going to use files, I guess.  Nice to know in advance, thanks. ;-)
+> 
+> k. Just so you don't confuse me, can I ask you not to refer to swapfiles as 
+> 'files'? I support swap partitions, swapfiles and ordinary files, so the 
+> latter will come to mind first for me.
 
-I don't have any firm opinion either way.
+Sure.  In fact I was referring to both swapfiles and regular files as just
+"files".
 
--- 
-Kai
+Greetings,
+Rafael

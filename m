@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbWBDXyz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932597AbWBDXzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030199AbWBDXyz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 18:54:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030216AbWBDXyz
+	id S932597AbWBDXzy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 18:55:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932593AbWBDXzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 18:54:55 -0500
-Received: from khc.piap.pl ([195.187.100.11]:53765 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1030199AbWBDXyy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 18:54:54 -0500
-To: Glen Turner <glen.turner@aarnet.edu.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 8250 serial console fixes -- issue
-References: <Pine.LNX.4.44.0602011911360.22854-100000@gate.crashing.org>
-	<1138844838.5557.17.camel@localhost.localdomain>
-	<43E2B8D6.1070707@aarnet.edu.au>
-	<20060203094042.GB30738@flint.arm.linux.org.uk>
-	<43E36850.5030900@aarnet.edu.au>
-	<20060203160218.GA27452@flint.arm.linux.org.uk>
-	<43E38E00.301@aarnet.edu.au>
-	<20060203222340.GB10700@flint.arm.linux.org.uk>
-	<m3irrvdrnm.fsf@defiant.localdomain>
-	<20060204231637.GB24887@flint.arm.linux.org.uk>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Sun, 05 Feb 2006 00:54:51 +0100
-In-Reply-To: <20060204231637.GB24887@flint.arm.linux.org.uk> (Russell King's message of "Sat, 4 Feb 2006 23:16:37 +0000")
-Message-ID: <m3irrud6ic.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 4 Feb 2006 18:55:53 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:14249
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932590AbWBDXzw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 18:55:52 -0500
+Date: Sat, 04 Feb 2006 15:55:54 -0800 (PST)
+Message-Id: <20060204.155554.55536246.davem@davemloft.net>
+To: sparclinux@vger.kernel.org
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Niagara work in progress GIT tree
+From: "David S. Miller" <davem@davemloft.net>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> writes:
 
-> CRTSCTS is to enable RTS/CTS hardware handshaking for the tty, which
-> is what the modem wants if it is doing hardware handshaking.
+At the following tree:
 
-Yes. But a Hayes modem wants a bit more than just RTS/CTS handshaking.
+	master.kernel.org:/pub/scm/linux/kernel/git/davem/sparc-2.6.17.git
 
-> Why
-> should we invent a non-standard option to enable RTS/CTS hardware
-> handshaking when CRTSCTS is already defined to do this?
+you will find the current Niagara "work in progress" kernel changes
+I've been doing.  A lot of it is infrastructure and not directly
+related to Niagara per-se, but the hypervisor API and TLB flushing
+plus Niagara optimized memcpy is in there.
 
-That's not my idea.
+Andrew, feel free to pull this into -mm as regressions on existing
+pre-Niagara systems need to be weeded out as fast as possible.
 
-If we want to support modems (Hayes-compatible) we need to make sure,
-in addition to CRTSCTS, that we don't send anything when DCD (or DSR)
-is down - and then we probably need another option.
+Folks, if you hit some problem, please test against vanilla 2.6.x GIT
+to make sure it really is a new issue and not an already existing one.
+I'm interested in the report either way, but it's vitally important to
+know if the problem got introduced by the sparc-2.6.17 tree or not.
 
-BTW I think you know all of this very well for years.
--- 
-Krzysztof Halasa
+Thanks.

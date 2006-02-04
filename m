@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945989AbWBDQSI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWBDQS0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945989AbWBDQSI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 11:18:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945995AbWBDQSI
+	id S932349AbWBDQS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 11:18:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932500AbWBDQS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 11:18:08 -0500
-Received: from khc.piap.pl ([195.187.100.11]:38663 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1945989AbWBDQSH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 11:18:07 -0500
-To: Glen Turner <glen.turner@aarnet.edu.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 8250 serial console fixes -- issue
-References: <Pine.LNX.4.44.0602011911360.22854-100000@gate.crashing.org>
-	<1138844838.5557.17.camel@localhost.localdomain>
-	<43E2B8D6.1070707@aarnet.edu.au>
-	<20060203094042.GB30738@flint.arm.linux.org.uk>
-	<43E36850.5030900@aarnet.edu.au>
-	<20060203160218.GA27452@flint.arm.linux.org.uk>
-	<43E38E00.301@aarnet.edu.au>
-	<20060203222340.GB10700@flint.arm.linux.org.uk>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Sat, 04 Feb 2006 17:18:05 +0100
-In-Reply-To: <20060203222340.GB10700@flint.arm.linux.org.uk> (Russell King's message of "Fri, 3 Feb 2006 22:23:40 +0000")
-Message-ID: <m3irrvdrnm.fsf@defiant.localdomain>
+	Sat, 4 Feb 2006 11:18:26 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:62512 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932349AbWBDQSZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 11:18:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NzG0tvse7EhAUbQl8hw+5uoCugfpXe2dWjKyKoa0xEGSCSaQjxNgGs1yiMBn6RMaPMLtXXukX3Cd0Joqs8TZQZat6q1H/vMbCxr6IzFkkV++kE8WZqzildHU0rMkzWPPXnwzaC4/rHgFCNrlwIaQe4DKb0yBvB1nRNdQcTkYZow=
+Message-ID: <9a8748490602040818y72c59c67wc6b6bb1c3e40956b@mail.gmail.com>
+Date: Sat, 4 Feb 2006 17:18:24 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Ben Castricum <lk@bencastricum.nl>
+Subject: Re: 2.6.16-rc[12] weirdness
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <000701c629a4$5df090e0$0602a8c0@links>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <000701c629a4$5df090e0$0602a8c0@links>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> writes:
+On 2/4/06, Ben Castricum <lk@bencastricum.nl> wrote:
+> I just want to report a couple of things I think are kernel related (since
+> they only occur when I run 2.6.16-rc*) but are too weird to be sure.
+>
+[snip]
+>
+> My /dev/null device gets replaced by a file. Some of my cronjobs have a
+>  >/dev/null and can see the ouput of the scripts in /dev/null. Deleting the
+> file and recreating the device again is fixes this. And again.. this seems
+> to happen randomly.
+>
+You are probably building your kernels as root. There's a problem in
+kbuild that causes it to replace /dev/null with a regular file on some
+systems - it's been fixed but the fix is not yet in mainline.
+But, you shouldn't be building kernels as root anyway.
 
-> What about those who have incomplete null modem cables which might
-> not connect DCD or DSR, but who want to use hardware flow control?
-
-BTW: Obviously CRTSCTS is a different thing than a modem with
-hardware handshaking. Basically CRTSCTS is a fixed, transparent
-line. So if we do Hayes modem console, it would better be another
-option.
--- 
-Krzysztof Halasa
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

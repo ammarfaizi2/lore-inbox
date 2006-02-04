@@ -1,117 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946254AbWBDBSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946256AbWBDBXD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946254AbWBDBSu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 20:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946257AbWBDBSu
+	id S1946256AbWBDBXD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 20:23:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946257AbWBDBXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 20:18:50 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:28628 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1946254AbWBDBSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 20:18:49 -0500
-Date: Fri, 3 Feb 2006 17:18:41 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: nickpiggin@yahoo.com.au, mingo@elte.hu, hawkes@sgi.com, steiner@sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [Patch] sched: fix group power for allnodes_domains
-Message-ID: <20060203171841.A19490@unix-os.sc.intel.com>
+	Fri, 3 Feb 2006 20:23:03 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:395 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1946256AbWBDBXB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 20:23:01 -0500
+Date: Fri, 3 Feb 2006 17:22:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: clameter@engr.sgi.com, linux-kernel@vger.kernel.org,
+       manfred@colorfullife.com, shai@scalex86.org,
+       alok.kataria@calsoftinc.com, sonny@burdell.org
+Subject: Re: [patch 0/3] NUMA slab locking fixes
+Message-Id: <20060203172218.7fb62e21.akpm@osdl.org>
+In-Reply-To: <20060204010857.GG3653@localhost.localdomain>
+References: <20060203205341.GC3653@localhost.localdomain>
+	<20060203140748.082c11ee.akpm@osdl.org>
+	<Pine.LNX.4.62.0602031504460.2517@schroedinger.engr.sgi.com>
+	<20060204010857.GG3653@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Current sched groups power calculation for allnodes_domains is wrong. We should
-really be using cumulative power of the physical packages in that group
-(similar to the calculation in node_domains)
+Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
+>
+> PS: Many hotplug fixes are yet to be applied upstream I think.  I know
+>  these slab patches work well with mm4 (with the x86_64 subtree and hotplug 
+>  fixes in there) but I cannot really test cpu_up after cpu_down on rc2 
+>  because it is broken as of now (pending merges, I guess).
 
-Appended patch fixes this issue. This request is for inclusion in -mm and hence
-the patch is against 2.6.16-rc1-mm5(as multi core sched patch in -mm was 
-touching this area)
-
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
-
---- linux/kernel/sched.c	2006-02-01 14:27:52.413687032 -0800
-+++ linux-core/kernel/sched.c	2006-02-01 14:25:57.734120976 -0800
-@@ -5705,6 +5705,32 @@ static int cpu_to_allnodes_group(int cpu
- {
- 	return cpu_to_node(cpu);
- }
-+static void init_numa_sched_groups_power(struct sched_group *group_head)
-+{
-+	struct sched_group *sg = group_head;
-+	int j;
-+
-+	if (!sg)
-+		return;
-+next_sg:
-+	for_each_cpu_mask(j, sg->cpumask) {
-+		struct sched_domain *sd;
-+
-+		sd = &per_cpu(phys_domains, j);
-+		if (j != first_cpu(sd->groups->cpumask)) {
-+			/*
-+			 * Only add "power" once for each
-+			 * physical package.
-+			 */
-+			continue;
-+		}
-+
-+		sg->cpu_power += sd->groups->cpu_power;
-+	}
-+	sg = sg->next;
-+	if (sg != group_head)
-+		goto next_sg;
-+}
- #endif
- 
- /*
-@@ -5950,43 +5976,13 @@ void build_sched_domains(const cpumask_t
- 				(cpus_weight(sd->groups->cpumask)-1) / 10;
- 		sd->groups->cpu_power = power;
- #endif
--
--#ifdef CONFIG_NUMA
--		sd = &per_cpu(allnodes_domains, i);
--		if (sd->groups) {
--			power = SCHED_LOAD_SCALE + SCHED_LOAD_SCALE *
--				(cpus_weight(sd->groups->cpumask)-1) / 10;
--			sd->groups->cpu_power = power;
--		}
--#endif
- 	}
- 
- #ifdef CONFIG_NUMA
--	for (i = 0; i < MAX_NUMNODES; i++) {
--		struct sched_group *sg = sched_group_nodes[i];
--		int j;
-+	for (i = 0; i < MAX_NUMNODES; i++)
-+		init_numa_sched_groups_power(sched_group_nodes[i]);
- 
--		if (sg == NULL)
--			continue;
--next_sg:
--		for_each_cpu_mask(j, sg->cpumask) {
--			struct sched_domain *sd;
--
--			sd = &per_cpu(phys_domains, j);
--			if (j != first_cpu(sd->groups->cpumask)) {
--				/*
--				 * Only add "power" once for each
--				 * physical package.
--				 */
--				continue;
--			}
--
--			sg->cpu_power += sd->groups->cpu_power;
--		}
--		sg = sg->next;
--		if (sg != sched_group_nodes[i])
--			goto next_sg;
--	}
-+	init_numa_sched_groups_power(sched_group_allnodes);
- #endif
- 
- 	/* Attach the domains */
-
+Yes, -rc2 was a shade too early for me to complete merging stuff.  Current
+-linus should be better.

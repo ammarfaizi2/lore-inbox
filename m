@@ -1,71 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWBDNwm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWBDN7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbWBDNwm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 08:52:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWBDNwm
+	id S932251AbWBDN7K (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 08:59:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWBDN7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 08:52:42 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:161 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932202AbWBDNwl (ORCPT
+	Sat, 4 Feb 2006 08:59:09 -0500
+Received: from rtr.ca ([64.26.128.89]:17092 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S932251AbWBDN7I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 08:52:41 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: chroot in swsusp userland interface (was: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Sat, 4 Feb 2006 14:51:44 +0100
-User-Agent: KMail/1.9.1
-Cc: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
-References: <200602030918.07006.nigel@suspend2.net> <20060204010833.GD4845@dspnet.fr.eu.org> <20060204012312.GH3291@elf.ucw.cz>
-In-Reply-To: <20060204012312.GH3291@elf.ucw.cz>
+	Sat, 4 Feb 2006 08:59:08 -0500
+Message-ID: <43E4B2C3.3040109@rtr.ca>
+Date: Sat, 04 Feb 2006 08:57:23 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Ulrich Mueller <ulm@kph.uni-mainz.de>,
+       Herbert Poetzl <herbert@13thfloor.at>, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Byron Stanoszek <gandalf@winds.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH ]  VMSPLIT config options (with default config fixed)
+References: <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de> <Pine.LNX.4.63.0601100840400.9511@winds.org> <20060110143931.GM3389@suse.de> <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org> <43C3E9C2.1000309@rtr.ca> <20060110173217.GU3389@suse.de> <43C3F0CA.10205@rtr.ca> <43C403BA.1050106@pobox.com> <43C40803.2000106@rtr.ca> <20060201222314.GA26081@MAIL.13thfloor.at> <uhd7irpi7@a1i15.kph.uni-mainz.de> <Pine.LNX.4.61.0602022144190.30391@yvahk01.tjqt.qr> <43E3DB99.9020604@rtr.ca> <Pine.LNX.4.61.0602041204490.30014@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0602041204490.30014@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602041451.45232.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jan Engelhardt wrote:
+>
+> What userspace programs do depend on it?
 
-On Saturday 04 February 2006 02:23, Pavel Machek wrote:
-> On So 04-02-06 02:08:33, Olivier Galibert wrote:
-> > On Sat, Feb 04, 2006 at 01:49:44AM +0100, Pavel Machek wrote:
-> > > > Why don't you try to design the system so that the progress bar can't
-> > > > fuck up the suspend unless they really, really want to?  Instead of
-> > > > one where a forgotten open(O_CREAT) in a corner of graphics code can
-> > > > randomly trash the filesystem through metadata corruption?
-> > > 
-> > > Even if I only put chrome code to userspace, open() would still be
-> > > deadly. I could do something fancy with disallowing syscalls,
-> > 
-> > Nah, simply chroot to an empty virtual filesystem (a tmpfs with max
-> > size=0 will do) and they can't do any fs-related fuckup anymore.  Just
-> > give them a fd through which request some specific resources
-> > (framebuffer mmap essentially I would say) and exchange messages with
-> > the suspend system (status, cancel, etc) and maybe log stderr for
-> > debugging purposes and that's it.  They can't do damage by mistake
-> > anymore.  They can always send signals to random pids, but that's not
-> > called a mistake at that point.
-> > 
-> > Even better, you can run _multiple_ processes that way, some for
-> > compression/encryption, some for chrome, etc.
-> 
-> No, I do not want to deal with multiple processes. Chrome code is not
-> *as* evil as you paint it... But yes, chroot is a nice idea. Doing
-> chroot into nowhere after freezing system will prevent most stupid
-> mistakes. Rest of userland is frozen, so it can not do anything really
-> wrong (at most you deadlock), if you kill someone -- well, that's only
-> as dangerous as any other code running as root.
+That *is* the question, isn't it.
+We simply don't know, other than that this is
+a visible change to any program that cares.
 
-I like the chroot idea too.
+Gratuitis breakage of userspace is pointless.
 
-Are we going to chroot from the kernel level (eg. the atomic snapshot
-ioctl()) or from within the suspending utility?
+Empirically speaking, everything I use is working fine
+here with the 2G/2G split, but that's just not good enough
+reason to mindlessly break other people's userspace.
 
-I think the kernel level would protect some people from bugs in their own
-suspending utilities, but then we'd have to mount the tmpfs from the kernel
-level as well.
-
-Greetings,
-Rafael
+Cheers

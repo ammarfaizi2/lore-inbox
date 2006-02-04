@@ -1,87 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbWBDWYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbWBDWlo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964842AbWBDWYg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 17:24:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbWBDWYf
+	id S964848AbWBDWlo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 17:41:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWBDWlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 17:24:35 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:10257 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S964842AbWBDWYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 17:24:35 -0500
-Date: Sat, 4 Feb 2006 23:24:29 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Mathias Kretschmer <posting@blx4.net>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Linux Kernel Useful Patches (2.4)
-Message-ID: <20060204222429.GA27562@w.ods.org>
-References: <20060130085233.GA1498@w.ods.org> <43E27895.4010904@blx4.net> <20060204181554.GG6026@w.ods.org> <986ed62e0602041254h5ffd3e4eqb11e515ddf939fc6@mail.gmail.com>
+	Sat, 4 Feb 2006 17:41:44 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:57232 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964848AbWBDWlo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 17:41:44 -0500
+Date: Sat, 4 Feb 2006 14:41:11 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: bcrl@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH, V2] i386: instead of poisoning .init zone, change
+ protection bits to force a fault
+Message-Id: <20060204144111.7e33569f.akpm@osdl.org>
+In-Reply-To: <43DD2C15.1090800@cosmosbay.com>
+References: <m1r76rft2t.fsf@ebiederm.dsl.xmission.com>
+	<m17j8jfs03.fsf@ebiederm.dsl.xmission.com>
+	<20060128235113.697e3a2c.akpm@osdl.org>
+	<200601291620.28291.ioe-lkml@rameria.de>
+	<20060129113312.73f31485.akpm@osdl.org>
+	<43DD1FDC.4080302@cosmosbay.com>
+	<20060129200504.GD28400@kvack.org>
+	<43DD2C15.1090800@cosmosbay.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <986ed62e0602041254h5ffd3e4eqb11e515ddf939fc6@mail.gmail.com>
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Barry,
+Eric Dumazet <dada1@cosmosbay.com> wrote:
+>
+> 
+> Chasing some invalid accesses to .init zone, I found that free_init_pages() 
+> was properly freeing the pages but virtual was still usable.
+> 
+> A poisoning (memset(page, 0xcc, PAGE_SIZE)) was done but this is not reliable.
+> 
+> A new config option DEBUG_INITDATA is introduced to mark this initdata as not 
+> present at all so that buggy code can trigger a fault.
+> 
+> This option is not meant for production machines because it may split one or 
+> two huge page (2MB or 4MB) into small pages and thus slow down kernel a bit.
+> 
+> (After that we could map non possible cpu percpu data to the initial 
+> percpudata that is included in .init and discarded in free_initmem())
+> 
+> ...
+>
+> --- a/arch/i386/mm/init.c	2006-01-25 10:17:24.000000000 +0100
+> +++ b/arch/i386/mm/init.c	2006-01-29 22:38:53.000000000 +0100
+> @@ -750,11 +750,18 @@
+>  	for (addr = begin; addr < end; addr += PAGE_SIZE) {
+>  		ClearPageReserved(virt_to_page(addr));
+>  		set_page_count(virt_to_page(addr), 1);
+> +#ifdef CONFIG_DEBUG_INITDATA
+> +		change_page_attr(virt_to_page(addr), 1, __pgprot(0));
+> +#else
+>  		memset((void *)addr, 0xcc, PAGE_SIZE);
+> +#endif
+>  		free_page(addr);
+>  		totalram_pages++;
+>  	}
+>  	printk(KERN_INFO "Freeing %s: %ldk freed\n", what, (end - begin) >> 10);
+> +#ifdef CONFIG_DEBUG_INITDATA
+> +	global_flush_tlb();
+> +#endif
+>  }
+>  
 
-On Sat, Feb 04, 2006 at 12:54:15PM -0800, Barry K. Nathan wrote:
-> On 2/4/06, Willy TARREAU <willy@w.ods.org> wrote:
-> > The last O(1) patch I've seen does not apply to kernels more recent than 2.4.19
-> > (it's on Ingo's site). Do you have any up to date pointer that I could use ?
-> > However, I have a local rediff of the lowlat patch that I will include.
-> 
-> (This e-mail ended up being a bit longer than I intended. The most
-> relevant stuff may be in the last couple of paragraphs, but I've
-> included the whole message for the sake of completeness.)
-> 
-> Red Hat ships it in a 2.4.21-based kernel. Here's their latest source RPM:
-> ftp://ftp.redhat.com/pub/redhat/linux/updates/enterprise/3AS/en/os/SRPMS/kernel-2.4.21-37.0.1.EL.src.rpm
-> 
-> However, I just remembered that the RHEL 3 kernel patch series starts
-> with an -ac patch and builds up from there. I think it gets the O(1)
-> scheduler from there but it might apply further patches to it (but I'm
-> not 100% sure my memory is correct here).
-> 
-> Here's the last -ac patch:
-> http://kernel.org/pub/linux/kernel/people/alan/linux-2.4/2.4.22/patch-2.4.22-ac4.bz2
+This doesn't seem very pointful.
 
-That's what I found too, but -ac is too much different. I tried applying
-some patches designed for 2.4.21-ac and 2.4.22-ac on their non-ac respective
-equivalents, and they rejected a lot of stuff.
+We unmap the page, then return it to the page allocator.  Then someone
+reallocates the page, tries to use it and goes oops.
 
-> If you want to see what Red Hat/Fedora did against 2.4.22, this is
-> what the final Fedora Core 1 kernel shipped:
-> http://cvs.fedora.redhat.com/viewcvs/rpms/kernel/FC-1/
-> (There are newer kernels for FC1 from Fedora Legacy, but I think those
-> just add security fixes.)
-> 
-> There's also 2.4.27-pre2-pac1, which has the O(1) scheduler. I don't
-> know if it introduces any bugs into the O(1) scheduler though. (It did
-> introduce a bug into the overcommit accounting, because part of it was
-> missing.)
-> http://kernel.org/pub/linux/kernel/people/bero/2.4/2.4.27/patch-2.4.27-pre2-pac1.bz2
-> 
-> Finally, 2.4.31-lck1 has the O(1) scheduler. This is the "base" patch
-> for 2.4.31-lck1, which has O(1) but also has "kernel preemption, low
-> latency and CK interactivity":
-> http://www.plumlocosoft.com/kernel/patches/2.4/2.4.31/2.4.31-lck1/components/010-lckbase.diff.bz2
-> 
-> It's probably the most recent forward-port of the O(1) patch, and it's
-> probably going to be the smallest diff to look through as well, if you
-> want to cherry-pick it out and make it work on 2.4.32 or 2.4.33-pre.
+If CONFIG_DEBUG_PAGEALLOC is also set, the kernel will remap the page when
+it's allocated and everything works OK.  So this patch requires
+CONFIG_DEBUG_PAGEALLOC.
 
-I have not time to spend digging through the diff, but I can link to
-it. It clearly is the most recent version amongst all those we have
-seen.
+But if CONFIG_DEBUG_PAGEALLOC is set, we'll have unmapped that page in
+free_page() _anyway_, so why bother using this patch?
 
-> (I don't think I'll be doing this, however. The boxes I manage that
-> would greatly benefit from O(1) will probably move to kernel 2.6 soon
-> for other reasons anyway.)
-> --
-> -Barry K. Nathan <barryn@pobox.com>
+The only enhancement I can think of here is to not free the page, so it's
+permanently leaked and permanently unmapped.
 
-Thanks for your investigation,
-Willy
+--- devel/arch/i386/mm/init.c~i386-instead-of-poisoning-init-zone-change-protection-fix	2006-02-04 14:33:33.000000000 -0800
++++ devel-akpm/arch/i386/mm/init.c	2006-02-04 14:34:07.000000000 -0800
+@@ -751,11 +751,15 @@ void free_init_pages(char *what, unsigne
+ 		ClearPageReserved(virt_to_page(addr));
+ 		set_page_count(virt_to_page(addr), 1);
+ #ifdef CONFIG_DEBUG_INITDATA
++		/*
++		 * Unmap the page, and leak it.  So any further accesses will
++		 * oops.
++		 */
+ 		change_page_attr(virt_to_page(addr), 1, __pgprot(0));
+ #else
+ 		memset((void *)addr, 0xcc, PAGE_SIZE);
+-#endif
+ 		free_page(addr);
++#endif
+ 		totalram_pages++;
+ 	}
+ 	printk(KERN_INFO "Freeing %s: %ldk freed\n", what, (end - begin) >> 10);
+_
+
+But is there much point in doing this?  Does it offer much more than
+CONFIG_DEBUG_PAGEALLOC?
 

@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946146AbWBEAAZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946152AbWBEABo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946146AbWBEAAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 19:00:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946152AbWBEAAZ
+	id S1946152AbWBEABo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 19:01:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030218AbWBEABo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 19:00:25 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2571 "EHLO
+	Sat, 4 Feb 2006 19:01:44 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:4107 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1946146AbWBEAAZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 19:00:25 -0500
-Date: Sun, 5 Feb 2006 00:00:06 +0000
+	id S1030216AbWBEABn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 19:01:43 -0500
+Date: Sun, 5 Feb 2006 00:01:36 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Glen Turner <glen.turner@aarnet.edu.au>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 8250 serial console fixes -- issue
-Message-ID: <20060205000006.GD24887@flint.arm.linux.org.uk>
-Mail-Followup-To: Krzysztof Halasa <khc@pm.waw.pl>,
-	Glen Turner <glen.turner@aarnet.edu.au>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-References: <1138844838.5557.17.camel@localhost.localdomain> <43E2B8D6.1070707@aarnet.edu.au> <20060203094042.GB30738@flint.arm.linux.org.uk> <43E36850.5030900@aarnet.edu.au> <20060203160218.GA27452@flint.arm.linux.org.uk> <43E38E00.301@aarnet.edu.au> <20060203222340.GB10700@flint.arm.linux.org.uk> <m3irrvdrnm.fsf@defiant.localdomain> <20060204231637.GB24887@flint.arm.linux.org.uk> <m3irrud6ic.fsf@defiant.localdomain>
+To: Hirokazu Takata <takata@linux-m32r.org>
+Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org,
+       linuxppc-dev@ozlabs.org, pfg@sgi.com
+Subject: Re: [CFT] Don't use ASYNC_* nor SERIAL_IO_* with serial_core
+Message-ID: <20060205000136.GF24887@flint.arm.linux.org.uk>
+Mail-Followup-To: Hirokazu Takata <takata@linux-m32r.org>,
+	linux-kernel@vger.kernel.org, linux-mips@linux-mips.org,
+	linuxppc-dev@ozlabs.org, pfg@sgi.com
+References: <20060121211407.GA19984@dyn-67.arm.linux.org.uk> <20060202102721.GE5034@flint.arm.linux.org.uk> <20060202.231033.1059963967.takata.hirokazu@renesas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m3irrud6ic.fsf@defiant.localdomain>
+In-Reply-To: <20060202.231033.1059963967.takata.hirokazu@renesas.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 05, 2006 at 12:54:51AM +0100, Krzysztof Halasa wrote:
-> BTW I think you know all of this very well for years.
+On Thu, Feb 02, 2006 at 11:10:33PM +0900, Hirokazu Takata wrote:
+> On m32r,
+>   compile and boot test: OK
 
-Sorry, with comments like that I'm not interested anymore.
+Is that an Acked-by ?
 
 -- 
 Russell King

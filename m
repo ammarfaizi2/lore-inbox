@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbWBEC5J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWBEC7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030218AbWBEC5J (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 21:57:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030252AbWBEC5J
+	id S932296AbWBEC7c (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 21:59:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWBEC7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 21:57:09 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:13211 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030218AbWBEC5I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 21:57:08 -0500
-Date: Sat, 4 Feb 2006 18:56:46 -0800
-From: Paul Jackson <pj@sgi.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: marc@osknowledge.org, dtor_core@ameritech.net, rlrevell@joe-job.com,
-       76306.1226@compuserve.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       rdunlap@xenotime.net
-Subject: Re: Wanted: hotfixes for -mm kernels
-Message-Id: <20060204185646.f8e4e53e.pj@sgi.com>
-In-Reply-To: <20060204083752.a5c5b058.mbligh@mbligh.org>
-References: <200602021502_MC3-1-B772-547@compuserve.com>
-	<1138913633.15691.109.camel@mindpipe>
-	<d120d5000602021345i255bb69eydb67bc1b0a448f8d@mail.gmail.com>
-	<20060203100703.GA5691@stiffy.osknowledge.org>
-	<20060204083752.a5c5b058.mbligh@mbligh.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Sat, 4 Feb 2006 21:59:32 -0500
+Received: from beauty.rexursive.com ([218.214.6.102]:22972 "EHLO
+	beauty.rexursive.com") by vger.kernel.org with ESMTP
+	id S932296AbWBEC7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 21:59:31 -0500
+Subject: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.
+From: Bojan Smojver <bojan@rexursive.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Suspend2 Devel List <suspend2-devel@lists.suspend2.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060204085301.GI3291@elf.ucw.cz>
+References: <200602030918.07006.nigel@suspend2.net>
+	 <20060203120055.0nu3ym4yuck0os84@imp.rexursive.com>
+	 <20060202171812.49b86721.akpm@osdl.org>
+	 <20060203124253.m6azcn4wg88gsogc@imp.rexursive.com>
+	 <20060203114948.GC2972@elf.ucw.cz>
+	 <1139010204.2191.14.camel@coyote.rexursive.com>
+	 <20060203235546.GB3291@elf.ucw.cz>
+	 <1139011559.2191.29.camel@coyote.rexursive.com>
+	 <20060204005310.GG3291@elf.ucw.cz>
+	 <1139015620.2191.39.camel@coyote.rexursive.com>
+	 <20060204085301.GI3291@elf.ucw.cz>
+Content-Type: text/plain
+Date: Sun, 05 Feb 2006 13:59:20 +1100
+Message-Id: <1139108360.11522.2.camel@coyote.rexursive.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.5.90 (2.5.90-1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do we need a place to put hotfix patches, or do we just need a list of
-links to lkml postings to said patches.  Such a list has the advantage
-of pointing into the discussion surrounding each such fix, and such a
-list has the advantage of not holding so much redundant data (these
-patches will be redundant with what was posted on lkml).  Redundant
-data out of context goes stale, and is less valuable.
+On Sat, 2006-02-04 at 09:53 +0100, Pavel Machek wrote:
 
-I can imagine someone (not me ;) keeping a wiki web page, listing for
-each *-mm and Linus release the particular lkml patch postings that one
-needs to pick off to get a build and boot.
+> In the end, it is important what is right, not what works. If you do
+> not understand that -- bad for you.
 
-Just brainstorming ...
+Uh, oh, I'm finally getting it now... People buy notebooks to use them
+as doorstops. And, the important things is to be right - yep, it's all
+coming together now :-)
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Bojan
+

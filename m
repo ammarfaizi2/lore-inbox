@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751749AbWBEM4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751754AbWBEM57@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751749AbWBEM4N (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 07:56:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751754AbWBEM4N
+	id S1751754AbWBEM57 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 07:57:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751755AbWBEM57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 07:56:13 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:1765 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751749AbWBEM4M (ORCPT
+	Sun, 5 Feb 2006 07:57:59 -0500
+Received: from khc.piap.pl ([195.187.100.11]:1292 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1751754AbWBEM56 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 07:56:12 -0500
-Date: Sun, 5 Feb 2006 13:56:10 +0100
-From: Olaf Hering <olh@suse.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>
-Subject: Re: [PATCH] Fix build failure in recent pm_prepare_* changes.
-Message-ID: <20060205125610.GA26337@suse.de>
-References: <200602032312.k13NCDAc012658@hera.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <200602032312.k13NCDAc012658@hera.kernel.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Sun, 5 Feb 2006 07:57:58 -0500
+To: Glen Turner <glen.turner@aarnet.edu.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 8250 serial console fixes -- issue
+References: <1138844838.5557.17.camel@localhost.localdomain>
+	<43E2B8D6.1070707@aarnet.edu.au>
+	<20060203094042.GB30738@flint.arm.linux.org.uk>
+	<43E36850.5030900@aarnet.edu.au>
+	<20060203160218.GA27452@flint.arm.linux.org.uk>
+	<43E38E00.301@aarnet.edu.au>
+	<20060203222340.GB10700@flint.arm.linux.org.uk>
+	<m3irrvdrnm.fsf@defiant.localdomain>
+	<20060204231637.GB24887@flint.arm.linux.org.uk>
+	<m3irrud6ic.fsf@defiant.localdomain>
+	<20060205000006.GD24887@flint.arm.linux.org.uk>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sun, 05 Feb 2006 13:57:55 +0100
+In-Reply-To: <20060205000006.GD24887@flint.arm.linux.org.uk> (Russell King's message of "Sun, 5 Feb 2006 00:00:06 +0000")
+Message-ID: <m37j8aeze4.fsf@defiant.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Fri, Feb 03, Linux Kernel Mailing List wrote:
+Russell King <rmk+lkml@arm.linux.org.uk> writes:
 
-> tree 8f70444139c8564c0f1e88e1f33adda036ae6a96
-> parent 278ff9537030bbb292b33504f5e1f6e0126793eb
-> author Dave Jones <davej@redhat.com> Fri, 03 Feb 2006 19:03:44 -0800
-> committer Linus Torvalds <torvalds@g5.osdl.org> Sat, 04 Feb 2006 00:32:00 -0800
-> 
-> [PATCH] Fix build failure in recent pm_prepare_* changes.
-> 
-> kernel/power/power.h:49: error: static declaration of 'pm_prepare_console' follows non-static declaration
-> include/linux/suspend.h:46: error: previous declaration of 'pm_prepare_console' was here
-> kernel/power/power.h:50: error: static declaration of 'pm_restore_console' follows non-static declaration
-> include/linux/suspend.h:47: error: previous declaration of 'pm_restore_console' was here
-> 
-> Signed-off-by: Dave Jones <davej@redhat.com>
+>> BTW I think you know all of this very well for years.
+>
+> Sorry, with comments like that I'm not interested anymore.
 
-this one is not correct, please have a closer look at
-f7b8988ff50d99c99746f65f420364e91362c065
-
-  CC      drivers/macintosh/via-pmu.o
-drivers/macintosh/via-pmu.c: In function 'pmac_suspend_devices':
-drivers/macintosh/via-pmu.c:2078: error: implicit declaration of function 'pm_prepare_console'
-drivers/macintosh/via-pmu.c: In function 'pmac_wakeup_devices':
-drivers/macintosh/via-pmu.c:2194: error: implicit declaration of function 'pm_restore_console'
-make[2]: *** [drivers/macintosh/via-pmu.o] Error 1
-
-
-
+No offense intended, I just thought you were using this stuff (in the
+BBSes era etc.). I must have been wrong then.
 -- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+Krzysztof Halasa

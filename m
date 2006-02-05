@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751767AbWBEPis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751769AbWBEPj6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751767AbWBEPis (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 10:38:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751769AbWBEPis
+	id S1751769AbWBEPj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 10:39:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751770AbWBEPj6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 10:38:48 -0500
-Received: from vbn.0050556.lodgenet.net ([216.142.194.234]:48011 "EHLO
-	vbn.0050556.lodgenet.net") by vger.kernel.org with ESMTP
-	id S1751767AbWBEPir (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 10:38:47 -0500
-Subject: Re: [PATCH ]  VMSPLIT config options (with default config fixed)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Mark Lord <lkml@rtr.ca>, Ulrich Mueller <ulm@kph.uni-mainz.de>,
-       Herbert Poetzl <herbert@13thfloor.at>, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Byron Stanoszek <gandalf@winds.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0602041204490.30014@yvahk01.tjqt.qr>
-References: <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de>
-	 <Pine.LNX.4.63.0601100840400.9511@winds.org>
-	 <20060110143931.GM3389@suse.de>
-	 <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org> <43C3E9C2.1000309@rtr.ca>
-	 <20060110173217.GU3389@suse.de> <43C3F0CA.10205@rtr.ca>
-	 <43C403BA.1050106@pobox.com> <43C40803.2000106@rtr.ca>
-	 <20060201222314.GA26081@MAIL.13thfloor.at>
-	 <uhd7irpi7@a1i15.kph.uni-mainz.de>
-	 <Pine.LNX.4.61.0602022144190.30391@yvahk01.tjqt.qr>
-	 <43E3DB99.9020604@rtr.ca>
-	 <Pine.LNX.4.61.0602041204490.30014@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Sun, 05 Feb 2006 16:38:33 +0100
-Message-Id: <1139153913.3131.42.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 5 Feb 2006 10:39:58 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:45282 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751769AbWBEPj5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 10:39:57 -0500
+Message-ID: <43E61C47.8070905@watson.ibm.com>
+Date: Sun, 05 Feb 2006 10:39:51 -0500
+From: Hubertus Franke <frankeh@watson.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kirill Korotaev <dev@sw.ru>
+CC: Greg KH <greg@kroah.com>, Dave Hansen <haveblue@us.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       clg@fr.ibm.com, alan@lxorguk.ukuu.org.uk, serue@us.ibm.com,
+       arjan@infradead.org, Rik van Riel <riel@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
+       Pavel Emelianov <xemul@sw.ru>
+Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
+References: <43E38BD1.4070707@openvz.org> <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org> <43E3915A.2080000@sw.ru> <Pine.LNX.4.64.0602030939250.4630@g5.osdl.org> <1138991641.6189.37.camel@localhost.localdomain> <20060203201945.GA18224@kroah.com> <43E3BE66.6050200@watson.ibm.com> <43E615BA.1080402@sw.ru>
+In-Reply-To: <43E615BA.1080402@sw.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-02-04 at 12:05 +0100, Jan Engelhardt wrote:
-> >
-> > Mmm.. bad idea.  As much as I'd like the default to be 3GB_OPT, that would
-> > be a big impact to userspace, and there's no point in breaking everyone's
-> > machines when advanced users can just reconfig/recompile to get what they want.
-> >
-> What userspace programs do depend on it?
+Kirill Korotaev wrote:
+>> How do we want to create the container?
+>> In our patch we did it through a /proc/container filesystem.
+>> Which created the container object and then on fork/exec switched over.
+> 
+> this doesn't look good for a full virtualization solution, since proc 
+> should be virtualized as well :)
 
-there is a lot of userspace that assumes they can do 2Gb or even close
-to 3Gb of memory allocations. Databases, java, basically anything with
-threads. Sure for most of these its a configuration option to reduce
-this, but that still doesn't mean it's a good idea to change from the
-existing behavior...
- 
+Just lazy's man's development version of a faked sys_call to create the container
+without having to go through all architectures ...
+Nothing permanent..
+
+
+> 
+>> How about an additional sys_exec_container( exec_args + 
+>> "container_name").
+>> This does all the work like exec, but creates new container
+>> with name "..." and attaches task to new container.
+>> If name exists, an error -EEXIST will be raised !
+> 
+> Why do you need exec?
+
+(a) how do you create/destroy a container
+(b) how do you attach yourself to it?
+
+-- Hubertus
 

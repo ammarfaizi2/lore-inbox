@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWBEVw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWBEVy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbWBEVw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 16:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWBEVw4
+	id S1750750AbWBEVy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 16:54:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWBEVy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 16:52:56 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24232 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750749AbWBEVw4 (ORCPT
+	Sun, 5 Feb 2006 16:54:58 -0500
+Received: from fisica.ufpr.br ([200.17.209.129]:25224 "EHLO fisica.ufpr.br")
+	by vger.kernel.org with ESMTP id S1750750AbWBEVy6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 16:52:56 -0500
-Date: Sun, 5 Feb 2006 22:49:22 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH, RFC] Driver for reading HP laptop LCD brightness
-Message-ID: <20060205214922.GA3681@elf.ucw.cz>
-References: <20060205135517.GA21795@srcf.ucam.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060205135517.GA21795@srcf.ucam.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sun, 5 Feb 2006 16:54:58 -0500
+To: linux-kernel@vger.kernel.org
+Subject: nfsroot doesn't work with intel card since 2.6.12.2/2.6.11
+Message-Id: <20060205215455.7622B1C8E46@fisica.ufpr.br>
+Date: Sun,  5 Feb 2006 19:54:55 -0200 (BRST)
+From: carlos@fisica.ufpr.br (Carlos Carvalho)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+We have several machines with Intel Corp. 82544EI Gigabit Ethernet
+Controller (Copper) (rev 02), as reported by lspci. They don't manage
+to mount the rootfs via nfs anymore. I've tried several combinations
+and the last one that works is 2.6.12.2 using the 2.6.11 version of
+the driver (simply replacing the files in the tree). 2.6.12.2 with its
+own driver doesn't work.
 
-> The attached patch provides a sysfs mechanism for reading the LCD 
-> brightness on HP laptops. Since there's no clean way to determine 
-> whether a machine is a laptop or not from within the kernel (this 
-> information is in the DMI tables, but we don't currently export the 
-> chassis field), it does nothing until userspace has enabled it.
+There seems to be a pattern: at each version the machine has more
+difficulty mounting the rootfs. Other machines using other ethercards
+but with the same server and filesystem work normally.
 
-Can you fix the DMI code to export chasis, then?
+This is a showstopper for us since we cannot upgrade the kernel.
 
-> Right now, I'm looking for comments on how to integrate it sensibly - 
-> leaving it under drivers/misc and registering it as a platform device 
-> /works/, but isn't terribly clean.
+The same problem happens with 2.4, and the last combination that
+manages to boot is 2.4.32-pre1 with the 2.4.30 driver.
 
-Lots of handhelds ave brightness settings, and it is *very* important
-there. Perhaps you could use same interface?
-								Pavel
--- 
-Thanks, Sharp!
+Any hints?

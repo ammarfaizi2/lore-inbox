@@ -1,133 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWBELhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751715AbWBELl2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWBELhY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 06:37:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbWBELhY
+	id S1751715AbWBELl2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 06:41:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751714AbWBELl2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 06:37:24 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59334 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750747AbWBELhY (ORCPT
+	Sun, 5 Feb 2006 06:41:28 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:39844 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750764AbWBELl1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 06:37:24 -0500
-Date: Sun, 5 Feb 2006 12:37:08 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: [patch] suspend: update documentation
-Message-ID: <20060205113708.GA2965@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 5 Feb 2006 06:41:27 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [PATCH -mm] swsusp: freeze user space processes first
+Date: Sun, 5 Feb 2006 12:39:52 +0100
+User-Agent: KMail/1.9.1
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, nigel@suspend2.net
+References: <200602051014.43938.rjw@sisk.pl> <200602051211.07103.rjw@sisk.pl> <20060205111815.GG1790@elf.ucw.cz>
+In-Reply-To: <20060205111815.GG1790@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200602051239.53175.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This updates documentation for swsusp / suspend-to-RAM. Parts by Rafael.
+On Sunday 05 February 2006 12:18, Pavel Machek wrote:
+> On Ne 05-02-06 12:11:06, Rafael J. Wysocki wrote:
+> > On Sunday 05 February 2006 11:50, Ingo Molnar wrote:
+> > > 
+> > > * Rafael J. Wysocki <rjw@sisk.pl> wrote:
+> > > 
+> > > > > The logic in that loop makes my brain burst.
+> > > > > 
+> > > > > What happens if a process does vfork();sleep(100000000)?
+> > > > 
+> > > > The freezing of processes will fail due to the timeout.
+> > > > 
+> > > > Without the if (!p->vfork_done) it would fail too, because the child 
+> > > > would be frozen and the parent would wait for the vfork completion in 
+> > > > the TASK_UNINTERRUPTIBLE state (ie. unfreezeable).  But in that case 
+> > > > we have a race between the "freezer" and the child process (ie. if the 
+> > > > child gets frozen before it completes the vfork completion, the paret 
+> > > > will be unfreezeable) which sometimes leads to a failure when it 
+> > > > should not.  [We have a test case showing this.]
+> > > 
+> > > then i'd suggest to change the vfork implementation to make this code 
+> > > freezable.
+> > 
+> > I think you are right, but I don't know how to do this.
+> > 
+> > > Nothing that userspace does should cause freezing to fail.   If it does,
+> > > we've designed things incorrectly on the kernel side. 
+> > 
+> > I tend to agree.
+> > 
+> > Generally, the problem is due to the use of completions where userland
+> > processes are waited for.  The two places I know of are the vfork
+> > implementation and the usermode helper code.
+> 
+> Can you produce userland testcase? If we have uninterruptible process for
+> days... that's a bug in kernel, suspend or not.
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+Sure, no problem.  [Pretty scary, no?]
 
-diff --git a/Documentation/power/swsusp.txt b/Documentation/power/swsusp.txt
-index b28b7f0..96bbe61 100644
---- a/Documentation/power/swsusp.txt
-+++ b/Documentation/power/swsusp.txt
-@@ -27,19 +27,18 @@ echo shutdown > /sys/power/disk; echo di
- 
- echo platform > /sys/power/disk; echo disk > /sys/power/state
- 
-+. If you have SATA disks, you'll need recent kernels with SATA suspend
-+support. For suspend and resume to work, make sure your disk drivers
-+are built into kernel -- not modules. [There's way to make
-+suspend/resume with modular disk drivers, see FAQ, but you probably
-+should not do that.]
-+
- If you want to limit the suspend image size to N bytes, do
- 
- echo N > /sys/power/image_size
- 
- before suspend (it is limited to 500 MB by default).
- 
--Encrypted suspend image:
--------------------------
--If you want to store your suspend image encrypted with a temporary
--key to prevent data gathering after resume you must compile
--crypto and the aes algorithm into the kernel - modules won't work
--as they cannot be loaded at resume time.
--
- 
- Article about goals and implementation of Software Suspend for Linux
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-@@ -333,4 +332,19 @@ init=/bin/bash, then swapon and starting
- usually does the trick. Then it is good idea to try with latest
- vanilla kernel.
- 
-+Q: How can distributions ship a swsusp-supporting kernel with modular
-+disk drivers (especially SATA)?
-+
-+A: Well, it can be done, load the drivers, then do echo into
-+/sys/power/disk/resume file from initrd. Be sure not to mount
-+anything, not even read-only mount, or you are going to lose your
-+data.
-+
-+Q: How do I make suspend more verbose?
-+
-+A: If you want to see any non-error kernel messages on the virtual
-+terminal the kernel switches to during suspend, you have to set the
-+kernel console loglevel to at least 4 (KERN_WARNING), for example by
-+doing
- 
-+	echo 4 > /proc/sys/kernel/printk
-diff --git a/Documentation/power/video.txt b/Documentation/power/video.txt
-index 912bed8..0cd8822 100644
---- a/Documentation/power/video.txt
-+++ b/Documentation/power/video.txt
-@@ -104,6 +104,7 @@ HP NX7000			??? (*)
- HP Pavilion ZD7000		vbetool post needed, need open-source nv driver for X
- HP Omnibook XE3	athlon version	none (1)
- HP Omnibook XE3GC		none (1), video is S3 Savage/IX-MV
-+HP Omnibook 5150		none (1), (S1 also works OK)
- IBM TP T20, model 2647-44G	none (1), video is S3 Inc. 86C270-294 Savage/IX-MV, vesafb gets "interesting" but X work.
- IBM TP A31 / Type 2652-M5G      s3_mode (3) [works ok with BIOS 1.04 2002-08-23, but not at all with BIOS 1.11 2004-11-05 :-(]
- IBM TP R32 / Type 2658-MMG      none (1)
-@@ -120,18 +121,24 @@ IBM ThinkPad T42p (2373-GTG)	s3_bios (2)
- IBM TP X20			??? (*)
- IBM TP X30			s3_bios (2)
- IBM TP X31 / Type 2672-XXH      none (1), use radeontool (http://fdd.com/software/radeon/) to turn off backlight.
--IBM TP X32			none (1), but backlight is on and video is trashed after long suspend
-+IBM TP X32			none (1), but backlight is on and video is trashed after long suspend. s3_bios,s3_mode (4) works too. Perhaps that gets better results?
- IBM Thinkpad X40 Type 2371-7JG  s3_bios,s3_mode (4)
-+IBM TP 600e			none(1), but a switch to console and back to X is needed
- Medion MD4220			??? (*)
- Samsung P35			vbetool needed (6)
--Sharp PC-AR10 (ATI rage)	none (1)
-+Sharp PC-AR10 (ATI rage)	none (1), backlight does not switch off
- Sony Vaio PCG-C1VRX/K		s3_bios (2)
- Sony Vaio PCG-F403		??? (*)
-+Sony Vaio PCG-GRT995MP		none (1), works with 'nv' X driver
-+Sony Vaio PCG-GR7/K		none (1), but needs radeonfb, use radeontool (http://fdd.com/software/radeon/) to turn off backlight.
- Sony Vaio PCG-N505SN		??? (*)
- Sony Vaio vgn-s260		X or boot-radeon can init it (5)
-+Sony Vaio vgn-S580BH		vga=normal, but suspend from X. Console will be blank unless you return to X. 
-+Sony Vaio vgn-FS115B		s3_bios (2),s3_mode (4)
- Toshiba Libretto L5		none (1)
--Toshiba Satellite 4030CDT	s3_mode (3)
--Toshiba Satellite 4080XCDT      s3_mode (3)
-+Toshiba Portege 3020CT		s3_mode (3)
-+Toshiba Satellite 4030CDT	s3_mode (3) (S1 also works OK)
-+Toshiba Satellite 4080XCDT      s3_mode (3) (S1 also works OK)
- Toshiba Satellite 4090XCDT      ??? (*)
- Toshiba Satellite P10-554       s3_bios,s3_mode (4)(****)
- Toshiba M30                     (2) xor X with nvidia driver using internal AGP
-@@ -156,6 +163,9 @@ VBEtool details
- ~~~~~~~~~~~~~~~
- (with thanks to Carl-Daniel Hailfinger)
- 
-+This is not a generic solution. For some machines, you'll have better
-+luck with setting parameters on kernel command line.
-+
- First, boot into X and run the following script ONCE:
- #!/bin/bash
- statedir=/root/s3/state
+The test code:
 
--- 
-Thanks, Sharp!
+#include <sys/types.h>
+#include <unistd.h>
+
+int main(int argc, char *argv[])
+{
+	vfork();
+	sleep(300);
+
+	return 0;
+}
+
+The result:
+
+rafael@albercik:~/programming/c> ./vfork_test &
+[1] 12288
+rafael@albercik:~/programming/c> ps l
+F   UID   PID  PPID PRI  NI    VSZ   RSS WCHAN  STAT TTY        TIME COMMAND
+0   500  6937  6931  17   0  10048  2368 read_c Ss+  pts/1      0:00 /bin/bash
+0   500 12139 12133  15   0  10052  2380 wait   Ss   pts/2      0:00 /bin/bash
+0   500 12288 12139  15   0   2420   304 fork   D    pts/2      0:00 ./vfork_tes
+1   500 12291 12288  18   0   2420   304 hrtime S    pts/2      0:00 ./vfork_tes
+0   500 12372 12139  15   0   3596   820 -      R+   pts/2      0:00 ps l
+rafael@albercik:~/programming/c> kill 12288
+rafael@albercik:~/programming/c> ps l
+F   UID   PID  PPID PRI  NI    VSZ   RSS WCHAN  STAT TTY        TIME COMMAND
+0   500  6937  6931  17   0  10048  2368 read_c Ss+  pts/1      0:00 /bin/bash
+0   500 12139 12133  15   0  10052  2380 wait   Ss   pts/2      0:00 /bin/bash
+0   500 12288 12139  15   0   2420   304 fork   D    pts/2      0:00 ./vfork_tes
+1   500 12291 12288  18   0   2420   304 hrtime S    pts/2      0:00 ./vfork_tes
+0   500 12380 12139  17   0   3600   820 -      R+   pts/2      0:00 ps l
+rafael@albercik:~/programming/c> kill -9 12288
+rafael@albercik:~/programming/c> ps l
+F   UID   PID  PPID PRI  NI    VSZ   RSS WCHAN  STAT TTY        TIME COMMAND
+0   500  6937  6931  17   0  10048  2368 read_c Ss+  pts/1      0:00 /bin/bash
+0   500 12139 12133  15   0  10052  2380 wait   Ss   pts/2      0:00 /bin/bash
+0   500 12288 12139  15   0   2420   304 fork   D    pts/2      0:00 ./vfork_tes
+1   500 12291 12288  18   0   2420   304 hrtime S    pts/2      0:00 ./vfork_tes
+0   500 12387 12139  16   0   3596   816 -      R+   pts/2      0:00 ps l
+rafael@albercik:~/programming/c>
+
+Greetings,
+Rafael

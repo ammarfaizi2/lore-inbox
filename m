@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946174AbWBEHHO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030278AbWBEHky@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946174AbWBEHHO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 02:07:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946175AbWBEHHO
+	id S1030278AbWBEHky (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 02:40:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030279AbWBEHky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 02:07:14 -0500
-Received: from zlynx.org ([199.45.143.209]:8452 "EHLO 199.45.143.209")
-	by vger.kernel.org with ESMTP id S1946174AbWBEHHM (ORCPT
+	Sun, 5 Feb 2006 02:40:54 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:50389 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1030278AbWBEHkx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 02:07:12 -0500
-Message-ID: <43E5A408.90901@acm.org>
-Date: Sun, 05 Feb 2006 00:06:48 -0700
-From: Zan Lynx <zlynx@acm.org>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Sun, 5 Feb 2006 02:40:53 -0500
+Date: Sun, 5 Feb 2006 08:40:42 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+cc: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+In-Reply-To: <m3u0bfdtm4.fsf@defiant.localdomain>
+Message-ID: <Pine.LNX.4.61.0602050838110.6749@yvahk01.tjqt.qr>
+References: <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo>
+ <787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com>
+ <Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr> <20060202210949.GD10352@voodoo>
+ <43E27792.nail54V1B1B3Z@burner> <787b0d920602021827m4890fbf4j24d110dc656d2d3a@mail.gmail.com>
+ <43E374CF.nail5CAMKAKEV@burner> <20060203155349.GA9301@voodoo>
+ <20060203180421.GA57965@dspnet.fr.eu.org> <20060203183719.GB11241@voodoo>
+ <m3u0bfdtm4.fsf@defiant.localdomain>
 MIME-Version: 1.0
-To: Luke-Jr <luke@dashjr.org>
-CC: Christopher Friesen <cfriesen@nortel.com>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Ian Kester-Haney <ikesterhaney@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk> <1138906199.15691.54.camel@mindpipe> <43E25976.6090109@nortel.com> <200602050358.49454.luke@dashjr.org>
-In-Reply-To: <200602050358.49454.luke@dashjr.org>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luke-Jr wrote:
-> On Thursday 02 February 2006 19:11, Christopher Friesen wrote:
->   
->>  ship the binary blob as well as code that interfaces the binary
->> blob with the kernel, and the end-user compiles the code together and
->> loads it into the kernel, does that necessarily violate the GPL?
->>     
+>> It's not about device discovery, hald is polling removable devices every 2s
+>> to see if new media was inserted and when it polls a CD drive that's
+>> currently burning a disc it causes problems. It's documented in Debian bug
+>> #262678.
 >
-> The 'code that interfaces the binary blob with the kernel' would then be 
-> illegal, because the code cannot be both GPL and proprietary. If the code is 
-> GPL and acceptable for kernel-linking, then under the terms of the GPL, the 
-> code cannot link to a GPL-incompatible binary blob.
->   
-Not at all.  The linking interface code does not have to enforce GPL
-restrictions until it is linked to GPL code.  It could be BSD, for
-example, as much kernel code is.  BSD can link to binary blob without a
-problem.  BSD can link to GPL without a problem.  The final result is a
-undistributable bastard, but the end user will not be distributing.
+>Ok. So what's wrong with cdrecord using O_EXCL (and maybe retrying
+>for few seconds) so no other program (hald or, say, a user mistaking
+>a device) can interrupt it?
+>
+I would say we all forgot to RTFM. Because O_EXCL does nothing *unless* 
+O_CREAT is specified, which probably *is not* specified in cdrecord or 
+hal. There is no reason to have hal or cdrecord create a device node - 
+which you can't do with open() anyway.
 
-Taken as separate pieces, the code cannot be illegal.  It is only by
-arguing the intent to link to GPL code, and the distribution of the glue
-and proprietary together that there would even be the possibility of
-proving a license violation.  If that looked to be a possibility, all
-nVidia, or anyone else would have to do is publish only their binary
-blob along with instructions to third parties on how to create interface
-glue.  Such a kernel module, written by a third party, to published
-documentation, would clearly be an interface, not a link, and not
-something the GPL could apply to.
 
-So, you could _maybe_ stop people from directly providing proprietary
-binaries plus glue modules in the same package, but you could not
-prevent them from achieving the same result with a bit of extra effort.
+Jan Engelhardt
+-- 
+| Software Engineer and Linux/Unix Network Administrator
+| Alphagate Systems, http://alphagate.hopto.org/
+| jengelh's site, http://jengelh.hopto.org/

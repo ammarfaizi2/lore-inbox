@@ -1,81 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWBETus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWBEUKb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWBETus (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 14:50:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWBETus
+	id S1750709AbWBEUKb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 15:10:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbWBEUKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 14:50:48 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:31759 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750706AbWBETus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 14:50:48 -0500
-Date: Sun, 5 Feb 2006 20:50:46 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Dave Jones <davej@redhat.com>, Olaf Hering <olh@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH] Fix build failure in recent pm_prepare_* changes.
-Message-ID: <20060205195046.GD15767@stusta.de>
-References: <200602032312.k13NCDAc012658@hera.kernel.org> <20060205125610.GA26337@suse.de> <20060205190220.GB19458@redhat.com>
+	Sun, 5 Feb 2006 15:10:31 -0500
+Received: from relay02.roc.ny.frontiernet.net ([66.133.182.165]:37006 "EHLO
+	relay02.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S1750709AbWBEUKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 15:10:30 -0500
+Reply-To: <jbowler@acm.org>
+From: John Bowler <jbowler@acm.org>
+To: "'LKML'" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH 0/12] LED Class, Triggers and Drivers
+Date: Sun, 5 Feb 2006 12:10:27 -0800
+Message-ID: <001001c62a90$35171440$1001a8c0@kalmiopsis>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060205190220.GB19458@redhat.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <1139154718.6438.78.camel@localhost.localdomain>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 05, 2006 at 02:02:20PM -0500, Dave Jones wrote:
-> On Sun, Feb 05, 2006 at 01:56:10PM +0100, Olaf Hering wrote:
->  >  On Fri, Feb 03, Linux Kernel Mailing List wrote:
->  > 
->  > > tree 8f70444139c8564c0f1e88e1f33adda036ae6a96
->  > > parent 278ff9537030bbb292b33504f5e1f6e0126793eb
->  > > author Dave Jones <davej@redhat.com> Fri, 03 Feb 2006 19:03:44 -0800
->  > > committer Linus Torvalds <torvalds@g5.osdl.org> Sat, 04 Feb 2006 00:32:00 -0800
->  > > 
->  > > [PATCH] Fix build failure in recent pm_prepare_* changes.
->  > > 
->  > > kernel/power/power.h:49: error: static declaration of 'pm_prepare_console' follows non-static declaration
->  > > include/linux/suspend.h:46: error: previous declaration of 'pm_prepare_console' was here
->  > > kernel/power/power.h:50: error: static declaration of 'pm_restore_console' follows non-static declaration
->  > > include/linux/suspend.h:47: error: previous declaration of 'pm_restore_console' was here
->  > > 
->  > > Signed-off-by: Dave Jones <davej@redhat.com>
->  > 
->  > this one is not correct, please have a closer look at
->  > f7b8988ff50d99c99746f65f420364e91362c065
->  > 
->  >   CC      drivers/macintosh/via-pmu.o
->  > drivers/macintosh/via-pmu.c: In function 'pmac_suspend_devices':
->  > drivers/macintosh/via-pmu.c:2078: error: implicit declaration of function 'pm_prepare_console'
->  > drivers/macintosh/via-pmu.c: In function 'pmac_wakeup_devices':
->  > drivers/macintosh/via-pmu.c:2194: error: implicit declaration of function 'pm_restore_console'
->  > make[2]: *** [drivers/macintosh/via-pmu.o] Error 1
-> 
-> Strange, my ppc[64] builds compiled and linked without failure. I think perhaps
-> it's time I added -Werror-implicit-function-declaration to the Makefile.
->...
+From: Richard Purdie [mailto:rpurdie@rpsys.net]
+>This is an updated version of the LED class/subsystem. The main change
+>is the renamed API - I've settled on led_device -> led_classdev. Other
+>minor issues like the error cases in the timer trigger were also fixed.
 
-If it compiles and links and gcc guessed the prototype correctly 
-everything is fine. If it compiles and links and gcc guessed the 
-prototype wrongly, you have a hard to find runtime error...
+In the previous version 'frequency' for the timer trigger was actually
+half the period of the oscillation - the time in ms between each (on/off)
+state transition.
 
-I'd love to add this flag to the global Makefile, but Andrew always 
-rejected it because it turns link errors into compile errors (sic) 
-breaking his powerpc all*config builds due to virt_to_bus/bus_to_virt. 
-But then he rejected to mark virt_to_bus/bus_to_virt as __deprecated on 
-i386 because it currently generates some warnings...  :-(
+In this version 'frequency' is the frequency of the oscillation in Hz.
 
-> 		Dave
+That creates a big problem for me because the value is parsed as an
+integer and I can no longer achieve slow flash rates (<1Hz).  Since I
+have to be able to do this I made a fairly crude patch to store the
+frequency in mHz, not Hz, and to handle a decimal point in the value.
 
-cu
-Adrian
+Possible fixes:
 
--- 
+1) Use 'period' not 'frequency' and accept a value in ms (as before,
+   but with the off-by-2 error corrected.)
+2) Use 'mark' and 'space' or 'time_on', 'time_off' or something similar
+   and remove 'duty' (I *do* need flashing with duty cycle != 0.5)
+3) Accept fractional frequency (as in my patch).
+4) Provide both period and frequency as integers and accept that
+   long period flashs will come out as frequency '1' (but the period
+   would still need to be in ms, because periods about 1500ms are of
+   significant utility.)
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+John Bowler <jbowler@acm.org>
 

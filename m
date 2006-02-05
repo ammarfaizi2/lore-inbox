@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWBEC7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbWBEDGt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932296AbWBEC7c (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 21:59:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWBEC7c
+	id S932392AbWBEDGt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 22:06:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbWBEDGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 21:59:32 -0500
-Received: from beauty.rexursive.com ([218.214.6.102]:22972 "EHLO
+	Sat, 4 Feb 2006 22:06:49 -0500
+Received: from beauty.rexursive.com ([218.214.6.102]:27068 "EHLO
 	beauty.rexursive.com") by vger.kernel.org with ESMTP
-	id S932296AbWBEC7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 21:59:31 -0500
+	id S932392AbWBEDGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 22:06:49 -0500
 Subject: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.
 From: Bojan Smojver <bojan@rexursive.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Suspend2 Devel List <suspend2-devel@lists.suspend2.net>,
+To: Harald Arnesen <harald@skogtun.org>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20060204085301.GI3291@elf.ucw.cz>
+In-Reply-To: <87acd72pib.fsf@basilikum.skogtun.org>
 References: <200602030918.07006.nigel@suspend2.net>
 	 <20060203120055.0nu3ym4yuck0os84@imp.rexursive.com>
 	 <20060202171812.49b86721.akpm@osdl.org>
@@ -25,24 +26,24 @@ References: <200602030918.07006.nigel@suspend2.net>
 	 <1139011559.2191.29.camel@coyote.rexursive.com>
 	 <20060204005310.GG3291@elf.ucw.cz>
 	 <1139015620.2191.39.camel@coyote.rexursive.com>
-	 <20060204085301.GI3291@elf.ucw.cz>
+	 <20060204085301.GI3291@elf.ucw.cz>  <87acd72pib.fsf@basilikum.skogtun.org>
 Content-Type: text/plain
-Date: Sun, 05 Feb 2006 13:59:20 +1100
-Message-Id: <1139108360.11522.2.camel@coyote.rexursive.com>
+Date: Sun, 05 Feb 2006 14:06:45 +1100
+Message-Id: <1139108806.11522.5.camel@coyote.rexursive.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.5.90 (2.5.90-1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-02-04 at 09:53 +0100, Pavel Machek wrote:
+On Sat, 2006-02-04 at 14:59 +0100, Harald Arnesen wrote:
 
-> In the end, it is important what is right, not what works. If you do
-> not understand that -- bad for you.
+> It what is right doesn't work, it's not much use, is it?
 
-Uh, oh, I'm finally getting it now... People buy notebooks to use them
-as doorstops. And, the important things is to be right - yep, it's all
-coming together now :-)
+Of course it is. Your *notebook* isn't of much use, but you can post on
+various lists claiming that you're right, which then compensates for
+your notebook not working. Life is a serious of trade-offs, isn't
+it? ;-)
 
 -- 
 Bojan

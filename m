@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751743AbWBEM3P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751738AbWBEMwq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751743AbWBEM3P (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 07:29:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751745AbWBEM3P
+	id S1751738AbWBEMwq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 07:52:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751727AbWBEMwq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 07:29:15 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:15070 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1751733AbWBEM3P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 07:29:15 -0500
-Subject: Re: [RFT/PATCH] slab: consolidate allocation paths
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Paul Jackson <pj@sgi.com>
-Cc: christoph@lameter.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       manfred@colorfullife.com
-In-Reply-To: <20060204180026.b68e9476.pj@sgi.com>
-References: <1139060024.8707.5.camel@localhost>
-	 <Pine.LNX.4.62.0602040709210.31909@graphe.net>
-	 <1139070369.21489.3.camel@localhost> <1139070779.21489.5.camel@localhost>
-	 <20060204180026.b68e9476.pj@sgi.com>
-Date: Sun, 05 Feb 2006 14:29:12 +0200
-Message-Id: <1139142552.11782.15.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.2.1 
+	Sun, 5 Feb 2006 07:52:46 -0500
+Received: from math.ut.ee ([193.40.36.2]:30434 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S1750790AbWBEMwp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 07:52:45 -0500
+Date: Sun, 5 Feb 2006 14:52:33 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: psmouse starts losing sync in 2.6.16-rc2
+Message-ID: <Pine.SOC.4.61.0602051443460.17326@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-02-04 at 18:00 -0800, Paul Jackson wrote:
->   1) This patch increased the text size of mm/slab.o by 776
->      bytes (ia64 sn2_defconfig gcc 3.3.3), which should be
->      justified.  My naive expectation would have been that
->      such a source code consolidation patch would be text
->      size neutral, or close to it.
+This is 2.6.16-rc2 on a generic PC - Gigabyte 7ZXE mainboard with AMD 
+Duron 1300, 896M RAM, PS2/keyboard, PS/2 mouse, ATA disk, 2 PCI NICs 
+(rtl8139c), Matrox AGP Graphics, BT878 TV card. There were no psmouse 
+probmes with up to 2.6.15. 2.6.16-rc1 not tested since iptables was 
+broken.
 
-I have a version of the patch now that reduces text size on NUMA. You
-can find it here (it won't apply on top of cpuset though):
+PNP: PS/2 Controller [PNP0303:PS2K,PNP0f03:PS2M] at 0x60,0x64 irq 1,12
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+mice: PS/2 mouse device common for all mice
+input: AT Translated Set 2 keyboard as /class/input/input0
+input: PC Speaker as /class/input/input1
+input: ImExPS/2 Generic Explorer Mouse as /class/input/input2
+[...]
+psmouse.c: resync failed, issuing reconnect request
+input: ImExPS/2 Generic Explorer Mouse as /class/input/input3
+psmouse.c: resync failed, issuing reconnect request
+input: ImExPS/2 Generic Explorer Mouse as /class/input/input4
+psmouse.c: resync failed, issuing reconnect request
+input: ImExPS/2 Generic Explorer Mouse as /class/input/input5
 
-http://www.cs.helsinki.fi/u/penberg/linux/penberg-2.6/penberg-01-slab/
+lsinput tells the following about the mouse:
+/dev/input/event2
+    bustype : BUS_I8042
+    vendor  : 0x2
+    product : 0x6
+    version : 0
+    name    : "ImExPS/2 Generic Explorer Mouse"
+    phys    : "isa0060/serio1/input0"
+    bits ev : EV_SYN EV_KEY EV_REL
 
-I'll wait until the cpuset patches have been settled down and repost.
+IIRC it's a Microsoft mouse with 5 buttons and a scrollwheel.
 
-			Pekka
+I have no idea what actual acivity caused these messages - the machine 
+was probably running movie playing with mplayer or tvtime during the 
+time the messages appeared, with about 2 hours between them.
 
+-- 
+Meelis Roos (mroos@linux.ee)

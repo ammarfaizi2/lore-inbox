@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWBEKwL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751706AbWBELEn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbWBEKwL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 05:52:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbWBEKwL
+	id S1751706AbWBELEn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 06:04:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751705AbWBELEn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 05:52:11 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:16581 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750744AbWBEKwK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 05:52:10 -0500
-Date: Sun, 5 Feb 2006 11:50:37 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, pavel@suse.cz,
-       nigel@suspend2.net
-Subject: Re: [PATCH -mm] swsusp: freeze user space processes first
-Message-ID: <20060205105037.GA26222@elte.hu>
-References: <200602051014.43938.rjw@sisk.pl> <20060205013859.60a6e5ab.akpm@osdl.org> <200602051134.19490.rjw@sisk.pl>
-Mime-Version: 1.0
+	Sun, 5 Feb 2006 06:04:43 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:46817 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP
+	id S1751449AbWBELEn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 06:04:43 -0500
+Date: Sun, 5 Feb 2006 12:04:43 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: Pawe? Zadr?g <p.zeddi@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to tune kernel to swap more often (video ram swap)
+Message-ID: <20060205110443.GA5693@stiffy.osknowledge.org>
+References: <b92f4fd10602050204g41f70f70p@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200602051134.19490.rjw@sisk.pl>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <b92f4fd10602050204g41f70f70p@mail.gmail.com>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.16-rc2-marc-g5b7b644c
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Pawe? Zadr?g <p.zeddi@gmail.com> [2006-02-05 11:04:25 +0100]:
 
-* Rafael J. Wysocki <rjw@sisk.pl> wrote:
-
-> > The logic in that loop makes my brain burst.
-> > 
-> > What happens if a process does vfork();sleep(100000000)?
+> Yo...
 > 
-> The freezing of processes will fail due to the timeout.
+> In normal case, using harddisk as a swap space i should ask how to cut
+> down swapping, or make swapping when idle, etc... My case is a little
+> bit diffrent... I have a 256MB video card, while 240MB of it is used
+> as a swap space. And the question is: how to tune kernel to swap more
+> often. I known swapped memory must be copied back to ram before beeing
+> used, so i'm looking for a reasonable tunning values...
 > 
-> Without the if (!p->vfork_done) it would fail too, because the child 
-> would be frozen and the parent would wait for the vfork completion in 
-> the TASK_UNINTERRUPTIBLE state (ie. unfreezeable).  But in that case 
-> we have a race between the "freezer" and the child process (ie. if the 
-> child gets frozen before it completes the vfork completion, the paret 
-> will be unfreezeable) which sometimes leads to a failure when it 
-> should not.  [We have a test case showing this.]
+> What do You think about that mighty list ?
 
-then i'd suggest to change the vfork implementation to make this code 
-freezable. Nothing that userspace does should cause freezing to fail.  
-If it does, we've designed things incorrectly on the kernel side.
+Try playing around with /proc/sys/vm/swappiness. If you google for
+'/proc/sys/vm/swappiness' you may find solutions on swapping.
 
-	Ingo
+Marc
+

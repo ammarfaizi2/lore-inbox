@@ -1,87 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751763AbWBEP1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751767AbWBEPis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751763AbWBEP1x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 10:27:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751765AbWBEP1x
+	id S1751767AbWBEPis (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 10:38:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751769AbWBEPis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 10:27:53 -0500
-Received: from smtp04.auna.com ([62.81.186.14]:30459 "EHLO smtp04.retemail.es")
-	by vger.kernel.org with ESMTP id S1751763AbWBEP1w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 10:27:52 -0500
-Date: Sun, 5 Feb 2006 16:32:54 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: linux-kernel@vger.kernel.org
+	Sun, 5 Feb 2006 10:38:48 -0500
+Received: from vbn.0050556.lodgenet.net ([216.142.194.234]:48011 "EHLO
+	vbn.0050556.lodgenet.net") by vger.kernel.org with ESMTP
+	id S1751767AbWBEPir (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 10:38:47 -0500
 Subject: Re: [PATCH ]  VMSPLIT config options (with default config fixed)
-Message-ID: <20060205163254.6fcebf79@werewolf.auna.net>
-In-Reply-To: <43E4B2C3.3040109@rtr.ca>
-References: <20060110132957.GA28666@elte.hu>
-	<20060110133728.GB3389@suse.de>
-	<Pine.LNX.4.63.0601100840400.9511@winds.org>
-	<20060110143931.GM3389@suse.de>
-	<Pine.LNX.4.64.0601100804380.4939@g5.osdl.org>
-	<43C3E9C2.1000309@rtr.ca>
-	<20060110173217.GU3389@suse.de>
-	<43C3F0CA.10205@rtr.ca>
-	<43C403BA.1050106@pobox.com>
-	<43C40803.2000106@rtr.ca>
-	<20060201222314.GA26081@MAIL.13thfloor.at>
-	<uhd7irpi7@a1i15.kph.uni-mainz.de>
-	<Pine.LNX.4.61.0602022144190.30391@yvahk01.tjqt.qr>
-	<43E3DB99.9020604@rtr.ca>
-	<Pine.LNX.4.61.0602041204490.30014@yvahk01.tjqt.qr>
-	<43E4B2C3.3040109@rtr.ca>
-X-Mailer: Sylpheed-Claws 2.0.0cvs9 (GTK+ 2.8.11; i686-pc-linux-gnu)
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Mark Lord <lkml@rtr.ca>, Ulrich Mueller <ulm@kph.uni-mainz.de>,
+       Herbert Poetzl <herbert@13thfloor.at>, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Byron Stanoszek <gandalf@winds.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0602041204490.30014@yvahk01.tjqt.qr>
+References: <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de>
+	 <Pine.LNX.4.63.0601100840400.9511@winds.org>
+	 <20060110143931.GM3389@suse.de>
+	 <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org> <43C3E9C2.1000309@rtr.ca>
+	 <20060110173217.GU3389@suse.de> <43C3F0CA.10205@rtr.ca>
+	 <43C403BA.1050106@pobox.com> <43C40803.2000106@rtr.ca>
+	 <20060201222314.GA26081@MAIL.13thfloor.at>
+	 <uhd7irpi7@a1i15.kph.uni-mainz.de>
+	 <Pine.LNX.4.61.0602022144190.30391@yvahk01.tjqt.qr>
+	 <43E3DB99.9020604@rtr.ca>
+	 <Pine.LNX.4.61.0602041204490.30014@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Date: Sun, 05 Feb 2006 16:38:33 +0100
+Message-Id: <1139153913.3131.42.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary=Sig_PZ6+42yK1z6fa4LysrqWnRX;
- protocol="application/pgp-signature"; micalg=PGP-SHA1
-X-Auth-Info: Auth:LOGIN IP:[83.138.209.184] Login:jamagallon@able.es Fecha:Sun, 5 Feb 2006 16:27:48 +0100
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Sig_PZ6+42yK1z6fa4LysrqWnRX
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
-
-On Sat, 04 Feb 2006 08:57:23 -0500, Mark Lord <lkml@rtr.ca> wrote:
-
-> Jan Engelhardt wrote:
+On Sat, 2006-02-04 at 12:05 +0100, Jan Engelhardt wrote:
 > >
-> > What userspace programs do depend on it?
->=20
-> That *is* the question, isn't it.
-> We simply don't know, other than that this is
-> a visible change to any program that cares.
->=20
-> Gratuitis breakage of userspace is pointless.
->=20
-> Empirically speaking, everything I use is working fine
-> here with the 2G/2G split, but that's just not good enough
-> reason to mindlessly break other people's userspace.
->=20
+> > Mmm.. bad idea.  As much as I'd like the default to be 3GB_OPT, that would
+> > be a big impact to userspace, and there's no point in breaking everyone's
+> > machines when advanced users can just reconfig/recompile to get what they want.
+> >
+> What userspace programs do depend on it?
 
-The only thing I have seen that depends explicitely on this setting
-is valgrind, but I think that CVS included some kind of runtime
-configuration/selection.
+there is a lot of userspace that assumes they can do 2Gb or even close
+to 3Gb of memory allocations. Databases, java, basically anything with
+threads. Sure for most of these its a configuration option to reduce
+this, but that still doesn't mean it's a good idea to change from the
+existing behavior...
+ 
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandriva Linux release 2006.1 (Cooker) for i586
-Linux 2.6.15-jam8 (gcc 4.0.2 (4.0.2-1mdk for Mandriva Linux release 2006.1))
-
---Sig_PZ6+42yK1z6fa4LysrqWnRX
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFD5hqmRlIHNEGnKMMRAjyCAKCcLQglcwTvQgibhOo9eoikGMTC3ACgiRup
-3aPfDJ6KqGT/I9AUknl2nSA=
-=Krgt
------END PGP SIGNATURE-----
-
---Sig_PZ6+42yK1z6fa4LysrqWnRX--

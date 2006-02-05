@@ -1,76 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWBECkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbWBEC5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbWBECkq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 21:40:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbWBECkp
+	id S1030218AbWBEC5J (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 21:57:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030252AbWBEC5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 21:40:45 -0500
-Received: from rwcrmhc11.comcast.net ([216.148.227.151]:51863 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S932289AbWBECkp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 21:40:45 -0500
-Message-ID: <43E56ACA.5050108@comcast.net>
-Date: Sat, 04 Feb 2006 22:02:34 -0500
-From: Ed Sweetman <safemode@comcast.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Albert Cahalan <acahalan@gmail.com>, linux-kernel@vger.kernel.org,
-       s0348365@sms.ed.ac.uk
-Subject: Re: athlon 64 dual core tsc out of sync
-References: <787b0d920602041224p660911b5mc4d639581736e96f@mail.gmail.com>	 <1139101243.2791.78.camel@mindpipe>	 <787b0d920602041745k65504414taaaef7f6d75b364c@mail.gmail.com> <1139105306.2791.83.camel@mindpipe>
-In-Reply-To: <1139105306.2791.83.camel@mindpipe>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 4 Feb 2006 21:57:09 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:13211 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030218AbWBEC5I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 21:57:08 -0500
+Date: Sat, 4 Feb 2006 18:56:46 -0800
+From: Paul Jackson <pj@sgi.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: marc@osknowledge.org, dtor_core@ameritech.net, rlrevell@joe-job.com,
+       76306.1226@compuserve.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       rdunlap@xenotime.net
+Subject: Re: Wanted: hotfixes for -mm kernels
+Message-Id: <20060204185646.f8e4e53e.pj@sgi.com>
+In-Reply-To: <20060204083752.a5c5b058.mbligh@mbligh.org>
+References: <200602021502_MC3-1-B772-547@compuserve.com>
+	<1138913633.15691.109.camel@mindpipe>
+	<d120d5000602021345i255bb69eydb67bc1b0a448f8d@mail.gmail.com>
+	<20060203100703.GA5691@stiffy.osknowledge.org>
+	<20060204083752.a5c5b058.mbligh@mbligh.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
+Do we need a place to put hotfix patches, or do we just need a list of
+links to lkml postings to said patches.  Such a list has the advantage
+of pointing into the discussion surrounding each such fix, and such a
+list has the advantage of not holding so much redundant data (these
+patches will be redundant with what was posted on lkml).  Redundant
+data out of context goes stale, and is less valuable.
 
->On Sat, 2006-02-04 at 20:45 -0500, Albert Cahalan wrote:
->  
->
->>You clearly haven't been paying attention. Lots of computers vary the
->>clock rate. They do this several ways. 
->>    
->>
->
->I certainly have been paying attention.  Most of these problems are
->theoretical.  In practice the only commonly used hardware where the TSC
->is so unreliable as to be unusable are dual core Athlons.
->
->Please check the jackit-devel (this app has tight RT constraints and
->used to use the TSC directly for timing so problems show up quickly)
->list for details - we have seen zero bug reports due to CPU frequency
->scaling issues, and TONS related to the Athlon X2.
->
->Lee
->
->  
->
+I can imagine someone (not me ;) keeping a wiki web page, listing for
+each *-mm and Linus release the particular lkml patch postings that one
+needs to pick off to get a build and boot.
 
-Actually my problem relates to both, seeing as how most people with 
-athlon x2's probably have cpufreq compiled and working concurrently, I'd 
-say they're pretty much tied together.  Though it's very much likely 
-that the architecture of the athlon x2 makes cpufreq cause timing issues.
+Just brainstorming ...
 
-
-I dont know of anyone who's had just the athlon x2 in smp mode without 
-cpufreq have these timing sync issues...  I could be mistaken, but every 
-message i've seen relating to X2's is "frequency has changed, blah blah 
-blah"  timing errors. 
-
-
-In any case it's been generally accepted that pm timer is suggested to 
-get around these errors, but i've been unable to use mine, there is no 
-config option in menuconfig/gconfig etc and my .config seems to show 
-that it's compiled in.   Boot args like timer=pmtmr and just pmtmr and 
-having nothing have resulted in the same dmesg output , with no mention 
-of using the pm-timer.   I know I used it in 2.6.14.3 and never had any 
-sync issues, my setup and config hasn't changed since then except for 
-the use of libata for pata.   So how can i determine what's going on 
-here?   Default or not, i'd like to get the pmtmr in use if it's what 
-works.
-
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,75 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbWBEBzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030253AbWBECAt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030257AbWBEBzL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 20:55:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030260AbWBEBzL
+	id S1030253AbWBECAt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 21:00:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030252AbWBECAt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 20:55:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:44209 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030257AbWBEBzJ (ORCPT
+	Sat, 4 Feb 2006 21:00:49 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:14304 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030253AbWBECAs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 20:55:09 -0500
-Date: Sat, 4 Feb 2006 17:54:11 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: steiner@sgi.com, dgc@sgi.com, Simon.Derr@bull.net, ak@suse.de,
-       linux-kernel@vger.kernel.org, clameter@sgi.com
-Subject: Re: [PATCH 2/5] cpuset memory spread page cache implementation and
- hooks
-Message-Id: <20060204175411.19ff4ffb.akpm@osdl.org>
-In-Reply-To: <20060204174252.9390ddc6.pj@sgi.com>
-References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
-	<20060204071915.10021.89936.sendpatchset@jackhammer.engr.sgi.com>
-	<20060204154953.35a0f63f.akpm@osdl.org>
-	<20060204174252.9390ddc6.pj@sgi.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 4 Feb 2006 21:00:48 -0500
+Date: Sat, 4 Feb 2006 18:00:26 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: christoph@lameter.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       manfred@colorfullife.com
+Subject: Re: [RFT/PATCH] slab: consolidate allocation paths
+Message-Id: <20060204180026.b68e9476.pj@sgi.com>
+In-Reply-To: <1139070779.21489.5.camel@localhost>
+References: <1139060024.8707.5.camel@localhost>
+	<Pine.LNX.4.62.0602040709210.31909@graphe.net>
+	<1139070369.21489.3.camel@localhost>
+	<1139070779.21489.5.camel@localhost>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
->
->  But I am not sure what you mean by "uninline for certain Kconfig
->  combinations."
+This consolidation patch looks ok to me on first read, though others
+are certainly more expert in this code than I am.  Certainly cleanup,
+ifdef reduction and consolidation of mm/slab.c is a worthwhile goal.
+That code is rough for folks like me to follow.
 
-This function:
+Two issues I can see:
 
-static inline struct page *page_cache_alloc(struct address_space *x)
-{
-	if (cpuset_mem_spread_check()) {
-		int n = cpuset_mem_spread_node();
-		return alloc_pages_node(n, mapping_gfp_mask(x), 0);
-	}
-	return alloc_pages(mapping_gfp_mask(x), 0);
-}
+  1) This patch increased the text size of mm/slab.o by 776
+     bytes (ia64 sn2_defconfig gcc 3.3.3), which should be
+     justified.  My naive expectation would have been that
+     such a source code consolidation patch would be text
+     size neutral, or close to it.
 
-Really has two forms, depending upon Kconfig.
+  2) You might want to hold off this patch for a few days,
+     until the dust settles from my memory spread patch.
 
-1:
-
-static inline struct page *page_cache_alloc(struct address_space *x)
-{
-	return alloc_pages(mapping_gfp_mask(x), 0);
-}
-
-That should be inlined.
-
-2:
-
-static inline struct page *page_cache_alloc(struct address_space *x)
-{
-	if (cpuset_mem_spread_check()) {
-		int n = cpuset_mem_spread_node();
-		return alloc_pages_node(n, mapping_gfp_mask(x), 0);
-	}
-	return alloc_pages(mapping_gfp_mask(x), 0);
-}
-
-That shouldn't be inlined.
-
-That's all.   One would have to fiddle a bit, work out how many callsites
-there are, gauge the impact on text size, etc.  page_cache_alloc() seems
-to have a single callsite, and page_cache_alloc_cold() four, so it's
-a quite minor issue.
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbWBEDSV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932576AbWBEDfs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932394AbWBEDSV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 22:18:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbWBEDSV
+	id S932576AbWBEDfs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 22:35:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbWBEDfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 22:18:21 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:29853 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932394AbWBEDSU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 22:18:20 -0500
-Date: Sat, 4 Feb 2006 19:18:03 -0800
-From: Paul Jackson <pj@sgi.com>
+	Sat, 4 Feb 2006 22:35:48 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:30345 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932576AbWBEDfr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 22:35:47 -0500
+Date: Sat, 4 Feb 2006 19:35:37 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: steiner@sgi.com, dgc@sgi.com, Simon.Derr@bull.net, ak@suse.de,
-       linux-kernel@vger.kernel.org, clameter@sgi.com
-Subject: Re: [PATCH 4/5] cpuset memory spread slab cache optimizations
-Message-Id: <20060204191803.10a3a4bb.pj@sgi.com>
-In-Reply-To: <20060204155019.47f313d7.akpm@osdl.org>
+cc: Paul Jackson <pj@sgi.com>, dgc@sgi.com, steiner@sgi.com,
+       Simon.Derr@bull.net, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+In-Reply-To: <20060204154944.36387a86.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.62.0602041929330.8874@schroedinger.engr.sgi.com>
 References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
-	<20060204071927.10021.75308.sendpatchset@jackhammer.engr.sgi.com>
-	<20060204155019.47f313d7.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+ <20060204154944.36387a86.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
-> perhaps a weaselly comment would cover that worry.
+On Sat, 4 Feb 2006, Andrew Morton wrote:
 
-Well ... the comment was there, but the problem with comments
-is no one reads them ;)
+> > +int cpuset_mem_spread_node(void)
+> > +{
+> > +	int node;
+> > +
+> > +	node = next_node(current->cpuset_mem_spread_rotor, current->mems_allowed);
+> > +	if (node == MAX_NUMNODES)
+> > +		node = first_node(current->mems_allowed);
+> > +	current->cpuset_mem_spread_rotor = node;
+> > +	return node;
+> > +}
+> 
+> hm.  What guarantees that a node which is in current->mems_allowed is still
+> online?
 
-+ * The task struct 'p' should either be current or a newly
-+ * forked child that is not visible on the task list yet.
-+ */
-+
-+void mpol_set_task_struct_flag(struct task_struct *p)
+If a node is not online then the slab allocator will fall back to the 
+local node. See kmem_cache_alloc_node.
+
+The page allocator will refer to the zonelist of the node that is offline. 
+Hmm... Isnt current->mems_allowed restricted by the available nodes?
 
 
-> this function's interface really does invite that
-> race and hence is not very good
 
-Agreed.  I'm still scratching my head coming up with a better way.
-
-Hmmm ... except for the call from fork, all calls to this are from
-within mm/mempolicy.c.  I could make the routine within mempolicy.c
-static, and provide an exported wrapper with a name like:
-
-	mpol_fix_fork_child_flag()
-
-that wrapped it.  With a name like that, there seems less risk of
-abusing this.
-
-Any other suggestions?
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

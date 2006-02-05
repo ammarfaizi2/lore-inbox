@@ -1,44 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbWBERQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbWBER0b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751211AbWBERQF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 12:16:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWBERQF
+	id S1751244AbWBER0b (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 12:26:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWBER0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 12:16:05 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:49562 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751211AbWBERQD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 12:16:03 -0500
-Date: Sun, 5 Feb 2006 09:15:42 -0800
-From: Paul Jackson <pj@sgi.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: marc@osknowledge.org, dtor_core@ameritech.net, rlrevell@joe-job.com,
-       76306.1226@compuserve.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       rdunlap@xenotime.net
-Subject: Re: Wanted: hotfixes for -mm kernels
-Message-Id: <20060205091542.6938ba0e.pj@sgi.com>
-In-Reply-To: <43E6208A.3040807@mbligh.org>
-References: <200602021502_MC3-1-B772-547@compuserve.com>
-	<1138913633.15691.109.camel@mindpipe>
-	<d120d5000602021345i255bb69eydb67bc1b0a448f8d@mail.gmail.com>
-	<20060203100703.GA5691@stiffy.osknowledge.org>
-	<20060204083752.a5c5b058.mbligh@mbligh.org>
-	<20060204185646.f8e4e53e.pj@sgi.com>
-	<20060205085833.GB5663@stiffy.osknowledge.org>
-	<43E6208A.3040807@mbligh.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Feb 2006 12:26:31 -0500
+Received: from vms042pub.verizon.net ([206.46.252.42]:27847 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751244AbWBER0a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 12:26:30 -0500
+Date: Sun, 05 Feb 2006 12:26:28 -0500
+From: Eric Buddington <ebuddington@verizon.net>
+Subject: Re: 2.6.15-mm3 hang with raid-1
+In-reply-to: <20060205001424.0577ba83.akpm@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>
+Reply-to: ebuddington@wesleyan.edu
+Message-id: <20060205172628.GA1132@pool-70-109-243-235.wma.east.verizon.net>
+Organization: ECS Labs
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-disposition: inline
+References: <20060202143623.GC1188@pool-71-123-118-13.spfdma.east.verizon.net>
+ <20060205001424.0577ba83.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-Eric-conspiracy: there is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> point seems somewhat moot by now ;-)
+On Sun, Feb 05, 2006 at 12:14:24AM -0800, Andrew Morton wrote:
+> Eric Buddington <ebuddington@verizon.net> wrote:
+> >
+> > Running 2.6.15-mm3 PREEMPT on an Athlon XP, Asus motherboard with
+> > VT8366/A/7 chipset.
+> > 
+> > I have a 240GB raid0 on hda3 and hdc1 containing a reiser3
+> > filesystem. It works fine.
+> > 
+> > I have a 40GB raid1 on hda2 and hdd1, which is giving me problems. I
+> > can write to all of hda2 and hdd1 (before creating the array) without
+> > error, and mdadm seems to create the array all right.
+> > 
+> > However, just after the array finishes synchronizing (either after
+> > creation or messy reboot), all new commands hang (I can still type at
+> > existing shells, but as soon as I try to run a program, it becomes
+> > unresponsive). While hung, disk activity light is off. On reboot, the
+> > array is detected as clean, no synchronization is done, and my system
+> > works (until I try to use the raid1 array).
+> > 
+> > mkreiserfs /dev/md0 also causes the hang, when it syscalls fsync().
+> > 
+> > My system disk is hda1, so I don't know if all disks are hung up, or
+> > just all of hda.
+> > 
+> > I'm doing all this at the console, and I see no error messages.
+> > 
+> > The computer keeps performing NAT, and alt-sysrq-b works.
+> > 
+> > What can I do to fix or help debug this problem?
+> > 
+> 
+> Could you test -mm5 please?
 
-Sure ... whatever.
+using 2.6.16-rc1-mm5:
+	- creation of reiserfs on resyncing raid1 works.
+	- resync completes without hanging the system.
+	- creating of reiserfs on resynced raid1 works
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Looks good - thanks!
+
+-Eric

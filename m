@@ -1,72 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751671AbWBEJMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751677AbWBEJMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751671AbWBEJMR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 04:12:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751674AbWBEJMQ
+	id S1751677AbWBEJMX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 04:12:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751683AbWBEJMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 04:12:16 -0500
-Received: from uproxy.gmail.com ([66.249.92.197]:19724 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751664AbWBEJMO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 04:12:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=e0oyHf3OVQVnqQw4HLYp3sFwSK0+XCl/fBM2EPlCQLKeq/BC0jQEQ7Q0+YFQyfErB3Dq156VUpiGZsKJsS8x06eeosGxKd8OP80U7NoEa1Xzf42ihUs2i+g045I9BvWH1mntKkgz7cEEwfBixX/Dgt4sA+c8cxigc2cWjNhj638=
-Message-ID: <2cd57c900602050112l701cf9e2p@mail.gmail.com>
-Date: Sun, 5 Feb 2006 17:12:12 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Mel Gorman <mel@csn.ul.ie>
-Subject: Re: [PATCH 2/4] Split the free lists into kernel and user parts
-Cc: linux-mm@kvack.org, jschopp@austin.ibm.com, linux-kernel@vger.kernel.org,
-       kamezawa.hiroyu@jp.fujitsu.com, lhms-devel@lists.sourceforge.net
-In-Reply-To: <2cd57c900602050057p1b5a813bh@mail.gmail.com>
-MIME-Version: 1.0
+	Sun, 5 Feb 2006 04:12:23 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:15232 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751674AbWBEJMV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 04:12:21 -0500
+Date: Sun, 5 Feb 2006 01:11:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Hans Reiser <reiser@namesys.com>
+Cc: hugh@veritas.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, lee.schermerhorn@hp.com,
+       Reiserfs-Dev@namesys.com
+Subject: Re: Fw: Re: [PATCH] 2.6.16-rc-mm4 reiser4 calls try_to_unmap() with
+ 1 arg -- now takes 2
+Message-Id: <20060205011152.7f9b7aa9.akpm@osdl.org>
+In-Reply-To: <43E5BB2E.5000203@namesys.com>
+References: <20060205003039.3067e43c.akpm@osdl.org>
+	<43E5BB2E.5000203@namesys.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060120115415.16475.8529.sendpatchset@skynet.csn.ul.ie>
-	 <20060120115455.16475.93688.sendpatchset@skynet.csn.ul.ie>
-	 <2cd57c900602050057p1b5a813bh@mail.gmail.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/2/5, Coywolf Qi Hunt <coywolf@gmail.com>:
-> 2006/1/20, Mel Gorman <mel@csn.ul.ie>:
-> >
-> > This patch adds the core of the anti-fragmentation strategy. It works by
-> > grouping related allocation types together. The idea is that large groups of
-> > pages that may be reclaimed are placed near each other. The zone->free_area
-> > list is broken into RCLM_TYPES number of lists.
-> >
-> > Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-> > Signed-off-by: Joel Schopp <jschopp@austin.ibm.com>
-> > diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-001_antifrag_flags/include/linux/mmzone.h linux-2.6.16-rc1-mm1-002_fragcore/include/linux/mmzone.h
-> > --- linux-2.6.16-rc1-mm1-001_antifrag_flags/include/linux/mmzone.h      2006-01-19 11:21:59.000000000 +0000
-> > +++ linux-2.6.16-rc1-mm1-002_fragcore/include/linux/mmzone.h    2006-01-19 21:51:05.000000000 +0000
-> > @@ -22,8 +22,16 @@
-> >  #define MAX_ORDER CONFIG_FORCE_MAX_ZONEORDER
-> >  #endif
-> >
-> > +#define RCLM_NORCLM 0
+Hans Reiser <reiser@namesys.com> wrote:
 >
-> better be RCLM_NORMAL
+> Umm, no, copy on capture needs to get enabled again as soon as we get
+>  past issues outsiders care about, and start dealing again with improving
+>  the code in the ways we think matter.  There are real problems that are
+>  addressed by copy on capture.  That it has not been worked on since
+>  2.6.5 just sadly indicates how successful folks have been in distracting
+>  us for so long.
 
-err, RCLM_NONRCLM, or RCLM_NONE
+Dinking with rmap internals from within a filesystem is a real problem. 
+Whatever needs to be done there should be done within core MM if it's done
+anywhere so it actually gets maintained by the people who are likely to
+break it.
 
->
-> > +#define RCLM_EASY   1
-> > +#define RCLM_TYPES  2
-> > +
-> > +#define for_each_rclmtype_order(type, order) \
-> > +       for (order = 0; order < MAX_ORDER; order++) \
-> > +               for (type = 0; type < RCLM_TYPES; type++)
-> > +
-> >  struct free_area {
-> > -       struct list_head        free_list;
-> > +       struct list_head        free_list[RCLM_TYPES];
-> >         unsigned long           nr_free;
-> >  };
+Something like
+http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc4/2.6.13-rc4-mm1/broken-out/add-page-becoming-writable-notification.patch
+might be what you're after.
 
---
-Coywolf Qi Hunt

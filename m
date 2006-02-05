@@ -1,64 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWBEVT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWBEV0K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750733AbWBEVT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 16:19:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWBEVT0
+	id S1750734AbWBEV0K (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 16:26:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWBEV0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 16:19:26 -0500
-Received: from vbn.0050556.lodgenet.net ([216.142.194.234]:62859 "EHLO
-	vbn.0050556.lodgenet.net") by vger.kernel.org with ESMTP
-	id S1750733AbWBEVTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 16:19:25 -0500
-Subject: Re: [PATCH ]  VMSPLIT config options (with default config fixed)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Mark Lord <lkml@rtr.ca>, Ulrich Mueller <ulm@kph.uni-mainz.de>,
-       Herbert Poetzl <herbert@13thfloor.at>, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Byron Stanoszek <gandalf@winds.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0602052212430.330@yvahk01.tjqt.qr>
-References: <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de>
-	 <Pine.LNX.4.63.0601100840400.9511@winds.org>
-	 <20060110143931.GM3389@suse.de>
-	 <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org> <43C3E9C2.1000309@rtr.ca>
-	 <20060110173217.GU3389@suse.de> <43C3F0CA.10205@rtr.ca>
-	 <43C403BA.1050106@pobox.com> <43C40803.2000106@rtr.ca>
-	 <20060201222314.GA26081@MAIL.13thfloor.at>
-	 <uhd7irpi7@a1i15.kph.uni-mainz.de>
-	 <Pine.LNX.4.61.0602022144190.30391@yvahk01.tjqt.qr>
-	 <43E3DB99.9020604@rtr.ca>
-	 <Pine.LNX.4.61.0602041204490.30014@yvahk01.tjqt.qr>
-	 <1139153913.3131.42.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.61.0602052212430.330@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Sun, 05 Feb 2006 22:19:14 +0100
-Message-Id: <1139174355.3131.50.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Feb 2006 16:26:10 -0500
+Received: from khc.piap.pl ([195.187.100.11]:45322 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1750734AbWBEV0I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 16:26:08 -0500
+To: Glen Turner <glen.turner@aarnet.edu.au>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 8250 serial console fixes -- issue
+References: <Pine.LNX.4.44.0602011911360.22854-100000@gate.crashing.org>
+	<1138844838.5557.17.camel@localhost.localdomain>
+	<43E2B8D6.1070707@aarnet.edu.au>
+	<20060203094042.GB30738@flint.arm.linux.org.uk>
+	<43E36850.5030900@aarnet.edu.au>
+	<20060203160218.GA27452@flint.arm.linux.org.uk>
+	<m3lkwse3nz.fsf@defiant.localdomain>
+	<20060203221346.GA10700@flint.arm.linux.org.uk>
+	<m3mzh7ds45.fsf@defiant.localdomain>
+	<20060204232005.GC24887@flint.arm.linux.org.uk>
+	<43E56D14.80808@aarnet.edu.au>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sun, 05 Feb 2006 22:26:06 +0100
+In-Reply-To: <43E56D14.80808@aarnet.edu.au> (Glen Turner's message of "Sun, 05 Feb 2006 13:42:20 +1030")
+Message-ID: <m3psm1ebv5.fsf@defiant.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-05 at 22:14 +0100, Jan Engelhardt wrote:
-> >> >
-> >> > Mmm.. bad idea.  As much as I'd like the default to be 3GB_OPT, that would
-> >> > be a big impact to userspace, and there's no point in breaking everyone's
-> >> > machines when advanced users can just reconfig/recompile to get what they want.
-> >> >
-> >> What userspace programs do depend on it?
-> >
-> >there is a lot of userspace that assumes they can do 2Gb or even close
-> >to 3Gb of memory allocations. Databases, java, basically anything with
-> >threads. Sure for most of these its a configuration option to reduce
-> >this, but that still doesn't mean it's a good idea to change from the
-> >existing behavior...
-> > 
-> Not to mention that these (almost(*)) fail anyway when you have less than 2 
-> GB of RAM.
+Hi,
 
-it's not really overcommit... it can also be file mmaps or shared mmaps
-of say tmpfs files (the later is common with oracle actually)
+Glen Turner <glen.turner@aarnet.edu.au> writes:
 
+> The serial console still should not write into an unasserted
+> DSR or DCD since that will hang up on incoming calls. But
+> they's a totally different, non-security issue.
 
+Could be a security issue if the modem gets reconfigured.
 
+> I'm also unsure of the robustness equipment in the face
+> of Russell's suggestion. The suggestion implies that the
+> kernel will write strings when CTS is unasserted.  There
+> is some allowance for that in receivers that are configured
+> for RTS/CTS flow control, but it that allowance being overly
+> stressed?  And does it matter if the modem or the receiver
+> drops some characters?  Is there popular equipment for which
+> this is a pathological case?
+
+Actually I think you can't currently connect a Hayes modem directly
+to a serial console, CRTSCTS or no flow control.
+
+With terminal server it may work (especially Linux-based or similar),
+for example, with "screen".
+
+> I would probably prefer two flags -- 'r' meaning flow control
+> (CTS) and a new option, say 's', meaning modem status (DSR,DCD).
+
+Would make sense I think.
+
+>> BTW I think you know all of this very well for years.
+>
+> I don't know what you were thinking when you wrote this.  But
+> it is stupid.  It's one thing to be technically wrong  -- all
+> that is required to fix that is some patience on both sides.
+> And Russell has been very patient with me, which I appreciate.
+>
+> It's totally another thing entirely to be insulting.  What
+> do you now think are the chances of people working together
+> harmoniously to have the open issues satisfactorily resolved?
+
+I'm not exactly sure what do you mean. First I thought he was
+overworked or something like that but now I wonder if I should
+check it with an English teacher nearby?
+
+I just really thought he knows modem control lines details and
+how Hayes modems behave etc. from BBS era.
+
+What exactly is the "insult" here?
+-- 
+Krzysztof Halasa

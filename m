@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWBEUyH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWBEVJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbWBEUyH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 15:54:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWBEUyH
+	id S1750738AbWBEVJo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 16:09:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWBEVJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 15:54:07 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:16039 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1750718AbWBEUyG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 15:54:06 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <43E6650C.1090407@s5r6.in-berlin.de>
-Date: Sun, 05 Feb 2006 21:50:20 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net
-Subject: Re: [RFC 4/4] firewire: add mem1394
-References: <1138919238.3621.12.camel@localhost>	<1138920185.3621.24.camel@localhost>	<20060205004327.78926498.akpm@osdl.org> <p73lkwplfw8.fsf@verdi.suse.de>
-In-Reply-To: <p73lkwplfw8.fsf@verdi.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: (-0.43) AWL,BAYES_40
+	Sun, 5 Feb 2006 16:09:44 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42925 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750729AbWBEVJm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 16:09:42 -0500
+Date: Sun, 5 Feb 2006 22:09:12 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Martin J. Bligh" <mbligh@mbligh.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, video4linux-list@redhat.com,
+       linux-fbdev-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org,
+       linux1394-devel@lists.sourceforge.net, netdev@vger.kernel.org,
+       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: open bugzilla reports
+Message-ID: <20060205210912.GA3509@elf.ucw.cz>
+References: <20060203151150.3d9aa8b3.akpm@osdl.org> <20060204095023.GA11140@flint.arm.linux.org.uk> <20060204084729.defc7c19.mbligh@mbligh.org> <20060204231425.GA24887@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060204231425.GA24887@flint.arm.linux.org.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> BenH's firescope tool does this already using raw1394
-> (I have it working now on x86-64 too). I dont quite see the point
-> of adding another kernel driver for it though. This can be all
-> done fine in userspace.
+On So 04-02-06 23:14:26, Russell King wrote:
+> On Sat, Feb 04, 2006 at 08:47:29AM -0800, Martin J. Bligh wrote:
+> > 
+> > > > [Bug 5958] CF bluetooth card oopses machine when
+> > > > 	http://bugzilla.kernel.org/show_bug.cgi?id=5958
+> > > 
+> > > This isn't a serial bug - it's a bluetooth ldisc bug.  I reported it
+> > > to the bluetooth folk back when it first got raised by Pavel.  However,
+> > > they seem to be completely disinterested in fixing it.
+> > > 
+> > > Unfortunately, there isn't a category for bt crap in bugzilla, otherwise
+> > > I'd reassign it.  Please kick the bt folk.
+> > 
+> > Stick it under Drivers/Other if you want ...
+> 
+> It _is_ under Networking/Other, yet akpm still thinks it's a serial
+> bug.  I'm not sure why though, I've fully explained why it isn't
+> a serial problem in the bug comments.
+> 
+> akpm is buggy and needs fixing.  Where do I file this bug? 8)
 
-The point is to provide an interface like /dev/mem in order to use a 
-wider range of debug/ forensics/ hacker tools than specialized 
-libraw1394 clients. Sure enough, the benefit is small, but so is this 
-driver's code footprint.
+It would be nice to create Networking/Bluetooth category, so there's
+logical place to file such bugs under...
+								Pavel
 -- 
-Stefan Richter
--=====-=-==- --=- --=-=
-http://arcgraph.de/sr/
+Thanks, Sharp!

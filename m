@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751709AbWBELKR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751707AbWBELJm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751709AbWBELKR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 06:10:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751712AbWBELKQ
+	id S1751707AbWBELJm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 06:09:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751708AbWBELJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 06:10:16 -0500
-Received: from reserv6.univ-lille1.fr ([193.49.225.20]:3230 "EHLO
-	reserv6.univ-lille1.fr") by vger.kernel.org with ESMTP
-	id S1751708AbWBELKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 06:10:15 -0500
-Message-ID: <43E5DD0A.3030009@tremplin-utc.net>
-Date: Sun, 05 Feb 2006 12:10:02 +0100
-From: Eric Piel <Eric.Piel@tremplin-utc.net>
-User-Agent: Mozilla Thunderbird 1.0.7-4mdk (X11/20051221)
-X-Accept-Language: en, fr, ja, es
-MIME-Version: 1.0
-To: =?UTF-8?B?UGF3ZcKzIFphZHLCsWc=?= <p.zeddi@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [OT] How to tune kernel to swap more often (video ram swap)
-References: <b92f4fd10602050204g41f70f70p@mail.gmail.com>
-In-Reply-To: <b92f4fd10602050204g41f70f70p@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Sun, 5 Feb 2006 06:09:42 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:15045 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751705AbWBELJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 06:09:42 -0500
+Subject: Re: [v4l-dvb-maintainer] [RFC: 2.6 patch] DVB: remove the
+	at76c651/tda80xx frontends
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andreas Oberritter <obi@linuxtv.org>, linux-dvb-maintainer@linuxtv.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060128165726.GL3777@stusta.de>
+References: <20060128165726.GL3777@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Sun, 05 Feb 2006 09:09:29 -0200
+Message-Id: <1139137769.27465.13.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1-1mdk 
 Content-Transfer-Encoding: 8bit
-X-Greylist: Sender DNS name whitelisted, not delayed by milter-greylist-2.0.2 (reserv6.univ-lille1.fr [193.49.225.20]); Sun, 05 Feb 2006 12:10:08 +0100 (CET)
-X-USTL-MailScanner-Information: Please contact the ISP for more information
-X-USTL-MailScanner: Found to be clean
-X-USTL-MailScanner-From: eric.piel@tremplin-utc.net
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-05.02.2006 11:04, PaweÅ‚ ZadrÄ…g wrote/a Ã©crit:
-> Yo...
+Em Sáb, 2006-01-28 às 17:57 +0100, Adrian Bunk escreveu:
+> The at76c651 and tda80xx frontends are currently completely unused, IOW 
+> their only effect is making the kernel larger for people accitentially 
+> enabling them.
 > 
-> In normal case, using harddisk as a swap space i should ask how to cut
-> down swapping, or make swapping when idle, etc... My case is a little
-> bit diffrent... I have a 256MB video card, while 240MB of it is used
-> as a swap space. And the question is: how to tune kernel to swap more
-> often. I known swapped memory must be copied back to ram before beeing
-> used, so i'm looking for a reasonable tunning values...
+> The current in-kernel drivers differ from the drivers at cvs.tuxbox.org, 
+> and re-adding them when parts of the dbox2 project get merged should be 
+> trivial.
 > 
-> What do You think about that mighty list ?
-Actually this list is not about Linux tuning. Please read post only 
-about bugs and patches for the linux kernel.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+	Acked-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 
-Anyway, I guess what you are looking for is the "swappiness". For more 
-info check 
-http://www.brunolinux.com/06-Fine_Tuning_Your_System/Swappiness.html
+I'll apply at v4l-dvb.git and ask Linus to pull from it.
 
-Am I correctly understanding that you are using your video card memory 
-as a place to put swap? This sounds quite cool, how have you done this? 
-Is there a driver which can report the video ram as a block device?
+> 
+> ---
+> 
+>  drivers/media/dvb/frontends/Kconfig    |   12 
+>  drivers/media/dvb/frontends/Makefile   |    2 
+>  drivers/media/dvb/frontends/at76c651.c |  450 ---------------
+>  drivers/media/dvb/frontends/at76c651.h |   47 -
+>  drivers/media/dvb/frontends/tda80xx.c  |  734 -------------------------
 
-see you,
-Eric
+Cheers, 
+Mauro.
+

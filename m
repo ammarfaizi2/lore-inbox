@@ -1,428 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751759AbWBEPwu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751771AbWBEPxA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751759AbWBEPwu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 10:52:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751770AbWBEPwu
+	id S1751771AbWBEPxA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 10:53:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751772AbWBEPxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 10:52:50 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:35502 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1751759AbWBEPwt (ORCPT
+	Sun, 5 Feb 2006 10:53:00 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:36014 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1751771AbWBEPw7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 10:52:49 -0500
-Subject: [PATCH 3/12] LED: Add LED Trigger Support
+	Sun, 5 Feb 2006 10:52:59 -0500
+Subject: [PATCH 0/12] LED Class, Triggers and Drivers
 From: Richard Purdie <rpurdie@rpsys.net>
 To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
+Cc: Russell King <rmk@arm.linux.org.uk>, John Lenz <lenz@cs.wisc.edu>,
+       Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       tglx@linutronix.de, dirk@opfer-online.de, jbowler@acm.org
 Content-Type: text/plain
-Date: Sun, 05 Feb 2006 15:52:25 +0000
-Message-Id: <1139154745.6438.82.camel@localhost.localdomain>
+Date: Sun, 05 Feb 2006 15:51:58 +0000
+Message-Id: <1139154718.6438.78.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add support for LED triggers to the LED subsystem. "Triggers" are events 
-which change the state of an LED. Two kinds of trigger are available,
-simple ones which can be added to exising code with minimum disruption
-and complex ones for implementing new or more complex functionality.
+This is an updated version of the LED class/subsystem. The main change
+is the renamed API - I've settled on led_device -> led_classdev. Other
+minor issues like the error cases in the timer trigger were also fixed.
 
-Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+I've not received any feed back on what the kconfig name for the class
+should be (something better than NEW_LEDS is needed but arm is using
+LEDS).
 
-Index: linux-2.6.15/drivers/leds/Kconfig
-===================================================================
---- linux-2.6.15.orig/drivers/leds/Kconfig	2006-01-29 15:52:16.000000000 +0000
-+++ linux-2.6.15/drivers/leds/Kconfig	2006-01-29 16:02:35.000000000 +0000
-@@ -14,5 +14,13 @@
- 	  This option enables the led sysfs class in /sys/class/leds.  You'll
- 	  need this to do anything useful with LEDs.  If unsure, say N.
- 
-+config LEDS_TRIGGERS
-+	bool "LED Trigger support"
-+	depends NEW_LEDS
-+	help
-+	  This option enables trigger support for the leds class.
-+	  These triggers allow kernel events to drive the LEDs and can
-+	  be configured via sysfs. If unsure, say Y.
-+
- endmenu
- 
-Index: linux-2.6.15/drivers/leds/Makefile
-===================================================================
---- linux-2.6.15.orig/drivers/leds/Makefile	2006-01-29 15:52:16.000000000 +0000
-+++ linux-2.6.15/drivers/leds/Makefile	2006-01-29 16:02:35.000000000 +0000
-@@ -2,3 +2,4 @@
- # LED Core
- obj-$(CONFIG_NEW_LEDS)			+= led-core.o
- obj-$(CONFIG_LEDS_CLASS)		+= led-class.o
-+obj-$(CONFIG_LEDS_TRIGGERS)		+= led-triggers.o
-Index: linux-2.6.15/drivers/leds/leds.h
-===================================================================
---- linux-2.6.15.orig/drivers/leds/leds.h	2006-01-29 15:54:46.000000000 +0000
-+++ linux-2.6.15/drivers/leds/leds.h	2006-01-29 15:55:02.000000000 +0000
-@@ -24,3 +24,13 @@
- extern rwlock_t leds_list_lock;
- extern struct list_head leds_list;
- 
-+#ifdef CONFIG_LEDS_TRIGGERS
-+void led_trigger_set_default(struct led_classdev *led_cdev);
-+void led_trigger_set(struct led_classdev *led_cdev, struct led_trigger *trigger);
-+#else
-+#define led_trigger_set_default(x) do {} while(0)
-+#define led_trigger_set(x, y) do {} while(0)
-+#endif
-+
-+ssize_t led_trigger_store(struct class_device *dev, const char *buf, size_t count);
-+ssize_t led_trigger_show(struct class_device *dev, char *buf);
-Index: linux-2.6.15/include/linux/leds.h
-===================================================================
---- linux-2.6.15.orig/include/linux/leds.h	2006-01-29 15:52:16.000000000 +0000
-+++ linux-2.6.15/include/linux/leds.h	2006-01-29 15:55:02.000000000 +0000
-@@ -38,6 +38,11 @@
- 
- 	/* Trigger data */
- 	char *default_trigger;
-+#ifdef CONFIG_LEDS_TRIGGERS
-+	struct led_trigger *trigger;
-+	struct list_head trig_list;
-+	void *trigger_data;
-+#endif
- 
- 	/* This protects the data in this structure */
- 	rwlock_t lock;
-@@ -47,3 +52,47 @@
- extern void led_classdev_unregister(struct led_classdev *led_cdev);
- extern void led_classdev_suspend(struct led_classdev *led_cdev);
- extern void led_classdev_resume(struct led_classdev *led_cdev);
-+
-+
-+/*
-+ * LED Triggers
-+ */
-+#ifdef CONFIG_LEDS_TRIGGERS
-+
-+#define TRIG_NAME_MAX 50
-+
-+struct led_trigger {
-+	/* Trigger Properties */
-+	const char *name;
-+	void (*activate)(struct led_classdev *led_cdev);
-+	void (*deactivate)(struct led_classdev *led_cdev);
-+
-+	/* LEDs under control by this trigger (for simple triggers) */
-+	rwlock_t leddev_list_lock;
-+	struct list_head led_cdevs;
-+
-+	/* Link to next registered trigger */
-+	struct list_head next_trig;
-+};
-+
-+/* Registration functions for complex triggers */
-+int led_trigger_register(struct led_trigger *trigger);
-+void led_trigger_unregister(struct led_trigger *trigger);
-+
-+/* Registration functions for simple triggers */
-+#define INIT_LED_TRIGGER(x)		static struct led_trigger *x;
-+#define INIT_LED_TRIGGER_GLOBAL(x)	struct led_trigger *x;
-+void led_trigger_register_simple(const char *name, struct led_trigger **trigger);
-+void led_trigger_unregister_simple(struct led_trigger *trigger);
-+void led_trigger_event(struct led_trigger *trigger, enum led_brightness event);
-+
-+#else
-+
-+/* Triggers aren't active - null macros */
-+#define INIT_LED_TRIGGER(x)
-+#define INIT_LED_TRIGGER_GLOBAL(x)
-+#define led_trigger_register_simple(x, y) do {} while(0)
-+#define led_trigger_unregister_simple(x) do {} while(0)
-+#define led_trigger_event(x, y) do {} while(0)
-+
-+#endif
-Index: linux-2.6.15/drivers/leds/led-class.c
-===================================================================
---- linux-2.6.15.orig/drivers/leds/led-class.c	2006-01-29 15:54:02.000000000 +0000
-+++ linux-2.6.15/drivers/leds/led-class.c	2006-01-29 15:55:02.000000000 +0000
-@@ -55,6 +55,9 @@
- 
- static CLASS_DEVICE_ATTR(brightness, 0644, led_brightness_show, led_brightness_store);
- 
-+#ifdef CONFIG_LEDS_TRIGGERS
-+static CLASS_DEVICE_ATTR(trigger, 0644, led_trigger_show, led_trigger_store);
-+#endif
- 
- /**
-  * led_classdev_suspend - suspend an led_classdev.
-@@ -96,12 +99,17 @@
- 
- 	/* register the attributes */
- 	class_device_create_file(led_cdev->class_dev, &class_device_attr_brightness);
-+#ifdef CONFIG_LEDS_TRIGGERS
-+	class_device_create_file(led_cdev->class_dev, &class_device_attr_trigger);
-+#endif
- 
- 	/* add to the list of leds */
- 	write_lock(&leds_list_lock);
- 	list_add_tail(&led_cdev->node, &leds_list);
- 	write_unlock(&leds_list_lock);
- 
-+	led_trigger_set_default(led_cdev);
-+
- 	printk(KERN_INFO "Registered led device: %s\n", led_cdev->class_dev->class_id);
- 
- 	return 0;
-@@ -116,6 +124,12 @@
- void led_classdev_unregister(struct led_classdev *led_cdev)
- {
- 	class_device_remove_file(led_cdev->class_dev, &class_device_attr_brightness);
-+#ifdef CONFIG_LEDS_TRIGGERS
-+	class_device_remove_file(led_cdev->class_dev, &class_device_attr_trigger);
-+#endif
-+
-+	if (led_cdev->trigger)
-+		led_trigger_set(led_cdev, NULL);
- 
- 	class_device_unregister(led_cdev->class_dev);
- 
-Index: linux-2.6.15/drivers/leds/led-triggers.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.15/drivers/leds/led-triggers.c	2006-01-29 15:56:15.000000000 +0000
-@@ -0,0 +1,236 @@
-+/*
-+ * LED Triggers Core
-+ *
-+ * Copyright 2005-2006 Openedhand Ltd.
-+ *
-+ * Author: Richard Purdie <rpurdie@openedhand.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/list.h>
-+#include <linux/spinlock.h>
-+#include <linux/device.h>
-+#include <linux/sysdev.h>
-+#include <linux/timer.h>
-+#include <linux/leds.h>
-+#include "leds.h"
-+
-+static rwlock_t triggers_list_lock = RW_LOCK_UNLOCKED;
-+static LIST_HEAD(trigger_list);
-+
-+ssize_t led_trigger_store(struct class_device *dev, const char *buf, size_t count)
-+{
-+	struct led_classdev *led_cdev = dev->class_data;
-+	char trigger_name[TRIG_NAME_MAX];
-+	struct led_trigger *trig;
-+	size_t len;
-+
-+	trigger_name[sizeof(trigger_name) - 1] = '\0';
-+	strncpy(trigger_name, buf, sizeof(trigger_name) - 1);
-+	len = strlen(trigger_name);
-+
-+	if (len && trigger_name[len - 1] == '\n')
-+		trigger_name[len - 1] = '\0';
-+
-+	if (!strcmp(trigger_name, "none")) {
-+		write_lock(&led_cdev->lock);
-+		led_trigger_set(led_cdev, NULL);
-+		write_unlock(&led_cdev->lock);
-+		return count;
-+	}
-+
-+	read_lock(&triggers_list_lock);
-+	list_for_each_entry(trig, &trigger_list, next_trig) {
-+		if (!strcmp(trigger_name, trig->name)) {
-+			write_lock(&led_cdev->lock);
-+			led_trigger_set(led_cdev, trig);
-+			write_unlock(&led_cdev->lock);
-+
-+			read_unlock(&triggers_list_lock);
-+			return count;
-+		}
-+	}
-+	read_unlock(&triggers_list_lock);
-+
-+	return -EINVAL;
-+}
-+
-+
-+ssize_t led_trigger_show(struct class_device *dev, char *buf)
-+{
-+	struct led_classdev *led_cdev = dev->class_data;
-+	struct led_trigger *trig;
-+	int len = 0;
-+
-+	read_lock(&led_cdev->lock);
-+
-+	if (!led_cdev->trigger)
-+		len += sprintf(buf+len, "[none] ");
-+	else
-+		len += sprintf(buf+len, "none ");
-+
-+	read_lock(&triggers_list_lock);
-+	list_for_each_entry(trig, &trigger_list, next_trig) {
-+		if (led_cdev->trigger && !strcmp(led_cdev->trigger->name,  trig->name))
-+			len += sprintf(buf+len, "[%s] ", trig->name);
-+		else
-+			len += sprintf(buf+len, "%s ", trig->name);
-+	}
-+	read_unlock(&triggers_list_lock);
-+	read_unlock(&led_cdev->lock);
-+
-+	len += sprintf(len+buf, "\n");
-+	return len;
-+}
-+
-+void led_trigger_event(struct led_trigger *trigger, enum led_brightness brightness)
-+{
-+	struct list_head *entry;
-+
-+	if (!trigger)
-+		return;
-+
-+	read_lock(&trigger->leddev_list_lock);
-+	list_for_each(entry, &trigger->led_cdevs) {
-+		struct led_classdev *led_cdev;
-+
-+		led_cdev = list_entry(entry, struct led_classdev, trig_list);
-+		write_lock(&led_cdev->lock);
-+		led_set_brightness(led_cdev, brightness);
-+		write_unlock(&led_cdev->lock);
-+	}
-+	read_unlock(&trigger->leddev_list_lock);
-+}
-+
-+/* Caller must ensure led_cdev->lock held for write */
-+void led_trigger_set(struct led_classdev *led_cdev, struct led_trigger *trigger)
-+{
-+	/* Remove any existing trigger */
-+	if (led_cdev->trigger) {
-+		write_lock(&led_cdev->trigger->leddev_list_lock);
-+		list_del(&led_cdev->trig_list);
-+		write_unlock(&led_cdev->trigger->leddev_list_lock);
-+		if (led_cdev->trigger->deactivate)
-+			led_cdev->trigger->deactivate(led_cdev);
-+
-+	}
-+	if (trigger) {
-+		write_lock(&trigger->leddev_list_lock);
-+		list_add_tail(&led_cdev->trig_list, &trigger->led_cdevs);
-+		write_unlock(&trigger->leddev_list_lock);
-+		if (trigger->activate)
-+			trigger->activate(led_cdev);
-+	}
-+	led_cdev->trigger = trigger;
-+}
-+
-+void led_trigger_set_default(struct led_classdev *led_cdev)
-+{
-+	struct led_trigger *trig;
-+
-+	if (!led_cdev->default_trigger)
-+		return;
-+
-+	write_lock(&led_cdev->lock);
-+	read_lock(&triggers_list_lock);
-+	list_for_each_entry(trig, &trigger_list, next_trig) {
-+		if (!strcmp(led_cdev->default_trigger, trig->name))
-+			led_trigger_set(led_cdev, trig);
-+	}
-+	read_unlock(&triggers_list_lock);
-+	write_unlock(&led_cdev->lock);
-+}
-+
-+int led_trigger_register(struct led_trigger *trigger)
-+{
-+	struct led_classdev *led_cdev;
-+
-+	rwlock_init(&trigger->leddev_list_lock);
-+	INIT_LIST_HEAD(&trigger->led_cdevs);
-+
-+	/* Add to the list of led triggers */
-+	write_lock(&triggers_list_lock);
-+		list_add_tail(&trigger->next_trig, &trigger_list);
-+	write_unlock(&triggers_list_lock);
-+
-+	/* Register with any LEDs that have this as a default trigger */
-+	read_lock(&leds_list);
-+	list_for_each_entry(led_cdev, &leds_list, node) {
-+		write_lock(&led_cdev->lock);
-+		if (!led_cdev->trigger && led_cdev->default_trigger &&
-+				!strcmp(led_cdev->default_trigger, trigger->name))
-+			led_trigger_set(led_cdev, trigger);
-+		write_unlock(&led_cdev->lock);
-+	}
-+	read_unlock(&leds_list);
-+
-+	return 0;
-+}
-+
-+void led_trigger_register_simple(const char *name, struct led_trigger **tp)
-+{
-+	struct led_trigger *trigger;
-+
-+	trigger = kzalloc(sizeof(struct led_trigger), GFP_KERNEL);
-+
-+	if (trigger) {
-+		trigger->name = name;
-+		led_trigger_register(trigger);
-+	}
-+	*tp = trigger;
-+}
-+
-+
-+void led_trigger_unregister(struct led_trigger *trigger)
-+{
-+	struct led_classdev *led_cdev;
-+
-+	/* Remove from the list of led triggers */
-+	write_lock(&triggers_list_lock);
-+		list_del(&trigger->next_trig);
-+	write_unlock(&triggers_list_lock);
-+
-+	/* Remove anyone actively using this trigger */
-+	read_lock(&leds_list);
-+	list_for_each_entry(led_cdev, &leds_list, node) {
-+		write_lock(&led_cdev->lock);
-+		if (led_cdev->trigger == trigger)
-+			led_trigger_set(led_cdev, NULL);
-+		write_unlock(&led_cdev->lock);
-+	}
-+	read_unlock(&leds_list);
-+}
-+
-+void led_trigger_unregister_simple(struct led_trigger *trigger)
-+{
-+	led_trigger_unregister(trigger);
-+	kfree(trigger);
-+}
-+
-+/* Used by LED Class */
-+EXPORT_SYMBOL_GPL(led_trigger_set);
-+EXPORT_SYMBOL_GPL(led_trigger_set_default);
-+EXPORT_SYMBOL_GPL(led_trigger_show);
-+EXPORT_SYMBOL_GPL(led_trigger_store);
-+
-+/* LED Trigger Interface */
-+EXPORT_SYMBOL_GPL(led_trigger_register);
-+EXPORT_SYMBOL_GPL(led_trigger_unregister);
-+
-+/* Simple LED Tigger Interface */
-+EXPORT_SYMBOL_GPL(led_trigger_register_simple);
-+EXPORT_SYMBOL_GPL(led_trigger_unregister_simple);
-+EXPORT_SYMBOL_GPL(led_trigger_event);
-+
-+MODULE_AUTHOR("Richard Purdie");
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("LED Triggers Core");
-+
+I've included a modified ide-disk trigger at the end of the series along
+with a patch which fixes the IDE system so it calls a driver's
+end_request function in all cases. This fix has yet to be confirmed by
+the IDE developers. An alternative is to add the hooks into ide-io.c
+start/end_request instead.
+
+To quote my previous introduction:
+
+The LED class/subsystem takes John Lenz's work and extends and alters it
+to give what I think should be a fairly universal LED implementation.
+
+The series consists of several logical units:
+
+* LED Core + Class implementation
+* LED Trigger Core implementation
+* LED timer trigger (example of a complex trigger)
+* LED device drivers for corgi, spitz and tosa Zaurus models
+* LED device driver for locomo LEDs
+* LED device driver for ARM ixp4xx LEDs
+* Zaurus charging LED trigger
+* IDE disk activity LED trigger
+* NAND MTD activity LED trigger
+
+
+Why?
+====
+
+LEDs are really simple devices usually amounting to a GPIO that can be
+turned on and off so why do we need all this code? On handheld or
+embedded devices they're an important part of an often limited user
+interface. Both users and developers want to be able to control and
+configure what the LED does and the number of different things they'd
+potentially want the LED to show is large. 
+
+A subsystem is needed to try and provide all this different
+functionality in an architecture independent, simple but complete,
+generic and scalable manner.
+
+The alternative is for everyone to implement just what they need hidden
+away in different corners of the kernel source tree and to provide an
+inconsistent interface to userspace.
+
+
+Other Implementations
+=====================
+
+I'm aware of the existing arm led implementation. Currently the new
+subsystem and the arm code can coexist quite happily. Its up to the arm
+community to decide whether this new interface is acceptable to them. As
+far as I can see, the new interface can do everything the existing arm
+implementation can with the advantage that the new code is architecture
+independent and much more generic, configurable and scalable.
+
+I'm prepared to make the conversion to the LED subsystem (or assist with
+it) if appropriate.
+
+
+Implementation Details
+======================
+
+I've stripped a lot of code out of John's original LED class. Colours
+were removed as LED colour is now part of the device name. Multiple
+colours are to be handled as multiple led devices. This means you get
+full control over each colour. I also removed the LED hardware timer
+code as the generic timer isn't going to add much overhead and is just
+as useful. I also decided to have the LED core track the current LED
+status (to ease suspend/resume handling) removing the need for
+brightness_get implementations in the LED drivers.
+
+An underlying design philosophy is simplicity. The aim is to keep a
+small amount of code giving as much functionality as possible.
+
+The major new idea is the led "trigger". A trigger is a source of led
+events. Triggers can either be simple or complex. A simple trigger isn't
+configurable and is designed to slot into existing subsystems with
+minimal additional code. Examples are the ide-disk, nand-disk and
+zaurus-charging triggers. With leds disabled, the code optimises away.
+Examples are nand-disk and ide-disk.
+
+Complex triggers whilst available to all LEDs have LED specific
+parameters and work on a per LED basis. The timer trigger is an example.
+
+You can change triggers in a similar manner to the way an IO scheduler
+is chosen (via /sys/class/leds/somedevice/trigger).
+
+So far there are only a handful of examples but it should easy to add
+further LED triggers without too much interference into other
+subsystems.
+
+
+Known Issues
+============
+
+The LED Trigger core cannot be a module as the simple trigger functions
+would cause nightmare dependency issues. I see this as a minor issue
+compared to the benefits the simple trigger functionality brings. The
+rest of the LED subsystem can be modular.
+
+Some leds can be programmed to flash in hardware. As this isn't a
+generic LED device property, I think this should be exported as a device
+specific sysfs attribute rather than part of the class if this
+functionality is required (eg. to keep the led flashing whilst the
+device is suspended).
+
+
+Future Development
+==================
+
+At the moment, a trigger can't be created specifically for a single LED.
+There are a number of cases where a trigger might only be mappable to a
+particular LED. The addition of triggers provided by the LED driver
+should cover this option and be possible to add without breaking the
+current interface.
+
+A cpu activity trigger similar to that found in the arm led
+implementation should be trivial to add.
+
+
+Richard
 
 

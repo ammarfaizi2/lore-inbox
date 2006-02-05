@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946151AbWBEAsB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWBEBAt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946151AbWBEAsB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 19:48:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbWBEAsB
+	id S932284AbWBEBAt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 20:00:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWBEBAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 19:48:01 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:39093 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751272AbWBEAsA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 19:48:00 -0500
-Message-ID: <43E54BAD.5060604@redhat.com>
-Date: Sat, 04 Feb 2006 16:49:49 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5 (X11/20060128)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: One more unlock missing in error case
-References: <43E4E318.1030304@redhat.com> <20060204160830.1a9810a2.akpm@osdl.org>
-In-Reply-To: <20060204160830.1a9810a2.akpm@osdl.org>
-X-Enigmail-Version: 0.93.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig925A45BC03E98150376D5D3C"
+	Sat, 4 Feb 2006 20:00:48 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:37520 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751488AbWBEBAs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 20:00:48 -0500
+Subject: Re: athlon 64 dual core tsc out of sync
+From: Lee Revell <rlrevell@joe-job.com>
+To: Albert Cahalan <acahalan@gmail.com>
+Cc: linux-kernel@vger.kernel.org, s0348365@sms.ed.ac.uk, safemode@comcast.net
+In-Reply-To: <787b0d920602041224p660911b5mc4d639581736e96f@mail.gmail.com>
+References: <787b0d920602041224p660911b5mc4d639581736e96f@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 04 Feb 2006 20:00:42 -0500
+Message-Id: <1139101243.2791.78.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.90 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig925A45BC03E98150376D5D3C
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On Sat, 2006-02-04 at 15:24 -0500, Albert Cahalan wrote:
+> There have been far too many other problems with i386 timekeeping as
+> well.  Really, it's crazy to not use the pmtmr if the pmtmr is
+> available. The next best choice would be HPET. After that, pre-SMM
+> systems should count clock ticks and post-SMM systems should read the
+> RTC or PIT registers. Until we accept this, we'll always be suffering
+> clock problems. 
 
-Andrew Morton wrote:
-> hmm.  How's about we undo that goto tangle while we're there?
+Well, I wouldn't say it's crazy - the TSC is several orders of magnitude
+cheaper than the PM timer, and the only common hardware where it's
+completely useless are Athlon X2 systems.
 
-Fine with me.
+Fortunately there's a solution in the works - John Stultz's gettimeofday
+rework.  Try the -rt tree for a preview.
 
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
+Lee
 
-
---------------enig925A45BC03E98150376D5D3C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFD5Uuy2ijCOnn/RHQRAm2wAJ9XBV5CRnnP6xQNo/tjZubUVkhiawCcCDWv
-GB5S7pu/m/83SvFaph6G59E=
-=cjab
------END PGP SIGNATURE-----
-
---------------enig925A45BC03E98150376D5D3C--

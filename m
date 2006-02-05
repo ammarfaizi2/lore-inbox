@@ -1,206 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWBEPDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWBEPHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750894AbWBEPDK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 10:03:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbWBEPDK
+	id S1750830AbWBEPHU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 10:07:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751759AbWBEPHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 10:03:10 -0500
-Received: from web33007.mail.mud.yahoo.com ([68.142.206.71]:43670 "HELO
-	web33007.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750894AbWBEPDI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 10:03:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=ZTHL4cMF8e3KsGBAzFxnXMKkLTdu0xK7E/4Qn3H0MjCqXb1PaBA+k2ppH0XpbEqUhIBZvPWnuD94m4J5/CAkDfxipgJLLJNQP7fjH7px8cqwGYmTwGhUC3i5yYpEi+NLHnJeJlzj1rVLPlC/4clpzGF03RP+muN7yhSi3cPSShQ=  ;
-Message-ID: <20060205150259.1549.qmail@web33007.mail.mud.yahoo.com>
-Date: Sun, 5 Feb 2006 07:02:59 -0800 (PST)
-From: Shantanu Goel <sgoel01@yahoo.com>
-Subject: [VM PATCH] rotate_reclaimable_page fails frequently
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+	Sun, 5 Feb 2006 10:07:20 -0500
+Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:60609 "EHLO
+	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
+	id S1750830AbWBEPHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 10:07:19 -0500
+Message-ID: <43E61448.7010704@sw.ru>
+Date: Sun, 05 Feb 2006 18:05:44 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-676802627-1139151779=:94534"
-Content-Transfer-Encoding: 8bit
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       frankeh@watson.ibm.com, clg@fr.ibm.com, greg@kroah.com,
+       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
+       Pavel Emelianov <xemul@sw.ru>
+Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
+References: <43E38BD1.4070707@openvz.org>	 <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org> <43E3915A.2080000@sw.ru>	 <Pine.LNX.4.64.0602030939250.4630@g5.osdl.org> <1138991641.6189.37.camel@localhost.localdomain>
+In-Reply-To: <1138991641.6189.37.camel@localhost.localdomain>
+Content-Type: text/plain; charset=windows-1251; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-676802627-1139151779=:94534
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
-Content-Disposition: inline
+> I just did a global s/vps/container/ and it looks pretty reasonable, at
+> least from my point of view.
+> 
+> Couple of minor naming nitpick questions, though.  Is vps/container_info
+> really what we want to call it?  It seems to me to be the basis for a
+> real "container", without the _info part.
+Can be ommited.
 
-Hi,
+> "tsk->owner_container"  That makes it sound like a pointer to the "task
+> owner's container".  How about "owning_container"?  The "container
+> owning this task".  Or, maybe just "container"?
+This is why I don't like "container" name.
 
-It seems rotate_reclaimable_page fails most of the
-time due the page not being on the LRU when kswapd
-calls writepage().  The filesystem in my tests is
-ext3.  The attached patch against 2.6.16-rc2 moves the
-page to the LRU before calling writepage().  Below are
-results for a write test with:
+Please, also note, in OpenVZ we have 2 pointers on task_struct:
+One is owner of a task (owner_env), 2nd is a current context (exec_env). 
+exec_env pointer is used to avoid adding of additional argument to all 
+the functions where current context is required.
 
-dd if=/dev/zero of=test bs=1024k count=1024
+Linus, does such approach makes sense to you or you prefer us to add 
+additional args to functions where container pointer is needed? This 
+looks undersiable for embedded guys and increases stack usage/code size 
+when virtualization is off, which doesn't look good for me.
 
-To trigger the writeback path with the default dirty
-ratios, I set swappiness to 55 and mapped memory to
-about 80%.
+> Any particular reason for the "u32 id" in the vps_info struct as opposed
+> to one of the more generic types?  Do we want to abstract this one in
+> the same way we do pid_t?
+VPS ID is passed to/from user space APIs and when you have a cluster 
+with different archs and VPSs it is better to have something in common 
+for managing this.
 
-w/o patch (/proc/sys/vm/wb_put_lru = 0):
+> The "host" in "host_container_info" doesn't mean much to me.  Though, I
+> guess it has some context in the UML space.  Would "init_container_info"
+> or "root_container_info" be more descriptive?
+init_container?
+(Again, this is why container doesn't sound for me :) )
 
-pgrotcalls              25852
-pgrotnonlru             25834
-pgrotated               18
+> Lastly, is this a place for krefs?  I don't see a real need for a
+> destructor yet, but the idea is fresh in my mind.
+I don't see much need for krefs, do you?
+In OpenVZ we have 2-level refcounting (mentioned recently by Linus as in 
+mm). Process counter is used to decide when container should 
+collapse/cleanuped and real refcounter is used to free the structures 
+which can be referenced from somewhere else.
 
-with patch (/proc/sys/vm/wb_put_lru = 1):
+Also there is some probability that use of krefs will result in sysfs :)))
 
-pgrotcalls              26616
-pgrotated               26616
+> How does the attached patch look?
+I will resend all 5 patches tomorrow. And maybe more.
 
-Thanks,
-Shantanu
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
---0-676802627-1139151779=:94534
-Content-Type: application/octet-stream; name="vmscan-rotate-fix.patch"
-Content-Transfer-Encoding: base64
-Content-Description: 1824612824-vmscan-rotate-fix.patch
-Content-Disposition: attachment; filename="vmscan-rotate-fix.patch"
-
-LS0tIC5vcmlnL2luY2x1ZGUvbGludXgvcGFnZS1mbGFncy5oCTIwMDYtMDIt
-MDUgMTA6MDA6NDguMDAwMDAwMDAwIC0wNTAwCisrKyAwMS12bXNjYW4tcm90
-YXRlLWZpeC9pbmNsdWRlL2xpbnV4L3BhZ2UtZmxhZ3MuaAkyMDA2LTAyLTA0
-IDA5OjE4OjE3LjAwMDAwMDAwMCAtMDUwMApAQCAtMTQ5LDYgKzE0OSwxMiBA
-QAogCiAJdW5zaWduZWQgbG9uZyBwZ3JvdGF0ZWQ7CS8qIHBhZ2VzIHJvdGF0
-ZWQgdG8gdGFpbCBvZiB0aGUgTFJVICovCiAJdW5zaWduZWQgbG9uZyBucl9i
-b3VuY2U7CS8qIHBhZ2VzIGZvciBib3VuY2UgYnVmZmVycyAqLworCisJdW5z
-aWduZWQgbG9uZyBwZ3JvdGNhbGxzOwkvKiBwYWdlIHJvdGF0aW9uIHN0YXRz
-ICovCisJdW5zaWduZWQgbG9uZyBwZ3JvdGxvY2tlZDsKKwl1bnNpZ25lZCBs
-b25nIHBncm90ZGlydHk7CisJdW5zaWduZWQgbG9uZyBwZ3JvdGFjdGl2ZTsK
-Kwl1bnNpZ25lZCBsb25nIHBncm90bm9ubHJ1OwogfTsKIAogZXh0ZXJuIHZv
-aWQgZ2V0X3BhZ2Vfc3RhdGUoc3RydWN0IHBhZ2Vfc3RhdGUgKnJldCk7Ci0t
-LSAub3JpZy9pbmNsdWRlL2xpbnV4L3N3YXAuaAkyMDA2LTAyLTA1IDEwOjAw
-OjQ5LjAwMDAwMDAwMCAtMDUwMAorKysgMDEtdm1zY2FuLXJvdGF0ZS1maXgv
-aW5jbHVkZS9saW51eC9zd2FwLmgJMjAwNi0wMi0wNCAwOToyMzoyNC4wMDAw
-MDAwMDAgLTA1MDAKQEAgLTE3NSw2ICsxNzUsNyBAQAogZXh0ZXJuIGludCB0
-cnlfdG9fZnJlZV9wYWdlcyhzdHJ1Y3Qgem9uZSAqKiwgZ2ZwX3QpOwogZXh0
-ZXJuIGludCBzaHJpbmtfYWxsX21lbW9yeShpbnQpOwogZXh0ZXJuIGludCB2
-bV9zd2FwcGluZXNzOworZXh0ZXJuIGludCB2bV93Yl9wdXRfbHJ1OwogCiAj
-aWZkZWYgQ09ORklHX05VTUEKIGV4dGVybiBpbnQgem9uZV9yZWNsYWltX21v
-ZGU7Ci0tLSAub3JpZy9pbmNsdWRlL2xpbnV4L3N5c2N0bC5oCTIwMDYtMDIt
-MDUgMTA6MDA6NDkuMDAwMDAwMDAwIC0wNTAwCisrKyAwMS12bXNjYW4tcm90
-YXRlLWZpeC9pbmNsdWRlL2xpbnV4L3N5c2N0bC5oCTIwMDYtMDItMDQgMDk6
-MjM6MDUuMDAwMDAwMDAwIC0wNTAwCkBAIC0xODQsNiArMTg0LDcgQEAKIAlW
-TV9QRVJDUFVfUEFHRUxJU1RfRlJBQ1RJT049MzAsLyogaW50OiBmcmFjdGlv
-biBvZiBwYWdlcyBpbiBlYWNoIHBlcmNwdV9wYWdlbGlzdCAqLwogCVZNX1pP
-TkVfUkVDTEFJTV9NT0RFPTMxLCAvKiByZWNsYWltIGxvY2FsIHpvbmUgbWVt
-b3J5IGJlZm9yZSBnb2luZyBvZmYgbm9kZSAqLwogCVZNX1pPTkVfUkVDTEFJ
-TV9JTlRFUlZBTD0zMiwgLyogdGltZSBwZXJpb2QgdG8gd2FpdCBhZnRlciBy
-ZWNsYWltIGZhaWx1cmUgKi8KKwlWTV9XQl9QVVRfTFJVPTMzLAkvKiBhZGQg
-cGFnZSB0byBMUlUgYmVmb3JlIGNhbGxpbmcgd3JpdGVwYWdlKCkgKi8KIH07
-CiAKIAotLS0gLm9yaWcva2VybmVsL3N5c2N0bC5jCTIwMDYtMDItMDUgMTA6
-MDA6NDkuMDAwMDAwMDAwIC0wNTAwCisrKyAwMS12bXNjYW4tcm90YXRlLWZp
-eC9rZXJuZWwvc3lzY3RsLmMJMjAwNi0wMi0wNCAwOToyNDoxNy4wMDAwMDAw
-MDAgLTA1MDAKQEAgLTg5MSw2ICs4OTEsMTYgQEAKIAkJLnN0cmF0ZWd5CT0g
-JnN5c2N0bF9qaWZmaWVzLAogCX0sCiAjZW5kaWYKKwl7CisJCS5jdGxfbmFt
-ZQk9IFZNX1dCX1BVVF9MUlUsCisJCS5wcm9jbmFtZQk9ICJ3Yl9wdXRfbHJ1
-IiwKKwkJLmRhdGEJCT0gJnZtX3diX3B1dF9scnUsCisJCS5tYXhsZW4JCT0g
-c2l6ZW9mKHZtX3diX3B1dF9scnUpLAorCQkubW9kZQkJPSAwNjQ0LAorCQku
-cHJvY19oYW5kbGVyCT0gJnByb2NfZG9pbnR2ZWMsCisJCS5zdHJhdGVneQk9
-ICZzeXNjdGxfaW50dmVjLAorCQkuZXh0cmExCQk9ICZ6ZXJvLAorCX0sCiAJ
-eyAuY3RsX25hbWUgPSAwIH0KIH07CiAKLS0tIC5vcmlnL21tL3BhZ2VfYWxs
-b2MuYwkyMDA2LTAyLTA1IDEwOjAwOjQ5LjAwMDAwMDAwMCAtMDUwMAorKysg
-MDEtdm1zY2FuLXJvdGF0ZS1maXgvbW0vcGFnZV9hbGxvYy5jCTIwMDYtMDIt
-MDQgMDk6MjA6MzguMDAwMDAwMDAwIC0wNTAwCkBAIC0yMzYwLDYgKzIzNjAs
-MTIgQEAKIAogCSJwZ3JvdGF0ZWQiLAogCSJucl9ib3VuY2UiLAorCisJInBn
-cm90Y2FsbHMiLAorCSJwZ3JvdGxvY2tlZCIsCisJInBncm90ZGlydHkiLAor
-CSJwZ3JvdGFjdGl2ZSIsCisJInBncm90bm9ubHJ1IiwKIH07CiAKIHN0YXRp
-YyB2b2lkICp2bXN0YXRfc3RhcnQoc3RydWN0IHNlcV9maWxlICptLCBsb2Zm
-X3QgKnBvcykKLS0tIC5vcmlnL21tL3N3YXAuYwkyMDA2LTAyLTA1IDEwOjAw
-OjQ5LjAwMDAwMDAwMCAtMDUwMAorKysgMDEtdm1zY2FuLXJvdGF0ZS1maXgv
-bW0vc3dhcC5jCTIwMDYtMDItMDQgMDk6MTk6MTQuMDAwMDAwMDAwIC0wNTAw
-CkBAIC03MSwxNCArNzEsMjQgQEAKIAlzdHJ1Y3Qgem9uZSAqem9uZTsKIAl1
-bnNpZ25lZCBsb25nIGZsYWdzOwogCi0JaWYgKFBhZ2VMb2NrZWQocGFnZSkp
-CisJaW5jX3BhZ2Vfc3RhdGUocGdyb3RjYWxscyk7CisKKwlpZiAoUGFnZUxv
-Y2tlZChwYWdlKSkgeworCQlpbmNfcGFnZV9zdGF0ZShwZ3JvdGxvY2tlZCk7
-CiAJCXJldHVybiAxOwotCWlmIChQYWdlRGlydHkocGFnZSkpCisJfQorCWlm
-IChQYWdlRGlydHkocGFnZSkpIHsKKwkJaW5jX3BhZ2Vfc3RhdGUocGdyb3Rk
-aXJ0eSk7CiAJCXJldHVybiAxOwotCWlmIChQYWdlQWN0aXZlKHBhZ2UpKQor
-CX0KKwlpZiAoUGFnZUFjdGl2ZShwYWdlKSkgeworCQlpbmNfcGFnZV9zdGF0
-ZShwZ3JvdGFjdGl2ZSk7CiAJCXJldHVybiAxOwotCWlmICghUGFnZUxSVShw
-YWdlKSkKKwl9CisJaWYgKCFQYWdlTFJVKHBhZ2UpKSB7CisJCWluY19wYWdl
-X3N0YXRlKHBncm90bm9ubHJ1KTsKIAkJcmV0dXJuIDE7CisJfQogCiAJem9u
-ZSA9IHBhZ2Vfem9uZShwYWdlKTsKIAlzcGluX2xvY2tfaXJxc2F2ZSgmem9u
-ZS0+bHJ1X2xvY2ssIGZsYWdzKTsKLS0tIC5vcmlnL21tL3Ztc2Nhbi5jCTIw
-MDYtMDItMDUgMTA6MDA6NTAuMDAwMDAwMDAwIC0wNTAwCisrKyAwMS12bXNj
-YW4tcm90YXRlLWZpeC9tbS92bXNjYW4uYwkyMDA2LTAyLTA0IDExOjMzOjAw
-LjAwMDAwMDAwMCAtMDUwMApAQCAtMTI2LDYgKzEyNiw3IEBACiAgKiBGcm9t
-IDAgLi4gMTAwLiAgSGlnaGVyIG1lYW5zIG1vcmUgc3dhcHB5LgogICovCiBp
-bnQgdm1fc3dhcHBpbmVzcyA9IDYwOworaW50IHZtX3diX3B1dF9scnUgPSAx
-Owogc3RhdGljIGxvbmcgdG90YWxfbWVtb3J5OwogCiBzdGF0aWMgTElTVF9I
-RUFEKHNocmlua2VyX2xpc3QpOwpAQCAtMzA4LDcgKzMwOSw3IEBACiAvKgog
-ICogcGFnZW91dCBpcyBjYWxsZWQgYnkgc2hyaW5rX2xpc3QoKSBmb3IgZWFj
-aCBkaXJ0eSBwYWdlLiBDYWxscyAtPndyaXRlcGFnZSgpLgogICovCi1zdGF0
-aWMgcGFnZW91dF90IHBhZ2VvdXQoc3RydWN0IHBhZ2UgKnBhZ2UsIHN0cnVj
-dCBhZGRyZXNzX3NwYWNlICptYXBwaW5nKQorc3RhdGljIHBhZ2VvdXRfdCBw
-YWdlb3V0KHN0cnVjdCBwYWdlICpwYWdlLCBzdHJ1Y3QgYWRkcmVzc19zcGFj
-ZSAqbWFwcGluZywgaW50ICpvbl9scnUpCiB7CiAJLyoKIAkgKiBJZiB0aGUg
-cGFnZSBpcyBkaXJ0eSwgb25seSBwZXJmb3JtIHdyaXRlYmFjayBpZiB0aGF0
-IHdyaXRlCkBAIC0zNTcsNiArMzU4LDI3IEBACiAJCQkuZm9yX3JlY2xhaW0g
-PSAxLAogCQl9OwogCisJCS8qCisJCSAqIFB1dCBwYWdlIGJhY2sgb24gTFJV
-IGJlZm9yZSBjYWxsaW5nIHdyaXRlcGFnZQorCQkgKiBiZWNhdXNlIHRoYXQg
-Y291bGQgcmVzdWx0IGluIGEgY2FsbCB0bworCQkgKiByb3RhdGVfcmVjbGFp
-bWFibGVfcGFnZSgpLiAgSWYgdGhlIExSVSBmbGFnCisJCSAqIGlzIGNsZWFy
-LCByb3RhdGVfcmVjbGFpbWFibGVfcGFnZSgpIHdpbGwgZmFpbAorCQkgKiB0
-byBtb3ZlIHRoZSBwYWdlIHRvIHRoZSB0YWlsIG9mIHRoZSBpbmFjdGl2ZSBs
-aXN0LgorCQkgKi8KKwkJaWYgKG9uX2xydSAmJiB2bV93Yl9wdXRfbHJ1KSB7
-CisJCQlzdHJ1Y3Qgem9uZSAqem9uZSA9IHBhZ2Vfem9uZShwYWdlKTsKKwor
-CQkJKm9uX2xydSA9IDE7CisJCQlzcGluX2xvY2tfaXJxKCZ6b25lLT5scnVf
-bG9jayk7CisJCQlpZiAobGlrZWx5KCFUZXN0U2V0UGFnZUxSVShwYWdlKSkp
-IHsKKwkJCQlsaXN0X2FkZCgmcGFnZS0+bHJ1LCAmem9uZS0+aW5hY3RpdmVf
-bGlzdCk7CisJCQkJem9uZS0+bnJfaW5hY3RpdmUrKzsKKwkJCX0gZWxzZSB7
-CisJCQkJQlVHKCk7CisJCQl9CisJCQlzcGluX3VubG9ja19pcnEoJnpvbmUt
-PmxydV9sb2NrKTsKKwkJfQorCiAJCVNldFBhZ2VSZWNsYWltKHBhZ2UpOwog
-CQlyZXMgPSBtYXBwaW5nLT5hX29wcy0+d3JpdGVwYWdlKHBhZ2UsICZ3YmMp
-OwogCQlpZiAocmVzIDwgMCkKQEAgLTQzMSw2ICs0NTMsNyBAQAogCQlzdHJ1
-Y3QgcGFnZSAqcGFnZTsKIAkJaW50IG1heV9lbnRlcl9mczsKIAkJaW50IHJl
-ZmVyZW5jZWQ7CisJCWludCBvbl9scnUgPSAwOwogCiAJCWNvbmRfcmVzY2hl
-ZCgpOwogCkBAIC01MDIsNyArNTI1LDcgQEAKIAkJCQlnb3RvIGtlZXBfbG9j
-a2VkOwogCiAJCQkvKiBQYWdlIGlzIGRpcnR5LCB0cnkgdG8gd3JpdGUgaXQg
-b3V0IGhlcmUgKi8KLQkJCXN3aXRjaChwYWdlb3V0KHBhZ2UsIG1hcHBpbmcp
-KSB7CisJCQlzd2l0Y2gocGFnZW91dChwYWdlLCBtYXBwaW5nLCAmb25fbHJ1
-KSkgewogCQkJY2FzZSBQQUdFX0tFRVA6CiAJCQkJZ290byBrZWVwX2xvY2tl
-ZDsKIAkJCWNhc2UgUEFHRV9BQ1RJVkFURToKQEAgLTU1OCwxOCArNTgxLDMw
-IEBACiBmcmVlX2l0OgogCQl1bmxvY2tfcGFnZShwYWdlKTsKIAkJcmVjbGFp
-bWVkKys7Ci0JCWlmICghcGFnZXZlY19hZGQoJmZyZWVkX3B2ZWMsIHBhZ2Up
-KQotCQkJX19wYWdldmVjX3JlbGVhc2Vfbm9ubHJ1KCZmcmVlZF9wdmVjKTsK
-KwkJaWYgKCFvbl9scnUpIHsKKwkJCWlmICghcGFnZXZlY19hZGQoJmZyZWVk
-X3B2ZWMsIHBhZ2UpKQorCQkJCV9fcGFnZXZlY19yZWxlYXNlX25vbmxydSgm
-ZnJlZWRfcHZlYyk7CisJCX0gZWxzZSB7CisJCQlwYWdlX2NhY2hlX3JlbGVh
-c2UocGFnZSk7CisJCX0KIAkJY29udGludWU7CiAKIGFjdGl2YXRlX2xvY2tl
-ZDoKLQkJU2V0UGFnZUFjdGl2ZShwYWdlKTsKLQkJcGdhY3RpdmF0ZSsrOwor
-CQlpZiAoIW9uX2xydSkgeworCQkJU2V0UGFnZUFjdGl2ZShwYWdlKTsKKwkJ
-CXBnYWN0aXZhdGUrKzsKKwkJfSBlbHNlIHsKKwkJCWFjdGl2YXRlX3BhZ2Uo
-cGFnZSk7CisJCX0KIGtlZXBfbG9ja2VkOgogCQl1bmxvY2tfcGFnZShwYWdl
-KTsKIGtlZXA6Ci0JCWxpc3RfYWRkKCZwYWdlLT5scnUsICZyZXRfcGFnZXMp
-OwotCQlCVUdfT04oUGFnZUxSVShwYWdlKSk7CisJCWlmICghb25fbHJ1KSB7
-CisJCQlsaXN0X2FkZCgmcGFnZS0+bHJ1LCAmcmV0X3BhZ2VzKTsKKwkJCUJV
-R19PTihQYWdlTFJVKHBhZ2UpKTsKKwkJfSBlbHNlIHsKKwkJCXBhZ2VfY2Fj
-aGVfcmVsZWFzZShwYWdlKTsKKwkJfQogCX0KIAlsaXN0X3NwbGljZSgmcmV0
-X3BhZ2VzLCBwYWdlX2xpc3QpOwogCWlmIChwYWdldmVjX2NvdW50KCZmcmVl
-ZF9wdmVjKSkKQEAgLTYzNyw3ICs2NzIsNyBAQAogCiAJaWYgKFBhZ2VEaXJ0
-eShwYWdlKSkgewogCQkvKiBQYWdlIGlzIGRpcnR5LCB0cnkgdG8gd3JpdGUg
-aXQgb3V0IGhlcmUgKi8KLQkJc3dpdGNoKHBhZ2VvdXQocGFnZSwgbWFwcGlu
-ZykpIHsKKwkJc3dpdGNoKHBhZ2VvdXQocGFnZSwgbWFwcGluZywgTlVMTCkp
-IHsKIAkJY2FzZSBQQUdFX0tFRVA6CiAJCWNhc2UgUEFHRV9BQ1RJVkFURToK
-IAkJCWdvdG8gdW5sb2NrX3JldHJ5OwpAQCAtOTM2LDcgKzk3MSw3IEBACiAJ
-CSAqIFRyaWdnZXIgd3JpdGVvdXQgaWYgcGFnZSBpcyBkaXJ0eQogCQkgKi8K
-IAkJaWYgKFBhZ2VEaXJ0eShwYWdlKSkgewotCQkJc3dpdGNoIChwYWdlb3V0
-KHBhZ2UsIG1hcHBpbmcpKSB7CisJCQlzd2l0Y2ggKHBhZ2VvdXQocGFnZSwg
-bWFwcGluZywgTlVMTCkpIHsKIAkJCWNhc2UgUEFHRV9LRUVQOgogCQkJY2Fz
-ZSBQQUdFX0FDVElWQVRFOgogCQkJCWdvdG8gdW5sb2NrX2JvdGg7Cg==
-
---0-676802627-1139151779=:94534--
+Kirill

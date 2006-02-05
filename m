@@ -1,58 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbWBEIlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946175AbWBEIoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030275AbWBEIlP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 03:41:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWBEIlP
+	id S1946175AbWBEIoG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 03:44:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946177AbWBEIoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 03:41:15 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:31448 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S964867AbWBEIlO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 03:41:14 -0500
-Subject: Re: [RFT/PATCH] slab: consolidate allocation paths
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Paul Jackson <pj@sgi.com>
-Cc: christoph@lameter.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       manfred@colorfullife.com
-In-Reply-To: <20060204180026.b68e9476.pj@sgi.com>
-References: <1139060024.8707.5.camel@localhost>
-	 <Pine.LNX.4.62.0602040709210.31909@graphe.net>
-	 <1139070369.21489.3.camel@localhost> <1139070779.21489.5.camel@localhost>
-	 <20060204180026.b68e9476.pj@sgi.com>
-Date: Sun, 05 Feb 2006 10:41:12 +0200
-Message-Id: <1139128872.11782.5.camel@localhost>
+	Sun, 5 Feb 2006 03:44:06 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:63721 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1946175AbWBEIoE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 03:44:04 -0500
+Date: Sun, 5 Feb 2006 00:43:27 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+Subject: Re: [RFC 4/4] firewire: add mem1394
+Message-Id: <20060205004327.78926498.akpm@osdl.org>
+In-Reply-To: <1138920185.3621.24.camel@localhost>
+References: <1138919238.3621.12.camel@localhost>
+	<1138920185.3621.24.camel@localhost>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Johannes Berg <johannes@sipsolutions.net> wrote:
+>
+> +config IEEE1394_MEMDEV
+> +	tristate "IEEE1394 memory device support"
+> +	depends on IEEE1394 && EXPERIMENTAL
+> +	help
+> +	  Say Y here if you want support for the ieee1394 memory device.
+> +	  This is useful for debugging systems attached via firewire
+> +	  since it usually allows you to read from and write to their memory,
+> +	  depending on the controller and machine setup.
 
-On Sat, 2006-02-04 at 18:00 -0800, Paul Jackson wrote:
-> Two issues I can see:
-> 
->   1) This patch increased the text size of mm/slab.o by 776
->      bytes (ia64 sn2_defconfig gcc 3.3.3), which should be
->      justified.  My naive expectation would have been that
->      such a source code consolidation patch would be text
->      size neutral, or close to it.
+1394 is evil.  Does this mean that if a machine is completely
+dead-and-crashed, we can still suck all its memory out over 1394 with no
+cooperation from the dead machine's kernel?  If not, what limitations are
+there?
 
-Ah, sorry about that, I forgot to verify the NUMA case. The problem is
-that to kmalloc_node() is calling cache_alloc() now which is forced
-inline. I am wondering, would it be ok to make __cache_alloc()
-non-inline for NUMA? The relevant numbers are:
 
-   text    data     bss     dec     hex filename
-  15882    2512      24   18418    47f2 mm/slab.o (original)
-  16029    2512      24   18565    4885 mm/slab.o (inline)
-  15798    2512      24   18334    479e mm/slab.o (non-inline)
 
->   2) You might want to hold off this patch for a few days,
->      until the dust settles from my memory spread patch.
+Triviata:
 
-Sure.
+> +static int mem1394_read(struct file *file, char __user * buffer,
+> +			size_t count, loff_t *offset)
+> +{
+> +	struct mem1394_file_info *fi = (struct mem1394_file_info*)file->private_data;
 
-			Pekka
+Unneeded cast.
+
+> +	packet = hpsb_make_readpacket(fi->memdev->ne->host, fi->memdev->ne->nodeid, *offset, submitcount);
+
+xterm too big!
+
+> +static int mem1394_release(struct inode *inode, struct file *file)
+> +{
+> +	struct mem1394_file_info *fi = (struct mem1394_file_info*)file->private_data;
+
+Unneeded cast.
+
+> +	
+
+Adds trailing whitespace ;)
+
+> +static struct mem1394_dev * alloc_mem1394_dev(struct device *dev)
+> +{
+> +	struct mem1394_dev *result;
+> +	struct node_entry *ne = container_of(dev, struct node_entry, device);
+> +	int ret;
+> +	struct class_device * mem1394_class_member;
+
+Inconsistent space-after-asterisk policy (no-space is preferred).
+
+> +	mem1394_class_member = class_device_create(mem1394_sysfs_class, NULL, result->cdev.dev,
+> +						dev, "fwmem-%d", atomic_read(&mem1394_dev_ctr));
+
+My eyes!
+
+> +	if (IS_ERR(mem1394_class_member)) {
+> +		printk(KERN_WARNING "mem1394: class_device_create failed\n");
+> +	} else {
+> +		class_set_devdata(mem1394_class_member, result);
+> +	}
+
+Unneeded braces.
+
+> +	if (IS_ERR(mem1394_sysfs_class)) {
+> +		return PTR_ERR(mem1394_sysfs_class);
+> +	}
+
+Ditto.
 

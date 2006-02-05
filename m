@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751730AbWBELyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751736AbWBEMDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751730AbWBELyr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 06:54:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751733AbWBELyr
+	id S1751736AbWBEMDq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 07:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751739AbWBEMDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 06:54:47 -0500
-Received: from gold.veritas.com ([143.127.12.110]:25000 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1751730AbWBELyq (ORCPT
+	Sun, 5 Feb 2006 07:03:46 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:37789 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751733AbWBEMDp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 06:54:46 -0500
-Date: Sun, 5 Feb 2006 11:55:20 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Gleb Natapov <gleb@minantech.com>
-cc: yipee <yipeeyipeeyipeeyipee@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: changing physical page
-In-Reply-To: <20060205070027.GA11558@minantech.com>
-Message-ID: <Pine.LNX.4.61.0602051154180.5706@goblin.wat.veritas.com>
-References: <loom.20060202T160457-366@post.gmane.org>
- <Pine.LNX.4.61.0602021711110.8796@goblin.wat.veritas.com>
- <loom.20060204T152816-726@post.gmane.org> <Pine.LNX.4.61.0602041518230.8867@goblin.wat.veritas.com>
- <20060205070027.GA11558@minantech.com>
+	Sun, 5 Feb 2006 07:03:45 -0500
+Date: Sun, 5 Feb 2006 13:03:35 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+cc: mrmacman_g4@mac.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       bzolnier@gmail.com, acahalan@gmail.com
+Subject: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future
+ Linux (stirring up a hornets' nest) ]
+In-Reply-To: <43DE2FA8.nail16ZB1XOPF@burner>
+Message-ID: <Pine.LNX.4.61.0602051300430.11476@yvahk01.tjqt.qr>
+References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com>
+ <43DCA097.nailGPD11GI11@burner> <Pine.LNX.4.61.0601291212360.18492@yvahk01.tjqt.qr>
+ <43DE2FA8.nail16ZB1XOPF@burner>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 05 Feb 2006 11:54:42.0008 (UTC) FILETIME=[F309A580:01C62A4A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Feb 2006, Gleb Natapov wrote:
-> On Sat, Feb 04, 2006 at 03:20:00PM +0000, Hugh Dickins wrote:
-> > On Sat, 4 Feb 2006, yipee wrote:
-> > > Hugh Dickins <hugh <at> veritas.com> writes:
-> > > > I'll assume that when you say "page owned by a user program", you're
-> > > > meaning a private page, not a shared file page mapped into the program.
-> > > > 
-> > > > If you're asking about what currently happens, the answer is "No".
-> > > > 
-> > > > If you're asking about what you can assume, the answer is "Yes".
-> > > 
-> > > So you are saying that the current kernel doesn't move these kind of pages?
-> > 
-> > If you don't have swap (one of the conditions you gave), yes.
-> > 
-> And what if application forks and writes to the private page? Kernel
-> actually memcpy the page to another location.
+Hi,
 
-Good point.
-Hugh
+
+I just found that the followig "works" (cdrom drive not supported, but 
+other than that seems fine) under Solaris 11 snv_30 x86, much to my 
+surprise:
+
+  cdrecord -dev=/dev/rdsk/c1t0d0p0 -toc
+
+which worked just as well as
+
+  cdrecord -dev=1,0,0 -toc
+
+I would have rather expected to get
+
+  Warning: Open by 'devname' is unintentional and not supported.
+
+
+
+Jan Engelhardt
+-- 

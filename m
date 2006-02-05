@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932590AbWBEDpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932595AbWBEDqk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932590AbWBEDpF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 22:45:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932595AbWBEDpE
+	id S932595AbWBEDqk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 22:46:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932596AbWBEDqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 22:45:04 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:36748 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932590AbWBEDpD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 22:45:03 -0500
-Date: Sat, 4 Feb 2006 19:44:45 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Paul Jackson <pj@sgi.com>
-cc: Pekka Enberg <penberg@cs.helsinki.fi>, christoph@lameter.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       manfred@colorfullife.com
-Subject: Re: [RFT/PATCH] slab: consolidate allocation paths
-In-Reply-To: <20060204180026.b68e9476.pj@sgi.com>
-Message-ID: <Pine.LNX.4.62.0602041941570.9005@schroedinger.engr.sgi.com>
-References: <1139060024.8707.5.camel@localhost> <Pine.LNX.4.62.0602040709210.31909@graphe.net>
- <1139070369.21489.3.camel@localhost> <1139070779.21489.5.camel@localhost>
- <20060204180026.b68e9476.pj@sgi.com>
+	Sat, 4 Feb 2006 22:46:40 -0500
+Received: from CPE-24-31-249-53.kc.res.rr.com ([24.31.249.53]:40167 "EHLO
+	tsurukikun.utopios.org") by vger.kernel.org with ESMTP
+	id S932595AbWBEDqj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 22:46:39 -0500
+From: Luke-Jr <luke@dashjr.org>
+To: sclark46@earthlink.net
+Subject: Re: WLAN drivers
+Date: Sun, 5 Feb 2006 03:46:45 +0000
+User-Agent: KMail/1.9
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Panagiotis Issaris <takis.issaris@uhasselt.be>,
+       linux-kernel@vger.kernel.org, linux-netdev@vger.kernel.org
+References: <1138969138.8434.26.camel@localhost.localdomain> <1138990013.15691.272.camel@mindpipe> <43E39E77.90403@earthlink.net>
+In-Reply-To: <43E39E77.90403@earthlink.net>
+Public-GPG-Key: 0xD53E9583
+Public-GPG-Key-URI: http://dashjr.org/~luke-jr/myself/Luke-Jr.pgp
+IM-Address: luke-jr@jabber.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602050346.48198.luke@dashjr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Feb 2006, Paul Jackson wrote:
+On Friday 03 February 2006 18:18, Stephen Clark wrote:
+> The module includes a binary hal module that keeps the card from being
+> abused - programmed out of FCC specs. Why is so different from a card that
+> has to have firmware loaded on it that in essence does the same thing -
+> prevents the driver writer from programming the card out of FCC specs.
 
->   1) This patch increased the text size of mm/slab.o by 776
->      bytes (ia64 sn2_defconfig gcc 3.3.3), which should be
->      justified.  My naive expectation would have been that
->      such a source code consolidation patch would be text
->      size neutral, or close to it.
-
-Hmmm... Maybe its worth a retry with gcc 3.4 and 4.X? Note that the
-size increase may be much less on i386. The .o file includes descriptive
-material too...
-
+How about let the user decide to comply with FCC (or not)? Maybe it's been 
+exported? Maybe the user has a hack to make it receive an AM radio signal? 
+Plenty of legal possibilities.

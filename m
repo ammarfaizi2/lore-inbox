@@ -1,112 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751715AbWBELl2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751716AbWBELmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751715AbWBELl2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 06:41:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751714AbWBELl2
+	id S1751716AbWBELmn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 06:42:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751717AbWBELmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 06:41:28 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:39844 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750764AbWBELl1 (ORCPT
+	Sun, 5 Feb 2006 06:42:43 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:34278 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751714AbWBELmm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 06:41:27 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH -mm] swsusp: freeze user space processes first
-Date: Sun, 5 Feb 2006 12:39:52 +0100
-User-Agent: KMail/1.9.1
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, nigel@suspend2.net
-References: <200602051014.43938.rjw@sisk.pl> <200602051211.07103.rjw@sisk.pl> <20060205111815.GG1790@elf.ucw.cz>
-In-Reply-To: <20060205111815.GG1790@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Feb 2006 06:42:42 -0500
+Date: Sun, 5 Feb 2006 12:42:29 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+Subject: [patch] small cleanups
+Message-ID: <20060205114229.GA3110@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602051239.53175.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 05 February 2006 12:18, Pavel Machek wrote:
-> On Ne 05-02-06 12:11:06, Rafael J. Wysocki wrote:
-> > On Sunday 05 February 2006 11:50, Ingo Molnar wrote:
-> > > 
-> > > * Rafael J. Wysocki <rjw@sisk.pl> wrote:
-> > > 
-> > > > > The logic in that loop makes my brain burst.
-> > > > > 
-> > > > > What happens if a process does vfork();sleep(100000000)?
-> > > > 
-> > > > The freezing of processes will fail due to the timeout.
-> > > > 
-> > > > Without the if (!p->vfork_done) it would fail too, because the child 
-> > > > would be frozen and the parent would wait for the vfork completion in 
-> > > > the TASK_UNINTERRUPTIBLE state (ie. unfreezeable).  But in that case 
-> > > > we have a race between the "freezer" and the child process (ie. if the 
-> > > > child gets frozen before it completes the vfork completion, the paret 
-> > > > will be unfreezeable) which sometimes leads to a failure when it 
-> > > > should not.  [We have a test case showing this.]
-> > > 
-> > > then i'd suggest to change the vfork implementation to make this code 
-> > > freezable.
-> > 
-> > I think you are right, but I don't know how to do this.
-> > 
-> > > Nothing that userspace does should cause freezing to fail.   If it does,
-> > > we've designed things incorrectly on the kernel side. 
-> > 
-> > I tend to agree.
-> > 
-> > Generally, the problem is due to the use of completions where userland
-> > processes are waited for.  The two places I know of are the vfork
-> > implementation and the usermode helper code.
-> 
-> Can you produce userland testcase? If we have uninterruptible process for
-> days... that's a bug in kernel, suspend or not.
+While hacking system stopping, I ran around few trivial places that
+could be cleaned up... No code changes.
 
-Sure, no problem.  [Pretty scary, no?]
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-The test code:
+diff --git a/kernel/signal.c b/kernel/signal.c
+index b373fc2..50eb4f5 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -314,7 +314,7 @@ flush_signals(struct task_struct *t)
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&t->sighand->siglock, flags);
+-	clear_tsk_thread_flag(t,TIF_SIGPENDING);
++	clear_tsk_thread_flag(t, TIF_SIGPENDING);
+ 	flush_sigqueue(&t->pending);
+ 	flush_sigqueue(&t->signal->shared_pending);
+ 	spin_unlock_irqrestore(&t->sighand->siglock, flags);
+@@ -403,7 +403,7 @@ void __exit_signal(struct task_struct *t
+ 		sig = NULL;	/* Marker for below.  */
+ 	}
+ 	rcu_read_unlock();
+-	clear_tsk_thread_flag(tsk,TIF_SIGPENDING);
++	clear_tsk_thread_flag(tsk, TIF_SIGPENDING);
+ 	flush_sigqueue(&tsk->pending);
+ 	if (sig) {
+ 		/*
+@@ -572,9 +572,9 @@ int dequeue_signal(struct task_struct *t
+  		if (!(tsk->signal->flags & SIGNAL_GROUP_EXIT))
+  			tsk->signal->flags |= SIGNAL_STOP_DEQUEUED;
+  	}
+-	if ( signr &&
++	if (signr &&
+ 	     ((info->si_code & __SI_MASK) == __SI_TIMER) &&
+-	     info->si_sys_private){
++	     info->si_sys_private) {
+ 		/*
+ 		 * Release the siglock to ensure proper locking order
+ 		 * of timer locks outside of siglocks.  Note, we leave
+diff --git a/mm/pdflush.c b/mm/pdflush.c
+index c4b6d0a..6f740ab 100644
+--- a/mm/pdflush.c
++++ b/mm/pdflush.c
+@@ -17,8 +17,8 @@
+ #include <linux/gfp.h>
+ #include <linux/init.h>
+ #include <linux/module.h>
+-#include <linux/fs.h>		// Needed by writeback.h
+-#include <linux/writeback.h>	// Prototypes pdflush_operation()
++#include <linux/fs.h>		/* Needed by writeback.h	  */
++#include <linux/writeback.h>	/* Prototypes pdflush_operation() */
+ #include <linux/kthread.h>
+ #include <linux/cpuset.h>
+ 
+@@ -202,8 +202,7 @@ int pdflush_operation(void (*fn)(unsigne
+ 	unsigned long flags;
+ 	int ret = 0;
+ 
+-	if (fn == NULL)
+-		BUG();		/* Hard to diagnose if it's deferred */
++	BUG_ON(!fn);		/* Hard to diagnose if it's deferred */
+ 
+ 	spin_lock_irqsave(&pdflush_lock, flags);
+ 	if (list_empty(&pdflush_list)) {
 
-#include <sys/types.h>
-#include <unistd.h>
-
-int main(int argc, char *argv[])
-{
-	vfork();
-	sleep(300);
-
-	return 0;
-}
-
-The result:
-
-rafael@albercik:~/programming/c> ./vfork_test &
-[1] 12288
-rafael@albercik:~/programming/c> ps l
-F   UID   PID  PPID PRI  NI    VSZ   RSS WCHAN  STAT TTY        TIME COMMAND
-0   500  6937  6931  17   0  10048  2368 read_c Ss+  pts/1      0:00 /bin/bash
-0   500 12139 12133  15   0  10052  2380 wait   Ss   pts/2      0:00 /bin/bash
-0   500 12288 12139  15   0   2420   304 fork   D    pts/2      0:00 ./vfork_tes
-1   500 12291 12288  18   0   2420   304 hrtime S    pts/2      0:00 ./vfork_tes
-0   500 12372 12139  15   0   3596   820 -      R+   pts/2      0:00 ps l
-rafael@albercik:~/programming/c> kill 12288
-rafael@albercik:~/programming/c> ps l
-F   UID   PID  PPID PRI  NI    VSZ   RSS WCHAN  STAT TTY        TIME COMMAND
-0   500  6937  6931  17   0  10048  2368 read_c Ss+  pts/1      0:00 /bin/bash
-0   500 12139 12133  15   0  10052  2380 wait   Ss   pts/2      0:00 /bin/bash
-0   500 12288 12139  15   0   2420   304 fork   D    pts/2      0:00 ./vfork_tes
-1   500 12291 12288  18   0   2420   304 hrtime S    pts/2      0:00 ./vfork_tes
-0   500 12380 12139  17   0   3600   820 -      R+   pts/2      0:00 ps l
-rafael@albercik:~/programming/c> kill -9 12288
-rafael@albercik:~/programming/c> ps l
-F   UID   PID  PPID PRI  NI    VSZ   RSS WCHAN  STAT TTY        TIME COMMAND
-0   500  6937  6931  17   0  10048  2368 read_c Ss+  pts/1      0:00 /bin/bash
-0   500 12139 12133  15   0  10052  2380 wait   Ss   pts/2      0:00 /bin/bash
-0   500 12288 12139  15   0   2420   304 fork   D    pts/2      0:00 ./vfork_tes
-1   500 12291 12288  18   0   2420   304 hrtime S    pts/2      0:00 ./vfork_tes
-0   500 12387 12139  16   0   3596   816 -      R+   pts/2      0:00 ps l
-rafael@albercik:~/programming/c>
-
-Greetings,
-Rafael
+-- 
+Thanks, Sharp!

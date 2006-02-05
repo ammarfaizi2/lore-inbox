@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbWBEOgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWBEOlp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750840AbWBEOgo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 09:36:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750851AbWBEOgo
+	id S1750851AbWBEOlp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 09:41:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbWBEOlp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 09:36:44 -0500
-Received: from smtp.bredband2.net ([82.209.166.4]:28727 "EHLO
-	smtp.bredband2.net") by vger.kernel.org with ESMTP id S1750840AbWBEOgn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 09:36:43 -0500
-Message-ID: <43E60D64.3020903@home.se>
-Date: Sun, 05 Feb 2006 15:36:20 +0100
-From: =?ISO-8859-1?Q?John_B=E4ckstrand?= <sandos@home.se>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: linux-netdev@vger.kernel.org
-Subject: Problems with de2104x...
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sun, 5 Feb 2006 09:41:45 -0500
+Received: from vbn.0050556.lodgenet.net ([216.142.194.234]:45451 "EHLO
+	vbn.0050556.lodgenet.net") by vger.kernel.org with ESMTP
+	id S1750851AbWBEOlo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 09:41:44 -0500
+Subject: Re: [PATCH, RFC] Driver for reading HP laptop LCD brightness
+From: Arjan van de Ven <arjan@infradead.org>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060205143446.GA22494@srcf.ucam.org>
+References: <20060205135517.GA21795@srcf.ucam.org>
+	 <1139149647.3131.26.camel@laptopd505.fenrus.org>
+	 <20060205143446.GA22494@srcf.ucam.org>
+Content-Type: text/plain
+Date: Sun, 05 Feb 2006 15:41:42 +0100
+Message-Id: <1139150502.3131.34.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As others have reported on lkml ("Bad interaction between uhci_hcd and 
-de2104x"), I'm having problems with de2104x driver. I removed usb-ehcd, 
-but that alone didn't seem to help (other NICs doesnt work). Not loading 
-de2104x does though.
+On Sun, 2006-02-05 at 14:34 +0000, Matthew Garrett wrote:
+> On Sun, Feb 05, 2006 at 03:27:26PM +0100, Arjan van de Ven wrote:
+> 
+> > disable_irq() and enable_irq() are really really evil. Are you sure you
+> > need these? To me on first sight it looks like a bug (think of shared
+> > interrupts for example), can you explain what you are trying to achieve
+> > with these?
+> 
+> We're talking to the hardware directly. There's a potential race where 
+> the BIOS will try to access the cmos at the same time, with potentially 
+> interesting results (We set the address we want to read with the outb. 
+> The BIOS runs, outbs its own address, and then reads. We then read from 
+> the address the BIOS was looking at, rather than what we were looking 
+> at).
 
-The oops I got without USB can be seen at:
+.. and just disabling interrupts isn't going to work? Ok sure there is
+an SMP issue, but a spinlock ought to be able to fix that properly,
+instead of something this evil....
 
-http://sandos.ath.cx/~sandos/de2104x_oops.png
 
-Now, I dont even use this NIC, and I probably wont for some time or 
-ever, considering its 10Mbit or something. I only have it to have a 
-spare port "incase I need it", which I havent yet =).
-
-If anyone feels like debugging this though, feel free to tell me what to 
-provide in the way of info etc. and Ill try to help.
-
----
-John Bäckstrand

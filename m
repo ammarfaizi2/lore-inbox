@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWBEPNZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbWBEPNe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbWBEPNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 10:13:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbWBEPNY
+	id S1750901AbWBEPNe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 10:13:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbWBEPNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 10:13:24 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:62220 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750870AbWBEPNX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 10:13:23 -0500
-Date: Sun, 5 Feb 2006 16:13:22 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: yi.zhu@intel.com, jketreno@linux.intel.com
-Cc: linville@tuxdriver.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Jan Niehusmann <jan@gondor.com>
-Subject: [2.6 patch] let IPW2{1,2}00 select IEEE80211
-Message-ID: <20060205151322.GE5271@stusta.de>
+	Sun, 5 Feb 2006 10:13:34 -0500
+Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:58876 "EHLO
+	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
+	id S1750901AbWBEPN2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 10:13:28 -0500
+Message-ID: <43E615BA.1080402@sw.ru>
+Date: Sun, 05 Feb 2006 18:11:54 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+To: Hubertus Franke <frankeh@watson.ibm.com>
+CC: Greg KH <greg@kroah.com>, Dave Hansen <haveblue@us.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       clg@fr.ibm.com, alan@lxorguk.ukuu.org.uk, serue@us.ibm.com,
+       arjan@infradead.org, Rik van Riel <riel@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
+       Pavel Emelianov <xemul@sw.ru>
+Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
+References: <43E38BD1.4070707@openvz.org> <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org> <43E3915A.2080000@sw.ru> <Pine.LNX.4.64.0602030939250.4630@g5.osdl.org> <1138991641.6189.37.camel@localhost.localdomain> <20060203201945.GA18224@kroah.com> <43E3BE66.6050200@watson.ibm.com>
+In-Reply-To: <43E3BE66.6050200@watson.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jan Niehusmann <jan@gondor.com>
+> How do we want to create the container?
+> In our patch we did it through a /proc/container filesystem.
+> Which created the container object and then on fork/exec switched over.
+this doesn't look good for a full virtualization solution, since proc 
+should be virtualized as well :)
 
-This patch makes the IPW2100 and IPW2200 options available in
-the configuration menu even if IEEE80211 has not been selected before.
-This behaviour is more intuitive for people which are not familiar with
-the driver internals.
-The suggestion for this change was made by Alejandro Bonilla Beeche.
+> How about an additional sys_exec_container( exec_args + "container_name").
+> This does all the work like exec, but creates new container
+> with name "..." and attaches task to new container.
+> If name exists, an error -EEXIST will be raised !
+Why do you need exec?
 
-Signed-off-by: Jan Niehusmann <jan@gondor.com>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
-This patch was sent by Jan Niehusmann on:
-- 13 Nov 2005
-
---- a/drivers/net/wireless/Kconfig
-+++ b/drivers/net/wireless/Kconfig
-@@ -139,8 +139,9 @@ comment "Wireless 802.11b ISA/PCI cards 
- 
- config IPW2100
- 	tristate "Intel PRO/Wireless 2100 Network Connection"
--	depends on NET_RADIO && PCI && IEEE80211
-+	depends on NET_RADIO && PCI
- 	select FW_LOADER
-+	select IEEE80211
- 	---help---
-           A driver for the Intel PRO/Wireless 2100 Network 
- 	  Connection 802.11b wireless network adapter.
-@@ -192,8 +193,9 @@ config IPW_DEBUG
- 
- config IPW2200
- 	tristate "Intel PRO/Wireless 2200BG and 2915ABG Network Connection"
--	depends on NET_RADIO && IEEE80211 && PCI
-+	depends on NET_RADIO && PCI
- 	select FW_LOADER
-+	select IEEE80211
- 	---help---
-           A driver for the Intel PRO/Wireless 2200BG and 2915ABG Network
- 	  Connection adapters. 
- 
+Kirill
 

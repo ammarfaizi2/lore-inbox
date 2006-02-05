@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWBEKdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWBEKwL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751397AbWBEKdx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 05:33:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWBEKdx
+	id S1750744AbWBEKwL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 05:52:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbWBEKwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 05:33:53 -0500
-Received: from fluido.speedxs.nl ([83.98.238.192]:47628 "EHLO fluido.as")
-	by vger.kernel.org with ESMTP id S1751397AbWBEKdx (ORCPT
+	Sun, 5 Feb 2006 05:52:11 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:16581 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750744AbWBEKwK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 05:33:53 -0500
-Date: Sun, 5 Feb 2006 11:33:33 +0100
-From: "Carlo E. Prelz" <fluido@fluido.as>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: ATI RS480-based motherboard: stuck while booting with kernel >= 2.6.15 rc1
-Message-ID: <20060205103333.GA27735@epio.fluido.as>
-References: <20060120123202.GA1138@epio.fluido.as> <20060121010932.5d731f90.akpm@osdl.org> <20060121125741.GA13470@epio.fluido.as> <20060121125822.570b0d99.akpm@osdl.org> <20060122074034.GA1315@epio.fluido.as> <20060121235546.68f50bd5.akpm@osdl.org> <20060122111112.GA15320@epio.fluido.as>
+	Sun, 5 Feb 2006 05:52:10 -0500
+Date: Sun, 5 Feb 2006 11:50:37 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, pavel@suse.cz,
+       nigel@suspend2.net
+Subject: Re: [PATCH -mm] swsusp: freeze user space processes first
+Message-ID: <20060205105037.GA26222@elte.hu>
+References: <200602051014.43938.rjw@sisk.pl> <20060205013859.60a6e5ab.akpm@osdl.org> <200602051134.19490.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060122111112.GA15320@epio.fluido.as>
-X-operating-system: Linux epio 2.6.14
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200602051134.19490.rjw@sisk.pl>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.2
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Time has passed without further mention of this problem. Today I took
-some time to discover exactly where the boot process was hanging. I
-found the place. 
 
-In drivers/usb/host/pci-quirks.c, in function quirk_usb_disable_ehci
-(should start around line 211) there is a stanza that reads:
+* Rafael J. Wysocki <rjw@sisk.pl> wrote:
 
-			/* always say Linux will own the hardware
-			 * by setting EHCI_USBLEGSUP_OS.
-			 */
+> > The logic in that loop makes my brain burst.
+> > 
+> > What happens if a process does vfork();sleep(100000000)?
+> 
+> The freezing of processes will fail due to the timeout.
+> 
+> Without the if (!p->vfork_done) it would fail too, because the child 
+> would be frozen and the parent would wait for the vfork completion in 
+> the TASK_UNINTERRUPTIBLE state (ie. unfreezeable).  But in that case 
+> we have a race between the "freezer" and the child process (ie. if the 
+> child gets frozen before it completes the vfork completion, the paret 
+> will be unfreezeable) which sometimes leads to a failure when it 
+> should not.  [We have a test case showing this.]
 
-			pci_write_config_byte(pdev, offset + 3, 1);
+then i'd suggest to change the vfork implementation to make this code 
+freezable. Nothing that userspace does should cause freezing to fail.  
+If it does, we've designed things incorrectly on the kernel side.
 
-On my sapphire athlon64 motherboard (see the thread for more details),
-this call never returns (without generating any output). I commented
-it out, and now the EHCI subsystem works OK (currently running
-2.6.16rc2).
-
-I do not know what the right patch should be. 
-
-Carlo
-
--- 
-  *         Se la Strada e la sua Virtu' non fossero state messe da parte,
-* K * Carlo E. Prelz - fluido@fluido.as             che bisogno ci sarebbe
-  *               di parlare tanto di amore e di rettitudine? (Chuang-Tzu)
+	Ingo

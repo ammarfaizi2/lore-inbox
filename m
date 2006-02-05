@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030253AbWBECAt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWBECIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030253AbWBECAt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 21:00:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030252AbWBECAt
+	id S932177AbWBECIa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 21:08:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWBECIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 21:00:49 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:14304 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030253AbWBECAs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 21:00:48 -0500
-Date: Sat, 4 Feb 2006 18:00:26 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: christoph@lameter.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       manfred@colorfullife.com
-Subject: Re: [RFT/PATCH] slab: consolidate allocation paths
-Message-Id: <20060204180026.b68e9476.pj@sgi.com>
-In-Reply-To: <1139070779.21489.5.camel@localhost>
-References: <1139060024.8707.5.camel@localhost>
-	<Pine.LNX.4.62.0602040709210.31909@graphe.net>
-	<1139070369.21489.3.camel@localhost>
-	<1139070779.21489.5.camel@localhost>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Sat, 4 Feb 2006 21:08:30 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:9108 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932177AbWBECI3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 21:08:29 -0500
+Subject: Re: athlon 64 dual core tsc out of sync
+From: Lee Revell <rlrevell@joe-job.com>
+To: Albert Cahalan <acahalan@gmail.com>
+Cc: linux-kernel@vger.kernel.org, s0348365@sms.ed.ac.uk, safemode@comcast.net
+In-Reply-To: <787b0d920602041745k65504414taaaef7f6d75b364c@mail.gmail.com>
+References: <787b0d920602041224p660911b5mc4d639581736e96f@mail.gmail.com>
+	 <1139101243.2791.78.camel@mindpipe>
+	 <787b0d920602041745k65504414taaaef7f6d75b364c@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 04 Feb 2006 21:08:26 -0500
+Message-Id: <1139105306.2791.83.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.5.90 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This consolidation patch looks ok to me on first read, though others
-are certainly more expert in this code than I am.  Certainly cleanup,
-ifdef reduction and consolidation of mm/slab.c is a worthwhile goal.
-That code is rough for folks like me to follow.
+On Sat, 2006-02-04 at 20:45 -0500, Albert Cahalan wrote:
+> You clearly haven't been paying attention. Lots of computers vary the
+> clock rate. They do this several ways. 
 
-Two issues I can see:
+I certainly have been paying attention.  Most of these problems are
+theoretical.  In practice the only commonly used hardware where the TSC
+is so unreliable as to be unusable are dual core Athlons.
 
-  1) This patch increased the text size of mm/slab.o by 776
-     bytes (ia64 sn2_defconfig gcc 3.3.3), which should be
-     justified.  My naive expectation would have been that
-     such a source code consolidation patch would be text
-     size neutral, or close to it.
+Please check the jackit-devel (this app has tight RT constraints and
+used to use the TSC directly for timing so problems show up quickly)
+list for details - we have seen zero bug reports due to CPU frequency
+scaling issues, and TONS related to the Athlon X2.
 
-  2) You might want to hold off this patch for a few days,
-     until the dust settles from my memory spread patch.
+Lee
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

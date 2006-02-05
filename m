@@ -1,102 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751723AbWBELtt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751730AbWBELyr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751723AbWBELtt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 06:49:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751725AbWBELts
+	id S1751730AbWBELyr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 06:54:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751733AbWBELyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 06:49:48 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5577 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751722AbWBELts (ORCPT
+	Sun, 5 Feb 2006 06:54:47 -0500
+Received: from gold.veritas.com ([143.127.12.110]:25000 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751730AbWBELyq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 06:49:48 -0500
-Date: Sun, 5 Feb 2006 12:49:34 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: [RFC] swsusp: finally solve mysqld problem
-Message-ID: <20060205114934.GA3148@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sun, 5 Feb 2006 06:54:46 -0500
+Date: Sun, 5 Feb 2006 11:55:20 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Gleb Natapov <gleb@minantech.com>
+cc: yipee <yipeeyipeeyipeeyipee@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: changing physical page
+In-Reply-To: <20060205070027.GA11558@minantech.com>
+Message-ID: <Pine.LNX.4.61.0602051154180.5706@goblin.wat.veritas.com>
+References: <loom.20060202T160457-366@post.gmane.org>
+ <Pine.LNX.4.61.0602021711110.8796@goblin.wat.veritas.com>
+ <loom.20060204T152816-726@post.gmane.org> <Pine.LNX.4.61.0602041518230.8867@goblin.wat.veritas.com>
+ <20060205070027.GA11558@minantech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 05 Feb 2006 11:54:42.0008 (UTC) FILETIME=[F309A580:01C62A4A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move userland freezing into more logical place. It now hits even with
-mysqld running.
+On Sun, 5 Feb 2006, Gleb Natapov wrote:
+> On Sat, Feb 04, 2006 at 03:20:00PM +0000, Hugh Dickins wrote:
+> > On Sat, 4 Feb 2006, yipee wrote:
+> > > Hugh Dickins <hugh <at> veritas.com> writes:
+> > > > I'll assume that when you say "page owned by a user program", you're
+> > > > meaning a private page, not a shared file page mapped into the program.
+> > > > 
+> > > > If you're asking about what currently happens, the answer is "No".
+> > > > 
+> > > > If you're asking about what you can assume, the answer is "Yes".
+> > > 
+> > > So you are saying that the current kernel doesn't move these kind of pages?
+> > 
+> > If you don't have swap (one of the conditions you gave), yes.
+> > 
+> And what if application forks and writes to the private page? Kernel
+> actually memcpy the page to another location.
 
-(Rafael, I'm a bit afraid this will clash with your refrigerator
-changes, plus I'm lazy and don't -mm here. Do you think you could
-forward it to akpm?)
-
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-
-diff --git a/arch/i386/kernel/signal.c b/arch/i386/kernel/signal.c
-index 963616d..5917835 100644
---- a/arch/i386/kernel/signal.c
-+++ b/arch/i386/kernel/signal.c
-@@ -582,9 +582,6 @@ static void fastcall do_signal(struct pt
- 	if (!user_mode(regs))
- 		return;
- 
--	if (try_to_freeze())
--		goto no_signal;
--
- 	if (test_thread_flag(TIF_RESTORE_SIGMASK))
- 		oldset = &current->saved_sigmask;
- 	else
-@@ -613,7 +610,6 @@ static void fastcall do_signal(struct pt
- 		return;
- 	}
- 
--no_signal:
- 	/* Did we come from a system call? */
- 	if (regs->orig_eax >= 0) {
- 		/* Restart the system call - no handlers present */
-diff --git a/arch/x86_64/kernel/signal.c b/arch/x86_64/kernel/signal.c
-index 5876df1..e5f5ce7 100644
---- a/arch/x86_64/kernel/signal.c
-+++ b/arch/x86_64/kernel/signal.c
-@@ -443,9 +443,6 @@ int do_signal(struct pt_regs *regs, sigs
- 	if (!user_mode(regs))
- 		return 1;
- 
--	if (try_to_freeze())
--		goto no_signal;
--
- 	if (!oldset)
- 		oldset = &current->blocked;
- 
-@@ -463,7 +460,6 @@ int do_signal(struct pt_regs *regs, sigs
- 		return handle_signal(signr, &info, &ka, oldset, regs);
- 	}
- 
-- no_signal:
- 	/* Did we come from a system call? */
- 	if ((long)regs->orig_rax >= 0) {
- 		/* Restart the system call - no handlers present */
-diff --git a/kernel/signal.c b/kernel/signal.c
-index b373fc2..50eb4f5 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -1922,6 +1922,8 @@ int get_signal_to_deliver(siginfo_t *inf
- 	sigset_t *mask = &current->blocked;
- 	int signr = 0;
- 
-+	try_to_freeze();
-+
- relock:
- 	spin_lock_irq(&current->sighand->siglock);
- 	for (;;) {
-@@ -2307,7 +2309,6 @@ sys_rt_sigtimedwait(const sigset_t __use
- 
- 			timeout = schedule_timeout_interruptible(timeout);
- 
--			try_to_freeze();
- 			spin_lock_irq(&current->sighand->siglock);
- 			sig = dequeue_signal(current, &these, &info);
- 			current->blocked = current->real_blocked;
-
--- 
-Thanks, Sharp!
+Good point.
+Hugh

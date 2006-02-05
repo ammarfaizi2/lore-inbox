@@ -1,27 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWBEVxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWBEVw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWBEVxH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 16:53:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWBEVxH
+	id S1750749AbWBEVw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 16:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWBEVw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 16:53:07 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26280 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750746AbWBEVxG (ORCPT
+	Sun, 5 Feb 2006 16:52:56 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24232 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750749AbWBEVw4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 16:53:06 -0500
-Date: Sun, 5 Feb 2006 22:51:03 +0100
+	Sun, 5 Feb 2006 16:52:56 -0500
+Date: Sun, 5 Feb 2006 22:49:22 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, Russell King <rmk@arm.linux.org.uk>,
-       John Lenz <lenz@cs.wisc.edu>, Andrew Morton <akpm@osdl.org>,
-       tglx@linutronix.de, dirk@opfer-online.de, jbowler@acm.org
-Subject: Re: [PATCH 0/12] LED Class, Triggers and Drivers
-Message-ID: <20060205215103.GB3681@elf.ucw.cz>
-References: <1139154718.6438.78.camel@localhost.localdomain>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH, RFC] Driver for reading HP laptop LCD brightness
+Message-ID: <20060205214922.GA3681@elf.ucw.cz>
+References: <20060205135517.GA21795@srcf.ucam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1139154718.6438.78.camel@localhost.localdomain>
+In-Reply-To: <20060205135517.GA21795@srcf.ucam.org>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -29,9 +27,20 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-Seems okay to me. It would be nice if it could be merged to -mm -- I
-think it is ready, and it is possible to improve it further there...
+> The attached patch provides a sysfs mechanism for reading the LCD 
+> brightness on HP laptops. Since there's no clean way to determine 
+> whether a machine is a laptop or not from within the kernel (this 
+> information is in the DMI tables, but we don't currently export the 
+> chassis field), it does nothing until userspace has enabled it.
 
+Can you fix the DMI code to export chasis, then?
+
+> Right now, I'm looking for comments on how to integrate it sensibly - 
+> leaving it under drivers/misc and registering it as a platform device 
+> /works/, but isn't terribly clean.
+
+Lots of handhelds ave brightness settings, and it is *very* important
+there. Perhaps you could use same interface?
 								Pavel
 -- 
 Thanks, Sharp!

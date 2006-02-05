@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWBEQcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751779AbWBEQjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751147AbWBEQcb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 11:32:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751765AbWBEQcb
+	id S1751779AbWBEQjt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 11:39:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750887AbWBEQjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 11:32:31 -0500
-Received: from mx1.suse.de ([195.135.220.2]:38374 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751147AbWBEQcb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 11:32:31 -0500
-To: Ed Sweetman <safemode@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: athlon 64 dual core tsc out of sync
-References: <43E40D14.7070606@comcast.net>
-From: Andi Kleen <ak@suse.de>
-Date: 05 Feb 2006 17:32:16 +0100
-In-Reply-To: <43E40D14.7070606@comcast.net>
-Message-ID: <p73u0bdlqb3.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sun, 5 Feb 2006 11:39:49 -0500
+Received: from imladris.surriel.com ([66.92.77.98]:21965 "EHLO
+	imladris.surriel.com") by vger.kernel.org with ESMTP
+	id S1750835AbWBEQjt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 11:39:49 -0500
+Date: Sun, 5 Feb 2006 11:39:43 -0500 (EST)
+From: Rik van Riel <riel@surriel.com>
+To: Shantanu Goel <sgoel01@yahoo.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+Subject: Re: [VM PATCH] rotate_reclaimable_page fails frequently
+In-Reply-To: <20060205150259.1549.qmail@web33007.mail.mud.yahoo.com>
+Message-ID: <Pine.LNX.4.61L.0602051138260.26086@imladris.surriel.com>
+References: <20060205150259.1549.qmail@web33007.mail.mud.yahoo.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: 
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Sweetman <safemode@comcast.net> writes:
+On Sun, 5 Feb 2006, Shantanu Goel wrote:
 
-> why doesn't the startup of the kernel choose
-> the pmtimer based on if it detects the system is a dual core proc with
-> smp enabled?  
+> It seems rotate_reclaimable_page fails most of the
+> time due the page not being on the LRU when kswapd
+> calls writepage().
 
-The 64bit kernel does this. I believe John Stultz also implemented
-it for 32bit, but it might not have hit mainline yet. 
+The question is, why is the page not yet back on the
+LRU by the time the data write completes ?
 
-Sometimes people sabotate it though by not compiling in crucial
-parts like ACPI - (no ACPI - no pmtimer)
+Surely a disk IO is slow enough that the page will
+have been put on the LRU milliseconds before the IO
+completes ?
 
-> And if the pmtimer doesn't fix this sync issue, is
-> there a fix out there?   Currently with 2.6.16-rc1-mm5 the
-> non-customized boot args to the kernel results in these messages.
+In what kind of configuration do you run into this
+problem ?
 
-pmtimer fixes the issue by not using  the TSC at all. So if you
-still have timer troubles when using the pmtimer then it's not the TSC to blame.
-
-> Losing some ticks... checking if CPU frequency changed.
-> warning: many lost ticks.
-> Your time source seems to be instable or some driver is hogging interupts
-> rip default_idle+0x2d/0x60
-
-There are unfortunately many different chipset that could cause it.
-
-There was an issue CPU found that could cause this, but it should only happen
-on mobile athlon 64.
-
-Sometimes there are timer routing problems on some Nvidia and ATI chipsets.
-Assuming you're using 64bit then you can try apicmaintimer or apicpmtimer.
-On 32bit you can try pci=noacpi noapic
-
--Andi
-
-P.S.: I would recommend to approach the issue like visiting a doctor. If you
-don't see the full picture don't blame a single piece like the TSC.
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

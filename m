@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbWBEQPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWBEQcb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750959AbWBEQPn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 11:15:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbWBEQPn
+	id S1751147AbWBEQcb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 11:32:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751765AbWBEQcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 11:15:43 -0500
-Received: from ms-smtp-05-smtplb.tampabay.rr.com ([65.32.5.135]:55766 "EHLO
-	ms-smtp-05.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S1750822AbWBEQPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 11:15:42 -0500
-Message-ID: <43E62492.6080506@cfl.rr.com>
-Date: Sun, 05 Feb 2006 11:15:14 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Mail/News 1.5 (X11/20060119)
+	Sun, 5 Feb 2006 11:32:31 -0500
+Received: from mx1.suse.de ([195.135.220.2]:38374 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751147AbWBEQcb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 11:32:31 -0500
+To: Ed Sweetman <safemode@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: athlon 64 dual core tsc out of sync
+References: <43E40D14.7070606@comcast.net>
+From: Andi Kleen <ak@suse.de>
+Date: 05 Feb 2006 17:32:16 +0100
+In-Reply-To: <43E40D14.7070606@comcast.net>
+Message-ID: <p73u0bdlqb3.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Krzysztof Halasa <khc@pm.waw.pl>, Olivier Galibert <galibert@pobox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo> <787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com> <Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr> <20060202210949.GD10352@voodoo> <43E27792.nail54V1B1B3Z@burner> <787b0d920602 <Pine.LNX.4.61.0602050838110.6749@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0602050838110.6749@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
-> I would say we all forgot to RTFM. Because O_EXCL does nothing *unless* 
-> O_CREAT is specified, which probably *is not* specified in cdrecord or 
-> hal. There is no reason to have hal or cdrecord create a device node - 
-> which you can't do with open() anyway.
-> 
+Ed Sweetman <safemode@comcast.net> writes:
 
-I think you are misinterpreting the man page, because it isn't worded 
-very clearly.  It should not even mention O_CREAT because it has nothing 
-to do with O_EXCL; it is just repeating the semantics of O_CREAT ( if 
-the file already exists, the call fails ) which would of course, apply 
-if you do use O_CREAT in conjunction with any other flag including 
-O_EXCL.  It does not say that you must use O_EXCL with O_CREAT.  The 
-rest of the description talks about using lockfiles as an alternative to 
-ensure exclusive access to the file on NFS where O_EXCL is broken.  The 
-intent of O_EXCL is clearly to provide the caller with exclusive access 
-to the file.
+> why doesn't the startup of the kernel choose
+> the pmtimer based on if it detects the system is a dual core proc with
+> smp enabled?  
 
+The 64bit kernel does this. I believe John Stultz also implemented
+it for 32bit, but it might not have hit mainline yet. 
 
+Sometimes people sabotate it though by not compiling in crucial
+parts like ACPI - (no ACPI - no pmtimer)
 
+> And if the pmtimer doesn't fix this sync issue, is
+> there a fix out there?   Currently with 2.6.16-rc1-mm5 the
+> non-customized boot args to the kernel results in these messages.
+
+pmtimer fixes the issue by not using  the TSC at all. So if you
+still have timer troubles when using the pmtimer then it's not the TSC to blame.
+
+> Losing some ticks... checking if CPU frequency changed.
+> warning: many lost ticks.
+> Your time source seems to be instable or some driver is hogging interupts
+> rip default_idle+0x2d/0x60
+
+There are unfortunately many different chipset that could cause it.
+
+There was an issue CPU found that could cause this, but it should only happen
+on mobile athlon 64.
+
+Sometimes there are timer routing problems on some Nvidia and ATI chipsets.
+Assuming you're using 64bit then you can try apicmaintimer or apicpmtimer.
+On 32bit you can try pci=noacpi noapic
+
+-Andi
+
+P.S.: I would recommend to approach the issue like visiting a doctor. If you
+don't see the full picture don't blame a single piece like the TSC.

@@ -1,52 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWBERFr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbWBERFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbWBERFr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 12:05:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751781AbWBERFr
+	id S1751184AbWBERFh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 12:05:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWBERFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 12:05:47 -0500
-Received: from ns2.suse.de ([195.135.220.15]:28810 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751188AbWBERFq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 12:05:46 -0500
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org, bharata@in.ibm.com
-Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes 2.6.16-rc1[2] on 2 node X86_64
-Date: Sun, 5 Feb 2006 18:03:58 +0100
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, Christoph Lameter <clameter@engr.sgi.com>
-References: <20060205163618.GB21972@in.ibm.com>
-In-Reply-To: <20060205163618.GB21972@in.ibm.com>
+	Sun, 5 Feb 2006 12:05:37 -0500
+Received: from mail-gw1.turkuamk.fi ([195.148.208.125]:18617 "EHLO
+	mail-gw1.turkuamk.fi") by vger.kernel.org with ESMTP
+	id S1751184AbWBERFg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 12:05:36 -0500
+Message-ID: <43E630AB.6060006@kolumbus.fi>
+Date: Sun, 05 Feb 2006 19:06:51 +0200
+From: =?ISO-8859-15?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Shantanu Goel <sgoel01@yahoo.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [VM PATCH] rotate_reclaimable_page fails frequently
+References: <20060205150259.1549.qmail@web33007.mail.mud.yahoo.com>
+In-Reply-To: <20060205150259.1549.qmail@web33007.mail.mud.yahoo.com>
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release
+ 6.5.4FP2|September 12, 2005) at 05.02.2006 19:05:28,
+	Serialize by Router on marconi.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP2|September
+ 12, 2005) at 05.02.2006 19:05:29,
+	Serialize complete at 05.02.2006 19:05:29,
+	Itemize by SMTP Server on notes.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP2|September
+ 12, 2005) at 05.02.2006 19:05:28,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP2|September
+ 12, 2005) at 05.02.2006 19:05:29
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602051803.59437.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 05 February 2006 17:36, Bharata B Rao wrote:
-> Hi,
-> 
-> I am seeing a kernel crash with 2.6.16-rc1 and rc2 but not on any
-> 2.6.15 kernels (rc and 2.6.15.2). Arch is x86_64.
-> 
-> The kernel crashes when I run an application which does:
-> 	- mmap (0, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS)
-> 	- mbind the memory to the 1st node with policy MPOL_BIND
-> 	- write to that memory
-> 
-> The crash time log on 2.6.16-rc2 looks like this:
-> 
-> Unable to handle kernel NULL pointer dereference at 0000000000000008 RIP:
-> <ffffffff801614df>{__rmqueue+63}
+Shantanu Goel wrote:
 
-There's another report of it. The boot logs seem ok, so I guess
-mbind broke somehow. I suppose it's related to the mempolicy changes
-that went into 2.6.16-rc1. I'll try to take a look tomorrow if
-Christoph doesn't beat it.
+>Hi,
+>
+>It seems rotate_reclaimable_page fails most of the
+>time due the page not being on the LRU when kswapd
+>calls writepage().  The filesystem in my tests is
+>ext3.  The attached patch against 2.6.16-rc2 moves the
+>page to the LRU before calling writepage().  Below are
+>results for a write test with:
+>
+>dd if=/dev/zero of=test bs=1024k count=1024
+>
+>To trigger the writeback path with the default dirty
+>ratios, I set swappiness to 55 and mapped memory to
+>about 80%.
+>
+>w/o patch (/proc/sys/vm/wb_put_lru = 0):
+>
+>pgrotcalls              25852
+>pgrotnonlru             25834
+>pgrotated               18
+>
+>with patch (/proc/sys/vm/wb_put_lru = 1):
+>
+>pgrotcalls              26616
+>pgrotated               26616
+>
+>Thanks,
+>Shantanu
+>
+>
+>__________________________________________________
+>  
+>
+ I think this BUGs easily because shrink_cache doesn't expect to see 
+unfreeable pages put back to LRU.
 
-OOM with mbind seems to have broken also - it oopses too.
+--Mika
 
--Andi

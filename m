@@ -1,66 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbWBETCy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWBETNg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751119AbWBETCy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 14:02:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbWBETCy
+	id S1751160AbWBETNg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 14:13:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbWBETNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 14:02:54 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:58333 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751119AbWBETCx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 14:02:53 -0500
-Date: Sun, 5 Feb 2006 14:02:20 -0500
-From: Dave Jones <davej@redhat.com>
-To: Olaf Hering <olh@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH] Fix build failure in recent pm_prepare_* changes.
-Message-ID: <20060205190220.GB19458@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Olaf Hering <olh@suse.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	"Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@suse.cz>
-References: <200602032312.k13NCDAc012658@hera.kernel.org> <20060205125610.GA26337@suse.de>
-Mime-Version: 1.0
+	Sun, 5 Feb 2006 14:13:36 -0500
+Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:41367 "EHLO
+	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S1751160AbWBETNg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 14:13:36 -0500
+To: Damian Pietras <daper@daper.net>
+Cc: Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Problems with eject and pktcdvd
+References: <20060115123546.GA21609@daper.net> <43CA8C15.8010402@cfl.rr.com>
+	<20060115185025.GA15782@daper.net> <43CA9FC7.9000802@cfl.rr.com>
+	<m3ek39z09f.fsf@telia.com> <20060115210443.GA6096@daper.net>
+From: Peter Osterlund <petero2@telia.com>
+Date: 05 Feb 2006 20:13:28 +0100
+In-Reply-To: <20060115210443.GA6096@daper.net>
+Message-ID: <m33bixaaav.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060205125610.GA26337@suse.de>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 05, 2006 at 01:56:10PM +0100, Olaf Hering wrote:
- >  On Fri, Feb 03, Linux Kernel Mailing List wrote:
- > 
- > > tree 8f70444139c8564c0f1e88e1f33adda036ae6a96
- > > parent 278ff9537030bbb292b33504f5e1f6e0126793eb
- > > author Dave Jones <davej@redhat.com> Fri, 03 Feb 2006 19:03:44 -0800
- > > committer Linus Torvalds <torvalds@g5.osdl.org> Sat, 04 Feb 2006 00:32:00 -0800
- > > 
- > > [PATCH] Fix build failure in recent pm_prepare_* changes.
- > > 
- > > kernel/power/power.h:49: error: static declaration of 'pm_prepare_console' follows non-static declaration
- > > include/linux/suspend.h:46: error: previous declaration of 'pm_prepare_console' was here
- > > kernel/power/power.h:50: error: static declaration of 'pm_restore_console' follows non-static declaration
- > > include/linux/suspend.h:47: error: previous declaration of 'pm_restore_console' was here
- > > 
- > > Signed-off-by: Dave Jones <davej@redhat.com>
- > 
- > this one is not correct, please have a closer look at
- > f7b8988ff50d99c99746f65f420364e91362c065
- > 
- >   CC      drivers/macintosh/via-pmu.o
- > drivers/macintosh/via-pmu.c: In function 'pmac_suspend_devices':
- > drivers/macintosh/via-pmu.c:2078: error: implicit declaration of function 'pm_prepare_console'
- > drivers/macintosh/via-pmu.c: In function 'pmac_wakeup_devices':
- > drivers/macintosh/via-pmu.c:2194: error: implicit declaration of function 'pm_restore_console'
- > make[2]: *** [drivers/macintosh/via-pmu.o] Error 1
+Damian Pietras <daper@daper.net> writes:
 
-Strange, my ppc[64] builds compiled and linked without failure. I think perhaps
-it's time I added -Werror-implicit-function-declaration to the Makefile.
+> On Sun, Jan 15, 2006 at 09:47:40PM +0100, Peter Osterlund wrote:
+> > 
+> > The irq timeout problem might be broken hardware/firmware, but there
+> > is a problem with drive locking and the pktcdvd driver.
+> > 
+> > If you do
+> > 
+> > 	pktsetup 0 /dev/hdc
+> > 	mount /dev/hdc /mnt/tmp
+> > 	umount /mnt/tmp
+> > 
+> > the door will be left in a locked state. (It gets unlocked when you
+> > run "pktsetup -d 0" though.) However, if you do:
+> > 
+> > 	pktsetup 0 /dev/hdc
+> > 	mount /dev/pktcdvd/0 /mnt/tmp
+> > 	umount /mnt/tmp
+> 
+> Thanks!
+> 
+> It works this way without any irq timeout. Unfortunately I can't use it
+> as a workaround, because CD-R media must be mounted with '-o ro' or I
+> get 'pktcdvd: Wrong disc profile (9)', so I can't just put it in fstab
+> and use 'mount /media/cdrom' for both CD-R and RW discs.
 
-I'll not get a chance to look into fixing this until tomorrow, so if Rafael/Pavel
-have time before then, maybe they'll beat me to it.
+Please try this patch.
 
 
-		Dave
+Allow non-writable media to be mounted.
 
+Signed-off-by: Peter Osterlund <petero2@telia.com>
+---
+
+ drivers/block/pktcdvd.c |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
+index 3445386..04117a7 100644
+--- a/drivers/block/pktcdvd.c
++++ b/drivers/block/pktcdvd.c
+@@ -1896,7 +1896,7 @@ static int pkt_open_write(struct pktcdvd
+ 
+ 	if ((ret = pkt_probe_settings(pd))) {
+ 		DPRINTK("pktcdvd: %s failed probe\n", pd->name);
+-		return -EIO;
++		return -EROFS;
+ 	}
+ 
+ 	if ((ret = pkt_set_write_settings(pd))) {
+@@ -2054,10 +2054,9 @@ static int pkt_open(struct inode *inode,
+ 			goto out_dec;
+ 		}
+ 	} else {
+-		if (pkt_open_dev(pd, file->f_mode & FMODE_WRITE)) {
+-			ret = -EIO;
++		ret = pkt_open_dev(pd, file->f_mode & FMODE_WRITE);
++		if (ret)
+ 			goto out_dec;
+-		}
+ 		/*
+ 		 * needed here as well, since ext2 (among others) may change
+ 		 * the blocksize at mount time
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbWBFKwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbWBFKwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751072AbWBFKwO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 05:52:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWBFKwO
+	id S1751075AbWBFKwp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 05:52:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbWBFKwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 05:52:14 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:27842 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751070AbWBFKwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 05:52:14 -0500
-Message-ID: <43E72AAC.8030502@jp.fujitsu.com>
-Date: Mon, 06 Feb 2006 19:53:32 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Mon, 6 Feb 2006 05:52:45 -0500
+Received: from ns2.suse.de ([195.135.220.15]:25822 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751070AbWBFKwo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 05:52:44 -0500
+From: Andi Kleen <ak@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+Date: Mon, 6 Feb 2006 11:35:29 +0100
+User-Agent: KMail/1.8.2
+Cc: Paul Jackson <pj@sgi.com>, akpm@osdl.org, dgc@sgi.com, steiner@sgi.com,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, clameter@sgi.com
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com> <200602061116.44040.ak@suse.de> <20060206102337.GA3359@elte.hu>
+In-Reply-To: <20060206102337.GA3359@elte.hu>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [RFC][PATCH] unify pfn_to_page [5/25] cris pfn_to_page/page_to_pfn
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602061135.30966.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use generic ones.
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+On Monday 06 February 2006 11:23, Ingo Molnar wrote:
 
-Index: cleanup_pfn_page/include/asm-cris/page.h
-===================================================================
---- cleanup_pfn_page.orig/include/asm-cris/page.h
-+++ cleanup_pfn_page/include/asm-cris/page.h
-@@ -43,8 +43,7 @@ typedef struct { unsigned long pgprot; }
+> 
+> well, if the pagecache is filled on a node above a certain ratio then 
+> one would have to spread it out forcibly. 
 
-  /* On CRIS the PFN numbers doesn't start at 0 so we have to compensate */
-  /* for that before indexing into the page table starting at mem_map    */
--#define pfn_to_page(pfn)	(mem_map + ((pfn) - (PAGE_OFFSET >> PAGE_SHIFT)))
--#define page_to_pfn(page)	((unsigned long)((page) - mem_map) + (PAGE_OFFSET >> PAGE_SHIFT))
-+#define ARCH_PFN_OFFSET		(PAGE_OFFSET >> PAGE_SHIFT)
-  #define pfn_valid(pfn)		(((pfn) - (PAGE_OFFSET >> PAGE_SHIFT)) < max_mapnr)
+In theory yes. In practice it doesn't work that well ...
 
-  /* to index into the page map. our pages all start at physical addr PAGE_OFFSET so
+> But otherwise, try to keep  
+> things as local as possible, because that will perform best. 
 
+Experience teaches differently. For IO caches (and d/icache) strict local 
+caching doesn't seem to be the best policy because it competes with more
+important mapped memory too much.
+
+> This is  
+> different from the case Paul's patch is addressing: workloads which are 
+> known to be global (and hence spreading out is the best-performing 
+> allocation).
+> 
+> (for which problem i suggested a per-mount/directory/file 
+> locality-of-reference attribute in another post.)
+
+iirc there is already a patch around for tmpfs to do that. But the 
+interesting point here is what should be that default. And what
+to do with the d/icaches by default.
+
+-Andi
+ 

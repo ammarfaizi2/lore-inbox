@@ -1,87 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWBFIn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWBFIpn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbWBFIn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 03:43:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWBFIn6
+	id S1750794AbWBFIpn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 03:45:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbWBFIpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 03:43:58 -0500
-Received: from xproxy.gmail.com ([66.249.82.199]:51063 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750782AbWBFIn5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 03:43:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bCUq3WBRBKHwkveIJPIzJ3uIfKxRExBU4e2HhsYAs5cjyZDzdspExDi881eCtSKUZVyb+gs4YvuXQ+akx0Y+9XWMdMOHbVUQ5me3OeUFaSUQRg7DVTwr4kHDEpSL58G1Paigaw10YSzVS2nQbl86XjfNyKuHaVY3UB6LuuDjMqU=
-Message-ID: <986ed62e0602060043o5e203341ra5daf0fe628866f9@mail.gmail.com>
-Date: Mon, 6 Feb 2006 00:43:57 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Alon Bar-Lev <alon.barlev@gmail.com>
-Subject: Re: [PATCH] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit - Resubmit
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43E3BDDD.6000402@gmail.com>
+	Mon, 6 Feb 2006 03:45:42 -0500
+Received: from gold.veritas.com ([143.127.12.110]:61260 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1750794AbWBFIpm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 03:45:42 -0500
+Date: Mon, 6 Feb 2006 08:46:07 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] stop ==== emergency
+In-Reply-To: <20060205205709.0b88171b.zaitcev@redhat.com>
+Message-ID: <Pine.LNX.4.61.0602060841540.6574@goblin.wat.veritas.com>
+References: <mailman.1139006040.12873.linux-kernel2news@redhat.com>
+ <20060205205709.0b88171b.zaitcev@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43E3BDDD.6000402@gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 06 Feb 2006 08:45:35.0707 (UTC) FILETIME=[B28742B0:01C62AF9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/3/06, Alon Bar-Lev <alon.barlev@gmail.com> wrote:
-> diff -urNp linux-2.6.16-rc2/include/asm-i386/param.h linux-2.6.16-rc2.new/include/asm-i386/param.h
-> --- linux-2.6.16-rc2/include/asm-i386/param.h   2006-01-03 05:21:10.000000000 +0200
-> +++ linux-2.6.16-rc2.new/include/asm-i386/param.h       2006-02-03 21:23:21.000000000 +0200
-> @@ -19,6 +19,6 @@
->  #endif
->
->  #define MAXHOSTNAMELEN 64      /* max length of hostname */
-> -#define COMMAND_LINE_SIZE 256
-> +#define COMMAND_LINE_SIZE 1024
->
->  #endif
-> diff -urNp linux-2.6.16-rc2/include/asm-i386/setup.h linux-2.6.16-rc2.new/include/asm-i386/setup.h
-> --- linux-2.6.16-rc2/include/asm-i386/setup.h   2006-01-03 05:21:10.000000000 +0200
-> +++ linux-2.6.16-rc2.new/include/asm-i386/setup.h       2006-02-03 21:19:44.000000000 +0200
-> @@ -17,7 +17,7 @@
->  #define MAX_NONPAE_PFN (1 << 20)
->
->  #define PARAM_SIZE 4096
-> -#define COMMAND_LINE_SIZE 256
-> +#define COMMAND_LINE_SIZE 1024
->
->  #define OLD_CL_MAGIC_ADDR      0x90020
->  #define OLD_CL_MAGIC           0xA33F
-> diff -urNp linux-2.6.16-rc2/include/asm-x86_64/setup.h linux-2.6.16-rc2.new/include/asm-x86_64/setup.h
-> --- linux-2.6.16-rc2/include/asm-x86_64/setup.h 2006-01-03 05:21:10.000000000 +0200
-> +++ linux-2.6.16-rc2.new/include/asm-x86_64/setup.h     2006-02-03 21:20:40.000000000 +0200
-> @@ -1,6 +1,6 @@
->  #ifndef _x8664_SETUP_H
->  #define _x8664_SETUP_H
->
-> -#define COMMAND_LINE_SIZE      256
-> +#define COMMAND_LINE_SIZE      1024
->
->  #endif
+On Sun, 5 Feb 2006, Pete Zaitcev wrote:
+> On Fri, 3 Feb 2006 21:37:09 +0000 (GMT), Hugh Dickins <hugh@veritas.com> wrote:
+> 
+> > +++ linux/arch/i386/kernel/traps.c	2006-02-03 09:59:37.000000000 +0000
+> > @@ -166,7 +166,8 @@ static void show_trace_log_lvl(struct ta
+> >  		stack = (unsigned long*)context->previous_esp;
+> >  		if (!stack)
+> >  			break;
+> > -		printk(KERN_EMERG " =======================\n");
+> > +		printk(log_lvl);
+> > +		printk(" =======================\n");
+> >  	}
+> 
+> This is wrong, Hugh. What do you think the priority of the second printk?
+> It's not log_lvl, that's for sure.
 
-(Sorry, I didn't notice your patch when you posted it in the past, or
-I would have responded back then.)
+Are you sure?  I've not delved into the printk code itself, but this
+does follow the same pattern as in show_stack_log_lvl itself e.g. its
+"Call Trace:\n" line.  (I am assuming print_context_stack ends with a
+newline, as it does.)
 
-FWIW, this was tried between 2.6.11-rc1 and 2.6.11-rc2 (except it was
-256->2048 instead of 256->1024), and it was reverted before 2.6.11-rc2
-because it broke booting with lilo -- for many people, the change
-caused their system to freeze early during boot.
-
-This is what the 2.6.11-rc2 changelog has to say about the matter:
->	Revert "x86_64/i386: increase command line size" patch
->	
->	It's a bootup dependancy, you can't just increase it randomly, and
->	it breaks booting with LILO.
->	
->	Pointed out by Janos Farkas and Adrian Bunk.
-
-Has this issue been addressed yet? (i.e. does 1024 avoid the problem
-that 2048 had, or did anything else change in the kernel between
-2.6.11-rc1 and today to prevent the problem from happening again?)
---
--Barry K. Nathan <barryn@pobox.com>
+Hugh

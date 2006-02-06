@@ -1,97 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWBFFwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbWBFGBw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751004AbWBFFwK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 00:52:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbWBFFwJ
+	id S1751009AbWBFGBw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 01:01:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbWBFGBw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 00:52:09 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:43491 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751004AbWBFFwI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 00:52:08 -0500
-Date: Sun, 5 Feb 2006 21:51:52 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: clameter@engr.sgi.com, steiner@sgi.com, dgc@sgi.com, Simon.Derr@bull.net,
-       ak@suse.de, linux-kernel@vger.kernel.org,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [PATCH 2/5] cpuset memory spread page cache implementation and
- hooks
-Message-Id: <20060205215152.27800776.pj@sgi.com>
-In-Reply-To: <20060204221524.1607401e.akpm@osdl.org>
-References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
-	<20060204071915.10021.89936.sendpatchset@jackhammer.engr.sgi.com>
-	<20060204154953.35a0f63f.akpm@osdl.org>
-	<20060204174252.9390ddc6.pj@sgi.com>
-	<20060204175411.19ff4ffb.akpm@osdl.org>
-	<Pine.LNX.4.62.0602041928140.8874@schroedinger.engr.sgi.com>
-	<20060204210653.7bb355a2.akpm@osdl.org>
-	<20060204220800.049521df.pj@sgi.com>
-	<20060204221524.1607401e.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Mon, 6 Feb 2006 01:01:52 -0500
+Received: from web33013.mail.mud.yahoo.com ([68.142.206.77]:16551 "HELO
+	web33013.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750998AbWBFGBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 01:01:51 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=cUVlMaCm07MqMXpFRu3ZfY4dN3sVLLaGoOjYexKoLmkMO72/XTMON9w5bVUfFmaQyxXvRx/XcPl4+cTGHj7ZjBc9sJGQEhdN/3OrCfVeW2ZzY7wQ2S32+jo2S1viqNM00zhgfnZRYIwc5cXbH0BtnhBad475YXSymOpXsI2bE60=  ;
+Message-ID: <20060206060147.13989.qmail@web33013.mail.mud.yahoo.com>
+Date: Sun, 5 Feb 2006 22:01:47 -0800 (PST)
+From: Shantanu Goel <sgoel01@yahoo.com>
+Subject: Re: [VM PATCH] rotate_reclaimable_page fails frequently
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060206010506.GA30318@dmt.cnet>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Earlier Andrew wrote:
-> Really has two forms, depending upon Kconfig.
+--- Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+wrote:
+
+> Hi Shantanu,
 > 
-> 1:
+
+Hi Marcelo.
+
+> I guess that big issue here is that the pgrotate
+> logic is completly
+> useless for common cases (and no one stepped up to
+> fix it, here's a
+> chance).
 > 
-> static inline struct page *page_cache_alloc(struct address_space *x)
-> {
-> 	return alloc_pages(mapping_gfp_mask(x), 0);
-> }
+
+I am all for this.  The motivation in my case is the
+VM scanner seems to be rather severe on mapped memory
+in the case where the inactive list is full of dirty
+pages.  For instance, with the default values of
+swappiness (60), dirty_background_ratio (10) and
+dirty_ratio (40), if the mapped memory is just under
+the 80% mark, the unmapped_ratio logic in
+page-writeback.c does not kick in with the dd test I
+described in my original email.  Now most pages
+encountered by kswapd will be dirty.  One scan will
+require pushing these pages to the backing store. 
+However, generic_buffered_write() marks all dirty
+pages as referenced with the result, it will take 2
+iterations before any I/O is performed since the
+scanner skips inactive/dirty/referenced pages.  This
+causes the priority to drop enough that we start
+reclaiming mapped memory.  What's worse is we scan
+mapped memory at a higher priority.  Reducing
+swappiness does not help completely because that
+effectively increases the priority at which we do the
+first mapped scan.
+
+Ideally, for workloads that want to avoid paging as
+much as possible, we should perhaps have a mode where
+we never activate unmapped pages and let them all
+reside on the inactive list.  mark_page_accessed()
+would simply move an unmapped page to the head of the
+inactive list on the 2nd reference.  The page scanner
+would then reclaim unmapped pages in a strict LRU
+fashion regardless of whether the page is dirty.  I
+have a patch that implements this but it does not
+perform well for dbench type workloads so a special
+/proc/sys/vm option enables/disables it.  If there is
+any interest I can post it.
+
+> Marking PG_writeback pages as PG_rotated once
+> they're chosen candidates
+> for eviction increases the number of rotated pages
+> dramatically, but
+> that does not necessarily increase performance (I
+> was unable to see any
+> performance increase under the limited testing I've
+> done, even though
+> the pgrotated numbers were _way_ higher).
+
+It is a win for the "most memory is mapped with
+occasional large file copying" scenario in my
+experience.  The patch I mentioned above does this as
+well.
+
 > 
-> That should be inlined.
-> 
-> 2:
-> 
-> static inline struct page *page_cache_alloc(struct address_space *x)
-> {
-> 	if (cpuset_mem_spread_check()) {
-> 		int n = cpuset_mem_spread_node();
-> 		return alloc_pages_node(n, mapping_gfp_mask(x), 0);
-> 	}
-> 	return alloc_pages(mapping_gfp_mask(x), 0);
-> }
+> Another issue is that increasing the number of
+> rotated pages increases
+> lru_lock contention, which might not be an advantage
+> for certain
+> workloads.
 
-Later on, he wrote:
-> I'm saying "gee, that looks big.  Do you have time to investigate possible
-> improvements?"   They may come to naught.
+The code as posted is certainly sub-optimal in this
+regard.  I have not given this much thought yet but
+you do raise a good point.
 
-After playing around with the variations we've considered on this
-thread, the results are simple enough.  I experimented with just
-the 3 calls to page_cache_alloc_cold() in mm/filemap.c, because that
-was easy, and all these calls have the same shape.
+Shantanu
 
-    For non-NUMA, removing 'inline' from the three page_cache_alloc_cold()
-    calls in mm/filemap.c would cost a total of 16 bytes text size
-
-    For NUMA+CPUSET, removing it would _save_ 583 bytes total over the
-    three calls.
-
-    The "nm -S" size of the uninlined page_cache_alloc_cold() is 448 bytes
-    (it was 96 bytes before this cpuset patchset).
-
-    This is all on ia64 sn2_defconfig gcc 3.3.3.
-
-The conclusion is straight forward, and as Andrew suspected.
-
-We want these two page_cache_alloc*() routines out of line in the
-NUMA case, but left inline for the non-NUMA case.
-
-I will follow up with a simple patch that makes it easy to mark
-routines that should be inline for UMA, out of line for NUMA.
-
-These two page_cache_alloc*(), and perhaps also __cache_alloc() when
-Pekka or I gets a handle on it, are candidates for this marking, as
-routines to inline on UMA, out of line on NUMA.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

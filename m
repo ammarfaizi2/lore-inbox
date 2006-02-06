@@ -1,106 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWBFUdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWBFUfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964793AbWBFUdx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 15:33:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWBFUdx
+	id S964785AbWBFUfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 15:35:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbWBFUfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 15:33:53 -0500
-Received: from uproxy.gmail.com ([66.249.92.194]:21730 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964799AbWBFUdv (ORCPT
+	Mon, 6 Feb 2006 15:35:08 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:27656 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S964785AbWBFUfG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 15:33:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=rWIxSwKsHrfgeTfricsllMlKv3jLe3cbSOhYbMEim4CdpXss6RglCLtQGw+xdpZ/EXZ+ODadmY9tKDESqfPW0DEsG+CH2BIFALnWdRolUdFBt7as3wgc4eu0Y8mWfl/fHKQXh+lzVLQM319TDdEtqKJxUa7hXOYB/wOSqlrp/M4=
-Date: Mon, 6 Feb 2006 23:52:04 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH 00/15] drivers/scsi/FlashPoint.c cleanups
-Message-ID: <20060206205204.GA7819@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Mon, 6 Feb 2006 15:35:06 -0500
+Message-ID: <43E7B35C.7090201@sw.ru>
+Date: Mon, 06 Feb 2006 23:36:44 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
+References: <20060117155600.GF20632@sergelap.austin.ibm.com> <1137513818.14135.23.camel@localhost.localdomain> <1137518714.5526.8.camel@localhost.localdomain> <20060118045518.GB7292@kroah.com> <1137601395.7850.9.camel@localhost.localdomain> <m1fyniomw2.fsf@ebiederm.dsl.xmission.com> <43D14578.6060801@watson.ibm.com> <Pine.LNX.4.64.0601311248180.7301@g5.osdl.org> <43E21BD0.6000606@sw.ru> <m1d5i5vln3.fsf@ebiederm.dsl.xmission.com> <20060206201521.GA2470@ucw.cz>
+In-Reply-To: <20060206201521.GA2470@ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patches will be sent to Andrew off-list due to sizes of some of
-them. They can be found at http://coderock.org/kj/flashpoint/
+>>There are two issues here.
+>>1) Monitoring.  (ps, top etc)
+>>2) Control (kill).
+>>
+>>For monitoring you might need to patch ps/top a little but it is doable without
+>>2 pids.
+>>
+>>For kill it is extremely rude to kill processes inside of a nested pid space.
+>>There are other solutions to the problem.
 
-	001-flashpoint-remove-unused-things.patch
-	002-flashpoint-remove-trivial-wrappers.patch
-	003-flashpoint-remove-uchar.patch
-	004-flashpoint-remove-ushort.patch
-	005-flashpoint-remove-uint.patch
-	006-flashpoint-remove-ulong.patch
-	007-flashpoint-remove-ushort-ptr.patch
-	008-flashpoint-use-standard-fixed-size-types.patch
-	009-flashpoint-untypedef-struct-sccb.patch
-	010-flashpoint-untypedef-struct-sccbmgr-info.patch
-	011-flashpoint-untypedef-struct-sccbmgr-tar-info.patch
-	012-flashpoint-untypedef-struct-nvraminfo.patch
-	013-flashpoint-untypedef-struct-sccbcard.patch
-	014-flashpoint-lindent.patch
-	015-flashpoint-dont-use-parenthesis-with-return.patch
+> Can you elaborate? If I have 10 containers with 1000 processes each,
+> it would be nice to be able to run top then kill 40 top cpu hogs....
+This is exactly the reason why we allow host system to see all the 
+containers/VPSs/processes.
 
-They were sitting in -kj quite long, reviewed by at least Randy Dunlap and
-Domen Puncer, compile-tested with CONFIG_SCSI_OMIT_FLASHPOINT=y and =n.
-------------------------------------------------------------------------
-[PATCH 01/15] drivers/scsi/FlashPoint.c: remove unused things
+Otherwise monitoring tools should be fixed for it, which doesn't look 
+good and top/ps/kill are not the only tools in the world.
+Without such functionality you can't understand whether you machine is 
+underloaded or overloaded.
 
-* Remove unused #define's
-* Remove unused typedefs.
-* Remove prototypes for non-existing functions.
-
-[PATCH 02/15] drivers/scsi/FlashPoint.c: remove trivial wrappers
-
-[PATCH 03/15] drivers/scsi/FlashPoint.c: remove UCHAR
-
-[PATCH 04/15] drivers/scsi/FlashPoint.c: remove USHORT
-
-[PATCH 05/15] drivers/scsi/FlashPoint.c: remove UINT
-
-[PATCH 06/15] drivers/scsi/FlashPoint.c: remove ULONG
-
-[PATCH 07/15] drivers/scsi/FlashPoint.c: remove ushort_ptr
-
-[PATCH 08/15] drivers/scsi/FlashPoint.c: use standard fixed size types
-
-[PATCH 09/15] drivers/scsi/FlashPoint.c: untypedef struct _SCCB
-
-* struct _SCCB => struct sccb
-* PSCCB => struct sccb *
-* SCCB => struct sccb
-
-[PATCH 10/15] drivers/scsi/FlashPoint.c: untypedef struct SCCBMgr_info
-
-* struct SCCBMgr_info => struct sccb_mgr_info
-* PSCCBMGR_INFO => struct sccb_mgr_info *
-* SCCBMGR_INFO => struct sccb_mgr_info
-
-[PATCH 11/15] drivers/scsi/FlashPoint.c: untypedef struct SCCBMgr_tar_info
-
-* struct SCCBMgr_tar_info => struct sccb_mgr_tar_info
-* PSCCBMgr_tar_info => struct sccb_mgr_tar_info *
-* SCCBMGR_TAR_INFO => struct sccb_mgr_tar_info
-
-[PATCH 12/15] drivers/scsi/FlashPoint.c: untypedef struct NVRAMInfo
-
-* struct NVRAMInfo => struct nvram_info
-* PNVRamInfo => struct nvram_info *
-* NVRAMINFO => struct nvram_info
-
-[PATCH 13/15] drivers/scsi/FlashPoint.c: untypedef struct SCCBcard
-
-* struct SCCBcard => struct sccb_card
-* PSCCBcard => struct sccb_card *
-* SCCBCARD => struct sccb_card
-
-[PATCH 14/15] drivers/scsi/FlashPoint.c: Lindent
-
-It's much, much more readable now.
-
-[PATCH 15/15] drivers/scsi/FlashPoint.c: don't use parenthesis with "return"
+Kirill
 

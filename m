@@ -1,76 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWBFJcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbWBFJco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750853AbWBFJcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 04:32:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbWBFJcZ
+	id S1750857AbWBFJco (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 04:32:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbWBFJco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 04:32:25 -0500
-Received: from silver.veritas.com ([143.127.12.111]:54035 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1750843AbWBFJcY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 04:32:24 -0500
-Date: Mon, 6 Feb 2006 09:32:54 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Brian King <brking@us.ibm.com>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] ipr: don't doublefree pages from scatterlist
-In-Reply-To: <43E66FB6.6070303@us.ibm.com>
-Message-ID: <Pine.LNX.4.61.0602060909180.6827@goblin.wat.veritas.com>
-References: <Pine.LNX.4.63.0512271807130.4955@kai.makisara.local>
- <20060104172727.GA320@tau.solarneutrino.net> <Pine.LNX.4.63.0601042334310.5087@kai.makisara.local>
- <20060105201249.GB1795@tau.solarneutrino.net> <Pine.LNX.4.64.0601051312380.3169@g5.osdl.org>
- <20060109033149.GC283@tau.solarneutrino.net> <Pine.LNX.4.64.0601082000450.3169@g5.osdl.org>
- <Pine.LNX.4.61.0601090933160.7632@goblin.wat.veritas.com>
- <20060109185350.GG283@tau.solarneutrino.net> <Pine.LNX.4.61.0601091922550.15426@goblin.wat.veritas.com>
- <20060118001252.GB821@tau.solarneutrino.net> <Pine.LNX.4.61.0601181556050.9110@goblin.wat.veritas.com>
- <Pine.LNX.4.61.0602031842290.14065@goblin.wat.veritas.com>
- <Pine.LNX.4.61.0602031953400.14829@goblin.wat.veritas.com> <43E3D3EC.3040006@us.ibm.com>
- <Pine.LNX.4.61.0602040004020.5406@goblin.wat.veritas.com> <43E66FB6.6070303@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 06 Feb 2006 09:32:23.0945 (UTC) FILETIME=[3C5E5F90:01C62B00]
+	Mon, 6 Feb 2006 04:32:44 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:37790 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750852AbWBFJcn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 04:32:43 -0500
+Date: Mon, 6 Feb 2006 01:32:27 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net, ak@suse.de,
+       linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+Message-Id: <20060206013227.2407cf8c.pj@sgi.com>
+In-Reply-To: <20060205230816.4ae6b6e2.akpm@osdl.org>
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
+	<20060205203711.2c855971.akpm@osdl.org>
+	<20060205225629.5d887661.pj@sgi.com>
+	<20060205230816.4ae6b6e2.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Feb 2006, Brian King wrote:
+Andrew wrote:
+> Well I agree.
+
+Good.
+
+
+> And I think that the only way we'll get peak performance for
+> an acceptaly broad range of applications is to provide many fine-grained
+> controls and the appropriate documentation and instrumentation to help
+> developers and administrators use those controls.
 > 
-> No. I can't find any code in any architecture that modifies either the length,
-> page, or offset fields in the *_map_sg routines.
+> We're all on the same page here.  I'm questioning whether slab and
+> pagecache should be inextricably lumped together though.
 
->From looking at the source, the architectures I found to be doing
-scatterlist coalescing in some cases were alpha, ia64, parisc (some
-code under drivers), powerpc, sparc64 and x86_64.
+They certainly don't need to be lumped.  I just don't go about
+creating additional mechanism or apparatus until I smell the need.
+(Well, sometimes I do -- too much fun. ;)
 
-I agree with you that it would be possible for them to do the coalescing
-by just adjusting dma_address and dma_length (though it's architecture-
-dependent whether there are such fields at all), not interfering with
-the input page and length; and maybe some of them do proceed that way.
-I didn't find the coalescing code in any of them very easy to follow.
+When Andrew Morton, who has far more history with this code than I,
+recommends such additional mechanism, that's all the smelling I need.
 
-So please examine arch/x86_64/kernel/pci_gart.c gart_map_sg (and
-dma_map_cont which it calls): x86_64 was the architecture on which
-the problem was really found with drivers/scsi/st.c, and avoided
-by that boot option iommu=nomerge.
+How fine grained would you recommend, Andrew?
 
-Lines like "*sout = *s;" and "*sout = sg[start];" are structure-
-copying whole scallerlist entries from one position in the list
-to another, without explicit mention of the page and length fields.
+Is page vs slab cache the appropriate level of granularity?
 
-> I'm still failing to see an actual bug in the ipr driver. Unless there is a
-> good reason for pushing additional complexity on every caller of pci_map_sg
-> to do additional bookkeeping, such as an architecture that is actually
-> modifying
-> fields in the scatterlist other than the dma_* fields, then I think it makes
-> more sense to clarify the API to say that pci_map_sg will not modify these
-> fields.
 
-The API is commendably clear that they may be modified.  Like you I'd
-prefer it to be otherwise, and instead guarantee that they won't be:
-that would prevent this kind of surprise.  But it's not how it is;
-and looking at the various pieces of coalescing code, I quickly
-abandoned my first inclination, to adjust them to make it so.
 
-Hugh
+> Is it possible to integrate the slab and pagecache allocation policies more
+> cleanly into a process's mempolicy?  Right now, MPOL_* are disjoint.
+> 
+> (Why is the spreading policy part of cpusets at all?  Shouldn't it be part
+> of the mempolicy layer?)
+
+The NUMA mempolicy code handles per-task, task internal memory placement
+policy, and the cpuset code handles cpuset-wide cpu and memory placement
+policy.
+
+In actual usage, spreading the kernel caches of a job is very much a
+decision that is made per-job(*), by the system administrator or batch
+scheduler, not by the application coder.  The application code may well
+be -very- awary of the placement of their data pages in user address
+space, and to manage this will use calls such as mbind and
+set_mempolicy, in addition to using node-local placement (arranging to
+fault in each page from a thread running on the node that is to receive
+that page).  The application has no interest in micromanaging the
+kernels placement of page and slab caches, other than choosing between
+node-local and cpuset spread strategies.
+
+(*) Actually, made per-cpuset, not per-job.  But where this matters,
+    that tends to be the same thing.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

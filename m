@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbWBFUb5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbWBFUcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964798AbWBFUb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 15:31:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWBFUb4
+	id S964802AbWBFUcd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 15:32:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWBFUbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 15:31:56 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:24193 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964801AbWBFUbe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 15:31:34 -0500
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Kirill Korotaev <dev@sw.ru>, Greg <gkurz@fr.ibm.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, Rik van Riel <riel@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: [RFC][PATCH 01/20] pid: Intoduce the concept of a wid (wait id)
-References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
-	<m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>
-	<20060206195427.GH11887@sergelap.austin.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 06 Feb 2006 13:23:48 -0700
-In-Reply-To: <20060206195427.GH11887@sergelap.austin.ibm.com> (Serge E.
- Hallyn's message of "Mon, 6 Feb 2006 13:54:27 -0600")
-Message-ID: <m13biwjkx7.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Feb 2006 15:31:10 -0500
+Received: from mail.kroah.org ([69.55.234.183]:29629 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964798AbWBFU3i convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 15:29:38 -0500
+Cc: benh@kernel.crashing.org
+Subject: [PATCH] Fix uevent buffer overflow in input layer
+In-Reply-To: <11392577581679@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 6 Feb 2006 12:29:18 -0800
+Message-Id: <11392577583071@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Serge E. Hallyn" <serue@us.ibm.com> writes:
+[PATCH] Fix uevent buffer overflow in input layer
 
-> Quoting Eric W. Biederman (ebiederm@xmission.com):
->> 
->> The wait id is the pid returned by wait.  For tasks that span 2
->> namespaces (i.e. the process leaders of the pid namespaces) their
->> parent knows the task by a different PID value than the task knows
->> itself. Having a child with PID == 1 would be confusing. 
->
-> Is it possible here to have wid conflicts?
->
-> Does that matter?
->
-> Looking at sysvinit, it seems that it does.  If the wid happens
-> to conflict with the pid of one of the children init knows about,
-> it could confuse init.
+The buffer used for kobject uevent is too small for some of the events generated
+by the input layer. Bump it to 2k.
 
-No.  The wid is in the pspace of the parent, and the pid is in the processes
-pspace.  Add is in any pspace are unique.
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-Eric
+---
+commit d87499ed1a3ba0f6dbcff8d91c96ef132c115d08
+tree 5baebb0e2b8b821940acc943227b18782c342bac
+parent 9c1da3cb46316e40bac766ce45556dc4fd8df3ca
+author Benjamin Herrenschmidt <benh@kernel.crashing.org> Wed, 25 Jan 2006 10:21:32 +1100
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 06 Feb 2006 12:17:18 -0800
+
+ lib/kobject_uevent.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/lib/kobject_uevent.c b/lib/kobject_uevent.c
+index f56e27a..1b1985c 100644
+--- a/lib/kobject_uevent.c
++++ b/lib/kobject_uevent.c
+@@ -22,7 +22,7 @@
+ #include <linux/kobject.h>
+ #include <net/sock.h>
+ 
+-#define BUFFER_SIZE	1024	/* buffer for the variables */
++#define BUFFER_SIZE	2048	/* buffer for the variables */
+ #define NUM_ENVP	32	/* number of env pointers */
+ 
+ #if defined(CONFIG_HOTPLUG) && defined(CONFIG_NET)
+

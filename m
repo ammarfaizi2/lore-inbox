@@ -1,67 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWBFIxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWBFI7I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750797AbWBFIxM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 03:53:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbWBFIxM
+	id S1750767AbWBFI7I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 03:59:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750799AbWBFI7I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 03:53:12 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:32233 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750797AbWBFIxK (ORCPT
+	Mon, 6 Feb 2006 03:59:08 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:31615 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1750767AbWBFI7H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 03:53:10 -0500
-Date: Mon, 6 Feb 2006 09:51:55 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Paul Jackson <pj@sgi.com>
-Cc: akpm@osdl.org, dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net,
-       ak@suse.de, linux-kernel@vger.kernel.org, clameter@sgi.com
-Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
-Message-ID: <20060206085155.GA9436@elte.hu>
-References: <20060204154944.36387a86.akpm@osdl.org> <20060205203358.1fdcea43.akpm@osdl.org> <20060205215052.c5ab1651.pj@sgi.com> <20060205220204.194ba477.akpm@osdl.org> <20060206061743.GA14679@elte.hu> <20060205232253.ddbf02d7.pj@sgi.com> <20060206074334.GA28035@elte.hu> <20060206001959.394b33bc.pj@sgi.com> <20060206082258.GA1991@elte.hu> <20060206004720.0374b820.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060206004720.0374b820.pj@sgi.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Mon, 6 Feb 2006 03:59:07 -0500
+Message-ID: <43E71018.8010104@sw.ru>
+Date: Mon, 06 Feb 2006 12:00:08 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       frankeh@watson.ibm.com, clg@fr.ibm.com, haveblue@us.ibm.com,
+       greg@kroah.com, alan@lxorguk.ukuu.org.uk, serue@us.ibm.com,
+       arjan@infradead.org, Rik van Riel <riel@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
+       Pavel Emelianov <xemul@sw.ru>
+Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
+References: <43E38BD1.4070707@openvz.org>	<Pine.LNX.4.64.0602030905380.4630@g5.osdl.org>	<43E3915A.2080000@sw.ru>	<Pine.LNX.4.64.0602030939250.4630@g5.osdl.org> <m1lkwoubiw.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1lkwoubiw.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>I think that a patch like this - particularly just the 1/5 part - makes 
+>>total sense, because regardless of any other details of virtualization, 
+>>every single scheme is going to need this.
+> I strongly disagree with this approach.  I think Al Viro got it
+> right when he created a separate namespace for filesystems.  
+These patch set introduces separate namespaces as those in filesystems.
+What exactly you don't like in this approach? Can you be more specific?
 
-* Paul Jackson <pj@sgi.com> wrote:
+> First this presumes an all or nothing interface.  But that is not
+> what people are doing.  Different people want different subsets
+> of the functionality.   For the migration work I am doing having
+> multiple meanings for the same uid isn't interesting.
+What do you mean by that? That you don't care about virtualization of 
+UIDs? So your migration doesn't care at all whether 2 systems have same 
+uids? Do you keep /etc/passwd in sync when do migration?
+Only full virtualization allows to migrate applications without bugs and 
+different effects.
 
-> Ingo asked:
-> > so in practice, the memory spreading is in fact a global setting, used
-> > by all cpusets that matter? 
+> Secondly by implementing this in one big chunk there is no
+> migration path when you want to isolate an additional part of the
+> kernel interface.
 > 
-> I don't know if that is true or not.
-> 
-> I'll have to ask my field engineers, who actually have experience
-> with a variety of customer workloads.
-> 
-> ... well, I do have partial knowledge of this.
-> 
-> When I was coding this, I suggested that instead of picking some of the
-> slab caches to memory spread, we pick them all, as that would be easier
-> to code.
-> 
-> That suggestion was shot down by others more experienced within SGI, 
-> as some slab caches hold what is essentially per-thread data, that is 
-> fairly hot in the thread context that allocated it.  Spreading that 
-> data would quite predictably increase cross-node bus traffic, which is 
-> bad.
+> So I really think an approach that allows for incremental progress
+> that allows for different subsets of this functionality to
+> be used is a better approach.  In clone we already have
+> a perfectly serviceable interface for that and I have
+> seen no one refute that.  I'm not sure I have seen anyone
+> get it though.
+Just introduce config option for each virtualization functionality. 
+That's it.
 
-yes, but still that is a global attribute: we know that those slabs are 
-fundamentally per-thread. They wont ever be non-per-thread. So the 
-decision could be made via a per-slab attribute, that is picked by 
-kernel developers (initially you). The pagecache would be spread-out if
-this .config option is specified. This makes it a much cleaner static
-'kernel fairness policy' thing, instead of a fuzzier userspace thing. 
+> My apologies for the late reply I didn't see this thread until
+> just a couple of minutes ago.  linux-kernel can be hard to
+> follow when you aren't cc'd.
+> 
+> 
+> Patches hopefully sometime in the next 24hours.   So hopefully
+> conversation can be carried forward in a productive manner.
+Ok. I will remake them either :)
 
-	Ingo
+Kirill
+
+

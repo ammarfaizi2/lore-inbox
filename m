@@ -1,37 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWBFWva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWBFW71@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932331AbWBFWva (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 17:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWBFWv3
+	id S932337AbWBFW71 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 17:59:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWBFW71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 17:51:29 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:40680 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932413AbWBFWv3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 17:51:29 -0500
-Subject: Re: libATA  PATA status report, new patch
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Meelis Roos <mroos@linux.ee>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060206200400.E69E8142E2@rhn.tartu-labor>
-References: <20060206200400.E69E8142E2@rhn.tartu-labor>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 06 Feb 2006 22:53:36 +0000
-Message-Id: <1139266416.10437.60.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 6 Feb 2006 17:59:27 -0500
+Received: from mail.gmx.de ([213.165.64.21]:57068 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932337AbWBFW71 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 17:59:27 -0500
+Date: Mon, 6 Feb 2006 23:59:25 +0100 (MET)
+From: "Michael Kerrisk" <mtk-manpages@gmx.net>
+To: Jesse Barnes <jbarnes@virtuousgeek.org>
+Cc: linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net
+MIME-Version: 1.0
+References: <200602061451.37028.jbarnes@virtuousgeek.org>
+Subject: Re: man-pages-2.22 is released
+X-Priority: 3 (Normal)
+X-Authenticated: #24879014
+Message-ID: <28306.1139266765@www031.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-02-06 at 22:04 +0200, Meelis Roos wrote:
-> AC>         http://zeniv.linux.org.uk/~alan/IDE
-> AC> 
-> AC> for 2.6.16-rc2 patches.
+> --- Ursprüngliche Nachricht ---
+> Von: Jesse Barnes <jbarnes@virtuousgeek.org>
+> An: "Michael Kerrisk" <mtk-manpages@gmx.net>
+> Kopie: linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net
+> Betreff: Re: man-pages-2.22 is released
+> Datum: Mon, 6 Feb 2006 14:51:36 -0800
 > 
-> Should I #define ATA_ENABLE_PATA by hand in include file to get PIIX4
-> PATA to wotk with the ata_piix driver, or should it just work?
+> On Monday, February 6, 2006 11:59 am, Michael Kerrisk wrote:
+> > This is a request to kernel developers: if you make a change
+> > to a kernel-userland interface, or observe a discrepancy
+> > between the manual pages and reality, would you please send
+> > me (at mtk-manpages@gmx.net ) one of the following
+> > (in decreasing order of preference):
+> 
+> Wouldn't it be easier for you to keep them up to date if sections 2, 4, 
+> and parts of 5 were included in the kernel source tree?  Documentation 
+> updates could be enforced as part of the patch process--all you'd have 
+> to do is NAK patches that modified userland interfaces if they didn't 
+> contain documentation updates (and I'm sure others would help you with 
+> that task).
 
-You should set that define. Actually I should do that by default in the
-patch set. I will fix that.
+Life is not so simple, as I think we discussed when you made 
+a similar comment after my man-pages-2.08 release.  Maybe the
+system can be improved still.  Currently Andrew Morton is being
+rather good about CCing me on patches that are likely to need
+man-pages changes.  (Thanks Andrew!)
 
+> Likewise with the glibc stuff.  Doesn't it belong with the glibc project? 
+> Wouldn't that make more sense, both from a packaging and maintenance 
+> perspective?
+
+Not really -- glibc has a differnt philosophy about documentation
+(less focus on historical information and less comparison
+with other Unix systems, as far as I can see), and uses info(1), 
+not man(1).
+
+> Either way, thanks a lot for keeping the pages in good shape, it's much 
+> appreciated.
+
+You're welcome.  Several people help.  More help is 
+always welcome.
+
+Cheers,
+
+Michael
+
+-- 
+Michael Kerrisk
+maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
+
+Want to help with man page maintenance?  
+Grab the latest tarball at
+ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
+read the HOWTOHELP file and grep the source 
+files for 'FIXME'.

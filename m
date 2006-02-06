@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWBFA7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWBFBfH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750729AbWBFA7I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 19:59:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWBFA7I
+	id S1750739AbWBFBfH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 20:35:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWBFBfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 19:59:08 -0500
-Received: from gate.crashing.org ([63.228.1.57]:4227 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750729AbWBFA7G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 19:59:06 -0500
-Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Kirill Korotaev <dev@openvz.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       frankeh@watson.ibm.com, clg@fr.ibm.com, haveblue@us.ibm.com,
-       greg@kroah.com, alan@lxorguk.ukuu.org.uk, serue@us.ibm.com,
-       arjan@infradead.org, Rik van Riel <riel@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org
-In-Reply-To: <43E38BD1.4070707@openvz.org>
-References: <43E38BD1.4070707@openvz.org>
-Content-Type: text/plain
-Date: Mon, 06 Feb 2006 11:56:31 +1100
-Message-Id: <1139187391.5634.32.camel@localhost.localdomain>
+	Sun, 5 Feb 2006 20:35:07 -0500
+Received: from mail.renesas.com ([202.234.163.13]:48530 "EHLO
+	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S1750739AbWBFBfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 20:35:05 -0500
+Date: Mon, 06 Feb 2006 10:34:43 +0900 (JST)
+Message-Id: <20060206.103443.608416320.takata.hirokazu@renesas.com>
+To: rmk+lkml@arm.linux.org.uk
+Cc: takata@linux-m32r.org, linux-kernel@vger.kernel.org,
+       linux-mips@linux-mips.org, linuxppc-dev@ozlabs.org, pfg@sgi.com
+Subject: Re: [CFT] Don't use ASYNC_* nor SERIAL_IO_* with serial_core
+From: Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <20060205000136.GF24887@flint.arm.linux.org.uk>
+References: <20060202102721.GE5034@flint.arm.linux.org.uk>
+	<20060202.231033.1059963967.takata.hirokazu@renesas.com>
+	<20060205000136.GF24887@flint.arm.linux.org.uk>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.18 (Social Property)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-02-03 at 19:58 +0300, Kirill Korotaev wrote:
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [CFT] Don't use ASYNC_* nor SERIAL_IO_* with serial_core
+Date: Sun, 05 Feb 2006 00:01:36 +0000
+> On Thu, Feb 02, 2006 at 11:10:33PM +0900, Hirokazu Takata wrote:
+> > On m32r,
+> >   compile and boot test: OK
+> 
+> Is that an Acked-by ?
+> 
+> -- 
+> Russell King
+>  Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+>  maintainer of:  2.6 Serial core
+> 
 
-> +static inline vps_t get_vps(vps_t vps)
-> +{
-> +	atomic_inc(&vps->refcnt);
-> +	return vps;
-> +}
-> +
-> +static inline void put_vps(vps_t vps)
-> +{
-> +	atomic_dec(&vps->refcnt);
-> +}
+Yes.
 
-I'm not too sure about the refcounting here .. you never destroy the
-object ? Also, why introduce your own refcounting mecanism instead of
-using existing ones ? You could probably use at least a kref to get a
-nice refcount + destructor instead of home made atomics based. Maybe
-some higher level structure if you think it makes sense (not too sure
-what this virtualization stuff is about so I can't comment on what data
-structure is appropriate here).
+Acked-by: Hirokazu Takata <takata@linux-m32r.org>
 
-Cheers,
-Ben.
-
+Thanks,
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/
 

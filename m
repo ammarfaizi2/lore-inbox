@@ -1,59 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbWBFTyd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWBFTy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932338AbWBFTyd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 14:54:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWBFTyd
+	id S932340AbWBFTy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 14:54:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWBFTy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 14:54:33 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:12994 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932338AbWBFTyc
+	Mon, 6 Feb 2006 14:54:58 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:20692 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932340AbWBFTy5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 14:54:32 -0500
-Date: Mon, 6 Feb 2006 13:54:27 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Kirill Korotaev <dev@sw.ru>, Greg <gkurz@fr.ibm.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, Rik van Riel <riel@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: [RFC][PATCH 01/20] pid: Intoduce the concept of a wid (wait id)
-Message-ID: <20060206195427.GH11887@sergelap.austin.ibm.com>
-References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com> <m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>
+	Mon, 6 Feb 2006 14:54:57 -0500
+Subject: Re: 2.6.16-rc1-mm2 pata driver confusion
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Harald Dunkel <harald.dunkel@t-online.de>
+Cc: linux-kernel@vger.kernel.org, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Ed Sweetman <safemode@comcast.net>, akpm@osdl.org
+In-Reply-To: <43E7A4C0.4020209@t-online.de>
+References: <Pine.LNX.4.58.0601250846210.29859@shark.he.net>
+	 <43E3D103.70505@comcast.net>
+	 <Pine.LNX.4.58.0602060836520.1309@shark.he.net>
+	 <43E7A4C0.4020209@t-online.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 06 Feb 2006 19:56:40 +0000
+Message-Id: <1139255800.10437.51.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Eric W. Biederman (ebiederm@xmission.com):
-> 
-> The wait id is the pid returned by wait.  For tasks that span 2
-> namespaces (i.e. the process leaders of the pid namespaces) their
-> parent knows the task by a different PID value than the task knows
-> itself. Having a child with PID == 1 would be confusing. 
+On Llu, 2006-02-06 at 20:34 +0100, Harald Dunkel wrote:
+> how it is _supposed_ to work? Is there a conflict between
+> ata_piix and piix/mpiix? A short summary could be very helpfull
+> to identify problems, and to reduce confusion.
 
-Is it possible here to have wid conflicts?
+MPIIX is totally different PCI identifiers so a different driver. It is
+unrelated to any goings on here.
 
-Does that matter?
-
-Looking at sysvinit, it seems that it does.  If the wid happens
-to conflict with the pid of one of the children init knows about,
-it could confuse init.
-
--serge

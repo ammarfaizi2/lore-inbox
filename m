@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbWBFJ2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWBFJ3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750839AbWBFJ2l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 04:28:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWBFJ2l
+	id S1750841AbWBFJ3O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 04:29:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbWBFJ3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 04:28:41 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:8854 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750839AbWBFJ2l (ORCPT
+	Mon, 6 Feb 2006 04:29:14 -0500
+Received: from ns2.suse.de ([195.135.220.15]:47572 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750841AbWBFJ3N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 04:28:41 -0500
-Date: Mon, 6 Feb 2006 01:28:09 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: bcrl@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH, V2] i386: instead of poisoning .init zone, change
- protection bits to force a fault
-Message-Id: <20060206012809.3045207c.akpm@osdl.org>
-In-Reply-To: <43E7108A.8030001@cosmosbay.com>
-References: <m1r76rft2t.fsf@ebiederm.dsl.xmission.com>
-	<m17j8jfs03.fsf@ebiederm.dsl.xmission.com>
-	<20060128235113.697e3a2c.akpm@osdl.org>
-	<200601291620.28291.ioe-lkml@rameria.de>
-	<20060129113312.73f31485.akpm@osdl.org>
-	<43DD1FDC.4080302@cosmosbay.com>
-	<20060129200504.GD28400@kvack.org>
-	<43DD2C15.1090800@cosmosbay.com>
-	<20060204144111.7e33569f.akpm@osdl.org>
-	<43E7108A.8030001@cosmosbay.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 6 Feb 2006 04:29:13 -0500
+Date: Mon, 6 Feb 2006 10:29:11 +0100
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>, Corey Minyard <minyard@mvista.com>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] remove ipmi pm_power_off redefinition
+Message-ID: <20060206092911.GA24133@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet <dada1@cosmosbay.com> wrote:
->
-> >  #ifdef CONFIG_DEBUG_INITDATA
->  > +		/*
->  > +		 * Unmap the page, and leak it.  So any further accesses will
->  > +		 * oops.
->  > +		 */
->  >  		change_page_attr(virt_to_page(addr), 1, __pgprot(0));
->  >  #else
->  >  		memset((void *)addr, 0xcc, PAGE_SIZE);
->  > -#endif
->  >  		free_page(addr);
->  > +#endif
->  >  		totalram_pages++;
->  >  	}
->  >  	printk(KERN_INFO "Freeing %s: %ldk freed\n", what, (end - begin) >> 10);
-> 
->  I wonder if you dont have to move the 'totalram_pages++;' next to the 
->  free_page(addr) call (ie inside the #else/#endif block)
-> 
 
-yup, thanks.
+Use the global define of pm_power_off
 
-But I'm inclined to drop the whole patch - I don't see how it can detect
-any bugs which CONFIG_DEBUG_PAGEALLOC won't find.
+Signed-off-by: Olaf Hering <olh@suse.de>
+---
+ drivers/char/ipmi/ipmi_poweroff.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
+Index: linux-2.6.15/drivers/char/ipmi/ipmi_poweroff.c
+===================================================================
+--- linux-2.6.15.orig/drivers/char/ipmi/ipmi_poweroff.c
++++ linux-2.6.15/drivers/char/ipmi/ipmi_poweroff.c
+@@ -37,15 +37,13 @@
+ #include <linux/proc_fs.h>
+ #include <linux/string.h>
+ #include <linux/completion.h>
++#include <linux/pm.h>
+ #include <linux/kdev_t.h>
+ #include <linux/ipmi.h>
+ #include <linux/ipmi_smi.h>
+ 
+ #define PFX "IPMI poweroff: "
+ 
+-/* Where to we insert our poweroff function? */
+-extern void (*pm_power_off)(void);
+-
+ /* Definitions for controlling power off (if the system supports it).  It
+  * conveniently matches the IPMI chassis control values. */
+ #define IPMI_CHASSIS_POWER_DOWN		0	/* power down, the default. */
+-- 
+short story of a lazy sysadmin:
+ alias appserv=wotan

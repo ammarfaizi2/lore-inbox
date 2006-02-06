@@ -1,135 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWBFFse@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbWBFFvL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751005AbWBFFse (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 00:48:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbWBFFsd
+	id S1751001AbWBFFvL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 00:51:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbWBFFvL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 00:48:33 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:45451 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751007AbWBFFsc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 00:48:32 -0500
-Date: Mon, 6 Feb 2006 16:48:15 +1100
-From: David Chinner <dgc@sgi.com>
+	Mon, 6 Feb 2006 00:51:11 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:34275 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751001AbWBFFvK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 00:51:10 -0500
+Date: Sun, 5 Feb 2006 21:50:52 -0800
+From: Paul Jackson <pj@sgi.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: David Chinner <dgc@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] Prevent large file writeback starvation
-Message-ID: <20060206054815.GJ43335175@melbourne.sgi.com>
-References: <20060206040027.GI43335175@melbourne.sgi.com> <20060205202733.48a02dbe.akpm@osdl.org>
+Cc: dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net, ak@suse.de,
+       linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+Message-Id: <20060205215052.c5ab1651.pj@sgi.com>
+In-Reply-To: <20060205203358.1fdcea43.akpm@osdl.org>
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
+	<20060204154944.36387a86.akpm@osdl.org>
+	<20060205203358.1fdcea43.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060205202733.48a02dbe.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 05, 2006 at 08:27:33PM -0800, Andrew Morton wrote:
-> David Chinner <dgc@sgi.com> wrote:
-> > The problem is that when you are creating thousands of files per second
-> > with some data in them, the superblock I/O list blows out to approximately
-> > (create rate * expiry age) inodes, and any one inode in this list will
-> > get a maximum of 1024 pages written back per iteration on the list.
+> >  I'd have thought it would be saner to split these things apart:
+> >  "slab_spread", "pagecache_spread", etc.
 > 
-> That code does so many different things it ain't funny.  This is why when
-> one thing gets changed, something else gets broken.
-> 
-> The intention here is that once an inode has "expired" (dirtied_when is
-> more than dirty_expire_centisecs ago), the inode will get fully synced.
+> This, please.   It impacts the design of the whole thing.
 
-Sure. And it works just fine when you're not creating lots of small
-files at the same time because we iterate across s_io and s_dirty
-very quickly.
+It was still in my queue to respond to, yes.
 
-However, you can't fully sync anything from pdflush with the
-writeback parameters it uses without multiple passes through
-this code.
+All I am aware that is needed is to distinguish between:
 
-> >From a quick peek, this code:
-> 
-> 			if (wbc->for_kupdate) {
-> 				/*
-> 				 * For the kupdate function we leave the inode
-> 				 * at the head of sb_dirty so it will get more
-> 				 * writeout as soon as the queue becomes
-> 				 * uncongested.
-> 				 */
-> 				inode->i_state |= I_DIRTY_PAGES;
-> 				list_move_tail(&inode->i_list, &sb->s_dirty);
-> 
-> 
-> isn't working right any more.
+  (1) application space pages, such as data and stack space,
+      which the applications can page and place under their
+      detailed control, and
 
-If the intent is to continue writing it back until fully
-sync'd, then shouldn't we be moving that to the tail of I/O list so
-we don't have to iterate over the dirty list again before we try to
-write another chunk out?
+  (2) what from the application's viewpoint is "kernel stuff"
+      such as large amounts of pages required by file i/o,
+      and their associated inode/dentry structures.
 
-FWIW, we've never seen this problem before with XFS because prior to
-2.6.15 XFS ignored wbc and block device congestion and just wrote as
-much as it could cluster into a single extent in a single
-do_writepages() call.  hence it would have written the 8GB in one
-hit, hence we never saw this problem.
+The application space pages are typically anonymous pages
+which go away when the owning tasks exits, while the kernel
+space pages are typically accessible by multiple tasks and
+can stay around long after the initial faulting task exits.
 
-We made XFS behave nicely because it solved several problems
-including preventing pdflush from sleeping on full block device
-queues during writeback...
+I prefer to keep the tunable knobs to a minimum.  One boolean
+was sufficient for this.
 
-> > Looking at this comment in __sync_single_inode():
-> > 
-> >     196             if (wbc->for_kupdate) {
-> >     197                 /*              
-> >     198                  * For the kupdate function we leave the inode
-> >     199                  * at the head of sb_dirty so it will get more
-> >     200                  * writeout as soon as the queue becomes
-> >     201                  * uncongested.
-> >     202                  */
-> >     203                 inode->i_state |= I_DIRTY_PAGES;
-> >     204                 list_move_tail(&inode->i_list, &sb->s_dirty);
-> >     205             } else {    
-> > 
-> > It appears that it is intended to handle congested devices. The thing
-> > is, 1024 pages on writeback is not enough to congest a single disk,
-> > let alone a RAID box 10 or 100 times faster than a single disk.
-> > Hence we're stopping writeback long before we congest the device.
-> 
-> I think the comment is misleading.  The writeout pass can terminate because
-> wbc->nr_to_write was satisfied, as well as for queue congestion.
+Just because a distinction seems substantial from the kernel
+internals perspective, doesn't mean we should reflect that in
+the tunable knobs.  We should have an actual need first, not
+a strawman.
 
-Exactly my point and what the patch addresses - it allows writeback on
-that inode to continue from where it left off if the device was not
-congested.
+If there is some reason, or preference, for adding two knobs
+(slab and page) instead of one, I can certainly do it.
 
-> I suspect what's happened here is that someone other than pdflush has tried
-> to do some writeback and didn't set for_kupdate, so we ended up resetting
-> dirtied_when.
+I am not yet aware that such is useful.
 
-If it's not wb_kupdate that is trying to write it back, and we have little
-memory pressure, and we completed writing the file long ago, then what behaves
-exactly like wb_kupdate for hours on end apart from wb_kupdate?
-
-> > Therefore, lets only move the inode back onto the dirty list if the device
-> > really is congested. Patch against 2.6.15-rc2 below.
-> 
-> This'll break something else, I bet :(
-
-Wonderful. What needs testing to indicate something else hasn't broken?
-Does anyone have any regression tests for this code?
-
-> I'll take a look.   Another approach would be to look at nr_to_write. ie:
-> 
-> 	if (wbc->for_kupdate || wmb->nr_to_write <= 0)
-
-I just tested this and it doesn't change the default behaviour.
-After writing the 4GB file ~5 minutes ago, I've seen ~10k pages go to
-disk, and I still have another 140k to go. IOWs, exactly the same 
-behaviour as the current code.
-
-Cheers,
-
-Dave.
 -- 
-Dave Chinner
-R&D Software Enginner
-SGI Australian Software Group
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

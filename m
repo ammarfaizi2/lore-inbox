@@ -1,47 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbWBFK1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbWBFKpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751055AbWBFK1J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 05:27:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWBFK1I
+	id S1751036AbWBFKpS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 05:45:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWBFKpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 05:27:08 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:1975 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751037AbWBFK1G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 05:27:06 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060201090324.373982000@localhost.localdomain> 
-References: <20060201090324.373982000@localhost.localdomain>  <20060201090224.536581000@localhost.localdomain> 
-To: Akinobu Mita <mita@miraclelinux.com>
-Cc: linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, dev-etrax@axis.com,
-       David Howells <dhowells@redhat.com>,
-       Yoshinori Sato <ysato@users.sourceforge.jp>, linux-ia64@vger.kernel.org,
-       Hirokazu Takata <takata@linux-m32r.org>,
-       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
-       parisc-linux@parisc-linux.org, linuxsh-dev@lists.sourceforge.net,
-       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
-       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
-       Chris Zankel <chris@zankel.net>
-Subject: Re: [patch 11/44] generic find_{next,first}{,_zero}_bit() 
-X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
-Date: Mon, 06 Feb 2006 10:26:00 +0000
-Message-ID: <12367.1139221560@warthog.cambridge.redhat.com>
+	Mon, 6 Feb 2006 05:45:17 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:61421 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751036AbWBFKpQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 05:45:16 -0500
+Message-ID: <43E72901.2080103@jp.fujitsu.com>
+Date: Mon, 06 Feb 2006 19:46:25 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [RFC][PATCH] unify pfn_to_page [1/25] generic page_to_pfn / pfn_to_page
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Akinobu Mita <mita@miraclelinux.com> wrote:
+3 memory models are now available, memmaps of 3 models are defined as
 
-> This patch introduces the C-language equivalents of the functions below:
-> 
-> unsigned logn find_next_bit(const unsigned long *addr, unsigned long size,
->                             unsigned long offset);
-> unsigned long find_next_zero_bit(const unsigned long *addr, unsigned long size,
->                                  unsigned long offset);
-> unsigned long find_first_zero_bit(const unsigned long *addr,
->                                   unsigned long size);
-> unsigned long find_first_bit(const unsigned long *addr, unsigned long size);
+FLATMEM      --- pfn = (page - mem_map) + offset
+DISCONTIGMEM --- pfn = (page - page_node(page)->node_mem_map) +
+                           (page_node(page)->node_start_pfn)
+SPARSEMEM    --- see linux/mmzone.h , generic ones are defined.
 
-These big functions should perhaps be out of line.
+Now, each arch has its own page_to_pfn()/pfn_to_page() on FLATMEM/DISCONTIGIMEM.
+But most of them keeps above assumptions and looks same to i386's ones.
 
-David
+This patch unifies each arch's page_to_pfn/pfn_to_page to generic ones.
+This patch is against 2.6.16-rc2.
+
+comments ?
+
+-- Kame
+
+This patch defines generic page_to_pfn()/pfn_to_page().
+For DISCONTIGMEM, page_to_pfn/pfn_to_page are not inlined.
+(x86_64 already has not-inlined version and it reduces text size.)
+
+If FLATMEM and memmap <-> pfn translation needs offset,
+ARCH_PFN_OFFSET is defined by each archs.
+
+If DISCONTIGMEM , each arch defines arch_pfn_to_nid().
+If necessary, arch_local_map_nr(pfn, nid) is also defined.
+arch_local_map_nr() calculates page offset in a node.
+
+Signed-Off-By: KAMEZAWA Hiruyoki <kamezawa.hiroyu@jp.fujitu.com>
+
+
+Index: cleanup_pfn_page/include/linux/mm.h
+===================================================================
+--- cleanup_pfn_page.orig/include/linux/mm.h
++++ cleanup_pfn_page/include/linux/mm.h
+@@ -512,6 +512,32 @@ static inline void set_page_links(struct
+  extern struct page *mem_map;
+  #endif
+
++#if !defined(ARCH_HAS_PFN_PAGE) && !defined(CONFIG_SPARSEMEM)
++#if CONFIG_FLATMEM
++
++#ifndef ARCH_PFN_OFFSET
++#define ARCH_PFN_OFFSET	0
++#endif
++static inline unsigned long page_to_pfn(struct page *page)
++{
++	return (unsigned long)(page - mem_map) + ARCH_PFN_OFFSET;
++}
++static inline struct page *pfn_to_page(unsigned long pfn)
++{
++	return mem_map + (pfn - ARCH_PFN_OFFSET);
++}
++#endif /* CONFIG_FLATMEM */
++#ifdef CONFIG_DISCONTIGMEM
++/* arch_pfn_to_nid/arch_local_map_nr is defined if necesary */
++#ifndef arch_local_map_nr
++#define arch_local_map_nr(pfn ,nid)	((pfn) - NODE_DATA(nid)->node_start_pfn)
++#endif
++extern unsigned long page_to_pfn(struct page *page);
++extern struct page* pfn_to_page(unsigned long pfn);
++#endif /* CONFIG_DISCONTIGMEM */
++
++#endif
++
+  static __always_inline void *lowmem_page_address(struct page *page)
+  {
+  	return __va(page_to_pfn(page) << PAGE_SHIFT);
+Index: cleanup_pfn_page/mm/page_alloc.c
+===================================================================
+--- cleanup_pfn_page.orig/mm/page_alloc.c
++++ cleanup_pfn_page/mm/page_alloc.c
+@@ -85,6 +85,25 @@ int min_free_kbytes = 1024;
+  unsigned long __initdata nr_kernel_pages;
+  unsigned long __initdata nr_all_pages;
+
++#if defined(CONFIG_DISCONTIGMEM) && !defined(CONFIG_VIRTUAL_MEM_MAP)
++
++struct page *pfn_to_page(unsigned long pfn)
++{
++	struct pglist_data *pgdat;
++	int nid = arch_pfn_to_nid(pfn);
++	pgdat = NODE_DATA(nid);
++	return pgdat->node_mem_map + arch_local_map_nr(pfn, nid);
++}
++EXPORT_SYMBOL(pfn_to_page);
++
++unsigned long page_to_pfn(struct page *page)
++{
++	struct zone *z = page_zone(page);
++	return z->zone_start_pfn + (unsigned long)(page - z->zone_mem_map);
++}
++EXPORT_SYMBOL(page_to_pfn);
++#endif
++
+  #ifdef CONFIG_DEBUG_VM
+  static int page_outside_zone_boundaries(struct zone *zone, struct page *page)
+  {
+
+

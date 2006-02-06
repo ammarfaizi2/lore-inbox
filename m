@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbWBFUGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbWBFUIX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932361AbWBFUGT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 15:06:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbWBFUGT
+	id S932362AbWBFUIX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 15:08:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWBFUIX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 15:06:19 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42112 "EHLO
+	Mon, 6 Feb 2006 15:08:23 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48768 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932361AbWBFUGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 15:06:17 -0500
+	id S932362AbWBFUIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 15:08:22 -0500
 To: <linux-kernel@vger.kernel.org>
 Cc: <vserver@list.linux-vserver.org>, Herbert Poetzl <herbert@13thfloor.at>,
        "Serge E. Hallyn" <serue@us.ibm.com>,
@@ -27,7 +27,7 @@ Cc: <vserver@list.linux-vserver.org>, Herbert Poetzl <herbert@13thfloor.at>,
        Jeff Garzik <jgarzik@pobox.com>,
        Trond Myklebust <trond.myklebust@fys.uio.no>,
        Jes Sorensen <jes@sgi.com>
-Subject: [RFC][PATCH 17/20] usb: Fixup usb so it works with pspaces.
+Subject: [RFC][PATCH 18/20] posix-mqueue: Make mqueues work with pspspaces
 References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
 	<m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>
 	<m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com>
@@ -45,11 +45,12 @@ References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
 	<m14q3cl0mk.fsf_-_@ebiederm.dsl.xmission.com>
 	<m1zml4jlzk.fsf_-_@ebiederm.dsl.xmission.com>
 	<m1vevsjlxa.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1r76gjlua.fsf_-_@ebiederm.dsl.xmission.com>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 06 Feb 2006 13:03:57 -0700
-In-Reply-To: <m1vevsjlxa.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
- Biederman's message of "Mon, 06 Feb 2006 13:02:09 -0700")
-Message-ID: <m1r76gjlua.fsf_-_@ebiederm.dsl.xmission.com>
+Date: Mon, 06 Feb 2006 13:05:34 -0700
+In-Reply-To: <m1r76gjlua.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
+ Biederman's message of "Mon, 06 Feb 2006 13:03:57 -0700")
+Message-ID: <m1mzh4jlrl.fsf_-_@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -62,104 +63,107 @@ Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 
 ---
 
- drivers/usb/core/devio.c |   12 ++++++++++--
- drivers/usb/core/inode.c |    4 +++-
- drivers/usb/core/usb.h   |    1 +
- 3 files changed, 14 insertions(+), 3 deletions(-)
+ ipc/mqueue.c |   21 ++++++++++++++++++---
+ 1 files changed, 18 insertions(+), 3 deletions(-)
 
-94873f6924179bc2ee782f6fb72d5e855c780a1b
-diff --git a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
-index 2b68998..7bccb9a 100644
---- a/drivers/usb/core/devio.c
-+++ b/drivers/usb/core/devio.c
-@@ -47,6 +47,7 @@
- #include <linux/usbdevice_fs.h>
- #include <linux/cdev.h>
- #include <linux/notifier.h>
+04e0f90a315df40b07d316c884a28c58eed4de33
+diff --git a/ipc/mqueue.c b/ipc/mqueue.c
+index 59302fc..5c71ae0 100644
+--- a/ipc/mqueue.c
++++ b/ipc/mqueue.c
+@@ -25,6 +25,7 @@
+ #include <linux/netlink.h>
+ #include <linux/syscalls.h>
+ #include <linux/signal.h>
 +#include <linux/pspace.h>
- #include <asm/uaccess.h>
- #include <asm/byteorder.h>
- #include <linux/moduleparam.h>
-@@ -61,6 +62,7 @@ static struct class *usb_device_class;
- struct async {
- 	struct list_head asynclist;
- 	struct dev_state *ps;
-+	struct pspace *pspace;
- 	pid_t pid;
- 	uid_t uid, euid;
- 	unsigned int signr;
-@@ -224,6 +226,7 @@ static struct async *alloc_async(unsigne
+ #include <net/sock.h>
+ #include "util.h"
  
- static void free_async(struct async *as)
- {
-+	put_pspace(as->pspace);
- 	kfree(as->urb->transfer_buffer);
- 	kfree(as->urb->setup_packet);
- 	usb_free_urb(as->urb);
-@@ -316,8 +319,8 @@ static void async_completed(struct urb *
- 		sinfo.si_errno = as->urb->status;
- 		sinfo.si_code = SI_ASYNCIO;
- 		sinfo.si_addr = as->userurb;
--		kill_proc_info_as_uid(as->signr, &sinfo, as->pid, as->uid, 
--				      as->euid);
-+		kill_proc_info_as_uid(as->signr, &sinfo, as->pspace, as->pid,
-+					 as->uid, as->euid);
- 	}
- 	snoop(&urb->dev->dev, "urb complete\n");
- 	snoop_urb(urb, as->userurb);
-@@ -571,6 +574,8 @@ static int usbdev_open(struct inode *ino
- 	INIT_LIST_HEAD(&ps->async_completed);
- 	init_waitqueue_head(&ps->wait);
- 	ps->discsignr = 0;
-+	ps->disc_pspace = current->pspace;
-+	get_pspace(ps->disc_pspace);
- 	ps->disc_pid = current->pid;
- 	ps->disc_uid = current->uid;
- 	ps->disc_euid = current->euid;
-@@ -601,6 +606,7 @@ static int usbdev_release(struct inode *
- 	destroy_all_async(ps);
- 	usb_unlock_device(dev);
- 	usb_put_dev(dev);
-+	put_pspace(ps->disc_pspace);
- 	ps->dev = NULL;
- 	kfree(ps);
-         return 0;
-@@ -1054,6 +1060,8 @@ static int proc_do_submiturb(struct dev_
- 		as->userbuffer = NULL;
- 	as->signr = uurb->signr;
- 	as->ifnum = ifnum;
-+	as->pspace = current->pspace;
-+	get_pspace(as->pspace);
- 	as->pid = current->pid;
- 	as->uid = current->uid;
- 	as->euid = current->euid;
-diff --git a/drivers/usb/core/inode.c b/drivers/usb/core/inode.c
-index 3cf945c..94c91b3 100644
---- a/drivers/usb/core/inode.c
-+++ b/drivers/usb/core/inode.c
-@@ -700,7 +700,9 @@ static void usbfs_remove_device(struct u
- 			sinfo.si_errno = EPIPE;
- 			sinfo.si_code = SI_ASYNCIO;
- 			sinfo.si_addr = ds->disccontext;
--			kill_proc_info_as_uid(ds->discsignr, &sinfo, ds->disc_pid, ds->disc_uid, ds->disc_euid);
-+			kill_proc_info_as_uid(ds->discsignr, &sinfo,
-+						ds->disc_pspace, ds->disc_pid,
-+						ds->disc_uid, ds->disc_euid);
+@@ -69,6 +70,7 @@ struct mqueue_inode_info {
+ 	struct mq_attr attr;
+ 
+ 	struct sigevent notify;
++	struct pspace *notify_pspace;
+ 	pid_t notify_owner;
+ 	struct user_struct *user;	/* user who created, for accounting */
+ 	struct sock *notify_sock;
+@@ -131,6 +133,7 @@ static struct inode *mqueue_get_inode(st
+ 			INIT_LIST_HEAD(&info->e_wait_q[0].list);
+ 			INIT_LIST_HEAD(&info->e_wait_q[1].list);
+ 			info->messages = NULL;
++			info->notify_pspace = NULL;
+ 			info->notify_owner = 0;
+ 			info->qsize = 0;
+ 			info->user = NULL;	/* set when all is ok */
+@@ -250,6 +253,9 @@ static void mqueue_delete_inode(struct i
+ 	kfree(info->messages);
+ 	spin_unlock(&info->lock);
+ 
++	put_pspace(info->notify_pspace);
++	info->notify_pspace = NULL;
++
+ 	clear_inode(inode);
+ 
+ 	mq_bytes = (info->attr.mq_maxmsg * sizeof(struct msg_msg *) +
+@@ -360,7 +366,8 @@ static int mqueue_flush_file(struct file
+ 	struct mqueue_inode_info *info = MQUEUE_I(filp->f_dentry->d_inode);
+ 
+ 	spin_lock(&info->lock);
+-	if (current->tgid == info->notify_owner)
++	if ((current->tgid == info->notify_owner) &&
++	    (current->pspace == info->notify_pspace))
+ 		remove_notification(info);
+ 
+ 	spin_unlock(&info->lock);
+@@ -516,7 +523,8 @@ static void __do_notify(struct mqueue_in
+ 			sig_i.si_uid = current->uid;
+ 
+ 			kill_proc_info(info->notify.sigev_signo,
+-				       &sig_i, info->notify_owner);
++				       &sig_i, 
++				       info->notify_pspace, info->notify_owner);
+ 			break;
+ 		case SIGEV_THREAD:
+ 			set_cookie(info->notify_cookie, NOTIFY_WOKENUP);
+@@ -525,7 +533,9 @@ static void __do_notify(struct mqueue_in
+ 			break;
  		}
+ 		/* after notification unregisters process */
++		put_pspace(info->notify_pspace);
+ 		info->notify_owner = 0;
++		info->notify_pspace = NULL;
  	}
+ 	wake_up(&info->wait_q);
  }
-diff --git a/drivers/usb/core/usb.h b/drivers/usb/core/usb.h
-index 4647e1e..512c5c7 100644
---- a/drivers/usb/core/usb.h
-+++ b/drivers/usb/core/usb.h
-@@ -73,6 +73,7 @@ struct dev_state {
- 	struct list_head async_completed;
- 	wait_queue_head_t wait;     /* wake up if a request completed */
- 	unsigned int discsignr;
-+	struct pspace *disc_pspace;
- 	pid_t disc_pid;
- 	uid_t disc_uid, disc_euid;
- 	void __user *disccontext;
+@@ -568,6 +578,8 @@ static void remove_notification(struct m
+ 		set_cookie(info->notify_cookie, NOTIFY_REMOVED);
+ 		netlink_sendskb(info->notify_sock, info->notify_cookie, 0);
+ 	}
++	put_pspace(info->notify_pspace);
++	info->notify_pspace = NULL;
+ 	info->notify_owner = 0;
+ }
+ 
+@@ -1042,7 +1054,8 @@ retry:
+ 	ret = 0;
+ 	spin_lock(&info->lock);
+ 	if (u_notification == NULL) {
+-		if (info->notify_owner == current->tgid) {
++		if ((info->notify_owner == current->tgid) &&
++		    (info->notify_pspace == current->pspace)) {
+ 			remove_notification(info);
+ 			inode->i_atime = inode->i_ctime = CURRENT_TIME;
+ 		}
+@@ -1066,7 +1079,9 @@ retry:
+ 			info->notify.sigev_notify = SIGEV_SIGNAL;
+ 			break;
+ 		}
++		info->notify_pspace = current->pspace;
+ 		info->notify_owner = current->tgid;
++		get_pspace(info->notify_pspace);
+ 		inode->i_atime = inode->i_ctime = CURRENT_TIME;
+ 	}
+ 	spin_unlock(&info->lock);
 -- 
 1.1.5.g3480
 

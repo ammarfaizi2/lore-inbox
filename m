@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWBFWcG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWBFWiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932406AbWBFWcG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 17:32:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWBFWcG
+	id S932410AbWBFWiM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 17:38:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWBFWiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 17:32:06 -0500
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:26931 "EHLO
-	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S932406AbWBFWcE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 17:32:04 -0500
-Message-ID: <43E7CE55.80007@fr.ibm.com>
-Date: Mon, 06 Feb 2006 23:31:49 +0100
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 6 Feb 2006 17:38:12 -0500
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:13698 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S932400AbWBFWiL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 17:38:11 -0500
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: network delays, mysterious push packets
+From: David Carlton <david.carlton@sun.com>
+Date: Mon, 06 Feb 2006 14:38:10 -0800
+Message-ID: <yf2k6c8ru3x.fsf@kealia.sfbay.sun.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Reasonable Discussion,
+ linux)
 MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-CC: Hubertus Franke <frankeh@watson.ibm.com>, Greg KH <greg@kroah.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Kirill Korotaev <dev@openvz.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
-       Pavel Emelianov <xemul@sw.ru>
-Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
-References: <43E38BD1.4070707@openvz.org> <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org> <43E3915A.2080000@sw.ru> <Pine.LNX.4.64.0602030939250.4630@g5.osdl.org> <1138991641.6189.37.camel@localhost.localdomain> <20060203201945.GA18224@kroah.com> <43E3BE66.6050200@watson.ibm.com> <43E615BA.1080402@sw.ru>
-In-Reply-To: <43E615BA.1080402@sw.ru>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev wrote:
->> How do we want to create the container?
->> In our patch we did it through a /proc/container filesystem.
->> Which created the container object and then on fork/exec switched over.
-> 
-> this doesn't look good for a full virtualization solution, since proc
-> should be virtualized as well :)
+I'm working on an application that we're trying to switch from a 2.4
+kernel to a 2.6 kernel.  (I believe we're using 2.6.9.)  One part of
+the program periodically sends out chunks of data (whose size is just
+over 1MB) via tcp.
 
-Well, /proc should be "virtualized" or "isolated", how do you expect a
-container to work correctly ? plenty of user space tools depend on it.
+Frequently, alas, these chunks aren't arriving in a timely fashion.
+Instrumenting the code and doing a tcpdump, this is what we see:
 
-C.
+1) The sender uses sendmsg() to send all the data.  (In chunks of a
+   little less than 1.5K, in case it matters.)
+
+2) Most of the data arrives in a timely fashion.  There are a few
+   dropped packets that have to get retransmitted; no big deal.  (I
+   assume this step overlaps somewhat with step 1; also, sometimes all
+   the data makes it, so we don't progress to step 3.)
+
+3) Occasionally, at some point, the transmission slows way down: the
+   sender sends out bits of data (1 or 2 Ethernet frames, I can't
+   remember) spaced 200ms apart, each marked with PUSH.
+
+I don't understand why they'd be marked with push: by this time, all
+the sendmsg calls have returned, so the sender's kernel should have
+all the data, so there should only be one transmission marked with
+push.  But I'm seeing lots of them.  Which I wouldn't mind so much,
+but the 200ms gaps are killing us.
+
+Does this ring any bells?  This 200 millisecond gap + PUSH behavior
+seems very odd, so I'm hoping that somebody's seen a misconfiguration
+or kernel bug causing these particular symptoms.
+
+Thanks for any suggestions that anybody has.
+
+(I'm not subscribed to the lists, so please Cc: me on any responses.
+Also, my apologies for the crosspost - the linux-net archives were
+relatively bare and spam-filled, so it wasn't clear to me whether or
+not that list was still active.)
+
+David Carlton
+david.carlton@sun.com

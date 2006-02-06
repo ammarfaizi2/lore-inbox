@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWBFUMD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbWBFUP1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbWBFUMD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 15:12:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWBFUMB
+	id S932368AbWBFUP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 15:15:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWBFUP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 15:12:01 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:21963 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932365AbWBFUL7 (ORCPT
+	Mon, 6 Feb 2006 15:15:27 -0500
+Received: from dust.daper.net ([83.16.99.170]:5596 "EHLO daper.net")
+	by vger.kernel.org with ESMTP id S932368AbWBFUP1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 15:11:59 -0500
-Date: Mon, 6 Feb 2006 12:11:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mark Lord <lkml@rtr.ca>
-Cc: dgc@sgi.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] Prevent large file writeback starvation
-Message-Id: <20060206121133.4ef589af.akpm@osdl.org>
-In-Reply-To: <43E75FB6.2040203@rtr.ca>
-References: <20060206040027.GI43335175@melbourne.sgi.com>
-	<20060205202733.48a02dbe.akpm@osdl.org>
-	<43E75ED4.809@rtr.ca>
-	<43E75FB6.2040203@rtr.ca>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 6 Feb 2006 15:15:27 -0500
+Date: Mon, 6 Feb 2006 21:15:23 +0100
+From: Damian Pietras <daper@daper.net>
+To: Peter Osterlund <petero2@telia.com>
+Cc: Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Problems with eject and pktcdvd
+Message-ID: <20060206201523.GA9204@daper.net>
+References: <20060115123546.GA21609@daper.net> <43CA8C15.8010402@cfl.rr.com> <20060115185025.GA15782@daper.net> <43CA9FC7.9000802@cfl.rr.com> <m3ek39z09f.fsf@telia.com> <20060115210443.GA6096@daper.net> <m33bixaaav.fsf@telia.com> <20060205210746.GA16023@daper.net> <m3oe1l8ly9.fsf@telia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3oe1l8ly9.fsf@telia.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord <lkml@rtr.ca> wrote:
->
-> A simple test I do for this:
+On Sun, Feb 05, 2006 at 11:44:46PM +0100, Peter Osterlund wrote:
+> Damian Pietras <daper@daper.net> writes:
 > 
->  $ mkdir t
->  $ cp /usr/src/*.bz2  t    (about 400-500MB worth of kernel tar files)
+> > Now I can mount CD-R, CD-RW, DVD+RW using pktcdvd.
+> > 
+> > Something strange happend when I copied files to DVD+RW und used eject.
+> > After some time eject exitet, but the disc was stil in the burner, I was
+> > allowed to open it by pressing the eject button, but then:
+> > 
+> > hda: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
+> > hda: media error (bad sector): error=0x34 { AbortedCommand LastFailedSense=0x03
 > 
->  In another window, I do this:
-> 
->  $ while (sleep 1); do echo -n "`date`: "; grep Dirty /proc/meminfo; done
-> 
->  And then watch the count get large, but take virtually forever
->  to count back down to a "safe" value.
-> 
->  Typing "sync" causes all the Dirty pages to immediately be flushed to disk,
->  as expected.
+> Thanks for testing. Please try this patch: It makes sure not to unlock
+> the door if the disc is in use.
 
-I've never seen that happen and I don't recall seeing any other reports of
-it, so your machine must be doing something peculiar.  I think it can
-happen if, say, an inode gets itself onto the wrong inode list, or
-incorrectly gets its dirty flag cleared.
+It still allows to eject the disc while `umount /media/cdrom0` is
+waiting to finish.
 
-Are you using any unusual mount options, or unusual combinations of
-filesystems, or anything like that?
-
+-- 
+Damian Pietras

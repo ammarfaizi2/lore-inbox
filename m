@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWBFKRQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750848AbWBFKY4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751025AbWBFKRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 05:17:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbWBFKRQ
+	id S1750848AbWBFKY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 05:24:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbWBFKY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 05:17:16 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:33441 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751025AbWBFKRO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 05:17:14 -0500
-Date: Mon, 6 Feb 2006 02:16:39 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: bcrl@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH, V2] i386: instead of poisoning .init zone, change
- protection bits to force a fault
-Message-Id: <20060206021639.2e9d9157.akpm@osdl.org>
-In-Reply-To: <43E71FEC.6020506@cosmosbay.com>
-References: <m1r76rft2t.fsf@ebiederm.dsl.xmission.com>
-	<m17j8jfs03.fsf@ebiederm.dsl.xmission.com>
-	<20060128235113.697e3a2c.akpm@osdl.org>
-	<200601291620.28291.ioe-lkml@rameria.de>
-	<20060129113312.73f31485.akpm@osdl.org>
-	<43DD1FDC.4080302@cosmosbay.com>
-	<20060129200504.GD28400@kvack.org>
-	<43DD2C15.1090800@cosmosbay.com>
-	<20060204144111.7e33569f.akpm@osdl.org>
-	<43E7108A.8030001@cosmosbay.com>
-	<20060206012809.3045207c.akpm@osdl.org>
-	<43E71FEC.6020506@cosmosbay.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 6 Feb 2006 05:24:56 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:63455 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750845AbWBFKYz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 05:24:55 -0500
+Date: Mon, 6 Feb 2006 11:23:37 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: Paul Jackson <pj@sgi.com>, akpm@osdl.org, dgc@sgi.com, steiner@sgi.com,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+Message-ID: <20060206102337.GA3359@elte.hu>
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com> <200602061109.45788.ak@suse.de> <20060206101156.GA1761@elte.hu> <200602061116.44040.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602061116.44040.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet <dada1@cosmosbay.com> wrote:
->
-> Andrew Morton a écrit :
-> 
-> > But I'm inclined to drop the whole patch - I don't see how it can detect
-> > any bugs which CONFIG_DEBUG_PAGEALLOC won't find.
+
+* Andi Kleen <ak@suse.de> wrote:
+
+> On Monday 06 February 2006 11:11, Ingo Molnar wrote:
 > > 
+> > * Andi Kleen <ak@suse.de> wrote:
+> > 
+> > > Of course there might be some corner cases where using local memory 
+> > > for caching is still better (like mmap file IO), but my guess is that 
+> > > it isn't a good default.
+> > 
+> > /tmp is almost certainly one where local memory is better.
 > 
-> If CONFIG_DEBUG_PAGEALLOC is selected, does a page freed by free_page(addr); 
-> guaranted not being reused later ?
+> Not sure. What happens if someone writes a 1GB /tmp file on a 1GB 
+> node?
 
-No.
+well, if the pagecache is filled on a node above a certain ratio then 
+one would have to spread it out forcibly. But otherwise, try to keep 
+things as local as possible, because that will perform best. This is 
+different from the case Paul's patch is addressing: workloads which are 
+known to be global (and hence spreading out is the best-performing 
+allocation).
 
-So with your patch, any access to the freed page will oops.  With
-CONFIG_DEBUG_PAGEALLOC it'll only oops if that page is presently free.
+(for which problem i suggested a per-mount/directory/file 
+locality-of-reference attribute in another post.)
 
-So if enough people run with CONFIG_DEBUG_PAGEALLOC for enough time, we'll
-find the same bugs.
-
-> Anyway, the CONFIG_DEBUG_INITDATA was a temporary patch in order to track the 
-> accesses to non possible cpus percpu data. So if you feel all such accesses 
-> were cleaned, we can drop the patch...
-
-I think so..
+	Ingo

@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750996AbWBFF03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbWBFFYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750996AbWBFF03 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 00:26:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbWBFF03
+	id S1750991AbWBFFYg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 00:24:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbWBFFYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 00:26:29 -0500
-Received: from web33004.mail.mud.yahoo.com ([68.142.206.68]:1182 "HELO
-	web33004.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750994AbWBFF02 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 00:26:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=CVxE/t7RWjrw6HdsTHmyGtfEtnkxbEO9NSJyJm2UITGZ9bwHV3h2z2CCDm9AasNiNNkXA7vqJB75UlETaKFF5tvzj2Sx851BwZMJwNZ6QAewhDmY590Ew+KcyYnIhTP+CseM/dHHtea5dzwnf0zMqSrNxGf/bdmFs2mRBIMZgk0=  ;
-Message-ID: <20060206052627.8205.qmail@web33004.mail.mud.yahoo.com>
-Date: Sun, 5 Feb 2006 21:26:27 -0800 (PST)
-From: Shantanu Goel <sgoel01@yahoo.com>
-Subject: Re: [VM PATCH] rotate_reclaimable_page fails frequently
-To: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@surriel.com>
-Cc: sgoel01@yahoo.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <20060205205056.01a025fa.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 6 Feb 2006 00:24:36 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:44758 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750986AbWBFFYf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 00:24:35 -0500
+Subject: Re: [RFC PATCH] crc generation fix for EXPORT_SYMBOL_GPL
+From: Ram Pai <linuxram@us.ibm.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1139085087.3131.8.camel@laptopd505.fenrus.org>
+References: <20060202041543.GA6755@RAM>
+	 <1139085087.3131.8.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Organization: IBM 
+Date: Sun, 05 Feb 2006 21:24:31 -0800
+Message-Id: <1139203471.4641.41.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Andrew Morton <akpm@osdl.org> wrote:
-
-> Rik van Riel <riel@surriel.com> wrote:
-> >  The question is, why is the page not yet back on
-> the
-> >  LRU by the time the data write completes ?
+On Sat, 2006-02-04 at 21:31 +0100, Arjan van de Ven wrote:
+> On Wed, 2006-02-01 at 20:15 -0800, Ram Pai wrote:
+> > Currently genksym does not take into account the GPLness of the exported
+> > symbol while generating the crc for the exported symbol. Any symbol
+> > changes from EXPORT_SYMBOL to EXPORT_SYMBOL_GPL would not reflect in the
+> > Module.symvers file.  This patch fixes that problem.
 > 
-> Could be they're ext3 pages which were written out
-> by kjournald.  Such
-> pages are marked dirty but have clean buffers. 
-> ext3_writepage() will
-> discover that the page is actually clean and will
-> mark it thus without
-> performing any I/O.
+> and this is a problem.. why?
+
+Tools that depend on Module.symvers wont be able to detect the change in
+GPLness of the exported symbols.
+
+Eventually we want to generate a tool that can report API changes across
+kernel releases and put it in some friendly(docbook) format.
+
+Suggestions?
+RP
+
+
+> 
 > 
 
-I had conjectured that something like this might be
-happening without knowing the details of how ext3
-implements writepage.  The filesystem tested on here
-is  ext3.
-
-> Shantanu, I suggest you add some instrumentation
-> there too, see if it's
-> working.  (That'll be non-trivial.  Just because we
-> hit PAGE_CLEAN: here
-> doesn't necessarily mean that the page will be
-> reclaimed).
-
-I'll do so and report back the results.
-
-Shantanu
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

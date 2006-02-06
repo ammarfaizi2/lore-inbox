@@ -1,64 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWBFVHr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWBFVHP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbWBFVHr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 16:07:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbWBFVHr
+	id S964826AbWBFVHP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 16:07:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWBFVHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 16:07:47 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:23044 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S932168AbWBFVHp
+	Mon, 6 Feb 2006 16:07:15 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:61583 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964826AbWBFVHM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 16:07:45 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: GPL V3 and Linux - Dead Copyright Holders
-Date: Mon, 6 Feb 2006 13:07:38 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKGECCJPAB.davids@webmaster.com>
+	Mon, 6 Feb 2006 16:07:12 -0500
+Message-ID: <43E7BA78.6030501@watson.ibm.com>
+Date: Mon, 06 Feb 2006 16:07:04 -0500
+From: Hubertus Franke <frankeh@watson.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Kirill Korotaev <dev@sw.ru>, Greg <gkurz@fr.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>, Rik van Riel <riel@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: [RFC][PATCH 0/20] Multiple instances of the process id namespace
+References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>	<43E7B452.2080706@watson.ibm.com> <m1ek2gi52a.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1ek2gi52a.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <200602050358.49454.luke@dashjr.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Mon, 06 Feb 2006 13:04:21 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Mon, 06 Feb 2006 13:04:21 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric W. Biederman wrote:
+> Hubertus Franke <frankeh@watson.ibm.com> writes:
+> 
+>
+>>find_task_by_pid( pid ) { return find_task_pidspace_by_pid ( current->pspace,
+>>pid ); }
+>>
+>>and then only deal with the exceptional cases using find_task_pidspace_by_pid
+>>when the pidspace is different..
+> 
+> 
+> That is a possibility.  However I want to break some eggs so that the
+> users are updated appropriately.  It is only by a strenuous act of
+> will that I don't change the type of pid,tgid,pgrp,session.
+> 
+> The size of the changes is much less important than being clear.
+> So for I want find_task_by_pid to be an absolute interface.
+> 
 
-> The LGPL deals with only derivative works. The GPL also deals with mere
-> *linking*. If glibc were GPL'd, it would be illegal to make an OS
-> based on it
-> with a single C program incompatible with the GPL.
+Fair enough, valid answers .. I checked the patch and it would only take
+19/33 instances out .. so not the end of the world.
 
-	The GPL also only deals with derivative works. If linking does not create a
-derivative work, then the GPL cannot affect it. The GPL cannot define its
-own scope, only copyright law does that. GPL section zero states this, but
-even if it didn't it would still be true.
+> 
+> 
+>>>  Does the use of clone to create a new namespace instance look
+>>>  like the sane approach?
+>>>
+>>
+>>At he surface it looks OK .. how does this work in a multi-threaded
+>>process which does cloen ( CLONE_NPSPACE ) ?
+>>We discussed at some point that exec is the right place to do it,
+>>but what I get is that because this is the container_init task
+>>we are OK !
+>>A bit clarification would help here ...
+> 
+> 
+> Well the parent doesn't much matter.  But the child must have a fresh
+> start on all the groups of processes.  As all other groupings known by
+> a pid are per pspace, so they can't cross that line.
+> 
 
-	The GPL could say that it affected every work every created by any human
-being. It could say that it affected a work created by any person who ever
-used a GPL'd work. But these things would have no force because copyright
-law provides no such mechanism.
+Now, on which kernel does this compile/work ?
+Do you have a "helper" program you can share that starts/exec's an
+app under a new container (uhmm, namespace). No point for us to
+actually write that..
 
-	The only way the GPL can control work Y because it affects work Z is
-because Y is a derivative work of work Z. If it's not, then the works are
-legally unrelated, and no matter what the GPL says, it can't affect work Y.
-
-	If work Z is a "mere aggregate" containin all or part of work Y, then the
-GPL would still apply to work Y, but not to any part of work Z not from work
-Y.
-
-	DS
+-- Hubertus
 
 

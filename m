@@ -1,54 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWBFStM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWBFSyc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbWBFStM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 13:49:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWBFStM
+	id S932154AbWBFSyc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 13:54:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932158AbWBFSyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 13:49:12 -0500
-Received: from ns2.suse.de ([195.135.220.15]:32176 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932154AbWBFStL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 13:49:11 -0500
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
-Date: Mon, 6 Feb 2006 19:48:24 +0100
-User-Agent: KMail/1.8.2
-Cc: Paul Jackson <pj@sgi.com>, mingo@elte.hu, akpm@osdl.org, dgc@sgi.com,
-       steiner@sgi.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org
-References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com> <200602061936.27322.ak@suse.de> <Pine.LNX.4.62.0602061039420.16829@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0602061039420.16829@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 6 Feb 2006 13:54:32 -0500
+Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:39177 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932154AbWBFSyb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 13:54:31 -0500
+Date: Mon, 6 Feb 2006 19:55:04 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] stop ==== emergency
+Message-Id: <20060206195504.16b60b93.khali@linux-fr.org>
+In-Reply-To: <Pine.LNX.4.61.0602060841540.6574@goblin.wat.veritas.com>
+References: <mailman.1139006040.12873.linux-kernel2news@redhat.com>
+	<20060205205709.0b88171b.zaitcev@redhat.com>
+	<Pine.LNX.4.61.0602060841540.6574@goblin.wat.veritas.com>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602061948.25314.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 February 2006 19:43, Christoph Lameter wrote:
+Hi Hugh, Pete,
 
-> The impact of spreading cached object will depend on the application and 
-> the NUMA latencies in the system.
+> > This is wrong, Hugh. What do you think the priority of the second printk?
+> > It's not log_lvl, that's for sure.
+> 
+> Are you sure?  I've not delved into the printk code itself, but this
+> does follow the same pattern as in show_stack_log_lvl itself e.g. its
+> "Call Trace:\n" line.  (I am assuming print_context_stack ends with a
+> newline, as it does.)
 
-Yes I can see it not working well when a dentry is put at the other 
-end of a 256 node altix. That is why just spreading it to nearby
-nodes might be an alternative.
-
-On the other hand global interleaving actually worked for the page cache 
-in production in SLES9, so it can't be that bad.
-
-Also I'm sure you can construct some workload where it is a major loss.
-For those one has NUMA policy to adjust it (although I don't know yet
-how to apply separate numa policy to the d/i/file page cache - but if 
-it should be a real problem it could be surely solved somehow)
-
-The question is just if it's a common situation. My guess is that just
-giving local memory priority but not throwing away all IO caches
-when the local node fills up would be a generally useful default policy.
-
--Andi
+The code was correct (and was applied already as far as I can see.)
+However, given that printk calls aren't exactly cheap, don't we want to
+merge them where possible?
 
 
->
+Merge a few printk calls in i386 traps.
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+---
+ arch/i386/kernel/traps.c |   12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
+
+--- linux-2.6.16-rc2.orig/arch/i386/kernel/traps.c	2006-02-06 07:50:57.000000000 +0100
++++ linux-2.6.16-rc2/arch/i386/kernel/traps.c	2006-02-06 19:42:10.000000000 +0100
+@@ -114,8 +114,7 @@
+ 
+ static void print_addr_and_symbol(unsigned long addr, char *log_lvl)
+ {
+-	printk(log_lvl);
+-	printk(" [<%08lx>] ", addr);
++	printk("%s [<%08lx>] ", log_lvl, addr);
+ 	print_symbol("%s", addr);
+ 	printk("\n");
+ }
+@@ -166,8 +165,7 @@
+ 		stack = (unsigned long*)context->previous_esp;
+ 		if (!stack)
+ 			break;
+-		printk(log_lvl);
+-		printk(" =======================\n");
++		printk("%s =======================\n", log_lvl);
+ 	}
+ }
+ 
+@@ -196,14 +194,12 @@
+ 			break;
+ 		if (i && ((i % 8) == 0)) {
+ 			printk("\n");
+-			printk(log_lvl);
+-			printk("       ");
++			printk("%s       ", log_lvl);
+ 		}
+ 		printk("%08lx ", *stack++);
+ 	}
+ 	printk("\n");
+-	printk(log_lvl);
+-	printk("Call Trace:\n");
++	printk("%sCall Trace:\n", log_lvl);
+ 	show_trace_log_lvl(task, esp, log_lvl);
+ }
+ 
+
+More merges are possible, but I'm not sure how far we want to go.
+
+Thanks,
+-- 
+Jean Delvare

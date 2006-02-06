@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWBFNmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWBFNos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932100AbWBFNmk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 08:42:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWBFNmj
+	id S932109AbWBFNos (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 08:44:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWBFNos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 08:42:39 -0500
-Received: from vbn.0050556.lodgenet.net ([216.142.194.234]:49037 "EHLO
-	vbn.0050556.lodgenet.net") by vger.kernel.org with ESMTP
-	id S932100AbWBFNmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 08:42:38 -0500
-Subject: Re: [RFC PATCH] crc generation fix for EXPORT_SYMBOL_GPL
-From: Arjan van de Ven <arjan@infradead.org>
-To: Ram Pai <linuxram@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1139203471.4641.41.camel@localhost>
-References: <20060202041543.GA6755@RAM>
-	 <1139085087.3131.8.camel@laptopd505.fenrus.org>
-	 <1139203471.4641.41.camel@localhost>
-Content-Type: text/plain
-Date: Mon, 06 Feb 2006 14:42:36 +0100
-Message-Id: <1139233357.3131.66.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 6 Feb 2006 08:44:48 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:8875 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932109AbWBFNor (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 08:44:47 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Date: Mon, 6 Feb 2006 14:45:55 +0100
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@suse.cz>, Nigel Cunningham <nigel@suspend2.net>,
+       linux-kernel@vger.kernel.org,
+       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060206125253.GJ4101@elf.ucw.cz> <20060206130442.GV13598@suse.de>
+In-Reply-To: <20060206130442.GV13598@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602061445.55966.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-05 at 21:24 -0800, Ram Pai wrote:
-> On Sat, 2006-02-04 at 21:31 +0100, Arjan van de Ven wrote:
-> > On Wed, 2006-02-01 at 20:15 -0800, Ram Pai wrote:
-> > > Currently genksym does not take into account the GPLness of the exported
-> > > symbol while generating the crc for the exported symbol. Any symbol
-> > > changes from EXPORT_SYMBOL to EXPORT_SYMBOL_GPL would not reflect in the
-> > > Module.symvers file.  This patch fixes that problem.
+Hi,
+
+On Monday 06 February 2006 14:04, Jens Axboe wrote:
+> On Mon, Feb 06 2006, Pavel Machek wrote:
+> > > > I'll get same bandwidth as you, without need for async I/O. Async I/O
+> > > > is not really a feature, suspend speed is. (There are existing
+> > > > interfaces for doing AIO from userspace, anyway, but I'm pretty sure
+> > > > they will not be needed
+> > > 
+> > > If you keep writing single pages sync, you sure as hell wont get
+> > > anywhere near async io in speed...
 > > 
-> > and this is a problem.. why?
+> > well, we can perfectly do 128K block... just read 128K into userspace
+> > buffer, flush it via single write to block device. That should get us
+> > very close enough to media speed.
 > 
-> Tools that depend on Module.symvers wont be able to detect the change in
-> GPLness of the exported symbols.
+> That'll help naturally, 128k sync blocks will be very close to async
+> performance for most cases. Most cases here being drives with write back
+> caching enabled, if that is disabled async will still be a big win.
+> 
+> Is there any reason _not_ to just go with async io? Usually the code is
+> just as simple (or simpler), since the in-kernel stuff is inherently
+> async to begin with.
 
-and that is relevant.. why?
+Actually the userland tools we're working on use async I/O.  [There's no real
+need for sync, I think.]  Still we write one page at a time, for now, so the
+I/O performance is not that much better than for the built-in swsusp, but it
+_is_ better.
 
-
-> Eventually we want to generate a tool that can report API changes across
-> kernel releases and put it in some friendly(docbook) format.
-
-but a _GPL change isn't an API change though... either a module is legal
-or it isn't. _GPL doesn't matter there...
-
-
-
+Greetings,
+Rafael

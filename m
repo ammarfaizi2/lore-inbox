@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbWBFKNu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbWBFKQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750946AbWBFKNu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 05:13:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbWBFKNu
+	id S1751018AbWBFKQy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 05:16:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751019AbWBFKQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 05:13:50 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:395 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750926AbWBFKNt (ORCPT
+	Mon, 6 Feb 2006 05:16:54 -0500
+Received: from mx2.suse.de ([195.135.220.15]:6362 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750947AbWBFKQx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 05:13:49 -0500
-Date: Mon, 6 Feb 2006 11:13:31 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: suspend2-devel@lists.suspend2.net, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.
-Message-ID: <20060206101331.GC3967@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602041238.06395.rjw@sisk.pl> <20060204191042.GA3909@elf.ucw.cz> <200602060945.01141.nigel@suspend2.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Feb 2006 05:16:53 -0500
+From: Andi Kleen <ak@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+Date: Mon, 6 Feb 2006 11:16:42 +0100
+User-Agent: KMail/1.8.2
+Cc: Paul Jackson <pj@sgi.com>, akpm@osdl.org, dgc@sgi.com, steiner@sgi.com,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, clameter@sgi.com
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com> <200602061109.45788.ak@suse.de> <20060206101156.GA1761@elte.hu>
+In-Reply-To: <20060206101156.GA1761@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200602060945.01141.nigel@suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200602061116.44040.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 06-02-06 09:44:56, Nigel Cunningham wrote:
-> Hi.
+On Monday 06 February 2006 11:11, Ingo Molnar wrote:
 > 
-> On Sunday 05 February 2006 05:10, Pavel Machek wrote:
-> > Hi!
-> >
-> > > > I'm not suggesting treating them as unfreezeable in the fullest
-> > > > sense. I still signal them, but don't mind if they don't respond.
-> > > > This way, if they do leave that state for some reason (timeout?) at
-> > > > some point, they still get frozen.
-> > >
-> > > Yes, that's exactly what I wanted to do in swsusp. ;-)
-> >
-> > It seems dangerous to me. Imagine you treated interruptible tasks like
-> > that...
-> >
-> > What prevent task from doing
-> >
-> > 	set_state(UNINTERRUPTIBLE);
-> > 	schedule(one hour);
-> > 	write_to_filesystem();
-> > 	handle_signal()?
-> >
-> > I.e. it may do something dangerous just before being catched by
-> > refrigerator.
+> * Andi Kleen <ak@suse.de> wrote:
 > 
-> The write_to_filesystem would be caught be bdev freezing if you had it.
+> > Of course there might be some corner cases where using local memory 
+> > for caching is still better (like mmap file IO), but my guess is that 
+> > it isn't a good default.
+> 
+> /tmp is almost certainly one where local memory is better.
 
-But we don't... if you have bdev freezing, why do any other freezing
-at all, then? It should be enough :-).
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+Not sure. What happens if someone writes a 1GB /tmp file on a 1GB node?
+
+Christoph recently added some changes to the page allocator to 
+try harder to get local memory to work around this problem, but
+attacking it at the root might be better.
+
+Perhaps one could do a "near" caching policy for big machines: e.g. 
+if on a big Altix prefer to put it on a not too far away node, but
+spread it out evenly. But it's not clear yet such complexity is needed.
+
+-Andi

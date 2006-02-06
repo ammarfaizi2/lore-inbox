@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWBFPD6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWBFPGr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbWBFPD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 10:03:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWBFPD6
+	id S932131AbWBFPGr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 10:06:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWBFPGr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 10:03:58 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:11404 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932132AbWBFPD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 10:03:57 -0500
-Subject: Re: [PATCH] ipr: don't doublefree pages from scatterlist
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: hugh@veritas.com, brking@us.ibm.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <20060206.014608.22328385.davem@davemloft.net>
-References: <Pine.LNX.4.61.0602040004020.5406@goblin.wat.veritas.com>
-	 <43E66FB6.6070303@us.ibm.com>
-	 <Pine.LNX.4.61.0602060909180.6827@goblin.wat.veritas.com>
-	 <20060206.014608.22328385.davem@davemloft.net>
-Content-Type: text/plain
-Date: Mon, 06 Feb 2006 09:02:59 -0600
-Message-Id: <1139238179.3022.2.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Feb 2006 10:06:47 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:59348 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932131AbWBFPGq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 10:06:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LGLqMo+ieh2L3OgmJtUsEC5sAQrxLRfiRMPGByyfbogeOGB4RTDdZrYEYMIh3jh98dzwBhBtSg+Dq6cPt8H1OtuSg0yy5j9umEWGlwLRkUDMOIqKIM7097OIp0OqGEkQLvvRVgtwxtB4qix0kT8+Bih52mBIYCzeUem1JKtD7Kk=
+Message-ID: <73d8d0290602060706o75f04c1cx@mail.gmail.com>
+Date: Mon, 6 Feb 2006 15:06:43 +0000
+From: Peter Read <peter.read@gmail.com>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>, luke@dashjr.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest) (was: Rationale for RLIMIT_MEMLOCK?)
+Cc: rlrevell@joe-job.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jengelh@linux01.gwdg.de
+In-Reply-To: <43E7545E.nail7GN11WAQ9@burner>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <20060123105634.GA17439@merlin.emma.line.org>
+	 <200602021717.08100.luke@dashjr.org>
+	 <Pine.LNX.4.61.0602031502000.7991@yvahk01.tjqt.qr>
+	 <200602031724.55729.luke@dashjr.org> <43E7545E.nail7GN11WAQ9@burner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-06 at 01:46 -0800, David S. Miller wrote:
-> That's a bug, frankly.  Sparc64 doesn't need to do anything like
-> that.  Spamming the page pointers is really really bogus and I'm
-> surprised this doesn't make more stuff explode.
-> 
-> It was never the intention to allow the DMA mapping support code
-> to modify the page, offset, and length members of the scatterlist.
-> Only the DMA components.
-> 
-> I'd really prefer that those assignments get fixed and an explicit
-> note added to Documentation/DMA-mapping.txt about this.
-> 
-> It's rediculious that these generic subsystem drivers need to
-> know about this. :)
+I'm confused about where software has inherited a sense of morality from?
 
-I complained about this x86_64 behaviour ages ago.  Andi claimed it was
-the only way they could get there merging algorithm to work.  It
-actually triggered a bug in SCSI because in-flight I/O that was rejected
-gets unmapped and then remapped (which was, originally, not working).
-They finally fixed it by making the unmap put back the original
-scatterlist.  Perhaps this should go to linux-arch just in case anyone
-else copied x86_64?
+Equally, as I can't see any restriction of the GPL in that link I
+don't get the reference.  What it's essentially saying to me is 'if
+you don't want it under the GPL licence terms, talk to the copyright
+holder(s) or their authorised representative about alternatives'.
 
-James
+Plenty of people are happy to dual licence their work, & TBH I'd
+rather see people do that and get something for their work than have
+it misappropriated into commercial software and have to look to the
+courts for a slim chance at compensation...
 
+Anyone else rather get back to the technical discussion or is it just me?
 
+On 06/02/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
+> Luke-Jr <luke@dashjr.org> wrote:
+>
+> > ProDVD is immoral software. I use growisofs.
+>
+> growisofs is immoral, see
+>
+>         http://fy.chalmers.se/~appro/linux/DVD+RW/solaris.com.html
+>
+> Either this, or the GPL applies, but not both as intended by the author....
+>
+> Jörg
+>
+> --
+>  EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+>        js@cs.tu-berlin.de                (uni)
+>        schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+>  URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWBFVbT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWBFVdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932138AbWBFVbT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 16:31:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWBFVbT
+	id S932169AbWBFVdF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 16:33:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWBFVdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 16:31:19 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:53660 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932138AbWBFVbS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 16:31:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iZ6TP6OTVi21TjyJVBcj0R0ttMcRm2lwYDQBnih3vepE0QHLGx9Jyate5QqXkSwAECAVvQnQy0i6e2HIeGjSGG5CWCQpLmAm+r3c2zuFVyPxGF94UJurhS+/0NfozE1PqpvdnOtIYRdEdOPoll+/5tM65XfpLQ04m3+ZRgMaISc=
-Message-ID: <12c511ca0602061331p545deb80h4b818b23f097133e@mail.gmail.com>
-Date: Mon, 6 Feb 2006 13:31:17 -0800
-From: Tony Luck <tony.luck@gmail.com>
-To: Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [PATCH 1/3] NEW VERSION: *at syscalls: Implementation
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org,
-       kenneth.w.chen@intel.com
-In-Reply-To: <12c511ca0602061226pf3bf095jcc570754656c5437@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 6 Feb 2006 16:33:04 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:61074 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932169AbWBFVdD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 16:33:03 -0500
+Date: Tue, 7 Feb 2006 08:32:57 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Luca <kronos@kronoz.cjb.net>
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: [BUG] Linux 2.6.16-rcX breaks mutt
+Message-ID: <20060207083256.D9093411@wobbly.melbourne.sgi.com>
+References: <20060206172141.GA15133@dreamland.darkstar.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200512171742.jBHHgAKh018491@devserv.devel.redhat.com>
-	 <12c511ca0602061226pf3bf095jcc570754656c5437@mail.gmail.com>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060206172141.GA15133@dreamland.darkstar.lan>; from kronos@kronoz.cjb.net on Mon, Feb 06, 2006 at 06:21:41PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ignore the rest of this too :-(
-> long sys_mkdirat(int dfd, const char *pathname, int mode)
-> {
->         return syscall(__NR_mknodat, dfd, pathname, mode);
-                                         ^^^^^^^^
-> }
+On Mon, Feb 06, 2006 at 06:21:41PM +0100, Luca wrote:
+> Hi,
 
-Blame it on pre-lunch low blood sugar.
+Hi Luca,
 
--Tony
+> I found out that mutt when running with a 2.6.16-rcX kernel is unable to
+> discover new mails in mboxes other than the main one.
+> ...
+> I think that the problem is related to the changes in:
+> fs/xfs/linux-2.6/xfs_iops.c
+
+Indeed, there have been some atime related changes recently.
+
+> I've done a simple test with working and non working system:
+
+Thanks for the details, I should be able to reproduce and fix it
+from that - I'll get back to you soon.
+
+cheers.
+
+--
+Nathan

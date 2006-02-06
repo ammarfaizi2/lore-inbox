@@ -1,78 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWBFRBM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWBFRC0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932230AbWBFRBM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 12:01:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWBFRBM
+	id S932224AbWBFRC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 12:02:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932232AbWBFRC0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 12:01:12 -0500
-Received: from gold.veritas.com ([143.127.12.110]:60563 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S932230AbWBFRBK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 12:01:10 -0500
-Date: Mon, 6 Feb 2006 17:01:53 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: "David S. Miller" <davem@davemloft.net>, brking@us.ibm.com, akpm@osdl.org,
-       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] ipr: don't doublefree pages from scatterlist
-In-Reply-To: <1139238179.3022.2.camel@mulgrave.il.steeleye.com>
-Message-ID: <Pine.LNX.4.61.0602061646230.3560@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0602040004020.5406@goblin.wat.veritas.com> 
- <43E66FB6.6070303@us.ibm.com>  <Pine.LNX.4.61.0602060909180.6827@goblin.wat.veritas.com>
-  <20060206.014608.22328385.davem@davemloft.net> <1139238179.3022.2.camel@mulgrave.il.steeleye.com>
+	Mon, 6 Feb 2006 12:02:26 -0500
+Received: from zproxy.gmail.com ([64.233.162.193]:36006 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932224AbWBFRCZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 12:02:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nlqzW+25+S+KAux0IWP2lnyd0VDtLArT6O9lHpK5gawyBz7pFfiXb4zqbNvqwKZTeLwQ30WRxbmgGXTT/eXA369Wf1sdwn397J0tDT3ck/AUJ72egjXl8fdyCKNWQaIXkoUMshUqKA1x98QuCML6G93FeuLPQSYbQQMh6CbHyNk=
+Message-ID: <5a2cf1f60602060902t40e9dd9fs9574cff2c746d552@mail.gmail.com>
+Date: Mon, 6 Feb 2006 18:02:24 +0100
+From: jerome lacoste <jerome.lacoste@gmail.com>
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: 2.6.12.3 clock drifting twice too fast (amd64)
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Marie-Helene Lacoste <manies@tele2.fr>
+In-Reply-To: <5a2cf1f605081616116ba521ab@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 06 Feb 2006 17:01:09.0059 (UTC) FILETIME=[ECFCB930:01C62B3E]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <5a2cf1f6050816031011590972@mail.gmail.com>
+	 <1124228482.8630.95.camel@cog.beaverton.ibm.com>
+	 <5a2cf1f605081616116ba521ab@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Feb 2006, James Bottomley wrote:
-> On Mon, 2006-02-06 at 01:46 -0800, David S. Miller wrote:
-> > That's a bug, frankly.  Sparc64 doesn't need to do anything like
-> > that.  Spamming the page pointers is really really bogus and I'm
-> > surprised this doesn't make more stuff explode.
-> > 
-> > It was never the intention to allow the DMA mapping support code
-> > to modify the page, offset, and length members of the scatterlist.
-> > Only the DMA components.
-> > 
-> > I'd really prefer that those assignments get fixed and an explicit
-> > note added to Documentation/DMA-mapping.txt about this.
-> > 
-> > It's rediculious that these generic subsystem drivers need to
-> > know about this. :)
-> 
-> I complained about this x86_64 behaviour ages ago.
+On 8/17/05, jerome lacoste <jerome.lacoste@gmail.com> wrote:
+> On 8/16/05, john stultz <johnstul@us.ibm.com> wrote:
+> > On Tue, 2005-08-16 at 12:10 +0200, jerome lacoste wrote:
+> > > Installed stock 2.6.12.3 on a brand new amd64 box with an Asus extreme
+> > > AX 300 SE/t mainboard.
+> > >
+> > > I remember seeing a message in the boot saying something along:
+> > >
+> > >   "cannot connect to hardware clock."
+> > >
+> > > And now I see that the time is changing too fast (about 2 seconds each second).
+> > [snip]
+> > > 0000:00:00.0 Host bridge: ATI Technologies Inc: Unknown device 5951
+> >
+> > Looks like the AMD/ATI bug.
+> >
+> > http://bugzilla.kernel.org/show_bug.cgi?id=3927
+>
+> Sounds like it. I will have to try the patch.
+>
+> Good catch John!
 
-While I agree with you, David and Brian that this would be much nicer
-for driver writers to know that the page,offset,length in the sg list
-would not be touched by map_sg, I am surprised that you didn't say so
-in DMA-API.txt, and said only that map_sg would destroy information
-there.  x86_64 seems to conform to that destruction!
+Didn't have time to try the patch as my disk died. I installed a fresh
+ubuntu with 2.6.12 (+ vendor patches) instead of 2.6.12.3, and the
+issue disappeared.
 
-> Andi claimed it was
-> the only way they could get there merging algorithm to work.  It
-> actually triggered a bug in SCSI because in-flight I/O that was rejected
-> gets unmapped and then remapped (which was, originally, not working).
-> They finally fixed it by making the unmap put back the original
-> scatterlist.
+So maybe ubuntu backported the aforementionned fix to their kernel.
 
-I don't quite get that, but whatever, it would be a good idea to cc Andi.
+Anyway, one less thing to worry.
 
-> Perhaps this should go to linux-arch just in case anyone
-> else copied x86_64?
-
-Okay, cc'd to linux-arch also.  The one thing I have checked is that the
-coalescing architectures (if I actually got them right) do all declare
-a dma_length (perhaps differently named) distinct from input length,
-so wouldn't need that added.  Although I can see that x86_64 does
-modify the page,offset,length fields we'd prefer it not to, I didn't
-find any of the architecture's coalescing routines easy to follow,
-and would hesitate to declare any of them safe in this regard.
-
-I'd better also forward my original mail on the fix to Ryan's bug
-to Andi and linux-arch also.
-
-Hugh
+jerome

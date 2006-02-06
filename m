@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750864AbWBFJo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWBFJqO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750864AbWBFJo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 04:44:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbWBFJo1
+	id S1750878AbWBFJqO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 04:46:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbWBFJqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 04:44:27 -0500
-Received: from mx2.suse.de ([195.135.220.15]:65238 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750862AbWBFJo0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 04:44:26 -0500
-From: Andi Kleen <ak@suse.de>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: Re: [RFC 4/4] firewire: add mem1394
-Date: Mon, 6 Feb 2006 09:44:02 +0100
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net
-References: <1138919238.3621.12.camel@localhost> <p73lkwplfw8.fsf@verdi.suse.de> <43E6650C.1090407@s5r6.in-berlin.de>
-In-Reply-To: <43E6650C.1090407@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 6 Feb 2006 04:46:14 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:33708
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750866AbWBFJqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 04:46:13 -0500
+Date: Mon, 06 Feb 2006 01:46:08 -0800 (PST)
+Message-Id: <20060206.014608.22328385.davem@davemloft.net>
+To: hugh@veritas.com
+Cc: brking@us.ibm.com, James.Bottomley@SteelEye.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] ipr: don't doublefree pages from scatterlist
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.61.0602060909180.6827@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0602040004020.5406@goblin.wat.veritas.com>
+	<43E66FB6.6070303@us.ibm.com>
+	<Pine.LNX.4.61.0602060909180.6827@goblin.wat.veritas.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602060944.03408.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 05 February 2006 21:50, Stefan Richter wrote:
-> Andi Kleen wrote:
-> > BenH's firescope tool does this already using raw1394
-> > (I have it working now on x86-64 too). I dont quite see the point
-> > of adding another kernel driver for it though. This can be all
-> > done fine in userspace.
+From: Hugh Dickins <hugh@veritas.com>
+Date: Mon, 6 Feb 2006 09:32:54 +0000 (GMT)
+
+> From looking at the source, the architectures I found to be doing
+> scatterlist coalescing in some cases were alpha, ia64, parisc (some
+> code under drivers), powerpc, sparc64 and x86_64.
 > 
-> The point is to provide an interface like /dev/mem in order to use a 
-> wider range of debug/ forensics/ hacker tools than specialized 
-> libraw1394 clients. 
+> I agree with you that it would be possible for them to do the coalescing
+> by just adjusting dma_address and dma_length (though it's architecture-
+> dependent whether there are such fields at all), not interfering with
+> the input page and length; and maybe some of them do proceed that way.
+> I didn't find the coalescing code in any of them very easy to follow.
+> 
+> So please examine arch/x86_64/kernel/pci_gart.c gart_map_sg (and
+> dma_map_cont which it calls): x86_64 was the architecture on which
+> the problem was really found with drivers/scsi/st.c, and avoided
+> by that boot option iommu=nomerge.
+> 
+> Lines like "*sout = *s;" and "*sout = sg[start];" are structure-
+> copying whole scallerlist entries from one position in the list
+> to another, without explicit mention of the page and length fields.
 
-I don't see the benefit really. It can be as well provided by 
-a userspace library 
+That's a bug, frankly.  Sparc64 doesn't need to do anything like
+that.  Spamming the page pointers is really really bogus and I'm
+surprised this doesn't make more stuff explode.
 
-Many of the debug tools don't even work on /dev/mem, but use
-different interfaces (/proc/kcore, gdb remote protocol etc.) 
+It was never the intention to allow the DMA mapping support code
+to modify the page, offset, and length members of the scatterlist.
+Only the DMA components.
 
-Also raw1394 could possibly be used to cause interrupts
-on the target and also stop the target CPU this way.
+I'd really prefer that those assignments get fixed and an explicit
+note added to Documentation/DMA-mapping.txt about this.
 
--Andi
+It's rediculious that these generic subsystem drivers need to
+know about this. :)
+

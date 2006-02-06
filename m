@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWBFJKJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWBFJKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750819AbWBFJKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 04:10:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWBFJKJ
+	id S1750825AbWBFJKo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 04:10:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWBFJKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 04:10:09 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:6812 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750819AbWBFJKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 04:10:07 -0500
-Date: Mon, 6 Feb 2006 01:09:51 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
+	Mon, 6 Feb 2006 04:10:43 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:38296 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750825AbWBFJKm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 04:10:42 -0500
+Date: Mon, 6 Feb 2006 10:09:27 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Paul Jackson <pj@sgi.com>
 Cc: akpm@osdl.org, dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net,
        ak@suse.de, linux-kernel@vger.kernel.org, clameter@sgi.com
 Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
-Message-Id: <20060206010951.d9c63b61.pj@sgi.com>
-In-Reply-To: <20060206085155.GA9436@elte.hu>
-References: <20060204154944.36387a86.akpm@osdl.org>
-	<20060205203358.1fdcea43.akpm@osdl.org>
-	<20060205215052.c5ab1651.pj@sgi.com>
-	<20060205220204.194ba477.akpm@osdl.org>
-	<20060206061743.GA14679@elte.hu>
-	<20060205232253.ddbf02d7.pj@sgi.com>
-	<20060206074334.GA28035@elte.hu>
-	<20060206001959.394b33bc.pj@sgi.com>
-	<20060206082258.GA1991@elte.hu>
-	<20060206004720.0374b820.pj@sgi.com>
-	<20060206085155.GA9436@elte.hu>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Message-ID: <20060206090927.GA11933@elte.hu>
+References: <20060205203358.1fdcea43.akpm@osdl.org> <20060205215052.c5ab1651.pj@sgi.com> <20060205220204.194ba477.akpm@osdl.org> <20060206061743.GA14679@elte.hu> <20060205232253.ddbf02d7.pj@sgi.com> <20060206074334.GA28035@elte.hu> <20060206001959.394b33bc.pj@sgi.com> <20060206082258.GA1991@elte.hu> <20060206084001.GA5600@elte.hu> <20060206010304.e79ca2e5.pj@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060206010304.e79ca2e5.pj@sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.2
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> yes, but still that is a global attribute:
 
-Ok ... I am starting to see where you are going with this.
+* Paul Jackson <pj@sgi.com> wrote:
 
-Well, certainly not global in the sense that a selected cache would be
-spread over the whole system.  The data set read in by the job in one
-cpuset must not pollute the memory of another cpuset.
+> It's job specific, and cache specific.
+> 
+> If the job has a number of threads hitting the same data set and:
+>  1) the data set is faulted in non-uniformly (perhaps some
+>     job init task reads it in), and
+>  2) the data set is accessed with little thread locality
+>     (one thread is as likely as the next to read or write
+>     a particular page),
+> then for that job spreading makes sense.
+> 
+> If the cache is one that goes with a data set, such as file system 
+> buffers (page cache) and inode and dentry slab caches, then for that 
+> cache spreading makes sense.  (Yes Andrew, your xfs query is still in 
+> my queue.)
+> 
+> But for many (most?) other jobs and other caches, the default 
+> node-local policy is better.
 
-But it -might- work to mark certain caches to be memory spread across
-the current cpuset (to be precise, across current->mems_allowed), as
-the default kernel placement policy for those selected caches, with
-no per-cpuset mechanism to specify otherwise.
+what type of objects need to be spread (currently)? It seems that your 
+current focus is on filesystem related objects: pagecache, inodes, 
+dentries - correct? Is there anything else that needs to be spread? In 
+particular, does any userspace mapped memory need to be spread - or is 
+it handled with other mechanisms?
 
-Or it might not work.
-
-I don't know tonight.
-
-I will have to wait for others to chime in.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+	Ingo

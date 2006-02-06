@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbWBFUKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWBFUMD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932364AbWBFUKB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 15:10:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWBFUKB
+	id S932369AbWBFUMD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 15:12:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWBFUMB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 15:10:01 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24074 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932364AbWBFUKA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 15:10:00 -0500
-Date: Fri, 3 Feb 2006 23:38:00 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Andy Isaacson <adi@hexapodia.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       davej@codemonkey.org.uk
-Subject: Re: cpufreq oddness on 2.6.16-rc1-mm4
-Message-ID: <20060203233759.GA2355@ucw.cz>
-References: <20060203174048.GA13427@hexapodia.org> <20060203175416.GA24452@hexapodia.org>
+	Mon, 6 Feb 2006 15:12:01 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:21963 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932365AbWBFUL7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 15:11:59 -0500
+Date: Mon, 6 Feb 2006 12:11:33 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mark Lord <lkml@rtr.ca>
+Cc: dgc@sgi.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] Prevent large file writeback starvation
+Message-Id: <20060206121133.4ef589af.akpm@osdl.org>
+In-Reply-To: <43E75FB6.2040203@rtr.ca>
+References: <20060206040027.GI43335175@melbourne.sgi.com>
+	<20060205202733.48a02dbe.akpm@osdl.org>
+	<43E75ED4.809@rtr.ca>
+	<43E75FB6.2040203@rtr.ca>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060203175416.GA24452@hexapodia.org>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > >  git-cpufreq.patch
-> > 
-> > I haven't had time to debug it further, but cpufreq seems broken on my
-> > Thinkpad X40 with 2.6.16-rc1-mm4.  It was working fine with
-> > 2.6.15-rc5-mm3.  Automatic scaling doesn't function any more - my
-> > PentiumM 1.4 GHz is fixed at 598 MHz.
+Mark Lord <lkml@rtr.ca> wrote:
+>
+> A simple test I do for this:
 > 
-> Additional info - if I boot with AC connected, the CPU is fixed at 1395
-> MHz.  So perhaps this is due to an ACPI change?
+>  $ mkdir t
+>  $ cp /usr/src/*.bz2  t    (about 400-500MB worth of kernel tar files)
 > 
-> (I *do* see the "magic disappearing C4" that Pavel was talking about,
-> but that seems to have no connection to this problem.)
+>  In another window, I do this:
+> 
+>  $ while (sleep 1); do echo -n "`date`: "; grep Dirty /proc/meminfo; done
+> 
+>  And then watch the count get large, but take virtually forever
+>  to count back down to a "safe" value.
+> 
+>  Typing "sync" causes all the Dirty pages to immediately be flushed to disk,
+>  as expected.
 
-magic disappearing C4 is probably feature.
+I've never seen that happen and I don't recall seeing any other reports of
+it, so your machine must be doing something peculiar.  I think it can
+happen if, say, an inode gets itself onto the wrong inode list, or
+incorrectly gets its dirty flag cleared.
 
--- 
-Thanks, Sharp!
+Are you using any unusual mount options, or unusual combinations of
+filesystems, or anything like that?
+

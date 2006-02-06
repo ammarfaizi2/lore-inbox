@@ -1,73 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbWBFVm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbWBFVtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932384AbWBFVm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 16:42:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWBFVm7
+	id S932382AbWBFVtv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 16:49:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWBFVtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 16:42:59 -0500
-Received: from ns2.suse.de ([195.135.220.15]:37323 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932384AbWBFVm6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 16:42:58 -0500
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] Prevent spinlock debug from timing out too early
-Date: Mon, 6 Feb 2006 22:42:30 +0100
-User-Agent: KMail/1.8.2
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <200602062216.28943.ak@suse.de> <20060206213618.GA28566@elte.hu>
-In-Reply-To: <20060206213618.GA28566@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 6 Feb 2006 16:49:50 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:29602
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932190AbWBFVtu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 16:49:50 -0500
+Date: Mon, 06 Feb 2006 13:49:39 -0800 (PST)
+Message-Id: <20060206.134939.130100576.davem@davemloft.net>
+To: ak@suse.de
+Cc: hugh@veritas.com, brking@us.ibm.com, James.Bottomley@steeleye.com,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] ipr: don't doublefree pages from scatterlist
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <200602062211.29993.ak@suse.de>
+References: <43E7613B.5060706@us.ibm.com>
+	<Pine.LNX.4.61.0602061621450.3560@goblin.wat.veritas.com>
+	<200602062211.29993.ak@suse.de>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602062242.30897.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 February 2006 22:36, Ingo Molnar wrote:
+From: Andi Kleen <ak@suse.de>
+Date: Mon, 6 Feb 2006 22:11:29 +0100
+
+> Don't touch the non DMA members in the sg list in dma_map_sg in the IOMMU
 > 
-> * Andi Kleen <ak@suse.de> wrote:
+> Some drivers (in particular ipr) ran into problems because they
+> reused the sg lists after passing them to pci_map_sg(). The merging
+> procedure in the K8 GART IOMMU corrupted the state. This patch
+> changes it to only touch the dma* entries during merging,
+> but not the other fields.  Approach suggested by Dave Miller.
 > 
-> > Index: linux-2.6.15/lib/spinlock_debug.c
-> > ===================================================================
-> > --- linux-2.6.15.orig/lib/spinlock_debug.c
-> > +++ linux-2.6.15/lib/spinlock_debug.c
-> > @@ -68,13 +68,13 @@ static inline void debug_spin_unlock(spi
-> >  static void __spin_lock_debug(spinlock_t *lock)
-> >  {
-> >  	int print_once = 1;
-> > -	u64 i;
-> >  
-> >  	for (;;) {
-> > -		for (i = 0; i < loops_per_jiffy * HZ; i++) {
-> > -			cpu_relax();
-> > +		unsigned long timeout = jiffies + HZ;
-> > +		while (time_before(jiffies, timeout)) {
-> >  			if (__raw_spin_trylock(&lock->raw_lock))
-> >  				return;
-> > +			cpu_relax();
+> I did some basic tests with CONFIG_IOMMU_DEBUG (LTP, large dd) 
+> and without and it hold up, but needs more testing.
 > 
-> The reason i added a loop counter was to solve the case where we are 
-> spinning with interrupts disabled - jiffies wont increase there! 
+> Signed-off-by: Andi Kleen <ak@suse.de>
 
-Yes but the NMI watchdog should catch it eventually
-
-[we really should enable it by default on i386 too - local APIC 
-NMI should work everywhere with APIC]
-
-Oops I missed the write lock case. Thanks.
-
- 
-> a better solution would be to call __delay(1) after the first failed 
-> attempt, that would make the delay at least 1 second long. It seems 
-> __delay() is de-facto exported by every architecture, so we can rely on 
-> it in the global spinlock code.
-> 
-> So how about the patch below instead?
-
-Are you sure loops_per_jiffie is always in delay(1) units?
-
-
--Andi
+Thanks for doing this work Andi.

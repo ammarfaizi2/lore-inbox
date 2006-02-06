@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbWBFILW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWBFIUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750752AbWBFILW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 03:11:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWBFILW
+	id S1750737AbWBFIUU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 03:20:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWBFIUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 03:11:22 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44005 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750752AbWBFILV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 03:11:21 -0500
-To: <linux-kernel@vger.kernel.org>
-Cc: <vserver@list.linux-vserver.org>, Herbert Poetzl <herbert@13thfloor.at>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>,
-       Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: [RFC][PATCH 0/5] Task references..
-References: <m1psmba4bn.fsf@ebiederm.dsl.xmission.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 06 Feb 2006 01:09:37 -0700
-In-Reply-To: <m1psmba4bn.fsf@ebiederm.dsl.xmission.com> (Eric W. Biederman's
- message of "Sun, 29 Jan 2006 00:19:56 -0700")
-Message-ID: <m1vevsucvy.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Feb 2006 03:20:20 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:34196 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750737AbWBFIUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 03:20:19 -0500
+Date: Mon, 6 Feb 2006 00:19:59 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: akpm@osdl.org, dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net,
+       ak@suse.de, linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+Message-Id: <20060206001959.394b33bc.pj@sgi.com>
+In-Reply-To: <20060206074334.GA28035@elte.hu>
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
+	<20060204154944.36387a86.akpm@osdl.org>
+	<20060205203358.1fdcea43.akpm@osdl.org>
+	<20060205215052.c5ab1651.pj@sgi.com>
+	<20060205220204.194ba477.akpm@osdl.org>
+	<20060206061743.GA14679@elte.hu>
+	<20060205232253.ddbf02d7.pj@sgi.com>
+	<20060206074334.GA28035@elte.hu>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo wrote:
+> Could you perhaps outline two actual use-cases 
+> that would need two cpusets with different policies,
+> on the same box?
 
-At the moment I am going to say thanks for the comments.
+We normally run with different policies, in the same box, on different
+cpusets at the same time.  But this might be because some cpusets
+-need- the memory spreading, and the others that don't are left to the
+default policy.
 
-So far no one has said hey this is what I have been looking for
-and pid wrap around in the kernel is a very bad thing, thanks
-for solving my problem.
+In my immediate experience, I can only outline a hypothetical case,
+not an actual case, where the default node-local policy would be sorely
+needed, as opposed to just preferred:
 
-Currently this feels like overkill so I am going to shelve this
-approach for now.
+    If a job were running several threads, each of which did some
+    file i/o in roughly equal amounts, for processing (reading and
+    writing) in that thread, it could need the performance that
+    depended on these pages being placed node local.
 
-Eric
+In cpusets running classic Unix loads, such as the daemon processes or
+the login sessions, the default node-local would certainly be
+preferred, as that policy is well tuned for that sort of load.
 
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

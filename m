@@ -1,73 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWBFTU1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWBFT1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbWBFTU1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 14:20:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbWBFTU1
+	id S932302AbWBFT1f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 14:27:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWBFT1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 14:20:27 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:6665 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932294AbWBFTUZ (ORCPT
+	Mon, 6 Feb 2006 14:27:35 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:34231 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932302AbWBFT1e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 14:20:25 -0500
-Date: Mon, 6 Feb 2006 20:20:04 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Check for references to discarded sections during build time
-Message-ID: <20060206192004.GB12979@mars.ravnborg.org>
-References: <20060205002016.GA6105@mars.ravnborg.org> <9750.1139236271@ocs3>
+	Mon, 6 Feb 2006 14:27:34 -0500
+Date: Mon, 6 Feb 2006 20:27:21 +0100
+From: Olaf Hering <olh@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Christoph Hellwig <hch@infradead.org>,
+       Jeff Mahoney <jeffm@suse.com>, LKML <linux-kernel@vger.kernel.org>,
+       kernel-bugzilla@luksan.cjb.net
+Subject: Re: quality control
+Message-ID: <20060206192721.GA8600@suse.de>
+References: <43E64791.8010302@namesys.com> <43E6521F.5020707@suse.com> <43E6BF48.5010301@namesys.com> <BAFD888C-7E6B-49B1-A394-901D24CFBCBF@mac.com> <p73hd7clp5k.fsf@verdi.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <9750.1139236271@ocs3>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <p73hd7clp5k.fsf@verdi.suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 07, 2006 at 01:31:11AM +1100, Keith Owens wrote:
-> On Sat, Feb 04, 2006 at 11:50:25PM +0100, Sam Ravnborg wrote:
-> > Hi Keith.
+ On Mon, Feb 06, Andi Kleen wrote:
+
+> Kyle Moffett <mrmacman_g4@mac.com> writes:
 > > 
-> > While doing some other modpost.c changes I thought about the
-> > possibility to do the reference_init check during the modpost stage - so
-> > it is done early and author can catch warning when he made the error.
-> > Attached is first cut.
-> > 
-> > It does a much more lousy job than reference_init because it identifies
-> > the module and not the .o file. I hope to later identify the function
-> > where the illegal reference hapens.
+> > It's a GIT version of an RC patch for grief's sake!  You don't
+> > seriously expect people to quadruple-check every trivial patch that
+> > goes into Linus GIT tree before sending it, do you? 
 > 
-> My main concern is that we cannot get the .o file with this approach, I
-> am particulary concerned about this approach when processing vmlinux.
-> Static function names are duplicated in the kernel.  Reporting a
-> dangling reference to init or discarded data by function name rather
-> than by object will lead to confusion if the reference is from one of
-> the duplicate function names.
-This is an issue. But compared to todays situation where we
-only do the checks occasionaly and we miss single object modules
-we can live with having to deal with duplicate symbols occasionally.
+> No quadruple check, but every patch going to Linus should get at least
+> some basic testing and it's definitely suppose to compile at least
+> in one .config combination.
 
-> 
-> # nm vmlinux | fgrep ' t ' | awk '{print $3}' | sort | uniq -dc
-> 
-> produces this horrible list of duplicate function names (IA64):
-> 
->       2 autofs_get_sb
-... deleted ~70 lines
->       2 writenote
->       2 xdr_decode_fattr
+Right. We have now git-bisect, and it helped me to nail down a few bugs.
+Just now I track down some scsi or whatever breakage in -rc1. And guess
+what, not a single compile error so far, with a full featured config!
+So you guys better send tested patches, via akpm, to keep Linus tree in
+a reasonable shape.
 
-Looks ugly. Maybe something to check in modpost later.
-
-> 
-> It will also be extremely difficult to track down entries from compiler
-> generated anonymous data areas.  They are hard enough to isolate when
-> looking at a single object.  When all the anonymous data has been
-> merged together in vmlinux, it will be beyond most people.
-
-Agreed. Maybe we shall let reference_init.pl report anonymous data and
-skip that from the runtime part (if I find a way to detact it).
-
-I will give it a spin later to see where I end up.
-
-	Sam
+-- 
+short story of a lazy sysadmin:
+ alias appserv=wotan

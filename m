@@ -1,89 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWBFT41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWBFT7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbWBFT41 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 14:56:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbWBFT41
+	id S932344AbWBFT7s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 14:59:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbWBFT7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 14:56:27 -0500
-Received: from lug-owl.de ([195.71.106.12]:27341 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S932342AbWBFT40 (ORCPT
+	Mon, 6 Feb 2006 14:59:48 -0500
+Received: from mail.gmx.de ([213.165.64.21]:11150 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932344AbWBFT7r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 14:56:26 -0500
-Date: Mon, 6 Feb 2006 20:56:24 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Martin Mares <mj@ucw.cz>
-Cc: Yaroslav Rastrigin <yarick@it-territory.ru>,
-       Joshua Kugler <joshua.kugler@uaf.edu>, linux-kernel@vger.kernel.org,
-       Nicolas Mailhot <nicolas.mailhot@laposte.net>,
-       David Chow <davidchow@shaolinmicro.com>
-Subject: Re: Linux drivers management
-Message-ID: <20060206195624.GJ19232@lug-owl.de>
-Mail-Followup-To: Martin Mares <mj@ucw.cz>,
-	Yaroslav Rastrigin <yarick@it-territory.ru>,
-	Joshua Kugler <joshua.kugler@uaf.edu>, linux-kernel@vger.kernel.org,
-	Nicolas Mailhot <nicolas.mailhot@laposte.net>,
-	David Chow <davidchow@shaolinmicro.com>
-References: <1139250712.20009.20.camel@rousalka.dyndns.org> <200602061002.27477.joshua.kugler@uaf.edu> <200602062217.19697.yarick@it-territory.ru> <mj+md-20060206.193433.6964.atrey@ucw.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BEa57a89OpeoUzGD"
-Content-Disposition: inline
-In-Reply-To: <mj+md-20060206.193433.6964.atrey@ucw.cz>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+	Mon, 6 Feb 2006 14:59:47 -0500
+Date: Mon, 6 Feb 2006 20:59:46 +0100 (MET)
+From: "Michael Kerrisk" <mtk-manpages@gmx.net>
+To: linux-kernel@vger.kernel.org
+Cc: michael.kerrisk@gmx.net
+MIME-Version: 1.0
+Subject: man-pages-2.22 is released
+X-Priority: 3 (Normal)
+X-Authenticated: #24879014
+Message-ID: <16806.1139255986@www031.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Gidday,
 
---BEa57a89OpeoUzGD
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I recently released man-pages-2.22, which contains 
+sections 2, 3, 4, 5, and 7 of the manual pages.  These 
+sections describe the following:
 
-On Mon, 2006-02-06 20:39:37 +0100, Martin Mares <mj@ucw.cz> wrote:
-> > And then think, why do you need to _build_ drivers in the first place.
-> > Wouldn't it be better to have one vmware.ko which insmod's with all
-> > 2.6 versions , from 2.6.0 to 2.6.16-rc2 , and throw "upgrade pain"
-> > away completely ?=20
->=20
-> Well, you want the vmware.ko to contain machine code for at least 17
-> different architecture the kernel runs on? ;-)
+2: (Linux) system calls
+3: (libc) library functions
+4: Devices
+5: File formats and protocols
+7: Overview pages, conventions, etc.
 
-I think we will first need to hack binutils. The last time I heared
-about it, Fat Binaries weren't implemented (only containing object
-code for two different architectures), let alone for _all_
-architectures...
+As far as this list is concerned the most relevant parts are: 
+all of sections 2 and 4, which describe kernel-userland interfaces; 
+in section 5, the proc(5) manual page, which attempts (it's always 
+catching up) to be a comprehensive description of /proc; and 
+various pages in section 7, some of which are overview pages of 
+kernel features (e.g., networking protocols).
 
-Even getting all GCCs to compile with the same version would be an
-adventure...
+This is a request to kernel developers: if you make a change 
+to a kernel-userland interface, or observe a discrepancy 
+between the manual pages and reality, would you please send 
+me (at mtk-manpages@gmx.net ) one of the following 
+(in decreasing order of preference):
 
-MfG, JBG
+1. An in-line "diff -u" patch with text changes for the 
+   corresponding manual page.  (The most up-to-date version 
+   of the manual pages can always be found at
+   ftp://ftp.win.tue.nl/pub/linux-local/manpages or
+   ftp://ftp.kernel.org/pub/linux/docs/manpages .)
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+2. An email describing the changes, which I can then 
+   integrate into the appropriate manual page.
 
---BEa57a89OpeoUzGD
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+3. A message alerting me that some part of the manual pages 
+   does not correspond to reality.  Eventually, I will try to 
+   remedy the situation.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Obviously, as we get further down this list, more of my time 
+is required, and things may go slower, especially when the
+changes concern some part of the kernel that I am ignorant 
+about and I can't find someone to assist.
 
-iD8DBQFD56noHb1edYOZ4bsRAo8uAKCK0igW4Hzii+IV3MtP6CsY8034CQCbBUZ/
-od75dbj9hAaWzlY+vin5kg8=
-=Vps+
------END PGP SIGNATURE-----
+Cheers,
 
---BEa57a89OpeoUzGD--
+Michael
+
+-- 
+Michael Kerrisk
+maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
+
+Want to help with man page maintenance?  
+Grab the latest tarball at
+ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
+read the HOWTOHELP file and grep the source 
+files for 'FIXME'.

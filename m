@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWBFLOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWBFLPK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750740AbWBFLOE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 06:14:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWBFLOD
+	id S1750742AbWBFLPK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 06:15:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWBFLPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 06:14:03 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:47020 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750740AbWBFLOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 06:14:03 -0500
-Message-ID: <43E72FA4.6050307@jp.fujitsu.com>
-Date: Mon, 06 Feb 2006 20:14:44 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Mon, 6 Feb 2006 06:15:10 -0500
+Received: from khc.piap.pl ([195.187.100.11]:12299 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1750742AbWBFLPI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 06:15:08 -0500
+To: Neil Brown <neilb@suse.de>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Phillip Susi <psusi@cfl.rr.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo>
+	<787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com>
+	<Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr>
+	<20060202210949.GD10352@voodoo> <43E27792.nail54V1B1B3Z@burner>
+	<"787b0d920602 <Pine.LNX.4.61.0602050838110.6749"@yvahk01.tjqt.qr>
+	<43E62492.6080506@cfl.rr.com>
+	<E4D853FC-34C1-4332-BF92-D90E059D7543@mac.com>
+	<17382.31725.813127.10435@cse.unsw.edu.au>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Mon, 06 Feb 2006 12:15:05 +0100
+In-Reply-To: <17382.31725.813127.10435@cse.unsw.edu.au> (Neil Brown's message of "Mon, 6 Feb 2006 09:27:57 +1100")
+Message-ID: <m3bqxkivra.fsf@defiant.localdomain>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [RFC][PATCH] unify pfn_to_page [18/25]  s390  pfn_to_page/page_to_pfn
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sh can use generic ones.
+Neil Brown <neilb@suse.de> writes:
 
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Index: cleanup_pfn_page/include/asm-sh/page.h
-===================================================================
---- cleanup_pfn_page.orig/include/asm-sh/page.h
-+++ cleanup_pfn_page/include/asm-sh/page.h
-@@ -105,9 +105,8 @@ typedef struct { unsigned long pgprot; }
+> Bit on open without O_EXCL will always succeed no matter whether
+> someone has it O_EXCL or not.
 
-  /* PFN start number, because of __MEMORY_START */
-  #define PFN_START		(__MEMORY_START >> PAGE_SHIFT)
-+#define ARCH_PFN_OFFSET		PFN_START
-
--#define pfn_to_page(pfn)	(mem_map + (pfn) - PFN_START)
--#define page_to_pfn(page)	((unsigned long)((page) - mem_map) + PFN_START)
-  #define virt_to_page(kaddr)	pfn_to_page(__pa(kaddr) >> PAGE_SHIFT)
-  #define pfn_valid(pfn)		(((pfn) - PFN_START) < max_mapnr)
-  #define virt_addr_valid(kaddr)	pfn_valid(__pa(kaddr) >> PAGE_SHIFT)
-
+Ok. That means hald has no use for it, but cdrecord and similar
+programs could use it.
+-- 
+Krzysztof Halasa

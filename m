@@ -1,139 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbWBFRBz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWBFRBM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932228AbWBFRBz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 12:01:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbWBFRBy
+	id S932230AbWBFRBM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 12:01:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWBFRBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 12:01:54 -0500
-Received: from spare.moebius.com.br ([200.184.42.83]:55268 "EHLO
-	spare.moebius.com.br") by vger.kernel.org with ESMTP
-	id S932228AbWBFRBx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 12:01:53 -0500
-Message-ID: <43E7816E.4060905@moebius.com.br>
-Date: Mon, 06 Feb 2006 15:03:42 -0200
-From: Pedro Alves <pedro@moebius.com.br>
-Organization: Moebius Tecnologia em =?ISO-8859-1?Q?Inform=E1tica_Ltda?=
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Mon, 6 Feb 2006 12:01:12 -0500
+Received: from gold.veritas.com ([143.127.12.110]:60563 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S932230AbWBFRBK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 12:01:10 -0500
+Date: Mon, 6 Feb 2006 17:01:53 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: "David S. Miller" <davem@davemloft.net>, brking@us.ibm.com, akpm@osdl.org,
+       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] ipr: don't doublefree pages from scatterlist
+In-Reply-To: <1139238179.3022.2.camel@mulgrave.il.steeleye.com>
+Message-ID: <Pine.LNX.4.61.0602061646230.3560@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0602040004020.5406@goblin.wat.veritas.com> 
+ <43E66FB6.6070303@us.ibm.com>  <Pine.LNX.4.61.0602060909180.6827@goblin.wat.veritas.com>
+  <20060206.014608.22328385.davem@davemloft.net> <1139238179.3022.2.camel@mulgrave.il.steeleye.com>
 MIME-Version: 1.0
-To: David Chow <davidchow@shaolinmicro.com>
-CC: Jes Sorensen <jes@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux drivers management
-References: <43E71AD7.5070600@shaolinmicro.com> <yq0d5i0ol4i.fsf@jaguar.mkp.net> <43E77EEA.7040908@shaolinmicro.com>
-In-Reply-To: <43E77EEA.7040908@shaolinmicro.com>
-Content-Type: multipart/mixed;
- boundary="------------080202000504000804020001"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 06 Feb 2006 17:01:09.0059 (UTC) FILETIME=[ECFCB930:01C62B3E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080202000504000804020001
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 6 Feb 2006, James Bottomley wrote:
+> On Mon, 2006-02-06 at 01:46 -0800, David S. Miller wrote:
+> > That's a bug, frankly.  Sparc64 doesn't need to do anything like
+> > that.  Spamming the page pointers is really really bogus and I'm
+> > surprised this doesn't make more stuff explode.
+> > 
+> > It was never the intention to allow the DMA mapping support code
+> > to modify the page, offset, and length members of the scatterlist.
+> > Only the DMA components.
+> > 
+> > I'd really prefer that those assignments get fixed and an explicit
+> > note added to Documentation/DMA-mapping.txt about this.
+> > 
+> > It's rediculious that these generic subsystem drivers need to
+> > know about this. :)
+> 
+> I complained about this x86_64 behaviour ages ago.
 
-David,
+While I agree with you, David and Brian that this would be much nicer
+for driver writers to know that the page,offset,length in the sg list
+would not be touched by map_sg, I am surprised that you didn't say so
+in DMA-API.txt, and said only that map_sg would destroy information
+there.  x86_64 seems to conform to that destruction!
 
-   You got my vote..... I make simple hardware to improve availability 
-of operational systems and i just
-can't go to build a native driver because i could not find a kit that 
-works.... now i use a perl script to
-acomplish this mission... it works greate but is not beaulty as i like 
-it to be.... Time is money.....
+> Andi claimed it was
+> the only way they could get there merging algorithm to work.  It
+> actually triggered a bug in SCSI because in-flight I/O that was rejected
+> gets unmapped and then remapped (which was, originally, not working).
+> They finally fixed it by making the unmap put back the original
+> scatterlist.
 
-  Pedro Alves
+I don't quite get that, but whatever, it would be a good idea to cc Andi.
 
-David Chow wrote:
+> Perhaps this should go to linux-arch just in case anyone
+> else copied x86_64?
 
->
->> David> separate Linux drivers and the the main kernel, and manage
->> David> drivers using a package management system that only manages
->> David> kernel drivers and modules? If this can be done, the kernel
->> David> maintenance can be simple, and will end-up with a more stable
->> David> (less frequent changed) kernel API for drivers, also make every
->> David> developers of drivers happy.
->>
->> David> Would like to see that happens .
->>
->> Simple answer: no
->>
->> Maybe someone is working on it, but it's highly unlikely to be
->> anything but a waste of that person's time.
->>
->> This is a classic question, by seperating out the drivers you make it
->> so much harder for all developers to propagate changes into all pieces
->> of the tree.
->
-> I write drivers, never need to change kernel if the kernel API is 
-> mature enough to provide the need of a module developer needs. There 
-> is no reason to make changes to the kernel source, only needed because 
-> the original kernel code is crap or the API designed without proper 
-> software/system architectural design work effort. Each Linux kernel 
-> version go through a lengthy beta release cycle (e.g. 2.3, 2.5, 2.7), 
-> this shouldn't happen and idea collection should be enough through 
-> this large Linux community.
->
-> If our time is to focus on kernel's kernel, writing good documentation 
-> about a stable kernel API, it will benefit many developers to write 
-> drivers to Linux . It is too difficult to learn, this is a main reason 
-> why Linux is lack of support from manufacturer drivers, not because 
-> they don't like Linux and no market, it is because this has created 
-> high entry barrier for them.
->
-> I've been working on Linux modules for many years, training my 
-> engineers, talking to developers, hw manufacturers .. believe it or 
-> not, this is the main reason. They all ask for a DDK for Linux that 
-> can make drivers easily for their product.
->
-> I think I am in a different position like you guys, I've been work 
-> with Linux from programmer level to Linux promotion . My goal is not 
-> just focus on Linux technical or programming, I would like to promote 
-> this operating system to not just for programmers, but also 
-> non-technical end-users . Writing C code to me is just bits of task of 
-> some process.  You are too much focus on programming without 
-> considering the market situation.
->
-> There is no right or wrong for this question, but my original question 
-> is to listen thoughts and to hear the goal of people in the list. And 
-> of course, I would really like to see you people look into the way to 
-> facilitate more people gets a path with ease to Linux drivers 
-> development. User driver installation without the need to know about 
-> kernel sources, gcc, make etc....  "Because I am a dummy, I want to 
-> plug-in my device, put in the driver disc and hope it works!"
->
-> regards,
-> David Chow
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+Okay, cc'd to linux-arch also.  The one thing I have checked is that the
+coalescing architectures (if I actually got them right) do all declare
+a dma_length (perhaps differently named) distinct from input length,
+so wouldn't need that added.  Although I can see that x86_64 does
+modify the page,offset,length fields we'd prefer it not to, I didn't
+find any of the architecture's coalescing routines easy to follow,
+and would hesitate to declare any of them safe in this regard.
 
+I'd better also forward my original mail on the fix to Ryan's bug
+to Andi and linux-arch also.
 
---------------080202000504000804020001
-Content-Type: text/x-vcard; charset=utf-8;
- name="pedro.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="pedro.vcf"
-
-begin:vcard
-fn:Pedro Alves
-n:Alves;Pedro
-org:Moebius Tecnologia em Informatica Ltda
-adr:;;Rua Jardim Botanico 674 sala 507;Rio de janeiro;RJ;22461000;Brasil
-email;internet:pedro@moebius.com.br
-title:Diretor de Marketing
-tel;work:21 2294-3772
-tel;fax:21 2294-2794
-tel;home:21 8762-1264
-tel;cell:21 8762-1264
-x-mozilla-html:TRUE
-url:http://www.moebius.com.br
-version:2.1
-end:vcard
-
-
---------------080202000504000804020001--
+Hugh

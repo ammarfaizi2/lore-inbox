@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWBFJ1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbWBFJ2l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbWBFJ1p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 04:27:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWBFJ1p
+	id S1750839AbWBFJ2l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 04:28:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWBFJ2l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 04:27:45 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:1950 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750837AbWBFJ1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 04:27:44 -0500
-Date: Mon, 6 Feb 2006 01:27:26 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: akpm@osdl.org, dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net,
-       ak@suse.de, linux-kernel@vger.kernel.org, clameter@sgi.com
-Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
-Message-Id: <20060206012726.e3c7a537.pj@sgi.com>
-In-Reply-To: <20060206090927.GA11933@elte.hu>
-References: <20060205203358.1fdcea43.akpm@osdl.org>
-	<20060205215052.c5ab1651.pj@sgi.com>
-	<20060205220204.194ba477.akpm@osdl.org>
-	<20060206061743.GA14679@elte.hu>
-	<20060205232253.ddbf02d7.pj@sgi.com>
-	<20060206074334.GA28035@elte.hu>
-	<20060206001959.394b33bc.pj@sgi.com>
-	<20060206082258.GA1991@elte.hu>
-	<20060206084001.GA5600@elte.hu>
-	<20060206010304.e79ca2e5.pj@sgi.com>
-	<20060206090927.GA11933@elte.hu>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Mon, 6 Feb 2006 04:28:41 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:8854 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750839AbWBFJ2l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 04:28:41 -0500
+Date: Mon, 6 Feb 2006 01:28:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: bcrl@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH, V2] i386: instead of poisoning .init zone, change
+ protection bits to force a fault
+Message-Id: <20060206012809.3045207c.akpm@osdl.org>
+In-Reply-To: <43E7108A.8030001@cosmosbay.com>
+References: <m1r76rft2t.fsf@ebiederm.dsl.xmission.com>
+	<m17j8jfs03.fsf@ebiederm.dsl.xmission.com>
+	<20060128235113.697e3a2c.akpm@osdl.org>
+	<200601291620.28291.ioe-lkml@rameria.de>
+	<20060129113312.73f31485.akpm@osdl.org>
+	<43DD1FDC.4080302@cosmosbay.com>
+	<20060129200504.GD28400@kvack.org>
+	<43DD2C15.1090800@cosmosbay.com>
+	<20060204144111.7e33569f.akpm@osdl.org>
+	<43E7108A.8030001@cosmosbay.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo asked:
-> what type of objects need to be spread (currently)? It seems that your 
-> current focus is on filesystem related objects: 
+Eric Dumazet <dada1@cosmosbay.com> wrote:
+>
+> >  #ifdef CONFIG_DEBUG_INITDATA
+>  > +		/*
+>  > +		 * Unmap the page, and leak it.  So any further accesses will
+>  > +		 * oops.
+>  > +		 */
+>  >  		change_page_attr(virt_to_page(addr), 1, __pgprot(0));
+>  >  #else
+>  >  		memset((void *)addr, 0xcc, PAGE_SIZE);
+>  > -#endif
+>  >  		free_page(addr);
+>  > +#endif
+>  >  		totalram_pages++;
+>  >  	}
+>  >  	printk(KERN_INFO "Freeing %s: %ldk freed\n", what, (end - begin) >> 10);
+> 
+>  I wonder if you dont have to move the 'totalram_pages++;' next to the 
+>  free_page(addr) call (ie inside the #else/#endif block)
+> 
 
-In addition to the filesystem related objects called out in
-this current patch set, we also have some xfs directory
-and inode caches.  An xfs patch is winding its way toward
-lkml that will enhance the xfs cache creation calls a little,
-so that we can pick off the particular slab caches we need to
-be able to spread, while leaving other xfs slab caches with
-the default node-local policy.
+yup, thanks.
 
->  does any userspace mapped memory need to be spread 
+But I'm inclined to drop the whole patch - I don't see how it can detect
+any bugs which CONFIG_DEBUG_PAGEALLOC won't find.
 
-I don't think so, but I am not entirely confident of my answer
-tonight.  I would expect the applications I care about to place mapped
-pages by being careful to make the first access (load or store) of that
-page from a cpu on the node where they wanted that page placed.
-
-So, yes, either mostly filesystem related objects, or all such.
-
-I'm not sure which.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

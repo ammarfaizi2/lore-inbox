@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWBFVYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWBFVbT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbWBFVYo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 16:24:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWBFVYo
+	id S932138AbWBFVbT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 16:31:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWBFVbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 16:24:44 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:48335
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932132AbWBFVYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 16:24:43 -0500
-Date: Mon, 06 Feb 2006 13:24:34 -0800 (PST)
-Message-Id: <20060206.132434.130599234.davem@davemloft.net>
-To: kamezawa.hiroyu@jp.fujitsu.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] unify pfn_to_page [25/25] sparc64
- pfn_to_page/page_to_pfn
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <43E731B5.9050407@jp.fujitsu.com>
-References: <43E731B5.9050407@jp.fujitsu.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Feb 2006 16:31:19 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:53660 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932138AbWBFVbS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 16:31:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iZ6TP6OTVi21TjyJVBcj0R0ttMcRm2lwYDQBnih3vepE0QHLGx9Jyate5QqXkSwAECAVvQnQy0i6e2HIeGjSGG5CWCQpLmAm+r3c2zuFVyPxGF94UJurhS+/0NfozE1PqpvdnOtIYRdEdOPoll+/5tM65XfpLQ04m3+ZRgMaISc=
+Message-ID: <12c511ca0602061331p545deb80h4b818b23f097133e@mail.gmail.com>
+Date: Mon, 6 Feb 2006 13:31:17 -0800
+From: Tony Luck <tony.luck@gmail.com>
+To: Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [PATCH 1/3] NEW VERSION: *at syscalls: Implementation
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org,
+       kenneth.w.chen@intel.com
+In-Reply-To: <12c511ca0602061226pf3bf095jcc570754656c5437@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200512171742.jBHHgAKh018491@devserv.devel.redhat.com>
+	 <12c511ca0602061226pf3bf095jcc570754656c5437@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Date: Mon, 06 Feb 2006 20:23:33 +0900
+Ignore the rest of this too :-(
+> long sys_mkdirat(int dfd, const char *pathname, int mode)
+> {
+>         return syscall(__NR_mknodat, dfd, pathname, mode);
+                                         ^^^^^^^^
+> }
 
-> --- cleanup_pfn_page.orig/arch/sparc64/mm/init.c
-> +++ cleanup_pfn_page/arch/sparc64/mm/init.c
-> @@ -320,16 +320,6 @@ void __kprobes flush_icache_range(unsign
->   	}
->   }
-> 
-> -unsigned long page_to_pfn(struct page *page)
-> -{
-> -	return (unsigned long) ((page - mem_map) + pfn_base);
-> -}
-> -
-> -struct page *pfn_to_page(unsigned long pfn)
-> -{
-> -	return (mem_map + (pfn - pfn_base));
-> -}
-> -
->   void show_mem(void)
->   {
->   	printk("Mem-info:\n");
+Blame it on pre-lunch low blood sugar.
 
-We did not want these inlined on sparc64 for a good reason.
-The pointer arithmatic gets expanded to many additions,
-subtractions, and shifts, and I felt it too much to inline.
-
-If you want to consolidate all of the implementations, that's
-fine, but please keep the option of not inlining these two
-routines.
-
-Thank you.
+-Tony

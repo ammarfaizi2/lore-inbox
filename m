@@ -1,51 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWBFT1f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWBFT3j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbWBFT1f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 14:27:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWBFT1f
+	id S932151AbWBFT3j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 14:29:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWBFT3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 14:27:35 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:34231 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932302AbWBFT1e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 14:27:34 -0500
-Date: Mon, 6 Feb 2006 20:27:21 +0100
-From: Olaf Hering <olh@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Christoph Hellwig <hch@infradead.org>,
-       Jeff Mahoney <jeffm@suse.com>, LKML <linux-kernel@vger.kernel.org>,
-       kernel-bugzilla@luksan.cjb.net
-Subject: Re: quality control
-Message-ID: <20060206192721.GA8600@suse.de>
-References: <43E64791.8010302@namesys.com> <43E6521F.5020707@suse.com> <43E6BF48.5010301@namesys.com> <BAFD888C-7E6B-49B1-A394-901D24CFBCBF@mac.com> <p73hd7clp5k.fsf@verdi.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <p73hd7clp5k.fsf@verdi.suse.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Mon, 6 Feb 2006 14:29:39 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:1773 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932151AbWBFT3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 14:29:38 -0500
+To: <linux-kernel@vger.kernel.org>
+Cc: <vserver@list.linux-vserver.org>, Herbert Poetzl <herbert@13thfloor.at>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Kirill Korotaev <dev@sw.ru>, Greg <gkurz@fr.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>, Rik van Riel <riel@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: [RFC][PATCH 02/20] pspace: The parent process id of pid 1 is always
+ 0.
+References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
+	<m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Mon, 06 Feb 2006 12:27:08 -0700
+In-Reply-To: <m1vevsmgvz.fsf@ebiederm.dsl.xmission.com> (Eric W. Biederman's
+ message of "Mon, 06 Feb 2006 12:22:40 -0700")
+Message-ID: <m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Feb 06, Andi Kleen wrote:
 
-> Kyle Moffett <mrmacman_g4@mac.com> writes:
-> > 
-> > It's a GIT version of an RC patch for grief's sake!  You don't
-> > seriously expect people to quadruple-check every trivial patch that
-> > goes into Linus GIT tree before sending it, do you? 
-> 
-> No quadruple check, but every patch going to Linus should get at least
-> some basic testing and it's definitely suppose to compile at least
-> in one .config combination.
+Force the parent process id of pid == 1 to always be 0.  Force
+this for nested pspaces.
 
-Right. We have now git-bisect, and it helped me to nail down a few bugs.
-Just now I track down some scsi or whatever breakage in -rc1. And guess
-what, not a single compile error so far, with a full featured config!
-So you guys better send tested patches, via akpm, to keep Linus tree in
-a reasonable shape.
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 
+
+---
+
+ arch/alpha/kernel/entry.S |    3 +++
+ kernel/timer.c            |    2 ++
+ 2 files changed, 5 insertions(+), 0 deletions(-)
+
+bec203c8a3e7bec5e3bee8086361caffa71ad685
+diff --git a/arch/alpha/kernel/entry.S b/arch/alpha/kernel/entry.S
+index 7af15bf..38996ab 100644
+--- a/arch/alpha/kernel/entry.S
++++ b/arch/alpha/kernel/entry.S
+@@ -891,6 +891,9 @@ sys_getxpid:
+ 	cmpeq	$4, $5, $5
+ 	beq	$5, 1b
+ #endif
++	cmpeq	$0, 1, $5
++	cmoveq	$5, 0, $1
++	
+ 	stq	$1, 80($sp)
+ 	ret
+ .end sys_getxpid
+diff --git a/kernel/timer.c b/kernel/timer.c
+index 4f1cb0a..bae17fb 100644
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -987,6 +987,8 @@ asmlinkage long sys_getppid(void)
+ #endif
+ 		break;
+ 	}
++	if (current->tgid == 1)
++		pid = 0;
+ 	return pid;
+ }
+ 
 -- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+1.1.5.g3480
+

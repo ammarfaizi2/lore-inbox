@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWBFVI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWBFVKz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964827AbWBFVI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 16:08:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWBFVI4
+	id S1750811AbWBFVKz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 16:10:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWBFVKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 16:08:56 -0500
-Received: from atpro.com ([12.161.0.3]:24326 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S964830AbWBFVIy (ORCPT
+	Mon, 6 Feb 2006 16:10:54 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:31453 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750811AbWBFVKx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 16:08:54 -0500
-From: "Jim Crilly" <jim@why.dont.jablowme.net>
-Date: Mon, 6 Feb 2006 16:07:36 -0500
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Nigel Cunningham <nigel@suspend2.net>, suspend2-devel@lists.suspend2.net,
-       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.
-Message-ID: <20060206210736.GB12270@voodoo>
-Mail-Followup-To: "Rafael J. Wysocki" <rjw@sisk.pl>,
-	Nigel Cunningham <nigel@suspend2.net>,
-	suspend2-devel@lists.suspend2.net, Pavel Machek <pavel@ucw.cz>,
-	linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602041818.57278.rjw@sisk.pl> <200602060943.19774.nigel@suspend2.net> <200602060056.43672.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602060056.43672.rjw@sisk.pl>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 6 Feb 2006 16:10:53 -0500
+Date: Mon, 6 Feb 2006 13:10:26 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: ak@suse.de, pj@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: OOM behavior in constrained memory situations
+Message-Id: <20060206131026.53dbd8d5.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0602061253020.18594@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0602061253020.18594@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02/06/06 12:56:43AM +0100, Rafael J. Wysocki wrote:
-> > > > Oh. What's Pavel's solution? Fail freezing if uninterruptible threads
-> > > > don't freeze?
-> > >
-> > > Yes.
-> > >
-> > > AFAICT it's to avoid situations in which we would freeze having a
-> > > process in the D state that holds a semaphore or a mutex neded for
-> > > suspending or resuming devices (or later on for saving the image etc.).
-> > >
-> > > [I didn't answer this question previously, sorry.]
-> > 
-> > S'okay. This thread is an ocotpus :)
-> > 
-> > Are there real life examples of this? I can't think of a single time that 
-> > I've heard of something like this happening. I do see rare problems with 
-> > storage drivers not having driver model support right, and thereby causing 
-> > hangs, but that's brokenness in a completely different way.
-> > 
-> > In short, I'm wondering if (apart from the forking issue), this is a straw 
-> > man.
+Christoph Lameter <clameter@engr.sgi.com> wrote:
+>
+> There are situations in which memory allocations are restricted by policy, 
+> by a cpuset or by type of allocation. 
 > 
-> It doesn't seem to be very probable to me too, but I take this argument
-> as valid.
+> I propose that we need different OOM behavior for the cases in which the
+> user has imposed a limit on what type of memory to be allocated. In that 
+> case the application should be terminate with OOM. The OOM killer should 
+> not run.
 > 
-> Greetings,
-> Rafael
+> The huge page allocator has already been modified to return a Bus Error
+> because it would otherwise trigger the OOM killer. Its a bit strange
+> if an app returns a Bus Error because it its out of memory.
+> 
+> Could we modify the system so that the application requesting 
+> memory is terminated with an out of memory condition if
+> 
+> 1. No huge pages are available anymore.
+> 
+> 2. The application has set a policy that restricts allocation to
+>    certain nodes.
+> 
+> 3. An application is restricted by a cpuset to certain nodes.
+> 
+> 4. An application has requested large amounts of memory and the 
+>    allocation fails.
+> 
+> That should avoid the OOM killer in most situations.
 
-CIFS was good for that, if you have a CIFS filesystem mounted and
-take the network interface down (which I have my hibernate script do)
-before the filesystem is umounted it'll become impossible to umount
-the filesystem until the next reboot and I believe the cifsd kernel
-thread will be unfreezable. It's been a while since I've done that
-so it might be fixed now, but someone should verify it if it still
-exists and potentially work with the CIFS people to get it fixed.
+Do we really want to kill the application?  A more convetional response
+would be to return NULL from the page allocator and let that trickle back.
 
-Jim.
+The hugepage thing is special, because it's a pagefault, not a syscall.

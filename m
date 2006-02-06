@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWBFIXe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWBFIYT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750758AbWBFIXe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 03:23:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWBFIXe
+	id S1750761AbWBFIYT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 03:24:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWBFIYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 03:23:34 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:55525 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750771AbWBFIXd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 03:23:33 -0500
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Kirill Korotaev <dev@openvz.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       frankeh@watson.ibm.com, clg@fr.ibm.com, haveblue@us.ibm.com,
-       greg@kroah.com, alan@lxorguk.ukuu.org.uk, serue@us.ibm.com,
-       arjan@infradead.org, Rik van Riel <riel@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org
-Subject: Re: [RFC][PATCH 3/5] Virtualization/containers: UTSNAME
-References: <43E38BD1.4070707@openvz.org> <43E38DA9.9040606@sw.ru>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 06 Feb 2006 01:21:13 -0700
-In-Reply-To: <43E38DA9.9040606@sw.ru> (Kirill Korotaev's message of "Fri, 03
- Feb 2006 20:06:49 +0300")
-Message-ID: <m1r76guccm.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 6 Feb 2006 03:24:19 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:43225 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750761AbWBFIYT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 03:24:19 -0500
+Date: Mon, 6 Feb 2006 09:22:58 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Paul Jackson <pj@sgi.com>
+Cc: akpm@osdl.org, dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net,
+       ak@suse.de, linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+Message-ID: <20060206082258.GA1991@elte.hu>
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com> <20060204154944.36387a86.akpm@osdl.org> <20060205203358.1fdcea43.akpm@osdl.org> <20060205215052.c5ab1651.pj@sgi.com> <20060205220204.194ba477.akpm@osdl.org> <20060206061743.GA14679@elte.hu> <20060205232253.ddbf02d7.pj@sgi.com> <20060206074334.GA28035@elte.hu> <20060206001959.394b33bc.pj@sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060206001959.394b33bc.pj@sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.2
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I am disturbed by the introduction of #defines like current_vps() and
-vps_utsname.
+* Paul Jackson <pj@sgi.com> wrote:
 
-Magic lower case #defines are usually a bad idea.  
+> Ingo wrote:
+> > Could you perhaps outline two actual use-cases 
+> > that would need two cpusets with different policies,
+> > on the same box?
+> 
+> We normally run with different policies, in the same box, on different 
+> cpusets at the same time.  But this might be because some cpusets 
+> -need- the memory spreading, and the others that don't are left to the 
+> default policy.
 
-These defines hide the cost of the operations you are performing.
-At that point you might as well name the thing system_utsname
-so you don't have to change the code.  
+so in practice, the memory spreading is in fact a global setting, used
+by all cpusets that matter? That seems to support Andrew's observation
+that our assumptions / defaults are bad, pretty much independently of
+the workload.
 
-And of course you failed to change several references to
-system_utsname.
-
-Eric
+	Ingo

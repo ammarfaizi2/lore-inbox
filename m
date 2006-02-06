@@ -1,327 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWBFWKv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWBFWK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbWBFWKv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 17:10:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWBFWKv
+	id S932195AbWBFWK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 17:10:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWBFWK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 17:10:51 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:48294 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932187AbWBFWKf (ORCPT
+	Mon, 6 Feb 2006 17:10:28 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:13721 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932197AbWBFWK1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 17:10:35 -0500
-Message-ID: <43E7C9C4.5010700@openvz.org>
-Date: Tue, 07 Feb 2006 01:12:20 +0300
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Mon, 6 Feb 2006 17:10:27 -0500
+Date: Mon, 6 Feb 2006 14:10:07 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Paul Jackson <pj@sgi.com>, ak@suse.de, akpm@osdl.org, dgc@sgi.com,
+       steiner@sgi.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+In-Reply-To: <20060206210701.GA24446@elte.hu>
+Message-ID: <Pine.LNX.4.62.0602061406310.18919@schroedinger.engr.sgi.com>
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
+ <200602061811.49113.ak@suse.de> <Pine.LNX.4.62.0602061017510.16829@schroedinger.engr.sgi.com>
+ <200602061936.27322.ak@suse.de> <20060206184330.GA22275@elte.hu>
+ <20060206120109.0738d6a2.pj@sgi.com> <20060206200506.GA13466@elte.hu>
+ <Pine.LNX.4.62.0602061221200.18348@schroedinger.engr.sgi.com>
+ <20060206204111.GA20495@elte.hu> <Pine.LNX.4.62.0602061243200.18394@schroedinger.engr.sgi.com>
+ <20060206210701.GA24446@elte.hu>
 MIME-Version: 1.0
-To: Kirill Korotaev <dev@openvz.org>
-CC: Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, frankeh@watson.ibm.com, clg@fr.ibm.com,
-       haveblue@us.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
-       serue@us.ibm.com, arjan@infradead.org, riel@redhat.com,
-       kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
-       Dmitry Mishin <dim@sw.ru>
-Subject: [PATCH 2/4] Virtualization/containers: CONFIG_CONTAINER
-References: <43E7C65F.3050609@openvz.org>
-In-Reply-To: <43E7C65F.3050609@openvz.org>
-Content-Type: multipart/mixed;
- boundary="------------070905050604020007040209"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070905050604020007040209
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 6 Feb 2006, Ingo Molnar wrote:
 
-This patch simply adds CONFIG_CONTAINER option for 
-virtualization/containerss functionality.
-Per-resource config options can be added later if needed.
+> the grep faults in the pagecache, and depending on which job is active 
+> first, the placement of the pages will either be spread out or local, 
+> depending on the timing of those jobs. How do you expect this to behave 
+> deterministically?
 
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+It behaves using node local allocation as expected. The determinism is 
+only broken when the user sets up a cpuset. This is an unusual activity 
+by the sysadmin and he will be fully aware of what is going on.
 
-Kirill
+> cases i suspect what matters are project-specific data files - which 
+> will be allocated deterministically because they are mostly private to 
+> the cpuset. But e.g. /usr files want to be local in most cases, even for 
+> a 'spread out' cpuset. Why would you want to allocate them globally?
 
---------------070905050604020007040209
-Content-Type: text/plain;
- name="diff-container-config"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-container-config"
+We allocate nothing globally.
 
---- ./arch/alpha/Kconfig.vkconfig	2006-02-06 22:14:50.000000000 +0300
-+++ ./arch/alpha/Kconfig	2006-02-06 23:26:35.000000000 +0300
-@@ -621,6 +621,8 @@ source "arch/alpha/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/arm/Kconfig.vkconfig	2006-02-06 22:14:50.000000000 +0300
-+++ ./arch/arm/Kconfig	2006-02-06 23:27:06.000000000 +0300
-@@ -794,6 +794,8 @@ source "arch/arm/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/arm26/Kconfig.vkconfig	2006-02-06 22:14:51.000000000 +0300
-+++ ./arch/arm26/Kconfig	2006-02-06 23:27:14.000000000 +0300
-@@ -232,6 +232,8 @@ source "arch/arm26/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/cris/Kconfig.vkconfig	2006-02-06 22:14:51.000000000 +0300
-+++ ./arch/cris/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -175,6 +175,8 @@ source "arch/cris/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/frv/Kconfig.vkconfig	2006-02-06 22:14:51.000000000 +0300
-+++ ./arch/frv/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -341,6 +341,8 @@ source "arch/frv/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/h8300/Kconfig.vkconfig	2006-02-06 22:14:51.000000000 +0300
-+++ ./arch/h8300/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -189,6 +189,8 @@ source "arch/h8300/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/i386/Kconfig.vkconfig	2006-02-06 22:15:14.000000000 +0300
-+++ ./arch/i386/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -1072,6 +1072,8 @@ source "arch/i386/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/ia64/Kconfig.vkconfig	2006-01-03 06:21:10.000000000 +0300
-+++ ./arch/ia64/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -463,4 +463,6 @@ source "arch/ia64/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
---- ./arch/m32r/Kconfig.vkconfig	2006-02-06 22:14:52.000000000 +0300
-+++ ./arch/m32r/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -377,6 +377,8 @@ source "arch/m32r/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/m68k/Kconfig.vkconfig	2006-02-06 22:14:52.000000000 +0300
-+++ ./arch/m68k/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -648,6 +648,8 @@ source "arch/m68k/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/m68knommu/Kconfig.vkconfig	2006-02-06 22:14:52.000000000 +0300
-+++ ./arch/m68knommu/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -644,6 +644,8 @@ source "arch/m68knommu/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/mips/Kconfig.vkconfig	2006-02-06 22:14:52.000000000 +0300
-+++ ./arch/mips/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -1811,6 +1811,8 @@ source "arch/mips/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/parisc/Kconfig.vkconfig	2006-02-06 22:15:14.000000000 +0300
-+++ ./arch/parisc/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -210,6 +210,8 @@ source "arch/parisc/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/powerpc/Kconfig.vkconfig	2006-02-06 22:14:52.000000000 +0300
-+++ ./arch/powerpc/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -975,4 +975,6 @@ config KEYS_COMPAT
- 	depends on COMPAT && KEYS
- 	default y
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
---- ./arch/ppc/Kconfig.vkconfig	2006-02-06 22:14:53.000000000 +0300
-+++ ./arch/ppc/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -1396,4 +1396,6 @@ source "arch/ppc/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
---- ./arch/s390/Kconfig.vkconfig	2006-02-06 22:14:53.000000000 +0300
-+++ ./arch/s390/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -470,6 +470,8 @@ source "arch/s390/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/sh/Kconfig.vkconfig	2006-02-06 22:14:53.000000000 +0300
-+++ ./arch/sh/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -635,6 +635,8 @@ source "arch/sh/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/sh64/Kconfig.vkconfig	2006-02-06 22:14:53.000000000 +0300
-+++ ./arch/sh64/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -272,6 +272,8 @@ source "arch/sh64/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/sparc/Kconfig.vkconfig	2006-02-06 22:14:53.000000000 +0300
-+++ ./arch/sparc/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -286,6 +286,8 @@ source "arch/sparc/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/sparc64/Kconfig.vkconfig	2006-02-06 22:14:53.000000000 +0300
-+++ ./arch/sparc64/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -395,6 +395,8 @@ source "arch/sparc64/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/um/Kconfig.vkconfig	2006-02-06 22:14:53.000000000 +0300
-+++ ./arch/um/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -292,6 +292,8 @@ source "fs/Kconfig"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/v850/Kconfig.vkconfig	2006-02-06 22:14:54.000000000 +0300
-+++ ./arch/v850/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -318,6 +318,8 @@ source "arch/v850/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/x86_64/Kconfig.vkconfig	2006-02-06 22:14:54.000000000 +0300
-+++ ./arch/x86_64/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -604,6 +604,8 @@ source "arch/x86_64/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- ./arch/xtensa/Kconfig.vkconfig	2006-02-06 22:14:54.000000000 +0300
-+++ ./arch/xtensa/Kconfig	2006-02-06 23:30:51.000000000 +0300
-@@ -247,6 +247,8 @@ source "arch/xtensa/Kconfig.debug"
- 
- source "security/Kconfig"
- 
-+source "kernel/Kconfig.container"
-+
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
---- /dev/null	 23:22:33.000000000 +0300
-+++ ./kernel/Kconfig.container	2006-02-06 23:22:33.000000000 +0300
-@@ -0,0 +1,11 @@
-+menu "Virtual Containers"
-+
-+config CONTAINER
-+	bool "Virtual Containers support"
-+	default n
-+	help
-+	  This option enables support of virtual linux containers,
-+	  which can be used for creation of virtual environments,
-+	  Virtual Private Servers, checkpointing, isolation and so on
-+
-+endmenu
+> but a single object cannot be allocated both locally and globally!  
+> (well, it could be, for read-mostly workloads, but lets ignore that 
+> possibility) So instead of letting chance determine it, it is the most 
+> natural thing to let the object (or its container) determine which 
+> strategy to use - not the workload. This avoids the ambiguity at its 
+> core.
 
---------------070905050604020007040209--
+We want cpusets to make a round robin allocation within the memory 
+assigned to the cpuset. There is no global allocation that I 
+am aware of.
 
+> so if two projects want to use the same file in two different ways at 
+> the same time then there is no solution either under the VFS-based or 
+> under the cpuset-based approach - but at least the VFS-based method is 
+> fully predictable, and wont depend on which science department starts 
+> its simulation job first ...
+
+It will just reduce performance by ~20% for selected files. Surely nobody 
+will notice ;-)

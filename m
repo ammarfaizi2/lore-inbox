@@ -1,84 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWBFQxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbWBFQxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932218AbWBFQxV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 11:53:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWBFQxU
+	id S932212AbWBFQxb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 11:53:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWBFQxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 11:53:20 -0500
-Received: from [202.131.75.34] ([202.131.75.34]:19415 "EHLO
-	mail.shaolinmicro.com") by vger.kernel.org with ESMTP
-	id S932218AbWBFQxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 11:53:20 -0500
-Message-ID: <43E77EEA.7040908@shaolinmicro.com>
-Date: Tue, 07 Feb 2006 00:52:58 +0800
-From: David Chow <davidchow@shaolinmicro.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
+	Mon, 6 Feb 2006 11:53:31 -0500
+Received: from uproxy.gmail.com ([66.249.92.204]:51697 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932219AbWBFQxa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 11:53:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dDx1RY9h1DmBOmphATzsbJ5Y8HwSvxbMvfWKQgrYDy1beTInAW1w6p+0REAG7niwGPCCD4zflAGhDwW84r+HIrds7xiTEQP2+k/4xNcmWGW2FCrpa8MYU4sntRJU8tX6FyYPZjs8JKPcdS6JfegxgF54inr+DkzA9+284gYL3BA=
+Message-ID: <58cb370e0602060853i469d3449j5d2673b407aec460@mail.gmail.com>
+Date: Mon, 6 Feb 2006 17:53:28 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Richard Purdie <rpurdie@rpsys.net>
+Subject: Re: [PATCH 11/12] LED: Add IDE disk activity LED trigger
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1139154893.14624.15.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Jes Sorensen <jes@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux drivers management
-References: <43E71AD7.5070600@shaolinmicro.com> <yq0d5i0ol4i.fsf@jaguar.mkp.net>
-In-Reply-To: <yq0d5i0ol4i.fsf@jaguar.mkp.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1139154893.14624.15.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
->David> separate Linux drivers and the the main kernel, and manage
->David> drivers using a package management system that only manages
->David> kernel drivers and modules? If this can be done, the kernel
->David> maintenance can be simple, and will end-up with a more stable
->David> (less frequent changed) kernel API for drivers, also make every
->David> developers of drivers happy.
+Generally it looks fine, some minor comments below.
+
+On 2/5/06, Richard Purdie <rpurdie@rpsys.net> wrote:
+> Add an LED trigger for IDE disk activity to the ide-disk driver.
+
+filesystem activity
+
+> Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
 >
->David> Would like to see that happens .
+> Index: linux-2.6.15/drivers/ide/ide-disk.c
+> ===================================================================
+> --- linux-2.6.15.orig/drivers/ide/ide-disk.c    2006-02-04 13:35:37.000000000 +0000
+> +++ linux-2.6.15/drivers/ide/ide-disk.c 2006-02-04 15:17:18.000000000 +0000
+> @@ -60,6 +60,7 @@
+>  #include <linux/genhd.h>
+>  #include <linux/slab.h>
+>  #include <linux/delay.h>
+> +#include <linux/leds.h>
 >
->Simple answer: no
+>  #define _IDE_DISK
 >
->Maybe someone is working on it, but it's highly unlikely to be
->anything but a waste of that person's time.
+> @@ -80,6 +81,8 @@
 >
->This is a classic question, by seperating out the drivers you make it
->so much harder for all developers to propagate changes into all pieces
->of the tree.
-I write drivers, never need to change kernel if the kernel API is mature 
-enough to provide the need of a module developer needs. There is no 
-reason to make changes to the kernel source, only needed because the 
-original kernel code is crap or the API designed without proper 
-software/system architectural design work effort. Each Linux kernel 
-version go through a lengthy beta release cycle (e.g. 2.3, 2.5, 2.7), 
-this shouldn't happen and idea collection should be enough through this 
-large Linux community.
+>  static DECLARE_MUTEX(idedisk_ref_sem);
+>
+> +INIT_LED_TRIGGER(ide_led_trigger);
+> +
+>  #define to_ide_disk(obj) container_of(obj, struct ide_disk_obj, kref)
+>
+>  #define ide_disk_g(disk) \
+> @@ -311,10 +314,12 @@
+>
+>         if (!blk_fs_request(rq)) {
+>                 blk_dump_rq_flags(rq, "ide_do_rw_disk - bad command");
+> -               ide_end_request(drive, 0, 0);
+> +               ide_end_rw_disk(drive, 0, 0);
+>                 return ide_stopped;
+>         }
+>
+> +       led_trigger_event(ide_led_trigger, LED_FULL);
+> +
+>         pr_debug("%s: %sing: block=%llu, sectors=%lu, buffer=0x%08lx\n",
+>                  drive->name, rq_data_dir(rq) == READ ? "read" : "writ",
+>                  block, rq->nr_sectors, (unsigned long)rq->buffer);
+> @@ -325,6 +330,12 @@
+>         return __ide_do_rw_disk(drive, rq, block);
+>  }
+>
+> +static int ide_end_rw_disk(ide_drive_t *drive, int uptodate, int nr_sectors)
 
-If our time is to focus on kernel's kernel, writing good documentation 
-about a stable kernel API, it will benefit many developers to write 
-drivers to Linux . It is too difficult to learn, this is a main reason 
-why Linux is lack of support from manufacturer drivers, not because they 
-don't like Linux and no market, it is because this has created high 
-entry barrier for them.
+ide_end_rw_disk() is used before it is declared.
 
-I've been working on Linux modules for many years, training my 
-engineers, talking to developers, hw manufacturers .. believe it or not, 
-this is the main reason. They all ask for a DDK for Linux that can make 
-drivers easily for their product.
+Does it compile?
 
-I think I am in a different position like you guys, I've been work with 
-Linux from programmer level to Linux promotion . My goal is not just 
-focus on Linux technical or programming, I would like to promote this 
-operating system to not just for programmers, but also non-technical 
-end-users . Writing C code to me is just bits of task of some process.  
-You are too much focus on programming without considering the market 
-situation.
+> +{
+> +       led_trigger_event(ide_led_trigger, LED_OFF);
 
-There is no right or wrong for this question, but my original question 
-is to listen thoughts and to hear the goal of people in the list. And of 
-course, I would really like to see you people look into the way to 
-facilitate more people gets a path with ease to Linux drivers 
-development. User driver installation without the need to know about 
-kernel sources, gcc, make etc....  "Because I am a dummy, I want to 
-plug-in my device, put in the driver disc and hope it works!"
+It should check for blk_fs_request().
 
-regards,
-David Chow
+->end_request() can be used for other request types.
+
+> +       ide_end_request(drive, uptodate, nr_sectors);
+> +}
+> +
+>  /*
+>   * Queries for true maximum capacity of the drive.
+>   * Returns maximum LBA address (> 0) of the drive, 0 if failed.
+> @@ -1097,7 +1108,7 @@
+>         .media                  = ide_disk,
+>         .supports_dsc_overlap   = 0,
+>         .do_request             = ide_do_rw_disk,
+> -       .end_request            = ide_end_request,
+> +       .end_request            = ide_end_rw_disk,
+>         .error                  = __ide_error,
+>         .abort                  = __ide_abort,
+>         .proc                   = idedisk_proc,
+> @@ -1259,11 +1270,13 @@
+>
+>  static void __exit idedisk_exit (void)
+>  {
+> +       led_trigger_unregister_simple(ide_led_trigger);
+>         driver_unregister(&idedisk_driver.gen_driver);
+
+Shouldn't ordering be reverse to this in idedisk_init()?
+First driver_unregister(), then led_trigger_unregister_simple()?
+
+>  }
+>
+>  static int __init idedisk_init(void)
+>  {
+> +       led_trigger_register_simple("ide-disk", &ide_led_trigger);
+>         return driver_register(&idedisk_driver.gen_driver);
+
+What does happen if driver_register() fails?
+
+Bartlomiej

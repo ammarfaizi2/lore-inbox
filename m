@@ -1,77 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWBFHXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWBFH2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbWBFHXM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 02:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbWBFHXM
+	id S1750700AbWBFH2y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 02:28:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbWBFH2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 02:23:12 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:60319 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750704AbWBFHXM (ORCPT
+	Mon, 6 Feb 2006 02:28:54 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:53961 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750700AbWBFH2y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 02:23:12 -0500
-Date: Sun, 5 Feb 2006 23:22:53 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: akpm@osdl.org, dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net,
-       ak@suse.de, linux-kernel@vger.kernel.org, clameter@sgi.com
-Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
-Message-Id: <20060205232253.ddbf02d7.pj@sgi.com>
-In-Reply-To: <20060206061743.GA14679@elte.hu>
-References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
-	<20060204154944.36387a86.akpm@osdl.org>
-	<20060205203358.1fdcea43.akpm@osdl.org>
-	<20060205215052.c5ab1651.pj@sgi.com>
-	<20060205220204.194ba477.akpm@osdl.org>
-	<20060206061743.GA14679@elte.hu>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Mon, 6 Feb 2006 02:28:54 -0500
+Date: Mon, 6 Feb 2006 08:28:45 +0100
+From: Olaf Hering <olh@suse.de>
+To: Dave Jones <davej@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@suse.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] Fix build failure in recent pm_prepare_* changes.
+Message-ID: <20060206072845.GA21300@suse.de>
+References: <200602032312.k13NCDAc012658@hera.kernel.org> <20060205125610.GA26337@suse.de> <20060205190220.GB19458@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060205190220.GB19458@redhat.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm wondering whether it would be 
-> enough to simply extend madvise and fadvise to 'task' scope as well, and 
-> change the pagecache allocation pattern to 'spread out' pages on NUMA, 
-> if POSIX_FADV_RANDOM / MADV_RANDOM is specified.
+ On Sun, Feb 05, Dave Jones wrote:
 
-This would not seem to work, at least for the needs I am aware of.
+> On Sun, Feb 05, 2006 at 01:56:10PM +0100, Olaf Hering wrote:
+>  >  On Fri, Feb 03, Linux Kernel Mailing List wrote:
+>  > 
+>  > > tree 8f70444139c8564c0f1e88e1f33adda036ae6a96
+>  > > parent 278ff9537030bbb292b33504f5e1f6e0126793eb
+>  > > author Dave Jones <davej@redhat.com> Fri, 03 Feb 2006 19:03:44 -0800
+>  > > committer Linus Torvalds <torvalds@g5.osdl.org> Sat, 04 Feb 2006 00:32:00 -0800
+>  > > 
+>  > > [PATCH] Fix build failure in recent pm_prepare_* changes.
+>  > > 
+>  > > kernel/power/power.h:49: error: static declaration of 'pm_prepare_console' follows non-static declaration
+>  > > include/linux/suspend.h:46: error: previous declaration of 'pm_prepare_console' was here
+>  > > kernel/power/power.h:50: error: static declaration of 'pm_restore_console' follows non-static declaration
+>  > > include/linux/suspend.h:47: error: previous declaration of 'pm_restore_console' was here
+>  > > 
+>  > > Signed-off-by: Dave Jones <davej@redhat.com>
+>  > 
+>  > this one is not correct, please have a closer look at
+>  > f7b8988ff50d99c99746f65f420364e91362c065
+>  > 
+>  >   CC      drivers/macintosh/via-pmu.o
+>  > drivers/macintosh/via-pmu.c: In function 'pmac_suspend_devices':
+>  > drivers/macintosh/via-pmu.c:2078: error: implicit declaration of function 'pm_prepare_console'
+>  > drivers/macintosh/via-pmu.c: In function 'pmac_wakeup_devices':
+>  > drivers/macintosh/via-pmu.c:2194: error: implicit declaration of function 'pm_restore_console'
+>  > make[2]: *** [drivers/macintosh/via-pmu.o] Error 1
 
-The tasks we are talking about do -not- want a default RANDOM
-policy.  They want node-local allocation for per-thread data
-(data and stack for example), and at the same time spread
-allocation for kernel space (page and slab cache).
-
-For another thing, memory spreading is not the same as RANDOM
-policies.  RANDOM policies apply to page read ahead and retention
-strategies, not to page placement (what node they are faulted into)
-policies.
-
-For a third thing, madvise takes a virtual address range, which
-is irrelevant for specifying kernel address space page and slab
-cache pages.
-
-But the biggest difficulty, from my perspective, would be that
-this strategy is normally selected per-cpuset, not per-task.
-
-We are managing memory placement across the cpuset, on a per-job
-basis.  It's the system administrator or batch scheduler, not the
-individual application coder, who will likely want to enforce this
-alternative memory placement strategy.
-
-The madvise and posix_fadvise calls have no provision for one task
-to affect another.  They just apply to the current task.  As Andrew
-noted, it doesn't make much sense for different tasks in the same
-cpuset to disagree on this placement policy choice.  We need a cpuset
-wide policy choice, and a cpuset wide mechanism for making the choice,
-not a per-task task internal mechanism.
-
-Or at the very least, an attribute that is inherited across fork
-and exec, so that a job grandfather (founding father) task can
-set the policy, for all descendents.
+Ben, does via-pmu still need the pm_prepare_console call? If yes, the
+declaration has to be moved from kernel/power/power.h to
+include/linux/suspend.h
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+short story of a lazy sysadmin:
+ alias appserv=wotan

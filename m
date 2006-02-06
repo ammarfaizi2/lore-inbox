@@ -1,58 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbWBFWlS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWBFWuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932412AbWBFWlS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 17:41:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWBFWlR
+	id S932407AbWBFWuG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 17:50:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWBFWuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 17:41:17 -0500
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:57211 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP id S932412AbWBFWlR
+	Mon, 6 Feb 2006 17:50:06 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:39912 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932407AbWBFWuE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 17:41:17 -0500
-Message-ID: <43E7D077.2090903@fr.ibm.com>
-Date: Mon, 06 Feb 2006 23:40:55 +0100
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Dave Hansen <haveblue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
-       Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@openvz.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       frankeh@watson.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
-       serue@us.ibm.com, arjan@infradead.org, Rik van Riel <riel@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
-       Pavel Emelianov <xemul@sw.ru>
-Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
-References: <43E38BD1.4070707@openvz.org>	<Pine.LNX.4.64.0602030905380.4630@g5.osdl.org>	<43E3915A.2080000@sw.ru>	<Pine.LNX.4.64.0602030939250.4630@g5.osdl.org>	<m1lkwoubiw.fsf@ebiederm.dsl.xmission.com> <43E71018.8010104@sw.ru>	<m1hd7condi.fsf@ebiederm.dsl.xmission.com>	<1139243874.6189.71.camel@localhost.localdomain> <m13biwnxkc.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m13biwnxkc.fsf@ebiederm.dsl.xmission.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 6 Feb 2006 17:50:04 -0500
+Subject: Re: [PATCH] Revert serial 8250 console fixes
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org, Russell King <rmk+lkml@arm.linux.org.uk>
+In-Reply-To: <812D6543-5268-4D3E-93B0-12161D148120@kernel.crashing.org>
+References: <Pine.LNX.4.44.0602061116190.11785-100000@gate.crashing.org>
+	 <1139250251.10437.39.camel@localhost.localdomain>
+	 <DC17879A-2B03-4D20-865F-C89386A393EF@kernel.crashing.org>
+	 <1139254711.10437.42.camel@localhost.localdomain>
+	 <812D6543-5268-4D3E-93B0-12161D148120@kernel.crashing.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Mon, 06 Feb 2006 22:51:54 +0000
+Message-Id: <1139266314.10437.58.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+On Llu, 2006-02-06 at 14:56 -0600, Kumar Gala wrote:
+> The following seems to make things better for me.  Can you take a  
+> look and let me know what you thing.  If it looks good, I'll send  
+> Russell a clean patch:
 
-> As someone said to me a little bit ago, for migration or checkpointing
-> ultimately you have to capture the entire user/kernel interface if
-> things are going to work properly.  Now if we add this facility to
-> the kernel and it is a general purpose facility.  It is only a matter
-> of time before we need to deal with nested containers.
->
-> Not considering the case of having nested containers now is just foolish.
-> Maybe we don't have to implement it yet but not considering it is silly.
+That looks sensible. 
 
-That could be restricted. Today, process groups are not nested. Why do you
-think nested containers are inevitable ?
-
-> As far as I can tell there is a very reasonable chance that when we
-> are complete there is a very reasonable chance that software suspend
-> will just be a special case of migration, done complete in user space.
-
-Being able to sofware suspend one container among many would be a very
-interesting feature to have.
-
-C.

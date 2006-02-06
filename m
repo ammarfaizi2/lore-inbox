@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWBFW3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWBFWcG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbWBFW3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 17:29:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbWBFW3Q
+	id S932406AbWBFWcG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 17:32:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWBFWcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 17:29:16 -0500
-Received: from gold.veritas.com ([143.127.12.110]:7751 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S932399AbWBFW3P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 17:29:15 -0500
-Date: Mon, 6 Feb 2006 22:29:59 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Roland Dreier <rolandd@cisco.com>
-cc: Kai Makisara <Kai.Makisara@kolumbus.fi>, Willem Riede <osst@riede.org>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [git patch review 2/2] IB: Don't doublefree pages from scatterlist
-In-Reply-To: <1139070837112-3fe13a3288c20f5c@cisco.com>
-Message-ID: <Pine.LNX.4.61.0602062221200.3844@goblin.wat.veritas.com>
-References: <1139070837112-3fe13a3288c20f5c@cisco.com>
+	Mon, 6 Feb 2006 17:32:06 -0500
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:26931 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S932406AbWBFWcE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 17:32:04 -0500
+Message-ID: <43E7CE55.80007@fr.ibm.com>
+Date: Mon, 06 Feb 2006 23:31:49 +0100
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 06 Feb 2006 22:29:14.0907 (UTC) FILETIME=[C2AABEB0:01C62B6C]
+To: Kirill Korotaev <dev@sw.ru>
+CC: Hubertus Franke <frankeh@watson.ibm.com>, Greg KH <greg@kroah.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Kirill Korotaev <dev@openvz.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
+       Pavel Emelianov <xemul@sw.ru>
+Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
+References: <43E38BD1.4070707@openvz.org> <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org> <43E3915A.2080000@sw.ru> <Pine.LNX.4.64.0602030939250.4630@g5.osdl.org> <1138991641.6189.37.camel@localhost.localdomain> <20060203201945.GA18224@kroah.com> <43E3BE66.6050200@watson.ibm.com> <43E615BA.1080402@sw.ru>
+In-Reply-To: <43E615BA.1080402@sw.ru>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Feb 2006, Roland Dreier wrote:
-
-> On some architectures, mapping the scatterlist may coalesce entries:
-> if that coalesced list is then used for freeing the pages afterwards,
-> there's a danger that pages may be doubly freed (and others leaked).
+Kirill Korotaev wrote:
+>> How do we want to create the container?
+>> In our patch we did it through a /proc/container filesystem.
+>> Which created the container object and then on fork/exec switched over.
 > 
-> Fix Infiniband's __ib_umem_release by freeing from a separate array
-> beyond the scatterlist: IB_UMEM_MAX_PAGE_CHUNK lowered to fit one page.
+> this doesn't look good for a full virtualization solution, since proc
+> should be virtualized as well :)
 
-It's now looking like this change won't be needed after all: Andi has
-just posted a patch in the "ipr" thread which should stop x86_64 from
-interfering with the scatterlist *page,offset,length fields, so what
-IB and others were doing should then work safely (current thinking is
-that x86_64 is the only architecture which coalesced in that way).
+Well, /proc should be "virtualized" or "isolated", how do you expect a
+container to work correctly ? plenty of user space tools depend on it.
 
-Hugh
+C.

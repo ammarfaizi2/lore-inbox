@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWBFIpn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWBFIrj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750794AbWBFIpn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 03:45:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbWBFIpm
+	id S1750800AbWBFIrj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 03:47:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWBFIrj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 03:45:42 -0500
-Received: from gold.veritas.com ([143.127.12.110]:61260 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1750794AbWBFIpm (ORCPT
+	Mon, 6 Feb 2006 03:47:39 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:56265 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750800AbWBFIri (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 03:45:42 -0500
-Date: Mon, 6 Feb 2006 08:46:07 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Pete Zaitcev <zaitcev@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] stop ==== emergency
-In-Reply-To: <20060205205709.0b88171b.zaitcev@redhat.com>
-Message-ID: <Pine.LNX.4.61.0602060841540.6574@goblin.wat.veritas.com>
-References: <mailman.1139006040.12873.linux-kernel2news@redhat.com>
- <20060205205709.0b88171b.zaitcev@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 06 Feb 2006 08:45:35.0707 (UTC) FILETIME=[B28742B0:01C62AF9]
+	Mon, 6 Feb 2006 03:47:38 -0500
+Date: Mon, 6 Feb 2006 00:47:20 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: akpm@osdl.org, dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net,
+       ak@suse.de, linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+Message-Id: <20060206004720.0374b820.pj@sgi.com>
+In-Reply-To: <20060206082258.GA1991@elte.hu>
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
+	<20060204154944.36387a86.akpm@osdl.org>
+	<20060205203358.1fdcea43.akpm@osdl.org>
+	<20060205215052.c5ab1651.pj@sgi.com>
+	<20060205220204.194ba477.akpm@osdl.org>
+	<20060206061743.GA14679@elte.hu>
+	<20060205232253.ddbf02d7.pj@sgi.com>
+	<20060206074334.GA28035@elte.hu>
+	<20060206001959.394b33bc.pj@sgi.com>
+	<20060206082258.GA1991@elte.hu>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Feb 2006, Pete Zaitcev wrote:
-> On Fri, 3 Feb 2006 21:37:09 +0000 (GMT), Hugh Dickins <hugh@veritas.com> wrote:
-> 
-> > +++ linux/arch/i386/kernel/traps.c	2006-02-03 09:59:37.000000000 +0000
-> > @@ -166,7 +166,8 @@ static void show_trace_log_lvl(struct ta
-> >  		stack = (unsigned long*)context->previous_esp;
-> >  		if (!stack)
-> >  			break;
-> > -		printk(KERN_EMERG " =======================\n");
-> > +		printk(log_lvl);
-> > +		printk(" =======================\n");
-> >  	}
-> 
-> This is wrong, Hugh. What do you think the priority of the second printk?
-> It's not log_lvl, that's for sure.
+Ingo asked:
+> so in practice, the memory spreading is in fact a global setting, used
+> by all cpusets that matter? 
 
-Are you sure?  I've not delved into the printk code itself, but this
-does follow the same pattern as in show_stack_log_lvl itself e.g. its
-"Call Trace:\n" line.  (I am assuming print_context_stack ends with a
-newline, as it does.)
+I don't know if that is true or not.
 
-Hugh
+I'll have to ask my field engineers, who actually have experience
+with a variety of customer workloads.
+
+... well, I do have partial knowledge of this.
+
+When I was coding this, I suggested that instead of picking some of the
+slab caches to memory spread, we pick them all, as that would be easier
+to code.
+
+That suggestion was shot down by others more experienced within SGI, as
+some slab caches hold what is essentially per-thread data, that is
+fairly hot in the thread context that allocated it.  Spreading that data
+would quite predictably increase cross-node bus traffic, which is bad.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

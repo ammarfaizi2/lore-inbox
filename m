@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbWBFWi4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbWBFWlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932408AbWBFWi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 17:38:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWBFWi4
+	id S932412AbWBFWlS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 17:41:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWBFWlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 17:38:56 -0500
-Received: from smtpout.mac.com ([17.250.248.88]:57311 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932408AbWBFWiz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 17:38:55 -0500
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGECCJPAB.davids@webmaster.com>
-References: <MDEHLPKNGKAHNMBLJOLKGECCJPAB.davids@webmaster.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <50968728-E8BA-46BB-83D9-866ADEE546DA@mac.com>
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+	Mon, 6 Feb 2006 17:41:17 -0500
+Received: from mtagate3.uk.ibm.com ([195.212.29.136]:57211 "EHLO
+	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP id S932412AbWBFWlR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 17:41:17 -0500
+Message-ID: <43E7D077.2090903@fr.ibm.com>
+Date: Mon, 06 Feb 2006 23:40:55 +0100
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Dave Hansen <haveblue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
+       Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       frankeh@watson.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
+       serue@us.ibm.com, arjan@infradead.org, Rik van Riel <riel@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
+       Pavel Emelianov <xemul@sw.ru>
+Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
+References: <43E38BD1.4070707@openvz.org>	<Pine.LNX.4.64.0602030905380.4630@g5.osdl.org>	<43E3915A.2080000@sw.ru>	<Pine.LNX.4.64.0602030939250.4630@g5.osdl.org>	<m1lkwoubiw.fsf@ebiederm.dsl.xmission.com> <43E71018.8010104@sw.ru>	<m1hd7condi.fsf@ebiederm.dsl.xmission.com>	<1139243874.6189.71.camel@localhost.localdomain> <m13biwnxkc.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m13biwnxkc.fsf@ebiederm.dsl.xmission.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-Date: Mon, 6 Feb 2006 17:38:51 -0500
-To: davids@webmaster.com
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 06, 2006, at 16:07, David Schwartz wrote:
->> The LGPL deals with only derivative works. The GPL also deals with  
->> mere *linking*. If glibc were GPL'd, it would be illegal to make  
->> an OS based on it with a single C program incompatible with the GPL.
+Eric W. Biederman wrote:
+
+> As someone said to me a little bit ago, for migration or checkpointing
+> ultimately you have to capture the entire user/kernel interface if
+> things are going to work properly.  Now if we add this facility to
+> the kernel and it is a general purpose facility.  It is only a matter
+> of time before we need to deal with nested containers.
 >
-> The only way the GPL can control work Y because it affects work Z  
-> is because Y is a derivative work of work Z. If it's not, then the  
-> works are legally unrelated, and no matter what the GPL says, it  
-> can't affect work Y.
+> Not considering the case of having nested containers now is just foolish.
+> Maybe we don't have to implement it yet but not considering it is silly.
 
-To say this more simplistically, the LGPL essentially says "Even if  
-dynamic linking constitutes making a derivative work, we allow you to  
-dynamically link, so long as the rules are followed for the LGPL code  
-to which you link".  The GPL essentially says "If dynamic linking is  
-making a derivative work, then these rules apply to the whole  
-derivative work and all of its constituent parts".
+That could be restricted. Today, process groups are not nested. Why do you
+think nested containers are inevitable ?
 
-Whether or not an NVidia binary module is a derivative work is left  
-up to the courts to decide.  It _may_ be legal (don't trust me,  
-consult your lawyer) to have a very simple cross-platform interface  
-and some BSD-licensed glue.  On the other hand, if your interface  
-derives from or exposes any kind of kernel-internals, then it is most  
-certainly a derivative work (because you can't argue that the binary  
-interface was written to be independent of Linux, and it therefore  
-falls under the GPL.
+> As far as I can tell there is a very reasonable chance that when we
+> are complete there is a very reasonable chance that software suspend
+> will just be a special case of migration, done complete in user space.
 
-Cheers,
-Kyle Moffett
+Being able to sofware suspend one container among many would be a very
+interesting feature to have.
 
---
-Unix was not designed to stop people from doing stupid things,  
-because that would also stop them from doing clever things.
-   -- Doug Gwyn
-
-
+C.

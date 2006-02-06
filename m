@@ -1,73 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbWBFK1T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbWBFK1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751053AbWBFK1T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 05:27:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWBFK1T
+	id S1751055AbWBFK1J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 05:27:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWBFK1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 05:27:19 -0500
-Received: from webapps.arcom.com ([194.200.159.168]:2573 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S1751057AbWBFK1S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 05:27:18 -0500
-Message-ID: <43E72479.4020804@arcom.com>
-Date: Mon, 06 Feb 2006 10:27:05 +0000
-From: David Vrabel <dvrabel@arcom.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: serial: SERIAL_8250_RUNTIME_UARTS must be <= SERIAL_8250_NR_UARTS
-Content-Type: multipart/mixed;
- boundary="------------000108030200060804040905"
-X-OriginalArrivalTime: 06 Feb 2006 10:31:59.0000 (UTC) FILETIME=[8F447980:01C62B08]
+	Mon, 6 Feb 2006 05:27:08 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:1975 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751037AbWBFK1G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 05:27:06 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060201090324.373982000@localhost.localdomain> 
+References: <20060201090324.373982000@localhost.localdomain>  <20060201090224.536581000@localhost.localdomain> 
+To: Akinobu Mita <mita@miraclelinux.com>
+Cc: linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, dev-etrax@axis.com,
+       David Howells <dhowells@redhat.com>,
+       Yoshinori Sato <ysato@users.sourceforge.jp>, linux-ia64@vger.kernel.org,
+       Hirokazu Takata <takata@linux-m32r.org>,
+       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Chris Zankel <chris@zankel.net>
+Subject: Re: [patch 11/44] generic find_{next,first}{,_zero}_bit() 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Mon, 06 Feb 2006 10:26:00 +0000
+Message-ID: <12367.1139221560@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000108030200060804040905
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Akinobu Mita <mita@miraclelinux.com> wrote:
 
-If SERIAL_8250_RUNTIME_UARTS is > SERIAL_8250_NR_UARTS then more serial
-ports are registered than we've allocated memory for.  Prevent this by
-limiting SERIAL_8250_RUNTIME_UARTS in the serial Kconfig.
+> This patch introduces the C-language equivalents of the functions below:
+> 
+> unsigned logn find_next_bit(const unsigned long *addr, unsigned long size,
+>                             unsigned long offset);
+> unsigned long find_next_zero_bit(const unsigned long *addr, unsigned long size,
+>                                  unsigned long offset);
+> unsigned long find_first_zero_bit(const unsigned long *addr,
+>                                   unsigned long size);
+> unsigned long find_first_bit(const unsigned long *addr, unsigned long size);
 
-Signed-off-by: David Vrabel <dvrabel@arcom.com>
--- 
-David Vrabel, Design Engineer
+These big functions should perhaps be out of line.
 
-Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
-Cambridge CB1 7EA, UK         Web: http://www.arcom.com/
-
---------------000108030200060804040905
-Content-Type: text/plain;
- name="serial-limit-SERIAL_8250_RUNTIME_UARTS"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="serial-limit-SERIAL_8250_RUNTIME_UARTS"
-
-Index: linux-2.6-working/drivers/serial/Kconfig
-===================================================================
---- linux-2.6-working.orig/drivers/serial/Kconfig	2006-02-03 14:22:05.000000000 +0000
-+++ linux-2.6-working/drivers/serial/Kconfig	2006-02-06 10:17:52.000000000 +0000
-@@ -98,6 +98,7 @@
- config SERIAL_8250_RUNTIME_UARTS
- 	int "Number of 8250/16550 serial ports to register at runtime"
- 	depends on SERIAL_8250
-+	range 0 SERIAL_8250_NR_UARTS
- 	default "4"
- 	help
- 	  Set this to the maximum number of serial ports you want
-@@ -105,6 +106,9 @@
- 	  with the module parameter "nr_uarts", or boot-time parameter
- 	  8250.nr_uarts
- 
-+	  This must be less than or equal to the maximum number of 8250/16550
-+	  serial ports supported (SERIAL_8250_NR_UARTS).
-+
- config SERIAL_8250_EXTENDED
- 	bool "Extended 8250/16550 serial driver options"
- 	depends on SERIAL_8250
-
---------------000108030200060804040905--
+David

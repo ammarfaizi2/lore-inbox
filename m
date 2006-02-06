@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750848AbWBFKY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbWBFK1T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750848AbWBFKY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 05:24:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbWBFKY4
+	id S1751053AbWBFK1T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 05:27:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWBFK1T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 05:24:56 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:63455 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750845AbWBFKYz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 05:24:55 -0500
-Date: Mon, 6 Feb 2006 11:23:37 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Paul Jackson <pj@sgi.com>, akpm@osdl.org, dgc@sgi.com, steiner@sgi.com,
-       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, clameter@sgi.com
-Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
-Message-ID: <20060206102337.GA3359@elte.hu>
-References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com> <200602061109.45788.ak@suse.de> <20060206101156.GA1761@elte.hu> <200602061116.44040.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602061116.44040.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Mon, 6 Feb 2006 05:27:19 -0500
+Received: from webapps.arcom.com ([194.200.159.168]:2573 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S1751057AbWBFK1S
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 05:27:18 -0500
+Message-ID: <43E72479.4020804@arcom.com>
+Date: Mon, 06 Feb 2006 10:27:05 +0000
+From: David Vrabel <dvrabel@arcom.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: serial: SERIAL_8250_RUNTIME_UARTS must be <= SERIAL_8250_NR_UARTS
+Content-Type: multipart/mixed;
+ boundary="------------000108030200060804040905"
+X-OriginalArrivalTime: 06 Feb 2006 10:31:59.0000 (UTC) FILETIME=[8F447980:01C62B08]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------000108030200060804040905
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-* Andi Kleen <ak@suse.de> wrote:
+If SERIAL_8250_RUNTIME_UARTS is > SERIAL_8250_NR_UARTS then more serial
+ports are registered than we've allocated memory for.  Prevent this by
+limiting SERIAL_8250_RUNTIME_UARTS in the serial Kconfig.
 
-> On Monday 06 February 2006 11:11, Ingo Molnar wrote:
-> > 
-> > * Andi Kleen <ak@suse.de> wrote:
-> > 
-> > > Of course there might be some corner cases where using local memory 
-> > > for caching is still better (like mmap file IO), but my guess is that 
-> > > it isn't a good default.
-> > 
-> > /tmp is almost certainly one where local memory is better.
-> 
-> Not sure. What happens if someone writes a 1GB /tmp file on a 1GB 
-> node?
+Signed-off-by: David Vrabel <dvrabel@arcom.com>
+-- 
+David Vrabel, Design Engineer
 
-well, if the pagecache is filled on a node above a certain ratio then 
-one would have to spread it out forcibly. But otherwise, try to keep 
-things as local as possible, because that will perform best. This is 
-different from the case Paul's patch is addressing: workloads which are 
-known to be global (and hence spreading out is the best-performing 
-allocation).
+Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
+Cambridge CB1 7EA, UK         Web: http://www.arcom.com/
 
-(for which problem i suggested a per-mount/directory/file 
-locality-of-reference attribute in another post.)
+--------------000108030200060804040905
+Content-Type: text/plain;
+ name="serial-limit-SERIAL_8250_RUNTIME_UARTS"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="serial-limit-SERIAL_8250_RUNTIME_UARTS"
 
-	Ingo
+Index: linux-2.6-working/drivers/serial/Kconfig
+===================================================================
+--- linux-2.6-working.orig/drivers/serial/Kconfig	2006-02-03 14:22:05.000000000 +0000
++++ linux-2.6-working/drivers/serial/Kconfig	2006-02-06 10:17:52.000000000 +0000
+@@ -98,6 +98,7 @@
+ config SERIAL_8250_RUNTIME_UARTS
+ 	int "Number of 8250/16550 serial ports to register at runtime"
+ 	depends on SERIAL_8250
++	range 0 SERIAL_8250_NR_UARTS
+ 	default "4"
+ 	help
+ 	  Set this to the maximum number of serial ports you want
+@@ -105,6 +106,9 @@
+ 	  with the module parameter "nr_uarts", or boot-time parameter
+ 	  8250.nr_uarts
+ 
++	  This must be less than or equal to the maximum number of 8250/16550
++	  serial ports supported (SERIAL_8250_NR_UARTS).
++
+ config SERIAL_8250_EXTENDED
+ 	bool "Extended 8250/16550 serial driver options"
+ 	depends on SERIAL_8250
+
+--------------000108030200060804040905--

@@ -1,73 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbWBFC4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbWBFDE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750891AbWBFC4r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 21:56:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbWBFC4r
+	id S1750899AbWBFDE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 22:04:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbWBFDE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 21:56:47 -0500
-Received: from cod.sandelman.ca ([192.139.46.139]:44775 "EHLO
-	lists.sandelman.ca") by vger.kernel.org with ESMTP id S1750890AbWBFC4q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 21:56:46 -0500
-From: "Michael Richardson" <mcr@sandelman.ottawa.on.ca>
-To: alan@redhat.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] cast arguments to pr_debug() properly
-X-Mailer: MH-E 7.82; nmh 1.1; XEmacs 21.4 (patch 17)
-MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Sun, 05 Feb 2006 21:56:00 -0500
-Message-ID: <20882.1139194560@sandelman.ottawa.on.ca>
+	Sun, 5 Feb 2006 22:04:29 -0500
+Received: from hera.kernel.org ([140.211.167.34]:1485 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750898AbWBFDE2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 22:04:28 -0500
+Date: Sun, 5 Feb 2006 19:05:07 -0600
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Shantanu Goel <sgoel01@yahoo.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [VM PATCH] rotate_reclaimable_page fails frequently
+Message-ID: <20060206010506.GA30318@dmt.cnet>
+References: <20060205150259.1549.qmail@web33007.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060205150259.1549.qmail@web33007.mail.mud.yahoo.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+Hi Shantanu,
 
+On Sun, Feb 05, 2006 at 07:02:59AM -0800, Shantanu Goel wrote:
+> Hi,
+> 
+> It seems rotate_reclaimable_page fails most of the
+> time due the page not being on the LRU when kswapd
+> calls writepage().  The filesystem in my tests is
+> ext3.  The attached patch against 2.6.16-rc2 moves the
+> page to the LRU before calling writepage().  Below are
+> results for a write test with:
+> 
+> dd if=/dev/zero of=test bs=1024k count=1024
 
-This does not show up unless you #define DEBUG in the file, which most
-people wouldn't do. On PPC405, at least, "sector_t" is unsigned long,
-which doesn't match %llx/%llu. Since sector# may well be >32 bits,
-promote the value to match the format.
+I guess that big issue here is that the pgrotate logic is completly
+useless for common cases (and no one stepped up to fix it, here's a
+chance).
 
-Signed-off-by: Michael Richardson <mcr@xelerance.com>
+You had to modify the default dirty limits to watch writeout happen via
+the VM reclaim path. Usually most writeout happens via pdflush and the
+dirty limits at the write() path.
 
-diff --git a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
-index 449522f..0e1e0dd 100644
---- a/drivers/ide/ide-disk.c
-+++ b/drivers/ide/ide-disk.c
-@@ -190,7 +190,7 @@ static ide_startstop_t __ide_do_rw_disk(
- 		if (lba48) {
- 			task_ioreg_t tasklets[10];
+Surely the question you raise about why writeback ends before the
+shrinker adds such pages back to LRU is important, but getting pgrotate
+to _work at all_ for common scenarios is broader and more crucial.
+
+Marking PG_writeback pages as PG_rotated once they're chosen candidates
+for eviction increases the number of rotated pages dramatically, but
+that does not necessarily increase performance (I was unable to see any
+performance increase under the limited testing I've done, even though
+the pgrotated numbers were _way_ higher).
+
+Another issue is that increasing the number of rotated pages increases
+lru_lock contention, which might not be an advantage for certain
+workloads.
+
+So, any change in this area needs careful study under a varied,
+meaningful set of workloads and configurations (which has not been
+happening very often).
+
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index 5a61080..26319eb 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -447,8 +447,14 @@ static int shrink_list(struct list_head 
+ 		if (page_mapped(page) || PageSwapCache(page))
+ 			sc->nr_scanned++;
  
--			pr_debug("%s: LBA=0x%012llx\n", drive->name, block);
-+			pr_debug("%s: LBA=0x%012llx\n", drive->name, (unsigned long long)block);
+-		if (PageWriteback(page))
++		if (PageWriteback(page)) {
++			/* mark writeback, candidate for eviction pages as 
++			 * PG_reclaim to free them immediately once they're 
++			 * laundered.
++			 */
++			SetPageReclaim(page);
+ 			goto keep_locked;
++		}
  
- 			tasklets[0] = 0;
- 			tasklets[1] = 0;
-@@ -317,7 +317,7 @@ static ide_startstop_t ide_do_rw_disk (i
- 
- 	pr_debug("%s: %sing: block=%llu, sectors=%lu, buffer=0x%08lx\n",
- 		 drive->name, rq_data_dir(rq) == READ ? "read" : "writ",
--		 block, rq->nr_sectors, (unsigned long)rq->buffer);
-+		 (unsigned long long)block, rq->nr_sectors, (unsigned long)rq->buffer);
- 
- 	if (hwif->rw_disk)
- 		hwif->rw_disk(drive, rq);
+ 		referenced = page_referenced(page, 1);
+ 		/* In active use or really unfreeable?  Activate it. */
 
-
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iQEVAwUAQ+a6wICLcPvd0N1lAQLXgwf9GeMAfO9yXKfW3urWX11dbc/YIVEtoNwt
-Ommt5vH/Ogi2hXzDrtGucTg3vnU+bibp8OkYuu1OPszhWfKlM4v5BzQE3ZGtg7W0
-4BKuwWmeHJXnM4ntJhlF44ixQWxYKQnnQqI0XKDMm7Q2NIUEwVNGSKVVLGRvFryo
-t1bJl9xW/fB1PHWyOvBcp2YLeAge7wpGIzcuvFNnZiQc/MCKQMH6y7QsFXa6soMk
-wTNBGLxWzLiQoku2mvhSL9fSqwYPez2qnV9OSJ0gYwVXWBVYC+YYlkDY9AdHd0yX
-H6pN6kAP6hHBXdtVzXk42dQVWrNG0pwFDBefSWe6NXx61qseJAZUnQ==
-=49UI
------END PGP SIGNATURE-----
---=-=-=--

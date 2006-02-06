@@ -1,72 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbWBFUzP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWBFU4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932380AbWBFUzP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 15:55:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWBFUzP
+	id S964818AbWBFU4G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 15:56:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbWBFU4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 15:55:15 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15372 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932380AbWBFUzM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 15:55:12 -0500
-Date: Mon, 6 Feb 2006 20:55:00 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Glen Turner <glen.turner@aarnet.edu.au>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kumar Gala <galak@kernel.crashing.org>, linux-kernel@vger.kernel.org
-Subject: Re: 8250 serial console fixes -- issue
-Message-ID: <20060206205459.GB9388@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	Glen Turner <glen.turner@aarnet.edu.au>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Kumar Gala <galak@kernel.crashing.org>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0602011911360.22854-100000@gate.crashing.org> <1138844838.5557.17.camel@localhost.localdomain> <43E2B8D6.1070707@aarnet.edu.au> <20060203094042.GB30738@flint.arm.linux.org.uk> <20060206202654.GC2470@ucw.cz>
-Mime-Version: 1.0
+	Mon, 6 Feb 2006 15:56:06 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60545 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S964821AbWBFU4E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 15:56:04 -0500
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Kirill Korotaev <dev@sw.ru>, Greg <gkurz@fr.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>, Rik van Riel <riel@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: [RFC][PATCH 17/20] usb: Fixup usb so it works with pspaces.
+References: <m1u0bcl1ai.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1psm0l170.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1lkwol133.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1hd7cl0yp.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1d5i0l0ua.fsf_-_@ebiederm.dsl.xmission.com>
+	<m18xsol0p9.fsf_-_@ebiederm.dsl.xmission.com>
+	<m14q3cl0mk.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1zml4jlzk.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1vevsjlxa.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1r76gjlua.fsf_-_@ebiederm.dsl.xmission.com>
+	<20060206204121.GM11887@sergelap.austin.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Mon, 06 Feb 2006 13:53:48 -0700
+In-Reply-To: <20060206204121.GM11887@sergelap.austin.ibm.com> (Serge E.
+ Hallyn's message of "Mon, 6 Feb 2006 14:41:21 -0600")
+Message-ID: <m1acd4i4yr.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060206202654.GC2470@ucw.cz>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 06, 2006 at 08:26:55PM +0000, Pavel Machek wrote:
-> Hi!
-> 
-> > > The serial console driver has a host of issues
-> > > 
-> > > [...]
-> > > 
-> > >  - [SECURITY] 'r' should require DCD to be asserted
-> > >    before outputing characters. Otherwise we talk to
-> > >    Hayes modem command mode.  This allows a non-root
-> > >    user to re-program the modem and is a major security
-> > >    issue is people configure calling line identification
-> > >    or encryption to restrict use of the serial console.
-> > 
-> > How is this possible?  A normal user can't produce arbitarily formatted
-> > kernel messages, and if they have access to /dev/ttyS they can do what
-> > ever they like with the port anyway.
-> 
-> Maybe not *arbitrary* messages, but any user probably can fake enough
-> to
-> confuse modem. Name your process \nATD609123456\n and cause it to eat
-> all memory, or something like that. OOM killer will print name...
+"Serge E. Hallyn" <serue@us.ibm.com> writes:
 
-As I say, it's a problem which needs fixing elsewhere.  What if
-the process was called:
+> Quoting Eric W. Biederman (ebiederm@xmission.com):
+>> 
+>> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+>
+> Just how many of these patches would have been unnecessary given your
+> tref patchset?
 
-\nSystem Halted\n
+As far as the amount of work.  It is six of one half a dozen of the
+other.  This current implementation changes the logic of the code
+least which I really like for maintainability.
 
-(which will fit in the kernel's process name.)  Or maybe some escape
-sequence which reprograms your terminal.
+Small bit sized chunks.
 
-As I say, this is a problem which needs solving by other means.  Maybe
-flush_old_exec() should be a little more careful about what it copies,
-changing non-alphanumeric characters to '?' ?
+But one piece can be replaced by the other easily, the patches
+are not contradictory.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Eric
+

@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWBFNmD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWBFNmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWBFNmD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 08:42:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWBFNmD
+	id S932100AbWBFNmk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 08:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWBFNmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 08:42:03 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:14380 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932100AbWBFNmA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 08:42:00 -0500
-Date: Mon, 6 Feb 2006 14:44:16 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Jeff Mahoney <jeffm@suse.com>, LKML <linux-kernel@vger.kernel.org>,
-       kernel-bugzilla@luksan.cjb.net
-Subject: Re: quality control
-Message-ID: <20060206134415.GZ13598@suse.de>
-References: <43E64791.8010302@namesys.com> <43E6521F.5020707@suse.com> <43E6BF48.5010301@namesys.com> <BAFD888C-7E6B-49B1-A394-901D24CFBCBF@mac.com> <p73hd7clp5k.fsf@verdi.suse.de> <96DB44F5-85D3-4F78-8417-D5AB9303D696@mac.com>
+	Mon, 6 Feb 2006 08:42:39 -0500
+Received: from vbn.0050556.lodgenet.net ([216.142.194.234]:49037 "EHLO
+	vbn.0050556.lodgenet.net") by vger.kernel.org with ESMTP
+	id S932100AbWBFNmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 08:42:38 -0500
+Subject: Re: [RFC PATCH] crc generation fix for EXPORT_SYMBOL_GPL
+From: Arjan van de Ven <arjan@infradead.org>
+To: Ram Pai <linuxram@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1139203471.4641.41.camel@localhost>
+References: <20060202041543.GA6755@RAM>
+	 <1139085087.3131.8.camel@laptopd505.fenrus.org>
+	 <1139203471.4641.41.camel@localhost>
+Content-Type: text/plain
+Date: Mon, 06 Feb 2006 14:42:36 +0100
+Message-Id: <1139233357.3131.66.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <96DB44F5-85D3-4F78-8417-D5AB9303D696@mac.com>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 06 2006, Kyle Moffett wrote:
-> On Feb 06, 2006, at 06:09, Andi Kleen wrote:
-> >Kyle Moffett <mrmacman_g4@mac.com> writes:
-> >>It's a GIT version of an RC patch for grief's sake!  You don't  
-> >>seriously expect people to quadruple-check every trivial patch  
-> >>that goes into Linus GIT tree before sending it, do you?
-> >
-> >No quadruple check, but every patch going to Linus should get at  
-> >least some basic testing and it's definitely suppose to compile at  
-> >least in one .config combination.
+On Sun, 2006-02-05 at 21:24 -0800, Ram Pai wrote:
+> On Sat, 2006-02-04 at 21:31 +0100, Arjan van de Ven wrote:
+> > On Wed, 2006-02-01 at 20:15 -0800, Ram Pai wrote:
+> > > Currently genksym does not take into account the GPLness of the exported
+> > > symbol while generating the crc for the exported symbol. Any symbol
+> > > changes from EXPORT_SYMBOL to EXPORT_SYMBOL_GPL would not reflect in the
+> > > Module.symvers file.  This patch fixes that problem.
+> > 
+> > and this is a problem.. why?
 > 
-> Well, yes, and it did.  The problem was that if you turned off ACLs,  
-> it didn't work; only one or two variants of about 6 or 8 ways to  
-> configure reiserfs stopped working.  Given that, I can't see how Hans  
+> Tools that depend on Module.symvers wont be able to detect the change in
+> GPLness of the exported symbols.
 
-Look, it's really simple: lets say I make a change that has to do with
-PM, you do a quick compile test with and _without_ PM just to check you
-didn't screw anything up with that change. You change reiserfs acl
-stuff, you do a quick compile test with and without that configured.
+and that is relevant.. why?
 
-It's a pretty standard procedure, and contrary to what you think, it
-_is_ required before submitting a patch. No one is asking anyone to
-check all possible configure options, but the interesting data set is
-typically extremely easy to guess looking at a change.
 
--- 
-Jens Axboe
+> Eventually we want to generate a tool that can report API changes across
+> kernel releases and put it in some friendly(docbook) format.
+
+but a _GPL change isn't an API change though... either a module is legal
+or it isn't. _GPL doesn't matter there...
+
+
 

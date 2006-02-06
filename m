@@ -1,68 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbWBFUAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbWBFUBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932345AbWBFUAW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 15:00:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWBFUAW
+	id S932346AbWBFUBN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 15:01:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWBFUBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 15:00:22 -0500
-Received: from mx.laposte.net ([81.255.54.11]:45026 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id S932345AbWBFUAU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 15:00:20 -0500
-Subject: Re: Linux drivers management
-From: Nicolas Mailhot <nicolas.mailhot@laposte.net>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Joshua Kugler <joshua.kugler@uaf.edu>, linux-kernel@vger.kernel.org,
-       David Chow <davidchow@shaolinmicro.com>
-In-Reply-To: <Pine.LNX.4.61.0602061420400.17351@chaos.analogic.com>
-References: <1139250712.20009.20.camel@rousalka.dyndns.org>
-	 <200602061002.27477.joshua.kugler@uaf.edu>
-	 <Pine.LNX.4.61.0602061420400.17351@chaos.analogic.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/nh/nkL/eOPxYGbBtkUu"
-Organization: Adresse perso
-Date: Mon, 06 Feb 2006 20:58:58 +0100
-Message-Id: <1139255939.20009.46.camel@rousalka.dyndns.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 (2.5.90-1) 
+	Mon, 6 Feb 2006 15:01:13 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16768 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932346AbWBFUBL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 15:01:11 -0500
+To: <linux-kernel@vger.kernel.org>
+Cc: <vserver@list.linux-vserver.org>, Herbert Poetzl <herbert@13thfloor.at>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Kirill Korotaev <dev@sw.ru>, Greg <gkurz@fr.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>, Rik van Riel <riel@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: [RFC][PATCH 13/20] kthread: Update kthread to work with pspaces.
+References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
+	<m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>
+	<m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1fymwmgk0.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1bqxkmgcv.fsf_-_@ebiederm.dsl.xmission.com>
+	<m17j88mg8l.fsf_-_@ebiederm.dsl.xmission.com>
+	<m13biwmg4p.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1y80ol1gh.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1u0bcl1ai.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1psm0l170.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1lkwol133.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1hd7cl0yp.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1d5i0l0ua.fsf_-_@ebiederm.dsl.xmission.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Mon, 06 Feb 2006 12:57:38 -0700
+In-Reply-To: <m1d5i0l0ua.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
+ Biederman's message of "Mon, 06 Feb 2006 12:54:37 -0700")
+Message-ID: <m18xsol0p9.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-/nh/nkL/eOPxYGbBtkUu
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
 
-Le lundi 06 f=C3=A9vrier 2006 =C3=A0 14:21 -0500, linux-os (Dick Johnson) a
-=C3=A9crit :
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 
-> Right now, there are really too many drivers in the kernel.
-> The kernel should have a stable API for drivers and they
-> should be in a separate tree, either on the Web or on a
-> distribution disc. There are many drivers that are as old
-> as Linux! The 3c501.c and 3c503.c are examples. You can't
-> remove them from the kernel without invoking a thousand
-> angry responses. These boards and the ne*.c network boards
-> just won't go away!
 
-This is another proof in-kernel maintenance is cheaper.
-If out-of-tree drivers where lower maintenance like it's claimed, they'd
-have a lower attrition rate than in-kernel stuff.
+---
 
---=20
-Nicolas Mailhot
+ kernel/kthread.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
---=-/nh/nkL/eOPxYGbBtkUu
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iEYEABECAAYFAkPnqoAACgkQI2bVKDsp8g2cFwCglI2aan7oXBdMnyhPQjB1GkOA
-pqQAn39wovDMzMzpLrmjVtUPgwjsFGyU
-=u1+1
------END PGP SIGNATURE-----
-
---=-/nh/nkL/eOPxYGbBtkUu--
+4dbaead60e8ba1ef38aea6059d1abb6f6a10fd1b
+diff --git a/kernel/kthread.c b/kernel/kthread.c
+index e75950a..0b4fa7b 100644
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -12,6 +12,7 @@
+ #include <linux/unistd.h>
+ #include <linux/file.h>
+ #include <linux/module.h>
++#include <linux/pspace.h>
+ #include <asm/semaphore.h>
+ 
+ /*
+@@ -114,7 +115,7 @@ static void keventd_create_kthread(void 
+ 		create->result = ERR_PTR(pid);
+ 	} else {
+ 		wait_for_completion(&create->started);
+-		create->result = find_task_by_pid(pid);
++		create->result = find_task_by_pid(current->pspace, pid);
+ 	}
+ 	complete(&create->done);
+ }
+-- 
+1.1.5.g3480
 

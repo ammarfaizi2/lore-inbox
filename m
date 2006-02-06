@@ -1,120 +1,190 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbWBFXMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWBFXNl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964860AbWBFXMd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 18:12:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbWBFXMc
+	id S964861AbWBFXNl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 18:13:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbWBFXNl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 18:12:32 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:12435 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932363AbWBFXMb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 18:12:31 -0500
-Date: Mon, 6 Feb 2006 15:14:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Chinner <dgc@sgi.com>
-Cc: dgc@sgi.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] Prevent large file writeback starvation
-Message-Id: <20060206151435.731b786c.akpm@osdl.org>
-In-Reply-To: <20060206115500.GK43335175@melbourne.sgi.com>
-References: <20060206040027.GI43335175@melbourne.sgi.com>
-	<20060205202733.48a02dbe.akpm@osdl.org>
-	<20060206054815.GJ43335175@melbourne.sgi.com>
-	<20060205222215.313f30a9.akpm@osdl.org>
-	<20060206115500.GK43335175@melbourne.sgi.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 6 Feb 2006 18:13:41 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:37559 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S964861AbWBFXNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 18:13:40 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: [Patch] Generic AGP PM support.
+Date: Tue, 7 Feb 2006 09:10:14 +1000
+User-Agent: KMail/1.9.1
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2119294.JKaYdSJtGa";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200602070910.18808.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Chinner <dgc@sgi.com> wrote:
->
->     306 static void
->     307 sync_sb_inodes(struct super_block *sb, struct writeback_control *wbc)
->     308 {
->     309         const unsigned long start = jiffies;    /* livelock avoidance */
->     310
->     311         if (!wbc->for_kupdate || list_empty(&sb->s_io))
->     312                 list_splice_init(&sb->s_dirty, &sb->s_io);
->     313
->     314         while (!list_empty(&sb->s_io)) {
-> 
-> Correct me if I'm wrong, but my reading of this is that for
-> wb_kupdate, we only ever move s_dirty to s_io when s_io is empty.
-> then we iterate over s_io until all inodes are moved off this list
-> or we hit someother termination criteria. This is why i left the
-> large inode on the head of the s_io list until congestion was
-> encountered - so that wb_kupdate returned to it first in it's next
-> pass.
-> 
-> So when we get to a young inode on the s_io list, we abort the
-> writeback loop for that filesystem with wbc->nr_to_write > 0 and
-> return to wb_kupdate....
-> 
-> However, we still have an inode with lots of dirty data on the head of
-> s_dirty, which we can do nothing with until s_io is emptied by
-> wb_kupdate.
+--nextPart2119294.JKaYdSJtGa
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-That sounds right.  I guess what is happening is that we get into the state
-where your big-dirty-file is on s_dirty and there are a few
-small-dirty-files on s_io.  sync_sb_inodes() writes the small files,
-returns "small number of pages written" and that causes wb_kupdate() to
-terminate.
+Hi.
 
-I think the problem here is that the wb_kupdate() termination test is wrong
-- it should just keep going.
+This patch implements generic AGP power management support, and uses it for
+the Ati and NVidia drivers. It is an update on the patch that Matthew
+Garrett broke out of Suspend2 a while ago and sent to the list.
 
-We have another bug due to this: if you create a large number of
-zero-length files on a traditional filesystem (ext2, minix, ...), the
-writeout of these inodes doesn't work correctly - it takes ages.  Because
-the wb_kupdate logic is driven by "number of dirty pages", and all those
-dirty inodes have zero dirty pages associated with them.  wb_kupdate says
-"oh, nothing to do" and gives up.
+Regards,
 
-So to fix both these problems we need to be smarter about terminating the
-wb_kupdate() loop.  Something like "loop until no expired inodes have been
-written".
+Nigel
 
-Wildly untested patch:
-
-
-diff -puN include/linux/writeback.h~wb_kupdate-fix-termination-condition include/linux/writeback.h
---- 25/include/linux/writeback.h~wb_kupdate-fix-termination-condition	Mon Feb  6 15:09:32 2006
-+++ 25-akpm/include/linux/writeback.h	Mon Feb  6 15:10:33 2006
-@@ -58,6 +58,7 @@ struct writeback_control {
- 	unsigned for_kupdate:1;		/* A kupdate writeback */
- 	unsigned for_reclaim:1;		/* Invoked from the page allocator */
- 	unsigned for_writepages:1;	/* This is a writepages() call */
-+	unsigned wrote_expired_inode:1;	/* 1 or more expired inodes written */
+ agp_suspend.h |   43 +++++++++++++++++++++++++++++++++++++++++++
+ ati-agp.c     |   14 ++++++++++++++
+ nvidia-agp.c  |   14 ++++++++++++++
+ 3 files changed, 71 insertions(+)
+diff -ruNp 3030-agp-resume-support.patch-old/drivers/char/agp/agp_suspend.h=
+ 3030-agp-resume-support.patch-new/drivers/char/agp/agp_suspend.h
+=2D-- 3030-agp-resume-support.patch-old/drivers/char/agp/agp_suspend.h	1970=
+=2D01-01 10:00:00.000000000 +1000
++++ 3030-agp-resume-support.patch-new/drivers/char/agp/agp_suspend.h	2005-1=
+2-05 21:26:57.000000000 +1100
+@@ -0,0 +1,43 @@
++/*
++ * Generic routines for suspending and resuming an agp bridge.
++ *
++ * Include "agp.h" first.
++ */
++
++#ifdef CONFIG_PM
++static int agp_common_suspend(struct pci_dev *pdev, pm_message_t state)
++{
++	pci_save_state(pdev);
++	pci_set_power_state(pdev, 3);
++
++	return 0;
++}
++
++static int agp_common_resume(struct pci_dev *pdev,
++			     struct agp_bridge_driver * generic_bridge,
++			     int reconfigure(void))
++{
++	struct agp_bridge_data *bridge =3D pci_get_drvdata(pdev);
++
++	/* set power state 0 and restore PCI space */
++	pci_set_power_state(pdev, 0);
++	pci_restore_state(pdev);
++
++	/* reconfigure AGP hardware again */
++	if (bridge->driver =3D=3D generic_bridge)
++		return reconfigure();
++
++	return 0;
++}
++#else
++static int agp_common_suspend(struct pci_dev *pdev, pm_message_t state)
++{
++	return 0;
++}
++
++static int agp_common_resume(struct pci_dev *pdev, _something_ * bridge,
++			     void *reconfigure)
++{
++	return 0;
++}
++#endif
+diff -ruNp 3030-agp-resume-support.patch-old/drivers/char/agp/ati-agp.c 303=
+0-agp-resume-support.patch-new/drivers/char/agp/ati-agp.c
+=2D-- 3030-agp-resume-support.patch-old/drivers/char/agp/ati-agp.c	2005-11-=
+11 14:12:17.000000000 +1100
++++ 3030-agp-resume-support.patch-new/drivers/char/agp/ati-agp.c	2005-12-05=
+ 21:26:57.000000000 +1100
+@@ -9,6 +9,7 @@
+ #include <linux/agp_backend.h>
+ #include <asm/agp.h>
+ #include "agp.h"
++#include "agp_suspend.h"
+=20
+ #define ATI_GART_MMBASE_ADDR	0x14
+ #define ATI_RS100_APSIZE	0xac
+@@ -507,6 +508,17 @@ static void __devexit agp_ati_remove(str
+ 	agp_put_bridge(bridge);
+ }
+=20
++static int agp_ati_suspend(struct pci_dev *pdev, pm_message_t state)
++{
++	return (agp_common_suspend(pdev, state));
++}
++
++static int agp_ati_resume(struct pci_dev *pdev)
++{
++	return agp_common_resume(pdev, &ati_generic_bridge,
++				 ati_configure);
++}
++
+ static struct pci_device_id agp_ati_pci_table[] =3D {
+ 	{
+ 	.class		=3D (PCI_CLASS_BRIDGE_HOST << 8),
+@@ -526,6 +538,8 @@ static struct pci_driver agp_ati_pci_dri
+ 	.id_table	=3D agp_ati_pci_table,
+ 	.probe		=3D agp_ati_probe,
+ 	.remove		=3D agp_ati_remove,
++	.suspend	=3D agp_ati_suspend,
++	.resume		=3D agp_ati_resume,
  };
- 
- /*
-diff -puN fs/fs-writeback.c~wb_kupdate-fix-termination-condition fs/fs-writeback.c
---- 25/fs/fs-writeback.c~wb_kupdate-fix-termination-condition	Mon Feb  6 15:09:32 2006
-+++ 25-akpm/fs/fs-writeback.c	Mon Feb  6 15:11:58 2006
-@@ -367,6 +367,8 @@ sync_sb_inodes(struct super_block *sb, s
- 		__iget(inode);
- 		pages_skipped = wbc->pages_skipped;
- 		__writeback_single_inode(inode, wbc);
-+		if (unlikely(wbc->wrote_expired_inode == 0))
-+			wbc->wrote_expired_inode = 1;
- 		if (wbc->sync_mode == WB_SYNC_HOLD) {
- 			inode->dirtied_when = jiffies;
- 			list_move(&inode->i_list, &sb->s_dirty);
-diff -puN mm/page-writeback.c~wb_kupdate-fix-termination-condition mm/page-writeback.c
---- 25/mm/page-writeback.c~wb_kupdate-fix-termination-condition	Mon Feb  6 15:09:32 2006
-+++ 25-akpm/mm/page-writeback.c	Mon Feb  6 15:12:43 2006
-@@ -414,8 +414,9 @@ static void wb_kupdate(unsigned long arg
- 	while (nr_to_write > 0) {
- 		wbc.encountered_congestion = 0;
- 		wbc.nr_to_write = MAX_WRITEBACK_PAGES;
-+		wbc.wrote_expired_inode = 0;
- 		writeback_inodes(&wbc);
--		if (wbc.nr_to_write > 0) {
-+		if (wbc.wrote_expired_inode == 0) {
- 			if (wbc.encountered_congestion)
- 				blk_congestion_wait(WRITE, HZ/10);
- 			else
-_
+=20
+ static int __init agp_ati_init(void)
+diff -ruNp 3030-agp-resume-support.patch-old/drivers/char/agp/nvidia-agp.c =
+3030-agp-resume-support.patch-new/drivers/char/agp/nvidia-agp.c
+=2D-- 3030-agp-resume-support.patch-old/drivers/char/agp/nvidia-agp.c	2005-=
+11-11 14:12:17.000000000 +1100
++++ 3030-agp-resume-support.patch-new/drivers/char/agp/nvidia-agp.c	2005-12=
+=2D05 21:26:59.000000000 +1100
+@@ -12,6 +12,7 @@
+ #include <linux/page-flags.h>
+ #include <linux/mm.h>
+ #include "agp.h"
++#include "agp_suspend.h"
+=20
+ /* NVIDIA registers */
+ #define NVIDIA_0_APSIZE		0x80
+@@ -397,11 +398,24 @@ static struct pci_device_id agp_nvidia_p
+=20
+ MODULE_DEVICE_TABLE(pci, agp_nvidia_pci_table);
+=20
++static int agp_nvidia_suspend(struct pci_dev *pdev, pm_message_t state)
++{
++	return (agp_common_suspend(pdev, state));
++}
++
++static int agp_nvidia_resume(struct pci_dev *pdev)
++{
++	return agp_common_resume(pdev, &agp_bridge,
++				 nvidia_configure);
++}
++
+ static struct pci_driver agp_nvidia_pci_driver =3D {
+ 	.name		=3D "agpgart-nvidia",
+ 	.id_table	=3D agp_nvidia_pci_table,
+ 	.probe		=3D agp_nvidia_probe,
+ 	.remove		=3D agp_nvidia_remove,
++	.suspend	=3D agp_nvidia_suspend,
++	.resume		=3D agp_nvidia_resume,
+ };
+=20
+ static int __init agp_nvidia_init(void)
 
+--nextPart2119294.JKaYdSJtGa
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBD59daN0y+n1M3mo0RAulMAKDN6AcY9qVHy74LN+doM6msLkLoHACbBG0S
+uUcKI587l1z4HWERhyZ+USA=
+=asO7
+-----END PGP SIGNATURE-----
+
+--nextPart2119294.JKaYdSJtGa--

@@ -1,123 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbWBFKpS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWBFKm2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751036AbWBFKpS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 05:45:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWBFKpR
+	id S1751020AbWBFKm2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 05:42:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbWBFKm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 05:45:17 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:61421 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751036AbWBFKpQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 05:45:16 -0500
-Message-ID: <43E72901.2080103@jp.fujitsu.com>
-Date: Mon, 06 Feb 2006 19:46:25 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Mon, 6 Feb 2006 05:42:27 -0500
+Received: from smtpout04-04.prod.mesa1.secureserver.net ([64.202.165.199]:50151
+	"HELO smtpout04-04.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S1751020AbWBFKm1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 05:42:27 -0500
+Message-ID: <43E7280B.6060607@sairyx.org>
+Date: Mon, 06 Feb 2006 21:42:19 +1100
+From: Yuki Cuss <celtic@sairyx.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [RFC][PATCH] unify pfn_to_page [1/25] generic page_to_pfn / pfn_to_page
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: David Vrabel <dvrabel@arcom.com>
+CC: Russell King <rmk@arm.linux.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: serial: SERIAL_8250_RUNTIME_UARTS must be <= SERIAL_8250_NR_UARTS
+References: <43E72479.4020804@arcom.com>
+In-Reply-To: <43E72479.4020804@arcom.com>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms060000060401070902080609"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-3 memory models are now available, memmaps of 3 models are defined as
+This is a cryptographically signed message in MIME format.
 
-FLATMEM      --- pfn = (page - mem_map) + offset
-DISCONTIGMEM --- pfn = (page - page_node(page)->node_mem_map) +
-                           (page_node(page)->node_start_pfn)
-SPARSEMEM    --- see linux/mmzone.h , generic ones are defined.
+--------------ms060000060401070902080609
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Now, each arch has its own page_to_pfn()/pfn_to_page() on FLATMEM/DISCONTIGIMEM.
-But most of them keeps above assumptions and looks same to i386's ones.
+David Vrabel wrote:
 
-This patch unifies each arch's page_to_pfn/pfn_to_page to generic ones.
-This patch is against 2.6.16-rc2.
+>If SERIAL_8250_RUNTIME_UARTS is > SERIAL_8250_NR_UARTS then more serial
+>ports are registered than we've allocated memory for.  Prevent this by
+>limiting SERIAL_8250_RUNTIME_UARTS in the serial Kconfig.
+>
+>Signed-off-by: David Vrabel <dvrabel@arcom.com>
+>  
+>
 
-comments ?
+Is there any real use case for having *less* registered serial ports and 
+having some spare?
 
--- Kame
-
-This patch defines generic page_to_pfn()/pfn_to_page().
-For DISCONTIGMEM, page_to_pfn/pfn_to_page are not inlined.
-(x86_64 already has not-inlined version and it reduces text size.)
-
-If FLATMEM and memmap <-> pfn translation needs offset,
-ARCH_PFN_OFFSET is defined by each archs.
-
-If DISCONTIGMEM , each arch defines arch_pfn_to_nid().
-If necessary, arch_local_map_nr(pfn, nid) is also defined.
-arch_local_map_nr() calculates page offset in a node.
-
-Signed-Off-By: KAMEZAWA Hiruyoki <kamezawa.hiroyu@jp.fujitu.com>
+ - Yuki.
 
 
-Index: cleanup_pfn_page/include/linux/mm.h
-===================================================================
---- cleanup_pfn_page.orig/include/linux/mm.h
-+++ cleanup_pfn_page/include/linux/mm.h
-@@ -512,6 +512,32 @@ static inline void set_page_links(struct
-  extern struct page *mem_map;
-  #endif
+--------------ms060000060401070902080609
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-+#if !defined(ARCH_HAS_PFN_PAGE) && !defined(CONFIG_SPARSEMEM)
-+#if CONFIG_FLATMEM
-+
-+#ifndef ARCH_PFN_OFFSET
-+#define ARCH_PFN_OFFSET	0
-+#endif
-+static inline unsigned long page_to_pfn(struct page *page)
-+{
-+	return (unsigned long)(page - mem_map) + ARCH_PFN_OFFSET;
-+}
-+static inline struct page *pfn_to_page(unsigned long pfn)
-+{
-+	return mem_map + (pfn - ARCH_PFN_OFFSET);
-+}
-+#endif /* CONFIG_FLATMEM */
-+#ifdef CONFIG_DISCONTIGMEM
-+/* arch_pfn_to_nid/arch_local_map_nr is defined if necesary */
-+#ifndef arch_local_map_nr
-+#define arch_local_map_nr(pfn ,nid)	((pfn) - NODE_DATA(nid)->node_start_pfn)
-+#endif
-+extern unsigned long page_to_pfn(struct page *page);
-+extern struct page* pfn_to_page(unsigned long pfn);
-+#endif /* CONFIG_DISCONTIGMEM */
-+
-+#endif
-+
-  static __always_inline void *lowmem_page_address(struct page *page)
-  {
-  	return __va(page_to_pfn(page) << PAGE_SHIFT);
-Index: cleanup_pfn_page/mm/page_alloc.c
-===================================================================
---- cleanup_pfn_page.orig/mm/page_alloc.c
-+++ cleanup_pfn_page/mm/page_alloc.c
-@@ -85,6 +85,25 @@ int min_free_kbytes = 1024;
-  unsigned long __initdata nr_kernel_pages;
-  unsigned long __initdata nr_all_pages;
-
-+#if defined(CONFIG_DISCONTIGMEM) && !defined(CONFIG_VIRTUAL_MEM_MAP)
-+
-+struct page *pfn_to_page(unsigned long pfn)
-+{
-+	struct pglist_data *pgdat;
-+	int nid = arch_pfn_to_nid(pfn);
-+	pgdat = NODE_DATA(nid);
-+	return pgdat->node_mem_map + arch_local_map_nr(pfn, nid);
-+}
-+EXPORT_SYMBOL(pfn_to_page);
-+
-+unsigned long page_to_pfn(struct page *page)
-+{
-+	struct zone *z = page_zone(page);
-+	return z->zone_start_pfn + (unsigned long)(page - z->zone_mem_map);
-+}
-+EXPORT_SYMBOL(page_to_pfn);
-+#endif
-+
-  #ifdef CONFIG_DEBUG_VM
-  static int page_outside_zone_boundaries(struct zone *zone, struct page *page)
-  {
-
-
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIHlDCC
+A8YwggMvoAMCAQICAQgwDQYJKoZIhvcNAQEEBQAwgakxCzAJBgNVBAYTAkFVMREwDwYDVQQI
+EwhWaWN0b3JpYTESMBAGA1UEBxMJTWVsYm91cm5lMQ8wDQYDVQQKEwZTYWlyeXgxHzAdBgNV
+BAsTFkNlcnRpZmljYXRpb24gRGl2aXNpb24xEjAQBgNVBAMTCVNhaXJ5eCBDQTEtMCsGCSqG
+SIb3DQEJARYedGFuYXJyaWZ1aml0c3VAb3B0dXNuZXQuY29tLmF1MB4XDTA2MDEyNjAxNTY1
+NFoXDTA3MDEyNjAxNTY1NFowZzELMAkGA1UEBhMCQVUxETAPBgNVBAgTCFZpY3RvcmlhMQ8w
+DQYDVQQKEwZTYWlyeXgxEjAQBgNVBAMTCVl1a2kgQ3VzczEgMB4GCSqGSIb3DQEJARYRY2Vs
+dGljQHNhaXJ5eC5vcmcwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMTACsRt76O0PruM
+npP0F163o8JpFnktB1I1X/rBApJnTW0Sfit3lO7N90BOJ3Fy1hr/2fVM5SnC0fpNvxRmLhnK
+dMTWWrMV8uApZ3lCdnIatxvoHwMnRbFJOeiNx94YRWkzxvZHOKcm0RvMMaFW5nChpJ2JU9hy
+z05qnP1W9h2hAgMBAAGjggE9MIIBOTAJBgNVHRMEAjAAMCwGCWCGSAGG+EIBDQQfFh1PcGVu
+U1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUH0KhJXD15sK7NOQlFRcod8zE
+zZMwgd4GA1UdIwSB1jCB04AU+O9NwozQ0Wh5RE6yun2bdAOVDMKhga+kgawwgakxCzAJBgNV
+BAYTAkFVMREwDwYDVQQIEwhWaWN0b3JpYTESMBAGA1UEBxMJTWVsYm91cm5lMQ8wDQYDVQQK
+EwZTYWlyeXgxHzAdBgNVBAsTFkNlcnRpZmljYXRpb24gRGl2aXNpb24xEjAQBgNVBAMTCVNh
+aXJ5eCBDQTEtMCsGCSqGSIb3DQEJARYedGFuYXJyaWZ1aml0c3VAb3B0dXNuZXQuY29tLmF1
+ggkA2jlGr/pXRhIwDQYJKoZIhvcNAQEEBQADgYEAiJKNvVcxiG5uChbxJX2A47Tq9oE7883I
+LYP6ICzMlwJyjQf8LVWUtp2TltGjjix+cC4jSQjwzT23xd7y2Br/vDMA9ntUul7ywIwK4U4q
+oeIRPRfxz7a8EO8pW1xGjXG6sKb3gtQa2F80W70Rgglv9ucOI2ONCaKlx9TDkNUewcMwggPG
+MIIDL6ADAgECAgEIMA0GCSqGSIb3DQEBBAUAMIGpMQswCQYDVQQGEwJBVTERMA8GA1UECBMI
+VmljdG9yaWExEjAQBgNVBAcTCU1lbGJvdXJuZTEPMA0GA1UEChMGU2Fpcnl4MR8wHQYDVQQL
+ExZDZXJ0aWZpY2F0aW9uIERpdmlzaW9uMRIwEAYDVQQDEwlTYWlyeXggQ0ExLTArBgkqhkiG
+9w0BCQEWHnRhbmFycmlmdWppdHN1QG9wdHVzbmV0LmNvbS5hdTAeFw0wNjAxMjYwMTU2NTRa
+Fw0wNzAxMjYwMTU2NTRaMGcxCzAJBgNVBAYTAkFVMREwDwYDVQQIEwhWaWN0b3JpYTEPMA0G
+A1UEChMGU2Fpcnl4MRIwEAYDVQQDEwlZdWtpIEN1c3MxIDAeBgkqhkiG9w0BCQEWEWNlbHRp
+Y0BzYWlyeXgub3JnMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDEwArEbe+jtD67jJ6T
+9Bdet6PCaRZ5LQdSNV/6wQKSZ01tEn4rd5TuzfdATidxctYa/9n1TOUpwtH6Tb8UZi4ZynTE
+1lqzFfLgKWd5QnZyGrcb6B8DJ0WxSTnojcfeGEVpM8b2RzinJtEbzDGhVuZwoaSdiVPYcs9O
+apz9VvYdoQIDAQABo4IBPTCCATkwCQYDVR0TBAIwADAsBglghkgBhvhCAQ0EHxYdT3BlblNT
+TCBHZW5lcmF0ZWQgQ2VydGlmaWNhdGUwHQYDVR0OBBYEFB9CoSVw9ebCuzTkJRUXKHfMxM2T
+MIHeBgNVHSMEgdYwgdOAFPjvTcKM0NFoeUROsrp9m3QDlQzCoYGvpIGsMIGpMQswCQYDVQQG
+EwJBVTERMA8GA1UECBMIVmljdG9yaWExEjAQBgNVBAcTCU1lbGJvdXJuZTEPMA0GA1UEChMG
+U2Fpcnl4MR8wHQYDVQQLExZDZXJ0aWZpY2F0aW9uIERpdmlzaW9uMRIwEAYDVQQDEwlTYWly
+eXggQ0ExLTArBgkqhkiG9w0BCQEWHnRhbmFycmlmdWppdHN1QG9wdHVzbmV0LmNvbS5hdYIJ
+ANo5Rq/6V0YSMA0GCSqGSIb3DQEBBAUAA4GBAIiSjb1XMYhubgoW8SV9gOO06vaBO/PNyC2D
++iAszJcCco0H/C1VlLadk5bRo44sfnAuI0kI8M09t8Xe8tga/7wzAPZ7VLpe8sCMCuFOKqHi
+ET0X8c+2vBDvKVtcRo1xurCm94LUGthfNFu9EYIJb/bnDiNjjQmipcfUw5DVHsHDMYIDkzCC
+A48CAQEwga8wgakxCzAJBgNVBAYTAkFVMREwDwYDVQQIEwhWaWN0b3JpYTESMBAGA1UEBxMJ
+TWVsYm91cm5lMQ8wDQYDVQQKEwZTYWlyeXgxHzAdBgNVBAsTFkNlcnRpZmljYXRpb24gRGl2
+aXNpb24xEjAQBgNVBAMTCVNhaXJ5eCBDQTEtMCsGCSqGSIb3DQEJARYedGFuYXJyaWZ1aml0
+c3VAb3B0dXNuZXQuY29tLmF1AgEIMAkGBSsOAwIaBQCgggI5MBgGCSqGSIb3DQEJAzELBgkq
+hkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTA2MDIwNjEwNDIxOVowIwYJKoZIhvcNAQkEMRYE
+FOKpwkfKeLLkAP9+1vWZJEVh7axrMFIGCSqGSIb3DQEJDzFFMEMwCgYIKoZIhvcNAwcwDgYI
+KoZIhvcNAwICAgCAMA0GCCqGSIb3DQMCAgFAMAcGBSsOAwIHMA0GCCqGSIb3DQMCAgEoMIHA
+BgkrBgEEAYI3EAQxgbIwga8wgakxCzAJBgNVBAYTAkFVMREwDwYDVQQIEwhWaWN0b3JpYTES
+MBAGA1UEBxMJTWVsYm91cm5lMQ8wDQYDVQQKEwZTYWlyeXgxHzAdBgNVBAsTFkNlcnRpZmlj
+YXRpb24gRGl2aXNpb24xEjAQBgNVBAMTCVNhaXJ5eCBDQTEtMCsGCSqGSIb3DQEJARYedGFu
+YXJyaWZ1aml0c3VAb3B0dXNuZXQuY29tLmF1AgEIMIHCBgsqhkiG9w0BCRACCzGBsqCBrzCB
+qTELMAkGA1UEBhMCQVUxETAPBgNVBAgTCFZpY3RvcmlhMRIwEAYDVQQHEwlNZWxib3VybmUx
+DzANBgNVBAoTBlNhaXJ5eDEfMB0GA1UECxMWQ2VydGlmaWNhdGlvbiBEaXZpc2lvbjESMBAG
+A1UEAxMJU2Fpcnl4IENBMS0wKwYJKoZIhvcNAQkBFh50YW5hcnJpZnVqaXRzdUBvcHR1c25l
+dC5jb20uYXUCAQgwDQYJKoZIhvcNAQEBBQAEgYCNmFkuvAWz51VnPxKOQAmBjxhztOcw3t1V
+blqHThV0nolj22mtKiGb4+YmT9R2w9LTauHWhFQUNqffZKxBC5bE90cgxwwRAZwQq4MpT9LI
+FckEA9Na4LDqEQbrp4Z9vxZB2W9rg7LpmxKYNTT4XKJUnmZwuwKiLhbQ4RvAJqwvfwAAAAAA
+AA==
+--------------ms060000060401070902080609--

@@ -1,91 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbWBFX7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWBGABE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932418AbWBFX7s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 18:59:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbWBFX7s
+	id S932161AbWBGABE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 19:01:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWBGABD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 18:59:48 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:32390 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S932418AbWBFX7r (ORCPT
+	Mon, 6 Feb 2006 19:01:03 -0500
+Received: from ns.firmix.at ([62.141.48.66]:59533 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S932161AbWBGABB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 18:59:47 -0500
-Date: Tue, 7 Feb 2006 10:59:06 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: paulus@samba.org
-Cc: anton@samba.org, ppc64-dev <linuxppc64-dev@ozlabs.org>,
-       ppc-dev <linuxppc-dev@ozlabs.org>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus <torvalds@osdl.org>
-Subject: [PATCH] powerpc: wire up the *at system calls
-Message-Id: <20060207105906.04a22df3.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
+	Mon, 6 Feb 2006 19:01:01 -0500
+Subject: Re: Linux drivers management
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Yaroslav Rastrigin <yarick@it-territory.ru>
+Cc: Joshua Kugler <joshua.kugler@uaf.edu>, linux-kernel@vger.kernel.org,
+       Nicolas Mailhot <nicolas.mailhot@laposte.net>,
+       David Chow <davidchow@shaolinmicro.com>
+In-Reply-To: <200602062217.19697.yarick@it-territory.ru>
+References: <1139250712.20009.20.camel@rousalka.dyndns.org>
+	 <200602061002.27477.joshua.kugler@uaf.edu>
+	 <200602062217.19697.yarick@it-territory.ru>
+Content-Type: text/plain
+Organization: http://www.firmix.at/
+Date: Tue, 07 Feb 2006 00:52:28 +0100
+Message-Id: <1139269948.3583.25.camel@gimli.at.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-02-06 at 22:17 +0300, Yaroslav Rastrigin wrote:
+[...]
+> All over the net ? Again, you're proving stable API/ABI supporters nicely. 
 
-Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
----
+Not necessarily since there are other solutions like "submit the driver
+into the kernel".
+And exactly then you get the best of both worlds: The driver is "up to
+date" and not even distributors have care (well, at least for almost all
+of them).
 
- arch/powerpc/kernel/systbl.S |   13 +++++++++++++
- include/asm-powerpc/unistd.h |   15 ++++++++++++++-
- 2 files changed, 27 insertions(+), 1 deletions(-)
+> If kernel has stable ABI, basic/default driver is included on installation CD, and all you need to do 
 
-This depend on the patch that creates all the compat wrappers.
+Have fun done *doing* this.
+
+> And what to do if you've bought new hardware, installed it and _voila_ - NO IN-TREE DRIVER exists ?
+> Do you want every Linux user  going for shopping to nearest WalMart carry full linux hardware compatibility list printed out ?
+
+It worked years ago that way. So what?
+
+	Bernd
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-d02d8208813d8cae2c814a85734a1a31fed2f3ac
-diff --git a/arch/powerpc/kernel/systbl.S b/arch/powerpc/kernel/systbl.S
-index 007b15e..fe16d9c 100644
---- a/arch/powerpc/kernel/systbl.S
-+++ b/arch/powerpc/kernel/systbl.S
-@@ -323,3 +323,16 @@ SYSCALL(spu_run)
- SYSCALL(spu_create)
- COMPAT_SYS(pselect6)
- COMPAT_SYS(ppoll)
-+COMPAT_SYS(openat)
-+COMPAT_SYS(mkdirat)
-+COMPAT_SYS(mknodat)
-+COMPAT_SYS(fchownat)
-+COMPAT_SYS(futimesat)
-+COMPAT_SYS(newfstatat)
-+COMPAT_SYS(unlinkat)
-+COMPAT_SYS(renameat)
-+COMPAT_SYS(linkat)
-+COMPAT_SYS(symlinkat)
-+COMPAT_SYS(readlinkat)
-+COMPAT_SYS(fchmodat)
-+COMPAT_SYS(faccessat)
-diff --git a/include/asm-powerpc/unistd.h b/include/asm-powerpc/unistd.h
-index a40cdff..d05b85e 100644
---- a/include/asm-powerpc/unistd.h
-+++ b/include/asm-powerpc/unistd.h
-@@ -300,8 +300,21 @@
- #define __NR_spu_create		279
- #define __NR_pselect6		280
- #define __NR_ppoll		281
-+#define __NR_openat		282
-+#define __NR_mkdirat		283
-+#define __NR_mknodat		284
-+#define __NR_fchownat		285
-+#define __NR_futimesat		286
-+#define __NR_newfstatat		287
-+#define __NR_unlinkat		288
-+#define __NR_renameat		289
-+#define __NR_linkat		290
-+#define __NR_symlinkat		291
-+#define __NR_readlinkat		292
-+#define __NR_fchmodat		293
-+#define __NR_faccessat		294
- 
--#define __NR_syscalls		282
-+#define __NR_syscalls		295
- 
- #ifdef __KERNEL__
- #define __NR__exit __NR_exit
--- 
-1.1.5
+
+

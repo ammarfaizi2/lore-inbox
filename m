@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWBFN7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWBFOBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWBFN7q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 08:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbWBFN7q
+	id S932115AbWBFOBh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 09:01:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbWBFOBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 08:59:46 -0500
-Received: from vbn.0050556.lodgenet.net ([216.142.194.234]:49805 "EHLO
-	vbn.0050556.lodgenet.net") by vger.kernel.org with ESMTP
-	id S932118AbWBFN7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 08:59:45 -0500
-Subject: Re: [Fwd: [PATCH 8/12] LED: Add LED device support for ixp4xx
-	devices]
-From: Arjan van de Ven <arjan@infradead.org>
-To: Dan McDonald <dan@vkl.ath.cx>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0602052255110.10566@dan>
-References: <1139154997.14624.20.camel@localhost.localdomain>
-	 <20060205192025.4006a554.akpm@osdl.org>
-	 <1139202455.3131.56.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0602052255110.10566@dan>
-Content-Type: text/plain
-Date: Mon, 06 Feb 2006 14:56:35 +0100
-Message-Id: <1139234195.3131.81.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Feb 2006 09:01:37 -0500
+Received: from mail.gmx.net ([213.165.64.21]:5248 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932115AbWBFOBh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 09:01:37 -0500
+X-Authenticated: #428038
+Date: Mon, 6 Feb 2006 15:01:31 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: luke@dashjr.org, jengelh@linux01.gwdg.de, rlrevell@joe-job.com,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest) (was: Rationale for RLIMIT_MEMLOCK?)
+Message-ID: <20060206140131.GA1084@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	luke@dashjr.org, jengelh@linux01.gwdg.de, rlrevell@joe-job.com,
+	linux-kernel@vger.kernel.org
+References: <20060123105634.GA17439@merlin.emma.line.org> <200602021717.08100.luke@dashjr.org> <Pine.LNX.4.61.0602031502000.7991@yvahk01.tjqt.qr> <200602031724.55729.luke@dashjr.org> <43E7545E.nail7GN11WAQ9@burner>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43E7545E.nail7GN11WAQ9@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-05 at 23:00 -0800, Dan McDonald wrote:
+Joerg Schilling schrieb am 2006-02-06:
+
+> Luke-Jr <luke@dashjr.org> wrote:
 > 
-> On Mon, 6 Feb 2006, Arjan van de Ven wrote:
+> > ProDVD is immoral software. I use growisofs.
 > 
-> > On Sun, 2006-02-05 at 19:20 -0800, Andrew Morton wrote:
-> >> Richard Purdie <rpurdie@rpsys.net> wrote:
-> >>>
-> >>> +MODULE_AUTHOR("John Bowler <jbowler@acm.org>");
-> >>> +MODULE_DESCRIPTION("IXP4XX GPIO LED driver");
-> >>> +MODULE_LICENSE("MIT");
-> >>
-> >> MIT license is unusual.  There's one other file in the kernel which uses it
-> >> and that's down in MTD where nobody dares look.
-> >>
-> >> I don't know whether MIT is GPL-compatible-for-kernel-purposes or not.  Help.
-> >
-> > would be really nice if the author would at least dual license it under
-> > the GPL as well (and thus also granting the patent rights if any)
+> growisofs is immoral, see 
 > 
-> It would be really nice, but that doesn't make the rights to any patents 
-> granted unless 'GPLv2 or any later version' is explicitly specified. The 
-> default GPL license is v2 and only v2. There was a bug thread about this 
-> on LKML earlier.
+> 	http://fy.chalmers.se/~appro/linux/DVD+RW/solaris.com.html
+> 
+> Either this, or the GPL applies, but not both as intended by the author....
 
-wrong. v2 already is a statement that the author doesn't have patents on
-the code, or alternatively that the author has granted you the patent
-rights and will not sue you for using the code. it's also a statement
-that the author doesn't have patent licenses from 3rd parties that
-he/she cannot sublicense.
+Who cares. You start complaining even about GPL patches for the software
+you distributed under the terms of the GPL, without looking at
+patches...
 
-v3 clarifies and expands on this most likely, but v2 already offers
-basic patent trap protection.
-
-
+-- 
+Matthias Andree

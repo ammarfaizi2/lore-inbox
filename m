@@ -1,56 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWBFIlV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWBFIlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbWBFIlV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 03:41:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWBFIlU
+	id S1750771AbWBFIlM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 03:41:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWBFIlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 03:41:20 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:60889 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750772AbWBFIlU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 03:41:20 -0500
-Date: Mon, 6 Feb 2006 09:40:01 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Paul Jackson <pj@sgi.com>
-Cc: akpm@osdl.org, dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net,
-       ak@suse.de, linux-kernel@vger.kernel.org, clameter@sgi.com
-Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
-Message-ID: <20060206084001.GA5600@elte.hu>
-References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com> <20060204154944.36387a86.akpm@osdl.org> <20060205203358.1fdcea43.akpm@osdl.org> <20060205215052.c5ab1651.pj@sgi.com> <20060205220204.194ba477.akpm@osdl.org> <20060206061743.GA14679@elte.hu> <20060205232253.ddbf02d7.pj@sgi.com> <20060206074334.GA28035@elte.hu> <20060206001959.394b33bc.pj@sgi.com> <20060206082258.GA1991@elte.hu>
-Mime-Version: 1.0
+	Mon, 6 Feb 2006 03:41:12 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:8422 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750771AbWBFIlK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 03:41:10 -0500
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kirill Korotaev <dev@sw.ru>, Kirill Korotaev <dev@openvz.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       frankeh@watson.ibm.com, clg@fr.ibm.com, haveblue@us.ibm.com,
+       greg@kroah.com, alan@lxorguk.ukuu.org.uk, serue@us.ibm.com,
+       arjan@infradead.org, Rik van Riel <riel@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
+       Pavel Emelianov <xemul@sw.ru>
+Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
+References: <43E38BD1.4070707@openvz.org>
+	<Pine.LNX.4.64.0602030905380.4630@g5.osdl.org>
+	<43E3915A.2080000@sw.ru>
+	<Pine.LNX.4.64.0602030939250.4630@g5.osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Mon, 06 Feb 2006 01:39:03 -0700
+In-Reply-To: <Pine.LNX.4.64.0602030939250.4630@g5.osdl.org> (Linus
+ Torvalds's message of "Fri, 3 Feb 2006 09:49:56 -0800 (PST)")
+Message-ID: <m1lkwoubiw.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060206082258.GA1991@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@osdl.org> writes:
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+> On Fri, 3 Feb 2006, Kirill Korotaev wrote:
+>> 
+>> Do you have any other ideas/comments on this?
+>> I will send additional IPC/filesystems virtualization patches a bit later.
+>
+> I think that a patch like this - particularly just the 1/5 part - makes 
+> total sense, because regardless of any other details of virtualization, 
+> every single scheme is going to need this.
 
-> > We normally run with different policies, in the same box, on different 
-> > cpusets at the same time.  But this might be because some cpusets 
-> > -need- the memory spreading, and the others that don't are left to the 
-> > default policy.
-> 
-> so in practice, the memory spreading is in fact a global setting, used 
-> by all cpusets that matter? That seems to support Andrew's observation 
-> that our assumptions / defaults are bad, pretty much independently of 
-> the workload.
+I strongly disagree with this approach.  I think Al Viro got it
+right when he created a separate namespace for filesystems.  
 
-in other words: the spreading out likely _hurts_ performance in the 
-typical case (which prefers node-locality), but when you are using 
-multiple cpusets you want to opt for fairness between projects, over 
-opportunistic optimizations such as node-local allocations. I.e. the 
-spreading out, as it is used today, is rather a global fairness setting 
-for the kernel, and not really a workload-specific access-pattern thing.  
-Right?
+First this presumes an all or nothing interface.  But that is not
+what people are doing.  Different people want different subsets
+of the functionality.   For the migration work I am doing having
+multiple meanings for the same uid isn't interesting.
 
-	Ingo
+Secondly by implementing this in one big chunk there is no
+migration path when you want to isolate an additional part of the
+kernel interface.
+
+So I really think an approach that allows for incremental progress
+that allows for different subsets of this functionality to
+be used is a better approach.  In clone we already have
+a perfectly serviceable interface for that and I have
+seen no one refute that.  I'm not sure I have seen anyone
+get it though.
+
+
+
+My apologies for the late reply I didn't see this thread until
+just a couple of minutes ago.  linux-kernel can be hard to
+follow when you aren't cc'd.
+
+
+Patches hopefully sometime in the next 24hours.   So hopefully
+conversation can be carried forward in a productive manner.
+
+Eric
+

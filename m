@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWBFSMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWBFSPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbWBFSMp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 13:12:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWBFSMp
+	id S932237AbWBFSPu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 13:15:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWBFSPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 13:12:45 -0500
-Received: from mail.suse.de ([195.135.220.2]:13759 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932239AbWBFSMo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 13:12:44 -0500
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes 2.6.16-rc1[2] on 2 node X86_64
-Date: Mon, 6 Feb 2006 19:12:30 +0100
-User-Agent: KMail/1.8.2
-Cc: discuss@x86-64.org, bharata@in.ibm.com, linux-kernel@vger.kernel.org
-References: <20060205163618.GB21972@in.ibm.com> <200602051803.59437.ak@suse.de> <Pine.LNX.4.62.0602060807530.15863@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0602060807530.15863@schroedinger.engr.sgi.com>
+	Mon, 6 Feb 2006 13:15:50 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:48520 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932237AbWBFSPt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 13:15:49 -0500
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602061912.31508.ak@suse.de>
+Subject: Re: [PATCH 1/3] s390: dasd extended error reporting module.
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OFEACB8C3E.85A0843D-ONC125710D.00631F1E-C125710D.006451D4@de.ibm.com>
+From: Stefan Weinhuber <WEIN@de.ibm.com>
+Date: Mon, 6 Feb 2006 19:15:45 +0100
+X-MIMETrack: Serialize by Router on D12ML065/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
+ 06/02/2006 19:15:46,
+	Serialize complete at 06/02/2006 19:15:46
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 February 2006 17:11, Christoph Lameter wrote:
-> On Sun, 5 Feb 2006, Andi Kleen wrote:
-> 
-> > > The kernel crashes when I run an application which does:
-> > > 	- mmap (0, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS)
-> > > 	- mbind the memory to the 1st node with policy MPOL_BIND
-> > > 	- write to that memory
-> 
-> Tried the following code on rc1 and rc2 and it worked fine on ia64:
+Jan Blunck <jblunck@suse.de> wrote on 06.02.2006 12:30:46:
 
-Perhaps it depends on if the node has enough memory free or not?
-I assume if the zonelist has some issue but the first entry is ok
-it will only cause problems when the allocation has to go off node
-(it shouldn't actually go off node with that policy of course,
-but with a full free local node that code path is never triggered)
+> Why don't you use the sysfs for this purpose? This new character device
+> interface seems very odd to me. Why don't you introduce new attributes 
+to the
+> dasd device for that purpose and make online pollable for failovers?
 
--Andi
+We need to transfer binary data records, and in case of an error
+situation probably quite a number of them. Maybe sysfs could be bent to
+that purpose but to me this seems even more awkward then a character 
+device.
 
+> Or use dm-netlink to report the extended errors via multipath to the 
+user
+> space.
+
+Our interface is supposed to work under memory constrained situations
+e.g. when the connection to the storage device failed. With our character
+device we can constrain memory allocations to uncritical situations:
+- when error reporting is enabled
+- when the device is opened
+- when the internal buffer size is adjusted
+The error reporting itself is done without any additional allocations.
+
+Best Regards /  Mit freundlichen Grüßen
+
+Stefan Weinhuber
+
+-------------------------------------------------------------------
+IBM Deutschland Entwicklung GmbH
+Linux for zSeries Development & Services

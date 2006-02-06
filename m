@@ -1,44 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWBFJ6K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbWBFJ6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750909AbWBFJ6K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 04:58:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWBFJ6K
+	id S1750908AbWBFJ6E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 04:58:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWBFJ6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 04:58:10 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:33180 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750909AbWBFJ6I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 04:58:08 -0500
-Date: Mon, 6 Feb 2006 01:57:09 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net, ak@suse.de,
-       linux-kernel@vger.kernel.org, clameter@sgi.com
-Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
-Message-Id: <20060206015709.01bf4d16.akpm@osdl.org>
-In-Reply-To: <20060206013227.2407cf8c.pj@sgi.com>
-References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
-	<20060205203711.2c855971.akpm@osdl.org>
-	<20060205225629.5d887661.pj@sgi.com>
-	<20060205230816.4ae6b6e2.akpm@osdl.org>
-	<20060206013227.2407cf8c.pj@sgi.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 6 Feb 2006 04:58:03 -0500
+Received: from [84.204.75.166] ([84.204.75.166]:26753 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP
+	id S1750908AbWBFJ6B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 04:58:01 -0500
+Message-ID: <43E71DA8.3020103@yandex.ru>
+Date: Mon, 06 Feb 2006 12:58:00 +0300
+From: "Artem B. Bityutskiy" <dedekind@yandex.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
+X-Accept-Language: en, ru, en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [QUESTION/sysfs] strange refcounting
+References: <1139040821.13125.4.camel@sauron.oktetlabs.ru> <43E4985D.3070708@yandex.ru> <43E4AD2F.1020703@yandex.ru>
+In-Reply-To: <43E4AD2F.1020703@yandex.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
->
->  Is page vs slab cache the appropriate level of granularity?
-> 
+As &struct device structure has no @owner field, and corresponding 
+functions rely on the @owner field at &struct device_driver, I conclude 
+that I cannot use &struct device objects without bus and device driver 
+objects, just by design.
 
-I guess so.  Doing it on a per-cpuset+per-slab or per-cpuset+per-inode
-basis would get a bit complex implementation-wise, I expect.  And a smart
-application could roughly implement that itself anyway by turning spreading
-on and off as it goes.
+On the other hand, 'device_register()' accepts &struct device objects 
+with NULL-filled @bus and @driver fields perfectly fine, does not 
+complain, does not return any error, and I even see corresponding 
+entries at /sys/devices/. But there is a refcounting problem described 
+at my first mail.
 
-One does wonder about the buffer-head slab - it's pretty tightly bound to
-pagecache..
+This is obviously a confusing discrepancy. Sysfs has to either reject 
+bus-less and driver-less &struct device objects or deal with them 
+correctly. The latter is impossible due to lack of an @owner field in 
+&struct device.
 
+In connection with this, I have a question. There is a whole bunch of 
+drivers which do not directly relate to hardware devices, but which 
+still want to expose their parameters via sysfs. For example, this could 
+be a filesystem, LVM, a compression layer on top of a file system of a 
+block device, whatever. These are "virtual" devices and they are not 
+physically connected to any bus. How should they deal with sysfs?
+
+I see there is the "class" stuff in sysfs, but it seems that it is far 
+not as flexible as the "device, driver, and bus" stuff, because I cannot 
+create many nested layers within classes. I can create a class, which 
+goes to /sys/class/, and devices within this class, which go to 
+/sys/class/myclass/mydev/. But I cannot create a class, devices within 
+that class, and daughter devices within them, like:
+
+/sys/class/myclass/
+            |-- mydev1/
+                | -- doughterdev1/
+                | -- doughterdev1/
+                | -- ...
+            |-- mydev2/
+            |-- mydev3/
+            |-- ...
+
+Please, comment this.
+
+Thanks.
+
+-- 
+Best Regards,
+Artem B. Bityutskiy,
+St.-Petersburg, Russia.

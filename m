@@ -1,172 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbWBFT5U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWBFT41@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbWBFT5U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 14:57:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWBFT5U
+	id S932342AbWBFT41 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 14:56:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbWBFT41
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 14:57:20 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:1664 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932346AbWBFT5S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 14:57:18 -0500
-To: <linux-kernel@vger.kernel.org>
-Cc: <vserver@list.linux-vserver.org>, Herbert Poetzl <herbert@13thfloor.at>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Kirill Korotaev <dev@sw.ru>, Greg <gkurz@fr.ibm.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, Rik van Riel <riel@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: [RFC][PATCH 12/20] fcntl: Update fcntl to work with pspaces.
-References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
-	<m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>
-	<m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1fymwmgk0.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1bqxkmgcv.fsf_-_@ebiederm.dsl.xmission.com>
-	<m17j88mg8l.fsf_-_@ebiederm.dsl.xmission.com>
-	<m13biwmg4p.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1y80ol1gh.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1u0bcl1ai.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1psm0l170.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1lkwol133.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1hd7cl0yp.fsf_-_@ebiederm.dsl.xmission.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 06 Feb 2006 12:54:37 -0700
-In-Reply-To: <m1hd7cl0yp.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
- Biederman's message of "Mon, 06 Feb 2006 12:51:58 -0700")
-Message-ID: <m1d5i0l0ua.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Feb 2006 14:56:27 -0500
+Received: from lug-owl.de ([195.71.106.12]:27341 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S932342AbWBFT40 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 14:56:26 -0500
+Date: Mon, 6 Feb 2006 20:56:24 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Martin Mares <mj@ucw.cz>
+Cc: Yaroslav Rastrigin <yarick@it-territory.ru>,
+       Joshua Kugler <joshua.kugler@uaf.edu>, linux-kernel@vger.kernel.org,
+       Nicolas Mailhot <nicolas.mailhot@laposte.net>,
+       David Chow <davidchow@shaolinmicro.com>
+Subject: Re: Linux drivers management
+Message-ID: <20060206195624.GJ19232@lug-owl.de>
+Mail-Followup-To: Martin Mares <mj@ucw.cz>,
+	Yaroslav Rastrigin <yarick@it-territory.ru>,
+	Joshua Kugler <joshua.kugler@uaf.edu>, linux-kernel@vger.kernel.org,
+	Nicolas Mailhot <nicolas.mailhot@laposte.net>,
+	David Chow <davidchow@shaolinmicro.com>
+References: <1139250712.20009.20.camel@rousalka.dyndns.org> <200602061002.27477.joshua.kugler@uaf.edu> <200602062217.19697.yarick@it-territory.ru> <mj+md-20060206.193433.6964.atrey@ucw.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BEa57a89OpeoUzGD"
+Content-Disposition: inline
+In-Reply-To: <mj+md-20060206.193433.6964.atrey@ucw.cz>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--BEa57a89OpeoUzGD
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+On Mon, 2006-02-06 20:39:37 +0100, Martin Mares <mj@ucw.cz> wrote:
+> > And then think, why do you need to _build_ drivers in the first place.
+> > Wouldn't it be better to have one vmware.ko which insmod's with all
+> > 2.6 versions , from 2.6.0 to 2.6.16-rc2 , and throw "upgrade pain"
+> > away completely ?=20
+>=20
+> Well, you want the vmware.ko to contain machine code for at least 17
+> different architecture the kernel runs on? ;-)
 
+I think we will first need to hack binutils. The last time I heared
+about it, Fat Binaries weren't implemented (only containing object
+code for two different architectures), let alone for _all_
+architectures...
 
----
+Even getting all GCCs to compile with the same version would be an
+adventure...
 
- fs/fcntl.c         |   25 ++++++++++++++++---------
- include/linux/fs.h |    1 +
- 2 files changed, 17 insertions(+), 9 deletions(-)
+MfG, JBG
 
-34f261442c7ac3c160830b86aefd5b15df68de9d
-diff --git a/fs/fcntl.c b/fs/fcntl.c
-index 5f96786..0a41df8 100644
---- a/fs/fcntl.c
-+++ b/fs/fcntl.c
-@@ -18,6 +18,7 @@
- #include <linux/ptrace.h>
- #include <linux/signal.h>
- #include <linux/rcupdate.h>
-+#include <linux/pspace.h>
- 
- #include <asm/poll.h>
- #include <asm/siginfo.h>
-@@ -248,11 +249,14 @@ static int setfl(int fd, struct file * f
- 	return error;
- }
- 
--static void f_modown(struct file *filp, unsigned long pid,
-+static void f_modown(struct file *filp, struct pspace *pspace, unsigned long pid,
-                      uid_t uid, uid_t euid, int force)
- {
- 	write_lock_irq(&filp->f_owner.lock);
- 	if (force || !filp->f_owner.pid) {
-+		put_pspace(filp->f_owner.pspace);
-+		get_pspace(pspace);
-+		filp->f_owner.pspace = pspace;
- 		filp->f_owner.pid = pid;
- 		filp->f_owner.uid = uid;
- 		filp->f_owner.euid = euid;
-@@ -268,7 +272,7 @@ int f_setown(struct file *filp, unsigned
- 	if (err)
- 		return err;
- 
--	f_modown(filp, arg, current->uid, current->euid, force);
-+	f_modown(filp, current->pspace, arg, current->uid, current->euid, force);
- 	return 0;
- }
- 
-@@ -276,7 +280,7 @@ EXPORT_SYMBOL(f_setown);
- 
- void f_delown(struct file *filp)
- {
--	f_modown(filp, 0, 0, 0, 1);
-+	f_modown(filp, NULL, 0, 0, 0, 1);
- }
- 
- static long do_fcntl(int fd, unsigned int cmd, unsigned long arg,
-@@ -318,6 +322,9 @@ static long do_fcntl(int fd, unsigned in
- 		 * to fix this will be in libc.
- 		 */
- 		err = filp->f_owner.pid;
-+		/* Don't return an owner in a different pspace */
-+		if (filp->f_owner.pspace != current->pspace)
-+			err = 0;
- 		force_successful_syscall_return();
- 		break;
- 	case F_SETOWN:
-@@ -478,14 +485,14 @@ void send_sigio(struct fown_struct *fown
- 	
- 	read_lock(&tasklist_lock);
- 	if (pid > 0) {
--		p = find_task_by_pid(pid);
-+		p = find_task_by_pid(fown->pspace, pid);
- 		if (p) {
- 			send_sigio_to_task(p, fown, fd, band);
- 		}
- 	} else {
--		do_each_task_pid(-pid, PIDTYPE_PGID, p) {
-+		do_each_task_pid(fown->pspace, -pid, PIDTYPE_PGID, p) {
- 			send_sigio_to_task(p, fown, fd, band);
--		} while_each_task_pid(-pid, PIDTYPE_PGID, p);
-+		} while_each_task_pid(fown->pspace, -pid, PIDTYPE_PGID, p);
- 	}
- 	read_unlock(&tasklist_lock);
-  out_unlock_fown:
-@@ -513,14 +520,14 @@ int send_sigurg(struct fown_struct *fown
- 	
- 	read_lock(&tasklist_lock);
- 	if (pid > 0) {
--		p = find_task_by_pid(pid);
-+		p = find_task_by_pid(fown->pspace, pid);
- 		if (p) {
- 			send_sigurg_to_task(p, fown);
- 		}
- 	} else {
--		do_each_task_pid(-pid, PIDTYPE_PGID, p) {
-+		do_each_task_pid(fown->pspace, -pid, PIDTYPE_PGID, p) {
- 			send_sigurg_to_task(p, fown);
--		} while_each_task_pid(-pid, PIDTYPE_PGID, p);
-+		} while_each_task_pid(fown->pspace, -pid, PIDTYPE_PGID, p);
- 	}
- 	read_unlock(&tasklist_lock);
-  out_unlock_fown:
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index e059da9..cabb1b6 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -589,6 +589,7 @@ extern struct block_device *I_BDEV(struc
- 
- struct fown_struct {
- 	rwlock_t lock;          /* protects pid, uid, euid fields */
-+	struct pspace *pspace;	/* process space of owner pid */
- 	int pid;		/* pid or -pgrp where SIGIO should be sent */
- 	uid_t uid, euid;	/* uid/euid of process setting the owner */
- 	void *security;
--- 
-1.1.5.g3480
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
 
+--BEa57a89OpeoUzGD
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFD56noHb1edYOZ4bsRAo8uAKCK0igW4Hzii+IV3MtP6CsY8034CQCbBUZ/
+od75dbj9hAaWzlY+vin5kg8=
+=Vps+
+-----END PGP SIGNATURE-----
+
+--BEa57a89OpeoUzGD--

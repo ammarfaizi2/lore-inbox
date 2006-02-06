@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWBFWiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbWBFWi4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbWBFWiM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 17:38:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWBFWiM
+	id S932408AbWBFWi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 17:38:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWBFWi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 17:38:12 -0500
-Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:13698 "EHLO
-	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
-	id S932400AbWBFWiL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 17:38:11 -0500
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: network delays, mysterious push packets
-From: David Carlton <david.carlton@sun.com>
-Date: Mon, 06 Feb 2006 14:38:10 -0800
-Message-ID: <yf2k6c8ru3x.fsf@kealia.sfbay.sun.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Reasonable Discussion,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Feb 2006 17:38:56 -0500
+Received: from smtpout.mac.com ([17.250.248.88]:57311 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932408AbWBFWiz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 17:38:55 -0500
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGECCJPAB.davids@webmaster.com>
+References: <MDEHLPKNGKAHNMBLJOLKGECCJPAB.davids@webmaster.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <50968728-E8BA-46BB-83D9-866ADEE546DA@mac.com>
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+Date: Mon, 6 Feb 2006 17:38:51 -0500
+To: davids@webmaster.com
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm working on an application that we're trying to switch from a 2.4
-kernel to a 2.6 kernel.  (I believe we're using 2.6.9.)  One part of
-the program periodically sends out chunks of data (whose size is just
-over 1MB) via tcp.
+On Feb 06, 2006, at 16:07, David Schwartz wrote:
+>> The LGPL deals with only derivative works. The GPL also deals with  
+>> mere *linking*. If glibc were GPL'd, it would be illegal to make  
+>> an OS based on it with a single C program incompatible with the GPL.
+>
+> The only way the GPL can control work Y because it affects work Z  
+> is because Y is a derivative work of work Z. If it's not, then the  
+> works are legally unrelated, and no matter what the GPL says, it  
+> can't affect work Y.
 
-Frequently, alas, these chunks aren't arriving in a timely fashion.
-Instrumenting the code and doing a tcpdump, this is what we see:
+To say this more simplistically, the LGPL essentially says "Even if  
+dynamic linking constitutes making a derivative work, we allow you to  
+dynamically link, so long as the rules are followed for the LGPL code  
+to which you link".  The GPL essentially says "If dynamic linking is  
+making a derivative work, then these rules apply to the whole  
+derivative work and all of its constituent parts".
 
-1) The sender uses sendmsg() to send all the data.  (In chunks of a
-   little less than 1.5K, in case it matters.)
+Whether or not an NVidia binary module is a derivative work is left  
+up to the courts to decide.  It _may_ be legal (don't trust me,  
+consult your lawyer) to have a very simple cross-platform interface  
+and some BSD-licensed glue.  On the other hand, if your interface  
+derives from or exposes any kind of kernel-internals, then it is most  
+certainly a derivative work (because you can't argue that the binary  
+interface was written to be independent of Linux, and it therefore  
+falls under the GPL.
 
-2) Most of the data arrives in a timely fashion.  There are a few
-   dropped packets that have to get retransmitted; no big deal.  (I
-   assume this step overlaps somewhat with step 1; also, sometimes all
-   the data makes it, so we don't progress to step 3.)
+Cheers,
+Kyle Moffett
 
-3) Occasionally, at some point, the transmission slows way down: the
-   sender sends out bits of data (1 or 2 Ethernet frames, I can't
-   remember) spaced 200ms apart, each marked with PUSH.
+--
+Unix was not designed to stop people from doing stupid things,  
+because that would also stop them from doing clever things.
+   -- Doug Gwyn
 
-I don't understand why they'd be marked with push: by this time, all
-the sendmsg calls have returned, so the sender's kernel should have
-all the data, so there should only be one transmission marked with
-push.  But I'm seeing lots of them.  Which I wouldn't mind so much,
-but the 200ms gaps are killing us.
 
-Does this ring any bells?  This 200 millisecond gap + PUSH behavior
-seems very odd, so I'm hoping that somebody's seen a misconfiguration
-or kernel bug causing these particular symptoms.
-
-Thanks for any suggestions that anybody has.
-
-(I'm not subscribed to the lists, so please Cc: me on any responses.
-Also, my apologies for the crosspost - the linux-net archives were
-relatively bare and spam-filled, so it wasn't clear to me whether or
-not that list was still active.)
-
-David Carlton
-david.carlton@sun.com

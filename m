@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWBFJHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWBFJKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750815AbWBFJHF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 04:07:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWBFJHE
+	id S1750819AbWBFJKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 04:10:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWBFJKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 04:07:04 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:48910 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750815AbWBFJHA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 04:07:00 -0500
-Date: Mon, 6 Feb 2006 10:09:16 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@infradead.org>,
-       Jeff Mahoney <jeffm@suse.com>, LKML <linux-kernel@vger.kernel.org>,
-       kernel-bugzilla@luksan.cjb.net
-Subject: Re: quality control
-Message-ID: <20060206090915.GJ13598@suse.de>
-References: <43E64791.8010302@namesys.com> <43E6521F.5020707@suse.com> <43E6BF48.5010301@namesys.com> <BAFD888C-7E6B-49B1-A394-901D24CFBCBF@mac.com>
+	Mon, 6 Feb 2006 04:10:09 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:6812 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750819AbWBFJKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 04:10:07 -0500
+Date: Mon, 6 Feb 2006 01:09:51 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: akpm@osdl.org, dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net,
+       ak@suse.de, linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+Message-Id: <20060206010951.d9c63b61.pj@sgi.com>
+In-Reply-To: <20060206085155.GA9436@elte.hu>
+References: <20060204154944.36387a86.akpm@osdl.org>
+	<20060205203358.1fdcea43.akpm@osdl.org>
+	<20060205215052.c5ab1651.pj@sgi.com>
+	<20060205220204.194ba477.akpm@osdl.org>
+	<20060206061743.GA14679@elte.hu>
+	<20060205232253.ddbf02d7.pj@sgi.com>
+	<20060206074334.GA28035@elte.hu>
+	<20060206001959.394b33bc.pj@sgi.com>
+	<20060206082258.GA1991@elte.hu>
+	<20060206004720.0374b820.pj@sgi.com>
+	<20060206085155.GA9436@elte.hu>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BAFD888C-7E6B-49B1-A394-901D24CFBCBF@mac.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 05 2006, Kyle Moffett wrote:
-> On Feb 05, 2006, at 22:15, Hans Reiser wrote:
-> >Jeff Mahoney wrote:
-> >>Hans Reiser wrote:
-> >>>http://bugzilla.kernel.org/show_bug.cgi?id=6016
-> >>>          Summary: reiserfs doesn't build with  
-> >>>REISERFS_FS_POSIX_ACL=n
-> >>>   Kernel Version: v2.6.16-rc2-g5b7b644
-> >>
-> >>This was a patch from hch, not me. There's already a patch in -mm to
-> >>fix it.
-> >
-> >Please consider adhering to a quality control process.
-> 
-> It's a GIT version of an RC patch for grief's sake!  You don't  
-> seriously expect people to quadruple-check every trivial patch that  
-> goes into Linus GIT tree before sending it, do you?  The whole point  
-> of the RC is to indicate that only smaller patches should be applied  
-> (and this one was for the most part) so that we can do some kind of  
-> global-kernel QC.
+> yes, but still that is a global attribute:
 
-Eh, but you are expected to do that. If everybody sent in half-assed not
-tested patches "just because" it's a pre-rc, things would look bad.
-Compile testing is the least time consuming and easiest thing to to
-test, so you should at least do that. If nobody did that, no one would
-get snapshots tested because they would never compile for anyone.
+Ok ... I am starting to see where you are going with this.
 
-For developers it's equally annoying. I typically update my tree every
-morning and run with that for the various stuff I'm working on, and it
-is really annoying to have to spent time on hunting down and fixing
-compile errors.
+Well, certainly not global in the sense that a selected cache would be
+spread over the whole system.  The data set read in by the job in one
+cpuset must not pollute the memory of another cpuset.
 
-This mail is about the mentality displayed, not the specific change that
-spawned it.
+But it -might- work to mark certain caches to be memory spread across
+the current cpuset (to be precise, across current->mems_allowed), as
+the default kernel placement policy for those selected caches, with
+no per-cpuset mechanism to specify otherwise.
+
+Or it might not work.
+
+I don't know tonight.
+
+I will have to wait for others to chime in.
 
 -- 
-Jens Axboe
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

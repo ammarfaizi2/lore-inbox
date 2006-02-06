@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbWBFU0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWBFU1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964776AbWBFU0O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 15:26:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964777AbWBFU0O
+	id S964782AbWBFU1q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 15:27:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbWBFU1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 15:26:14 -0500
-Received: from wproxy.gmail.com ([64.233.184.206]:12572 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964774AbWBFU0M convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 15:26:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AcCd3oEgMs+yPcu8RHuYa0UZmeSQ9Yu06ul4iE45iUCKSrxVzExXn7XVVoG9pi/o+nzb1HgRXBAKvqoV+D/uSXtS7RdF55Q0bNPS0Mjak6xtKEq6B3SUihRuAF4so5zCqfEuNRyqvvzoIS6Pzgr9nITFZkKJ5x7wa8UE0CatdaI=
-Message-ID: <12c511ca0602061226pf3bf095jcc570754656c5437@mail.gmail.com>
-Date: Mon, 6 Feb 2006 12:26:11 -0800
-From: Tony Luck <tony.luck@intel.com>
-To: Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [PATCH 1/3] NEW VERSION: *at syscalls: Implementation
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org,
-       kenneth.w.chen@intel.com
-In-Reply-To: <200512171742.jBHHgAKh018491@devserv.devel.redhat.com>
-MIME-Version: 1.0
+	Mon, 6 Feb 2006 15:27:45 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:64130 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S964781AbWBFU1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 15:27:44 -0500
+Date: Mon, 6 Feb 2006 12:27:24 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: clameter@engr.sgi.com, mingo@elte.hu, akpm@osdl.org, dgc@sgi.com,
+       steiner@sgi.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+Message-Id: <20060206122724.03875932.pj@sgi.com>
+In-Reply-To: <200602061948.25314.ak@suse.de>
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
+	<200602061936.27322.ak@suse.de>
+	<Pine.LNX.4.62.0602061039420.16829@schroedinger.engr.sgi.com>
+	<200602061948.25314.ak@suse.de>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200512171742.jBHHgAKh018491@devserv.devel.redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does sys_mkdirat() work?  I applied Ken's patch to hook up the calls for
-ia64, but when I tried:
+> Yes I can see it not working well when a dentry is put at the other 
+> end of a 256 node altix. That is why just spreading it to nearby
+> nodes might be an alternative.
 
-long sys_mkdirat(int dfd, const char *pathname, int mode)
-{
-        return syscall(__NR_mknodat, dfd, pathname, mode);
-}
+As I've suggested earlier in this thread:
+=========================================
 
-...
+I suspect that spreading evenly over the current tasks mems_allowed is
+just what is needed.
 
-   sys_mkdirat(AT_FDCWD, "xxx", 0777);
+There is nothing special about big Altix systems here; just use
+task->mems_allowed.  For all but tasks using MPOL_BIND, this means
+spreading the caching over the nodes in the tasks cpuset.
 
-I ended up with a regular file named "xxx", not a directory.
-$ ls -l xxx
--rwsrwxr-x  1 aegl aegl 0 Feb  6 12:23 xxx
+We don't want to spread over a larger area, because cpusets need to
+maintain a fairly aggressive containment.  One jobs big data set must
+not pollute the cpuset of another job, except in cases involving kernel
+distress.
 
-Hmmm, setuid too!
+Let the cpusets define what is "the right size" to spread across.
+We do not need additional kernel heuristics or options to decide this.
 
--Tony
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

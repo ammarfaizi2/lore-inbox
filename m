@@ -1,110 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWBFOsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWBFOsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWBFOsu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 09:48:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWBFOsu
+	id S932137AbWBFOsb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 09:48:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWBFOsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 09:48:50 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:9618 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932136AbWBFOst (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 09:48:49 -0500
-Message-ID: <43E762C0.6030300@In.ibm.com>
-Date: Mon, 06 Feb 2006 20:22:48 +0530
-From: Suzuki <suzuki@In.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Mon, 6 Feb 2006 09:48:31 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:47819 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S932137AbWBFOsa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 09:48:30 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Mon, 06 Feb 2006 15:46:59 +0100
+To: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de
+Cc: mrmacman_g4@mac.com, mj@ucw.cz, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de,
+       James@superbug.co.uk, j@bitron.ch, acahalan@gmail.com, 7eggert@gmx.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43E76163.nail7GN513UL9@burner>
+References: <5zer2-1BC-29@gated-at.bofh.it>
+ <5AFHY-5jd-23@gated-at.bofh.it> <5ALb5-5kV-43@gated-at.bofh.it>
+ <5B15G-39W-17@gated-at.bofh.it> <5B1Im-4cW-7@gated-at.bofh.it>
+ <5B3TN-7AV-9@gated-at.bofh.it> <5Bs5Z-1BT-17@gated-at.bofh.it>
+ <5BJgx-1fE-13@gated-at.bofh.it> <E1F4nt5-00014L-Ry@be1.lrz>
+ <43E36084.nail5CAJ14LO3@burner>
+ <20060203193056.GD18533@merlin.emma.line.org>
+In-Reply-To: <20060203193056.GD18533@merlin.emma.line.org>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-CC: akpm@osdl.org
-Subject: [PATCH] Fix do_path_lookup() to add the check for error in link_path_walk()
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Matthias Andree <matthias.andree@gmx.de> wrote:
 
-I encountered an oops with 2.6.16-rc1-git3 kernel ( SLES 10 B2 kernel ), 
-while running racer tests. The problem was hit in audit_inode() with the 
-following stack trace :
+> Joerg Schilling schrieb am 2006-02-03:
+>
+> > This is a limitation of the implementation used on Linux and not true for e.g. 
+> > Solaris.
+>
+> Linux is not Solaris.
+>
+> Do you want your application to work with Linux,
+> because it brings customers?
+>
+> If yes, listen to kernel developers if they say "you don't need that
+> feature". Note I do not consider myself kernel developer. I'm a
+> bystander who's trying to help out.
 
-Jan 31 19:15:27 x236 klogd:Unable to handle kernel paging request at 
-virtual address 6b6b6b8b
-Jan 31 19:15:27 x236 klogd: CPU:    3
-Jan 31 19:15:27 x236 klogd: EIP:    0060:[<c013ffbd>]    Tainted: G 
-U VLI
-Jan 31 19:15:27 x236 klogd: EFLAGS: 00010282   (2.6.16-rc1-git3-4-smp)
-Jan 31 19:15:27 x236 klogd: EIP is at audit_inode+0x78/0xa9
-Jan 31 19:15:27 x236 klogd: eax: d29da000   ebx: ccc23638   ecx: 0000001
-edx: ccc23638
-Jan 31 19:15:27 x236 klogd: esi: 6b6b6b6b   edi: d29da000   ebp: 0000001
-esp: ce4d7ecc
-Jan 31 19:15:27 x236 klogd: ds: 007b   es: 007b   ss: 0068
-Jan 31 19:15:27 x236 klogd: Process ln (pid: 12674, threadinfo=ce4d6000 
-task=e49df550)
-Jan 31 19:15:27 x236 klogd: Call Trace:
-Jan 31 19:15:27 x236 klogd:  [<c016a843>] do_path_lookup+0x225/0x22f
-Jan 31 19:15:27 x236 klogd:  [<c016af42>] __user_walk_fd+0x29/0x3a
-Jan 31 19:15:27 x236 klogd:  [<c0164e7e>] vfs_stat_fd+0x15/0x3c
-Jan 31 19:15:27 x236 klogd:  [<c014ca1c>] __handle_mm_fault+0x439/0x7a0
-Jan 31 19:15:27 x236 klogd:  [<c0164f32>] sys_stat64+0xf/0x23
-Jan 31 19:15:27 x236 klogd:  [<c0106d26>] do_syscall_trace+0x123/0x169
-Jan 31 19:15:27 x236 klogd:  [<c0103c09>] syscall_call+0x7/0xb
+????
 
-I found the root cause of the problem to be the lack of error-check in 
-do_path_lookup() for the link_path_walk().
+Kernel developers should listen to the right application developers
+(in special when they may have more kernel skills) to find out
+what's needed.
 
-in do_path_lookup:
+Jörg
 
-
-                 fput_light(file, fput_needed);
-         }
-         read_unlock(&current->fs->lock);
-         current->total_link_count = 0;
-         retval = link_path_walk(name, nd); <----- No check for retval !
-out:
-         if (unlikely(current->audit_context
-                      && nd && nd->dentry && nd->dentry->d_inode))
-                 audit_inode(name, nd->dentry->d_inode, flags);
-out_fail:
-         return retval;
-}
-
-If link_path_walk returns error, the inode may not be reliable. This 
-causes the oops in audit_inode.
-
-The bug is there in 2.6.16-rc2 also. I believe the problem in Bugme 
-#5897 also has the same root cause, though it has different call path.
-
-The patch attached below fixes the issue. I have tested it on 
-2.6.16-rc1-git3 with racer tests and it works fine.
-
-Thanks,
-
-Suzuki K P
-Linux Technology Centre
-IBM Software Labs,
-
-
--------------------------------------------------------------------------------------------
-
-Fixes do_path_lookup() to avoid accessing invalid dentry or inode when 
-the link_path_walk() has failed. This should fix Bugme #5897.
-
-Signed Off by: Suzuki K P <suzuki@in.ibm.com>
-
---- fs/namei.c  2006-02-06 06:10:53.000000000 -0800
-+++ fs/namei.c~fix-do-path-lookup       2006-02-06 11:33:59.000000000 -0800
-@@ -1122,6 +1122,8 @@ static int fastcall do_path_lookup(int d
-         read_unlock(&current->fs->lock);
-         current->total_link_count = 0;
-         retval = link_path_walk(name, nd);
-+       if(retval)
-+               goto out_fail;
-  out:
-         if (unlikely(current->audit_context
-                      && nd && nd->dentry && nd->dentry->d_inode))
-
-
-
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

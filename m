@@ -1,157 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbWBFUkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbWBFUlE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964804AbWBFUkf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 15:40:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWBFUkf
+	id S964808AbWBFUlE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 15:41:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWBFUlD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 15:40:35 -0500
-Received: from fisica.ufpr.br ([200.17.209.129]:61071 "EHLO fisica.ufpr.br")
-	by vger.kernel.org with ESMTP id S964804AbWBFUke (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 15:40:34 -0500
+	Mon, 6 Feb 2006 15:41:03 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:27559 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964809AbWBFUlA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 15:41:00 -0500
+Message-ID: <43E7B452.2080706@watson.ibm.com>
+Date: Mon, 06 Feb 2006 15:40:50 -0500
+From: Hubertus Franke <frankeh@watson.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <17383.46125.907045.269882@fisica.ufpr.br>
-Date: Mon, 6 Feb 2006 18:40:13 -0200
-To: Knut Petersen <Knut_Petersen@t-online.de>
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
-Subject: Re: nfsroot doesn't work with intel card since 2.6.12.2/2.6.11
-In-Reply-To: <43E7700F.6080702@t-online.de>
-References: <43E70BE3.1080805@t-online.de>
-	<17383.24476.747110.629245@fisica.ufpr.br>
-	<43E7700F.6080702@t-online.de>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-From: carlos@fisica.ufpr.br (Carlos Carvalho)
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Kirill Korotaev <dev@sw.ru>, Greg <gkurz@fr.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>, Rik van Riel <riel@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: [RFC][PATCH 0/20] Multiple instances of the process id namespace
+References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Knut Petersen (Knut_Petersen@t-online.de) wrote on 6 February 2006 16:49:
- >>Yes, this works fine. The kernel gets it from pxelinux directly via
- >>option IPAPPEND.
- >>
- >>Here's what I copied manually from the screen after the IP-Config:
- >>line:
- >>
- >>  
- >>
- >That was not what I asked. Please test without ipappend
- >and use ip=dhcp as a kernel parameter instead. Don´t forget
- >to enable dhcp autoconfiguration in the kernel config ...
+Eric W. Biederman wrote:
+> There have been several discussions in the past month about how
+> to do a good job of implementing a subset of user space that
+> looks like it has the system to itself.  Essentially making
+> chroot everything it could be.  This is my take on what
+> the implementation of a pid namespace should look like.
+> 
 
-Ops, sorry.
+Eric, this looks very good. The pspace internal implementation
+is very similar to what I was working on objectifying the pidmap
+etc. I was pursuing the same route in using find_pid()
+functions as the means to distinguish pspaces rather then
+actually virtualizing them.
 
- >I bet that you will see that the same dhcp server that proved to
- >work correctly by providing your server ip etc to the
- >pxe bootrom and via ipappend to the kernel is unable to
- >give that same information to the linux ipconfig code
- >directly. Please try and report.
+But this code already goes so much further in many many aspects.
+Kudos to you.
+I am still going through some of the details, but this is an
+excellent starting position.
 
-Exactly. In fact it tried several times and ended up getting the
-config. The dhcp log shows many trials. Apparently the server gets the
-request but the client doesn't get the answer.
+> 
+> What follows is a real patch set that is sufficiently complete
+> to be used and useful in it's own right.  There are a few areas
+> of the kernel where the patchset does not reach, mostly these
+> cause the compile to fail.  In addition a good thorough review
+> still needs to be done.  This patchset does paint a picture
+> of how I think things should look.
+> 
+> From the kernel community at large I am asking:
+>   Does the code look generally sane?
 
- >I assume that you do not have any problem to pxeboot good
- >old DOS and memtest. Right?
+Yes, but I have one question for you...
+Large parts of the patch are adding the pspace argument
+to find_task_by_pid() and in many cases that argument is
+current->pspace.
+It might bring down the size of the patch if you
+have
 
-I only used linux with these machines but never had this problem
-before. It even happens with 2.4
+find_task_by_pid( pid )  {  return find_task_pidspace_by_pid ( current->pspace, pid ); }
 
- >Please give board name, bios version, pxe rom version, and
- >lspci -vv.
+and then only deal with the exceptional cases using find_task_pidspace_by_pid
+when the pidspace is different..
 
-Tyan 2466, phoenix bios 4.0 release 6.0, Intel boot agent version 1.0.15.
-Here's the output of lspci -vv
+> 
+>   Does the use of clone to create a new namespace instance look
+>   like the sane approach?
+> 
 
-00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System Controller (rev 11)
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-        Latency: 64
-        Region 0: Memory at <unassigned> (32-bit, prefetchable)
-        Region 1: Memory at fea00000 (32-bit, prefetchable) [size=4K]
-        Region 2: I/O ports at 1030 [disabled] [size=4]
-        Capabilities: [a0] AGP version 2.0
-                Status: RQ=15 SBA+ 64bit- FW- Rate=x1,x2
-                Command: RQ=0 SBA+ AGP+ 64bit- FW- Rate=<none>
+At he surface it looks OK .. how does this work in a multi-threaded
+process which does cloen ( CLONE_NPSPACE ) ?
+We discussed at some point that exec is the right place to do it,
+but what I get is that because this is the container_init task
+we are OK !
+A bit clarification would help here ...
 
-00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] AGP Bridge (prog-if 00 [Normal decode])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=68
-        BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
+> Hopefully this code is sufficiently comprehensible to allow a good
+> discussion to come out of this.
+> 
 
-00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ISA (rev 05)
-        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
+Yes
 
-00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE (rev 04) (prog-if 8a [Master SecP PriP])
-        Subsystem: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Region 4: I/O ports at f000 [size=16]
+> Thanks for your time,
+> 
+> Eric
 
-00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI (rev 03)
-        Subsystem: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI
-        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+-- Hubertus
 
-00:08.0 Ethernet controller: Intel Corp. 82544EI Gigabit Ethernet Controller (Co
-pper) (rev 02)
-        Subsystem: Intel Corp. PRO/1000 XT Server Adapter
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 (63750ns min), cache line size 10
-        Interrupt: pin A routed to IRQ 5
-        Region 0: Memory at fe620000 (32-bit, non-prefetchable) [size=128K]
-        Region 1: Memory at fe600000 (32-bit, non-prefetchable) [size=128K]
-        Region 2: I/O ports at 1000 [size=32]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [dc] Power Management version 2
-                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=1 PME-
-        Capabilities: [e4] #07 [0002]
-        Capabilities: [f0] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable
--
-                Address: 0000000000000000  Data: 0000
-
-00:10.0 PCI bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] PCI (rev 05) (pr
-og-if 00 [Normal decode])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Step
-ping- SERR- FastB2B-
-        Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort
-- <MAbort+ >SERR- <PERR-
-        Latency: 64
-        Bus: primary=00, secondary=02, subordinate=02, sec-latency=168
-        I/O behind bridge: 00002000-00002fff
-        Memory behind bridge: fe700000-fe7fffff
-        BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
-
-02:00.0 USB Controller: Advanced Micro Devices [AMD] AMD-768 [Opus] USB (rev 07) (prog-if 10 [OHCI])
-        Subsystem: Advanced Micro Devices [AMD] AMD-768 [Opus] USB
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 (20000ns max)
-        Interrupt: pin D routed to IRQ 10
-        Region 0: Memory at fe700000 (32-bit, non-prefetchable) [size=4K]
-
-02:08.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 78)
-        Subsystem: Tyan Computer Tiger MPX S2466 (3C920 Integrated Fast Ethernet Controller)
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 80 (2500ns min, 2500ns max), cache line size 10
-        Interrupt: pin A routed to IRQ 10
-        Region 0: I/O ports at 2000 [size=128]
-        Region 1: Memory at fe701000 (32-bit, non-prefetchable) [size=128]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [dc] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-                Status: D0 PME-Enable+ DSel=0 DScale=2 PME-
-
->If I am right with my bet the problem is unrelated to the tcp / udp
- >choice and unrelated to ipconfig, portmap lookup and nfsroot code.
-
-Exactly, that's why I talked about the driver directly in my first
-post.

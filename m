@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbWBFKQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWBFKQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751018AbWBFKQy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 05:16:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751019AbWBFKQy
+	id S1750997AbWBFKQe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 05:16:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750947AbWBFKQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 05:16:54 -0500
-Received: from mx2.suse.de ([195.135.220.15]:6362 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750947AbWBFKQx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 05:16:53 -0500
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
-Date: Mon, 6 Feb 2006 11:16:42 +0100
-User-Agent: KMail/1.8.2
-Cc: Paul Jackson <pj@sgi.com>, akpm@osdl.org, dgc@sgi.com, steiner@sgi.com,
-       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, clameter@sgi.com
-References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com> <200602061109.45788.ak@suse.de> <20060206101156.GA1761@elte.hu>
-In-Reply-To: <20060206101156.GA1761@elte.hu>
+	Mon, 6 Feb 2006 05:16:34 -0500
+Received: from vanessarodrigues.com ([192.139.46.150]:34188 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1750836AbWBFKQe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 05:16:34 -0500
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: gregkh@suse.de
+Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
+References: <43E38BD1.4070707@openvz.org>
+	<Pine.LNX.4.64.0602030905380.4630@g5.osdl.org>
+From: Jes Sorensen <jes@sgi.com>
+Date: 06 Feb 2006 05:16:33 -0500
+In-Reply-To: <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org>
+Message-ID: <yq04q3cokqm.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602061116.44040.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 February 2006 11:11, Ingo Molnar wrote:
-> 
-> * Andi Kleen <ak@suse.de> wrote:
-> 
-> > Of course there might be some corner cases where using local memory 
-> > for caching is still better (like mmap file IO), but my guess is that 
-> > it isn't a good default.
-> 
-> /tmp is almost certainly one where local memory is better.
+>>>>> "Linus" == Linus Torvalds <torvalds@osdl.org> writes:
 
-Not sure. What happens if someone writes a 1GB /tmp file on a 1GB node?
+[snip - excellent description of typedefs considered evil]
 
-Christoph recently added some changes to the page allocator to 
-try harder to get local memory to work around this problem, but
-attacking it at the root might be better.
+Linus> Maybe there are other cases too, but the rule should basically
+Linus> be to NEVER EVER use a typedef unless you can clearly match one
+Linus> of those rules.
 
-Perhaps one could do a "near" caching policy for big machines: e.g. 
-if on a big Altix prefer to put it on a not too far away node, but
-spread it out evenly. But it's not clear yet such complexity is needed.
+Linus> In general, a pointer, or a struct that has elements that can
+Linus> reasonably be directly accessed should _never_ be a typedef.
 
--Andi
+Hi,
+
+This one sounds like yet another example of something any new Linux
+developer should print and stick on his/her wall next to their
+monitor.
+
+A candidate for Documentation/ any volunteers?
+
+Cheers,
+Jes

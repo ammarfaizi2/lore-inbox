@@ -1,59 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbWBFWvq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWBFWva@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932413AbWBFWvq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 17:51:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbWBFWvp
+	id S932331AbWBFWva (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 17:51:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWBFWv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 17:51:45 -0500
-Received: from detroit.securenet-server.net ([209.51.153.26]:46248 "EHLO
-	detroit.securenet-server.net") by vger.kernel.org with ESMTP
-	id S932414AbWBFWvo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 17:51:44 -0500
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: "Michael Kerrisk" <mtk-manpages@gmx.net>
-Subject: Re: man-pages-2.22 is released
-Date: Mon, 6 Feb 2006 14:51:36 -0800
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net
-References: <16806.1139255986@www031.gmx.net>
-In-Reply-To: <16806.1139255986@www031.gmx.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 6 Feb 2006 17:51:29 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:40680 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932413AbWBFWv3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 17:51:29 -0500
+Subject: Re: libATA  PATA status report, new patch
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Meelis Roos <mroos@linux.ee>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060206200400.E69E8142E2@rhn.tartu-labor>
+References: <20060206200400.E69E8142E2@rhn.tartu-labor>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602061451.37028.jbarnes@virtuousgeek.org>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - detroit.securenet-server.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - virtuousgeek.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Date: Mon, 06 Feb 2006 22:53:36 +0000
+Message-Id: <1139266416.10437.60.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, February 6, 2006 11:59 am, Michael Kerrisk wrote:
-> This is a request to kernel developers: if you make a change
-> to a kernel-userland interface, or observe a discrepancy
-> between the manual pages and reality, would you please send
-> me (at mtk-manpages@gmx.net ) one of the following
-> (in decreasing order of preference):
+On Llu, 2006-02-06 at 22:04 +0200, Meelis Roos wrote:
+> AC>         http://zeniv.linux.org.uk/~alan/IDE
+> AC> 
+> AC> for 2.6.16-rc2 patches.
+> 
+> Should I #define ATA_ENABLE_PATA by hand in include file to get PIIX4
+> PATA to wotk with the ata_piix driver, or should it just work?
 
-Wouldn't it be easier for you to keep them up to date if sections 2, 4, 
-and parts of 5 were included in the kernel source tree?  Documentation 
-updates could be enforced as part of the patch process--all you'd have 
-to do is NAK patches that modified userland interfaces if they didn't 
-contain documentation updates (and I'm sure others would help you with 
-that task).
+You should set that define. Actually I should do that by default in the
+patch set. I will fix that.
 
-Likewise with the glibc stuff.  Doesn't it belong with the glibc project?  
-Wouldn't that make more sense, both from a packaging and maintenance 
-perspective?
-
-Either way, thanks a lot for keeping the pages in good shape, it's much 
-appreciated.
-
-Thanks,
-Jesse

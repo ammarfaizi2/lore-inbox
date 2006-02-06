@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbWBFLZx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750926AbWBFLan@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750927AbWBFLZx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 06:25:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbWBFLZx
+	id S1750926AbWBFLan (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 06:30:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWBFLan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 06:25:53 -0500
-Received: from minus.inr.ac.ru ([194.67.69.97]:56518 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id S1750927AbWBFLZw (ORCPT
+	Mon, 6 Feb 2006 06:30:43 -0500
+Received: from ns1.suse.de ([195.135.220.2]:43752 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750926AbWBFLam (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 06:25:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=ms2.inr.ac.ru;
-  b=lFGz/reLjKb8EsW618Hd73qlfaK3zStsYoJHIORuIzoQX+NyLRSWYT7o8YJsCn5Y8QwqWesBb/KTj1dvjC4tuVnd3TUodURUuADt+X/6b3MbLFI2ojCUh0ujsTKbdjVYUrRr7jo5EsMIeL9vbgM4LwoZpODoJi4UuvEzRkK9lLw=;
-Date: Mon, 6 Feb 2006 14:24:35 +0300
-From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Cedric Le Goater <clg@fr.ibm.com>, Kirill Korotaev <dev@openvz.org>,
-       serue@us.ibm.com, arjan@infradead.org, frankeh@watson.ibm.com,
-       mrmacman_g4@mac.com, alan@lxorguk.ukuu.org.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       devel@openvz.org
-Subject: Re: [RFC][PATCH 5/7] VPIDs: vpid/pid conversion in VPID enabled case
-Message-ID: <20060206112435.GC6013@ms2.inr.ac.ru>
-References: <43E22B2D.1040607@openvz.org> <43E23398.7090608@openvz.org> <1138899951.29030.30.camel@localhost.localdomain> <20060203105202.GA21819@ms2.inr.ac.ru> <43E35105.3080208@fr.ibm.com> <20060203140229.GA16266@ms2.inr.ac.ru> <1138983918.6189.22.camel@localhost.localdomain>
+	Mon, 6 Feb 2006 06:30:42 -0500
+Date: Mon, 6 Feb 2006 12:30:46 +0100
+From: Jan Blunck <jblunck@suse.de>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Stefan Weinhuber <wein@de.ibm.com>,
+       Horst Hummel <horst.hummel@de.ibm.com>, Christoph Hellwig <hch@lst.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] s390: dasd extended error reporting module.
+Message-ID: <20060206113046.GC5564@hasse.suse.de>
+References: <20060201115649.GA9361@osiris.boeblingen.de.ibm.com> <4de7f8a60602060237o5c19d796hb08c237a9b5f3c64@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1138983918.6189.22.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4de7f8a60602060237o5c19d796hb08c237a9b5f3c64@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, Feb 01, Heiko Carstens wrote:
 
-> In the very, very rare cases where we can't do that (like a fork()
-> boundary), we _do_ change the APIs to take both task and container.
+> From: Stefan Weinhuber <wein@de.ibm.com>
+> 
+> The DASD extended error reporting is a facility that allows to
+> get detailed information about certain problems in the DASD I/O.
+> This information can be used to implement fail-over applications
+> that can recover these problems.
+> This is a resubmit of this patch because at first submission it
+> didn't get included due to Christoph's ioctl changes.
+> Since these aren't in the -mm tree anymore this one should be
+> merged now.
 
-I promise you much more of boundary cases, unless
-you make some windowsish sys_fork_exec_deal_with_all_the_rest(100 arguments)
+Why don't you use the sysfs for this purpose? This new character device
+interface seems very odd to me. Why don't you introduce new attributes to the
+dasd device for that purpose and make online pollable for failovers?
 
-Look how this works in openvz. It uses pure traditional unixish api.
-Fork is not a boundary at all. To enter to a container you
-do all the work in steps:
+Or use dm-netlink to report the extended errors via multipath to the user
+space.
 
-1. change accounting space (sys_setluid())
-2. plain fork()
-2. tune communication (pipes, ptys etc)
-3. chroot()
-...
-N. enter container (at the moment it is ioctl on a special device, could be
-		   syscall).
+Regards,
+	Jan
 
-You can omit any step, if you need. You can add entering any subsystem,
-which you invent in future. Simple and stupid. And, nevertheless, universal.
-
-Alexey
+-- 
+Jan Blunck                                               jblunck@suse.de
+SuSE LINUX AG - A Novell company
+Maxfeldstr. 5                                          +49-911-74053-608
+D-90409 Nürnberg                                      http://www.suse.de

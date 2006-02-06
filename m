@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWBFWYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWBFW02@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbWBFWYq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 17:24:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbWBFWYq
+	id S932397AbWBFW02 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 17:26:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWBFW02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 17:24:46 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:43909 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932388AbWBFWYq (ORCPT
+	Mon, 6 Feb 2006 17:26:28 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:41680 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932397AbWBFW02 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 17:24:46 -0500
-Date: Mon, 6 Feb 2006 14:26:38 -0800
-From: Andrew Morton <akpm@osdl.org>
+	Mon, 6 Feb 2006 17:26:28 -0500
+From: Andi Kleen <ak@suse.de>
 To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: ak@suse.de, pj@sgi.com, linux-kernel@vger.kernel.org
 Subject: Re: OOM behavior in constrained memory situations
-Message-Id: <20060206142638.104ec9eb.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.62.0602061410160.18919@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0602061253020.18594@schroedinger.engr.sgi.com>
-	<20060206131026.53dbd8d5.akpm@osdl.org>
-	<Pine.LNX.4.62.0602061410160.18919@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: Mon, 6 Feb 2006 23:25:56 +0100
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, pj@sgi.com, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.62.0602061253020.18594@schroedinger.engr.sgi.com> <200602062222.28630.ak@suse.de> <Pine.LNX.4.62.0602061415560.18919@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0602061415560.18919@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602062325.57140.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@engr.sgi.com> wrote:
->
-> On Mon, 6 Feb 2006, Andrew Morton wrote:
+On Monday 06 February 2006 23:16, Christoph Lameter wrote:
+> On Mon, 6 Feb 2006, Andi Kleen wrote:
 > 
-> > Do we really want to kill the application?  A more convetional response
-> > would be to return NULL from the page allocator and let that trickle back.
+> > At least remnants from my old 80% hack to avoid this (huge_page_needed)
+> > seem to be still there in mainline:
+> > 
+> > fs/hugetlbfs/inode.c:hugetlbfs_file_mmap
+> > 
+> >    bytes = huge_pages_needed(mapping, vma);
+> >    if (!is_hugepage_mem_enough(bytes))
+> >           return -ENOMEM;
+> > 
+> > 
+> > So something must be broken if this doesn't work. Or did you allocate
+> > the pages in some other way? 
 > 
-> Ok. But ultimately that will lead to a application fault or the 
-> termination of the application .
+> huge pages are now allocated in the huge fault handler. If it would be 
+> returning an OOM then the OOM killer may be activated.
 
-Yup.  The application gets to decide what to do if its stat() or read() or
-whatever failed.
+Sorry Christoph - somehow I have the feeling we're miscommunicating already
+all day.
 
-> > The hugepage thing is special, because it's a pagefault, not a syscall.
-> 
-> The same can happen if a pagefault occurs in the application but the page 
-> allocator cannot satisfy the allocation. At that point we need to 
-> determine if the allocation was restricted. If so then we are not really 
-> in an OOM situation and the app could be terminated.
->
+Of course they are allocated in the huge fault handler. But the point
+of that check is to check first if there are enough pages free and 
+fail the allocation early, just to catch the easy mistakes (has 
+races, that is why I called it a 80% solution) Just like
+Linux mmap traditionally worked and still does if you don't enable
+the strict overcommit checking.
 
-Not too sure what you mean here.
-
-The current behaviour of a oom-in-pagefault is to kill the caller via
-do_exit(SIGKILL).  (Perhaps hugetlbpages should be doing that too).
-
-If the page allocator decides "hey, this was a restricted allocation
-attempt and we cannot satisfy it" then it should return NULL and if it's a
-pagefault the app will do the do_exit(SIGKILL).  If it's a syscall, that
-syscall will return an error indication (and there's a decent chance that
-the application will then misbehave, but that's life).
-
+-Andi

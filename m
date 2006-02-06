@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWBFR0x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWBFR05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbWBFR0x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 12:26:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWBFR0x
+	id S932246AbWBFR05 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 12:26:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWBFR05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 12:26:53 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:44511 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932243AbWBFR0x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 12:26:53 -0500
-Date: Mon, 6 Feb 2006 09:17:26 -0800
-From: Benjamin LaHaise <bcrl@linux.intel.com>
-To: linux-kernel@vger.kernel.org
-Subject: Badness in blk_do_ordered
-Message-ID: <20060206171726.GA16324@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 6 Feb 2006 12:26:57 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:15342 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S932246AbWBFR05 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 12:26:57 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Mon, 06 Feb 2006 18:25:22 +0100
+To: schilling@fokus.fraunhofer.de, peter.read@gmail.com, luke@dashjr.org
+Cc: rlrevell@joe-job.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jengelh@linux01.gwdg.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest) (was: 
+ Rationale for RLIMIT_MEMLOCK?)
+Message-ID: <43E78682.nail8YC21QIIM@burner>
+References: <20060123105634.GA17439@merlin.emma.line.org>
+ <200602021717.08100.luke@dashjr.org>
+ <Pine.LNX.4.61.0602031502000.7991@yvahk01.tjqt.qr>
+ <200602031724.55729.luke@dashjr.org> <43E7545E.nail7GN11WAQ9@burner>
+ <73d8d0290602060706o75f04c1cx@mail.gmail.com>
+In-Reply-To: <73d8d0290602060706o75f04c1cx@mail.gmail.com>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a machine using ICH6 SATA and nbd, I just got this from the current git 
-HEAD (e3f749c4af69c4344d89f11e2293e3790eb4eaca):
+Peter Read <peter.read@gmail.com> wrote:
 
-nbd: registered device at major 43
-Badness in blk_do_ordered at block/ll_rw_blk.c:550
+> I'm confused about where software has inherited a sense of morality from?
+>
+> Equally, as I can't see any restriction of the GPL in that link I
+> don't get the reference.  What it's essentially saying to me is 'if
+> you don't want it under the GPL licence terms, talk to the copyright
+> holder(s) or their authorised representative about alternatives'.
 
-Call Trace: <IRQ> <ffffffff801e6414>{blk_do_ordered+753}
-       <ffffffff801e25e8>{elv_next_request+36} <ffffffff80287b7b>{scsi_request_fn+120}
-       <ffffffff801e4597>{blk_run_queue+48} <ffffffff801e653e>{bar_end_io+0}
-       <ffffffff80286feb>{scsi_next_command+46} <ffffffff802870e3>{scsi_end_request+192}
-       <ffffffff8028733b>{scsi_io_completion+452} <ffffffff802a089e>{sd_rw_intr+544}
-       <ffffffff80286d67>{scsi_device_unbusy+85} <ffffffff80287afe>{scsi_softirq_done+212}
-       <ffffffff801e5feb>{blk_done_softirq+123} <ffffffff8012ed48>{__do_softirq+80}
-       <ffffffff8010bb46>{call_softirq+30} <ffffffff8010d415>{do_softirq+47}
-       <ffffffff8010d3dc>{do_IRQ+62} <ffffffff80108f01>{mwait_idle+0}
-       <ffffffff8010aea4>{ret_from_intr+0} <EOI> <ffffffff80108f37>{mwait_idle+54}
-       <ffffffff80108ee2>{cpu_idle+98} <ffffffff8053a7a5>{start_kernel+434}
-       <ffffffff8053a286>{_sinittext+646}
+Please read again carefully. It says that it is not allowed to be shipped
+together with commercial software unless the publisher did pay money.
 
-Anyone else seeing this?
+Jörg
 
-		-ben
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

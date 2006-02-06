@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbWBFEMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWBFESL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750954AbWBFEMs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 23:12:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWBFEMs
+	id S1750956AbWBFESL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 23:18:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbWBFESL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 23:12:48 -0500
-Received: from gate.crashing.org ([63.228.1.57]:25220 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750946AbWBFEMr (ORCPT
+	Sun, 5 Feb 2006 23:18:11 -0500
+Received: from xenotime.net ([66.160.160.81]:5763 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750955AbWBFESL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 23:12:47 -0500
-Subject: Re: RFC: Compact Flash True IDE Mode Driver
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Kumar Gala <galak@kernel.crashing.org>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0602010113210.5670-100000@gate.crashing.org>
-References: <Pine.LNX.4.44.0602010113210.5670-100000@gate.crashing.org>
-Content-Type: text/plain
-Date: Mon, 06 Feb 2006 15:13:27 +1100
-Message-Id: <1139199208.4994.2.camel@localhost.localdomain>
+	Sun, 5 Feb 2006 23:18:11 -0500
+Date: Sun, 5 Feb 2006 20:18:44 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Alon Bar-Lev <alon.barlev@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit -
+ Resubmit
+Message-Id: <20060205201844.447efd20.rdunlap@xenotime.net>
+In-Reply-To: <43E3BDDD.6000402@gmail.com>
+References: <43E3BDDD.6000402@gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-02-01 at 01:19 -0600, Kumar Gala wrote:
-> I was hoping to get some comments on this work in progress driver for
-> using a compact flash device running in True IDE Mode connect via a MMIO
-> interface.  The driver is working, however the embedded system I'm running
-> on need some HW fixes to address the fact that the byte lanes for the data
-> are swapped.  I figured now was a good time to incorporate any changes
-> while I wait for the HW fixes (which will allow me to remove the 
-> cfide_outsw & cfide_insw).
+On Fri, 03 Feb 2006 22:32:29 +0200 Alon Bar-Lev wrote:
 
-Your driver basically boils down to a simple IDE host driver configured
-by platform functions. I suggest you remove "compact flash" here and
-have the platform resource optinally be either PIO or MMIO and you
-magically get a "generic" IDE driver useable by a lot of simple embedded
-machines (it assumes all timing related things have been handled by the
-firmware). Want to be sneakier ? Add a timing setup callback to the
-platform data you pass to it and you get one that can even do PIO
-modes :)
+> 
+> Extending the kernel parameters to a size of 1024 on boot
+> protocol >=2.02 for i386 and x86_64 architectures.
+> 
+> Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
+> 
+> ---
+> 
+> Hello,
+> 
+> This patch was submitted a long ago, but did not find its 
+> way into the kernel, but was not rejected as well.
+> 
+> Current implementation allows the kernel to receive up to 
+> 255 characters from the bootloader.
+> 
+> In current environment, the command-line is used in order to
+> specify many values, including suspend/resume, module
+> arguments, splash, initramfs and more.
+> 
+> 255 characters are not enough anymore.
+> 
+> Please consider to merge.
 
-Ben.
+Please explain this comment and why it is being added:
 
-
++	The kernel command line *must* be 256 bytes including the
++	final null.
++
+ 
+thanks,
+---
+~Randy

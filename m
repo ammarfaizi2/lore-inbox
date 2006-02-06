@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWBFOgM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWBFOgu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932126AbWBFOgM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 09:36:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWBFOgM
+	id S1751102AbWBFOgu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 09:36:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWBFOgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 09:36:12 -0500
-Received: from rtr.ca ([64.26.128.89]:43148 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1751095AbWBFOgL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 09:36:11 -0500
-Message-ID: <43E75ED4.809@rtr.ca>
-Date: Mon, 06 Feb 2006 09:36:04 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Chinner <dgc@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] Prevent large file writeback starvation
-References: <20060206040027.GI43335175@melbourne.sgi.com> <20060205202733.48a02dbe.akpm@osdl.org>
-In-Reply-To: <20060205202733.48a02dbe.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Feb 2006 09:36:50 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:21908 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751096AbWBFOgs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 09:36:48 -0500
+Date: Mon, 6 Feb 2006 08:36:42 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>,
+       Eric Dumazet <dada1@cosmosbay.com>
+Subject: Re: [RFC][PATCH 0/5] Task references..
+Message-ID: <20060206143642.GA11887@sergelap.austin.ibm.com>
+References: <m1psmba4bn.fsf@ebiederm.dsl.xmission.com> <m1vevsucvy.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1vevsucvy.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wonder if this is related to my previous observation here,
-on ext3, that large file writebacks get deferred wayyyyy too long.
+Quoting Eric W. Biederman (ebiederm@xmission.com):
+> 
+> At the moment I am going to say thanks for the comments.
+> 
+> So far no one has said hey this is what I have been looking for
+> and pid wrap around in the kernel is a very bad thing, thanks
+> for solving my problem.
+> 
+> Currently this feels like overkill so I am going to shelve this
+> approach for now.
 
-Original post is below:
+Ok, then let me jump in belatedly and say I think this is a good
+thing, and it will solve a problem we all (involved in this thread)
+will face shortly.
 
+And kudos for (a) a very nice, clean patchset, and (b) solving the
+fowner/signal problem!
 
--------- Original Message --------
-Subject: 2.6.xx:  dirty pages never being sync'd to disk?
-Date: Mon, 14 Nov 2005 10:30:58 -0500
-From: Mark Lord <lkml@rtr.ca>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
+I think this would be a very good thing to go in.
 
-Okay, this one's been nagging me since I first began using 2.6.xx.
-
-My Notebook computer has 2GB of RAM, and the 2.6.xx kernel seems quite
-happy to leave hundreds of MB of dirty unsync'd pages laying around
-more or less indefinitely.  This worries me, because that's a lot of data
-to lose should the kernel crash (which it has once quite recently)
-or the battery die.
-
-/proc/sys/vm/dirty_expire_centisecs = 3000 (30 seconds)
-/proc/sys/vm/dirty_writeback_centisecs = 500 (5 seconds)
-
-My understanding (please correct if wrong) is that this means
-that any (file data) page which is dirtied, should get flushed
-back to disk after 30 seconds or so.
-
-That doesn't happen here.  Hundreds of MB of dirty pages just
-hang around indefinitely, until I manually type "sync",
-at which point the hard drive gets very busy for 20 seconds or so.
-
-What's going on?
+thanks,
+-serge

@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWBFOwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWBFOxI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbWBFOwi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 09:52:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWBFOwi
+	id S932134AbWBFOxI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 09:53:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWBFOxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 09:52:38 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:61091 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932139AbWBFOwh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 09:52:37 -0500
-Date: Mon, 6 Feb 2006 15:52:24 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Mark Lord <lkml@rtr.ca>
-Cc: Nigel Cunningham <nigel@suspend2.net>, Rafael Wysocki <rjw@sisk.pl>,
-       linux-kernel@vger.kernel.org,
-       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060206145224.GC1675@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602041954.22484.nigel@suspend2.net> <20060204192924.GC3909@elf.ucw.cz> <200602061402.54486.nigel@suspend2.net> <20060206105954.GD3967@elf.ucw.cz> <43E761EB.3030203@rtr.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43E761EB.3030203@rtr.ca>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 6 Feb 2006 09:53:07 -0500
+Received: from vulcan.moebius.com.br ([200.184.42.82]:32923 "EHLO
+	vulcan.moebius.com.br") by vger.kernel.org with ESMTP
+	id S932143AbWBFOxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 09:53:06 -0500
+Message-ID: <43E770E2.4000603@moebius.com.br>
+Date: Mon, 06 Feb 2006 12:53:06 -0300
+From: Pedro Alves <pedroalves@moebius.com.br>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Several Hangs on diferent Hardwares and diferent kernels
+References: <20060206040027.GI43335175@melbourne.sgi.com> <20060205202733.48a02dbe.akpm@osdl.org> <43E75ED4.809@rtr.ca> <43E75FB6.2040203@rtr.ca>
+In-Reply-To: <43E75FB6.2040203@rtr.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 06-02-06 09:49:15, Mark Lord wrote:
-> >I'm not sure if we want to save full image of memory. Saving most-used
-> >caches only seems to work fairly well.
-> 
-> No, it sucks.  My machines take forever to become usable on resume
-> with the current method.  But dumping full image of memory will need
-> compression to keep that from being sluggish as well.
+Hi,
 
-Are you sure? This changed recently, be sure to set
-/sys/power/image_size.
+  I am using a linux box as a multimidia computer to show news, 
+advertisement and clips. After some time
+the box hang randomly. I ´ve change everything i could, power source, 
+motherboard, memory, compact flash
+(i use an ide to compact flash adapter), kernel version (only tried 
+2.6.12 to 2.6.15 versios). But nothing solve
+ the problem, and what is drives crazy :no log, no core dump, no clue at 
+all... The box hang on X display during
+an clip or advertising and stoped to respond keaboard and network.... 
+Does any body can help me how to get a clue
+before a system hang ?
 
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+  Thank You
+
+Pedro Alves
+
+

@@ -1,74 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWBFQu3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWBFQvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbWBFQu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 11:50:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWBFQu3
+	id S932220AbWBFQvN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 11:51:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWBFQvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 11:50:29 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:64839 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932217AbWBFQu2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 11:50:28 -0500
-Message-ID: <43E77E9F.2060803@sw.ru>
-Date: Mon, 06 Feb 2006 19:51:43 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Mon, 6 Feb 2006 11:51:13 -0500
+Received: from [202.131.75.34] ([202.131.75.34]:17367 "EHLO
+	mail.shaolinmicro.com") by vger.kernel.org with ESMTP
+	id S932212AbWBFQvL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 11:51:11 -0500
+Message-ID: <43E77E69.8050702@shaolinmicro.com>
+Date: Tue, 07 Feb 2006 00:50:49 +0800
+From: David Chow <davidchow@shaolinmicro.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@openvz.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       frankeh@watson.ibm.com, clg@fr.ibm.com, greg@kroah.com,
-       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
-       Pavel Emelianov <xemul@sw.ru>
-Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
-References: <43E38BD1.4070707@openvz.org>	 <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org> <43E3915A.2080000@sw.ru>	 <Pine.LNX.4.64.0602030939250.4630@g5.osdl.org>	 <1138991641.6189.37.camel@localhost.localdomain>  <43E61448.7010704@sw.ru> <1139243734.6189.69.camel@localhost.localdomain>
-In-Reply-To: <1139243734.6189.69.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux drivers management
+References: <43E71AD7.5070600@shaolinmicro.com> <43E71F75.7000605@stud.feec.vutbr.cz>
+In-Reply-To: <43E71F75.7000605@stud.feec.vutbr.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-> I worry that using something like "vps" obfuscates the real meaning a
-> bit.  The reason that "owner_vps" doesn't sound weird is that people, by
-> default, usually won't understand what a "vps" is.
-container or context sounds the same :) it is impossible to feel this 
-notion naturally without getting into details. IMHO.
+> Please read Documentation/stable_api_nonsense.txt in your copy of 
+> Linux source.
+I've read the document, I strongly disagree, because it is not relavant 
+to my question or to my original purpose of this question.
 
-> (if you like acronyms a lot, I'm sure I can find a job for you at IBM or
-> in the US military :)
-We can talk about it separetely :)))
+Putting the driver source code in the kernel source tree has nothing to 
+do with talking about a stable kernel API . Even you put the driver 
+sources into the main kernel tree, it will still need a lot of work to 
+port all drivers if the API changes. Driver sources can still host in a 
+different project (e.g. projects in sf.net) and maintain open-source and 
+om by the community, no difference than before
 
->>Please, also note, in OpenVZ we have 2 pointers on task_struct:
->>One is owner of a task (owner_env), 2nd is a current context (exec_env). 
->>exec_env pointer is used to avoid adding of additional argument to all 
->>the functions where current context is required.
-> 
-> That makes sense.  However, are there many cases in the kernel where a
-> task ends up doing something temporary like this:
-> 
-> 	tsk->exec_vnc = bar;
-> 	do_something_here(task);
-> 	tsk->exec_vnc = foo;
-> 
-> If that's the case very often, we probably want to change the APIs, just
-> to make the common action explicit.  If it never happens, or is a
-> rarity, I think it should be just fine.
-It is quite rare. In IRQ, softIRQ, TCP/IP stack and some timers. Not much.
+For different compile time options that affect data structures, this is 
+well known a bad idea . These types of techniques no longer allowed in 
+Java and other OO languages . Because I can simply say the code is not 
+portable. If really need a recompile and optimize, the distro vendor 
+should bare this, but according to the document, "As Linux supports a 
+larger number of different devices "out of the box" than any other 
+operating system" , do you think Linux should one day or some day grow 
+to 1TB source tree to include all possible drivers for all hw come from 
+the world? I don't see there is reason why a kernel or OS need to 
+include all the drivers for all the hardware. I don't think there is any 
+OS vendors on the market to capable to distribute all drivers integrity, 
+then the choice is to make a disabled Linux OS because of an OSV who has 
+only limited supporting resources to suppport and certify limited 
+hardware devices.
 
->>VPS ID is passed to/from user space APIs and when you have a cluster 
->>with different archs and VPSs it is better to have something in common 
->>for managing this.
-> I guess it does keep you from running into issues with mixing 32 and
-> 64-bit processes.  But, haven't we solved those problems already?  Is it
-> just a pain?
-VPSs can live in clusters. It is good to have one VPS ID space.
+Please see my other email responded to Jes about the learning curve and 
+documentation issues of a Linux driver developer to pick up Linux skills.
 
-Kirill
-
-
+regards,
+David Chow

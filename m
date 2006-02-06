@@ -1,150 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWBFPaE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWBFP2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932087AbWBFPaE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 10:30:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWBFPaE
+	id S932085AbWBFP2j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 10:28:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWBFP2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 10:30:04 -0500
-Received: from wg.technophil.ch ([213.189.149.230]:16571 "HELO
-	hydrogenium.schottelius.org") by vger.kernel.org with SMTP
-	id S932087AbWBFPaC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 10:30:02 -0500
-Date: Mon, 6 Feb 2006 16:29:46 +0100
-From: Nico Schottelius <nico-kernel@schottelius.org>
-To: LKML <linux-kernel@vger.kernel.org>, neilb@cse.unsw.edu.au
-Cc: Gero Kuhlmann <gero@gkminix.han.de>,
-       Martin Mares <mj@atrey.karlin.mff.cuni.cz>
-Subject: [PATCH] nfsroot.txt (against Linux 2.6.15.2)
-Message-ID: <20060206152946.GE13051@schottelius.org>
-Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
-	LKML <linux-kernel@vger.kernel.org>, neilb@cse.unsw.edu.au,
-	Gero Kuhlmann <gero@gkminix.han.de>,
-	Martin Mares <mj@atrey.karlin.mff.cuni.cz>
+	Mon, 6 Feb 2006 10:28:39 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:40426 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932085AbWBFP2i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 10:28:38 -0500
+Message-ID: <43E77D3C.C967A275@tv-sign.ru>
+Date: Mon, 06 Feb 2006 19:45:48 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oPmsXEqKQNHCSXW7"
-Content-Disposition: inline
-User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
-X-Linux-Info: http://linux.schottelius.org/
-X-Operating-System: Linux 2.6.14
+To: Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] fix kill_proc_info() vs copy_process() race
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+kill_proc_info() takes taskllist_lock only for sig_kernel_stop()
+case nowadays. I beleive it races with copy_process().
 
---oPmsXEqKQNHCSXW7
-Content-Type: multipart/mixed; boundary="EXKGNeO8l0xGFBjy"
-Content-Disposition: inline
+The first race is simple, copy_process:
+
+	/*
+	 * Check for pending SIGKILL! The new thread should not be allowed
+	 * to slip out of an OOM kill. (or normal SIGKILL.)
+	 */
+	if (sigismember(&current->pending.signal, SIGKILL))
+		return EINTR;
+
+This relies on tasklist_lock and is racy now.
 
 
---EXKGNeO8l0xGFBjy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The second race is more tricky, copy_process:
 
-Hello dear developers,
+	attach_pid(p, PIDTYPE_PID, p->pid);
+	attach_pid(p, PIDTYPE_TGID, p->tgid);
 
-I today booted the first time my embedded device using Linux 2.6.15.2,
-which was booted by pxelinux, which then bootet itself from the nfsroot.
+This means that we can find a task in kill_proc_info()->find_task_by_pid()
+which is not registered as part of thread group yet. Various bad things can
+happen, note that handle_stop_signal(SIGCONT) and __group_complete_signal()
+iterate over threads list. But p->pids[PIDTYPE_TGID] is a copy of current's
+'struct pid' from dup_task_struct(), and if we don't have CLONE_THREAD here
+we will use completely unreleated (parent's) thread list.
 
-This went pretty fine, but when I was reading through
-Documentation/nfsroot.txt I saw that there are some more modern versions
-available of loading the kernel and passing parameters.
+I think we can solve these problems by enlarging a ->siglock's scope in
+copy_process(), but I don't know how to test this patch.
 
-So I added them and the patch for that is attached to this mail.
+NOTE: release_task()->__unhash_process() path is safe, we already have
+->sighand == NULL while detaching PIDTYPE_PID/PIDTYPE_TGID nonatomically.
 
-Sincerly,
+Unless I missed something, I personally think this is a 2.6.16 material.
 
-Nico
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-P.S.: Please reply to nico-kernel2 //at// schottelius.org
-
---=20
-Latest release: ccollect-0.3.2 (http://linux.schottelius.org/ccollect/)
-Open Source nutures open minds and free, creative developers.
-
---EXKGNeO8l0xGFBjy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="nfsroot-2.6.15.2.diff"
-Content-Transfer-Encoding: quoted-printable
-
---- nfsroot.txt.orig	2006-02-06 16:05:32.000000000 +0100
-+++ nfsroot.txt	2006-02-06 16:19:37.000000000 +0100
-@@ -3,6 +3,7 @@
-=20
- Written 1996 by Gero Kuhlmann <gero@gkminix.han.de>
- Updated 1997 by Martin Mares <mj@atrey.karlin.mff.cuni.cz>
-+Updated 2006 by Nico Schottelius <nico-kernel-nfsroot@schottelius.org>
-=20
-=20
-=20
-@@ -168,7 +169,6 @@
- 	root. If it got a BOOTP answer the directory name in that answer
- 	is used.
-=20
+--- RC-1/kernel/fork.c~	2006-02-06 22:04:40.000000000 +0300
++++ RC-1/kernel/fork.c	2006-02-06 22:11:51.000000000 +0300
+@@ -1050,7 +1050,7 @@ static task_t *copy_process(unsigned lon
+ 	sched_fork(p, clone_flags);
+ 
+ 	/* Need tasklist lock for parent etc handling! */
+-	write_lock_irq(&tasklist_lock);
++	write_lock(&tasklist_lock);
+ 
+ 	/*
+ 	 * The task hasn't been attached yet, so its cpus_allowed mask will
+@@ -1066,33 +1066,34 @@ static task_t *copy_process(unsigned lon
+ 			!cpu_online(task_cpu(p))))
+ 		set_task_cpu(p, smp_processor_id());
+ 
++	/* CLONE_PARENT re-uses the old parent */
++	if (clone_flags & (CLONE_PARENT|CLONE_THREAD))
++		p->real_parent = current->real_parent;
++	else
++		p->real_parent = current;
++	p->parent = p->real_parent;
++
++	spin_lock_irq(&current->sighand->siglock);
+ 	/*
+ 	 * Check for pending SIGKILL! The new thread should not be allowed
+ 	 * to slip out of an OOM kill. (or normal SIGKILL.)
+ 	 */
+ 	if (sigismember(&current->pending.signal, SIGKILL)) {
+-		write_unlock_irq(&tasklist_lock);
++		spin_unlock_irq(&current->sighand->siglock);
++		write_unlock(&tasklist_lock);
+ 		retval = -EINTR;
+ 		goto bad_fork_cleanup_namespace;
+ 	}
+ 
+-	/* CLONE_PARENT re-uses the old parent */
+-	if (clone_flags & (CLONE_PARENT|CLONE_THREAD))
+-		p->real_parent = current->real_parent;
+-	else
+-		p->real_parent = current;
+-	p->parent = p->real_parent;
 -
- 3.2) Using LILO
- 	When using LILO you can specify all necessary command line
- 	parameters with the 'append=3D' command in the LILO configuration
-@@ -177,7 +177,11 @@
- 	LILO and its 'append=3D' command please refer to the LILO
- 	documentation.
-=20
--3.3) Using loadlin
-+3.3) Using GRUB
-+	When you use GRUB, you simply append the parameters after the kernel
-+	specification: "kernel <kernel> <parameters>" (without the quotes).
+ 	if (clone_flags & CLONE_THREAD) {
+-		spin_lock(&current->sighand->siglock);
+ 		/*
+ 		 * Important: if an exit-all has been started then
+ 		 * do not create this new thread - the whole thread
+ 		 * group is supposed to exit anyway.
+ 		 */
+ 		if (current->signal->flags & SIGNAL_GROUP_EXIT) {
+-			spin_unlock(&current->sighand->siglock);
+-			write_unlock_irq(&tasklist_lock);
++			spin_unlock_irq(&current->sighand->siglock);
++			write_unlock(&tasklist_lock);
+ 			retval = -EAGAIN;
+ 			goto bad_fork_cleanup_namespace;
+ 		}
+@@ -1122,8 +1123,6 @@ static task_t *copy_process(unsigned lon
+ 			 */
+ 			p->it_prof_expires = jiffies_to_cputime(1);
+ 		}
+-
+-		spin_unlock(&current->sighand->siglock);
+ 	}
+ 
+ 	/*
+@@ -1151,7 +1150,9 @@ static task_t *copy_process(unsigned lon
+ 
+ 	nr_threads++;
+ 	total_forks++;
+-	write_unlock_irq(&tasklist_lock);
++	spin_unlock_irq(&current->sighand->siglock);
++	write_unlock(&tasklist_lock);
 +
-+3.4) Using loadlin
- 	When you want to boot Linux from a DOS command prompt without
- 	having a local hard disk to mount as root, you can use loadlin.
- 	I was told that it works, but haven't used it myself yet. In
-@@ -185,7 +189,7 @@
- 	lar to how LILO is doing it. Please refer to the loadlin docu-
- 	mentation for further information.
-=20
--3.4) Using a boot ROM
-+3.5) Using a boot ROM
- 	This is probably the most elegant way of booting a diskless
- 	client. With a boot ROM the kernel gets loaded using the TFTP
- 	protocol. As far as I know, no commercial boot ROMs yet
-@@ -194,6 +198,13 @@
- 	and its mirrors. They are called 'netboot-nfs' and 'etherboot'.
- 	Both contain everything you need to boot a diskless Linux client.
-=20
-+3.6) Using pxelinux
-+	Using pxelinux you specify the kernel you built with
-+	"kernel <relative-path-below /tftpboot>". The nfsroot parameters
-+	are passed to the kernel by adding them to the "append" line.
-+	You may perhaps also want to fine tune the console output,
-+	see Documentation/serial-console.txt for serial console help.
-+
-=20
-=20
-=20
-
---EXKGNeO8l0xGFBjy--
-
---oPmsXEqKQNHCSXW7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iQIVAwUBQ+drarOTBMvCUbrlAQIYSQ//RuzIsx4tAxPElZpptkxPNh4MqKhKFBAh
-4fEliTtSlFGo2bYeCCRA8QZRyvVFFpzZeDbPjHEflUjEIEpTYqfrF0FN09sblwab
-XVoO+dgUVrtEgCNk32CMTTInBQ3mapPIRhExeShNNP6z/1T/eisJOnC/ldgnXcsB
-rApUgFhHV2lumAwqtYBUyiZ6F9rqKpxyZoPEghVjzgykF02mqpKQNGiD+Cxy2Drf
-sYImJ875QsmoBkapLHkyu/ikht+T/3TIvDL4mmTq/SF6NG82nS3IgDE99phkkjit
-aDwTtoEtDwExWZcIHb4C7GORfbPVp99LaYU/IEmPOFd/ilJERw7kOEXPePs1OYyO
-dNZ76+Q9kfkHpf3DFVlL5E3xOYOtO8zqU9Eghg9K2clabUJvhF7m/kUvJMjEwft1
-6ATdH6gEjuskDLn9rS5/QMBPYJ/+WU2Wos5bkA/vpeHxmb9SzXLlSrrSgr235/fS
-TelS/2Mi7aQBngVSdCDtojECn8EXAzZZwlSxk1YjXTZBnIA36GB94HEUZuLN4Hnu
-qV8f+I+6UfyPARao4not1i9XIdy83bE6HjV8MTmOmEKiL3jClq4cjxSZO90+Hb3I
-Wx/4J1rNle0Eu4qTriw0lzA8S9HvkByqeajsx42ox8/gZT0togmYoQdXx73IErcE
-9cBMT5LDmRY=
-=Z7WL
------END PGP SIGNATURE-----
-
---oPmsXEqKQNHCSXW7--
+ 	proc_fork_connector(p);
+ 	return p;

@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWBFSpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWBFSsI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbWBFSpW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 13:45:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWBFSpW
+	id S932155AbWBFSsI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 13:48:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWBFSsI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 13:45:22 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:20194 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932146AbWBFSpU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 13:45:20 -0500
-Date: Mon, 6 Feb 2006 10:45:13 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: discuss@x86-64.org, bharata@in.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes
- 2.6.16-rc1[2] on 2 node X86_64
-In-Reply-To: <200602061931.13953.ak@suse.de>
-Message-ID: <Pine.LNX.4.62.0602061043440.16829@schroedinger.engr.sgi.com>
-References: <20060205163618.GB21972@in.ibm.com> <200602061912.31508.ak@suse.de>
- <Pine.LNX.4.62.0602061023580.16829@schroedinger.engr.sgi.com>
- <200602061931.13953.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 6 Feb 2006 13:48:08 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:38123 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932155AbWBFSsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 13:48:07 -0500
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10]
+	[Suspend2] Modules support.)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: Pavel Machek <pavel@ucw.cz>, Rafael Wysocki <rjw@sisk.pl>,
+       linux-kernel@vger.kernel.org,
+       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
+In-Reply-To: <200602061543.42174.nigel@suspend2.net>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain>
+	 <200602061402.54486.nigel@suspend2.net>
+	 <1139200499.2791.210.camel@mindpipe>
+	 <200602061543.42174.nigel@suspend2.net>
+Content-Type: text/plain
+Date: Mon, 06 Feb 2006 13:48:01 -0500
+Message-Id: <1139251682.2791.290.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.90 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Feb 2006, Andi Kleen wrote:
-
-> > If node 0 is exhausted then you have an OOM situation.
+On Mon, 2006-02-06 at 15:43 +1000, Nigel Cunningham wrote:
+> Hi.
 > 
-> No - it could just need to free some cleanable pages first. That's
-> a long way before going OOM.
+> On Monday 06 February 2006 14:34, Lee Revell wrote:
+> > On Mon, 2006-02-06 at 14:02 +1000, Nigel Cunningham wrote:
+> > > (they now have to download extra
+> > > libraries to use the splashscreen, which were not required with the
+> > > bootsplash patch, and need to check whether an update to the userui
+> > > code
+> > > is required when updating the kernel)
+> >
+> > You could have avoided this problem by keeping the userspace<->kernel
+> > interface stable.
+> 
+> True, but sometimes you need to make changes that do modify the interface. 
+> If the interface involves more functionality, this will happen more 
+> frequently.
 
-Then node 0 still has memory available. So you suspect zone_reclaim?
-  
-> > > but with a full free local node that code path is never triggered)
-> > 
-> > Wamt me to test the OOM path for mbind?
-> I already know it oopses - someone else reported that. If you feel
-> motivated feel free to fix.
+Well, all I can say is, it should have been obvious that putting a
+themeable UI in the kernel would not fly.
 
-We also have a minor issue with huge pages. If the pools are exhausted 
-then the kernel will terminate the application with Bus Error.
+Lee
 

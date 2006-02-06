@@ -1,67 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbWBFVm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbWBFVm7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932383AbWBFVm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 16:42:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWBFVm1
+	id S932384AbWBFVm7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 16:42:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWBFVm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 16:42:27 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:64720 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932383AbWBFVm0 (ORCPT
+	Mon, 6 Feb 2006 16:42:59 -0500
+Received: from ns2.suse.de ([195.135.220.15]:37323 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932384AbWBFVm6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 16:42:26 -0500
-Date: Mon, 6 Feb 2006 22:41:59 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Len Brown <len.brown@intel.com>
-Cc: seife@suse.de
-Subject: strange NAPA system: very slow network, no bttv
-Message-ID: <20060206214159.GA14200@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Feb 2006 16:42:58 -0500
+From: Andi Kleen <ak@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] Prevent spinlock debug from timing out too early
+Date: Mon, 6 Feb 2006 22:42:30 +0100
+User-Agent: KMail/1.8.2
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <200602062216.28943.ak@suse.de> <20060206213618.GA28566@elte.hu>
+In-Reply-To: <20060206213618.GA28566@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200602062242.30897.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Monday 06 February 2006 22:36, Ingo Molnar wrote:
+> 
+> * Andi Kleen <ak@suse.de> wrote:
+> 
+> > Index: linux-2.6.15/lib/spinlock_debug.c
+> > ===================================================================
+> > --- linux-2.6.15.orig/lib/spinlock_debug.c
+> > +++ linux-2.6.15/lib/spinlock_debug.c
+> > @@ -68,13 +68,13 @@ static inline void debug_spin_unlock(spi
+> >  static void __spin_lock_debug(spinlock_t *lock)
+> >  {
+> >  	int print_once = 1;
+> > -	u64 i;
+> >  
+> >  	for (;;) {
+> > -		for (i = 0; i < loops_per_jiffy * HZ; i++) {
+> > -			cpu_relax();
+> > +		unsigned long timeout = jiffies + HZ;
+> > +		while (time_before(jiffies, timeout)) {
+> >  			if (__raw_spin_trylock(&lock->raw_lock))
+> >  				return;
+> > +			cpu_relax();
+> 
+> The reason i added a loop counter was to solve the case where we are 
+> spinning with interrupts disabled - jiffies wont increase there! 
 
-I have very big black "notebook", with really small lid (and warning
-labels all around)... and have some problems with it.
+Yes but the NMI watchdog should catch it eventually
 
-First minor problem: upon boot, fan state becames desynchronized with
-what linux thinks; fan blows but cpu is cold. echo 0 > state; echo 3 >
-state fixes that.
+[we really should enable it by default on i386 too - local APIC 
+NMI should work everywhere with APIC]
 
-What is worse, networking is slow. *Very* slow. Both on internal lan
-card and on hp100 I plugged into PCI. I'm getting 10KB/sec over 10Mbit
-ethernet. (That's 1% !). With acpi=off, it gets better... I get
-100KB/sec (10%). Ouch. ksoftirqd eats 100% cpu with acpi off.
+Oops I missed the write lock case. Thanks.
 
-There's some very wrong with bttv on this machine. Radio works, tv
-tunning works and tv audio plays, but I can't get any picture:
+ 
+> a better solution would be to call __delay(1) after the first failed 
+> attempt, that would make the delay at least 1 second long. It seems 
+> __delay() is de-facto exported by every architecture, so we can rely on 
+> it in the global spinlock code.
+> 
+> So how about the patch below instead?
 
-root@hobit:~# cat /dev/video0
-bttv0: reset, reinitialize
-bttv0: PLL: 28636363 => 35468950 . ok
-bttv0: timeout: drop=0 irq=195/237, risc=37cdf01c, bits: VSYNC HSYNC
-OFLOW
-cat: /dev/video0: Input/output error
-root@hobit:~# time cat /dev/video0
-bttv0: reset, reinitialize
-bttv0: PLL: 28636363 => 35468950 . ok
-bttv0: timeout: drop=0 irq=198/240, risc=37cdf01c, bits: VSYNC HSYNC
-OFLOW
-cat: /dev/video0: Input/output error
-0.00user 0.00system 0.53 (0m0.533s) elapsed 0.75%CPU
-root@hobit:~#
+Are you sure loops_per_jiffie is always in delay(1) units?
 
-I was not able to get sata to work, so I'm running in some kind of
-legacy mode. Disk is slow, but I do not think it is related to strange
-problems. CPU frequency scaling seems to work okay, and both CPUs
-perform quite well. It is very fast on kernel compilation.
 
-Any ideas what could cause those strange symptoms?
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+-Andi

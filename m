@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbWBFKNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbWBFKNu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750923AbWBFKNN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 05:13:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWBFKNN
+	id S1750946AbWBFKNu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 05:13:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbWBFKNu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 05:13:13 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:40398 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750817AbWBFKNM (ORCPT
+	Mon, 6 Feb 2006 05:13:50 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:395 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750926AbWBFKNt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 05:13:12 -0500
-Date: Mon, 6 Feb 2006 11:11:56 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Paul Jackson <pj@sgi.com>, akpm@osdl.org, dgc@sgi.com, steiner@sgi.com,
-       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, clameter@sgi.com
-Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
-Message-ID: <20060206101156.GA1761@elte.hu>
-References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com> <20060206001959.394b33bc.pj@sgi.com> <20060206082258.GA1991@elte.hu> <200602061109.45788.ak@suse.de>
+	Mon, 6 Feb 2006 05:13:49 -0500
+Date: Mon, 6 Feb 2006 11:13:31 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: suspend2-devel@lists.suspend2.net, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.
+Message-ID: <20060206101331.GC3967@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602041238.06395.rjw@sisk.pl> <20060204191042.GA3909@elf.ucw.cz> <200602060945.01141.nigel@suspend2.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200602061109.45788.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <200602060945.01141.nigel@suspend2.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Po 06-02-06 09:44:56, Nigel Cunningham wrote:
+> Hi.
+> 
+> On Sunday 05 February 2006 05:10, Pavel Machek wrote:
+> > Hi!
+> >
+> > > > I'm not suggesting treating them as unfreezeable in the fullest
+> > > > sense. I still signal them, but don't mind if they don't respond.
+> > > > This way, if they do leave that state for some reason (timeout?) at
+> > > > some point, they still get frozen.
+> > >
+> > > Yes, that's exactly what I wanted to do in swsusp. ;-)
+> >
+> > It seems dangerous to me. Imagine you treated interruptible tasks like
+> > that...
+> >
+> > What prevent task from doing
+> >
+> > 	set_state(UNINTERRUPTIBLE);
+> > 	schedule(one hour);
+> > 	write_to_filesystem();
+> > 	handle_signal()?
+> >
+> > I.e. it may do something dangerous just before being catched by
+> > refrigerator.
+> 
+> The write_to_filesystem would be caught be bdev freezing if you had it.
 
-* Andi Kleen <ak@suse.de> wrote:
-
-> Of course there might be some corner cases where using local memory 
-> for caching is still better (like mmap file IO), but my guess is that 
-> it isn't a good default.
-
-/tmp is almost certainly one where local memory is better.
-
-	Ingo
+But we don't... if you have bdev freezing, why do any other freezing
+at all, then? It should be enough :-).
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

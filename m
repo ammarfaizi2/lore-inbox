@@ -1,131 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWBFNIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWBFNQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbWBFNIr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 08:08:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWBFNIr
+	id S932086AbWBFNQI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 08:16:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWBFNQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 08:08:47 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:26241 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S932081AbWBFNIq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 08:08:46 -0500
-Date: Mon, 6 Feb 2006 13:08:42 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: Save DMI chassis information
-Message-ID: <20060206130842.GA11062@srcf.ucam.org>
+	Mon, 6 Feb 2006 08:16:08 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59098 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932080AbWBFNQH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 08:16:07 -0500
+Date: Mon, 6 Feb 2006 14:15:50 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Kristen Carlson Accardi <kristenc@cs.pdx.edu>
+Cc: pcihpd-discuss@lists.sourceforge.net, greg@kroah.com, len.brown@intel.com,
+       linux-kernel@vger.kernel.org, muneda.takahiro@jp.fujitsu.com,
+       linux-acpi@vger.kernel.org
+Subject: Re: [patch] acpiphp: handle dock stations
+Message-ID: <20060206131550.GA1538@elf.ucw.cz>
+References: <20060201233005.GA4999@nerpa>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060201233005.GA4999@nerpa>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The included patch saves the DMI chassis vendor and type information at 
-boot-time. This may be helpful for some drivers where there is no 
-sensible way to probe for the hardware. Note that chassis information is 
-not guaranteed to be correct - most vendors get this right, but some 
-laptops may appear as desktops (or possibly vice-versa, though that 
-seems less likely).
+Hi!
 
-Signed-off-by: Matthew Garrett <mjg59@srcf.ucam.org>
+> From: kristen.c.accardi@intel.com
+> 
+> This patch will add hot add/remove of docking stations to acpiphp.  Because
+> some docking stations will have a _DCK method that is not associated with
+> a dock bridge, we use the _EJD method to determine which devices are 
+> dependent on the dock device, then try to find which of these dependent
+> devices are pci devices.  We register a separate event handler with acpi
+> to handle dock notifications, but if we have discovered any pci devices
+> dependent on the dock station, we notify the acpiphp driver to rescan
+> the correct bus.  If no pci devices are found, but there is still a _DCK method
+> present, the driver will stay loaded to deal with the dock notifications.
 
-diff --git a/arch/i386/kernel/dmi_scan.c b/arch/i386/kernel/dmi_scan.c
-index 58516e2..9c0d8c6 100644
---- a/arch/i386/kernel/dmi_scan.c
-+++ b/arch/i386/kernel/dmi_scan.c
-@@ -30,6 +30,50 @@ static char * __init dmi_string(struct d
- 	return str;
- }
- 
-+static char * __init dmi_chasis_type(struct dmi_header *dm, u8 s)
-+{
-+	char *str = "";
-+	static const char *type[]={
-+                "Other", /* 0x01 */
-+                "Unknown",
-+                "Desktop",
-+                "Low Profile Desktop",
-+                "Pizza Box",
-+                "Mini Tower",
-+                "Tower",
-+                "Portable",
-+                "Laptop",
-+                "Notebook",
-+                "Hand Held",
-+                "Docking Station",
-+                "All In One",
-+                "Sub Notebook",
-+                "Space-saving",
-+                "Lunch Box",
-+                "Main Server Chassis", /* master.mif says System */
-+                "Expansion Chassis",
-+                "Sub Chassis",
-+                "Bus Expansion Chassis",
-+                "Peripheral Chassis",
-+                "RAID Chassis",
-+                "Rack Mount Chassis",
-+                "Sealed-case PC",
-+                "Multi-system" /* 0x19 */
-+        };
-+
-+        if(s>=0x01 && s<=0x19) {
-+		str = alloc_bootmem(strlen(type[code-0x01]));
-+		if (str != NULL)
-+			strcpy(str, type[code-0x01]);
-+		else
-+			printk(KERN_ERR "dmi_chassis_type: out of memory.\n");
-+
-+                return str;
-+	}
-+
-+	return NULL;
-+}
-+
- /*
-  *	We have to be cautious here. We have seen BIOSes with DMI pointers
-  *	pointing to completely the wrong place for example
-@@ -93,7 +137,11 @@ static void __init dmi_save_ident(struct
- 	if (dmi_ident[slot])
- 		return;
- 
--	p = dmi_string(dm, d[string]);
-+	if (slot == DMI_CHASSIS_TYPE)
-+		p = dmi_chassis_type(string & 0x7f);
-+	else
-+		p = dmi_string(dm, d[string]);
-+
- 	if (p == NULL)
- 		return;
- 
-@@ -176,6 +224,11 @@ static void __init dmi_decode(struct dmi
- 		dmi_save_ident(dm, DMI_BOARD_NAME, 5);
- 		dmi_save_ident(dm, DMI_BOARD_VERSION, 6);
- 		break;
-+	case 3:         /* Chassis Information */
-+		dmi_save_ident(dm, DMI_CHASSIS_VENDOR, 4);
-+		dmi_save_ident(dm, DMI_CHASSIS_TYPE, 5);
-+		break;
-+		
- 	case 10:	/* Onboard Devices Information */
- 		dmi_save_devices(dm);
- 		break;
-diff --git a/include/linux/dmi.h b/include/linux/dmi.h
-index 05f4132..5f425a7 100644
---- a/include/linux/dmi.h
-+++ b/include/linux/dmi.h
-@@ -15,6 +15,8 @@ enum dmi_field {
- 	DMI_BOARD_VENDOR,
- 	DMI_BOARD_NAME,
- 	DMI_BOARD_VERSION,
-+	DMI_CHASSIS_VENDOR,
-+	DMI_CHASSIS_TYPE,
- 	DMI_STRING_MAX,
- };
- 
+It still registers my docking bridge as -1:
 
+acpiphp: ACPI Hot Plug PCI Controller Driver version: 0.5
+acpiphp: Slot [4294967295] registered
+acpiphp_ibm: ibm_find_acpi_device:  Failed to get device
+information<3>acpiphp_ibm: ibm_find_acpi_device:  Failed to get device
+information<3>acpiphp_ibm: ibm_find_acpi_device:  Failed to get device
+information<3>acpiphp_ibm: ibm_acpiphp_init: acpi_walk_namespace
+failed
+radeonfb: Retrieved PLL infos from BIOS
+
+...which is still better than not registering it at all :-).
+
+This one actually does not oops at insertion into dock. Good!
+
+It detects insertion into dock:
+
+Feb  6 14:13:00 amd kernel: acpi_bus-0073 [62] bus_get_device        :
+No context for object [c1d2c408]
+Feb  6 14:13:01 amd kernel: PCI: Bus 3, cardbus bridge: 0000:02:00.0
+Feb  6 14:13:01 amd kernel:   IO window: 00004000-000040ff
+Feb  6 14:13:01 amd kernel:   IO window: 00004400-000044ff
+Feb  6 14:13:01 amd kernel:   PREFETCH window: e8000000-e9ffffff
+Feb  6 14:13:01 amd kernel:   MEM window: c2000000-c3ffffff
+Feb  6 14:13:01 amd kernel: PCI: Bus 7, cardbus bridge: 0000:02:00.1
+Feb  6 14:13:01 amd kernel:   IO window: 00004800-000048ff
+Feb  6 14:13:01 amd kernel:   IO window: 00004c00-00004cff
+Feb  6 14:13:01 amd kernel:   PREFETCH window: ea000000-ebffffff
+Feb  6 14:13:01 amd kernel:   MEM window: c4000000-c5ffffff
+
+When I press eject button, I get
+
+Feb  6 14:13:27 amd kernel: acpi_bus-0073 [72] bus_get_device        :
+No context for object [c1d2c408]
+
+and dock fan stops (but machine is not unlocked):
+
+root@amd:/sys/bus/pci/slots/4294967295# cat *
+0
+0000:02:03
+cat: attention: Invalid argument
+0
+0
+
+...but I can't remove machine.
+								Pavel
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

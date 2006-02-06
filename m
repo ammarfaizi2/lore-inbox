@@ -1,60 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWBFGS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751028AbWBFGWl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751023AbWBFGS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 01:18:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbWBFGS7
+	id S1751028AbWBFGWl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 01:22:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbWBFGWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 01:18:59 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:27043 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751021AbWBFGS6 (ORCPT
+	Mon, 6 Feb 2006 01:22:41 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:20953 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751027AbWBFGWk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 01:18:58 -0500
-Date: Mon, 6 Feb 2006 07:17:43 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paul Jackson <pj@sgi.com>, dgc@sgi.com, steiner@sgi.com,
-       Simon.Derr@bull.net, ak@suse.de, linux-kernel@vger.kernel.org,
-       clameter@sgi.com
-Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
-Message-ID: <20060206061743.GA14679@elte.hu>
-References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com> <20060204154944.36387a86.akpm@osdl.org> <20060205203358.1fdcea43.akpm@osdl.org> <20060205215052.c5ab1651.pj@sgi.com> <20060205220204.194ba477.akpm@osdl.org>
+	Mon, 6 Feb 2006 01:22:40 -0500
+Date: Sun, 5 Feb 2006 22:22:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Chinner <dgc@sgi.com>
+Cc: dgc@sgi.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] Prevent large file writeback starvation
+Message-Id: <20060205222215.313f30a9.akpm@osdl.org>
+In-Reply-To: <20060206054815.GJ43335175@melbourne.sgi.com>
+References: <20060206040027.GI43335175@melbourne.sgi.com>
+	<20060205202733.48a02dbe.akpm@osdl.org>
+	<20060206054815.GJ43335175@melbourne.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060205220204.194ba477.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Chinner <dgc@sgi.com> wrote:
+>
+> > >From a quick peek, this code:
+> > 
+> > 			if (wbc->for_kupdate) {
+> > 				/*
+> > 				 * For the kupdate function we leave the inode
+> > 				 * at the head of sb_dirty so it will get more
+> > 				 * writeout as soon as the queue becomes
+> > 				 * uncongested.
+> > 				 */
+> > 				inode->i_state |= I_DIRTY_PAGES;
+> > 				list_move_tail(&inode->i_list, &sb->s_dirty);
+> > 
+> > 
+> > isn't working right any more.
+> 
+> If the intent is to continue writing it back until fully
+> sync'd, then shouldn't we be moving that to the tail of I/O list so
+> we don't have to iterate over the dirty list again before we try to
+> write another chunk out?
 
-* Andrew Morton <akpm@osdl.org> wrote:
+Only if dirtied_when has expired.  Until that's true I think it's right to
+move onto other (potentially expired) inodes.
 
-> I think the bottom line here is that the kernel just cannot predict 
-> the future and it will need help from the applications and/or 
-> administrators to be able to do optimal things.  For that, 
-> finer-grained one-knob-per-concept controls would be better.
+Your patch leaves these inodes on s_io, actually.
 
-yep. The cleanest would be to let tasks identify the fundamental access 
-pattern with different granularity. I'm wondering whether it would be 
-enough to simply extend madvise and fadvise to 'task' scope as well, and 
-change the pagecache allocation pattern to 'spread out' pages on NUMA, 
-if POSIX_FADV_RANDOM / MADV_RANDOM is specified.
+> > > 
+> > > It appears that it is intended to handle congested devices. The thing
+> > > is, 1024 pages on writeback is not enough to congest a single disk,
+> > > let alone a RAID box 10 or 100 times faster than a single disk.
+> > > Hence we're stopping writeback long before we congest the device.
+> > 
+> > I think the comment is misleading.  The writeout pass can terminate because
+> > wbc->nr_to_write was satisfied, as well as for queue congestion.
+> 
+> Exactly my point and what the patch addresses - it allows writeback on
+> that inode to continue from where it left off if the device was not
+> congested.
 
-hence 'global' workloads could set the per-task [and perhaps per-cpuset] 
-access-pattern default to POSIX_FADV_RANDOM, while 'local' workloads 
-could set it to POSIX_FADV_SEQUENTIAL [or leave it at the default].
+But what will it do to other inodes?  Say, ones which have expired?  This
+inode could take many minutes to write out if it's all fragmented.
 
-another API solution: perhaps there should be a per-mountpoint 
-fadvise/madvise hint? Thus the database in question could set the access 
-pattern for the object itself. (or an ACL tag could achieve the same) 
-That approach would have the advantage of being quite finegrained, and 
-would limit the 'interleaving' strategy to the affected objects alone.
+s_dirty is supposed to be kept in dirtied_when order, btw.
 
-	Ingo
+> > I suspect what's happened here is that someone other than pdflush has tried
+> > to do some writeback and didn't set for_kupdate, so we ended up resetting
+> > dirtied_when.
+> 
+> If it's not wb_kupdate that is trying to write it back, and we have little
+> memory pressure, and we completed writing the file long ago, then what behaves
+> exactly like wb_kupdate for hours on end apart from wb_kupdate?
+
+Don't know.   I'm not sure that we exactly know what's going on yet?
+
+The list_move_tail is supposed to put the inode at the *head* of s_dirty. 
+So it's the first one which gets encountered on the next pdflush pass.
+
+And I guess that's working OK.  Except we only write 4MB of it each five
+seconds.  Is that the case?
+
+If so, why would that happen?  Take a look at wb_kupdate().  It's supposed
+to work *continuously* on the inodes until writeback_inodes() failed to
+write back enough pages.  It takes this as an indication that there's no
+more work to do at this time.
+
+It'd be interesting to take a look at what's happening in wb_kupdate().
+
+> > > Therefore, lets only move the inode back onto the dirty list if the device
+> > > really is congested. Patch against 2.6.15-rc2 below.
+> > 
+> > This'll break something else, I bet :(
+> 
+> Wonderful. What needs testing to indicate something else hasn't broken?
+
+Hard.
+
+> Does anyone have any regression tests for this code?
+
+No.
+
+
+

@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbWBFJz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWBFJ6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750904AbWBFJz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 04:55:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750905AbWBFJz5
+	id S1750909AbWBFJ6K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 04:58:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWBFJ6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 04:55:57 -0500
-Received: from lame.durables.org ([64.81.244.120]:16046 "EHLO
-	calliope.durables.org") by vger.kernel.org with ESMTP
-	id S1750852AbWBFJz5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 04:55:57 -0500
-Message-ID: <52970.72.254.5.223.1139219753.squirrel@www.durables.org>
-Date: Mon, 6 Feb 2006 01:55:53 -0800 (PST)
-Subject: Question about RCS keywords
-From: "Robert Walsh" <rjwalsh@durables.org>
-To: linux-kernel@vger.kernel.org
-Reply-To: rjwalsh@durables.org
-User-Agent: SquirrelMail/1.4.6 [CVS]-0.cvs20050812.1.fc4
-MIME-Version: 1.0
+	Mon, 6 Feb 2006 04:58:10 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:33180 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750909AbWBFJ6I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 04:58:08 -0500
+Date: Mon, 6 Feb 2006 01:57:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net, ak@suse.de,
+       linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+Message-Id: <20060206015709.01bf4d16.akpm@osdl.org>
+In-Reply-To: <20060206013227.2407cf8c.pj@sgi.com>
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
+	<20060205203711.2c855971.akpm@osdl.org>
+	<20060205225629.5d887661.pj@sgi.com>
+	<20060205230816.4ae6b6e2.akpm@osdl.org>
+	<20060206013227.2407cf8c.pj@sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Paul Jackson <pj@sgi.com> wrote:
+>
+>  Is page vs slab cache the appropriate level of granularity?
+> 
 
-I notice some files in the kernel have RCS keywords in them: look at
-kernel/dma.c, for example.  Most files don't.  What's the policy on this?
+I guess so.  Doing it on a per-cpuset+per-slab or per-cpuset+per-inode
+basis would get a bit complex implementation-wise, I expect.  And a smart
+application could roughly implement that itself anyway by turning spreading
+on and off as it goes.
 
-Regards,
- Robert.
-
--- 
-Robert Walsh
-Amalgamated Durables, Inc.
-  "We bring dead things to life"
+One does wonder about the buffer-head slab - it's pretty tightly bound to
+pagecache..
 

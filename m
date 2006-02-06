@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750982AbWBFE5g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWBFFC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750982AbWBFE5g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 23:57:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbWBFE5f
+	id S1750987AbWBFFC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 00:02:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbWBFFC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 23:57:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:26770 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750978AbWBFE5f (ORCPT
+	Mon, 6 Feb 2006 00:02:28 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:35476 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750987AbWBFFC2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 23:57:35 -0500
-Date: Sun, 5 Feb 2006 20:57:09 -0800
+	Mon, 6 Feb 2006 00:02:28 -0500
+Date: Sun, 5 Feb 2006 21:02:11 -0800
 From: Pete Zaitcev <zaitcev@redhat.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] stop ==== emergency
-Message-Id: <20060205205709.0b88171b.zaitcev@redhat.com>
-In-Reply-To: <mailman.1139006040.12873.linux-kernel2news@redhat.com>
-References: <mailman.1139006040.12873.linux-kernel2news@redhat.com>
+To: "Gabriel A. Devenyi" <devenyga@mcmaster.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] USB HID fails to init USB keyboard
+Message-Id: <20060205210211.675015ba.zaitcev@redhat.com>
+In-Reply-To: <mailman.1139192641.4990.linux-kernel2news@redhat.com>
+References: <mailman.1139192641.4990.linux-kernel2news@redhat.com>
 Organization: Red Hat, Inc.
 X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i386-redhat-linux-gnu)
 Mime-Version: 1.0
@@ -25,19 +25,13 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Feb 2006 21:37:09 +0000 (GMT), Hugh Dickins <hugh@veritas.com> wrote:
+On Sun, 5 Feb 2006 21:19:42 -0500, "Gabriel A. Devenyi" <devenyga@mcmaster.ca> wrote:
 
-> +++ linux/arch/i386/kernel/traps.c	2006-02-03 09:59:37.000000000 +0000
-> @@ -166,7 +166,8 @@ static void show_trace_log_lvl(struct ta
->  		stack = (unsigned long*)context->previous_esp;
->  		if (!stack)
->  			break;
-> -		printk(KERN_EMERG " =======================\n");
-> +		printk(log_lvl);
-> +		printk(" =======================\n");
->  	}
+> usb 2-4: new low speed USB device using ohci_hcd and address 3
+> input: USB-compliant keyboard as /class/input/input2
+> input: USB HID v1.10 Keyboard [USB-compliant keyboard] on usb-0000:00:02.0-4
+> drivers/usb/input/hid-core.c: input irq status -32 received
 
-This is wrong, Hugh. What do you think the priority of the second printk?
-It's not log_lvl, that's for sure.
+The -32 is a stall, so it probably wants a NOGET quirk.
 
 -- Pete

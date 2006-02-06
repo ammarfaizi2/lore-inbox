@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750926AbWBFLan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbWBFLfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750926AbWBFLan (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 06:30:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWBFLan
+	id S1751019AbWBFLfP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 06:35:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWBFLfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 06:30:43 -0500
-Received: from ns1.suse.de ([195.135.220.2]:43752 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750926AbWBFLam (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 06:30:42 -0500
-Date: Mon, 6 Feb 2006 12:30:46 +0100
-From: Jan Blunck <jblunck@suse.de>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Stefan Weinhuber <wein@de.ibm.com>,
-       Horst Hummel <horst.hummel@de.ibm.com>, Christoph Hellwig <hch@lst.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] s390: dasd extended error reporting module.
-Message-ID: <20060206113046.GC5564@hasse.suse.de>
-References: <20060201115649.GA9361@osiris.boeblingen.de.ibm.com> <4de7f8a60602060237o5c19d796hb08c237a9b5f3c64@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4de7f8a60602060237o5c19d796hb08c237a9b5f3c64@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+	Mon, 6 Feb 2006 06:35:14 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:21471 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751019AbWBFLfN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 06:35:13 -0500
+From: "Jiri Slaby" <xslaby@fi.muni.cz>
+Date: Mon,  6 Feb 2006 12:34:40 +0100
+Subject: Re: [PATCH 0/12] LED Class, Triggers and Drivers
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, Russell King <rmk@arm.linux.org.uk>,
+       John Lenz <lenz@cs.wisc.edu>, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, dirk@opfer-online.de,
+       jbowler@acm.org
+In-reply-to: <1139154718.6438.78.camel@localhost.localdomain>
+Message-Id: <20060206113440.B65CF22AEF3@anxur.fi.muni.cz>
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: xslaby@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 01, Heiko Carstens wrote:
+Richard Purdie wrote:
+>This is an updated version of the LED class/subsystem. The main change
+>is the renamed API - I've settled on led_device -> led_classdev. Other
+>minor issues like the error cases in the timer trigger were also fixed.
+Seems good, but some issues:
+Use more macros
+	struct led_classdev *led_cdev = dev->class_data;
+	pdev->resource[i].start, pdev->resource...
+__init and __exit
+	static int __devinit ixp4xxgpioled_init(void)
+	static void ixp4xxgpioled_exit(void)
+	static void nand_base_exit(void)
+	tosaled_{init,exit}, corgiled_{init,exit}, spitzled_{init,exit}
+coding style
+	static void __exit timer_trig_exit (void)
+	static inline void led_set_brightness(struct led_classdev *led_cdev, enum led_brightness value) -- more than 80 columns
++			led_cdev->trigger->deactivate(led_cdev);
++
++	}
+	ixp4xxgpioled_brightness_set -- a little bit ugly
++static int apply_to_all_leds(struct platform_device *pdev,
++	void (*operation)(struct led_classdev *pled)) {
+{ on the next line
 
-> From: Stefan Weinhuber <wein@de.ibm.com>
-> 
-> The DASD extended error reporting is a facility that allows to
-> get detailed information about certain problems in the DASD I/O.
-> This information can be used to implement fail-over applications
-> that can recover these problems.
-> This is a resubmit of this patch because at first submission it
-> didn't get included due to Christoph's ioctl changes.
-> Since these aren't in the -mm tree anymore this one should be
-> merged now.
-
-Why don't you use the sysfs for this purpose? This new character device
-interface seems very odd to me. Why don't you introduce new attributes to the
-dasd device for that purpose and make online pollable for failovers?
-
-Or use dm-netlink to report the extended errors via multipath to the user
-space.
-
-Regards,
-	Jan
-
--- 
-Jan Blunck                                               jblunck@suse.de
-SuSE LINUX AG - A Novell company
-Maxfeldstr. 5                                          +49-911-74053-608
-D-90409 Nürnberg                                      http://www.suse.de
+regards,
+--
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+B67499670407CE62ACC8 22A032CC55C339D47A7E

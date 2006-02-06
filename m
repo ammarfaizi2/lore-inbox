@@ -1,142 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964868AbWBFXkJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWBFXpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964868AbWBFXkJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 18:40:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWBFXkI
+	id S964876AbWBFXpz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 18:45:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWBFXpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 18:40:08 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:33691 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964868AbWBFXkG (ORCPT
+	Mon, 6 Feb 2006 18:45:55 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:12461 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964876AbWBFXpz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 18:40:06 -0500
-Date: Mon, 6 Feb 2006 15:42:10 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Generic AGP PM support.
-Message-Id: <20060206154210.5f21942a.akpm@osdl.org>
-In-Reply-To: <200602070910.18808.ncunningham@cyclades.com>
-References: <200602070910.18808.ncunningham@cyclades.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 6 Feb 2006 18:45:55 -0500
+Date: Mon, 6 Feb 2006 15:45:37 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: ak@suse.de, clameter@engr.sgi.com, akpm@osdl.org, dgc@sgi.com,
+       steiner@sgi.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+Message-Id: <20060206154537.a3e8cc25.pj@sgi.com>
+In-Reply-To: <20060206200506.GA13466@elte.hu>
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
+	<200602061811.49113.ak@suse.de>
+	<Pine.LNX.4.62.0602061017510.16829@schroedinger.engr.sgi.com>
+	<200602061936.27322.ak@suse.de>
+	<20060206184330.GA22275@elte.hu>
+	<20060206120109.0738d6a2.pj@sgi.com>
+	<20060206200506.GA13466@elte.hu>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham <ncunningham@cyclades.com> wrote:
->
-> Hi.
-> 
-> This patch implements generic AGP power management support, and uses it for
-> the Ati and NVidia drivers. It is an update on the patch that Matthew
-> Garrett broke out of Suspend2 a while ago and sent to the list.
-> 
+Ingo wrote:
+> And it seems that for the workloads you cited, the most natural 
+> direction to drive the 'spreading' of resources is from the VFS side.  
+> That would also avoid the problem Andrew observed: the ugliness of a 
+> sysadmin configuring the placement strategy of kernel-internal slab 
+> caches. It also feels a much more robust choice from the conceptual POV.
 
-(Don't forget the signed-off-by:s, please)
+Arrghh ...
 
-> 
->  agp_suspend.h |   43 +++++++++++++++++++++++++++++++++++++++++++
->  ati-agp.c     |   14 ++++++++++++++
->  nvidia-agp.c  |   14 ++++++++++++++
->  3 files changed, 71 insertions(+)
-> diff -ruNp 3030-agp-resume-support.patch-old/drivers/char/agp/agp_suspend.h 3030-agp-resume-support.patch-new/drivers/char/agp/agp_suspend.h
-> --- 3030-agp-resume-support.patch-old/drivers/char/agp/agp_suspend.h	1970-01-01 10:00:00.000000000 +1000
-> +++ 3030-agp-resume-support.patch-new/drivers/char/agp/agp_suspend.h	2005-12-05 21:26:57.000000000 +1100
-> @@ -0,0 +1,43 @@
-> +/*
-> + * Generic routines for suspending and resuming an agp bridge.
-> + *
-> + * Include "agp.h" first.
-> + */
-> +
-> +#ifdef CONFIG_PM
-> +static int agp_common_suspend(struct pci_dev *pdev, pm_message_t state)
-> +{
-> +	pci_save_state(pdev);
-> +	pci_set_power_state(pdev, 3);
-> +
-> +	return 0;
-> +}
-> +
-> +static int agp_common_resume(struct pci_dev *pdev,
-> +			     struct agp_bridge_driver * generic_bridge,
-> +			     int reconfigure(void))
-> +{
-> +	struct agp_bridge_data *bridge = pci_get_drvdata(pdev);
-> +
-> +	/* set power state 0 and restore PCI space */
-> +	pci_set_power_state(pdev, 0);
-> +	pci_restore_state(pdev);
-> +
-> +	/* reconfigure AGP hardware again */
-> +	if (bridge->driver == generic_bridge)
-> +		return reconfigure();
-> +
-> +	return 0;
-> +}
-> +#else
-> +static int agp_common_suspend(struct pci_dev *pdev, pm_message_t state)
-> +{
-> +	return 0;
-> +}
-> +
-> +static int agp_common_resume(struct pci_dev *pdev, _something_ * bridge,
-> +			     void *reconfigure)
-> +{
-> +	return 0;
-> +}
-> +#endif
+I'm confused, on several points.
 
-What we tend to do is this:
+I've discussed this some with my SGI colleagues, and think I understand
+where they are coming from.
 
-#ifdef CONFIG_PM
-static int foo_resume(...)
-{
-	...
-}
-#else
-#define foo_resume(...) NULL
-#endif
-...
+But I can't make sense of your recommendation, Ingo.
 
-static struct pci_driver foo_driver = {
-	...
-	.resume = foo_resume;
-	...
-};
+I don't yet see why you find this more natural or robust, but let me
+deal with some details first.
 
-I think you could do it that way, so the stubbed agp_common_suspend() and
-agp_common_resume() won't need to exist.
+I don't recall Andrew observing ugliness in a sysadmin configuring
+a kernel slab.  I recall him asking to add such ugliness.  My proposal
+just had a "memory_spread" boolean, which asked for the kernel (1) to
+spread memory, at least getting the big kinds of allocations done from
+the apps perspective, within the kernel, but (2) leaving the user
+address space pages to be placed by the default node-local policy.
+No mention there of slab caches.  It was Andrew who wanted to add
+such details.
 
-> diff -ruNp 3030-agp-resume-support.patch-old/drivers/char/agp/ati-agp.c 3030-agp-resume-support.patch-new/drivers/char/agp/ati-agp.c
-> --- 3030-agp-resume-support.patch-old/drivers/char/agp/ati-agp.c	2005-11-11 14:12:17.000000000 +1100
-> +++ 3030-agp-resume-support.patch-new/drivers/char/agp/ati-agp.c	2005-12-05 21:26:57.000000000 +1100
-> @@ -9,6 +9,7 @@
->  #include <linux/agp_backend.h>
->  #include <asm/agp.h>
->  #include "agp.h"
-> +#include "agp_suspend.h"
->  
->  #define ATI_GART_MMBASE_ADDR	0x14
->  #define ATI_RS100_APSIZE	0xac
-> @@ -507,6 +508,17 @@ static void __devexit agp_ati_remove(str
->  	agp_put_bridge(bridge);
->  }
->  
-> +static int agp_ati_suspend(struct pci_dev *pdev, pm_message_t state)
-> +{
-> +	return (agp_common_suspend(pdev, state));
-> +}
+First it might be most useful to explain a detail of your proposal that
+I don't get, which is blocking me from considering it seriously.
 
-Lose the extra parens, please.
+I understand mount options, but I don't know what mechanisms (at the
+kernel-user API) you have in mind to manage per-directory and per-file
+options.
 
-> +static int agp_ati_resume(struct pci_dev *pdev)
-> +{
-> +	return agp_common_resume(pdev, &ati_generic_bridge,
-> +				 ati_configure);
-> +}
-
-Current ati-agp.c already has suspend and resume implementations.
-
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

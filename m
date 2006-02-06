@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWBFW0n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWBFW2Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932396AbWBFW0n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 17:26:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbWBFW0m
+	id S932398AbWBFW2Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 17:28:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbWBFW2Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 17:26:42 -0500
-Received: from mail.suse.de ([195.135.220.2]:28389 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932396AbWBFW0l (ORCPT
+	Mon, 6 Feb 2006 17:28:24 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:37511 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932398AbWBFW2X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 17:26:41 -0500
-From: Andi Kleen <ak@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH] ipr: don't doublefree pages from scatterlist
-Date: Mon, 6 Feb 2006 23:13:17 +0100
-User-Agent: KMail/1.8.2
-Cc: Ryan Richter <ryan@tau.solarneutrino.net>, Brian King <brking@us.ibm.com>,
-       "David S. Miller" <davem@davemloft.net>, James.Bottomley@steeleye.com,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-References: <Pine.LNX.4.61.0602040004020.5406@goblin.wat.veritas.com> <200602062211.29993.ak@suse.de> <Pine.LNX.4.61.0602062154430.3652@goblin.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.61.0602062154430.3652@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 6 Feb 2006 17:28:23 -0500
+Date: Mon, 6 Feb 2006 14:30:22 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: ak@suse.de, pj@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: OOM behavior in constrained memory situations
+Message-Id: <20060206143022.37d1781e.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0602061415560.18919@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0602061253020.18594@schroedinger.engr.sgi.com>
+	<20060206131026.53dbd8d5.akpm@osdl.org>
+	<200602062222.28630.ak@suse.de>
+	<Pine.LNX.4.62.0602061415560.18919@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602062313.18041.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 February 2006 23:11, Hugh Dickins wrote:
+Christoph Lameter <clameter@engr.sgi.com> wrote:
+>
 > On Mon, 6 Feb 2006, Andi Kleen wrote:
-> > On Monday 06 February 2006 17:45, Hugh Dickins wrote:
-> > > 
-> > > But all this presupposes that someone is suddenly going to change the
-> > > x86_64 gart_map_sg (and subfunctions), or else force its iommu=nomerge:
-> > > that won't be me.
+> 
+> > At least remnants from my old 80% hack to avoid this (huge_page_needed)
+> > seem to be still there in mainline:
 > > 
-> > Ok i changed it to conform to the gospel. I gave it some basic pounding LTP/dd IO with 
-> > and without IOMMU force, but it's not that well tested. More testing welcome.
-> 
-> Great, thanks Andi.  One small correction to the comment...
-> 
-> > Don't touch the non DMA members in the sg list in dma_map_sg in the IOMMU
+> > fs/hugetlbfs/inode.c:hugetlbfs_file_mmap
 > > 
-> > Some drivers (in particular ipr) ran into problems because they
+> >    bytes = huge_pages_needed(mapping, vma);
+> >    if (!is_hugepage_mem_enough(bytes))
+> >           return -ENOMEM;
+> > 
+> > 
+> > So something must be broken if this doesn't work. Or did you allocate
+> > the pages in some other way? 
 > 
-> No, the problem hasn't knowingly been sighted on ipr,
+> huge pages are now allocated in the huge fault handler. If it would be 
+> returning an OOM then the OOM killer may be activated.
 
-Ok. I was wondering anyways why people should use ipr on x86-64.
+?
 
-> it was the 
-> st driver that Ryan's been seeing it with - ipr just came from
-> my looking around for like instances.
+The oom-killer is invoked from the page allocator.  A hugetlb pagefault
+won't use the page allocator.  So there shouldn't be an oom-killing on
+hugepage exhaustion.
 
-I will fix the comment. Thanks.
+I think this comment is just wrong:
 
--Andi
+		/* Logically this is OOM, not a SIGBUS, but an OOM
+		 * could cause the kernel to go killing other
+		 * processes which won't help the hugepage situation
+		 * at all (?) */
+
+A VM_FAULT_OOM from there won't cause the oom-killer to do anything.  We
+should return VM_FAULT_OOM and let do_page_fault() commit suicide with
+SIGKILL.

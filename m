@@ -1,115 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbWBFTIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWBFTOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932192AbWBFTIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 14:08:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWBFTIZ
+	id S932206AbWBFTOd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 14:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWBFTOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 14:08:25 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:51628 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932192AbWBFTIZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 14:08:25 -0500
-Message-ID: <43E7B0BF.D13E1F07@tv-sign.ru>
-Date: Mon, 06 Feb 2006 23:25:35 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] fix kill_proc_info() vs copy_process() race
-References: <43E77D3C.C967A275@tv-sign.ru> <43E7830E.974EF20C@tv-sign.ru>
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Feb 2006 14:14:33 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:43075 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S932206AbWBFTOd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 14:14:33 -0500
+In-Reply-To: <1139250251.10437.39.camel@localhost.localdomain>
+References: <Pine.LNX.4.44.0602061116190.11785-100000@gate.crashing.org> <1139250251.10437.39.camel@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <DC17879A-2B03-4D20-865F-C89386A393EF@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org, Russell King <rmk+lkml@arm.linux.org.uk>
 Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [PATCH] Revert serial 8250 console fixes
+Date: Mon, 6 Feb 2006 13:14:46 -0600
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Apple Mail (2.746.2)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov wrote:
-> 
-> Sorry, I was wrong. Without CLONE_THREAD current->sighand.siglock can't help,
-> we need p->sighand.siglock, I beleive.
 
-Also, it is stupid to do write_lock(&tasklist_lock) without clearing irqs.
+On Feb 6, 2006, at 12:24 PM, Alan Cox wrote:
 
-Ok, may be something like (untested, for review only) patch below ?
+> On Llu, 2006-02-06 at 11:20 -0600, Kumar Gala wrote:
+>> Revert Alan's SMP related console race fix as it breaks on some  
+>> embedded
+>> PowerPC's.
+>
+> Please figure out why your hardware is misbehaving before you make a
+> mess of everyone elses stuff. I've seen nothing from you in the way of
+> register dumps when this occurs. You need to find out what is actually
+> happening on your board.
 
-attach_pid() does wmb(), group_send_sig_info()->rcu_dereference() calls
-rmb(), so we can just reverse PIDTYPE_PID/PIDTYPE_TGID attaching?
+I wan't trying to be difficult, just looking for next steps.  I  
+replied to your initial suggestion but never heard back on what to  
+try or do going forward.
 
-Note that now we check sigismember(->pending, SIGKILL) holding both
-tasklist and ->sighand.siglock, this means we can kill SIGNAL_GROUP_EXIT
-check under 'if (clone_flags & CLONE_THREAD)':
+Can you explain further why you had to change wait_for_xmitr() from  
+testing BOTH_EMPTY to UART_LSR_THRE.
 
-	__group_complete_signal() and zap_other_threads() need at least
-	->sighand.siglock and they send SIGKILL without unlocking.
+Also, what exactly would you be looking for in a register dump?
 
-	We can miss SIGNAL_GROUP_EXIT from do_coredump(), but it is possible
-	anyway. The new thread will be killed later, from zap_threads().
-	
-What do you think?
+thanks
 
-Oleg.
-
---- RC-1/kernel/fork.c~	2006-02-07 01:41:14.000000000 +0300
-+++ RC-1/kernel/fork.c	2006-02-07 02:13:10.000000000 +0300
-@@ -1066,11 +1066,13 @@ static task_t *copy_process(unsigned lon
- 			!cpu_online(task_cpu(p))))
- 		set_task_cpu(p, smp_processor_id());
- 
-+	spin_lock(&current->sighand->siglock);
- 	/*
- 	 * Check for pending SIGKILL! The new thread should not be allowed
- 	 * to slip out of an OOM kill. (or normal SIGKILL.)
- 	 */
- 	if (sigismember(&current->pending.signal, SIGKILL)) {
-+		spin_unlock(&current->sighand->siglock);
- 		write_unlock_irq(&tasklist_lock);
- 		retval = -EINTR;
- 		goto bad_fork_cleanup_namespace;
-@@ -1084,18 +1086,6 @@ static task_t *copy_process(unsigned lon
- 	p->parent = p->real_parent;
- 
- 	if (clone_flags & CLONE_THREAD) {
--		spin_lock(&current->sighand->siglock);
--		/*
--		 * Important: if an exit-all has been started then
--		 * do not create this new thread - the whole thread
--		 * group is supposed to exit anyway.
--		 */
--		if (current->signal->flags & SIGNAL_GROUP_EXIT) {
--			spin_unlock(&current->sighand->siglock);
--			write_unlock_irq(&tasklist_lock);
--			retval = -EAGAIN;
--			goto bad_fork_cleanup_namespace;
--		}
- 		p->group_leader = current->group_leader;
- 
- 		if (current->signal->group_stop_count > 0) {
-@@ -1122,8 +1112,6 @@ static task_t *copy_process(unsigned lon
- 			 */
- 			p->it_prof_expires = jiffies_to_cputime(1);
- 		}
--
--		spin_unlock(&current->sighand->siglock);
- 	}
- 
- 	/*
-@@ -1135,8 +1123,8 @@ static task_t *copy_process(unsigned lon
- 	if (unlikely(p->ptrace & PT_PTRACED))
- 		__ptrace_link(p, current->parent);
- 
--	attach_pid(p, PIDTYPE_PID, p->pid);
- 	attach_pid(p, PIDTYPE_TGID, p->tgid);
-+	attach_pid(p, PIDTYPE_PID, p->pid);
- 	if (thread_group_leader(p)) {
- 		p->signal->tty = current->signal->tty;
- 		p->signal->pgrp = process_group(current);
-@@ -1149,6 +1137,7 @@ static task_t *copy_process(unsigned lon
- 
- 	nr_threads++;
- 	total_forks++;
-+	spin_unlock(&current->sighand->siglock);
- 	write_unlock_irq(&tasklist_lock);
- 	proc_fork_connector(p);
- 	return p;
+- kumar

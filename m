@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWBFNWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWBFNX6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932091AbWBFNWF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 08:22:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWBFNWF
+	id S932088AbWBFNX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 08:23:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWBFNX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 08:22:05 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59069 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932087AbWBFNWE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 08:22:04 -0500
-Date: Mon, 6 Feb 2006 14:21:51 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Kristen Carlson Accardi <kristenc@cs.pdx.edu>
-Cc: pcihpd-discuss@lists.sourceforge.net, greg@kroah.com, len.brown@intel.com,
-       linux-kernel@vger.kernel.org, muneda.takahiro@jp.fujitsu.com,
-       linux-acpi@vger.kernel.org
-Subject: Re: [patch] acpiphp: handle dock stations
-Message-ID: <20060206132151.GA1655@elf.ucw.cz>
-References: <20060201233005.GA4999@nerpa>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060201233005.GA4999@nerpa>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 6 Feb 2006 08:23:57 -0500
+Received: from muss.CIS.mcmaster.ca ([130.113.64.9]:4014 "EHLO
+	cgpsrv1.cis.mcmaster.ca") by vger.kernel.org with ESMTP
+	id S932088AbWBFNX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 08:23:57 -0500
+Message-ID: <43E74DDB.7070508@mcmaster.ca>
+Date: Mon, 06 Feb 2006 08:23:39 -0500
+From: "Gabriel A. Devenyi" <devenyga@mcmaster.ca>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Pete Zaitcev <zaitcev@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] USB HID fails to init USB keyboard
+References: <mailman.1139192641.4990.linux-kernel2news@redhat.com> <20060205210211.675015ba.zaitcev@redhat.com>
+In-Reply-To: <20060205210211.675015ba.zaitcev@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Pete Zaitcev wrote:
+> On Sun, 5 Feb 2006 21:19:42 -0500, "Gabriel A. Devenyi" <devenyga@mcmaster.ca> wrote:
+> 
+>> usb 2-4: new low speed USB device using ohci_hcd and address 3
+>> input: USB-compliant keyboard as /class/input/input2
+>> input: USB HID v1.10 Keyboard [USB-compliant keyboard] on usb-0000:00:02.0-4
+>> drivers/usb/input/hid-core.c: input irq status -32 received
+> 
+> The -32 is a stall, so it probably wants a NOGET quirk.
+> 
+> -- Pete
+> 
 
-> This patch will add hot add/remove of docking stations to acpiphp.  Because
-> some docking stations will have a _DCK method that is not associated with
-> a dock bridge, we use the _EJD method to determine which devices are 
-> dependent on the dock device, then try to find which of these dependent
-> devices are pci devices.  We register a separate event handler with acpi
-> to handle dock notifications, but if we have discovered any pci devices
-> dependent on the dock station, we notify the acpiphp driver to rescan
-> the correct bus.  If no pci devices are found, but there is still a _DCK method
-> present, the driver will stay loaded to deal with the dock
-> notifications.
+Google tells me there's a blacklist to handle this, located in 
+drivers/usb/input/hid-core.c, what info do I need to correctly add this 
+keyboard/manufacturer to the blacklist?
 
-Even while machine is locked in dock, I don't see aditional devices at
-lspci. Is there some additional steps I need to do?
-
--rw-r--r--  1 root root 4096 Feb  6 14:17 attention
-
-..should probably be write-only. It seems to only return errors on
-read, anyway.
-
-Is there a way to physicaly remove my machine from dock? echo 0 >
-power should do it, right? Well, it does not :-).
-
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+--
+Gabriel A. Devenyi
+devenyga@mcmaster.ca

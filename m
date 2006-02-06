@@ -1,51 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWBFNCV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWBFNIr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbWBFNCV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 08:02:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWBFNCV
+	id S932081AbWBFNIr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 08:08:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWBFNIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 08:02:21 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:53106 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751113AbWBFNCV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 08:02:21 -0500
-Date: Mon, 6 Feb 2006 14:04:42 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Nigel Cunningham <nigel@suspend2.net>, Rafael Wysocki <rjw@sisk.pl>,
-       linux-kernel@vger.kernel.org,
-       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060206130442.GV13598@suse.de>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602061402.54486.nigel@suspend2.net> <20060206105954.GD3967@elf.ucw.cz> <200602062213.24735.nigel@suspend2.net> <20060206124034.GH4101@elf.ucw.cz> <20060206125035.GT13598@suse.de> <20060206125253.GJ4101@elf.ucw.cz>
+	Mon, 6 Feb 2006 08:08:47 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:26241 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S932081AbWBFNIq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 08:08:46 -0500
+Date: Mon, 6 Feb 2006 13:08:42 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: Save DMI chassis information
+Message-ID: <20060206130842.GA11062@srcf.ucam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060206125253.GJ4101@elf.ucw.cz>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 06 2006, Pavel Machek wrote:
-> > > I'll get same bandwidth as you, without need for async I/O. Async I/O
-> > > is not really a feature, suspend speed is. (There are existing
-> > > interfaces for doing AIO from userspace, anyway, but I'm pretty sure
-> > > they will not be needed
-> > 
-> > If you keep writing single pages sync, you sure as hell wont get
-> > anywhere near async io in speed...
-> 
-> well, we can perfectly do 128K block... just read 128K into userspace
-> buffer, flush it via single write to block device. That should get us
-> very close enough to media speed.
+The included patch saves the DMI chassis vendor and type information at 
+boot-time. This may be helpful for some drivers where there is no 
+sensible way to probe for the hardware. Note that chassis information is 
+not guaranteed to be correct - most vendors get this right, but some 
+laptops may appear as desktops (or possibly vice-versa, though that 
+seems less likely).
 
-That'll help naturally, 128k sync blocks will be very close to async
-performance for most cases. Most cases here being drives with write back
-caching enabled, if that is disabled async will still be a big win.
+Signed-off-by: Matthew Garrett <mjg59@srcf.ucam.org>
 
-Is there any reason _not_ to just go with async io? Usually the code is
-just as simple (or simpler), since the in-kernel stuff is inherently
-async to begin with.
+diff --git a/arch/i386/kernel/dmi_scan.c b/arch/i386/kernel/dmi_scan.c
+index 58516e2..9c0d8c6 100644
+--- a/arch/i386/kernel/dmi_scan.c
++++ b/arch/i386/kernel/dmi_scan.c
+@@ -30,6 +30,50 @@ static char * __init dmi_string(struct d
+ 	return str;
+ }
+ 
++static char * __init dmi_chasis_type(struct dmi_header *dm, u8 s)
++{
++	char *str = "";
++	static const char *type[]={
++                "Other", /* 0x01 */
++                "Unknown",
++                "Desktop",
++                "Low Profile Desktop",
++                "Pizza Box",
++                "Mini Tower",
++                "Tower",
++                "Portable",
++                "Laptop",
++                "Notebook",
++                "Hand Held",
++                "Docking Station",
++                "All In One",
++                "Sub Notebook",
++                "Space-saving",
++                "Lunch Box",
++                "Main Server Chassis", /* master.mif says System */
++                "Expansion Chassis",
++                "Sub Chassis",
++                "Bus Expansion Chassis",
++                "Peripheral Chassis",
++                "RAID Chassis",
++                "Rack Mount Chassis",
++                "Sealed-case PC",
++                "Multi-system" /* 0x19 */
++        };
++
++        if(s>=0x01 && s<=0x19) {
++		str = alloc_bootmem(strlen(type[code-0x01]));
++		if (str != NULL)
++			strcpy(str, type[code-0x01]);
++		else
++			printk(KERN_ERR "dmi_chassis_type: out of memory.\n");
++
++                return str;
++	}
++
++	return NULL;
++}
++
+ /*
+  *	We have to be cautious here. We have seen BIOSes with DMI pointers
+  *	pointing to completely the wrong place for example
+@@ -93,7 +137,11 @@ static void __init dmi_save_ident(struct
+ 	if (dmi_ident[slot])
+ 		return;
+ 
+-	p = dmi_string(dm, d[string]);
++	if (slot == DMI_CHASSIS_TYPE)
++		p = dmi_chassis_type(string & 0x7f);
++	else
++		p = dmi_string(dm, d[string]);
++
+ 	if (p == NULL)
+ 		return;
+ 
+@@ -176,6 +224,11 @@ static void __init dmi_decode(struct dmi
+ 		dmi_save_ident(dm, DMI_BOARD_NAME, 5);
+ 		dmi_save_ident(dm, DMI_BOARD_VERSION, 6);
+ 		break;
++	case 3:         /* Chassis Information */
++		dmi_save_ident(dm, DMI_CHASSIS_VENDOR, 4);
++		dmi_save_ident(dm, DMI_CHASSIS_TYPE, 5);
++		break;
++		
+ 	case 10:	/* Onboard Devices Information */
+ 		dmi_save_devices(dm);
+ 		break;
+diff --git a/include/linux/dmi.h b/include/linux/dmi.h
+index 05f4132..5f425a7 100644
+--- a/include/linux/dmi.h
++++ b/include/linux/dmi.h
+@@ -15,6 +15,8 @@ enum dmi_field {
+ 	DMI_BOARD_VENDOR,
+ 	DMI_BOARD_NAME,
+ 	DMI_BOARD_VERSION,
++	DMI_CHASSIS_VENDOR,
++	DMI_CHASSIS_TYPE,
+ 	DMI_STRING_MAX,
+ };
+ 
 
 -- 
-Jens Axboe
-
+Matthew Garrett | mjg59@srcf.ucam.org

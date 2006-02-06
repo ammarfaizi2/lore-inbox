@@ -1,40 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWBFWLp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWBFWOh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbWBFWLp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 17:11:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWBFWLo
+	id S932253AbWBFWOh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 17:14:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbWBFWOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 17:11:44 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:32153 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932216AbWBFWLn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 17:11:43 -0500
-Date: Mon, 6 Feb 2006 14:11:40 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: ak@suse.de, pj@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: OOM behavior in constrained memory situations
-In-Reply-To: <20060206131026.53dbd8d5.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.62.0602061410160.18919@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0602061253020.18594@schroedinger.engr.sgi.com>
- <20060206131026.53dbd8d5.akpm@osdl.org>
+	Mon, 6 Feb 2006 17:14:37 -0500
+Received: from silver.veritas.com ([143.127.12.111]:36223 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932253AbWBFWOg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 17:14:36 -0500
+Date: Mon, 6 Feb 2006 22:15:21 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: khali@linux-fr.org, 76306.1226@compuserv.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] stop ==== emergency
+In-Reply-To: <20060206133234.1ca5d1ed.zaitcev@redhat.com>
+Message-ID: <Pine.LNX.4.61.0602062213420.3795@goblin.wat.veritas.com>
+References: <mailman.1139006040.12873.linux-kernel2news@redhat.com>
+ <20060205205709.0b88171b.zaitcev@redhat.com> <Pine.LNX.4.61.0602060841540.6574@goblin.wat.veritas.com>
+ <20060206195504.16b60b93.khali@linux-fr.org> <Pine.LNX.4.61.0602062057570.4093@goblin.wat.veritas.com>
+ <20060206133234.1ca5d1ed.zaitcev@redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 06 Feb 2006 22:14:36.0548 (UTC) FILETIME=[B71FCC40:01C62B6A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Feb 2006, Andrew Morton wrote:
+On Mon, 6 Feb 2006, Pete Zaitcev wrote:
+> As far as I am concerned, every printk must end with a newline
 
-> Do we really want to kill the application?  A more convetional response
-> would be to return NULL from the page allocator and let that trickle back.
-
-Ok. But ultimately that will lead to a application fault or the 
-termination of the application .
- 
-> The hugepage thing is special, because it's a pagefault, not a syscall.
-
-The same can happen if a pagefault occurs in the application but the page 
-allocator cannot satisfy the allocation. At that point we need to 
-determine if the allocation was restricted. If so then we are not really 
-in an OOM situation and the app could be terminated.
- 
+You're out of luck, I'm afraid.
+Hugh

@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWBFSnw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWBFSnm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932272AbWBFSnw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 13:43:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbWBFSnw
+	id S932279AbWBFSnm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 13:43:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWBFSnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 13:43:52 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:11691 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932272AbWBFSnv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 13:43:51 -0500
-Date: Mon, 6 Feb 2006 10:43:26 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: "Gabriel A. Devenyi" <devenyga@mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Subject: Re: [BUG] USB HID fails to init USB keyboard
-Message-Id: <20060206104326.6cde4100.zaitcev@redhat.com>
-In-Reply-To: <43E74DDB.7070508@mcmaster.ca>
-References: <mailman.1139192641.4990.linux-kernel2news@redhat.com>
-	<20060205210211.675015ba.zaitcev@redhat.com>
-	<43E74DDB.7070508@mcmaster.ca>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Feb 2006 13:43:42 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:2276 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932279AbWBFSnl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 13:43:41 -0500
+Date: Mon, 6 Feb 2006 10:43:25 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: Paul Jackson <pj@sgi.com>, mingo@elte.hu, akpm@osdl.org, dgc@sgi.com,
+       steiner@sgi.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+In-Reply-To: <200602061936.27322.ak@suse.de>
+Message-ID: <Pine.LNX.4.62.0602061039420.16829@schroedinger.engr.sgi.com>
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
+ <200602061811.49113.ak@suse.de> <Pine.LNX.4.62.0602061017510.16829@schroedinger.engr.sgi.com>
+ <200602061936.27322.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 06 Feb 2006 08:23:39 -0500, "Gabriel A. Devenyi" <devenyga@mcmaster.ca> wrote:
+On Mon, 6 Feb 2006, Andi Kleen wrote:
 
-> >> usb 2-4: new low speed USB device using ohci_hcd and address 3
-> >> input: USB-compliant keyboard as /class/input/input2
-> >> input: USB HID v1.10 Keyboard [USB-compliant keyboard] on usb-0000:00:02.0-4
-> >> drivers/usb/input/hid-core.c: input irq status -32 received
-> > 
-> > The -32 is a stall, so it probably wants a NOGET quirk.
+> > AFAIK you can reach these low latency factors only if multiple nodes are 
+> > on the same motherboard. Likely Opteron specific?
+> 
+> Should be true for most CPUs with integrated memory controller.
 
-> Google tells me there's a blacklist to handle this, located in 
-> drivers/usb/input/hid-core.c, what info do I need to correctly add this 
-> keyboard/manufacturer to the blacklist?
+Even the best memory controller cannot violate the laws of physics 
+(electrons can at maximum travel with the speed of light). Therefore
+cable lengths have a major influence on the latency of signals.
 
-Look at the P: line of your /proc/bus/usb/devices, it has the necessary
-vendor and product IDs.
+> > I dont understand you here. What would be the benefit of selecting more 
+> > distant memory over local? I can only imagine that this would be 
+> > beneficial if we know that the data would be used later by other 
+> > processes.
+> 
+> The benefit would be to not fill up the local node as quickly when
+> you do something IO (or dcache intensive).  And on contrary when you
+> do something local memory intensive on that node then you won't need
+> to throw away all the IO caches if they are already spread out.
 
--- Pete
+An efficient local reclaim should deal with that situation. zone_reclaim 
+will free up portions of memory in order to stay on node.
+
+> The kernel uses of these cached objects are not really _that_ latency 
+> sensitive and not that frequent so it makes sense to spread it out a 
+> bit to nearby nodes.
+
+The impact of spreading cached object will depend on the application and 
+the NUMA latencies in the system.

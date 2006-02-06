@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWBFU3f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbWBFUaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWBFU3f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 15:29:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWBFU3f
+	id S964789AbWBFUaA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 15:30:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWBFU3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 15:29:35 -0500
-Received: from mail.kroah.org ([69.55.234.183]:24253 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964786AbWBFU3e convert rfc822-to-8bit
+	Mon, 6 Feb 2006 15:29:39 -0500
+Received: from mail.kroah.org ([69.55.234.183]:26301 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964789AbWBFU3f convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 15:29:34 -0500
-Cc: vincent@snarc.org
-Subject: [PATCH] debugfs: trivial comment fix
-In-Reply-To: <1139257758363@kroah.com>
+	Mon, 6 Feb 2006 15:29:35 -0500
+Cc: pavel@suse.cz
+Subject: [PATCH] Fix Userspace interface breakage in power/state
+In-Reply-To: <20060206202830.GA5202@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 6 Feb 2006 12:29:18 -0800
-Message-Id: <11392577581679@kroah.com>
+Date: Mon, 6 Feb 2006 12:29:17 -0800
+Message-Id: <11392577577@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,52 +24,64 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] debugfs: trivial comment fix
+[PATCH] Fix Userspace interface breakage in power/state
 
-Fix trivial type mixup in the debugfs function comments.
+Prevent passing invalid values down to the drivers.
 
-Signed-off-by: Vincent Hanquez <vincent@snarc.org>
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 276e0c75f1e9a8b34b7b19e8fe188be958d420dd
-tree f44e4dbc0da80ab6d732a8715f0be3ffbcdff79b
-parent d87499ed1a3ba0f6dbcff8d91c96ef132c115d08
-author Vincent Hanquez <vincent@snarc.org> Wed, 25 Jan 2006 14:49:13 +0100
-committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 06 Feb 2006 12:17:18 -0800
+commit 022f7b07bf2b384ece7fbd7edb90e54cd78db252
+tree 7eae52ca103253babb194b8bae92c15340d82c0b
+parent 68f5f996347dc2724a0dd511683643a2b6912380
+author Pavel Machek <pavel@suse.cz> Sun, 22 Jan 2006 22:38:52 +0100
+committer Greg Kroah-Hartman <gregkh@suse.de> Mon, 06 Feb 2006 12:17:17 -0800
 
- fs/debugfs/file.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/base/power/sysfs.c |   24 ++++++++++++++++--------
+ 1 files changed, 16 insertions(+), 8 deletions(-)
 
-diff --git a/fs/debugfs/file.c b/fs/debugfs/file.c
-index efc97d9..d575452 100644
---- a/fs/debugfs/file.c
-+++ b/fs/debugfs/file.c
-@@ -56,7 +56,7 @@ static u64 debugfs_u8_get(void *data)
- DEFINE_SIMPLE_ATTRIBUTE(fops_u8, debugfs_u8_get, debugfs_u8_set, "%llu\n");
+diff --git a/drivers/base/power/sysfs.c b/drivers/base/power/sysfs.c
+index f3a0c56..40d7242 100644
+--- a/drivers/base/power/sysfs.c
++++ b/drivers/base/power/sysfs.c
+@@ -27,22 +27,30 @@
  
- /**
-- * debugfs_create_u8 - create a file in the debugfs filesystem that is used to read and write a unsigned 8 bit value.
-+ * debugfs_create_u8 - create a file in the debugfs filesystem that is used to read and write an unsigned 8 bit value.
-  *
-  * @name: a pointer to a string containing the name of the file to create.
-  * @mode: the permission that the file should have
-@@ -98,7 +98,7 @@ static u64 debugfs_u16_get(void *data)
- DEFINE_SIMPLE_ATTRIBUTE(fops_u16, debugfs_u16_get, debugfs_u16_set, "%llu\n");
+ static ssize_t state_show(struct device * dev, struct device_attribute *attr, char * buf)
+ {
+-	return sprintf(buf, "%u\n", dev->power.power_state.event);
++	if (dev->power.power_state.event)
++		return sprintf(buf, "2\n");
++	else
++		return sprintf(buf, "0\n");
+ }
  
- /**
-- * debugfs_create_u16 - create a file in the debugfs filesystem that is used to read and write a unsigned 8 bit value.
-+ * debugfs_create_u16 - create a file in the debugfs filesystem that is used to read and write an unsigned 16 bit value.
-  *
-  * @name: a pointer to a string containing the name of the file to create.
-  * @mode: the permission that the file should have
-@@ -140,7 +140,7 @@ static u64 debugfs_u32_get(void *data)
- DEFINE_SIMPLE_ATTRIBUTE(fops_u32, debugfs_u32_get, debugfs_u32_set, "%llu\n");
+ static ssize_t state_store(struct device * dev, struct device_attribute *attr, const char * buf, size_t n)
+ {
+ 	pm_message_t state;
+-	char * rest;
+-	int error = 0;
++	int error = -EINVAL;
  
- /**
-- * debugfs_create_u32 - create a file in the debugfs filesystem that is used to read and write a unsigned 8 bit value.
-+ * debugfs_create_u32 - create a file in the debugfs filesystem that is used to read and write an unsigned 32 bit value.
-  *
-  * @name: a pointer to a string containing the name of the file to create.
-  * @mode: the permission that the file should have
+-	state.event = simple_strtoul(buf, &rest, 10);
+-	if (*rest)
+-		return -EINVAL;
+-	if (state.event)
++	state.event = PM_EVENT_SUSPEND;
++	/* Older apps expected to write "3" here - confused with PCI D3 */
++	if ((n == 1) && !strcmp(buf, "3"))
+ 		error = dpm_runtime_suspend(dev, state);
+-	else
++
++	if ((n == 1) && !strcmp(buf, "2"))
++		error = dpm_runtime_suspend(dev, state);
++
++	if ((n == 1) && !strcmp(buf, "0")) {
+ 		dpm_runtime_resume(dev);
++		error = 0;
++	}
++
+ 	return error ? error : n;
+ }
+ 
 

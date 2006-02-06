@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWBFO4y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWBFO6y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932143AbWBFO4y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 09:56:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWBFO4y
+	id S932144AbWBFO6y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 09:58:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWBFO6y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 09:56:54 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:28863 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932143AbWBFO4x (ORCPT
+	Mon, 6 Feb 2006 09:58:54 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:37823 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932144AbWBFO6x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 09:56:53 -0500
-Date: Mon, 6 Feb 2006 15:56:34 +0100 (MET)
+	Mon, 6 Feb 2006 09:58:53 -0500
+Date: Mon, 6 Feb 2006 15:58:29 +0100 (MET)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Mark Lord <lkml@rtr.ca>, Ulrich Mueller <ulm@kph.uni-mainz.de>,
-       Herbert Poetzl <herbert@13thfloor.at>, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Byron Stanoszek <gandalf@winds.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH ]  VMSPLIT config options (with default config fixed)
-In-Reply-To: <1139174355.3131.50.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.61.0602061554550.31522@yvahk01.tjqt.qr>
-References: <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de>
-  <Pine.LNX.4.63.0601100840400.9511@winds.org>  <20060110143931.GM3389@suse.de>
-  <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org> <43C3E9C2.1000309@rtr.ca> 
- <20060110173217.GU3389@suse.de> <43C3F0CA.10205@rtr.ca>  <43C403BA.1050106@pobox.com>
- <43C40803.2000106@rtr.ca>  <20060201222314.GA26081@MAIL.13thfloor.at> 
- <uhd7irpi7@a1i15.kph.uni-mainz.de>  <Pine.LNX.4.61.0602022144190.30391@yvahk01.tjqt.qr>
-  <43E3DB99.9020604@rtr.ca>  <Pine.LNX.4.61.0602041204490.30014@yvahk01.tjqt.qr>
-  <1139153913.3131.42.camel@laptopd505.fenrus.org> 
- <Pine.LNX.4.61.0602052212430.330@yvahk01.tjqt.qr> <1139174355.3131.50.camel@laptopd505.fenrus.org>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+cc: Neil Brown <neilb@suse.de>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Phillip Susi <psusi@cfl.rr.com>, Olivier Galibert <galibert@pobox.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+In-Reply-To: <m3bqxkivra.fsf@defiant.localdomain>
+Message-ID: <Pine.LNX.4.61.0602061557240.31522@yvahk01.tjqt.qr>
+References: <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo>
+ <787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com>
+ <Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr> <20060202210949.GD10352@voodoo>
+ <43E27792.nail54V1B1B3Z@burner> <"787b0d920602 <Pine.LNX.4.61.0602050838110.6749"@yvahk01.tjqt.qr>
+ <43E62492.6080506@cfl.rr.com> <E4D853FC-34C1-4332-BF92-D90E059D7543@mac.com>
+ <17382.31725.813127.10435@cse.unsw.edu.au> <m3bqxkivra.fsf@defiant.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >> What userspace programs do depend on it?
->> >
->> >there is a lot of userspace that assumes they can do 2Gb or even close
->> >to 3Gb of memory allocations. Databases, java, basically anything with
->> >threads. Sure for most of these its a configuration option to reduce
->> >this, but that still doesn't mean it's a good idea to change from the
->> >existing behavior...
->> > 
->> Not to mention that these (almost(*)) fail anyway when you have less than 2 
->> GB of RAM.
 >
->it's not really overcommit... it can also be file mmaps or shared mmaps
->of say tmpfs files (the later is common with oracle actually)
+>> Bit on open without O_EXCL will always succeed no matter whether
+>> someone has it O_EXCL or not.
 >
+>Ok. That means hald has no use for it, but cdrecord and similar
+>programs could use it.
 
-So, just as I did in the sample patch, the manual split shall depend on 
-EMBEDDED. Those who run fat databases with big malloc/mmap assumptions 
-don't probably belong to the group using CONFIG_EMBEDDED.
+But that again sounds like hald won't use O_EXCL, therefore could always be 
+able to open the device and potentially send commands which interrupt cd 
+writing.
 
 
 Jan Engelhardt

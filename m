@@ -1,95 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWBFD3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWBFDaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbWBFD3W (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 22:29:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbWBFD3V
+	id S1750873AbWBFDaY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 22:30:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbWBFDaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 22:29:21 -0500
-Received: from smtpout.mac.com ([17.250.248.87]:8654 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1750885AbWBFD3V (ORCPT
+	Sun, 5 Feb 2006 22:30:24 -0500
+Received: from ns1.suse.de ([195.135.220.2]:22962 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750873AbWBFDaW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 22:29:21 -0500
-In-Reply-To: <17382.43646.567406.987585@cse.unsw.edu.au>
-References: <43DEB4B8.5040607@zytor.com> <17374.47368.715991.422607@cse.unsw.edu.au> <43DEC095.2090507@zytor.com> <17374.50399.1898.458649@cse.unsw.edu.au> <43DEC5DC.1030709@zytor.com> <17382.43646.567406.987585@cse.unsw.edu.au>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <BBB1D529-4E8F-48A9-BAB2-698B7B132C42@mac.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, klibc list <klibc@zytor.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-raid@vger.kernel.org
+	Sun, 5 Feb 2006 22:30:22 -0500
+From: Neil Brown <neilb@suse.de>
+To: Dan Williams <dan.j.williams@intel.com>
+Date: Mon, 6 Feb 2006 14:30:03 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Exporting which partitions to md-configure
-Date: Sun, 5 Feb 2006 22:29:14 -0500
-To: Neil Brown <neilb@suse.de>
-X-Mailer: Apple Mail (2.746.2)
+Message-ID: <17382.49851.373366.929920@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       Chris Leech <christopher.leech@intel.com>,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       Deepak Saxena <dsaxena@plexity.net>
+Subject: Re: [RFC][PATCH 000 of 3] MD Acceleration and the ADMA interface:
+	Introduction
+In-Reply-To: message from Dan Williams on Thursday February 2
+References: <1138931168.6620.8.camel@dwillia2-linux.ch.intel.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 05, 2006, at 20:46, Neil Brown wrote:
-> On Monday January 30, hpa@zytor.com wrote:
->> Well, if we're going to have a generic facility it should make  
->> sense across the board.  If all we're doing is supporting legacy  
->> usage we might as well export a flag.
->>
->> I guess we could have a single entry with a string of the form  
->> "efi:e6d6d379-f507-44c2-a23c-238f2a3df928" or "msdos:fd" etc -- it  
->> really doesn't make any difference to me, but it seems cleaner to  
->> have two pieces of data in two different sysfs entries.
->
-> What constitutes 'a piece of data'?  A bit? a byte?
->
-> I would say that
->    msdos:fd
-> is one piece of data.  The 'fd' is useless without the 'msdos'. The  
-> 'msdos' is, I guess, not completely useless with the fd.  I would  
-> lean towards the composite, but I wouldn't fight a separation.
+On Thursday February 2, dan.j.williams@intel.com wrote:
+> This patch set was originally posted to linux-raid, Neil suggested that
+> I send to linux-kernel as well:
+> 
+> Per the discussion in this thread (http://marc.theaimsgroup.com/?
+> t=112603120100004&r=1&w=2) these patches implement the first phase of MD
+> acceleration, pre-emptible xor.  To date these patches only cover raid5
+> calls to compute_parity for read/modify and reconstruct writes.  The
+> plan is to expand this to cover raid5 check parity, raid5 compute block,
+> as well as the raid6 equivalents.
+> 
+> The ADMA (Asynchronous / Application Specific DMA) interface is proposed
+> as a cross platform mechanism for supporting system CPU offload engines.
+> The goal is to provide a unified asynchronous interface to support
+> memory copies, block xor, block pattern setting, block compare, CRC
+> calculation, cryptography etc.  The ADMA interface should support a PIO
+> fallback mode allowing a given ADMA engine implementation to use the
+> system CPU for operations without a hardware accelerated backend.  In
+> other words a client coded to the ADMA interface transparently receives
+> hardware acceleration for its operations depending on the features of
+> the underlying platform.
 
-I think this boundary is blurred by the fact that several partition  
-tables allow mostly-arbitrary partition type strings.  It would be  
-convenient to not have to worry about the prefix in that case.  You  
-would need just the partition type in the parent device anyways, so  
-why munge it into the partition label too?
+I've looked through the patches - not exhaustively, but hopefully
+enough to get a general idea of what is happening.
+There are some things I'm not clear on and some things that I could
+suggest alternates too...
 
->>> And if other partition styles wanted to add support for raid auto
->>> detect, tell them "no". It is perfectly possible and even preferable
->>> to live without autodetect.   We should support legacy usage (those
->>> above) but should discourage any new usage.
->>
->> Why is that, keeping in mind this will all be done in userspace?
->
-> partition-type based autodetect is easily fooled.  If you take a  
-> pair of drives from a failed computer, plug them into a similar  
-> computer for data recovery, and boot:  you might have two different  
-> pairs of drives that both want to be 'md0'.  Which wins?
+ - Each ADMA client (e.g. a raid5 array) gets a dedicated adma thread
+   to handle all its requests.  And it handles them all in series.  I
+   wonder if this is really optimal.  If there are multiple adma
+   engines, then a single client could only make use of one of them
+   reliably.
+   It would seem to make more sense to have just one thread - or maybe
+   one per processor or one per adma engine - and have any ordering
+   between requests made explicit in the interface.
 
-Nonono, not _just_ partition-type based autodetect, but a more  
-complicated solution done _completely_ in userspace.  Essentially, by  
-exporting this data you would merely be providing _extra_ pieces of  
-data that could be verified on boot.  If I know that my boot RAID  
-volumes for my desktop always have a partition table type string of  
-"Linux_RAID_<unique-id>", then I can _also_ verify that in my  
-initramdisk.  This isn't as useful on x86, but that's no reason to  
-prevent it from being used on archs that do allow 31+ character  
-strings for partition types.
+   Actually as each processor could be seen as an ADMA engine, maybe
+   you want one thread per processor AND one per engine.  If there are
+   no engines, the per-processor threads run with high priority, else
+   with low.
 
-> I believe there needs to be a clear, non ambigous, causality path  
-> from the kernel paramters, initramfs, or machine hardware that  
-> leads to the arrays to be assembled and hence the filesystem to be  
-> mounted.
+ - I have thought that the way md/raid5 currently does the
+   'copy-to-buffer' and 'xor' in two separate operations may not be
+   the best use of the memory bus.  If you could have a 3-address
+   operation that read from A, stored into B, and xorred into C, then
+   A would have to be read half as often.  Would such an interface
+   make sense with ADMA?  I don't have sufficient knowledge of
+   assemble to do it myself for the current 'xor' code.
 
-This is one way of doing that on a systems with mac partition  
-tables.  The autoprobing is mostly useless on x86 hardware due to the  
-limited range of partition types, but that's x86's problem.
+ - Your handling of highmem doesn't seem right.  You shouldn't kmap it
+   until you have decided that you have to do the operation 'by hand'
+   (i.e. in the cpu, not in the DMA engine).  If the dma engine can be
+   used at all, kmap isn't needed at all.
 
-Cheers,
-Kyle Moffett
+ - The interfacing between raid5 and adma seems clumsy... Maybe this
+   is just because you were trying to minimise changes to raid5.c.
+   I think it would be better to make substantial but elegant changes
+   to raid5.c - handle_stripe in particular - so that what is
+   happening becomes very obvious.
 
---
-If you don't believe that a case based on [nothing] could potentially  
-drag on in court for _years_, then you have no business playing with  
-the legal system at all.
-   -- Rob Landley
+   For example, one it has been decided to initiate a write (there is
+   enough data to correctly update the parity block).  You need to
+   perform a sequence of copies and xor operations, and then submit
+   write requests.
+   This is currently done by the copy/xor happening inline under the
+   sh->lock spinlock, and then R5_WantWrite is set.  Then, out side
+   the spinlock, if WantWrite is set generic_make_request is calls as
+   appropriate. 
+
+   I would change this so that a sequence of descriptors was assembled
+   which described that copies and xors.  Appropriate call-backs would
+   be set so that the generic_make_request is called at the right time
+   (after the copy, or after that last xor for the parity block).
+   Then outside the sh->lock spinlock this sequence is passed to the
+   ADMA manager.  If there is no ADMA engine present, everything is
+   performed inline - multiple xors are possibly combined into
+   multi-way xors automatically.  If there is an ADMA engine, it is
+   scheduled to do the work.
+
+   The relevant blocks are all 'locked' as they are added to the
+   sequence, and unlocked as the writes complete or, for unchanged
+   block in RECONSTRUCT_WRITE, when the copy xor that uses them
+   completes. 
+
+   resync operations would construct similar descriptor sequences, and
+   have a different call-back on completion.
 
 
+   Doing this would require making sure that get_desc always
+   succeeds.  I notice that you currently allow for the possible
+   failure of adma_get_desc and fall back to 'pio' in that case (I
+   think).  I think it would be better to use a mempool (or similar)
+   to ensure that you never fail.  There is a simple upper bound on
+   the number of descriptors you need for one stripe.  Make sure you
+   have that many from the pool at the top of handle_stripe.  Then use
+   as many as you need inside the spinlock in handle_stripe without
+   worrying if you have enough or not.
 
+I hope that if helpful and look forward to seeing future progress in
+this area.
+
+NeilBrown

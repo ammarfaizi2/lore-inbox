@@ -1,65 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWBFXY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWBFX2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932292AbWBFXY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 18:24:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWBFXY1
+	id S964866AbWBFX2v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 18:28:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbWBFX2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 18:24:27 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:36056 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932292AbWBFXY1 (ORCPT
+	Mon, 6 Feb 2006 18:28:50 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:65176 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964865AbWBFX2t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 18:24:27 -0500
-Date: Tue, 7 Feb 2006 00:22:54 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent spinlock debug from timing out too early
-Message-ID: <20060206232254.GA13566@elte.hu>
-References: <200602062216.28943.ak@suse.de> <20060206213618.GA28566@elte.hu> <200602062242.30897.ak@suse.de>
+	Mon, 6 Feb 2006 18:28:49 -0500
+Date: Mon, 6 Feb 2006 15:30:08 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: clameter@engr.sgi.com, linux-kernel@vger.kernel.org,
+       manfred@colorfullife.com, shai@scalex86.org,
+       alok.kataria@calsoftinc.com, sonny@burdell.org,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [patch 2/3] NUMA slab locking fixes - move irq disabling from
+ cahep->spinlock to l3 lock
+Message-Id: <20060206153008.361202e1.akpm@osdl.org>
+In-Reply-To: <20060206225117.GB3578@localhost.localdomain>
+References: <20060203205341.GC3653@localhost.localdomain>
+	<20060203140748.082c11ee.akpm@osdl.org>
+	<Pine.LNX.4.62.0602031504460.2517@schroedinger.engr.sgi.com>
+	<20060204010857.GG3653@localhost.localdomain>
+	<20060204012800.GI3653@localhost.localdomain>
+	<20060204014828.44792327.akpm@osdl.org>
+	<20060206225117.GB3578@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602062242.30897.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andi Kleen <ak@suse.de> wrote:
-
-> > a better solution would be to call __delay(1) after the first failed 
-> > attempt, that would make the delay at least 1 second long. It seems 
-> > __delay() is de-facto exported by every architecture, so we can rely on 
-> > it in the global spinlock code.
+Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
+>
+> On Sat, Feb 04, 2006 at 01:48:28AM -0800, Andrew Morton wrote:
+> > Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
+> > >
+> > > Earlier, we had to disable on chip interrupts while taking the cachep->spinlock
+> > >  because, at cache_grow, on every addition of a slab to a slab cache, we 
+> > >  incremented colour_next which was protected by the cachep->spinlock, and
+> > >  cache_grow could occur at interrupt context.  Since, now we protect the 
+> > >  per-node colour_next with the node's list_lock, we do not need to disable 
+> > >  on chip interrupts while taking the per-cache spinlock, but we
+> > >  just need to disable interrupts when taking the per-node kmem_list3 list_lock.
 > > 
-> > So how about the patch below instead?
+> > It'd be nice to have some comments describing what cachep->spinlock
+> > actually protects.
 > 
-> Are you sure loops_per_jiffie is always in delay(1) units?
+> Actually, it does not protect much anymore.  Here's a cleanup+comments
+> patch (against current mainline).
 
-there are a few explicit calls to __delay() in drivers/*, so i'd assume 
-so. A grep also seems to suggest so:
+This is getting scary.  Manfred, Christoph, Pekka: have you guys taken a
+close look at what's going on in here?
 
- ./ppc/xmon/xmon.c:extern inline void __delay(unsigned int loops)
- ./x86_64/lib/delay.c:void __delay(unsigned long loops)
- ./sparc64/lib/delay.c:void __delay(unsigned long loops)
- ./sh64/lib/udelay.c:void __delay(int loops)
- ./m32r/lib/delay.c:void __delay(unsigned long loops)
- ./i386/lib/delay.c:void __delay(unsigned long loops)
- ./s390/lib/delay.c:void __delay(unsigned long loops)
- ./sh/lib/delay.c:void __delay(unsigned long loops)
- ./powerpc/kernel/time.c:void __delay(unsigned long loops)
+> The non atomic stats on the cachep structure now needs serialization though,
+> would a spinlock be better there instead of changing them over to atomic_t s
+> ? I wonder...
 
-but yes, this is a non-specified thing so far, so there could be 
-problems on some platforms. Worst-case we never time out - which could 
-be detected via the NMI watchdog or the soft-lockup watchdog - so it's 
-not like they would go unnoticed.
+It's common for the kernel to use non-atomic ops for stats such as this
+(networking especially).  We accept the small potential for small
+inaccuracy as an acceptable tradeoff for improved performance.
 
-	Ingo
+But given that a) these stats are only enabled with CONFIG_DEBUG_SLAB and
+b) CONFIG_DEBUG_SLAB causes performance to suck the big one anyway and c)
+the slab.c stats are wrapped in handy macros, yes, I guess it wouldn't hurt
+to make these guys atomic_t.  Sometime.  My slab.c is looking rather
+overpatched again at present.
+
+A problem right now is the -mm-only slab debug patches
+(slab-leak-detector.patch, slab-cache-shrinker-statistics.patch and the
+currently-dropped
+periodically-scan-redzone-entries-and-slab-control-structures.patch).  It
+would be good if we could finish these things off and get them into mainline
+so things get a bit sane again.
+
+

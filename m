@@ -1,76 +1,1155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWBFNia@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWBFNio@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWBFNia (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 08:38:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWBFNiI
+	id S932104AbWBFNio (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 08:38:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWBFNic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 6 Feb 2006 08:38:32 -0500
+Received: from mail.gmx.net ([213.165.64.21]:53229 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932103AbWBFNiI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 6 Feb 2006 08:38:08 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:50413 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932101AbWBFNiF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 08:38:05 -0500
-Date: Mon, 06 Feb 2006 22:37:31 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
-       "Brown, Len" <len.brown@intel.com>, "Luck, Tony" <tony.luck@intel.com>,
-       naveen.b.s@intel.com, Andi Kleen <ak@suse.de>
-Subject: [RFC:PATCH(003/003)] Memory add to onlined node.(For x86_64)
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       ACPI-ML <linux-acpi@vger.kernel.org>, linux-ia64@vger.kernel.org,
-       x86-64 Discuss <discuss@x86-64.org>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.062
-Message-Id: <20060206222347.060B.Y-GOTO@jp.fujitsu.com>
+X-Authenticated: #7534793
+Date: Mon, 6 Feb 2006 14:34:51 +0100
+From: Gerhard Schrenk <deb.gschrenk@gmx.de>
+To: "Yu, Luming" <luming.yu@intel.com>
+Cc: "Brown, Len" <len.brown@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: EC interrupt mode by default breaks power button and lid button
+Message-ID: <20060206133451.GA4040@mailhub.uni-konstanz.de>
+References: <3ACA40606221794F80A5670F0AF15F84041AC24F@pdsmsx403>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
+Content-Type: multipart/mixed; boundary="y0ulUmNC+osPPQO6"
+Content-Disposition: inline
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F84041AC24F@pdsmsx403>
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is for x86_64 to add memory which belongs onlined node.
-This patch is just confirmed compile completion.
-If there is no objection, I would like to test this.
 
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+--y0ulUmNC+osPPQO6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Index: linux-2.6.15/arch/x86_64/mm/init.c
-===================================================================
---- linux-2.6.15.orig/arch/x86_64/mm/init.c	2006-02-06 16:47:41.000000000 +0900
-+++ linux-2.6.15/arch/x86_64/mm/init.c	2006-02-06 18:31:52.000000000 +0900
-@@ -26,6 +26,7 @@
- #include <linux/dma-mapping.h>
- #include <linux/module.h>
- #include <linux/memory_hotplug.h>
-+#include <linux/acpi.h>
- 
- #include <asm/processor.h>
- #include <asm/system.h>
-@@ -494,11 +495,20 @@
- 
- int add_memory(u64 start, u64 size)
- {
--	struct pglist_data *pgdat = NODE_DATA(0);
--	struct zone *zone = pgdat->node_zones + MAX_NR_ZONES-2;
-+	struct pglist_data *pgdat;
-+	struct zone *zone;
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
--	int ret;
-+	int ret, node;
-+
-+	node = acpi_paddr_to_node(start, size);
-+	if (node >= 0 && node_online(node))
-+		pgdat = NODE_DATA(node);
-+	else
-+		/* New node's memory will be added to Node 0 temporally. */
-+		pgdat = NODE_DATA(0);
-+
-+	zone = pgdat->node_zones + MAX_NR_ZONES - 2;
- 
- 	ret = __add_pages(zone, start_pfn, nr_pages);
- 	if (ret)
+* Yu, Luming <luming.yu@intel.com> [2006-02-06 13:35]:
 
--- 
-Yasunori Goto 
+> Please don't revert that patch, and test kernel parameter ec_intr=0
+
+Yes, boot option ec_initr=0 helps power/lid buttons. (Tested with
+yesterdays newest kernel from linus' tree.)
+
+> Also, please send me acpidump output.
+
+Attached. Generated with following error message
+
+|gps@medusa:~$ sudo acpidump > acpidump.txt 
+|Wrong checksum for generic table!
+
+I can only boot with pci=noacpi (or acpi=off). My current boot options are
+
+|gps@medusa:~$ cat /proc/cmdline 
+|root=/dev/hda8 ro pci=noacpi resume=/dev/hda2 video=intelfb:mode=1280x800-32@60 ec_intr=0
 
 
+Thanks,
+-- Gerhard
+
+
+BTW (I): With newest kernel. I believe since v2.6.16-rc2 rebooting ("sudo
+reboot") my system fails/hangs somtimes. But thats not reproducible...
+
+BTW (II): intelfb never worked for me. dmesg always says:
+
+|gps@medusa:~$ dmesg | grep intelfb
+|intelfb: Framebuffer driver for Intel(R) 830M/845G/852GM/855GM/865G/915G/915GM chipsets
+|intelfb: Version 0.9.2
+|intelfb: 00:02.0: Intel(R) 915GM, aperture size 128MB, stolen memory 32636kB
+|intelfb: Non-CRT device is enabled ( LVDS port ).  Disabling mode switching.
+|intelfb: Video mode must be programmed at boot time.
+
+
+
+--y0ulUmNC+osPPQO6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="acpidump.txt"
+
+DSDT @ 0x1dfd0440
+  0000: 44 53 44 54 c9 3b 00 00 01 86 4d 53 49 00 00 00  DSDT.;....MSI...
+  0010: 31 30 31 32 20 20 20 20 05 20 25 02 49 4e 54 4c  1012    . %.INTL
+  0020: 26 20 00 02 10 40 0f 5c 5f 50 52 5f 5b 83 47 0e  & ...@.\_PR_[.G.
+  0030: 43 50 55 31 01 10 08 00 00 06 5b 80 53 53 44 54  CPU1......[.SSDT
+  0040: 00 0c 50 40 fd 1d 0b cc 03 08 4e 43 50 55 0a 01  ..P@......NCPU..
+  0050: 08 54 59 50 45 0c 00 00 00 80 08 48 4e 44 4c 0c  .TYPE......HNDL.
+  0060: 00 00 00 80 14 40 0b 5f 50 44 43 01 8a 68 0a 08  .....@._PDC..h..
+  0070: 44 41 54 30 70 44 41 54 30 54 59 50 45 5b 80 50  DAT0pDAT0TYPE[.P
+  0080: 4d 52 47 01 5c 50 4d 42 53 0a 50 5b 81 31 50 4d  MRG.\PMBS.P[.1PM
+  0090: 52 47 01 00 48 20 44 45 56 34 01 44 45 56 35 01  RG..H DEV4.DEV5.
+  00a0: 44 45 56 36 01 44 45 56 37 01 53 54 53 34 01 53  DEV6.DEV7.STS4.S
+  00b0: 54 53 35 01 53 54 53 36 01 53 54 53 37 01 a0 2c  TS5.STS6.STS7..,
+  00c0: 90 93 4e 43 50 55 0a 02 93 7b 54 59 50 45 0a 0a  ..NCPU...{TYPE..
+  00d0: 00 0a 0a 70 0a 01 53 54 53 37 70 0a 01 44 45 56  ...p..STS7p..DEV
+  00e0: 37 5b 20 53 53 44 54 48 4e 44 4c a0 29 90 93 4e  7[ SSDTHNDL.)..N
+  00f0: 43 50 55 0a 01 93 7b 54 59 50 45 0a 01 00 0a 01  CPU...{TYPE.....
+  0100: a0 14 92 7b 54 59 50 45 0a 10 00 5b 20 53 53 44  ...{TYPE...[ SSD
+  0110: 54 48 4e 44 4c 08 41 50 49 43 0a 01 08 50 4d 42  THNDL.APIC...PMB
+  0120: 53 0b 00 08 08 50 4d 4c 4e 0a 80 08 47 50 42 53  S....PMLN...GPBS
+  0130: 0b 80 04 08 47 50 4c 4e 0a 40 08 53 4d 42 53 0a  ....GPLN.@.SMBS.
+  0140: 00 08 53 4d 42 4c 0a 00 08 50 4d 33 30 0b 30 08  ..SMBL...PM30.0.
+  0150: 08 53 55 53 57 0a ff 08 50 43 49 42 0c 00 00 00  .SUSW...PCIB....
+  0160: e0 08 50 43 49 4c 0c 00 00 00 10 5b 80 42 49 4f  ..PCIL.....[.BIO
+  0170: 53 00 0c 64 e0 fd 1d 0a ff 5b 81 41 05 42 49 4f  S..d.....[.A.BIO
+  0180: 53 01 53 53 31 5f 01 53 53 32 5f 01 53 53 33 5f  S.SS1_.SS2_.SS3_
+  0190: 01 53 53 34 5f 01 00 04 49 4f 53 54 10 54 4f 50  .SS4_...IOST.TOP
+  01a0: 4d 20 52 4f 4d 53 20 4d 47 31 42 20 4d 47 31 4c  M ROMS MG1B MG1L
+  01b0: 20 4d 47 32 42 20 4d 47 32 4c 20 00 08 41 53 53   MG2B MG2L ..ASS
+  01c0: 42 08 41 4f 54 42 08 41 41 58 42 20 14 0f 52 52  B.AOTB.AAXB ..RR
+  01d0: 49 4f 04 70 0d 52 52 49 4f 00 5b 31 14 0f 52 44  IO.p.RRIO.[1..RD
+  01e0: 4d 41 03 70 0d 72 44 4d 41 00 5b 31 08 50 49 43  MA.p.rDMA.[1.PIC
+  01f0: 4d 0a 00 14 1f 5f 50 49 43 01 a0 09 68 70 0a aa  M...._PIC...hp..
+  0200: 44 42 47 38 a1 08 70 0a ac 44 42 47 38 70 68 50  DBG8..p..DBG8phP
+  0210: 49 43 4d 08 4f 53 56 52 ff 14 46 09 4f 53 46 4c  ICM.OSVR..F.OSFL
+  0220: 00 a0 0d 92 93 4f 53 56 52 ff a4 4f 53 56 52 a0  .....OSVR..OSVR.
+  0230: 0f 93 50 49 43 4d 0a 00 70 0a ac 44 42 47 38 70  ..PICM..p..DBG8p
+  0240: 0a 01 4f 53 56 52 a0 27 4d 43 54 48 5c 5f 4f 53  ..OSVR.'MCTH\_OS
+  0250: 5f 0d 4d 69 63 72 6f 73 6f 66 74 20 57 69 6e 64  _.Microsoft Wind
+  0260: 6f 77 73 20 4e 54 00 70 0a 00 4f 53 56 52 a1 3c  ows NT.p..OSVR.<
+  0270: a0 3a 4d 43 54 48 5c 5f 4f 53 5f 0d 4d 69 63 72  .:MCTH\_OS_.Micr
+  0280: 6f 73 6f 66 74 20 57 69 6e 64 6f 77 73 4d 45 3a  osoft WindowsME:
+  0290: 20 4d 69 6c 6c 65 6e 6e 69 75 6d 20 45 64 69 74   Millennium Edit
+  02a0: 69 6f 6e 00 70 0a 02 4f 53 56 52 a4 4f 53 56 52  ion.p..OSVR.OSVR
+  02b0: 14 4f 04 4d 43 54 48 02 a0 08 95 87 68 87 69 a4  .O.MCTH.....h.i.
+  02c0: 00 72 87 68 0a 01 60 08 42 55 46 30 11 02 60 08  .r.h..`.BUF0..`.
+  02d0: 42 55 46 31 11 02 60 70 68 42 55 46 30 70 69 42  BUF1..`phBUF0piB
+  02e0: 55 46 31 a2 1a 60 76 60 a0 15 92 93 83 88 42 55  UF1..`v`......BU
+  02f0: 46 30 60 00 83 88 42 55 46 31 60 00 a4 00 a4 01  F0`...BUF1`.....
+  0300: 08 50 52 57 50 12 04 02 00 00 14 43 08 47 50 52  .PRWP......C.GPR
+  0310: 57 02 70 68 88 50 52 57 50 0a 00 00 70 79 53 53  W.ph.PRWP...pySS
+  0320: 31 5f 0a 01 00 60 7d 60 79 53 53 32 5f 0a 02 00  1_...`}`ySS2_...
+  0330: 60 7d 60 79 53 53 33 5f 0a 03 00 60 7d 60 79 53  `}`ySS3_...`}`yS
+  0340: 53 34 5f 0a 04 00 60 a0 13 7b 79 0a 01 69 00 60  S4_...`..{y..i.`
+  0350: 00 70 69 88 50 52 57 50 0a 01 00 a1 2d 7a 60 0a  .pi.PRWP....-z`.
+  0360: 01 60 a0 1a 91 93 4f 53 46 4c 0a 01 93 4f 53 46  .`....OSFL...OSF
+  0370: 4c 0a 02 81 60 88 50 52 57 50 0a 01 00 a1 0b 82  L...`.PRWP......
+  0380: 60 88 50 52 57 50 0a 01 00 a4 50 52 57 50 08 57  `.PRWP....PRWP.W
+  0390: 41 4b 50 12 04 02 00 00 5b 80 44 45 42 30 01 0a  AKP.....[.DEB0..
+  03a0: 80 0a 01 5b 81 0b 44 45 42 30 01 44 42 47 38 08  ...[..DEB0.DBG8.
+  03b0: 5b 80 44 45 42 31 01 0a 90 0a 02 5b 81 0b 44 45  [.DEB1.....[..DE
+  03c0: 42 31 02 44 42 47 39 10 10 83 bb 02 5c 5f 53 42  B1.DBG9.....\_SB
+  03d0: 5f 08 50 52 30 30 12 43 0f 0f 12 0f 04 0c ff ff  _.PR00.C........
+  03e0: 01 00 0a 00 4c 4e 4b 41 0a 00 12 0f 04 0c ff ff  ....LNKA........
+  03f0: 02 00 0a 00 4c 4e 4b 41 0a 00 12 0f 04 0c ff ff  ....LNKA........
+  0400: 1f 00 0a 00 4c 4e 4b 43 0a 00 12 0f 04 0c ff ff  ....LNKC........
+  0410: 1f 00 0a 01 4c 4e 4b 44 0a 00 12 0f 04 0c ff ff  ....LNKD........
+  0420: 1d 00 0a 00 4c 4e 4b 48 0a 00 12 0f 04 0c ff ff  ....LNKH........
+  0430: 1d 00 0a 01 4c 4e 4b 44 0a 00 12 0f 04 0c ff ff  ....LNKD........
+  0440: 1d 00 0a 02 4c 4e 4b 43 0a 00 12 0f 04 0c ff ff  ....LNKC........
+  0450: 1d 00 0a 03 4c 4e 4b 41 0a 00 12 0f 04 0c ff ff  ....LNKA........
+  0460: 1e 00 0a 00 4c 4e 4b 42 0a 00 12 0f 04 0c ff ff  ....LNKB........
+  0470: 1e 00 0a 01 4c 4e 4b 45 0a 00 12 0f 04 0c ff ff  ....LNKE........
+  0480: 1b 00 0a 00 4c 4e 4b 41 0a 00 12 0f 04 0c ff ff  ....LNKA........
+  0490: 1c 00 0a 00 4c 4e 4b 41 0a 00 12 0f 04 0c ff ff  ....LNKA........
+  04a0: 1c 00 0a 01 4c 4e 4b 42 0a 00 12 0f 04 0c ff ff  ....LNKB........
+  04b0: 1c 00 0a 02 4c 4e 4b 43 0a 00 12 0f 04 0c ff ff  ....LNKC........
+  04c0: 1c 00 0a 03 4c 4e 4b 44 0a 00 08 41 52 30 30 12  ....LNKD...AR00.
+  04d0: 45 0d 0f 12 0d 04 0c ff ff 01 00 0a 00 0a 00 0a  E...............
+  04e0: 10 12 0d 04 0c ff ff 02 00 0a 00 0a 00 0a 10 12  ................
+  04f0: 0d 04 0c ff ff 1f 00 0a 00 0a 00 0a 12 12 0d 04  ................
+  0500: 0c ff ff 1f 00 0a 01 0a 00 0a 13 12 0d 04 0c ff  ................
+  0510: ff 1d 00 0a 00 0a 00 0a 17 12 0d 04 0c ff ff 1d  ................
+  0520: 00 0a 01 0a 00 0a 13 12 0d 04 0c ff ff 1d 00 0a  ................
+  0530: 02 0a 00 0a 12 12 0d 04 0c ff ff 1d 00 0a 03 0a  ................
+  0540: 00 0a 10 12 0d 04 0c ff ff 1e 00 0a 00 0a 00 0a  ................
+  0550: 11 12 0d 04 0c ff ff 1e 00 0a 01 0a 00 0a 14 12  ................
+  0560: 0d 04 0c ff ff 1b 00 0a 00 0a 00 0a 10 12 0d 04  ................
+  0570: 0c ff ff 1c 00 0a 00 0a 00 0a 10 12 0d 04 0c ff  ................
+  0580: ff 1c 00 0a 01 0a 00 0a 11 12 0d 04 0c ff ff 1c  ................
+  0590: 00 0a 02 0a 00 0a 12 12 0d 04 0c ff ff 1c 00 0a  ................
+  05a0: 03 0a 00 0a 13 08 50 52 30 32 12 10 01 12 0d 04  ......PR02......
+  05b0: 0b ff ff 0a 00 4c 4e 4b 41 0a 00 08 41 52 30 32  .....LNKA...AR02
+  05c0: 12 0e 01 12 0b 04 0b ff ff 0a 00 0a 00 0a 10 08  ................
+  05d0: 50 52 30 31 12 43 06 06 12 0f 04 0c ff ff 04 00  PR01.C..........
+  05e0: 0a 00 4c 4e 4b 44 0a 00 12 0f 04 0c ff ff 04 00  ..LNKD..........
+  05f0: 0a 01 4c 4e 4b 45 0a 00 12 0f 04 0c ff ff 04 00  ..LNKE..........
+  0600: 0a 02 4c 4e 4b 46 0a 00 12 0f 04 0c ff ff 03 00  ..LNKF..........
+  0610: 0a 00 4c 4e 4b 47 0a 00 12 0f 04 0c ff ff 09 00  ..LNKG..........
+  0620: 0a 00 4c 4e 4b 42 0a 00 12 0f 04 0c ff ff 09 00  ..LNKB..........
+  0630: 0a 01 4c 4e 4b 43 0a 00 08 41 52 30 31 12 47 05  ..LNKC...AR01.G.
+  0640: 06 12 0d 04 0c ff ff 04 00 0a 00 0a 00 0a 13 12  ................
+  0650: 0d 04 0c ff ff 04 00 0a 01 0a 00 0a 14 12 0d 04  ................
+  0660: 0c ff ff 04 00 0a 02 0a 00 0a 15 12 0d 04 0c ff  ................
+  0670: ff 03 00 0a 00 0a 00 0a 16 12 0d 04 0c ff ff 09  ................
+  0680: 00 0a 00 0a 00 0a 11 12 0d 04 0c ff ff 09 00 0a  ................
+  0690: 01 0a 00 0a 12 08 50 52 30 34 12 3a 04 12 0d 04  ......PR04.:....
+  06a0: 0b ff ff 0a 00 4c 4e 4b 41 0a 00 12 0d 04 0b ff  .....LNKA.......
+  06b0: ff 0a 01 4c 4e 4b 42 0a 00 12 0d 04 0b ff ff 0a  ...LNKB.........
+  06c0: 02 4c 4e 4b 43 0a 00 12 0d 04 0b ff ff 0a 03 4c  .LNKC..........L
+  06d0: 4e 4b 44 0a 00 08 41 52 30 34 12 32 04 12 0b 04  NKD...AR04.2....
+  06e0: 0b ff ff 0a 00 0a 00 0a 10 12 0b 04 0b ff ff 0a  ................
+  06f0: 01 0a 00 0a 11 12 0b 04 0b ff ff 0a 02 0a 00 0a  ................
+  0700: 12 12 0b 04 0b ff ff 0a 03 0a 00 0a 13 08 50 52  ..............PR
+  0710: 30 35 12 3a 04 12 0d 04 0b ff ff 0a 00 4c 4e 4b  05.:.........LNK
+  0720: 42 0a 00 12 0d 04 0b ff ff 0a 01 4c 4e 4b 43 0a  B..........LNKC.
+  0730: 00 12 0d 04 0b ff ff 0a 02 4c 4e 4b 44 0a 00 12  .........LNKD...
+  0740: 0d 04 0b ff ff 0a 03 4c 4e 4b 41 0a 00 08 41 52  .......LNKA...AR
+  0750: 30 35 12 32 04 12 0b 04 0b ff ff 0a 00 0a 00 0a  05.2............
+  0760: 11 12 0b 04 0b ff ff 0a 01 0a 00 0a 12 12 0b 04  ................
+  0770: 0b ff ff 0a 02 0a 00 0a 13 12 0b 04 0b ff ff 0a  ................
+  0780: 03 0a 00 0a 10 08 50 52 30 36 12 3a 04 12 0d 04  ......PR06.:....
+  0790: 0b ff ff 0a 00 4c 4e 4b 43 0a 00 12 0d 04 0b ff  .....LNKC.......
+  07a0: ff 0a 01 4c 4e 4b 44 0a 00 12 0d 04 0b ff ff 0a  ...LNKD.........
+  07b0: 02 4c 4e 4b 41 0a 00 12 0d 04 0b ff ff 0a 03 4c  .LNKA..........L
+  07c0: 4e 4b 42 0a 00 08 41 52 30 36 12 32 04 12 0b 04  NKB...AR06.2....
+  07d0: 0b ff ff 0a 00 0a 00 0a 12 12 0b 04 0b ff ff 0a  ................
+  07e0: 01 0a 00 0a 13 12 0b 04 0b ff ff 0a 02 0a 00 0a  ................
+  07f0: 10 12 0b 04 0b ff ff 0a 03 0a 00 0a 11 08 50 52  ..............PR
+  0800: 30 37 12 3a 04 12 0d 04 0b ff ff 0a 00 4c 4e 4b  07.:.........LNK
+  0810: 44 0a 00 12 0d 04 0b ff ff 0a 01 4c 4e 4b 41 0a  D..........LNKA.
+  0820: 00 12 0d 04 0b ff ff 0a 02 4c 4e 4b 42 0a 00 12  .........LNKB...
+  0830: 0d 04 0b ff ff 0a 03 4c 4e 4b 43 0a 00 08 41 52  .......LNKC...AR
+  0840: 30 37 12 32 04 12 0b 04 0b ff ff 0a 00 0a 00 0a  07.2............
+  0850: 13 12 0b 04 0b ff ff 0a 01 0a 00 0a 10 12 0b 04  ................
+  0860: 0b ff ff 0a 02 0a 00 0a 11 12 0b 04 0b ff ff 0a  ................
+  0870: 03 0a 00 0a 12 08 50 52 53 41 11 09 0a 06 23 f0  ......PRSA....#.
+  0880: dc 18 79 00 06 50 52 53 41 50 52 53 42 06 50 52  ..y..PRSAPRSB.PR
+  0890: 53 41 50 52 53 43 06 50 52 53 41 50 52 53 44 06  SAPRSC.PRSAPRSD.
+  08a0: 50 52 53 41 50 52 53 45 06 50 52 53 41 50 52 53  PRSAPRSE.PRSAPRS
+  08b0: 46 06 50 52 53 41 50 52 53 47 06 50 52 53 41 50  F.PRSAPRSG.PRSAP
+  08c0: 52 53 48 5b 82 8e 62 02 50 43 49 30 08 5f 48 49  RSH[..b.PCI0._HI
+  08d0: 44 0c 41 d0 0a 08 08 5f 41 44 52 0a 00 14 0a 5e  D.A...._ADR....^
+  08e0: 42 4e 30 30 00 a4 0a 00 14 0b 5f 42 42 4e 00 a4  BN00......_BBN..
+  08f0: 42 4e 30 30 08 5f 55 49 44 0a 00 14 16 5f 50 52  BN00._UID...._PR
+  0900: 54 00 a0 0a 50 49 43 4d a4 41 52 30 30 a4 50 52  T...PICM.AR00.PR
+  0910: 30 30 14 1f 5f 53 33 44 00 a0 13 91 93 4f 53 46  00.._S3D.....OSF
+  0920: 4c 0a 01 93 4f 53 46 4c 0a 02 a4 0a 02 a1 04 a4  L...OSFL........
+  0930: 0a 03 08 5f 43 49 44 0c 41 d0 0a 03 5b 82 2d 4d  ..._CID.A...[.-M
+  0940: 43 48 5f 08 5f 48 49 44 0c 41 d0 0c 01 08 5f 55  CH_._HID.A...._U
+  0950: 49 44 0a 0a 08 5f 43 52 53 11 11 0a 0e 86 09 00  ID..._CRS.......
+  0960: 01 00 30 d1 fe 00 70 00 00 79 00 14 06 4e 50 54  ..0...p..y...NPT
+  0970: 53 01 14 06 4e 57 41 4b 01 5b 82 26 50 30 50 32  S...NWAK.[.&P0P2
+  0980: 08 5f 41 44 52 0c 00 00 01 00 14 16 5f 50 52 54  ._ADR......._PRT
+  0990: 00 a0 0a 50 49 43 4d a4 41 52 30 32 a4 50 52 30  ...PICM.AR02.PR0
+  09a0: 32 5b 82 4d 09 50 30 50 31 08 5f 41 44 52 0c 00  2[.M.P0P1._ADR..
+  09b0: 00 1e 00 14 16 5f 50 52 54 00 a0 0a 50 49 43 4d  ....._PRT...PICM
+  09c0: a4 41 52 30 31 a4 50 52 30 31 5b 82 0f 43 42 43  .AR01.PR01[..CBC
+  09d0: 30 08 5f 41 44 52 0c 00 00 04 00 5b 82 31 43 42  0._ADR.....[.1CB
+  09e0: 43 31 08 5f 41 44 52 0c 01 00 04 00 14 09 5f 53  C1._ADR......._S
+  09f0: 54 41 00 a4 0a 0f 14 06 5f 49 4e 49 00 14 09 5f  TA......_INI..._
+  0a00: 53 33 44 00 a4 0a 03 14 06 43 45 56 31 00 5b 82  S3D......CEV1.[.
+  0a10: 0f 49 4c 4e 4b 08 5f 41 44 52 0c 02 00 04 00 5b  .ILNK._ADR.....[
+  0a20: 82 1f 4c 41 4e 5f 08 5f 41 44 52 0c 00 00 03 00  ..LAN_._ADR.....
+  0a30: 14 0f 5f 50 52 57 00 a4 47 50 52 57 0a 0b 0a 04  .._PRW..GPRW....
+  0a40: 5b 82 84 4f 01 53 42 52 47 08 5f 41 44 52 0c 00  [..O.SBRG._ADR..
+  0a50: 00 1f 00 10 33 5c 2e 5f 53 42 5f 50 43 49 30 5b  ....3\._SB_PCI0[
+  0a60: 82 26 50 43 49 45 08 5f 48 49 44 0c 41 d0 0c 02  .&PCIE._HID.A...
+  0a70: 08 5f 43 52 53 11 11 0a 0e 86 09 00 01 00 00 00  ._CRS...........
+  0a80: e0 00 00 00 10 79 00 14 06 53 50 54 53 01 14 1b  .....y...SPTS...
+  0a90: 53 57 41 4b 01 a0 05 52 54 43 53 a1 0e 86 5c 2e  SWAK...RTCS...\.
+  0aa0: 5f 53 42 5f 50 57 52 42 0a 02 5b 80 41 50 4d 50  _SB_PWRB..[.APMP
+  0ab0: 01 0a b2 0a 02 5b 81 10 41 50 4d 50 01 41 50 4d  .....[..APMP.APM
+  0ac0: 43 08 41 50 4d 53 08 5b 81 0f 41 50 4d 50 01 00  C.APMS.[..APMP..
+  0ad0: 08 00 01 42 52 54 43 01 5b 80 50 4d 53 30 01 50  ...BRTC.[.PMS0.P
+  0ae0: 4d 42 53 0a 04 5b 81 1d 50 4d 53 30 01 00 0a 52  MBS..[..PMS0...R
+  0af0: 54 43 53 01 00 04 57 41 4b 53 01 00 08 50 57 42  TCS...WAKS...PWB
+  0b00: 54 01 00 07 5b 80 53 4d 49 45 01 50 4d 33 30 0a  T...[.SMIE.PM30.
+  0b10: 08 5b 81 16 53 4d 49 45 01 00 04 50 53 31 45 01  .[..SMIE...PS1E.
+  0b20: 00 1f 50 53 31 53 01 00 1b 5b 82 2b 50 49 43 5f  ..PS1S...[.+PIC_
+  0b30: 08 5f 48 49 44 0b 41 d0 08 5f 43 52 53 11 18 0a  ._HID.A.._CRS...
+  0b40: 15 47 01 20 00 20 00 00 02 47 01 a0 00 a0 00 00  .G. . ...G......
+  0b50: 02 22 04 00 79 00 5b 82 4e 04 44 4d 41 44 08 5f  ."..y.[.N.DMAD._
+  0b60: 48 49 44 0c 41 d0 02 00 08 5f 43 52 53 11 38 0a  HID.A...._CRS.8.
+  0b70: 35 2a 10 04 47 01 00 00 00 00 00 10 47 01 81 00  5*..G.......G...
+  0b80: 81 00 00 03 47 01 87 00 87 00 00 01 47 01 89 00  ....G.......G...
+  0b90: 89 00 00 03 47 01 8f 00 8f 00 00 01 47 01 c0 00  ....G.......G...
+  0ba0: c0 00 00 20 79 00 5b 82 25 54 4d 52 5f 08 5f 48  ... y.[.%TMR_._H
+  0bb0: 49 44 0c 41 d0 01 00 08 5f 43 52 53 11 10 0a 0d  ID.A...._CRS....
+  0bc0: 47 01 40 00 40 00 00 04 22 01 00 79 00 5b 82 25  G.@.@..."..y.[.%
+  0bd0: 52 54 43 30 08 5f 48 49 44 0c 41 d0 0b 00 08 5f  RTC0._HID.A...._
+  0be0: 43 52 53 11 10 0a 0d 47 01 70 00 70 00 00 02 22  CRS....G.p.p..."
+  0bf0: 00 01 79 00 5b 82 44 05 50 53 32 4b 08 5f 48 49  ..y.[.D.PS2K._HI
+  0c00: 44 0c 41 d0 03 03 08 5f 43 49 44 0c 41 d0 03 0b  D.A...._CID.A...
+  0c10: 14 1b 5f 53 54 41 00 79 0a 01 0a 0a 60 a0 0b 7b  .._STA.y....`..{
+  0c20: 49 4f 53 54 60 00 a4 0a 0f a4 0a 00 08 5f 43 52  IOST`........_CR
+  0c30: 53 11 18 0a 15 47 01 60 00 60 00 00 01 47 01 64  S....G.`.`...G.d
+  0c40: 00 64 00 00 01 22 02 00 79 00 5b 82 41 09 50 53  .d..."..y.[.A.PS
+  0c50: 32 4d 08 5f 48 49 44 0c 4f 2e 15 01 08 5f 43 49  2M._HID.O...._CI
+  0c60: 44 12 11 03 0c 4f 2e 15 00 0c 4f 2e 00 02 0c 41  D....O....O....A
+  0c70: d0 0f 13 14 1b 5f 53 54 41 00 79 0a 01 0a 0c 60  ....._STA.y....`
+  0c80: a0 0b 7b 49 4f 53 54 60 00 a4 0a 0f a4 0a 00 08  ..{IOST`........
+  0c90: 43 52 53 31 11 08 0a 05 22 00 10 79 00 08 43 52  CRS1...."..y..CR
+  0ca0: 53 32 11 18 0a 15 47 01 60 00 60 00 00 01 47 01  S2....G.`.`...G.
+  0cb0: 64 00 64 00 00 01 22 00 10 79 00 14 21 5f 43 52  d.d..."..y..!_CR
+  0cc0: 53 00 79 0a 01 0a 0a 60 a0 0d 7b 49 4f 53 54 60  S.y....`..{IOST`
+  0cd0: 00 a4 43 52 53 31 a1 06 a4 43 52 53 32 5b 82 22  ..CRS1...CRS2[."
+  0ce0: 53 50 4b 52 08 5f 48 49 44 0c 41 d0 08 00 08 5f  SPKR._HID.A...._
+  0cf0: 43 52 53 11 0d 0a 0a 47 01 61 00 61 00 00 01 79  CRS....G.a.a...y
+  0d00: 00 5b 82 25 43 4f 50 52 08 5f 48 49 44 0c 41 d0  .[.%COPR._HID.A.
+  0d10: 0c 04 08 5f 43 52 53 11 10 0a 0d 47 01 f0 00 f0  ..._CRS....G....
+  0d20: 00 00 10 22 00 20 79 00 5b 82 46 1a 52 4d 53 43  ...". y.[.F.RMSC
+  0d30: 08 5f 48 49 44 0c 41 d0 0c 02 08 5f 55 49 44 0a  ._HID.A...._UID.
+  0d40: 10 08 43 52 53 5f 11 4a 0b 0a b6 47 01 10 00 10  ..CRS_.J...G....
+  0d50: 00 00 10 47 01 22 00 22 00 00 1e 47 01 44 00 44  ...G."."...G.D.D
+  0d60: 00 00 1c 47 01 63 00 63 00 00 01 47 01 65 00 65  ...G.c.c...G.e.e
+  0d70: 00 00 01 47 01 67 00 67 00 00 09 47 01 72 00 72  ...G.g.g...G.r.r
+  0d80: 00 00 0e 47 01 80 00 80 00 00 01 47 01 84 00 84  ...G.......G....
+  0d90: 00 00 03 47 01 88 00 88 00 00 01 47 01 8c 00 8c  ...G.......G....
+  0da0: 00 00 03 47 01 90 00 90 00 00 10 47 01 a2 00 a2  ...G.......G....
+  0db0: 00 00 1e 47 01 e0 00 e0 00 00 10 47 01 d0 04 d0  ...G.......G....
+  0dc0: 04 00 02 47 01 00 00 00 00 00 00 47 01 00 00 00  ...G.......G....
+  0dd0: 00 00 00 47 01 00 00 00 00 00 00 86 09 00 01 00  ...G............
+  0de0: c0 d1 fe 00 40 00 00 86 09 00 01 00 00 d2 fe 00  ....@...........
+  0df0: 00 07 00 86 09 00 01 00 00 b0 ff 00 00 10 00 79  ...............y
+  0e00: 00 14 4e 0c 5f 43 52 53 00 8b 43 52 53 5f 0a 7a  ..N._CRS..CRS_.z
+  0e10: 47 50 30 30 8b 43 52 53 5f 0a 7c 47 50 30 31 8c  GP00.CRS_.|GP01.
+  0e20: 43 52 53 5f 0a 7f 47 50 30 4c 70 50 4d 42 53 47  CRS_..GP0LpPMBSG
+  0e30: 50 30 30 70 50 4d 42 53 47 50 30 31 70 50 4d 4c  P00pPMBSGP01pPML
+  0e40: 4e 47 50 30 4c a0 42 04 53 4d 42 53 8b 43 52 53  NGP0L.B.SMBS.CRS
+  0e50: 5f 0a 82 47 50 31 30 8b 43 52 53 5f 0a 84 47 50  _..GP10.CRS_..GP
+  0e60: 31 31 8c 43 52 53 5f 0a 87 47 50 31 4c 70 53 4d  11.CRS_..GP1LpSM
+  0e70: 42 53 47 50 31 30 70 53 4d 42 53 47 50 31 31 70  BSGP10pSMBSGP11p
+  0e80: 53 4d 42 4c 47 50 31 4c a0 42 04 47 50 42 53 8b  SMBLGP1L.B.GPBS.
+  0e90: 43 52 53 5f 0a 8a 47 50 32 30 8b 43 52 53 5f 0a  CRS_..GP20.CRS_.
+  0ea0: 8c 47 50 32 31 8c 43 52 53 5f 0a 8f 47 50 32 4c  .GP21.CRS_..GP2L
+  0eb0: 70 47 50 42 53 47 50 32 30 70 47 50 42 53 47 50  pGPBSGP20pGPBSGP
+  0ec0: 32 31 70 47 50 4c 4e 47 50 32 4c a4 43 52 53 5f  21pGPLNGP2L.CRS_
+  0ed0: 5b 82 42 0b 46 57 48 5f 08 5f 48 49 44 0c 25 d4  [.B.FWH_._HID.%.
+  0ee0: 08 00 08 43 52 53 5f 11 1d 0a 1a 86 09 00 00 00  ...CRS_.........
+  0ef0: 00 00 00 00 00 00 00 86 09 00 00 00 00 00 00 00  ................
+  0f00: 00 00 00 79 00 8a 43 52 53 5f 0a 04 42 53 30 30  ...y..CRS_..BS00
+  0f10: 8a 43 52 53 5f 0a 08 42 4c 30 30 8a 43 52 53 5f  .CRS_..BL00.CRS_
+  0f20: 0a 10 42 53 31 30 8a 43 52 53 5f 0a 14 42 4c 31  ..BS10.CRS_..BL1
+  0f30: 30 14 42 05 5f 43 52 53 00 70 0c 00 00 80 ff 60  0.B._CRS.p.....`
+  0f40: 82 46 44 48 49 61 76 61 a0 0a 61 77 61 0c 00 00  .FDHIava..awa...
+  0f50: 08 00 61 72 60 61 62 70 62 42 53 30 30 72 42 53  ..ar`abpbBS00rBS
+  0f60: 30 30 0c 00 00 40 00 42 53 31 30 74 0a 00 42 53  00...@.BS10t..BS
+  0f70: 31 30 42 4c 30 30 70 42 4c 30 30 42 4c 31 30 a4  10BL00pBL00BL10.
+  0f80: 43 52 53 5f 5b 82 4b 09 46 57 48 45 08 5f 48 49  CRS_[.K.FWHE._HI
+  0f90: 44 0c 41 d0 0c 02 08 5f 55 49 44 0a 03 08 43 52  D.A...._UID...CR
+  0fa0: 53 5f 11 11 0a 0e 86 09 00 00 00 00 00 00 00 00  S_..............
+  0fb0: 00 00 79 00 14 4c 06 5f 43 52 53 00 8a 43 52 53  ..y..L._CRS..CRS
+  0fc0: 5f 0a 04 42 53 30 30 8a 43 52 53 5f 0a 08 42 4c  _..BS00.CRS_..BL
+  0fd0: 30 30 a0 1a 93 5e 5e 2e 46 57 48 5f 42 53 30 30  00...^^.FWH_BS00
+  0fe0: 0a 00 5e 5e 2e 46 57 48 5f 5f 43 52 53 72 5e 5e  ..^^.FWH__CRSr^^
+  0ff0: 2e 46 57 48 5f 42 53 30 30 5e 5e 2e 46 57 48 5f  .FWH_BS00^^.FWH_
+  1000: 42 4c 30 30 42 53 30 30 74 5e 5e 2e 46 57 48 5f  BL00BS00t^^.FWH_
+  1010: 42 53 31 30 42 53 30 30 42 4c 30 30 a4 43 52 53  BS10BS00BL00.CRS
+  1020: 5f 5b 80 46 48 52 30 02 0a d8 0a 02 5b 81 12 46  _[.FHR0.....[..F
+  1030: 48 52 30 01 46 44 4c 4f 04 00 04 46 44 48 49 08  HR0.FDLO...FDHI.
+  1040: 10 41 04 5c 00 5b 81 3b 42 49 4f 53 01 00 40 11  .A.\.[.;BIOS..@.
+  1050: 4f 53 59 53 10 53 4d 49 46 08 42 4c 49 44 08 41  OSYS.SMIF.BLID.A
+  1060: 43 50 52 20 43 41 44 4c 10 50 41 44 4c 10 49 47  CPR CADL.PADL.IG
+  1070: 44 53 08 43 53 54 45 10 4e 53 54 45 10 53 53 54  DS.CSTE.NSTE.SST
+  1080: 45 10 5b 82 49 98 45 43 5f 5f 08 5f 48 49 44 0c  E.[.I.EC__._HID.
+  1090: 41 d0 0c 09 08 5f 47 50 45 0a 1d 08 43 54 49 44  A...._GPE...CTID
+  10a0: 0a 00 08 4d 59 45 43 0a 00 14 12 5f 52 45 47 02  ...MYEC...._REG.
+  10b0: a0 0b 93 68 0a 03 70 69 4d 59 45 43 08 5f 43 52  ...h..piMYEC._CR
+  10c0: 53 11 15 0a 12 47 01 62 00 62 00 00 01 47 01 66  S....G.b.b...G.f
+  10d0: 00 66 00 00 01 79 00 5b 80 45 43 5f 5f 03 0a 60  .f...y.[.EC__..`
+  10e0: 0a 5f 5b 81 44 11 45 43 5f 5f 01 53 4d 50 52 08  ._[.D.EC__.SMPR.
+  10f0: 53 4d 53 54 08 53 4d 41 44 08 53 4d 43 4d 08 53  SMST.SMAD.SMCM.S
+  1100: 4d 44 30 48 10 53 4d 41 41 08 00 40 05 4d 44 43  MD0H.SMAA..@.MDC
+  1110: 4c 08 4d 44 43 48 08 4d 44 56 4c 08 4d 44 56 48  L.MDCH.MDVL.MDVH
+  1120: 08 4d 43 41 4c 08 4d 43 41 48 08 4d 53 54 4c 08  .MCAL.MCAH.MSTL.
+  1130: 4d 53 54 48 08 4d 43 43 4c 08 4d 43 43 48 08 4d  MSTH.MCCL.MCCH.M
+  1140: 50 4f 4c 08 4d 50 4f 48 08 4d 46 43 4c 08 4d 46  POL.MPOH.MFCL.MF
+  1150: 43 48 08 4d 43 55 4c 08 4d 43 55 48 08 4d 52 43  CH.MCUL.MCUH.MRC
+  1160: 4c 08 4d 52 43 48 08 4d 56 4f 4c 08 4d 56 4f 48  L.MRCH.MVOL.MVOH
+  1170: 08 52 53 56 31 08 52 53 56 32 08 53 44 43 4c 08  .RSV1.RSV2.SDCL.
+  1180: 53 44 43 48 08 53 44 56 4c 08 53 44 56 48 08 53  SDCH.SDVL.SDVH.S
+  1190: 43 41 4c 08 53 43 41 48 08 53 53 54 4c 08 53 53  CAL.SCAH.SSTL.SS
+  11a0: 54 48 08 53 43 43 4c 08 53 43 43 48 08 53 50 4f  TH.SCCL.SCCH.SPO
+  11b0: 4c 08 53 50 4f 48 08 53 46 43 4c 08 53 46 43 48  L.SPOH.SFCL.SFCH
+  11c0: 08 53 43 55 4c 08 53 43 55 48 08 53 52 43 4c 08  .SCUL.SCUH.SRCL.
+  11d0: 53 52 43 48 08 53 56 4f 4c 08 53 56 4f 48 08 50  SRCH.SVOL.SVOH.P
+  11e0: 4f 57 53 08 42 41 54 53 08 54 48 4d 53 08 43 50  OWS.BATS.THMS.CP
+  11f0: 55 54 08 53 59 53 54 08 5b 80 50 4d 49 4f 01 0b  UT.SYST.[.PMIO..
+  1200: 10 08 0a 23 5b 81 0b 50 4d 49 4f 01 50 43 4e 54  ...#[..PMIO.PCNT
+  1210: 08 5b 80 41 50 4d 50 01 0a b2 0a 02 5b 81 10 41  .[.APMP.....[..A
+  1220: 50 4d 50 01 41 50 4d 43 08 41 50 4d 53 08 5b 82  PMP.APMC.APMS.[.
+  1230: 4a 15 41 44 50 31 08 5f 48 49 44 0d 41 43 50 49  J.ADP1._HID.ACPI
+  1240: 30 30 30 33 00 08 42 46 4c 47 0a 01 08 41 43 50  0003..BFLG...ACP
+  1250: 5f 0a 01 08 49 4e 49 54 0a 01 14 29 5f 50 53 52  _...INIT...)_PSR
+  1260: 00 a0 1e 5c 2f 06 5f 53 42 5f 50 43 49 30 53 42  ...\/._SB_PCI0SB
+  1270: 52 47 45 43 5f 5f 41 44 50 31 41 43 50 5f a4 01  RGEC__ADP1ACP_..
+  1280: a1 03 a4 00 14 48 0f 5f 53 54 41 00 a0 4d 0e 5c  .....H._STA..M.\
+  1290: 2f 05 5f 53 42 5f 50 43 49 30 53 42 52 47 45 43  /._SB_PCI0SBRGEC
+  12a0: 5f 5f 4d 59 45 43 a0 45 0b 5c 2f 06 5f 53 42 5f  __MYEC.E.\/._SB_
+  12b0: 50 43 49 30 53 42 52 47 45 43 5f 5f 41 44 50 31  PCI0SBRGEC__ADP1
+  12c0: 49 4e 49 54 70 50 4f 57 53 67 7b 67 0a 02 60 a0  INITpPOWSg{g..`.
+  12d0: 23 93 60 0a 02 70 0a 01 5c 2f 06 5f 53 42 5f 50  #.`..p..\/._SB_P
+  12e0: 43 49 30 53 42 52 47 45 43 5f 5f 41 44 50 31 42  CI0SBRGEC__ADP1B
+  12f0: 46 4c 47 a1 1f 70 0a 00 5c 2f 06 5f 53 42 5f 50  FLG..p..\/._SB_P
+  1300: 43 49 30 53 42 52 47 45 43 5f 5f 41 44 50 31 42  CI0SBRGEC__ADP1B
+  1310: 46 4c 47 7b 67 0a 01 60 a0 23 93 60 0a 01 70 0a  FLG{g..`.#.`..p.
+  1320: 01 5c 2f 06 5f 53 42 5f 50 43 49 30 53 42 52 47  .\/._SB_PCI0SBRG
+  1330: 45 43 5f 5f 41 44 50 31 41 43 50 5f a1 1f 70 0a  EC__ADP1ACP_..p.
+  1340: 00 5c 2f 06 5f 53 42 5f 50 43 49 30 53 42 52 47  .\/._SB_PCI0SBRG
+  1350: 45 43 5f 5f 41 44 50 31 41 43 50 5f 70 0a 00 5c  EC__ADP1ACP_p..\
+  1360: 2f 06 5f 53 42 5f 50 43 49 30 53 42 52 47 45 43  /._SB_PCI0SBRGEC
+  1370: 5f 5f 41 44 50 31 49 4e 49 54 a4 0a 0f 08 5f 50  __ADP1INIT...._P
+  1380: 43 4c 12 07 01 5c 5f 53 42 5f 08 42 49 46 30 12  CL...\_SB_.BIF0.
+  1390: 34 0d 0a 01 0b 98 08 0b 98 08 0a 01 0b 40 38 0a  4............@8.
+  13a0: 00 0a 00 0a 01 0a 01 0d 4d 53 2d 31 30 31 32 00  ........MS-1012.
+  13b0: 0d 31 00 0d 4c 49 4f 4e 00 0d 4d 53 49 20 43 6f  .1..LION..MSI Co
+  13c0: 70 2e 20 00 08 53 54 41 54 12 0d 04 0a 02 0b 00  p. ..STAT.......
+  13d0: 05 0b 00 08 0b e8 03 5b 82 4d 37 42 41 54 31 08  .......[.M7BAT1.
+  13e0: 5f 48 49 44 0c 41 d0 0c 0a 08 5f 55 49 44 0a 01  _HID.A...._UID..
+  13f0: 08 5f 50 43 4c 12 07 01 5c 5f 53 42 5f 14 2f 5f  ._PCL...\_SB_./_
+  1400: 53 54 41 00 a0 1f 5c 2f 06 5f 53 42 5f 50 43 49  STA...\/._SB_PCI
+  1410: 30 53 42 52 47 45 43 5f 5f 41 44 50 31 42 46 4c  0SBRGEC__ADP1BFL
+  1420: 47 a4 0a 1f a1 04 a4 0a 0f 5b 22 0a 64 14 2e 5f  G........[".d.._
+  1430: 42 49 46 00 a0 1c 5c 2f 05 5f 53 42 5f 50 43 49  BIF...\/._SB_PCI
+  1440: 30 53 42 52 47 45 43 5f 5f 4d 59 45 43 55 50 42  0SBRGEC__MYECUPB
+  1450: 49 a1 05 49 56 42 49 a4 42 49 46 30 14 2e 5f 42  I..IVBI.BIF0.._B
+  1460: 53 54 00 a0 1c 5c 2f 05 5f 53 42 5f 50 43 49 30  ST...\/._SB_PCI0
+  1470: 53 42 52 47 45 43 5f 5f 4d 59 45 43 55 50 42 53  SBRGEC__MYECUPBS
+  1480: a1 05 49 56 42 53 a4 53 54 41 54 14 4d 06 49 56  ..IVBS.STAT.M.IV
+  1490: 42 49 00 70 0c ff ff ff ff 88 42 49 46 30 0a 01  BI.p......BIF0..
+  14a0: 00 70 0c ff ff ff ff 88 42 49 46 30 0a 02 00 70  .p......BIF0...p
+  14b0: 0c ff ff ff ff 88 42 49 46 30 0a 04 00 70 0d 57  ......BIF0...p.W
+  14c0: 72 6f 6e 67 00 88 42 49 46 30 0a 09 00 70 0d 20  rong..BIF0...p. 
+  14d0: 00 88 42 49 46 30 0a 0a 00 70 0d 57 72 6f 6e 67  ..BIF0...p.Wrong
+  14e0: 00 88 42 49 46 30 0a 0b 00 70 0d 57 72 6f 6e 67  ..BIF0...p.Wrong
+  14f0: 00 88 42 49 46 30 0a 0c 00 14 39 49 56 42 53 00  ..BIF0....9IVBS.
+  1500: 70 0a 00 88 53 54 41 54 0a 00 00 70 0c ff ff ff  p...STAT...p....
+  1510: ff 88 53 54 41 54 0a 01 00 70 0c ff ff ff ff 88  ..STAT...p......
+  1520: 53 54 41 54 0a 02 00 70 0b 10 27 88 53 54 41 54  STAT...p..'.STAT
+  1530: 0a 03 00 14 47 0e 55 50 42 49 00 70 0a 00 60 70  ....G.UPBI.p..`p
+  1540: 0a 00 61 70 0a 00 62 70 0a 00 63 70 4d 44 43 48  ..ap..bp..cpMDCH
+  1550: 60 70 4d 44 43 4c 61 79 60 0a 08 60 7d 60 61 60  `pMDCLay`..`}`a`
+  1560: 70 60 88 42 49 46 30 0a 01 00 70 4d 46 43 48 60  p`.BIF0...pMFCH`
+  1570: 70 4d 46 43 4c 61 79 60 0a 08 60 7d 60 61 61 70  pMFCLay`..`}`aap
+  1580: 61 88 42 49 46 30 0a 02 00 70 4d 44 56 48 60 70  a.BIF0...pMDVH`p
+  1590: 4d 44 56 4c 62 79 60 0a 08 60 7d 60 62 62 70 62  MDVLby`..`}`bbpb
+  15a0: 88 42 49 46 30 0a 04 00 70 0d 0a 00 88 42 49 46  .BIF0...p....BIF
+  15b0: 30 0a 0a 00 70 0d 4c 49 4f 4e 00 88 42 49 46 30  0...p.LION..BIF0
+  15c0: 0a 0b 00 70 43 54 49 44 60 a0 2a 93 60 0a 00 70  ...pCTID`.*.`..p
+  15d0: 0d 4d 53 2d 31 30 31 32 00 88 42 49 46 30 0a 09  .MS-1012..BIF0..
+  15e0: 00 70 0d 20 20 20 20 20 20 20 20 00 88 42 49 46  .p.        ..BIF
+  15f0: 30 0a 0c 00 a1 26 70 0d 3f 4d 4f 44 45 4c 00 88  0....&p.?MODEL..
+  1600: 42 49 46 30 0a 09 00 70 0d 3f 43 55 53 54 4f 4d  BIF0...p.?CUSTOM
+  1610: 45 52 00 88 42 49 46 30 0a 0c 00 14 4a 13 55 50  ER..BIF0....J.UP
+  1620: 42 53 00 70 0a 00 60 70 0a 00 61 70 0a 00 62 70  BS.p..`p..ap..bp
+  1630: 0a 00 63 70 0a 00 64 70 0a 00 67 70 50 4f 57 53  ..cp..dp..gpPOWS
+  1640: 67 7b 67 0a 02 60 a0 49 10 93 60 0a 02 7b 67 0a  g{g..`.I..`..{g.
+  1650: 01 60 a0 15 93 60 0a 01 7b 67 0a 10 61 a0 0a 93  .`...`..{g..a...
+  1660: 61 0a 10 7d 64 0a 02 64 a1 16 7d 64 0a 01 64 7b  a..}d..d..}d..d{
+  1670: 67 0a 08 60 a0 0a 93 60 0a 08 7d 64 0a 04 64 7b  g..`...`..}d..d{
+  1680: 67 0a 01 60 a0 4b 04 93 60 0a 01 7b 67 0a 10 60  g..`.K..`..{g..`
+  1690: a0 32 93 60 0a 10 70 4d 43 55 48 60 70 4d 43 55  .2.`..pMCUH`pMCU
+  16a0: 4c 61 79 60 0a 08 60 7d 60 61 61 a0 0d 93 61 0b  Lay`..`}`aa...a.
+  16b0: ff ff 70 0c ff ff ff ff 61 70 61 88 53 54 41 54  ..p.....apa.STAT
+  16c0: 0a 01 00 a1 0c 70 0a 00 88 53 54 41 54 0a 01 00  .....p...STAT...
+  16d0: a1 33 70 4d 43 55 48 60 70 4d 43 55 4c 61 79 60  .3pMCUH`pMCULay`
+  16e0: 0a 08 60 7d 60 61 61 7f 61 0b ff ff 61 a0 0c 93  ..`}`aa.a...a...
+  16f0: 61 0a 00 70 0c ff ff ff ff 61 70 61 88 53 54 41  a..p.....apa.STA
+  1700: 54 0a 01 00 70 4d 52 43 48 60 70 4d 52 43 4c 62  T...pMRCH`pMRCLb
+  1710: 79 60 0a 08 60 7d 60 62 62 70 62 88 53 54 41 54  y`..`}`bbpb.STAT
+  1720: 0a 02 00 70 4d 56 4f 48 60 70 4d 56 4f 4c 63 79  ...pMVOH`pMVOLcy
+  1730: 60 0a 08 60 7d 60 63 63 70 63 88 53 54 41 54 0a  `..`}`ccpc.STAT.
+  1740: 03 00 70 64 88 53 54 41 54 0a 00 00 5b 22 0a 64  ..pd.STAT...[".d
+  1750: a1 05 49 56 42 53 14 07 5f 51 30 31 00 a3 14 47  ..IVBS.._Q01...G
+  1760: 0a 5f 51 32 31 00 a0 4c 06 93 5c 44 53 45 4e 0a  ._Q21..L..\DSEN.
+  1770: 00 70 0a 10 53 4d 49 46 70 0a 68 41 50 4d 43 a0  .p..SMIFp.hAPMC.
+  1780: 43 05 93 53 4d 49 46 0a 00 70 43 41 44 4c 50 41  C..SMIF..pCADLPA
+  1790: 44 4c a0 15 93 4f 53 46 4c 0a 00 86 5c 2e 5f 53  DL...OSFL...\._S
+  17a0: 42 5f 50 43 49 30 0a 00 a1 13 86 5c 2f 03 5f 53  B_PCI0.....\/._S
+  17b0: 42 5f 50 43 49 30 49 47 46 58 0a 00 5b 22 0b ee  B_PCI0IGFX..["..
+  17c0: 02 86 5c 2f 03 5f 53 42 5f 50 43 49 30 49 47 46  ..\/._SB_PCI0IGF
+  17d0: 58 0a 80 a0 32 93 5c 44 53 45 4e 0a 01 70 0a 11  X...2.\DSEN..p..
+  17e0: 53 4d 49 46 70 0a 68 41 50 4d 43 a0 1a 93 53 4d  SMIFp.hAPMC...SM
+  17f0: 49 46 0a 00 86 5c 2f 03 5f 53 42 5f 50 43 49 30  IF...\/._SB_PCI0
+  1800: 49 47 46 58 0a 81 14 13 5f 51 33 37 00 86 5c 2e  IGFX...._Q37..\.
+  1810: 5f 53 42 5f 4c 49 44 30 0a 80 14 0d 5f 51 33 36  _SB_LID0...._Q36
+  1820: 00 70 0a 7d 41 50 4d 43 14 43 0c 5f 51 33 33 00  .p.}APMC.C._Q33.
+  1830: 70 50 4f 57 53 67 7b 67 0a 02 60 a0 3d 93 60 0a  pPOWSg{g..`.=.`.
+  1840: 02 70 0a 01 5c 2f 06 5f 53 42 5f 50 43 49 30 53  .p..\/._SB_PCI0S
+  1850: 42 52 47 45 43 5f 5f 41 44 50 31 42 46 4c 47 86  BRGEC__ADP1BFLG.
+  1860: 5c 2f 05 5f 53 42 5f 50 43 49 30 53 42 52 47 45  \/._SB_PCI0SBRGE
+  1870: 43 5f 5f 42 41 54 31 0a 00 a1 48 05 70 0a 00 5c  C__BAT1...H.p..\
+  1880: 2f 06 5f 53 42 5f 50 43 49 30 53 42 52 47 45 43  /._SB_PCI0SBRGEC
+  1890: 5f 5f 41 44 50 31 42 46 4c 47 86 5c 2f 05 5f 53  __ADP1BFLG.\/._S
+  18a0: 42 5f 50 43 49 30 53 42 52 47 45 43 5f 5f 41 44  B_PCI0SBRGEC__AD
+  18b0: 50 31 0a 00 5b 22 0a 19 86 5c 2f 05 5f 53 42 5f  P1..["...\/._SB_
+  18c0: 50 43 49 30 53 42 52 47 45 43 5f 5f 42 41 54 31  PCI0SBRGEC__BAT1
+  18d0: 0a 01 86 5c 2f 05 5f 53 42 5f 50 43 49 30 53 42  ...\/._SB_PCI0SB
+  18e0: 52 47 45 43 5f 5f 41 44 50 31 0a 00 14 44 07 5f  RGEC__ADP1...D._
+  18f0: 51 33 34 00 5b 22 0a 19 70 50 4f 57 53 67 7b 67  Q34.["..pPOWSg{g
+  1900: 0a 01 60 a0 23 93 60 0a 01 70 0a 01 5c 2f 06 5f  ..`.#.`..p..\/._
+  1910: 53 42 5f 50 43 49 30 53 42 52 47 45 43 5f 5f 41  SB_PCI0SBRGEC__A
+  1920: 44 50 31 41 43 50 5f a1 1f 70 0a 00 5c 2f 06 5f  DP1ACP_..p..\/._
+  1930: 53 42 5f 50 43 49 30 53 42 52 47 45 43 5f 5f 41  SB_PCI0SBRGEC__A
+  1940: 44 50 31 41 43 50 5f 86 5c 2f 05 5f 53 42 5f 50  DP1ACP_.\/._SB_P
+  1950: 43 49 30 53 42 52 47 45 43 5f 5f 41 44 50 31 0a  CI0SBRGEC__ADP1.
+  1960: 00 14 2d 5f 51 33 30 00 5c 55 44 54 54 70 0a 15  ..-_Q30.\UDTTp..
+  1970: 5c 42 43 52 54 86 5c 2e 5f 54 5a 5f 54 48 52 4d  \BCRT.\._TZ_THRM
+  1980: 0a 81 86 5c 2e 5f 54 5a 5f 54 48 52 4d 0a 80 14  ...\._TZ_THRM...
+  1990: 37 5f 51 32 44 00 a0 14 93 7b 5c 42 43 52 54 0a  7_Q2D....{\BCRT.
+  19a0: 02 00 0a 02 70 0a 74 41 50 4d 43 a1 1b 7d 0a 01  ....p.tAPMC..}..
+  19b0: 5c 42 43 52 54 5c 42 43 52 54 86 5c 2e 5f 50 52  \BCRT\BCRT.\._PR
+  19c0: 5f 43 50 55 31 0a 80 14 37 5f 51 32 45 00 a0 14  _CPU1...7_Q2E...
+  19d0: 93 7b 5c 42 43 52 54 0a 02 00 0a 02 70 0a 75 41  .{\BCRT.....p.uA
+  19e0: 50 4d 43 a1 1b 7b 0a fe 5c 42 43 52 54 5c 42 43  PMC..{..\BCRT\BC
+  19f0: 52 54 86 5c 2e 5f 50 52 5f 43 50 55 31 0a 80 14  RT.\._PR_CPU1...
+  1a00: 0d 5f 51 33 38 00 70 0a 38 44 42 47 38 10 40 18  ._Q38.p.8DBG8.@.
+  1a10: 5c 5f 53 42 5f 14 17 5c 4b 45 4c 56 01 70 68 62  \_SB_..\KELV.phb
+  1a20: 77 0a 0a 62 62 72 62 0b ac 0a 62 a4 62 08 5c 50  w..bbrb...b.b.\P
+  1a30: 4c 43 59 0a 00 08 5c 42 41 43 30 0a 78 08 5c 42  LCY...\BAC0.x.\B
+  1a40: 50 53 56 0a 73 08 5c 42 43 52 54 0a 64 08 5c 42  PSV.s.\BCRT.d.\B
+  1a50: 54 4d 50 0a 28 14 29 5c 55 44 54 54 00 70 5c 2f  TMP.(.)\UDTT.p\/
+  1a60: 05 5f 53 42 5f 50 43 49 30 53 42 52 47 45 43 5f  ._SB_PCI0SBRGEC_
+  1a70: 5f 43 50 55 54 60 7b 60 0a ff 5c 42 54 4d 50 10  _CPUT`{`..\BTMP.
+  1a80: 4e 10 5c 5f 54 5a 5f 5b 85 45 10 54 48 52 4d 14  N.\_TZ_[.E.THRM.
+  1a90: 45 04 5f 54 4d 50 00 a0 30 5c 2f 05 5f 53 42 5f  E._TMP..0\/._SB_
+  1aa0: 50 43 49 30 53 42 52 47 45 43 5f 5f 4d 59 45 43  PCI0SBRGEC__MYEC
+  1ab0: 5c 55 44 54 54 7b 5c 42 54 4d 50 0a ff 60 70 5c  \UDTT{\BTMP..`p\
+  1ac0: 4b 45 4c 56 60 61 a4 61 a1 0c 7b 5c 42 54 4d 50  KELV`a.a..{\BTMP
+  1ad0: 0a ff 60 a4 60 14 2b 5f 41 43 30 00 a0 0f 5c 50  ..`.`.+_AC0...\P
+  1ae0: 4c 43 59 7b 5c 42 50 53 56 0a ff 60 a1 0a 7b 5c  LCY{\BPSV..`..{\
+  1af0: 42 41 43 30 0a ff 60 70 5c 4b 45 4c 56 60 61 a4  BAC0..`p\KELV`a.
+  1b00: 61 14 2b 5f 50 53 56 00 a0 0f 5c 50 4c 43 59 7b  a.+_PSV...\PLCY{
+  1b10: 5c 42 41 43 30 0a ff 60 a1 0a 7b 5c 42 50 53 56  \BAC0..`..{\BPSV
+  1b20: 0a ff 60 70 5c 4b 45 4c 56 60 61 a4 61 08 5f 50  ..`p\KELV`a.a._P
+  1b30: 53 4c 12 0c 01 5c 2e 5f 50 52 5f 43 50 55 31 14  SL...\._PR_CPU1.
+  1b40: 19 5f 43 52 54 00 7b 5c 42 43 52 54 0a ff 60 70  ._CRT.{\BCRT..`p
+  1b50: 5c 4b 45 4c 56 60 61 a4 61 14 1c 5f 53 43 50 01  \KELV`a.a.._SCP.
+  1b60: 7b 68 0a 01 5c 50 4c 43 59 86 5c 2e 5f 54 5a 5f  {h..\PLCY.\._TZ_
+  1b70: 54 48 52 4d 0a 81 08 5f 54 43 31 0a 02 08 5f 54  THRM..._TC1..._T
+  1b80: 43 32 0a 0a 14 09 5f 54 53 50 00 a4 0a 64 10 48  C2...._TSP...d.H
+  1b90: 1b 5c 2e 5f 53 42 5f 50 43 49 30 5b 82 4a 1a 49  .\._SB_PCI0[.J.I
+  1ba0: 47 46 58 08 5c 44 53 45 4e 0a 01 08 5f 41 44 52  GFX.\DSEN..._ADR
+  1bb0: 0c 00 00 02 00 5b 80 41 50 4d 50 01 0a b2 0a 02  .....[.APMP.....
+  1bc0: 5b 81 10 41 50 4d 50 01 41 50 4d 43 08 41 50 4d  [..APMP.APMC.APM
+  1bd0: 53 08 14 10 5f 44 4f 53 01 70 7b 68 0a 03 00 44  S..._DOS.p{h...D
+  1be0: 53 45 4e 14 19 5f 44 4f 44 00 a4 12 11 03 0c 00  SEN.._DOD.......
+  1bf0: 01 01 00 0c 40 02 01 00 0c 10 04 01 00 5b 82 4c  ....@........[.L
+  1c00: 06 43 52 54 5f 08 5f 41 44 52 0b 00 01 14 25 5f  .CRT_._ADR....%_
+  1c10: 44 43 53 00 70 0a 01 53 4d 49 46 70 0a 68 41 50  DCS.p..SMIFp.hAP
+  1c20: 4d 43 a0 0d 7b 43 53 54 45 0b 01 01 00 a4 0a 1f  MC..{CSTE.......
+  1c30: a4 0a 1d 14 17 5f 44 47 53 00 a0 0d 7b 4e 53 54  ....._DGS...{NST
+  1c40: 45 0b 01 01 00 a4 0a 01 a4 0a 00 14 1f 5f 44 53  E............_DS
+  1c50: 53 01 a0 18 93 7b 68 0c 00 00 00 c0 00 0c 00 00  S....{h.........
+  1c60: 00 c0 70 4e 53 54 45 43 53 54 45 5b 82 4c 06 44  ..pNSTECSTE[.L.D
+  1c70: 54 56 31 08 5f 41 44 52 0b 40 02 14 25 5f 44 43  TV1._ADR.@..%_DC
+  1c80: 53 00 70 0a 01 53 4d 49 46 70 0a 68 41 50 4d 43  S.p..SMIFp.hAPMC
+  1c90: a0 0d 7b 43 53 54 45 0b 02 02 00 a4 0a 1f a4 0a  ..{CSTE.........
+  1ca0: 1d 14 17 5f 44 47 53 00 a0 0d 7b 4e 53 54 45 0b  ..._DGS...{NSTE.
+  1cb0: 02 02 00 a4 0a 01 a4 0a 00 14 1f 5f 44 53 53 01  ..........._DSS.
+  1cc0: a0 18 93 7b 68 0c 00 00 00 c0 00 0c 00 00 00 c0  ...{h...........
+  1cd0: 70 4e 53 54 45 43 53 54 45 5b 82 4c 06 4c 43 44  pNSTECSTE[.L.LCD
+  1ce0: 5f 08 5f 41 44 52 0b 10 04 14 25 5f 44 43 53 00  _._ADR....%_DCS.
+  1cf0: 70 0a 01 53 4d 49 46 70 0a 68 41 50 4d 43 a0 0d  p..SMIFp.hAPMC..
+  1d00: 7b 43 53 54 45 0b 08 08 00 a4 0a 1f a4 0a 1d 14  {CSTE...........
+  1d10: 17 5f 44 47 53 00 a0 0d 7b 4e 53 54 45 0b 08 08  ._DGS...{NSTE...
+  1d20: 00 a4 0a 01 a4 0a 00 14 1f 5f 44 53 53 01 a0 18  ........._DSS...
+  1d30: 93 7b 68 0c 00 00 00 c0 00 0c 00 00 00 c0 70 4e  .{h...........pN
+  1d40: 53 54 45 43 53 54 45 5b 82 4e 09 4f 4d 53 43 08  STECSTE[.N.OMSC.
+  1d50: 5f 48 49 44 0c 41 d0 0c 02 08 5f 55 49 44 0a 00  _HID.A...._UID..
+  1d60: 08 43 52 53 5f 11 1d 0a 1a 86 09 00 00 00 00 00  .CRS_...........
+  1d70: 00 00 00 00 00 86 09 00 00 00 00 00 00 00 00 00  ................
+  1d80: 00 79 00 14 43 06 5f 43 52 53 00 a0 46 05 41 50  .y..C._CRS..F.AP
+  1d90: 49 43 8a 43 52 53 5f 0a 08 4d 4c 30 31 8a 43 52  IC.CRS_..ML01.CR
+  1da0: 53 5f 0a 04 4d 42 30 31 8a 43 52 53 5f 0a 14 4d  S_..MB01.CRS_..M
+  1db0: 4c 30 32 8a 43 52 53 5f 0a 10 4d 42 30 32 70 0c  L02.CRS_..MB02p.
+  1dc0: 00 00 c0 fe 4d 42 30 31 70 0b 00 10 4d 4c 30 31  ....MB01p...ML01
+  1dd0: 70 0c 00 00 e0 fe 4d 42 30 32 70 0b 00 10 4d 4c  p.....MB02p...ML
+  1de0: 30 32 a4 43 52 53 5f 5b 82 4d 14 5c 2e 5f 53 42  02.CRS_[.M.\._SB
+  1df0: 5f 52 4d 45 4d 08 5f 48 49 44 0c 41 d0 0c 01 08  _RMEM._HID.A....
+  1e00: 5f 55 49 44 0a 01 08 43 52 53 5f 11 42 04 0a 3e  _UID...CRS_.B..>
+  1e10: 86 09 00 01 00 00 00 00 00 00 0a 00 86 09 00 00  ................
+  1e20: 00 00 00 00 00 00 00 00 86 09 00 00 00 00 0e 00  ................
+  1e30: 00 00 02 00 86 09 00 01 00 00 10 00 00 00 00 00  ................
+  1e40: 86 09 00 00 00 00 00 00 00 00 00 00 79 00 14 47  ............y..G
+  1e50: 0e 5f 43 52 53 00 8a 43 52 53 5f 0a 10 42 41 53  ._CRS..CRS_..BAS
+  1e60: 31 8a 43 52 53 5f 0a 14 4c 45 4e 31 8a 43 52 53  1.CRS_..LEN1.CRS
+  1e70: 5f 0a 1c 42 41 53 32 8a 43 52 53 5f 0a 20 4c 45  _..BAS2.CRS_. LE
+  1e80: 4e 32 8a 43 52 53 5f 0a 2c 4c 45 4e 33 8a 43 52  N2.CRS_.,LEN3.CR
+  1e90: 53 5f 0a 34 42 41 53 34 8a 43 52 53 5f 0a 38 4c  S_.4BAS4.CRS_.8L
+  1ea0: 45 4e 34 a0 05 4f 53 46 4c a1 41 06 a0 28 4d 47  EN4..OSFL.A..(MG
+  1eb0: 31 42 a0 22 94 4d 47 31 42 0c 00 00 0c 00 70 0c  1B.".MG1B.....p.
+  1ec0: 00 00 0c 00 42 41 53 31 74 4d 47 31 42 42 41 53  ....BAS1tMG1BBAS
+  1ed0: 31 4c 45 4e 31 a1 15 70 0c 00 00 0c 00 42 41 53  1LEN1..p.....BAS
+  1ee0: 31 70 0c 00 00 02 00 4c 45 4e 31 a0 1f 72 4d 47  1p.....LEN1..rMG
+  1ef0: 31 42 4d 47 31 4c 60 70 60 42 41 53 32 74 0c 00  1BMG1L`p`BAS2t..
+  1f00: 00 10 00 42 41 53 32 4c 45 4e 32 74 4d 47 32 42  ...BAS2LEN2tMG2B
+  1f10: 0c 00 00 10 00 4c 45 4e 33 72 4d 47 32 42 4d 47  .....LEN3rMG2BMG
+  1f20: 32 4c 42 41 53 34 74 0a 00 42 41 53 34 4c 45 4e  2LBAS4t..BAS4LEN
+  1f30: 34 a4 43 52 53 5f 5b 82 4f d1 49 44 45 30 08 5f  4.CRS_[.O.IDE0._
+  1f40: 41 44 52 0c 01 00 1f 00 08 5c 2f 03 5f 53 42 5f  ADR......\/._SB_
+  1f50: 50 43 49 30 4e 41 54 41 12 07 01 0c 01 00 1f 00  PCI0NATA........
+  1f60: 08 52 45 47 46 0a 01 14 12 5f 52 45 47 02 a0 0b  .REGF...._REG...
+  1f70: 93 68 0a 02 70 69 52 45 47 46 08 54 49 4d 30 12  .h..piREGF.TIM0.
+  1f80: 48 06 08 12 0b 04 0a 78 0a b4 0a f0 0b 84 03 12  H......x........
+  1f90: 0a 04 0a 23 0a 21 0a 10 0a 00 12 0a 04 0a 0b 0a  ...#.!..........
+  1fa0: 09 0a 04 0a 00 12 0e 06 0a 70 0a 49 0a 36 0a 27  .........p.I.6.'
+  1fb0: 0a 19 0a 0f 12 0e 06 0a 00 0a 01 0a 02 0a 01 0a  ................
+  1fc0: 02 0a 01 12 0e 06 0a 00 0a 00 0a 00 0a 01 0a 01  ................
+  1fd0: 0a 01 12 0a 04 0a 04 0a 03 0a 02 0a 00 12 0a 04  ................
+  1fe0: 0a 02 0a 01 0a 00 0a 00 08 54 4d 44 30 11 03 0a  .........TMD0...
+  1ff0: 14 8a 54 4d 44 30 0a 00 50 49 4f 30 8a 54 4d 44  ..TMD0..PIO0.TMD
+  2000: 30 0a 04 44 4d 41 30 8a 54 4d 44 30 0a 08 50 49  0..DMA0.TMD0..PI
+  2010: 4f 31 8a 54 4d 44 30 0a 0c 44 4d 41 31 8a 54 4d  O1.TMD0..DMA1.TM
+  2020: 44 30 0a 10 43 48 4e 46 5b 80 43 46 47 32 02 0a  D0..CHNF[.CFG2..
+  2030: 40 0a 20 5b 81 48 0a 43 46 47 32 03 50 4d 50 54  @. [.H.CFG2.PMPT
+  2040: 04 50 53 50 54 04 50 4d 52 49 06 00 02 53 4d 50  .PSPT.PMRI...SMP
+  2050: 54 04 53 53 50 54 04 53 4d 52 49 06 00 02 50 53  T.SSPT.SMRI...PS
+  2060: 52 49 04 53 53 52 49 04 00 18 50 4d 33 45 01 50  RI.SSRI...PM3E.P
+  2070: 53 33 45 01 53 4d 33 45 01 53 53 33 45 01 00 0c  S3E.SM3E.SS3E...
+  2080: 50 4d 55 54 02 00 02 50 53 55 54 02 00 02 53 4d  PMUT...PSUT...SM
+  2090: 55 54 02 00 02 53 53 55 54 02 00 02 00 40 04 50  UT...SSUT....@.P
+  20a0: 4d 36 45 01 50 53 36 45 01 53 4d 36 45 01 53 53  M6E.PS6E.SM6E.SS
+  20b0: 36 45 01 50 4d 43 52 01 50 53 43 52 01 53 4d 43  6E.PMCR.PSCR.SMC
+  20c0: 52 01 53 53 43 52 01 00 04 50 4d 41 45 01 50 53  R.SSCR...PMAE.PS
+  20d0: 41 45 01 53 4d 41 45 01 53 53 41 45 01 08 47 4d  AE.SMAE.SSAE..GM
+  20e0: 50 54 0a 00 08 47 4d 55 45 0a 00 08 47 4d 55 54  PT...GMUE...GMUT
+  20f0: 0a 00 08 47 4d 43 52 0a 00 08 47 53 50 54 0a 00  ...GMCR...GSPT..
+  2100: 08 47 53 55 45 0a 00 08 47 53 55 54 0a 00 08 47  .GSUE...GSUT...G
+  2110: 53 43 52 0a 00 5b 82 47 24 43 48 4e 30 08 5f 41  SCR..[.G$CHN0._A
+  2120: 44 52 0a 00 14 4c 07 5f 47 54 4d 00 79 50 53 43  DR...L._GTM.yPSC
+  2130: 52 0a 01 61 7d 50 4d 43 52 61 60 79 50 4d 41 45  R..a}PMCRa`yPMAE
+  2140: 0a 02 63 79 50 4d 36 45 0a 01 64 7d 63 64 63 7d  ..cyPM6E..d}cdc}
+  2150: 50 4d 33 45 63 61 79 50 4d 50 54 0a 04 63 7d 61  PM3EcayPMPT..c}a
+  2160: 63 61 79 50 53 41 45 0a 02 63 79 50 53 36 45 0a  cayPSAE..cyPS6E.
+  2170: 01 64 7d 63 64 63 7d 50 53 33 45 63 62 79 50 53  .d}cdc}PS3EcbyPS
+  2180: 50 54 0a 04 63 7d 62 63 62 a4 47 54 4d 5f 50 4d  PT..c}bcb.GTM_PM
+  2190: 52 49 61 50 4d 55 54 50 53 52 49 62 50 53 55 54  RIaPMUTPSRIbPSUT
+  21a0: 60 14 40 18 5f 53 54 4d 03 70 68 5b 31 70 68 54  `.@._STM.ph[1phT
+  21b0: 4d 44 30 79 50 4d 41 45 0a 02 63 79 50 4d 36 45  MD0yPMAE..cyPM6E
+  21c0: 0a 01 64 7d 63 64 63 7d 50 4d 33 45 63 60 79 50  ..d}cdc}PM3Ec`yP
+  21d0: 4d 50 54 0a 04 63 7d 60 63 60 79 50 53 41 45 0a  MPT..c}`c`yPSAE.
+  21e0: 02 63 79 50 53 36 45 0a 01 64 7d 63 64 63 7d 50  .cyPS6E..d}cdc}P
+  21f0: 53 33 45 63 61 79 50 53 50 54 0a 04 63 7d 61 63  S3EcayPSPT..c}ac
+  2200: 61 70 50 4d 52 49 47 4d 50 54 70 60 47 4d 55 45  apPMRIGMPTp`GMUE
+  2210: 70 50 4d 55 54 47 4d 55 54 70 50 4d 43 52 47 4d  pPMUTGMUTpPMCRGM
+  2220: 43 52 70 50 53 52 49 47 53 50 54 70 61 47 53 55  CRpPSRIGSPTpaGSU
+  2230: 45 70 50 53 55 54 47 53 55 54 70 50 53 43 52 47  EpPSUTGSUTpPSCRG
+  2240: 53 43 52 53 54 4d 5f 70 47 4d 50 54 50 4d 52 49  SCRSTM_pGMPTPMRI
+  2250: 70 47 4d 55 45 60 70 47 4d 55 54 50 4d 55 54 70  pGMUE`pGMUTPMUTp
+  2260: 47 4d 43 52 50 4d 43 52 70 47 53 55 45 61 70 47  GMCRPMCRpGSUEapG
+  2270: 53 55 54 50 53 55 54 70 47 53 43 52 50 53 43 52  SUTPSUTpGSCRPSCR
+  2280: a0 0d 7b 60 0a 01 00 70 0a 01 50 4d 33 45 a1 08  ..{`...p..PM3E..
+  2290: 70 0a 00 50 4d 33 45 a0 0d 7b 60 0a 02 00 70 0a  p..PM3E..{`...p.
+  22a0: 01 50 4d 36 45 a1 08 70 0a 00 50 4d 36 45 a0 0d  .PM6E..p..PM6E..
+  22b0: 7b 60 0a 04 00 70 0a 01 50 4d 41 45 a1 08 70 0a  {`...p..PMAE..p.
+  22c0: 00 50 4d 41 45 a0 0d 7b 61 0a 01 00 70 0a 01 50  .PMAE..{a...p..P
+  22d0: 53 33 45 a1 08 70 0a 00 50 53 33 45 a0 0d 7b 61  S3E..p..PS3E..{a
+  22e0: 0a 02 00 70 0a 01 50 53 36 45 a1 08 70 0a 00 50  ...p..PS6E..p..P
+  22f0: 53 36 45 a0 0d 7b 61 0a 04 00 70 0a 01 50 53 41  S6E..{a...p..PSA
+  2300: 45 a1 08 70 0a 00 50 53 41 45 70 47 54 46 5f 0a  E..p..PSAEpGTF_.
+  2310: 00 69 41 54 41 30 70 47 54 46 5f 0a 01 6a 41 54  .iATA0pGTF_..jAT
+  2320: 41 31 5b 82 1c 44 52 56 30 08 5f 41 44 52 0a 00  A1[..DRV0._ADR..
+  2330: 14 0f 5f 47 54 46 00 a4 52 41 54 41 41 54 41 30  .._GTF..RATAATA0
+  2340: 5b 82 1c 44 52 56 31 08 5f 41 44 52 0a 01 14 0f  [..DRV1._ADR....
+  2350: 5f 47 54 46 00 a4 52 41 54 41 41 54 41 31 5b 82  _GTF..RATAATA1[.
+  2360: 47 24 43 48 4e 31 08 5f 41 44 52 0a 01 14 4c 07  G$CHN1._ADR...L.
+  2370: 5f 47 54 4d 00 79 53 53 43 52 0a 01 61 7d 53 4d  _GTM.ySSCR..a}SM
+  2380: 43 52 61 60 79 53 4d 41 45 0a 02 63 79 53 4d 36  CRa`ySMAE..cySM6
+  2390: 45 0a 01 64 7d 63 64 63 7d 53 4d 33 45 63 61 79  E..d}cdc}SM3Ecay
+  23a0: 53 4d 50 54 0a 04 63 7d 61 63 61 79 53 53 41 45  SMPT..c}acaySSAE
+  23b0: 0a 02 63 79 53 53 36 45 0a 01 64 7d 63 64 63 7d  ..cySS6E..d}cdc}
+  23c0: 53 53 33 45 63 62 79 53 53 50 54 0a 04 63 7d 62  SS3EcbySSPT..c}b
+  23d0: 63 62 a4 47 54 4d 5f 53 4d 52 49 61 53 4d 55 54  cb.GTM_SMRIaSMUT
+  23e0: 53 53 52 49 62 53 53 55 54 60 14 40 18 5f 53 54  SSRIbSSUT`.@._ST
+  23f0: 4d 03 70 68 5b 31 70 68 54 4d 44 30 79 53 4d 41  M.ph[1phTMD0ySMA
+  2400: 45 0a 02 63 79 53 4d 36 45 0a 01 64 7d 63 64 63  E..cySM6E..d}cdc
+  2410: 7d 53 4d 33 45 63 60 79 53 4d 50 54 0a 04 63 7d  }SM3Ec`ySMPT..c}
+  2420: 60 63 60 79 53 53 41 45 0a 02 63 79 53 53 36 45  `c`ySSAE..cySS6E
+  2430: 0a 01 64 7d 63 64 63 7d 53 53 33 45 63 61 79 53  ..d}cdc}SS3EcayS
+  2440: 53 50 54 0a 04 63 7d 61 63 61 70 53 4d 52 49 47  SPT..c}acapSMRIG
+  2450: 4d 50 54 70 60 47 4d 55 45 70 53 4d 55 54 47 4d  MPTp`GMUEpSMUTGM
+  2460: 55 54 70 53 4d 43 52 47 4d 43 52 70 53 53 52 49  UTpSMCRGMCRpSSRI
+  2470: 47 53 50 54 70 61 47 53 55 45 70 53 53 55 54 47  GSPTpaGSUEpSSUTG
+  2480: 53 55 54 70 53 53 43 52 47 53 43 52 53 54 4d 5f  SUTpSSCRGSCRSTM_
+  2490: 70 47 4d 50 54 53 4d 52 49 70 47 4d 55 45 60 70  pGMPTSMRIpGMUE`p
+  24a0: 47 4d 55 54 53 4d 55 54 70 47 4d 43 52 53 4d 43  GMUTSMUTpGMCRSMC
+  24b0: 52 70 47 53 55 45 61 70 47 53 55 54 53 53 55 54  RpGSUEapGSUTSSUT
+  24c0: 70 47 53 43 52 53 53 43 52 a0 0d 7b 60 0a 01 00  pGSCRSSCR..{`...
+  24d0: 70 0a 01 53 4d 33 45 a1 08 70 0a 00 53 4d 33 45  p..SM3E..p..SM3E
+  24e0: a0 0d 7b 60 0a 02 00 70 0a 01 53 4d 36 45 a1 08  ..{`...p..SM6E..
+  24f0: 70 0a 00 53 4d 36 45 a0 0d 7b 60 0a 04 00 70 0a  p..SM6E..{`...p.
+  2500: 01 53 4d 41 45 a1 08 70 0a 00 53 4d 41 45 a0 0d  .SMAE..p..SMAE..
+  2510: 7b 61 0a 01 00 70 0a 01 53 53 33 45 a1 08 70 0a  {a...p..SS3E..p.
+  2520: 00 53 53 33 45 a0 0d 7b 61 0a 02 00 70 0a 01 53  .SS3E..{a...p..S
+  2530: 53 36 45 a1 08 70 0a 00 53 53 36 45 a0 0d 7b 61  S6E..p..SS6E..{a
+  2540: 0a 04 00 70 0a 01 53 53 41 45 a1 08 70 0a 00 53  ...p..SSAE..p..S
+  2550: 53 41 45 70 47 54 46 5f 0a 00 69 41 54 41 32 70  SAEpGTF_..iATA2p
+  2560: 47 54 46 5f 0a 01 6a 41 54 41 33 5b 82 1c 44 52  GTF_..jATA3[..DR
+  2570: 56 30 08 5f 41 44 52 0a 00 14 0f 5f 47 54 46 00  V0._ADR...._GTF.
+  2580: a4 52 41 54 41 41 54 41 32 5b 82 1c 44 52 56 31  .RATAATA2[..DRV1
+  2590: 08 5f 41 44 52 0a 01 14 0f 5f 47 54 46 00 a4 52  ._ADR...._GTF..R
+  25a0: 41 54 41 41 54 41 33 14 4d 13 47 54 4d 5f 0f 70  ATAATA3.M.GTM_.p
+  25b0: ff 50 49 4f 30 70 ff 50 49 4f 31 70 ff 44 4d 41  .PIO0p.PIO1p.DMA
+  25c0: 30 70 ff 44 4d 41 31 70 0a 10 43 48 4e 46 a0 05  0p.DMA1p..CHNF..
+  25d0: 52 45 47 46 a1 06 a4 54 4d 44 30 a0 11 7b 69 0a  REGF...TMD0..{i.
+  25e0: 20 00 7d 43 48 4e 46 0a 02 43 48 4e 46 70 89 83   .}CHNF..CHNFp..
+  25f0: 88 54 49 4d 30 0a 01 00 01 68 00 0a 00 0a 00 66  .TIM0....h.....f
+  2600: 70 83 88 83 88 54 49 4d 30 0a 00 00 66 00 67 70  p....TIM0...f.gp
+  2610: 67 44 4d 41 30 70 67 50 49 4f 30 a0 11 7b 6c 0a  gDMA0pgPIO0..{l.
+  2620: 20 00 7d 43 48 4e 46 0a 08 43 48 4e 46 70 89 83   .}CHNF..CHNFp..
+  2630: 88 54 49 4d 30 0a 02 00 01 6b 00 0a 00 0a 00 66  .TIM0....k.....f
+  2640: 70 83 88 83 88 54 49 4d 30 0a 00 00 66 00 67 70  p....TIM0...f.gp
+  2650: 67 44 4d 41 31 70 67 50 49 4f 31 a0 3e 7b 69 0a  gDMA1pgPIO1.>{i.
+  2660: 07 00 70 6a 65 a0 0b 7b 69 0a 02 00 72 65 0a 02  ..pje..{i...re..
+  2670: 65 a0 0b 7b 69 0a 04 00 72 65 0a 04 65 70 83 88  e..{i...re..ep..
+  2680: 83 88 54 49 4d 30 0a 03 00 65 00 44 4d 41 30 7d  ..TIM0...e.DMA0}
+  2690: 43 48 4e 46 0a 01 43 48 4e 46 a0 3e 7b 6c 0a 07  CHNF..CHNF.>{l..
+  26a0: 00 70 6d 65 a0 0b 7b 6c 0a 02 00 72 65 0a 02 65  .pme..{l...re..e
+  26b0: a0 0b 7b 6c 0a 04 00 72 65 0a 04 65 70 83 88 83  ..{l...re..ep...
+  26c0: 88 54 49 4d 30 0a 03 00 65 00 44 4d 41 31 7d 43  .TIM0...e.DMA1}C
+  26d0: 48 4e 46 0a 04 43 48 4e 46 70 54 4d 44 30 5b 31  HNF..CHNFpTMD0[1
+  26e0: a4 54 4d 44 30 14 4c 22 53 54 4d 5f 08 a0 05 52  .TMD0.L"STM_...R
+  26f0: 45 47 46 a1 4e 21 70 0a 00 47 4d 55 45 70 0a 00  EGF.N!p..GMUEp..
+  2700: 47 4d 55 54 70 0a 00 47 53 55 45 70 0a 00 47 53  GMUTp..GSUEp..GS
+  2710: 55 54 a0 44 07 7b 43 48 4e 46 0a 01 00 70 89 83  UT.D.{CHNF...p..
+  2720: 88 54 49 4d 30 0a 03 00 02 44 4d 41 30 00 0a 00  .TIM0....DMA0...
+  2730: 0a 00 60 a0 09 94 60 0a 05 70 0a 05 60 70 83 88  ..`...`..p..`p..
+  2740: 83 88 54 49 4d 30 0a 04 00 60 00 47 4d 55 54 7d  ..TIM0...`.GMUT}
+  2750: 47 4d 55 45 0a 01 47 4d 55 45 a0 10 94 60 0a 02  GMUE..GMUE...`..
+  2760: 7d 47 4d 55 45 0a 02 47 4d 55 45 a0 1b 94 60 0a  }GMUE..GMUE...`.
+  2770: 04 7b 47 4d 55 45 0a fd 47 4d 55 45 7d 47 4d 55  .{GMUE..GMUE}GMU
+  2780: 45 0a 04 47 4d 55 45 a1 37 a0 35 7d 93 50 49 4f  E..GMUE.7.5}.PIO
+  2790: 30 ff 93 50 49 4f 30 0a 00 00 a0 24 7b 95 44 4d  0..PIO0....${.DM
+  27a0: 41 30 ff 94 44 4d 41 30 0a 00 00 70 44 4d 41 30  A0..DMA0...pDMA0
+  27b0: 50 49 4f 30 7d 47 4d 55 45 0a 80 47 4d 55 45 a0  PIO0}GMUE..GMUE.
+  27c0: 44 07 7b 43 48 4e 46 0a 04 00 70 89 83 88 54 49  D.{CHNF...p...TI
+  27d0: 4d 30 0a 03 00 02 44 4d 41 31 00 0a 00 0a 00 60  M0....DMA1.....`
+  27e0: a0 09 94 60 0a 05 70 0a 05 60 70 83 88 83 88 54  ...`..p..`p....T
+  27f0: 49 4d 30 0a 04 00 60 00 47 53 55 54 7d 47 53 55  IM0...`.GSUT}GSU
+  2800: 45 0a 01 47 53 55 45 a0 10 94 60 0a 02 7d 47 53  E..GSUE...`..}GS
+  2810: 55 45 0a 02 47 53 55 45 a0 1b 94 60 0a 04 7b 47  UE..GSUE...`..{G
+  2820: 53 55 45 0a fd 47 53 55 45 7d 47 53 55 45 0a 04  SUE..GSUE}GSUE..
+  2830: 47 53 55 45 a1 37 a0 35 7d 93 50 49 4f 31 ff 93  GSUE.7.5}.PIO1..
+  2840: 50 49 4f 31 0a 00 00 a0 24 7b 95 44 4d 41 31 ff  PIO1....${.DMA1.
+  2850: 94 44 4d 41 31 0a 00 00 70 44 4d 41 31 50 49 4f  .DMA1...pDMA1PIO
+  2860: 31 7d 47 53 55 45 0a 80 47 53 55 45 a0 14 7b 43  1}GSUE..GSUE..{C
+  2870: 48 4e 46 0a 02 00 7d 47 4d 55 45 0a 20 47 4d 55  HNF...}GMUE. GMU
+  2880: 45 a0 14 7b 43 48 4e 46 0a 08 00 7d 47 53 55 45  E..{CHNF...}GSUE
+  2890: 0a 20 47 53 55 45 7b 89 83 88 54 49 4d 30 0a 00  . GSUE{...TIM0..
+  28a0: 00 04 50 49 4f 30 00 0a 00 0a 00 0a 07 60 70 83  ..PIO0.......`p.
+  28b0: 88 83 88 54 49 4d 30 0a 01 00 60 00 61 70 61 47  ...TIM0...`.apaG
+  28c0: 4d 50 54 a0 10 95 60 0a 03 7d 47 4d 55 45 0a 50  MPT...`..}GMUE.P
+  28d0: 47 4d 55 45 7b 89 83 88 54 49 4d 30 0a 00 00 04  GMUE{...TIM0....
+  28e0: 50 49 4f 31 00 0a 00 0a 00 0a 07 60 70 83 88 83  PIO1.......`p...
+  28f0: 88 54 49 4d 30 0a 02 00 60 00 61 70 61 47 53 50  .TIM0...`.apaGSP
+  2900: 54 a0 10 95 60 0a 03 7d 47 53 55 45 0a 50 47 53  T...`..}GSUE.PGS
+  2910: 55 45 08 41 54 30 31 11 0a 0a 07 03 00 00 00 00  UE.AT01.........
+  2920: 00 ef 08 41 54 30 32 11 0a 0a 07 00 00 00 00 00  ...AT02.........
+  2930: 00 90 08 41 54 30 33 11 0a 0a 07 00 00 00 00 00  ...AT03.........
+  2940: 00 c6 08 41 54 30 34 11 0a 0a 07 00 00 00 00 00  ...AT04.........
+  2950: 00 91 08 41 54 41 30 11 03 0a 1d 08 41 54 41 31  ...ATA0.....ATA1
+  2960: 11 03 0a 1d 08 41 54 41 32 11 03 0a 1d 08 41 54  .....ATA2.....AT
+  2970: 41 33 11 03 0a 1d 08 41 54 41 42 11 03 0a 1d 8c  A3.....ATAB.....
+  2980: 41 54 41 42 0a 00 43 4d 44 43 14 4c 05 47 54 46  ATAB..CMDC.L.GTF
+  2990: 42 0b 77 43 4d 44 43 0a 38 60 72 60 0a 08 61 5b  B.wCMDC.8`r`..a[
+  29a0: 13 41 54 41 42 61 0a 38 43 4d 44 58 77 43 4d 44  .ATABa.8CMDXwCMD
+  29b0: 43 0a 07 60 8c 41 54 41 42 72 60 0a 02 00 41 30  C..`.ATABr`...A0
+  29c0: 30 31 8c 41 54 41 42 72 60 0a 06 00 41 30 30 35  01.ATABr`...A005
+  29d0: 70 68 43 4d 44 58 70 69 41 30 30 31 70 6a 41 30  phCMDXpiA001pjA0
+  29e0: 30 35 75 43 4d 44 43 14 42 24 47 54 46 5f 0a 70  05uCMDC.B$GTF_.p
+  29f0: 69 5b 31 70 0a 00 43 4d 44 43 08 49 44 34 39 0b  i[1p..CMDC.ID49.
+  2a00: 00 0c 08 49 44 35 39 0a 00 08 49 44 35 33 0a 04  ...ID59...ID53..
+  2a10: 08 49 44 36 33 0b 00 0f 08 49 44 38 38 0b 00 0f  .ID63....ID88...
+  2a20: 08 49 52 44 59 0a 01 08 50 49 4f 54 0a 00 08 44  .IRDY...PIOT...D
+  2a30: 4d 41 54 0a 00 a0 4d 05 93 87 69 0b 00 02 8b 69  MAT...M...i....i
+  2a40: 0a 62 49 57 34 39 70 49 57 34 39 49 44 34 39 8b  .bIW49pIW49ID49.
+  2a50: 69 0a 6a 49 57 35 33 70 49 57 35 33 49 44 35 33  i.jIW53pIW53ID53
+  2a60: 8b 69 0a 7e 49 57 36 33 70 49 57 36 33 49 44 36  .i.~IW63pIW63ID6
+  2a70: 33 8b 69 0a 76 49 57 35 39 70 49 57 35 39 49 44  3.i.vIW59pIW59ID
+  2a80: 35 39 8b 69 0a b0 49 57 38 38 70 49 57 38 38 49  59.i..IW88pIW88I
+  2a90: 44 38 38 70 0a a0 67 a0 48 05 68 70 0a b0 67 7b  D88p..g.H.hp..g{
+  2aa0: 43 48 4e 46 0a 08 49 52 44 59 a0 12 7b 43 48 4e  CHNF..IRDY..{CHN
+  2ab0: 46 0a 10 00 70 50 49 4f 31 50 49 4f 54 a1 0a 70  F...pPIO1PIOT..p
+  2ac0: 50 49 4f 30 50 49 4f 54 a0 27 7b 43 48 4e 46 0a  PIO0PIOT.'{CHNF.
+  2ad0: 04 00 a0 12 7b 43 48 4e 46 0a 10 00 70 44 4d 41  ....{CHNF...pDMA
+  2ae0: 31 44 4d 41 54 a1 0a 70 44 4d 41 30 44 4d 41 54  1DMAT..pDMA0DMAT
+  2af0: a1 28 7b 43 48 4e 46 0a 02 49 52 44 59 70 50 49  .({CHNF..IRDYpPI
+  2b00: 4f 30 50 49 4f 54 a0 12 7b 43 48 4e 46 0a 01 00  O0PIOT..{CHNF...
+  2b10: 70 44 4d 41 30 44 4d 41 54 a0 47 04 90 90 7b 49  pDMA0DMAT.G...{I
+  2b20: 44 35 33 0a 04 00 7b 49 44 38 38 0b 00 ff 00 44  D53...{ID88....D
+  2b30: 4d 41 54 70 89 83 88 54 49 4d 30 0a 03 00 02 44  MATp...TIM0....D
+  2b40: 4d 41 54 00 0a 00 0a 00 61 a0 09 94 61 0a 05 70  MAT.....a...a..p
+  2b50: 0a 05 61 47 54 46 42 41 54 30 31 7d 0a 40 61 00  ..aGTFBAT01}.@a.
+  2b60: 67 a1 46 04 a0 43 04 90 7b 49 44 36 33 0b 00 ff  g.F..C..{ID63...
+  2b70: 00 50 49 4f 54 7b 89 83 88 54 49 4d 30 0a 00 00  .PIOT{...TIM0...
+  2b80: 04 50 49 4f 54 00 0a 00 0a 00 0a 03 60 7d 0a 20  .PIOT.......`}. 
+  2b90: 83 88 83 88 54 49 4d 30 0a 07 00 60 00 61 47 54  ....TIM0...`.aGT
+  2ba0: 46 42 41 54 30 31 61 67 a0 38 49 52 44 59 7b 89  FBAT01ag.8IRDY{.
+  2bb0: 83 88 54 49 4d 30 0a 00 00 04 50 49 4f 54 00 0a  ..TIM0....PIOT..
+  2bc0: 00 0a 00 0a 07 60 7d 0a 08 83 88 83 88 54 49 4d  .....`}......TIM
+  2bd0: 30 0a 06 00 60 00 61 47 54 46 42 41 54 30 31 61  0...`.aGTFBAT01a
+  2be0: 67 a1 17 a0 15 7b 49 44 34 39 0b 00 04 00 47 54  g....{ID49....GT
+  2bf0: 46 42 41 54 30 31 0a 01 67 a0 24 90 7b 49 44 35  FBAT01..g.$.{ID5
+  2c00: 39 0b 00 01 00 7b 49 44 35 39 0a ff 00 47 54 46  9....{ID59...GTF
+  2c10: 42 41 54 30 33 7b 49 44 35 39 0a ff 00 67 70 41  BAT03{ID59...gpA
+  2c20: 54 41 42 5b 31 a4 41 54 41 42 14 2c 52 41 54 41  TAB[1.ATAB.,RATA
+  2c30: 01 8c 68 0a 00 43 4d 44 4e 77 43 4d 44 4e 0a 38  ..h..CMDNwCMDN.8
+  2c40: 60 5b 13 68 0a 08 60 52 45 54 42 70 52 45 54 42  `[.h..`RETBpRETB
+  2c50: 5b 31 a4 52 45 54 42 5b 82 0f 49 44 45 31 08 5f  [1.RETB[..IDE1._
+  2c60: 41 44 52 0c 02 00 1f 00 5b 82 44 06 55 53 42 31  ADR.....[.D.USB1
+  2c70: 08 5f 41 44 52 0c 00 00 1d 00 5b 80 42 41 52 30  ._ADR.....[.BAR0
+  2c80: 02 0a c4 0a 01 5b 81 0d 42 41 52 30 01 55 53 42  .....[..BAR0.USB
+  2c90: 57 02 00 06 14 1f 5f 53 33 44 00 a0 13 91 93 4f  W....._S3D.....O
+  2ca0: 53 46 4c 0a 01 93 4f 53 46 4c 0a 02 a4 0a 02 a1  SFL...OSFL......
+  2cb0: 04 a4 0a 03 14 19 5f 50 53 57 01 a0 09 68 70 0a  ......_PSW...hp.
+  2cc0: 03 55 53 42 57 a1 08 70 0a 00 55 53 42 57 5b 82  .USBW..p..USBW[.
+  2cd0: 44 06 55 53 42 32 08 5f 41 44 52 0c 01 00 1d 00  D.USB2._ADR.....
+  2ce0: 5b 80 42 41 52 30 02 0a c4 0a 01 5b 81 0d 42 41  [.BAR0.....[..BA
+  2cf0: 52 30 01 55 53 42 57 02 00 06 14 1f 5f 53 33 44  R0.USBW....._S3D
+  2d00: 00 a0 13 91 93 4f 53 46 4c 0a 01 93 4f 53 46 4c  .....OSFL...OSFL
+  2d10: 0a 02 a4 0a 02 a1 04 a4 0a 03 14 19 5f 50 53 57  ............_PSW
+  2d20: 01 a0 09 68 70 0a 03 55 53 42 57 a1 08 70 0a 00  ...hp..USBW..p..
+  2d30: 55 53 42 57 5b 82 44 06 55 53 42 33 08 5f 41 44  USBW[.D.USB3._AD
+  2d40: 52 0c 02 00 1d 00 5b 80 42 41 52 30 02 0a c4 0a  R.....[.BAR0....
+  2d50: 01 5b 81 0d 42 41 52 30 01 55 53 42 57 02 00 06  .[..BAR0.USBW...
+  2d60: 14 1f 5f 53 33 44 00 a0 13 91 93 4f 53 46 4c 0a  .._S3D.....OSFL.
+  2d70: 01 93 4f 53 46 4c 0a 02 a4 0a 02 a1 04 a4 0a 03  ..OSFL..........
+  2d80: 14 19 5f 50 53 57 01 a0 09 68 70 0a 03 55 53 42  .._PSW...hp..USB
+  2d90: 57 a1 08 70 0a 00 55 53 42 57 5b 82 44 06 55 53  W..p..USBW[.D.US
+  2da0: 42 34 08 5f 41 44 52 0c 03 00 1d 00 5b 80 42 41  B4._ADR.....[.BA
+  2db0: 52 30 02 0a c4 0a 01 5b 81 0d 42 41 52 30 01 55  R0.....[..BAR0.U
+  2dc0: 53 42 57 02 00 06 14 1f 5f 53 33 44 00 a0 13 91  SBW....._S3D....
+  2dd0: 93 4f 53 46 4c 0a 01 93 4f 53 46 4c 0a 02 a4 0a  .OSFL...OSFL....
+  2de0: 02 a1 04 a4 0a 03 14 19 5f 50 53 57 01 a0 09 68  ........_PSW...h
+  2df0: 70 0a 03 55 53 42 57 a1 08 70 0a 00 55 53 42 57  p..USBW..p..USBW
+  2e00: 5b 82 0f 45 55 53 42 08 5f 41 44 52 0c 07 00 1d  [..EUSB._ADR....
+  2e10: 00 5b 82 1f 41 55 44 49 08 5f 41 44 52 0c 02 00  .[..AUDI._ADR...
+  2e20: 1e 00 14 0f 5f 50 52 57 00 a4 47 50 52 57 0a 05  ...._PRW..GPRW..
+  2e30: 0a 03 5b 82 1f 4d 43 39 37 08 5f 41 44 52 0c 03  ..[..MC97._ADR..
+  2e40: 00 1e 00 14 0f 5f 50 52 57 00 a4 47 50 52 57 0a  ....._PRW..GPRW.
+  2e50: 05 0a 04 5b 82 26 50 30 50 34 08 5f 41 44 52 0c  ...[.&P0P4._ADR.
+  2e60: 00 00 1c 00 14 16 5f 50 52 54 00 a0 0a 50 49 43  ......_PRT...PIC
+  2e70: 4d a4 41 52 30 34 a4 50 52 30 34 5b 82 26 50 30  M.AR04.PR04[.&P0
+  2e80: 50 35 08 5f 41 44 52 0c 01 00 1c 00 14 16 5f 50  P5._ADR......._P
+  2e90: 52 54 00 a0 0a 50 49 43 4d a4 41 52 30 35 a4 50  RT...PICM.AR05.P
+  2ea0: 52 30 35 5b 82 26 50 30 50 36 08 5f 41 44 52 0c  R05[.&P0P6._ADR.
+  2eb0: 02 00 1c 00 14 16 5f 50 52 54 00 a0 0a 50 49 43  ......_PRT...PIC
+  2ec0: 4d a4 41 52 30 36 a4 50 52 30 36 5b 82 26 50 30  M.AR06.PR06[.&P0
+  2ed0: 50 37 08 5f 41 44 52 0c 03 00 1c 00 14 16 5f 50  P7._ADR......._P
+  2ee0: 52 54 00 a0 0a 50 49 43 4d a4 41 52 30 37 a4 50  RT...PICM.AR07.P
+  2ef0: 52 30 37 10 49 06 5c 5f 47 50 45 14 29 5f 4c 30  R07.I.\_GPE.)_L0
+  2f00: 42 00 86 5c 2f 04 5f 53 42 5f 50 43 49 30 50 30  B..\/._SB_PCI0P0
+  2f10: 50 31 4c 41 4e 5f 0a 02 86 5c 2e 5f 53 42 5f 50  P1LAN_...\._SB_P
+  2f20: 57 52 42 0a 02 14 37 5f 4c 30 35 00 86 5c 2f 03  WRB...7_L05..\/.
+  2f30: 5f 53 42 5f 50 43 49 30 41 55 44 49 0a 02 86 5c  _SB_PCI0AUDI...\
+  2f40: 2f 03 5f 53 42 5f 50 43 49 30 4d 43 39 37 0a 02  /._SB_PCI0MC97..
+  2f50: 86 5c 2e 5f 53 42 5f 50 57 52 42 0a 02 5b 82 1d  .\._SB_PWRB..[..
+  2f60: 50 57 52 42 08 5f 48 49 44 0c 41 d0 0c 0c 08 5f  PWRB._HID.A...._
+  2f70: 55 49 44 0a aa 08 5f 53 54 41 0a 0b 5b 80 5c 2f  UID..._STA..[.\/
+  2f80: 04 5f 53 42 5f 50 43 49 30 53 42 52 47 50 49 58  ._SB_PCI0SBRGPIX
+  2f90: 30 02 0a 60 0a 0c 5b 81 3f 5c 2f 04 5f 53 42 5f  0..`..[.?\/._SB_
+  2fa0: 50 43 49 30 53 42 52 47 50 49 58 30 01 50 49 52  PCI0SBRGPIX0.PIR
+  2fb0: 41 08 50 49 52 42 08 50 49 52 43 08 50 49 52 44  A.PIRB.PIRC.PIRD
+  2fc0: 08 00 20 50 49 52 45 08 50 49 52 46 08 50 49 52  .. PIRE.PIRF.PIR
+  2fd0: 47 08 50 49 52 48 08 10 41 47 5c 5f 53 42 5f 08  G.PIRH..AG\_SB_.
+  2fe0: 42 55 46 41 11 09 0a 06 23 00 80 18 79 00 8b 42  BUFA....#...y..B
+  2ff0: 55 46 41 0a 01 49 52 41 30 5b 82 48 08 4c 4e 4b  UFA..IRA0[.H.LNK
+  3000: 41 08 5f 48 49 44 0c 41 d0 0c 0f 08 5f 55 49 44  A._HID.A...._UID
+  3010: 0a 01 14 19 5f 53 54 41 00 7b 50 49 52 41 0a 80  ...._STA.{PIRA..
+  3020: 60 a0 05 60 a4 0a 09 a1 04 a4 0a 0b 14 0b 5f 50  `..`.........._P
+  3030: 52 53 00 a4 50 52 53 41 14 11 5f 44 49 53 00 7d  RS..PRSA.._DIS.}
+  3040: 50 49 52 41 0a 80 50 49 52 41 14 1b 5f 43 52 53  PIRA..PIRA.._CRS
+  3050: 00 7b 50 49 52 41 0a 0f 60 79 0a 01 60 49 52 41  .{PIRA..`y..`IRA
+  3060: 30 a4 42 55 46 41 14 1c 5f 53 52 53 01 8b 68 0a  0.BUFA.._SRS..h.
+  3070: 01 49 52 41 5f 82 49 52 41 5f 60 76 60 70 60 50  .IRA_.IRA_`v`p`P
+  3080: 49 52 41 5b 82 48 08 4c 4e 4b 42 08 5f 48 49 44  IRA[.H.LNKB._HID
+  3090: 0c 41 d0 0c 0f 08 5f 55 49 44 0a 02 14 19 5f 53  .A...._UID...._S
+  30a0: 54 41 00 7b 50 49 52 42 0a 80 60 a0 05 60 a4 0a  TA.{PIRB..`..`..
+  30b0: 09 a1 04 a4 0a 0b 14 0b 5f 50 52 53 00 a4 50 52  ........_PRS..PR
+  30c0: 53 42 14 11 5f 44 49 53 00 7d 50 49 52 42 0a 80  SB.._DIS.}PIRB..
+  30d0: 50 49 52 42 14 1b 5f 43 52 53 00 7b 50 49 52 42  PIRB.._CRS.{PIRB
+  30e0: 0a 0f 60 79 0a 01 60 49 52 41 30 a4 42 55 46 41  ..`y..`IRA0.BUFA
+  30f0: 14 1c 5f 53 52 53 01 8b 68 0a 01 49 52 41 5f 82  .._SRS..h..IRA_.
+  3100: 49 52 41 5f 60 76 60 70 60 50 49 52 42 5b 82 48  IRA_`v`p`PIRB[.H
+  3110: 08 4c 4e 4b 43 08 5f 48 49 44 0c 41 d0 0c 0f 08  .LNKC._HID.A....
+  3120: 5f 55 49 44 0a 03 14 19 5f 53 54 41 00 7b 50 49  _UID...._STA.{PI
+  3130: 52 43 0a 80 60 a0 05 60 a4 0a 09 a1 04 a4 0a 0b  RC..`..`........
+  3140: 14 0b 5f 50 52 53 00 a4 50 52 53 43 14 11 5f 44  .._PRS..PRSC.._D
+  3150: 49 53 00 7d 50 49 52 43 0a 80 50 49 52 43 14 1b  IS.}PIRC..PIRC..
+  3160: 5f 43 52 53 00 7b 50 49 52 43 0a 0f 60 79 0a 01  _CRS.{PIRC..`y..
+  3170: 60 49 52 41 30 a4 42 55 46 41 14 1c 5f 53 52 53  `IRA0.BUFA.._SRS
+  3180: 01 8b 68 0a 01 49 52 41 5f 82 49 52 41 5f 60 76  ..h..IRA_.IRA_`v
+  3190: 60 70 60 50 49 52 43 5b 82 48 08 4c 4e 4b 44 08  `p`PIRC[.H.LNKD.
+  31a0: 5f 48 49 44 0c 41 d0 0c 0f 08 5f 55 49 44 0a 04  _HID.A...._UID..
+  31b0: 14 19 5f 53 54 41 00 7b 50 49 52 44 0a 80 60 a0  .._STA.{PIRD..`.
+  31c0: 05 60 a4 0a 09 a1 04 a4 0a 0b 14 0b 5f 50 52 53  .`.........._PRS
+  31d0: 00 a4 50 52 53 44 14 11 5f 44 49 53 00 7d 50 49  ..PRSD.._DIS.}PI
+  31e0: 52 44 0a 80 50 49 52 44 14 1b 5f 43 52 53 00 7b  RD..PIRD.._CRS.{
+  31f0: 50 49 52 44 0a 0f 60 79 0a 01 60 49 52 41 30 a4  PIRD..`y..`IRA0.
+  3200: 42 55 46 41 14 1c 5f 53 52 53 01 8b 68 0a 01 49  BUFA.._SRS..h..I
+  3210: 52 41 5f 82 49 52 41 5f 60 76 60 70 60 50 49 52  RA_.IRA_`v`p`PIR
+  3220: 44 5b 82 48 08 4c 4e 4b 45 08 5f 48 49 44 0c 41  D[.H.LNKE._HID.A
+  3230: d0 0c 0f 08 5f 55 49 44 0a 05 14 19 5f 53 54 41  ...._UID...._STA
+  3240: 00 7b 50 49 52 45 0a 80 60 a0 05 60 a4 0a 09 a1  .{PIRE..`..`....
+  3250: 04 a4 0a 0b 14 0b 5f 50 52 53 00 a4 50 52 53 45  ......_PRS..PRSE
+  3260: 14 11 5f 44 49 53 00 7d 50 49 52 45 0a 80 50 49  .._DIS.}PIRE..PI
+  3270: 52 45 14 1b 5f 43 52 53 00 7b 50 49 52 45 0a 0f  RE.._CRS.{PIRE..
+  3280: 60 79 0a 01 60 49 52 41 30 a4 42 55 46 41 14 1c  `y..`IRA0.BUFA..
+  3290: 5f 53 52 53 01 8b 68 0a 01 49 52 41 5f 82 49 52  _SRS..h..IRA_.IR
+  32a0: 41 5f 60 76 60 70 60 50 49 52 45 5b 82 48 08 4c  A_`v`p`PIRE[.H.L
+  32b0: 4e 4b 46 08 5f 48 49 44 0c 41 d0 0c 0f 08 5f 55  NKF._HID.A...._U
+  32c0: 49 44 0a 06 14 19 5f 53 54 41 00 7b 50 49 52 46  ID...._STA.{PIRF
+  32d0: 0a 80 60 a0 05 60 a4 0a 09 a1 04 a4 0a 0b 14 0b  ..`..`..........
+  32e0: 5f 50 52 53 00 a4 50 52 53 46 14 11 5f 44 49 53  _PRS..PRSF.._DIS
+  32f0: 00 7d 50 49 52 46 0a 80 50 49 52 46 14 1b 5f 43  .}PIRF..PIRF.._C
+  3300: 52 53 00 7b 50 49 52 46 0a 0f 60 79 0a 01 60 49  RS.{PIRF..`y..`I
+  3310: 52 41 30 a4 42 55 46 41 14 1c 5f 53 52 53 01 8b  RA0.BUFA.._SRS..
+  3320: 68 0a 01 49 52 41 5f 82 49 52 41 5f 60 76 60 70  h..IRA_.IRA_`v`p
+  3330: 60 50 49 52 46 5b 82 48 08 4c 4e 4b 47 08 5f 48  `PIRF[.H.LNKG._H
+  3340: 49 44 0c 41 d0 0c 0f 08 5f 55 49 44 0a 07 14 19  ID.A...._UID....
+  3350: 5f 53 54 41 00 7b 50 49 52 47 0a 80 60 a0 05 60  _STA.{PIRG..`..`
+  3360: a4 0a 09 a1 04 a4 0a 0b 14 0b 5f 50 52 53 00 a4  .........._PRS..
+  3370: 50 52 53 47 14 11 5f 44 49 53 00 7d 50 49 52 47  PRSG.._DIS.}PIRG
+  3380: 0a 80 50 49 52 47 14 1b 5f 43 52 53 00 7b 50 49  ..PIRG.._CRS.{PI
+  3390: 52 47 0a 0f 60 79 0a 01 60 49 52 41 30 a4 42 55  RG..`y..`IRA0.BU
+  33a0: 46 41 14 1c 5f 53 52 53 01 8b 68 0a 01 49 52 41  FA.._SRS..h..IRA
+  33b0: 5f 82 49 52 41 5f 60 76 60 70 60 50 49 52 47 5b  _.IRA_`v`p`PIRG[
+  33c0: 82 48 08 4c 4e 4b 48 08 5f 48 49 44 0c 41 d0 0c  .H.LNKH._HID.A..
+  33d0: 0f 08 5f 55 49 44 0a 08 14 19 5f 53 54 41 00 7b  .._UID...._STA.{
+  33e0: 50 49 52 48 0a 80 60 a0 05 60 a4 0a 09 a1 04 a4  PIRH..`..`......
+  33f0: 0a 0b 14 0b 5f 50 52 53 00 a4 50 52 53 48 14 11  ...._PRS..PRSH..
+  3400: 5f 44 49 53 00 7d 50 49 52 48 0a 80 50 49 52 48  _DIS.}PIRH..PIRH
+  3410: 14 1b 5f 43 52 53 00 7b 50 49 52 48 0a 0f 60 79  .._CRS.{PIRH..`y
+  3420: 0a 01 60 49 52 41 30 a4 42 55 46 41 14 1c 5f 53  ..`IRA0.BUFA.._S
+  3430: 52 53 01 8b 68 0a 01 49 52 41 5f 82 49 52 41 5f  RS..h..IRA_.IRA_
+  3440: 60 76 60 70 60 50 49 52 48 10 4b 27 5c 5f 53 42  `v`p`PIRH.K'\_SB
+  3450: 5f 08 58 43 50 44 0a 00 08 58 4e 50 54 0a 01 08  _.XCPD...XNPT...
+  3460: 58 43 41 50 0a 02 08 58 44 43 50 0a 04 08 58 44  XCAP...XDCP...XD
+  3470: 43 54 0a 08 08 58 44 53 54 0a 0a 08 58 4c 43 50  CT...XDST...XLCP
+  3480: 0a 0c 08 58 4c 43 54 0a 10 08 58 4c 53 54 0a 12  ...XLCT...XLST..
+  3490: 08 58 53 43 50 0a 14 08 58 53 43 54 0a 18 08 58  .XSCP...XSCT...X
+  34a0: 53 53 54 0a 1a 08 58 52 43 54 0a 1c 5b 01 4d 55  SST...XRCT..[.MU
+  34b0: 54 45 00 14 38 52 42 50 45 01 5b 23 4d 55 54 45  TE..8RBPE.[#MUTE
+  34c0: e8 03 72 68 5c 50 43 49 42 60 5b 80 50 43 46 47  ..rh\PCIB`[.PCFG
+  34d0: 00 60 0a 01 5b 81 0b 50 43 46 47 01 58 43 46 47  .`..[..PCFG.XCFG
+  34e0: 08 5b 27 4d 55 54 45 a4 58 43 46 47 14 41 04 52  .['MUTE.XCFG.A.R
+  34f0: 57 50 45 01 5b 23 4d 55 54 45 e8 03 7b 68 0c fe  WPE.[#MUTE..{h..
+  3500: ff ff ff 68 72 68 5c 50 43 49 42 60 5b 80 50 43  ...hrh\PCIB`[.PC
+  3510: 46 47 00 60 0a 02 5b 81 0b 50 43 46 47 02 58 43  FG.`..[..PCFG.XC
+  3520: 46 47 10 5b 27 4d 55 54 45 a4 58 43 46 47 14 41  FG.['MUTE.XCFG.A
+  3530: 04 52 44 50 45 01 5b 23 4d 55 54 45 e8 03 7b 68  .RDPE.[#MUTE..{h
+  3540: 0c fc ff ff ff 68 72 68 5c 50 43 49 42 60 5b 80  .....hrh\PCIB`[.
+  3550: 50 43 46 47 00 60 0a 04 5b 81 0b 50 43 46 47 03  PCFG.`..[..PCFG.
+  3560: 58 43 46 47 20 5b 27 4d 55 54 45 a4 58 43 46 47  XCFG ['MUTE.XCFG
+  3570: 14 39 57 42 50 45 02 5b 23 4d 55 54 45 ff 0f 72  .9WBPE.[#MUTE..r
+  3580: 68 5c 50 43 49 42 60 5b 80 50 43 46 47 00 60 0a  h\PCIB`[.PCFG.`.
+  3590: 01 5b 81 0b 50 43 46 47 01 58 43 46 47 08 70 69  .[..PCFG.XCFG.pi
+  35a0: 58 43 46 47 5b 27 4d 55 54 45 14 42 04 57 57 50  XCFG['MUTE.B.WWP
+  35b0: 45 02 5b 23 4d 55 54 45 e8 03 7b 68 0c fe ff ff  E.[#MUTE..{h....
+  35c0: ff 68 72 68 5c 50 43 49 42 60 5b 80 50 43 46 47  .hrh\PCIB`[.PCFG
+  35d0: 00 60 0a 02 5b 81 0b 50 43 46 47 02 58 43 46 47  .`..[..PCFG.XCFG
+  35e0: 10 70 69 58 43 46 47 5b 27 4d 55 54 45 14 42 04  .piXCFG['MUTE.B.
+  35f0: 57 44 50 45 02 5b 23 4d 55 54 45 e8 03 7b 68 0c  WDPE.[#MUTE..{h.
+  3600: fc ff ff ff 68 72 68 5c 50 43 49 42 60 5b 80 50  ....hrh\PCIB`[.P
+  3610: 43 46 47 00 60 0a 04 5b 81 0b 50 43 46 47 03 58  CFG.`..[..PCFG.X
+  3620: 43 46 47 20 70 69 58 43 46 47 5b 27 4d 55 54 45  CFG piXCFG['MUTE
+  3630: 14 4a 04 52 57 44 50 03 5b 23 4d 55 54 45 e8 03  .J.RWDP.[#MUTE..
+  3640: 7b 68 0c fc ff ff ff 68 72 68 5c 50 43 49 42 60  {h.....hrh\PCIB`
+  3650: 5b 80 50 43 46 47 00 60 0a 04 5b 81 0b 50 43 46  [.PCFG.`..[..PCF
+  3660: 47 03 58 43 46 47 20 7b 58 43 46 47 6a 61 7d 61  G.XCFG {XCFGja}a
+  3670: 69 58 43 46 47 5b 27 4d 55 54 45 14 49 04 52 50  iXCFG['MUTE.I.RP
+  3680: 4d 45 01 72 68 0a 84 60 70 5c 2e 5f 53 42 5f 52  ME.rh..`p\._SB_R
+  3690: 44 50 45 60 61 a0 0b 93 61 0c ff ff ff ff a4 0a  DPE`a...a.......
+  36a0: 00 a1 23 a0 1e 90 61 0c 00 00 01 00 5c 2e 5f 53  ..#...a.....\._S
+  36b0: 42 5f 57 44 50 45 60 7b 61 0c 00 00 01 00 00 a4  B_WDPE`{a.......
+  36c0: 0a 01 a4 0a 00 10 49 16 5c 5f 53 42 5f 10 40 13  ......I.\_SB_.@.
+  36d0: 50 43 49 30 08 43 52 53 5f 11 4c 08 0a 88 88 0d  PCI0.CRS_.L.....
+  36e0: 00 02 0c 00 00 00 00 00 ff 00 00 00 00 01 47 01  ..............G.
+  36f0: f8 0c f8 0c 01 08 88 0d 00 01 0c 03 00 00 00 00  ................
+  3700: f7 0c 00 00 f8 0c 88 0d 00 01 0c 03 00 00 00 0d  ................
+  3710: ff ff 00 00 00 f3 87 17 00 00 0c 03 00 00 00 00  ................
+  3720: 00 00 0a 00 ff ff 0b 00 00 00 00 00 00 00 02 00  ................
+  3730: 87 17 00 00 0c 03 00 00 00 00 00 00 0c 00 ff ff  ................
+  3740: 0d 00 00 00 00 00 00 00 02 00 87 17 00 00 0c 03  ................
+  3750: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  3760: 00 00 00 00 79 00 8a 43 52 53 5f 0a 5c 4d 49 4e  ....y..CRS_.\MIN
+  3770: 35 8a 43 52 53 5f 0a 60 4d 41 58 35 8a 43 52 53  5.CRS_.`MAX5.CRS
+  3780: 5f 0a 68 4c 45 4e 35 8a 43 52 53 5f 0a 76 4d 49  _.hLEN5.CRS_.vMI
+  3790: 4e 36 8a 43 52 53 5f 0a 7a 4d 41 58 36 8a 43 52  N6.CRS_.zMAX6.CR
+  37a0: 53 5f 0a 82 4c 45 4e 36 14 45 05 5f 43 52 53 00  S_..LEN6.E._CRS.
+  37b0: 70 4d 47 31 4c 60 a0 1f 60 70 4d 47 31 42 4d 49  pMG1L`..`pMG1BMI
+  37c0: 4e 35 70 4d 47 31 4c 4c 45 4e 35 72 4d 49 4e 35  N5pMG1LLEN5rMIN5
+  37d0: 76 60 4d 41 58 35 70 4d 47 32 42 4d 49 4e 36 70  v`MAX5pMG2BMIN6p
+  37e0: 4d 47 32 4c 4c 45 4e 36 70 4d 47 32 4c 60 72 4d  MG2LLEN6pMG2L`rM
+  37f0: 49 4e 36 76 60 4d 41 58 36 a4 43 52 53 5f 5b 82  IN6v`MAX6.CRS_[.
+  3800: 1e 4c 49 44 30 08 5f 48 49 44 0c 41 d0 0c 0d 14  .LID0._HID.A....
+  3810: 0e 5f 4c 49 44 00 70 4c 49 44 53 60 a4 60 5b 82  ._LID.pLIDS`.`[.
+  3820: 0f 53 4c 50 42 08 5f 48 49 44 0c 41 d0 0c 0e 08  .SLPB._HID.A....
+  3830: 57 4f 54 42 0a 00 08 57 53 53 42 0a 00 08 57 41  WOTB...WSSB...WA
+  3840: 58 42 0a 00 14 4b 06 5f 50 54 53 01 70 68 44 42  XB...K._PTS.phDB
+  3850: 47 38 50 54 53 5f 68 70 0a 00 88 57 41 4b 50 0a  G8PTS_hp...WAKP.
+  3860: 00 00 70 0a 00 88 57 41 4b 50 0a 01 00 a0 12 90  ..p...WAKP......
+  3870: 93 68 0a 04 93 4f 53 46 4c 0a 02 5b 22 0b b8 0b  .h...OSFL..["...
+  3880: 70 41 53 53 42 57 53 53 42 70 41 4f 54 42 57 4f  pASSBWSSBpAOTBWO
+  3890: 54 42 70 41 41 58 42 57 41 58 42 70 68 41 53 53  TBpAAXBWAXBphASS
+  38a0: 42 70 4f 53 46 4c 41 4f 54 42 70 00 41 41 58 42  BpOSFLAOTBp.AAXB
+  38b0: 08 53 4c 49 44 0a 01 14 4a 24 5f 57 41 4b 01 79  .SLID...J$_WAK.y
+  38c0: 68 0a 04 44 42 47 38 70 0a 01 53 4c 49 44 57 41  h..DBG8p..SLIDWA
+  38d0: 4b 5f 68 a0 20 41 53 53 42 70 57 53 53 42 41 53  K_h. ASSBpWSSBAS
+  38e0: 53 42 70 57 4f 54 42 41 4f 54 42 70 57 41 58 42  SBpWOTBAOTBpWAXB
+  38f0: 41 41 58 42 a0 15 83 88 57 41 4b 50 0a 00 00 70  AAXB....WAKP...p
+  3900: 0a 00 88 57 41 4b 50 0a 01 00 a1 0b 70 68 88 57  ...WAKP.....ph.W
+  3910: 41 4b 50 0a 01 00 a0 30 4d 43 54 48 5c 5f 4f 53  AKP....0MCTH\_OS
+  3920: 5f 0d 4d 69 63 72 6f 73 6f 66 74 20 57 69 6e 64  _.Microsoft Wind
+  3930: 6f 77 73 00 a0 12 93 68 0a 04 86 5c 2e 5f 53 42  ows....h...\._SB
+  3940: 5f 50 57 52 42 0a 02 a0 43 08 93 68 0a 03 a0 4c  _PWRB...C..h...L
+  3950: 07 93 5c 2f 03 5f 50 52 5f 43 50 55 31 4e 43 50  ..\/._PR_CPU1NCP
+  3960: 55 0a 02 a0 47 06 93 7b 5c 2f 03 5f 50 52 5f 43  U...G..{\/._PR_C
+  3970: 50 55 31 54 59 50 45 0a 0a 00 0a 0a 5b 80 50 4d  PU1TYPE.....[.PM
+  3980: 52 47 01 5c 50 4d 42 53 0a 50 5b 81 31 50 4d 52  RG.\PMBS.P[.1PMR
+  3990: 47 01 00 48 20 44 45 56 34 01 44 45 56 35 01 44  G..H DEV4.DEV5.D
+  39a0: 45 56 36 01 44 45 56 37 01 53 54 53 34 01 53 54  EV6.DEV7.STS4.ST
+  39b0: 53 35 01 53 54 53 36 01 53 54 53 37 01 70 0a 01  S5.STS6.STS7.p..
+  39c0: 53 54 53 37 70 0a 01 44 45 56 37 a0 41 13 5c 2f  STS7p..DEV7.A.\/
+  39d0: 05 5f 53 42 5f 50 43 49 30 53 42 52 47 45 43 5f  ._SB_PCI0SBRGEC_
+  39e0: 5f 4d 59 45 43 70 5c 2f 05 5f 53 42 5f 50 43 49  _MYECp\/._SB_PCI
+  39f0: 30 53 42 52 47 45 43 5f 5f 50 4f 57 53 67 7b 67  0SBRGEC__POWSg{g
+  3a00: 0a 02 60 a0 3d 93 60 0a 02 70 0a 01 5c 2f 06 5f  ..`.=.`..p..\/._
+  3a10: 53 42 5f 50 43 49 30 53 42 52 47 45 43 5f 5f 41  SB_PCI0SBRGEC__A
+  3a20: 44 50 31 42 46 4c 47 86 5c 2f 05 5f 53 42 5f 50  DP1BFLG.\/._SB_P
+  3a30: 43 49 30 53 42 52 47 45 43 5f 5f 42 41 54 31 0a  CI0SBRGEC__BAT1.
+  3a40: 00 a1 48 05 70 0a 00 5c 2f 06 5f 53 42 5f 50 43  ..H.p..\/._SB_PC
+  3a50: 49 30 53 42 52 47 45 43 5f 5f 41 44 50 31 42 46  I0SBRGEC__ADP1BF
+  3a60: 4c 47 86 5c 2f 05 5f 53 42 5f 50 43 49 30 53 42  LG.\/._SB_PCI0SB
+  3a70: 52 47 45 43 5f 5f 41 44 50 31 0a 00 5b 22 0a 19  RGEC__ADP1..["..
+  3a80: 86 5c 2f 05 5f 53 42 5f 50 43 49 30 53 42 52 47  .\/._SB_PCI0SBRG
+  3a90: 45 43 5f 5f 42 41 54 31 0a 01 7b 67 0a 01 60 a0  EC__BAT1..{g..`.
+  3aa0: 23 93 60 0a 01 70 0a 01 5c 2f 06 5f 53 42 5f 50  #.`..p..\/._SB_P
+  3ab0: 43 49 30 53 42 52 47 45 43 5f 5f 41 44 50 31 41  CI0SBRGEC__ADP1A
+  3ac0: 43 50 5f a1 1f 70 0a 00 5c 2f 06 5f 53 42 5f 50  CP_..p..\/._SB_P
+  3ad0: 43 49 30 53 42 52 47 45 43 5f 5f 41 44 50 31 41  CI0SBRGEC__ADP1A
+  3ae0: 43 50 5f 86 5c 2f 05 5f 53 42 5f 50 43 49 30 53  CP_.\/._SB_PCI0S
+  3af0: 42 52 47 45 43 5f 5f 41 44 50 31 0a 00 a4 57 41  BRGEC__ADP1...WA
+  3b00: 4b 50 5b 80 47 50 49 4f 01 0b 80 04 0a 7f 5b 81  KP[.GPIO......[.
+  3b10: 10 47 50 49 4f 01 00 48 07 00 03 4c 49 44 53 01  .GPIO..H...LIDS.
+  3b20: 08 5c 5f 53 30 5f 12 0a 04 0a 00 0a 00 0a 00 0a  .\_S0_..........
+  3b30: 00 a0 16 53 53 33 5f 08 5c 5f 53 33 5f 12 0a 04  ...SS3_.\_S3_...
+  3b40: 0a 05 0a 00 0a 00 0a 00 a0 16 53 53 34 5f 08 5c  ..........SS4_.\
+  3b50: 5f 53 34 5f 12 0a 04 0a 06 0a 00 0a 00 0a 00 08  _S4_............
+  3b60: 5c 5f 53 35 5f 12 0a 04 0a 07 0a 00 0a 00 0a 00  \_S5_...........
+  3b70: 14 2d 50 54 53 5f 01 a0 26 68 5c 2f 03 5f 53 42  .-PTS_..&h\/._SB
+  3b80: 5f 50 43 49 30 4e 50 54 53 68 5c 2f 04 5f 53 42  _PCI0NPTSh\/._SB
+  3b90: 5f 50 43 49 30 53 42 52 47 53 50 54 53 68 14 2a  _PCI0SBRGSPTSh.*
+  3ba0: 57 41 4b 5f 01 5c 2f 03 5f 53 42 5f 50 43 49 30  WAK_.\/._SB_PCI0
+  3bb0: 4e 57 41 4b 68 5c 2f 04 5f 53 42 5f 50 43 49 30  NWAKh\/._SB_PCI0
+  3bc0: 53 42 52 47 53 57 41 4b 68                       SBRGSWAKh
+
+FACS @ 0x1dfde000
+  0000: 46 41 43 53 40 00 00 00 00 00 00 00 00 00 00 00  FACS@...........
+  0010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  0020: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  0030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+
+FACP @ 0x1dfd0200
+  0000: 46 41 43 50 84 00 00 00 02 46 4d 53 49 20 20 20  FACP.....FMSI   
+  0010: 31 30 31 32 20 20 20 20 05 20 25 02 4d 53 46 54  1012    . %.MSFT
+  0020: 97 00 00 00 00 e0 fd 1d 40 04 fd 1d 01 00 09 00  ........@.......
+  0030: b2 00 00 00 e1 1e 00 e2 00 08 00 00 00 00 00 00  ................
+  0040: 04 08 00 00 00 00 00 00 00 00 00 00 08 08 00 00  ................
+  0050: 28 08 00 00 00 00 00 00 04 02 00 04 08 00 00 e3  (...............
+  0060: 65 00 e9 03 00 04 10 00 01 03 0d 00 00 03 00 00  e...............
+  0070: a5 00 00 00 01 08 00 00 f9 0c 00 00 00 00 00 00  ................
+  0080: 06 00 00 00                                      ....
+
+APIC @ 0x1dfd0390
+  0000: 41 50 49 43 6c 00 00 00 01 e3 4d 53 49 20 20 20  APICl.....MSI   
+  0010: 31 30 31 32 20 20 20 20 05 20 25 02 4d 53 46 54  1012    . %.MSFT
+  0020: 97 00 00 00 00 00 e0 fe 01 00 00 00 00 08 01 00  ................
+  0030: 01 00 00 00 01 0c 01 00 00 00 c0 fe 00 00 00 00  ................
+  0040: 01 0c 02 00 00 00 c8 fe 18 00 00 00 01 0c 03 00  ................
+  0050: 00 10 c8 fe 28 00 00 00 02 0a 00 00 02 00 00 00  ....(...........
+  0060: 00 00 02 0a 00 09 09 00 00 00 0d 00              ............
+
+MCFG @ 0x1dfd0400
+  0000: 4d 43 46 47 3c 00 00 00 01 1d 4d 53 49 20 20 20  MCFG<.....MSI   
+  0010: 31 30 31 32 20 20 20 20 05 20 25 02 4d 53 46 54  1012    . %.MSFT
+  0020: 97 00 00 00 00 00 00 00 00 00 00 00 00 00 00 e0  ................
+  0030: 00 00 00 00 00 00 00 ff 00 00 00 00              ............
+
+OEMB @ 0x1dfde040
+  0000: 4f 45 4d 42 59 00 00 00 01 85 4d 53 49 20 20 20  OEMBY.....MSI   
+  0010: 31 30 31 32 20 20 20 20 05 20 25 02 4d 53 46 54  1012    . %.MSFT
+  0020: 97 00 00 00 0c 00 14 00 00 00 1e 00 00 f8 ff 00  ................
+  0030: 00 0d 00 00 00 01 00 00 00 00 1e 00 00 00 e2 00  ................
+  0040: 00 00 00 00 00 00 00 00 11 00 64 e0 fd 1d 08 00  ..........d.....
+  0050: 00 00 00 00 00 00 00 00 00                       .........
+
+MCFG @ 0x1dfd4010
+  0000: 4d 43 46 47 3c 00 00 00 01 1d 4d 53 49 20 20 20  MCFG<.....MSI   
+  0010: 31 30 31 32 20 20 20 20 05 20 25 02 4d 53 46 54  1012    . %.MSFT
+  0020: 97 00 00 00 00 00 00 00 00 00 00 00 00 00 00 e0  ................
+  0030: 00 00 00 00 00 00 00 ff 00 00 00 00              ............
+
+SSDT @ 0x1dfd4050
+  0000: 53 53 44 54 cc 03 00 00 01 c2 41 4d 49 00 00 00  SSDT......AMI...
+  0010: 43 50 55 31 50 4d 00 00 01 00 00 00 49 4e 54 4c  CPU1PM......INTL
+  0020: 26 20 00 02 10 47 3a 5c 2e 5f 50 52 5f 43 50 55  & ...G:\._PR_CPU
+  0030: 31 08 41 43 53 54 12 4f 07 05 0a 04 12 1e 04 11  1.ACST.O........
+  0040: 14 0a 11 82 0c 00 7f 08 00 00 00 00 00 00 00 00  ................
+  0050: 00 00 79 00 0a 01 0a 01 0b e8 03 12 1e 04 11 14  ..y.............
+  0060: 0a 11 82 0c 00 01 08 00 00 14 08 00 00 00 00 00  ................
+  0070: 00 79 00 0a 02 0a 01 0b f4 01 12 1d 04 11 14 0a  .y..............
+  0080: 11 82 0c 00 01 08 00 00 15 08 00 00 00 00 00 00  ................
+  0090: 79 00 0a 03 0a 55 0a fa 12 1d 04 11 14 0a 11 82  y....U..........
+  00a0: 0c 00 01 08 00 00 16 08 00 00 00 00 00 00 79 00  ..............y.
+  00b0: 0a 03 0a b9 0a 64 08 42 43 53 54 12 4f 07 05 0a  .....d.BCST.O...
+  00c0: 04 12 1e 04 11 14 0a 11 82 0c 00 7f 08 00 00 00  ................
+  00d0: 00 00 00 00 00 00 00 79 00 0a 01 0a 01 0b e8 03  .......y........
+  00e0: 12 1e 04 11 14 0a 11 82 0c 00 01 08 00 00 14 08  ................
+  00f0: 00 00 00 00 00 00 79 00 0a 02 0a 01 0b f4 01 12  ......y.........
+  0100: 1d 04 11 14 0a 11 82 0c 00 01 08 00 00 15 08 00  ................
+  0110: 00 00 00 00 00 79 00 0a 03 0a 55 0a fa 12 1d 04  .....y....U.....
+  0120: 11 14 0a 11 82 0c 00 01 08 00 00 16 08 00 00 00  ................
+  0130: 00 00 00 79 00 0a 03 0a b9 0a 64 14 0b 5f 43 53  ...y......d.._CS
+  0140: 54 00 a4 41 43 53 54 08 4e 50 43 54 12 2c 02 11  T..ACST.NPCT.,..
+  0150: 14 0a 11 82 0c 00 7f 40 00 00 99 01 00 00 00 00  .......@........
+  0160: 00 00 79 00 11 14 0a 11 82 0c 00 7f 10 00 00 98  ..y.............
+  0170: 01 00 00 00 00 00 00 79 00 08 53 50 43 54 12 2c  .......y..SPCT.,
+  0180: 02 11 14 0a 11 82 0c 00 01 10 00 00 b2 00 00 00  ................
+  0190: 00 00 00 00 79 00 11 14 0a 11 82 0c 00 01 08 00  ....y...........
+  01a0: 00 b3 00 00 00 00 00 00 00 79 00 14 1f 5f 50 43  .........y..._PC
+  01b0: 54 00 a0 11 93 7b 54 59 50 45 0a 01 00 0a 01 a4  T....{TYPE......
+  01c0: 4e 50 43 54 a1 06 a4 53 50 43 54 08 58 50 53 53  NPCT...SPCT.XPSS
+  01d0: 0a 04 08 4e 50 53 53 12 45 0d 0a 12 14 06 0b 3c  ...NPSS.E......<
+  01e0: 06 0b 78 69 0b 0a 00 0b 0a 00 0b 26 0c 0b 26 0c  ..xi.......&..&.
+  01f0: 12 14 06 0b 3c 06 0b 78 69 0b 0a 00 0b 0a 00 0b  ....<..xi.......
+  0200: 26 0c 0b 26 0c 12 14 06 0b 3c 06 0b 78 69 0b 0a  &..&.....<..xi..
+  0210: 00 0b 0a 00 0b 26 0c 0b 26 0c 12 14 06 0b 3c 06  .....&..&.....<.
+  0220: 0b 78 69 0b 0a 00 0b 0a 00 0b 26 0c 0b 26 0c 12  .xi.......&..&..
+  0230: 14 06 0b 3c 06 0b 78 69 0b 0a 00 0b 0a 00 0b 26  ...<..xi.......&
+  0240: 0c 0b 26 0c 12 14 06 0b 3c 06 0b 78 69 0b 0a 00  ..&.....<..xi...
+  0250: 0b 0a 00 0b 26 0c 0b 26 0c 12 14 06 0b 3c 06 0b  ....&..&.....<..
+  0260: 78 69 0b 0a 00 0b 0a 00 0b 26 0c 0b 26 0c 12 14  xi.......&..&...
+  0270: 06 0b 32 05 0b f0 55 0b 0a 00 0b 0a 00 0b 20 0a  ..2...U....... .
+  0280: 0b 20 0a 12 14 06 0b 28 04 0b 50 46 0b 0a 00 0b  . .....(..PF....
+  0290: 0a 00 0b 19 08 0b 19 08 12 14 06 0b 1e 03 0b c8  ................
+  02a0: 32 0b 0a 00 0b 0a 00 0b 12 06 0b 12 06 08 53 50  2.............SP
+  02b0: 53 53 12 45 0d 0a 12 14 06 0b 3c 06 0b 78 69 0b  SS.E......<..xi.
+  02c0: 0a 00 0b 6e 00 0b 86 00 0b 00 00 12 14 06 0b 3c  ...n...........<
+  02d0: 06 0b 78 69 0b 0a 00 0b 6e 00 0b 86 00 0b 00 00  ..xi....n.......
+  02e0: 12 14 06 0b 3c 06 0b 78 69 0b 0a 00 0b 6e 00 0b  ....<..xi....n..
+  02f0: 86 00 0b 00 00 12 14 06 0b 3c 06 0b 78 69 0b 0a  .........<..xi..
+  0300: 00 0b 6e 00 0b 86 00 0b 00 00 12 14 06 0b 3c 06  ..n...........<.
+  0310: 0b 78 69 0b 0a 00 0b 6e 00 0b 86 00 0b 00 00 12  .xi....n........
+  0320: 14 06 0b 3c 06 0b 78 69 0b 0a 00 0b 6e 00 0b 86  ...<..xi....n...
+  0330: 00 0b 00 00 12 14 06 0b 3c 06 0b 78 69 0b 0a 00  ........<..xi...
+  0340: 0b 6e 00 0b 86 00 0b 00 00 12 14 06 0b 32 05 0b  .n...........2..
+  0350: f0 55 0b 0a 00 0b 6e 00 0b 86 01 0b 01 00 12 14  .U....n.........
+  0360: 06 0b 28 04 0b 50 46 0b 0a 00 0b 6e 00 0b 86 02  ..(..PF....n....
+  0370: 0b 02 00 12 14 06 0b 1e 03 0b c8 32 0b 0a 00 0b  ...........2....
+  0380: 6e 00 0b 86 03 0b 03 00 14 1f 5f 50 53 53 00 a0  n........._PSS..
+  0390: 11 93 7b 54 59 50 45 0a 01 00 0a 01 a4 4e 50 53  ..{TYPE......NPS
+  03a0: 53 a1 06 a4 53 50 53 53 14 23 5f 50 50 43 00 a0  S...SPSS.#_PPC..
+  03b0: 17 93 7b 5c 42 43 52 54 0a 01 00 0a 01 a4 74 87  ..{\BCRT......t.
+  03c0: 4e 50 53 53 0a 01 00 a1 04 a4 0a 00              NPSS........
+
+RSDT @ 0x1dfd0000
+  0000: 52 53 44 54 3c 00 00 00 01 a7 4d 53 49 20 20 20  RSDT<.....MSI   
+  0010: 31 30 31 32 20 20 20 20 05 20 25 02 4d 53 46 54  1012    . %.MSFT
+  0020: 97 00 00 00 00 02 fd 1d 90 03 fd 1d 00 04 fd 1d  ................
+  0030: 40 e0 fd 1d 10 40 fd 1d 50 40 fd 1d              @....@..P@..
+
+RSD PTR @ 0xf7910
+  0000: 52 53 44 20 50 54 52 20 7e 4d 53 49 20 20 20 00  RSD PTR ~MSI   .
+  0010: 00 00 fd 1d                                      ....
+
+
+--y0ulUmNC+osPPQO6--

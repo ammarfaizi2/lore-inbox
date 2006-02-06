@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964821AbWBFU7J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWBFVHr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964821AbWBFU7J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 15:59:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbWBFU7J
+	id S932168AbWBFVHr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 16:07:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbWBFVHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 15:59:09 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:27275 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964821AbWBFU7I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 15:59:08 -0500
-Date: Mon, 6 Feb 2006 12:59:03 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: ak@suse.de
-cc: pj@sgi.com, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: OOM behavior in constrained memory situations
-Message-ID: <Pine.LNX.4.62.0602061253020.18594@schroedinger.engr.sgi.com>
+	Mon, 6 Feb 2006 16:07:47 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:23044 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S932168AbWBFVHp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 16:07:45 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: GPL V3 and Linux - Dead Copyright Holders
+Date: Mon, 6 Feb 2006 13:07:38 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKGECCJPAB.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <200602050358.49454.luke@dashjr.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Mon, 06 Feb 2006 13:04:21 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Mon, 06 Feb 2006 13:04:21 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are situations in which memory allocations are restricted by policy, 
-by a cpuset or by type of allocation. 
 
-I propose that we need different OOM behavior for the cases in which the
-user has imposed a limit on what type of memory to be allocated. In that 
-case the application should be terminate with OOM. The OOM killer should 
-not run.
+> The LGPL deals with only derivative works. The GPL also deals with mere
+> *linking*. If glibc were GPL'd, it would be illegal to make an OS
+> based on it
+> with a single C program incompatible with the GPL.
 
-The huge page allocator has already been modified to return a Bus Error
-because it would otherwise trigger the OOM killer. Its a bit strange
-if an app returns a Bus Error because it its out of memory.
+	The GPL also only deals with derivative works. If linking does not create a
+derivative work, then the GPL cannot affect it. The GPL cannot define its
+own scope, only copyright law does that. GPL section zero states this, but
+even if it didn't it would still be true.
 
-Could we modify the system so that the application requesting 
-memory is terminated with an out of memory condition if
+	The GPL could say that it affected every work every created by any human
+being. It could say that it affected a work created by any person who ever
+used a GPL'd work. But these things would have no force because copyright
+law provides no such mechanism.
 
-1. No huge pages are available anymore.
+	The only way the GPL can control work Y because it affects work Z is
+because Y is a derivative work of work Z. If it's not, then the works are
+legally unrelated, and no matter what the GPL says, it can't affect work Y.
 
-2. The application has set a policy that restricts allocation to
-   certain nodes.
+	If work Z is a "mere aggregate" containin all or part of work Y, then the
+GPL would still apply to work Y, but not to any part of work Z not from work
+Y.
 
-3. An application is restricted by a cpuset to certain nodes.
+	DS
 
-4. An application has requested large amounts of memory and the 
-   allocation fails.
-
-That should avoid the OOM killer in most situations.
 

@@ -1,83 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWBFT7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbWBFUAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932344AbWBFT7s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 14:59:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbWBFT7s
+	id S932345AbWBFUAW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 15:00:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWBFUAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 14:59:48 -0500
-Received: from mail.gmx.de ([213.165.64.21]:11150 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932344AbWBFT7r (ORCPT
+	Mon, 6 Feb 2006 15:00:22 -0500
+Received: from mx.laposte.net ([81.255.54.11]:45026 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id S932345AbWBFUAU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 14:59:47 -0500
-Date: Mon, 6 Feb 2006 20:59:46 +0100 (MET)
-From: "Michael Kerrisk" <mtk-manpages@gmx.net>
-To: linux-kernel@vger.kernel.org
-Cc: michael.kerrisk@gmx.net
-MIME-Version: 1.0
-Subject: man-pages-2.22 is released
-X-Priority: 3 (Normal)
-X-Authenticated: #24879014
-Message-ID: <16806.1139255986@www031.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Feb 2006 15:00:20 -0500
+Subject: Re: Linux drivers management
+From: Nicolas Mailhot <nicolas.mailhot@laposte.net>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Joshua Kugler <joshua.kugler@uaf.edu>, linux-kernel@vger.kernel.org,
+       David Chow <davidchow@shaolinmicro.com>
+In-Reply-To: <Pine.LNX.4.61.0602061420400.17351@chaos.analogic.com>
+References: <1139250712.20009.20.camel@rousalka.dyndns.org>
+	 <200602061002.27477.joshua.kugler@uaf.edu>
+	 <Pine.LNX.4.61.0602061420400.17351@chaos.analogic.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/nh/nkL/eOPxYGbBtkUu"
+Organization: Adresse perso
+Date: Mon, 06 Feb 2006 20:58:58 +0100
+Message-Id: <1139255939.20009.46.camel@rousalka.dyndns.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.90 (2.5.90-1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gidday,
 
-I recently released man-pages-2.22, which contains 
-sections 2, 3, 4, 5, and 7 of the manual pages.  These 
-sections describe the following:
+--=-/nh/nkL/eOPxYGbBtkUu
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-2: (Linux) system calls
-3: (libc) library functions
-4: Devices
-5: File formats and protocols
-7: Overview pages, conventions, etc.
+Le lundi 06 f=C3=A9vrier 2006 =C3=A0 14:21 -0500, linux-os (Dick Johnson) a
+=C3=A9crit :
 
-As far as this list is concerned the most relevant parts are: 
-all of sections 2 and 4, which describe kernel-userland interfaces; 
-in section 5, the proc(5) manual page, which attempts (it's always 
-catching up) to be a comprehensive description of /proc; and 
-various pages in section 7, some of which are overview pages of 
-kernel features (e.g., networking protocols).
+> Right now, there are really too many drivers in the kernel.
+> The kernel should have a stable API for drivers and they
+> should be in a separate tree, either on the Web or on a
+> distribution disc. There are many drivers that are as old
+> as Linux! The 3c501.c and 3c503.c are examples. You can't
+> remove them from the kernel without invoking a thousand
+> angry responses. These boards and the ne*.c network boards
+> just won't go away!
 
-This is a request to kernel developers: if you make a change 
-to a kernel-userland interface, or observe a discrepancy 
-between the manual pages and reality, would you please send 
-me (at mtk-manpages@gmx.net ) one of the following 
-(in decreasing order of preference):
+This is another proof in-kernel maintenance is cheaper.
+If out-of-tree drivers where lower maintenance like it's claimed, they'd
+have a lower attrition rate than in-kernel stuff.
 
-1. An in-line "diff -u" patch with text changes for the 
-   corresponding manual page.  (The most up-to-date version 
-   of the manual pages can always be found at
-   ftp://ftp.win.tue.nl/pub/linux-local/manpages or
-   ftp://ftp.kernel.org/pub/linux/docs/manpages .)
+--=20
+Nicolas Mailhot
 
-2. An email describing the changes, which I can then 
-   integrate into the appropriate manual page.
+--=-/nh/nkL/eOPxYGbBtkUu
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
 
-3. A message alerting me that some part of the manual pages 
-   does not correspond to reality.  Eventually, I will try to 
-   remedy the situation.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-Obviously, as we get further down this list, more of my time 
-is required, and things may go slower, especially when the
-changes concern some part of the kernel that I am ignorant 
-about and I can't find someone to assist.
+iEYEABECAAYFAkPnqoAACgkQI2bVKDsp8g2cFwCglI2aan7oXBdMnyhPQjB1GkOA
+pqQAn39wovDMzMzpLrmjVtUPgwjsFGyU
+=u1+1
+-----END PGP SIGNATURE-----
 
-Cheers,
+--=-/nh/nkL/eOPxYGbBtkUu--
 
-Michael
-
--- 
-Michael Kerrisk
-maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
-
-Want to help with man page maintenance?  
-Grab the latest tarball at
-ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
-read the HOWTOHELP file and grep the source 
-files for 'FIXME'.

@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbWBFUIX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWBFUKb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932362AbWBFUIX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 15:08:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWBFUIX
+	id S932291AbWBFUKb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 15:10:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWBFUKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 15:08:23 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48768 "EHLO
+	Mon, 6 Feb 2006 15:10:30 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56448 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932362AbWBFUIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 15:08:22 -0500
+	id S932291AbWBFUK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 15:10:28 -0500
 To: <linux-kernel@vger.kernel.org>
 Cc: <vserver@list.linux-vserver.org>, Herbert Poetzl <herbert@13thfloor.at>,
        "Serge E. Hallyn" <serue@us.ibm.com>,
@@ -27,7 +27,8 @@ Cc: <vserver@list.linux-vserver.org>, Herbert Poetzl <herbert@13thfloor.at>,
        Jeff Garzik <jgarzik@pobox.com>,
        Trond Myklebust <trond.myklebust@fys.uio.no>,
        Jes Sorensen <jes@sgi.com>
-Subject: [RFC][PATCH 18/20] posix-mqueue: Make mqueues work with pspspaces
+Subject: [RFC][PATCH 19/20] pspace: Upcate the pid_max sysctl to work in a
+ per pspace fashion
 References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
 	<m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>
 	<m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com>
@@ -46,11 +47,12 @@ References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
 	<m1zml4jlzk.fsf_-_@ebiederm.dsl.xmission.com>
 	<m1vevsjlxa.fsf_-_@ebiederm.dsl.xmission.com>
 	<m1r76gjlua.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1mzh4jlrl.fsf_-_@ebiederm.dsl.xmission.com>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 06 Feb 2006 13:05:34 -0700
-In-Reply-To: <m1r76gjlua.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
- Biederman's message of "Mon, 06 Feb 2006 13:03:57 -0700")
-Message-ID: <m1mzh4jlrl.fsf_-_@ebiederm.dsl.xmission.com>
+Date: Mon, 06 Feb 2006 13:07:56 -0700
+In-Reply-To: <m1mzh4jlrl.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
+ Biederman's message of "Mon, 06 Feb 2006 13:05:34 -0700")
+Message-ID: <m1irrsjlnn.fsf_-_@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -58,112 +60,152 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+It is a pain to export anything in sysctl that is not a global
+variable but it is possible.  So for backwards compatibility.
+
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 
 
 ---
 
- ipc/mqueue.c |   21 ++++++++++++++++++---
- 1 files changed, 18 insertions(+), 3 deletions(-)
+ kernel/sysctl.c |   79 ++++++++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 files changed, 75 insertions(+), 4 deletions(-)
 
-04e0f90a315df40b07d316c884a28c58eed4de33
-diff --git a/ipc/mqueue.c b/ipc/mqueue.c
-index 59302fc..5c71ae0 100644
---- a/ipc/mqueue.c
-+++ b/ipc/mqueue.c
-@@ -25,6 +25,7 @@
- #include <linux/netlink.h>
+dc9bb041416aeaa92add46c7fe7689099768d8fa
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index 8e1bdc5..89476f6 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -44,6 +44,7 @@
+ #include <linux/limits.h>
+ #include <linux/dcache.h>
  #include <linux/syscalls.h>
- #include <linux/signal.h>
 +#include <linux/pspace.h>
- #include <net/sock.h>
- #include "util.h"
  
-@@ -69,6 +70,7 @@ struct mqueue_inode_info {
- 	struct mq_attr attr;
+ #include <asm/uaccess.h>
+ #include <asm/processor.h>
+@@ -64,7 +65,6 @@ extern int core_uses_pid;
+ extern int suid_dumpable;
+ extern char core_pattern[];
+ extern int cad_pid;
+-extern int pid_max;
+ extern int min_free_kbytes;
+ extern int printk_ratelimit_jiffies;
+ extern int printk_ratelimit_burst;
+@@ -132,6 +132,11 @@ static int parse_table(int __user *, int
+ 		       ctl_table *, void **);
+ static int proc_doutsstring(ctl_table *table, int write, struct file *filp,
+ 		  void __user *buffer, size_t *lenp, loff_t *ppos);
++static int proc_pidmax(ctl_table *table, int write, struct file *filp,
++			void __user *buffer, size_t *lenp, loff_t *ppos);
++static int sysctl_pidmax(ctl_table *table, int __user *name, int nlen,
++		void __user *oldval, size_t __user *oldlenp,
++		void __user *newval, size_t newlen, void **context);
  
- 	struct sigevent notify;
-+	struct pspace *notify_pspace;
- 	pid_t notify_owner;
- 	struct user_struct *user;	/* user who created, for accounting */
- 	struct sock *notify_sock;
-@@ -131,6 +133,7 @@ static struct inode *mqueue_get_inode(st
- 			INIT_LIST_HEAD(&info->e_wait_q[0].list);
- 			INIT_LIST_HEAD(&info->e_wait_q[1].list);
- 			info->messages = NULL;
-+			info->notify_pspace = NULL;
- 			info->notify_owner = 0;
- 			info->qsize = 0;
- 			info->user = NULL;	/* set when all is ok */
-@@ -250,6 +253,9 @@ static void mqueue_delete_inode(struct i
- 	kfree(info->messages);
- 	spin_unlock(&info->lock);
+ static ctl_table root_table[];
+ static struct ctl_table_header root_table_header =
+@@ -579,11 +584,11 @@ static ctl_table kern_table[] = {
+ 	{
+ 		.ctl_name	= KERN_PIDMAX,
+ 		.procname	= "pid_max",
+-		.data		= &pid_max,
++		.data		= (void *)1,
+ 		.maxlen		= sizeof (int),
+ 		.mode		= 0644,
+-		.proc_handler	= &proc_dointvec_minmax,
+-		.strategy	= sysctl_intvec,
++		.proc_handler	= &proc_pidmax,
++		.strategy	= sysctl_pidmax,
+ 		.extra1		= &pid_max_min,
+ 		.extra2		= &pid_max_max,
+ 	},
+@@ -2157,6 +2162,29 @@ int proc_dointvec_ms_jiffies(ctl_table *
+ 				do_proc_dointvec_ms_jiffies_conv, NULL);
+ }
  
-+	put_pspace(info->notify_pspace);
-+	info->notify_pspace = NULL;
++static int do_pidmax_conv(int *negp, unsigned long *lvalp,
++				int *valp, int write, void *data)
++{
++	if (write) {
++		int val = *negp ? -*lvalp : *lvalp;
++		if ((pid_max_min > val) || (pid_max_max < val))
++			return -EINVAL;
++		current->pspace->max = val;
++	} else {
++		*negp = 0;
++		*lvalp = (unsigned long)(current->pspace->max);
++	}
++	return 0;
++}
 +
- 	clear_inode(inode);
++static int proc_pidmax(ctl_table *table, int write, struct file *filp,
++			void __user *buffer, size_t *lenp, loff_t *ppos)
++{
++	return do_proc_dointvec(table, write, filp, buffer, lenp, ppos,
++				do_pidmax_conv, NULL);
++}
++
++
+ #else /* CONFIG_PROC_FS */
  
- 	mq_bytes = (info->attr.mq_maxmsg * sizeof(struct msg_msg *) +
-@@ -360,7 +366,8 @@ static int mqueue_flush_file(struct file
- 	struct mqueue_inode_info *info = MQUEUE_I(filp->f_dentry->d_inode);
- 
- 	spin_lock(&info->lock);
--	if (current->tgid == info->notify_owner)
-+	if ((current->tgid == info->notify_owner) &&
-+	    (current->pspace == info->notify_pspace))
- 		remove_notification(info);
- 
- 	spin_unlock(&info->lock);
-@@ -516,7 +523,8 @@ static void __do_notify(struct mqueue_in
- 			sig_i.si_uid = current->uid;
- 
- 			kill_proc_info(info->notify.sigev_signo,
--				       &sig_i, info->notify_owner);
-+				       &sig_i, 
-+				       info->notify_pspace, info->notify_owner);
- 			break;
- 		case SIGEV_THREAD:
- 			set_cookie(info->notify_cookie, NOTIFY_WOKENUP);
-@@ -525,7 +533,9 @@ static void __do_notify(struct mqueue_in
- 			break;
- 		}
- 		/* after notification unregisters process */
-+		put_pspace(info->notify_pspace);
- 		info->notify_owner = 0;
-+		info->notify_pspace = NULL;
- 	}
- 	wake_up(&info->wait_q);
- }
-@@ -568,6 +578,8 @@ static void remove_notification(struct m
- 		set_cookie(info->notify_cookie, NOTIFY_REMOVED);
- 		netlink_sendskb(info->notify_sock, info->notify_cookie, 0);
- 	}
-+	put_pspace(info->notify_pspace);
-+	info->notify_pspace = NULL;
- 	info->notify_owner = 0;
+ int proc_dostring(ctl_table *table, int write, struct file *filp,
+@@ -2222,6 +2250,12 @@ int proc_doulongvec_ms_jiffies_minmax(ct
  }
  
-@@ -1042,7 +1054,8 @@ retry:
- 	ret = 0;
- 	spin_lock(&info->lock);
- 	if (u_notification == NULL) {
--		if (info->notify_owner == current->tgid) {
-+		if ((info->notify_owner == current->tgid) &&
-+		    (info->notify_pspace == current->pspace)) {
- 			remove_notification(info);
- 			inode->i_atime = inode->i_ctime = CURRENT_TIME;
- 		}
-@@ -1066,7 +1079,9 @@ retry:
- 			info->notify.sigev_notify = SIGEV_SIGNAL;
- 			break;
- 		}
-+		info->notify_pspace = current->pspace;
- 		info->notify_owner = current->tgid;
-+		get_pspace(info->notify_pspace);
- 		inode->i_atime = inode->i_ctime = CURRENT_TIME;
- 	}
- 	spin_unlock(&info->lock);
+ 
++static int proc_pidmax(ctl_table *table, int write, struct file *filp,
++			void __user *buffer, size_t *lenp, loff_t *ppos)
++{
++	return -ENOSYS;
++}
++
+ #endif /* CONFIG_PROC_FS */
+ 
+ 
+@@ -2367,6 +2401,43 @@ int sysctl_ms_jiffies(ctl_table *table, 
+ 	return 1;
+ }
+ 
++static int sysctl_pidmax(ctl_table *table, int __user *name, int nlen,
++		void __user *oldval, size_t __user *oldlenp,
++		void __user *newval, size_t newlen, void **context)
++{
++	int result = 0;
++	if (oldval && oldlenp) {
++		size_t len;
++		if (get_user(len, oldlenp))
++			return -EFAULT;
++		if (len < sizeof(int))
++			return -EINVAL;
++		if (put_user(current->pspace->max, oldval))
++			return -EFAULT;
++		if (put_user(sizeof(int), oldlenp))
++			return -EFAULT;
++		result = 1;
++	}
++	if (newval && newlen) {
++		int __user *vec = (int __user *)newval;
++		int value;
++
++		if (newlen != sizeof(int))
++			return -EINVAL;
++
++		if (get_user(value, vec))
++			return -EFAULT;
++		if (value < pid_max_min)
++			return -EINVAL;
++		if (value > pid_max_max)
++			return -EINVAL;
++
++		current->pspace->max = value;
++		result = 1;
++	}
++	return result;
++}
++
+ #else /* CONFIG_SYSCTL */
+ 
+ 
 -- 
 1.1.5.g3480
 

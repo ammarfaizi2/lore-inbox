@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWBFTgq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWBFTgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbWBFTgq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 14:36:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbWBFTgp
+	id S932314AbWBFTgh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 14:36:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbWBFTgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 14:36:45 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:29339 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932315AbWBFTgo
+	Mon, 6 Feb 2006 14:36:37 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:52129 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932314AbWBFTgg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 14:36:44 -0500
-Subject: Re: [PATCH] Revert serial 8250 console fixes
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kumar Gala <galak@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, Russell King <rmk+lkml@arm.linux.org.uk>
-In-Reply-To: <DC17879A-2B03-4D20-865F-C89386A393EF@kernel.crashing.org>
-References: <Pine.LNX.4.44.0602061116190.11785-100000@gate.crashing.org>
-	 <1139250251.10437.39.camel@localhost.localdomain>
-	 <DC17879A-2B03-4D20-865F-C89386A393EF@kernel.crashing.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 06 Feb 2006 19:38:31 +0000
-Message-Id: <1139254711.10437.42.camel@localhost.localdomain>
+	Mon, 6 Feb 2006 14:36:36 -0500
+Subject: [RFC/PATCH] block: undeprecate ll_rw_block()
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+       Christoph Hellwig <hch@infradead.org>
+Date: Mon, 06 Feb 2006 21:36:30 +0200
+Message-Id: <1139254591.17774.5.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-02-06 at 13:14 -0600, Kumar Gala wrote:
-> Can you explain further why you had to change wait_for_xmitr() from  
-> testing BOTH_EMPTY to UART_LSR_THRE.
+From: Pekka Enberg <penberg@cs.helsinki.fi>
 
-Because you want to wait for the uart to show that it is ready to accept
-a character, not that the byte has been clocked out entirely. Thats
-essential for working with virtual serial ports on servers as they use
-the fact there is no pending character to work out how to packetize it
-as a TCP stream.
+This patch removes the DEPRECATED comment from ll_rw_block(). The function
+is still in active use and there isn't any real replacement for it.
 
+Cc: Andrew Morton <akpm@osdl.org>
+Cc: Jens Axboe <axboe@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
 
-> Also, what exactly would you be looking for in a register dump?
+ fs/buffer.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-When it gets stuck what state are the serial chip registers in and where
-is the OS hanging ?
+Index: 2.6/fs/buffer.c
+===================================================================
+--- 2.6.orig/fs/buffer.c
++++ 2.6/fs/buffer.c
+@@ -2830,7 +2830,7 @@ int submit_bh(int rw, struct buffer_head
+ }
+ 
+ /**
+- * ll_rw_block: low-level access to block devices (DEPRECATED)
++ * ll_rw_block: low-level access to block devices
+  * @rw: whether to %READ or %WRITE or %SWRITE or maybe %READA (readahead)
+  * @nr: number of &struct buffer_heads in the array
+  * @bhs: array of pointers to &struct buffer_head
+
 

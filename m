@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbWBFEiL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbWBFEhk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750977AbWBFEiL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Feb 2006 23:38:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbWBFEiL
+	id S1750974AbWBFEhk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Feb 2006 23:37:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbWBFEhk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Feb 2006 23:38:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:33992 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750977AbWBFEiJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Feb 2006 23:38:09 -0500
-Date: Sun, 5 Feb 2006 20:37:11 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net, ak@suse.de,
-       linux-kernel@vger.kernel.org, pj@sgi.com, clameter@sgi.com
-Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
-Message-Id: <20060205203711.2c855971.akpm@osdl.org>
-In-Reply-To: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
-References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 5 Feb 2006 23:37:40 -0500
+Received: from [205.233.219.253] ([205.233.219.253]:49867 "EHLO
+	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
+	id S1750973AbWBFEhk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Feb 2006 23:37:40 -0500
+Date: Sun, 5 Feb 2006 23:31:27 -0500
+From: Jody McIntyre <scjody@modernduck.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, bcollins@debian.org,
+       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.ne,
+       sam@ravnborg.org, Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: 2.6.16-rc1-mm5: drivers/ieee1394/oui O=... builds broken
+Message-ID: <20060206043127.GQ22002@conscoop.ottawa.on.ca>
+References: <20060203000704.3964a39f.akpm@osdl.org> <20060203212507.GR4408@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060203212507.GR4408@stusta.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
->
-> This policy can provide substantial improvements for jobs that
->  need to place thread local data on the corresponding node, but
->  that need to access large file system data sets that need to
->  be spread across the several nodes in the jobs cpuset in order
->  to fit.  Without this patch, especially for jobs that might
->  have one thread reading in the data set, the memory allocation
->  across the nodes in the jobs cpuset can become very uneven.
+On Fri, Feb 03, 2006 at 10:25:07PM +0100, Adrian Bunk wrote:
 
+> The change that broke it is:
+> 
+> 
+>  quiet_cmd_oui2c = OUI2C   $@
+> -      cmd_oui2c = $(CONFIG_SHELL) $(srctree)/$(src)/oui2c.sh < $< > $@
+> +      cmd_oui2c = $(CONFIG_SHELL) $(src)/oui2c.sh < $< > $@
 
-It all seems rather ironic.  We do vast amounts of development to make
-certain microbenchmarks look good, then run a real workload on the thing,
-find that all those microbenchmark-inspired tweaks actually deoptimised the
-real workload?  So now we need to add per-task knobs to turn off the
-previously-added microbenchmark-tweaks.
+Reverted.
 
-What happens if one process does lots of filesystem activity and another
-one (concurrent or subsequent) wants lots of thread-local storage?  Won't
-the same thing happen?
+Johannes, please fix this such that builds with O= still work, or change
+your out-of-tree Makefile so that this change is not needed.
 
-IOW: this patch seems to be a highly specific bandaid which is repairing an
-ill-advised problem of our own making, does it not?
+Cheers,
+Jody
+
+> 
+> 
+> cu
+> Adrian
+> 
+> -- 
+> 
+>        "Is there not promise of rain?" Ling Tan asked suddenly out
+>         of the darkness. There had been need of rain for many days.
+>        "Only a promise," Lao Er said.
+>                                        Pearl S. Buck - Dragon Seed
+> 
+
+-- 

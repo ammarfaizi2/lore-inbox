@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751047AbWBFHAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWBFHBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751047AbWBFHAV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 02:00:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751048AbWBFHAV
+	id S1751049AbWBFHBt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 02:01:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbWBFHBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 02:00:21 -0500
-Received: from c-71-193-195-148.hsd1.or.comcast.net ([71.193.195.148]:23177
-	"EHLO vkl.ath.cx") by vger.kernel.org with ESMTP id S1751046AbWBFHAU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 02:00:20 -0500
-Date: Sun, 5 Feb 2006 23:00:12 -0800 (PST)
-From: Dan McDonald <dan@vkl.ath.cx>
-X-X-Sender: dan@dan
-To: Arjan van de Ven <arjan@infradead.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: [PATCH 8/12] LED: Add LED device support for ixp4xx devices]
-In-Reply-To: <1139202455.3131.56.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.64.0602052255110.10566@dan>
-References: <1139154997.14624.20.camel@localhost.localdomain> 
- <20060205192025.4006a554.akpm@osdl.org> <1139202455.3131.56.camel@laptopd505.fenrus.org>
+	Mon, 6 Feb 2006 02:01:49 -0500
+Received: from relay02.roc.ny.frontiernet.net ([66.133.182.165]:18366 "EHLO
+	relay02.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S1751048AbWBFHBs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 02:01:48 -0500
+Reply-To: <jbowler@acm.org>
+From: John Bowler <jbowler@acm.org>
+To: "'Andrew Morton'" <akpm@osdl.org>, "'Richard Purdie'" <rpurdie@rpsys.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [Fwd: [PATCH 8/12] LED: Add LED device support for ixp4xx devices]
+Date: Sun, 5 Feb 2006 23:01:43 -0800
+Message-ID: <002a01c62aeb$30c55e00$1001a8c0@kalmiopsis>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <20060205192025.4006a554.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Andrew Morton [mailto:akpm@osdl.org]
+>MIT license is unusual.  There's one other file in the kernel which uses it
+>and that's down in MTD where nobody dares look.
 
+Well, I look at the MTD code a lot... That's why I used it (i.e. that was the
+existence proof I found that it's fine ;-)
 
-On Mon, 6 Feb 2006, Arjan van de Ven wrote:
+>I don't know whether MIT is GPL-compatible-for-kernel-purposes or not.  Help.
 
-> On Sun, 2006-02-05 at 19:20 -0800, Andrew Morton wrote:
->> Richard Purdie <rpurdie@rpsys.net> wrote:
->>>
->>> +MODULE_AUTHOR("John Bowler <jbowler@acm.org>");
->>> +MODULE_DESCRIPTION("IXP4XX GPIO LED driver");
->>> +MODULE_LICENSE("MIT");
->>
->> MIT license is unusual.  There's one other file in the kernel which uses it
->> and that's down in MTD where nobody dares look.
->>
->> I don't know whether MIT is GPL-compatible-for-kernel-purposes or not.  Help.
->
-> would be really nice if the author would at least dual license it under
-> the GPL as well (and thus also granting the patent rights if any)
+Nothing it that license precludes the code being redistributed under the
+GPL.  (It is a verbatim copy of
+http://www.opensource.org/licenses/mit-license.php).
 
-It would be really nice, but that doesn't make the rights to any patents 
-granted unless 'GPLv2 or any later version' is explicitly specified. The 
-default GPL license is v2 and only v2. There was a bug thread about this 
-on LKML earlier.
+>MODULE_LICENSE("Dual MIT/GPL");
 
+Is fine with me, indeed, given the license text, I don't believe I retain
+any rights to *prevent* such a change (and it was certainly not my intent
+to prevent redistribution under a more restrictive license).  Using 'MIT'
+or substituting some more specific tag must be fine for the same reason
+(it's a name of a license, not a license itself).
 
-Dan
+John Bowler <jbowler@acm.org>
+

@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWBKKNZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWBKKdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751399AbWBKKNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 05:13:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbWBKKNZ
+	id S1751407AbWBKKdh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 05:33:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWBKKdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 05:13:25 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:3524 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751399AbWBKKNY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 05:13:24 -0500
-To: Kirill Korotaev <dev@sw.ru>
-Cc: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: [RFC][PATCH 04/20] pspace: Allow multiple instaces of the
- process id namespace
-References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
-	<m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>
-	<m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1fymwmgk0.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1bqxkmgcv.fsf_-_@ebiederm.dsl.xmission.com> <43ECF803.8080404@sw.ru>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Sat, 11 Feb 2006 03:11:02 -0700
-In-Reply-To: <43ECF803.8080404@sw.ru> (Kirill Korotaev's message of "Fri, 10
- Feb 2006 23:30:59 +0300")
-Message-ID: <m18xsixl1l.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 11 Feb 2006 05:33:37 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:59539 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751407AbWBKKdg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 05:33:36 -0500
+Subject: RE: EC interrupt mode by default breaks power button and lid button
+Date: Mon, 6 Feb 2006 15:37:47 +0800
+In-reply-to: <3ACA40606221794F80A5670F0AF15F84041AC24F@pdsmsx403>
+From: Jiri Slaby <jirislaby@gmail.com>
+To: "Yu, Luming" <luming.yu@intel.com>
+Cc: "Gerhard Schrenk" <deb.gschrenk@gmx.de>,
+       "Brown, Len" <len.brown@intel.com>, <linux-kernel@vger.kernel.org>
+Message-Id: <E1F7s49-0003gB-00@decibel.fi.muni.cz>
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: xslaby@informatics.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev <dev@sw.ru> writes:
+Luming Yu wrote:
+>Please don't revert that patch, and test kernel parameter ec_intr=0
+>Also, please send me acpidump output.
+>
+>I'm wondering how ec interrupt mode breaks power & lid button.
+Hello, I have some problems too:
+ACPI: write EC, IB not empty
+ACPI: write EC, IB not empty
+ACPI: write EC, IB not empty
+ACPI Exception (evregion-0409): AE_TIME, Returned by Handler for [EmbeddedControl] [20060127]
+ACPI Error (psparse-0517): Method parse/execution failed [\_SB_.PCI0.SBRG.EC0_.RDC3] (Node ddf13fa8), AE_TIME
+ACPI Error (psparse-0517): Method parse/execution failed [\ECIO] (Node ddf13628), AE_TIME
+ACPI Error (psparse-0517): Method parse/execution failed [\_SB_.PCI0.SBRG.EC0_.ACPS] (Node ddf11228), AE_TIME
+ACPI Error (psparse-0517): Method parse/execution failed [\ACPS] (Node ddf0b368), AE_TIME
+ACPI Error (psparse-0517): Method parse/execution failed [\_SB_.PCI0.AC0_._PSR] (Node ddf10228), AE_TIME
+ acpi_ac-0095 [10] ac_get_state          : Error reading AC Adapter state
 
-> Eric,
->
-> All my commments are inline below.
->
->> This patch modifies the fork/exit, signal handling, and pid and
->> process group manipulating syscalls to support multiple process
->> spaces, and implements the data for allow multiple instaces of the pid
->> namespace.
->
-> [ ... skipped .... ]
->
->> +extern struct pspace init_pspace;
->> +
->> +#define INVALID_PID 0x7fffffff
-> <<<< what is it for?
+acpidump here:
+http://www.fi.muni.cz/~xslaby/sklad/adump
 
-It is a hold over from an earlier version that never got deleted.  oops.
+dmesgs here:
+http://www.fi.muni.cz/~xslaby/sklad/intr0 ec_intr=0
+http://www.fi.muni.cz/~xslaby/sklad/intr1 ec_intr=1
+http://www.fi.muni.cz/~xslaby/sklad/intrx without ec_intr param
 
-Eric
+acpi irqs with ec_intr1 increments by touching the button, but acpi_listen says
+nothing.
+
+I had to use ec_burst=1 in latest kernels, now there is no option such this.
+I had to use patch from bug 4980 (if the number is correct), but they become to
+kernel in 2.6.16-rc1-git8, so I tried rc2, but with this error.
+
+regards,
+--
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E

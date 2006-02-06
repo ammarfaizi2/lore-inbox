@@ -1,128 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWBFObO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWBFOgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932121AbWBFObO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 09:31:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWBFObO
+	id S1751095AbWBFOgS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 09:36:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWBFOgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 09:31:14 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:965 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1751095AbWBFObO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 09:31:14 -0500
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@ocs.com.au>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Check for references to discarded sections during build time 
-In-reply-to: Your message of "Sun, 05 Feb 2006 01:20:16 BST."
-             <20060205002016.GA6105@mars.ravnborg.org> 
+	Mon, 6 Feb 2006 09:36:18 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:30658 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751095AbWBFOgR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 09:36:17 -0500
+Date: Mon, 6 Feb 2006 06:35:49 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: mingo@elte.hu, akpm@osdl.org, dgc@sgi.com, steiner@sgi.com,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+Message-Id: <20060206063549.d155c619.pj@sgi.com>
+In-Reply-To: <200602061116.44040.ak@suse.de>
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
+	<200602061109.45788.ak@suse.de>
+	<20060206101156.GA1761@elte.hu>
+	<200602061116.44040.ak@suse.de>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 07 Feb 2006 01:31:11 +1100
-Message-ID: <9750.1139236271@ocs3>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 04, 2006 at 11:50:25PM +0100, Sam Ravnborg wrote:
-> Hi Keith.
-> 
-> While doing some other modpost.c changes I thought about the
-> possibility to do the reference_init check during the modpost stage - so
-> it is done early and author can catch warning when he made the error.
-> Attached is first cut.
-> 
-> It does a much more lousy job than reference_init because it identifies
-> the module and not the .o file. I hope to later identify the function
-> where the illegal reference hapens.
+Andi wrote:
+> Perhaps one could do a "near" caching policy for big machines: e.g. 
+> if on a big Altix prefer to put it on a not too far away node, but
+> spread it out evenly. But it's not clear yet such complexity is needed.
 
-My main concern is that we cannot get the .o file with this approach, I
-am particulary concerned about this approach when processing vmlinux.
-Static function names are duplicated in the kernel.  Reporting a
-dangling reference to init or discarded data by function name rather
-than by object will lead to confusion if the reference is from one of
-the duplicate function names.
+I suspect that spreading evenly over the current tasks mems_allowed is
+just what is needed.
 
-# nm vmlinux | fgrep ' t ' | awk '{print $3}' | sort | uniq -dc
+There is nothing special about big Altix systems here; just use
+task->mems_allowed.  For all but tasks using MPOL_BIND, this means
+spreading the caching over the nodes in the tasks cpuset.
 
-produces this horrible list of duplicate function names (IA64):
+We don't want to spread over a larger area, because cpusets need to
+maintain a fairly aggressive containment.  One jobs big data set must
+not pollute the cpuset of another job, except in cases involving kernel
+distress.
 
-      2 autofs_get_sb
-      2 base_probe
-      3 c_next
-      2 count
-      2 create_elf_tables
-      2 c_show
-      3 c_start
-      3 c_stop
-      3 default_handler
-      3 destroy_inodecache
-      2 dev_ifsioc
-      3 disable_slot
-      2 do_vfs_lock
-      4 dst_output
-      2 dump_seek
-      2 dump_write
-      2 elf_core_dump
-      3 enable_slot
-      2 error
-      3 exact_lock
-      3 exact_match
-      2 fill_note
-      2 fill_prstatus
-      2 flush_window
-      2 get_power_status
-      2 getreg
-      2 gzip_release
-      2 huft_build
-      2 huft_free
-      2 inflate_codes
-      2 inflate_dynamic
-      2 inflate_fixed
-      4 init
-      2 __initcall_init
-     14 init_once
-      2 klist_devices_get
-      2 klist_devices_put
-      2 load_elf_binary
-      2 load_elf_library
-      5 machvec_noop
-      4 machvec_noop_mm
-      2 mark_clean
-      2 maydump
-      2 message.1
-      3 m_next
-      2 modalias_show
-      3 m_start
-      3 m_stop
-      2 next_device
-      3 notesize
-      2 padzero
-      2 parse_options
-      2 proc_calc_metrics
-      2 raw_ioctl
-      2 read_block_bitmap
-      2 read_inode_bitmap
-      2 seq_next
-      2 seq_show
-      2 seq_start
-      2 seq_stop
-      2 set_brk
-      2 setkey
-      2 __setup_netdev_boot_setup
-      2 __setup_str_netdev_boot_setup
-      2 s_next
-      2 s_show
-      2 s_start
-      2 s_stop
-      2 state_show
-      2 state_store
-      2 store_uevent
-      2 try_to_fill_dentry
-      2 writenote
-      2 xdr_decode_fattr
-
-It will also be extremely difficult to track down entries from compiler
-generated anonymous data areas.  They are hard enough to isolate when
-looking at a single object.  When all the anonymous data has been
-merged together in vmlinux, it will be beyond most people.
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

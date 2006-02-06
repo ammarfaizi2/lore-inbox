@@ -1,71 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWBFN5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWBFN7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932112AbWBFN5S (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 08:57:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWBFN5S
+	id S932117AbWBFN7q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 08:59:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbWBFN7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 08:57:18 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:15421 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932112AbWBFN5R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 08:57:17 -0500
-Date: Mon, 6 Feb 2006 14:59:37 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@suse.cz>, Nigel Cunningham <nigel@suspend2.net>,
-       linux-kernel@vger.kernel.org,
-       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060206135937.GA13598@suse.de>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060206125253.GJ4101@elf.ucw.cz> <20060206130442.GV13598@suse.de> <200602061445.55966.rjw@sisk.pl>
+	Mon, 6 Feb 2006 08:59:46 -0500
+Received: from vbn.0050556.lodgenet.net ([216.142.194.234]:49805 "EHLO
+	vbn.0050556.lodgenet.net") by vger.kernel.org with ESMTP
+	id S932118AbWBFN7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 08:59:45 -0500
+Subject: Re: [Fwd: [PATCH 8/12] LED: Add LED device support for ixp4xx
+	devices]
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dan McDonald <dan@vkl.ath.cx>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0602052255110.10566@dan>
+References: <1139154997.14624.20.camel@localhost.localdomain>
+	 <20060205192025.4006a554.akpm@osdl.org>
+	 <1139202455.3131.56.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.64.0602052255110.10566@dan>
+Content-Type: text/plain
+Date: Mon, 06 Feb 2006 14:56:35 +0100
+Message-Id: <1139234195.3131.81.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602061445.55966.rjw@sisk.pl>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 06 2006, Rafael J. Wysocki wrote:
-> Hi,
+On Sun, 2006-02-05 at 23:00 -0800, Dan McDonald wrote:
 > 
-> On Monday 06 February 2006 14:04, Jens Axboe wrote:
-> > On Mon, Feb 06 2006, Pavel Machek wrote:
-> > > > > I'll get same bandwidth as you, without need for async I/O. Async I/O
-> > > > > is not really a feature, suspend speed is. (There are existing
-> > > > > interfaces for doing AIO from userspace, anyway, but I'm pretty sure
-> > > > > they will not be needed
-> > > > 
-> > > > If you keep writing single pages sync, you sure as hell wont get
-> > > > anywhere near async io in speed...
-> > > 
-> > > well, we can perfectly do 128K block... just read 128K into userspace
-> > > buffer, flush it via single write to block device. That should get us
-> > > very close enough to media speed.
-> > 
-> > That'll help naturally, 128k sync blocks will be very close to async
-> > performance for most cases. Most cases here being drives with write back
-> > caching enabled, if that is disabled async will still be a big win.
-> > 
-> > Is there any reason _not_ to just go with async io? Usually the code is
-> > just as simple (or simpler), since the in-kernel stuff is inherently
-> > async to begin with.
+> On Mon, 6 Feb 2006, Arjan van de Ven wrote:
 > 
-> Actually the userland tools we're working on use async I/O.  [There's
-> no real need for sync, I think.]  Still we write one page at a time,
-> for now, so the I/O performance is not that much better than for the
-> built-in swsusp, but it _is_ better.
+> > On Sun, 2006-02-05 at 19:20 -0800, Andrew Morton wrote:
+> >> Richard Purdie <rpurdie@rpsys.net> wrote:
+> >>>
+> >>> +MODULE_AUTHOR("John Bowler <jbowler@acm.org>");
+> >>> +MODULE_DESCRIPTION("IXP4XX GPIO LED driver");
+> >>> +MODULE_LICENSE("MIT");
+> >>
+> >> MIT license is unusual.  There's one other file in the kernel which uses it
+> >> and that's down in MTD where nobody dares look.
+> >>
+> >> I don't know whether MIT is GPL-compatible-for-kernel-purposes or not.  Help.
+> >
+> > would be really nice if the author would at least dual license it under
+> > the GPL as well (and thus also granting the patent rights if any)
+> 
+> It would be really nice, but that doesn't make the rights to any patents 
+> granted unless 'GPLv2 or any later version' is explicitly specified. The 
+> default GPL license is v2 and only v2. There was a bug thread about this 
+> on LKML earlier.
 
-How many pages you write out at the time doesn't matter very much - that
-usually just boils down to how efficient you are wrt CPU usage,
-something that suspend probably doesn't need to care a whole lot about.
-What matters is how often you wait for a page. Writing 256MiB here, on a
-plain SATA drive:
+wrong. v2 already is a statement that the author doesn't have patents on
+the code, or alternatively that the author has granted you the patent
+rights and will not sue you for using the code. it's also a statement
+that the author doesn't have patent licenses from 3rd parties that
+he/she cannot sublicense.
 
-4k sync writes:         17.9MiB/sec
-4k async writes:        29.6MiB/sec
-128k sync writes:       36.0MiB/sec
-128k async writes:      41.9MiB/sec
+v3 clarifies and expands on this most likely, but v2 already offers
+basic patent trap protection.
 
--- 
-Jens Axboe
 

@@ -1,113 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWBFOqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWBFOsu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbWBFOqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 09:46:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWBFOqZ
+	id S932136AbWBFOsu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 09:48:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWBFOsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 09:46:25 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:64137 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932130AbWBFOqY (ORCPT
+	Mon, 6 Feb 2006 09:48:50 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:9618 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932136AbWBFOst (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 09:46:24 -0500
-Message-ID: <43E7613B.5060706@us.ibm.com>
-Date: Mon, 06 Feb 2006 08:46:19 -0600
-From: Brian King <brking@us.ibm.com>
-Reply-To: brking@us.ibm.com
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+	Mon, 6 Feb 2006 09:48:49 -0500
+Message-ID: <43E762C0.6030300@In.ibm.com>
+Date: Mon, 06 Feb 2006 20:22:48 +0530
+From: Suzuki <suzuki@In.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: hugh@veritas.com, James.Bottomley@SteelEye.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] ipr: don't doublefree pages from scatterlist
-References: <Pine.LNX.4.61.0602040004020.5406@goblin.wat.veritas.com>	<43E66FB6.6070303@us.ibm.com>	<Pine.LNX.4.61.0602060909180.6827@goblin.wat.veritas.com> <20060206.014608.22328385.davem@davemloft.net>
-In-Reply-To: <20060206.014608.22328385.davem@davemloft.net>
-Content-Type: multipart/mixed;
- boundary="------------040008040005060309090303"
+To: lkml <linux-kernel@vger.kernel.org>
+CC: akpm@osdl.org
+Subject: [PATCH] Fix do_path_lookup() to add the check for error in link_path_walk()
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040008040005060309090303
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Hi,
 
-David S. Miller wrote:
-> From: Hugh Dickins <hugh@veritas.com>
-> Date: Mon, 6 Feb 2006 09:32:54 +0000 (GMT)
-> 
->> From looking at the source, the architectures I found to be doing
->> scatterlist coalescing in some cases were alpha, ia64, parisc (some
->> code under drivers), powerpc, sparc64 and x86_64.
->>
->> I agree with you that it would be possible for them to do the coalescing
->> by just adjusting dma_address and dma_length (though it's architecture-
->> dependent whether there are such fields at all), not interfering with
->> the input page and length; and maybe some of them do proceed that way.
->> I didn't find the coalescing code in any of them very easy to follow.
->>
->> So please examine arch/x86_64/kernel/pci_gart.c gart_map_sg (and
->> dma_map_cont which it calls): x86_64 was the architecture on which
->> the problem was really found with drivers/scsi/st.c, and avoided
->> by that boot option iommu=nomerge.
->>
->> Lines like "*sout = *s;" and "*sout = sg[start];" are structure-
->> copying whole scallerlist entries from one position in the list
->> to another, without explicit mention of the page and length fields.
-> 
-> That's a bug, frankly.  Sparc64 doesn't need to do anything like
-> that.  Spamming the page pointers is really really bogus and I'm
-> surprised this doesn't make more stuff explode.
-> 
-> It was never the intention to allow the DMA mapping support code
-> to modify the page, offset, and length members of the scatterlist.
-> Only the DMA components.
-> 
-> I'd really prefer that those assignments get fixed and an explicit
-> note added to Documentation/DMA-mapping.txt about this.
+I encountered an oops with 2.6.16-rc1-git3 kernel ( SLES 10 B2 kernel ), 
+while running racer tests. The problem was hit in audit_inode() with the 
+following stack trace :
 
-How about this for a documentation fix?
+Jan 31 19:15:27 x236 klogd:Unable to handle kernel paging request at 
+virtual address 6b6b6b8b
+Jan 31 19:15:27 x236 klogd: CPU:    3
+Jan 31 19:15:27 x236 klogd: EIP:    0060:[<c013ffbd>]    Tainted: G 
+U VLI
+Jan 31 19:15:27 x236 klogd: EFLAGS: 00010282   (2.6.16-rc1-git3-4-smp)
+Jan 31 19:15:27 x236 klogd: EIP is at audit_inode+0x78/0xa9
+Jan 31 19:15:27 x236 klogd: eax: d29da000   ebx: ccc23638   ecx: 0000001
+edx: ccc23638
+Jan 31 19:15:27 x236 klogd: esi: 6b6b6b6b   edi: d29da000   ebp: 0000001
+esp: ce4d7ecc
+Jan 31 19:15:27 x236 klogd: ds: 007b   es: 007b   ss: 0068
+Jan 31 19:15:27 x236 klogd: Process ln (pid: 12674, threadinfo=ce4d6000 
+task=e49df550)
+Jan 31 19:15:27 x236 klogd: Call Trace:
+Jan 31 19:15:27 x236 klogd:  [<c016a843>] do_path_lookup+0x225/0x22f
+Jan 31 19:15:27 x236 klogd:  [<c016af42>] __user_walk_fd+0x29/0x3a
+Jan 31 19:15:27 x236 klogd:  [<c0164e7e>] vfs_stat_fd+0x15/0x3c
+Jan 31 19:15:27 x236 klogd:  [<c014ca1c>] __handle_mm_fault+0x439/0x7a0
+Jan 31 19:15:27 x236 klogd:  [<c0164f32>] sys_stat64+0xf/0x23
+Jan 31 19:15:27 x236 klogd:  [<c0106d26>] do_syscall_trace+0x123/0x169
+Jan 31 19:15:27 x236 klogd:  [<c0103c09>] syscall_call+0x7/0xb
 
-Brian
+I found the root cause of the problem to be the lack of error-check in 
+do_path_lookup() for the link_path_walk().
+
+in do_path_lookup:
 
 
--- 
-Brian King
-eServer Storage I/O
-IBM Linux Technology Center
+                 fput_light(file, fput_needed);
+         }
+         read_unlock(&current->fs->lock);
+         current->total_link_count = 0;
+         retval = link_path_walk(name, nd); <----- No check for retval !
+out:
+         if (unlikely(current->audit_context
+                      && nd && nd->dentry && nd->dentry->d_inode))
+                 audit_inode(name, nd->dentry->d_inode, flags);
+out_fail:
+         return retval;
+}
 
---------------040008040005060309090303
-Content-Type: text/x-patch;
- name="dma_mapping_clarification.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="dma_mapping_clarification.patch"
+If link_path_walk returns error, the inode may not be reliable. This 
+causes the oops in audit_inode.
 
-ClRoZSBjdXJyZW50IHBjaV9tYXBfc2cgQVBJIGlzIGEgYml0IHVuY2xlYXIgd2hhdCBpdCBp
-cyBhbGxvd2VkCnRvIG1vZGlmeSBpbiB0aGUgcGFzc2VkIHNjYXR0ZXJsaXN0IHdoZW4gY29h
-bGVzY2luZyBlbnRyaWVzLgpDbGFyaWZ5IHRoZSBwY2lfbWFwX3NnIEFQSSB0byBwcmV2ZW50
-IGl0IGZyb20gbW9kaWZ5aW5nCnRoZSBwYWdlLCBvZmZzZXQsIGFuZCBsZW5ndGggZmllbGRz
-IGluIHRoZSBzY2F0dGVybGlzdC4KClNpZ25lZC1vZmYtYnk6IEJyaWFuIEtpbmcgPGJya2lu
-Z0B1cy5pYm0uY29tPgotLS0KCiBsaW51eC0yLjYtYmpraW5nMS9Eb2N1bWVudGF0aW9uL0RN
-QS1tYXBwaW5nLnR4dCB8ICAgIDUgKysrKy0KIDEgZmlsZXMgY2hhbmdlZCwgNCBpbnNlcnRp
-b25zKCspLCAxIGRlbGV0aW9uKC0pCgpkaWZmIC1wdU4gRG9jdW1lbnRhdGlvbi9ETUEtbWFw
-cGluZy50eHR+ZG1hX21hcHBpbmdfY2xhcmlmaWNhdGlvbiBEb2N1bWVudGF0aW9uL0RNQS1t
-YXBwaW5nLnR4dAotLS0gbGludXgtMi42L0RvY3VtZW50YXRpb24vRE1BLW1hcHBpbmcudHh0
-fmRtYV9tYXBwaW5nX2NsYXJpZmljYXRpb24JMjAwNi0wMi0wNiAwODoyMzoxMC4wMDAwMDAw
-MDAgLTA2MDAKKysrIGxpbnV4LTIuNi1iamtpbmcxL0RvY3VtZW50YXRpb24vRE1BLW1hcHBp
-bmcudHh0CTIwMDYtMDItMDYgMDg6Mzg6NDMuMDAwMDAwMDAwIC0wNjAwCkBAIC01MTMsNyAr
-NTEzLDEwIEBAIGNvbnNlY3V0aXZlIHNnbGlzdCBlbnRyaWVzIGNhbiBiZSBtZXJnZWQKIGVu
-ZHMgYW5kIHRoZSBzZWNvbmQgb25lIHN0YXJ0cyBvbiBhIHBhZ2UgYm91bmRhcnkgLSBpbiBm
-YWN0IHRoaXMgaXMgYSBodWdlCiBhZHZhbnRhZ2UgZm9yIGNhcmRzIHdoaWNoIGVpdGhlciBj
-YW5ub3QgZG8gc2NhdHRlci1nYXRoZXIgb3IgaGF2ZSB2ZXJ5CiBsaW1pdGVkIG51bWJlciBv
-ZiBzY2F0dGVyLWdhdGhlciBlbnRyaWVzKSBhbmQgcmV0dXJucyB0aGUgYWN0dWFsIG51bWJl
-cgotb2Ygc2cgZW50cmllcyBpdCBtYXBwZWQgdGhlbSB0by4gT24gZmFpbHVyZSAwIGlzIHJl
-dHVybmVkLgorb2Ygc2cgZW50cmllcyBpdCBtYXBwZWQgdGhlbSB0by4gVGhlIGltcGxlbWVu
-dGF0aW9uIGlzIGZyZWUgdG8gZG8gdGhpcworYnkgbW9kaWZ5aW5nIHRoZSBzY2F0dGVybGlz
-dCBmaWVsZHMgc3BlY2lmaWVkIGZvciBETUEuIFRoZSBzY2F0dGVybGlzdAorZmllbGRzIHVz
-ZWQgYXMgYW4gaW5wdXQgdG8gdGhpcyBmdW5jdGlvbiAoaS5lLiBwYWdlLCBvZmZzZXQsIGFu
-ZCBsZW5ndGgpCit3aWxsIE5PVCBiZSBtb2RpZmllZC4gT24gZmFpbHVyZSAwIGlzIHJldHVy
-bmVkLgogCiBUaGVuIHlvdSBzaG91bGQgbG9vcCBjb3VudCB0aW1lcyAobm90ZTogdGhpcyBj
-YW4gYmUgbGVzcyB0aGFuIG5lbnRzIHRpbWVzKQogYW5kIHVzZSBzZ19kbWFfYWRkcmVzcygp
-IGFuZCBzZ19kbWFfbGVuKCkgbWFjcm9zIHdoZXJlIHlvdSBwcmV2aW91c2x5Cl8K
---------------040008040005060309090303--
+The bug is there in 2.6.16-rc2 also. I believe the problem in Bugme 
+#5897 also has the same root cause, though it has different call path.
+
+The patch attached below fixes the issue. I have tested it on 
+2.6.16-rc1-git3 with racer tests and it works fine.
+
+Thanks,
+
+Suzuki K P
+Linux Technology Centre
+IBM Software Labs,
+
+
+-------------------------------------------------------------------------------------------
+
+Fixes do_path_lookup() to avoid accessing invalid dentry or inode when 
+the link_path_walk() has failed. This should fix Bugme #5897.
+
+Signed Off by: Suzuki K P <suzuki@in.ibm.com>
+
+--- fs/namei.c  2006-02-06 06:10:53.000000000 -0800
++++ fs/namei.c~fix-do-path-lookup       2006-02-06 11:33:59.000000000 -0800
+@@ -1122,6 +1122,8 @@ static int fastcall do_path_lookup(int d
+         read_unlock(&current->fs->lock);
+         current->total_link_count = 0;
+         retval = link_path_walk(name, nd);
++       if(retval)
++               goto out_fail;
+  out:
+         if (unlikely(current->audit_context
+                      && nd && nd->dentry && nd->dentry->d_inode))
+
+
+

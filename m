@@ -1,92 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWBFTCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbWBFTIZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbWBFTCt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 14:02:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWBFTCs
+	id S932192AbWBFTIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 14:08:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWBFTIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 14:02:48 -0500
-Received: from smtp.uaf.edu ([137.229.34.30]:30730 "EHLO smtp.uaf.edu")
-	by vger.kernel.org with ESMTP id S932180AbWBFTCs (ORCPT
+	Mon, 6 Feb 2006 14:08:25 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:51628 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932192AbWBFTIZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 14:02:48 -0500
-From: Joshua Kugler <joshua.kugler@uaf.edu>
-Organization: UAF Center for Distance Education - IT
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux drivers management
-Date: Mon, 6 Feb 2006 10:02:27 -0900
-User-Agent: KMail/1.7.2
-Cc: Nicolas Mailhot <nicolas.mailhot@laposte.net>,
-       David Chow <davidchow@shaolinmicro.com>
-References: <1139250712.20009.20.camel@rousalka.dyndns.org>
-In-Reply-To: <1139250712.20009.20.camel@rousalka.dyndns.org>
+	Mon, 6 Feb 2006 14:08:25 -0500
+Message-ID: <43E7B0BF.D13E1F07@tv-sign.ru>
+Date: Mon, 06 Feb 2006 23:25:35 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] fix kill_proc_info() vs copy_process() race
+References: <43E77D3C.C967A275@tv-sign.ru> <43E7830E.974EF20C@tv-sign.ru>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602061002.27477.joshua.kugler@uaf.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 February 2006 09:31, Nicolas Mailhot wrote:
-> > I think I am in a different position like you guys, I've been work with
-> > Linux from programmer level to Linux promotion . My goal is not just
-> > focus on Linux technical or programming, I would like to promote this
-> > operating system to not just for programmers, but also non-technical
-> > end-users .
->
-> Since you invoke end-users I'll answer.
+Oleg Nesterov wrote:
+> 
+> Sorry, I was wrong. Without CLONE_THREAD current->sighand.siglock can't help,
+> we need p->sighand.siglock, I beleive.
 
-I heartily agree with this!!
+Also, it is stupid to do write_lock(&tasklist_lock) without clearing irqs.
 
-I use two products that use out-of-tree drivers.  VMWare and NVidia cards.  
-Fortunately, the build processes for both are rather painless, but there have 
-been times when it has *not* been, and it was extremely frustrating.  I 
-remember when VMWare was not doing a good job of supporting 2.6 kernels and I 
-spent the better part of two days trying to track down a solution.  I finally 
-did, but it was a third party, non-VMWare, patch to the VMWare code that 
-fixed it so it would compile and run.  That's not what I consider convenience 
-for the non-technical user.  A non-technical user would not have been able to 
-do what I did, especially when they just want their software to work.
+Ok, may be something like (untested, for review only) patch below ?
 
-> Do you really think we enjoy clicking though boatloads of HTML/js/flash
-> forms that will inform us about vastly important things like your custom
-> license, the mirror list you want us to master or your dog's birthday ?
+attach_pid() does wmb(), group_send_sig_info()->rcu_dereference() calls
+rmb(), so we can just reverse PIDTYPE_PID/PIDTYPE_TGID attaching?
 
-I want to install my machine and have everything work.  Don't make me chase 
-all over the net trying to find a driver for my hardware.  If it's a network 
-(i.e. ethernet device) the driver had *better* be in the tree.  Trying to 
-download the driver to another computer, transferring, etc, is enough to make 
-me find another brand of network card.
+Note that now we check sigismember(->pending, SIGKILL) holding both
+tasklist and ->sighand.siglock, this means we can kill SIGNAL_GROUP_EXIT
+check under 'if (clone_flags & CLONE_THREAD)':
 
-> Do you really think we enjoy learning all your out-of-tree driver
-> release and build processes because you couldn't be bothered with using
-> the same one as the kernel ?
+	__group_complete_signal() and zap_other_threads() need at least
+	->sighand.siglock and they send SIGKILL without unlocking.
 
-Latest kernel == latest driver.  No need for me to try to keep all my drivers 
-up to date.
+	We can miss SIGNAL_GROUP_EXIT from do_coredump(), but it is possible
+	anyway. The new thread will be killed later, from zap_threads().
+	
+What do you think?
 
-> Do you really think we enjoy locating the patch that will "fix" your
-> driver for our kernel because you do not bother testing anything else
-> than a few kernel releases, and that only for a few months after a you
-> wrote your driver ?
+Oleg.
 
-See comment about VMWare above.
-
-> Do you really think we enjoy leaving in fear of a system update because
-> the first thing to break will be your out-of-tree drivers ?
-
-I sometimes delay kernel updates because I don't want to mess with updating my 
-NVidia and VMWare drivers.  This is *not* good for security.
-
-> But do not invoke end-users. Or end users will answer you.
-
-So I did.  Please put your driver in the tree.  It will be better for all 
-concerned.
-
-j----- k-----
-
--- 
-Joshua Kugler                 PGP Key: http://pgp.mit.edu/
-CDE System Administrator             ID 0xDB26D7CE
-http://distance.uaf.edu/
+--- RC-1/kernel/fork.c~	2006-02-07 01:41:14.000000000 +0300
++++ RC-1/kernel/fork.c	2006-02-07 02:13:10.000000000 +0300
+@@ -1066,11 +1066,13 @@ static task_t *copy_process(unsigned lon
+ 			!cpu_online(task_cpu(p))))
+ 		set_task_cpu(p, smp_processor_id());
+ 
++	spin_lock(&current->sighand->siglock);
+ 	/*
+ 	 * Check for pending SIGKILL! The new thread should not be allowed
+ 	 * to slip out of an OOM kill. (or normal SIGKILL.)
+ 	 */
+ 	if (sigismember(&current->pending.signal, SIGKILL)) {
++		spin_unlock(&current->sighand->siglock);
+ 		write_unlock_irq(&tasklist_lock);
+ 		retval = -EINTR;
+ 		goto bad_fork_cleanup_namespace;
+@@ -1084,18 +1086,6 @@ static task_t *copy_process(unsigned lon
+ 	p->parent = p->real_parent;
+ 
+ 	if (clone_flags & CLONE_THREAD) {
+-		spin_lock(&current->sighand->siglock);
+-		/*
+-		 * Important: if an exit-all has been started then
+-		 * do not create this new thread - the whole thread
+-		 * group is supposed to exit anyway.
+-		 */
+-		if (current->signal->flags & SIGNAL_GROUP_EXIT) {
+-			spin_unlock(&current->sighand->siglock);
+-			write_unlock_irq(&tasklist_lock);
+-			retval = -EAGAIN;
+-			goto bad_fork_cleanup_namespace;
+-		}
+ 		p->group_leader = current->group_leader;
+ 
+ 		if (current->signal->group_stop_count > 0) {
+@@ -1122,8 +1112,6 @@ static task_t *copy_process(unsigned lon
+ 			 */
+ 			p->it_prof_expires = jiffies_to_cputime(1);
+ 		}
+-
+-		spin_unlock(&current->sighand->siglock);
+ 	}
+ 
+ 	/*
+@@ -1135,8 +1123,8 @@ static task_t *copy_process(unsigned lon
+ 	if (unlikely(p->ptrace & PT_PTRACED))
+ 		__ptrace_link(p, current->parent);
+ 
+-	attach_pid(p, PIDTYPE_PID, p->pid);
+ 	attach_pid(p, PIDTYPE_TGID, p->tgid);
++	attach_pid(p, PIDTYPE_PID, p->pid);
+ 	if (thread_group_leader(p)) {
+ 		p->signal->tty = current->signal->tty;
+ 		p->signal->pgrp = process_group(current);
+@@ -1149,6 +1137,7 @@ static task_t *copy_process(unsigned lon
+ 
+ 	nr_threads++;
+ 	total_forks++;
++	spin_unlock(&current->sighand->siglock);
+ 	write_unlock_irq(&tasklist_lock);
+ 	proc_fork_connector(p);
+ 	return p;

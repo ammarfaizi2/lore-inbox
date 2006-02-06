@@ -1,110 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbWBFGBw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbWBFGDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751009AbWBFGBw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 01:01:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbWBFGBw
+	id S1751014AbWBFGDG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 01:03:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWBFGDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 01:01:52 -0500
-Received: from web33013.mail.mud.yahoo.com ([68.142.206.77]:16551 "HELO
-	web33013.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750998AbWBFGBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 01:01:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=cUVlMaCm07MqMXpFRu3ZfY4dN3sVLLaGoOjYexKoLmkMO72/XTMON9w5bVUfFmaQyxXvRx/XcPl4+cTGHj7ZjBc9sJGQEhdN/3OrCfVeW2ZzY7wQ2S32+jo2S1viqNM00zhgfnZRYIwc5cXbH0BtnhBad475YXSymOpXsI2bE60=  ;
-Message-ID: <20060206060147.13989.qmail@web33013.mail.mud.yahoo.com>
-Date: Sun, 5 Feb 2006 22:01:47 -0800 (PST)
-From: Shantanu Goel <sgoel01@yahoo.com>
-Subject: Re: [VM PATCH] rotate_reclaimable_page fails frequently
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060206010506.GA30318@dmt.cnet>
-MIME-Version: 1.0
+	Mon, 6 Feb 2006 01:03:06 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:16086 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751014AbWBFGDE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 01:03:04 -0500
+Date: Sun, 5 Feb 2006 22:02:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net, ak@suse.de,
+       linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+Message-Id: <20060205220204.194ba477.akpm@osdl.org>
+In-Reply-To: <20060205215052.c5ab1651.pj@sgi.com>
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
+	<20060204154944.36387a86.akpm@osdl.org>
+	<20060205203358.1fdcea43.akpm@osdl.org>
+	<20060205215052.c5ab1651.pj@sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-wrote:
-
-> Hi Shantanu,
+Paul Jackson <pj@sgi.com> wrote:
+>
+> > >  I'd have thought it would be saner to split these things apart:
+> > >  "slab_spread", "pagecache_spread", etc.
+> > 
+> > This, please.   It impacts the design of the whole thing.
+> 
+> It was still in my queue to respond to, yes.
+> 
+> All I am aware that is needed is to distinguish between:
+> 
+>   (1) application space pages, such as data and stack space,
+>       which the applications can page and place under their
+>       detailed control, and
+> 
+>   (2) what from the application's viewpoint is "kernel stuff"
+>       such as large amounts of pages required by file i/o,
+>       and their associated inode/dentry structures.
+> 
+> The application space pages are typically anonymous pages
+> which go away when the owning tasks exits, while the kernel
+> space pages are typically accessible by multiple tasks and
+> can stay around long after the initial faulting task exits.
+> 
+> I prefer to keep the tunable knobs to a minimum.  One boolean
+> was sufficient for this.
+> 
+> Just because a distinction seems substantial from the kernel
+> internals perspective, doesn't mean we should reflect that in
+> the tunable knobs.  We should have an actual need first, not
+> a strawman.
+> 
+> If there is some reason, or preference, for adding two knobs
+> (slab and page) instead of one, I can certainly do it.
+> 
+> I am not yet aware that such is useful.
 > 
 
-Hi Marcelo.
+I suspect that you'll find different workload patterns and sequences which
+cause similar regressions in the future.  It'd be useful to sit down and
+try to think of some and try them out.
 
-> I guess that big issue here is that the pgrotate
-> logic is completly
-> useless for common cases (and no one stepped up to
-> fix it, here's a
-> chance).
-> 
-
-I am all for this.  The motivation in my case is the
-VM scanner seems to be rather severe on mapped memory
-in the case where the inactive list is full of dirty
-pages.  For instance, with the default values of
-swappiness (60), dirty_background_ratio (10) and
-dirty_ratio (40), if the mapped memory is just under
-the 80% mark, the unmapped_ratio logic in
-page-writeback.c does not kick in with the dd test I
-described in my original email.  Now most pages
-encountered by kswapd will be dirty.  One scan will
-require pushing these pages to the backing store. 
-However, generic_buffered_write() marks all dirty
-pages as referenced with the result, it will take 2
-iterations before any I/O is performed since the
-scanner skips inactive/dirty/referenced pages.  This
-causes the priority to drop enough that we start
-reclaiming mapped memory.  What's worse is we scan
-mapped memory at a higher priority.  Reducing
-swappiness does not help completely because that
-effectively increases the priority at which we do the
-first mapped scan.
-
-Ideally, for workloads that want to avoid paging as
-much as possible, we should perhaps have a mode where
-we never activate unmapped pages and let them all
-reside on the inactive list.  mark_page_accessed()
-would simply move an unmapped page to the head of the
-inactive list on the 2nd reference.  The page scanner
-would then reclaim unmapped pages in a strict LRU
-fashion regardless of whether the page is dirty.  I
-have a patch that implements this but it does not
-perform well for dbench type workloads so a special
-/proc/sys/vm option enables/disables it.  If there is
-any interest I can post it.
-
-> Marking PG_writeback pages as PG_rotated once
-> they're chosen candidates
-> for eviction increases the number of rotated pages
-> dramatically, but
-> that does not necessarily increase performance (I
-> was unable to see any
-> performance increase under the limited testing I've
-> done, even though
-> the pgrotated numbers were _way_ higher).
-
-It is a win for the "most memory is mapped with
-occasional large file copying" scenario in my
-experience.  The patch I mentioned above does this as
-well.
-
-> 
-> Another issue is that increasing the number of
-> rotated pages increases
-> lru_lock contention, which might not be an advantage
-> for certain
-> workloads.
-
-The code as posted is certainly sub-optimal in this
-regard.  I have not given this much thought yet but
-you do raise a good point.
-
-Shantanu
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+I think the bottom line here is that the kernel just cannot predict the
+future and it will need help from the applications and/or administrators to
+be able to do optimal things.  For that, finer-grained one-knob-per-concept
+controls would be better.

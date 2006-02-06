@@ -1,83 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWBFW71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932414AbWBFW7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbWBFW71 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 17:59:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWBFW71
+	id S932414AbWBFW7a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 17:59:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWBFW7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 17:59:27 -0500
-Received: from mail.gmx.de ([213.165.64.21]:57068 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932337AbWBFW71 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 17:59:27 -0500
-Date: Mon, 6 Feb 2006 23:59:25 +0100 (MET)
-From: "Michael Kerrisk" <mtk-manpages@gmx.net>
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-Cc: linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net
-MIME-Version: 1.0
-References: <200602061451.37028.jbarnes@virtuousgeek.org>
-Subject: Re: man-pages-2.22 is released
-X-Priority: 3 (Normal)
-X-Authenticated: #24879014
-Message-ID: <28306.1139266765@www031.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Mon, 6 Feb 2006 17:59:30 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:50580 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932414AbWBFW73 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 17:59:29 -0500
+Date: Mon, 6 Feb 2006 14:59:22 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: OOM behavior in constrained memory situations
+Message-Id: <20060206145922.3eb3c404.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0602061253020.18594@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0602061253020.18594@schroedinger.engr.sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> --- Ursprüngliche Nachricht ---
-> Von: Jesse Barnes <jbarnes@virtuousgeek.org>
-> An: "Michael Kerrisk" <mtk-manpages@gmx.net>
-> Kopie: linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net
-> Betreff: Re: man-pages-2.22 is released
-> Datum: Mon, 6 Feb 2006 14:51:36 -0800
+Christoph wrote:
+> There are situations in which memory allocations are restricted by policy, 
+> by a cpuset or by type of allocation. 
 > 
-> On Monday, February 6, 2006 11:59 am, Michael Kerrisk wrote:
-> > This is a request to kernel developers: if you make a change
-> > to a kernel-userland interface, or observe a discrepancy
-> > between the manual pages and reality, would you please send
-> > me (at mtk-manpages@gmx.net ) one of the following
-> > (in decreasing order of preference):
-> 
-> Wouldn't it be easier for you to keep them up to date if sections 2, 4, 
-> and parts of 5 were included in the kernel source tree?  Documentation 
-> updates could be enforced as part of the patch process--all you'd have 
-> to do is NAK patches that modified userland interfaces if they didn't 
-> contain documentation updates (and I'm sure others would help you with 
-> that task).
+> I propose that we need different OOM behavior for the cases in which the
+> user has imposed a limit on what type of memory to be allocated. In that 
+> case the application should be terminate with OOM. The OOM killer should 
+> not run.
 
-Life is not so simple, as I think we discussed when you made 
-a similar comment after my man-pages-2.08 release.  Maybe the
-system can be improved still.  Currently Andrew Morton is being
-rather good about CCing me on patches that are likely to need
-man-pages changes.  (Thanks Andrew!)
+I'll duck the discussion that followed your post as to whether some
+sort of error or null return would be better than killing something.
 
-> Likewise with the glibc stuff.  Doesn't it belong with the glibc project? 
-> Wouldn't that make more sense, both from a packaging and maintenance 
-> perspective?
+If it is the case that some code path leads to the OOM killer, then
+I don't agree that memory restrictions such as cpuset constraints
+should mean we avoid the OOM killer.
 
-Not really -- glibc has a differnt philosophy about documentation
-(less focus on historical information and less comparison
-with other Unix systems, as far as I can see), and uses info(1), 
-not man(1).
+I've already changed the OOM killer to only go after tasks in or
+overlapping with the same cpuset.
 
-> Either way, thanks a lot for keeping the pages in good shape, it's much 
-> appreciated.
-
-You're welcome.  Several people help.  More help is 
-always welcome.
-
-Cheers,
-
-Michael
+static struct task_struct *select_bad_process(unsigned long *ppoints)
+{
+	...
+	do_each_thread(g, p) {
+		...
+		/* If p's nodes don't overlap ours, it won't help to kill p. */
+		if (!cpuset_excl_nodes_overlap(p))
+			continue;
+                                                    
+I am guessing (you don't say) that your concern is that it seems
+unfair for some app in some small cpuset to be able to trigger the
+system-wide OOM killer.  The basic problem that this caused, that
+of killing unrelated processes in entirely non-overlapping cpusets,
+which was of no use in reducing the memory stress in the faulting
+cpuset, is no longer a problem.
 
 -- 
-Michael Kerrisk
-maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
-
-Want to help with man page maintenance?  
-Grab the latest tarball at
-ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
-read the HOWTOHELP file and grep the source 
-files for 'FIXME'.
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

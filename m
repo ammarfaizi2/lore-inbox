@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWBFPvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWBFPxW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932101AbWBFPvn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 10:51:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWBFPvn
+	id S932113AbWBFPxW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 10:53:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWBFPxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 10:51:43 -0500
-Received: from minus.inr.ac.ru ([194.67.69.97]:6030 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id S932101AbWBFPvm (ORCPT
+	Mon, 6 Feb 2006 10:53:22 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:37249 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932113AbWBFPxV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 10:51:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=ms2.inr.ac.ru;
-  b=FvlNaBoaHhFOt0SShSF9mPF7DGzrdCdRBRWxUkxuEAHv0vp43moA/nqI/bF8zLacXw7HRdEQqtF8QfP/nbNCeXOSRrVrr0UqEJd2esNJ78ZrJTxQ/Y1W5IezrR6pcgZbNu8Vki/eni1FdbmjO+/+0Tw/r92KUSpzzv4acVv3Iuw=;
-Date: Mon, 6 Feb 2006 18:51:01 +0300
-From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Cedric Le Goater <clg@fr.ibm.com>, Dave Hansen <haveblue@us.ibm.com>,
-       Kirill Korotaev <dev@openvz.org>, arjan@infradead.org,
-       frankeh@watson.ibm.com, mrmacman_g4@mac.com, alan@lxorguk.ukuu.org.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       devel@openvz.org
-Subject: Re: [RFC][PATCH 5/7] VPIDs: vpid/pid conversion in VPID enabled case
-Message-ID: <20060206155101.GA22522@ms2.inr.ac.ru>
-References: <43E22B2D.1040607@openvz.org> <43E23398.7090608@openvz.org> <1138899951.29030.30.camel@localhost.localdomain> <20060203105202.GA21819@ms2.inr.ac.ru> <43E35105.3080208@fr.ibm.com> <20060203140229.GA16266@ms2.inr.ac.ru> <43E38D40.3030003@fr.ibm.com> <20060206094843.GA6013@ms2.inr.ac.ru> <20060206145104.GB11887@sergelap.austin.ibm.com>
-Mime-Version: 1.0
+	Mon, 6 Feb 2006 10:53:21 -0500
+Message-ID: <43E7830E.974EF20C@tv-sign.ru>
+Date: Mon, 06 Feb 2006 20:10:38 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] fix kill_proc_info() vs copy_process() race
+References: <43E77D3C.C967A275@tv-sign.ru>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060206145104.GB11887@sergelap.austin.ibm.com>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Oleg Nesterov wrote:
+> 
+> This means that we can find a task in kill_proc_info()->find_task_by_pid()
+> which is not registered as part of thread group yet. Various bad things can
+> happen, note that handle_stop_signal(SIGCONT) and __group_complete_signal()
+> iterate over threads list. But p->pids[PIDTYPE_TGID] is a copy of current's
+> 'struct pid' from dup_task_struct(), and if we don't have CLONE_THREAD here
+> we will use completely unreleated (parent's) thread list.
+> 
+> I think we can solve these problems by enlarging a ->siglock's scope in
+> copy_process(), but I don't know how to test this patch.
+> 
+> NOTE: release_task()->__unhash_process() path is safe, we already have
+> ->sighand == NULL while detaching PIDTYPE_PID/PIDTYPE_TGID nonatomically.
 
-> into the pidhash, or make the first exec()d process the container's
-> init?  Does that seem reasonable?
+Sorry, I was wrong. Without CLONE_THREAD current->sighand.siglock can't help,
+we need p->sighand.siglock, I beleive.
 
-It is exactly what openvz does, the first task becomes child reaper.
+Am I correct that the bug exists at least?
 
-Cedric asked why do we have an init in each container, I answered that
-we want to. But openvz approach is enough flexible not to do this, nothing
-will break if a container process is reparented to normal init.
-
-The question was not about openvz, it was about (container,pid) approach.
-How are you going to reap chidren without a child reaper inside container?
-If you reparent all the children to a single init in root container,
-what does wait() return? In openvz it returns global pid and child is buried
-in peace. If you do not have global pid, you cannot just return private pid.
-
-Alexey
+Oleg.

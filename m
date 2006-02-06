@@ -1,84 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWBFXvZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbWBFXul@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbWBFXvZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 18:51:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWBFXvZ
+	id S964813AbWBFXul (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 18:50:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWBFXuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 18:51:25 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:22917 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S932120AbWBFXvY (ORCPT
+	Mon, 6 Feb 2006 18:50:40 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:2735 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S964813AbWBFXui (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 18:51:24 -0500
-Date: Tue, 7 Feb 2006 10:50:39 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linus <torvalds@osdl.org>
-Subject: [PATCH] compat: move compat*at syscall prototypes into compat.h
-Message-Id: <20060207105039.4add64db.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 6 Feb 2006 18:50:38 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <nigel@suspend2.net>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Date: Tue, 7 Feb 2006 00:51:40 +0100
+User-Agent: KMail/1.9.1
+Cc: suspend2-devel@lists.suspend2.net, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <1139251682.2791.290.camel@mindpipe> <200602070625.49479.nigel@suspend2.net>
+In-Reply-To: <200602070625.49479.nigel@suspend2.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602070051.41448.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For consistency with all the other compat syscalls.
+Hi,
 
-Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
----
+On Monday 06 February 2006 21:25, Nigel Cunningham wrote:
+> On Tuesday 07 February 2006 04:48, Lee Revell wrote:
+> > On Mon, 2006-02-06 at 15:43 +1000, Nigel Cunningham wrote:
+> > > Hi.
+> > >
+> > > On Monday 06 February 2006 14:34, Lee Revell wrote:
+> > > > On Mon, 2006-02-06 at 14:02 +1000, Nigel Cunningham wrote:
+> > > > > (they now have to download extra
+> > > > > libraries to use the splashscreen, which were not required with
+> > > > > the bootsplash patch, and need to check whether an update to the
+> > > > > userui code
+> > > > > is required when updating the kernel)
+> > > >
+> > > > You could have avoided this problem by keeping the
+> > > > userspace<->kernel interface stable.
+> > >
+> > > True, but sometimes you need to make changes that do modify the
+> > > interface. If the interface involves more functionality, this will
+> > > happen more frequently.
+> >
+> > Well, all I can say is, it should have been obvious that putting a
+> > themeable UI in the kernel would not fly.
+> 
+> Agreed, but I think we have some confusion here.
+> 
+> I was talking about interactions between kernel space and userspace after 
+> we started using the userspace interface. In particular, I was thinking of 
+> the fact that the netlink message number kept changing due to changes in 
+> the vanilla kernel. In the end, we just made it a command line option to 
+> the userui.
+> 
+> My point for this conversation was different, though. If uswsusp ever does 
+> fly, there are going to be flag days where users are going to have to 
+> download new userspace code, perhaps new versions of libraries or new 
+> libraries, run the compilation and reconfigure their initrds/ram-fses, all 
+> just because they upgraded their kernel and want to continue to suspend to 
+> disk. That is extra complexity introduced by using a userspace 'brain' 
+> instead of having it in kernelspace.
 
- include/linux/compat.h   |    8 ++++++++
- include/linux/syscalls.h |    9 ---------
- 2 files changed, 8 insertions(+), 9 deletions(-)
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+This point is valid, but I don't think the users will _have_ _to_ switch to the
+userland suspend.  AFAICT we are going to keep the kernel-based code
+as long as necessary.
 
-f3e3d29e9c87c8e15e5678925f21a708b4a7c961
-diff --git a/include/linux/compat.h b/include/linux/compat.h
-index f9ca534..2d7e7f1 100644
---- a/include/linux/compat.h
-+++ b/include/linux/compat.h
-@@ -161,5 +161,13 @@ int copy_siginfo_to_user32(struct compat
- int get_compat_sigevent(struct sigevent *event,
- 		const struct compat_sigevent __user *u_event);
- 
-+asmlinkage long compat_sys_futimesat(unsigned int dfd, char __user *filename,
-+				     struct compat_timeval __user *t);
-+asmlinkage long compat_sys_newfstatat(unsigned int dfd, char __user * filename,
-+				      struct compat_stat __user *statbuf,
-+				      int flag);
-+asmlinkage long compat_sys_openat(unsigned int dfd, const char __user *filename,
-+				   int flags, int mode);
-+
- #endif /* CONFIG_COMPAT */
- #endif /* _LINUX_COMPAT_H */
-diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
-index 3877209..24240b6 100644
---- a/include/linux/syscalls.h
-+++ b/include/linux/syscalls.h
-@@ -50,8 +50,6 @@ struct timezone;
- struct tms;
- struct utimbuf;
- struct mq_attr;
--struct compat_stat;
--struct compat_timeval;
- 
- #include <linux/config.h>
- #include <linux/types.h>
-@@ -559,12 +557,5 @@ asmlinkage long sys_newfstatat(int dfd, 
- 			       struct stat __user *statbuf, int flag);
- asmlinkage long sys_readlinkat(int dfd, const char __user *path, char __user *buf,
- 			       int bufsiz);
--asmlinkage long compat_sys_futimesat(unsigned int dfd, char __user *filename,
--				     struct compat_timeval __user *t);
--asmlinkage long compat_sys_newfstatat(unsigned int dfd, char __user * filename,
--				      struct compat_stat __user *statbuf,
--				      int flag);
--asmlinkage long compat_sys_openat(unsigned int dfd, const char __user *filename,
--				   int flags, int mode);
- 
- #endif
--- 
-1.1.5
+We are just going to implement features in the user space that need not be
+implemented in the kernel.  Of course they can be implemented in the
+kernel, and you have shown that clearly, but since they need not be there,
+we should at least try to implement them in the user space and see how this
+works.
+
+Frankly, I have no strong opinion on whether they _should_ be implemented
+in the user space or in the kernel, but I think we won't know that until
+we actually _try_.
+
+That said, I like the idea and I'm going to work on it.  I'll also appreciate
+any help very much.
+
+Greetings,
+Rafael

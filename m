@@ -1,188 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbWBFTvw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWBFTxs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932335AbWBFTvw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 14:51:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbWBFTvv
+	id S932334AbWBFTxs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 14:53:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbWBFTxs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 14:51:51 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:3566 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932335AbWBFTvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 14:51:50 -0500
-To: <linux-kernel@vger.kernel.org>
-Cc: <vserver@list.linux-vserver.org>, Herbert Poetzl <herbert@13thfloor.at>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Kirill Korotaev <dev@sw.ru>, Greg <gkurz@fr.ibm.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, Rik van Riel <riel@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: [RFC][PATCH 10/20] capabilities: Update the capabilities code to
- handle pspaces.
-References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
-	<m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>
-	<m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1fymwmgk0.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1bqxkmgcv.fsf_-_@ebiederm.dsl.xmission.com>
-	<m17j88mg8l.fsf_-_@ebiederm.dsl.xmission.com>
-	<m13biwmg4p.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1y80ol1gh.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1u0bcl1ai.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1psm0l170.fsf_-_@ebiederm.dsl.xmission.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 06 Feb 2006 12:49:20 -0700
-In-Reply-To: <m1psm0l170.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
- Biederman's message of "Mon, 06 Feb 2006 12:46:59 -0700")
-Message-ID: <m1lkwol133.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Feb 2006 14:53:48 -0500
+Received: from lug-owl.de ([195.71.106.12]:23245 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S932334AbWBFTxr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 14:53:47 -0500
+Date: Mon, 6 Feb 2006 20:53:43 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Yaroslav Rastrigin <yarick@it-territory.ru>
+Cc: Joshua Kugler <joshua.kugler@uaf.edu>, linux-kernel@vger.kernel.org,
+       Nicolas Mailhot <nicolas.mailhot@laposte.net>,
+       David Chow <davidchow@shaolinmicro.com>
+Subject: Re: Linux drivers management
+Message-ID: <20060206195343.GI19232@lug-owl.de>
+Mail-Followup-To: Yaroslav Rastrigin <yarick@it-territory.ru>,
+	Joshua Kugler <joshua.kugler@uaf.edu>, linux-kernel@vger.kernel.org,
+	Nicolas Mailhot <nicolas.mailhot@laposte.net>,
+	David Chow <davidchow@shaolinmicro.com>
+References: <1139250712.20009.20.camel@rousalka.dyndns.org> <200602061002.27477.joshua.kugler@uaf.edu> <200602062217.19697.yarick@it-territory.ru>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="nO3oAMapP4dBpMZi"
+Content-Disposition: inline
+In-Reply-To: <200602062217.19697.yarick@it-territory.ru>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+--nO3oAMapP4dBpMZi
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Mon, 2006-02-06 22:17:19 +0300, Yaroslav Rastrigin <yarick@it-territory.=
+ru> wrote:
+> > I use two products that use out-of-tree drivers.  VMWare and NVidia car=
+ds. =20
+> > Fortunately, the build processes for both are rather painless, but ther=
+e have=20
+> > been times when it has *not* been, and it was extremely frustrating.  I=
+=20
+> > remember when VMWare was not doing a good job of supporting 2.6 kernels=
+ and I=20
+> > spent the better part of two days trying to track down a solution.  I f=
+inally=20
+> > did, but it was a third party, non-VMWare, patch to the VMWare code tha=
+t=20
+> > fixed it so it would compile and run.  That's not what I consider conve=
+nience=20
+> > for the non-technical user.  A non-technical user would not have been a=
+ble to=20
+> > do what I did, especially when they just want their software to work.
+> And then think, why do you need to _build_ drivers in the first place.=20
+> Wouldn't it be better to have one vmware.ko which insmod's with all 2.6 v=
+ersions , from 2.6.0 to 2.6.16-rc2 ,=20
+> and throw "upgrade pain" away completely ?=20
 
----
+This would only work if we sacrified the freedom to change something.
+The kernel code base changes. A lot, actually. If it didn't, there eg.
+wouldn't be suspend2whatever, because the API was plain missing back
+in those days. So sacrifice evolution for backwards compatibility?
 
- kernel/capability.c |   56 +++++++++++++++++++++++++++++++--------------------
- 1 files changed, 34 insertions(+), 22 deletions(-)
+These days (and it has always been that way) kernel development is a
+quite active process. If core-APIs need to be changed, the person who
+does it usually also updates all users of the given API. That won't
+work if the drivers are not in the codebase, no chance to grep for
+something on 3rd vendor's websites...
 
-d84edcf08e16ef0af7170b494b371493d1829ee7
-diff --git a/kernel/capability.c b/kernel/capability.c
-index bfa3c92..80a618b 100644
---- a/kernel/capability.c
-+++ b/kernel/capability.c
-@@ -12,6 +12,7 @@
- #include <linux/module.h>
- #include <linux/security.h>
- #include <linux/syscalls.h>
-+#include <linux/pspace.h>
- #include <asm/uaccess.h>
- 
- unsigned securebits = SECUREBITS_DEFAULT; /* systemwide security settings */
-@@ -68,7 +69,7 @@ asmlinkage long sys_capget(cap_user_head
-      read_lock(&tasklist_lock); 
- 
-      if (pid && pid != current->pid) {
--	     target = find_task_by_pid(pid);
-+	     target = find_task_by_pid(current->pspace, pid);
- 	     if (!target) {
- 	          ret = -ESRCH;
- 	          goto out;
-@@ -96,11 +97,12 @@ static inline int cap_set_pg(int pgrp, k
- 			      kernel_cap_t *inheritable,
- 			      kernel_cap_t *permitted)
- {
-+	struct pspace *pspace = current->pspace;
- 	task_t *g, *target;
- 	int ret = -EPERM;
- 	int found = 0;
- 
--	do_each_task_pid(pgrp, PIDTYPE_PGID, g) {
-+	do_each_task_pid(pspace, pgrp, PIDTYPE_PGID, g) {
- 		target = g;
- 		while_each_thread(g, target) {
- 			if (!security_capset_check(target, effective,
-@@ -113,7 +115,7 @@ static inline int cap_set_pg(int pgrp, k
- 			}
- 			found = 1;
- 		}
--	} while_each_task_pid(pgrp, PIDTYPE_PGID, g);
-+	} while_each_task_pid(pspace, pgrp, PIDTYPE_PGID, g);
- 
- 	if (!found)
- 	     ret = 0;
-@@ -121,20 +123,26 @@ static inline int cap_set_pg(int pgrp, k
- }
- 
- /*
-- * cap_set_all - set capabilities for all processes other than init
-- * and self.  We call this holding task_capability_lock and tasklist_lock.
-- */
--static inline int cap_set_all(kernel_cap_t *effective,
--			       kernel_cap_t *inheritable,
--			       kernel_cap_t *permitted)
-+ * cap_set_pspace - set capabilities for all processes in pspace
-+ * other than init and self.  We call this holding
-+ * task_capability_lock and tasklist_lock.
-+ */
-+static inline int cap_set_pspace(struct pspace *pspace,
-+					kernel_cap_t *effective,
-+					kernel_cap_t *inheritable,
-+					kernel_cap_t *permitted)
- {
-      task_t *g, *target;
-      int ret = -EPERM;
-      int found = 0;
- 
-      do_each_thread(g, target) {
--             if (target == current || target->pid == 1)
--                     continue;
-+	     if (target == current)
-+		     continue;
-+	     if (current_pspace_leader(target))
-+		     continue;
-+	     if (!in_pspace(pspace, target))
-+		     continue;
-              found = 1;
- 	     if (security_capset_check(target, effective, inheritable,
- 						permitted))
-@@ -200,7 +208,7 @@ asmlinkage long sys_capset(cap_user_head
-      read_lock(&tasklist_lock);
- 
-      if (pid > 0 && pid != current->pid) {
--          target = find_task_by_pid(pid);
-+          target = find_task_by_pid(current->pspace, pid);
-           if (!target) {
-                ret = -ESRCH;
-                goto out;
-@@ -212,20 +220,24 @@ asmlinkage long sys_capset(cap_user_head
- 
-      /* having verified that the proposed changes are legal,
-            we now put them into effect. */
--     if (pid < 0) {
--             if (pid == -1)  /* all procs other than current and init */
--                     ret = cap_set_all(&effective, &inheritable, &permitted);
-+	if (pid < 0) {
-+		struct task_struct *p;
- 
--             else            /* all procs in process group */
--                     ret = cap_set_pg(-pid, &effective, &inheritable,
-+		p = find_task_by_pid(current->pspace, -pid);
-+		if (p && pspace_leader(p))
-+			/* all procs other than current and init */
-+			ret = cap_set_pspace(p->pspace, &effective, 
-+						&inheritable, &permitted);
-+		else            /* all procs in process group */
-+			ret = cap_set_pg(-pid, &effective, &inheritable,
- 		     					&permitted);
--     } else {
--	     ret = security_capset_check(target, &effective, &inheritable,
-+	} else {
-+		ret = security_capset_check(target, &effective, &inheritable,
- 	     						&permitted);
--	     if (!ret)
--		     security_capset_set(target, &effective, &inheritable,
-+		if (!ret)
-+			security_capset_set(target, &effective, &inheritable,
- 		     					&permitted);
--     }
-+	}
- 
- out:
-      read_unlock(&tasklist_lock);
--- 
-1.1.5.g3480
+> > I want to install my machine and have everything work.  Don't make me c=
+hase=20
+> > all over the net trying to find a driver for my hardware.  If it's a ne=
+twork=20
+> All over the net ? Again, you're proving stable API/ABI supporters nicely=
+=2E=20
+> If kernel has stable ABI, basic/default driver is included on installatio=
+n CD, and all you need to do=20
+> is to launch ./install-linux.sh from CD in your shell or click OK and ent=
+er your root password in GUI box.
+> Newer/better driver - just go to device manufacturer's website, download =
+installation package and install this driver.=20
+> Without rebuilding.=20
 
+Not everybody is using RedHar, SuSE, Debian or whatever. Consider I
+was building a custom QBus-to-PCI bridge to use some ATI/NVidia
+graphics board in my 15y old VAX. If my hardware hack required
+broadening some in-kernel API, do you really think some guy at NVidia
+(only to name an example:-) would cross-compile their stuff for a VAX?
+Given a userbase of exactly _one_ person?
+
+> > (i.e. ethernet device) the driver had *better* be in the tree.  Trying =
+to=20
+> > download the driver to another computer, transferring, etc, is enough t=
+o make=20
+> > me find another brand of network card.
+> And what to do if you've bought new hardware, installed it and _voila_ - =
+NO IN-TREE DRIVER exists ?
+> Do you want every Linux user  going for shopping to nearest WalMart carry=
+ full linux hardware compatibility list printed out ?
+> Or intree driver list ?
+
+Usually, it's quite simple to buy correct hardware. Look for something
+that's a tad more intelligent (SCSI scanners in favour of USB/parport,
+postscript printers, ...) and offloads the host CPU.
+
+> > I sometimes delay kernel updates because I don't want to mess with upda=
+ting my=20
+> > NVidia and VMWare drivers.  This is *not* good for security.
+> So who to blame ? Maybe, just look at those who don't want stable driver =
+API ?
+
+The Linux kernel is a project (or hundreds actually) that have choosen
+their way of operation. That's evolution with not a lot of
+looking-back. If you want to have a stable API, heck, just prepare
+another fork and implement it. If this is what users want, they'll
+take it.
+
+> > So I did.  Please put your driver in the tree.  It will be better for a=
+ll=20
+> > concerned.
+> Please, don't force your preferences over others'
+
+My (personal!) view is that Linux isn't actually about the users. It's
+about the developers. Developers develop what they have a use for (or
+become famous.) Sometimes, regular users can make good use of it, once
+distributions prepared all the userland.
+
+So if you're a developer, try to become famous for implementing a
+stable API.
+
+If you're a user, stop fighting against an operating system's kernel
+and start looking for a system _you_ want to use. Maybe some WinXP
+variant?
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--nO3oAMapP4dBpMZi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFD56lHHb1edYOZ4bsRAsF9AJ9orlcnQJiaBP3Yq8DzFucuxGnRVACdEiNo
+I3dZDZFKWjqmgJYPEeBvX74=
+=uaqC
+-----END PGP SIGNATURE-----
+
+--nO3oAMapP4dBpMZi--

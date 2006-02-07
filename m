@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030301AbWBHAGY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030267AbWBGXbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030301AbWBHAGY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 19:06:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030303AbWBHAGY
+	id S1030267AbWBGXbV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 18:31:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030269AbWBGXbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 19:06:24 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:24306 "EHLO
-	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1030301AbWBHAGX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 19:06:23 -0500
-Date: Tue, 07 Feb 2006 18:06:45 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: [2.6.15] frequent "BUG: soft lockup detected on CPU#0" in IDE
- subsystem
-In-reply-to: <5DB5f-2uJ-21@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <43E93615.3080902@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <5DB5f-2uJ-21@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 7 Feb 2006 18:31:21 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:17053 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030267AbWBGXbU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 18:31:20 -0500
+Date: Tue, 7 Feb 2006 18:30:59 -0500
+From: Dave Jones <davej@redhat.com>
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>, Neal Becker <ndbecker2@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc1 panic on startup (acpi)
+Message-ID: <20060207233059.GA17665@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
+	Andrew Morton <akpm@osdl.org>, Neal Becker <ndbecker2@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <ds7cu3$9c0$1@sea.gmane.org> <ds7f17$gp7$1@sea.gmane.org> <20060207145913.714fec1c.akpm@osdl.org> <20060207231835.GA19648@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060207231835.GA19648@kroah.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folkert van Heusden wrote:
-> kernel: 2.6.15
-> system: 3.2GHz P4 hyperthreading, 1xIDE, 2GB ram
-> it seems to happen (altough I'm really not sure!) when the system is
-> under heavily load: > 8.0, while running sa-learn (the spamassassin
-> bayes training tool)
-> 
+On Tue, Feb 07, 2006 at 03:18:35PM -0800, Greg Kroah-Hartman wrote:
+ > On Tue, Feb 07, 2006 at 02:59:13PM -0800, Andrew Morton wrote:
+ > > Neal Becker <ndbecker2@gmail.com> wrote:
+ > > >
+ > > > Sorry, I meant 2.6.16-rc1 (not 2.6.12)
+ > > > 
+ > > > Neal Becker wrote:
+ > > > 
+ > > > > HP dv8000 notebook
+ > > > > 2.6.15 is fine, but 2.6.12-rc1 panics immediately on startup
+ > > > > 
+ > > > > Here is a picture of some traceback
+ > > > > https://bugzilla.redhat.com/bugzilla/attachment.cgi?id=124152&action=view
+ > > > 
+ > > > 
+ > > 
+ > > It died in pci_mmcfg_read().  Greg, didn't a crash in there get fixed recently?
+ > 
+ > Yes.  Can you try 2.6.16-rc2?  Is this a x86-64 machine?
 
-Lots of PIO transfers.. Is DMA not getting enabled on your drives?
+I can hit this on my dv8000 too. It's still there in 2.6.12-rc2-git3
+I'm building a kernel with Randy's 'pause after printk' patch right now
+to catch the top of the oops.  It's enormous.  Even with a 50 line display,
+and x86-64s dual-line backtrace, it scrolls off the top.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+		Dave
 

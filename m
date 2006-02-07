@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbWBGWx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030194AbWBGWzK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932468AbWBGWx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 17:53:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbWBGWx1
+	id S1030194AbWBGWzK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 17:55:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030219AbWBGWzK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 17:53:27 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:21252 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932468AbWBGWx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 17:53:26 -0500
-Date: Tue, 7 Feb 2006 23:53:25 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Keith Owens <kaos@sgi.com>, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] IA64_GENERIC shouldn't select other stuff
-Message-ID: <20060207225325.GE3524@stusta.de>
-References: <20060207221157.GA3524@stusta.de> <9883.1139351831@ocs3> <20060207224344.GF1601@parisc-linux.org>
+	Tue, 7 Feb 2006 17:55:10 -0500
+Received: from [69.3.150.202] ([69.3.150.202]:2032 "EHLO alpha.penguintown.net")
+	by vger.kernel.org with ESMTP id S1030194AbWBGWzI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 17:55:08 -0500
+Message-ID: <37389.10.0.0.8.1139352883.squirrel@mail>
+Date: Tue, 7 Feb 2006 14:54:43 -0800 (PST)
+Subject: [PATCH 2.6.15.3] alpha/pci: set cache line size for cards ignored 
+     by SRM
+From: "Gabriele Gorla" <gorlik@penguintown.net>
+To: ink@jurassic.park.msu.ru, rth@twiddle.net, gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060207224344.GF1601@parisc-linux.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 07, 2006 at 03:43:44PM -0700, Matthew Wilcox wrote:
-> On Wed, Feb 08, 2006 at 09:37:11AM +1100, Keith Owens wrote:
-> > A generic IA64 kernel requires (at least) the ACPI and NUMA options in
-> > order to run on all the IA64 platforms out there.  Omitting those
-> > options and relying on the user to set them by hand is going to cause
-> > more problems.
-> 
-> I'm not sure about that.  If the user selects a specific type of machine,
-> ACPI doesn't get selected for them -- even when it's needed to boot.
-> It's certainly inconsistent and should be fixed one way or the other.
+From: Gabriele Gorla <gorlik@yahoo.com>
 
-And PCI is never selected for him with IA64_GENERIC.
+Set the cache line size in the PCI configuration space to a reasonable
+value. SRM does not seem to set this register for the PCI cards that it
+does not recognize. This makes drivers that expect cache line size to be
+set by the card bios work on alpha.
 
-I see the point for a catch-all option for processor-specific stuff, but 
-it can't be a replacement for allyesconfig.
+Signed-off-by: Gabriele Gorla <gorlik@yahoo.com>
 
-AFAIR your defconfig was intended for the "runs everywhere" case (with 
-the exception that in this case the bug that CONFIG_ITANIUM is not set 
-is still unfixed - would you accept a patch to fix this?).
+---
 
-cu
-Adrian
+--- linux-2.6.15.3/arch/alpha/kernel/pci.c.orig 2006-02-07 14:24:59 -0800
++++ linux-2.6.15.3/arch/alpha/kernel/pci.c      2006-02-07 14:19:59 -0800
+@@ -108,11 +108,24 @@ static void __init
+ pcibios_fixup_final(struct pci_dev *dev)
+ {
+        unsigned int class = dev->class >> 8;
++       u8 cache_line_size;
 
--- 
+        if (class == PCI_CLASS_BRIDGE_ISA || class ==
+PCI_CLASS_BRIDGE_EISA) {
+                dev->dma_mask = MAX_ISA_DMA_ADDRESS - 1;
+                isa_bridge = dev;
+        }
++
++       /* if the cache line is not set by SRM attempt to fix it */
++       pci_read_config_byte(dev, PCI_CACHE_LINE_SIZE, &cache_line_size);
++       if(cache_line_size == 0) {
++               pci_write_config_byte(dev, PCI_CACHE_LINE_SIZE,
++                                     L1_CACHE_BYTES >> 2);
++               pci_read_config_byte(dev, PCI_CACHE_LINE_SIZE,
++                                    &cache_line_size);
++               if(cache_line_size == (L1_CACHE_BYTES >> 2) )
++                       printk("PCI: Setting cache line size of device %s"
++                              " to %d\n", pci_name(dev), L1_CACHE_BYTES );
++       }
+ }
+ DECLARE_PCI_FIXUP_FINAL(PCI_ANY_ID, PCI_ANY_ID, pcibios_fixup_final);
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

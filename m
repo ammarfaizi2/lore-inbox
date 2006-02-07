@@ -1,107 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030339AbWBHBEi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbWBGXkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030339AbWBHBEi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 20:04:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030342AbWBHBEi
+	id S932485AbWBGXkz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 18:40:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWBGXky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 20:04:38 -0500
-Received: from scl-ims.phoenix.com ([216.148.212.222]:12512 "EHLO
-	scl-exch2k.phoenix.com") by vger.kernel.org with ESMTP
-	id S1030339AbWBHBEh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 20:04:37 -0500
-Subject: Re: [linux-usb-devel] Re: ATI RS480-based motherboard: stuck while
-	 booting with kernel >= 2.6.15 rc1
-From: Aleksey V Gorelov <aleksey_gorelov@phoenix.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       "Carlo E. Prelz" <fluido@fluido.as>, linux-kernel@vger.kernel.org
-In-Reply-To: <200602071405.49462.david-b@pacbell.net>
-References: <0EF82802ABAA22479BC1CE8E2F60E8C3B01A40@scl-exch2k3.phoenix.com>
-	 <200602071405.49462.david-b@pacbell.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 07 Feb 2006 17:04:36 -0800
-Message-Id: <1139360676.14882.34.camel@localhost.localdomain>
+	Tue, 7 Feb 2006 18:40:54 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:27809 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932485AbWBGXkx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 18:40:53 -0500
+Date: Tue, 7 Feb 2006 18:40:43 -0500
+From: Dave Jones <davej@redhat.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       Neal Becker <ndbecker2@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc1 panic on startup (acpi)
+Message-ID: <20060207234043.GB17665@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Randy.Dunlap" <rdunlap@xenotime.net>, Greg KH <greg@kroah.com>,
+	Andrew Morton <akpm@osdl.org>, Neal Becker <ndbecker2@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <ds7cu3$9c0$1@sea.gmane.org> <ds7f17$gp7$1@sea.gmane.org> <20060207145913.714fec1c.akpm@osdl.org> <20060207231835.GA19648@kroah.com> <20060207233059.GA17665@redhat.com> <Pine.LNX.4.58.0602071534380.12589@shark.he.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-X-OriginalArrivalTime: 08 Feb 2006 01:04:36.0900 (UTC) FILETIME=[A16BBE40:01C62C4B]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0602071534380.12589@shark.he.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-07 at 14:05 -0800, David Brownell wrote:
-> On Monday 06 February 2006 6:03 pm, Aleksey Gorelov wrote:
-> > Hi Dave,
-> > 
-> > >....
-> > >
-> > >I think what happened is the "always run quirks" code got turned into
-> > >the default too early, before the EHCI "quirk" version of the handoff
-> > >code got checked against what most systems have been using for the past
-> > >several years.
-> > >
-> > >I noticed at least one suspicous thing:  it enables an SMI IRQ.
-> > 
-> >   As far as I recall, some BIOSes can be stuck at handoff forever
-> > waiting for SMI if this is not enabled. No doubt BIOS bug, and seems
-> > like work around brakes some other systems, grrr...
-> 
-> I gathered as much and that's why I preserved that behavior.
-> 
-> But it would be nice to know _which_ BIOS versions have that bug;
-> it's clearly a BIOS bug, and given the other problems we've seen,
-> it might be better to have that "turn on the SMI" be keyed by some
-> "real" quirk logic or kernel parameters.
+On Tue, Feb 07, 2006 at 03:35:31PM -0800, Randy.Dunlap wrote:
+ > On Tue, 7 Feb 2006, Dave Jones wrote:
+ > 
+ > > On Tue, Feb 07, 2006 at 03:18:35PM -0800, Greg Kroah-Hartman wrote:
+ > >  > On Tue, Feb 07, 2006 at 02:59:13PM -0800, Andrew Morton wrote:
+ > >  > > Neal Becker <ndbecker2@gmail.com> wrote:
+ > >  > > >
+ > >  > > > Sorry, I meant 2.6.16-rc1 (not 2.6.12)
+ > >  > > >
+ > >  > > > Neal Becker wrote:
+ > >  > > >
+ > >  > > > > HP dv8000 notebook
+ > >  > > > > 2.6.15 is fine, but 2.6.12-rc1 panics immediately on startup
+ > >  > > > >
+ > >  > > > > Here is a picture of some traceback
+ > >  > > > > https://bugzilla.redhat.com/bugzilla/attachment.cgi?id=124152&action=view
+ > >  > > >
+ > >  > > >
+ > >  > >
+ > >  > > It died in pci_mmcfg_read().  Greg, didn't a crash in there get fixed recently?
+ > >  >
+ > >  > Yes.  Can you try 2.6.16-rc2?  Is this a x86-64 machine?
+ > >
+ > > I can hit this on my dv8000 too. It's still there in 2.6.12-rc2-git3
+ > > I'm building a kernel with Randy's 'pause after printk' patch right now
+ > > to catch the top of the oops.  It's enormous.  Even with a 50 line display,
+ > > and x86-64s dual-line backtrace, it scrolls off the top.
+ > 
+ > Just be patient.  A boot can take a few minutes... ;)
 
-  Agree with this. At the time the code was written I did not run into
-any issues with it, hence it was the default. Unfortunately, I do not
-remember exact platforms. (yes, platforms, not BIOS versions -
-unfortunately, lots of bugs are introduced during tailoring BIOS to
-particular platform). 
+It doesn't get that far.  What did bugger things up though was the NMI watchdog
+kicking in.  I've thrown a touch_nmi_watchdog in the delay, and kicked off another build
+hoping for a cleaner dump.
 
-> 
-> (The fact that USB handoff is being driven by "quirk" logic, even
-> when it's not a quirk, also raises little warning flags...)
+In the meantime, here's what I got..
 
-Frankly, we are still not doing it early enough. On some platforms it
-causes huge delays during some of ACPI code, and quirks are working
-afterward... Moving handoff earlier resolves the issue, but this may be
-a bit of extreme...
+http://people.redhat.com/davej/DSC00148.JPG
 
-> 
-> 
-> > >Even in cases when the boot firmware says it's not using EHCI ...
-> >
-> >   That's what I do not understand. SOOE is enabled only if BIOS ownes
-> > EHCI - check for ECHI_USBLEGSUP_BIOS in previous 'if' statement. Am I
-> > missing something ?
-> 
-> That's how it works now, but it didn't do that before.  Previously it
-> always turned on the SMI, and then never turned it off, causing issues
-> on various platforms.
 
-No, it's been like this all the time. Compare 'switch' and 'if'
-statements in the patch against single original 'if' but with 2
-conditions. Your patch is actually different in the following ways:
-- it goes over all possible capabilities instead of processing just
-first one - right thing to do;
-- it always sets OS ownership, even if BIOS did not have it.
-- it always disables SMI, not just in case when handoff failed. This
-probably right way to cleanup after BIOS which does handoff, but does
-not disable SMI afterward.
+		Dave
 
-  In other words, it does stop doing what previous code was doing, it
-just extends it. And according to Greg, it extends it in right way ;-)
 
-> 
-> Of course, the BIOS that Carlo is struggling with seems terminally
-> broken, and is blatantly ignoring the spec for how those handoff
-> flags are supposed to work.
-
-Agree.
-
-Aleks.
-
-> 
-> - Dave
-> 
-> 

@@ -1,43 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbWBGAUM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWBGAUo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964863AbWBGAUM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 19:20:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWBGAUM
+	id S932419AbWBGAUo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 19:20:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWBGAUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 19:20:12 -0500
-Received: from rtr.ca ([64.26.128.89]:28641 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S932389AbWBGAUK (ORCPT
+	Mon, 6 Feb 2006 19:20:44 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:42140 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932389AbWBGAUn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 19:20:10 -0500
-Message-ID: <43E7E7B2.90909@rtr.ca>
-Date: Mon, 06 Feb 2006 19:20:02 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-Cc: Nigel Cunningham <nigel@suspend2.net>, Rafael Wysocki <rjw@sisk.pl>,
-       linux-kernel@vger.kernel.org,
-       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2]
- Modules support.)
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602041954.22484.nigel@suspend2.net> <20060204192924.GC3909@elf.ucw.cz> <200602061402.54486.nigel@suspend2.net> <20060206105954.GD3967@elf.ucw.cz> <43E761EB.3030203@rtr.ca> <20060206145224.GC1675@elf.ucw.cz>
-In-Reply-To: <20060206145224.GC1675@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Feb 2006 19:20:43 -0500
+Date: Tue, 7 Feb 2006 01:19:02 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Paul Jackson <pj@sgi.com>
+Cc: ak@suse.de, clameter@engr.sgi.com, akpm@osdl.org, dgc@sgi.com,
+       steiner@sgi.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+Message-ID: <20060207001902.GA18830@elte.hu>
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com> <200602061811.49113.ak@suse.de> <Pine.LNX.4.62.0602061017510.16829@schroedinger.engr.sgi.com> <200602061936.27322.ak@suse.de> <20060206184330.GA22275@elte.hu> <20060206120109.0738d6a2.pj@sgi.com> <20060206200506.GA13466@elte.hu> <20060206154537.a3e8cc25.pj@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060206154537.a3e8cc25.pj@sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.2
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> On Po 06-02-06 09:49:15, Mark Lord wrote:
->>> I'm not sure if we want to save full image of memory. Saving most-used
->>> caches only seems to work fairly well.
->> No, it sucks.  My machines take forever to become usable on resume
->> with the current method.  But dumping full image of memory will need
->> compression to keep that from being sluggish as well.
+
+* Paul Jackson <pj@sgi.com> wrote:
+
+> First it might be most useful to explain a detail of your proposal 
+> that I don't get, which is blocking me from considering it seriously.
 > 
-> Are you sure? This changed recently, be sure to set
-> /sys/power/image_size.
+> I understand mount options, but I don't know what mechanisms (at the 
+> kernel-user API) you have in mind to manage per-directory and per-file 
+> options.
 
-No such pathname in 2.6.15 (the latest released kernel).
+well, i thought of nothing overly complex: it would have to be a 
+persistent flag attached to the physical inode. Lets assume XFS added 
+this - e.g. as an extended attribute. That raw inode attribute/flag gets 
+inherited by dentries, and propagates down into child dentries. (There 
+is a global default that the root dentry starts with, and mountpoints 
+may override the flag too.) If any directory down in the hierarchy has a 
+different flag, it overrides the current one. No flag means "inherit 
+parent's flag". So there would be 3 possible states for every inode:
 
-Cheers
+ - default: the vast majority of inodes would have no flag set
+
+ - some would have a 'cache:local' flag
+
+ - some would have a 'cache:global' flag
+
+which would result in every inode getting flagged as either 'local' or 
+'global'. When the pagecache (and inode/dentry cache) gets populated, 
+the kernel will always know what the current allocation strategy is for 
+any given object:
+
+- if an inode ends up being flagged as 'global', then all its pagecache 
+  allocations will be roundrobined across nodes.
+
+- if an inode is flagged 'local', it will be allocated to the node/cpu 
+  that makes use of it.
+
+workloads may share the same object and may want to use it in different 
+ways. E.g. there's one big central database file, and one job uses it in 
+a 'local' way, another one uses it in a 'global' way. Each job would 
+have to set the attribute to the right value. Setting the flag for the 
+inode results in all existing pages for that inode to be flushed. The 
+jobs need to serialize their access to the object, as the kernel can 
+only allocate according to one policy.
+
+	Ingo

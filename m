@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965092AbWBGOXl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965090AbWBGOYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965092AbWBGOXl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 09:23:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965096AbWBGOXl
+	id S965090AbWBGOYa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 09:24:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965097AbWBGOYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 09:23:41 -0500
-Received: from ns2.suse.de ([195.135.220.15]:46280 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965092AbWBGOXk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 09:23:40 -0500
-From: Andi Kleen <ak@suse.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: radix-tree.c:378 BUG NFS client bug on 2.6.15-git7
-Date: Tue, 7 Feb 2006 15:04:18 +0100
-User-Agent: KMail/1.8.2
-Cc: okir@suse.de, linux-kernel@vger.kernel.org
-References: <200602071146.19881.ak@suse.de> <1139320822.7864.3.camel@lade.trondhjem.org>
-In-Reply-To: <1139320822.7864.3.camel@lade.trondhjem.org>
+	Tue, 7 Feb 2006 09:24:30 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9740 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965090AbWBGOY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 09:24:29 -0500
+Date: Tue, 7 Feb 2006 15:24:28 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [2.6 patch] More informative message on umount failure.
+Message-ID: <20060207142428.GG5937@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602071504.18997.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 February 2006 15:00, Trond Myklebust wrote:
-> On Tue, 2006-02-07 at 11:46 +0100, Andi Kleen wrote:
-> > Found this on a box still running 2.6.15-git7 (I know it's a bit old).
-> > It was under relatively heavy NFS client traffic. Perhaps it's of interest 
-> > for someone.
-> > 
-> > -Andi
-> > 
-> > 
-> > nfs_update_inode: inode 961647 mode changed, 0040755 to 0100644
-> 
-> This is weird. The server appears to have magically changed a directory
-> into a regular file...
-> 
-> Would this be the userland server or is it knfsd?
+We had a user trigger this message on a box that had a lot
+of different mounts, all with different options.
+It might help narrow down wtf happened if we print out
+which device failed.
 
-Could be either. The machine is in a complex automount setup
-which includes both types of servers. And both should be regularly
-accessed.
+Signed-off-by: Dave Jones <davej@redhat.com>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--Andi
+---
 
+This patch was sent by Dave Jones on:
+- 2 Feb 2006
+
+--- linux-2.6.15.noarch/fs/super.c~	2006-02-02 20:19:20.000000000 -0500
++++ linux-2.6.15.noarch/fs/super.c	2006-02-02 20:20:02.000000000 -0500
+@@ -247,8 +247,9 @@ void generic_shutdown_super(struct super
+ 
+ 		/* Forget any remaining inodes */
+ 		if (invalidate_inodes(sb)) {
+-			printk("VFS: Busy inodes after unmount. "
+-			   "Self-destruct in 5 seconds.  Have a nice day...\n");
++			printk("VFS: Busy inodes after unmount of %s. "
++			   "Self-destruct in 5 seconds.  Have a nice day...\n",
++			   sb->s_id);
+ 		}
+ 
+ 		unlock_kernel();

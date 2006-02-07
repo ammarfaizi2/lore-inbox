@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbWBGPAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965118AbWBGPCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965115AbWBGPAd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 10:00:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbWBGPAc
+	id S965118AbWBGPCN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 10:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbWBGPCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 10:00:32 -0500
-Received: from gate.crashing.org ([63.228.1.57]:5532 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965115AbWBGPAc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 10:00:32 -0500
-Date: Tue, 7 Feb 2006 08:52:03 -0600 (CST)
-From: Kumar Gala <galak@kernel.crashing.org>
-X-X-Sender: galak@gate.crashing.org
-To: rmk+serial@arm.linux.org.uk
-cc: alan@lxorguk.ukuu.org.uk, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 8250 serial console update uart_8250_port ier
-Message-ID: <Pine.LNX.4.44.0602070848060.4804-100000@gate.crashing.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 7 Feb 2006 10:02:13 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:34697 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965116AbWBGPCM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 10:02:12 -0500
+Subject: Re: libATA  PATA status report, new patch
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Meelis Roos <mroos@linux.ee>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1139312330.18391.14.camel@localhost.localdomain>
+References: <20060207084347.54CD01430C@rhn.tartu-labor>
+	 <1139310335.18391.2.camel@localhost.localdomain>
+	 <Pine.SOC.4.61.0602071305310.10491@math.ut.ee>
+	 <1139312330.18391.14.camel@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 07 Feb 2006 15:04:13 +0000
+Message-Id: <1139324653.18391.41.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On some embedded PowerPC (MPC834x) systems an extra byte would some times be
-required to flush data out of the fifo. serial8250_console_write() was updating
-the IER in hardware withouth also updating the copy in uart_8250_port. This
-causes issues functions like serial8250_start_tx() and __stop_tx() to misbehave.
+On Maw, 2006-02-07 at 11:38 +0000, Alan Cox wrote:
+> Ok there is a resource handling bug somewhere in the generic case that
+> needs fixing I have yet to find. Also some mishandling of devices with
+> bmdma not enabled which kills Qemu. I've just been fixing the latter and
+> also adding CFA awareness. I'll take a look at the resource code next.
 
-Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+I've put up a -ide2 patch at
 
----
-commit 0614711f0208f50e81d55283add8ae41bc332fc7
-tree 1da4194744b9ca1fe59976c6ebffccfee40299eb
-parent 45a38d42185df3e328e35e5167f2bfe181361db9
-author Kumar Gala <galak@kernel.crashing.org> Tue, 07 Feb 2006 08:51:26 -0600
-committer Kumar Gala <galak@kernel.crashing.org> Tue, 07 Feb 2006 08:51:26 -0600
+http://zeniv.linux.org.uk/~alan/IDE
 
- drivers/serial/8250.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+This
+	- cleans up old pci_module_init users
+	- Should fix the crashes people saw when bmdma is zero
+	- Adds the netcell driver (nothing clever in it yet as the chip
+	  does all the thinking)
+	- Fixed probe ordering
+	- Added resource management to the pata_legacy driver
+	- Other minor oddments (Allow CFA etc)
 
-diff --git a/drivers/serial/8250.c b/drivers/serial/8250.c
-index 179c1f0..b1fc97d 100644
---- a/drivers/serial/8250.c
-+++ b/drivers/serial/8250.c
-@@ -2229,6 +2229,7 @@ serial8250_console_write(struct console 
- 	 *	and restore the IER
- 	 */
- 	wait_for_xmitr(up, BOTH_EMPTY);
-+	up->ier |= UART_IER_THRI;
- 	serial_out(up, UART_IER, ier | UART_IER_THRI);
- }
- 
+Should help fix some of the crashes reported on startup.
+
+I did however forget to change the default ATA_ENABLE_PATA setting
+
+Alan
 

@@ -1,38 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbWBGQzb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWBGQ4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932455AbWBGQzb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 11:55:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbWBGQza
+	id S932373AbWBGQ4A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 11:56:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbWBGQ4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 11:55:30 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:34490 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932287AbWBGQz3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 11:55:29 -0500
-Message-ID: <43E8D0F9.50205@zytor.com>
-Date: Tue, 07 Feb 2006 08:55:21 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Luca Berra <bluca@comedia.it>
-CC: Neil Brown <neilb@suse.de>, linux-raid@vger.kernel.org,
-       klibc list <klibc@zytor.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [klibc] Re: Exporting which partitions to md-configure
-References: <43DEB4B8.5040607@zytor.com> <17374.47368.715991.422607@cse.unsw.edu.au> <43DEC095.2090507@zytor.com> <17374.50399.1898.458649@cse.unsw.edu.au> <43DEC5DC.1030709@zytor.com> <17382.43646.567406.987585@cse.unsw.edu.au> <43E80A5A.5040002@zytor.com> <20060207104311.GD22221@percy.comedia.it> <43E8C0F3.5080205@zytor.com> <20060207164730.GA12480@percy.comedia.it>
-In-Reply-To: <20060207164730.GA12480@percy.comedia.it>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 7 Feb 2006 11:56:00 -0500
+Received: from hierophant.serpentine.com ([66.92.13.71]:25060 "EHLO
+	demesne.serpentine.com") by vger.kernel.org with ESMTP
+	id S932373AbWBGQz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 11:55:59 -0500
+Subject: Re: Linux 2.6.16-rc1
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060207134220.454df03d.khali@linux-fr.org>
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
+	 <43CD67AE.9030501@eyal.emu.id.au> <20060117232701.GA7606@mars.ravnborg.org>
+	 <20060118085936.4773dd77.khali@linux-fr.org>
+	 <20060118091543.GA8277@mars.ravnborg.org>
+	 <20060118212022.GA15828@mars.ravnborg.org>
+	 <20060207134220.454df03d.khali@linux-fr.org>
+Content-Type: text/plain
+Date: Tue, 07 Feb 2006 08:55:58 -0800
+Message-Id: <1139331358.27739.77.camel@camp4.serpentine.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luca Berra wrote:
-> 
-> making it harder for the user is a good thing, but please not at the
-> expense of usability
-> 
+On Tue, 2006-02-07 at 13:42 +0100, Jean Delvare wrote:
 
-What's the usability problem?
+> Where's that patch? As I understand it, this issue is still not fixed
+> in Linus' tree, while it really should be before 2.6.16 is released.
 
-	-hpa
+Linus pulled something with the fix the other day.
+
+	<b
+

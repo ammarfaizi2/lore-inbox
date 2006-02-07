@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWBGJYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750999AbWBGJau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932347AbWBGJYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 04:24:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWBGJYQ
+	id S1750999AbWBGJau (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 04:30:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWBGJau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 04:24:16 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7850 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932347AbWBGJYP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 04:24:15 -0500
-Date: Tue, 7 Feb 2006 10:23:56 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: Bojan Smojver <bojan@rexursive.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       suspend2-devel@lists.suspend2.net
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060207092356.GA1742@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060207113159.nyjixl5eokookcsw@imp.rexursive.com> <20060207004448.GC1575@elf.ucw.cz> <200602071105.45688.nigel@suspend2.net>
+	Tue, 7 Feb 2006 04:30:50 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:49823 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750999AbWBGJat (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 04:30:49 -0500
+Date: Tue, 7 Feb 2006 09:30:48 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: alex-lists-linux-kernel@yuriev.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: non-fakeraid controllers
+Message-ID: <20060207093048.GC11691@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	alex-lists-linux-kernel@yuriev.com, linux-kernel@vger.kernel.org
+References: <20060207015126.GA12236@s2.yuriev.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200602071105.45688.nigel@suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060207015126.GA12236@s2.yuriev.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > *Users* would not be at disadvantage, but, surprise, there's one thing
-> > more important than users. Thats developers, and I can guarantee you
-> > that merging 14K lines of code just to delete them half a year later
-> > would drive them crazy.
+On Mon, Feb 06, 2006 at 08:51:26PM -0500, alex-lists-linux-kernel@yuriev.com wrote:
+> Hi,
 > 
-> It would more be an ever-changing interface that would drive them crazy. So 
-> why don't we come up with an agreed method of starting a suspend and 
-> starting a resume that they can use, without worrying about whether 
-> they're getting swsusp, uswsusp or Suspend2? /sys/power/state seems the 
-> obvious choice for this. An additional /sys entry could perhaps be used to 
-> modify which implementation is used when you echo disk > /sys/power/state 
-> - something like
+> 	This is not an attempt to start a religious flamewar about what is
+> RAID vs. what is softraid vs. what is fakeraid. 
 > 
-> # cat /sys/power/disk_method
-> swsusp uswsusp suspend2
-> # echo uswsusp > /sys/power/disk_method
-> # echo > /sys/power/state
-> 
-> Is there a big problem with that, which I've missed?
+> 	Does anyone has a list/refence/etc on reasonably modern SCSI
+> controllers (at least u160) in a non-fakeraid way i.e. the way that would
+> allow linux to boot from a RAID protected disk array when one of the drives
+> in the array failed even if the root filesystem is located on the same
+> array?
 
-Well, for _users_ method seems to be clicking "suspend" in KDE. For
-more experienced users it is powersave -U. And you are already
-distributing script to do suspend... Just hook suspend2 to the same
-gui stuff distributions already use.
+LSI 1030/1035 U320 (fusion) controllers have simple raid0/raid1 support
 
-Besides what you described can't work for uswsusp.
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+Adaptec and LSI still have some u160 or even u320 controllers in the aacraid/
+megaraid series afaik, the present the same interface to the OS for parallel
+scsi/sata/sas so it's a bit hard to say for me which is the most recent
+parallel scsi one.
+
+The old Mylex controllers supported by drivers/block/DAC960.c support up
+to u160, and u320 with an IBM-branded controller which probably isn't sold
+separately from IBM Equipment and probably not at all anymore.
+
+The IBM i/pSeries integrated RAID supports up to U320 (drivers/scsi/ipr.c),
+but you don't get it without an i/pSeries system.
+
+There's Intel Branded, Adaptec manufactured RAID cards that support U160
+SCSI, they're supported by drivers/scsi/gdth.c

@@ -1,61 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965101AbWBGOt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965108AbWBGOuQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965101AbWBGOt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 09:49:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbWBGOt2
+	id S965108AbWBGOuQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 09:50:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965109AbWBGOuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 09:49:28 -0500
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:28575 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S965101AbWBGOt2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 09:49:28 -0500
-Date: Tue, 7 Feb 2006 15:49:37 +0100
-From: Luca <kronos@kronoz.cjb.net>
-To: Nathan Scott <nathans@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: [BUG] Linux 2.6.16-rcX breaks mutt
-Message-ID: <20060207144937.GA3302@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <20060206172141.GA15133@dreamland.darkstar.lan> <20060206233046.GC791@frodo>
+	Tue, 7 Feb 2006 09:50:16 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:54451 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S965108AbWBGOuO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 09:50:14 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Fix build failure in recent pm_prepare_* changes.
+Date: Tue, 7 Feb 2006 15:51:27 +0100
+User-Agent: KMail/1.9.1
+Cc: olh@suse.de, davej@redhat.com, linux-kernel@vger.kernel.org, pavel@suse.cz,
+       benh@kernel.crashing.org
+References: <200602032312.k13NCDAc012658@hera.kernel.org> <200602070057.26925.rjw@sisk.pl> <20060206164410.2c7d3f49.akpm@osdl.org>
+In-Reply-To: <20060206164410.2c7d3f49.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060206233046.GC791@frodo>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200602071551.29031.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Tue, Feb 07, 2006 at 10:30:46AM +1100, Nathan Scott ha scritto: 
-> Hi Luca,
+On Tuesday 07 February 2006 01:44, Andrew Morton wrote:
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> >
+> > > > --- linux-2.6.16-rc1-mm5.orig/drivers/macintosh/via-pmu.c
+> > > > +++ linux-2.6.16-rc1-mm5/drivers/macintosh/via-pmu.c
+> > > > @@ -2070,6 +2070,14 @@ restore_via_state(void)
+> > > >  	out_8(&via[IER], IER_SET | SR_INT | CB1_INT);
+> > > >  }
+> > > >  
+> > > > +#if defined(CONFIG_VT) && defined(CONFIG_VT_CONSOLE)
+> > > > +extern int pm_prepare_console(void);
+> > > > +extern void pm_restore_console(void);
+> > > > +#else
+> > > > +static int pm_prepare_console(void) { return 0; }
+> > > > +static void pm_restore_console(void) {}
+> > > > +#endif
+> > > > +
+> > > 
+> > > These should be in a header file.  Presumably one which
+> > > kernel/power/power.h includes, too.
+> > 
+> > Then I think I should move all that to include/linux/suspend.h.
 > 
-> On Mon, Feb 06, 2006 at 06:21:41PM +0100, Luca wrote:
-> > Hi,
-> > I found out that mutt when running with a 2.6.16-rcX kernel is unable to
-> > discover new mails in mboxes other than the main one.
-> > ...
-> > I've done a simple test with working and non working system:
-> 
-> I constructed a test case based on your description, and this patch
-> fixes it for me - could you try it out & let me know how it goes in
-> yoour case?
+> Sounds sane.  Or <linux/console.h>.
 
-Tested now, it's working.
+I chose include/linux/suspend.h (it was there before and the functions are
+defined in kernel/power/console.c).
 
-> --- fs/xfs/linux-2.6/xfs_iops.c.orig	2006-02-07 10:49:34.143620000 +1100
-> +++ fs/xfs/linux-2.6/xfs_iops.c	2006-02-07 10:49:57.785097500 +1100
-> @@ -673,6 +673,8 @@ linvfs_setattr(
->  	if (ia_valid & ATTR_ATIME) {
->  		vattr.va_mask |= XFS_AT_ATIME;
->  		vattr.va_atime = attr->ia_atime;
-> +		if (ia_valid & ATTR_ATIME_SET)
-> +			inode->i_atime = attr->ia_atime;
->  	}
->  	if (ia_valid & ATTR_MTIME) {
->  		vattr.va_mask |= XFS_AT_MTIME;
+The appended patch (against -mm5) has been compile-tested on x86-64 and i386
+with and withoud CONFIG_VT, CONFIG_VT_CONSOLE.  [I have no access to a Mac,
+though.]
 
-thanks,
-Luca
--- 
-Home: http://kronoz.cjb.net
-La somma dell'intelligenza sulla terra e` una costante.
-La popolazione e` in aumento.
+Greetings,
+Rafael
+
+
+Fix compilation problem in PM headers.
+
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+
+ include/linux/suspend.h |   10 +++++++++-
+ kernel/power/console.c  |    4 +++-
+ kernel/power/power.h    |   16 ----------------
+ 3 files changed, 12 insertions(+), 18 deletions(-)
+
+Index: linux-2.6.16-rc1-mm5/include/linux/suspend.h
+===================================================================
+--- linux-2.6.16-rc1-mm5.orig/include/linux/suspend.h
++++ linux-2.6.16-rc1-mm5/include/linux/suspend.h
+@@ -42,13 +42,21 @@ extern void mark_free_pages(struct zone 
+ #ifdef CONFIG_PM
+ /* kernel/power/swsusp.c */
+ extern int software_suspend(void);
++
++#if defined(CONFIG_VT) && defined(CONFIG_VT_CONSOLE)
++extern int pm_prepare_console(void);
++extern void pm_restore_console(void);
++#else
++static inline int pm_prepare_console(void) { return 0; }
++static inline void pm_restore_console(void) {}
++#endif /* defined(CONFIG_VT) && defined(CONFIG_VT_CONSOLE) */
+ #else
+ static inline int software_suspend(void)
+ {
+ 	printk("Warning: fake suspend called\n");
+ 	return -EPERM;
+ }
+-#endif
++#endif /* CONFIG_PM */
+ 
+ #ifdef CONFIG_SUSPEND_SMP
+ extern void disable_nonboot_cpus(void);
+Index: linux-2.6.16-rc1-mm5/kernel/power/power.h
+===================================================================
+--- linux-2.6.16-rc1-mm5.orig/kernel/power/power.h
++++ linux-2.6.16-rc1-mm5/kernel/power/power.h
+@@ -1,14 +1,6 @@
+ #include <linux/suspend.h>
+ #include <linux/utsname.h>
+ 
+-/* With SUSPEND_CONSOLE defined suspend looks *really* cool, but
+-   we probably do not take enough locks for switching consoles, etc,
+-   so bad things might happen.
+-*/
+-#if defined(CONFIG_VT) && defined(CONFIG_VT_CONSOLE)
+-#define SUSPEND_CONSOLE	(MAX_NR_CONSOLES-1)
+-#endif
+-
+ struct swsusp_info {
+ 	struct new_utsname	uts;
+ 	u32			version_code;
+@@ -43,14 +35,6 @@ static struct subsys_attribute _name##_a
+ 
+ extern struct subsystem power_subsys;
+ 
+-#ifdef SUSPEND_CONSOLE
+-extern int pm_prepare_console(void);
+-extern void pm_restore_console(void);
+-#else
+-static int pm_prepare_console(void) { return 0; }
+-static void pm_restore_console(void) {}
+-#endif
+-
+ /* References to section boundaries */
+ extern const void __nosave_begin, __nosave_end;
+ 
+Index: linux-2.6.16-rc1-mm5/kernel/power/console.c
+===================================================================
+--- linux-2.6.16-rc1-mm5.orig/kernel/power/console.c
++++ linux-2.6.16-rc1-mm5/kernel/power/console.c
+@@ -9,7 +9,9 @@
+ #include <linux/console.h>
+ #include "power.h"
+ 
+-#ifdef SUSPEND_CONSOLE
++#if defined(CONFIG_VT) && defined(CONFIG_VT_CONSOLE)
++#define SUSPEND_CONSOLE	(MAX_NR_CONSOLES-1)
++
+ static int orig_fgconsole, orig_kmsg;
+ 
+ int pm_prepare_console(void)

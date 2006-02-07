@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWBGRhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWBGRjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932187AbWBGRhT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 12:37:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWBGRhT
+	id S932193AbWBGRjr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 12:39:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbWBGRjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 12:37:19 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:38031 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932187AbWBGRhR convert rfc822-to-8bit
+	Tue, 7 Feb 2006 12:39:47 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:32458 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932193AbWBGRjq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 12:37:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=hJCVtAAais+7tCNV/ayNL/IHb1GMuuAQQuhVA/fkw46R+0fk9mh3NBcYnpNyy3mJXLF8bo0DtIZ7+D/LMH3/wv+gU2c2th5OrgNsqOPe7iLVVEa2NNIzGO6oRKnKtUuwDsv2zmyU6hl7a0Fr1AdxOIeX5Ubmsyz/vx6hheOXpvk=
-Message-ID: <a36005b50602070937h60e35294q1dbef2c21f2fb50d@mail.gmail.com>
-Date: Tue, 7 Feb 2006 09:37:13 -0800
-From: Ulrich Drepper <drepper@gmail.com>
-To: Jeff Dike <jdike@addtoit.com>
-Subject: Re: [PATCH 2/8] UML - Define jmpbuf access constants
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-In-Reply-To: <200602070223.k172NpJa009654@ccure.user-mode-linux.org>
+	Tue, 7 Feb 2006 12:39:46 -0500
+Message-ID: <43E8DB58.7000600@zytor.com>
+Date: Tue, 07 Feb 2006 09:39:36 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200602070223.k172NpJa009654@ccure.user-mode-linux.org>
+To: klibc list <klibc@zytor.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: kernel + klibc tree now, in theory, feature-complete
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/6/06, Jeff Dike <jdike@addtoit.com> wrote:
-> With newer libcs, the JB_* macros (which we shouldn't be using anyway,
-> probably) go away.
+I have updated and pushed the klibc-kernel tree.  "In theory" it should 
+be a 1:1 replacement for any stock kernel, which kinit taking up the slack.
 
-I assume you have your own setjmp implementation and are not using the
-libc version?
+Anyway, I haven't yet removed any in-kernel functionality, but that's 
+hopefully coming; the in-kernel functionality won't be executed in 
+either case.
 
-If you don't then there is a problem.  There is a good reason why the
-constants are removed: you couldn't use the values anyway.  Your don't
-have the information to "decrypt" them.  If you just used the values
-and implemented the function yourself, fine.
+git://git.kernel.org/pub/linux/kernel/git/hpa/linux-2.6-klibc.git
+
+	-hpa
+
+
+P.S. It's going to be important to move the standalone klibc to the same 
+directory structure as the in-kernel klibc, i.e. klibc-renamed, and 
+relatively soon.  It's too easy to confuse even the recursive git policy.

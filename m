@@ -1,85 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWBGQee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWBGQfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932099AbWBGQee (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 11:34:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWBGQee
+	id S932107AbWBGQfg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 11:35:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbWBGQff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 11:34:34 -0500
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:39504 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S932099AbWBGQed convert rfc822-to-8bit (ORCPT
+	Tue, 7 Feb 2006 11:35:35 -0500
+Received: from ns1.coraid.com ([65.14.39.133]:50818 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S932107AbWBGQff (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 11:34:33 -0500
-X-IronPort-AV: i="4.02,95,1139205600"; 
-   d="scan'208"; a="376986962:sNHT37903662"
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] [RESEND] Add Dell laptop backlight brightness display
-Date: Tue, 7 Feb 2006 10:34:31 -0600
-Message-ID: <35C9A9D68AB3FA4AB63692802656D9EC9277C0@ausx3mps303.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] [RESEND] Add Dell laptop backlight brightness display
-Thread-Index: AcYrnFKhB4JavfwlSuKhChJ0EIQ9fgAZ1qMw
-From: <Michael_E_Brown@Dell.com>
-To: <mjg59@srcf.ucam.org>
-Cc: <akpm@osdl.org>, <Matt_Domsch@Dell.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 07 Feb 2006 16:34:32.0908 (UTC) FILETIME=[600528C0:01C62C04]
+	Tue, 7 Feb 2006 11:35:35 -0500
+Message-ID: <169b5d8496ed632078ff173d03178ede@coraid.com>
+Date: Tue, 7 Feb 2006 11:26:39 -0500
+To: linux-kernel@vger.kernel.org
+Cc: ecashin@coraid.com, Greg K-H <greg@kroah.com>
+Subject: [PATCH 2.6.16-rc2-git2-gkh] aoe [1/3]: support multiple AoE listeners
+From: "Ed L. Cashin" <ecashin@coraid.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can get and set laptop brighness on Dell with the proper SMI call.
+Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
 
-To do the proper SMI call requires parsing SMBIOS structure 0xDA, a
-vendor-proprietary structure, and getting the SMI index and io port and
-magic values. Then, you need to know how to setup the registers and
-input/output buffers for the call. All of this is already present in
-libsmbios.
+Always clone incoming skbs, allowing other AoE listeners
+to exist in the kernel.
 
-Reading nvram is not a valid way to get brighness unless you also do
-similar work (parse specific vendor-proprietary SMBIOS structures) to
-ensure that you are reading the correct location. This location is
-subject to change from BIOS to BIOS and machine to machine. The fact
-that you may have observed it in the same location on a few laptops does
-not change this fact.
+diff -upr 2.6.16-rc2-git2-gkh-orig/drivers/block/aoe/aoenet.c 2.6.16-rc2-git2-gkh-aoe/drivers/block/aoe/aoenet.c
+--- 2.6.16-rc2-git2-gkh-orig/drivers/block/aoe/aoenet.c	2006-02-06 17:41:05.000000000 -0500
++++ 2.6.16-rc2-git2-gkh-aoe/drivers/block/aoe/aoenet.c	2006-02-06 17:56:59.000000000 -0500
+@@ -92,18 +92,6 @@ mac_addr(char addr[6])
+ 	return __be64_to_cpu(n);
+ }
+ 
+-static struct sk_buff *
+-skb_check(struct sk_buff *skb)
+-{
+-	if (skb_is_nonlinear(skb))
+-	if ((skb = skb_share_check(skb, GFP_ATOMIC)))
+-	if (skb_linearize(skb, GFP_ATOMIC) < 0) {
+-		dev_kfree_skb(skb);
+-		return NULL;
+-	}
+-	return skb;
+-}
+-
+ void
+ aoenet_xmit(struct sk_buff *sl)
+ {
+@@ -125,14 +113,14 @@ aoenet_rcv(struct sk_buff *skb, struct n
+ 	struct aoe_hdr *h;
+ 	u32 n;
+ 
+-	skb = skb_check(skb);
+-	if (!skb)
++	skb = skb_share_check(skb, GFP_ATOMIC);
++	if (skb == NULL)
+ 		return 0;
+-
++	if (skb_is_nonlinear(skb))
++	if (skb_linearize(skb, GFP_ATOMIC) < 0)
++		goto exit;
+ 	if (!is_aoe_netif(ifp))
+ 		goto exit;
+-
+-	//skb->len += ETH_HLEN;	/* (1) */
+ 	skb_push(skb, ETH_HLEN);	/* (1) */
+ 
+ 	h = (struct aoe_hdr *) skb->mac.raw;
 
-In fact, I have the same objection to the I8K driver in the kernel. It
-has hardcoded SMI calls, that are subject to change. There is a proper
-way to get the correct IO ports to make this safe, but it is not
-currently being done.
---
-Michael
 
------Original Message-----
-From: Matthew Garrett [mailto:mjg59@srcf.ucam.org] 
-Sent: Monday, February 06, 2006 10:10 PM
-To: Brown, Michael E
-Cc: Andrew Morton; Domsch, Matt; linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [RESEND] Add Dell laptop backlight brightness
-display
-
-On Mon, Feb 06, 2006 at 09:43:16PM -0600, Michael E Brown wrote:
-
-> 	I would _strongly_ suggest that this patch _not_ go in. This
-driver 
-> uses hardcoded values that are subject to change without notice. It is
-
-> perfectly legitimate for future versions of Dell BIOS to interpret 
-> pokes to cmos location 0x99 as the command to format your hard drive.
-
-I managed to send the wrong patch - the Dell one only reads from nvram. 
-If nvram reads are likely to reformat your hard drive, I think Dell
-needs to reconsider its BIOS design :)
-
-More seriously, a quick scan of libsmbios hasn't revealed any method for
-obtaining the screen brightness. It's possible that I'm blind (I'm
-certainly slightly drunk), but can you give a pointer to the correct
-mechanism for making this call?
-
-Thanks,
---
-Matthew Garrett | mjg59@srcf.ucam.org
+-- 
+  "Ed L. Cashin" <ecashin@coraid.com>

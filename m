@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965012AbWBGLDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965018AbWBGLEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965012AbWBGLDd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 06:03:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965015AbWBGLDd
+	id S965018AbWBGLEh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 06:04:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbWBGLEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 06:03:33 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:8671 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965012AbWBGLDc
+	Tue, 7 Feb 2006 06:04:37 -0500
+Received: from smtp18.wanadoo.fr ([193.252.22.126]:26022 "EHLO
+	smtp18.wanadoo.fr") by vger.kernel.org with ESMTP id S965018AbWBGLEg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 06:03:32 -0500
-Subject: Re: libATA  PATA status report, new patch
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Meelis Roos <mroos@linux.ee>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060207084347.54CD01430C@rhn.tartu-labor>
-References: <20060207084347.54CD01430C@rhn.tartu-labor>
+	Tue, 7 Feb 2006 06:04:36 -0500
+X-ME-UUID: 20060207110435466.71C8D70000AB@mwinf1807.wanadoo.fr
+Subject: Re: CD writing - related question
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Matt Keenan <matt.keenan@btinternet.com>
+Cc: Jens Axboe <axboe@suse.de>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <43E866D2.4050103@btinternet.com>
+References: <43DEA195.1080609@tmr.com> <20060202203503.GH4215@suse.de>
+	 <43E866D2.4050103@btinternet.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 07 Feb 2006 11:05:34 +0000
-Message-Id: <1139310335.18391.2.camel@localhost.localdomain>
+Message-Id: <1139310269.8347.93.camel@capoeira>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Tue, 07 Feb 2006 12:04:29 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-02-07 at 10:43 +0200, Meelis Roos wrote:
-> Tried in Qemu with virtual PIIX3. Compiled in PIIX, OLDPIIX, MPIIX and
-> Generic. Enabled PATA support for libata in libata.h. Disabled
-> everything in ATA/IDE Kconfig menu.
-> 
-> ata1: PATA max PIO4 cmd 0x1F0 ctl 0x3F6 bmdma 0x0 irq 15
-> Unable to handle kernel NULL pointer dereference at virtual address 00000000
->  printing eip:
+On Tue, 2006-02-07 at 10:22, Matt Keenan wrote:
+> Is there a document that clearly lists how these components (SCSI, 
+> SG_IO, ATA/PI etc et al) connect together and what protocol / transports 
+> they use? I suspect the problem with all these current arguments is that 
+> very few people understand how this all works / connects.
 
-Very strange trace indeed. I'll take a look at this. At least since it
-came from Qemu I should be able to "build" a suitable PC to match yours.
+Maybe people that don't understand how all these components are tied
+together should refrain from arguing about them ?
 
-Original Intel PIIX devices are handled by "OLDPIIX" (0x8086, 0x1230).
-The later ones by ata_piix. The only oddity I see is that you have no
-PCI bus mastering address base assigned (bmdma)
-
-Alan
+	Xav
 
 

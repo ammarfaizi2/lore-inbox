@@ -1,72 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWBGQjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbWBGQml@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbWBGQjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 11:39:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWBGQjJ
+	id S1750945AbWBGQml (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 11:42:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWBGQml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 11:39:09 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:43189
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1750731AbWBGQjI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 11:39:08 -0500
-Date: Tue, 7 Feb 2006 08:39:21 -0800
-From: Greg KH <greg@kroah.com>
-To: "Fr?d?ric L. W. Meunier" <2@pervalidus.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What causes "USB disconnect" ?
-Message-ID: <20060207163921.GA10739@kroah.com>
-References: <Pine.LNX.4.64.0602062122480.5326@dyndns.pervalidus.net> <20060207002749.GA6774@kroah.com> <964857280602061706n72a9ebbeo9a1930f2b0993e0b@mail.gmail.com> <964857280602061812m748d19bew5ef0777e24359029@mail.gmail.com>
+	Tue, 7 Feb 2006 11:42:41 -0500
+Received: from holomorphy.com ([66.93.40.71]:19670 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S1750808AbWBGQmk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 11:42:40 -0500
+Date: Tue, 7 Feb 2006 08:41:58 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Kirill Korotaev <dev@sw.ru>, Greg <gkurz@fr.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>, Rik van Riel <riel@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: [RFC][PATCH 04/20] pspace: Allow multiple instaces of the process id namespace
+Message-ID: <20060207164158.GB6789@holomorphy.com>
+References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com> <m1vevsmgvz.fsf@ebiederm.dsl.xmission.com> <m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com> <m1fymwmgk0.fsf_-_@ebiederm.dsl.xmission.com> <m1bqxkmgcv.fsf_-_@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <964857280602061812m748d19bew5ef0777e24359029@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <m1bqxkmgcv.fsf_-_@ebiederm.dsl.xmission.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 07, 2006 at 12:12:58AM -0200, Fr?d?ric L. W. Meunier wrote:
-> On 2/6/06, Fr?d?ric L. W. Meunier wrote:
-> > When it happened, his lights turned off. I pressed a button, but
-> > nothing happened. Then, I ignored it and it returned after the minutes
-> > you see from the log.
-> 
-> It happened again. This, after an uptime of 3 days and a few hours.
-> 
-> Feb  6 23:59:00 pervalidus kernel: usb 1-2: USB disconnect, address 5
-> Feb  6 23:59:39 pervalidus kernel: usb 1-2: new low speed USB device
-> using uhci_hcd and address 6
-> Feb  6 23:59:40 pervalidus kernel: usb 1-2: configuration #1 chosen
-> from 1 choice
-> Feb  6 23:59:44 pervalidus kernel: input: Logitech Inc. WingMan
-> RumblePad as /class/input/input5
-> Feb  6 23:59:44 pervalidus kernel: input: USB HID v1.10 Joystick
-> [Logitech Inc. WingMan RumblePad] on usb-0000:00:10.0-2
-> Feb  6 23:59:44 pervalidus kernel: usb 1-2: USB disconnect, address 6
-> Feb  6 23:59:47 pervalidus kernel: usb 1-2: new low speed USB device
-> using uhci_hcd and address 7
-> Feb  6 23:59:47 pervalidus kernel: usb 1-2: configuration #1 chosen
-> from 1 choice
-> Feb  6 23:59:57 pervalidus kernel:
-> /usr/local/src/kernel/linux-2.6.16/drivers/usb/input/hid-core.c:
-> timeout initializing reports
-> Feb  6 23:59:57 pervalidus kernel: input: Logitech Inc. WingMan
-> RumblePad as /class/input/input6
-> Feb  6 23:59:57 pervalidus kernel: input: USB HID v1.10 Joystick
-> [Logitech Inc. WingMan RumblePad] on usb-0000:00:10.0-2
-> 
-> I changed it to other 2 ports and only see a
-> 
-> Feb  7 00:09:10 pervalidus kernel: usb 1-2: USB disconnect, address 7
-> 
-> Any way to know if this is the device's fault ?
+On Mon, Feb 06, 2006 at 12:34:08PM -0700, Eric W. Biederman wrote:
+> -#define mk_pid(map, off)	(((map) - pidmap_array)*BITS_PER_PAGE + (off))
+> +#define mk_pid(map, off)	(((map) - pspace->pidmap)*BITS_PER_PAGE + (off))
+>  #define find_next_offset(map, off)					\
 
-I've never seen it to be anything but the device's fault, as it's pretty
-much impossible for the kernel to disconnect a device like this from the
-bus without specifically sending a command to do so (and that didn't
-happen here.)
+mk_pid() should be:
 
-So I'd blame your device :)
+#define mk_pid(pspace, map, off)	\
+			(((map) - (pspace)->pidmap)*BITS_PER_PAGE + (off))
 
-thanks,
+or otherwise made an inline; pscape escaping like this shouldn't happen.
 
-greg k-h
+
+On Mon, Feb 06, 2006 at 12:34:08PM -0700, Eric W. Biederman wrote:
+> +static struct pspace *new_pspace(struct task_struct *leader)
+> +{
+> +	struct pspace *pspace, *parent;
+> +	int i;
+> +	size_t len;
+> +	parent = leader->pspace;
+> +	len = strlen(parent->name) + 10;
+> +	pspace = kzalloc(sizeof(struct pspace) + len, GFP_KERNEL);
+> +	if (!pspace)
+> +		return NULL;
+> +	atomic_set(&pspace->count, 1);
+> +	pspace->flags        = 0;
+> +	pspace->nr_threads   = 0;
+> +	pspace->nr_processes = 0;
+> +	pspace->last_pid     = 0;
+> +	pspace->min          = RESERVED_PIDS;
+> +	pspace->max          = PID_MAX_DEFAULT;
+> +	for (i = 0; i < PIDMAP_ENTRIES; i++) {
+> +		atomic_set(&pspace->pidmap[i].nr_free,  BITS_PER_PAGE);
+> +		pspace->pidmap[i].page = NULL;
+> +	}
+> +	attach_any_pid(&pspace->child_reaper, leader, PIDTYPE_PID, 
+> +			parent, leader->wid);
+> +	leader->pspace->nr_processes++;
+> +	snprintf(pspace->name, len + 1, "%s/%d", parent->name, leader->wid);
+> +
+> +	return pspace;
+> +}
+
+kzalloc() followed by zeroing ->flags et al by hand is redundant.
+
+
+-- wli

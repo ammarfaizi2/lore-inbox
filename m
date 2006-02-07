@@ -1,43 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbWBGABv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbWBGAEF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964883AbWBGABv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 19:01:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbWBGABu
+	id S964886AbWBGAEF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 19:04:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbWBGAEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 19:01:50 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:35754 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S964883AbWBGABt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 19:01:49 -0500
-Message-ID: <43E7E38D.4060007@jp.fujitsu.com>
-Date: Tue, 07 Feb 2006 09:02:21 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Mon, 6 Feb 2006 19:04:04 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:51866 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S964886AbWBGAED (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 19:04:03 -0500
+Date: Mon, 6 Feb 2006 16:03:53 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: ak@suse.de, agl@us.ibm.com, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: OOM behavior in constrained memory situations
+In-Reply-To: <20060206143022.37d1781e.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.62.0602061558290.19350@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0602061253020.18594@schroedinger.engr.sgi.com>
+ <20060206131026.53dbd8d5.akpm@osdl.org> <200602062222.28630.ak@suse.de>
+ <Pine.LNX.4.62.0602061415560.18919@schroedinger.engr.sgi.com>
+ <20060206143022.37d1781e.akpm@osdl.org>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] unify pfn_to_page [25/25] sparc64 pfn_to_page/page_to_pfn
-References: <43E731B5.9050407@jp.fujitsu.com> <20060206.132434.130599234.davem@davemloft.net>
-In-Reply-To: <20060206.132434.130599234.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> We did not want these inlined on sparc64 for a good reason.
-> The pointer arithmatic gets expanded to many additions,
-> subtractions, and shifts, and I felt it too much to inline.
+On Mon, 6 Feb 2006, Andrew Morton wrote:
+
+> The oom-killer is invoked from the page allocator.  A hugetlb pagefault
+> won't use the page allocator.  So there shouldn't be an oom-killing on
+> hugepage exhaustion.
+
+Right..... and the arch specific fault code (at least ia64) does not call 
+the OOM killer.
+
+> I think this comment is just wrong:
 > 
-Okay.
-> If you want to consolidate all of the implementations, that's
-> fine, but please keep the option of not inlining these two
-> routines.
+> 		/* Logically this is OOM, not a SIGBUS, but an OOM
+> 		 * could cause the kernel to go killing other
+> 		 * processes which won't help the hugepage situation
+> 		 * at all (?) */
 > 
+> A VM_FAULT_OOM from there won't cause the oom-killer to do anything.  We
+> should return VM_FAULT_OOM and let do_page_fault() commit suicide with
+> SIGKILL.
 
-I'll do (and CC to each arch's maintainer in next post)
+Drop my patch that adds the comments explaining the bus error and add this 
+fix instead. This will terminate an application with out of memory instead 
+of bus error and remove the comment that you mentioned.
 
-Thanks,
--- Kame
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-
+Index: linux-2.6.16-rc2/mm/hugetlb.c
+===================================================================
+--- linux-2.6.16-rc2.orig/mm/hugetlb.c	2006-02-02 22:03:08.000000000 -0800
++++ linux-2.6.16-rc2/mm/hugetlb.c	2006-02-06 16:02:53.000000000 -0800
+@@ -391,12 +391,7 @@ static int hugetlb_cow(struct mm_struct 
+ 
+ 	if (!new_page) {
+ 		page_cache_release(old_page);
+-
+-		/* Logically this is OOM, not a SIGBUS, but an OOM
+-		 * could cause the kernel to go killing other
+-		 * processes which won't help the hugepage situation
+-		 * at all (?) */
+-		return VM_FAULT_SIGBUS;
++		return VM_FAULT_OOM;
+ 	}
+ 
+ 	spin_unlock(&mm->page_table_lock);
+@@ -444,6 +439,7 @@ retry:
+ 		page = alloc_huge_page(vma, address);
+ 		if (!page) {
+ 			hugetlb_put_quota(mapping);
++			ret = VM_FAULT_OOM;
+ 			goto out;
+ 		}
+ 

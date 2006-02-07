@@ -1,42 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964966AbWBGDu1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964967AbWBGDu2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964966AbWBGDu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 22:50:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbWBGDu0
+	id S964967AbWBGDu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 22:50:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWBGDu2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 22:50:26 -0500
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:50725 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S964966AbWBGDu0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 22:50:26 -0500
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Roland Dreier <rolandd@cisco.com>, Kai Makisara <Kai.Makisara@kolumbus.fi>,
-       Willem Riede <osst@riede.org>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [git patch review 2/2] IB: Don't doublefree pages from
- scatterlist
-X-Message-Flag: Warning: May contain useful information
-References: <1139070837112-3fe13a3288c20f5c@cisco.com>
-	<Pine.LNX.4.61.0602062221200.3844@goblin.wat.veritas.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 06 Feb 2006 17:44:14 -0800
-In-Reply-To: <Pine.LNX.4.61.0602062221200.3844@goblin.wat.veritas.com> (Hugh
- Dickins's message of "Mon, 6 Feb 2006 22:29:59 +0000 (GMT)")
-Message-ID: <ada7j88hrip.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Mon, 6 Feb 2006 22:50:28 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:56237 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964967AbWBGDu1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 22:50:27 -0500
+Message-ID: <43E818EB.7010003@us.ibm.com>
+Date: Mon, 06 Feb 2006 19:50:03 -0800
+From: Haren Myneni <haren@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 07 Feb 2006 01:44:14.0572 (UTC) FILETIME=[0035F2C0:01C62B88]
+To: linux-kernel@vger.kernel.org,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       linuxppc64-dev@ozlabs.org
+CC: hpa@zytor.com, Milton Miller <miltonm@bga.com>
+Subject: [PATCH] Fix in free initrd when overlapped with crashkernel region
+Content-Type: multipart/mixed;
+ boundary="------------070205090609000107020602"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hugh> It's now looking like this change won't be needed after all:
-    Hugh> Andi has just posted a patch in the "ipr" thread which
-    Hugh> should stop x86_64 from interfering with the scatterlist
-    Hugh> *page,offset,length fields, so what IB and others were doing
-    Hugh> should then work safely (current thinking is that x86_64 is
-    Hugh> the only architecture which coalesced in that way).
+This is a multi-part message in MIME format.
+--------------070205090609000107020602
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-OK, I'll drop this from my tree.
 
- - R.
+It is possible that the reserved crashkernel region can be overlapped 
+with initrd since the bootloader sets the initrd location. When the 
+initrd region is freed, the second kernel memory will not be contiguous. 
+The Kexec_load can cause an oops since there is no contiguous memory to 
+write the second kernel or this memory could be used in the first kernel 
+itself and may not be part of the dump. For example, on powerpc, the 
+initrd is located at 36MB and the crashkernel starts at 32MB. The 
+kexec_load caused panic since writing into non-allocated memory (after 
+36MB). We could see the similar issue even on other archs.
+
+One possibility is to move the initrd outside of crashkernel region. 
+But, the initrd region will be freed anyway before the system is up.  
+This patch fixes this issue and frees only regions that are not part of 
+crashkernel memory in case overlaps. 
+
+Thanks
+Haren
+
+Signed-off-by: Haren Myneni <haren@us.ibm.com>
+
+
+
+
+--------------070205090609000107020602
+Content-Type: text/x-patch;
+ name="kdump-initrd-overlap-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kdump-initrd-overlap-fix.patch"
+
+diff -Naurp 2616-rc2.orig/include/linux/kexec.h 2616-rc2/include/linux/kexec.h
+--- 2616-rc2.orig/include/linux/kexec.h	2006-02-06 19:08:01.000000000 -0800
++++ 2616-rc2/include/linux/kexec.h	2006-02-06 19:06:37.000000000 -0800
+@@ -6,6 +6,7 @@
+ #include <linux/list.h>
+ #include <linux/linkage.h>
+ #include <linux/compat.h>
++#include <linux/ioport.h>
+ #include <asm/kexec.h>
+ 
+ /* Verify architecture specific macros are defined */
+diff -Naurp 2616-rc2.orig/init/initramfs.c 2616-rc2/init/initramfs.c
+--- 2616-rc2.orig/init/initramfs.c	2006-02-06 19:04:42.000000000 -0800
++++ 2616-rc2/init/initramfs.c	2006-02-06 19:04:59.000000000 -0800
+@@ -466,10 +466,32 @@ static char * __init unpack_to_rootfs(ch
+ extern char __initramfs_start[], __initramfs_end[];
+ #ifdef CONFIG_BLK_DEV_INITRD
+ #include <linux/initrd.h>
++#include <linux/kexec.h>
+ 
+ static void __init free_initrd(void)
+ {
+-	free_initrd_mem(initrd_start, initrd_end);
++#ifdef CONFIG_KEXEC
++	unsigned long crashk_start = (unsigned long)__va(crashk_res.start);
++	unsigned long crashk_end   = (unsigned long)__va(crashk_res.end);
++
++	/*
++	 * If the initrd region is overlapped with crashkernel reserved region,
++	 * free only memory that is not part of crashkernel region.
++	 */
++	if (initrd_start < crashk_end && initrd_end > crashk_start) {
++		/*
++		 * Initialize initrd memory region since the kexec boot does 
++		 * not do.
++		 */ 
++		memset((void *)initrd_start, 0, initrd_end - initrd_start); 
++		if (initrd_start < crashk_start)
++			free_initrd_mem(initrd_start, crashk_start); 
++		if (initrd_end > crashk_end) 
++			free_initrd_mem(crashk_end, initrd_end); 
++	} else
++#endif
++		free_initrd_mem(initrd_start, initrd_end);
++
+ 	initrd_start = 0;
+ 	initrd_end = 0;
+ }
+
+--------------070205090609000107020602--

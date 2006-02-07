@@ -1,78 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965249AbWBGPPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965155AbWBGPQF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965249AbWBGPPT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 10:15:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbWBGPPS
+	id S965155AbWBGPQF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 10:16:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965160AbWBGPQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 10:15:18 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:5556 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S965155AbWBGPPR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 10:15:17 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.
-Date: Tue, 7 Feb 2006 16:16:56 +0100
-User-Agent: KMail/1.9.1
-Cc: suspend2-devel@lists.suspend2.net,
-       "Jim Crilly" <jim@why.dont.jablowme.net>, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060206210736.GB12270@voodoo> <200602071016.22240.nigel@suspend2.net>
-In-Reply-To: <200602071016.22240.nigel@suspend2.net>
+	Tue, 7 Feb 2006 10:16:05 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:12429 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S965155AbWBGPQC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 10:16:02 -0500
+To: Rik van Riel <riel@redhat.com>
+Cc: Kirill Korotaev <dev@sw.ru>, Kirill Korotaev <dev@openvz.org>,
+       Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, frankeh@watson.ibm.com, clg@fr.ibm.com,
+       haveblue@us.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
+       serue@us.ibm.com, arjan@infradead.org, kuznet@ms2.inr.ac.ru,
+       saw@sawoct.com, devel@openvz.org, Dmitry Mishin <dim@sw.ru>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
+References: <43E7C65F.3050609@openvz.org>
+	<m1bqxju9iu.fsf@ebiederm.dsl.xmission.com> <43E88F27.7050602@sw.ru>
+	<m1ek2fgt51.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.63.0602070951380.18234@cuia.boston.redhat.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 07 Feb 2006 08:13:28 -0700
+In-Reply-To: <Pine.LNX.4.63.0602070951380.18234@cuia.boston.redhat.com> (Rik
+ van Riel's message of "Tue, 7 Feb 2006 09:52:17 -0500 (EST)")
+Message-ID: <m1wtg7fbhj.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602071616.57759.rjw@sisk.pl>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Rik van Riel <riel@redhat.com> writes:
 
-On Tuesday 07 February 2006 01:16, Nigel Cunningham wrote:
-> On Tuesday 07 February 2006 07:07, Jim Crilly wrote:
-> > On 02/06/06 12:56:43AM +0100, Rafael J. Wysocki wrote:
-> > > > > > Oh. What's Pavel's solution? Fail freezing if uninterruptible
-> > > > > > threads don't freeze?
-> > > > >
-> > > > > Yes.
-> > > > >
-> > > > > AFAICT it's to avoid situations in which we would freeze having a
-> > > > > process in the D state that holds a semaphore or a mutex neded for
-> > > > > suspending or resuming devices (or later on for saving the image
-> > > > > etc.).
-> > > > >
-> > > > > [I didn't answer this question previously, sorry.]
-> > > >
-> > > > S'okay. This thread is an ocotpus :)
-> > > >
-> > > > Are there real life examples of this? I can't think of a single time
-> > > > that I've heard of something like this happening. I do see rare
-> > > > problems with storage drivers not having driver model support right,
-> > > > and thereby causing hangs, but that's brokenness in a completely
-> > > > different way.
-> > > >
-> > > > In short, I'm wondering if (apart from the forking issue), this is a
-> > > > straw man.
-> > >
-> > > It doesn't seem to be very probable to me too, but I take this
-> > > argument as valid.
-> > >
-> > > Greetings,
-> > > Rafael
-> >
-> > CIFS was good for that, if you have a CIFS filesystem mounted and
-> > take the network interface down (which I have my hibernate script do)
-> > before the filesystem is umounted it'll become impossible to umount
-> > the filesystem until the next reboot and I believe the cifsd kernel
-> > thread will be unfreezable. It's been a while since I've done that
-> > so it might be fixed now, but someone should verify it if it still
-> > exists and potentially work with the CIFS people to get it fixed.
-> 
-> Thanks for the pointer. I'll take a look at this.
+> On Tue, 7 Feb 2006, Eric W. Biederman wrote:
+>
+>> Yes people have to be willing to bend to work together to find the
+>> best solution. I am willing.  At the same time I am not easy to
+>> convince that other solutions are necessarily better.
+>
+> It's not about "better", it's about different requirements.
 
-Yes, that's interesting.  If we have an actual test case, it'll help us a lot.
+In part but I think it is possible to largely agree on what the requirements
+for the kernel are, by seeing what the requirements of the different
+users are.  That is part of the discussion.
 
-Greetings,
-Rafael
+Once those requirements are agreed upon it is about the best technical
+solution.
+
+Maintainability is one of the more important requirements is it not?
+
+Eric

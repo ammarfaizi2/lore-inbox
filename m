@@ -1,90 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965161AbWBGWPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030200AbWBGWRG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965161AbWBGWPY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 17:15:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbWBGWPY
+	id S1030200AbWBGWRG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 17:17:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbWBGWRG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 17:15:24 -0500
-Received: from thunk.org ([69.25.196.29]:28141 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S965173AbWBGWPV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 17:15:21 -0500
-Date: Tue, 7 Feb 2006 17:15:13 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: David Chow <davidchow@shaolinmicro.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux drivers management
-Message-ID: <20060207221513.GA7394@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	David Chow <davidchow@shaolinmicro.com>,
-	linux-kernel@vger.kernel.org
-References: <20060207044204.8908.qmail@science.horizon.com> <m1zml3rvkg.fsf@ebiederm.dsl.xmission.com> <43E8F8EB.8010800@shaolinmicro.com>
+	Tue, 7 Feb 2006 17:17:06 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5010 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030200AbWBGWRF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 17:17:05 -0500
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: pid_t range question
+References: <Pine.LNX.4.61.0602071122520.327@chaos.analogic.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 07 Feb 2006 15:16:28 -0700
+In-Reply-To: <Pine.LNX.4.61.0602071122520.327@chaos.analogic.com> (linux-os@analogic.com's
+ message of "Tue, 7 Feb 2006 11:23:56 -0500")
+Message-ID: <m1pslystkz.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43E8F8EB.8010800@shaolinmicro.com>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 08, 2006 at 03:45:47AM +0800, David Chow wrote:
-> - What is the goal of Linux developers? Just for fun? Or you want Linux 
-> to get more popular? Users want their system to get supported with 
-> latest drivers, not to compile and build to latest kernel. Or not to 
-> upgrade their Linux distro every week or month. I don't use 2.6.15 nor 
-> happy downloading 40Mb targged gzip kernel source and knowing how to 
-> "make" it.
+"linux-os \(Dick Johnson\)" <linux-os@analogic.com> writes:
 
-Every Linux developer has their own goals, of course, but for most of
-them it is about making the best possible Linux kernel that is
-technically possible.  If they have working drivers for their system,
-they may not necessarily care about some company's hardware unless,
-(a) it impacts them personally, (b) they are paid or employed to worry
-about it, or (c) lots of end-users are sending complaining/sending
-hate-mail about it.  
+> On Linux, type pid_t is defined as an int if you look
+> through all the intermediate definitions such as S32_T,
+> etc. However, it wraps at 32767, the next value being 300.
+>
+> Does anybody know why it doesn't go to 0x7fffffff and
+> then wrap to the first unused pid value? I know the
+> code "reserves" the first 300 pids. That's not the
+> question. I wonder why. Also I see the code setting
+> the upper limit as well. I want to know why it is
+> set within the range of a short and is not allowed
+> to use the full range of an int. Nothing I see in
+> the kernel, related to the pid, ever uses a short
+> and no 'C' runtime interface limits this either!
 
-(In some cases, end-users send hate mail to the Linux kernel
-developers when some idiot company's binary driver modules is buggy
-and corrupts the kernel in hard-to-debug ways; one particular video
-driver company is especially guilty here, and is viewed by some as
-being directly responsible for the tainted kernel flags.)
+I have a vague memory about some old kernel interfaces
+where pid was a short.  That said 32768 is also the number
+of bits in a page so it is a very good number for the bitmap
+allocator we currently have.
 
-The assumption by many developers is that if we concetrate on making
-Linux as good as possible, it will eventually get popular enough that
-hardware vendors will feel a commercial incentive to cooperate with
-our way of doing things.  Obviously, this in practice things don't
-always work that way --- the Sony Betamax is story is one where
-technical excellence doesn't always win out.  However, at least in the
-server space, compromising hasn't obviously been a bad strategy, with
-many SCSI and FC controller manufacturers deciding on their own to
-work with the Linux kernel development community.  (Sometimes with
-some help from major system vendors who write in a requirement for a
-mainline device driver into the sourcing contracts for said
-controllers, but nevertheless, it shows that this stance is not
-obviously a bad strategy for Linux kernel developers, at least in the
-server space.)
+I know for certain that proc assumes it can fit pid in
+the upper bits of an ino_t taking the low 16bits for itself
+so that may the entire reason for the limit.
 
-David, you may find this frustrating, and at least in the Deskstop
-space, it's likely that your company hasn't seen sourcing contracts
-yet where a mainline acceptable device driver is a requirement for
-some major system vendor, like Dell, Gateway, HP, etc. to decide to
-use your products.  I suspect that if this _was_ the case, your
-company would in fact dedicate the full-time engineer necessary to
-make a device driver which could be integrated into the mainstream
-kernel sources and then could be backported to older distributions.
-But if you did, I think it is certainly doable.
+> Also, attempts to change /proc/sys/kernel/pid_max fail
+> if I attempt to increase it, but I can decrease it
+> to where I don't have enough pids available to fork()
+> the next command! Is this the correct behavior?
 
-But at that point it stops being a technical question of "is it
-possible" and moves to an economic question of "are we willing to fund
-a full-time engineer to provide support for our hardware under Linux"
-and "how popular does the Linux desktop have to be before a system
-vendor will feel obliged to put pressure on their downstream suppliers
-to provide the necessary driver support"?  And as such, LKML will
-probably not be a very useful place to have that discussion.
+You can increase pid_max if you have a 64bit kernel.
 
-Regards,
+Eric
 
-						- Ted

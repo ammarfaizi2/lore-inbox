@@ -1,84 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWBGJWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWBGJYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbWBGJWa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 04:22:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWBGJWa
+	id S932347AbWBGJYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 04:24:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWBGJYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 04:22:30 -0500
-Received: from smtp802.mail.ukl.yahoo.com ([217.12.12.139]:56677 "HELO
-	smtp802.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932281AbWBGJWa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 04:22:30 -0500
-Message-ID: <43E866D2.4050103@btinternet.com>
-Date: Tue, 07 Feb 2006 09:22:26 +0000
-From: Matt Keenan <matt.keenan@btinternet.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: CD writing - related question
-References: <43DEA195.1080609@tmr.com> <20060202203503.GH4215@suse.de>
-In-Reply-To: <20060202203503.GH4215@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Feb 2006 04:24:16 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7850 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932347AbWBGJYP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 04:24:15 -0500
+Date: Tue, 7 Feb 2006 10:23:56 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: Bojan Smojver <bojan@rexursive.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
+       suspend2-devel@lists.suspend2.net
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Message-ID: <20060207092356.GA1742@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060207113159.nyjixl5eokookcsw@imp.rexursive.com> <20060207004448.GC1575@elf.ucw.cz> <200602071105.45688.nigel@suspend2.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602071105.45688.nigel@suspend2.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+Hi!
 
->On Mon, Jan 30 2006, Bill Davidsen wrote:
->  
->
->>Please take this as a question to elicit information, not an invitation 
->>for argument.
->>
->>In Linux currently:
->> SCSI - liiks like SCSI
->> USB - looks like SCSI
->> Firewaire - looks like SCSI
->> SATA - looks like SCSI
->>    
->>
->
->SATA will _not_ look like SCSI in the future.
->
->  
->
->> Compact flash and similar - looks like SCSI
->>    
->>
->
->? CF adapters are usually IDE, so looks like ATA.
->
->  
->
->> ATAPI - looks different unless ide-scsi used
->>    
->>
->
->But it's all besides the point, it doesn't matter what the device
->special file looks like (if it's SCSI or not). What matters is that you
->talk to the device the same way - and that way is currently SG_IO.
->
->That a device hangs off the SCSI stack because that is the way the
->author wrote eg usb-storage is irrelevant. What matters is that you open
->the device in question and use SG_IO to talk to it.
->
->Talking about the SCSI stack and ide-scsi completely misses the point.
->
->  
->
-Jens,
+> > *Users* would not be at disadvantage, but, surprise, there's one thing
+> > more important than users. Thats developers, and I can guarantee you
+> > that merging 14K lines of code just to delete them half a year later
+> > would drive them crazy.
+> 
+> It would more be an ever-changing interface that would drive them crazy. So 
+> why don't we come up with an agreed method of starting a suspend and 
+> starting a resume that they can use, without worrying about whether 
+> they're getting swsusp, uswsusp or Suspend2? /sys/power/state seems the 
+> obvious choice for this. An additional /sys entry could perhaps be used to 
+> modify which implementation is used when you echo disk > /sys/power/state 
+> - something like
+> 
+> # cat /sys/power/disk_method
+> swsusp uswsusp suspend2
+> # echo uswsusp > /sys/power/disk_method
+> # echo > /sys/power/state
+> 
+> Is there a big problem with that, which I've missed?
 
-Is there a document that clearly lists how these components (SCSI, 
-SG_IO, ATA/PI etc et al) connect together and what protocol / transports 
-they use? I suspect the problem with all these current arguments is that 
-very few people understand how this all works / connects. I think alot 
-of people equate kconfig options with how the stuff works under the hood 
-(even though a number of these config options are badly named to say the 
-least).
+Well, for _users_ method seems to be clicking "suspend" in KDE. For
+more experienced users it is powersave -U. And you are already
+distributing script to do suspend... Just hook suspend2 to the same
+gui stuff distributions already use.
 
-Matt
-
+Besides what you described can't work for uswsusp.
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

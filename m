@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWBGSyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964770AbWBGS4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932123AbWBGSyp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 13:54:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbWBGSyp
+	id S964770AbWBGS4K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 13:56:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbWBGS4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 13:54:45 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:25477 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932123AbWBGSyo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 13:54:44 -0500
-Date: Wed, 8 Feb 2006 00:23:55 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, dada1@cosmosbay.com,
-       heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org,
-       davem@davemloft.net, James.Bottomley@steeleye.com, mingo@elte.hu,
-       axboe@suse.de, anton@samba.org, wli@holomorphy.com, ak@muc.de
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-Message-ID: <20060207185355.GC5771@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <200602051959.k15JxoHK001630@hera.kernel.org> <20060207151541.GA32139@osiris.boeblingen.de.ibm.com> <43E8CA10.5070501@cosmosbay.com> <Pine.LNX.4.64.0602070833590.3854@g5.osdl.org> <20060207093458.176ac271.akpm@osdl.org> <Pine.LNX.4.64.0602070946190.3854@g5.osdl.org> <20060207183018.GA29056@in.ibm.com> <Pine.LNX.4.64.0602071036050.3854@g5.osdl.org>
+	Tue, 7 Feb 2006 13:56:10 -0500
+Received: from [198.99.130.12] ([198.99.130.12]:2694 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S932216AbWBGS4J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 13:56:09 -0500
+Date: Tue, 7 Feb 2006 13:57:07 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Ulrich Drepper <drepper@gmail.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [PATCH 2/8] UML - Define jmpbuf access constants
+Message-ID: <20060207185707.GB6841@ccure.user-mode-linux.org>
+References: <200602070223.k172NpJa009654@ccure.user-mode-linux.org> <a36005b50602070937h60e35294q1dbef2c21f2fb50d@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0602071036050.3854@g5.osdl.org>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <a36005b50602070937h60e35294q1dbef2c21f2fb50d@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 07, 2006 at 10:43:55AM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Wed, 8 Feb 2006, Dipankar Sarma wrote:
-> > 
-> > One would think so, but I recall not all archs did that. Alpha for
-> > example sets up cpu_possible_map in smp_prepare_cpus(). It however
-> > makes more sense to fix the arch then use NR_CPUS, IMO.
-> 
-> Ehh? alpha does it in setup_smp(), which in turn is called very early from 
-> setup_arch().
-> 
-> Were you perhaps thinking of something else? Or am I just going blind and 
-> confused?
+On Tue, Feb 07, 2006 at 09:37:13AM -0800, Ulrich Drepper wrote:
+> I assume you have your own setjmp implementation and are not using the
+> libc version?
 
-I am looking at 2.6.16-rc1 and I don't see cpu_possible_map
-being set in setup_smp(). That said, it seems alpha setup_smp()
-probes for cpus there, so there is no reason why it cannot
-be set there. I think it is wrong not to set cpu_possible_map
-very early.
+Nope, that would be the next step if this turned out to be untenable,
+which I guess it is.
 
-Or perhaps it got fixed later on, in which case, oh well, I need
-to download more often. <sigh>.
+> If you don't then there is a problem.  There is a good reason why the
+> constants are removed: you couldn't use the values anyway.  Your don't
+> have the information to "decrypt" them.  
 
-Thanks
-Dipankar
+You're actually encrypting them somehow?  How?  And why?
+
+Is there a reason there can't be an API for looking at the contents of
+a jmp_buf?
+
+				Jeff

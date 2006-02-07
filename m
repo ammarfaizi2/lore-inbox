@@ -1,55 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964927AbWBGBnN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWBGBx6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964927AbWBGBnN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 20:43:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbWBGBnM
+	id S932157AbWBGBx6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 20:53:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWBGBx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 20:43:12 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:35771 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964927AbWBGBnL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 20:43:11 -0500
-Subject: [RFC][PATCH] i386: incorrect xtime locking on resume
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Nigel Cunningham <ncunningham@cyclades.com>
-Content-Type: text/plain
-Date: Mon, 06 Feb 2006 17:43:07 -0800
-Message-Id: <1139276587.10057.188.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Feb 2006 20:53:58 -0500
+Received: from chiark.greenend.org.uk ([193.201.200.170]:52365 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S932157AbWBGBx5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 20:53:57 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: safemode@comcast.net, alan@lxorguk.ukuu.org.uk, harald.dunkel@t-online.de,
+       linux-kernel@vger.kernel.org, rdunlap@xenotime.net,
+       Ed Sweetman <safemode@comcast.net>
+Subject: Re: 2.6.16-rc1-mm2 pata driver confusion + tsc sync issues
+In-Reply-To: <20060206173520.43412664.akpm@osdl.org>
+References: <Pine.LNX.4.58.0601250846210.29859@shark.he.net> <43E3D103.70505@comcast.net> <Pine.LNX.4.58.0602060836520.1309@shark.he.net> <43E7A4C0.4020209@t-online.de> <1139255800.10437.51.camel@localhost.localdomain> <43E805D4.5010602@comcast.net> <43E7F73E.2070004@comcast.net> <43E7F73E.2070004@comcast.net> <20060206173520.43412664.akpm@osdl.org>
+Date: Tue, 7 Feb 2006 01:53:54 +0000
+Message-Id: <E1F6I3G-0003fw-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
-	Nigel was asking about some suspend2 patches, and while looking at them
-I noticed what looks to be a bug where jiffies and wall_jiffies are
-modified without holding the xtime_lock in the resume path.
+Andrew Morton <akpm@osdl.org> wrote:
 
-This patch should fix it, but I wanted to get some review and testing
-done before I submit it.
+> That's bad.
 
-thanks
--john
+Given that libata goes through the scsi layer at the moment, shifting
+from the traditional PATA drivers to the libata ones is going to result
+in a shift from hdfoo to sdbar. We're not really looking forward to this
+from the distribution point of view, though I think the same thing
+happened in the past when shifting from the ancient SATA drivers to the
+libata ones.
 
-
-Signed-off-by: John Stultz <johnstul@us.ibm.com>
-
-diff --git a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
-index a14d594..406c8d8 100644
---- a/arch/i386/kernel/time.c
-+++ b/arch/i386/kernel/time.c
-@@ -412,9 +412,9 @@ static int timer_resume(struct sys_devic
- 	write_seqlock_irqsave(&xtime_lock, flags);
- 	xtime.tv_sec = sec;
- 	xtime.tv_nsec = 0;
--	write_sequnlock_irqrestore(&xtime_lock, flags);
- 	jiffies += sleep_length;
- 	wall_jiffies += sleep_length;
-+	write_sequnlock_irqrestore(&xtime_lock, flags);
- 	if (last_timer->resume)
- 		last_timer->resume();
- 	cur_timer = last_timer;
-
-
+-- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

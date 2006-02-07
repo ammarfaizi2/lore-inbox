@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbWBGWWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbWBGWV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030214AbWBGWWV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 17:22:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbWBGWWV
+	id S1030204AbWBGWV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 17:21:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbWBGWV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 17:22:21 -0500
-Received: from watts.utsl.gen.nz ([202.78.240.73]:57501 "EHLO mail.utsl.gen.nz")
-	by vger.kernel.org with ESMTP id S1030207AbWBGWWT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 17:22:19 -0500
-Message-ID: <43E91D85.6000100@vilain.net>
-Date: Wed, 08 Feb 2006 11:21:57 +1300
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Linus Torvalds <torvalds@osdl.org>, Dave Hansen <haveblue@us.ibm.com>,
-       Kirill Korotaev <dev@openvz.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       frankeh@watson.ibm.com, clg@fr.ibm.com, greg@kroah.com,
-       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
-       Pavel Emelianov <xemul@sw.ru>
-Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
-References: <43E38BD1.4070707@openvz.org>  <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org> <43E3915A.2080000@sw.ru>  <Pine.LNX.4.64.0602030939250.4630@g5.osdl.org> <1138991641.6189.37.camel@localhost.localdomain> <43E61448.7010704@sw.ru> <Pine.LNX.4.64.0602060847130.3854@g5.osdl.org> <43E7E998.2020007@vilain.net> <43E890CB.1060608@sw.ru>
-In-Reply-To: <43E890CB.1060608@sw.ru>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Feb 2006 17:21:56 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:57828
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1030204AbWBGWVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 17:21:55 -0500
+Date: Tue, 7 Feb 2006 14:21:44 -0800
+From: Greg KH <greg@kroah.com>
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: akpm@osdl.org, paulus@samba.org, torvalds@osdl.org,
+       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, gregkh@suse.de
+Subject: Re: [PATCH]: Documentation: Updated PCI Error Recovery
+Message-ID: <20060207222144.GA15622@kroah.com>
+References: <20060203000602.GQ24916@austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060203000602.GQ24916@austin.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev wrote:
->>> I'd suggest
->>>
->>>     current->container    - the current EFFECTIVE container
->>>     current->master_container - the "long term" container.
->>>
->>> (replace "master" with some other non-S&M term if you want)
->> Hmm.  You actually need a linked list, otherwise you have replaced a one
->> level flat structure with a two level one, and you miss out on some of
->> the applications.  VServer uses a special structure for this.
+On Thu, Feb 02, 2006 at 06:06:02PM -0600, Linas Vepstas wrote:
 > 
-> Nope! :) This is pointer to current/effective container, which can be 
-> anywhere in the hierarchy. list should be inside container struct.
+> I'm not sure who I'm addressing this patch to: Linus, maybe?
+> 
+> Please apply. Fingers crossed, I hope this may make it into 2.6.16.
 
-So why store anything other than the effective container in the task?
+This does not apply to the current tree, what kernel did you do it
+against?
 
-Sam.
+Care to respin it against the latest -git release?
+
+thanks,
+
+greg k-h

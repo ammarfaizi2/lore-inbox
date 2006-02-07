@@ -1,79 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbWBGPHu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965117AbWBGPMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965103AbWBGPHu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 10:07:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbWBGPHu
+	id S965117AbWBGPMN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 10:12:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965128AbWBGPMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 10:07:50 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:692 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S965117AbWBGPHt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 10:07:49 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Tue, 7 Feb 2006 16:09:04 +0100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Bojan Smojver <bojan@rexursive.com>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       suspend2-devel@lists.suspend2.net
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060207004448.GC1575@elf.ucw.cz> <200602071105.45688.nigel@suspend2.net>
-In-Reply-To: <200602071105.45688.nigel@suspend2.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Tue, 7 Feb 2006 10:12:13 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:38327 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S965117AbWBGPMN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 10:12:13 -0500
+In-Reply-To: <Pine.LNX.4.44.0602070848060.4804-100000@gate.crashing.org>
+References: <Pine.LNX.4.44.0602070848060.4804-100000@gate.crashing.org>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <473E72E7-9366-442A-95B7-F4A7CB15C04E@kernel.crashing.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602071609.05676.rjw@sisk.pl>
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [PATCH] 8250 serial console update uart_8250_port ier
+Date: Tue, 7 Feb 2006 09:12:10 -0600
+To: rmk+serial@arm.linux.org.uk
+X-Mailer: Apple Mail (2.746.2)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Russell,
 
-On Tuesday 07 February 2006 02:05, Nigel Cunningham wrote:
-> On Tuesday 07 February 2006 10:44, Pavel Machek wrote:
-> > Are you Max Dubois, second incarnation or what?
-> >
-> > > Well, given that the kernel suspend is going to be kept for a while,
-> > > wouldn't it be better if it was feature full? How would the users be
-> > > at
-> >
-> >                                                
-> > ~~~~~~~~~~~~~~~~~~~~~~~~~
-> >
-> > > a disadvantage if they had better kernel based suspend for a while,
-> >
-> > ~~~~~~~~~~~~~~~~
-> >
-> > > followed by u-beaut-cooks-cleans-and-washes uswsusp? That's the part I
-> > > don't get...
-> >
-> > *Users* would not be at disadvantage, but, surprise, there's one thing
-> > more important than users. Thats developers, and I can guarantee you
-> > that merging 14K lines of code just to delete them half a year later
-> > would drive them crazy.
-> 
-> It would more be an ever-changing interface that would drive them crazy. So 
-> why don't we come up with an agreed method of starting a suspend and 
-> starting a resume that they can use, without worrying about whether 
-> they're getting swsusp, uswsusp or Suspend2? /sys/power/state seems the 
-> obvious choice for this. An additional /sys entry could perhaps be used to 
-> modify which implementation is used when you echo disk > /sys/power/state 
-> - something like
-> 
-> # cat /sys/power/disk_method
-> swsusp uswsusp suspend2
-> # echo uswsusp > /sys/power/disk_method
-> # echo > /sys/power/state
-> 
-> Is there a big problem with that, which I've missed?
+If you are ok with this can we make sure this gets to Linus for 2.6.16
 
-Userland suspend is driven by the suspending application which only calls
-the kernel to do things it cannot do itself, like freezing (the other)
-processes, snapshotting the system etc.  We use the /dev/snapshot
-device and the ioctl()s in there, so no sysfs files are needed for that.
-It's independent and can coexist with the existing sysfs interface
-just fine.
+thanks
 
-Greetings,
-Rafael
+- kumar
+
+On Feb 7, 2006, at 8:52 AM, Kumar Gala wrote:
+
+> On some embedded PowerPC (MPC834x) systems an extra byte would some  
+> times be
+> required to flush data out of the fifo. serial8250_console_write()  
+> was updating
+> the IER in hardware withouth also updating the copy in  
+> uart_8250_port. This
+> causes issues functions like serial8250_start_tx() and __stop_tx()  
+> to misbehave.
+>
+> Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+>
+> ---
+> commit 0614711f0208f50e81d55283add8ae41bc332fc7
+> tree 1da4194744b9ca1fe59976c6ebffccfee40299eb
+> parent 45a38d42185df3e328e35e5167f2bfe181361db9
+> author Kumar Gala <galak@kernel.crashing.org> Tue, 07 Feb 2006  
+> 08:51:26 -0600
+> committer Kumar Gala <galak@kernel.crashing.org> Tue, 07 Feb 2006  
+> 08:51:26 -0600
+>
+>  drivers/serial/8250.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/serial/8250.c b/drivers/serial/8250.c
+> index 179c1f0..b1fc97d 100644
+> --- a/drivers/serial/8250.c
+> +++ b/drivers/serial/8250.c
+> @@ -2229,6 +2229,7 @@ serial8250_console_write(struct console
+>  	 *	and restore the IER
+>  	 */
+>  	wait_for_xmitr(up, BOTH_EMPTY);
+> +	up->ier |= UART_IER_THRI;
+>  	serial_out(up, UART_IER, ier | UART_IER_THRI);
+>  }
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux- 
+> kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

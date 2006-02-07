@@ -1,39 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbWBGAPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbWBGARV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932295AbWBGAPS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 19:15:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWBGAPS
+	id S932381AbWBGARV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 19:17:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWBGARV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 19:15:18 -0500
-Received: from xproxy.gmail.com ([66.249.82.207]:46140 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932295AbWBGAPR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 19:15:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:x-archive:mime-version:content-type:sender;
-        b=dnEin4VmabqkAH8xKYXOJL5OhygRVOozjF6smcRVxcyte3sfps2nJrL60JFfVwotOWKGATHfuRwKteeUfRsIVRfYjAmpGetaY1oLoSw6E/LQ+PEplFjeh2DWcX3iiq3qPKHIb4DBIA2Mvdrq+wIL1KwtwzfX7/VvTRZoshgciXQ=
-Date: Mon, 6 Feb 2006 22:15:11 -0200 (BRST)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <2@pervalidus.net>
-To: linux-kernel@vger.kernel.org
-Subject: What causes "USB disconnect" ?
-Message-ID: <Pine.LNX.4.64.0602062122480.5326@dyndns.pervalidus.net>
-X-Archive: encrypt
+	Mon, 6 Feb 2006 19:17:21 -0500
+Received: from detroit.securenet-server.net ([209.51.153.26]:46273 "EHLO
+	detroit.securenet-server.net") by vger.kernel.org with ESMTP
+	id S932381AbWBGARU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 19:17:20 -0500
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: "Michael Kerrisk" <mtk-manpages@gmx.net>
+Subject: Re: man-pages-2.22 is released
+Date: Mon, 6 Feb 2006 16:17:12 -0800
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net
+References: <200602061451.37028.jbarnes@virtuousgeek.org> <28306.1139266765@www031.gmx.net>
+In-Reply-To: <28306.1139266765@www031.gmx.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602061617.12713.jbarnes@virtuousgeek.org>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - detroit.securenet-server.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - virtuousgeek.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I never got this messages since I started using 2.6. Today I 
-got it in 2.6.16-rc2. Is this a problem in this version ? How 
-to determine ? I wasn't using the device.
+On Monday, February 6, 2006 2:59 pm, Michael Kerrisk wrote:
+> > Wouldn't it be easier for you to keep them up to date if sections 2,
+> > 4, and parts of 5 were included in the kernel source tree? 
+> > Documentation updates could be enforced as part of the patch
+> > process--all you'd have to do is NAK patches that modified userland
+> > interfaces if they didn't contain documentation updates (and I'm
+> > sure others would help you with that task).
+>
+> Life is not so simple, as I think we discussed when you made
+> a similar comment after my man-pages-2.08 release.  Maybe the
+> system can be improved still.  Currently Andrew Morton is being
+> rather good about CCing me on patches that are likely to need
+> man-pages changes.  (Thanks Andrew!)
 
-Feb  6 20:49:48 pervalidus kernel: usb 1-2: USB disconnect, address 4
-Feb  6 21:01:03 pervalidus kernel: usb 1-2: new low speed USB device using uhci_hcd and address 5
-Feb  6 21:01:03 pervalidus kernel: usb 1-2: configuration #1 chosen from 1 choice
-Feb  6 21:01:13 pervalidus kernel: /usr/local/src/kernel/linux-2.6.16/drivers/usb/input/hid-core.c: timeout initializing reports
-Feb  6 21:01:13 pervalidus kernel: input: Logitech Inc. WingMan RumblePad as /class/input/input4
-Feb  6 21:01:13 pervalidus kernel: input: USB HID v1.10 Joystick [Logitech Inc. WingMan RumblePad] on usb-0000:00:10.0-2
+Yeah, vigilance is key; maybe I'm wrong that putting the kernel stuff 
+into the kernel tree would help, but it's worth a try, don't you 
+think? :)
 
--- 
-How to contact me - http://www.pervalidus.net/contact.html
+> > Likewise with the glibc stuff.  Doesn't it belong with the glibc
+> > project? Wouldn't that make more sense, both from a packaging and
+> > maintenance perspective?
+>
+> Not really -- glibc has a differnt philosophy about documentation
+> (less focus on historical information and less comparison
+> with other Unix systems, as far as I can see), and uses info(1),
+> not man(1).
+
+Oh yeah, forgot about that...  I guess man vs. info and glibc development 
+philosophy is for another thread.
+
+Thanks,
+Jesse

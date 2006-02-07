@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWBGBx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWBGByA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932157AbWBGBx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 20:53:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWBGBx6
+	id S964799AbWBGByA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 20:54:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbWBGByA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 20:53:58 -0500
-Received: from chiark.greenend.org.uk ([193.201.200.170]:52365 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id S932157AbWBGBx5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 20:53:57 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: safemode@comcast.net, alan@lxorguk.ukuu.org.uk, harald.dunkel@t-online.de,
-       linux-kernel@vger.kernel.org, rdunlap@xenotime.net,
-       Ed Sweetman <safemode@comcast.net>
-Subject: Re: 2.6.16-rc1-mm2 pata driver confusion + tsc sync issues
-In-Reply-To: <20060206173520.43412664.akpm@osdl.org>
-References: <Pine.LNX.4.58.0601250846210.29859@shark.he.net> <43E3D103.70505@comcast.net> <Pine.LNX.4.58.0602060836520.1309@shark.he.net> <43E7A4C0.4020209@t-online.de> <1139255800.10437.51.camel@localhost.localdomain> <43E805D4.5010602@comcast.net> <43E7F73E.2070004@comcast.net> <43E7F73E.2070004@comcast.net> <20060206173520.43412664.akpm@osdl.org>
-Date: Tue, 7 Feb 2006 01:53:54 +0000
-Message-Id: <E1F6I3G-0003fw-00@chiark.greenend.org.uk>
-From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+	Mon, 6 Feb 2006 20:54:00 -0500
+Received: from s2.yuriev.com ([69.31.8.140]:34722 "HELO s2.yuriev.com")
+	by vger.kernel.org with SMTP id S932186AbWBGBx7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 20:53:59 -0500
+Date: Mon, 6 Feb 2006 20:51:26 -0500
+From: alex-lists-linux-kernel@yuriev.com
+To: linux-kernel@vger.kernel.org
+Subject: non-fakeraid controllers
+Message-ID: <20060207015126.GA12236@s2.yuriev.com>
+Reply-To: alex-lists-linux-kernel@yuriev.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+Hi,
 
-> That's bad.
+	This is not an attempt to start a religious flamewar about what is
+RAID vs. what is softraid vs. what is fakeraid. 
 
-Given that libata goes through the scsi layer at the moment, shifting
-from the traditional PATA drivers to the libata ones is going to result
-in a shift from hdfoo to sdbar. We're not really looking forward to this
-from the distribution point of view, though I think the same thing
-happened in the past when shifting from the ancient SATA drivers to the
-libata ones.
+	Does anyone has a list/refence/etc on reasonably modern SCSI
+controllers (at least u160) in a non-fakeraid way i.e. the way that would
+allow linux to boot from a RAID protected disk array when one of the drives
+in the array failed even if the root filesystem is located on the same
+array?
 
--- 
-Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org
+Thanks,
+Alex
+

@@ -1,77 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWBGB70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbWBGCC0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964828AbWBGB70 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 20:59:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWBGB70
+	id S964932AbWBGCC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 21:02:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWBGCC0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 20:59:26 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:58500 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932439AbWBGB7Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 20:59:25 -0500
-To: Cedric Le Goater <clg@fr.ibm.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
-       Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@openvz.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       frankeh@watson.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
-       serue@us.ibm.com, arjan@infradead.org, Rik van Riel <riel@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
-       Pavel Emelianov <xemul@sw.ru>
-Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
-References: <43E38BD1.4070707@openvz.org>
-	<Pine.LNX.4.64.0602030905380.4630@g5.osdl.org>
-	<43E3915A.2080000@sw.ru>
-	<Pine.LNX.4.64.0602030939250.4630@g5.osdl.org>
-	<m1lkwoubiw.fsf@ebiederm.dsl.xmission.com> <43E71018.8010104@sw.ru>
-	<m1hd7condi.fsf@ebiederm.dsl.xmission.com>
-	<1139243874.6189.71.camel@localhost.localdomain>
-	<m13biwnxkc.fsf@ebiederm.dsl.xmission.com>
-	<43E7D077.2090903@fr.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 06 Feb 2006 18:57:05 -0700
-In-Reply-To: <43E7D077.2090903@fr.ibm.com> (Cedric Le Goater's message of
- "Mon, 06 Feb 2006 23:40:55 +0100")
-Message-ID: <m1wtg8gccu.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 6 Feb 2006 21:02:26 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:40869 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S932439AbWBGCCY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 21:02:24 -0500
+Date: Tue, 7 Feb 2006 11:02:16 +0900
+To: David Howells <dhowells@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, dev-etrax@axis.com,
+       Yoshinori Sato <ysato@users.sourceforge.jp>, linux-ia64@vger.kernel.org,
+       Hirokazu Takata <takata@linux-m32r.org>,
+       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Chris Zankel <chris@zankel.net>
+Subject: Re: [patch 11/44] generic find_{next,first}{,_zero}_bit()
+Message-ID: <20060207020216.GA9323@miraclelinux.com>
+References: <20060201090324.373982000@localhost.localdomain> <20060201090224.536581000@localhost.localdomain> <12367.1139221560@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <12367.1139221560@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.5.9i
+From: mita@miraclelinux.com (Akinobu Mita)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cedric Le Goater <clg@fr.ibm.com> writes:
+On Mon, Feb 06, 2006 at 10:26:00AM +0000, David Howells wrote:
+> Akinobu Mita <mita@miraclelinux.com> wrote:
+> 
+> > This patch introduces the C-language equivalents of the functions below:
+> > 
+> > unsigned logn find_next_bit(const unsigned long *addr, unsigned long size,
+> >                             unsigned long offset);
+> > unsigned long find_next_zero_bit(const unsigned long *addr, unsigned long size,
+> >                                  unsigned long offset);
+> > unsigned long find_first_zero_bit(const unsigned long *addr,
+> >                                   unsigned long size);
+> > unsigned long find_first_bit(const unsigned long *addr, unsigned long size);
+> 
+> These big functions should perhaps be out of line.
 
-> Eric W. Biederman wrote:
->
->> As someone said to me a little bit ago, for migration or checkpointing
->> ultimately you have to capture the entire user/kernel interface if
->> things are going to work properly.  Now if we add this facility to
->> the kernel and it is a general purpose facility.  It is only a matter
->> of time before we need to deal with nested containers.
->>
->> Not considering the case of having nested containers now is just foolish.
->> Maybe we don't have to implement it yet but not considering it is silly.
->
-> That could be restricted. Today, process groups are not nested. Why do you
-> think nested containers are inevitable ?
+Yes. I'll make them and below out of line.
 
-process groups are a completely different kind of beast.
-A closer analogy are hierarchical name spaces and mounts.
-If we didn't need things like waitpid outside one pid namespace
-to wait for a nested namespace they would be complete disjoint
-and the implementation would be trivial.
-
-
->> As far as I can tell there is a very reasonable chance that when we
->> are complete there is a very reasonable chance that software suspend
->> will just be a special case of migration, done complete in user space.
->
-> Being able to sofware suspend one container among many would be a very
-> interesting feature to have.
-
-That is what checkpointing.  And that is simply the persistent form of
-migration.
-
-Eric
-
+- hweight*()
+- ext2_find_*_zero_bit()
+- minix_find_first_zero_bit()

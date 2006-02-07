@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965079AbWBGNow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965081AbWBGNrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965079AbWBGNow (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 08:44:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965081AbWBGNow
+	id S965081AbWBGNrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 08:47:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965082AbWBGNrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 08:44:52 -0500
-Received: from CPE-24-31-249-53.kc.res.rr.com ([24.31.249.53]:46271 "EHLO
-	tsurukikun.utopios.org") by vger.kernel.org with ESMTP
-	id S965079AbWBGNov (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 08:44:51 -0500
-From: Luke-Jr <luke@dashjr.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-Date: Tue, 7 Feb 2006 13:44:59 +0000
-User-Agent: KMail/1.9
-Cc: davids@webmaster.com,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-References: <MDEHLPKNGKAHNMBLJOLKGECCJPAB.davids@webmaster.com> <50968728-E8BA-46BB-83D9-866ADEE546DA@mac.com>
-In-Reply-To: <50968728-E8BA-46BB-83D9-866ADEE546DA@mac.com>
-Public-GPG-Key: 0xD53E9583
-Public-GPG-Key-URI: http://dashjr.org/~luke-jr/myself/Luke-Jr.pgp
-IM-Address: luke-jr@jabber.org
+	Tue, 7 Feb 2006 08:47:08 -0500
+Received: from mail.gmx.de ([213.165.64.21]:2184 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965081AbWBGNrH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 08:47:07 -0500
+X-Authenticated: #428038
+Date: Tue, 7 Feb 2006 14:47:02 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060207134702.GA8071@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	linux-kernel@vger.kernel.org
+References: <20060123105634.GA17439@merlin.emma.line.org> <200602021717.08100.luke@dashjr.org> <Pine.LNX.4.61.0602031502000.7991@yvahk01.tjqt.qr> <200602031724.55729.luke@dashjr.org> <43E7545E.nail7GN11WAQ9@burner> <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de> <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602071345.00627.luke@dashjr.org>
+In-Reply-To: <43E89B56.nailA792EWNLG@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 February 2006 22:38, Kyle Moffett wrote:
-> On Feb 06, 2006, at 16:07, David Schwartz wrote:
-> >> The LGPL deals with only derivative works. The GPL also deals with
-> >> mere *linking*. If glibc were GPL'd, it would be illegal to make
-> >> an OS based on it with a single C program incompatible with the GPL.
-> >
-> > The only way the GPL can control work Y because it affects work Z
-> > is because Y is a derivative work of work Z. If it's not, then the
-> > works are legally unrelated, and no matter what the GPL says, it
-> > can't affect work Y.
->
-> To say this more simplistically, the LGPL essentially says "Even if
-> dynamic linking constitutes making a derivative work, we allow you to
-> dynamically link, so long as the rules are followed for the LGPL code
-> to which you link".  The GPL essentially says "If dynamic linking is
-> making a derivative work, then these rules apply to the whole
-> derivative work and all of its constituent parts".
+Joerg Schilling schrieb am 2006-02-07:
 
-Does the "if" clause exist? If not, then by distributing the original 
-software, the distributor is agreeing to abide by the GPL terms for anything 
-linking with it. If the linking code is not GPL-compatible, the distributor 
-cannot legally distribute the GPL'd component.
+> "Jim Crilly" <jim@why.dont.jablowme.net> wrote:
+> 
+> > You're not alone, I'm still waiting for an answer as to why cdrecord is
+> > the only userland app on any OS to use his SCSI ID naming convention
+> > and yet his is the correct way. I've asked twice and been blatantly
+> > ignored both times.
+> 
+> Well, while I did explain this many times (*), I am still waiting 
+> for an explanation why Linux tries to deviate from nearly all other OS.
 
-> Whether or not an NVidia binary module is a derivative work is left
-> up to the courts to decide.  It _may_ be legal (don't trust me,
-> consult your lawyer) to have a very simple cross-platform interface
-> and some BSD-licensed glue. 
+You documented differences between FreeBSD that require you to jump
+hoops and Solaris yourself, and still your software supports FreeBSD?
 
-They might have a legal loophole if dynamic linking doesn't constitute a 
-derivative work *and* nVidia doesn't distribute Linux (thus does not need to 
-agree to GPL terms).
+> *) in case you like are on amnesia: without the mapping in libscg,
+> cdrecord could not be used reliably on Linux. And yes, I _do_ care
+> about people who run Linux-2.4 or older!
+
+What about dev=/dev/sg1 (via ide-scsi) doesn't work on Linux 2.4, except
+DMA for 2352 byte blocks?
+
+> It seems that we should stop this discussion.
+
+There is no obligation for you to respond. But don't expect to be taken
+seriously or listened to if you fleet the discussion as soon as it has
+become uncomfortable for you.
+
+> As long as the peeople who answer here are onlookers without the 
+> needed skills, it seems to be a waste of time.
+
+Yes indeed. You're asked the same things a dozen times and still ignore
+those questions rather than giving the answers that might someone
+investigate the issue.
+
+-- 
+Matthias Andree

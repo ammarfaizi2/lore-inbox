@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbWBGHGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbWBGHUY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964950AbWBGHGO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 02:06:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964985AbWBGHGO
+	id S964985AbWBGHUY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 02:20:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbWBGHUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 02:06:14 -0500
-Received: from web37810.mail.mud.yahoo.com ([209.191.87.123]:37310 "HELO
-	web37810.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964950AbWBGHGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 02:06:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=oCcL/lzrRgEouwrBHtXEf7w+wuoeKxaR490ehlT5l+KXCJOL18aQ45BaOSURwg3anCYojmW/9QToVaVehL2ZzeqRYqmtz4ZRwHpBylowUUfqKttLgvXf6JTQ4LiSYYn7uA7unnQKknFVYOmrHoRmTZ+w3ZAgDTdvnmi2KU0ZEpc=  ;
-Message-ID: <20060207070611.63765.qmail@web37810.mail.mud.yahoo.com>
-Date: Mon, 6 Feb 2006 23:06:11 -0800 (PST)
-From: Grant Ian Hatamosa <grant_hatamosa@yahoo.com>
-Subject: Fedora Core 2 with Linux 2.6.14.7 hangs when webcam attached thru HS USB hub
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 7 Feb 2006 02:20:24 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:14514 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S964985AbWBGHUX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 02:20:23 -0500
+Date: Tue, 7 Feb 2006 09:20:13 +0200 (EET)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Jens Axboe <axboe@suse.de>
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [RFC/PATCH] block: undeprecate ll_rw_block()
+In-Reply-To: <20060206210705.GC5276@suse.de>
+Message-ID: <Pine.LNX.4.58.0602070909370.25555@sbz-30.cs.Helsinki.FI>
+References: <1139254591.17774.5.camel@localhost> <20060206210705.GC5276@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Feb 06 2006, Pekka Enberg wrote:
+> > This patch removes the DEPRECATED comment from ll_rw_block(). The function
+> > is still in active use and there isn't any real replacement for it.
 
-I wanted to know if anybody can show me how to resolve
-an issue with my system.
+On Mon, 6 Feb 2006, Jens Axboe wrote:
+> It is still deprecated, so I think the comment should stay. There are
+> plenty ways to accomplish what ll_rw_block does (and more efficiently,
+> array of bh's is not very nice to say the least) and the buffer_head
+> isn't even an io unit anymore.
 
-I am having some problem if I attach an Intel webcam
-(model CS330) through a high speed hub (forgot the
-name and model of the hub). Once I got the webcam
-enumerated and run an application, like gnomemeeting,
-the system just hangs. I looked at /var/log/messages/
-but it does not get me much clues even after I have
-turned USB verbose messaging, as well as, spca5xx
-messaging already ON. It kinda stopped in a middle of
-a reg_write in the spca5xx system.
+To clarify, what ways are there? When we need to access the data, use 
+submit_bh() and when we just want the I/O to be done, generic_make_request()?
 
-Any ideas?
-
-Best regards,
-Grant
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+			Pekka

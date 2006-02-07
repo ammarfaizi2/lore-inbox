@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965019AbWBGLIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965021AbWBGLK1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965019AbWBGLIx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 06:08:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965020AbWBGLIx
+	id S965021AbWBGLK1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 06:10:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965020AbWBGLK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 06:08:53 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:57730 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965019AbWBGLIw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 06:08:52 -0500
-Subject: Re: 2.6.16-rc1-mm2 pata driver confusion + tsc sync issues
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ed Sweetman <safemode@comcast.net>
-Cc: Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       Andrew Morton <akpm@osdl.org>, harald.dunkel@t-online.de,
-       linux-kernel@vger.kernel.org, rdunlap@xenotime.net
-In-Reply-To: <43E8150E.9030801@comcast.net>
-References: <Pine.LNX.4.58.0601250846210.29859@shark.he.net>
-	 <43E3D103.70505@comcast.net>
-	 <Pine.LNX.4.58.0602060836520.1309@shark.he.net>
-	 <43E7A4C0.4020209@t-online.de>
-	 <1139255800.10437.51.camel@localhost.localdomain>
-	 <43E805D4.5010602@comcast.net> <43E7F73E.2070004@comcast.net>
-	 <43E7F73E.2070004@comcast.net> <20060206173520.43412664.akpm@osdl.org>
-	 <E1F6I3G-0003fw-00@chiark.greenend.org.uk>  <43E8150E.9030801@comcast.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 07 Feb 2006 11:10:29 +0000
-Message-Id: <1139310629.18391.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 7 Feb 2006 06:10:27 -0500
+Received: from math.ut.ee ([193.40.36.2]:27114 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S965021AbWBGLK0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 06:10:26 -0500
+Date: Tue, 7 Feb 2006 13:10:16 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: libATA  PATA status report, new patch
+In-Reply-To: <1139310335.18391.2.camel@localhost.localdomain>
+Message-ID: <Pine.SOC.4.61.0602071305310.10491@math.ut.ee>
+References: <20060207084347.54CD01430C@rhn.tartu-labor>
+ <1139310335.18391.2.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-02-06 at 22:33 -0500, Ed Sweetman wrote:
-> first from the testing branch to the upstream patches.   In mm, sata 
-> gets loaded before pata in libata land.  In alan cox's patches it's the 
-> reverse.  This results in different device names for the same config 
+> Very strange trace indeed. I'll take a look at this. At least since it
+> came from Qemu I should be able to "build" a suitable PC to match yours.
+>
+> Original Intel PIIX devices are handled by "OLDPIIX" (0x8086, 0x1230).
+> The later ones by ata_piix. The only oddity I see is that you have no
+> PCI bus mastering address base assigned (bmdma)
 
-Thats just down the shape of the Makefile. It'll get resolved in the
-merge of the code upstream over time according to the order Jeff puts
-them in
+I also tried VMWare 5.5 that emulated PIIX4. It works if I only put 
+ata_piix driver in. With the same kernel that Qemu gets the error, 
+VMWare gets another oops during generic ide initialisation. I relooked 
+and found that I have both generic PCI ide and generic ISA ide drivers 
+compiled in, so I disabled them and it works using ata_piix (with PATA 
+and ATAPI enabled). Even ATAPI cdrom worked as the root partition.
 
-> Perhaps from a distribution standpoint, moving to a label method of 
-> describing what gets mounted where would be best, rather than worrying
+But, the different oops that I got in vmware with generic ide:
+http://www.cs.ut.ee/~mroos/atacrash.png
 
-One reason I've not worried about this is I use Fedora so it "just
-works"
-
-> about scsi naming schemes or ide ones.  Just think of the fun of a 
-> system with multiple usb storage devices and such.  
-> I'm just not sure if grub and the kernel "root=" parameter can handle it.
-
-They can't but they don't need too. See the Fedora/Red Hat mkinitrd
-script and tools. The 'root' is the initrd and the tools it contains
-find the real root by label. No kernel hackery needed.
-
+-- 
+Meelis Roos (mroos@linux.ee)

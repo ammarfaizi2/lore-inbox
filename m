@@ -1,60 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965057AbWBGMWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965056AbWBGMZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965057AbWBGMWq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 07:22:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965058AbWBGMWq
+	id S965056AbWBGMZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 07:25:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965059AbWBGMZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 07:22:46 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:57196 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S965057AbWBGMWp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 07:22:45 -0500
-Message-ID: <43E89181.3070604@sw.ru>
-Date: Tue, 07 Feb 2006 15:24:33 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Tue, 7 Feb 2006 07:25:27 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:33290 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965056AbWBGMZ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 07:25:26 -0500
+Date: Tue, 7 Feb 2006 13:25:25 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Vishal Sharma <vishal.gnutech@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel-2.6.15 compile error
+Message-ID: <20060207122525.GE5937@stusta.de>
+References: <1200c63a0602062259g5a6d0a28l93f207ef6d3f9485@mail.gmail.com>
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Kirill Korotaev <dev@openvz.org>, Linus Torvalds <torvalds@osdl.org>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, frankeh@watson.ibm.com,
-       clg@fr.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
-       serue@us.ibm.com, arjan@infradead.org, riel@redhat.com,
-       kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
-       Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
-References: <43E7C65F.3050609@openvz.org> <1139266858.6189.125.camel@localhost.localdomain>
-In-Reply-To: <1139266858.6189.125.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1200c63a0602062259g5a6d0a28l93f207ef6d3f9485@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>@@ -1132,6 +1133,7 @@ static task_t *copy_process(unsigned lon
->>        p->ioprio = current->ioprio;
->> 
->>        SET_LINKS(p);
->>+       (void)get_container(p->container);
->>        if (unlikely(p->ptrace & PT_PTRACED))
->>                __ptrace_link(p, current->parent); 
+On Tue, Feb 07, 2006 at 12:29:03PM +0530, Vishal Sharma wrote:
+
+> Hello All,
+
+Hi Vishal,
+
+> i am trying to install this new kenel into my machine with the option make
+> oldconfig , my old kernel is 2.6.11-1.1369_FC4smp and i am using
+> gcc-4.0.2.Below s the output of error  i am getting :-
 > 
-> 
-> This entire patch looks nice and very straightforward, except for this
-> bit. :)  The "(void)" bit isn't usual kernel coding style.  You can
-> probably kill it.
-it is to avoid warning message the value has no effect.
+> GEN     .version
+>   CHK     include/linux/compile.h
+>   UPD     include/linux/compile.h
+>   CC      init/version.o
+>   LD      init/built-in.o
+>   LD      .tmp_vmlinux1
+> drivers/built-in.o(.text+0x94aea): In function `sandisk_set_iobase':
+> drivers/net/wireless/hostap/hostap_cs.c:242: undefined reference to
+> `pcmcia_access_configuration_register'
+>...
 
-> BTW, why does get_container() return the container argument?
-> get_task_struct(), for instance is just a do{}while(0) loop, so it
-> doesn't have a return value.  Is there some magic later on in your patch
-> set that utilizes this?
-ok, I will remake it without a return value. not a real problem at all.
+thanks for your report.
 
-> One other really minor thing: I usually try to do is keep the !
-> CONFIG_FOO functions static inlines, just like the full versions.  The
-> advantage is that you get some compile-time type checking, even when
-> your CONFIG option is off.
-it is not always appropriate :( I try to follow this as well :)
+This is a known bug.
+Below is the patch I submitted to fix it in 2.6.15.4.
 
-Kirill
+> Regards
+> Vishal
+
+cu
+Adrian
+
+
+<--  snip  -->
+
+
+CONFIG_PCMCIA=m, CONFIG_HOSTAP_CS=y doesn't compile.
+
+Reported by "Gabriel C." <crazy@pimpmylinux.org>.
+
+This patch was already included in 2.6.16-rc2.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.16-rc1-mm4/drivers/net/wireless/hostap/Kconfig.old	2006-01-30 19:00:44.000000000 +0100
++++ linux-2.6.16-rc1-mm4/drivers/net/wireless/hostap/Kconfig	2006-01-30 19:01:04.000000000 +0100
+@@ -75,7 +75,7 @@
+ 
+ config HOSTAP_CS
+ 	tristate "Host AP driver for Prism2/2.5/3 PC Cards"
+-	depends on PCMCIA!=n && HOSTAP
++	depends on PCMCIA && HOSTAP
+ 	---help---
+ 	Host AP driver's version for Prism2/2.5/3 PC Cards.
+ 
+
 

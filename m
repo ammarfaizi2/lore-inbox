@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbWBGQp6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbWBGQpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750943AbWBGQp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 11:45:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWBGQp6
+	id S1750962AbWBGQpz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 11:45:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWBGQpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 11:45:58 -0500
-Received: from thsmsgxrt12p.thalesgroup.com ([192.54.144.135]:17370 "EHLO
-	thsmsgxrt12p.thalesgroup.com") by vger.kernel.org with ESMTP
-	id S1750943AbWBGQp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 11:45:57 -0500
-Message-ID: <43E8CEC3.2080502@fr.thalesgroup.com>
-Date: Tue, 07 Feb 2006 17:45:55 +0100
-From: "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
-Reply-To: pierre-olivier.gaillard@fr.thalesgroup.com
-Organization: Thales Air Defence
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.3) Gecko/20040924
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Antonio Vargas <windenntw@gmail.com>
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: Can on-demand loading of user-space executables be disabled ?
-References: <43DDE697.5000007@fr.thalesgroup.com>	 <43DF2332.3070705@aitel.hist.no> <69304d110601310228k2e92fd05qbb25949b0d6e9196@mail.gmail.com>
-In-Reply-To: <69304d110601310228k2e92fd05qbb25949b0d6e9196@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Feb 2006 11:45:55 -0500
+Received: from ns1.coraid.com ([65.14.39.133]:59522 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S1750961AbWBGQpz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 11:45:55 -0500
+Message-ID: <da638be17efe289af96e958ab6c5dc54@coraid.com>
+Date: Tue, 7 Feb 2006 11:37:24 -0500
+To: linux-kernel@vger.kernel.org
+Cc: ecashin@coraid.com, Greg K-H <greg@kroah.com>
+Subject: [PATCH 2.6.16-rc2-git2-gkh] aoe [2/3]: don't request ATA device ID on ATA error
+References: <E1F6Vgr-0005nf-02@kokone>
+From: "Ed L. Cashin" <ecashin@coraid.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you everybody. Somebody gave me another solution that applies when you can 
-recompile the executable and are willing to change the source code : call 
-mlockall to lock the process' memory space in memory.
+Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
 
-It might be useful to quote the man page :
-        mlockall disables paging for all pages mapped into the address space of
-        the calling process. This includes the pages  of  the  code,  data  and
-        stack  segment,  as  well  as shared libraries, user space kernel data,
-        shared memory and memory mapped files. All mapped pages are  guaranteed
-        to  be  resident  in RAM when the mlockall system call returns success-
-        fully and they are guaranteed to  stay  in  RAM  until  the  pages  are
-        unlocked again by munlock or munlockall or until the process terminates
-        or starts another program with exec.  Child processes  do  not  inherit
-        page locks across a fork.
+On an ATA error response, take the device down instead of
+sending another ATA device identify command.
 
-As you see, calling mlockall forces all the executable code to be loaded into 
-RAM and stay there. This also protects the program from getting swapped out. And 
-you can keep your swap for the other programs.
+diff -upr 2.6.16-rc2-git2-gkh-orig/drivers/block/aoe/aoecmd.c 2.6.16-rc2-git2-gkh-aoe/drivers/block/aoe/aoecmd.c
+--- 2.6.16-rc2-git2-gkh-orig/drivers/block/aoe/aoecmd.c	2006-02-06 17:41:05.000000000 -0500
++++ 2.6.16-rc2-git2-gkh-aoe/drivers/block/aoe/aoecmd.c	2006-02-06 17:56:59.000000000 -0500
+@@ -517,6 +517,8 @@ aoecmd_ata_rsp(struct sk_buff *skb)
+ 	ahout = (struct aoe_atahdr *) (f->data + sizeof(struct aoe_hdr));
+ 	buf = f->buf;
+ 
++	if (ahout->cmdstat == WIN_IDENTIFY)
++		d->flags &= ~DEVFL_PAUSE;
+ 	if (ahin->cmdstat & 0xa9) {	/* these bits cleared on success */
+ 		printk(KERN_CRIT "aoe: aoecmd_ata_rsp: ata error cmd=%2.2Xh "
+ 			"stat=%2.2Xh from e%ld.%ld\n", 
+@@ -549,7 +551,6 @@ aoecmd_ata_rsp(struct sk_buff *skb)
+ 				return;
+ 			}
+ 			ataid_complete(d, (char *) (ahin+1));
+-			d->flags &= ~DEVFL_PAUSE;
+ 			break;
+ 		default:
+ 			printk(KERN_INFO "aoe: aoecmd_ata_rsp: unrecognized "
 
-   thanks again,
 
-    P.O. Gaillard
-
+-- 
+  "Ed L. Cashin" <ecashin@coraid.com>

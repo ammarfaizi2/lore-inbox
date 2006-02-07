@@ -1,74 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWBGA74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbWBGBCJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964811AbWBGA74 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 19:59:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbWBGA74
+	id S964926AbWBGBCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 20:02:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964925AbWBGBCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 19:59:56 -0500
-Received: from atpro.com ([12.161.0.3]:45572 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S964811AbWBGA7z (ORCPT
+	Mon, 6 Feb 2006 20:02:09 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:11952 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964922AbWBGBCH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 19:59:55 -0500
-From: "Jim Crilly" <jim@why.dont.jablowme.net>
-Date: Mon, 6 Feb 2006 19:59:31 -0500
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Nigel Cunningham <nigel@suspend2.net>,
-       suspend2-devel@lists.suspend2.net, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060207005930.GD31153@voodoo>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	"Rafael J. Wysocki" <rjw@sisk.pl>,
-	Nigel Cunningham <nigel@suspend2.net>,
-	suspend2-devel@lists.suspend2.net, Lee Revell <rlrevell@joe-job.com>,
-	linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <1139251682.2791.290.camel@mindpipe> <200602070625.49479.nigel@suspend2.net> <200602070051.41448.rjw@sisk.pl> <20060207003713.GB31153@voodoo> <20060207004611.GD1575@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060207004611.GD1575@elf.ucw.cz>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 6 Feb 2006 20:02:07 -0500
+Date: Mon, 6 Feb 2006 17:04:11 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Chinner <dgc@sgi.com>
+Cc: dgc@sgi.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] Prevent large file writeback starvation
+Message-Id: <20060206170411.360f3a97.akpm@osdl.org>
+In-Reply-To: <20060207003410.GS43335175@melbourne.sgi.com>
+References: <20060206040027.GI43335175@melbourne.sgi.com>
+	<20060205202733.48a02dbe.akpm@osdl.org>
+	<20060206054815.GJ43335175@melbourne.sgi.com>
+	<20060205222215.313f30a9.akpm@osdl.org>
+	<20060206115500.GK43335175@melbourne.sgi.com>
+	<20060206151435.731b786c.akpm@osdl.org>
+	<20060207003410.GS43335175@melbourne.sgi.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02/07/06 01:46:11AM +0100, Pavel Machek wrote:
-> On Po 06-02-06 19:37:13, Jim Crilly wrote:
-> > On 02/07/06 12:51:40AM +0100, Rafael J. Wysocki wrote:
-> > > Hi,
-> > > 
-> > > This point is valid, but I don't think the users will _have_ _to_ switch to the
-> > > userland suspend.  AFAICT we are going to keep the kernel-based code
-> > > as long as necessary.
-> > > 
-> > > We are just going to implement features in the user space that need not be
-> > > implemented in the kernel.  Of course they can be implemented in the
-> > > kernel, and you have shown that clearly, but since they need not be there,
-> > > we should at least try to implement them in the user space and see how this
-> > > works.
-> > > 
-> > > Frankly, I have no strong opinion on whether they _should_ be implemented
-> > > in the user space or in the kernel, but I think we won't know that until
-> > > we actually _try_.
-> > > 
+David Chinner <dgc@sgi.com> wrote:
+>
+> > So to fix both these problems we need to be smarter about terminating the
+> > wb_kupdate() loop.  Something like "loop until no expired inodes have been
+> > written".
 > > 
-> > Some of the stuff belongs in userspace without a doubt, like the UI. But
-> > why was the cryptoapi stuff added to the kernel if everytime someone goes
-> > to use it people yell "That's too much complexity, do it in userspace!"?
+> > Wildly untested patch:
 > 
-> For stuff that can't be reasonably done in userspace, like encrypted
-> loop. And notice that cryptoapi does *not* yet contain LZW.
-> 								Pavel
-> 
+> Wildly untested assertion - it won't fix my case for the same reason I'm seeing
+> the current code not working - we abort higher up in writeback_inodes()
+> on the age check.
 
-I guess reasonable is a subjective term. For instance, I've seen quite a
-few people vehemently against adding new ioctls to the kernel and yet
-you'll be adding quite a few for /dev/snapshot. I'm just of the same mind
-as Nigel in that it makes the most sense to me that the majority of the
-suspend/hibernation process to be in the kernel.
+You mean that we're in the state
 
-And I realize lzf compression isn't in the main kernel yet, but cryptoapi
-was designed to be modular so that new things can be added later if
-necessary and deflate is already there, so it's not like there's no
-compression algorithms included yet.
+a) big-dirty-expired inode is on s_dirty
 
-Jim.
+b) small-dirty-not-expired inode is on s_io
+
+sync_sb_inodes() sees the small-dirty-not-expired inode on s_io and gives up?
+
+
+In which case, yes, perhaps leaving big-dirty-expired inode on s_io is the
+right thing to do.  But should we be checking that it has expired before
+deciding to do this?  We don't want to get in a situation where continuous
+overwriting of a large file causes other files on that fs to never be
+written out.

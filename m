@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964961AbWBGDny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbWBGDng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964961AbWBGDny (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 22:43:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbWBGDny
+	id S964959AbWBGDng (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 22:43:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbWBGDng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 22:43:54 -0500
-Received: from adsl-67-65-14-121.dsl.austtx.swbell.net ([67.65.14.121]:37545
-	"EHLO laptop.michaels-house.net") by vger.kernel.org with ESMTP
-	id S964961AbWBGDnx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 22:43:53 -0500
-Subject: RE: [PATCH] [RESEND] Add Dell laptop backlight brightness display
-From: Michael E Brown <michael_e_brown@Dell.com>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Andrew Morton <akpm@osdl.org>, matt_domsch@Dell.com,
-       linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Mon, 06 Feb 2006 21:43:16 -0600
-Message-Id: <1139283796.28567.179.camel@soltek.michaels-house.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 6 Feb 2006 22:43:36 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.192.83]:31167 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S964959AbWBGDng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 22:43:36 -0500
+Message-ID: <43E81766.20000@comcast.net>
+Date: Mon, 06 Feb 2006 22:43:34 -0500
+From: Ed Sweetman <safemode@comcast.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: alan@lxorguk.ukuu.org.uk, harald.dunkel@t-online.de,
+       linux-kernel@vger.kernel.org, rdunlap@xenotime.net
+Subject: Re: 2.6.16-rc1-mm2 pata driver confusion + tsc sync issues
+References: <Pine.LNX.4.58.0601250846210.29859@shark.he.net>	<43E3D103.70505@comcast.net>	<Pine.LNX.4.58.0602060836520.1309@shark.he.net>	<43E7A4C0.4020209@t-online.de>	<1139255800.10437.51.camel@localhost.localdomain>	<43E805D4.5010602@comcast.net>	<43E7F73E.2070004@comcast.net> <20060206173520.43412664.akpm@osdl.org>
+In-Reply-To: <20060206173520.43412664.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew, Andrew,
-	(sorry, I'm not subscribed to l-k, so I'm just starting a new thread.)
+Andrew Morton wrote:
 
-	I would _strongly_ suggest that this patch _not_ go in. This driver
-uses hardcoded values that are subject to change without notice. It is
-perfectly legitimate for future versions of Dell BIOS to interpret pokes
-to cmos location 0x99 as the command to format your hard drive.
+>Ed Sweetman <safemode@comcast.net> wrote:
+>  
+>
+>
+>(eek, top-posting!)
+>
+>  
+>
+>>2.6.16-rc2 with the libata patch alan cox provided resulted in a system 
+>>which correctly found my atapi drive on the pata bus.  
+>>
+>>Also, moving from the mm kernels to 2.6.16-rc2 resulted in my pm timer 
+>>working again. 
+>>    
+>>
+>
+>I don't recall that.  Even 2.6.16-rc1-mm5?  What about rc1-mm4?
+>
+>  
+>
 
-	The proper way to do this is using libsmbios. The project page is at
-http://linux.dell.com/libsmbios/main.  Using libsmbios, plus the
-already-included dcdbas kernel driver, you can correctly do brightness
-control. If you would like to write a proper brightness control, it can
-be done entirely in user space, and I could help you.
 
-	There are specific smbios structures, proprietary to Dell, that are
-documented in libsmbios. These structures, properly decoded, tell the
-proper port to use to control this. This is guaranteed to work across
-BIOS versions and not to format your hard drive. :-)
+yes, 2.6.16-rc1-mm5 was the last kernel I was using before getting out 
+of mm. 
+I never tried mm4, but mm2 was also affected. 
 
-	Libsmbios is 100% open source (dual GPL/OSL license).
 
---
-Michael Brown
-Libsmbios maintainer
+
 

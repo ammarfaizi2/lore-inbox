@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbWBGSos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbWBGSrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964875AbWBGSos (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 13:44:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbWBGSos
+	id S964921AbWBGSrM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 13:47:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964918AbWBGSrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 13:44:48 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:35517 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964875AbWBGSor (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 13:44:47 -0500
-Date: Tue, 7 Feb 2006 10:43:55 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, dada1@cosmosbay.com,
-       heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org,
-       davem@davemloft.net, James.Bottomley@steeleye.com, mingo@elte.hu,
-       axboe@suse.de, anton@samba.org, wli@holomorphy.com, ak@muc.de
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-In-Reply-To: <20060207183018.GA29056@in.ibm.com>
-Message-ID: <Pine.LNX.4.64.0602071036050.3854@g5.osdl.org>
-References: <200602051959.k15JxoHK001630@hera.kernel.org>
- <20060207151541.GA32139@osiris.boeblingen.de.ibm.com> <43E8CA10.5070501@cosmosbay.com>
- <Pine.LNX.4.64.0602070833590.3854@g5.osdl.org> <20060207093458.176ac271.akpm@osdl.org>
- <Pine.LNX.4.64.0602070946190.3854@g5.osdl.org> <20060207183018.GA29056@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 7 Feb 2006 13:47:12 -0500
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:41433
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S964889AbWBGSrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 13:47:12 -0500
+Subject: Re: [PATCH] new tty buffering locking fix
+From: Paul Fulghum <paulkf@microgate.com>
+To: Olaf Hering <olh@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060207171111.GA15912@suse.de>
+References: <200602032312.k13NCbWb012991@hera.kernel.org>
+	 <20060207123450.GA854@suse.de>
+	 <1139329302.3019.14.camel@amdx2.microgate.com>
+	 <20060207171111.GA15912@suse.de>
+Content-Type: text/plain
+Date: Tue, 07 Feb 2006 12:47:01 -0600
+Message-Id: <1139338021.3019.23.camel@amdx2.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 8 Feb 2006, Dipankar Sarma wrote:
+On Tue, 2006-02-07 at 18:11 +0100, Olaf Hering wrote:
+>  On Tue, Feb 07, Paul Fulghum wrote:
 > 
-> One would think so, but I recall not all archs did that. Alpha for
-> example sets up cpu_possible_map in smp_prepare_cpus(). It however
-> makes more sense to fix the arch then use NR_CPUS, IMO.
+> > Try the below patches (for testing only, I'm not suggesting
+> > these as a final fix yet) and let me know if it fixes it.
+> 
+> Yes, this works for me.
 
-Ehh? alpha does it in setup_smp(), which in turn is called very early from 
-setup_arch().
+OK, good.
 
-Were you perhaps thinking of something else? Or am I just going blind and 
-confused?
+I'm working on a change to the locking patch that
+fixes this without modifying individual drivers
+such as hvc_console. I'll post something later today.
 
-		Linus
+-- 
+Paul Fulghum
+Microgate Systems, Ltd
+

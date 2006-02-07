@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWBGRjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWBGRkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbWBGRjr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 12:39:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbWBGRjr
+	id S932194AbWBGRkG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 12:40:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWBGRkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 12:39:47 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:32458 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932193AbWBGRjq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 12:39:46 -0500
-Message-ID: <43E8DB58.7000600@zytor.com>
-Date: Tue, 07 Feb 2006 09:39:36 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Tue, 7 Feb 2006 12:40:05 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:3210 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932194AbWBGRkC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 12:40:02 -0500
+Date: Tue, 7 Feb 2006 09:39:48 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: Ingo Molnar <mingo@elte.hu>, steiner@sgi.com, Paul Jackson <pj@sgi.com>,
+       akpm@osdl.org, dgc@sgi.com, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+In-Reply-To: <200602071829.46592.ak@suse.de>
+Message-ID: <Pine.LNX.4.62.0602070938450.24841@schroedinger.engr.sgi.com>
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
+ <200602071523.20174.ak@suse.de> <Pine.LNX.4.62.0602070911050.24623@schroedinger.engr.sgi.com>
+ <200602071829.46592.ak@suse.de>
 MIME-Version: 1.0
-To: klibc list <klibc@zytor.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: kernel + klibc tree now, in theory, feature-complete
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have updated and pushed the klibc-kernel tree.  "In theory" it should 
-be a 1:1 replacement for any stock kernel, which kinit taking up the slack.
+On Tue, 7 Feb 2006, Andi Kleen wrote:
 
-Anyway, I haven't yet removed any in-kernel functionality, but that's 
-hopefully coming; the in-kernel functionality won't be executed in 
-either case.
+> > The caches on a node are shrunk dynamically see the zone_reclaim 
+> > functionality introduced in 2.6.16-rc2.
+> 
+> Yes, they're thrown away which is wasteful. If they were spread
+> around in the first place that often wouldn't be needed.
 
-git://git.kernel.org/pub/linux/kernel/git/hpa/linux-2.6-klibc.git
+That would reduce performance for a process running on the node and it 
+would contaminate other nodes that may have other processes runing that 
+also want to have optimal access to their files.
 
-	-hpa
-
-
-P.S. It's going to be important to move the standalone klibc to the same 
-directory structure as the in-kernel klibc, i.e. klibc-renamed, and 
-relatively soon.  It's too easy to confuse even the recursive git policy.

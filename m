@@ -1,66 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbWBGFRZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWBGF2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964983AbWBGFRZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 00:17:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWBGFRZ
+	id S1751096AbWBGF2R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 00:28:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbWBGF2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 00:17:25 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:15751 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964983AbWBGFRZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 00:17:25 -0500
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Herbert Poetzl <herbert@13thfloor.at>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Kirill Korotaev <dev@sw.ru>, Greg <gkurz@fr.ibm.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, Rik van Riel <riel@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: [RFC][PATCH 0/20] Multiple instances of the process id
- namespace
-References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
-	<1139273294.6189.170.camel@localhost.localdomain>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 06 Feb 2006 22:14:08 -0700
-In-Reply-To: <1139273294.6189.170.camel@localhost.localdomain> (Dave
- Hansen's message of "Mon, 06 Feb 2006 16:48:13 -0800")
-Message-ID: <m14q3bu4wv.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 7 Feb 2006 00:28:17 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:24038 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750875AbWBGF2Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 00:28:16 -0500
+Date: Mon, 6 Feb 2006 21:27:50 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Chinner <dgc@sgi.com>
+Cc: dgc@sgi.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] Prevent large file writeback starvation
+Message-Id: <20060206212750.2126ca8c.akpm@osdl.org>
+In-Reply-To: <20060207013157.GU43335175@melbourne.sgi.com>
+References: <20060206040027.GI43335175@melbourne.sgi.com>
+	<20060205202733.48a02dbe.akpm@osdl.org>
+	<20060206054815.GJ43335175@melbourne.sgi.com>
+	<20060205222215.313f30a9.akpm@osdl.org>
+	<20060206115500.GK43335175@melbourne.sgi.com>
+	<20060206151435.731b786c.akpm@osdl.org>
+	<20060207003410.GS43335175@melbourne.sgi.com>
+	<20060206170411.360f3a97.akpm@osdl.org>
+	<20060207013157.GU43335175@melbourne.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> writes:
-
-> On Mon, 2006-02-06 at 12:19 -0700, Eric W. Biederman wrote:
->> p.s.  My apologies at the size of the CC list.  It is very hard to tell who
->> the interested parties are, and since there is no one list we all subscribe
->> to other than linux-kernel how to reach everyone in a timely manner.  I am
->> copying everyone who has chimed in on a previous thread on the subject.  If
->> you don't want to be copied in the future tell and I will take your name off
->> of my list.
+David Chinner <dgc@sgi.com> wrote:
 >
-> Is it worth creating a vger or OSDL mailing list for these discussions?
-> There was some concern the cc list is getting too large. :)
->
-> If yes, would "linux-containers" be an appropriate name?
+> > In which case, yes, perhaps leaving big-dirty-expired inode on s_io is the
+> > right thing to do.  But should we be checking that it has expired before
+> > deciding to do this?
+> 
+> Well, we are writing it out because it has expired in the first place,
+> right? And it remains expired until we actually clean it, so I
+> don't see any need for a check such as this....
 
-I have think we can wait until the current discussion is over, as I have
-not received any complaints yet.  
+OK.  I was worried about redirtyings while inode_lock is dropped, but the
+I_DIRTY and _LOCK logic looks tight to me.
 
-For ongoing maintenance of the future in kernel implementation I think
-it is worth setting something up.
+> > We don't want to get in a situation where continuous
+> > overwriting of a large file causes other files on that fs to never be
+> > written out.
+> 
+> Agreed. That's why i proposed the s_more_io queue - it works on those inodes
+> that need more work only after all the other inodes have been written out.
+> That prevents starvation, and makes large inode flushes background work (i.e.
+> occur when there is nothing else to do). it will get much better disk
+> utilisation than the method I originally proposed, as well, because it'll keep
+> the disk near congestion levels until the data is written out...
+> 
 
-Eric
+Yes, s_more_io does make sense.  So now dirty inodes can be on one of three
+lists.  It'll be fun writing the changelog for this one.  And we'll need a
+big fat comment describing what the locks do, and the protocol for handling
+them.
+
+We need to be extra-careful to not break sys_sync(), umount, etc.  I guess
+if !for_kupdate, we splice s_dirty and s_more_io onto s_io and go for it.
+
+So the protocol would be:
+
+s_io: contains expired and non-expired dirty inodes, with expired ones at
+the head.  Unexpired ones (at least) are in time order.
+
+s_more_io: contains dirty expired inodes which haven't been fully written. 
+Ordering doesn't matter (unless someone goes and changes
+dirty_expire_centisecs - but as long as we don't do anything really bad in
+response to this we'll be OK).
+
+s_dirty: contains expired and non-expired dirty inodes.  The non-expired
+ones are in time-of-dirtying order.
+
+
+
+I wonder if it would be saner to have separate lists for expired and
+unexpired inodes.  If when writing an expired inode we don't write it all
+out, just rotate it to the back of the expired inode list.  On entry to
+sync_sb_inodes, do a walk of s_dirty, moving expired inodes onto the
+expired list.
+

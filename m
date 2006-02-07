@@ -1,163 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWBGGBx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbWBGFzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750953AbWBGGBx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 01:01:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbWBGGBx
+	id S1750930AbWBGFzT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 00:55:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWBGFzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 01:01:53 -0500
-Received: from mail17.syd.optusnet.com.au ([211.29.132.198]:14560 "EHLO
-	mail17.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750941AbWBGGBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 01:01:51 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH] mm: implement swap prefetching
-Date: Tue, 7 Feb 2006 17:02:19 +1100
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Andrew Morton <akpm@osdl.org>, ck@vds.kolivas.org
-References: <200602071028.30721.kernel@kolivas.org> <200602071502.41456.kernel@kolivas.org> <43E82979.7040501@yahoo.com.au>
-In-Reply-To: <43E82979.7040501@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Feb 2006 00:55:18 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:14247 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750930AbWBGFzQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 00:55:16 -0500
+Date: Tue, 7 Feb 2006 11:29:55 +0530
+From: Bharata B Rao <bharata@in.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Christoph Lameter <clameter@engr.sgi.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes 2.6.16-rc1[2] on 2 node X86_64
+Message-ID: <20060207055955.GB18917@in.ibm.com>
+Reply-To: bharata@in.ibm.com
+References: <20060205163618.GB21972@in.ibm.com> <200602061931.13953.ak@suse.de> <Pine.LNX.4.62.0602061043440.16829@schroedinger.engr.sgi.com> <200602061955.19702.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602071702.20233.kernel@kolivas.org>
+In-Reply-To: <200602061955.19702.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Feb 2006 04:00 pm, Nick Piggin wrote:
-> Con Kolivas wrote:
-> > On Tue, 7 Feb 2006 02:08 pm, Nick Piggin wrote:
-> >>prefetch_get_page is doing funny things with zones and nodes / zonelists
-> >>(eg. 'We don't prefetch into DMA' meaning something like 'this only works
-> >>on i386 and x86-64').
-> >
-> > Hrm? It's just a generic thing to do; I'm not sure I follow why it's i386
-> > and x86-64 only. Every architecture has ZONE_NORMAL so it will prefetch
-> > there.
->
-> I don't think every architecture has ZONE_NORMAL.
+On Mon, Feb 06, 2006 at 07:55:18PM +0100, Andi Kleen wrote:
+> On Monday 06 February 2006 19:45, Christoph Lameter wrote:
+> > On Mon, 6 Feb 2006, Andi Kleen wrote:
+> > 
+> > > > If node 0 is exhausted then you have an OOM situation.
+> > > 
+> > > No - it could just need to free some cleanable pages first. That's
+> > > a long way before going OOM.
+> > 
+> > Then node 0 still has memory available. So you suspect zone_reclaim?
+> 
+> Either zone reclaim or the first entry in the zonelist is ok, but it's 
+> not correctly terminated or something like that so it causes 
+> problems when the kernel looks for the second (just speculating here,
+> i don't know if that is the problem) 
+>    
 
-!ZONE_DMA they all have, no?
+I can still crash my x86_64 box with Christoph's program.
 
-> >>buffered_rmqueue, zone_statistics, etc really should to stay static to
-> >>page_alloc.
-> >
-> > I can have an even simpler version of buffered_rmqueue specifically for
-> > swap prefetch, but I didn't want to reproduce code unnecessarily, nor did
-> > I want a page allocator outside page_alloc.c or swap_prefetch only code
-> > placed in page_alloc. The higher level page allocators do too much and
-> > they test to see if we should reclaim (which we never want to do) or
-> > allocate too many pages. It is the only code "cost" when swap prefetch is
-> > configured off. I'm open to suggestions?
->
-> If you omit __GFP_WAIT and already test the watermarks yourself it should
-> be OK.
+The meminfo in my case looks like this just before I execute the
+program.
 
-Ok.
+llm07:~ # cat /sys/devices/system/node/node0/meminfo
 
-> >>It is completely non NUMA or cpuset-aware so it will likely allocate
-> >> memory in the wrong node, and will cause cpuset tasks that have their
-> >> memory swapped out to get it swapped in again on other parts of the
-> >> machine (ie. breaks cpuset's memory partitioning stuff).
-> >>
-> >>It introduces global cacheline bouncing in pagecache allocation and
-> >> removal and page reclaim paths, also low watermark failure is quite
-> >> common in normal operation, so that is another global cacheline write in
-> >> page allocation path.
-> >
-> > None of these issues is going to remotely the target audience. If the
-> > issue is how scalable such a change can be then I cannot advocate making
-> > the code smart and complex enough to be numa and cpuset aware.. but then
-> > that's never going to be the target audience. It affects a particular
-> > class of user which happens to be quite a large population not affected
-> > by complex memory hardware.
->
-> Workstations can have 2 or more dual core CPUs with multiple threads or
-> NUMA these days. Desktops and laptops will probably eventually gain more
-> cores and threads too.
+Node 0 MemTotal:      3095532 kB
+Node 0 MemFree:       2960972 kB
+Node 0 MemUsed:        134560 kB
+Node 0 Active:          19752 kB
+Node 0 Inactive:        14908 kB
+Node 0 HighTotal:           0 kB
+Node 0 HighFree:            0 kB
+Node 0 LowTotal:      3095532 kB
+Node 0 LowFree:       2960972 kB
+Node 0 Dirty:               0 kB
+Node 0 Writeback:         576 kB
+Node 0 Mapped:              0 kB
+Node 0 Slab:            24200 kB
+Node 0 HugePages_Total:     0
+Node 0 HugePages_Free:      0
+llm07:~ # cat /sys/devices/system/node/node1/meminfo
 
-While I am aware of the hardware changes out there I still doubt the 
-scalability issues you're concerned about affect a desktop. The code cost and 
-complexity will increase substantially yet I'm not sure that will be for any 
-gain to the targetted users.
+Node 1 MemTotal:      2002368 kB
+Node 1 MemFree:       1964464 kB
+Node 1 MemUsed:         37904 kB
+Node 1 Active:          10608 kB
+Node 1 Inactive:         3056 kB
+Node 1 HighTotal:           0 kB
+Node 1 HighFree:            0 kB
+Node 1 LowTotal:      2002368 kB
+Node 1 LowFree:       1964464 kB
+Node 1 Dirty:            1164 kB
+Node 1 Writeback:           0 kB
+Node 1 Mapped:          43064 kB
+Node 1 Slab:             9648 kB
+Node 1 HugePages_Total:     0
+Node 1 HugePages_Free:      0
 
-> >>Why bother with the trylocks? On many architectures they'll RMW the
-> >>cacheline anyway, so scalability isn't going to be much improved (or do
-> >> you see big lock contention?)
-> >
-> > Rather than scalability concerns per se the trylock is used as yet
-> > another (admittedly rarely hit) way of defining busy.
->
-> They just seem to complicate the code for apparently little gain.
+I was trying to bind the memory to node 0, which still has enough
+free memory.
 
-No biggie; I'll drop them.
+Not sure if this helps, but I have some more debug data.
+While the kernel(2.6.16-rc1) oopes at page_alloc.c, line no: 556
+(list_del(&page->lru), some of the variables in __rmqueue look like this at the time of crash:
 
-> > The code is pretty aggressive at defining busy. It looks for pretty much
-> > all of those and it prefetches till it stops then allowing idle to occur
-> > again. Opting out of prefetching whenever there is doubt seems reasonable
-> > to me.
->
-> What if you want to prefetch when there is slight activity going on though?
+page = 0xffffffffffffffd8
+&page->lru = 0000000000000000
+zone = 0xffff81000000e700
+zone->name Normal
+current_order 0
+area->nr_free 0
 
-I don't. I want this to not cost us anything during any activity.
-
-> What if your pagecache has filled memory with useless stuff (which would
-> appear to be the case with updatedb). 
-
-There is no way the vm will ever be smart enough to say "this is crap, throw 
-it out and prefetch some good stuff", so it doesn't matter.
-
-> What if you don't want to prefetch in 
-> laptop mode at all?
-
-No problem; make it part of the laptop mode scripts to disable the sysctl.
-
-> >>- for all its efforts, it will still interact with page reclaim by
-> >>   putting pages on the LRU and causing them to be cycled.
-> >>
-> >>   - on bursty loads, this cycling could happen a bit. and more reads on
-> >>     the swap devices.
-> >
-> > Theoretically yes I agree. The definition of busy is so broad that
-> > prevents it prefetching that it is not significant.
->
-> Not if the workload is very bursty.
-
-It's an either/or for prefetching; I don't see a workaround, just some sane 
-balance.
-
-> >>- in a sense it papers over page reclaim problems that shouldn't be so
-> >>   bad in the first place (midnight cron). On the other hand, I can see
-> >>   how it solves this issue nicely.
-> >
-> > I doubt any audience that will care about scalability and complex memory
-> > configurations would knowingly enable it so it costs them virtually
-> > nothing for the relatively unintrusive code to be there. It's
-> > configurable and helps a unique problem that affects most users who are
-> > not in the complex hardware group. I was not advocating it being enabled
-> > by default, but last time it was in -mm akpm suggested doing that to
-> > increase its testing - while in -mm.
->
-> If it is in core mm then I would very much like to see it adhere to how
-> everything else works, and attempt to be scalable and generalised.
-
-I'm trying.
-
-> Any code in a core system is intrusive by definition because it simply
-> adds to the amount of work that needs to be done when maintaining the
-> thing or trying to understand how things work, debugging people's badly
-> behaving workloads, etc.
-
-I'm open to code suggestions and appreciate any outside help.
-
-> If it is going to be off by default, why couldn't they
-> echo 10 > /proc/sys/vm/swappiness rather than turning it on?
-
-Because we still swap no matter what the sysctl setting is, which makes it 
-even more useful in my opinion for those who aggressively set this tunable.
-
-Thanks,
-Con
+Regards,
+Bharata.

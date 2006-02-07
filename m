@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbWBGBhj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964931AbWBGBkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932438AbWBGBhj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 20:37:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbWBGBhj
+	id S964931AbWBGBkF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 20:40:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbWBGBkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 20:37:39 -0500
-Received: from quechua.inka.de ([193.197.184.2]:42462 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S932438AbWBGBhi (ORCPT
+	Mon, 6 Feb 2006 20:40:04 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:14268 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964927AbWBGBkD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 20:37:38 -0500
-From: be-news06@lina.inka.de (Bernd Eckenfels)
-To: linux-kernel@vger.kernel.org
+	Mon, 6 Feb 2006 20:40:03 -0500
+Date: Mon, 6 Feb 2006 17:39:36 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, ck@vds.kolivas.org
 Subject: Re: [PATCH] mm: implement swap prefetching
-Organization: Private Site running Debian GNU/Linux
-In-Reply-To: <20060206163842.7ff70c49.akpm@osdl.org>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
-Message-Id: <E1F6HnU-0000TT-00@calista.inka.de>
-Date: Tue, 07 Feb 2006 02:37:36 +0100
+Message-Id: <20060206173936.1a331291.akpm@osdl.org>
+In-Reply-To: <200602071229.25793.kernel@kolivas.org>
+References: <200602071028.30721.kernel@kolivas.org>
+	<20060206163842.7ff70c49.akpm@osdl.org>
+	<200602071229.25793.kernel@kolivas.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->> +/*
->> + * How many pages to prefetch at a time. We prefetch SWAP_CLUSTER_MAX *
->> + * swap_prefetch per PREFETCH_INTERVAL, but prefetch ten times as much at a
->> + * time in laptop_mode to minimise the time we keep the disk spinning.
->> + */
->> +static inline unsigned long prefetch_pages(void)
->> +{
->> +     return (SWAP_CLUSTER_MAX * swap_prefetch * (1 + 9 * !!laptop_mode));
->> +}
+Con Kolivas <kernel@kolivas.org> wrote:
+>
+>  > > +/* Last total free pages */
+>  > > +static unsigned long last_free = 0;
+>  > > +static unsigned long temp_free = 0;
+>  >
+>  > Unneeded initialisation.
 > 
-> I don't think this should be done in-kernel.  There's a nice script to
-> start and stop laptop mode.  We can make this decision in that script.
+>  Very first use of both of these variables depends on them being initialised.
 
-I agree, the default could be depending on laptop mode, but if a value is
-specified or changed by sysctl, it should not be automatically tuned (in
-that case)
+All bss is initialised to zero at bootup.  So all the `= 0' is doing here
+is moving these variables from .bss to .data, and taking up extra space in
+vmlinux.
 
-Gruss
-Bernd

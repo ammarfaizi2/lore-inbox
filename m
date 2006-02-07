@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965001AbWBGHt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964998AbWBGHuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965001AbWBGHt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 02:49:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964998AbWBGHt1
+	id S964998AbWBGHuo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 02:50:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbWBGHuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 02:49:27 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:43169 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964997AbWBGHt1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 02:49:27 -0500
-Date: Tue, 7 Feb 2006 18:49:14 +1100
-From: David Chinner <dgc@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Chinner <dgc@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] Prevent large file writeback starvation
-Message-ID: <20060207074914.GY58731470@melbourne.sgi.com>
-References: <20060206040027.GI43335175@melbourne.sgi.com> <20060205202733.48a02dbe.akpm@osdl.org> <20060206054815.GJ43335175@melbourne.sgi.com> <20060205222215.313f30a9.akpm@osdl.org> <20060206115500.GK43335175@melbourne.sgi.com> <20060206151435.731b786c.akpm@osdl.org>
+	Tue, 7 Feb 2006 02:50:44 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:59018 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S964998AbWBGHun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 02:50:43 -0500
+Date: Mon, 6 Feb 2006 23:50:53 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: Christoph Lameter <clameter@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, manfred@colorfullife.com,
+       shai@scalex86.org, alok.kataria@calsoftinc.com, sonny@burdell.org
+Subject: Re: [patch 2/3] NUMA slab locking fixes - move irq disabling from cahep->spinlock to l3 lock
+Message-ID: <20060207075053.GA3664@localhost.localdomain>
+References: <20060203205341.GC3653@localhost.localdomain> <20060203140748.082c11ee.akpm@osdl.org> <Pine.LNX.4.62.0602031504460.2517@schroedinger.engr.sgi.com> <20060204010857.GG3653@localhost.localdomain> <20060204012800.GI3653@localhost.localdomain> <20060204014828.44792327.akpm@osdl.org> <20060206225117.GB3578@localhost.localdomain> <20060206153008.361202e1.akpm@osdl.org> <Pine.LNX.4.62.0602061610530.19350@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0602070925180.25555@sbz-30.cs.Helsinki.FI>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060206151435.731b786c.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0602070925180.25555@sbz-30.cs.Helsinki.FI>
 User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 06, 2006 at 03:14:35PM -0800, Andrew Morton wrote:
+On Tue, Feb 07, 2006 at 09:36:40AM +0200, Pekka J Enberg wrote:
+> On Mon, 6 Feb 2006, Andrew Morton wrote:
+> > > This is getting scary.  Manfred, Christoph, Pekka: have you guys taken a
+> > > close look at what's going on in here?
 > 
-> So to fix both these problems we need to be smarter about terminating the
-> wb_kupdate() loop.  Something like "loop until no expired inodes have been
-> written".
+> On Mon, 6 Feb 2006, Christoph Lameter wrote:
+> > I looked at his patch and he seems to be right. Most of the kmem_cache 
+> > structure is established at slab creation. Updates are to the debug 
+> > counters and to nodelists[] during node online/offline and to array[] 
+> > during cpu online/offline. The chain mutex is used to protect the 
+> > setting of the tuning parameters. I still need to have a look at the 
+> > details though.
 > 
-> Wildly untested patch:
+> The patch looks correct but I am wondering if we should keep the spinlock 
+> around for clarity? The chain mutex doesn't really have anything to do 
+> with the tunables, it's there to protect the cache chain. I am worried 
+> that this patch makes code restructuring harder. Hmm?
 
->  		wbc.nr_to_write = MAX_WRITEBACK_PAGES;
-> +		wbc.wrote_expired_inode = 0;
->  		writeback_inodes(&wbc);
-> -		if (wbc.nr_to_write > 0) {
-> +		if (wbc.wrote_expired_inode == 0) {
->  			if (wbc.encountered_congestion)
->  				blk_congestion_wait(WRITE, HZ/10);
->  			else
+IMHO, if you keep something around which is not needed, it might later get
+abused/misused.  And what would you add in as comments for the
+cachep->spinlock?  
 
-FWIW, Theres a problem with the logic here - if we've encountered congestion,
-we want to wait even if we wrote back expired inodes. Should it be:
+Instead,  bold comments on cachep structure stating what all members are 
+protected by which lock/mutex should be sufficient no?
 
-		if (!wbc.wrote_expired_inode && !wbc.encountered_congestion)
- 				break;	/* All the old data is written */
-		if (wbc.encountered_congestion)
-			blk_congestion_wait(WRITE, HZ/10);
-
-
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-R&D Software Enginner
-SGI Australian Software Group
+Thanks,
+Kiran

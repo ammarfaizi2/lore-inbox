@@ -1,113 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbWBGBP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWBGBSh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932429AbWBGBP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 20:15:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWBGBP7
+	id S932189AbWBGBSh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 20:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWBGBSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 20:15:59 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:51635 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932429AbWBGBP6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 20:15:58 -0500
-Date: Mon, 6 Feb 2006 17:15:23 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-cc: "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH] compat: add compat functions for *at syscalls
-In-Reply-To: <20060207112713.7cd0a61c.sfr@canb.auug.org.au>
-Message-ID: <Pine.LNX.4.64.0602061656560.3854@g5.osdl.org>
-References: <20060207105631.39a1080c.sfr@canb.auug.org.au>
- <20060206.160140.59716704.davem@davemloft.net> <20060207112713.7cd0a61c.sfr@canb.auug.org.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 6 Feb 2006 20:18:37 -0500
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:55560 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932189AbWBGBSg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 20:18:36 -0500
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: davem@davemloft.net (David S. Miller)
+Subject: Re: network delays, mysterious push packets
+Cc: david.carlton@sun.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, netdev@vger.kernel.org
+Organization: Core
+In-Reply-To: <20060206.155028.115708927.davem@davemloft.net>
+X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.net,apana.lists.os.linux.netdev
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1F6HUh-0002rD-00@gondolin.me.apana.org.au>
+Date: Tue, 07 Feb 2006 12:18:11 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 7 Feb 2006, Stephen Rothwell wrote:
+David S. Miller <davem@davemloft.net> wrote:
+> From: David Carlton <david.carlton@sun.com>
+> Date: Mon, 06 Feb 2006 14:38:10 -0800
 > 
-> *If* we do get is_compat_task(), what would be you reaction to something
-> like this:
+>> I'm working on an application that we're trying to switch from a 2.4
+>> kernel to a 2.6 kernel.  (I believe we're using 2.6.9.)  One part of
+>> the program periodically sends out chunks of data (whose size is just
+>> over 1MB) via tcp.
 > 
-> diff --git a/fs/namei.c b/fs/namei.c
-> index faf61c3..83d6cd1 100644
-> --- a/fs/namei.c
-> +++ b/fs/namei.c
-> @@ -1877,6 +1877,8 @@ asmlinkage long sys_mkdirat(int dfd, con
->  	int error = 0;
->  	char * tmp;
->  
-> +	if (is_compat_task())
-> +		dfd = compat_sign_extend(dfd);
+> Please reproduce with something more current and report to the correct
+> mailing list (netdev@vger.kernel.org).
 
-Oh f*ck, why do people do ugly code like this?
+Please include a packet dump too.
 
-That's just about the nastiest thing I've ever seen.
-
-If you want to go this way, do it with
-
-	asmlinkage long sys_mkdirat(long __dfd, ..
-	{
-		int dfd = __dfd;
-
-which is at least unconditional.
-
-The thing is unconditionally doing the "skip upper bits" is _faster_ then 
-the conditional test to see if you even need it.
-
-Conditionalizing code like this is EVIL and STUPID.
-
-However, what I suspect David was actually suggesting was to just have 
-some trivial for just the compat functions. You can generate them 
-automatically based on 
- - function name
- - signedness/unsignedness of each argument
-with some preprocessor hackery.
-
-So each architecture could have the following #defines:
-
-	#define SARG(x) "sext " x "," x	 // Whatever the architecture asm is for sign-extending a register
-	#define UARG(x)	"zext " x "," x
-	#define JMP(x)	"jmp " x
-
-	#define ARG1 "%r3"
-	#define ARG2 "%r4"
-	#define ARG3 "%r5"
-	...
-
-and then there would be a generic helper header:
-
-	#define compat_fn1(n, x1) 		\
-		asm("compat_" ## n ":\n\t"	\
-			x1(ARG1) "\n\t"		\
-			JMP(##n))
-
-	#define compat_fn2(n, x1, x2) 		\
-		asm("compat_" ## n ":\n\t"	\
-			x1(ARG1) "\n\t"		\
-			x2(ARG2) "\n\t"		\
-			JMP(##n))
-
-	#define compat_fn3(n, x1, x2) 		\
-		asm("compat_" ## n ":\n\t"	\
-			x1(ARG1) "\n\t"		\
-			x2(ARG2) "\n\t"		\
-			x3(ARG3) "\n\t"		\
-			JMP(##n))
-
-	... fn4..fn6 ..
-
-	compat_fn4(sys_semctl, SARG, SARG, SARG, UARG);
-	compat_fn6(sys_waitif, SARG, UARG, UARG, SARG, UARG);
-	..
-
-you get the idea - automatically generated stub assembly functions that 
-zero-extend or sign-extend the arguments properly. Each architecture would 
-need just a minimal set of "helper defines" to create the per-architecture 
-assembly language.
-
-(And no, I didn't test the above at all).
-
-		Linus
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

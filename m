@@ -1,126 +1,188 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbWBGWnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbWBGWnm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932431AbWBGWnP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 17:43:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbWBGWnO
+	id S1030217AbWBGWnm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 17:43:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbWBGWnS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 17:43:14 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:55003 "EHLO
+	Tue, 7 Feb 2006 17:43:18 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:56283 "EHLO
 	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S932431AbWBGWnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 17:43:11 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Wed, 8 Feb 2006 08:13:56 +1000
+	id S932450AbWBGWnN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 17:43:13 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: Linux PM <linux-pm@osdl.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Complain if driver reenables interrupts during drivers_[suspend|resume] & re-disable
+Date: Tue, 7 Feb 2006 19:06:48 +1000
 User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Bojan Smojver <bojan@rexursive.com>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       suspend2-devel@lists.suspend2.net
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602071105.45688.nigel@suspend2.net> <200602071609.05676.rjw@sisk.pl>
-In-Reply-To: <200602071609.05676.rjw@sisk.pl>
 MIME-Version: 1.0
 Content-Type: multipart/signed;
-  boundary="nextPart3228044.bnQDT4BSrC";
+  boundary="nextPart21107747.Ms9F2Pm8Tg";
   protocol="application/pgp-signature";
   micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602080814.02894.nigel@suspend2.net>
+Message-Id: <200602071906.55281.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3228044.bnQDT4BSrC
+--nextPart21107747.Ms9F2Pm8Tg
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-Hi.
+Hi all.
 
-On Wednesday 08 February 2006 01:09, Rafael J. Wysocki wrote:
-> Hi,
->=20
-> On Tuesday 07 February 2006 02:05, Nigel Cunningham wrote:
-> > On Tuesday 07 February 2006 10:44, Pavel Machek wrote:
-> > > Are you Max Dubois, second incarnation or what?
-> > >
-> > > > Well, given that the kernel suspend is going to be kept for a=20
-while,
-> > > > wouldn't it be better if it was feature full? How would the users=20
-be
-> > > > at
-> > >
-> > >                                               =20
-> > > ~~~~~~~~~~~~~~~~~~~~~~~~~
-> > >
-> > > > a disadvantage if they had better kernel based suspend for a while,
-> > >
-> > > ~~~~~~~~~~~~~~~~
-> > >
-> > > > followed by u-beaut-cooks-cleans-and-washes uswsusp? That's the=20
-part I
-> > > > don't get...
-> > >
-> > > *Users* would not be at disadvantage, but, surprise, there's one=20
-thing
-> > > more important than users. Thats developers, and I can guarantee you
-> > > that merging 14K lines of code just to delete them half a year later
-> > > would drive them crazy.
-> >=20
-> > It would more be an ever-changing interface that would drive them=20
-crazy. So=20
-> > why don't we come up with an agreed method of starting a suspend and=20
-> > starting a resume that they can use, without worrying about whether=20
-> > they're getting swsusp, uswsusp or Suspend2? /sys/power/state seems the=
+This patch is designed to help with diagnosing and fixing the cause of
+problems in suspending/resuming, due to drivers wrongly re-enabling
+interrupts in their .suspend or .resume methods.=20
+
+I nearly forgot about it in sending patches in suspend2 that might help
+where swsusp fails.
+
+Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+
+ power/resume.c  |    5 +++++
+ power/suspend.c |    5 +++++
+ sys.c           |   37 +++++++++++++++++++++++++++++++++++--
+ 3 files changed, 45 insertions(+), 2 deletions(-)
+diff -ruNp 8010-driver-model-debug.patch-old/drivers/base/power/resume.c=20
+8010-driver-model-debug.patch-new/drivers/base/power/resume.c
+=2D-- 8010-driver-model-debug.patch-old/drivers/base/power/resume.c=09
+2006-01-19 21:27:39.000000000 +1000
++++ 8010-driver-model-debug.patch-new/drivers/base/power/resume.c=09
+2006-01-31 19:54:52.000000000 +1000
+@@ -35,6 +35,11 @@ int resume_device(struct device * dev)
+ 	if (dev->bus && dev->bus->resume) {
+ 		dev_dbg(dev,"resuming\n");
+ 		error =3D dev->bus->resume(dev);
++		if (!irqs_disabled()) {
++			printk(KERN_EMERG "WARNING: Interrupts reenabled while resuming device=
 =20
-> > obvious choice for this. An additional /sys entry could perhaps be used=
+%s.\n",
++				kobject_name(&dev->kobj));
++			local_irq_disable();
++		}
+ 	}
+ 	up(&dev->sem);
+ 	return error;
+diff -ruNp 8010-driver-model-debug.patch-old/drivers/base/power/suspend.c=20
+8010-driver-model-debug.patch-new/drivers/base/power/suspend.c
+=2D-- 8010-driver-model-debug.patch-old/drivers/base/power/suspend.c=09
+2006-01-19 21:27:39.000000000 +1000
++++ 8010-driver-model-debug.patch-new/drivers/base/power/suspend.c=09
+2006-01-31 19:54:44.000000000 +1000
+@@ -58,6 +58,11 @@ int suspend_device(struct device * dev,=20
+ 	if (dev->bus && dev->bus->suspend && !dev->power.power_state.event) {
+ 		dev_dbg(dev, "suspending\n");
+ 		error =3D dev->bus->suspend(dev, state);
++		if (!irqs_disabled()) {
++			printk(KERN_EMERG "WARNING: Interrupts reenabled while suspending=20
+device %s.\n",
++				kobject_name(&dev->kobj));
++			local_irq_disable();
++		}
+ 	}
+ 	up(&dev->sem);
+ 	return error;
+diff -ruNp 8010-driver-model-debug.patch-old/drivers/base/sys.c=20
+8010-driver-model-debug.patch-new/drivers/base/sys.c
+=2D-- 8010-driver-model-debug.patch-old/drivers/base/sys.c	2006-01-19=20
+21:27:39.000000000 +1000
++++ 8010-driver-model-debug.patch-new/drivers/base/sys.c	2006-01-31=20
+19:54:09.000000000 +1000
+@@ -298,16 +298,34 @@ static void __sysdev_resume(struct sys_d
+ 	if (cls->resume)
+ 		cls->resume(dev);
 =20
-to=20
-> > modify which implementation is used when you echo disk=20
-> /sys/power/state=20
-> > - something like
-> >=20
-> > # cat /sys/power/disk_method
-> > swsusp uswsusp suspend2
-> > # echo uswsusp > /sys/power/disk_method
-> > # echo > /sys/power/state
-> >=20
-> > Is there a big problem with that, which I've missed?
->=20
-> Userland suspend is driven by the suspending application which only calls
-> the kernel to do things it cannot do itself, like freezing (the other)
-> processes, snapshotting the system etc.  We use the /dev/snapshot
-> device and the ioctl()s in there, so no sysfs files are needed for that.
-> It's independent and can coexist with the existing sysfs interface
-> just fine.
-
-Yes, but how are you going to get it started from (say) klaptop, which only=
++	if (!irqs_disabled()) {
++		printk(KERN_EMERG "WARNING: Interrupts reenabled while resuming sysdev=20
+class specific driver %s.\n",
++				kobject_name(&dev->kobj));
++		local_irq_disable();
++	}
++
+ 	/* Call auxillary drivers next. */
+ 	list_for_each_entry(drv, &cls->drivers, entry) {
+=2D		if (drv->resume)
++		if (drv->resume) {
+ 			drv->resume(dev);
++			if (!irqs_disabled()) {
++				printk(KERN_EMERG "WARNING: Interrupts reenabled while resuming sysdev=
 =20
-knows "echo disk > /sys/power/state" as the way of starting a suspend? I'm=
+class driver %s.\n",
++				kobject_name(&dev->kobj));
++				local_irq_disable();
++			}
++		}
+ 	}
 =20
-suggesting that we create a means whereby the issue of how to start a=20
-cycle could be separated from what implementation is used to do the work.=20
-That is, a simple extension at the start of the disk specific code that=20
-starts swsusp, uswsusp or suspend2 depending upon what you want. Maybe I=20
-should just prepare a patch.
+ 	/* Call global drivers. */
+ 	list_for_each_entry(drv, &sysdev_drivers, entry) {
+=2D		if (drv->resume)
++		if (drv->resume) {
+ 			drv->resume(dev);
++			if (!irqs_disabled()) {
++				printk(KERN_EMERG "WARNING: Interrupts reenabled while resuming sysdev=
+=20
+driver %s.\n",
++				kobject_name(&dev->kobj));
++				local_irq_disable();
++			}
++		}
+ 	}
+ }
+=20
+@@ -346,6 +364,11 @@ int sysdev_suspend(pm_message_t state)
+ 			list_for_each_entry(drv, &sysdev_drivers, entry) {
+ 				if (drv->suspend) {
+ 					ret =3D drv->suspend(sysdev, state);
++					if (!irqs_disabled()) {
++						printk(KERN_EMERG "WARNING: Interrupts reenabled while suspending=20
+sysdev driver %s.\n",
++							kobject_name(&sysdev->kobj));
++						local_irq_disable();
++					}
+ 					if (ret)
+ 						goto gbl_driver;
+ 				}
+@@ -355,6 +378,11 @@ int sysdev_suspend(pm_message_t state)
+ 			list_for_each_entry(drv, &cls->drivers, entry) {
+ 				if (drv->suspend) {
+ 					ret =3D drv->suspend(sysdev, state);
++					if (!irqs_disabled()) {
++						printk(KERN_EMERG "WARNING: Interrupts reenabled while suspending=20
+sysdev class driver %s.\n",
++						kobject_name(&sysdev->kobj));
++						local_irq_disable();
++					}
+ 					if (ret)
+ 						goto aux_driver;
+ 				}
+@@ -363,6 +391,11 @@ int sysdev_suspend(pm_message_t state)
+ 			/* Now call the generic one */
+ 			if (cls->suspend) {
+ 				ret =3D cls->suspend(sysdev, state);
++				if (!irqs_disabled()) {
++					printk(KERN_EMERG "WARNING: Interrupts reenabled while suspending=20
+class driver %s.\n",
++					kobject_name(&sysdev->kobj));
++					local_irq_disable();
++				}
+ 				if (ret)
+ 					goto cls_driver;
+ 			}
 
-Regards,
-
-Nigel
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
-
---nextPart3228044.bnQDT4BSrC
+--nextPart21107747.Ms9F2Pm8Tg
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQBD6RuqN0y+n1M3mo0RAnqPAKDOvdxx7R8hGfYMWSuIR3PNGVTpXwCgpllp
-GYJtYViBrERCI/7pT4/GusM=
-=Z/KS
+iD8DBQBD6GMvN0y+n1M3mo0RAq03AJ9bc9T+eZzhQarqmT0LAOrJ/LH7HwCfVI0Y
+lrCvt4yT7ujBT7NywX1QLF8=
+=crMH
 -----END PGP SIGNATURE-----
 
---nextPart3228044.bnQDT4BSrC--
+--nextPart21107747.Ms9F2Pm8Tg--

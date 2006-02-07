@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbWBGBcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWBGBe6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932436AbWBGBcP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 20:32:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWBGBcO
+	id S964930AbWBGBe6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 20:34:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWBGBe6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 20:32:14 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:33217 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932173AbWBGBcO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 20:32:14 -0500
-Date: Tue, 7 Feb 2006 12:31:57 +1100
-From: David Chinner <dgc@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Chinner <dgc@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] Prevent large file writeback starvation
-Message-ID: <20060207013157.GU43335175@melbourne.sgi.com>
-References: <20060206040027.GI43335175@melbourne.sgi.com> <20060205202733.48a02dbe.akpm@osdl.org> <20060206054815.GJ43335175@melbourne.sgi.com> <20060205222215.313f30a9.akpm@osdl.org> <20060206115500.GK43335175@melbourne.sgi.com> <20060206151435.731b786c.akpm@osdl.org> <20060207003410.GS43335175@melbourne.sgi.com> <20060206170411.360f3a97.akpm@osdl.org>
+	Mon, 6 Feb 2006 20:34:58 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:27522 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S964925AbWBGBe5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 20:34:57 -0500
+Date: Mon, 6 Feb 2006 17:41:22 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: torvalds@osdl.org
+Subject: Linux 2.6.15.3
+Message-ID: <20060207014122.GC4483@sorel.sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060206170411.360f3a97.akpm@osdl.org>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 06, 2006 at 05:04:11PM -0800, Andrew Morton wrote:
-> David Chinner <dgc@sgi.com> wrote:
-> >
-> > > So to fix both these problems we need to be smarter about terminating the
-> > > wb_kupdate() loop.  Something like "loop until no expired inodes have been
-> > > written".
-> > > 
-> > > Wildly untested patch:
-> > 
-> > Wildly untested assertion - it won't fix my case for the same reason I'm seeing
-> > the current code not working - we abort higher up in writeback_inodes()
-> > on the age check.
-> 
-> You mean that we're in the state
-> 
-> a) big-dirty-expired inode is on s_dirty
-> 
-> b) small-dirty-not-expired inode is on s_io
-> 
-> sync_sb_inodes() sees the small-dirty-not-expired inode on s_io and gives up?
+We (the -stable team) are announcing the release of the 2.6.15.3 kernel.
+This contains a single security fix (CVE-2006-0454) which can potentially
+be used as remote DoS exploit.
 
-Yes, that's right.
+The diffstat and short summary of the fixes are below.
 
-> In which case, yes, perhaps leaving big-dirty-expired inode on s_io is the
-> right thing to do.  But should we be checking that it has expired before
-> deciding to do this?
+I'll also be replying to this message with a copy of the patch between
+2.6.15.2 and 2.6.15.3, as it is small enough to do so.
 
-Well, we are writing it out because it has expired in the first place,
-right? And it remains expired until we actually clean it, so I
-don't see any need for a check such as this....
+The updated 2.6.15.y git tree can be found at:
+ 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/chrisw/linux-2.6.15.y.git
+and can be browsed at the normal kernel.org git web browser:
+	www.kernel.org/git/
 
-> We don't want to get in a situation where continuous
-> overwriting of a large file causes other files on that fs to never be
-> written out.
+thanks,
+-chris
 
-Agreed. That's why i proposed the s_more_io queue - it works on those inodes
-that need more work only after all the other inodes have been written out.
-That prevents starvation, and makes large inode flushes background work (i.e.
-occur when there is nothing else to do). it will get much better disk
-utilisation than the method I originally proposed, as well, because it'll keep
-the disk near congestion levels until the data is written out...
+--------
 
-Cheers,
+ Makefile        |    2 +-
+ net/ipv4/icmp.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Dave.
--- 
-Dave Chinner
-R&D Software Enginner
-SGI Australian Software Group
+Summary of changes from v2.6.15.2 to v2.6.15.3
+==============================================
+
+Chris Wright:
+      Linux 2.6.15.3
+
+Herbert Xu:
+      Fix extra dst release when ip_options_echo fails
+

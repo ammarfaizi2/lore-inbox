@@ -1,70 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbWBGRnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWBGRpn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932363AbWBGRnx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 12:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWBGRnx
+	id S932263AbWBGRpn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 12:45:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWBGRpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 12:43:53 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:31628
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932387AbWBGRnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 12:43:52 -0500
-Date: Tue, 7 Feb 2006 09:44:05 -0800
-From: Greg KH <greg@kroah.com>
-To: Max Asbock <masbock@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ibmasm driver: don't use previously freed pointer
-Message-ID: <20060207174405.GA9260@kroah.com>
-References: <1139005598.7521.68.camel@w-amax> <20060204060254.GA4454@kroah.com> <1139333357.7521.81.camel@w-amax>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 7 Feb 2006 12:45:42 -0500
+Received: from ns1.suse.de ([195.135.220.2]:25783 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932263AbWBGRpl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 12:45:41 -0500
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: OOM behavior in constrained memory situations
+Date: Tue, 7 Feb 2006 18:45:19 +0100
+User-Agent: KMail/1.8.2
+Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <Pine.LNX.4.62.0602061253020.18594@schroedinger.engr.sgi.com> <200602071023.39222.ak@suse.de> <Pine.LNX.4.62.0602070924140.24741@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0602070924140.24741@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1139333357.7521.81.camel@w-amax>
-User-Agent: Mutt/1.5.11
+Message-Id: <200602071845.19567.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 07, 2006 at 09:29:17AM -0800, Max Asbock wrote:
-> On Fri, 2006-02-03 at 22:02, Greg KH wrote:
-> > On Fri, Feb 03, 2006 at 02:26:38PM -0800, Max Asbock wrote:
-> > > ibmasm driver:
-> > > Fix the command_put() function which uses a pointer for a spinlock that
-> > > can be freed before dereferencing it.
-> > > 
-> > > Signed-off-by: Max Asbock masbock@us.ibm.com
-> > > 
-> > > ---
-> > > 
-> > > diff -burpN linux-2.6.16-rc1/drivers/misc/ibmasm/ibmasm.h linux-2.6.16-rc1.ibmasm/drivers/misc/ibmasm/ibmasm.h
-> > > --- linux-2.6.16-rc1/drivers/misc/ibmasm/ibmasm.h	2006-02-01 11:50:01.000000000 -0800
-> > > +++ linux-2.6.16-rc1.ibmasm/drivers/misc/ibmasm/ibmasm.h	2006-02-03 13:57:42.000000000 -0800
-> > > @@ -101,10 +101,11 @@ struct command {
-> > >  static inline void command_put(struct command *cmd)
-> > >  {
-> > >  	unsigned long flags;
-> > > +	spinlock_t *lock = cmd->lock;
-> > >  
-> > > -	spin_lock_irqsave(cmd->lock, flags);
-> > > +	spin_lock_irqsave(lock, flags);
-> > >          kobject_put(&cmd->kobj);
-> > > -	spin_unlock_irqrestore(cmd->lock, flags);
-> > > +	spin_unlock_irqrestore(lock, flags);
-> > >  }
-> > 
-> > If this patch is true, doesn't the spinlock the pointer is pointing out
-> > still get deleted?
-> > 
-> > Yes you save a pointer off, but it looks like the problem is still
-> > present.
-> > 
-> > Or am I missing something?
-> > 
+On Tuesday 07 February 2006 18:29, Christoph Lameter wrote:
+> On Tue, 7 Feb 2006, Andi Kleen wrote:
 > 
-> The lock pointer in struct command points to a spinlock outside the
-> structure that doesn't get deleted.
+> > On Tuesday 07 February 2006 02:55, Christoph Lameter wrote:
+> > > I just tried to oom a process that has restricted its mem allocation to 
+> > > node 0 using a memory policy. Instead of an OOM the system began to swap 
+> > > on node zero. The swapping is restricted to the zones passed to 
+> > > __alloc_pages. It was thus swapping node zero alone.
+> > 
+> > Thanks for doing that work. It's needed imho and was on my todo list.
+> 
+> This is talking not about the text above but about what comes later right? 
+> The OOM behavior for a constrained allocation with no swap?
+> 
+> > > +	gfp_t gfp_flags;	/* flags ORed into gfp_flags for each allocation */
+> > 
+> > I don't think it's a good idea to add it to the struct mempolicy. I've tried to
+> > make it as memory efficient as possibile and it would be a waste to add such
+> > a mostly unused field. Better to pass that information around in some other way.
+> 
+> Memory policies are rare and this would be insignificant on any NUMA 
+> system
 
-Ok, that's what I was missing, nevermind then :)
+It could be a problem on those 32bit NUMA systems with only 1GB of lowmem.
+There are some workloads with lots of VMAs and it's in theory possible
+some application wants to set a lot of policy for them.
 
-thanks,
+I back then spent some time to make the data structure as small as possible
+and I would hate to destroy it with such thoughtless changes.
 
-greg k-h
+
+> 
+> > (in the worst case it could be a upper bit in policy, but I would prefer
+> > function arguments I think) 
+> 
+> An upper bit in policy would require special processing in hot code paths. 
+> The current implementation can simply OR in a value that is in a cacheline 
+> already in the data cache.
+> 
+> I'd rather keep it separate.
+> 
+> Function arguments? Add function pointer to mempolicy for allocation?
+
+I was more thinking: 
+
+when MPOL_BIND == node_online_map automatically revert to MPOL_PREFERED with empty mask.
+Then on the allocation only set the gfp flag for MPOL_BIND
+
+Ok there might be small trouble with node hotplug, but that could be probably
+ignored for now.
+
+> Then there is the other issue:
+> 
+> Should the system swap if an MPOL_BIND request does not find enough 
+> memory? Maybe it would be good to not swap, rely on zone_reclaim only and 
+> fail if there is no local memory? 
+
+Not sure. I guess it depends. Maybe it needs a nodeswappiness sysctl.
+
+> 
+> We could change __GFP_NO_OOM_KILLER to __GFP_CONSTRAINED_ALLOC and then 
+> not invoke kswapd and neither the OOM killer on a constrained allocation.
+
+That could be a problem if one node is filled with dirty file cache pages,
+no? There needs to be some action to free it. I had a few reports of this case.
+It needs to make at least some effort to wait for these pages and push them out.
+
+On the other hand I would like to have less swapping for MPOL_BIND by 
+default than the global VM does. I remember
+driving the system in quite severe swap storms when doing early mempolicy
+testing. 
+
+-Andi

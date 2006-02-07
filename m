@@ -1,62 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030236AbWBGXFf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030238AbWBGXIA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030236AbWBGXFf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 18:05:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030237AbWBGXFe
+	id S1030238AbWBGXIA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 18:08:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbWBGXH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 18:05:34 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60815 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030236AbWBGXFe (ORCPT
+	Tue, 7 Feb 2006 18:07:59 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:1437 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1030238AbWBGXH6 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 18:05:34 -0500
-Date: Wed, 8 Feb 2006 00:05:10 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Bojan Smojver <bojan@rexursive.com>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       suspend2-devel@lists.suspend2.net
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060207230510.GF2753@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602071105.45688.nigel@suspend2.net> <200602071609.05676.rjw@sisk.pl> <200602080814.02894.nigel@suspend2.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602080814.02894.nigel@suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Tue, 7 Feb 2006 18:07:58 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [2.6 patch] IA64_GENERIC shouldn't select other stuff
+Date: Tue, 7 Feb 2006 15:06:52 -0800
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F05A6D512@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.6 patch] IA64_GENERIC shouldn't select other stuff
+Thread-Index: AcYsOXyt5+LWvQIvRKqgR6maqdEbigAATS4g
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Adrian Bunk" <bunk@stusta.de>, "Matthew Wilcox" <matthew@wil.cx>
+Cc: "Keith Owens" <kaos@sgi.com>, <linux-ia64@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 07 Feb 2006 23:06:53.0163 (UTC) FILETIME=[2F1B03B0:01C62C3B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> AFAIR your defconfig was intended for the "runs everywhere" case (with 
+> the exception that in this case the bug that CONFIG_ITANIUM is not set 
+> is still unfixed - would you accept a patch to fix this?).
 
-> > > # cat /sys/power/disk_method
-> > > swsusp uswsusp suspend2
-> > > # echo uswsusp > /sys/power/disk_method
-> > > # echo > /sys/power/state
-> > > 
-> > > Is there a big problem with that, which I've missed?
-> > 
-> > Userland suspend is driven by the suspending application which only calls
-> > the kernel to do things it cannot do itself, like freezing (the other)
-> > processes, snapshotting the system etc.  We use the /dev/snapshot
-> > device and the ioctl()s in there, so no sysfs files are needed for that.
-> > It's independent and can coexist with the existing sysfs interface
-> > just fine.
-> 
-> Yes, but how are you going to get it started from (say) klaptop, which only 
-> knows "echo disk > /sys/power/state" as the way of starting a suspend? I'm 
-> suggesting that we create a means whereby the issue of how to start a 
-> cycle could be separated from what implementation is used to do the work. 
-> That is, a simple extension at the start of the disk specific code that 
-> starts swsusp, uswsusp or suspend2 depending upon what you want. Maybe I 
-> should just prepare a patch.
+Only die-hard early adopters are still using CONFIG_ITANIUM systems, and
+they have the knowledge to turn this option on.  So no, I'm not looking
+for a patch to add this to defconfig.
 
-Please do not patch kernel for that.
-
-Proper solution is probably creating s2disk program/script, and teach
-kpowersave/klaptop/etc. to just use it. Then s2disk can detect best
-method to use ... and then just do it. You already have suitable
-script, but I'm not sure what its name is.
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+-Tony

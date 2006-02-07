@@ -1,135 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965085AbWBGOI7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965093AbWBGOKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965085AbWBGOI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 09:08:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965092AbWBGOI7
+	id S965093AbWBGOKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 09:10:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965092AbWBGOKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 09:08:59 -0500
-Received: from mail.gmx.net ([213.165.64.21]:51629 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S965085AbWBGOI7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 09:08:59 -0500
-X-Authenticated: #7534793
-Date: Tue, 7 Feb 2006 15:08:22 +0100
-From: Gerhard Schrenk <deb.gschrenk@gmx.de>
-To: "Yu, Luming" <luming.yu@intel.com>
-Cc: "Brown, Len" <len.brown@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: EC interrupt mode by default breaks power button and lid button
-Message-ID: <20060207140822.GA4721@mail.gmx.net>
-References: <3ACA40606221794F80A5670F0AF15F840ADDC619@pdsmsx403>
+	Tue, 7 Feb 2006 09:10:09 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:29068 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S965093AbWBGOKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 09:10:07 -0500
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Kirill Korotaev <dev@openvz.org>, Linus Torvalds <torvalds@osdl.org>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, frankeh@watson.ibm.com,
+       clg@fr.ibm.com, haveblue@us.ibm.com, greg@kroah.com,
+       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
+       riel@redhat.com, kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
+       Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
+References: <43E7C65F.3050609@openvz.org>
+	<m1bqxju9iu.fsf@ebiederm.dsl.xmission.com> <43E88F27.7050602@sw.ru>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 07 Feb 2006 07:06:50 -0700
+In-Reply-To: <43E88F27.7050602@sw.ru> (Kirill Korotaev's message of "Tue, 07
+ Feb 2006 15:14:31 +0300")
+Message-ID: <m1ek2fgt51.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F840ADDC619@pdsmsx403>
-User-Agent: mutt-ng/devel-r655 (Debian)
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Yu, Luming <luming.yu@intel.com> [2006-02-07 13:33]:
-> >> Please don't revert that patch, and test kernel parameter ec_intr=0
-> >
-> >Yes, boot option ec_initr=0 helps power/lid buttons. (Tested with
-> >yesterdays newest kernel from linus' tree.)
-> 
-> Any difference with ec_initr=1 with this kernel ?
+Kirill Korotaev <dev@sw.ru> writes:
 
-No. Neither powerbutton nor lidbutton works with ec_initr=1.
+>>>The important properties of the proposed container implementation:
+>>>- each container has unique ID in the system
+>> What namespace does this ID live in?
+> global namespace. can be virtualized later.
+> can be optional.
 
-> If pressing power button, can you see acpi interrupt increases?
+So a totally new kind of number in the kernel, that doesn't fall
+in any of the traditional namespaces.  That is something I would
+like to avoid.
 
-Where do I find this? Do you mean interrupt 9 "IO-APIC-edge  acpi" in
-/proc/interrupts?
+> But the idea is simple. Eventually you will need some management tools
+> anyway. And they should be able to refer to containers.
 
-With ec_initr=1 I don't see that interrupt 9 increases. 
+In my implementation I refer to things indirectly via the task
+in it since I have an appropriate pid.   As does the current
+kernel code for the filesystem mount namespace.
 
---- tmp/ec1/interrupts	2006-02-07 14:31:54.000000000 +0100
-+++ tmp/ec1/interrupts-after-powerbutton	2006-02-07 14:33:07.000000000 +0100
-@@ -1,10 +1,10 @@
-            CPU0       
--  0:      42181    IO-APIC-edge  timer
--  1:        446    IO-APIC-edge  i8042
-+  0:      60423    IO-APIC-edge  timer
-+  1:        676    IO-APIC-edge  i8042
-   2:          0          XT-PIC  cascade
-   9:          1    IO-APIC-edge  acpi
-- 12:       2177    IO-APIC-edge  i8042
-- 14:       6494    IO-APIC-edge  ide0
-+ 12:       3221    IO-APIC-edge  i8042
-+ 14:       6547    IO-APIC-edge  ide0
-  16:          0   IO-APIC-level  uhci_hcd:usb5, i915@pci:0000:00:02.0
-  17:          1   IO-APIC-level  Intel ICH6, ipw2200
-  18:          0   IO-APIC-level  uhci_hcd:usb4
-@@ -12,6 +12,6 @@
-  20:          0   IO-APIC-level  yenta, Intel ICH6 Modem
-  23:          0   IO-APIC-level  ehci_hcd:usb1, uhci_hcd:usb2
- NMI:          0 
--LOC:      42140 
-+LOC:      60383 
- ERR:          0
- MIS:          0
+So far except a tool to create my things I don't need special
+management tools the traditional unix ones suffice as I am
+simply extending the traditional unix model.
+
+The best counter argument I have is that filesystem namespaces
+have already been implemented and we have not needed an additional id
+in the kernel.
+
+>>>- each process in the kernel can belong to one container only
+>> Reasonable.
+>>
+>>>- effective container pointer (econtainer()) is used on the task to avoid
+>>>insertion of additional argument "container" to all functions where it is
+>>>required.
+>> Why is that desirable?
+
+Ok. I can finally see the effective thing.  Writing an argument onto
+the task structure instead of onto the stack seems weird to me.
+
+> It was discussed with Linus and the reason is provided in this text actually.
+> There are 2 ways:
+> - to add additional argument "container" to all the functions where it is
+> required.
+> Drawbacks: 
+
+> a) lot's of changes, 
+
+I believe most of those changes make other places in the kernel where
+misuse happens easier to find.  Turning places that need changes into
+compile errors seems a virtue to me.  I do know there are places that
+store identifiers that might be used in a different context later on.
+Finding all of those places seems more important than generating compile
+errors for a few simple cases.
+
+> b) compilation without virtualization is not the same. 
+
+Which is a reasonable consideration.  But I expect most common kernels
+will ship with virtualization enabled so that is the important case to
+get correct.
+
+> c) increased stakc usage
+
+I think we are talking a few extra pointers on the stack.  Our call nesting
+depth is not that great.  So I would be surprised if the additional stack
+usage would be significant.   I expect the gains from the locality of
+having everything in the same cache line are greater, than the gains
+from the reduced stack usage.
+
+> - to add effective container pointer on the task. i.e. context which kernel
+> should be in when works with virtualized resources.
+> Drawbacks: a) there are some places where you need to change effective container
+> context explicitly such as TCP/IP.
+
+Yes.
+
+Another is that it is easier to be aware and to think about what context you
+are working in if it is explicit.  I expect other kernel developers are more
+likely to get it right if what is going is not hidden from them.
+
+>>>- kernel compilation with disabled virtualization should result in old good
+>>>linux kernel
+>> A reasonable goal.
+>> Why do we need a container structure to hold pointers to other pointers?
+> can't catch what you mean :) is it prohibited somehow? :))))
+
+No I just think an additional structure is unnecessary.  Possibly
+it is a reasonable thing to do.
+
+>> May I please be added to the CC list.
+>> We are never going to form a consensus if all of the people doing
+> implementations don't
+>> talk.
 
 
-With ec_initr=1 /proc/acpi/button/lid/LID0/state seems to work sane:
+> To make a consensus people need to make mutual concessions... Otherwise these
+> talks are useless.
 
-gps@medusa:~$ cat /proc/acpi/button/lid/LID0/state # lid opened
-state:      open
-gps@medusa:~$ sleep 5 && cat /proc/acpi/button/lid/LID0/state # closing lid quicker than 5 seconds
-state:      closed
+Consensus does not require concessions.  We are after technical
+excellence after all.
 
-With ec_initr=0 (and acpid *stopped*) I see interrupt 9 increases.
+Yes people have to be willing to bend to work together to find the
+best solution. I am willing.  At the same time I am not easy to
+convince that other solutions are necessarily better.  To understand
+which is better we need to understand why each of us made the
+decisions we have made or hold the opinion we hold. 
 
---- tmp/ec0/acpid-off/interrupts	2006-02-07 14:40:55.000000000 +0100
-+++ tmp/ec0/acpid-off/interrupts-after-powerbutton	2006-02-07 14:42:13.000000000 +0100
-@@ -1,10 +1,10 @@
-            CPU0       
--  0:      27910    IO-APIC-edge  timer
--  1:        375    IO-APIC-edge  i8042
-+  0:      47228    IO-APIC-edge  timer
-+  1:        599    IO-APIC-edge  i8042
-   2:          0          XT-PIC  cascade
--  9:         27    IO-APIC-edge  acpi
-- 12:        755    IO-APIC-edge  i8042
-- 14:       6259    IO-APIC-edge  ide0
-+  9:         28    IO-APIC-edge  acpi
-+ 12:       2105    IO-APIC-edge  i8042
-+ 14:       6465    IO-APIC-edge  ide0
-  16:          0   IO-APIC-level  uhci_hcd:usb5, i915@pci:0000:00:02.0
-  17:          1   IO-APIC-level  Intel ICH6, ipw2200
-  18:          0   IO-APIC-level  uhci_hcd:usb4
-@@ -12,6 +12,6 @@
-  20:          0   IO-APIC-level  yenta, Intel ICH6 Modem
-  23:          0   IO-APIC-level  ehci_hcd:usb1, uhci_hcd:usb2
- NMI:          0 
--LOC:      27872 
-+LOC:      47191 
- ERR:          0
- MIS:          0
+Once our reasons for doing things are clear and we can agree to a common
+set of goals, picking the best solution should not be too difficult.
 
-With ec_initr=0 and acpid *started* I see this change in /var/log/acpid
 
---- tmp/ec0/acpid-after-boot	2006-02-07 14:20:21.000000000 +0100
-+++ tmp/ec0/acpid-after-powerbutton-and-lid-switch	2006-02-07 15:01:50.000000000 +0100
-@@ -327,3 +327,20 @@
- [Tue Feb  7 14:13:41 2006] exiting
- [Tue Feb  7 14:18:44 2006] starting up
- [Tue Feb  7 14:18:44 2006] 8 rules loaded
-+[Tue Feb  7 14:20:25 2006] received event "button/power PWRF 00000080 00000001"
-+[Tue Feb  7 14:20:25 2006] executing action "/etc/acpi/actions/my_powerbtn.sh"
-+[Tue Feb  7 14:20:25 2006] BEGIN HANDLER MESSAGES
-+[Tue Feb  7 14:20:37 2006] END HANDLER MESSAGES
-+[Tue Feb  7 14:20:37 2006] action exited with status 0
-+[Tue Feb  7 14:20:37 2006] completed event "button/power PWRF 00000080 00000001"
-+[Tue Feb  7 14:23:20 2006] received event "button/lid LID0 00000080 00000001"
-+[Tue Feb  7 14:23:20 2006] executing action "/etc/acpi/actions/lm_lid.sh button/lid LID0 00000080 00000001"
-+[Tue Feb  7 14:23:20 2006] BEGIN HANDLER MESSAGES
-+[Tue Feb  7 14:23:20 2006] END HANDLER MESSAGES
-+[Tue Feb  7 14:23:20 2006] action exited with status 0
-+[Tue Feb  7 14:23:20 2006] executing action "/etc/acpi/actions/my_lid.sh button/lid LID0 00000080 00000001"
-+[Tue Feb  7 14:23:20 2006] BEGIN HANDLER MESSAGES
-+[Tue Feb  7 14:24:27 2006] END HANDLER MESSAGES
-+[Tue Feb  7 14:24:27 2006] action exited with status 0
-+[Tue Feb  7 14:24:27 2006] completed event "button/lid LID0 00000080 00000001"
+My problem in previous talks is that I don't think you have seen where I have
+been coming from.   Which is why I shut up earlier and posted code.
 
-Hope this helps
--- Gerhard
+
+Eric

@@ -1,114 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965135AbWBGPon@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965131AbWBGPnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965135AbWBGPon (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 10:44:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965134AbWBGPo3
+	id S965131AbWBGPnT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 10:43:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965129AbWBGPnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 10:44:29 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38285 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S965133AbWBGPoZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 10:44:25 -0500
-To: Sam Vilain <sam@vilain.net>
-Cc: Rik van Riel <riel@redhat.com>, Kirill Korotaev <dev@openvz.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Hubertus Franke <frankeh@watson.ibm.com>,
-       clg@fr.ibm.com, haveblue@us.ibm.com, greg@kroah.com,
-       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
-       kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
-       Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
-References: <43E7C65F.3050609@openvz.org>
-	<m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com>
-	<43E83E8A.1040704@vilain.net>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 07 Feb 2006 08:42:12 -0700
-In-Reply-To: <43E83E8A.1040704@vilain.net> (Sam Vilain's message of "Tue, 07
- Feb 2006 19:30:34 +1300")
-Message-ID: <m1oe1jfa5n.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 7 Feb 2006 10:43:01 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:29378 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932078AbWBGPlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 10:41:46 -0500
+From: mchehab@infradead.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-dvb-maintainer@linuxtv.org, Patrick Boettcher <pb@linuxtv.org>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: [PATCH 11/16] FIX: Multiple usage of VP7045-based devices
+Date: Tue, 07 Feb 2006 13:33:33 -0200
+Message-id: <20060207153333.PS13014200011@infradead.org>
+In-Reply-To: <20060207153248.PS50860900000@infradead.org>
+References: <20060207153248.PS50860900000@infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1-1mdk 
+Content-Transfer-Encoding: 7bit
+X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Vilain <sam@vilain.net> writes:
+From: Patrick Boettcher <pb@linuxtv.org>
 
-> Rik van Riel wrote:
->> On Mon, 6 Feb 2006, Eric W. Biederman wrote:
->>
->>> We are never going to form a consensus if all of the people doing
->>> implementations don't talk.
->> Speaking of which - it would be interesting to get Kirill's
->> comments on Eric's patchset ;)
->> Once we know what's good and bad about both patchsets, we'll
->> be a lot closer to knowing what exactly should go upstream.
->
-> Let's compare approaches of patchsets before the patchsets themselves.
->
-> It seems to be, should we:
->
->    A) make a general form of virtualising PIDs, and hope this assists
->       later virtualisation efforts (Eric's patch)
->
->    B) make a general form of containers/jails/vservers/vpses, and layer
->       PID virtualisation on top of it somewhere (as in openvz, vserver)
->
-> I can't think of any real use cases where you would specifically want A)
-> without B).
+Reassigning function pointers in a static led to infinite loops when using
+multiple VP7045-based device at the same time on one system. Using kmalloc'd
+copies for reassignments is better.
 
+Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+---
 
-You misrepresent my approach.  
+ drivers/media/dvb/dvb-usb/vp7045-fe.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
-First there is a huge commonality in the code bases between the
-different implementations and I have already gotten preliminary
-acceptance from the vserver developers, that my approach is sane.  The
-major difference is what user interface does the kernel export,
-and I posted my user interface.
+diff --git a/drivers/media/dvb/dvb-usb/vp7045-fe.c b/drivers/media/dvb/dvb-usb/vp7045-fe.c
+index 5242cca..9999336 100644
+--- a/drivers/media/dvb/dvb-usb/vp7045-fe.c
++++ b/drivers/media/dvb/dvb-usb/vp7045-fe.c
+@@ -23,10 +23,11 @@
+ 
+ struct vp7045_fe_state {
+ 	struct dvb_frontend fe;
++	struct dvb_frontend_ops ops;
++
+ 	struct dvb_usb_device *d;
+ };
+ 
+-
+ static int vp7045_fe_read_status(struct dvb_frontend* fe, fe_status_t *status)
+ {
+ 	struct vp7045_fe_state *state = fe->demodulator_priv;
+@@ -150,7 +151,8 @@ struct dvb_frontend * vp7045_fe_attach(s
+ 		goto error;
+ 
+ 	s->d = d;
+-	s->fe.ops = &vp7045_fe_ops;
++	memcpy(&s->ops, &vp7045_fe_ops, sizeof(struct dvb_frontend_ops));
++	s->fe.ops = &s->ops;
+ 	s->fe.demodulator_priv = s;
+ 
+ 	goto success;
 
-What user interface to export is a debate worth having.
-
-For a lot of things getting the details just so is very important
-to long term maintainability and it is not my impression that anyone
-has done that yet.
-
-
-Second I am not trying to just implement a form of virtualizing PIDs.
-Heck I don't intend to virtualize anything.  The kernel has already
-virtualized everything I require.  I want to implement multiple
-instances of the current kernel global namespaces.  All I want is
-to be able to use the same name twice in user space and not have
-a conflict.
-
-
-Beyond getting multiple instance of all of the kernel namespaces
-(which is the hard requirement for migration) my approach is to
-see what is needed for projects like vserver and vps and see how
-their needs can be met as well. 
-
-
-I disagree with a struct container simply because I do not see what
-value it happens to bring to the table.  I have yet to see a problem
-that it solves that I have not solved yet.
-
-
-In addition I depart from vserver and other implementations in another
-regard.  It is my impression a lot of their work has been done so
-those projects are maintainable outside of the kernel, which makes
-sense as that is where those code bases live.  But I don't think that
-gives the best solution for an in kernel implementation, which is
-what we are implementing.
-
-
-So far I have succeeded in communicating with both the IBM and
-vserver developers.  Hopefully I can do the same with Kirill Korotaev
-and the OpenVz team.   I think my implementation stands up to
-criticism.  But expect surprises in the way I solve a number of
-problems.
-
-I suspect I will find similar surprises in the OpenVz code.  
-
-Time to do some more research I guess.
-
-Eric

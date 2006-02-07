@@ -1,100 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWBGRXF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWBGR3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbWBGRXF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 12:23:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWBGRXF
+	id S932167AbWBGR3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 12:29:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWBGR3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 12:23:05 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52366 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932164AbWBGRXE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 12:23:04 -0500
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Sam Vilain <sam@vilain.net>, Rik van Riel <riel@redhat.com>,
-       Kirill Korotaev <dev@openvz.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Hubertus Franke <frankeh@watson.ibm.com>, clg@fr.ibm.com,
-       haveblue@us.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
-       serue@us.ibm.com, arjan@infradead.org, kuznet@ms2.inr.ac.ru,
-       saw@sawoct.com, devel@openvz.org, Dmitry Mishin <dim@sw.ru>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
-References: <43E7C65F.3050609@openvz.org>
-	<m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com>
-	<43E83E8A.1040704@vilain.net>
-	<m1oe1jfa5n.fsf@ebiederm.dsl.xmission.com> <43E8C84D.6020107@sw.ru>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 07 Feb 2006 10:20:46 -0700
-In-Reply-To: <43E8C84D.6020107@sw.ru> (Kirill Korotaev's message of "Tue, 07
- Feb 2006 19:18:21 +0300")
-Message-ID: <m18xsnf5ld.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 7 Feb 2006 12:29:23 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:8922 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932123AbWBGR3W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 12:29:22 -0500
+Subject: Re: [PATCH] ibmasm driver: don't use previously freed pointer
+From: Max Asbock <masbock@us.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060204060254.GA4454@kroah.com>
+References: <1139005598.7521.68.camel@w-amax>
+	 <20060204060254.GA4454@kroah.com>
+Content-Type: text/plain
+Message-Id: <1139333357.7521.81.camel@w-amax>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 07 Feb 2006 09:29:17 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev <dev@sw.ru> writes:
+On Fri, 2006-02-03 at 22:02, Greg KH wrote:
+> On Fri, Feb 03, 2006 at 02:26:38PM -0800, Max Asbock wrote:
+> > ibmasm driver:
+> > Fix the command_put() function which uses a pointer for a spinlock that
+> > can be freed before dereferencing it.
+> > 
+> > Signed-off-by: Max Asbock masbock@us.ibm.com
+> > 
+> > ---
+> > 
+> > diff -burpN linux-2.6.16-rc1/drivers/misc/ibmasm/ibmasm.h linux-2.6.16-rc1.ibmasm/drivers/misc/ibmasm/ibmasm.h
+> > --- linux-2.6.16-rc1/drivers/misc/ibmasm/ibmasm.h	2006-02-01 11:50:01.000000000 -0800
+> > +++ linux-2.6.16-rc1.ibmasm/drivers/misc/ibmasm/ibmasm.h	2006-02-03 13:57:42.000000000 -0800
+> > @@ -101,10 +101,11 @@ struct command {
+> >  static inline void command_put(struct command *cmd)
+> >  {
+> >  	unsigned long flags;
+> > +	spinlock_t *lock = cmd->lock;
+> >  
+> > -	spin_lock_irqsave(cmd->lock, flags);
+> > +	spin_lock_irqsave(lock, flags);
+> >          kobject_put(&cmd->kobj);
+> > -	spin_unlock_irqrestore(cmd->lock, flags);
+> > +	spin_unlock_irqrestore(lock, flags);
+> >  }
+> 
+> If this patch is true, doesn't the spinlock the pointer is pointing out
+> still get deleted?
+> 
+> Yes you save a pointer off, but it looks like the problem is still
+> present.
+> 
+> Or am I missing something?
+> 
 
->>>I can't think of any real use cases where you would specifically want A)
->>>without B).
->
->> You misrepresent my approach.
-> [...]
->
->> Second I am not trying to just implement a form of virtualizing PIDs.
->> Heck I don't intend to virtualize anything.  The kernel has already
->> virtualized everything I require.  I want to implement multiple
->> instances of the current kernel global namespaces.  All I want is
->> to be able to use the same name twice in user space and not have
->> a conflict.
-> if you want not virtualize anything, what is this discussion about? :)
-> can you provide an URL to your sources? you makes lot's of statements about that
-> your network virtualization solution is better/more complete, so I'd like to see
-> your solution in whole rather than only words.
-> Probably this will help.
+The lock pointer in struct command points to a spinlock outside the
+structure that doesn't get deleted.
 
-Sure.
-
-I think it is more an accident of time, and the fact that I am quite
-proud of where I am at.  You quite likely have improved things in openvz
-since last I looked as well.  Currently my code quality is only a proof
-of concept but the tree is below.
-
-git://git.kernel.org/pub/scm/linux/kernel/git/ebiederm/linux-2.6-ns.git/
-
-Basically the implementation appears to the user as a separate instance
-of the network stack.  Since the tree was experimental the path is
-absolutely horrible.  I am in the process of cleaning and redoing all
-of that now in preparation for kernel inclusion.
-
-But I suspect I am in the lead as no one else had noticed the ipv6 
-reference counting bugs.
-
->> I disagree with a struct container simply because I do not see what
->> value it happens to bring to the table.  I have yet to see a problem
->> that it solves that I have not solved yet.
-> again, source would help to understand your solution and problem you solved and
-> not solved yet.
-
-Above.  But at least with pids it has all been posted on the mailing list.
-
-I think I have solved most of the code structural issues and the big
-kernel API issues.  A lot of the little things I have not gotten to yet
-as I figured it was best approached later.
-
->> In addition I depart from vserver and other implementations in another
->> regard.  It is my impression a lot of their work has been done so
->> those projects are maintainable outside of the kernel, which makes
->> sense as that is where those code bases live.  But I don't think that
->> gives the best solution for an in kernel implementation, which is
->> what we are implementing.
-> These soltuions are in kernel implementations actually.
-
-Sorry in/out in this context I was referring to the stock linux kernel.
-As soon as I had a viable proof of concept I began working to get
-my code merged.
-
-Eric
+max
 

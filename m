@@ -1,71 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030308AbWBHAYk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbWBGXhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030308AbWBHAYk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 19:24:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030309AbWBHAYj
+	id S932476AbWBGXhF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 18:37:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbWBGXhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 19:24:39 -0500
-Received: from mail.gmx.de ([213.165.64.21]:32957 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030308AbWBHAYj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 19:24:39 -0500
-X-Authenticated: #271361
-Date: Wed, 8 Feb 2006 01:24:34 +0100
-From: Edgar Toernig <froese@gmx.de>
-To: mchehab@infradead.org
-Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
-       Manu Abraham <manu@linuxtv.org>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: Re: [PATCH 04/16] Fix [Bug 5895] to correct snd_87x autodetect
-Message-Id: <20060208012434.10d927c4.froese@gmx.de>
-In-Reply-To: <20060207153330.PS44220900004@infradead.org>
-References: <20060207153248.PS50860900000@infradead.org>
-	<20060207153330.PS44220900004@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 7 Feb 2006 18:37:05 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:4463 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932476AbWBGXhD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 18:37:03 -0500
+Message-ID: <43E92EEE.7040706@google.com>
+Date: Tue, 07 Feb 2006 15:36:14 -0800
+From: Martin Bligh <mbligh@google.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Peter Williams <pwil3058@bigpond.net.au>
+CC: Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
+       npiggin@suse.de, mingo@elte.hu, rostedt@goodmis.org,
+       suresh.b.siddha@intel.com, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [rfc][patch] sched: remove smpnice
+References: <20060207142828.GA20930@wotan.suse.de>	<200602080157.07823.kernel@kolivas.org> <20060207141525.19d2b1be.akpm@osdl.org> <43E92B2B.2060105@bigpond.net.au>
+In-Reply-To: <43E92B2B.2060105@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mchehab@infradead.org wrote:
->
-> --- a/drivers/media/dvb/bt8xx/bt878.c
-> +++ b/drivers/media/dvb/bt8xx/bt878.c
-> @@ -381,6 +381,23 @@ bt878_device_control(struct bt878 *bt, u
->  
->  EXPORT_SYMBOL(bt878_device_control);
->  
-> +
-> +struct cards card_list[] __devinitdata = {
-> +
-> +	{ 0x01010071, BTTV_BOARD_NEBULA_DIGITV,	"Nebula Electronics DigiTV" },
-> +	{ 0x07611461, BTTV_BOARD_AVDVBT_761,	"AverMedia AverTV DVB-T 761" },
->[...]
 
-I'm not very familiar with the pci configuration logic but
-what's the point of this list and the BTTV_BOARD_xxx defines?
-The defines are never used and the list is only used to let
-the probe routine fail when the device is not in the list.
+> I think that the problems with excessive idling with the early versions 
+> of my modifications to Con's patch showed that the load balancing code 
+> is fairly sensitive to the average load per normal task not being 
+> approximately 1.  My latest patches restore this state of affairs and 
+> kernbench testing indicates that the excessive idling has gone away (see 
+> Martin J Bligh's message of 2006/01/29 11:52 "Re: -mm seems 
+> significantly slower than mainline on kernbench thread").
 
-Wouldn't it be cleaner to add them to the pci_device_id
-list further down instead of requesting all subsystem ids?
+I *think* the latest slowdown in -mm was due to some TSC side effects 
+from John's patches - see his other patch earlier today to fix (oops,
+I forgot to reply to that ..)
 
-| static struct pci_device_id bt878_pci_tbl[] __devinitdata = {
-|         {PCI_VENDOR_ID_BROOKTREE, PCI_DEVICE_ID_BROOKTREE_878,
-|          PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
-|         {0,}
-| };
-
-
-Anyway, the bttv driver already has this information in his card
-list (field has_dvb).  As long as the bt878 isn't stand alone
-and requires the bttv driver wouldn't it be better to query its
-table?
-
-
-Even if this table is kept, it should be static and the variable
-card_id in the probe routine should be renamed to pci_id as it
-does not hold the card_id as defined in struct card but the pci_id.
-
-Ciao, ET.
+So AFAICS, all issues with Peter's stuff were fixed.

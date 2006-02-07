@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965123AbWBGPII@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbWBGPHu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965123AbWBGPII (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 10:08:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbWBGPIH
+	id S965103AbWBGPHu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 10:07:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbWBGPHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 10:08:07 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:60366 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S965123AbWBGPIG (ORCPT
+	Tue, 7 Feb 2006 10:07:50 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:692 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S965117AbWBGPHt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 10:08:06 -0500
-Date: Tue, 7 Feb 2006 16:08:00 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH 03/20] pid: Introduce a generic helper to test for
- init.
-In-Reply-To: <m1fymwmgk0.fsf_-_@ebiederm.dsl.xmission.com>
-Message-ID: <Pine.LNX.4.62.0602071607220.17769@pademelon.sonytel.be>
-References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
- <m1vevsmgvz.fsf@ebiederm.dsl.xmission.com> <m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com>
- <m1fymwmgk0.fsf_-_@ebiederm.dsl.xmission.com>
+	Tue, 7 Feb 2006 10:07:49 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <nigel@suspend2.net>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Date: Tue, 7 Feb 2006 16:09:04 +0100
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, Bojan Smojver <bojan@rexursive.com>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
+       suspend2-devel@lists.suspend2.net
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060207004448.GC1575@elf.ucw.cz> <200602071105.45688.nigel@suspend2.net>
+In-Reply-To: <200602071105.45688.nigel@suspend2.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602071609.05676.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Feb 2006, Eric W. Biederman wrote:
-> --- a/include/linux/sched.h
-> +++ b/include/linux/sched.h
-> @@ -894,6 +894,19 @@ static inline int pid_alive(struct task_
->  	return p->pids[PIDTYPE_PID].nr != 0;
->  }
->  
-> +/**
-> + * is_init - check if a task structure is the first user space
-> + *	     task the kernel created.
-> + * @p: Task structure to be checked.
-       ^
-> + */
-> +static inline int is_init(struct task_struct *tsk)
-                                                 ^^^
-Gr{oetje,eeting}s,
+Hi,
 
-						Geert
+On Tuesday 07 February 2006 02:05, Nigel Cunningham wrote:
+> On Tuesday 07 February 2006 10:44, Pavel Machek wrote:
+> > Are you Max Dubois, second incarnation or what?
+> >
+> > > Well, given that the kernel suspend is going to be kept for a while,
+> > > wouldn't it be better if it was feature full? How would the users be
+> > > at
+> >
+> >                                                
+> > ~~~~~~~~~~~~~~~~~~~~~~~~~
+> >
+> > > a disadvantage if they had better kernel based suspend for a while,
+> >
+> > ~~~~~~~~~~~~~~~~
+> >
+> > > followed by u-beaut-cooks-cleans-and-washes uswsusp? That's the part I
+> > > don't get...
+> >
+> > *Users* would not be at disadvantage, but, surprise, there's one thing
+> > more important than users. Thats developers, and I can guarantee you
+> > that merging 14K lines of code just to delete them half a year later
+> > would drive them crazy.
+> 
+> It would more be an ever-changing interface that would drive them crazy. So 
+> why don't we come up with an agreed method of starting a suspend and 
+> starting a resume that they can use, without worrying about whether 
+> they're getting swsusp, uswsusp or Suspend2? /sys/power/state seems the 
+> obvious choice for this. An additional /sys entry could perhaps be used to 
+> modify which implementation is used when you echo disk > /sys/power/state 
+> - something like
+> 
+> # cat /sys/power/disk_method
+> swsusp uswsusp suspend2
+> # echo uswsusp > /sys/power/disk_method
+> # echo > /sys/power/state
+> 
+> Is there a big problem with that, which I've missed?
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Userland suspend is driven by the suspending application which only calls
+the kernel to do things it cannot do itself, like freezing (the other)
+processes, snapshotting the system etc.  We use the /dev/snapshot
+device and the ioctl()s in there, so no sysfs files are needed for that.
+It's independent and can coexist with the existing sysfs interface
+just fine.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Greetings,
+Rafael

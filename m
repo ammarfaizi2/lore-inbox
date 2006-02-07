@@ -1,124 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965133AbWBGPp4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965139AbWBGPrS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965133AbWBGPp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 10:45:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbWBGPkk
+	id S965139AbWBGPrS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 10:47:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbWBGPrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 10:40:40 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:46492 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751120AbWBGPkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 10:40:31 -0500
-From: mchehab@infradead.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org,
-       Markus Rechberger <mrechberger@gmail.com>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 07/16] Fixed i2c return value, conversion mdelay to msleep
-Date: Tue, 07 Feb 2006 13:33:31 -0200
-Message-id: <20060207153331.PS65523100007@infradead.org>
-In-Reply-To: <20060207153248.PS50860900000@infradead.org>
-References: <20060207153248.PS50860900000@infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-1mdk 
+	Tue, 7 Feb 2006 10:47:17 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:56282 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S965137AbWBGPrQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 10:47:16 -0500
+Message-ID: <43E8C0F3.5080205@zytor.com>
+Date: Tue, 07 Feb 2006 07:46:59 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Luca Berra <bluca@comedia.it>
+CC: Neil Brown <neilb@suse.de>, linux-raid@vger.kernel.org,
+       klibc list <klibc@zytor.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [klibc] Re: Exporting which partitions to md-configure
+References: <43DEB4B8.5040607@zytor.com> <17374.47368.715991.422607@cse.unsw.edu.au> <43DEC095.2090507@zytor.com> <17374.50399.1898.458649@cse.unsw.edu.au> <43DEC5DC.1030709@zytor.com> <17382.43646.567406.987585@cse.unsw.edu.au> <43E80A5A.5040002@zytor.com> <20060207104311.GD22221@percy.comedia.it>
+In-Reply-To: <20060207104311.GD22221@percy.comedia.it>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Markus Rechberger <mrechberger@gmail.com>
+Luca Berra wrote:
+> 
+>> This, in fact is *EXACTLY* what we're talking about; it does require 
+>> autoassemble.  Why do we care about the partition types at all?  The 
+>> reason is that since the md superblock is at the end, it doesn't get 
+>> automatically wiped if the partition is used as a raw filesystem, and 
+>> so it's important that there is a qualifier for it.
+> 
+> I don't like using partition type as a qualifier, there is people who do
+> not wish to partition their drives, there are systems not supporting
+> msdos like partitions, heck even m$ is migrating away from those.
+> 
 
-fixed i2c return value, conversion mdelay to msleep
+That's why we're talking about non-msdos partitioning schemes.
 
-Signed-off-by: Markus Rechberger <mrechberger@gmail.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
----
+> In any case if that has to be done it should be done into mdadm, not
+> in a different scrip that is going to call mdadm (behaviour should be
+> consistent between mdadm invoked by initramfs and mdadm invoked on a
+> running system).
 
- drivers/media/video/em28xx/em28xx-core.c |   15 +++++++++++++--
- drivers/media/video/em28xx/em28xx-i2c.c  |    8 ++++----
- 2 files changed, 17 insertions(+), 6 deletions(-)
+Agreed.  mdadm is the best place for it.
 
-diff --git a/drivers/media/video/em28xx/em28xx-core.c b/drivers/media/video/em28xx/em28xx-core.c
-index 82f0c5f..e5ee8bc 100644
---- a/drivers/media/video/em28xx/em28xx-core.c
-+++ b/drivers/media/video/em28xx/em28xx-core.c
-@@ -139,6 +139,9 @@ int em28xx_read_reg_req_len(struct em28x
- {
- 	int ret, byte;
- 
-+	if (dev->state & DEV_DISCONNECTED)
-+		return(-ENODEV);
-+
- 	em28xx_regdbg("req=%02x, reg=%02x ", req, reg);
- 
- 	ret = usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0), req,
-@@ -165,6 +168,9 @@ int em28xx_read_reg_req(struct em28xx *d
- 	u8 val;
- 	int ret;
- 
-+	if (dev->state & DEV_DISCONNECTED)
-+		return(-ENODEV);
-+
- 	em28xx_regdbg("req=%02x, reg=%02x:", req, reg);
- 
- 	ret = usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0), req,
-@@ -195,7 +201,12 @@ int em28xx_write_regs_req(struct em28xx 
- 	int ret;
- 
- 	/*usb_control_msg seems to expect a kmalloced buffer */
--	unsigned char *bufs = kmalloc(len, GFP_KERNEL);
-+	unsigned char *bufs;
-+
-+	if (dev->state & DEV_DISCONNECTED)
-+		return(-ENODEV);
-+
-+	bufs = kmalloc(len, GFP_KERNEL);
- 
- 	em28xx_regdbg("req=%02x reg=%02x:", req, reg);
- 
-@@ -212,7 +223,7 @@ int em28xx_write_regs_req(struct em28xx 
- 	ret = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0), req,
- 			      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 			      0x0000, reg, bufs, len, HZ);
--	mdelay(5);		/* FIXME: magic number */
-+	msleep(5);		/* FIXME: magic number */
- 	kfree(bufs);
- 	return ret;
- }
-diff --git a/drivers/media/video/em28xx/em28xx-i2c.c b/drivers/media/video/em28xx/em28xx-i2c.c
-index 0591a70..6ca8631 100644
---- a/drivers/media/video/em28xx/em28xx-i2c.c
-+++ b/drivers/media/video/em28xx/em28xx-i2c.c
-@@ -78,7 +78,7 @@ static int em2800_i2c_send_max4(struct e
- 		ret = dev->em28xx_read_reg(dev, 0x05);
- 		if (ret == 0x80 + len - 1)
- 			return len;
--		mdelay(5);
-+		msleep(5);
- 	}
- 	em28xx_warn("i2c write timed out\n");
- 	return -EIO;
-@@ -138,7 +138,7 @@ static int em2800_i2c_check_for_device(s
- 			return -ENODEV;
- 		else if (msg == 0x84)
- 			return 0;
--		mdelay(5);
-+		msleep(5);
- 	}
- 	return -ENODEV;
- }
-@@ -278,9 +278,9 @@ static int em28xx_i2c_xfer(struct i2c_ad
- 							   msgs[i].buf,
- 							   msgs[i].len,
- 							   i == num - 1);
--			if (rc < 0)
--				goto err;
- 		}
-+		if (rc < 0)
-+			goto err;
- 		if (i2c_debug>=2)
- 			printk("\n");
- 	}
+> If the user wants to reutilize a device that was previously a member of
+> an md array he/she should use mdadm --zero-superblock to remove the
+> superblock.
+> I see no point in having a system that tries to compensate for users not
+> following correct procedures. sorry.
 
+You don't?  That surprises me... making it harder for the user to have 
+accidental data loss sounds like a very good thing to me.
+	
+	-hpa

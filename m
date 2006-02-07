@@ -1,96 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbWBGDHS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932444AbWBGDIo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964920AbWBGDHS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 22:07:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbWBGDHS
+	id S932444AbWBGDIo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 22:08:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbWBGDIn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 22:07:18 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:11681 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S964920AbWBGDHP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 22:07:15 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: Jim Crilly <jim@why.dont.jablowme.net>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Tue, 7 Feb 2006 13:03:51 +1000
-User-Agent: KMail/1.9.1
-Cc: Lee Revell <rlrevell@joe-job.com>, Pavel Machek <pavel@ucw.cz>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, suspend2-devel@lists.suspend2.net,
-       linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <1139275143.2041.24.camel@mindpipe> <20060207030129.GA23860@mail>
-In-Reply-To: <20060207030129.GA23860@mail>
+	Mon, 6 Feb 2006 22:08:43 -0500
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:1463 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932444AbWBGDIn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 22:08:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=f+6MmCsWKgRsKTX+zTTR5XmKaGtPpM3dExTXl+ZqGcUMj31t9Dl69tawz+b09J7S1fjODpCxhj3TXor324xbyy0ttv+dUqMxmZHe5K9kiLZ0d356Kr6YpM2acOG4sATHr+ZB4IgVhIgq3eQEom/VJ/3ctmqj1i/ZnwajmYPRFqQ=  ;
+Message-ID: <43E80F36.8020209@yahoo.com.au>
+Date: Tue, 07 Feb 2006 14:08:38 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2018854.oY09Ma9ZBk";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Andrew Morton <akpm@osdl.org>, ck@vds.kolivas.org
+Subject: Re: [PATCH] mm: implement swap prefetching
+References: <200602071028.30721.kernel@kolivas.org>
+In-Reply-To: <200602071028.30721.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602071303.55753.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2018854.oY09Ma9ZBk
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Con Kolivas wrote:
+> Andrew et al
+> 
+> I'm resubmitting the swap prefetching patch for inclusion in -mm and hopefully
+> mainline. After you removed it from -mm there were some people that described
+> the benefits it afforded their workloads. -mm being ever so slightly quieter
+> at the moment please reconsider.
+> 
 
-Hi Jim.
+I have a few comments.
 
-On Tuesday 07 February 2006 13:01, Jim Crilly wrote:
-> On 02/06/06 08:19:02PM -0500, Lee Revell wrote:
-> > On Mon, 2006-02-06 at 19:59 -0500, Jim Crilly wrote:
-> > > I guess reasonable is a subjective term. For instance, I've seen
-> > > quite a few people vehemently against adding new ioctls to the
-> > > kernel and yet you'll be adding quite a few for /dev/snapshot. I'm
-> > > just of the same mind as Nigel in that it makes the most sense to me
-> > > that the majority of the suspend/hibernation process to be in the
-> > > kernel.
-> >
-> > No one is saying that ANY new ioctls are bad, just that the KISS
-> > principle of engineering dictates that it's bad design to use ioctls
-> > where a simple read/write to a sysfs file will do.
->
-> I understand that, but shouldn't the KISS principle also be applied to
-> the user interface of a feature? As it stands it looks like Suspend2
-> is going to be a lot simpler for users to configure and get right than
-> uswsusp. As long as you have Suspend2 enabled in the kernel it 'just
-> works', even if you don't have the userland UI it'll still suspend and
-> resume just without the progress bars. There is still some room for
-> error with things like forgetting to enable the swap writer and then
-> attempting to suspend to a swap device or making lzf a module and
-> forgetting to load it before resuming from a compressed image, but those
-> are no worse than any other kernel option.
->
-> With uswsusp it'll be more flexible in that you'll be able to use any
-> userland process or library to transform the image before storing it,
-> but the suspend and resume processes are going to be a lot more
-> complicated. For instance, how are you going to tell the kernel that you
-> need the uswsusp UI binary, /bin/gzip and /usr/bin/gpg to run after the
-> rest of userland has been frozen?
+prefetch_get_page is doing funny things with zones and nodes / zonelists
+(eg. 'We don't prefetch into DMA' meaning something like 'this only works
+on i386 and x86-64').
 
-As I understand it, with uswsusp, all the functionality will be compiled=20
-into one monolithic binary, which you'll also need to put in your initrd=20
-or initramfs.
+buffered_rmqueue, zone_statistics, etc really should to stay static to
+page_alloc.
 
-Hope that helps.
+It is completely non NUMA or cpuset-aware so it will likely allocate memory
+in the wrong node, and will cause cpuset tasks that have their memory swapped
+out to get it swapped in again on other parts of the machine (ie. breaks
+cpuset's memory partitioning stuff).
 
-Nigel
+It introduces global cacheline bouncing in pagecache allocation and removal
+and page reclaim paths, also low watermark failure is quite common in normal
+operation, so that is another global cacheline write in page allocation path.
 
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
+Why bother with the trylocks? On many architectures they'll RMW the cacheline
+anyway, so scalability isn't going to be much improved (or do you see big
+lock contention?)
 
---nextPart2018854.oY09Ma9ZBk
-Content-Type: application/pgp-signature
+Aside from those issues, I think the idea has is pretty cool... but there are
+a few things that get to me:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+- it is far more common to reclaim pages from other mappings (not swap).
+   Shouldn't they have the same treatment? Would that be more worthwhile?
 
-iD8DBQBD6A4bN0y+n1M3mo0RAhQfAKCMGjqF/dTR5cOcRyhd6Ad1pQJWzwCfW2LS
-oGA4eSwrwlKk9Qa7SI1JxOs=
-=z7ft
------END PGP SIGNATURE-----
+- when is a system _really_ idle? what if we want it to stay idle (eg.
+   laptops)? what if some block devices or swap devices are busy, or
+   memory is continually being allocated and freed and/or pagecache is
+   being created and truncated but we still want to prefetch?
 
---nextPart2018854.oY09Ma9ZBk--
+- for all its efforts, it will still interact with page reclaim by
+   putting pages on the LRU and causing them to be cycled.
+
+   - on bursty loads, this cycling could happen a bit. and more reads on
+     the swap devices.
+
+- in a sense it papers over page reclaim problems that shouldn't be so
+   bad in the first place (midnight cron). On the other hand, I can see
+   how it solves this issue nicely.
+
+
+> Cheers,
+> Con
+> ---
+> This patch implements swap prefetching when the vm is relatively idle and
+> there is free ram available. The code is based on some early work by Thomas
+> Schlichter.
+> 
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

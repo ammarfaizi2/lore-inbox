@@ -1,107 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWBGSfK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbWBGShp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbWBGSfK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 13:35:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964853AbWBGSfK
+	id S964855AbWBGShp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 13:37:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbWBGShp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 13:35:10 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37519 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964835AbWBGSfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 13:35:08 -0500
-To: Jeff Dike <jdike@addtoit.com>
-Cc: linux-kernel@vger.kernel.org, Herbert Poetzl <herbert@13thfloor.at>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Kirill Korotaev <dev@sw.ru>, Greg <gkurz@fr.ibm.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, Rik van Riel <riel@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: [RFC][PATCH 01/20] pid: Intoduce the concept of a wid (wait id)
-References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
-	<m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>
-	<20060207173902.GA6237@ccure.user-mode-linux.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 07 Feb 2006 11:32:06 -0700
-In-Reply-To: <20060207173902.GA6237@ccure.user-mode-linux.org> (Jeff Dike's
- message of "Tue, 7 Feb 2006 12:39:02 -0500")
-Message-ID: <m1slqvdnq1.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 7 Feb 2006 13:37:45 -0500
+Received: from atpro.com ([12.161.0.3]:52240 "EHLO atpro.com")
+	by vger.kernel.org with ESMTP id S964855AbWBGSho (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 13:37:44 -0500
+From: "Jim Crilly" <jim@why.dont.jablowme.net>
+Date: Tue, 7 Feb 2006 13:37:12 -0500
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: matthias.andree@gmx.de, peter.read@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060207183712.GC5341@voodoo>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	matthias.andree@gmx.de, peter.read@gmail.com,
+	linux-kernel@vger.kernel.org
+References: <20060123105634.GA17439@merlin.emma.line.org> <200602021717.08100.luke@dashjr.org> <Pine.LNX.4.61.0602031502000.7991@yvahk01.tjqt.qr> <200602031724.55729.luke@dashjr.org> <43E7545E.nail7GN11WAQ9@burner> <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de> <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43E89B56.nailA792EWNLG@burner>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike <jdike@addtoit.com> writes:
+On 02/07/06 02:06:30PM +0100, Joerg Schilling wrote:
+> "Jim Crilly" <jim@why.dont.jablowme.net> wrote:
+> 
+> > You're not alone, I'm still waiting for an answer as to why cdrecord is
+> > the only userland app on any OS to use his SCSI ID naming convention
+> > and yet his is the correct way. I've asked twice and been blatantly
+> > ignored both times.
+> 
+> Well, while I did explain this many times (*), I am still waiting 
+> for an explanation why Linux tries to deviate from nearly all other OS.
+> 
+> *) in case you like are on amnesia: without the mapping in libscg,
+> cdrecord could not be used reliably on Linux. And yes, I _do_ care
+> about people who run Linux-2.4 or older!
+> 
+> 
+> It seems that we should stop this discussion.
+> 
+> As long as the peeople who answer here are onlookers without the 
+> needed skills, it seems to be a waste of time.
+> 
+> Jörg
 
-> First of all, for an RFC, this is very thorough.
+All you've explained is that using SCSI ID for device names is the way
+you want cdrecord to work, not why it's infinitely better than using real
+device names like every other userland program on every OS in existance.
 
-Thank you.
+And please name a case where 'cdrecord dev=/dev/cdrom file.iso' won't work
+reliably because I, and it would seem many others, haven't run into it.
+there was the case where recording audio doesn't do DMA, but that's a bug
+in ide-scsi and I AFAIK it doesn't matter whether you use dev=/scd0 or
+dev=1,0,0 to address the drive.  And also, I believe dev=/dev/scd0 will
+work with ide-scsi in 2.4, but I don't have a machine to test that on.
 
-> Second, I've been thinking along these lines for UML.  The motivation
-> is to get UML out of the system call tracing business as much as
-> possible, and to do so by having the host set up such that it can run
-> system calls itself and they do the same thing as the UML system call
-> would.
->
-> For example, for a UML process chrooted into a UML filesystem, the
-> file operations on normal files will do the same thing as they would
-> in UML, so they could be left to run on the host.
->
-> Similarly, something like virtualized processes could be made to do
-> the same thing with the process operations.  Trivially, getpid() will
-> return the right value if left to run on the host, so UML wouldn't
-> need to intercept it.  If there is a process tree inside a container
-> that mirrors the UML process tree, then lots of other system calls
-> also work, and don't need to be intercepted.
->
-> Ideally, I'd like namespaces on the host for all the resources under
-> UML control, and for a container to group those namespaces.  However,
-> something which stops short of that is still usable - UML just gets
-> less benefit from it.
+The people replying here are your users, if you don't want to listen to
+them pretty much any conversation with you will be a waste of time.
 
-Having all of the namespaces is certainly on my TODO list.
-
-I'm not at all certain if there is a need for a kernel container
-concept.
-
-> As far as processes go, ideally I'd like a containerized process to be
-> an empty shell which can be completely filled from userspace.  The
-> motivation for this is that when you have a UP UML with 100 processes,
-> it's wasteful to have 100 virtualized processes on the host.  What I
-> would want is one virtualized process which can be completely refilled
-> with new attributes on a context switch.
->
-> What I want to do is related to process migration, where you want to
-> move a process but have it not be able to tell.  I'm describing
-> migrating a process from the UML to the host such that the host
-> performs as many system calls itself, but those which can't get
-> intercepted and executed within the UML.  For migration between
-> physical machines, this would be the same as redirecting a system call
-> from the new host back to its original home.  You want to do that as
-> infrequently as possible, so you want the container to provide as much
-> context from the home host as possible.
-
-Currently redirecting a system call from the new host back to it's
-original home is not something I had planned on.  Most of the reasons
-I want to migrate relate to avoiding the hardware I am migrating from.
-Either to reduce it's load or to leave before the hardware dies.
-
-That said the idea of a user space monitor that can handle
-the strange virtualization things that don't fit well into the
-kernel is appealing.
-
-Note all of the migration I am looking is not process migration but
-container migration.  So I want a container per application.
-
-Eric
+Jim.

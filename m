@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964929AbWBGEK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbWBGEJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964929AbWBGEK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 23:10:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964964AbWBGEK2
+	id S964891AbWBGEJn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 23:09:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbWBGEJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 23:10:28 -0500
-Received: from beauty.rexursive.com ([218.214.6.102]:27334 "EHLO
-	beauty.rexursive.com") by vger.kernel.org with ESMTP
-	id S964929AbWBGEK1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 23:10:27 -0500
-Message-ID: <20060207151024.ubk0xi74kckkwkgk@imp.rexursive.com>
-Date: Tue, 07 Feb 2006 15:10:24 +1100
-From: Bojan Smojver <bojan@rexursive.com>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: Lee Revell <rlrevell@joe-job.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       suspend2-devel@lists.suspend2.net, Pavel Machek <pavel@ucw.cz>,
+	Mon, 6 Feb 2006 23:09:43 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:50315 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S964891AbWBGEJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 23:09:43 -0500
+Date: Tue, 7 Feb 2006 04:09:35 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Michael E Brown <michael_e_brown@Dell.com>
+Cc: Andrew Morton <akpm@osdl.org>, matt_domsch@Dell.com,
        linux-kernel@vger.kernel.org
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10]
-	[Suspend2] Modules support.)
-References: <20060201113710.6320.68289.stgit@localhost.localdomain>
-	<20060207030129.GA23860@mail> <1139282224.2041.48.camel@mindpipe>
-	<200602071332.51676.nigel@suspend2.net>
-In-Reply-To: <200602071332.51676.nigel@suspend2.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1;
-	format="flowed"
+Subject: Re: [PATCH] [RESEND] Add Dell laptop backlight brightness display
+Message-ID: <20060207040935.GA25853@srcf.ucam.org>
+References: <1139283796.28567.179.camel@soltek.michaels-house.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) H3 (4.0.4)
+In-Reply-To: <1139283796.28567.179.camel@soltek.michaels-house.net>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Nigel Cunningham <nigel@suspend2.net>:
+On Mon, Feb 06, 2006 at 09:43:16PM -0600, Michael E Brown wrote:
 
-> Of course, having said that, I don't know how
-> many people would be more likely to use it if it was in mainline and they
-> didn't have to patch their kernels, but I'd suspect it would be at least
-> that number again.
+> 	I would _strongly_ suggest that this patch _not_ go in. This driver
+> uses hardcoded values that are subject to change without notice. It is
+> perfectly legitimate for future versions of Dell BIOS to interpret pokes
+> to cmos location 0x99 as the command to format your hard drive.
 
-Well, there are far more people that use what distrubutions provide 
-than anything else. And distributions tend to like applying some 
-patches to the vanilla kernel, but if at all possible, not to be too 
-far away from mainline. Which is a good policy, of course, as it 
-reduces the amount of work for them and makes them submit improvements 
-upstream.
+I managed to send the wrong patch - the Dell one only reads from nvram. 
+If nvram reads are likely to reformat your hard drive, I think Dell 
+needs to reconsider its BIOS design :)
 
-So, when distributors are able to get their hands on something that 
-Just Works in the mainline, they will make sure things are nicely 
-integrated, variety of configs are supported (like suspending to swap 
-partitions, swap files or regular files), that the whole thing looks 
-pretty and performs well. All of this can be done with Suspend2 today.
+More seriously, a quick scan of libsmbios hasn't revealed any method for 
+obtaining the screen brightness. It's possible that I'm blind (I'm 
+certainly slightly drunk), but can you give a pointer to the correct 
+mechanism for making this call?
 
-So, it isn't just about the basics any more (i.e. who can suspend and 
-who cannot). Majority of users prefer things that work better, are 
-faster and look prettier.
-
+Thanks,
 -- 
-Bojan
+Matthew Garrett | mjg59@srcf.ucam.org

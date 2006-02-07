@@ -1,75 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbWBGWOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965161AbWBGWPY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030195AbWBGWOp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 17:14:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965161AbWBGWOo
+	id S965161AbWBGWPY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 17:15:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbWBGWPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 17:14:44 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:23184 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965037AbWBGWOo (ORCPT
+	Tue, 7 Feb 2006 17:15:24 -0500
+Received: from thunk.org ([69.25.196.29]:28141 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S965173AbWBGWPV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 17:14:44 -0500
-Date: Tue, 7 Feb 2006 14:15:25 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: npiggin@suse.de, mingo@elte.hu, rostedt@goodmis.org,
-       pwil3058@bigpond.net.au, suresh.b.siddha@intel.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [rfc][patch] sched: remove smpnice
-Message-Id: <20060207141525.19d2b1be.akpm@osdl.org>
-In-Reply-To: <200602080157.07823.kernel@kolivas.org>
-References: <20060207142828.GA20930@wotan.suse.de>
-	<200602080157.07823.kernel@kolivas.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Feb 2006 17:15:21 -0500
+Date: Tue, 7 Feb 2006 17:15:13 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: David Chow <davidchow@shaolinmicro.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux drivers management
+Message-ID: <20060207221513.GA7394@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	David Chow <davidchow@shaolinmicro.com>,
+	linux-kernel@vger.kernel.org
+References: <20060207044204.8908.qmail@science.horizon.com> <m1zml3rvkg.fsf@ebiederm.dsl.xmission.com> <43E8F8EB.8010800@shaolinmicro.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43E8F8EB.8010800@shaolinmicro.com>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> wrote:
->
-> On Wednesday 08 February 2006 01:28, Nick Piggin wrote:
-> > I'd like to get some comments on removing smpnice for 2.6.16. I don't
-> > think the code is quite ready, which is why I asked for Peter's additions
-> > to also be merged before I acked it (although it turned out that it still
-> > isn't quite ready with his additions either).
-> >
-> > Basically I have had similar observations to Suresh in that it does not
-> > play nicely with the rest of the balancing infrastructure (and raised
-> > similar concerns in my review).
-> >
-> > The samples (group of 4) I got for "maximum recorded imbalance" on a 2x2
-> >
-> > SMP+HT Xeon are as follows:
-> >            | Following boot | hackbench 20        | hackbench 40
-> >
-> > -----------+----------------+---------------------+---------------------
-> > 2.6.16-rc2 | 30,37,100,112  | 5600,5530,6020,6090 | 6390,7090,8760,8470
-> > +nosmpnice |  3, 2,  4,  2  |   28, 150, 294, 132 |  348, 348, 294, 347
-> >
-> > Hackbench raw performance is down around 15% with smpnice (but that in
-> > itself isn't a huge deal because it is just a benchmark). However, the
-> > samples show that the imbalance passed into move_tasks is increased by
-> > about a factor of 10-30. I think this would also go some way to
-> > explaining latency blips turning up in the balancing code (though I
-> > haven't actually measured that).
-> >
-> > We'll probably have to revert this in the SUSE kernel.
-> >
-> > The other option for 2.6.16 would be to fast track Peter's stuff, which
-> > I could put some time into... but that seems a bit risky at this stage
-> > of the game.
-> >
-> > I'd like to hear any other suggestions though. Patch included to aid
-> > discussion at this stage, rather than to encourage any rash decisions.
-> 
-> I see the demonstrable imbalance but I was wondering if there is there a real 
-> world benchmark that is currently affected?
-> 
+On Wed, Feb 08, 2006 at 03:45:47AM +0800, David Chow wrote:
+> - What is the goal of Linux developers? Just for fun? Or you want Linux 
+> to get more popular? Users want their system to get supported with 
+> latest drivers, not to compile and build to latest kernel. Or not to 
+> upgrade their Linux distro every week or month. I don't use 2.6.15 nor 
+> happy downloading 40Mb targged gzip kernel source and knowing how to 
+> "make" it.
 
-Well was any real-world workload (or benchmark) improved by the smpnice
-change?
+Every Linux developer has their own goals, of course, but for most of
+them it is about making the best possible Linux kernel that is
+technically possible.  If they have working drivers for their system,
+they may not necessarily care about some company's hardware unless,
+(a) it impacts them personally, (b) they are paid or employed to worry
+about it, or (c) lots of end-users are sending complaining/sending
+hate-mail about it.  
 
-Because if we have one workload which slowed and and none which sped up,
-it's a pretty easy decision..
+(In some cases, end-users send hate mail to the Linux kernel
+developers when some idiot company's binary driver modules is buggy
+and corrupts the kernel in hard-to-debug ways; one particular video
+driver company is especially guilty here, and is viewed by some as
+being directly responsible for the tainted kernel flags.)
+
+The assumption by many developers is that if we concetrate on making
+Linux as good as possible, it will eventually get popular enough that
+hardware vendors will feel a commercial incentive to cooperate with
+our way of doing things.  Obviously, this in practice things don't
+always work that way --- the Sony Betamax is story is one where
+technical excellence doesn't always win out.  However, at least in the
+server space, compromising hasn't obviously been a bad strategy, with
+many SCSI and FC controller manufacturers deciding on their own to
+work with the Linux kernel development community.  (Sometimes with
+some help from major system vendors who write in a requirement for a
+mainline device driver into the sourcing contracts for said
+controllers, but nevertheless, it shows that this stance is not
+obviously a bad strategy for Linux kernel developers, at least in the
+server space.)
+
+David, you may find this frustrating, and at least in the Deskstop
+space, it's likely that your company hasn't seen sourcing contracts
+yet where a mainline acceptable device driver is a requirement for
+some major system vendor, like Dell, Gateway, HP, etc. to decide to
+use your products.  I suspect that if this _was_ the case, your
+company would in fact dedicate the full-time engineer necessary to
+make a device driver which could be integrated into the mainstream
+kernel sources and then could be backported to older distributions.
+But if you did, I think it is certainly doable.
+
+But at that point it stops being a technical question of "is it
+possible" and moves to an economic question of "are we willing to fund
+a full-time engineer to provide support for our hardware under Linux"
+and "how popular does the Linux desktop have to be before a system
+vendor will feel obliged to put pressure on their downstream suppliers
+to provide the necessary driver support"?  And as such, LKML will
+probably not be a very useful place to have that discussion.
+
+Regards,
+
+						- Ted

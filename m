@@ -1,76 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965050AbWBGLt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965042AbWBGLuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965050AbWBGLt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 06:49:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbWBGLt4
+	id S965042AbWBGLuT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 06:50:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbWBGLuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 06:49:56 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:23418 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S965047AbWBGLtz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 06:49:55 -0500
-Message-ID: <43E889B6.5030002@sw.ru>
-Date: Tue, 07 Feb 2006 14:51:18 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Tue, 7 Feb 2006 06:50:18 -0500
+Received: from webapps.arcom.com ([194.200.159.168]:38160 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S965044AbWBGLuR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 06:50:17 -0500
+Message-ID: <43E88970.2020107@arcom.com>
+Date: Tue, 07 Feb 2006 11:50:08 +0000
+From: David Vrabel <dvrabel@arcom.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Sam Vilain <sam@vilain.net>
-CC: Rik van Riel <riel@redhat.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Kirill Korotaev <dev@openvz.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Hubertus Franke <frankeh@watson.ibm.com>, clg@fr.ibm.com,
-       haveblue@us.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
-       serue@us.ibm.com, arjan@infradead.org, kuznet@ms2.inr.ac.ru,
-       saw@sawoct.com, devel@openvz.org, Dmitry Mishin <dim@sw.ru>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
-References: <43E7C65F.3050609@openvz.org> <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com> <43E83E8A.1040704@vilain.net>
-In-Reply-To: <43E83E8A.1040704@vilain.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: stephen@streetfiresound.com
+CC: linux-kernel@vger.kernel.org, david-b@pacbell.net
+Subject: Re: [PATCH] spi: Add PXA2xx SSP SPI Driver
+References: <43e80ec3.oEr+gtyMVtunRTyE%stephen@streetfiresound.com>
+In-Reply-To: <43e80ec3.oEr+gtyMVtunRTyE%stephen@streetfiresound.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Feb 2006 11:55:04.0187 (UTC) FILETIME=[551564B0:01C62BDD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> We are never going to form a consensus if all of the people doing 
->>> implementations don't talk.
->>
->> Speaking of which - it would be interesting to get Kirill's
->> comments on Eric's patchset ;)
-I'll do comment.
-
->> Once we know what's good and bad about both patchsets, we'll
->> be a lot closer to knowing what exactly should go upstream.
-I'm starting to think that nothing in upstream can be better for all of 
-us :)
-
-> Let's compare approaches of patchsets before the patchsets themselves.
-> It seems to be, should we:
+stephen@streetfiresound.com wrote:
+> From: Stephen Street <stephen@streetfiresound.com>
 > 
->   A) make a general form of virtualising PIDs, and hope this assists
->      later virtualisation efforts (Eric's patch)
-> 
->   B) make a general form of containers/jails/vservers/vpses, and layer
->      PID virtualisation on top of it somewhere (as in openvz, vserver)
- >
-> I can't think of any real use cases where you would specifically want A)
-> without B).
-Exactly! All these patches for A) look weird for me without containers 
-itself. A try to make half-solution which is bad.
+> The driver turns a PXA2xx synchronous serial port (SSP) into a SPI master 
+> controller (see Documentation/spi/spi_summary). The driver has the following
+> features:
 
-> Also, the problem space in B) is now very well explored.  To start with
-> A) would mean to throw away 4+ years of experience at this approach
-> (just counting vserver and variants - not FreeBSD Jail, etc).  Trying to
-> re-base B) atop a massive refactoring and new patch like A) would incur
-> a lot of work; however fitting it into B) is natural and solved
-> conceptually and in practice, with the only drawback I see being that
-> the use cases mentioned above wouldn't suffer from the side-effects of
-> B).
-Have you saw my patches?
-This is B) :) This is what we should start with IMHO.
-Having a containers and isolation all these talks about A) will be much 
-more precise.
+I've not tested this on my PXA27x platform yet (I'll try and get this
+done this tomorrow) but a few comments.
 
-Kirill
+> --- linux-2.6.16-rc2/drivers/spi/pxa2xx_spi.c	1969-12-31 16:00:00.000000000 -0800
+> +++ linux-spi/drivers/spi/pxa2xx_spi.c	2006-02-06 18:39:45.339334630 -0800
 
+
+> +#define CLOCK_SPEED_HZ 3686400
+
+PXA27x has a clock speed of 13000000 Hz.
+
+> +	chip->cr0 = SSCR0_SerClkDiv((CLOCK_SPEED_HZ / spi->max_speed_hz) + 2)
+
+Consider spi->max_speed_hz == CLOCK_SPEED_HZ which gives a divisor of 3
+(when it should be 1).
+
+You need SSCR0_SerClkDiv(CLOCK_SPEED_HZ / (spi->max_speed_hz + 1) + 1)
+for the correct divisor and for proper rounding.
+
+> +	/* Attach to IRQ */
+> +	irq = platform_get_irq(pdev, 0);
+> +	if (irq == 0) {
+> +		dev_err(&pdev->dev, "irq resource not defined\n");
+> +		status = -ENODEV;
+> +		goto out_error_master_alloc;
+> +	}
+
+Greg K-H has a patch pending that makes platform_get_irq() return -ENXIO
+instead of 0 on error.  This is required for SSP3 on the PXA27x which
+uses IRQ 0.
+
+> +	/* Release IRQ */
+> +	irq = platform_get_irq(pdev, 0);
+> +	if (irq != 0)
+> +		free_irq(irq, drv_data);
+
+Similarly.
+
+David Vrabel
+-- 
+David Vrabel, Design Engineer
+
+Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
+Cambridge CB1 7EA, UK         Web: http://www.arcom.com/

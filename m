@@ -1,121 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbWBGJEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWBGJPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750992AbWBGJEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 04:04:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWBGJEJ
+	id S932204AbWBGJPl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 04:15:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWBGJPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 04:04:09 -0500
-Received: from mx2.suse.de ([195.135.220.15]:64152 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750992AbWBGJEG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 04:04:06 -0500
-From: Neil Brown <neilb@suse.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Date: Tue, 7 Feb 2006 20:03:58 +1100
+	Tue, 7 Feb 2006 04:15:41 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:17088 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S932204AbWBGJPk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 04:15:40 -0500
+Message-ID: <43E86520.9070504@fr.ibm.com>
+Date: Tue, 07 Feb 2006 10:15:12 +0100
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+CC: Dave Hansen <haveblue@us.ibm.com>, Kirill Korotaev <dev@openvz.org>,
+       serue@us.ibm.com, arjan@infradead.org, frankeh@watson.ibm.com,
+       mrmacman_g4@mac.com, alan@lxorguk.ukuu.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       devel@openvz.org
+Subject: Re: [RFC][PATCH 5/7] VPIDs: vpid/pid conversion in VPID enabled case
+References: <43E22B2D.1040607@openvz.org> <43E23398.7090608@openvz.org> <1138899951.29030.30.camel@localhost.localdomain> <20060203105202.GA21819@ms2.inr.ac.ru> <43E35105.3080208@fr.ibm.com> <20060203140229.GA16266@ms2.inr.ac.ru> <43E38D40.3030003@fr.ibm.com> <20060206094843.GA6013@ms2.inr.ac.ru>
+In-Reply-To: <20060206094843.GA6013@ms2.inr.ac.ru>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-ID: <17384.25214.810703.327286@cse.unsw.edu.au>
-Cc: linux-raid@vger.kernel.org, klibc list <klibc@zytor.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [klibc] Re: Exporting which partitions to md-configure
-In-Reply-To: message from H. Peter Anvin on Monday February 6
-References: <43DEB4B8.5040607@zytor.com>
-	<17374.47368.715991.422607@cse.unsw.edu.au>
-	<43DEC095.2090507@zytor.com>
-	<17374.50399.1898.458649@cse.unsw.edu.au>
-	<43DEC5DC.1030709@zytor.com>
-	<17382.43646.567406.987585@cse.unsw.edu.au>
-	<43E80A5A.5040002@zytor.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday February 6, hpa@zytor.com wrote:
-> Neil Brown wrote:
-> > 
-> > Just as there is a direct unambiguous causal path from something
-> > present at early boot to the root filesystem that is mounted (and the
-> > root filesystem specifies all other filesystems through fstab)
-> > similarly there should be an unambiguous causal path from something
-> > present at early boot to the array which holds the root filesystem -
-> > and the root filesystem should describe all other arrays via
-> > mdadm.conf
-> > 
-> > Does that make sense?
-> > 
+Bonjour!
+
+Alexey Kuznetsov wrote:
+
+> [...]
+>
+> We could force each process visiting container to daemonize and to setsid().
+> But do not forget that pid space is just a little part of the whole engine,
+> to force full isolation we have to close all the files opened
+> in root container, to get rid of its memory space before entering container
+> etc. But it makes not so much of sense, because in any case we have to keep
+> at least some way to communicate to host. F.e. even when we allow to pass
+> only an open pipe, we immediately encounter the situation when a file
+> owned by one container could refer to processes of another container.
 > 
-> It makes sense, but I disagree.  I believe you are correct in that the 
-> current "preferred minor" bit causes an invalid assumption that, e.g. 
-> /dev/md3 is always a certain thing, but since each array has a UUID, and 
-> one should be able to mount by either filesystem UUID or array UUID, 
-> there should be no need for such a conflict if one allows for dynamic md 
-> numbers.
-> 
-> Requiring that mdadm.conf describes the actual state of all volumes 
-> would be an enormous step in the wrong direction.  Right now, the Linux 
-> md system can handle some very oddball hardware changes (such as on 
-> hera.kernel.org, when the disks not just completely changed names due to 
-> a controller change, but changed from hd* to sd*!)
+> So that, the only way to enforce full isolation is to prohibit
+> "vzctl exec/enter" as whole.
 
-mdadm.conf doesn't need to, and normally shouldn't, list the devices
-that compose an array (though it can if you want it to).
+containers are useful, even without migration. No doubt on that.
 
-A typical mdadm.conf should look something like:
+But, at the end, long long term probably, if we want to have a mobile
+container under linux, we need to address all the issues from the start and
+take them into account in the design. So, if we need to add some
+constraints on the container init process (child reaper) or the resource
+isolation, pid for example, to make sure a container is migratable, I think
+we should start to think about it now.
 
-   DEVICES /dev/hd* /dev/sd*
-   ARRAY /dev/md0 UUID=some:long:uuid
-   ARRAY /dev/md1 UUID=some:other:long:uuid
+By the time we reach that state, openvz would be have been rewritten a few
+times already like any good software. nope ? :)
 
-So I think we are actually in agreement.
+>>We've been living with the vpid approach also for years and we found issues
+>>that we haven't solve at restart. So we think we might do a better job with
+>>another. But, this still needs to be confirmed :)
+>  
+> What are the issues?
 
-> 
-> Dynamicity is a good thing, although it needs to be harnessed.
-> 
->  > kernel parameter md_root_uuid=xxyy:zzyy:aabb:ccdd...
->  >    This could be interpreted by an initramfs script to run mdadm
->  >    to find and assemble the array with that uuid.  The uuid of
->  >    each array is reasonably unique.
-> 
-> This, in fact is *EXACTLY* what we're talking about; it does require 
-> autoassemble.  Why do we care about the partition types at all?  The 
-> reason is that since the md superblock is at the end, it doesn't get 
-> automatically wiped if the partition is used as a raw filesystem, and so 
-> it's important that there is a qualifier for it.
+The one above.
 
-Maybe I should be explicit about what I am against.
-I am against the practice of choosing devices to assemble into arrays
-based simply on a partition type - and assembling them into whatever
-arrays they appear to comprise.
+Having containers which are not migratable because their execution
+environment was not contrained enough is a pity I think.
 
-A device should not be able to say "pick me, pick me!".  Something
-*outside* the array should say "pick all devices matching X", where X
-is some arbitrary predicate, that could involve partition type
-information if you like, but importantly should be precise enough not
-to choose wrongly in any but very exceptional circumstances.
+Containers are useful for isolation but being able to swsuspend them and
+migrate them is even more interesting ! and fun.
 
-I am *not* against 'autoassemble' in the sense that some process hunts
-through available devices trying to find the components for a give md
-array: It was primarily to achieve this that I wrote mdadm.  I just
-want the 'autoassemble' to be driven by some external description of
-the array(s) - e.g. uuid.
+> The only inconvenience which I encountered until now
+> is a little problem with stray pids. F.e. this happens with flock().
+> Corresponding kernel structure contains some useless (actually, illegal
+> and contradicting to the nature of flock()) reference to pid.
+> If the process took the lock and exited, stray pid remains forever and points
+> to nowhere. In this case it is silly to prohibit checkpointing,
+> but we have to restore the flock to a lock with pointing to the same point
+> in the sky, i.e. to nowhere. With (container, pid) approach we would
+> restore it pointing to exactly the same empty place in the sky, with
+> vpids we have to choose a new place. Ugly, but not a real issue.
 
-I don't accept your argument that partition types are of interest
-because array components could still have their superblock after being
-retargeted.  This is because
-  - running "mdadm --zero-superblock" is as easy as changing the
-    partition type, and equally, both are easy to forget to do.
-  - If you have retargeted devices in an array, you presumably don't
-    put the UUID of that array anywhere that would encourage mdadm to
-    assemble it.  So the fact that the UUID won't be recognised is
-    just as good at stopping the array from being assembled as that
-    fact that the partition type has been changed.
+thanks for your insights ! I hope we will have plenty of these issues to
+talk about.
 
-This doesn't mean I am violently against partition types (and for
-legacy support, we need to use them).  I just don't see a lot of value
-in using them.
+c.
 
-NeilBrown

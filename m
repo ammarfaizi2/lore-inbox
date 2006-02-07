@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWBGJqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964824AbWBGJqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964825AbWBGJqz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 04:46:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbWBGJqy
+	id S964824AbWBGJqh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 04:46:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964825AbWBGJqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 04:46:54 -0500
-Received: from uproxy.gmail.com ([66.249.92.197]:45644 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964825AbWBGJqx convert rfc822-to-8bit
+	Tue, 7 Feb 2006 04:46:37 -0500
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:18170 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S964824AbWBGJqg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 04:46:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=QT3A2996MXsdNVW4lDcNt4ydlK1+SuTRDVLmrm+t3l48ufdvaAnk0UyWMDu1ePFlGCdqLIMK1lQmF0TdCNfZt4zeMl/0MxNrSK+I1FwzS5X++GXo4g+c3BnsrBeBzmqg7/BlH6K4REq33YQ9aZBJp/yysp50kIkbBegTndF5uxw=
-Message-ID: <e282236e0602070146p1ed3fdb6k74aa75e15bbc37a3@mail.gmail.com>
-Date: Tue, 7 Feb 2006 17:46:51 +0800
-From: Yoseph Basri <yoseph.basri@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: KERNEL: assertion (!sk->sk_forward_alloc) failed
+	Tue, 7 Feb 2006 04:46:36 -0500
+Message-ID: <43E86C73.2070608@fr.ibm.com>
+Date: Tue, 07 Feb 2006 10:46:27 +0100
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+CC: "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>,
+       Kirill Korotaev <dev@openvz.org>, arjan@infradead.org,
+       frankeh@watson.ibm.com, mrmacman_g4@mac.com, alan@lxorguk.ukuu.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       devel@openvz.org
+Subject: Re: [RFC][PATCH 5/7] VPIDs: vpid/pid conversion in VPID enabled case
+References: <43E22B2D.1040607@openvz.org> <43E23398.7090608@openvz.org> <1138899951.29030.30.camel@localhost.localdomain> <20060203105202.GA21819@ms2.inr.ac.ru> <43E35105.3080208@fr.ibm.com> <20060203140229.GA16266@ms2.inr.ac.ru> <43E38D40.3030003@fr.ibm.com> <20060206094843.GA6013@ms2.inr.ac.ru> <20060206145104.GB11887@sergelap.austin.ibm.com> <20060206155101.GA22522@ms2.inr.ac.ru>
+In-Reply-To: <20060206155101.GA22522@ms2.inr.ac.ru>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello kernel maillist,
+Alexey Kuznetsov wrote:
 
-I'm new member maillist.
+> The question was not about openvz, it was about (container,pid) approach.
+> How are you going to reap chidren without a child reaper inside container?
+> If you reparent all the children to a single init in root container,
+> what does wait() return? In openvz it returns global pid and child is buried
+> in peace. If you do not have global pid, you cannot just return private pid.
 
-Currently, I receive the warning log from my kernel.
+I think the "child reaper" question is not related to the (container,pid)
+approach or the vpid approach. This is another question on who is the
+parent of a container and how does it behaves.
 
-Since update to
-Linux  2.6.14.3 #1 SMP Fri Nov 25 20:20:05 SGT 2005 i686 GNU/Linux from 2.4,
+We have choosen to first follow a simple "path", complete pid isolation
+being the main constraint : a container is created by exec'ing a process in
+it. That first process is detached from its parent processes and becomes
+child of init (already running), session leader, and process group leader.
+We could eventually add a daemon to act as a init process for the container.
 
-I am getting the warning log:
+Now, there are other ways of seeing a container parenthood, openvz, eric,
+vserver, etc. We should agree on this or find a way to have different model
+cohabitate.
 
-kernel: KERNEL: assertion (!sk->sk_forward_alloc) failed at
-net/core/stream.c (279)
-kernel: KERNEL: assertion (!sk->sk_forward_alloc) failed at
-net/ipv4/af_inet.c (148)
-
-Any information about this issue, and how to solve this problem ?
-
-Another server that i rolled back from 2.6.14 to 2.4 kernel and has no
-warning again. is this bug from 2.6 kernel?
-
-Thanks for your info.
-
-YB
+C.

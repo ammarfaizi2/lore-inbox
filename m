@@ -1,85 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965127AbWBGPPp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965249AbWBGPPT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965127AbWBGPPp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 10:15:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbWBGPPp
+	id S965249AbWBGPPT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 10:15:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbWBGPPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 10:15:45 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:35702 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S965127AbWBGPPo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 10:15:44 -0500
-Date: Tue, 7 Feb 2006 16:15:41 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Eric Dumazet <dada1@cosmosbay.com>,
-       "David S. Miller" <davem@davemloft.net>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Ingo Molnar <mingo@elte.hu>, Jens Axboe <axboe@suse.de>,
-       Anton Blanchard <anton@samba.org>, William Irwin <wli@holomorphy.com>,
-       Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-Message-ID: <20060207151541.GA32139@osiris.boeblingen.de.ibm.com>
-References: <200602051959.k15JxoHK001630@hera.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 7 Feb 2006 10:15:18 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:5556 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S965155AbWBGPPR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 10:15:17 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <nigel@suspend2.net>
+Subject: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.
+Date: Tue, 7 Feb 2006 16:16:56 +0100
+User-Agent: KMail/1.9.1
+Cc: suspend2-devel@lists.suspend2.net,
+       "Jim Crilly" <jim@why.dont.jablowme.net>, Pavel Machek <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060206210736.GB12270@voodoo> <200602071016.22240.nigel@suspend2.net>
+In-Reply-To: <200602071016.22240.nigel@suspend2.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200602051959.k15JxoHK001630@hera.kernel.org>
-User-Agent: mutt-ng/devel (Linux)
+Message-Id: <200602071616.57759.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> tree 8c30052a0d7fadec37c785a42a71b28d0a9c5fcf
-> parent cef5076987dd545ac74f4efcf1c962be8eac34b0
-> author Eric Dumazet <dada1@cosmosbay.com> Sun, 05 Feb 2006 15:27:36 -0800
-> committer Linus Torvalds <torvalds@g5.osdl.org> Mon, 06 Feb 2006 03:06:51 -0800
+Hi,
+
+On Tuesday 07 February 2006 01:16, Nigel Cunningham wrote:
+> On Tuesday 07 February 2006 07:07, Jim Crilly wrote:
+> > On 02/06/06 12:56:43AM +0100, Rafael J. Wysocki wrote:
+> > > > > > Oh. What's Pavel's solution? Fail freezing if uninterruptible
+> > > > > > threads don't freeze?
+> > > > >
+> > > > > Yes.
+> > > > >
+> > > > > AFAICT it's to avoid situations in which we would freeze having a
+> > > > > process in the D state that holds a semaphore or a mutex neded for
+> > > > > suspending or resuming devices (or later on for saving the image
+> > > > > etc.).
+> > > > >
+> > > > > [I didn't answer this question previously, sorry.]
+> > > >
+> > > > S'okay. This thread is an ocotpus :)
+> > > >
+> > > > Are there real life examples of this? I can't think of a single time
+> > > > that I've heard of something like this happening. I do see rare
+> > > > problems with storage drivers not having driver model support right,
+> > > > and thereby causing hangs, but that's brokenness in a completely
+> > > > different way.
+> > > >
+> > > > In short, I'm wondering if (apart from the forking issue), this is a
+> > > > straw man.
+> > >
+> > > It doesn't seem to be very probable to me too, but I take this
+> > > argument as valid.
+> > >
+> > > Greetings,
+> > > Rafael
+> >
+> > CIFS was good for that, if you have a CIFS filesystem mounted and
+> > take the network interface down (which I have my hibernate script do)
+> > before the filesystem is umounted it'll become impossible to umount
+> > the filesystem until the next reboot and I believe the cifsd kernel
+> > thread will be unfreezable. It's been a while since I've done that
+> > so it might be fixed now, but someone should verify it if it still
+> > exists and potentially work with the CIFS people to get it fixed.
 > 
-> [PATCH] percpu data: only iterate over possible CPUs
-> 
-> percpu_data blindly allocates bootmem memory to store NR_CPUS instances of
-> cpudata, instead of allocating memory only for possible cpus.
-> 
-> As a preparation for changing that, we need to convert various 0 -> NR_CPUS
-> loops to use for_each_cpu().
-> 
-> (The above only applies to users of asm-generic/percpu.h.  powerpc has gone it
-> alone and is presently only allocating memory for present CPUs, so it's
-> currently corrupting memory).
+> Thanks for the pointer. I'll take a look at this.
 
-This patch is broken since it replaces several loops that iterate NR_CPUS
-times with for_each_cpu before cpu_possible_map is setup:
+Yes, that's interesting.  If we have an actual test case, it'll help us a lot.
 
-> --- a/fs/file.c
-> +++ b/fs/file.c
-> @@ -379,7 +379,6 @@ static void __devinit fdtable_defer_list
->  void __init files_defer_init(void)
->  {
->  	int i;
-> -	/* Really early - can't use for_each_cpu */
-> -	for (i = 0; i < NR_CPUS; i++)
-> +	for_each_cpu(i)
->  		fdtable_defer_list_init(i);
->  }
-
-The old comment indicates it: called before smp_prepare_cpus gets called
-which sets up cpu_possible_map.
-
-> diff --git a/kernel/sched.c b/kernel/sched.c
-> index f77f23f..839466f 100644
-> --- a/kernel/sched.c
-> +++ b/kernel/sched.c
-> @@ -6109,7 +6109,7 @@ void __init sched_init(void)
->  	runqueue_t *rq;
->  	int i, j, k;
->  
-> -	for (i = 0; i < NR_CPUS; i++) {
-> +	for_each_cpu(i) {
->  		prio_array_t *array;
-
-Same here.
-
-I didn't check the rest, but it looks like we end up with a bit of
-uninitialized stuff.
-
-Heiko
+Greetings,
+Rafael

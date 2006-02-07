@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWBGS0S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbWBGSbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964832AbWBGS0S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 13:26:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWBGS0S
+	id S964849AbWBGSbY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 13:31:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbWBGSbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 13:26:18 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:60355 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S964832AbWBGS0S (ORCPT
+	Tue, 7 Feb 2006 13:31:24 -0500
+Received: from mx2.suse.de ([195.135.220.15]:25998 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964849AbWBGSbX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 13:26:18 -0500
-Message-ID: <43E8E612.5020402@cfl.rr.com>
-Date: Tue, 07 Feb 2006 13:25:22 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 7 Feb 2006 13:31:23 -0500
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: OOM behavior in constrained memory situations
+Date: Tue, 7 Feb 2006 19:31:09 +0100
+User-Agent: KMail/1.8.2
+Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <Pine.LNX.4.62.0602061253020.18594@schroedinger.engr.sgi.com> <200602071858.13002.ak@suse.de> <Pine.LNX.4.62.0602071018050.25222@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0602071018050.25222@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-To: Helge Hafting <helge.hafting@aitel.hist.no>,
-       alex-lists-linux-kernel@yuriev.com, linux-kernel@vger.kernel.org
-Subject: Re: non-fakeraid controllers
-References: <20060207015126.GA12236@s2.yuriev.com> <43E85337.1090001@aitel.hist.no> <43E8C088.1040206@cfl.rr.com> <20060207173927.GA16831@animx.eu.org>
-In-Reply-To: <20060207173927.GA16831@animx.eu.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Feb 2006 18:27:14.0298 (UTC) FILETIME=[1E1F65A0:01C62C14]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14253.000
-X-TM-AS-Result: No--9.350000-5.000000-31
+Content-Disposition: inline
+Message-Id: <200602071931.10230.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wakko Warner wrote:
-> I've been wondering about dmraid.  I considered buying an adaptec sata raid
-> (hardware).  One of the drawbacks on hardware raid is the format isn't
-> compatible with any other card (or rather manufacturer).  So the question
-> is, has anyone written anything that can detect and activate disks from a
-> hardware raid controller when they are placed on a controller w/o any raid?
->
-> basically what I mean is, 3 disks, raid5 was in a system with hardware raid. 
-> the raid card blows up and cannot get another one so to get the data back,
-> place disks in another machine or on a standard controller and use software
-> raid or whatever to recover the data.
+On Tuesday 07 February 2006 19:19, Christoph Lameter wrote:
 
-Yes, that is one of the problems with hardware raid controllers.  If you 
-can figure out the controller's metadata format, possibly by asking 
-adaptec, or reverse engineering, then patching dmraid to understand that 
-format ( it already understands several used by fakeraid controllers ) 
-should be rather easy. 
+> @@ -1261,7 +1261,7 @@ struct page *alloc_pages_current(gfp_t g
+>  		cpuset_update_task_memory_state();
+>  	if (!pol || in_interrupt())
+>  		pol = &default_policy;
+> -	gfp |= pol->gfp_flags;
+> +	gfp |= (pol->gfp_flags_high << 16);
 
+Why don't you put it into zonelist_policy and pass a pointer to gfp
+and then only do it for MPOL_BIND? The code should be similar because
+it should be inline anyways (perhaps add a force_inline to be sure)
+
+-Andi
 

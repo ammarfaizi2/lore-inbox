@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWBGCEy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbWBGCND@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964834AbWBGCEy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 21:04:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWBGCEy
+	id S932440AbWBGCND (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 21:13:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932441AbWBGCND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 21:04:54 -0500
-Received: from dialin-159-117.tor.primus.ca ([216.254.159.117]:22472 "EHLO
-	node1.opengeometry.net") by vger.kernel.org with ESMTP
-	id S932439AbWBGCEx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 21:04:53 -0500
-Date: Mon, 6 Feb 2006 21:04:41 -0500
-From: William Park <opengeometry@yahoo.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-Subject: Re: DMA in PCI chipset -- module vs. compiled-in
-Message-ID: <20060207020441.GA3309@node1.opengeometry.net>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-References: <20060206034312.GA2962@node1.opengeometry.net> <1139200372.2791.208.camel@mindpipe> <1139255365.10437.49.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Feb 2006 21:13:03 -0500
+Received: from pproxy.gmail.com ([64.233.166.177]:9566 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932440AbWBGCNB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 21:13:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Bl1cSkBYe/4PQia2CYGE/AgRIfpNi82YbGOvjxdu1khbkTeLlLmd+BZHt1cJLHhgWsPcMtlszexRExCuOuX4uP9pZURTR9/5PtwPcCNyx0oCJiRtqKcZEEracwdn51JuyrNs4y4AXob8T+idQh3om5dyPdJ1iBF7XtkBMxi9B70=
+Message-ID: <964857280602061812m748d19bew5ef0777e24359029@mail.gmail.com>
+Date: Tue, 7 Feb 2006 00:12:58 -0200
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <2@pervalidus.net>
+To: Greg KH <greg@kroah.com>
+Subject: Re: What causes "USB disconnect" ?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <964857280602061706n72a9ebbeo9a1930f2b0993e0b@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <1139255365.10437.49.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+References: <Pine.LNX.4.64.0602062122480.5326@dyndns.pervalidus.net>
+	 <20060207002749.GA6774@kroah.com>
+	 <964857280602061706n72a9ebbeo9a1930f2b0993e0b@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 06, 2006 at 07:49:25PM +0000, Alan Cox wrote:
-> On Sul, 2006-02-05 at 23:32 -0500, Lee Revell wrote:
-> > Generic and chipset specific support are not complementary, they are
-> > mutually exclusive.  Having generic PCI IDE support enabled will prevent
-> > the chipset specific support from working properly.
-> 
-> Untrue.
-> 
-> The PCI generic driver by default grabs only hardware with PCI IDS it
-> knows can be driven generically. That list purposefully has no overlaps
-> with chipset drivers.
+On 2/6/06, Frédéric L. W. Meunier wrote:
+> When it happened, his lights turned off. I pressed a button, but
+> nothing happened. Then, I ignored it and it returned after the minutes
+> you see from the log.
 
-The kernel I'm using is 2.6.14.  My chipset is Via 82c694x and 82c686b
-(Abit VP6 dual-P3 with HighPoint 370).  DMA is on only when 'via82cxxx'
-and 'hpt366' are compiled in.  Most importantly, DMA cannot be turned on
-if loading by module.
+It happened again. This, after an uptime of 3 days and a few hours.
 
-Does it mean that this "bug" is pecular to my chipset?
+Feb  6 23:59:00 pervalidus kernel: usb 1-2: USB disconnect, address 5
+Feb  6 23:59:39 pervalidus kernel: usb 1-2: new low speed USB device
+using uhci_hcd and address 6
+Feb  6 23:59:40 pervalidus kernel: usb 1-2: configuration #1 chosen
+from 1 choice
+Feb  6 23:59:44 pervalidus kernel: input: Logitech Inc. WingMan
+RumblePad as /class/input/input5
+Feb  6 23:59:44 pervalidus kernel: input: USB HID v1.10 Joystick
+[Logitech Inc. WingMan RumblePad] on usb-0000:00:10.0-2
+Feb  6 23:59:44 pervalidus kernel: usb 1-2: USB disconnect, address 6
+Feb  6 23:59:47 pervalidus kernel: usb 1-2: new low speed USB device
+using uhci_hcd and address 7
+Feb  6 23:59:47 pervalidus kernel: usb 1-2: configuration #1 chosen
+from 1 choice
+Feb  6 23:59:57 pervalidus kernel:
+/usr/local/src/kernel/linux-2.6.16/drivers/usb/input/hid-core.c:
+timeout initializing reports
+Feb  6 23:59:57 pervalidus kernel: input: Logitech Inc. WingMan
+RumblePad as /class/input/input6
+Feb  6 23:59:57 pervalidus kernel: input: USB HID v1.10 Joystick
+[Logitech Inc. WingMan RumblePad] on usb-0000:00:10.0-2
 
--- 
-William Park <opengeometry@yahoo.ca>, Toronto, Canada
-ThinFlash: Linux thin-client on USB key (flash) drive
-	   http://home.eol.ca/~parkw/thinflash.html
-BashDiff: Super Bash shell
-	  http://freshmeat.net/projects/bashdiff/
+I changed it to other 2 ports and only see a
+
+Feb  7 00:09:10 pervalidus kernel: usb 1-2: USB disconnect, address 7
+
+Any way to know if this is the device's fault ?

@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965074AbWBGNlB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965079AbWBGNow@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965074AbWBGNlB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 08:41:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965079AbWBGNlA
+	id S965079AbWBGNow (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 08:44:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965081AbWBGNow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 08:41:00 -0500
-Received: from CPE-24-31-249-53.kc.res.rr.com ([24.31.249.53]:37567 "EHLO
+	Tue, 7 Feb 2006 08:44:52 -0500
+Received: from CPE-24-31-249-53.kc.res.rr.com ([24.31.249.53]:46271 "EHLO
 	tsurukikun.utopios.org") by vger.kernel.org with ESMTP
-	id S965074AbWBGNlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 08:41:00 -0500
+	id S965079AbWBGNov (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 08:44:51 -0500
 From: Luke-Jr <luke@dashjr.org>
-To: davids@webmaster.com
+To: Kyle Moffett <mrmacman_g4@mac.com>
 Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-Date: Tue, 7 Feb 2006 13:40:58 +0000
+Date: Tue, 7 Feb 2006 13:44:59 +0000
 User-Agent: KMail/1.9
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-References: <MDEHLPKNGKAHNMBLJOLKGECCJPAB.davids@webmaster.com>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGECCJPAB.davids@webmaster.com>
+Cc: davids@webmaster.com,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+References: <MDEHLPKNGKAHNMBLJOLKGECCJPAB.davids@webmaster.com> <50968728-E8BA-46BB-83D9-866ADEE546DA@mac.com>
+In-Reply-To: <50968728-E8BA-46BB-83D9-866ADEE546DA@mac.com>
 Public-GPG-Key: 0xD53E9583
 Public-GPG-Key-URI: http://dashjr.org/~luke-jr/myself/Luke-Jr.pgp
 IM-Address: luke-jr@jabber.org
@@ -25,48 +26,38 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200602071341.04052.luke@dashjr.org>
+Message-Id: <200602071345.00627.luke@dashjr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 February 2006 21:07, David Schwartz wrote:
-> > The LGPL deals with only derivative works. The GPL also deals with mere
-> > *linking*. If glibc were GPL'd, it would be illegal to make an OS
-> > based on it
-> > with a single C program incompatible with the GPL.
+On Monday 06 February 2006 22:38, Kyle Moffett wrote:
+> On Feb 06, 2006, at 16:07, David Schwartz wrote:
+> >> The LGPL deals with only derivative works. The GPL also deals with
+> >> mere *linking*. If glibc were GPL'd, it would be illegal to make
+> >> an OS based on it with a single C program incompatible with the GPL.
+> >
+> > The only way the GPL can control work Y because it affects work Z
+> > is because Y is a derivative work of work Z. If it's not, then the
+> > works are legally unrelated, and no matter what the GPL says, it
+> > can't affect work Y.
 >
-> 	The GPL also only deals with derivative works. If linking does not create
-> a derivative work, then the GPL cannot affect it. The GPL cannot define its
-> own scope, only copyright law does that. GPL section zero states this, but
-> even if it didn't it would still be true.
+> To say this more simplistically, the LGPL essentially says "Even if
+> dynamic linking constitutes making a derivative work, we allow you to
+> dynamically link, so long as the rules are followed for the LGPL code
+> to which you link".  The GPL essentially says "If dynamic linking is
+> making a derivative work, then these rules apply to the whole
+> derivative work and all of its constituent parts".
 
-GPL can establish terms for distribution of the original software, even if it 
-goes unmodified. In other words, by distributing the GPL software, one must 
-agree that all software being distributed at the same time linking to it are 
-GPL-compatible. The GPL cannot prohibit you from distributing the linking 
-software in this case, but it can prohibit distribution of the original 
-software.
+Does the "if" clause exist? If not, then by distributing the original 
+software, the distributor is agreeing to abide by the GPL terms for anything 
+linking with it. If the linking code is not GPL-compatible, the distributor 
+cannot legally distribute the GPL'd component.
 
-> 	The GPL could say that it affected every work every created by any human
-> being. It could say that it affected a work created by any person who ever
-> used a GPL'd work. But these things would have no force because copyright
-> law provides no such mechanism.
+> Whether or not an NVidia binary module is a derivative work is left
+> up to the courts to decide.  It _may_ be legal (don't trust me,
+> consult your lawyer) to have a very simple cross-platform interface
+> and some BSD-licensed glue. 
 
-They would have force as conditions of distributing GPL software. If someone 
-distributed software under the GPL, they would be accepting its terms and 
-thus accepting that the GPL applies to all work they created. This example 
-could be a bit extreme, however, and prohibited just on the grounds of being 
-an invalidly-broad contract.
-
-> 	The only way the GPL can control work Y because it affects work Z is
-> because Y is a derivative work of work Z. If it's not, then the works are
-> legally unrelated, and no matter what the GPL says, it can't affect work Y.
-
-But it can prohibit distribution of work Z when work Y does not comply with 
-the terms.
-
-> 	If work Z is a "mere aggregate" containin all or part of work Y, then the
-> GPL would still apply to work Y, but not to any part of work Z not from
-> work Y.
-
-Linking is not mere aggregation.
+They might have a legal loophole if dynamic linking doesn't constitute a 
+derivative work *and* nVidia doesn't distribute Linux (thus does not need to 
+agree to GPL terms).

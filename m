@@ -1,125 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbWBGECO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964962AbWBGECJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964969AbWBGECO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 23:02:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbWBGECN
+	id S964962AbWBGECJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 23:02:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbWBGECJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 23:02:13 -0500
-Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:184 "EHLO
-	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S964969AbWBGECM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 23:02:12 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH] mm: implement swap prefetching
-Date: Tue, 7 Feb 2006 15:02:41 +1100
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Andrew Morton <akpm@osdl.org>, ck@vds.kolivas.org
-References: <200602071028.30721.kernel@kolivas.org> <43E80F36.8020209@yahoo.com.au>
-In-Reply-To: <43E80F36.8020209@yahoo.com.au>
+	Mon, 6 Feb 2006 23:02:09 -0500
+Received: from clix.aarnet.edu.au ([192.94.63.10]:56529 "EHLO
+	clix.aarnet.edu.au") by vger.kernel.org with ESMTP id S964962AbWBGECI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 23:02:08 -0500
+Message-ID: <43E81B66.5060502@aarnet.edu.au>
+Date: Tue, 07 Feb 2006 14:30:38 +1030
+From: Glen Turner <glen.turner@aarnet.edu.au>
+Organization: Australia's Academic & Research Network
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kumar Gala <galak@kernel.crashing.org>, linux-kernel@vger.kernel.org
+Subject: Re: 8250 serial console fixes -- issue
+References: <Pine.LNX.4.44.0602011911360.22854-100000@gate.crashing.org> <1138844838.5557.17.camel@localhost.localdomain> <43E2B8D6.1070707@aarnet.edu.au> <20060203094042.GB30738@flint.arm.linux.org.uk> <20060206202654.GC2470@ucw.cz> <20060206205459.GB9388@flint.arm.linux.org.uk>
+In-Reply-To: <20060206205459.GB9388@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602071502.41456.kernel@kolivas.org>
+X-MDSA: Yes
+X-Spam-Score: -104.901 BAYES_00,USER_IN_WHITELIST
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Feb 2006 02:08 pm, Nick Piggin wrote:
-> Con Kolivas wrote:
-> > Andrew et al
-> >
-> > I'm resubmitting the swap prefetching patch for inclusion in -mm and
-> > hopefully mainline. After you removed it from -mm there were some people
-> > that described the benefits it afforded their workloads. -mm being ever
-> > so slightly quieter at the moment please reconsider.
->
-> I have a few comments.
 
-Thanks.
+[Noting that I know next-to-nothing about kernel programming,
+  but I have been down this particular road before...]
 
-> prefetch_get_page is doing funny things with zones and nodes / zonelists
-> (eg. 'We don't prefetch into DMA' meaning something like 'this only works
-> on i386 and x86-64').
+Russell King wrote:
+ > Maybe flush_old_exec() should be a little more careful
+ > about what it copies, changing non-alphanumeric characters
+ > to '?' ?
 
-Hrm? It's just a generic thing to do; I'm not sure I follow why it's i386 and 
-x86-64 only. Every architecture has ZONE_NORMAL so it will prefetch there.
+I'm not sure it can do that, if the kernel policy is to
+be 8-bit clean (to allow UTF-8 to work without coding
+UTF-8 knowledge into the kernel).
 
-> buffered_rmqueue, zone_statistics, etc really should to stay static to
-> page_alloc.
+What the code could do is not printk() user-influenced strings
+at all. For example, mm/oom_kill.c could print just the process
+ID here:
 
-I can have an even simpler version of buffered_rmqueue specifically for swap 
-prefetch, but I didn't want to reproduce code unnecessarily, nor did I want a 
-page allocator outside page_alloc.c or swap_prefetch only code placed in 
-page_alloc. The higher level page allocators do too much and they test to see 
-if we should reclaim (which we never want to do) or allocate too many pages. 
-It is the only code "cost" when swap prefetch is configured off. I'm open to 
-suggestions?
+   printk(KERN_ERR "Out of Memory: Killed process %d (%s).\n",
+          p->pid, p->comm);
 
-> It is completely non NUMA or cpuset-aware so it will likely allocate memory
-> in the wrong node, and will cause cpuset tasks that have their memory
-> swapped out to get it swapped in again on other parts of the machine (ie.
-> breaks cpuset's memory partitioning stuff).
->
-> It introduces global cacheline bouncing in pagecache allocation and removal
-> and page reclaim paths, also low watermark failure is quite common in
-> normal operation, so that is another global cacheline write in page
-> allocation path.
 
-None of these issues is going to remotely the target audience. If the issue is 
-how scalable such a change can be then I cannot advocate making the code 
-smart and complex enough to be numa and cpuset aware.. but then that's never 
-going to be the target audience. It affects a particular class of user which 
-happens to be quite a large population not affected by complex memory 
-hardware.
+The usual solution to this problem is to mark user-derived
+strings as tainted and then check for the taint attribute
+when strings are requested to be output.  But since this
+is a kernel I don't suppose you'd be keen doing that :-)
 
-> Why bother with the trylocks? On many architectures they'll RMW the
-> cacheline anyway, so scalability isn't going to be much improved (or do you
-> see big lock contention?)
+I suppose you need a policy decision -- are strings scrubbed
+on input (I've coded this once and it is really quite tricky).
+And then do you need a scrubbed and non-scrubbed version of
+p->comm (as comparing scrubbed p->comm for equality is
+problematic and probably expolitable). Or do you simply not
+output strings which have been tainted by contact with users.
 
-Rather than scalability concerns per se the trylock is used as yet another 
-(admittedly rarely hit) way of defining busy.
-
-> Aside from those issues, I think the idea has is pretty cool... but there
-> are a few things that get to me:
->
-> - it is far more common to reclaim pages from other mappings (not swap).
->    Shouldn't they have the same treatment? Would that be more worthwhile?
-
-I don't know. Swap is the one that affect ordinary desktop users in magnitudes 
-that embarrass perceived performance beyond belief. I didn't have any other 
-uses for this code in mind.
-
-> - when is a system _really_ idle? what if we want it to stay idle (eg.
->    laptops)? what if some block devices or swap devices are busy, or
->    memory is continually being allocated and freed and/or pagecache is
->    being created and truncated but we still want to prefetch?
-
-The code is pretty aggressive at defining busy. It looks for pretty much all 
-of those and it prefetches till it stops then allowing idle to occur again. 
-Opting out of prefetching whenever there is doubt seems reasonable to me.
-
-> - for all its efforts, it will still interact with page reclaim by
->    putting pages on the LRU and causing them to be cycled.
->
->    - on bursty loads, this cycling could happen a bit. and more reads on
->      the swap devices.
-
-Theoretically yes I agree. The definition of busy is so broad that prevents it 
-prefetching that it is not significant.
-
-> - in a sense it papers over page reclaim problems that shouldn't be so
->    bad in the first place (midnight cron). On the other hand, I can see
->    how it solves this issue nicely.
-
-I doubt any audience that will care about scalability and complex memory 
-configurations would knowingly enable it so it costs them virtually nothing 
-for the relatively unintrusive code to be there. It's configurable and helps 
-a unique problem that affects most users who are not in the complex hardware 
-group. I was not advocating it being enabled by default, but last time it was 
-in -mm akpm suggested doing that to increase its testing - while in -mm.
-
-Cheers,
-Con
+-- 
+  Glen Turner         Tel: (08) 8303 3936 or +61 8 8303 3936
+  Australia's Academic & Research Network  www.aarnet.edu.au

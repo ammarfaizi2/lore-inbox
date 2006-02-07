@@ -1,49 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbWBGV12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWBGV1g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964869AbWBGV12 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 16:27:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWBGV12
+	id S964870AbWBGV1g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 16:27:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWBGV1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 16:27:28 -0500
-Received: from streetfiresound.liquidweb.com ([64.91.233.29]:51399 "EHLO
-	host.streetfiresound.liquidweb.com") by vger.kernel.org with ESMTP
-	id S964869AbWBGV11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 16:27:27 -0500
-Subject: Re: [PATCH] spi: Add PXA2xx SSP SPI Driver
-From: Stephen Street <stephen@streetfiresound.com>
-Reply-To: stephen@streetfiresound.com
-To: David Vrabel <dvrabel@arcom.com>
-Cc: linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>
-In-Reply-To: <43E8B738.8080602@arcom.com>
-References: <43e80ec3.oEr+gtyMVtunRTyE%stephen@streetfiresound.com>
-	 <43E88970.2020107@arcom.com>  <43E8B738.8080602@arcom.com>
+	Tue, 7 Feb 2006 16:27:36 -0500
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:15837
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S964870AbWBGV1f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 16:27:35 -0500
+Subject: Re: [PATCH] new tty buffering locking fix
+From: Paul Fulghum <paulkf@microgate.com>
+To: Olaf Hering <olh@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060207171111.GA15912@suse.de>
+References: <200602032312.k13NCbWb012991@hera.kernel.org>
+	 <20060207123450.GA854@suse.de>
+	 <1139329302.3019.14.camel@amdx2.microgate.com>
+	 <20060207171111.GA15912@suse.de>
 Content-Type: text/plain
-Organization: StreetFire Sound Labs
-Date: Tue, 07 Feb 2006 13:27:20 -0800
-Message-Id: <1139347640.4549.440.camel@localhost.localdomain>
+Date: Tue, 07 Feb 2006 15:27:24 -0600
+Message-Id: <1139347644.3174.16.camel@amdx2.microgate.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-22) 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host.streetfiresound.liquidweb.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - streetfiresound.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-07 at 15:05 +0000, David Vrabel wrote:
-> @@ -429,9 +433,6 @@
->  	if (!IS_DMA_ALIGNED(drv_data->rx) || !IS_DMA_ALIGNED(drv_data->tx))
->  		return 0;
->  
-> -	if (drv_data->len < drv_data->cur_chip->dma_burst_size)
-> -		return 0;
-> -
-Will do.  This was a last minute crappy idea.
+Olaf:
 
--Stephen
+Try this patch and let me know how it works.
+(it is against 2.6.16-rc2-git1)
+
+This change prevents claiming a partially filled
+buffer if it has already been committed by the
+driver calling a tty scheduling function, but not
+yet processed by the tty layer.
+
+Individual drivers can no longer stall committed
+data by calling any of the tty buffering functions.
+(example: calling tty_buffer_request_room
+and not immediately adding receive data with an
+associated tty scheduling call)
+
+This remains relatively efficient. 
+1. partially filled active buffer can be reused
+2. already allocated empty buffer can be reused
+
+Thanks,
+Paul
+
+
+--- linux-2.6.16-rc2/drivers/char/tty_io.c	2006-02-07 13:18:40.000000000 -0600
++++ b/drivers/char/tty_io.c	2006-02-07 13:46:28.000000000 -0600
+@@ -324,8 +324,14 @@ int tty_buffer_request_room(struct tty_s
+ 	   remove this conditional if its worth it. This would be invisible
+ 	   to the callers */
+ 	if ((b = tty->buf.tail) != NULL) {
+-		left = b->size - b->used;
+-		b->active = 1;
++		if (!b->active) {
++			if (!b->used) {
++				left = b->size;
++				b->active = 1;
++			} else
++				left = 0;
++		} else
++			left = b->size - b->used;
+ 	} else
+ 		left = 0;
+ 
+
 

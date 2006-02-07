@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWBGBe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWBGBfu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbWBGBe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 20:34:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWBGBe6
+	id S964845AbWBGBfu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 20:35:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbWBGBfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 20:34:58 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:27522 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S964925AbWBGBe5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 20:34:57 -0500
-Date: Mon, 6 Feb 2006 17:41:22 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: torvalds@osdl.org
-Subject: Linux 2.6.15.3
-Message-ID: <20060207014122.GC4483@sorel.sous-sol.org>
+	Mon, 6 Feb 2006 20:35:50 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:40890 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964799AbWBGBft (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 20:35:49 -0500
+Date: Mon, 6 Feb 2006 17:35:20 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ed Sweetman <safemode@comcast.net>
+Cc: safemode@comcast.net, alan@lxorguk.ukuu.org.uk, harald.dunkel@t-online.de,
+       linux-kernel@vger.kernel.org, rdunlap@xenotime.net
+Subject: Re: 2.6.16-rc1-mm2 pata driver confusion + tsc sync issues
+Message-Id: <20060206173520.43412664.akpm@osdl.org>
+In-Reply-To: <43E7F73E.2070004@comcast.net>
+References: <Pine.LNX.4.58.0601250846210.29859@shark.he.net>
+	<43E3D103.70505@comcast.net>
+	<Pine.LNX.4.58.0602060836520.1309@shark.he.net>
+	<43E7A4C0.4020209@t-online.de>
+	<1139255800.10437.51.camel@localhost.localdomain>
+	<43E805D4.5010602@comcast.net>
+	<43E7F73E.2070004@comcast.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We (the -stable team) are announcing the release of the 2.6.15.3 kernel.
-This contains a single security fix (CVE-2006-0454) which can potentially
-be used as remote DoS exploit.
+Ed Sweetman <safemode@comcast.net> wrote:
+>
 
-The diffstat and short summary of the fixes are below.
+(eek, top-posting!)
 
-I'll also be replying to this message with a copy of the patch between
-2.6.15.2 and 2.6.15.3, as it is small enough to do so.
+> 2.6.16-rc2 with the libata patch alan cox provided resulted in a system 
+> which correctly found my atapi drive on the pata bus.  
+> 
+> Also, moving from the mm kernels to 2.6.16-rc2 resulted in my pm timer 
+> working again. 
 
-The updated 2.6.15.y git tree can be found at:
- 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/chrisw/linux-2.6.15.y.git
-and can be browsed at the normal kernel.org git web browser:
-	www.kernel.org/git/
+I don't recall that.  Even 2.6.16-rc1-mm5?  What about rc1-mm4?
 
-thanks,
--chris
+> So, it may have been all along that libata had supported my atapi 
+> device, but either the patch when it got merged with mm became broken or 
+> something else in mm broke it, and something else in mm caused my pm 
+> timer to stop being used. 
+> 
+> Hopefully more people chime in with issues like this so the bug can be 
+> tracked down in mm before the offending code makes it's way to a regular 
+> release. 
+> 
+> 
+> Also just to note, the patch to 2.6.16-rc2 alan cox made switches the 
+> load order of pata and sata from mm, resulting in device name changes.  
 
---------
-
- Makefile        |    2 +-
- net/ipv4/icmp.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-Summary of changes from v2.6.15.2 to v2.6.15.3
-==============================================
-
-Chris Wright:
-      Linux 2.6.15.3
-
-Herbert Xu:
-      Fix extra dst release when ip_options_echo fails
+That's bad.
 

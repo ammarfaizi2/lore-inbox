@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965152AbWBGQRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbWBGQTp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965152AbWBGQRU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 11:17:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbWBGQRU
+	id S965151AbWBGQTp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 11:19:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbWBGQTp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 11:17:20 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:6021 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S965152AbWBGQRU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 11:17:20 -0500
-Message-ID: <43E8C84D.6020107@sw.ru>
-Date: Tue, 07 Feb 2006 19:18:21 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Tue, 7 Feb 2006 11:19:45 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59277 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S965151AbWBGQTo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 11:19:44 -0500
+To: linux@horizon.com
+Cc: davidchow@shaolinmicro.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux drivers management
+References: <20060207044204.8908.qmail@science.horizon.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 07 Feb 2006 09:18:55 -0700
+In-Reply-To: <20060207044204.8908.qmail@science.horizon.com> (linux@horizon.com's
+ message of "6 Feb 2006 23:42:04 -0500")
+Message-ID: <m1zml3rvkg.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Sam Vilain <sam@vilain.net>, Rik van Riel <riel@redhat.com>,
-       Kirill Korotaev <dev@openvz.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Hubertus Franke <frankeh@watson.ibm.com>, clg@fr.ibm.com,
-       haveblue@us.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
-       serue@us.ibm.com, arjan@infradead.org, kuznet@ms2.inr.ac.ru,
-       saw@sawoct.com, devel@openvz.org, Dmitry Mishin <dim@sw.ru>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
-References: <43E7C65F.3050609@openvz.org>	<m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>	<Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com>	<43E83E8A.1040704@vilain.net> <m1oe1jfa5n.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1oe1jfa5n.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>I can't think of any real use cases where you would specifically want A)
->>without B).
+linux@horizon.com writes:
 
-> You misrepresent my approach.  
-[...]
+> The Linux developers are quite opposed to that, for a variety of excellent
+> reasons I won't bother enumerating.  Linus has said he'll (grudgingly)
+> allow it, but won't lift a finger to help.  Linux development sailed
+> away from the idea of a stable binary interface years ago, and isn't
+> looking back.
 
-> Second I am not trying to just implement a form of virtualizing PIDs.
-> Heck I don't intend to virtualize anything.  The kernel has already
-> virtualized everything I require.  I want to implement multiple
-> instances of the current kernel global namespaces.  All I want is
-> to be able to use the same name twice in user space and not have
-> a conflict.
-if you want not virtualize anything, what is this discussion about? :)
-can you provide an URL to your sources? you makes lot's of statements 
-about that your network virtualization solution is better/more complete, 
-so I'd like to see your solution in whole rather than only words.
-Probably this will help.
+Almost true.  There is a stable binary interface to user space,
+and work is done to maintain that interface.
 
-> I disagree with a struct container simply because I do not see what
-> value it happens to bring to the table.  I have yet to see a problem
-> that it solves that I have not solved yet.
-again, source would help to understand your solution and problem you 
-solved and not solved yet.
+I just thought I would mention it because too frequently people
+get the policy on the in-kernel api and the ABI to user space
+confused.
 
-> In addition I depart from vserver and other implementations in another
-> regard.  It is my impression a lot of their work has been done so
-> those projects are maintainable outside of the kernel, which makes
-> sense as that is where those code bases live.  But I don't think that
-> gives the best solution for an in kernel implementation, which is
-> what we are implementing.
-These soltuions are in kernel implementations actually.
+In general the user space ABI is only appended to.
 
-
-Kirill
-
+Eric

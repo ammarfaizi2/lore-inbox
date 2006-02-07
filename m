@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751033AbWBGRaI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWBGRf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751033AbWBGRaI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 12:30:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWBGRaI
+	id S932166AbWBGRf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 12:35:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWBGRfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 12:30:08 -0500
-Received: from ns1.suse.de ([195.135.220.2]:18355 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751033AbWBGRaG (ORCPT
+	Tue, 7 Feb 2006 12:35:55 -0500
+Received: from animx.eu.org ([216.98.75.249]:33971 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S932166AbWBGRfz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 12:30:06 -0500
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
-Date: Tue, 7 Feb 2006 18:28:48 +0100
-User-Agent: KMail/1.8.2
-Cc: Ingo Molnar <mingo@elte.hu>, steiner@sgi.com, Paul Jackson <pj@sgi.com>,
-       akpm@osdl.org, dgc@sgi.com, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org
-References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com> <200602071343.59384.ak@suse.de> <Pine.LNX.4.62.0602070909080.24623@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0602070909080.24623@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Feb 2006 12:35:55 -0500
+Date: Tue, 7 Feb 2006 12:39:27 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: Phillip Susi <psusi@cfl.rr.com>
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
+       alex-lists-linux-kernel@yuriev.com, linux-kernel@vger.kernel.org
+Subject: Re: non-fakeraid controllers
+Message-ID: <20060207173927.GA16831@animx.eu.org>
+Mail-Followup-To: Phillip Susi <psusi@cfl.rr.com>,
+	Helge Hafting <helge.hafting@aitel.hist.no>,
+	alex-lists-linux-kernel@yuriev.com, linux-kernel@vger.kernel.org
+References: <20060207015126.GA12236@s2.yuriev.com> <43E85337.1090001@aitel.hist.no> <43E8C088.1040206@cfl.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602071828.49370.ak@suse.de>
+In-Reply-To: <43E8C088.1040206@cfl.rr.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 February 2006 18:10, Christoph Lameter wrote:
-> On Tue, 7 Feb 2006, Andi Kleen wrote:
-> 
-> > On Tuesday 07 February 2006 13:30, Ingo Molnar wrote:
-> > 
-> > > you are a bit biased towards low-latency NUMA setups i guess (read: 
-> > > Opterons) :-) 
-> > 
-> > Well they are the vast majority of NUMA systems Linux runs on.
-> 
-> The opterons are some strange mix of SMP and NUMA system. The NUMA "nodes" 
-> are on the same motherboard 
+Phillip Susi wrote:
+> Heinz wrote a utility called 'dmraid' which detects and activates 
+> various hardware fakeraid volumes using the kernel device mapper.  I'm 
+> using it at home to dual boot ubuntu and winxp ( just in case ) from a 
+> stripe of two WD 10,000 rpm raptors and it works great.  I'm still 
+> pushing to get it integrated into dapper.  At this time however, neither 
+> my hardware, nor dmraid support raid-5.  Hopefully this will change in 
+> the future. 
 
-Actually it's not true - 8 socket systems are built out of two
-boards. And there are much bigger systems upcomming.
+I've been wondering about dmraid.  I considered buying an adaptec sata raid
+(hardware).  One of the drawbacks on hardware raid is the format isn't
+compatible with any other card (or rather manufacturer).  So the question
+is, has anyone written anything that can detect and activate disks from a
+hardware raid controller when they are placed on a controller w/o any raid?
 
-> and therefore there are only small latencies  
-> involved. NUMA only gives small benefits.
+basically what I mean is, 3 disks, raid5 was in a system with hardware raid. 
+the raid card blows up and cannot get another one so to get the data back,
+place disks in another machine or on a standard controller and use software
+raid or whatever to recover the data.
 
-That's also not true. Everytime I get memory placement for 
-process memory wrong users complain _very_ loudly and there 
-are clear benefits in benchmarks too.
- 
--Andi
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals
+ Got Gas???

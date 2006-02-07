@@ -1,82 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWBGRgU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWBGRhT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932174AbWBGRgU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 12:36:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWBGRgU
+	id S932187AbWBGRhT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 12:37:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWBGRhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 12:36:20 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:39851 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932174AbWBGRgT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 12:36:19 -0500
-Date: Tue, 7 Feb 2006 09:34:58 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: dada1@cosmosbay.com, heiko.carstens@de.ibm.com,
-       linux-kernel@vger.kernel.org, davem@davemloft.net,
-       James.Bottomley@steeleye.com, mingo@elte.hu, axboe@suse.de,
-       anton@samba.org, wli@holomorphy.com, ak@muc.de
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-Message-Id: <20060207093458.176ac271.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0602070833590.3854@g5.osdl.org>
-References: <200602051959.k15JxoHK001630@hera.kernel.org>
-	<20060207151541.GA32139@osiris.boeblingen.de.ibm.com>
-	<43E8CA10.5070501@cosmosbay.com>
-	<Pine.LNX.4.64.0602070833590.3854@g5.osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Tue, 7 Feb 2006 12:37:19 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:38031 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932187AbWBGRhR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 12:37:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hJCVtAAais+7tCNV/ayNL/IHb1GMuuAQQuhVA/fkw46R+0fk9mh3NBcYnpNyy3mJXLF8bo0DtIZ7+D/LMH3/wv+gU2c2th5OrgNsqOPe7iLVVEa2NNIzGO6oRKnKtUuwDsv2zmyU6hl7a0Fr1AdxOIeX5Ubmsyz/vx6hheOXpvk=
+Message-ID: <a36005b50602070937h60e35294q1dbef2c21f2fb50d@mail.gmail.com>
+Date: Tue, 7 Feb 2006 09:37:13 -0800
+From: Ulrich Drepper <drepper@gmail.com>
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Re: [PATCH 2/8] UML - Define jmpbuf access constants
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+In-Reply-To: <200602070223.k172NpJa009654@ccure.user-mode-linux.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200602070223.k172NpJa009654@ccure.user-mode-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
->
-> 
-> 
-> On Tue, 7 Feb 2006, Eric Dumazet wrote:
-> > 
-> > This patch assumes that cpu_possible_map is setup before
-> > setup_per_cpu_areas().
-> > 
-> > That sounds a reasonable assumption, but maybe not on your architecture ?
-> 
-> I have to say, it sounds not just like a reasonable assumption, but like 
-> the only sane assumption that there _could_ be.
-> 
-> > I dont think cpu_possible_map has to be filled at smp_prepare_cpus() time, but
-> > long before.
-> > 
-> > On i386/x86_64/ia64, this is done from setup_arch() called from start_kernel()
-> > just before setup_per_cpu_areas()
-> > 
-> > On powerpc it's done from setup_system(), called before start_kernel()
-> 
-> It absolutely _has_ to be done from setup_arch() or earlier, as shown by 
-> the fact that "setup_per_cpu_areas()" is the very next thing that 
-> init/main.c calls (and clearly, that needs to know what CPU's are 
-> possible).
-> 
-> ppc64 certainly calls it early enough, as does x86/x86-64/ia64. I don't 
-> see anybody else doing it too late either.
-> 
-> Heiko, can you point to the "old comment" you mentioned in the email, or 
-> the architecture that does this wrong?
-> 
+On 2/6/06, Jeff Dike <jdike@addtoit.com> wrote:
+> With newer libcs, the JB_* macros (which we shouldn't be using anyway,
+> probably) go away.
 
-This one:
+I assume you have your own setjmp implementation and are not using the
+libc version?
 
---- devel/fs/file.c~reduce-size-of-percpudata-and-make-sure-per_cpuobject	2006-02-04 23:27:17.000000000 -0800
-+++ devel-akpm/fs/file.c	2006-02-04 23:27:17.000000000 -0800
-@@ -379,7 +379,6 @@ static void __devinit fdtable_defer_list
- void __init files_defer_init(void)
- {
- 	int i;
--	/* Really early - can't use for_each_cpu */
--	for (i = 0; i < NR_CPUS; i++)
-+	for_each_cpu(i)
- 		fdtable_defer_list_init(i);
- }
-
-And yes, me too - when I saw that comment disappear I checked and decided
-that the comment was both wrong and undesirable.
+If you don't then there is a problem.  There is a good reason why the
+constants are removed: you couldn't use the values anyway.  Your don't
+have the information to "decrypt" them.  If you just used the values
+and implemented the function yourself, fine.

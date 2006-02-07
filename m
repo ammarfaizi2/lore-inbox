@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbWBGJh6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbWBGJka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932456AbWBGJh6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 04:37:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWBGJh6
+	id S932459AbWBGJka (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 04:40:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWBGJka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 04:37:58 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21739 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932456AbWBGJh5 (ORCPT
+	Tue, 7 Feb 2006 04:40:30 -0500
+Received: from mx2.suse.de ([195.135.220.15]:63387 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932459AbWBGJk3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 04:37:57 -0500
-Date: Tue, 7 Feb 2006 10:37:37 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Jim Crilly <jim@why.dont.jablowme.net>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Nigel Cunningham <nigel@suspend2.net>,
-       suspend2-devel@lists.suspend2.net, linux-kernel@vger.kernel.org
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060207093737.GC1742@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <1139251682.2791.290.camel@mindpipe> <200602070625.49479.nigel@suspend2.net> <200602070051.41448.rjw@sisk.pl> <20060207003713.GB31153@voodoo> <20060207004611.GD1575@elf.ucw.cz> <20060207005930.GD31153@voodoo> <1139275143.2041.24.camel@mindpipe> <20060207030129.GA23860@mail> <1139282017.2041.44.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 7 Feb 2006 04:40:29 -0500
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: OOM behavior in constrained memory situations
+Date: Tue, 7 Feb 2006 10:23:38 +0100
+User-Agent: KMail/1.8.2
+Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <Pine.LNX.4.62.0602061253020.18594@schroedinger.engr.sgi.com> <20060206145922.3eb3c404.pj@sgi.com> <Pine.LNX.4.62.0602061745480.20189@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0602061745480.20189@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1139282017.2041.44.camel@mindpipe>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200602071023.39222.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 06-02-06 22:13:36, Lee Revell wrote:
-> On Mon, 2006-02-06 at 22:01 -0500, Jim Crilly wrote:
-> > On 02/06/06 08:19:02PM -0500, Lee Revell wrote:
-> > > On Mon, 2006-02-06 at 19:59 -0500, Jim Crilly wrote:
-> > > > I guess reasonable is a subjective term. For instance, I've seen quite
-> > > > a few people vehemently against adding new ioctls to the kernel and
-> > > > yet you'll be adding quite a few for /dev/snapshot. I'm just of the
-> > > > same mind as Nigel in that it makes the most sense to me that the
-> > > > majority of the suspend/hibernation process to be in the kernel. 
-> > > 
-> > > No one is saying that ANY new ioctls are bad, just that the KISS
-> > > principle of engineering dictates that it's bad design to use ioctls
-> > > where a simple read/write to a sysfs file will do.
-> > > 
-> > 
-> > I understand that, but shouldn't the KISS principle also be applied to
-> > the user interface of a feature?
-> 
-> Personally I agree with you on suspend2, I think this is something that
-> needed to Just Work yesterday, and every day it doesn't work we are
-> losing users... but who am I to talk, I'm not the one who will have to
-> maintain it.
+On Tuesday 07 February 2006 02:55, Christoph Lameter wrote:
+> I just tried to oom a process that has restricted its mem allocation to 
+> node 0 using a memory policy. Instead of an OOM the system began to swap 
+> on node zero. The swapping is restricted to the zones passed to 
+> __alloc_pages. It was thus swapping node zero alone.
 
-It does just work in mainline now. If it does not please open bug
-account at bugzilla.kernel.org.
+Thanks for doing that work. It's needed imho and was on my todo list.
 
-If mainline swsusp is too slow for you, install uswsusp. If it is
-still too slow for you, mail me a patch adding LZW to userland code
-(should be easy).
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+
+>  	switch (pol->policy) {
+>  	case MPOL_DEFAULT:
+>  		break;
+> Index: linux-2.6.16-rc2/include/linux/mempolicy.h
+> ===================================================================
+> --- linux-2.6.16-rc2.orig/include/linux/mempolicy.h	2006-02-02 22:03:08.000000000 -0800
+> +++ linux-2.6.16-rc2/include/linux/mempolicy.h	2006-02-06 17:07:41.000000000 -0800
+> @@ -62,6 +62,7 @@ struct vm_area_struct;
+>  struct mempolicy {
+>  	atomic_t refcnt;
+>  	short policy; 	/* See MPOL_* above */
+> +	gfp_t gfp_flags;	/* flags ORed into gfp_flags for each allocation */
+
+I don't think it's a good idea to add it to the struct mempolicy. I've tried to
+make it as memory efficient as possibile and it would be a waste to add such
+a mostly unused field. Better to pass that information around in some other way.
+
+(in the worst case it could be a upper bit in policy, but I would prefer
+function arguments I think) 
+
+The rest looks good.
+
+-Andi
+

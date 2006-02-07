@@ -1,62 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbWBGMDr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965049AbWBGMNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965027AbWBGMDr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 07:03:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbWBGMDr
+	id S965049AbWBGMNI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 07:13:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965051AbWBGMNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 07:03:47 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:32933 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S965027AbWBGMDq (ORCPT
+	Tue, 7 Feb 2006 07:13:08 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:64154 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S965049AbWBGMNH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 07:03:46 -0500
-Date: Tue, 7 Feb 2006 13:00:11 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andi Kleen <ak@suse.de>
-cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: Cleanup possibility in asm-i386/string.h
-In-Reply-To: <200602071215.46885.ak@suse.de>
-Message-ID: <Pine.LNX.4.61.0602071230520.9696@scrub.home>
-References: <200602071215.46885.ak@suse.de>
+	Tue, 7 Feb 2006 07:13:07 -0500
+Message-ID: <43E88F27.7050602@sw.ru>
+Date: Tue, 07 Feb 2006 15:14:31 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Kirill Korotaev <dev@openvz.org>, Linus Torvalds <torvalds@osdl.org>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, frankeh@watson.ibm.com,
+       clg@fr.ibm.com, haveblue@us.ibm.com, greg@kroah.com,
+       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
+       riel@redhat.com, kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
+       Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
+References: <43E7C65F.3050609@openvz.org> <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>The important properties of the proposed container implementation:
+>>- each container has unique ID in the system
+> What namespace does this ID live in?
+global namespace. can be virtualized later.
+can be optional.
+But the idea is simple. Eventually you will need some management tools 
+anyway. And they should be able to refer to containers.
 
-On Tue, 7 Feb 2006, Andi Kleen wrote:
-
-> If you feel the need to remove some more code: Now that gcc 2.95 isn't supported
-> anymore there isn't really a need to keep the handwritten inline string functions
-> in asm-i386/string.h around. Just declaring them as normal externs will cause
-> gcc to use its builtin expansions, which are typically better than these old inline
-> functions with inline assembly.
+>>- each process in the kernel can belong to one container only
+> Reasonable.
 > 
-> For out of line the C versions in lib/string.c can be used (by not setting __ARCH_*) 
-> x86-64 did it like this forever and I guess it would be valuable cleanup for i386 too.
+> 
+>>- effective container pointer (econtainer()) is used on the task to avoid
+>>insertion of additional argument "container" to all functions where it is
+>>required.
+> Why is that desirable?
+It was discussed with Linus and the reason is provided in this text 
+actually.
+There are 2 ways:
+- to add additional argument "container" to all the functions where it 
+is required.
+Drawbacks: a) lot's of changes, b) compilation without virtualization is 
+not the same. c) increased stakc usage
+- to add effective container pointer on the task. i.e. context which 
+kernel should be in when works with virtualized resources.
+Drawbacks: a) there are some places where you need to change effective 
+container context explicitly such as TCP/IP.
 
-The only problem is that we compile with -ffreestanding which implies 
--fno-builtin, so just declaring them as normal externs is not enough and 
-you have to something like this:
+>>- kernel compilation with disabled virtualization should result in old good
+>>linux kernel
+> 
+> A reasonable goal.
+> 
+> Why do we need a container structure to hold pointers to other pointers?
+can't catch what you mean :) is it prohibited somehow? :))))
 
-#define __HAVE_ARCH_MEMSET
-extern void *memset(void *, int, __kernel_size_t);
-#define memset(d, c, n) __builtin_memset(d, c, n)
+> May I please be added to the CC list.
+> We are never going to form a consensus if all of the people doing implementations don't
+> talk.
+To make a consensus people need to make mutual concessions... Otherwise 
+these talks are useless.
 
-(BTW you do this already in x86-64.)
+Kirill
 
-Another problem here is because of -fno-builtin it's not easy to use the 
-generic functions as fallback. x86-64 basically does this: 
-
-#define strlen __builtin_strlen
-size_t strlen(const char * s);
-
-#ifndef __HAVE_ARCH_STRLEN
-extern __kernel_size_t strlen(const char *);
-#endif
-
-This means you define a prototype for the builtin function and not for the 
-normal function. I'm not sure this is really intended.
-
-bye, Roman

@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030293AbWBGXtN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030246AbWBGXSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030293AbWBGXtN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 18:49:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030290AbWBGXtN
+	id S1030246AbWBGXSV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 18:18:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030247AbWBGXSV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 18:49:13 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:47543 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1030293AbWBGXtL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 18:49:11 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Wed, 8 Feb 2006 00:50:21 +0100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Bojan Smojver <bojan@rexursive.com>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       suspend2-devel@lists.suspend2.net
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060207230510.GF2753@elf.ucw.cz> <200602080917.24305.nigel@suspend2.net>
-In-Reply-To: <200602080917.24305.nigel@suspend2.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Feb 2006 18:18:21 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:4825 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S1030246AbWBGXSU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 18:18:20 -0500
+Date: Tue, 7 Feb 2006 15:18:35 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Neal Becker <ndbecker2@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc1 panic on startup (acpi)
+Message-ID: <20060207231835.GA19648@kroah.com>
+References: <ds7cu3$9c0$1@sea.gmane.org> <ds7f17$gp7$1@sea.gmane.org> <20060207145913.714fec1c.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602080050.22158.rjw@sisk.pl>
+In-Reply-To: <20060207145913.714fec1c.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wednesday 08 February 2006 00:17, Nigel Cunningham wrote:
-}-- snip --{
+On Tue, Feb 07, 2006 at 02:59:13PM -0800, Andrew Morton wrote:
+> Neal Becker <ndbecker2@gmail.com> wrote:
+> >
+> > Sorry, I meant 2.6.16-rc1 (not 2.6.12)
+> > 
+> > Neal Becker wrote:
+> > 
+> > > HP dv8000 notebook
+> > > 2.6.15 is fine, but 2.6.12-rc1 panics immediately on startup
+> > > 
+> > > Here is a picture of some traceback
+> > > https://bugzilla.redhat.com/bugzilla/attachment.cgi?id=124152&action=view
+> > 
+> > 
 > 
-> It occured to me as soon as I sent the last email (don't you hate that!)
-> that I'd forgotten the original impetus: backwards compatibility. If all
-> of the methods of suspending can be started with
-> 
-> "echo disk > /sys/power/state"
-> 
-> , your backwards compatability issue that you expressed concern about 
-> earlier in this discussion is addressed. So, I'm not sure that dropping the
-> idea is the right thing to do.
+> It died in pci_mmcfg_read().  Greg, didn't a crash in there get fixed recently?
 
-I'm not sure if the problem is real.  If it turns out to be, it'll be solvable
-in a couple of sane ways, so I don't think we need to worry about it
-in advance.
+Yes.  Can you try 2.6.16-rc2?  Is this a x86-64 machine?
 
-I'd like the userland suspend to be an option and not a drop-in replacement
-of swsusp or suspend2, so IMO it can be started in a different way.
+thanks,
 
-Greetings,
-Rafael
+greg k-h

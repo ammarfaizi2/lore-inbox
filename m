@@ -1,105 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbWBGPmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965125AbWBGPln@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932465AbWBGPmO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 10:42:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWBGPlu
+	id S965125AbWBGPln (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 10:41:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWBGPlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 10:41:50 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:28098 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751136AbWBGPlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 7 Feb 2006 10:41:40 -0500
-Message-Id: <20060207153248.PS50860900000@infradead.org>
-Date: Tue, 07 Feb 2006 13:32:48 -0200
+Received: from pentafluge.infradead.org ([213.146.154.40]:26818 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751132AbWBGPl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 10:41:29 -0500
 From: mchehab@infradead.org
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
-       akpm@osdl.org
-Subject: [PATCH 00/16] V4L/DVB updates
+To: linux-kernel@vger.kernel.org
+Cc: linux-dvb-maintainer@linuxtv.org, Michael Krufky <mkrufky@linuxtv.org>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: [PATCH 01/16] Kconfig: DVB_USB_CXUSB depends on DVB_LGDT330X and
+	DVB_MT352
+Date: Tue, 07 Feb 2006 13:33:29 -0200
+Message-id: <20060207153329.PS28867800001@infradead.org>
+In-Reply-To: <20060207153248.PS50860900000@infradead.org>
+References: <20060207153248.PS50860900000@infradead.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.2.1-1mdk 
 Content-Transfer-Encoding: 7bit
+X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
 X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        This patch series is also available under v4l-dvb.git tree at:
-                kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git
+From: Michael Krufky <mkrufky@linuxtv.org>
 
-	Linus, please pull these from master branch.
+- rename DVB_USB_CXUSB one-liner description to:
+  Conexant USB2.0 hybrid reference design support.
+- with the addition of bluebird support to dvb-usb-cxusb,
+  it now depends on lgdt330x and mt352 modules.
 
-	It contains the following stuff:
-
-   - Kconfig: DVB_USB_CXUSB depends on DVB_LGDT330X and DVB_MT352
-   - Fix NICAM buzz on analog sound
-   - Added signal detection support to tvp5150
-   - Fix [Bug 5895] to correct snd_87x autodetect
-   - Add IR support to KWorld DVB-T (cx22702-based)
-   - Add standard for South Korean NTSC-M using A2 audio.
-   - Fixed i2c return value, conversion mdelay to msleep
-   - Support for Galaxis DVB-S rev1.3
-   - Use parallel transport for FusionHDTV Dual Digital USB
-   - Use MT352 parallel transport function for all Bluebird FusionHDTV DVB-T boxes.
-   - FIX: Multiple usage of VP7045-based devices
-   - FIX: Check if FW was downloaded or not + new firmware file
-   - Makes Some symbols static.
-   - fix saa7146 kobject register failure
-   - DVB: remove the at76c651/tda80xx frontends
-   - Disabled debug on by default in tvp5150
-
-The following stuff is also pending to be pulled from v4l-dvb.git:
-   - Activate remote control on HVR1100
-   - Add bttv card MagicTV (rebranded MachTV)
-   - whitespace cleanup: insert missing space before curly brackets
-   - More whitespace cleanup in bttv-cards.c
-   - Add support for DViCO FusionHDTV DVB-T USB devices
-   - Conversions from kmalloc+memset to k(z|c)alloc
-   - don't ignore return from i2c_add_driver() for tuner-3036
-   - Pci probing for stradis driver
-   - Stradis video little cleanup
-   - Enable microtune for Pinnacle 300i boards
-   - Stradis Lindent
-   - Stradis Kconfig url changed
-   - Fixes some bad global variables
-   - debug renamed to cx25840_debug
-   - Add PCI ID for UltraView DVB-T Plus, rebranded DViCO FusionHDTV DVB-T Plus
-   - Added USB ID for DigitalNow DVB-T Dual USB, DViCO clone
-   - adding support for knc1 Tv Star dvb-s
-   - Some fixes to compat_ioctl32
-   - VIDEO_SAA7134_ALSA shouldn't select SND_PCM_OSS
-
-Cheers,
-Mauro
-
-   Diffstat from newer stuff follows.
-
+Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/dvb/bt8xx/bt878.c            |   44 +
- drivers/media/dvb/bt8xx/bt878.h            |   17 
- drivers/media/dvb/dvb-usb/Kconfig          |   12 
- drivers/media/dvb/dvb-usb/cxusb.c          |    4 
- drivers/media/dvb/dvb-usb/digitv.c         |   13 
- drivers/media/dvb/dvb-usb/vp7045-fe.c      |    6 
- drivers/media/dvb/frontends/Kconfig        |   12 
- drivers/media/dvb/frontends/Makefile       |    2 
- drivers/media/dvb/frontends/at76c651.c     |  450 ------------
- drivers/media/dvb/frontends/at76c651.h     |   47 -
- drivers/media/dvb/frontends/tda80xx.c      |  734 ---------------------
- drivers/media/dvb/frontends/tda80xx.h      |   51 -
- drivers/media/dvb/ttpci/av7110.c           |   14 
- drivers/media/video/bttv-driver.c          |    2 
- drivers/media/video/cx25840/cx25840-core.c |   50 -
- drivers/media/video/cx88/cx88-alsa.c       |    6 
- drivers/media/video/cx88/cx88-core.c       |   10 
- drivers/media/video/cx88/cx88-input.c      |    1 
- drivers/media/video/em28xx/em28xx-core.c   |   15 
- drivers/media/video/em28xx/em28xx-i2c.c    |    8 
- drivers/media/video/hexium_orion.c         |    2 
- drivers/media/video/tda9887.c              |    7 
- drivers/media/video/tuner-core.c           |    5 
- drivers/media/video/tvp5150.c              |   11 
- include/linux/videodev2.h                  |    4 
- 25 files changed, 170 insertions(+), 1357 deletions(-)
+ drivers/media/dvb/dvb-usb/Kconfig |   12 +++++++++---
+ 1 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/media/dvb/dvb-usb/Kconfig b/drivers/media/dvb/dvb-usb/Kconfig
+index 90a69d3..d3df120 100644
+--- a/drivers/media/dvb/dvb-usb/Kconfig
++++ b/drivers/media/dvb/dvb-usb/Kconfig
+@@ -83,12 +83,18 @@ config DVB_USB_UMT_010
+ 	  Say Y here to support the HanfTek UMT-010 USB2.0 stick-sized DVB-T receiver.
+ 
+ config DVB_USB_CXUSB
+-	tristate "Medion MD95700 hybrid USB2.0 (Conexant) support"
++	tristate "Conexant USB2.0 hybrid reference design support"
+ 	depends on DVB_USB
+ 	select DVB_CX22702
++	select DVB_LGDT330X
++	select DVB_MT352
+ 	help
+-	  Say Y here to support the Medion MD95700 hybrid USB2.0 device. Currently
+-	  only the DVB-T part is supported.
++	  Say Y here to support the Conexant USB2.0 hybrid reference design.
++	  Currently, only DVB and ATSC modes are supported, analog mode
++	  shall be added in the future. Devices that require this module:
++
++	  Medion MD95700 hybrid USB2.0 device.
++	  DViCO FusionHDTV (Bluebird) USB2.0 devices
+ 
+ config DVB_USB_DIGITV
+ 	tristate "Nebula Electronics uDigiTV DVB-T USB2.0 support"
 

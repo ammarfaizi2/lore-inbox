@@ -1,39 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWBGGwj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbWBGG5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932454AbWBGGwj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 01:52:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWBGGwj
+	id S964984AbWBGG5R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 01:57:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964950AbWBGG5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 01:52:39 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:44434 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932454AbWBGGwi convert rfc822-to-8bit (ORCPT
+	Tue, 7 Feb 2006 01:57:17 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:55168 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964914AbWBGG5Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 01:52:38 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 7 Feb 2006 01:57:16 -0500
+Message-ID: <43E844C3.5080500@pobox.com>
+Date: Tue, 07 Feb 2006 01:57:07 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: EC interrupt mode by default breaks power button and lid button
-Date: Tue, 7 Feb 2006 14:52:32 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F840ADDC619@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: EC interrupt mode by default breaks power button and lid button
-thread-index: AcYrIp6bSejWeyxrQ7uW0I783H24rgAj+8CA
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Gerhard Schrenk" <deb.gschrenk@gmx.de>
-Cc: "Brown, Len" <len.brown@intel.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 07 Feb 2006 06:52:34.0208 (UTC) FILETIME=[12DA6200:01C62BB3]
+To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
+CC: Stefan Seyfried <seife@suse.de>, Olaf Kirch <okir@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org, Jesse Brandeburg <jesse.brandeburg@intel.com>,
+       Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Subject: Re: e100 oops on resume
+References: <20060124225919.GC12566@suse.de>	 <20060124232142.GB6174@inferi.kami.home>	 <20060125090240.GA12651@suse.de> <20060125121125.GH5465@suse.de>	 <4807377b0601251137r7621216byc47b03a3c634557c@mail.gmail.com>	 <4807377b0601251628k4227dad0ld731f2c25c211b91@mail.gmail.com>	 <20060126190236.GA12481@suse.de>	 <20060128115335.GA4511@inferi.kami.home> <4807377b0601281153r618586ddhca27b7772e023d26@mail.gmail.com>
+In-Reply-To: <4807377b0601281153r618586ddhca27b7772e023d26@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Jesse Brandeburg wrote: > On 1/28/06, Mattia Dongili
+	<malattia@linux.it> wrote: > >>On Thu, Jan 26, 2006 at 08:02:37PM
+	+0100, Stefan Seyfried wrote: >> >>>On Wed, Jan 25, 2006 at 04:28:48PM
+	-0800, Jesse Brandeburg wrote: >>> >>> >>>>Okay I reproduced the issue
+	on 2.6.15.1 (with S1 sleep) and was able >>>>to show that my patch that
+	just removes e100_init_hw works okay for >>>>me. Let me know how it
+	goes for you, I think this is a good fix. >>> >>>worked for me in the
+	Compaq Armada e500 and reportedly also fixed the >>>SONY that
+	originally uncovered it. >> >>confirmed here too. The patch fixes S3
+	resume on this Sony (GR7/K) >>running 2.6.16-rc1-mm3. > > > excellent
+	news! thanks for testing. > > Jeff, could you please apply to
+	2.6.16-rcX > > Jesse [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Please don't revert that patch, and test kernel parameter ec_intr=0
->
->Yes, boot option ec_initr=0 helps power/lid buttons. (Tested with
->yesterdays newest kernel from linus' tree.)
+Jesse Brandeburg wrote:
+> On 1/28/06, Mattia Dongili <malattia@linux.it> wrote:
+> 
+>>On Thu, Jan 26, 2006 at 08:02:37PM +0100, Stefan Seyfried wrote:
+>>
+>>>On Wed, Jan 25, 2006 at 04:28:48PM -0800, Jesse Brandeburg wrote:
+>>>
+>>>
+>>>>Okay I reproduced the issue on 2.6.15.1 (with S1 sleep) and was able
+>>>>to show that my patch that just removes e100_init_hw works okay for
+>>>>me.  Let me know how it goes for you, I think this is a good fix.
+>>>
+>>>worked for me in the Compaq Armada e500 and reportedly also fixed the
+>>>SONY that originally uncovered it.
+>>
+>>confirmed here too. The patch fixes S3 resume on this Sony (GR7/K)
+>>running 2.6.16-rc1-mm3.
+> 
+> 
+> excellent news! thanks for testing.
+> 
+> Jeff, could you please apply to 2.6.16-rcX
+> 
+> Jesse
 
-Any difference with ec_initr=1 with this kernel ?
-If pressing power button, can you see acpi interrupt increases?
+SIGH.  In your last patch submission you had it right, but Intel has yet 
+again regressed in patch submission form.
+
+Your fixes will be expedited if they can be applied by script, and then 
+quickly whisked upstream to Linus/Andrew.  This one had to be applied by 
+hand (so yes, its applied) for several reasons:
+
+* Unreviewable in mail reader, due to MIME type application/octet-stream.
+
+* In general, never use MIME (attachments), they decrease the audience 
+that can easily review your patch.
+
+* Your patch's description and signed-off-by were buried inside the 
+octet-stream attachment.
+
+* Please review http://linux.yyz.us/patch-format.html  (I probably 
+should add MIME admonitions to that)
+
+	Jeff
+
+

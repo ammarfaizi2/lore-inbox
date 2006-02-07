@@ -1,59 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965070AbWBGNSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965031AbWBGNVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965070AbWBGNSr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 08:18:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965072AbWBGNSr
+	id S965031AbWBGNVG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 08:21:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbWBGNVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 08:18:47 -0500
-Received: from albireo.ucw.cz ([84.242.65.108]:9604 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S965070AbWBGNSq (ORCPT
+	Tue, 7 Feb 2006 08:21:06 -0500
+Received: from ns1.suse.de ([195.135.220.2]:33257 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965031AbWBGNVF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 08:18:46 -0500
-Date: Tue, 7 Feb 2006 14:18:41 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: matthias.andree@gmx.de, jim@why.dont.jablowme.net, peter.read@gmail.com,
+	Tue, 7 Feb 2006 08:21:05 -0500
+From: Andi Kleen <ak@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+Date: Tue, 7 Feb 2006 14:14:30 +0100
+User-Agent: KMail/1.8.2
+Cc: steiner@sgi.com, Paul Jackson <pj@sgi.com>, clameter@engr.sgi.com,
+       akpm@osdl.org, dgc@sgi.com, Simon.Derr@bull.net,
        linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <mj+md-20060207.131110.9155.albireo@ucw.cz>
-References: <20060123105634.GA17439@merlin.emma.line.org> <200602021717.08100.luke@dashjr.org> <Pine.LNX.4.61.0602031502000.7991@yvahk01.tjqt.qr> <200602031724.55729.luke@dashjr.org> <43E7545E.nail7GN11WAQ9@burner> <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de> <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com> <200602071343.59384.ak@suse.de> <20060207125845.GB634@elte.hu>
+In-Reply-To: <20060207125845.GB634@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <43E89B56.nailA792EWNLG@burner>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200602071414.31119.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Joerg!
+On Tuesday 07 February 2006 13:58, Ingo Molnar wrote:
+> 
+> * Andi Kleen <ak@suse.de> wrote:
+> 
+> > On Tuesday 07 February 2006 13:30, Ingo Molnar wrote:
+> > 
+> > > you are a bit biased towards low-latency NUMA setups i guess (read: 
+> > > Opterons) :-) 
+> > 
+> > Well they are the vast majority of NUMA systems Linux runs on.
+> >
+> > And there are more than just Opterons, e.g. IBM Summit. And even the 
+> > majority of Altixes are not _that_ big.
+> > 
+> > Of course we need to deal somehow with the big systems, but for the 
+> > good defaults the smaller systems are more important.
+> 
+> i'm not sure i understand your point. You said that for small systems 
+> with a low NUMA factor it doesnt really matter where the pagecache is 
+> placed. 
 
-> Well, while I did explain this many times (*), I am still waiting 
-> for an explanation why Linux tries to deviate from nearly all other OS.
+I meant it's not that big an issue if it's remote, but it's
+bad if it fills up the local node.
 
-The explanation has been given several times: the solution used by Linux
-solves much more than just CD recorders.
+Also pagecache = unmapped file cache here. And d/icache. 
+For mapped anonymous memory it's different of course.
 
-I intentionally say "CD recorders", not "SCSI devices" nor even "CD drives",
-because I don't think I can view as a consistent solution anything which
-calls the same drive differently depending on whether I want to read or
-write a CD.
 
-I repeatedly asked you why do you think we should call the device
-differently for different uses and there were no replies.
+> I mostly agree with that. And since placement makes no  
+> difference there, we can freely shape things for the systems where it 
+> does make a difference. It will probably make a small win on smaller 
+> systems too, as a bonus. Ok?
 
-> *) in case you like are on amnesia: without the mapping in libscg,
-> cdrecord could not be used reliably on Linux. And yes, I _do_ care
-> about people who run Linux-2.4 or older!
+No because filling up the local node is a problem on the small systems
+too because it prevents the processes from getting enough anonymous
+memory. For anonymous memory memory placement is important even for 
+small systems.
 
-As you were already told, you can do it by splitting the Linux port
-to two, one for Linux 2.4 and older, one for the newer kernels. Some
-people even offered help with maintaining the Linux parts of the libscg.
+Basically you have to consider the frequency of access:
 
-Except for the compatibility problems, I haven't heard any argument
-why it "could not be used reliably on Linux".
+Mapped memory is very frequently accessed. For it memory placement 
+is really important. Optimizing it at the cost of everything
+else is a good default strategy
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-P.C.M.C.I.A. stands for `People Can't Memorize Computer Industry Acronyms'
+File cache is much less frequently accessed (most programs buffer
+read/write well) and when it is accessed it is using functions
+that are relatively latency tolerant (kernel memcpy). So memory
+placement is much less important here.
+
+And d/inode are also very infrequently accessed compared to local memory,
+so the occasionally additional latency is better than competing too much
+with local memory allocation.
+
+> > Big systems tend to have capable administrators who are willing to 
+> > tweak them. But that's rarely the case with the small systems. So I 
+> > think as long as the big system can be somehow made to work with 
+> > special configuration and ignoring corner cases that's fine. But for 
+> > the low NUMA systems it should perform as well as possibly out of the 
+> > box.
+> 
+> i also mentioned software-based clusters in the previous mail, so it's 
+> not only about big systems. Caching attributes are very much relevant 
+> there. Tightly integrated clusters can be considered NUMA systems with a 
+> NUMA factor of 1000 or so (or worse).
+
+To be honest I don't think systems with such a NUMA factor will ever work 
+well in the general case. So I wouldn't recommend considering them
+much if at all in your design thoughts. The result would likely not
+be a good balanced design.
+
+> > > Obviously with a low NUMA factor, we dont have to deal  
+> > > with memory access assymetries all that much.
+> > 
+> > That is why I proposed "nearby policy". It can turn a system with a 
+> > large NUMA factor into a system with a small NUMA factor.
+> 
+> well, would the "nearby policy" make a difference on the small systems? 
+
+Probably not.
+> 
+> Small systems (to me) are just a flat and symmetric hierarchy of nodes - 
+> the next step from SMP. So there's really just two distances: local to 
+> the node, and one level of 'alien'. Or do you include systems in this 
+> category that have bigger assymetries?
+
+Even a 4 way Opteron has two hierarchies (although the kernel
+often doesn't know about them because most BIOS have broken SLIT tables) 
+and a 8 way Opteron has three. Similar let's say a 4 node x460.
+But these systems have still a reasonably small NUMA factor.
+
+-Andi

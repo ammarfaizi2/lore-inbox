@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964915AbWBGC5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964919AbWBGDCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964915AbWBGC5x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 21:57:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964917AbWBGC5x
+	id S964919AbWBGDCN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 22:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWBGDCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 21:57:53 -0500
-Received: from smtpout.mac.com ([17.250.248.45]:23248 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S964915AbWBGC5x (ORCPT
+	Mon, 6 Feb 2006 22:02:13 -0500
+Received: from hummeroutlaws.com ([12.161.0.3]:1804 "EHLO atpro.com")
+	by vger.kernel.org with ESMTP id S964919AbWBGDCN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 21:57:53 -0500
-X-PGP-Universal: processed;
-	by AlPB on Mon, 06 Feb 2006 20:57:29 -0600
-In-Reply-To: <20060207004147.GA21620@MAIL.13thfloor.at>
-References: <43C40803.2000106@rtr.ca> <20060201222314.GA26081@MAIL.13thfloor.at> <uhd7irpi7@a1i15.kph.uni-mainz.de> <Pine.LNX.4.61.0602022144190.30391@yvahk01.tjqt.qr> <43E3DB99.9020604@rtr.ca> <Pine.LNX.4.61.0602041204490.30014@yvahk01.tjqt.qr> <1139153913.3131.42.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0602052212430.330@yvahk01.tjqt.qr> <1139174355.3131.50.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0602061554550.31522@yvahk01.tjqt.qr> <20060207004147.GA21620@MAIL.13thfloor.at>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <6D491888-6DEA-4F9B-BEB2-7CD8FDC2159D@mac.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Arjan van de Ven <arjan@infradead.org>, Mark Lord <lkml@rtr.ca>,
-       Ulrich Mueller <ulm@kph.uni-mainz.de>, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Byron Stanoszek <gandalf@winds.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>
-Content-Transfer-Encoding: 7bit
-From: Mark Rustad <mrustad@mac.com>
-Subject: Re: [PATCH ]  VMSPLIT config options (with default config fixed)
-Date: Mon, 6 Feb 2006 20:51:01 -0600
-To: Herbert Poetzl <herbert@13thfloor.at>
-X-Mailer: Apple Mail (2.746.2)
+	Mon, 6 Feb 2006 22:02:13 -0500
+Date: Mon, 6 Feb 2006 22:01:29 -0500
+From: Jim Crilly <jim@why.dont.jablowme.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Pavel Machek <pavel@ucw.cz>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Nigel Cunningham <nigel@suspend2.net>,
+       suspend2-devel@lists.suspend2.net, linux-kernel@vger.kernel.org
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Message-ID: <20060207030129.GA23860@mail>
+Mail-Followup-To: Lee Revell <rlrevell@joe-job.com>,
+	Pavel Machek <pavel@ucw.cz>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+	Nigel Cunningham <nigel@suspend2.net>,
+	suspend2-devel@lists.suspend2.net, linux-kernel@vger.kernel.org
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <1139251682.2791.290.camel@mindpipe> <200602070625.49479.nigel@suspend2.net> <200602070051.41448.rjw@sisk.pl> <20060207003713.GB31153@voodoo> <20060207004611.GD1575@elf.ucw.cz> <20060207005930.GD31153@voodoo> <1139275143.2041.24.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1139275143.2041.24.camel@mindpipe>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 6, 2006, at 6:41 PM, Herbert Poetzl wrote:
+On 02/06/06 08:19:02PM -0500, Lee Revell wrote:
+> On Mon, 2006-02-06 at 19:59 -0500, Jim Crilly wrote:
+> > I guess reasonable is a subjective term. For instance, I've seen quite
+> > a few people vehemently against adding new ioctls to the kernel and
+> > yet you'll be adding quite a few for /dev/snapshot. I'm just of the
+> > same mind as Nigel in that it makes the most sense to me that the
+> > majority of the suspend/hibernation process to be in the kernel. 
+> 
+> No one is saying that ANY new ioctls are bad, just that the KISS
+> principle of engineering dictates that it's bad design to use ioctls
+> where a simple read/write to a sysfs file will do.
+> 
 
-> On Mon, Feb 06, 2006 at 03:56:34PM +0100, Jan Engelhardt wrote:
->>>>>> What userspace programs do depend on it?
->>>>>
->>>>> there is a lot of userspace that assumes they can do 2Gb or  
->>>>> even close
->>>>> to 3Gb of memory allocations. Databases, java, basically  
->>>>> anything with
->>>>> threads. Sure for most of these its a configuration option to  
->>>>> reduce
->>>>> this, but that still doesn't mean it's a good idea to change  
->>>>> from the
->>>>> existing behavior...
->>>>>
->>>> Not to mention that these (almost(*)) fail anyway when you have  
->>>> less than 2
->>>> GB of RAM.
->>>
->>> it's not really overcommit... it can also be file mmaps or shared  
->>> mmaps
->>> of say tmpfs files (the later is common with oracle actually)
->>
->> So, just as I did in the sample patch, the manual split shall  
->> depend on
->> EMBEDDED. Those who run fat databases with big malloc/mmap  
->> assumptions
->> don't probably belong to the group using CONFIG_EMBEDDED.
->
-> *sigh* well, the embeded folks are unlikely to have 1-3GB
-> why not use EXPERIMENTAL if you 'think' the option will
-> hurt the database folks who do not know to configure their
-> kernel ...
+I understand that, but shouldn't the KISS principle also be applied to
+the user interface of a feature? As it stands it looks like Suspend2
+is going to be a lot simpler for users to configure and get right than
+uswsusp. As long as you have Suspend2 enabled in the kernel it 'just
+works', even if you don't have the userland UI it'll still suspend and
+resume just without the progress bars. There is still some room for error
+with things like forgetting to enable the swap writer and then attempting
+to suspend to a swap device or making lzf a module and forgetting to
+load it before resuming from a compressed image, but those are no worse
+than any other kernel option.
 
-Embedded is not the same thing as small. 1GB is what the system I  
-work on uses and it is "embedded". This new VMSPLIT is great, BTW.
+With uswsusp it'll be more flexible in that you'll be able to use any
+userland process or library to transform the image before storing it, but
+the suspend and resume processes are going to be a lot more complicated.
+For instance, how are you going to tell the kernel that you need the
+uswsusp UI binary, /bin/gzip and /usr/bin/gpg to run after the rest of
+userland has been frozen?
 
--- 
-Mark Rustad, MRustad@mac.com
-
+Jim.

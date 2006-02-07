@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965044AbWBGMGY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbWBGMDr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965044AbWBGMGY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 07:06:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbWBGMGY
+	id S965027AbWBGMDr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 07:03:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbWBGMDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 07:06:24 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:53447 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965044AbWBGMGX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 07:06:23 -0500
-Subject: Re: non-fakeraid controllers
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: alex-lists-linux-kernel@yuriev.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060207015126.GA12236@s2.yuriev.com>
-References: <20060207015126.GA12236@s2.yuriev.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 07 Feb 2006 12:08:25 +0000
-Message-Id: <1139314105.18391.25.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 7 Feb 2006 07:03:47 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:32933 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S965027AbWBGMDq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 07:03:46 -0500
+Date: Tue, 7 Feb 2006 13:00:11 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andi Kleen <ak@suse.de>
+cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: Cleanup possibility in asm-i386/string.h
+In-Reply-To: <200602071215.46885.ak@suse.de>
+Message-ID: <Pine.LNX.4.61.0602071230520.9696@scrub.home>
+References: <200602071215.46885.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-02-06 at 20:51 -0500, alex-lists-linux-kernel@yuriev.com
-wrote:
-> 	Does anyone has a list/refence/etc on reasonably modern SCSI
-> controllers (at least u160) in a non-fakeraid way i.e. the way that would
-> allow linux to boot from a RAID protected disk array when one of the drives
-> in the array failed even if the root filesystem is located on the same
-> array?
+Hi,
 
-Most raid (soft or otherwise) will usually do it. I don't know any SCSI
-hardware which will do it reliably unless you go fibrechannel or SATA
-simply because a dead scsi drive can and sometimes does hang the entire
-shared bus.
+On Tue, 7 Feb 2006, Andi Kleen wrote:
 
-The majority of the time the aacraid based cards will do what you need
-(most of the time anyway) and can also do a lot of on the fly recovery
-and management. The fusions can do some raid stuff of this nature. Most
-of the newer hardware is going SATA however.
+> If you feel the need to remove some more code: Now that gcc 2.95 isn't supported
+> anymore there isn't really a need to keep the handwritten inline string functions
+> in asm-i386/string.h around. Just declaring them as normal externs will cause
+> gcc to use its builtin expansions, which are typically better than these old inline
+> functions with inline assembly.
+> 
+> For out of line the C versions in lib/string.c can be used (by not setting __ARCH_*) 
+> x86-64 did it like this forever and I guess it would be valuable cleanup for i386 too.
 
-Alan
+The only problem is that we compile with -ffreestanding which implies 
+-fno-builtin, so just declaring them as normal externs is not enough and 
+you have to something like this:
 
+#define __HAVE_ARCH_MEMSET
+extern void *memset(void *, int, __kernel_size_t);
+#define memset(d, c, n) __builtin_memset(d, c, n)
+
+(BTW you do this already in x86-64.)
+
+Another problem here is because of -fno-builtin it's not easy to use the 
+generic functions as fallback. x86-64 basically does this: 
+
+#define strlen __builtin_strlen
+size_t strlen(const char * s);
+
+#ifndef __HAVE_ARCH_STRLEN
+extern __kernel_size_t strlen(const char *);
+#endif
+
+This means you define a prototype for the builtin function and not for the 
+normal function. I'm not sure this is really intended.
+
+bye, Roman

@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbWBGDh7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964958AbWBGDlc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964957AbWBGDh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 22:37:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964958AbWBGDh6
+	id S964958AbWBGDlc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 22:41:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964959AbWBGDlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 22:37:58 -0500
-Received: from smtp114.sbc.mail.re2.yahoo.com ([68.142.229.91]:46988 "HELO
-	smtp114.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S964957AbWBGDh6 convert rfc822-to-8bit (ORCPT
+	Mon, 6 Feb 2006 22:41:32 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:29328 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964958AbWBGDlc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 22:37:58 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [PATCH] [RESEND] Add Dell laptop backlight brightness display
-Date: Mon, 6 Feb 2006 22:37:55 -0500
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <20060206191506.GA17395@srcf.ucam.org> <20060206191916.GB17460@srcf.ucam.org> <20060207003748.GA22510@srcf.ucam.org>
-In-Reply-To: <20060207003748.GA22510@srcf.ucam.org>
+	Mon, 6 Feb 2006 22:41:32 -0500
+Date: Mon, 6 Feb 2006 22:40:01 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cuia.boston.redhat.com
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Kirill Korotaev <dev@openvz.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Hubertus Franke <frankeh@watson.ibm.com>, clg@fr.ibm.com,
+       haveblue@us.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
+       serue@us.ibm.com, arjan@infradead.org, kuznet@ms2.inr.ac.ru,
+       saw@sawoct.com, devel@openvz.org, Dmitry Mishin <dim@sw.ru>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
+In-Reply-To: <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>
+Message-ID: <Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com>
+References: <43E7C65F.3050609@openvz.org> <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200602062237.55653.dtor_core@ameritech.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 February 2006 19:37, Matthew Garrett wrote:
-> +static void __exit dellbl_exit(void)
-> +{
-> +       backlight_device_unregister(dell_backlight_device);
-> +}
-> +
-> +module_init(hpbl_init);
-> +module_exit(hpbl_exit);
+On Mon, 6 Feb 2006, Eric W. Biederman wrote:
 
-This is not gonna work - dellbl_* vs hpbl_*
+> We are never going to form a consensus if all of the people doing 
+> implementations don't talk.
+
+Speaking of which - it would be interesting to get Kirill's
+comments on Eric's patchset ;)
+
+Once we know what's good and bad about both patchsets, we'll
+be a lot closer to knowing what exactly should go upstream.
+
 -- 
-Dmitry
+All Rights Reversed

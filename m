@@ -1,79 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965042AbWBGLuT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965033AbWBGLyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965042AbWBGLuT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 06:50:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbWBGLuS
+	id S965033AbWBGLyq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 06:54:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbWBGLyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 06:50:18 -0500
-Received: from webapps.arcom.com ([194.200.159.168]:38160 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S965044AbWBGLuR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 06:50:17 -0500
-Message-ID: <43E88970.2020107@arcom.com>
-Date: Tue, 07 Feb 2006 11:50:08 +0000
-From: David Vrabel <dvrabel@arcom.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: stephen@streetfiresound.com
-CC: linux-kernel@vger.kernel.org, david-b@pacbell.net
-Subject: Re: [PATCH] spi: Add PXA2xx SSP SPI Driver
-References: <43e80ec3.oEr+gtyMVtunRTyE%stephen@streetfiresound.com>
-In-Reply-To: <43e80ec3.oEr+gtyMVtunRTyE%stephen@streetfiresound.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Feb 2006 11:55:04.0187 (UTC) FILETIME=[551564B0:01C62BDD]
+	Tue, 7 Feb 2006 06:54:46 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:45215 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965033AbWBGLyp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 06:54:45 -0500
+Date: Tue, 7 Feb 2006 12:53:07 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: Paul Jackson <pj@sgi.com>, clameter@engr.sgi.com, akpm@osdl.org,
+       dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+Message-ID: <20060207115307.GA25110@elte.hu>
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com> <20060206154537.a3e8cc25.pj@sgi.com> <20060207001902.GA18830@elte.hu> <200602071031.40346.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602071031.40346.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.2
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-stephen@streetfiresound.com wrote:
-> From: Stephen Street <stephen@streetfiresound.com>
+
+* Andi Kleen <ak@suse.de> wrote:
+
+> On Tuesday 07 February 2006 01:19, Ingo Molnar wrote:
+> > 
+> > * Paul Jackson <pj@sgi.com> wrote:
+> > 
+> > > First it might be most useful to explain a detail of your proposal 
+> > > that I don't get, which is blocking me from considering it seriously.
+> > > 
+> > > I understand mount options, but I don't know what mechanisms (at the 
+> > > kernel-user API) you have in mind to manage per-directory and per-file 
+> > > options.
+> > 
+> > well, i thought of nothing overly complex: it would have to be a 
+> > persistent flag attached to the physical inode. Lets assume XFS added 
+> > this - e.g. as an extended attribute.
 > 
-> The driver turns a PXA2xx synchronous serial port (SSP) into a SPI master 
-> controller (see Documentation/spi/spi_summary). The driver has the following
-> features:
+> There used to be a patch floating around to do policy for file caches 
+> (or rather arbitary address spaces) It used special ELF headers to set 
+> the policy. I thought about these policy EAs long ago. The main reason 
+> I never liked them much is that on some EA implementations you have to 
+> fetch an separate block to get at the EA. And this policy EA would 
+> need to be read all the time, thus adding lots of additional seeks. 
+> That didn't seem worth it.
 
-I've not tested this on my PXA27x platform yet (I'll try and get this
-done this tomorrow) but a few comments.
+EAs would be fine - and they dont have to be propagated down into the 
+hierarchy. There's no reason to propagate them if the lack of EA means 
+'inherit from parent'. Btw., not all filesystems need an extra block 
+seek - e.g. ext3 embedds them nicely into the raw inode.
 
-> --- linux-2.6.16-rc2/drivers/spi/pxa2xx_spi.c	1969-12-31 16:00:00.000000000 -0800
-> +++ linux-spi/drivers/spi/pxa2xx_spi.c	2006-02-06 18:39:45.339334630 -0800
+> >  - default: the vast majority of inodes would have no flag set
+> > 
+> >  - some would have a 'cache:local' flag
+> > 
+> >  - some would have a 'cache:global' flag
+> 
+> If you do policy you could as well do the full policy states from
+> mempolicy.c. Both cache:local and cache:global can be expressed in it.
 
+sure.
 
-> +#define CLOCK_SPEED_HZ 3686400
+> > which would result in every inode getting flagged as either 'local' or 
+> > 'global'. When the pagecache (and inode/dentry cache) gets populated, 
+> > the kernel will always know what the current allocation strategy is for 
+> > any given object:
+> 
+> In practice it will probably only set for a small minority of objects 
+> if at all. I could imagine admining this policy could be a PITA too.
 
-PXA27x has a clock speed of 13000000 Hz.
+It's so much cleaner and more flexible. I bet it's even a noticeable 
+speedup for users of the current cpuset-based approach: the cpuset 
+method forces _all_ 'large' objects to be allocated in a spread-out 
+form. While with the EA method you can pinpoint those few files (or 
+directories) that include the data that needs the spreading out. E.g.  
+/tmp would default to 'local' (unless the app creates a big /tmp file, 
+for which it should set the spread-out attribute).
 
-> +	chip->cr0 = SSCR0_SerClkDiv((CLOCK_SPEED_HZ / spi->max_speed_hz) + 2)
+another thing: on NUMA, are the pagecache portions of readonly files 
+(such as /usr binaries, etc.) duplicated across nodes in current 
+kernels, or is it still random which node gets it? This too could be an 
+EA caching attribute: whether to create per-node caches for file 
+content.
 
-Consider spi->max_speed_hz == CLOCK_SPEED_HZ which gives a divisor of 3
-(when it should be 1).
+This kind of stuff is precisely what EAs were invented for.
 
-You need SSCR0_SerClkDiv(CLOCK_SPEED_HZ / (spi->max_speed_hz + 1) + 1)
-for the correct divisor and for proper rounding.
-
-> +	/* Attach to IRQ */
-> +	irq = platform_get_irq(pdev, 0);
-> +	if (irq == 0) {
-> +		dev_err(&pdev->dev, "irq resource not defined\n");
-> +		status = -ENODEV;
-> +		goto out_error_master_alloc;
-> +	}
-
-Greg K-H has a patch pending that makes platform_get_irq() return -ENXIO
-instead of 0 on error.  This is required for SSP3 on the PXA27x which
-uses IRQ 0.
-
-> +	/* Release IRQ */
-> +	irq = platform_get_irq(pdev, 0);
-> +	if (irq != 0)
-> +		free_irq(irq, drv_data);
-
-Similarly.
-
-David Vrabel
--- 
-David Vrabel, Design Engineer
-
-Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
-Cambridge CB1 7EA, UK         Web: http://www.arcom.com/
+	Ingo

@@ -1,174 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbWBGUAQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbWBGUA2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932416AbWBGUAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 15:00:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWBGUAQ
+	id S964903AbWBGUA2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 15:00:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbWBGUA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 15:00:16 -0500
-Received: from web60221.mail.yahoo.com ([209.73.178.109]:51063 "HELO
-	web60221.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932416AbWBGUAO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 15:00:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=NAqZKMXyen832hKFnvzKLBo1sG2jJUMbyjKkcnGWfM+1Zxt7vsqzqXWAE3by+4lFXiQKO9wvP9HI3puvTgi8pF2ylzgkSEFKKiv7m9eh4sGAOJbpKwHdeicAKwrz3DmnOKxIOUQrT+XlM8l5Z/P3Vp1ChTwAFpDySTnzE/OPlrk=  ;
-Message-ID: <20060207200013.30703.qmail@web60221.mail.yahoo.com>
-Date: Tue, 7 Feb 2006 12:00:13 -0800 (PST)
-From: anil dahiya <ak_ait@yahoo.com>
-Subject: Badness in sleep_on_timeout on kernel 2.6.9-1.667 ( fedora core 3)
-To: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 7 Feb 2006 15:00:28 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:64434 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S964903AbWBGUA1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 15:00:27 -0500
+Subject: [PATCH] add execute_in_process_context() API
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 07 Feb 2006 14:00:19 -0600
+Message-Id: <1139342419.6065.8.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello 
-I am creating kernel thread on fedora core 4
-(2.6.9-1.667)and my getting oops something like
+SCSI needs this for our scheme to avoid executing generic device release
+calls from interrupt context (SCSI patch using this to follow).
 
- Badness in sleep_on_timeout at kernel/sched.c:3022
- [<02302bc3>] sleep_on_timeout+0x5d/0x23a
- [<0211b919>] default_wake_function+0x0/0xc
+If no-one objects, I'd like to slide this into the scsi-rc-fixes-2.6
+tree for 2.6.16.
 
-can any suggest how i can avoid this oops.
-Regards,
-Anil 
+James
 
---- anil dahiya <ak_ait@yahoo.com> wrote:
+--
 
-> Hi Sam
-> Thanks fop your help ..but my problem is not solved
-> it
-> ...i putting my real problem here below.
-> 
-> 1>my fist need is to make  module1.ko made using
-> a1/a1.c , a1/a11.c & a2/a2.c a2/a22.c and all .c
-> file
-> use /home/include/a.h 
-> 
->  
-> 2>Now my 2nd need is to make module2.ko using
-> module1.ko and b/b1.c & b/b11.c (these both .c files
-> use /home/include/a.h and /home/module2/include/b.h)
-> 
-> 
-> In short my directory  structure is as:
->   
-> /home/------
->               |_ include _
->               |           |
->               |           a.h 
->               | 
->               |___module1_
->               |           |__ a1 ____________
->               |           |          |       |
->               |           |         a1.c   a11.c
->               |           |
->                           |__ a2 ___________
->               |           |           |     |
->               |           |         a2.c   a22.c
->               |
->               |___ moudule2_
->               |             |             
->               |             |__include _
->               |             |           |
->               |             |           b.h 
->               |             |___b1________
->               |                     |     |
->               |                   b1.c   b11.c
->          
->                                     
-> Looking forward for ur reply 
-> thanks in advance
->  ---- Anil 
-> 
-> 
-> --- anil dahiya <ak_ait@yahoo.com> wrote:
-> 
-> > hello 
-> > I want to make kernel module dummy.ko using
-> multiple
-> > .c and .h files. In short i am telling .c and .h
-> > files
-> > with directory structure
-> > 
-> > 1> dummy.ko should made be using module1.ko and
-> > module2.o (i.e 
-> >    module2.o uses module1.ko to make dummy.ko)
-> > 
-> > 2> module1.ko made using a1/a1.c & a2/a2.c and 
-> both
-> > .c file   
-> >    use /home/include/a.h 
-> > 3> module2.o should made using b/b1.c which use   
-> >    use /home/module2/include/b.h 
-> > 
-> > Suggest me tht should make i make module2.o or
-> > module2.ko and then combine it with module1.o to
-> > make
-> > dummy.ko 
-> > 
-> > 
-> > /home/------
-> >              |_ include _
-> >              |           |
-> >              |           a.h 
-> >              | 
-> >              |___module1_
-> >              |           |__ a1 ____
-> >              |           |          | 
-> >              |           |         a1.c 
-> >              |           |
-> >                          |__ a2 ____
-> >              |           |           | 
-> >              |           |         a2.c 
-> >              |
-> >              |___ moudule2_
-> >              |             |             
-> >              |             |__include _
-> >              |             |           |
-> >              |             |           b.h 
-> >              |             |___b1__
-> >              |                     | 
-> >              |                   b1.c 
-> >         
-> >                                    
-> > Looking forward for ur reply 
-> > thanks in advance
-> > ---- Anil 
-> > 
-> > 
-> > 		
-> > __________________________________________ 
-> > Yahoo! DSL – Something to write home about. 
-> > Just $16.99/mo. or less. 
-> > dsl.yahoo.com 
-> > 
-> > 
-> > --
-> > Kernelnewbies: Help each other learn about the
-> Linux
-> > kernel.
-> > Archive:      
-> > http://mail.nl.linux.org/kernelnewbies/
-> > FAQ:           http://kernelnewbies.org/faq/
-> > 
-> > 
-> 
-> 
-> 
-> 		
-> __________________________________________ 
-> Yahoo! DSL – Something to write home about. 
-> Just $16.99/mo. or less. 
-> dsl.yahoo.com 
-> 
-> 
+[PATCH] add execute_in_process_context() API
+
+We have several points in the SCSI stack (primarily for our device
+functions) where we need to guarantee process context, but (given the
+place where the last reference was released) we cannot guarantee this.
+
+This API gets around the issue by executing the function directly if
+the caller has process context, but scheduling a workqueue to execute
+in process context if the caller doesn't have it.
+
+Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
+
+Index: BUILD-2.6/include/linux/workqueue.h
+===================================================================
+--- BUILD-2.6.orig/include/linux/workqueue.h	2006-02-07 09:22:30.000000000 -0600
++++ BUILD-2.6/include/linux/workqueue.h	2006-02-07 10:22:29.000000000 -0600
+@@ -74,6 +74,7 @@
+ void cancel_rearming_delayed_work(struct work_struct *work);
+ void cancel_rearming_delayed_workqueue(struct workqueue_struct *,
+ 				       struct work_struct *);
++int execute_in_process_context(void (*fn)(void *), void *);
+ 
+ /*
+  * Kill off a pending schedule_delayed_work().  Note that the work callback
+Index: BUILD-2.6/kernel/workqueue.c
+===================================================================
+--- BUILD-2.6.orig/kernel/workqueue.c	2006-02-07 09:22:30.000000000 -0600
++++ BUILD-2.6/kernel/workqueue.c	2006-02-07 11:07:47.000000000 -0600
+@@ -27,6 +27,7 @@
+ #include <linux/cpu.h>
+ #include <linux/notifier.h>
+ #include <linux/kthread.h>
++#include <linux/hardirq.h>
+ 
+ /*
+  * The per-CPU workqueue (if single thread, we always use the first
+@@ -476,6 +477,63 @@
+ }
+ EXPORT_SYMBOL(cancel_rearming_delayed_work);
+ 
++struct work_queue_work {
++	struct work_struct	work;
++	void			(*fn)(void *);
++	void			*data;
++};
++
++static void execute_in_process_context_work(void *data)
++{
++	void (*fn)(void *data);
++	struct work_queue_work *wqw = data;
++
++	fn = wqw->fn;
++	data = wqw->data;
++
++	kfree(wqw);
++
++	fn(data);
++}
++
++/**
++ * execute_in_process_context - reliably execute the routine with user context
++ * @fn:		the function to execute
++ * @data:	data to pass to the function
++ *
++ * Executes the function immediately if process context is available,
++ * otherwise schedules the function for delayed execution.
++ *
++ * Returns:	0 - function was executed
++ *		1 - function was scheduled for execution
++ *		<0 - error
++ */
++int execute_in_process_context(void (*fn)(void *data), void *data)
++{
++	struct work_queue_work *wqw;
++
++	if (!in_interrupt()) {
++		fn(data);
++		return 0;
++	}
++
++	wqw = kmalloc(sizeof(struct work_queue_work), GFP_ATOMIC);
++
++	if (unlikely(!wqw)) {
++		printk(KERN_ERR "Failed to allocate memory\n");
++		WARN_ON(1);
++		return -ENOMEM;
++	}
++
++	INIT_WORK(&wqw->work, execute_in_process_context_work, wqw);
++	wqw->fn = fn;
++	wqw->data = data;
++	schedule_work(&wqw->work);
++
++	return 1;
++}
++EXPORT_SYMBOL_GPL(execute_in_process_context);
++
+ int keventd_up(void)
+ {
+ 	return keventd_wq != NULL;
 
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

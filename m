@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030348AbWBHBF1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030280AbWBGXfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030348AbWBHBF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 20:05:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030350AbWBHBF0
+	id S1030280AbWBGXfg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 18:35:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030281AbWBGXfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 20:05:26 -0500
-Received: from atlas.pnl.gov ([130.20.248.194]:986 "EHLO atlas.pnl.gov")
-	by vger.kernel.org with ESMTP id S1030347AbWBHBFY (ORCPT
+	Tue, 7 Feb 2006 18:35:36 -0500
+Received: from xenotime.net ([66.160.160.81]:17054 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1030280AbWBGXff (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 20:05:24 -0500
-Date: Tue, 07 Feb 2006 18:08:03 -0800
-From: Kevin Fox <Kevin.Fox@pnl.gov>
-Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
-In-reply-to: <43E92602.8040403@vilain.net>
-To: Sam Vilain <sam@vilain.net>
-Cc: Hubertus Franke <frankeh@watson.ibm.com>, Rik van Riel <riel@redhat.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Kirill Korotaev <dev@openvz.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       clg@fr.ibm.com, haveblue@us.ibm.com, greg@kroah.com,
-       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
-       kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
-       Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>
-Message-id: <1139364483.7169.20.camel@localhost.localdomain>
-MIME-version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5)
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <43E7C65F.3050609@openvz.org>
- <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>
- <Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com>
- <43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com>
- <43E92602.8040403@vilain.net>
-X-OriginalArrivalTime: 08 Feb 2006 01:05:22.0695 (UTC)
- FILETIME=[BCB78170:01C62C4B]
+	Tue, 7 Feb 2006 18:35:35 -0500
+Date: Tue, 7 Feb 2006 15:35:31 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Dave Jones <davej@redhat.com>
+cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       Neal Becker <ndbecker2@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc1 panic on startup (acpi)
+In-Reply-To: <20060207233059.GA17665@redhat.com>
+Message-ID: <Pine.LNX.4.58.0602071534380.12589@shark.he.net>
+References: <ds7cu3$9c0$1@sea.gmane.org> <ds7f17$gp7$1@sea.gmane.org>
+ <20060207145913.714fec1c.akpm@osdl.org> <20060207231835.GA19648@kroah.com>
+ <20060207233059.GA17665@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-02-08 at 11:58 +1300, Sam Vilain wrote:
-> Hubertus Franke wrote:
-> > The container is just an umbrella object that ties every "virtualized" 
-> > subsystem together.
-> 
-> I like this description; it matches roughly with the concepts as
-> presented by vserver; there is the process virtualisation (vx_info), and
-> the network virtualisation (nx_info) of Eric's that has been integrated
-> to the vserver 2.1.x development branch.  However the vx_info has become
-> the de facto umbrella object space as well.  These could almost
-> certainly be split out without too much pain or incurring major
-> rethinks.
-> 
-> Sam.
+On Tue, 7 Feb 2006, Dave Jones wrote:
 
-How does all of this tie in with CPU Sets? It seems to me, they have
-something not unlike a container already that supports nesting.
+> On Tue, Feb 07, 2006 at 03:18:35PM -0800, Greg Kroah-Hartman wrote:
+>  > On Tue, Feb 07, 2006 at 02:59:13PM -0800, Andrew Morton wrote:
+>  > > Neal Becker <ndbecker2@gmail.com> wrote:
+>  > > >
+>  > > > Sorry, I meant 2.6.16-rc1 (not 2.6.12)
+>  > > >
+>  > > > Neal Becker wrote:
+>  > > >
+>  > > > > HP dv8000 notebook
+>  > > > > 2.6.15 is fine, but 2.6.12-rc1 panics immediately on startup
+>  > > > >
+>  > > > > Here is a picture of some traceback
+>  > > > > https://bugzilla.redhat.com/bugzilla/attachment.cgi?id=124152&action=view
+>  > > >
+>  > > >
+>  > >
+>  > > It died in pci_mmcfg_read().  Greg, didn't a crash in there get fixed recently?
+>  >
+>  > Yes.  Can you try 2.6.16-rc2?  Is this a x86-64 machine?
+>
+> I can hit this on my dv8000 too. It's still there in 2.6.12-rc2-git3
+> I'm building a kernel with Randy's 'pause after printk' patch right now
+> to catch the top of the oops.  It's enormous.  Even with a 50 line display,
+> and x86-64s dual-line backtrace, it scrolls off the top.
 
-Kevin
+Just be patient.  A boot can take a few minutes... ;)
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+~Randy

@@ -1,72 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbWBGMbo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbWBGMe5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965045AbWBGMbo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 07:31:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbWBGMbn
+	id S965061AbWBGMe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 07:34:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965062AbWBGMe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 07:31:43 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:44973 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965045AbWBGMbn (ORCPT
+	Tue, 7 Feb 2006 07:34:57 -0500
+Received: from mail.suse.de ([195.135.220.2]:55007 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965061AbWBGMe4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 07:31:43 -0500
-Date: Tue, 7 Feb 2006 13:30:01 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Paul Jackson <pj@sgi.com>, clameter@engr.sgi.com, akpm@osdl.org,
-       dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
-Message-ID: <20060207123001.GA634@elte.hu>
-References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com> <200602071031.40346.ak@suse.de> <20060207115307.GA25110@elte.hu> <200602071314.34879.ak@suse.de>
+	Tue, 7 Feb 2006 07:34:56 -0500
+Date: Tue, 7 Feb 2006 13:34:50 +0100
+From: Olaf Hering <olh@suse.de>
+To: Paul Fulghum <paulkf@microgate.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new tty buffering locking fix
+Message-ID: <20060207123450.GA854@suse.de>
+References: <200602032312.k13NCbWb012991@hera.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <200602071314.34879.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <200602032312.k13NCbWb012991@hera.kernel.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ On Fri, Feb 03, Linux Kernel Mailing List wrote:
 
-* Andi Kleen <ak@suse.de> wrote:
-
-> I still don't really think it will make much difference if the file 
-> cache is local or global. Compare to disk IO it is still infinitely 
-> faster, so a relatively small slowdown from going off node is not that 
-> big an issue.
-
-well, maybe the SGI folks can give us some numbers?
-
-> > another thing: on NUMA, are the pagecache portions of readonly files 
-> > (such as /usr binaries, etc.) duplicated across nodes in current 
-> > kernels, or is it still random which node gets it? 
+> [PATCH] new tty buffering locking fix
 > 
-> Random.
+> Change locking in the new tty buffering facility from using tty->read_lock,
+> which is currently ignored by drivers and thus ineffective.  New locking
+> uses a new tty buffering specific lock enforced centrally in the tty
+> buffering code.
 > 
-> > This too could be an  
-> > EA caching attribute: whether to create per-node caches for file 
-> > content.
+> Two drivers (esp and cyclades) are updated to use the tty buffering
+> functions instead of accessing tty buffering internals directly.  This is
+> required for the new locking to work.
 > 
-> There were (ugly) patches floating around for text duplication, but 
-> iirc the benchmarkers were still trying to figure out if it's even a 
-> good idea. My guess it is not because CPUs tend to have very 
-> aggressive prefetching for code streams which can deal with latency 
-> well.
+> Minor checks for NULL buffers added to
+> tty_prepare_flip_string/tty_prepare_flip_string_flags
+> 
+> Signed-off-by: Paul Fulghum <paulkf@microgate.com>
+> Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> 
+>  drivers/char/cyclades.c  |    6 +--
+>  drivers/char/esp.c       |    4 +-
+>  drivers/char/tty_io.c    |   77 ++++++++++++++++++++++++++++++-----------------
+>  include/linux/kbd_kern.h |    5 +++
+>  include/linux/tty.h      |    2 +
+>  include/linux/tty_flip.h |    7 +++-
+>  6 files changed, 68 insertions(+), 33 deletions(-)
 
-you are a bit biased towards low-latency NUMA setups i guess (read: 
-Opterons) :-) Obviously with a low NUMA factor, we dont have to deal 
-with memory access assymetries all that much.
+This patch breaks the hvc console, no input is accepted, even with
+init=/bin/sash? Any idea what this driver needs to do now?
+I wonder if it worked ok on -mm.
 
-But i think we should expand our file caching architecture into those 
-caching details nevertheless: it's directly applicable to software 
-driven clusters as well. There pagecache replication on nodes is a must, 
-and obviously there it makes a big difference whether files are cached 
-locally or remotely.
-
-	Ingo
+-- 
+short story of a lazy sysadmin:
+ alias appserv=wotan

@@ -1,38 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbWBGK4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbWBGK5f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965013AbWBGK4o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 05:56:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWBGK4o
+	id S964982AbWBGK5f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 05:57:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWBGK5f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 05:56:44 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:934
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S965013AbWBGK4n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 05:56:43 -0500
-Date: Tue, 07 Feb 2006 02:56:33 -0800 (PST)
-Message-Id: <20060207.025633.75253203.davem@davemloft.net>
-To: ak@suse.de
-Cc: sfr@canb.auug.org.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH] compat: add compat functions for *at syscalls
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200602071039.52490.ak@suse.de>
-References: <20060207112713.7cd0a61c.sfr@canb.auug.org.au>
-	<20060207.004301.35467668.davem@davemloft.net>
-	<200602071039.52490.ak@suse.de>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Feb 2006 05:57:35 -0500
+Received: from mail.gmx.net ([213.165.64.21]:16809 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964982AbWBGK5e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 05:57:34 -0500
+X-Authenticated: #428038
+Date: Tue, 7 Feb 2006 11:57:29 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest) (was: Rationale for RLIMIT_MEMLOCK?)
+Message-ID: <20060207105729.GB2818@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20060123105634.GA17439@merlin.emma.line.org> <200602021717.08100.luke@dashjr.org> <Pine.LNX.4.61.0602031502000.7991@yvahk01.tjqt.qr> <200602031724.55729.luke@dashjr.org> <43E7545E.nail7GN11WAQ9@burner> <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E78682.nail8YC21QIIM@burner>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43E78682.nail8YC21QIIM@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andi Kleen <ak@suse.de>
-Date: Tue, 7 Feb 2006 10:39:52 +0100
+Joerg Schilling schrieb am 2006-02-06:
 
-> My impression is you're doing a lot of ugly code here just to 
-> work around some pecularity of the sparc gcc. 
+> Peter Read <peter.read@gmail.com> wrote:
+> 
+> > I'm confused about where software has inherited a sense of morality from?
+> >
+> > Equally, as I can't see any restriction of the GPL in that link I
+> > don't get the reference.  What it's essentially saying to me is 'if
+> > you don't want it under the GPL licence terms, talk to the copyright
+> > holder(s) or their authorised representative about alternatives'.
+> 
+> Please read again carefully. It says that it is not allowed to be shipped
+> together with commercial software unless the publisher did pay money.
 
-No, I'm simply sign extending arguments that need to
-be signed.  PPC and other platforms do this too, just with
-C code.  Actually I think s390x uses assembler stubs as well.
+The topic is still cdrecord with Linux, growisofs and dvd+rw-tools
+discussion is a matter for a separate thread.
+
+-- 
+Matthias Andree

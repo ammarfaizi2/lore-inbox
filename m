@@ -1,95 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbWBGNzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965087AbWBGNzm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965089AbWBGNzN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 08:55:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965087AbWBGNzN
+	id S965087AbWBGNzm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 08:55:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965090AbWBGNzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 08:55:13 -0500
-Received: from sipsolutions.net ([66.160.135.76]:12296 "EHLO sipsolutions.net")
-	by vger.kernel.org with ESMTP id S965089AbWBGNzM (ORCPT
+	Tue, 7 Feb 2006 08:55:41 -0500
+Received: from sipsolutions.net ([66.160.135.76]:13832 "EHLO sipsolutions.net")
+	by vger.kernel.org with ESMTP id S965087AbWBGNz0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 08:55:12 -0500
-Subject: Re: [RFC 4/4] firewire: add mem1394
+	Tue, 7 Feb 2006 08:55:26 -0500
+Subject: Re: [RFC 3/4] firewire: unconditionally
+	export	hpsb_send_packet_and_wait
 From: Johannes Berg <johannes@sipsolutions.net>
 To: Stefan Richter <stefanr@s5r6.in-berlin.de>
 Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-In-Reply-To: <43E60989.5080600@s5r6.in-berlin.de>
+In-Reply-To: <43E600BC.10408@s5r6.in-berlin.de>
 References: <1138919238.3621.12.camel@localhost>
-	 <1138920185.3621.24.camel@localhost>  <43E60989.5080600@s5r6.in-berlin.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-iJtN9bx3753uzsDYeTaD"
-Date: Tue, 07 Feb 2006 11:41:36 +0100
-Message-Id: <1139308896.25972.9.camel@localhost>
+	 <1138920077.3621.22.camel@localhost>  <43E600BC.10408@s5r6.in-berlin.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-w+/0C2Qzu6KdRkG2mT8X"
+Date: Tue, 07 Feb 2006 11:45:02 +0100
+Message-Id: <1139309102.25972.12.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-iJtN9bx3753uzsDYeTaD
+--=-w+/0C2Qzu6KdRkG2mT8X
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, 2006-02-05 at 15:19 +0100, Stefan Richter wrote:
+On Sun, 2006-02-05 at 14:42 +0100, Stefan Richter wrote:
 
-> > +	 * But I need advice on this. It'll probably works this way
-> > +	 * but most likely not once this interface stuff gets more
-> > +	 * use; I can imagine using it for scanners instead of raw1394
-> > +	 * so that the kernel can validate that a user can only
-> > +	 * access a certain scanner and not all 1394 devices on the bus.
+> Leave the export down at the end of ieee1394_core.c among all other=20
+> exports of ieee1394. Just move the export above the #ifdef.
 >=20
-> Probably not. All devices (except perhaps custom embedded devices) which=20
-> implement one or another high level protocol will always be accessed=20
-> either by a protocol driver in kernelspace (like sbp2, eth1394,=20
-> video1394) on top of a struct unit_directory, or by a driver or library=20
-> in userspace on top of libraw1394/ raw1394. This is because such devices=20
-> and protocols all implement the ISO/IEC 13213 CSR architecture.
+> Same for the two new exports by "[RFC 2/4] firewire: dynamic cdev=20
+> allocation below firewire major": Place them at the end of ieee1394_core.=
+c.
 
-You snipped too much :) At this point I was thinking of the raw1394
-replacement that has finer grained access control which we talked about
-in other threads too.
-
-> > +	 * In other words some 'raw1394intf' instead of 'raw1394' which
-> > +	 * creates one character device per ieee1394 node for finer
-> > +	 * grained access control.
-> > +	 * That would definitely want to have debouncing etc.
-
-
-> When a node represented by a node_entry leaves the bus, the node_entry=20
-> is "suspended" and "put into limbo", which is both the same for the 1394=20
-> stack. The node_entry is only "removed" when forced by userspace through=20
-> ieee1394's sysfs interface or when the ieee1394 driver module is=20
-> unloaded. A unit_directory is either "suspended" or "removed", depending=20
-> on what the protocol driver bound to the unit_directory implements.=20
-> This behaviour of ieee1394 is currently not extensively used, but I plan=20
-> to implement capability of sbp2 to survive transient disconnection on=20
-> top of it.
-
-Thanks for the explanation. I'll have to test my driver under the light
-of this.
+Somehow I thought we were supposed to now put the EXPORT_SYMBOL{,_GPL}
+right after the declaration. I can post a patch to move all of them
+instead just the few if desired, or change this patch.
 
 johannes
 
---=-iJtN9bx3753uzsDYeTaD
+--=-w+/0C2Qzu6KdRkG2mT8X
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Comment: Johannes Berg (SIP Solutions)
 
-iQIVAwUAQ+h5XqVg1VMiehFYAQInGg//XOxWXTtWpkJB5RJeQAJUWUHzZafraMq5
-rmcHQhoZ3cCKiFWnRxMOIBONDsDekEzSYehs+SPnVTTu5kMC1hPlsbfdIP2UuPB6
-BNCa+RA2UY/SI8uMM+jqIN2mzXwuJ7wDNl8SDMYni53OwRGnz1Dnp7EeoySZM5QL
-2W0Bg43E+KchSMQnCrlLXQB11KH8r+l9FQ/vV7vw/wNhCsNeM8gIfZ4oug9snuoE
-RqUk9Uh2iU0BzDK+mR4SNo8XBaxPh0blfCUaVZn3wtoxLvRfi6DG8mjkYtm+Efyp
-8un0KOsG5ZCSE2NbcNUywubLdA1ZvYkHuJPSCNKpRmSfVP8cwZ7sF4bJ2mfDn7ww
-wZ3YXAB7LQ6NYNjxOXmDUS8UcDAPrkLTtdiKWr1zRMnWLVMunpujnvpCXMrccLcS
-v7ZBrCn9UDKP8zy9SuEmOJ3LVvmVZu7tGbtDG8J424yYijMIXBBksXKm//zCIjXQ
-c1J9UxdRfU61EjaDH4MZRhnY1bPay97ZPUE8bXUOCk60QD+gdJNbj3JHLPUCUF1E
-+Mh4w63OJIiwGzRneZpmCXh+P9T/pUBnfGN9oTK5ptBB3I6SJXsIlaAY+NpmuGh1
-nVGKnjDbmpnuOkr26hjsVX3NygXf8KgFwFuPzzBDzumI9tUstrTOraAmQPSD/SDe
-66F6y1s0izY=
-=gxMA
+iQIVAwUAQ+h6LaVg1VMiehFYAQJZfxAApNvMkVNA/cvzpGD7BUaIu9ZpR5uam/1z
+GicUNO0B9mmUkDx9W+iNS1rAH0TKdVV4Nb7wdFmdnXgsjiLw03qK7z00VcATVkif
+I38Xfss9+9BY4Velk3aQ9P1NPwKZ9ll2W9E29a9cVw0nAUWj/8nba4ML4GeXhR9T
+oy5/HlKjE6UxWqU9UDeYn63DVnUG9DTpvjI+0Q4PlGc88hQEZJv0M/27DDm2gihE
+JF/qGJIt4QLp+k+MQYtdfw6HTElMZ7U4UOudxZOc8fUAGRnxrPfiBsnylmAo9m7F
+alRBFrQ21vprKno80UNSPH/nuje+3MbiHkakmFyN2BzvSt6sl0i0/XvnKFCa6yC4
+3A1ZcDf7cCw4G+c7E3r3ov75zmtQ7pUV5Cy4KwrA/5eRB2+wmL+6YgB5rD8GlNd7
+PmphnI3mEhMcRh/XhYf7kxcAEEJBMYlr9BRTiqO47bpC7aGIcQMwGdjTsZ+QUOXf
+1ATzespx3dPwTEA8z+PQWqOGvsYlBMi7JNjuLnG13RWnaj6iDktspncL0bdJkgK6
+rM+IY9pOyChWq6EViMDmHLcgmQeiso6fmDPXsPz327WLd5n/7EpeenL5tbDDjKxK
+lgIpFqfHCJpdoNbXV49L4msTxJ7ZU5dpYrT7kOYemE9p/iOhAT25BXjoj362POLH
+crSKhkAPyVE=
+=OKMK
 -----END PGP SIGNATURE-----
 
---=-iJtN9bx3753uzsDYeTaD--
+--=-w+/0C2Qzu6KdRkG2mT8X--
 

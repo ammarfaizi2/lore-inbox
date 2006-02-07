@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965165AbWBGV4f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbWBGWC0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965165AbWBGV4f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 16:56:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965161AbWBGV4e
+	id S964882AbWBGWC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 17:02:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965116AbWBGWC0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 16:56:34 -0500
-Received: from smtp103.sbc.mail.mud.yahoo.com ([68.142.198.202]:29340 "HELO
-	smtp103.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965165AbWBGV4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 16:56:34 -0500
-From: David Brownell <david-b@pacbell.net>
-To: stephen@streetfiresound.com
-Subject: Re: [PATCH] spi: Fix modular master driver remove and device suspend/remove
-Date: Tue, 7 Feb 2006 13:56:29 -0800
-User-Agent: KMail/1.7.1
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, greg@kroah.com,
-       linux-kernel@vger.kernel.org, dvrabel@arcom.com
-References: <43e80e2b.EZgObIkBxyg9Mb6O%stephen@streetfiresound.com> <20060207080351.GA3588@flint.arm.linux.org.uk> <1139348125.4549.447.camel@localhost.localdomain>
-In-Reply-To: <1139348125.4549.447.camel@localhost.localdomain>
+	Tue, 7 Feb 2006 17:02:26 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56209 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S964882AbWBGWCZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 17:02:25 -0500
+To: Hubertus Franke <frankeh@watson.ibm.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Sam Vilain <sam@vilain.net>,
+       Rik van Riel <riel@redhat.com>, Kirill Korotaev <dev@openvz.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, clg@fr.ibm.com, haveblue@us.ibm.com,
+       greg@kroah.com, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
+       kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
+       Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
+References: <43E7C65F.3050609@openvz.org>
+	<m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com>
+	<43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com>
+	<20060207201908.GJ6931@sergelap.austin.ibm.com>
+	<43E90716.4020208@watson.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 07 Feb 2006 15:00:04 -0700
+In-Reply-To: <43E90716.4020208@watson.ibm.com> (Hubertus Franke's message of
+ "Tue, 07 Feb 2006 15:46:14 -0500")
+Message-ID: <m1bqxide3f.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602071356.30045.david-b@pacbell.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 February 2006 1:35 pm, Stephen Street wrote:
-> On Tue, 2006-02-07 at 08:03 +0000, Russell King wrote:
+Hubertus Franke <frankeh@watson.ibm.com> writes:
 
-> > > @@ -90,7 +90,7 @@ static int spi_suspend(struct device *de
-> > >  	int			value;
-> > >  	struct spi_driver	*drv = to_spi_driver(dev->driver);
-> > >  
-> > > -	if (!drv->suspend)
-> > > +	if (!drv || !drv->suspend)
-> > 
-> > Shouldn't this be dev->driver ?  If dev->driver is NULL, drv may be
-> > non-NULL due to an offset in the structure.
-> > 
-> If I understand your comment correctly, the implementation of to_spi_drv
-> protects against this by returning NULL if dev->driver is NULL. This is
-> implementation dependent 
 
-I'd say that to_spi_driver() is defined that way, specifically
-to avoid that class of nasty bug.
+> Kirill brought up that VPS can span a cluster..
+> if so how do you (Kirill) do that? You pre-partition the pids into allocation
+> ranges for each container?
+> Eitherway, if this is an important feature, then one needs to look at
+> how that is achieved in pspace (e.g. mod the pidmap_alloc() function
+> to take legal ranges into account). Should still be straight forward.
 
-> and I can make the test explicit if you want? 
-> 
+Actually legal ranges already exist in the form of min/max values.
+So that is trivial to implement.
+
+
+Eric

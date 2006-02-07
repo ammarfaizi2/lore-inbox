@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbWBGJka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbWBGJkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932459AbWBGJka (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 04:40:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWBGJka
+	id S932462AbWBGJkz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 04:40:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWBGJky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 04:40:30 -0500
-Received: from mx2.suse.de ([195.135.220.15]:63387 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932459AbWBGJk3 (ORCPT
+	Tue, 7 Feb 2006 04:40:54 -0500
+Received: from ns1.suse.de ([195.135.220.2]:11198 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932460AbWBGJkg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 04:40:29 -0500
+	Tue, 7 Feb 2006 04:40:36 -0500
 From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: OOM behavior in constrained memory situations
-Date: Tue, 7 Feb 2006 10:23:38 +0100
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] compat: add compat functions for *at syscalls
+Date: Tue, 7 Feb 2006 10:25:39 +0100
 User-Agent: KMail/1.8.2
-Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <Pine.LNX.4.62.0602061253020.18594@schroedinger.engr.sgi.com> <20060206145922.3eb3c404.pj@sgi.com> <Pine.LNX.4.62.0602061745480.20189@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0602061745480.20189@schroedinger.engr.sgi.com>
+Cc: sfr@canb.auug.org.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+References: <20060207105631.39a1080c.sfr@canb.auug.org.au> <20060206.160140.59716704.davem@davemloft.net>
+In-Reply-To: <20060206.160140.59716704.davem@davemloft.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200602071023.39222.ak@suse.de>
+Message-Id: <200602071025.40130.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 February 2006 02:55, Christoph Lameter wrote:
-> I just tried to oom a process that has restricted its mem allocation to 
-> node 0 using a memory policy. Instead of an OOM the system began to swap 
-> on node zero. The swapping is restricted to the zones passed to 
-> __alloc_pages. It was thus swapping node zero alone.
+On Tuesday 07 February 2006 01:01, David S. Miller wrote:
+> From: Stephen Rothwell <sfr@canb.auug.org.au>
+> Date: Tue, 7 Feb 2006 10:56:31 +1100
+> 
+> > This adds compat version of all the remaining *at syscalls
+> > so that the "dfd" arguments can be properly sign extended.
+> > 
+> > Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+> 
+> I do the sign extension with tiny stubs in arch/sparc64/kernel/sys32.S
+> so that the arg frobbing does not consume a stack frame, which is what
+> happens if you do this in C code.
 
-Thanks for doing that work. It's needed imho and was on my todo list.
+To be honest - do you really think that matters? Even a Niagara will
+go through that in no time @)
 
-
->  	switch (pol->policy) {
->  	case MPOL_DEFAULT:
->  		break;
-> Index: linux-2.6.16-rc2/include/linux/mempolicy.h
-> ===================================================================
-> --- linux-2.6.16-rc2.orig/include/linux/mempolicy.h	2006-02-02 22:03:08.000000000 -0800
-> +++ linux-2.6.16-rc2/include/linux/mempolicy.h	2006-02-06 17:07:41.000000000 -0800
-> @@ -62,6 +62,7 @@ struct vm_area_struct;
->  struct mempolicy {
->  	atomic_t refcnt;
->  	short policy; 	/* See MPOL_* above */
-> +	gfp_t gfp_flags;	/* flags ORed into gfp_flags for each allocation */
-
-I don't think it's a good idea to add it to the struct mempolicy. I've tried to
-make it as memory efficient as possibile and it would be a waste to add such
-a mostly unused field. Better to pass that information around in some other way.
-
-(in the worst case it could be a upper bit in policy, but I would prefer
-function arguments I think) 
-
-The rest looks good.
+And on x86-64 it should be as efficient as an equivalent assembly function.
 
 -Andi
-

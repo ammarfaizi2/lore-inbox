@@ -1,61 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWBGP3o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWBGPkj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbWBGP3o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 10:29:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbWBGP3o
+	id S1751126AbWBGPkj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 10:40:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWBGPki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 10:29:44 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:31558 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751115AbWBGP3o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 10:29:44 -0500
-Date: Tue, 7 Feb 2006 16:31:26 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Eric Dumazet <dada1@cosmosbay.com>,
-       "David S. Miller" <davem@davemloft.net>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Ingo Molnar <mingo@elte.hu>, Anton Blanchard <anton@samba.org>,
-       William Irwin <wli@holomorphy.com>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-Message-ID: <20060207153126.GN4210@suse.de>
-References: <200602051959.k15JxoHK001630@hera.kernel.org> <20060207151541.GA32139@osiris.boeblingen.de.ibm.com>
+	Tue, 7 Feb 2006 10:40:38 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:45724 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751124AbWBGPkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 10:40:25 -0500
+From: mchehab@infradead.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-dvb-maintainer@linuxtv.org, Oliver Endriss <o.endriss@gmx.de>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: [PATCH 08/16] Support for Galaxis DVB-S rev1.3
+Date: Tue, 07 Feb 2006 13:33:32 -0200
+Message-id: <20060207153332.PS07433200008@infradead.org>
+In-Reply-To: <20060207153248.PS50860900000@infradead.org>
+References: <20060207153248.PS50860900000@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060207151541.GA32139@osiris.boeblingen.de.ibm.com>
+X-Mailer: Evolution 2.4.2.1-1mdk 
+Content-Transfer-Encoding: 7bit
+X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 07 2006, Heiko Carstens wrote:
-> > tree 8c30052a0d7fadec37c785a42a71b28d0a9c5fcf
-> > parent cef5076987dd545ac74f4efcf1c962be8eac34b0
-> > author Eric Dumazet <dada1@cosmosbay.com> Sun, 05 Feb 2006 15:27:36 -0800
-> > committer Linus Torvalds <torvalds@g5.osdl.org> Mon, 06 Feb 2006 03:06:51 -0800
-> > 
-> > [PATCH] percpu data: only iterate over possible CPUs
-> > 
-> > percpu_data blindly allocates bootmem memory to store NR_CPUS instances of
-> > cpudata, instead of allocating memory only for possible cpus.
-> > 
-> > As a preparation for changing that, we need to convert various 0 -> NR_CPUS
-> > loops to use for_each_cpu().
-> > 
-> > (The above only applies to users of asm-generic/percpu.h.  powerpc has gone it
-> > alone and is presently only allocating memory for present CPUs, so it's
-> > currently corrupting memory).
-> 
-> This patch is broken since it replaces several loops that iterate NR_CPUS
-> times with for_each_cpu before cpu_possible_map is setup:
+From: Oliver Endriss <o.endriss@gmx.de>
 
-Hrmpf, chicking and egg - we must not initialize data for unknown CPUs,
-but we can't check since it's not setup.
+support for Galaxis DVB-S rev1.3 (subsystem 13c2:0004)
 
-To me it sounds really broken that core structures like that are not
-setup before we init eg fs stuff.
+Signed-off-by: Oliver Endriss <o.endriss@gmx.de>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+---
 
--- 
-Jens Axboe
+ drivers/media/dvb/ttpci/av7110.c |   14 +++++++++++++-
+ 1 files changed, 13 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/media/dvb/ttpci/av7110.c b/drivers/media/dvb/ttpci/av7110.c
+index 2749490..d36369e 100644
+--- a/drivers/media/dvb/ttpci/av7110.c
++++ b/drivers/media/dvb/ttpci/av7110.c
+@@ -2329,6 +2329,17 @@ static int frontend_init(struct av7110 *
+ 			av7110->fe = ves1820_attach(&alps_tdbe2_config, &av7110->i2c_adap, read_pwm(av7110));
+ 			break;
+ 
++		case 0x0004: // Galaxis DVB-S rev1.3
++			/* ALPS BSRV2 */
++			av7110->fe = ves1x93_attach(&alps_bsrv2_config, &av7110->i2c_adap);
++			if (av7110->fe) {
++				av7110->fe->ops->diseqc_send_master_cmd = av7110_diseqc_send_master_cmd;
++				av7110->fe->ops->diseqc_send_burst = av7110_diseqc_send_burst;
++				av7110->fe->ops->set_tone = av7110_set_tone;
++				av7110->recover = dvb_s_recover;
++			}
++			break;
++
+ 		case 0x0006: /* Fujitsu-Siemens DVB-S rev 1.6 */
+ 			/* Grundig 29504-451 */
+ 			av7110->fe = tda8083_attach(&grundig_29504_451_config, &av7110->i2c_adap);
+@@ -2930,6 +2941,7 @@ MAKE_AV7110_INFO(tts_1_3se,  "Technotren
+ MAKE_AV7110_INFO(ttt,        "Technotrend/Hauppauge DVB-T");
+ MAKE_AV7110_INFO(fsc,        "Fujitsu Siemens DVB-C");
+ MAKE_AV7110_INFO(fss,        "Fujitsu Siemens DVB-S rev1.6");
++MAKE_AV7110_INFO(gxs_1_3,    "Galaxis DVB-S rev1.3");
+ 
+ static struct pci_device_id pci_tbl[] = {
+ 	MAKE_EXTENSION_PCI(fsc,         0x110a, 0x0000),
+@@ -2937,13 +2949,13 @@ static struct pci_device_id pci_tbl[] = 
+ 	MAKE_EXTENSION_PCI(ttt_1_X,     0x13c2, 0x0001),
+ 	MAKE_EXTENSION_PCI(ttc_2_X,     0x13c2, 0x0002),
+ 	MAKE_EXTENSION_PCI(tts_2_X,     0x13c2, 0x0003),
++	MAKE_EXTENSION_PCI(gxs_1_3,     0x13c2, 0x0004),
+ 	MAKE_EXTENSION_PCI(fss,         0x13c2, 0x0006),
+ 	MAKE_EXTENSION_PCI(ttt,         0x13c2, 0x0008),
+ 	MAKE_EXTENSION_PCI(ttc_1_X,     0x13c2, 0x000a),
+ 	MAKE_EXTENSION_PCI(tts_2_3,     0x13c2, 0x000e),
+ 	MAKE_EXTENSION_PCI(tts_1_3se,   0x13c2, 0x1002),
+ 
+-/*	MAKE_EXTENSION_PCI(???, 0x13c2, 0x0004), UNDEFINED CARD */ // Galaxis DVB PC-Sat-Carte
+ /*	MAKE_EXTENSION_PCI(???, 0x13c2, 0x0005), UNDEFINED CARD */ // Technisat SkyStar1
+ /*	MAKE_EXTENSION_PCI(???, 0x13c2, 0x0009), UNDEFINED CARD */ // TT/Hauppauge WinTV Nexus-CA v????
+ 
 

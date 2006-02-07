@@ -1,236 +1,402 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWBGGet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbWBGGlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbWBGGet (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 01:34:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932439AbWBGGet
+	id S932439AbWBGGlG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 01:41:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbWBGGlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 01:34:49 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:51214 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932238AbWBGGet (ORCPT
+	Tue, 7 Feb 2006 01:41:06 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:58333 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S932439AbWBGGlE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 01:34:49 -0500
-Date: Tue, 7 Feb 2006 07:34:42 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH - resend 3] kbuild updates for -rc
-Message-ID: <20060207063442.GA15079@mars.ravnborg.org>
+	Tue, 7 Feb 2006 01:41:04 -0500
+Date: Tue, 7 Feb 2006 17:40:17 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org, ak@suse.de,
+       linuxppc64-dev@ozlabs.org, paulus@samba.org
+Subject: Re: [PATCH] compat: add compat functions for *at syscalls
+Message-Id: <20060207174017.5e3b0ce0.sfr@canb.auug.org.au>
+In-Reply-To: <20060206.160140.59716704.davem@davemloft.net>
+References: <20060207105631.39a1080c.sfr@canb.auug.org.au>
+	<20060206.160140.59716704.davem@davemloft.net>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Tue__7_Feb_2006_17_40_17_+1100_vv37rgNvp=ri.2En"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus.
+--Signature=_Tue__7_Feb_2006_17_40_17_+1100_vv37rgNvp=ri.2En
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The /dev/null issue trigger for several people.
-Please apply or let me know if something troubles you to apply this.
+On Mon, 06 Feb 2006 16:01:40 -0800 (PST) "David S. Miller" <davem@davemloft=
+.net> wrote:
+>
+> From: Stephen Rothwell <sfr@canb.auug.org.au>
+> Date: Tue, 7 Feb 2006 10:56:31 +1100
+>=20
+> > This adds compat version of all the remaining *at syscalls
+> > so that the "dfd" arguments can be properly sign extended.
+> >=20
+> > Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+>=20
+> I do the sign extension with tiny stubs in arch/sparc64/kernel/sys32.S
+> so that the arg frobbing does not consume a stack frame, which is what
+> happens if you do this in C code.
+>=20
+> We need to revisit this at some point and make a way for all
+> compat platforms to do this with a portable table of some kind
+> that expands a bunch of macros defined by the platform.
 
-   Sam
-   
------ Forwarded message from Sam Ravnborg <sam@ravnborg.org> -----
+How about the following (modifiying Linus' suggestion and copying what
+sparc64 already does)?
 
-Hi Linus.
+The assumption is that all arguments have been zero extended by the compat
+syscall entry code, so we just sign extend those that need it.
 
-Please pull following kbuild bug-fixes:
-o kconfig: fix /dev/null breakage
-o cris: asm-offsets related build failure
-o kbuild: fix build with O=..
+I am not sure of the sparc64 code below, s390 doesn't seem to follow our
+"all arguments are zero extended" assumption and x86_64 may not need any
+of these wrappers anyway.
 
-Purely bug-fixes that annoys a number of people. Should been in before
--rc2 but did not get around to mail a pull request.
+It may be that we would be better following Linus's suggestion of
+generating stubs for all of the compat syscalls.
 
-Available at:
-git://git.kernel.org/pub/scm/linux/kernel/git/sam/kbuild-bugfix.git
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-All three patches included below for reference.
+Subject: [PATCH] compat: introduce kernel/compat_wrapper.S
 
-	Sam
+and the necessary compat_wrapper.h with implementations
+for powerpc and sparc64.
 
-diffstat:
- Makefile                                   |    2 +-
- arch/cris/Makefile                         |    2 +-
- scripts/kconfig/lxdialog/Makefile          |    7 +++++--
- scripts/kconfig/lxdialog/check-lxdialog.sh |   14 +++++++++-----
- 4 files changed, 16 insertions(+), 9 deletions(-)
+compat_wrapper.S builds wrappers for those syscalls that
+require sign extension for some of their arguments.
 
-diff-tree 3835f82183eab8b67ddda6b32c127859a546c82d (from 3ee68c4af3fd7228c1be63254b9f884614f9ebb2)
-Author: Sam Ravnborg <sam@mars.ravnborg.org>
-Date:   Sat Jan 21 12:03:09 2006 +0100
+Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
 
-    kconfig: fix /dev/null breakage
-    
-    While running "make menuconfig" and "make mrproper"
-    some people experienced that /dev/null suddenly changed
-    permissions or suddenly became a regular file.
-    The main reason was that /dev/null was used as output
-    to gcc in the check-lxdialog.sh script and gcc did
-    some strange things with the output file; in this
-    case /dev/null when it errorred out.
-    
-    Following patch implements a suggestion
-    from Bryan O'Sullivan <bos@serpentine.com> to
-    use gcc -print-file-name=libxxx.so.
-    
-    Also the Makefile is adjusted to not resolve value of
-    HOST_EXTRACFLAGS and HOST_LOADLIBES until they are actually used.
-    This prevents us from calling gcc when running make *clean/mrproper
-    
-    Thanks to Eyal Lebedinsky <eyal@eyal.emu.id.au> and
-    Jean Delvare <khali@linux-fr.org> for the first error reports.
-    
-    Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-    ---
+---
 
-diff --git a/scripts/kconfig/lxdialog/Makefile b/scripts/kconfig/lxdialog/Makefile
-index fae3e29..bbf4887 100644
---- a/scripts/kconfig/lxdialog/Makefile
-+++ b/scripts/kconfig/lxdialog/Makefile
-@@ -1,11 +1,14 @@
- # Makefile to build lxdialog package
- #
- 
- check-lxdialog  := $(srctree)/$(src)/check-lxdialog.sh
--HOST_EXTRACFLAGS:= $(shell $(CONFIG_SHELL) $(check-lxdialog) -ccflags)
--HOST_LOADLIBES  := $(shell $(CONFIG_SHELL) $(check-lxdialog) -ldflags $(HOSTCC))
+ arch/sparc64/kernel/systbls.S        |    6 +++---
+ include/asm-ia64/compat_wrapper.h    |   15 +++++++++++++++
+ include/asm-mips/compat_wrapper.h    |   15 +++++++++++++++
+ include/asm-parisc/compat_wrapper.h  |   15 +++++++++++++++
+ include/asm-powerpc/compat_wrapper.h |   28 ++++++++++++++++++++++++++++
+ include/asm-s390/compat_wrapper.h    |   15 +++++++++++++++
+ include/asm-sparc64/compat_wrapper.h |   33 ++++++++++++++++++++++++++++++=
++++
+ include/asm-x86_64/compat_wrapper.h  |   15 +++++++++++++++
+ include/linux/compat.h               |   22 ++++++++++++++++++++++
+ kernel/Makefile                      |    2 +-
+ kernel/compat_wrapper.S              |   18 ++++++++++++++++++
+ 11 files changed, 180 insertions(+), 4 deletions(-)
+ create mode 100644 include/asm-ia64/compat_wrapper.h
+ create mode 100644 include/asm-mips/compat_wrapper.h
+ create mode 100644 include/asm-parisc/compat_wrapper.h
+ create mode 100644 include/asm-powerpc/compat_wrapper.h
+ create mode 100644 include/asm-s390/compat_wrapper.h
+ create mode 100644 include/asm-sparc64/compat_wrapper.h
+ create mode 100644 include/asm-x86_64/compat_wrapper.h
+ create mode 100644 kernel/compat_wrapper.S
+
+1cffeae9ae628af849952cf90fbfca1d98befb97
+diff --git a/arch/sparc64/kernel/systbls.S b/arch/sparc64/kernel/systbls.S
+index 2881faf..a2cc631 100644
+--- a/arch/sparc64/kernel/systbls.S
++++ b/arch/sparc64/kernel/systbls.S
+@@ -77,9 +77,9 @@ sys_call_table32:
+ /*270*/	.word sys32_io_submit, sys_io_cancel, compat_sys_io_getevents, sys=
+32_mq_open, sys_mq_unlink
+ 	.word compat_sys_mq_timedsend, compat_sys_mq_timedreceive, compat_sys_mq_=
+notify, compat_sys_mq_getsetattr, compat_sys_waitid
+ /*280*/	.word sys_ni_syscall, sys_add_key, sys_request_key, sys_keyctl, co=
+mpat_sys_openat
+-	.word sys_mkdirat, sys_mknodat, sys_fchownat, compat_sys_futimesat, compa=
+t_sys_newfstatat
+-/*285*/	.word sys_unlinkat, sys_renameat, sys_linkat, sys_symlinkat, sys_r=
+eadlinkat
+-	.word sys_fchmodat, sys_faccessat, compat_sys_pselect6, compat_sys_ppoll
++	.word compat_sys_mkdirat, compat_sys_mknodat, compat_sys_fchownat, compat=
+_sys_futimesat, compat_sys_newfstatat
++/*285*/	.word compat_sys_unlinkat, compat_sys_renameat, compat_sys_linkat,=
+ compat_sys_symlinkat, compat_sys_readlinkat
++	.word compat_sys_fchmodat, compat_sys_faccessat, compat_sys_pselect6, com=
+pat_sys_ppoll
+=20
+ #endif /* CONFIG_COMPAT */
+=20
+diff --git a/include/asm-ia64/compat_wrapper.h b/include/asm-ia64/compat_wr=
+apper.h
+new file mode 100644
+index 0000000..f82befc
+--- /dev/null
++++ b/include/asm-ia64/compat_wrapper.h
+@@ -0,0 +1,15 @@
++/*
++ * Definitions used to generate the sign extending stubs
++ * for compat syscalls
++ */
 +
-+# Use reursively expanded variables so we do not call gcc unless
-+# we really need to do so. (Do not call gcc as part of make mrproper)
-+HOST_EXTRACFLAGS = $(shell $(CONFIG_SHELL) $(check-lxdialog) -ccflags)
-+HOST_LOADLIBES   = $(shell $(CONFIG_SHELL) $(check-lxdialog) -ldflags $(HOSTCC))
-  
- HOST_EXTRACFLAGS += -DLOCALE 
- 
- .PHONY: dochecklxdialog
- $(obj)/dochecklxdialog:
-diff --git a/scripts/kconfig/lxdialog/check-lxdialog.sh b/scripts/kconfig/lxdialog/check-lxdialog.sh
-index 448e353..120d624 100644
---- a/scripts/kconfig/lxdialog/check-lxdialog.sh
-+++ b/scripts/kconfig/lxdialog/check-lxdialog.sh
-@@ -2,21 +2,21 @@
- # Check ncurses compatibility
- 
- # What library to link
- ldflags()
- {
--	echo "main() {}" | $cc -lncursesw -xc - -o /dev/null 2> /dev/null
-+	$cc -print-file-name=libncursesw.so | grep -q /
- 	if [ $? -eq 0 ]; then
- 		echo '-lncursesw'
- 		exit
- 	fi
--	echo "main() {}" | $cc -lncurses -xc - -o /dev/null 2> /dev/null
-+	$cc -print-file-name=libncurses.so | grep -q /
- 	if [ $? -eq 0 ]; then
- 		echo '-lncurses'
- 		exit
- 	fi
--	echo "main() {}" | $cc -lcurses -xc - -o /dev/null 2> /dev/null
-+	$cc -print-file-name=libcurses.so | grep -q /
- 	if [ $? -eq 0 ]; then
- 		echo '-lcurses'
- 		exit
- 	fi
- 	exit 1
-@@ -34,14 +34,17 @@ ccflags()
- 	else
- 		echo '-DCURSES_LOC="<curses.h>"'
- 	fi
- }
- 
--compiler=""
-+# Temp file, try to clean up after us
-+tmp=.lxdialog.tmp
-+trap "rm -f $tmp" 0 1 2 3 15
++#define ARG1
++#define ARG2
++#define ARG3
++#define ARG4
++#define ARG5
++#define ARG6
 +
- # Check if we can link to ncurses
- check() {
--	echo "main() {}" | $cc -xc - -o /dev/null 2> /dev/null
-+	echo "main() {}" | $cc -xc - -o $tmp 2> /dev/null
- 	if [ $? != 0 ]; then
- 		echo " *** Unable to find the ncurses libraries."          1>&2
- 		echo " *** make menuconfig require the ncurses libraries"  1>&2
- 		echo " *** "                                               1>&2
- 		echo " *** Install ncurses (ncurses-devel) and try again"  1>&2
-@@ -57,10 +60,11 @@ usage() {
- if [ $# == 0 ]; then
- 	usage
- 	exit 1
- fi
- 
-+cc=""
- case "$1" in
- 	"-check")
- 		shift
- 		cc="$@"
- 		check
++#define compat_fn1(fn, arg)
++
++#define compat_fn2(fn, arg1, arg2)
+diff --git a/include/asm-mips/compat_wrapper.h b/include/asm-mips/compat_wr=
+apper.h
+new file mode 100644
+index 0000000..f82befc
+--- /dev/null
++++ b/include/asm-mips/compat_wrapper.h
+@@ -0,0 +1,15 @@
++/*
++ * Definitions used to generate the sign extending stubs
++ * for compat syscalls
++ */
++
++#define ARG1
++#define ARG2
++#define ARG3
++#define ARG4
++#define ARG5
++#define ARG6
++
++#define compat_fn1(fn, arg)
++
++#define compat_fn2(fn, arg1, arg2)
+diff --git a/include/asm-parisc/compat_wrapper.h b/include/asm-parisc/compa=
+t_wrapper.h
+new file mode 100644
+index 0000000..f82befc
+--- /dev/null
++++ b/include/asm-parisc/compat_wrapper.h
+@@ -0,0 +1,15 @@
++/*
++ * Definitions used to generate the sign extending stubs
++ * for compat syscalls
++ */
++
++#define ARG1
++#define ARG2
++#define ARG3
++#define ARG4
++#define ARG5
++#define ARG6
++
++#define compat_fn1(fn, arg)
++
++#define compat_fn2(fn, arg1, arg2)
+diff --git a/include/asm-powerpc/compat_wrapper.h b/include/asm-powerpc/com=
+pat_wrapper.h
+new file mode 100644
+index 0000000..9bc0669
+--- /dev/null
++++ b/include/asm-powerpc/compat_wrapper.h
+@@ -0,0 +1,28 @@
++/*
++ * Definitions used to generate the sign extending stubs
++ * for compat syscalls
++ *
++ * Copyright (C) 2006 Stephen Rothwell, IBM Corp
++ */
++
++#define ARG1	%r3
++#define ARG2	%r4
++#define ARG3	%r5
++#define ARG4	%r6
++#define ARG5	%r7
++#define ARG6	%r8
++
++#define compat_fn1(fn, arg)		\
++	.text;				\
++	.global	.compat_sys_ ## fn;	\
++.compat_sys_ ## fn:			\
++	extsw	arg, arg;		\
++	b	.sys_ ## fn
++
++#define compat_fn2(fn, arg1, arg2)	\
++	.text;				\
++	.global	.compat_sys_ ## fn;	\
++.compat_sys_ ## fn:			\
++	extsw	arg1, arg1;		\
++	extsw	arg2, arg2;		\
++	b	.sys_ ## fn
+diff --git a/include/asm-s390/compat_wrapper.h b/include/asm-s390/compat_wr=
+apper.h
+new file mode 100644
+index 0000000..f82befc
+--- /dev/null
++++ b/include/asm-s390/compat_wrapper.h
+@@ -0,0 +1,15 @@
++/*
++ * Definitions used to generate the sign extending stubs
++ * for compat syscalls
++ */
++
++#define ARG1
++#define ARG2
++#define ARG3
++#define ARG4
++#define ARG5
++#define ARG6
++
++#define compat_fn1(fn, arg)
++
++#define compat_fn2(fn, arg1, arg2)
+diff --git a/include/asm-sparc64/compat_wrapper.h b/include/asm-sparc64/com=
+pat_wrapper.h
+new file mode 100644
+index 0000000..42afb2c
+--- /dev/null
++++ b/include/asm-sparc64/compat_wrapper.h
+@@ -0,0 +1,33 @@
++/*
++ * Definitions used to generate the sign extending stubs
++ * for compat syscalls
++ *
++ * Copyright (C) 2006 Stephen Rothwell, IBM Corp
++ * Based on arch/sparc64/kernel/sys32.S
++ */
++
++#define ARG1	%o0
++#define ARG2	%o1
++#define ARG3	%o2
++#define ARG4	%o3
++#define ARG5	%o4
++#define ARG6	%o5
++
++#define compat_fn1(fn, arg)			\
++	.text;					\
++	.align	32;				\
++	.globl	compat_sys_ ## fn;		\
++compat_sys_ ## fn:				\
++	sethi	%hi(sys_ ## fn), %g1;		\
++	jmpl	%g1 + %lo(sys_ ## fn), %g0;	\
++	sra	arg, 0, arg
++
++#define compat_fn2(fn, arg1, arg2)		\
++	.text;					\
++	.align	32;				\
++	.globl	compat_sys_ ## fn;		\
++compat_sys_ ## fn:				\
++	sethi	%hi(sys_ ## fn), %g1;		\
++	sra	arg1, 0, arg1;			\
++	jmpl	%g1 + %lo(sys_ ## fn), %g0;	\
++	sra	arg2, 0, arg2
+diff --git a/include/asm-x86_64/compat_wrapper.h b/include/asm-x86_64/compa=
+t_wrapper.h
+new file mode 100644
+index 0000000..f82befc
+--- /dev/null
++++ b/include/asm-x86_64/compat_wrapper.h
+@@ -0,0 +1,15 @@
++/*
++ * Definitions used to generate the sign extending stubs
++ * for compat syscalls
++ */
++
++#define ARG1
++#define ARG2
++#define ARG3
++#define ARG4
++#define ARG5
++#define ARG6
++
++#define compat_fn1(fn, arg)
++
++#define compat_fn2(fn, arg1, arg2)
+diff --git a/include/linux/compat.h b/include/linux/compat.h
+index 2d7e7f1..b501201 100644
+--- a/include/linux/compat.h
++++ b/include/linux/compat.h
+@@ -168,6 +168,28 @@ asmlinkage long compat_sys_newfstatat(un
+ 				      int flag);
+ asmlinkage long compat_sys_openat(unsigned int dfd, const char __user *fil=
+ename,
+ 				   int flags, int mode);
++asmlinkage long compat_sys_mkdirat(unsigned int dfd,
++		const char __user * pathname, int mode);
++asmlinkage long compat_sys_mknodat(unsigned int dfd,
++		const char __user *filename, int mode, unsigned dev);
++asmlinkage long compat_sys_fchownat(unsigned int dfd,
++		const char __user *filename, uid_t user, gid_t group, int flag);
++asmlinkage long compat_sys_unlinkat(unsigned int dfd,
++		const char __user *pathname, int flag);
++asmlinkage long compat_sys_renameat(unsigned int olddfd,
++		const char __user *oldname, unsigned int newdfd,
++		const char __user *newname);
++asmlinkage long compat_sys_linkat(unsigned int olddfd,
++		const char __user *oldname, unsigned int newdfd,
++		const char __user *newname);
++asmlinkage long compat_sys_symlinkat(const char __user *oldname,
++		unsigned int newdfd, const char __user *newname);
++asmlinkage long compat_sys_readlinkat(unsigned int dfd,
++		const char __user *path, char __user *buf, int bufsiz);
++asmlinkage long compat_sys_fchmodat(unsigned int dfd,
++		const char __user *filename, mode_t mode);
++asmlinkage long compat_sys_faccessat(unsigned int dfd,
++		const char __user *filename, int mode);
+=20
+ #endif /* CONFIG_COMPAT */
+ #endif /* _LINUX_COMPAT_H */
+diff --git a/kernel/Makefile b/kernel/Makefile
+index 4ae0fbd..a0679c4 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -22,7 +22,7 @@ obj-$(CONFIG_KALLSYMS) +=3D kallsyms.o
+ obj-$(CONFIG_PM) +=3D power/
+ obj-$(CONFIG_BSD_PROCESS_ACCT) +=3D acct.o
+ obj-$(CONFIG_KEXEC) +=3D kexec.o
+-obj-$(CONFIG_COMPAT) +=3D compat.o
++obj-$(CONFIG_COMPAT) +=3D compat.o compat_wrapper.o
+ obj-$(CONFIG_CPUSETS) +=3D cpuset.o
+ obj-$(CONFIG_IKCONFIG) +=3D configs.o
+ obj-$(CONFIG_STOP_MACHINE) +=3D stop_machine.o
+diff --git a/kernel/compat_wrapper.S b/kernel/compat_wrapper.S
+new file mode 100644
+index 0000000..da009eb
+--- /dev/null
++++ b/kernel/compat_wrapper.S
+@@ -0,0 +1,18 @@
++/*
++ * Copyright (C) 2006 Stephen Rothwell, IBM Corp
++ *
++ * this file will generate compat_ wrapper functions for
++ * syscalls that need sign extension for some of their arguments
++ */
++#include <asm/compat_wrapper.h>
++
++compat_fn1(mkdirat, ARG1)
++compat_fn1(mknodat, ARG1)
++compat_fn1(fchownat, ARG1)
++compat_fn1(unlinkat, ARG1)
++compat_fn2(renameat, ARG1, ARG3)
++compat_fn2(linkat, ARG1, ARG3)
++compat_fn1(symlinkat, ARG2)
++compat_fn1(readlinkat, ARG1)
++compat_fn1(fchmodat, ARG1)
++compat_fn1(faccessat, ARG1)
+--=20
+1.1.5
 
-diff-tree aa6ba2faec346a3f59bf4130060108e6433ad907 (from 3835f82183eab8b67ddda6b32c127859a546c82d)
-Author: Al Viro <viro@ftp.linux.org.uk>
-Date:   Thu Jan 19 19:03:15 2006 +0000
+--Signature=_Tue__7_Feb_2006_17_40_17_+1100_vv37rgNvp=ri.2En
+Content-Type: application/pgp-signature
 
-    cris: asm-offsets related build failure
-    
-    fallout from "kbuild: cris use generic asm-offsets.h support" - symlink
-    target was wrong
-    
-    Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-    Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-diff --git a/arch/cris/Makefile b/arch/cris/Makefile
-index ea65d58..ee11469 100644
---- a/arch/cris/Makefile
-+++ b/arch/cris/Makefile
-@@ -117,11 +117,11 @@ $(SRC_ARCH)/.links:
- 	@ln -sfn $(SRC_ARCH)/$(SARCH)/boot $(SRC_ARCH)/boot
- 	@rm -rf $(SRC_ARCH)/lib
- 	@ln -sfn $(SRC_ARCH)/$(SARCH)/lib $(SRC_ARCH)/lib
- 	@ln -sfn $(SRC_ARCH)/$(SARCH) $(SRC_ARCH)/arch
- 	@ln -sfn $(SRC_ARCH)/$(SARCH)/vmlinux.lds.S $(SRC_ARCH)/kernel/vmlinux.lds.S
--	@ln -sfn $(SRC_ARCH)/$(SARCH)/asm-offsets.c $(SRC_ARCH)/kernel/asm-offsets.c
-+	@ln -sfn $(SRC_ARCH)/$(SARCH)/kernel/asm-offsets.c $(SRC_ARCH)/kernel/asm-offsets.c
- 	@touch $@
- 
- # Create link to sub arch includes
- $(srctree)/include/asm-$(ARCH)/.arch: $(wildcard include/config/arch/*.h)
- 	@echo '  Making $(srctree)/include/asm-$(ARCH)/arch -> $(srctree)/include/asm-$(ARCH)/$(SARCH) symlink'
+iD8DBQFD6EDRFdBgD/zoJvwRAlbfAJ42PJY+ztnGoYMrLPTMzJAp2/dHfQCfQAmZ
+i5rpgmlx01GAzB3/KzMAOcQ=
+=k02l
+-----END PGP SIGNATURE-----
 
-diff-tree 8c7f75d3257fe466b34abf290c8b177c106c3769 (from aa6ba2faec346a3f59bf4130060108e6433ad907)
-Author: Sam Ravnborg <sam@mars.ravnborg.org>
-Date:   Sat Jan 21 12:07:56 2006 +0100
-
-    kbuild: fix build with O=..
-    
-    .kernelrelease was saved in same directory as kernel source also
-    with make O=...
-    Make sure we kick in the normal logic to shift to the output directory
-    when we build .kernelrelease after executing *config.
-    
-    Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-    ---
-
-diff --git a/Makefile b/Makefile
-index 252a659..31bbc6a 100644
---- a/Makefile
-+++ b/Makefile
-@@ -440,11 +440,11 @@ include $(srctree)/arch/$(ARCH)/Makefile
- export KBUILD_DEFCONFIG
- 
- config %config: scripts_basic outputmakefile FORCE
- 	$(Q)mkdir -p include/linux
- 	$(Q)$(MAKE) $(build)=scripts/kconfig $@
--	$(Q)$(MAKE) .kernelrelease
-+	$(Q)$(MAKE) -C $(srctree) KBUILD_SRC= .kernelrelease
- 
- else
- # ===========================================================================
- # Build targets only - this includes vmlinux, arch specific targets, clean
- # targets and others. In general all targets except *config targets.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
+--Signature=_Tue__7_Feb_2006_17_40_17_+1100_vv37rgNvp=ri.2En--

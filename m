@@ -1,66 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965160AbWBGVxw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965003AbWBGVtR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965160AbWBGVxw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 16:53:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965165AbWBGVxw
+	id S965003AbWBGVtR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 16:49:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965112AbWBGVtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 16:53:52 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:42770 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S965137AbWBGVxv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 16:53:51 -0500
-Date: Tue, 7 Feb 2006 22:53:42 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Pradeep Vincent <pradeep.vincent@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch] 2.4.32 - Neighbour Cache (ARP) State machine bug Fixed
-Message-ID: <20060207215341.GC11380@w.ods.org>
-References: <9fda5f510511281257o364acb3gd634f8e412cd7301@mail.gmail.com> <9fda5f510602031806j2f9ef743t206c9ee2c3bef384@mail.gmail.com> <20060203.181839.104353534.davem@davemloft.net> <9fda5f510602062357n38292cebk3c5738ccdbee83@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 7 Feb 2006 16:49:17 -0500
+Received: from uproxy.gmail.com ([66.249.92.197]:23971 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965003AbWBGVtQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 16:49:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=IOTMHPulE8LBoAmKEtctw27mkaoNQovsqIkwwtR6yNQjMSFJYFyz1JwHebKRA4JWqSWnsiuFzRb9YVnuX0JiKkRJstzlVgU16i+TYCgime+er2If28BgXTMbSeVRTbAjioyD+q4NGNtnXxWHn5UEp50tP6Uub8gtd3YVqh1P2JI=
+Message-ID: <d9def9db0602071349h10b4d436h34a24e71fde89b85@mail.gmail.com>
+Date: Tue, 7 Feb 2006 22:49:14 +0100
+From: Markus Rechberger <mrechberger@gmail.com>
+To: Andreas Oberritter <obi@linuxtv.org>
+Subject: Re: [v4l-dvb-maintainer] [PATCH 07/16] Fixed i2c return value, conversion mdelay to msleep
+Cc: mchehab@infradead.org, linux-kernel@vger.kernel.org,
+       linux-dvb-maintainer@linuxtv.org
+In-Reply-To: <1139345524.9499.3.camel@ip6-localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <9fda5f510602062357n38292cebk3c5738ccdbee83@mail.gmail.com>
-User-Agent: Mutt/1.5.10i
+References: <20060207153248.PS50860900000@infradead.org>
+	 <20060207153331.PS65523100007@infradead.org>
+	 <1139345524.9499.3.camel@ip6-localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Tue, Feb 07, 2006 at 12:57:43AM -0700, Pradeep Vincent wrote:
-> In 2.4.21, arp code uses gc_timer to check for stale arp cache
-> entries. In 2.6, each entry has its own timer to check for stale arp
-> cache. 2.4.29 to 2.4.32 kernels (atleast) use neither of these timers.
-> This causes problems in environments where IPs or MACs are reassigned
-> - saw this problem on load balancing router based networks that use
-> VMACs. Tested this code on load balancing router based networks as
-> well as peer-linux systems.
-> 
-> 
-> Thanks,
-> 
-> 
-> Signed off by: Pradeep Vincent <pradeep.vincent@gmail.com>
-> 
-> diff -Naur old/net/core/neighbour.c new/net/core/neighbour.c
-> --- old/net/core/neighbour.c    Wed Nov 23 17:15:30 2005
-> +++ new/net/core/neighbour.c    Wed Nov 23 17:26:01 2005
-> @@ -14,6 +14,7 @@
-> *     Vitaly E. Lavrov        releasing NULL neighbor in neigh_add.
-> *     Harald Welte            Add neighbour cache statistics like rtstat
-> *     Harald Welte            port neighbour cache rework from 2.6.9-rcX
-> + *      Pradeep Vincent         Move neighbour cache entry to stale state
-> */
+this is actually not needed but it saves as introduced by Luca Risolia
+some CPU cycles. USB Devices might come and go whenever the user feels
+he has to plug or unplug it.
 
-As you can see above, your mailer is still broken. Leading spaces get
-removed and it seems like tabs are replaced with spaces. This makes it
-really annoying to fix by hand because we all have to do your work again.
-You should try to fix your mailer options, possibly by sending a few
-mails to yourself or someone else (if you send *a few* mails to me, I
-can confirm which one looks OK). If your mailer is definitely broken,
-then you may send it as plain text first (for review), with a text
-attachment for people to apply it without trouble.
+On 2/7/06, Andreas Oberritter <obi@linuxtv.org> wrote:
+> Hi,
+>
+> On Tue, 2006-02-07 at 13:33 -0200, mchehab@infradead.org wrote:
+> > @@ -165,6 +168,9 @@ int em28xx_read_reg_req(struct em28xx *d
+> >       u8 val;
+> >       int ret;
+> >
+> > +     if (dev->state & DEV_DISCONNECTED)
+> > +             return(-ENODEV);
+>
+> This looks like return was a function and is very uncommon for kernel
+> coding style.
+>
+> > +
+> >       em28xx_regdbg("req=%02x, reg=%02x:", req, reg);
+> >
+> >       ret = usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0), req,
+> > @@ -195,7 +201,12 @@ int em28xx_write_regs_req(struct em28xx
+> >       int ret;
+> >
+> >       /*usb_control_msg seems to expect a kmalloced buffer */
+> > -     unsigned char *bufs = kmalloc(len, GFP_KERNEL);
+> > +     unsigned char *bufs;
+> > +
+> > +     if (dev->state & DEV_DISCONNECTED)
+> > +             return(-ENODEV);
+>
+> Same as obove.
+>
+> > +
+> > +     bufs = kmalloc(len, GFP_KERNEL);
+>
+> I think you should add this:
+>
+>           if (bufs == NULL)
+>                   return -ENOMEM;
 
-Thanks,
-Willy
+right, submit a patch? :)
 
+>
+> Best regards,
+> Andreas
+>
+>
+
+Markus

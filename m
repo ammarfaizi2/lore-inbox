@@ -1,99 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbWBGBJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbWBGBP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932330AbWBGBJH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 20:09:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWBGBJG
+	id S932429AbWBGBP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 20:15:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWBGBP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 20:09:06 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:39894 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S932330AbWBGBJF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 20:09:05 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Tue, 7 Feb 2006 11:05:41 +1000
-User-Agent: KMail/1.9.1
-Cc: Bojan Smojver <bojan@rexursive.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       suspend2-devel@lists.suspend2.net
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060207113159.nyjixl5eokookcsw@imp.rexursive.com> <20060207004448.GC1575@elf.ucw.cz>
-In-Reply-To: <20060207004448.GC1575@elf.ucw.cz>
+	Mon, 6 Feb 2006 20:15:59 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:51635 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932429AbWBGBP6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 20:15:58 -0500
+Date: Mon, 6 Feb 2006 17:15:23 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+cc: "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH] compat: add compat functions for *at syscalls
+In-Reply-To: <20060207112713.7cd0a61c.sfr@canb.auug.org.au>
+Message-ID: <Pine.LNX.4.64.0602061656560.3854@g5.osdl.org>
+References: <20060207105631.39a1080c.sfr@canb.auug.org.au>
+ <20060206.160140.59716704.davem@davemloft.net> <20060207112713.7cd0a61c.sfr@canb.auug.org.au>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1522520.yzXN01S4C1";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602071105.45688.nigel@suspend2.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1522520.yzXN01S4C1
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-Hi Pavel.
 
-On Tuesday 07 February 2006 10:44, Pavel Machek wrote:
-> Are you Max Dubois, second incarnation or what?
->
-> > Well, given that the kernel suspend is going to be kept for a while,
-> > wouldn't it be better if it was feature full? How would the users be
-> > at
->
->                                               =20
-> ~~~~~~~~~~~~~~~~~~~~~~~~~
->
-> > a disadvantage if they had better kernel based suspend for a while,
->
-> ~~~~~~~~~~~~~~~~
->
-> > followed by u-beaut-cooks-cleans-and-washes uswsusp? That's the part I
-> > don't get...
->
-> *Users* would not be at disadvantage, but, surprise, there's one thing
-> more important than users. Thats developers, and I can guarantee you
-> that merging 14K lines of code just to delete them half a year later
-> would drive them crazy.
+On Tue, 7 Feb 2006, Stephen Rothwell wrote:
+> 
+> *If* we do get is_compat_task(), what would be you reaction to something
+> like this:
+> 
+> diff --git a/fs/namei.c b/fs/namei.c
+> index faf61c3..83d6cd1 100644
+> --- a/fs/namei.c
+> +++ b/fs/namei.c
+> @@ -1877,6 +1877,8 @@ asmlinkage long sys_mkdirat(int dfd, con
+>  	int error = 0;
+>  	char * tmp;
+>  
+> +	if (is_compat_task())
+> +		dfd = compat_sign_extend(dfd);
 
-It would more be an ever-changing interface that would drive them crazy. So=
-=20
-why don't we come up with an agreed method of starting a suspend and=20
-starting a resume that they can use, without worrying about whether=20
-they're getting swsusp, uswsusp or Suspend2? /sys/power/state seems the=20
-obvious choice for this. An additional /sys entry could perhaps be used to=
-=20
-modify which implementation is used when you echo disk > /sys/power/state=20
-=2D something like
+Oh f*ck, why do people do ugly code like this?
 
-# cat /sys/power/disk_method
-swsusp uswsusp suspend2
-# echo uswsusp > /sys/power/disk_method
-# echo > /sys/power/state
+That's just about the nastiest thing I've ever seen.
 
-Is there a big problem with that, which I've missed?
+If you want to go this way, do it with
 
-Regards,
+	asmlinkage long sys_mkdirat(long __dfd, ..
+	{
+		int dfd = __dfd;
 
-Nigel
+which is at least unconditional.
 
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
+The thing is unconditionally doing the "skip upper bits" is _faster_ then 
+the conditional test to see if you even need it.
 
---nextPart1522520.yzXN01S4C1
-Content-Type: application/pgp-signature
+Conditionalizing code like this is EVIL and STUPID.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+However, what I suspect David was actually suggesting was to just have 
+some trivial for just the compat functions. You can generate them 
+automatically based on 
+ - function name
+ - signedness/unsignedness of each argument
+with some preprocessor hackery.
 
-iD8DBQBD5/JpN0y+n1M3mo0RAs1EAKDCU/0OCPJ5XcLF4j23kfnBl8IphACgyjJp
-AFlEXsp5apLWI3OnkU+7d48=
-=fxnz
------END PGP SIGNATURE-----
+So each architecture could have the following #defines:
 
---nextPart1522520.yzXN01S4C1--
+	#define SARG(x) "sext " x "," x	 // Whatever the architecture asm is for sign-extending a register
+	#define UARG(x)	"zext " x "," x
+	#define JMP(x)	"jmp " x
+
+	#define ARG1 "%r3"
+	#define ARG2 "%r4"
+	#define ARG3 "%r5"
+	...
+
+and then there would be a generic helper header:
+
+	#define compat_fn1(n, x1) 		\
+		asm("compat_" ## n ":\n\t"	\
+			x1(ARG1) "\n\t"		\
+			JMP(##n))
+
+	#define compat_fn2(n, x1, x2) 		\
+		asm("compat_" ## n ":\n\t"	\
+			x1(ARG1) "\n\t"		\
+			x2(ARG2) "\n\t"		\
+			JMP(##n))
+
+	#define compat_fn3(n, x1, x2) 		\
+		asm("compat_" ## n ":\n\t"	\
+			x1(ARG1) "\n\t"		\
+			x2(ARG2) "\n\t"		\
+			x3(ARG3) "\n\t"		\
+			JMP(##n))
+
+	... fn4..fn6 ..
+
+	compat_fn4(sys_semctl, SARG, SARG, SARG, UARG);
+	compat_fn6(sys_waitif, SARG, UARG, UARG, SARG, UARG);
+	..
+
+you get the idea - automatically generated stub assembly functions that 
+zero-extend or sign-extend the arguments properly. Each architecture would 
+need just a minimal set of "helper defines" to create the per-architecture 
+assembly language.
+
+(And no, I didn't test the above at all).
+
+		Linus

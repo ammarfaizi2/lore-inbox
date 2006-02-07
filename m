@@ -1,82 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbWBGLB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965012AbWBGLDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964992AbWBGLB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 06:01:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965015AbWBGLB7
+	id S965012AbWBGLDd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 06:03:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965015AbWBGLDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 06:01:59 -0500
-Received: from smtp.gentoo.org ([134.68.220.30]:4288 "EHLO smtp.gentoo.org")
-	by vger.kernel.org with ESMTP id S964992AbWBGLB7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 06:01:59 -0500
-Date: Tue, 7 Feb 2006 12:01:49 +0100
-From: Henrik Brix Andersen <brix@gentoo.org>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: Lee Revell <rlrevell@joe-job.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       suspend2-devel@lists.suspend2.net, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060207110149.GB8046@osgiliath.brixandersen.dk>
-Mail-Followup-To: Nigel Cunningham <nigel@suspend2.net>,
-	Lee Revell <rlrevell@joe-job.com>,
-	"Rafael J. Wysocki" <rjw@sisk.pl>,
-	suspend2-devel@lists.suspend2.net, Pavel Machek <pavel@ucw.cz>,
-	linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060207030129.GA23860@mail> <1139282224.2041.48.camel@mindpipe> <200602071332.51676.nigel@suspend2.net>
+	Tue, 7 Feb 2006 06:03:33 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:8671 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965012AbWBGLDc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 06:03:32 -0500
+Subject: Re: libATA  PATA status report, new patch
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Meelis Roos <mroos@linux.ee>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060207084347.54CD01430C@rhn.tartu-labor>
+References: <20060207084347.54CD01430C@rhn.tartu-labor>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 07 Feb 2006 11:05:34 +0000
+Message-Id: <1139310335.18391.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4bRzO86E/ozDv8r1"
-Content-Disposition: inline
-In-Reply-To: <200602071332.51676.nigel@suspend2.net>
-X-PGP-Key: http://dev.gentoo.org/~brix/files/HenrikBrixAndersen.asc
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Maw, 2006-02-07 at 10:43 +0200, Meelis Roos wrote:
+> Tried in Qemu with virtual PIIX3. Compiled in PIIX, OLDPIIX, MPIIX and
+> Generic. Enabled PATA support for libata in libata.h. Disabled
+> everything in ATA/IDE Kconfig menu.
+> 
+> ata1: PATA max PIO4 cmd 0x1F0 ctl 0x3F6 bmdma 0x0 irq 15
+> Unable to handle kernel NULL pointer dereference at virtual address 00000000
+>  printing eip:
 
---4bRzO86E/ozDv8r1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Very strange trace indeed. I'll take a look at this. At least since it
+came from Qemu I should be able to "build" a suitable PC to match yours.
 
-On Tue, Feb 07, 2006 at 01:32:46PM +1000, Nigel Cunningham wrote:
-> Now to #2.I haven't seen download statistics for Suspend2 since last May.=
-=20
-> At that time, we had a release that was current for about 3 months. Durin=
-g=20
-> that time, there were 12,000 downloads of the version (2.1.8 IIRC). Let's=
-=20
-> say that half of them actually applied the software and used it. Does 600=
-0=20
-> people make it worth it? Of course, having said that, I don't know how=20
-> many people would be more likely to use it if it was in mainline and they=
-=20
-> didn't have to patch their kernels, but I'd suspect it would be at least=
-=20
-> that number again.
+Original Intel PIIX devices are handled by "OLDPIIX" (0x8086, 0x1230).
+The later ones by ata_piix. The only oddity I see is that you have no
+PCI bus mastering address base assigned (bmdma)
 
-And those downloads doesn't include the users of distributions, where
-suspend2 is already well integrated. In Gentoo, for instance, we
-mirror the suspend2 patches on our own mirror system (We didn't do
-this last May, though).
+Alan
 
-Regards,
-Brix
---=20
-Henrik Brix Andersen <brix@gentoo.org>
-Gentoo Metadistribution | Mobile computing herd
 
---4bRzO86E/ozDv8r1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: GnuPG signed
-
-iD8DBQFD6H4dv+Q4flTiePgRAlclAKCViE6uZLrCtZ+o8EHhKWbu3Nq0gACfU7IN
-9MtSc+FUemOyytZs4n7J1dc=
-=1TLU
------END PGP SIGNATURE-----
-
---4bRzO86E/ozDv8r1--

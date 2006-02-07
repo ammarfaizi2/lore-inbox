@@ -1,50 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030307AbWBHAT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWBGXRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030307AbWBHAT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 19:19:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030308AbWBHAT6
+	id S1030244AbWBGXRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 18:17:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030246AbWBGXRQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 19:19:58 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:47716 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030307AbWBHAT5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 19:19:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MV8jVzP9Z/AZJoLFjHp4Rq3rAl0UkdCm512A4h3ZluMb4QZSm0IquA+GcNNkAOyfZrlbZg4FXWnm7zs8zGJyFroyDQegSxFPLZxCj/lwMCswZn1BNOeRR02J2K70TgadEM26/CEYz2YKDeYABUaBb7qmQ/snCZrLuWYDVuNFFBc=
-Message-ID: <a36005b50602071619w379980a2se9d78131a8e2b7bd@mail.gmail.com>
-Date: Tue, 7 Feb 2006 16:19:56 -0800
-From: Ulrich Drepper <drepper@gmail.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: pid_t range question
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <m1pslystkz.fsf@ebiederm.dsl.xmission.com>
+	Tue, 7 Feb 2006 18:17:16 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:38404 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030245AbWBGXRO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 18:17:14 -0500
+Date: Wed, 8 Feb 2006 00:17:13 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Keith Owens <kaos@sgi.com>
+Cc: tony.luck@intel.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] let IA64_GENERIC select more stuff
+Message-ID: <20060207231713.GG3524@stusta.de>
+References: <20060207221157.GA3524@stusta.de> <9883.1139351831@ocs3>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.61.0602071122520.327@chaos.analogic.com>
-	 <m1pslystkz.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <9883.1139351831@ocs3>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/7/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
-> I know for certain that proc assumes it can fit pid in
-> the upper bits of an ino_t taking the low 16bits for itself
-> so that may the entire reason for the limit.
+On Wed, Feb 08, 2006 at 09:37:11AM +1100, Keith Owens wrote:
+> 
+> A generic IA64 kernel requires (at least) the ACPI and NUMA options in
+> order to run on all the IA64 platforms out there.  Omitting those
+> options and relying on the user to set them by hand is going to cause
+> more problems.
+> 
+> If anything, there should be more options being set as a side effect of
+> selecting IA64_GENERIC, including ARCH_DISCONTIGMEM_ENABLE,
+> ARCH_SPARSEMEM_ENABLE, PCI and even SMP.
 
-Is this still the case?  For the 100,000 threads tests Ingo and I were
-running Ingo certainly came up with some patches to make /proc behave
-better.  This was before we had subdirs for thread groups.
+IOW, you want the patch below?
 
-Anyway, I think we should put a reasonable top on the number of bits
-for the PIDs.  One reason is that the current (and fastest) design for
-more complex mutexes needs to encode more information than the PID in
-an 'int'.  See the latest robust mutex patches for an example.  If the
-limit could be, say, 28 bits that would still enable using more
-processes and threads then anybody wants so far.  Who know, when we
-hit this limit, maybe we have separate namespaces.  If not, we can
-still fix the existing limits but this would come at a cost which is
-why I think it's not worth doing now.
+Not that I'm a big fan of this approach, but if it should be done this 
+way, it should be done right.
+
+cu
+Adrian
+
+
+<--  snip  -->
+
+
+Let IA64_GENERIC select more stuff (as wanted by the ia64 developers).
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.16-rc1-mm5-ia64/arch/ia64/Kconfig.old	2006-02-07 23:07:29.000000000 +0100
++++ linux-2.6.16-rc1-mm5-ia64/arch/ia64/Kconfig	2006-02-08 00:13:58.000000000 +0100
+@@ -73,10 +73,12 @@
+ config IA64_GENERIC
+ 	bool "generic"
+ 	select ACPI
+ 	select NUMA
+ 	select ACPI_NUMA
++	select PCI
++	select SMP
+ 	help
+ 	  This selects the system type of your hardware.  A "generic" kernel
+ 	  will run on any supported IA-64 system.  However, if you configure
+ 	  a kernel for your specific system, it will be faster and smaller.
+ 
+@@ -132,10 +134,11 @@
+ 	  This choice is safe for all IA-64 systems, but may not perform
+ 	  optimally on systems with, say, Itanium 2 or newer processors.
+ 
+ config MCKINLEY
+ 	bool "Itanium 2"
++	depends on IA64_GENERIC=n
+ 	help
+ 	  Select this to configure for an Itanium 2 (McKinley) processor.
+ 
+ endchoice
+ 
+@@ -318,11 +321,11 @@
+ 	  for architectures which are either NUMA (Non-Uniform Memory Access)
+ 	  or have huge holes in the physical address space for other reasons.
+  	  See <file:Documentation/vm/numa> for more.
+ 
+ config ARCH_FLATMEM_ENABLE
+-	def_bool y
++	def_bool y if IA64_GENERIC=n
+ 
+ config ARCH_SPARSEMEM_ENABLE
+ 	def_bool y
+ 	depends on ARCH_DISCONTIGMEM_ENABLE
+ 
+

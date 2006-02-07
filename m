@@ -1,96 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030249AbWBGXSk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbWBGXcf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030249AbWBGXSk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 18:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030247AbWBGXSj
+	id S1030212AbWBGXcf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 18:32:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbWBGXcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 18:18:39 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:38118 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030249AbWBGXSi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 18:18:38 -0500
-Message-ID: <43E92AC9.3090308@watson.ibm.com>
-Date: Tue, 07 Feb 2006 18:18:33 -0500
-From: Hubertus Franke <frankeh@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Tue, 7 Feb 2006 18:32:35 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:58648 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030212AbWBGXcf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 18:32:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=AtIvYzTIkplAKODWISfI7iovlHyyo5nbsvXlhMoD66z8t80iak76pVi8aEUTJ2LdZ2M8/P6ONH5sGBdqYG/EUqHVpQdnfSmtUCTcR/4W7XhnK+/jeGglVPZmmmW6V4N8kbPHhzj1VDqkLUWReeS/W0fztDoLcBTPqxCpVFMLAsE=
+From: Neal Becker <ndbecker2@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.6.16-rc1 panic on startup (acpi)
+Date: Tue, 7 Feb 2006 18:32:28 -0500
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <ds7cu3$9c0$1@sea.gmane.org> <20060207145913.714fec1c.akpm@osdl.org> <20060207231835.GA19648@kroah.com>
+In-Reply-To: <20060207231835.GA19648@kroah.com>
 MIME-Version: 1.0
-To: Sam Vilain <sam@vilain.net>
-CC: Rik van Riel <riel@redhat.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Kirill Korotaev <dev@openvz.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       clg@fr.ibm.com, haveblue@us.ibm.com, greg@kroah.com,
-       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
-       kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
-       Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
-References: <43E7C65F.3050609@openvz.org> <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com> <43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com> <43E92602.8040403@vilain.net>
-In-Reply-To: <43E92602.8040403@vilain.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602071832.28361.ndbecker2@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Vilain wrote:
-> Hubertus Franke wrote:
-> 
->> The container is just an umbrella object that ties every "virtualized" 
->> subsystem together.
-> 
-> 
-> I like this description; it matches roughly with the concepts as
-> presented by vserver; there is the process virtualisation (vx_info), and
-> the network virtualisation (nx_info) of Eric's that has been integrated
-> to the vserver 2.1.x development branch.  However the vx_info has become
-> the de facto umbrella object space as well.  These could almost
-> certainly be split out without too much pain or incurring major
-> rethinks.
-> 
-> Sam.
-> 
+On Tuesday 07 February 2006 6:18 pm, Greg KH wrote:
+> On Tue, Feb 07, 2006 at 02:59:13PM -0800, Andrew Morton wrote:
+> > Neal Becker <ndbecker2@gmail.com> wrote:
+> > > Sorry, I meant 2.6.16-rc1 (not 2.6.12)
+> > >
+> > > Neal Becker wrote:
+> > > > HP dv8000 notebook
+> > > > 2.6.15 is fine, but 2.6.12-rc1 panics immediately on startup
+> > > >
+> > > > Here is a picture of some traceback
+> > > > https://bugzilla.redhat.com/bugzilla/attachment.cgi?id=124152&action=
+> > > >view
+> >
+> > It died in pci_mmcfg_read().  Greg, didn't a crash in there get fixed
+> > recently?
+>
+> Yes.  Can you try 2.6.16-rc2?  Is this a x86-64 machine?
+>
+> thanks,
+>
 
+This is 2.6.16-rc2.  Yes, this is an x86-64.  I have a new picture, I put 
+here:
 
-Agreed.. here are some issued we learned from other projects that had
-similar interception points.
-
-Having a central umbrella object (let's stick to the name container)
-is useful, but being the only object through which every access has to
-pass may have drawbacks..
-
-task->container->pspace->pidmap[offset].page   implies potential
-cachemisses etc.
-
-If overhead becomes too large, then we can stick (cache) the pointer
-additionally in the task struct. But ofcourse that should be carefully
-examined on a per subsystem base...
-
-==
-Another thing to point out is that container's can have overlaps.
-
-C/R should be a policy thing. So if each "subsystem"
-
->  Quote Eric>>>
-> PIDS
-> UIDS
-> SYSVIPC
-> NETWORK
-> UTSNAME
-> FILESYSTEM
-
-is represented as a NAMESPACE, then one can pick and choose as a
-policy how these constitute at a conceptual level as a container.
-You want something migratable you better make sure that
-container implies unique subsystems.
-Maybe you want to nest containers, but only want to create a
-separate pidspaces for performance isolation (see planetlab work
-with vserver).
-So, there are many possibilities, that might make perfect sense
-for different desired solutions and it seems with the
-clone ( CLONE_FLAGS_NSPACE_[PIDS/UIDS/SYS.../FS] ) one gets a solution
-that is flexible, yet embodies may requirements.....
-
--- Hubertus
-
-
-
+http://nbecker.dyndns.org:8080/imgp0361.jpg

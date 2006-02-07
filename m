@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030200AbWBGWRG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030201AbWBGWTh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030200AbWBGWRG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 17:17:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbWBGWRG
+	id S1030201AbWBGWTh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 17:19:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbWBGWTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 17:17:06 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5010 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030200AbWBGWRF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 17:17:05 -0500
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: pid_t range question
-References: <Pine.LNX.4.61.0602071122520.327@chaos.analogic.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 07 Feb 2006 15:16:28 -0700
-In-Reply-To: <Pine.LNX.4.61.0602071122520.327@chaos.analogic.com> (linux-os@analogic.com's
- message of "Tue, 7 Feb 2006 11:23:56 -0500")
-Message-ID: <m1pslystkz.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 7 Feb 2006 17:19:37 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:4003 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030201AbWBGWTg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 17:19:36 -0500
+Message-ID: <43E91CF4.8020304@watson.ibm.com>
+Date: Tue, 07 Feb 2006 17:19:32 -0500
+From: Hubertus Franke <frankeh@watson.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: "Serge E. Hallyn" <serue@us.ibm.com>, Sam Vilain <sam@vilain.net>,
+       Rik van Riel <riel@redhat.com>, Kirill Korotaev <dev@openvz.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, clg@fr.ibm.com, haveblue@us.ibm.com,
+       greg@kroah.com, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
+       kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
+       Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
+References: <43E7C65F.3050609@openvz.org>	<m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>	<Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com>	<43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com>	<20060207201908.GJ6931@sergelap.austin.ibm.com>	<43E90716.4020208@watson.ibm.com> <m1bqxide3f.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1bqxide3f.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"linux-os \(Dick Johnson\)" <linux-os@analogic.com> writes:
+Eric W. Biederman wrote:
+> Hubertus Franke <frankeh@watson.ibm.com> writes:
+> 
+> 
+> 
+>>Kirill brought up that VPS can span a cluster..
+>>if so how do you (Kirill) do that? You pre-partition the pids into allocation
+>>ranges for each container?
+>>Eitherway, if this is an important feature, then one needs to look at
+>>how that is achieved in pspace (e.g. mod the pidmap_alloc() function
+>>to take legal ranges into account). Should still be straight forward.
+> 
+> 
+> Actually legal ranges already exist in the form of min/max values.
+> So that is trivial to implement.
+> 
 
-> On Linux, type pid_t is defined as an int if you look
-> through all the intermediate definitions such as S32_T,
-> etc. However, it wraps at 32767, the next value being 300.
->
-> Does anybody know why it doesn't go to 0x7fffffff and
-> then wrap to the first unused pid value? I know the
-> code "reserves" the first 300 pids. That's not the
-> question. I wonder why. Also I see the code setting
-> the upper limit as well. I want to know why it is
-> set within the range of a short and is not allowed
-> to use the full range of an int. Nothing I see in
-> the kernel, related to the pid, ever uses a short
-> and no 'C' runtime interface limits this either!
+Yipp, didn't want to state the obvious, but also give Kirrill a chance
+to explain how its done in OpenVZ.
 
-I have a vague memory about some old kernel interfaces
-where pid was a short.  That said 32768 is also the number
-of bits in a page so it is a very good number for the bitmap
-allocator we currently have.
+Ultimately, the same "partitioning" that works on vps_info, should work
+on pspace.
 
-I know for certain that proc assumes it can fit pid in
-the upper bits of an ino_t taking the low 16bits for itself
-so that may the entire reason for the limit.
-
-> Also, attempts to change /proc/sys/kernel/pid_max fail
-> if I attempt to increase it, but I can decrease it
-> to where I don't have enough pids available to fork()
-> the next command! Is this the correct behavior?
-
-You can increase pid_max if you have a 64bit kernel.
-
-Eric
+-- Hubertus
 

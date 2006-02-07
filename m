@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbWBGWV4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbWBGWYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030204AbWBGWV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 17:21:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbWBGWV4
+	id S1030206AbWBGWYA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 17:24:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbWBGWYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 17:21:56 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:57828
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1030204AbWBGWVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 17:21:55 -0500
-Date: Tue, 7 Feb 2006 14:21:44 -0800
-From: Greg KH <greg@kroah.com>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: akpm@osdl.org, paulus@samba.org, torvalds@osdl.org,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, gregkh@suse.de
-Subject: Re: [PATCH]: Documentation: Updated PCI Error Recovery
-Message-ID: <20060207222144.GA15622@kroah.com>
-References: <20060203000602.GQ24916@austin.ibm.com>
-Mime-Version: 1.0
+	Tue, 7 Feb 2006 17:24:00 -0500
+Received: from khc.piap.pl ([195.187.100.11]:13322 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1030206AbWBGWX7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 17:23:59 -0500
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Glen Turner <glen.turner@aarnet.edu.au>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kumar Gala <galak@kernel.crashing.org>, linux-kernel@vger.kernel.org
+Subject: Re: 8250 serial console fixes -- issue
+References: <Pine.LNX.4.44.0602011911360.22854-100000@gate.crashing.org>
+	<1138844838.5557.17.camel@localhost.localdomain>
+	<43E2B8D6.1070707@aarnet.edu.au>
+	<20060203094042.GB30738@flint.arm.linux.org.uk>
+	<20060206202654.GC2470@ucw.cz>
+	<20060206205459.GB9388@flint.arm.linux.org.uk>
+	<20060207091804.GA1840@elf.ucw.cz>
+	<20060207174307.GA26558@flint.arm.linux.org.uk>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Tue, 07 Feb 2006 23:23:54 +0100
+In-Reply-To: <20060207174307.GA26558@flint.arm.linux.org.uk> (Russell King's message of "Tue, 7 Feb 2006 17:43:07 +0000")
+Message-ID: <m364nqn6yt.fsf@defiant.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060203000602.GQ24916@austin.ibm.com>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 02, 2006 at 06:06:02PM -0600, Linas Vepstas wrote:
-> 
-> I'm not sure who I'm addressing this patch to: Linus, maybe?
-> 
-> Please apply. Fingers crossed, I hope this may make it into 2.6.16.
+Russell King <rmk+lkml@arm.linux.org.uk> writes:
 
-This does not apply to the current tree, what kernel did you do it
-against?
+> In that case the problem is unsolvable.  What if I named a process
+>
+> \n+++ATH0\n
+>
+> ?  Oh dear, your modem just hung up.  Or maybe:
+>
+> \n+++AT&C0\n
+>
+> and now your modem always sets DCD active, so even with detection of DCD
+> in the kernel, I can now talk to it via process names after I've forced
+> it to disconnect.
+>
+> And yes, there's modems out there which accept that and act on the '+++'
+> immediately - no pause after '+++' required.
 
-Care to respin it against the latest -git release?
+Correct, but the escape character can usually be disabled with ATS2=128
+or something like that.
 
-thanks,
-
-greg k-h
+The problem was common some time ago with people putting X-header: +++ATH\n
+(or was that +++ATH\r ?) in mail headers.
+-- 
+Krzysztof Halasa

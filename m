@@ -1,88 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965117AbWBGPMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965127AbWBGPPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965117AbWBGPMN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 10:12:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965128AbWBGPMN
+	id S965127AbWBGPPp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 10:15:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbWBGPPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 10:12:13 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:38327 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S965117AbWBGPMN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 10:12:13 -0500
-In-Reply-To: <Pine.LNX.4.44.0602070848060.4804-100000@gate.crashing.org>
-References: <Pine.LNX.4.44.0602070848060.4804-100000@gate.crashing.org>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <473E72E7-9366-442A-95B7-F4A7CB15C04E@kernel.crashing.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [PATCH] 8250 serial console update uart_8250_port ier
-Date: Tue, 7 Feb 2006 09:12:10 -0600
-To: rmk+serial@arm.linux.org.uk
-X-Mailer: Apple Mail (2.746.2)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 7 Feb 2006 10:15:45 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:35702 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S965127AbWBGPPo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 10:15:44 -0500
+Date: Tue, 7 Feb 2006 16:15:41 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Eric Dumazet <dada1@cosmosbay.com>,
+       "David S. Miller" <davem@davemloft.net>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Ingo Molnar <mingo@elte.hu>, Jens Axboe <axboe@suse.de>,
+       Anton Blanchard <anton@samba.org>, William Irwin <wli@holomorphy.com>,
+       Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
+Message-ID: <20060207151541.GA32139@osiris.boeblingen.de.ibm.com>
+References: <200602051959.k15JxoHK001630@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602051959.k15JxoHK001630@hera.kernel.org>
+User-Agent: mutt-ng/devel (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell,
+> tree 8c30052a0d7fadec37c785a42a71b28d0a9c5fcf
+> parent cef5076987dd545ac74f4efcf1c962be8eac34b0
+> author Eric Dumazet <dada1@cosmosbay.com> Sun, 05 Feb 2006 15:27:36 -0800
+> committer Linus Torvalds <torvalds@g5.osdl.org> Mon, 06 Feb 2006 03:06:51 -0800
+> 
+> [PATCH] percpu data: only iterate over possible CPUs
+> 
+> percpu_data blindly allocates bootmem memory to store NR_CPUS instances of
+> cpudata, instead of allocating memory only for possible cpus.
+> 
+> As a preparation for changing that, we need to convert various 0 -> NR_CPUS
+> loops to use for_each_cpu().
+> 
+> (The above only applies to users of asm-generic/percpu.h.  powerpc has gone it
+> alone and is presently only allocating memory for present CPUs, so it's
+> currently corrupting memory).
 
-If you are ok with this can we make sure this gets to Linus for 2.6.16
+This patch is broken since it replaces several loops that iterate NR_CPUS
+times with for_each_cpu before cpu_possible_map is setup:
 
-thanks
-
-- kumar
-
-On Feb 7, 2006, at 8:52 AM, Kumar Gala wrote:
-
-> On some embedded PowerPC (MPC834x) systems an extra byte would some  
-> times be
-> required to flush data out of the fifo. serial8250_console_write()  
-> was updating
-> the IER in hardware withouth also updating the copy in  
-> uart_8250_port. This
-> causes issues functions like serial8250_start_tx() and __stop_tx()  
-> to misbehave.
->
-> Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
->
-> ---
-> commit 0614711f0208f50e81d55283add8ae41bc332fc7
-> tree 1da4194744b9ca1fe59976c6ebffccfee40299eb
-> parent 45a38d42185df3e328e35e5167f2bfe181361db9
-> author Kumar Gala <galak@kernel.crashing.org> Tue, 07 Feb 2006  
-> 08:51:26 -0600
-> committer Kumar Gala <galak@kernel.crashing.org> Tue, 07 Feb 2006  
-> 08:51:26 -0600
->
->  drivers/serial/8250.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
->
-> diff --git a/drivers/serial/8250.c b/drivers/serial/8250.c
-> index 179c1f0..b1fc97d 100644
-> --- a/drivers/serial/8250.c
-> +++ b/drivers/serial/8250.c
-> @@ -2229,6 +2229,7 @@ serial8250_console_write(struct console
->  	 *	and restore the IER
->  	 */
->  	wait_for_xmitr(up, BOTH_EMPTY);
-> +	up->ier |= UART_IER_THRI;
->  	serial_out(up, UART_IER, ier | UART_IER_THRI);
+> --- a/fs/file.c
+> +++ b/fs/file.c
+> @@ -379,7 +379,6 @@ static void __devinit fdtable_defer_list
+>  void __init files_defer_init(void)
+>  {
+>  	int i;
+> -	/* Really early - can't use for_each_cpu */
+> -	for (i = 0; i < NR_CPUS; i++)
+> +	for_each_cpu(i)
+>  		fdtable_defer_list_init(i);
 >  }
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux- 
-> kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
+The old comment indicates it: called before smp_prepare_cpus gets called
+which sets up cpu_possible_map.
+
+> diff --git a/kernel/sched.c b/kernel/sched.c
+> index f77f23f..839466f 100644
+> --- a/kernel/sched.c
+> +++ b/kernel/sched.c
+> @@ -6109,7 +6109,7 @@ void __init sched_init(void)
+>  	runqueue_t *rq;
+>  	int i, j, k;
+>  
+> -	for (i = 0; i < NR_CPUS; i++) {
+> +	for_each_cpu(i) {
+>  		prio_array_t *array;
+
+Same here.
+
+I didn't check the rest, but it looks like we end up with a bit of
+uninitialized stuff.
+
+Heiko

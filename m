@@ -1,37 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965114AbWBGO6b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbWBGPAd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965114AbWBGO6b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 09:58:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965111AbWBGO6b
+	id S965115AbWBGPAd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 10:00:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbWBGPAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 09:58:31 -0500
-Received: from mx2.suse.de ([195.135.220.15]:24782 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965114AbWBGO6b (ORCPT
+	Tue, 7 Feb 2006 10:00:32 -0500
+Received: from gate.crashing.org ([63.228.1.57]:5532 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S965115AbWBGPAc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 09:58:31 -0500
-From: Andi Kleen <ak@suse.de>
-To: john.blackwood@ccur.com
-Subject: Re: CONFIG_K8_NUMA x86_64 no-memory node bug
-Date: Tue, 7 Feb 2006 15:51:56 +0100
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, bugsy@ccur.com
-References: <43E13273.5020202@ccur.com>
-In-Reply-To: <43E13273.5020202@ccur.com>
+	Tue, 7 Feb 2006 10:00:32 -0500
+Date: Tue, 7 Feb 2006 08:52:03 -0600 (CST)
+From: Kumar Gala <galak@kernel.crashing.org>
+X-X-Sender: galak@gate.crashing.org
+To: rmk+serial@arm.linux.org.uk
+cc: alan@lxorguk.ukuu.org.uk, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 8250 serial console update uart_8250_port ier
+Message-ID: <Pine.LNX.4.44.0602070848060.4804-100000@gate.crashing.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602071551.56602.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On some embedded PowerPC (MPC834x) systems an extra byte would some times be
+required to flush data out of the fifo. serial8250_console_write() was updating
+the IER in hardware withouth also updating the copy in uart_8250_port. This
+causes issues functions like serial8250_start_tx() and __stop_tx() to misbehave.
 
-John,
+Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
 
-Can you please double check if the problem is still there in the latest 2.6.16-rc2-git* 
-kernel? I fixed a couple of SRAT issues in there and at least one change could 
-have fixed your problem too.
+---
+commit 0614711f0208f50e81d55283add8ae41bc332fc7
+tree 1da4194744b9ca1fe59976c6ebffccfee40299eb
+parent 45a38d42185df3e328e35e5167f2bfe181361db9
+author Kumar Gala <galak@kernel.crashing.org> Tue, 07 Feb 2006 08:51:26 -0600
+committer Kumar Gala <galak@kernel.crashing.org> Tue, 07 Feb 2006 08:51:26 -0600
 
-Thanks,
--Andi
+ drivers/serial/8250.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/serial/8250.c b/drivers/serial/8250.c
+index 179c1f0..b1fc97d 100644
+--- a/drivers/serial/8250.c
++++ b/drivers/serial/8250.c
+@@ -2229,6 +2229,7 @@ serial8250_console_write(struct console 
+ 	 *	and restore the IER
+ 	 */
+ 	wait_for_xmitr(up, BOTH_EMPTY);
++	up->ier |= UART_IER_THRI;
+ 	serial_out(up, UART_IER, ier | UART_IER_THRI);
+ }
+ 
+

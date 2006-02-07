@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965142AbWBGPth@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965146AbWBGPzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965142AbWBGPth (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 10:49:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965143AbWBGPth
+	id S965146AbWBGPzW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 10:55:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbWBGPzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 10:49:37 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29673 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S965142AbWBGPtf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 10:49:35 -0500
-Date: Tue, 7 Feb 2006 16:49:19 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Jim Crilly <jim@why.dont.jablowme.net>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Nigel Cunningham <nigel@suspend2.net>,
-       suspend2-devel@lists.suspend2.net, linux-kernel@vger.kernel.org
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060207154919.GA2753@elf.ucw.cz>
-References: <200602070625.49479.nigel@suspend2.net> <200602070051.41448.rjw@sisk.pl> <20060207003713.GB31153@voodoo> <20060207004611.GD1575@elf.ucw.cz> <20060207005930.GD31153@voodoo> <1139275143.2041.24.camel@mindpipe> <20060207030129.GA23860@mail> <1139282224.2041.48.camel@mindpipe> <20060207093317.GB1742@elf.ucw.cz> <1139327268.2041.84.camel@mindpipe>
+	Tue, 7 Feb 2006 10:55:22 -0500
+Received: from 217-133-42-200.b2b.tiscali.it ([217.133.42.200]:50960 "EHLO
+	opteron.random") by vger.kernel.org with ESMTP id S965146AbWBGPzU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 10:55:20 -0500
+Date: Tue, 7 Feb 2006 16:55:11 +0100
+From: Andrea Arcangeli <andrea@cpushare.com>
+To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: Linux 2.6.15.2
+Message-ID: <20060207155511.GD21873@opteron.random>
+References: <19210076647.20060131153123@dns.toxicfilms.tv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1139327268.2041.84.camel@mindpipe>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <19210076647.20060131153123@dns.toxicfilms.tv>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Út 07-02-06 10:47:48, Lee Revell wrote:
-> On Tue, 2006-02-07 at 10:33 +0100, Pavel Machek wrote:
-> > > Unless someone at least gives a rough estimate of 1) what % of users
-> > > can't suspend their laptops now and 2) of these, what % are helped
-> > by
-> > > suspend2, this thread is just handwaving...
-> > 
-> > and 3) for what % of users, suspend2 will actually break it (bugs
-> > happen).
-> > 
-> > Anyway it seems to be something like 1) 90% 2) 1% 3) .5% 
+On Tue, Jan 31, 2006 at 03:31:23PM +0100, Maciej Soltysiak wrote:
+> Andrea Arcangeli's klive could some day be a measure of the bug-affected
+> fraction. If it already is not. Klive reports hardware setups
+> and configuration. I am not sure if it is available somehow but
+> maybe it would be nice to query klive database in an SQL manner?
 > 
-> Presumably you mean 90% *can* suspend with mainline?
+> > SELECT COUNT(*) from hosts WHERE kernel = "2.6.15" and config_scsi = 'y'
+> and ...;
+> > 3089
 
-Yes, sorry.
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+The problem of querying with sql is just a matter of security. You can
+build complex queries that may turn off a db server (I learnt the hard
+way what happens with LIKE '%% preemptive %%', for whatever reason pgsql
+has an heuristic that assumes long strings will be very selective in
+LIKE statements and they will return very little results, but of course
+it's impossible to predict that without analyzing the dataset too, in
+the preemptive case lots of data is returned...).
+
+If there's demand for the above, I'd rather prefer to export the whole
+sql database and to upload it on ftp.kernel.org, so you can import it
+with psql -i.  So you can import it locally and run your queries and
+stats locally (anonymously too). I know this is less handy than querying
+on the web, but unless you've a spare crashable box to offer, I'm not
+willing to put my server at risk (also given I've commercial
+applications running on it and not only KLive ;).
+
+The KLive data is meant to be public. The website publishes most of it
+already in a handy browsable form. The only thing that is private are
+the ip addresses, and those should be filtered out before exporting.

@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbWBGBgD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbWBGBhj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964923AbWBGBgD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 20:36:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWBGBgD
+	id S932438AbWBGBhj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 20:37:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbWBGBhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 20:36:03 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:14721 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932441AbWBGBgA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 20:36:00 -0500
-Date: Mon, 6 Feb 2006 17:42:41 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: torvalds@osdl.org
-Subject: Re: Linux 2.6.15.3
-Message-ID: <20060207014241.GD4483@sorel.sous-sol.org>
-References: <20060207014122.GC4483@sorel.sous-sol.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060207014122.GC4483@sorel.sous-sol.org>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 6 Feb 2006 20:37:39 -0500
+Received: from quechua.inka.de ([193.197.184.2]:42462 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S932438AbWBGBhi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 20:37:38 -0500
+From: be-news06@lina.inka.de (Bernd Eckenfels)
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm: implement swap prefetching
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <20060206163842.7ff70c49.akpm@osdl.org>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
+Message-Id: <E1F6HnU-0000TT-00@calista.inka.de>
+Date: Tue, 07 Feb 2006 02:37:36 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 76a00d4..a88ae43 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 6
- SUBLEVEL = 15
--EXTRAVERSION = .2
-+EXTRAVERSION = .3
- NAME=Sliding Snow Leopard
- 
- # *DOCUMENTATION*
-diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
-index 92e23b2..84de934 100644
---- a/net/ipv4/icmp.c
-+++ b/net/ipv4/icmp.c
-@@ -524,7 +524,7 @@ void icmp_send(struct sk_buff *skb_in, i
- 					  iph->tos;
- 
- 	if (ip_options_echo(&icmp_param.replyopts, skb_in))
--		goto ende;
-+		goto out_unlock;
- 
- 
- 	/*
+Andrew Morton <akpm@osdl.org> wrote:
+>> +/*
+>> + * How many pages to prefetch at a time. We prefetch SWAP_CLUSTER_MAX *
+>> + * swap_prefetch per PREFETCH_INTERVAL, but prefetch ten times as much at a
+>> + * time in laptop_mode to minimise the time we keep the disk spinning.
+>> + */
+>> +static inline unsigned long prefetch_pages(void)
+>> +{
+>> +     return (SWAP_CLUSTER_MAX * swap_prefetch * (1 + 9 * !!laptop_mode));
+>> +}
+> 
+> I don't think this should be done in-kernel.  There's a nice script to
+> start and stop laptop mode.  We can make this decision in that script.
+
+I agree, the default could be depending on laptop mode, but if a value is
+specified or changed by sysctl, it should not be automatically tuned (in
+that case)
+
+Gruss
+Bernd

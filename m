@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWBGSlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbWBGSos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbWBGSlF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 13:41:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbWBGSlF
+	id S964875AbWBGSos (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 13:44:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbWBGSos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 13:41:05 -0500
-Received: from dsl092-000-086.sfo1.dsl.speakeasy.net ([66.92.0.86]:55974 "EHLO
-	tumblerings.org") by vger.kernel.org with ESMTP id S964857AbWBGSlD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 13:41:03 -0500
-Date: Tue, 7 Feb 2006 10:41:01 -0800
-From: Zack Brown <zbrown@tumblerings.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Taking a break from Kernel Traffic
-Message-ID: <20060207184101.GL24430@tumblerings.org>
+	Tue, 7 Feb 2006 13:44:48 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:35517 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964875AbWBGSor (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 13:44:47 -0500
+Date: Tue, 7 Feb 2006 10:43:55 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, dada1@cosmosbay.com,
+       heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org,
+       davem@davemloft.net, James.Bottomley@steeleye.com, mingo@elte.hu,
+       axboe@suse.de, anton@samba.org, wli@holomorphy.com, ak@muc.de
+Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
+In-Reply-To: <20060207183018.GA29056@in.ibm.com>
+Message-ID: <Pine.LNX.4.64.0602071036050.3854@g5.osdl.org>
+References: <200602051959.k15JxoHK001630@hera.kernel.org>
+ <20060207151541.GA32139@osiris.boeblingen.de.ibm.com> <43E8CA10.5070501@cosmosbay.com>
+ <Pine.LNX.4.64.0602070833590.3854@g5.osdl.org> <20060207093458.176ac271.akpm@osdl.org>
+ <Pine.LNX.4.64.0602070946190.3854@g5.osdl.org> <20060207183018.GA29056@in.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
 
-Kernel Traffic has had a bit of an erratic schedule lately, and I finally
-decided to take an official break from it, instead of doing the on-again
-off-again thing I've done for the past 6 months or longer. The lkml traffic
-has grown a lot over the years, and it's finally gotten to be too much for
-me, at least too much to continue KT in its current form. If I do start it
-again at some point, it will probably be quite different from what it has
-been until now.
 
-Be well,
-Zack
+On Wed, 8 Feb 2006, Dipankar Sarma wrote:
+> 
+> One would think so, but I recall not all archs did that. Alpha for
+> example sets up cpu_possible_map in smp_prepare_cpus(). It however
+> makes more sense to fix the arch then use NR_CPUS, IMO.
 
--- 
-Zack Brown
+Ehh? alpha does it in setup_smp(), which in turn is called very early from 
+setup_arch().
 
+Were you perhaps thinking of something else? Or am I just going blind and 
+confused?
+
+		Linus

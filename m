@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWBGW5l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030227AbWBGW5y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbWBGW5l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 17:57:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWBGW5U
+	id S1030227AbWBGW5y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 17:57:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbWBGW5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 17:57:20 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:17564 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030229AbWBGW5T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 17:57:19 -0500
-Date: Tue, 7 Feb 2006 14:59:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Neal Becker <ndbecker2@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: 2.6.16-rc1 panic on startup (acpi)
-Message-Id: <20060207145913.714fec1c.akpm@osdl.org>
-In-Reply-To: <ds7f17$gp7$1@sea.gmane.org>
-References: <ds7cu3$9c0$1@sea.gmane.org>
-	<ds7f17$gp7$1@sea.gmane.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Tue, 7 Feb 2006 17:57:53 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:9344
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030227AbWBGW5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 17:57:52 -0500
+Date: Tue, 07 Feb 2006 14:57:25 -0800 (PST)
+Message-Id: <20060207.145725.22157385.davem@davemloft.net>
+To: heiko.carstens@de.ibm.com
+Cc: sfr@canb.auug.org.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, ak@suse.de, linuxppc64-dev@ozlabs.org,
+       paulus@samba.org
+Subject: Re: [PATCH] compat: add compat functions for *at syscalls
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060207132949.GB9311@osiris.boeblingen.de.ibm.com>
+References: <20060207174017.5e3b0ce0.sfr@canb.auug.org.au>
+	<20060207093154.GA9311@osiris.boeblingen.de.ibm.com>
+	<20060207132949.GB9311@osiris.boeblingen.de.ibm.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neal Becker <ndbecker2@gmail.com> wrote:
->
-> Sorry, I meant 2.6.16-rc1 (not 2.6.12)
-> 
-> Neal Becker wrote:
-> 
-> > HP dv8000 notebook
-> > 2.6.15 is fine, but 2.6.12-rc1 panics immediately on startup
-> > 
-> > Here is a picture of some traceback
-> > https://bugzilla.redhat.com/bugzilla/attachment.cgi?id=124152&action=view
-> 
-> 
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Date: Tue, 7 Feb 2006 14:29:49 +0100
 
-It died in pci_mmcfg_read().  Greg, didn't a crash in there get fixed recently?
+> Ah, stupid me... the SARG define defines assembly code of course. Just
+> that we would need different defines for arguments that are in registers
+> or on the stack. Is s390 the only architecture that has argument six on
+> the stack?
 
-Neal, booting with `vga=extended' or similar will help prevent the oops
-from scrolling off the display.
+If I remember correctly, o32 mips binaries put arg 6 on the stack
+too.

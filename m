@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932457AbWBGJka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbWBGJky@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932457AbWBGJka (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 04:40:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbWBGJka
+	id S932461AbWBGJky (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 04:40:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbWBGJkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 04:40:30 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:62363 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932457AbWBGJk3 (ORCPT
+	Tue, 7 Feb 2006 04:40:53 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:1180 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932461AbWBGJkg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 04:40:29 -0500
+	Tue, 7 Feb 2006 04:40:36 -0500
 From: Andi Kleen <ak@suse.de>
-To: ltuikov@yahoo.com
-Subject: Re: [PATCH] x86-64: improve the format of stack dumps
-Date: Tue, 7 Feb 2006 10:20:47 +0100
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] compat: add compat functions for *at syscalls
+Date: Tue, 7 Feb 2006 10:39:52 +0100
 User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, rdunlap@xenotime.net, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-References: <20060207051352.11432.qmail@web31802.mail.mud.yahoo.com>
-In-Reply-To: <20060207051352.11432.qmail@web31802.mail.mud.yahoo.com>
+Cc: sfr@canb.auug.org.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+References: <20060207105631.39a1080c.sfr@canb.auug.org.au> <20060207112713.7cd0a61c.sfr@canb.auug.org.au> <20060207.004301.35467668.davem@davemloft.net>
+In-Reply-To: <20060207.004301.35467668.davem@davemloft.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200602071020.47999.ak@suse.de>
+Message-Id: <200602071039.52490.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 February 2006 06:13, Luben Tuikov wrote:
-> Improve the format of stack dumps for x86-64.
-> * Single column of stack entries. (similar to other arches)
+On Tuesday 07 February 2006 09:43, David S. Miller wrote:
 
-I don't like that part as I wrote earlier.It's a waste of precious
-screen space, no matter how often you retransmit the patch.  The old
-format had a chance to even fit on a 80x25 screen, with your new one
-it is extremly unlikely.
+> 
+> The alternative suggestions get less and less efficient :-) My whole
+> desire is to optimize this as much as possible, without the overhead
+> of an extra stack frame or "is_compat_task()" kinds of runtime tests.
 
-Overall you're making less information available in a common case
-for cosmetics.
+My impression is you're doing a lot of ugly code here just to 
+work around some pecularity of the sparc gcc. 
 
 -Andi

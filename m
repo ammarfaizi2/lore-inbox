@@ -1,402 +1,180 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbWBGGlG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWBGGvd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932439AbWBGGlG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 01:41:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbWBGGlG
+	id S932453AbWBGGvd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 01:51:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWBGGvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 01:41:06 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:58333 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S932439AbWBGGlE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 01:41:04 -0500
-Date: Tue, 7 Feb 2006 17:40:17 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org, ak@suse.de,
-       linuxppc64-dev@ozlabs.org, paulus@samba.org
-Subject: Re: [PATCH] compat: add compat functions for *at syscalls
-Message-Id: <20060207174017.5e3b0ce0.sfr@canb.auug.org.au>
-In-Reply-To: <20060206.160140.59716704.davem@davemloft.net>
-References: <20060207105631.39a1080c.sfr@canb.auug.org.au>
-	<20060206.160140.59716704.davem@davemloft.net>
-X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Tue__7_Feb_2006_17_40_17_+1100_vv37rgNvp=ri.2En"
+	Tue, 7 Feb 2006 01:51:33 -0500
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:42081 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932453AbWBGGvc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 01:51:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=fLcSXClu+qniBLmtgI9wlK3z+NN6VwQdN2N/CIQO/Kf1Ru4hykLF4ffyq+inS4hEnzxNAuKeXuLm25xRlW5TiIU58AhGm+XvgWoWkGEkmRMjTi1/zC1uWfJbAczmuZ8MLdxDjsY1hTwlwdUhLzrYBUvaPYcT7xjZgSZazPvxeQE=  ;
+Message-ID: <43E8436F.2010909@yahoo.com.au>
+Date: Tue, 07 Feb 2006 17:51:27 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Andrew Morton <akpm@osdl.org>, ck@vds.kolivas.org
+Subject: Re: [PATCH] mm: implement swap prefetching
+References: <200602071028.30721.kernel@kolivas.org> <200602071502.41456.kernel@kolivas.org> <43E82979.7040501@yahoo.com.au> <200602071702.20233.kernel@kolivas.org>
+In-Reply-To: <200602071702.20233.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Tue__7_Feb_2006_17_40_17_+1100_vv37rgNvp=ri.2En
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Con Kolivas wrote:
+> On Tue, 7 Feb 2006 04:00 pm, Nick Piggin wrote:
+> 
+>>Con Kolivas wrote:
+>>
+>>>On Tue, 7 Feb 2006 02:08 pm, Nick Piggin wrote:
+>>>
+>>>>prefetch_get_page is doing funny things with zones and nodes / zonelists
+>>>>(eg. 'We don't prefetch into DMA' meaning something like 'this only works
+>>>>on i386 and x86-64').
+>>>
+>>>Hrm? It's just a generic thing to do; I'm not sure I follow why it's i386
+>>>and x86-64 only. Every architecture has ZONE_NORMAL so it will prefetch
+>>>there.
+>>
+>>I don't think every architecture has ZONE_NORMAL.
+> 
+> 
+> !ZONE_DMA they all have, no?
+> 
 
-On Mon, 06 Feb 2006 16:01:40 -0800 (PST) "David S. Miller" <davem@davemloft=
-.net> wrote:
->
-> From: Stephen Rothwell <sfr@canb.auug.org.au>
-> Date: Tue, 7 Feb 2006 10:56:31 +1100
->=20
-> > This adds compat version of all the remaining *at syscalls
-> > so that the "dfd" arguments can be properly sign extended.
-> >=20
-> > Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
->=20
-> I do the sign extension with tiny stubs in arch/sparc64/kernel/sys32.S
-> so that the arg frobbing does not consume a stack frame, which is what
-> happens if you do this in C code.
->=20
-> We need to revisit this at some point and make a way for all
-> compat platforms to do this with a portable table of some kind
-> that expands a bunch of macros defined by the platform.
+Don't think so. IIRC ppc64 has only ZONE_DMA although may have picked up
+DMA32 now (/me boots the G5). IA64 I think have 4GB ZONE_DMA so smaller
+systems won't have any other zones.
 
-How about the following (modifiying Linus' suggestion and copying what
-sparc64 already does)?
+On small memory systems, ZONE_DMA will be a significant portion of memory
+too (but maybe you're not targetting them either).
 
-The assumption is that all arguments have been zero extended by the compat
-syscall entry code, so we just sign extend those that need it.
+>>If you omit __GFP_WAIT and already test the watermarks yourself it should
+>>be OK.
+> 
+> 
+> Ok.
+> 
+> 
 
-I am not sure of the sparc64 code below, s390 doesn't seem to follow our
-"all arguments are zero extended" assumption and x86_64 may not need any
-of these wrappers anyway.
+Note, it may dip lower than we would like, but the watermark checking is
+already completely racy anyway so it is possible that that will happen
+anyway.
 
-It may be that we would be better following Linus's suggestion of
-generating stubs for all of the compat syscalls.
+>>Workstations can have 2 or more dual core CPUs with multiple threads or
+>>NUMA these days. Desktops and laptops will probably eventually gain more
+>>cores and threads too.
+> 
+> 
+> While I am aware of the hardware changes out there I still doubt the 
+> scalability issues you're concerned about affect a desktop. The code cost and 
+> complexity will increase substantially yet I'm not sure that will be for any 
+> gain to the targetted users.
+> 
 
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Possibly. Why wouldn't you want swap prefetching on servers though?
+Especially on some kind of shell server, or other internet server
+where load could be really varied.
 
-Subject: [PATCH] compat: introduce kernel/compat_wrapper.S
+> 
+>>>>Why bother with the trylocks? On many architectures they'll RMW the
+>>>>cacheline anyway, so scalability isn't going to be much improved (or do
+>>>>you see big lock contention?)
+>>>
+>>>Rather than scalability concerns per se the trylock is used as yet
+>>>another (admittedly rarely hit) way of defining busy.
+>>
+>>They just seem to complicate the code for apparently little gain.
+> 
+> 
+> No biggie; I'll drop them.
+> 
 
-and the necessary compat_wrapper.h with implementations
-for powerpc and sparc64.
+That's what I'd do for now. A concurrent spin_lock could hit right after
+the trylock takes the lock anyway...
 
-compat_wrapper.S builds wrappers for those syscalls that
-require sign extension for some of their arguments.
+> 
+>>>The code is pretty aggressive at defining busy. It looks for pretty much
+>>>all of those and it prefetches till it stops then allowing idle to occur
+>>>again. Opting out of prefetching whenever there is doubt seems reasonable
+>>>to me.
+>>
+>>What if you want to prefetch when there is slight activity going on though?
+> 
+> 
+> I don't. I want this to not cost us anything during any activity.
+> 
 
-Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+So if you have say some networking running (p2p or something), then it
+may not ever prefetch?
 
----
+> 
+>>What if your pagecache has filled memory with useless stuff (which would
+>>appear to be the case with updatedb). 
+> 
+> 
+> There is no way the vm will ever be smart enough to say "this is crap, throw 
+> it out and prefetch some good stuff", so it doesn't matter.
+> 
 
- arch/sparc64/kernel/systbls.S        |    6 +++---
- include/asm-ia64/compat_wrapper.h    |   15 +++++++++++++++
- include/asm-mips/compat_wrapper.h    |   15 +++++++++++++++
- include/asm-parisc/compat_wrapper.h  |   15 +++++++++++++++
- include/asm-powerpc/compat_wrapper.h |   28 ++++++++++++++++++++++++++++
- include/asm-s390/compat_wrapper.h    |   15 +++++++++++++++
- include/asm-sparc64/compat_wrapper.h |   33 ++++++++++++++++++++++++++++++=
-+++
- include/asm-x86_64/compat_wrapper.h  |   15 +++++++++++++++
- include/linux/compat.h               |   22 ++++++++++++++++++++++
- kernel/Makefile                      |    2 +-
- kernel/compat_wrapper.S              |   18 ++++++++++++++++++
- 11 files changed, 180 insertions(+), 4 deletions(-)
- create mode 100644 include/asm-ia64/compat_wrapper.h
- create mode 100644 include/asm-mips/compat_wrapper.h
- create mode 100644 include/asm-parisc/compat_wrapper.h
- create mode 100644 include/asm-powerpc/compat_wrapper.h
- create mode 100644 include/asm-s390/compat_wrapper.h
- create mode 100644 include/asm-sparc64/compat_wrapper.h
- create mode 100644 include/asm-x86_64/compat_wrapper.h
- create mode 100644 kernel/compat_wrapper.S
+It can do a lot better about throwing out updatedb type stuff.
 
-1cffeae9ae628af849952cf90fbfca1d98befb97
-diff --git a/arch/sparc64/kernel/systbls.S b/arch/sparc64/kernel/systbls.S
-index 2881faf..a2cc631 100644
---- a/arch/sparc64/kernel/systbls.S
-+++ b/arch/sparc64/kernel/systbls.S
-@@ -77,9 +77,9 @@ sys_call_table32:
- /*270*/	.word sys32_io_submit, sys_io_cancel, compat_sys_io_getevents, sys=
-32_mq_open, sys_mq_unlink
- 	.word compat_sys_mq_timedsend, compat_sys_mq_timedreceive, compat_sys_mq_=
-notify, compat_sys_mq_getsetattr, compat_sys_waitid
- /*280*/	.word sys_ni_syscall, sys_add_key, sys_request_key, sys_keyctl, co=
-mpat_sys_openat
--	.word sys_mkdirat, sys_mknodat, sys_fchownat, compat_sys_futimesat, compa=
-t_sys_newfstatat
--/*285*/	.word sys_unlinkat, sys_renameat, sys_linkat, sys_symlinkat, sys_r=
-eadlinkat
--	.word sys_fchmodat, sys_faccessat, compat_sys_pselect6, compat_sys_ppoll
-+	.word compat_sys_mkdirat, compat_sys_mknodat, compat_sys_fchownat, compat=
-_sys_futimesat, compat_sys_newfstatat
-+/*285*/	.word compat_sys_unlinkat, compat_sys_renameat, compat_sys_linkat,=
- compat_sys_symlinkat, compat_sys_readlinkat
-+	.word compat_sys_fchmodat, compat_sys_faccessat, compat_sys_pselect6, com=
-pat_sys_ppoll
-=20
- #endif /* CONFIG_COMPAT */
-=20
-diff --git a/include/asm-ia64/compat_wrapper.h b/include/asm-ia64/compat_wr=
-apper.h
-new file mode 100644
-index 0000000..f82befc
---- /dev/null
-+++ b/include/asm-ia64/compat_wrapper.h
-@@ -0,0 +1,15 @@
-+/*
-+ * Definitions used to generate the sign extending stubs
-+ * for compat syscalls
-+ */
-+
-+#define ARG1
-+#define ARG2
-+#define ARG3
-+#define ARG4
-+#define ARG5
-+#define ARG6
-+
-+#define compat_fn1(fn, arg)
-+
-+#define compat_fn2(fn, arg1, arg2)
-diff --git a/include/asm-mips/compat_wrapper.h b/include/asm-mips/compat_wr=
-apper.h
-new file mode 100644
-index 0000000..f82befc
---- /dev/null
-+++ b/include/asm-mips/compat_wrapper.h
-@@ -0,0 +1,15 @@
-+/*
-+ * Definitions used to generate the sign extending stubs
-+ * for compat syscalls
-+ */
-+
-+#define ARG1
-+#define ARG2
-+#define ARG3
-+#define ARG4
-+#define ARG5
-+#define ARG6
-+
-+#define compat_fn1(fn, arg)
-+
-+#define compat_fn2(fn, arg1, arg2)
-diff --git a/include/asm-parisc/compat_wrapper.h b/include/asm-parisc/compa=
-t_wrapper.h
-new file mode 100644
-index 0000000..f82befc
---- /dev/null
-+++ b/include/asm-parisc/compat_wrapper.h
-@@ -0,0 +1,15 @@
-+/*
-+ * Definitions used to generate the sign extending stubs
-+ * for compat syscalls
-+ */
-+
-+#define ARG1
-+#define ARG2
-+#define ARG3
-+#define ARG4
-+#define ARG5
-+#define ARG6
-+
-+#define compat_fn1(fn, arg)
-+
-+#define compat_fn2(fn, arg1, arg2)
-diff --git a/include/asm-powerpc/compat_wrapper.h b/include/asm-powerpc/com=
-pat_wrapper.h
-new file mode 100644
-index 0000000..9bc0669
---- /dev/null
-+++ b/include/asm-powerpc/compat_wrapper.h
-@@ -0,0 +1,28 @@
-+/*
-+ * Definitions used to generate the sign extending stubs
-+ * for compat syscalls
-+ *
-+ * Copyright (C) 2006 Stephen Rothwell, IBM Corp
-+ */
-+
-+#define ARG1	%r3
-+#define ARG2	%r4
-+#define ARG3	%r5
-+#define ARG4	%r6
-+#define ARG5	%r7
-+#define ARG6	%r8
-+
-+#define compat_fn1(fn, arg)		\
-+	.text;				\
-+	.global	.compat_sys_ ## fn;	\
-+.compat_sys_ ## fn:			\
-+	extsw	arg, arg;		\
-+	b	.sys_ ## fn
-+
-+#define compat_fn2(fn, arg1, arg2)	\
-+	.text;				\
-+	.global	.compat_sys_ ## fn;	\
-+.compat_sys_ ## fn:			\
-+	extsw	arg1, arg1;		\
-+	extsw	arg2, arg2;		\
-+	b	.sys_ ## fn
-diff --git a/include/asm-s390/compat_wrapper.h b/include/asm-s390/compat_wr=
-apper.h
-new file mode 100644
-index 0000000..f82befc
---- /dev/null
-+++ b/include/asm-s390/compat_wrapper.h
-@@ -0,0 +1,15 @@
-+/*
-+ * Definitions used to generate the sign extending stubs
-+ * for compat syscalls
-+ */
-+
-+#define ARG1
-+#define ARG2
-+#define ARG3
-+#define ARG4
-+#define ARG5
-+#define ARG6
-+
-+#define compat_fn1(fn, arg)
-+
-+#define compat_fn2(fn, arg1, arg2)
-diff --git a/include/asm-sparc64/compat_wrapper.h b/include/asm-sparc64/com=
-pat_wrapper.h
-new file mode 100644
-index 0000000..42afb2c
---- /dev/null
-+++ b/include/asm-sparc64/compat_wrapper.h
-@@ -0,0 +1,33 @@
-+/*
-+ * Definitions used to generate the sign extending stubs
-+ * for compat syscalls
-+ *
-+ * Copyright (C) 2006 Stephen Rothwell, IBM Corp
-+ * Based on arch/sparc64/kernel/sys32.S
-+ */
-+
-+#define ARG1	%o0
-+#define ARG2	%o1
-+#define ARG3	%o2
-+#define ARG4	%o3
-+#define ARG5	%o4
-+#define ARG6	%o5
-+
-+#define compat_fn1(fn, arg)			\
-+	.text;					\
-+	.align	32;				\
-+	.globl	compat_sys_ ## fn;		\
-+compat_sys_ ## fn:				\
-+	sethi	%hi(sys_ ## fn), %g1;		\
-+	jmpl	%g1 + %lo(sys_ ## fn), %g0;	\
-+	sra	arg, 0, arg
-+
-+#define compat_fn2(fn, arg1, arg2)		\
-+	.text;					\
-+	.align	32;				\
-+	.globl	compat_sys_ ## fn;		\
-+compat_sys_ ## fn:				\
-+	sethi	%hi(sys_ ## fn), %g1;		\
-+	sra	arg1, 0, arg1;			\
-+	jmpl	%g1 + %lo(sys_ ## fn), %g0;	\
-+	sra	arg2, 0, arg2
-diff --git a/include/asm-x86_64/compat_wrapper.h b/include/asm-x86_64/compa=
-t_wrapper.h
-new file mode 100644
-index 0000000..f82befc
---- /dev/null
-+++ b/include/asm-x86_64/compat_wrapper.h
-@@ -0,0 +1,15 @@
-+/*
-+ * Definitions used to generate the sign extending stubs
-+ * for compat syscalls
-+ */
-+
-+#define ARG1
-+#define ARG2
-+#define ARG3
-+#define ARG4
-+#define ARG5
-+#define ARG6
-+
-+#define compat_fn1(fn, arg)
-+
-+#define compat_fn2(fn, arg1, arg2)
-diff --git a/include/linux/compat.h b/include/linux/compat.h
-index 2d7e7f1..b501201 100644
---- a/include/linux/compat.h
-+++ b/include/linux/compat.h
-@@ -168,6 +168,28 @@ asmlinkage long compat_sys_newfstatat(un
- 				      int flag);
- asmlinkage long compat_sys_openat(unsigned int dfd, const char __user *fil=
-ename,
- 				   int flags, int mode);
-+asmlinkage long compat_sys_mkdirat(unsigned int dfd,
-+		const char __user * pathname, int mode);
-+asmlinkage long compat_sys_mknodat(unsigned int dfd,
-+		const char __user *filename, int mode, unsigned dev);
-+asmlinkage long compat_sys_fchownat(unsigned int dfd,
-+		const char __user *filename, uid_t user, gid_t group, int flag);
-+asmlinkage long compat_sys_unlinkat(unsigned int dfd,
-+		const char __user *pathname, int flag);
-+asmlinkage long compat_sys_renameat(unsigned int olddfd,
-+		const char __user *oldname, unsigned int newdfd,
-+		const char __user *newname);
-+asmlinkage long compat_sys_linkat(unsigned int olddfd,
-+		const char __user *oldname, unsigned int newdfd,
-+		const char __user *newname);
-+asmlinkage long compat_sys_symlinkat(const char __user *oldname,
-+		unsigned int newdfd, const char __user *newname);
-+asmlinkage long compat_sys_readlinkat(unsigned int dfd,
-+		const char __user *path, char __user *buf, int bufsiz);
-+asmlinkage long compat_sys_fchmodat(unsigned int dfd,
-+		const char __user *filename, mode_t mode);
-+asmlinkage long compat_sys_faccessat(unsigned int dfd,
-+		const char __user *filename, int mode);
-=20
- #endif /* CONFIG_COMPAT */
- #endif /* _LINUX_COMPAT_H */
-diff --git a/kernel/Makefile b/kernel/Makefile
-index 4ae0fbd..a0679c4 100644
---- a/kernel/Makefile
-+++ b/kernel/Makefile
-@@ -22,7 +22,7 @@ obj-$(CONFIG_KALLSYMS) +=3D kallsyms.o
- obj-$(CONFIG_PM) +=3D power/
- obj-$(CONFIG_BSD_PROCESS_ACCT) +=3D acct.o
- obj-$(CONFIG_KEXEC) +=3D kexec.o
--obj-$(CONFIG_COMPAT) +=3D compat.o
-+obj-$(CONFIG_COMPAT) +=3D compat.o compat_wrapper.o
- obj-$(CONFIG_CPUSETS) +=3D cpuset.o
- obj-$(CONFIG_IKCONFIG) +=3D configs.o
- obj-$(CONFIG_STOP_MACHINE) +=3D stop_machine.o
-diff --git a/kernel/compat_wrapper.S b/kernel/compat_wrapper.S
-new file mode 100644
-index 0000000..da009eb
---- /dev/null
-+++ b/kernel/compat_wrapper.S
-@@ -0,0 +1,18 @@
-+/*
-+ * Copyright (C) 2006 Stephen Rothwell, IBM Corp
-+ *
-+ * this file will generate compat_ wrapper functions for
-+ * syscalls that need sign extension for some of their arguments
-+ */
-+#include <asm/compat_wrapper.h>
-+
-+compat_fn1(mkdirat, ARG1)
-+compat_fn1(mknodat, ARG1)
-+compat_fn1(fchownat, ARG1)
-+compat_fn1(unlinkat, ARG1)
-+compat_fn2(renameat, ARG1, ARG3)
-+compat_fn2(linkat, ARG1, ARG3)
-+compat_fn1(symlinkat, ARG2)
-+compat_fn1(readlinkat, ARG1)
-+compat_fn1(fchmodat, ARG1)
-+compat_fn1(faccessat, ARG1)
---=20
-1.1.5
+Actually I had thought the point of this was to page in stuff after the
+updatedb run, but it would appear that it won't do this because updatedb
+will leave the pagecache full...
 
---Signature=_Tue__7_Feb_2006_17_40_17_+1100_vv37rgNvp=ri.2En
-Content-Type: application/pgp-signature
+>>>>- for all its efforts, it will still interact with page reclaim by
+>>>>  putting pages on the LRU and causing them to be cycled.
+>>>>
+>>>>  - on bursty loads, this cycling could happen a bit. and more reads on
+>>>>    the swap devices.
+>>>
+>>>Theoretically yes I agree. The definition of busy is so broad that
+>>>prevents it prefetching that it is not significant.
+>>
+>>Not if the workload is very bursty.
+> 
+> 
+> It's an either/or for prefetching; I don't see a workaround, just some sane 
+> balance.
+> 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+Makes improving the rest of the VM for desktop users harder, no matter
+how sane. Though I can't deny it is potentially an improvement itself
+either.
 
-iD8DBQFD6EDRFdBgD/zoJvwRAlbfAJ42PJY+ztnGoYMrLPTMzJAp2/dHfQCfQAmZ
-i5rpgmlx01GAzB3/KzMAOcQ=
-=k02l
------END PGP SIGNATURE-----
+>>Any code in a core system is intrusive by definition because it simply
+>>adds to the amount of work that needs to be done when maintaining the
+>>thing or trying to understand how things work, debugging people's badly
+>>behaving workloads, etc.
+> 
+> 
+> I'm open to code suggestions and appreciate any outside help.
+> 
 
---Signature=_Tue__7_Feb_2006_17_40_17_+1100_vv37rgNvp=ri.2En--
+Hopefully you have a bit to go on. I still see difficult problems that
+I'm not sure how can be solved.
+
+> 
+>>If it is going to be off by default, why couldn't they
+>>echo 10 > /proc/sys/vm/swappiness rather than turning it on?
+> 
+> 
+> Because we still swap no matter what the sysctl setting is, which makes it 
+> even more useful in my opinion for those who aggressively set this tunable.
+> 
+
+Sounds like we need to do more basic VM tuning as well.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

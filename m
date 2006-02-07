@@ -1,93 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWBGXi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030284AbWBGXlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932479AbWBGXi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 18:38:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWBGXi7
+	id S1030284AbWBGXlV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 18:41:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030283AbWBGXlU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 18:38:59 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:56943 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932482AbWBGXi6
+	Tue, 7 Feb 2006 18:41:20 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:12531 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030284AbWBGXlT convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 18:38:58 -0500
-Message-ID: <43E92F7D.7030904@google.com>
-Date: Tue, 07 Feb 2006 15:38:37 -0800
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Tue, 7 Feb 2006 18:41:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=sZXGMpFHD2nhIBEborOM+MQ/UlMx8dFQWNPuJ1JPA/JU2WdNQjYorRXS88UhvfflsI/5lMTDOGwer9tVA03o/0xyusRTIp/JgjBkGr/uoqu75otMSFVs4pMjFKnP4IK9eP42m4AuGS7Ge1CUWmkuunZy/euuM6i8hTjEboFMaaA=
+Message-ID: <7f45d9390602071541n65693ae5m7428d59dedcd5ae5@mail.gmail.com>
+Date: Tue, 7 Feb 2006 16:41:16 -0700
+From: Shaun Jackman <sjackman@gmail.com>
+Reply-To: Shaun Jackman <sjackman@gmail.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: Elo touch panel
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060207081415.GA6731@suse.cz>
 MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       apw@uk.ibm.com
-Subject: Re: [PATCH -mm] i386: Don't disable the TSC on single node NUMAQs
-References: <1139351607.10057.223.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1139351607.10057.223.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <7f45d9390602061830k6b984ban6fb302a3089cac6c@mail.gmail.com>
+	 <20060207081415.GA6731@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> 	Currently on NUMAQ hardware we set tsc_disable=1 because on multi-node
-> NUMAQ hardware the TSC is not synced. However, it is safe to use the TSC
-> on single node NUMAQs. Thus this patch only disables the TSC if
-> num_online_nodes() > 1.
-> 
-> This should fix performance issues seen w/ -mm by mbligh on elm3b132
-> (which is a single node NUMAQ). These performance issues originated
-> because with mainline code, the function that disables the TSC runs
-> after time_init, thus the TSC is used regardless, allowing for possible
-> timekeeping errors on multi-node systems.
-> 
-> With my new timekeeping work (in 2.6.16-rc1-mm1,mm2 and mm5), we do not
-> select the TSC until later, so we see the TSC has been disabled and use
-> the slower PIT instead as the original code intends. This caused the
-> performance regression. 
-> 
-> While this patch allows the TSC to be used safely only on single node
-> NUMAQs, multi-node NUMAQs may still see a performance drop from using
-> the PIT, but this is necessary as using unsynched TSCs will result in
-> incorrect timekeeping. 
-> 
-> 
-> For test results, please see the graph:
-> 	http://test.kernel.org/perf/kernbench.elm3b132.png
-> 
-> 2.6.16-rc1-mm5: without this patch
-> 2.6.16-rc1-mm5+p22126: with this patch
-> 
-> 
-> This patch also fixes the typo'ed function name.
-> 
-> thanks
-> -john
-> 
-> Signed-off-by: John Stultz <johnstul@us.ibm.com>
+On 2/7/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> On Mon, Feb 06, 2006 at 07:30:26PM -0700, Shaun Jackman wrote:
+...
+> > I then run...
+> >       $ inputattach -elo /dev/ttyS3
+> > .. at which point dmesg says...
+> >       serio: Serial port ttyS3
+> > but it never gives a message indicating that the Elo driver has been
+> > attached to ttyS3. Is there anything else I must configure?
+>
+> Try to look at /proc/bus/input/devices. The elo_connect() function
+> should get called at the point the port is created. Unfortunately, I
+> never could test this driver, because I don't have any touchscreens
+> anymore (ever had one and it broke when I was moving). So there may be
+> problems in the driver. But I believe others had some success running
+> it.
+>
+> Looking at the driver, one will probably need to set the panel type in
+> inputattach ...
 
-Looks good ... thanks for fixing it ;-)
+There's a bug in inputattach. The SERIO_RS232 constant is completely
+mucking the bits that specify the protocol.
 
-Signed-off-by: Martin J. Bligh <mbligh@google.com>
+--- inputattach.c-      2006-02-07 14:37:04.000000000 -0700
++++ inputattach.c       2006-02-07 16:22:07.000000000 -0700
+@@ -455,7 +455,7 @@
+                return 1;
+        }
 
-> diff --git a/arch/i386/kernel/numaq.c b/arch/i386/kernel/numaq.c
-> index 5f5b075..0caf146 100644
-> --- a/arch/i386/kernel/numaq.c
-> +++ b/arch/i386/kernel/numaq.c
-> @@ -79,10 +79,12 @@ int __init get_memcfg_numaq(void)
->  	return 1;
->  }
->  
-> -static int __init numaq_dsc_disable(void)
-> +static int __init numaq_tsc_disable(void)
->  {
-> -	printk(KERN_DEBUG "NUMAQ: disabling TSC\n");
-> -	tsc_disable = 1;
-> +	if (num_online_nodes() > 1) {
-> +		printk(KERN_DEBUG "NUMAQ: disabling TSC\n");
-> +		tsc_disable = 1;
-> +	}
->  	return 0;
->  }
-> -core_initcall(numaq_dsc_disable);
-> +arch_initcall(numaq_tsc_disable);
-> 
-> 
+-       devt = SERIO_RS232 | input_types[type].type | (id << 8) | (extra << 16);
++       devt = input_types[type].type | (id << 8) | (extra << 16);
 
+        if(ioctl(fd, SPIOCSTYPE, &devt)) {
+                fprintf(stderr, "inputattach: can't set device type\n");
+
+Cheers,
+Shaun
+
+APPENDIX A
+
+You probably know this better than I do, but the .type above is
+misnamed. It should really be .proto. It's impossible, as far as I can
+tell, to specify the type (like SERIO_RS232) with a SPIOCSTYPE call.

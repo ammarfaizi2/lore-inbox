@@ -1,85 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWBGCwk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964915AbWBGC5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964911AbWBGCwk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 21:52:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbWBGCwk
+	id S964915AbWBGC5x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 21:57:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964917AbWBGC5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 21:52:40 -0500
-Received: from risc4.numis.northwestern.edu ([129.105.122.70]:53774 "EHLO
-	risc4.numis.northwestern.edu") by vger.kernel.org with ESMTP
-	id S964911AbWBGCwj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 21:52:39 -0500
-Date: Mon, 6 Feb 2006 20:52:39 -0600 (CST)
-From: "L. D. Marks" <L-marks@northwestern.edu>
-X-X-Sender: ldm@risc4.numis.northwestern.edu
-Reply-To: "L. D. Marks" <L-marks@northwestern.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Broken NFS (perhaps Cache invalidation bug ?)
-In-Reply-To: <Pine.GHP.4.63.0602062038470.3104@risc4.numis.northwestern.edu>
-Message-ID: <Pine.GHP.4.63.0602062050460.3104@risc4.numis.northwestern.edu>
-References: <Pine.GHP.4.63.0602062038470.3104@risc4.numis.northwestern.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 6 Feb 2006 21:57:53 -0500
+Received: from smtpout.mac.com ([17.250.248.45]:23248 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S964915AbWBGC5x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 21:57:53 -0500
+X-PGP-Universal: processed;
+	by AlPB on Mon, 06 Feb 2006 20:57:29 -0600
+In-Reply-To: <20060207004147.GA21620@MAIL.13thfloor.at>
+References: <43C40803.2000106@rtr.ca> <20060201222314.GA26081@MAIL.13thfloor.at> <uhd7irpi7@a1i15.kph.uni-mainz.de> <Pine.LNX.4.61.0602022144190.30391@yvahk01.tjqt.qr> <43E3DB99.9020604@rtr.ca> <Pine.LNX.4.61.0602041204490.30014@yvahk01.tjqt.qr> <1139153913.3131.42.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0602052212430.330@yvahk01.tjqt.qr> <1139174355.3131.50.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0602061554550.31522@yvahk01.tjqt.qr> <20060207004147.GA21620@MAIL.13thfloor.at>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <6D491888-6DEA-4F9B-BEB2-7CD8FDC2159D@mac.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Arjan van de Ven <arjan@infradead.org>, Mark Lord <lkml@rtr.ca>,
+       Ulrich Mueller <ulm@kph.uni-mainz.de>, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Byron Stanoszek <gandalf@winds.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>
+Content-Transfer-Encoding: 7bit
+From: Mark Rustad <mrustad@mac.com>
+Subject: Re: [PATCH ]  VMSPLIT config options (with default config fixed)
+Date: Mon, 6 Feb 2006 20:51:01 -0600
+To: Herbert Poetzl <herbert@13thfloor.at>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I should have added the kernel: 2.6.9-22.0.2.ELsmp #1 SMP with 
-nfs-utils-1.0.6-65.EL4
+On Feb 6, 2006, at 6:41 PM, Herbert Poetzl wrote:
 
+> On Mon, Feb 06, 2006 at 03:56:34PM +0100, Jan Engelhardt wrote:
+>>>>>> What userspace programs do depend on it?
+>>>>>
+>>>>> there is a lot of userspace that assumes they can do 2Gb or  
+>>>>> even close
+>>>>> to 3Gb of memory allocations. Databases, java, basically  
+>>>>> anything with
+>>>>> threads. Sure for most of these its a configuration option to  
+>>>>> reduce
+>>>>> this, but that still doesn't mean it's a good idea to change  
+>>>>> from the
+>>>>> existing behavior...
+>>>>>
+>>>> Not to mention that these (almost(*)) fail anyway when you have  
+>>>> less than 2
+>>>> GB of RAM.
+>>>
+>>> it's not really overcommit... it can also be file mmaps or shared  
+>>> mmaps
+>>> of say tmpfs files (the later is common with oracle actually)
+>>
+>> So, just as I did in the sample patch, the manual split shall  
+>> depend on
+>> EMBEDDED. Those who run fat databases with big malloc/mmap  
+>> assumptions
+>> don't probably belong to the group using CONFIG_EMBEDDED.
+>
+> *sigh* well, the embeded folks are unlikely to have 1-3GB
+> why not use EXPERIMENTAL if you 'think' the option will
+> hurt the database folks who do not know to configure their
+> kernel ...
 
-On Mon, 6 Feb 2006, L. D. Marks wrote:
+Embedded is not the same thing as small. 1GB is what the system I  
+work on uses and it is "embedded". This new VMSPLIT is great, BTW.
 
-> I have a problem which appears to be very similar to a cache invalidation bug 
-> previously reported: 
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0510.1/0582.html
->
-> With a conventional nfs mount (not automount), c0-0 a client node, running on 
-> the nfs server:
->
-> echo 10 > Probe
-> ssh -x c0-0 cat Probe
-> echo 11 > Probe
-> ssh -x c0-0 cat Probe
->
-> Will give, most times, 10 & 10 rather than 10 & 11.
->
-> I've tried a wide range of things (including consulting local experts), so 
-> far nothing. I'm not a kernel developer, so please be gentle. This problem 
-> has occurred ever since we moved to the 4.X releases of rocks 
-> (http://www.rocksclusters.org), X=0 or 1 although it's hidden by their 
-> default use of automounting and it's taken some time to reduce it to 
-> something simple.
->
-> -----------------------------------------------
-> Laurence Marks
-> Department of Materials Science and Engineering
-> MSE Rm 2036 Cook Hall
-> 2220 N Campus Drive
-> Northwestern University
-> Evanston, IL 60201, USA
-> Tel: (847) 491-3996 Fax: (847) 491-7820
-> email: L-marks at northwestern dot edu
-> http://www.numis.northwestern.edu
-> -----------------------------------------------
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-Note: if you have an old email address for me, please note that "nwu" has
-been changed to "northwestern".
------------------------------------------------
-Laurence Marks
-Department of Materials Science and Engineering
-MSE Rm 2036 Cook Hall
-2220 N Campus Drive
-Northwestern University
-Evanston, IL 60201, USA
-Tel: (847) 491-3996 Fax: (847) 491-7820
-email: L-marks at northwestern dot edu
-http://www.numis.northwestern.edu
------------------------------------------------
+-- 
+Mark Rustad, MRustad@mac.com
 

@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964931AbWBGBkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964927AbWBGBnN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964931AbWBGBkF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 20:40:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbWBGBkE
+	id S964927AbWBGBnN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 20:43:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbWBGBnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 20:40:04 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:14268 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964927AbWBGBkD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 20:40:03 -0500
-Date: Mon, 6 Feb 2006 17:39:36 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, ck@vds.kolivas.org
-Subject: Re: [PATCH] mm: implement swap prefetching
-Message-Id: <20060206173936.1a331291.akpm@osdl.org>
-In-Reply-To: <200602071229.25793.kernel@kolivas.org>
-References: <200602071028.30721.kernel@kolivas.org>
-	<20060206163842.7ff70c49.akpm@osdl.org>
-	<200602071229.25793.kernel@kolivas.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 6 Feb 2006 20:43:12 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:35771 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964927AbWBGBnL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 20:43:11 -0500
+Subject: [RFC][PATCH] i386: incorrect xtime locking on resume
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Nigel Cunningham <ncunningham@cyclades.com>
+Content-Type: text/plain
+Date: Mon, 06 Feb 2006 17:43:07 -0800
+Message-Id: <1139276587.10057.188.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> wrote:
->
->  > > +/* Last total free pages */
->  > > +static unsigned long last_free = 0;
->  > > +static unsigned long temp_free = 0;
->  >
->  > Unneeded initialisation.
-> 
->  Very first use of both of these variables depends on them being initialised.
+All,
+	Nigel was asking about some suspend2 patches, and while looking at them
+I noticed what looks to be a bug where jiffies and wall_jiffies are
+modified without holding the xtime_lock in the resume path.
 
-All bss is initialised to zero at bootup.  So all the `= 0' is doing here
-is moving these variables from .bss to .data, and taking up extra space in
-vmlinux.
+This patch should fix it, but I wanted to get some review and testing
+done before I submit it.
+
+thanks
+-john
+
+
+Signed-off-by: John Stultz <johnstul@us.ibm.com>
+
+diff --git a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
+index a14d594..406c8d8 100644
+--- a/arch/i386/kernel/time.c
++++ b/arch/i386/kernel/time.c
+@@ -412,9 +412,9 @@ static int timer_resume(struct sys_devic
+ 	write_seqlock_irqsave(&xtime_lock, flags);
+ 	xtime.tv_sec = sec;
+ 	xtime.tv_nsec = 0;
+-	write_sequnlock_irqrestore(&xtime_lock, flags);
+ 	jiffies += sleep_length;
+ 	wall_jiffies += sleep_length;
++	write_sequnlock_irqrestore(&xtime_lock, flags);
+ 	if (last_timer->resume)
+ 		last_timer->resume();
+ 	cur_timer = last_timer;
+
 

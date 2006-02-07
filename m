@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbWBGLIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965019AbWBGLIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965015AbWBGLIr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 06:08:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbWBGLIq
+	id S965019AbWBGLIx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 06:08:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965020AbWBGLIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 06:08:46 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:31630 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S965015AbWBGLIq
+	Tue, 7 Feb 2006 06:08:53 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:57730 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965019AbWBGLIw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 06:08:46 -0500
-From: "Jiri Slaby" <xslaby@fi.muni.cz>
-Date: Tue,  7 Feb 2006 12:08:43 +0100
-In-reply-to: <1200c63a0602062259g5a6d0a28l93f207ef6d3f9485@mail.gmail.com>
-To: Vishal Sharma <vishal.gnutech@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel-2.6.15 compile error
-Message-Id: <20060207110842.A3C9B22B379@anxur.fi.muni.cz>
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: xslaby@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Tue, 7 Feb 2006 06:08:52 -0500
+Subject: Re: 2.6.16-rc1-mm2 pata driver confusion + tsc sync issues
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ed Sweetman <safemode@comcast.net>
+Cc: Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
+       Andrew Morton <akpm@osdl.org>, harald.dunkel@t-online.de,
+       linux-kernel@vger.kernel.org, rdunlap@xenotime.net
+In-Reply-To: <43E8150E.9030801@comcast.net>
+References: <Pine.LNX.4.58.0601250846210.29859@shark.he.net>
+	 <43E3D103.70505@comcast.net>
+	 <Pine.LNX.4.58.0602060836520.1309@shark.he.net>
+	 <43E7A4C0.4020209@t-online.de>
+	 <1139255800.10437.51.camel@localhost.localdomain>
+	 <43E805D4.5010602@comcast.net> <43E7F73E.2070004@comcast.net>
+	 <43E7F73E.2070004@comcast.net> <20060206173520.43412664.akpm@osdl.org>
+	 <E1F6I3G-0003fw-00@chiark.greenend.org.uk>  <43E8150E.9030801@comcast.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 07 Feb 2006 11:10:29 +0000
+Message-Id: <1139310629.18391.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hello All,
->
->i am trying to install this new kenel into my machine with the option make
->oldconfig , my old kernel is 2.6.11-1.1369_FC4smp and i am using
->gcc-4.0.2.Below s the output of error  i am getting :-
->
->GEN     .version
->  CHK     include/linux/compile.h
->  UPD     include/linux/compile.h
->  CC      init/version.o
->  LD      init/built-in.o
->  LD      .tmp_vmlinux1
->drivers/built-in.o(.text+0x94aea): In function `sandisk_set_iobase':
->drivers/net/wireless/hostap/hostap_cs.c:242: undefined reference to
->`pcmcia_access_configuration_register'
->drivers/built-in.o(.text+0x94b27):drivers/net/wireless/hostap/hostap_cs.c:254:
->undefined reference to `pcmcia_access_configuration_register'
-[snip]
->undefined reference to `pcmcia_request_configuration'
->drivers/built-in.o(.init.text+0x84da): In function `init_prism2_pccard':
->drivers/net/wireless/hostap/hostap_cs.c:995: undefined reference to
->`pcmcia_register_driver'
->drivers/built-in.o(.exit.text+0x559): In function `exit_prism2_pccard':
->drivers/net/wireless/hostap/hostap_cs.c:1000: undefined reference to
->`pcmcia_unregister_driver'
->make: *** [.tmp_vmlinux1] Error 1
->
->why i am getting this error? is it somehting related to gcc-4.0.2 ?
->
->Please Help
-.config, please.
+On Llu, 2006-02-06 at 22:33 -0500, Ed Sweetman wrote:
+> first from the testing branch to the upstream patches.   In mm, sata 
+> gets loaded before pata in libata land.  In alan cox's patches it's the 
+> reverse.  This results in different device names for the same config 
 
-regards,
---
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+Thats just down the shape of the Makefile. It'll get resolved in the
+merge of the code upstream over time according to the order Jeff puts
+them in
+
+> Perhaps from a distribution standpoint, moving to a label method of 
+> describing what gets mounted where would be best, rather than worrying
+
+One reason I've not worried about this is I use Fedora so it "just
+works"
+
+> about scsi naming schemes or ide ones.  Just think of the fun of a 
+> system with multiple usb storage devices and such.  
+> I'm just not sure if grub and the kernel "root=" parameter can handle it.
+
+They can't but they don't need too. See the Fedora/Red Hat mkinitrd
+script and tools. The 'root' is the initrd and the tools it contains
+find the real root by label. No kernel hackery needed.
+

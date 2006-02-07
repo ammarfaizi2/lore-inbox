@@ -1,81 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964908AbWBGCsE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbWBGCtN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964908AbWBGCsE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Feb 2006 21:48:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbWBGCsE
+	id S964905AbWBGCtN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Feb 2006 21:49:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbWBGCtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Feb 2006 21:48:04 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:58282 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S964903AbWBGCsC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Feb 2006 21:48:02 -0500
-Message-ID: <43E80A5A.5040002@zytor.com>
-Date: Mon, 06 Feb 2006 18:47:54 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 6 Feb 2006 21:49:13 -0500
+Received: from risc4.numis.northwestern.edu ([129.105.122.70]:51982 "EHLO
+	risc4.numis.northwestern.edu") by vger.kernel.org with ESMTP
+	id S964905AbWBGCtM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Feb 2006 21:49:12 -0500
+Date: Mon, 6 Feb 2006 20:49:11 -0600 (CST)
+From: "L. D. Marks" <L-marks@northwestern.edu>
+X-X-Sender: ldm@risc4.numis.northwestern.edu
+Reply-To: "L. D. Marks" <L-marks@northwestern.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Broken NFS (perhaps Cache invalidation bug ?)
+Message-ID: <Pine.GHP.4.63.0602062038470.3104@risc4.numis.northwestern.edu>
 MIME-Version: 1.0
-To: Neil Brown <neilb@suse.de>
-CC: linux-raid@vger.kernel.org, klibc list <klibc@zytor.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [klibc] Re: Exporting which partitions to md-configure
-References: <43DEB4B8.5040607@zytor.com>	<17374.47368.715991.422607@cse.unsw.edu.au>	<43DEC095.2090507@zytor.com>	<17374.50399.1898.458649@cse.unsw.edu.au>	<43DEC5DC.1030709@zytor.com> <17382.43646.567406.987585@cse.unsw.edu.au>
-In-Reply-To: <17382.43646.567406.987585@cse.unsw.edu.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> 
-> What constitutes 'a piece of data'?  A bit? a byte?
-> 
-> I would say that 
->    msdos:fd
-> is one piece of data.  The 'fd' is useless without the 'msdos'.
-> The 'msdos' is, I guess, not completely useless with the fd.
-> 
-> I would lean towards the composite, but I wouldn't fight a separation.
-> 
+I have a problem which appears to be very similar to a cache invalidation 
+bug previously reported: 
+http://www.ussg.iu.edu/hypermail/linux/kernel/0510.1/0582.html
 
-Well, the two pieces come from different sources.
+With a conventional nfs mount (not automount), c0-0 a client node, 
+running on the nfs server:
 
-> 
-> Just as there is a direct unambiguous causal path from something
-> present at early boot to the root filesystem that is mounted (and the
-> root filesystem specifies all other filesystems through fstab)
-> similarly there should be an unambiguous causal path from something
-> present at early boot to the array which holds the root filesystem -
-> and the root filesystem should describe all other arrays via
-> mdadm.conf
-> 
-> Does that make sense?
-> 
+echo 10 > Probe
+ssh -x c0-0 cat Probe
+echo 11 > Probe
+ssh -x c0-0 cat Probe
 
-It makes sense, but I disagree.  I believe you are correct in that the 
-current "preferred minor" bit causes an invalid assumption that, e.g. 
-/dev/md3 is always a certain thing, but since each array has a UUID, and 
-one should be able to mount by either filesystem UUID or array UUID, 
-there should be no need for such a conflict if one allows for dynamic md 
-numbers.
+Will give, most times, 10 & 10 rather than 10 & 11.
 
-Requiring that mdadm.conf describes the actual state of all volumes 
-would be an enormous step in the wrong direction.  Right now, the Linux 
-md system can handle some very oddball hardware changes (such as on 
-hera.kernel.org, when the disks not just completely changed names due to 
-a controller change, but changed from hd* to sd*!)
+I've tried a wide range of things (including consulting local experts), 
+so far nothing. I'm not a kernel developer, so please be gentle. This 
+problem has occurred ever since we moved to the 4.X releases of rocks 
+(http://www.rocksclusters.org), X=0 or 1 although it's hidden by their 
+default use of automounting and it's taken some time to reduce it to 
+something simple.
 
-Dynamicity is a good thing, although it needs to be harnessed.
+-----------------------------------------------
+Laurence Marks
+Department of Materials Science and Engineering
+MSE Rm 2036 Cook Hall
+2220 N Campus Drive
+Northwestern University
+Evanston, IL 60201, USA
+Tel: (847) 491-3996 Fax: (847) 491-7820
+email: L-marks at northwestern dot edu
+http://www.numis.northwestern.edu
+-----------------------------------------------
 
- > kernel parameter md_root_uuid=xxyy:zzyy:aabb:ccdd...
- >    This could be interpreted by an initramfs script to run mdadm
- >    to find and assemble the array with that uuid.  The uuid of
- >    each array is reasonably unique.
-
-This, in fact is *EXACTLY* what we're talking about; it does require 
-autoassemble.  Why do we care about the partition types at all?  The 
-reason is that since the md superblock is at the end, it doesn't get 
-automatically wiped if the partition is used as a raw filesystem, and so 
-it's important that there is a qualifier for it.
-
-	-hpa

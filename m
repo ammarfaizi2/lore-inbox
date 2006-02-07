@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965131AbWBGPnT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965129AbWBGPnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965131AbWBGPnT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 10:43:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965129AbWBGPnB
+	id S965129AbWBGPnU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 10:43:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbWBGPln
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 10:43:01 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:29378 "EHLO
+	Tue, 7 Feb 2006 10:41:43 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:26050 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932078AbWBGPlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 10:41:46 -0500
+	id S1751120AbWBGPlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 10:41:23 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, Patrick Boettcher <pb@linuxtv.org>,
+Cc: linux-dvb-maintainer@linuxtv.org,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 11/16] FIX: Multiple usage of VP7045-based devices
-Date: Tue, 07 Feb 2006 13:33:33 -0200
-Message-id: <20060207153333.PS13014200011@infradead.org>
+Subject: [PATCH 13/16] Makes Some symbols static.
+Date: Tue, 07 Feb 2006 13:33:34 -0200
+Message-id: <20060207153333.PS83505500013@infradead.org>
 In-Reply-To: <20060207153248.PS50860900000@infradead.org>
 References: <20060207153248.PS50860900000@infradead.org>
 Mime-Version: 1.0
@@ -27,44 +27,45 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by penta
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Patrick Boettcher <pb@linuxtv.org>
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
 
-Reassigning function pointers in a static led to infinite loops when using
-multiple VP7045-based device at the same time on one system. Using kmalloc'd
-copies for reassignments is better.
+Some symbols at cx88-alsa were global. Making those static.
 
-Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/dvb/dvb-usb/vp7045-fe.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/media/video/cx88/cx88-alsa.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/dvb/dvb-usb/vp7045-fe.c b/drivers/media/dvb/dvb-usb/vp7045-fe.c
-index 5242cca..9999336 100644
---- a/drivers/media/dvb/dvb-usb/vp7045-fe.c
-+++ b/drivers/media/dvb/dvb-usb/vp7045-fe.c
-@@ -23,10 +23,11 @@
+diff --git a/drivers/media/video/cx88/cx88-alsa.c b/drivers/media/video/cx88/cx88-alsa.c
+index a2e36a1..2acccd6 100644
+--- a/drivers/media/video/cx88/cx88-alsa.c
++++ b/drivers/media/video/cx88/cx88-alsa.c
+@@ -128,7 +128,7 @@ MODULE_PARM_DESC(debug,"enable debug mes
+  * BOARD Specific: Sets audio DMA
+  */
  
- struct vp7045_fe_state {
- 	struct dvb_frontend fe;
-+	struct dvb_frontend_ops ops;
-+
- 	struct dvb_usb_device *d;
- };
- 
--
- static int vp7045_fe_read_status(struct dvb_frontend* fe, fe_status_t *status)
+-int _cx88_start_audio_dma(snd_cx88_card_t *chip)
++static int _cx88_start_audio_dma(snd_cx88_card_t *chip)
  {
- 	struct vp7045_fe_state *state = fe->demodulator_priv;
-@@ -150,7 +151,8 @@ struct dvb_frontend * vp7045_fe_attach(s
- 		goto error;
+ 	struct cx88_buffer   *buf = chip->buf;
+ 	struct cx88_core *core=chip->core;
+@@ -173,7 +173,7 @@ int _cx88_start_audio_dma(snd_cx88_card_
+ /*
+  * BOARD Specific: Resets audio DMA
+  */
+-int _cx88_stop_audio_dma(snd_cx88_card_t *chip)
++static int _cx88_stop_audio_dma(snd_cx88_card_t *chip)
+ {
+ 	struct cx88_core *core=chip->core;
+ 	dprintk(1, "Stopping audio DMA\n");
+@@ -613,7 +613,7 @@ static snd_kcontrol_new_t snd_cx88_captu
+  * Only boards with eeprom and byte 1 at eeprom=1 have it
+  */
  
- 	s->d = d;
--	s->fe.ops = &vp7045_fe_ops;
-+	memcpy(&s->ops, &vp7045_fe_ops, sizeof(struct dvb_frontend_ops));
-+	s->fe.ops = &s->ops;
- 	s->fe.demodulator_priv = s;
- 
- 	goto success;
+-struct pci_device_id cx88_audio_pci_tbl[] = {
++static struct pci_device_id cx88_audio_pci_tbl[] = {
+ 	{0x14f1,0x8801,PCI_ANY_ID,PCI_ANY_ID,0,0,0},
+ 	{0x14f1,0x8811,PCI_ANY_ID,PCI_ANY_ID,0,0,0},
+ 	{0, }
 

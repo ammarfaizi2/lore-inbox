@@ -1,103 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWBGWo6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbWBGWpy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030228AbWBGWo6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 17:44:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbWBGWnR
+	id S1030223AbWBGWpy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 17:45:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbWBGWpB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 17:43:17 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:53723 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S932411AbWBGWnN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 17:43:13 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Tue, 7 Feb 2006 20:06:26 +1000
-User-Agent: KMail/1.9.1
-Cc: Bojan Smojver <bojan@rexursive.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       suspend2-devel@lists.suspend2.net
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602071105.45688.nigel@suspend2.net> <20060207092356.GA1742@elf.ucw.cz>
-In-Reply-To: <20060207092356.GA1742@elf.ucw.cz>
+	Tue, 7 Feb 2006 17:45:01 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:3223 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932468AbWBGWnP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 17:43:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ByVZ+nmJ1h54STtAaQ+LzTTuZYTRx6/Hs9eIfcbk/FSM3fzLZUxwtKhsJmUh9smQWQg0Qo+brvpEdyfBKdmXBdbypHGM3hz6rjqHXu/O1Wcz+7nMcymdVNA4QsFKYctaxoUgrRbp4COh2hxhyse4Q740XAl8wDpHil5wlCqkrCs=
+Message-ID: <9a8748490602071443u78709ac5h4303ffe42b847f64@mail.gmail.com>
+Date: Tue, 7 Feb 2006 23:43:14 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Two Oopses at boot with 2.6.16-rc2-git1 - Unable to handle kernel paging request at virtual address ...
+In-Reply-To: <200602062000.12388.jesper.juhl@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1663105.ONHQuM9Lry";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602072006.32017.nigel@suspend2.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200602062000.12388.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1663105.ONHQuM9Lry
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On 2/6/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> I just got two Oopses at boot with 2.6.16-rc2-git1 :
+>
+> Unable to handle kernel paging request at virtual address f49667f8
+>  printing eip:
+> c0233ccf
+> *pde = 00490067
+> Oops: 0000 [#1]
+>
+>  <1>Unable to handle kernel paging request at virtual address f49668c0
+>  printing eip:
+> c0236ac7
+> *pde = 00490067
+> Oops: 0000 [#2]
+>
+> The oopses are not fatal. The system continues to operate (seemingly) just
+> fine, in fact I'm still using the machine to compose this mail (I'll reboot
+> soon though to see if it ocours again on a second boot).
+>
 
-Hi.
+It seems these two ooses were a one-time thing. I've booted the
+machine a few times since (with the same kernel ofcourse) and I've not
+seen the oppses again.
+Would still like to know what could have caused them though.
 
-On Tuesday 07 February 2006 19:23, Pavel Machek wrote:
-> Hi!
->=20
-> > > *Users* would not be at disadvantage, but, surprise, there's one=20
-thing
-> > > more important than users. Thats developers, and I can guarantee you
-> > > that merging 14K lines of code just to delete them half a year later
-> > > would drive them crazy.
-> >=20
-> > It would more be an ever-changing interface that would drive them=20
-crazy. So=20
-> > why don't we come up with an agreed method of starting a suspend and=20
-> > starting a resume that they can use, without worrying about whether=20
-> > they're getting swsusp, uswsusp or Suspend2? /sys/power/state seems the=
-=20
-> > obvious choice for this. An additional /sys entry could perhaps be used=
-=20
-to=20
-> > modify which implementation is used when you echo disk=20
-> /sys/power/state=20
-> > - something like
-> >=20
-> > # cat /sys/power/disk_method
-> > swsusp uswsusp suspend2
-> > # echo uswsusp > /sys/power/disk_method
-> > # echo > /sys/power/state
-> >=20
-> > Is there a big problem with that, which I've missed?
->=20
-> Well, for _users_ method seems to be clicking "suspend" in KDE. For
-> more experienced users it is powersave -U. And you are already
-> distributing script to do suspend... Just hook suspend2 to the same
-> gui stuff distributions already use.
 
-The problem is that kpowersave, for example, doesn't provide any way to say=
-=20
-that you want to start the cycle by doing something other than echo=20
-> /sys/power/state. They're apparently planning on changing it to support=20
-suspend2, but should they have to (and why again for uswsusp?).
-=20
-> Besides what you described can't work for uswsusp.
+> Complete dmesg output including the oopses, backtraces etc can be found
+> below along with some information about my system - let me know if more
+> info is needed.
+>
+[snip system details from previous mail]
 
-call_usermodehelper
 
-Regards,
-
-Nigel
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
-
---nextPart1663105.ONHQuM9Lry
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD6HEnN0y+n1M3mo0RAn5mAJ9/v7IG5BkWbqsQhmj/tzBw98RZ3QCg6JhT
-LZpqis5f47JCXOFjiEF2uTE=
-=oacb
------END PGP SIGNATURE-----
-
---nextPart1663105.ONHQuM9Lry--
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

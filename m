@@ -1,188 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbWBGWnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030216AbWBGWns@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030217AbWBGWnm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 17:43:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbWBGWnS
+	id S1030216AbWBGWns (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 17:43:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbWBGWnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 17:43:18 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:56283 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S932450AbWBGWnN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 17:43:13 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: Linux PM <linux-pm@osdl.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Complain if driver reenables interrupts during drivers_[suspend|resume] & re-disable
-Date: Tue, 7 Feb 2006 19:06:48 +1000
-User-Agent: KMail/1.9.1
+	Tue, 7 Feb 2006 17:43:43 -0500
+Received: from watts.utsl.gen.nz ([202.78.240.73]:61341 "EHLO mail.utsl.gen.nz")
+	by vger.kernel.org with ESMTP id S1030216AbWBGWnW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 17:43:22 -0500
+Message-ID: <43E9227C.70200@vilain.net>
+Date: Wed, 08 Feb 2006 11:43:08 +1300
+From: Sam Vilain <sam@vilain.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart21107747.Ms9F2Pm8Tg";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Rik van Riel <riel@redhat.com>, Kirill Korotaev <dev@openvz.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Hubertus Franke <frankeh@watson.ibm.com>,
+       clg@fr.ibm.com, haveblue@us.ibm.com, greg@kroah.com,
+       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
+       kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
+       Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
+References: <43E7C65F.3050609@openvz.org>	<m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>	<Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com>	<43E83E8A.1040704@vilain.net> <m1oe1jfa5n.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1oe1jfa5n.fsf@ebiederm.dsl.xmission.com>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602071906.55281.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart21107747.Ms9F2Pm8Tg
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Eric W. Biederman wrote [note: quoting sections out of order]:
+> Sam Vilain <sam@vilain.net> writes:
+>>Let's compare approaches of patchsets before the patchsets themselves.
+>>It seems to be, should we:
+>>   A) make a general form of virtualising PIDs, and hope this assists
+>>      later virtualisation efforts (Eric's patch)
+>>I can't think of any real use cases where you would specifically want A)
+>>without B).
+> You misrepresent my approach.  
 
-Hi all.
+ok, after reading more of your post, agreed.
 
-This patch is designed to help with diagnosing and fixing the cause of
-problems in suspending/resuming, due to drivers wrongly re-enabling
-interrupts in their .suspend or .resume methods.=20
+ > What user interface to export is a debate worth having.
 
-I nearly forgot about it in sending patches in suspend2 that might help
-where swsusp fails.
+This is the bit that needs a long period of prototyping and experimental
+use IMHO.  So in essence, we're agreeing on that point.
 
-Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+> First there is a huge commonality in the code bases between the
+> different implementations and I have already gotten preliminary
+> acceptance from the vserver developers, that my approach is sane.  The
+> major difference is what user interface does the kernel export,
+> and I posted my user interface.
+ > Second I am not trying to just implement a form of virtualizing PIDs.
+ > Heck I don't intend to virtualize anything.  The kernel has already
+ > virtualized everything I require.  I want to implement multiple
+ > instances of the current kernel global namespaces.  All I want is
+ > to be able to use the same name twice in user space and not have
+ > a conflict.
 
- power/resume.c  |    5 +++++
- power/suspend.c |    5 +++++
- sys.c           |   37 +++++++++++++++++++++++++++++++++++--
- 3 files changed, 45 insertions(+), 2 deletions(-)
-diff -ruNp 8010-driver-model-debug.patch-old/drivers/base/power/resume.c=20
-8010-driver-model-debug.patch-new/drivers/base/power/resume.c
-=2D-- 8010-driver-model-debug.patch-old/drivers/base/power/resume.c=09
-2006-01-19 21:27:39.000000000 +1000
-+++ 8010-driver-model-debug.patch-new/drivers/base/power/resume.c=09
-2006-01-31 19:54:52.000000000 +1000
-@@ -35,6 +35,11 @@ int resume_device(struct device * dev)
- 	if (dev->bus && dev->bus->resume) {
- 		dev_dbg(dev,"resuming\n");
- 		error =3D dev->bus->resume(dev);
-+		if (!irqs_disabled()) {
-+			printk(KERN_EMERG "WARNING: Interrupts reenabled while resuming device=
-=20
-%s.\n",
-+				kobject_name(&dev->kobj));
-+			local_irq_disable();
-+		}
- 	}
- 	up(&dev->sem);
- 	return error;
-diff -ruNp 8010-driver-model-debug.patch-old/drivers/base/power/suspend.c=20
-8010-driver-model-debug.patch-new/drivers/base/power/suspend.c
-=2D-- 8010-driver-model-debug.patch-old/drivers/base/power/suspend.c=09
-2006-01-19 21:27:39.000000000 +1000
-+++ 8010-driver-model-debug.patch-new/drivers/base/power/suspend.c=09
-2006-01-31 19:54:44.000000000 +1000
-@@ -58,6 +58,11 @@ int suspend_device(struct device * dev,=20
- 	if (dev->bus && dev->bus->suspend && !dev->power.power_state.event) {
- 		dev_dbg(dev, "suspending\n");
- 		error =3D dev->bus->suspend(dev, state);
-+		if (!irqs_disabled()) {
-+			printk(KERN_EMERG "WARNING: Interrupts reenabled while suspending=20
-device %s.\n",
-+				kobject_name(&dev->kobj));
-+			local_irq_disable();
-+		}
- 	}
- 	up(&dev->sem);
- 	return error;
-diff -ruNp 8010-driver-model-debug.patch-old/drivers/base/sys.c=20
-8010-driver-model-debug.patch-new/drivers/base/sys.c
-=2D-- 8010-driver-model-debug.patch-old/drivers/base/sys.c	2006-01-19=20
-21:27:39.000000000 +1000
-+++ 8010-driver-model-debug.patch-new/drivers/base/sys.c	2006-01-31=20
-19:54:09.000000000 +1000
-@@ -298,16 +298,34 @@ static void __sysdev_resume(struct sys_d
- 	if (cls->resume)
- 		cls->resume(dev);
-=20
-+	if (!irqs_disabled()) {
-+		printk(KERN_EMERG "WARNING: Interrupts reenabled while resuming sysdev=20
-class specific driver %s.\n",
-+				kobject_name(&dev->kobj));
-+		local_irq_disable();
-+	}
-+
- 	/* Call auxillary drivers next. */
- 	list_for_each_entry(drv, &cls->drivers, entry) {
-=2D		if (drv->resume)
-+		if (drv->resume) {
- 			drv->resume(dev);
-+			if (!irqs_disabled()) {
-+				printk(KERN_EMERG "WARNING: Interrupts reenabled while resuming sysdev=
-=20
-class driver %s.\n",
-+				kobject_name(&dev->kobj));
-+				local_irq_disable();
-+			}
-+		}
- 	}
-=20
- 	/* Call global drivers. */
- 	list_for_each_entry(drv, &sysdev_drivers, entry) {
-=2D		if (drv->resume)
-+		if (drv->resume) {
- 			drv->resume(dev);
-+			if (!irqs_disabled()) {
-+				printk(KERN_EMERG "WARNING: Interrupts reenabled while resuming sysdev=
-=20
-driver %s.\n",
-+				kobject_name(&dev->kobj));
-+				local_irq_disable();
-+			}
-+		}
- 	}
- }
-=20
-@@ -346,6 +364,11 @@ int sysdev_suspend(pm_message_t state)
- 			list_for_each_entry(drv, &sysdev_drivers, entry) {
- 				if (drv->suspend) {
- 					ret =3D drv->suspend(sysdev, state);
-+					if (!irqs_disabled()) {
-+						printk(KERN_EMERG "WARNING: Interrupts reenabled while suspending=20
-sysdev driver %s.\n",
-+							kobject_name(&sysdev->kobj));
-+						local_irq_disable();
-+					}
- 					if (ret)
- 						goto gbl_driver;
- 				}
-@@ -355,6 +378,11 @@ int sysdev_suspend(pm_message_t state)
- 			list_for_each_entry(drv, &cls->drivers, entry) {
- 				if (drv->suspend) {
- 					ret =3D drv->suspend(sysdev, state);
-+					if (!irqs_disabled()) {
-+						printk(KERN_EMERG "WARNING: Interrupts reenabled while suspending=20
-sysdev class driver %s.\n",
-+						kobject_name(&sysdev->kobj));
-+						local_irq_disable();
-+					}
- 					if (ret)
- 						goto aux_driver;
- 				}
-@@ -363,6 +391,11 @@ int sysdev_suspend(pm_message_t state)
- 			/* Now call the generic one */
- 			if (cls->suspend) {
- 				ret =3D cls->suspend(sysdev, state);
-+				if (!irqs_disabled()) {
-+					printk(KERN_EMERG "WARNING: Interrupts reenabled while suspending=20
-class driver %s.\n",
-+					kobject_name(&sysdev->kobj));
-+					local_irq_disable();
-+				}
- 				if (ret)
- 					goto cls_driver;
- 			}
+Right, well, I think our approaches might have more in common than
+I previously thought.
 
---nextPart21107747.Ms9F2Pm8Tg
-Content-Type: application/pgp-signature
+Indeed, it seems that at least one of the features of Linux-VServer I am
+preparing for consideration for inclusion into Linus' tree are your work
+:-).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+> Beyond getting multiple instance of all of the kernel namespaces
+> (which is the hard requirement for migration) my approach is to
+> see what is needed for projects like vserver and vps and see how
+> their needs can be met as well. 
 
-iD8DBQBD6GMvN0y+n1M3mo0RAq03AJ9bc9T+eZzhQarqmT0LAOrJ/LH7HwCfVI0Y
-lrCvt4yT7ujBT7NywX1QLF8=
-=crMH
------END PGP SIGNATURE-----
+ok, but the question is - doesn't this just constitute a refactoring 
+once the stable virtualisation code is in?
 
---nextPart21107747.Ms9F2Pm8Tg--
+I'm just a bit nervous about trying to 
+refactor-approach-and-concepts-as-we-go.
+
+But look, I'll take a closer look at your patches, and see if I can 
+merge with you anyhow.  Thanks for the git repo!
+
+Sam.

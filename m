@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030386AbWBHSLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030421AbWBHSOe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030386AbWBHSLI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 13:11:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030397AbWBHSLI
+	id S1030421AbWBHSOe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 13:14:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030397AbWBHSOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 13:11:08 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:9161 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030386AbWBHSLH (ORCPT
+	Wed, 8 Feb 2006 13:14:34 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:47296 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030421AbWBHSOe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 13:11:07 -0500
-Date: Wed, 8 Feb 2006 10:11:04 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: linux-kernel@vger.kernel.org
-Subject: cpusets: only wakeup kswapd for zones in the current cpuset
-Message-ID: <Pine.LNX.4.62.0602081010440.2648@schroedinger.engr.sgi.com>
+	Wed, 8 Feb 2006 13:14:34 -0500
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: Terminate process that fails on a constrained allocation
+Date: Wed, 8 Feb 2006 19:13:59 +0100
+User-Agent: KMail/1.8.2
+Cc: akpm@osdl.org, pj@sgi.com, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.62.0602081004060.2648@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0602081004060.2648@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602081914.00231.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 08 February 2006 19:05, Christoph Lameter wrote:
 
----------- Forwarded message ----------
-Date: Wed, 8 Feb 2006 09:45:03 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: akpm@osdl.org
-Cc: pj@sgi.com
-Subject: cpusets: only wakeup kswapd for zones in the current cpuset
+> This patch adds a check before the out of memory killer is invoked. At that
+> point performance considerations do not matter much so we just scan the zonelist
+> and reconstruct a list of nodes. If the list of nodes does not contain all
+> online nodes then this is a constrained allocation and we should not call
+> the OOM killer.
 
-If we get under some memory pressure in a cpuset (we only scan zones
-that are in the cpuset for memory) then kswapd is woken
-up for all zones. This patch only wakes up kswapd in zones that are
-part of the current cpuset.
+Looks good.
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+Ok I would have used an noinline function instead of putting the code inline
+to prevent register pressure etc. and make it more readable.
 
-Index: linux-2.6.16-rc2/mm/page_alloc.c
-===================================================================
---- linux-2.6.16-rc2.orig/mm/page_alloc.c	2006-02-02 22:03:08.000000000 -0800
-+++ linux-2.6.16-rc2/mm/page_alloc.c	2006-02-08 00:05:09.000000000 -0800
-@@ -923,7 +923,8 @@ restart:
- 		goto got_pg;
- 
- 	do {
--		wakeup_kswapd(*z, order);
-+		if (cpuset_zone_allowed(*z, gfp_mask))
-+			wakeup_kswapd(*z, order);
- 	} while (*(++z));
- 
- 	/*
+-Andi
 

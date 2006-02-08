@@ -1,73 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030285AbWBHIPK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030325AbWBHIPe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030285AbWBHIPK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 03:15:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030325AbWBHIPJ
+	id S1030325AbWBHIPe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 03:15:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030331AbWBHIPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 03:15:09 -0500
-Received: from mr1.bfh.ch ([147.87.250.50]:20882 "EHLO mr1.bfh.ch")
-	by vger.kernel.org with ESMTP id S1030285AbWBHIPI (ORCPT
+	Wed, 8 Feb 2006 03:15:34 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32688 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030325AbWBHIPd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 03:15:08 -0500
-Thread-Index: AcYsh7P/F1mXaXDHRW+ImjSRDcSOBw==
-X-PMWin-Version: 2.5.0e, Antispam-Engine: 2.2.0.0, Antivirus-Engine: 2.32.10
-Content-Transfer-Encoding: 7bit
-Content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
-Importance: normal
-Message-ID: <43E9A86D.7070304@bfh.ch>
-Date: Wed, 08 Feb 2006 09:14:37 +0100
-From: "Seewer Philippe" <philippe.seewer@bfh.ch>
-Organization: BFH
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050811)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: <mlord@pobox.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Last Patch to pdc_adma breaks debug compile
-Content-Type: multipart/mixed;
-	boundary="------------000008040000030803080708"
-X-OriginalArrivalTime: 08 Feb 2006 08:14:37.0650 (UTC) FILETIME=[B3DDC320:01C62C87]
+	Wed, 8 Feb 2006 03:15:33 -0500
+Date: Wed, 8 Feb 2006 09:15:09 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Lee Revell <rlrevell@joe-job.com>,
+       Jim Crilly <jim@why.dont.jablowme.net>,
+       suspend2-devel@lists.suspend2.net, linux-kernel@vger.kernel.org
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Message-ID: <20060208081509.GA10961@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602080911.08090.nigel@suspend2.net> <200602080759.50579.rjw@sisk.pl> <200602081733.47134.nigel@suspend2.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602081733.47134.nigel@suspend2.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi!
 
---------------000008040000030803080708
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+[I should probably left this reply to Rafael, but...]
 
-The Last Patch (5. Nov. 05) to the sata pdc_adma driver removed nelem
-from adma_fill_sg and introduced ata_for_each_sg.
+> > > Ok. So Lee might be ok to test uswsusp. But this is your approach
+> > > regardless of who is emailing you. You consistently tell people to fix
+> > > problems themselves and send you a patch. That's not what a maintainer
+> > > should do. They're supposed to maintain, not get other people to do the
+> > > work. They're supposed to be helpful, not a source of anxiety. You might be
+> > > the maintainer of swsusp in name, but you're not in practice. Please, lift
+> > > your game!
+> > 
+> > I strongly disagree with this opinion.  I don't think there's any problem with
+> > Pavel, at least I haven't had any problems in communicating with him.
+> 
+> You seem to be the only person around who gets on well with him. Please,
+> more people step up and tell me I'm wrong. I am only going off the mailing
+> list afterall, and not daily personal interaction of some other
+> kind.
 
-The Problem is that nelem was forgot to be removed from the contained
-VPRINTK too. The attached patch fixes this.
+Well, on the other hand you are the only person that really has
+problems with me.
 
-Patch applies against 2.6.15.1
+> > Moreover, I don't think the role of maintainer must be to actually write the
+> > code.  From my point of view Pavel is in the right place, because I need
+> > someone to tell me if I'm going to do something stupid who knows the kernel
+> > better than I do.
+> 
+> By definition, if they don't maintain code, their not a maintainer. If they
+> only tell someone that they're going to do something stupid, they're a
+> code reviewer.
 
-Regards
-Philippe Seewer
+You seem to be using different definition of maintainer than rest of
+the world.
 
---------------000008040000030803080708
-Content-Type: text/x-patch;
-	name="pdc_adma.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="pdc_adma.patch"
+> > Furthermore, in many cases this is not Pavel who opposes your patches.
+> 
+> Other people have given feedback in the past that has been along the lines
+> of suggesting improvements / cleanups / whatever, but (feel free to correct
+> me) no one apart from him has written it off wholesale, told me I'm wasting
+> my time or the like.
+> 
+> I want to get on with Pavel, I really do. But it's very hard when, despite my
+> best efforts, trying to make allowances for possible misunderstandings and
+> the like, I never seem to hear a helpful word from him. It's always "No.".
+> "I don't want that.", and never (so far as I recall) "Here's how you could do
+> that better..", "The idea is ok but the implementation is broken because..." or
+> the like. Perhaps it is (as was said yesterday) just a cultural/language thing,
+> but I'm not sure. 
 
---- linux-2.6.15.1/drivers/scsi/pdc_adma.c.orig	2006-02-08 09:03:15.000000000 +0100
-+++ linux-2.6.15.1/drivers/scsi/pdc_adma.c	2006-02-08 09:04:32.000000000 +0100
-@@ -322,8 +322,8 @@ static int adma_fill_sg(struct ata_queue
- 			= (pFLAGS & pEND) ? 0 : cpu_to_le32(pp->pkt_dma + i + 4);
- 		i += 4;
- 
--		VPRINTK("PRD[%u] = (0x%lX, 0x%X)\n", nelem
--					(unsigned long)addr, len);
-+		VPRINTK("Current PRD = (0x%lX, 0x%X)\n",
-+			(unsigned long)addr, len);
- 	}
- 	return i;
- }
+If I rephrase my comments as:
 
---------------000008040000030803080708--
+"The idea is okay, but the implementation is broken, because it does
+too much stuff in the kernel."
+
+and
+
+"Here's how you could do that better; take a look at latest -mm and
+use facilities it provides to push most of suspend2 code into
+userland."
+
+...will that help?
+
+> > As we speak there is a discussion on linux-pm regarding a patch that you
+> > have submitted and I'm sure you are following it.  Please note that Pavel
+> > hasn't spoken yet, but the patch has already been opposed by at least
+> > two people.  Is _this_ a Pavel's fault?  No, it isn't.
+> 
+> I haven't seen any replies apart from yours so far. Perhaps there's something
+> wrong with my mail delivery :(. I'll check the archives.
+
+Oh... did not seen that mail thread. Please cc: me on suspend-related
+stuff.
+
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

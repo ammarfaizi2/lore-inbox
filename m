@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030488AbWBHD3D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030484AbWBHDgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030488AbWBHD3D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 22:29:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030484AbWBHD3B
+	id S1030484AbWBHDgi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 22:36:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030493AbWBHDgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 22:29:01 -0500
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:58977 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1030488AbWBHD27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 22:28:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=K7TTXJ8OMCwJ1xZ9urXcRaTFx0cyeCtSeam83UZe1V9FWRpxgdZoVGwYiugvXhU1MNPHPSsgNijAb/57u3zo2BCL/nk6i5IbK2KwGHMm828bkn+S5hWGy5pmCtlFvAiT3L9dpRdvP6f/84QmSJ6YQ5npKX7KQr8mP5Pcmo1uviE=  ;
-Message-ID: <43E96577.1080208@yahoo.com.au>
-Date: Wed, 08 Feb 2006 14:28:55 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Con Kolivas <kernel@kolivas.org>, npiggin@suse.de, mingo@elte.hu,
-       rostedt@goodmis.org, pwil3058@bigpond.net.au, suresh.b.siddha@intel.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [rfc][patch] sched: remove smpnice
-References: <20060207142828.GA20930@wotan.suse.de>	<200602080157.07823.kernel@kolivas.org>	<20060207141525.19d2b1be.akpm@osdl.org>	<200602081011.09749.kernel@kolivas.org> <20060207153617.6520f126.akpm@osdl.org>
-In-Reply-To: <20060207153617.6520f126.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Feb 2006 22:36:38 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:34250 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030484AbWBHDgh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 22:36:37 -0500
+Date: Tue, 7 Feb 2006 21:36:33 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Sam Vilain <sam@vilain.net>,
+       Rik van Riel <riel@redhat.com>, Kirill Korotaev <dev@openvz.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, clg@fr.ibm.com, haveblue@us.ibm.com,
+       greg@kroah.com, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
+       saw@sawoct.com, devel@openvz.org, Dmitry Mishin <dim@sw.ru>,
+       Andi Kleen <ak@suse.de>, Herbert Poetzl <herbert@13thfloor.at>
+Subject: Re: The issues for agreeing on a virtualization/namespaces implementation.
+Message-ID: <20060208033633.GA8784@sergelap.austin.ibm.com>
+References: <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com> <43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com> <20060207201908.GJ6931@sergelap.austin.ibm.com> <43E90716.4020208@watson.ibm.com> <m17j86dds4.fsf_-_@ebiederm.dsl.xmission.com> <43E92EDC.8040603@watson.ibm.com> <20060208004325.GA15061@ms2.inr.ac.ru> <m1k6c6bm57.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1k6c6bm57.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-
-> In that case I think we're better off fixing both problems rather than
-> fixing neither.
+Quoting Eric W. Biederman (ebiederm@xmission.com):
+> Alexey Kuznetsov <kuznet@ms2.inr.ac.ru> writes:
 > 
-> Suresh, Martin, Ingo, Nick and Con: please drop everything, triple-check
-> and test this:
+> > Hello!
+> >
+> >> >2) What is the syscall interface to create these namespaces?
+> >> >   - Do we add clone flags?  
+> >> >     (Plan 9 style)
+> >> 
+> >> Like that approach .. flexible .. particular when one has well specified 
+> >> namespaces.
+> >> 
+> >> >   - Do we add a syscall (similar to setsid) per namespace?
+> >> >     (Traditional unix style)?
+> >> 
+> >> Where does that approach end .. what's wrong with doing it at clone() time ?
+> >
+> > That most of those namespaces need a special setup rather than a plain copy?
+> >
+> > F.e. what are you going to do with NETWORK namespace? The only valid thing
+> > to do is to prepare a new context and to configure its content (addresses,
+> > routing tables, iptables...) later. So that, in this case it is natural
+> > to inherit the context through clone() and to create new context
+> > with a separate syscall.
 > 
-
-OK, great. I was under the impression that this still had problems
-but Peter and Martin seem to agree they've been resolved.
-
+> With a NETWORK namespace what I implemented was that you get a empty
+> namespace with a loopback interface.
 > 
-> 
-> From: Peter Williams <pwil3058@bigpond.net.au>
-> 
+> But setting up the namespace from the inside is clearly the sane thing
+> todo.
 
-...
+What I tried to do in a proof of concept long ago was to have
+CLONE_NETNS mean that you get access to all the network devices, but
+then you could drop/add them.  Conceptually I prefer that to getting an
+empty namespace, but I'm not sure whether there's any practical use
+where you'd want that...
 
-I'll give it some testing.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+-serge

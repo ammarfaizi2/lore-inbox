@@ -1,44 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWBHEMl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965194AbWBHESt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932172AbWBHEMl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 23:12:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbWBHEMl
+	id S965194AbWBHESt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 23:18:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbWBHESt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 23:12:41 -0500
-Received: from xproxy.gmail.com ([66.249.82.192]:26197 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932172AbWBHEMl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 23:12:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YEo5ltthHNSTgb12H2NPFnVxf5So1ULOTL0P4Q87Hrm4CoN0iNr85+NAOj69McMbXavxNckcVNwJAxhog7MerYyYMsKopg81rc+FwhL/Vo8a4rPifLR6uVRbklKoLSEbXtxM9EN2sFasxQSjmIlDACy7mNWzKHpgYaxsP6b/4SU=
-Message-ID: <986ed62e0602072012g466b602ct1e78a778268e5710@mail.gmail.com>
-Date: Tue, 7 Feb 2006 20:12:40 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
-Cc: gcoady@gmail.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200602081400.59931.kernel@kolivas.org>
-MIME-Version: 1.0
+	Tue, 7 Feb 2006 23:18:49 -0500
+Received: from xenotime.net ([66.160.160.81]:17864 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932190AbWBHESs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 23:18:48 -0500
+Date: Tue, 7 Feb 2006 20:19:23 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Andi Kleen <ak@suse.de>
+Cc: haveblue@us.ibm.com, ebiederm@xmission.com, linux-kernel@vger.kernel.org,
+       vserver@list.linux-vserver.org, herbert@13thfloor.at, serue@us.ibm.com,
+       alan@lxorguk.ukuu.org.uk, arjan@infradead.org, ssouhlal@freebsd.org,
+       frankeh@watson.ibm.com, clg@fr.ibm.com, mrmacman_g4@mac.com, dev@sw.ru,
+       gkurz@fr.ibm.com, torvalds@osdl.org, akpm@osdl.org, greg@kroah.com,
+       riel@redhat.com, kuznet@ms2.inr.ac.ru, saw@sawoct.com, dev@openvz.org,
+       benh@kernel.crashing.org, jgarzik@pobox.com, trond.myklebust@fys.uio.no,
+       jes@sgi.com
+Subject: Re: [RFC][PATCH 0/20] Multiple instances of the process id
+ namespace
+Message-Id: <20060207201923.1a97cfd6.rdunlap@xenotime.net>
+In-Reply-To: <200602071033.23316.ak@suse.de>
+References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
+	<1139273294.6189.170.camel@localhost.localdomain>
+	<200602071033.23316.ak@suse.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
-	 <200602081335.18256.kernel@kolivas.org>
-	 <24niu1hrom6udfa2km18b8bagad62kjamc@4ax.com>
-	 <200602081400.59931.kernel@kolivas.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/7/06, Con Kolivas <kernel@kolivas.org> wrote:
-> This is the terminal's fault. xterm et al use an algorithm to determine how
-> fast your machine is and decide whether to jump scroll or smooth scroll. This
-> algorithm is basically broken with the 2.6 scheduler and it decides to mostly
-> smooth scroll.
+On Tue, 7 Feb 2006 10:33:21 +0100 Andi Kleen wrote:
 
-Recent versions of xterm are supposed to fix this. (Skimming xterm's
-changelog, I think it might have been fixed in version 201, but I'm
-not completely sure.)
---
--Barry K. Nathan <barryn@pobox.com>
+> On Tuesday 07 February 2006 01:48, Dave Hansen wrote:
+> > On Mon, 2006-02-06 at 12:19 -0700, Eric W. Biederman wrote:
+> > > p.s.  My apologies at the size of the CC list.  It is very hard to tell who
+> > > the interested parties are, and since there is no one list we all subscribe
+> > > to other than linux-kernel how to reach everyone in a timely manner.  I am
+> > > copying everyone who has chimed in on a previous thread on the subject.  If
+> > > you don't want to be copied in the future tell and I will take your name off
+> > > of my list.
+> > 
+> > Is it worth creating a vger or OSDL mailing list for these discussions?
+> > There was some concern the cc list is getting too large. :)
+> 
+> No, linux-kernel is fine. It will keep everybody informed, instead of
+> small groups doing their own things. But just keep the cc lists short please.
+> I'm sure all interested people can get it from l-k.
+
+OK.  (Yes, I have a dream.)
+
+I'd like to see less traffic on lkml, with various things moved off
+to other mailing lists.
+
+According to http://marc.theaimsgroup.com/?l=linux-kernel,
+Jan. 2006 was a near record month and Feb. is on track to be large also.
+
+---
+~Randy

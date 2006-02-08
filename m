@@ -1,60 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbWBHGAt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965171AbWBHGEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbWBHGAt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 01:00:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWBHGAt
+	id S965171AbWBHGEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 01:04:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965173AbWBHGEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 01:00:49 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:55186 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S964851AbWBHGAs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 01:00:48 -0500
-Message-ID: <43E98966.4080500@jp.fujitsu.com>
-Date: Wed, 08 Feb 2006 15:02:14 +0900
+	Wed, 8 Feb 2006 01:04:25 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:48347 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S965171AbWBHGEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 01:04:24 -0500
+Message-ID: <43E98A01.70608@jp.fujitsu.com>
+Date: Wed, 08 Feb 2006 15:04:49 +0900
 From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: tony.luck@intel.com
-Subject: [PATCH] unify pfn_to_page take 2 [11/25] ia64 funcs
+CC: takata@linux-m32r.org
+Subject: [PATCH] unify pfn_to_page take 2 [12/25] m32r funcs
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If CONFIG_DISCONTIGMEM==y, VIRTUAL_MEM_MAP is selecetd.
-In this case, we cannot use generic one.
+m32r can use generic ones.
 
-Signed-Off-By: KAMEZAWA Hiruyoki <kamezawa.hiroyu@jp.fujitsu.com>
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-Index: test-layout-free-zone/arch/ia64/Kconfig
+Index: test-layout-free-zone/include/asm-m32r/mmzone.h
 ===================================================================
---- test-layout-free-zone.orig/arch/ia64/Kconfig
-+++ test-layout-free-zone/arch/ia64/Kconfig
-@@ -334,6 +334,10 @@ config HOLES_IN_ZONE
-  	bool
-  	default y if VIRTUAL_MEM_MAP
+--- test-layout-free-zone.orig/include/asm-m32r/mmzone.h
++++ test-layout-free-zone/include/asm-m32r/mmzone.h
+@@ -21,20 +21,6 @@ extern struct pglist_data *node_data[];
+  	__pgdat->node_start_pfn + __pgdat->node_spanned_pages - 1;	\
+  })
 
-+config ARCH_HAS_PFN_TO_PAGE
-+	bool
-+	default y if VIRTUAL_MEM_MAP
-+
-  config HAVE_ARCH_EARLY_PFN_TO_NID
-  	def_bool y
-  	depends on NEED_MULTIPLE_NODES
-Index: test-layout-free-zone/include/asm-ia64/page.h
+-#define pfn_to_page(pfn)						\
+-({									\
+-	unsigned long __pfn = pfn;					\
+-	int __node  = pfn_to_nid(__pfn);				\
+-	&NODE_DATA(__node)->node_mem_map[node_localnr(__pfn,__node)];	\
+-})
+-
+-#define page_to_pfn(pg)							\
+-({									\
+-	struct page *__page = pg;					\
+-	struct zone *__zone = page_zone(__page);			\
+-	(unsigned long)(__page - __zone->zone_mem_map)			\
+-		+ __zone->zone_start_pfn;				\
+-})
+  #define pmd_page(pmd)		(pfn_to_page(pmd_val(pmd) >> PAGE_SHIFT))
+  /*
+   * pfn_valid should be made as fast as possible, and the current definition
+Index: test-layout-free-zone/include/asm-m32r/page.h
 ===================================================================
---- test-layout-free-zone.orig/include/asm-ia64/page.h
-+++ test-layout-free-zone/include/asm-ia64/page.h
-@@ -106,9 +106,8 @@ extern int ia64_pfn_valid (unsigned long
+--- test-layout-free-zone.orig/include/asm-m32r/page.h
++++ test-layout-free-zone/include/asm-m32r/page.h
+@@ -76,9 +76,7 @@ typedef struct { unsigned long pgprot; }
 
-  #ifdef CONFIG_FLATMEM
-  # define pfn_valid(pfn)		(((pfn) < max_mapnr) && ia64_pfn_valid(pfn))
--# define page_to_pfn(page)	((unsigned long) (page - mem_map))
--# define pfn_to_page(pfn)	(mem_map + (pfn))
-  #elif defined(CONFIG_DISCONTIGMEM)
-+/* we already selected CONFIG_ARCH_HASH_PFN_TO_PAGE here */
-  extern struct page *vmem_map;
-  extern unsigned long min_low_pfn;
-  extern unsigned long max_low_pfn;
+  #ifndef CONFIG_DISCONTIGMEM
+  #define PFN_BASE		(CONFIG_MEMORY_START >> PAGE_SHIFT)
+-#define pfn_to_page(pfn)	(mem_map + ((pfn) - PFN_BASE))
+-#define page_to_pfn(page)	\
+-	((unsigned long)((page) - mem_map) + PFN_BASE)
++#define ARCH_PFN_OFFSET		PFN_BASE
+  #define pfn_valid(pfn)		(((pfn) - PFN_BASE) < max_mapnr)
+  #endif  /* !CONFIG_DISCONTIGMEM */
+
 

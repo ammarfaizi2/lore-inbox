@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030294AbWBHDSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030481AbWBHD1E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030294AbWBHDSj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 22:18:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWBHDSi
+	id S1030481AbWBHD1E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 22:27:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030510AbWBHD0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 22:18:38 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:58496 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751139AbWBHDS1
+	Tue, 7 Feb 2006 22:26:37 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:60544 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030481AbWBHDSm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 22:18:27 -0500
+	Tue, 7 Feb 2006 22:18:42 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 07/29] ppc: last_task_.... is defined only on non-SMP
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
-Message-Id: <E1F6fqd-0006Bx-0m@ZenIV.linux.org.uk>
+Subject: [PATCH 10/29] missing include in ser_a2232
+Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk
+Message-Id: <E1F6fqs-0006CL-1I@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Wed, 08 Feb 2006 03:18:27 +0000
+Date: Wed, 08 Feb 2006 03:18:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Date: 1137641660 -0500
+Date: 1138603235 -0500
 
-... so it should be exported only on non-SMP.
+Fallout from tty changes
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/ppc/kernel/ppc_ksyms.c |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
+ drivers/char/ser_a2232.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-3ba9d91208a71947b69d52e3ca2142306457d816
-diff --git a/arch/ppc/kernel/ppc_ksyms.c b/arch/ppc/kernel/ppc_ksyms.c
-index 3a6e4bc..15bd9b4 100644
---- a/arch/ppc/kernel/ppc_ksyms.c
-+++ b/arch/ppc/kernel/ppc_ksyms.c
-@@ -186,11 +186,15 @@ EXPORT_SYMBOL(flush_tlb_kernel_range);
- EXPORT_SYMBOL(flush_tlb_page);
- EXPORT_SYMBOL(_tlbie);
- #ifdef CONFIG_ALTIVEC
-+#ifndef CONFIG_SMP
- EXPORT_SYMBOL(last_task_used_altivec);
-+#endif
- EXPORT_SYMBOL(giveup_altivec);
- #endif /* CONFIG_ALTIVEC */
- #ifdef CONFIG_SPE
-+#ifndef CONFIG_SMP
- EXPORT_SYMBOL(last_task_used_spe);
-+#endif
- EXPORT_SYMBOL(giveup_spe);
- #endif /* CONFIG_SPE */
- #ifdef CONFIG_SMP
+3023b438c4b6103d520690cfa8b790bdd3868dc2
+diff --git a/drivers/char/ser_a2232.c b/drivers/char/ser_a2232.c
+index 80a5b84..fee68cc 100644
+--- a/drivers/char/ser_a2232.c
++++ b/drivers/char/ser_a2232.c
+@@ -103,6 +103,7 @@
+ 
+ #include <linux/serial.h>
+ #include <linux/generic_serial.h>
++#include <linux/tty_flip.h>
+ 
+ #include "ser_a2232.h"
+ #include "ser_a2232fw.h"
 -- 
 0.99.9.GIT
 

@@ -1,84 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965187AbWBHCz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965188AbWBHC4U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965187AbWBHCz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 21:55:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965188AbWBHCz4
+	id S965188AbWBHC4U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 21:56:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965190AbWBHC4U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 21:55:56 -0500
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:29326 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S965187AbWBHCzz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 21:55:55 -0500
-From: Grant Coady <gcoady@gmail.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
-Date: Wed, 08 Feb 2006 13:55:53 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <24niu1hrom6udfa2km18b8bagad62kjamc@4ax.com>
-References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com> <200602081335.18256.kernel@kolivas.org>
-In-Reply-To: <200602081335.18256.kernel@kolivas.org>
-X-Mailer: Forte Agent 2.0/32.652
+	Tue, 7 Feb 2006 21:56:20 -0500
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:19684
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S965188AbWBHC4T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 21:56:19 -0500
+Message-ID: <43E95DD2.6000601@microgate.com>
+Date: Tue, 07 Feb 2006 20:56:18 -0600
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Olaf Hering <olh@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new tty buffering locking fix
+References: <200602032312.k13NCbWb012991@hera.kernel.org>	 <20060207123450.GA854@suse.de>	 <1139329302.3019.14.camel@amdx2.microgate.com>	 <20060207171111.GA15912@suse.de>	 <1139347644.3174.16.camel@amdx2.microgate.com> <1139361293.22595.14.camel@localhost.localdomain> <43E95A40.7010905@microgate.com>
+In-Reply-To: <43E95A40.7010905@microgate.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Feb 2006 13:35:18 +1100, Con Kolivas <kernel@kolivas.org> wrote:
+Paul Fulghum wrote:
+> Alan Cox wrote:
+> 
+>> Thats going to hurt memory consumption in the worst cases.
+> 
+> I'll gather some accounting info tomorrow,
+> and consider the more pathological cases.
 
->On Wed, 8 Feb 2006 01:11 pm, Grant Coady wrote:
->> Hi there,
->>
->> grant@deltree:~$ uname -r
->> 2.6.15.3a
->> grant@deltree:~$ time grep -v 192\.168\. /var/log/apache/access_log| cut
->> -c-95 ...
->> 2006-02-08 12:38:13 +1100: bugsplatter.mine.nu 193.196.182.215 "GET
->> /test/linux-2.6/tosh/ HTTP/
->>
->> real    0m8.537s
->> user    0m0.970s
->> sys     0m1.100s
->>
->> --> reboot to 2.4.32-hf32.2
->>
->> grant@deltree:~$ uname -r
->> 2.4.32-hf32.2
->> grant@deltree:~$ time grep -v 192\.168\. /var/log/apache/access_log| cut
->> -c-95 ...
->> 2006-02-08 12:38:13 +1100: bugsplatter.mine.nu 193.196.182.215 "GET
->> /test/linux-2.6/tosh/ HTTP/
->>
->> real    0m2.271s
->> user    0m0.730s
->> sys     0m0.540s
->>
->> Still a 4:1 slowdown, machine .config and dmesg info:
->>   http://bugsplatter.mine.nu/test/boxen/deltree/
->
->What happens if you add "| cat" on the end of your command?
+Now that I think about it (ow!), there is a simple way
+to cap the memory penalty to a single extra buffer allocation
+and still maintain the existing interface behavior.
 
-It gets faster with 2.4.32-hf32.2 by a little bit (I forgot to copy)
-
-reboot to 2.6.15.3a, without...
-
-real    0m8.737s
-user    0m1.030s
-sys     0m1.200s
-
-with...  oh shit / surprise!!
-
-real    0m1.861s
-user    0m0.560s
-sys     0m0.370s
-
-What is that telling me / you / us?
+I'll post a new patch tomorrow.
 
 Thanks,
-Grant
->
->Cheers,
->Con
+Paul
 
+--
+Paul Fulghum
+Microgate Systems, Ltd

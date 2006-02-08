@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030517AbWBHQDq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965169AbWBHQH1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030517AbWBHQDq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 11:03:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965180AbWBHQDq
+	id S965169AbWBHQH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 11:07:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965180AbWBHQH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 11:03:46 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:58808 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S965169AbWBHQDp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 11:03:45 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Wed, 8 Feb 2006 11:07:27 -0500
+Received: from ns.suse.de ([195.135.220.2]:1685 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965169AbWBHQH0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 11:07:26 -0500
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes 2.6.16-rc1[2] on 2 node X86_64
+Date: Wed, 8 Feb 2006 17:06:26 +0100
+User-Agent: KMail/1.8.2
+Cc: Bharata B Rao <bharata@in.ibm.com>, Ray Bryant <raybry@mpdtxmail.amd.com>,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org
+References: <20060205163618.GB21972@in.ibm.com> <200602081645.24733.ak@suse.de> <Pine.LNX.4.62.0602080755500.908@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0602080755500.908@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: PREEMPT_RT and mptbase, mptscsih : I loose my file systems ( 2.6.15-rt16 )
-Date: Wed, 8 Feb 2006 09:02:33 -0700
-Message-ID: <F331B95B72AFFB4B87467BE1C8E9CF5F266ECF@NAMAIL2.ad.lsil.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PREEMPT_RT and mptbase, mptscsih : I loose my file systems ( 2.6.15-rt16 )
-Thread-Index: AcYsk9qKlN2cbRjxRmKVRngVd9d45gANP5pQ
-From: "Moore, Eric" <Eric.Moore@lsil.com>
-To: "Serge Noiraud" <serge.noiraud@bull.net>,
-       "linux-scsi" <linux-scsi@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-Cc: "Steven Rostedt" <rostedt@goodmis.org>, "Ingo Molnar" <mingo@elte.hu>
-X-OriginalArrivalTime: 08 Feb 2006 16:02:34.0215 (UTC) FILETIME=[12CD9770:01C62CC9]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602081706.26853.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  Wednesday, February 08, 2006 2:48 AM, Serge Noiraud wrote:
-
-> Hi,
+On Wednesday 08 February 2006 16:59, Christoph Lameter wrote:
+> On Wed, 8 Feb 2006, Andi Kleen wrote:
 > 
-> 	I have some problems with 2.6.15 and rt16 patch from ingo.
-> I have the following problems :
+> > On Wednesday 08 February 2006 16:42, Christoph Lameter wrote:
+> > 
+> > > However, this has implications for policy_zone. This variable should store
+> > > the zone that policies apply to. However, in your case this zone will vary 
+> > > which may lead to all sorts of weird behavior even if we fix 
+> > > bind_zonelist. To which zone does policy apply? ZONE_NORMAL or ZONE_DMA32?
+> > 
+> > It really needs to apply to both (currently you can't police 4GB of your 
+> > memory on x86-64) But I haven't worked out a good design how to implement it yet.
 > 
+> So a provisional solution would be to simply ignore empty zones in 
+> bind_zonelist?
 
-Can you send me the entire boot log, to include the info from when
-the driver loaded.  Which platform/arch is this?  Where can I
-get the rt16 patch?
+That would likely prevent the crash yes (Bharata can you test?)
 
-Eric Moore
-LSI Logic
+But of course it still has the problem of a lot of memory being unpolicied
+on machines with >4GB if there's both DMA32 and NORMAL.
+
+> Or fall back to earlier zones (which includes unpolicied  
+> zones in the bind zone list?)
+
+Or that.
+
+Thanks,
+-Andi
+
+ 

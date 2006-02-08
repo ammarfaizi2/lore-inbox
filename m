@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbWBGXkz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030395AbWBHBQX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932485AbWBGXkz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 18:40:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWBGXky
+	id S1030395AbWBHBQX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 20:16:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030397AbWBHBQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 18:40:54 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:27809 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932485AbWBGXkx (ORCPT
+	Tue, 7 Feb 2006 20:16:23 -0500
+Received: from watts.utsl.gen.nz ([202.78.240.73]:4510 "EHLO mail.utsl.gen.nz")
+	by vger.kernel.org with ESMTP id S1030395AbWBHBQW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 18:40:53 -0500
-Date: Tue, 7 Feb 2006 18:40:43 -0500
-From: Dave Jones <davej@redhat.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       Neal Becker <ndbecker2@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1 panic on startup (acpi)
-Message-ID: <20060207234043.GB17665@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Randy.Dunlap" <rdunlap@xenotime.net>, Greg KH <greg@kroah.com>,
-	Andrew Morton <akpm@osdl.org>, Neal Becker <ndbecker2@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <ds7cu3$9c0$1@sea.gmane.org> <ds7f17$gp7$1@sea.gmane.org> <20060207145913.714fec1c.akpm@osdl.org> <20060207231835.GA19648@kroah.com> <20060207233059.GA17665@redhat.com> <Pine.LNX.4.58.0602071534380.12589@shark.he.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0602071534380.12589@shark.he.net>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 7 Feb 2006 20:16:22 -0500
+Message-ID: <43E94651.2090009@vilain.net>
+Date: Wed, 08 Feb 2006 14:16:01 +1300
+From: Sam Vilain <sam@vilain.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kevin Fox <Kevin.Fox@pnl.gov>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>, Rik van Riel <riel@redhat.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Kirill Korotaev <dev@openvz.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       clg@fr.ibm.com, haveblue@us.ibm.com, greg@kroah.com,
+       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
+       kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
+       Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
+References: <43E7C65F.3050609@openvz.org> <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com> <43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com> <43E92602.8040403@vilain.net> <1139364483.7169.20.camel@localhost.localdomain>
+In-Reply-To: <1139364483.7169.20.camel@localhost.localdomain>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 07, 2006 at 03:35:31PM -0800, Randy.Dunlap wrote:
- > On Tue, 7 Feb 2006, Dave Jones wrote:
- > 
- > > On Tue, Feb 07, 2006 at 03:18:35PM -0800, Greg Kroah-Hartman wrote:
- > >  > On Tue, Feb 07, 2006 at 02:59:13PM -0800, Andrew Morton wrote:
- > >  > > Neal Becker <ndbecker2@gmail.com> wrote:
- > >  > > >
- > >  > > > Sorry, I meant 2.6.16-rc1 (not 2.6.12)
- > >  > > >
- > >  > > > Neal Becker wrote:
- > >  > > >
- > >  > > > > HP dv8000 notebook
- > >  > > > > 2.6.15 is fine, but 2.6.12-rc1 panics immediately on startup
- > >  > > > >
- > >  > > > > Here is a picture of some traceback
- > >  > > > > https://bugzilla.redhat.com/bugzilla/attachment.cgi?id=124152&action=view
- > >  > > >
- > >  > > >
- > >  > >
- > >  > > It died in pci_mmcfg_read().  Greg, didn't a crash in there get fixed recently?
- > >  >
- > >  > Yes.  Can you try 2.6.16-rc2?  Is this a x86-64 machine?
- > >
- > > I can hit this on my dv8000 too. It's still there in 2.6.12-rc2-git3
- > > I'm building a kernel with Randy's 'pause after printk' patch right now
- > > to catch the top of the oops.  It's enormous.  Even with a 50 line display,
- > > and x86-64s dual-line backtrace, it scrolls off the top.
- > 
- > Just be patient.  A boot can take a few minutes... ;)
+Kevin Fox wrote:
+>>>The container is just an umbrella object that ties every "virtualized" 
+>>>subsystem together.
+>>I like this description; it matches roughly with the concepts as
+>>presented by vserver; there is the process virtualisation (vx_info), and
+>>the network virtualisation (nx_info) of Eric's that has been integrated
+>>to the vserver 2.1.x development branch.  However the vx_info has become
+>>the de facto umbrella object space as well.  These could almost
+>>certainly be split out without too much pain or incurring major
+>>rethinks.
+> How does all of this tie in with CPU Sets? It seems to me, they have
+> something not unlike a container already that supports nesting.
 
-It doesn't get that far.  What did bugger things up though was the NMI watchdog
-kicking in.  I've thrown a touch_nmi_watchdog in the delay, and kicked off another build
-hoping for a cleaner dump.
+Yes, I saw that.  AIUI that's mainly about binding groups of processes
+to CPUs, to defeat Amdahl's law when it rears its head.  It fits into
+the containers model as a hard partitioning feature, but is a lot more
+crude than the CPU Token Bucket scheduler in Linux-VServer.
 
-In the meantime, here's what I got..
+No doubt both CPU allocation strategies will be useful.
 
-http://people.redhat.com/davej/DSC00148.JPG
-
-
-		Dave
-
-
+Sam.

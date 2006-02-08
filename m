@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbWBHMba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030383AbWBHMci@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030371AbWBHMba (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 07:31:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbWBHMba
+	id S1030383AbWBHMci (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 07:32:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030390AbWBHMci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 07:31:30 -0500
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:12375 "EHLO
+	Wed, 8 Feb 2006 07:32:38 -0500
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:44631 "EHLO
 	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1030371AbWBHMba (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 07:31:30 -0500
-Date: Wed, 8 Feb 2006 13:31:27 +0100
+	id S1030384AbWBHMch (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 07:32:37 -0500
+Date: Wed, 8 Feb 2006 13:32:35 +0100
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch 01/10] s390: update default configuration
-Message-ID: <20060208123127.GB1656@osiris.boeblingen.de.ibm.com>
+Cc: linux-kernel@vger.kernel.org,
+       Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+Subject: [patch 02/10] s390: fix sclp memory corruption in tty pages list
+Message-ID: <20060208123235.GC1656@osiris.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,59 +23,54 @@ User-Agent: mutt-ng/devel (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 
-Switch on CONFIG_DEBUG_FS again.
+When the sclp interface takes very long to serve a request, the sclp core
+driver will report a failed request to the sclp tty driver even though
+the request is still being processed by the sclp interface.
+Eventually the sclp interface completes the request and updates some fields
+in the request buffer which leads to a corrupted tty pages list. The next
+time function sclp_tty_write_room is called, the corrupted list will be
+traversed, resulting in an oops.
 
+To avoid this remove the busy retry limit and increase retry intervals.
+
+Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
 
- arch/s390/defconfig |    9 +++++----
- 1 files changed, 5 insertions(+), 4 deletions(-)
+ drivers/s390/char/sclp.c |   13 +++++--------
+ 1 files changed, 5 insertions(+), 8 deletions(-)
 
-diff -urpN linux-2.6/arch/s390/defconfig linux-2.6-patched/arch/s390/defconfig
---- linux-2.6/arch/s390/defconfig	2006-02-08 10:48:03.000000000 +0100
-+++ linux-2.6-patched/arch/s390/defconfig	2006-02-08 10:48:41.000000000 +0100
-@@ -1,7 +1,7 @@
- #
- # Automatically generated make config: don't edit
--# Linux kernel version: 2.6.16-rc1
--# Thu Jan 19 10:58:53 2006
-+# Linux kernel version: 2.6.16-rc2
-+# Wed Feb  8 10:44:39 2006
- #
- CONFIG_MMU=y
- CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-@@ -12,7 +12,6 @@ CONFIG_S390=y
- # Code maturity level options
- #
- CONFIG_EXPERIMENTAL=y
--CONFIG_CLEAN_COMPILE=y
- CONFIG_LOCK_KERNEL=y
- CONFIG_INIT_ENV_ARG_LIMIT=32
+diff -urpN linux-2.6/drivers/s390/char/sclp.c linux-2.6-patched/drivers/s390/char/sclp.c
+--- linux-2.6/drivers/s390/char/sclp.c	2006-01-03 04:21:10.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/sclp.c	2006-02-08 10:48:42.000000000 +0100
+@@ -85,11 +85,10 @@ static volatile enum sclp_mask_state_t {
+ /* Maximum retry counts */
+ #define SCLP_INIT_RETRY		3
+ #define SCLP_MASK_RETRY		3
+-#define SCLP_REQUEST_RETRY	3
  
-@@ -154,6 +153,7 @@ CONFIG_NET=y
- #
- # Networking options
- #
-+# CONFIG_NETDEBUG is not set
- CONFIG_PACKET=y
- # CONFIG_PACKET_MMAP is not set
- CONFIG_UNIX=y
-@@ -607,6 +607,7 @@ CONFIG_MSDOS_PARTITION=y
- # Instrumentation Support
- #
- # CONFIG_PROFILING is not set
-+# CONFIG_STATISTICS is not set
+ /* Timeout intervals in seconds.*/
+-#define SCLP_BUSY_INTERVAL	2
+-#define SCLP_RETRY_INTERVAL	5
++#define SCLP_BUSY_INTERVAL	10
++#define SCLP_RETRY_INTERVAL	15
  
- #
- # Kernel hacking
-@@ -624,7 +625,7 @@ CONFIG_DEBUG_MUTEXES=y
- # CONFIG_DEBUG_SPINLOCK_SLEEP is not set
- # CONFIG_DEBUG_KOBJECT is not set
- # CONFIG_DEBUG_INFO is not set
--# CONFIG_DEBUG_FS is not set
-+CONFIG_DEBUG_FS=y
- # CONFIG_DEBUG_VM is not set
- CONFIG_FORCED_INLINING=y
- # CONFIG_RCU_TORTURE_TEST is not set
+ static void sclp_process_queue(void);
+ static int sclp_init_mask(int calculate);
+@@ -153,11 +152,9 @@ __sclp_start_request(struct sclp_req *re
+ 	if (sclp_running_state != sclp_running_state_idle)
+ 		return 0;
+ 	del_timer(&sclp_request_timer);
+-	if (req->start_count <= SCLP_REQUEST_RETRY) {
+-		rc = service_call(req->command, req->sccb);
+-		req->start_count++;
+-	} else
+-		rc = -EIO;
++	rc = service_call(req->command, req->sccb);
++	req->start_count++;
++
+ 	if (rc == 0) {
+ 		/* Sucessfully started request */
+ 		req->status = SCLP_REQ_RUNNING;

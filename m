@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161009AbWBHGnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161021AbWBHGns@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161009AbWBHGnm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 01:43:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161018AbWBHGnN
+	id S1161021AbWBHGns (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 01:43:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161029AbWBHGnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 01:43:13 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:50049 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1161010AbWBHGmq
+	Wed, 8 Feb 2006 01:43:46 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:64130 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1161025AbWBHGn2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 01:42:46 -0500
-Message-Id: <20060208064900.079677000@sorel.sous-sol.org>
+	Wed, 8 Feb 2006 01:43:28 -0500
+Message-Id: <20060208064915.644489000@sorel.sous-sol.org>
 References: <20060208064503.924238000@sorel.sous-sol.org>
-Date: Tue, 07 Feb 2006 22:45:11 -0800
+Date: Tue, 07 Feb 2006 22:45:22 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -19,149 +19,190 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Dmitry Torokhov <dtor@mail.ru>
-Subject: [PATCH 08/23] Input: db9 - fix possible crash with Saturn gamepads
-Content-Disposition: inline; filename=input-db9-fix-possible-crash-with-saturn-gamepads.patch
+       Stephen Hemminger <shemminger@osdl.org>,
+       David Miller <davem@davemloft.net>, netdev@vger.kernel.org
+Subject: [PATCH 19/23] [PATCH] bridge: netfilter races on device removal
+Content-Disposition: inline; filename=bridge-netfilter-races-on-device-removal.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-db9 - fix possible crash with Saturn gamepads
+Fix bridge netfilter to handle case where interface is deleted
+from bridge while packet is being processed (on other CPU).
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+Fixes: http://bugzilla.kernel.org/show_bug.cgi?id=5803
+
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
 
- drivers/input/joystick/db9.c |   70 ++++++++++++++++++++++---------------------
- 1 files changed, 36 insertions(+), 34 deletions(-)
+ net/bridge/br_netfilter.c |   55 +++++++++++++++++++++++++++++++---------------
+ 1 files changed, 38 insertions(+), 17 deletions(-)
 
-Index: linux-2.6.15.3/drivers/input/joystick/db9.c
+Index: linux-2.6.15.3/net/bridge/br_netfilter.c
 ===================================================================
---- linux-2.6.15.3.orig/drivers/input/joystick/db9.c
-+++ linux-2.6.15.3/drivers/input/joystick/db9.c
-@@ -275,68 +275,70 @@ static unsigned char db9_saturn_read_pac
- /*
-  * db9_saturn_report() analyzes packet and reports.
-  */
--static int db9_saturn_report(unsigned char id, unsigned char data[60], struct input_dev *dev, int n, int max_pads)
-+static int db9_saturn_report(unsigned char id, unsigned char data[60], struct input_dev *devs[], int n, int max_pads)
- {
-+	struct input_dev *dev;
- 	int tmp, i, j;
+--- linux-2.6.15.3.orig/net/bridge/br_netfilter.c
++++ linux-2.6.15.3/net/bridge/br_netfilter.c
+@@ -47,9 +47,6 @@
+ #define store_orig_dstaddr(skb)	 (skb_origaddr(skb) = (skb)->nh.iph->daddr)
+ #define dnat_took_place(skb)	 (skb_origaddr(skb) != (skb)->nh.iph->daddr)
  
- 	tmp = (id == 0x41) ? 60 : 10;
--	for (j = 0; (j < tmp) && (n < max_pads); j += 10, n++) {
-+	for (j = 0; j < tmp && n < max_pads; j += 10, n++) {
-+		dev = devs[n];
- 		switch (data[j]) {
- 		case 0x16: /* multi controller (analog 4 axis) */
--			input_report_abs(dev + n, db9_abs[5], data[j + 6]);
-+			input_report_abs(dev, db9_abs[5], data[j + 6]);
- 		case 0x15: /* mission stick (analog 3 axis) */
--			input_report_abs(dev + n, db9_abs[3], data[j + 4]);
--			input_report_abs(dev + n, db9_abs[4], data[j + 5]);
-+			input_report_abs(dev, db9_abs[3], data[j + 4]);
-+			input_report_abs(dev, db9_abs[4], data[j + 5]);
- 		case 0x13: /* racing controller (analog 1 axis) */
--			input_report_abs(dev + n, db9_abs[2], data[j + 3]);
-+			input_report_abs(dev, db9_abs[2], data[j + 3]);
- 		case 0x34: /* saturn keyboard (udlr ZXC ASD QE Esc) */
- 		case 0x02: /* digital pad (digital 2 axis + buttons) */
--			input_report_abs(dev + n, db9_abs[0], !(data[j + 1] & 128) - !(data[j + 1] & 64));
--			input_report_abs(dev + n, db9_abs[1], !(data[j + 1] & 32) - !(data[j + 1] & 16));
-+			input_report_abs(dev, db9_abs[0], !(data[j + 1] & 128) - !(data[j + 1] & 64));
-+			input_report_abs(dev, db9_abs[1], !(data[j + 1] & 32) - !(data[j + 1] & 16));
- 			for (i = 0; i < 9; i++)
--				input_report_key(dev + n, db9_cd32_btn[i], ~data[j + db9_saturn_byte[i]] & db9_saturn_mask[i]);
-+				input_report_key(dev, db9_cd32_btn[i], ~data[j + db9_saturn_byte[i]] & db9_saturn_mask[i]);
- 			break;
- 		case 0x19: /* mission stick x2 (analog 6 axis + buttons) */
--			input_report_abs(dev + n, db9_abs[0], !(data[j + 1] & 128) - !(data[j + 1] & 64));
--			input_report_abs(dev + n, db9_abs[1], !(data[j + 1] & 32) - !(data[j + 1] & 16));
-+			input_report_abs(dev, db9_abs[0], !(data[j + 1] & 128) - !(data[j + 1] & 64));
-+			input_report_abs(dev, db9_abs[1], !(data[j + 1] & 32) - !(data[j + 1] & 16));
- 			for (i = 0; i < 9; i++)
--				input_report_key(dev + n, db9_cd32_btn[i], ~data[j + db9_saturn_byte[i]] & db9_saturn_mask[i]);
--			input_report_abs(dev + n, db9_abs[2], data[j + 3]);
--			input_report_abs(dev + n, db9_abs[3], data[j + 4]);
--			input_report_abs(dev + n, db9_abs[4], data[j + 5]);
-+				input_report_key(dev, db9_cd32_btn[i], ~data[j + db9_saturn_byte[i]] & db9_saturn_mask[i]);
-+			input_report_abs(dev, db9_abs[2], data[j + 3]);
-+			input_report_abs(dev, db9_abs[3], data[j + 4]);
-+			input_report_abs(dev, db9_abs[4], data[j + 5]);
- 			/*
--			input_report_abs(dev + n, db9_abs[8], (data[j + 6] & 128 ? 0 : 1) - (data[j + 6] & 64 ? 0 : 1));
--			input_report_abs(dev + n, db9_abs[9], (data[j + 6] & 32 ? 0 : 1) - (data[j + 6] & 16 ? 0 : 1));
-+			input_report_abs(dev, db9_abs[8], (data[j + 6] & 128 ? 0 : 1) - (data[j + 6] & 64 ? 0 : 1));
-+			input_report_abs(dev, db9_abs[9], (data[j + 6] & 32 ? 0 : 1) - (data[j + 6] & 16 ? 0 : 1));
- 			*/
--			input_report_abs(dev + n, db9_abs[6], data[j + 7]);
--			input_report_abs(dev + n, db9_abs[7], data[j + 8]);
--			input_report_abs(dev + n, db9_abs[5], data[j + 9]);
-+			input_report_abs(dev, db9_abs[6], data[j + 7]);
-+			input_report_abs(dev, db9_abs[7], data[j + 8]);
-+			input_report_abs(dev, db9_abs[5], data[j + 9]);
- 			break;
- 		case 0xd3: /* sankyo ff (analog 1 axis + stop btn) */
--			input_report_key(dev + n, BTN_A, data[j + 3] & 0x80);
--			input_report_abs(dev + n, db9_abs[2], data[j + 3] & 0x7f);
-+			input_report_key(dev, BTN_A, data[j + 3] & 0x80);
-+			input_report_abs(dev, db9_abs[2], data[j + 3] & 0x7f);
- 			break;
- 		case 0xe3: /* shuttle mouse (analog 2 axis + buttons. signed value) */
--			input_report_key(dev + n, BTN_START, data[j + 1] & 0x08);
--			input_report_key(dev + n, BTN_A, data[j + 1] & 0x04);
--			input_report_key(dev + n, BTN_C, data[j + 1] & 0x02);
--			input_report_key(dev + n, BTN_B, data[j + 1] & 0x01);
--			input_report_abs(dev + n, db9_abs[2], data[j + 2] ^ 0x80);
--			input_report_abs(dev + n, db9_abs[3], (0xff-(data[j + 3] ^ 0x80))+1); /* */
-+			input_report_key(dev, BTN_START, data[j + 1] & 0x08);
-+			input_report_key(dev, BTN_A, data[j + 1] & 0x04);
-+			input_report_key(dev, BTN_C, data[j + 1] & 0x02);
-+			input_report_key(dev, BTN_B, data[j + 1] & 0x01);
-+			input_report_abs(dev, db9_abs[2], data[j + 2] ^ 0x80);
-+			input_report_abs(dev, db9_abs[3], (0xff-(data[j + 3] ^ 0x80))+1); /* */
- 			break;
- 		case 0xff:
- 		default: /* no pad */
--			input_report_abs(dev + n, db9_abs[0], 0);
--			input_report_abs(dev + n, db9_abs[1], 0);
-+			input_report_abs(dev, db9_abs[0], 0);
-+			input_report_abs(dev, db9_abs[1], 0);
- 			for (i = 0; i < 9; i++)
--				input_report_key(dev + n, db9_cd32_btn[i], 0);
-+				input_report_key(dev, db9_cd32_btn[i], 0);
- 			break;
- 		}
- 	}
- 	return n;
- }
+-#define has_bridge_parent(device)	((device)->br_port != NULL)
+-#define bridge_parent(device)		((device)->br_port->br->dev)
+-
+ #ifdef CONFIG_SYSCTL
+ static struct ctl_table_header *brnf_sysctl_header;
+ static int brnf_call_iptables = 1;
+@@ -94,6 +91,12 @@ static struct rtable __fake_rtable = {
+ 	.rt_flags	= 0,
+ };
  
--static int db9_saturn(int mode, struct parport *port, struct input_dev *dev)
-+static int db9_saturn(int mode, struct parport *port, struct input_dev *devs[])
- {
- 	unsigned char id, data[60];
- 	int type, n, max_pads;
-@@ -361,7 +363,7 @@ static int db9_saturn(int mode, struct p
- 	max_pads = min(db9_modes[mode].n_pads, DB9_MAX_DEVICES);
- 	for (tmp = 0, i = 0; i < n; i++) {
- 		id = db9_saturn_read_packet(port, data, type + i, 1);
--		tmp = db9_saturn_report(id, data, dev, tmp, max_pads);
-+		tmp = db9_saturn_report(id, data, devs, tmp, max_pads);
++static inline struct net_device *bridge_parent(const struct net_device *dev)
++{
++	struct net_bridge_port *port = rcu_dereference(dev->br_port);
++
++	return port ? port->br->dev : NULL;
++}
+ 
+ /* PF_BRIDGE/PRE_ROUTING *********************************************/
+ /* Undo the changes made for ip6tables PREROUTING and continue the
+@@ -185,11 +188,15 @@ static int br_nf_pre_routing_finish_brid
+ 	skb->nf_bridge->mask ^= BRNF_NF_BRIDGE_PREROUTING;
+ 
+ 	skb->dev = bridge_parent(skb->dev);
+-	if (skb->protocol == __constant_htons(ETH_P_8021Q)) {
+-		skb_pull(skb, VLAN_HLEN);
+-		skb->nh.raw += VLAN_HLEN;
++	if (!skb->dev)
++		kfree_skb(skb);
++	else {
++		if (skb->protocol == __constant_htons(ETH_P_8021Q)) {
++			skb_pull(skb, VLAN_HLEN);
++			skb->nh.raw += VLAN_HLEN;
++		}
++		skb->dst->output(skb);
  	}
+-	skb->dst->output(skb);
  	return 0;
  }
-@@ -489,7 +491,7 @@ static void db9_timer(unsigned long priv
- 		case DB9_SATURN_DPP:
- 		case DB9_SATURN_DPP_2:
  
--			db9_saturn(db9->mode, port, dev);
-+			db9_saturn(db9->mode, port, db9->dev);
- 			break;
+@@ -266,7 +273,7 @@ bridged_dnat:
+ }
  
- 		case DB9_CD32_PAD:
+ /* Some common code for IPv4/IPv6 */
+-static void setup_pre_routing(struct sk_buff *skb)
++static struct net_device *setup_pre_routing(struct sk_buff *skb)
+ {
+ 	struct nf_bridge_info *nf_bridge = skb->nf_bridge;
+ 
+@@ -278,6 +285,8 @@ static void setup_pre_routing(struct sk_
+ 	nf_bridge->mask |= BRNF_NF_BRIDGE_PREROUTING;
+ 	nf_bridge->physindev = skb->dev;
+ 	skb->dev = bridge_parent(skb->dev);
++
++	return skb->dev;
+ }
+ 
+ /* We only check the length. A bridge shouldn't do any hop-by-hop stuff anyway */
+@@ -372,7 +381,8 @@ static unsigned int br_nf_pre_routing_ip
+  	nf_bridge_put(skb->nf_bridge);
+ 	if ((nf_bridge = nf_bridge_alloc(skb)) == NULL)
+ 		return NF_DROP;
+-	setup_pre_routing(skb);
++	if (!setup_pre_routing(skb))
++		return NF_DROP;
+ 
+ 	NF_HOOK(PF_INET6, NF_IP6_PRE_ROUTING, skb, skb->dev, NULL,
+ 		br_nf_pre_routing_finish_ipv6);
+@@ -409,7 +419,6 @@ static unsigned int br_nf_pre_routing(un
+ 
+ 		if (skb->protocol == __constant_htons(ETH_P_8021Q)) {
+ 			skb_pull(skb, VLAN_HLEN);
+-			(skb)->nh.raw += VLAN_HLEN;
+ 		}
+ 		return br_nf_pre_routing_ipv6(hook, skb, in, out, okfn);
+ 	}
+@@ -426,7 +435,6 @@ static unsigned int br_nf_pre_routing(un
+ 
+ 	if (skb->protocol == __constant_htons(ETH_P_8021Q)) {
+ 		skb_pull(skb, VLAN_HLEN);
+-		(skb)->nh.raw += VLAN_HLEN;
+ 	}
+ 
+ 	if (!pskb_may_pull(skb, sizeof(struct iphdr)))
+@@ -456,7 +464,8 @@ static unsigned int br_nf_pre_routing(un
+  	nf_bridge_put(skb->nf_bridge);
+ 	if ((nf_bridge = nf_bridge_alloc(skb)) == NULL)
+ 		return NF_DROP;
+-	setup_pre_routing(skb);
++	if (!setup_pre_routing(skb))
++		return NF_DROP;
+ 	store_orig_dstaddr(skb);
+ 
+ 	NF_HOOK(PF_INET, NF_IP_PRE_ROUTING, skb, skb->dev, NULL,
+@@ -530,11 +539,16 @@ static unsigned int br_nf_forward_ip(uns
+ 	struct sk_buff *skb = *pskb;
+ 	struct nf_bridge_info *nf_bridge;
+ 	struct vlan_ethhdr *hdr = vlan_eth_hdr(skb);
++	struct net_device *parent;
+ 	int pf;
+ 
+ 	if (!skb->nf_bridge)
+ 		return NF_ACCEPT;
+ 
++	parent = bridge_parent(out);
++	if (!parent)
++		return NF_DROP;
++
+ 	if (skb->protocol == __constant_htons(ETH_P_IP) || IS_VLAN_IP)
+ 		pf = PF_INET;
+ 	else
+@@ -555,8 +569,8 @@ static unsigned int br_nf_forward_ip(uns
+ 	nf_bridge->mask |= BRNF_BRIDGED;
+ 	nf_bridge->physoutdev = skb->dev;
+ 
+-	NF_HOOK(pf, NF_IP_FORWARD, skb, bridge_parent(in),
+-		bridge_parent(out), br_nf_forward_finish);
++	NF_HOOK(pf, NF_IP_FORWARD, skb, bridge_parent(in), parent,
++		br_nf_forward_finish);
+ 
+ 	return NF_STOLEN;
+ }
+@@ -679,6 +693,8 @@ static unsigned int br_nf_local_out(unsi
+ 		goto out;
+ 	}
+ 	realoutdev = bridge_parent(skb->dev);
++	if (!realoutdev)
++		return NF_DROP;
+ 
+ #if defined(CONFIG_VLAN_8021Q) || defined(CONFIG_VLAN_8021Q_MODULE)
+ 	/* iptables should match -o br0.x */
+@@ -692,9 +708,11 @@ static unsigned int br_nf_local_out(unsi
+ 	/* IP forwarded traffic has a physindev, locally
+ 	 * generated traffic hasn't. */
+ 	if (realindev != NULL) {
+-		if (!(nf_bridge->mask & BRNF_DONT_TAKE_PARENT) &&
+-		    has_bridge_parent(realindev))
+-			realindev = bridge_parent(realindev);
++		if (!(nf_bridge->mask & BRNF_DONT_TAKE_PARENT) ) {
++			struct net_device *parent = bridge_parent(realindev);
++			if (parent)
++				realindev = parent;
++		}
+ 
+ 		NF_HOOK_THRESH(pf, NF_IP_FORWARD, skb, realindev,
+ 			       realoutdev, br_nf_local_out_finish,
+@@ -734,6 +752,9 @@ static unsigned int br_nf_post_routing(u
+ 	if (!nf_bridge)
+ 		return NF_ACCEPT;
+ 
++	if (!realoutdev)
++		return NF_DROP;
++
+ 	if (skb->protocol == __constant_htons(ETH_P_IP) || IS_VLAN_IP)
+ 		pf = PF_INET;
+ 	else
 
 --

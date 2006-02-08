@@ -1,64 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030381AbWBHPme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030452AbWBHPmq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030381AbWBHPme (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 10:42:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030450AbWBHPme
+	id S1030452AbWBHPmq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 10:42:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030453AbWBHPmq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 10:42:34 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:41814 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1030381AbWBHPmd (ORCPT
+	Wed, 8 Feb 2006 10:42:46 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:3244 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030451AbWBHPmo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 10:42:33 -0500
-Message-ID: <43EA11C5.5010908@sw.ru>
-Date: Wed, 08 Feb 2006 18:44:05 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Wed, 8 Feb 2006 10:42:44 -0500
+Date: Wed, 8 Feb 2006 07:42:01 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Bharata B Rao <bharata@in.ibm.com>
+cc: Andi Kleen <ak@suse.de>, Ray Bryant <raybry@mpdtxmail.amd.com>,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes
+ 2.6.16-rc1[2] on 2 node X86_64
+In-Reply-To: <20060208121000.GA9906@in.ibm.com>
+Message-ID: <Pine.LNX.4.62.0602080736510.908@schroedinger.engr.sgi.com>
+References: <20060205163618.GB21972@in.ibm.com>
+ <Pine.LNX.4.62.0602070848450.24487@schroedinger.engr.sgi.com>
+ <200602071727.18359.raybry@mpdtxmail.amd.com> <200602080036.31059.ak@suse.de>
+ <20060208121000.GA9906@in.ibm.com>
 MIME-Version: 1.0
-To: Hubertus Franke <frankeh@watson.ibm.com>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>, Sam Vilain <sam@vilain.net>,
-       Rik van Riel <riel@redhat.com>, Kirill Korotaev <dev@openvz.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, clg@fr.ibm.com, haveblue@us.ibm.com,
-       greg@kroah.com, alan@lxorguk.ukuu.org.uk, serue@us.ibm.com,
-       arjan@infradead.org, kuznet@ms2.inr.ac.ru, saw@sawoct.com,
-       devel@openvz.org, Dmitry Mishin <dim@sw.ru>
-Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
-References: <43E7C65F.3050609@openvz.org>	<m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>	<Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com>	<43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com>	<43E92602.8040403@vilain.net> <43E92AC9.3090308@watson.ibm.com> <m1oe1ia1c9.fsf@ebiederm.dsl.xmission.com> <43E9FC85.1000500@watson.ibm.com>
-In-Reply-To: <43E9FC85.1000500@watson.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My point was to mainly identify the performance culprits and provide
-> an direct access to those "namespaces" for performance reasons.
-> So we all agreed on that we need to do that..
-After having looked at Eric's patch, I can tell that he does all these 
-dereferences in quite the same amount.
+On Wed, 8 Feb 2006, Bharata B Rao wrote:
 
-For example, lot's of skb->sk->host->...
-while in OpenVZ it would be econtainer()->... which is essentially 
-current->container->...
+> The zones in my machine look like this:
+> 
+> On node 0 totalpages: 773791
+>   DMA zone: 2151 pages, LIFO batch:0
+>   DMA32 zone: 771640 pages, LIFO batch:31
+>   Normal zone: 0 pages, LIFO batch:0
+>   HighMem zone: 0 pages, LIFO batch:0
+> On node 1 totalpages: 500592
+>   DMA zone: 0 pages, LIFO batch:0
+>   DMA32 zone: 242032 pages, LIFO batch:31
+>   Normal zone: 258560 pages, LIFO batch:31
+>   HighMem zone: 0 pages, LIFO batch:0
+> 
+> So it can be seen that the node 0 has only DMA and DMA32 zones while
+> node 1 has only DMA32 and Normal zones.
 
-So until someone did measurements it looks doubtfull that one solution 
-is better than the another.
+Uhh... Thats a rather asymmetric arrangement.
+ 
+> The current mempolicy code assumes that the highest zone(policy_zone) that
+> comes under the memory policy is valid (by which I mean zone->present_pages
+> is non-zero) for all nodes, which is not true in my case. In this case
+> the policy_zone gets set to ZONE_NORMAL (highest zone here). 
 
-> Question now (see other's note as well), should we provide
-> a pointer to each and every namespace in struct task.
-> Seem rather wasteful to me as certain path/namespaces are not
-> exercise heavily.
+Right.
 
-> Having one object "struct container" that still embodies all
-> namespace still seems a reasonable idea.
-> Otherwise identifying the respective namespace of subsystems will
-> have to go through container->init->subsys_namespace or similar.
-> Not necessarily bad either..
+> When mbind'ing to node 0, bind_zonelist()(and subsequent functions) binds
+> the ZONE_NORMAL zone to vma->vm_policy. During the write fault, the allocator
+> is asked to allocate from a non-existent ZONE_NORMAL zone for node 0. This
+> I believe is causing the oops I am seeing. It is still not clear to me
+> why doesn't the allocator fail the allocations from a zone which has 
+> zone->present_pages=0 gracefully.
 
-why not simply container->subsys_namespace?
+Hmm....
+ 
+> This whole problem wasn't seen on 2.6.15.2 because, bind_zonelist()
+> actually makes sure that the zone it is binding to has a non-zero
+> zone->present_pages.
 
-Kirill
+Correct there was a loop in bind_zonelist that I moved to the zone 
+initialization to simplify it.
 
-
-
-
+However, this has implications for policy_zone. This variable should store
+the zone that policies apply to. However, in your case this zone will vary 
+which may lead to all sorts of weird behavior even if we fix 
+bind_zonelist. To which zone does policy apply? ZONE_NORMAL or ZONE_DMA32?

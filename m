@@ -1,37 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWBHWLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWBHWMB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751148AbWBHWLP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 17:11:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWBHWLP
+	id S964780AbWBHWMB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 17:12:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965179AbWBHWMB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 17:11:15 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:59624
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751148AbWBHWLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 17:11:15 -0500
-Date: Wed, 08 Feb 2006 14:11:07 -0800 (PST)
-Message-Id: <20060208.141107.129210892.davem@davemloft.net>
-To: viro@ftp.linux.org.uk
-Cc: linux-kernel@vger.kernel.org, adaplas@pol.net
-Subject: Re: [PATCH 2/8] atyfb sparc ifdefs
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <E1F6vVX-0008Be-Jk@ZenIV.linux.org.uk>
-References: <E1F6vVX-0008Be-Jk@ZenIV.linux.org.uk>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Feb 2006 17:12:01 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:51863 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964780AbWBHWMA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 17:12:00 -0500
+Date: Wed, 8 Feb 2006 14:11:50 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: Andi Kleen <ak@suse.de>, pj@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: Terminate process that fails on a constrained allocation
+In-Reply-To: <20060208133909.183f19ea.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.62.0602081402310.4735@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0602081004060.2648@schroedinger.engr.sgi.com>
+ <200602082201.12371.ak@suse.de> <20060208130351.fc1c759c.pj@sgi.com>
+ <200602082221.35671.ak@suse.de> <20060208133909.183f19ea.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Wed, 08 Feb 2006 20:01:43 +0000
+On Wed, 8 Feb 2006, Andrew Morton wrote:
 
-> Date: 1133417630 -0500
+> > I think it should be put into 2.6.16. Andrew?
 > 
-> ... should be sparc64 ones.
-> 
-> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+> Does every single caller of __alloc_pages(__GFP_FS) correctly handle a NULL
+> return?  I doubt it, in which case this patch will cause oopses and hangs.
 
-Probably CONFIG_SPARC64 is more appropriate.
-But I agree either way.
+I sent you a patch with static inline..... But I am having second thoughts 
+about this patch. Paul is partially right. Maybe we can move the logic 
+into the out_of_memory handler for now? That would allow us to implement 
+more sophisticated things later (for example page migration would allow us
+to move memory of processes that can also allocate on other nodes from the 
+nodes where we lack memory) and Paul may put something in there to 
+address his concerns.
+
+---
+
+Terminate process that fails on a constrained allocation
+
+Some allocations are restricted to a limited set of nodes (due to memory
+policies or cpuset constraints). If the page allocator is not able to find
+enough memory then that does not mean that overall system memory is low.
+
+In particular going postal and more or less randomly shooting at processes
+is not likely going to help the situation but may just lead to suicide (the
+whole system coming down).
+
+It is better to signal to the process that no memory exists given the
+constraints that the process (or the configuration of the process) has
+placed on the allocation behavior. The process may be killed but then the
+sysadmin or developer can investigate the situation. The solution is similar
+to what we do when running out of hugepages.
+
+This patch adds a check before the out of memory killer is invoked. At that
+point performance considerations do not matter much so we just scan the zonelist
+and reconstruct a list of nodes. If the list of nodes does not contain all
+online nodes then this is a constrained allocation and we should not calle
+the OOM killer.
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.16-rc2/mm/page_alloc.c
+===================================================================
+--- linux-2.6.16-rc2.orig/mm/page_alloc.c	2006-02-02 22:03:08.000000000 -0800
++++ linux-2.6.16-rc2/mm/page_alloc.c	2006-02-08 14:06:12.000000000 -0800
+@@ -1011,8 +1012,10 @@ rebalance:
+ 		if (page)
+ 			goto got_pg;
+ 
+-		out_of_memory(gfp_mask, order);
+-		goto restart;
++		if (out_of_memory(zonelist, gfp_mask, order))
++			goto restart;
++
++		return NULL;
+ 	}
+ 
+ 	/*
+Index: linux-2.6.16-rc2/include/linux/swap.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/linux/swap.h	2006-02-02 22:03:08.000000000 -0800
++++ linux-2.6.16-rc2/include/linux/swap.h	2006-02-08 14:10:02.000000000 -0800
+@@ -147,7 +147,7 @@ struct swap_list_t {
+ #define vm_swap_full() (nr_swap_pages*2 < total_swap_pages)
+ 
+ /* linux/mm/oom_kill.c */
+-extern void out_of_memory(gfp_t gfp_mask, int order);
++extern int out_of_memory(struct zonelist *zl, gfp_t gfp_mask, int order);
+ 
+ /* linux/mm/memory.c */
+ extern void swapin_readahead(swp_entry_t, unsigned long, struct vm_area_struct *);
+Index: linux-2.6.16-rc2/mm/oom_kill.c
+===================================================================
+--- linux-2.6.16-rc2.orig/mm/oom_kill.c	2006-02-02 22:03:08.000000000 -0800
++++ linux-2.6.16-rc2/mm/oom_kill.c	2006-02-08 14:09:43.000000000 -0800
+@@ -131,6 +131,27 @@ unsigned long badness(struct task_struct
+ }
+ 
+ /*
++ * check if a given zonelist allows allocation over all the nodes
++ * in the system.
++ */
++static noinline int zonelist_incomplete(struct zonelist *zonelist, gfp_t gfp_mask)
++{
++#ifdef CONFIG_NUMA
++	struct zone **z;
++	nodemask_t nodes;
++
++	nodes = node_online_map;
++	for (z = zonelist->zones; *z; z++)
++		if (cpuset_zone_allowed(*z, gfp_mask))
++			node_clear((*z)->zone_pgdat->node_id,
++					nodes);
++	return !nodes_empty(nodes);
++#else
++	return 0;
++#endif
++}
++
++/*
+  * Simple selection loop. We chose the process with the highest
+  * number of 'points'. We expect the caller will lock the tasklist.
+  *
+@@ -262,12 +283,23 @@ static struct mm_struct *oom_kill_proces
+  * killing a random task (bad), letting the system crash (worse)
+  * OR try to be smart about which process to kill. Note that we
+  * don't have to be perfect here, we just have to be good.
++ *
++ * Function returns 1 if the allocation should be retried.
++ * zero if the allocation should fail.
+  */
+-void out_of_memory(gfp_t gfp_mask, int order)
++int out_of_memory(struct zonelist *zonelist, gfp_t gfp_mask, int order)
+ {
+ 	struct mm_struct *mm = NULL;
+ 	task_t * p;
+ 
++	/*
++	 * Simply fail an allocation that does not allow
++	 * allocation on all nodes. We may want to have
++	 * more sophisticated logic here in the future.
++	 */
++	if (zonelist_incomplete(zonelist, gfp_mask))
++		return 0;
++
+ 	if (printk_ratelimit()) {
+ 		printk("oom-killer: gfp_mask=0x%x, order=%d\n",
+ 			gfp_mask, order);
+@@ -306,4 +338,5 @@ retry:
+ 	 */
+ 	if (!test_thread_flag(TIF_MEMDIE))
+ 		schedule_timeout_interruptible(1);
++	return 1;
+ }

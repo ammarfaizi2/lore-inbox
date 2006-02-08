@@ -1,53 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030447AbWBHCOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030454AbWBHCSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030447AbWBHCOs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 21:14:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030449AbWBHCOr
+	id S1030454AbWBHCSv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 21:18:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbWBHCSv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 21:14:47 -0500
-Received: from rwcrmhc14.comcast.net ([204.127.192.84]:46281 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1030447AbWBHCOr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 21:14:47 -0500
-Message-ID: <43E95415.40501@comcast.net>
-Date: Tue, 07 Feb 2006 21:14:45 -0500
-From: Ed Sweetman <safemode@comcast.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
+	Tue, 7 Feb 2006 21:18:51 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:30397 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1030454AbWBHCSu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 21:18:50 -0500
+Message-Id: <200602080217.k182Hlg23826@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Adrian Bunk'" <bunk@stusta.de>
+Cc: "Keith Owens" <kaos@sgi.com>, "Luck, Tony" <tony.luck@intel.com>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: [2.6 patch] let IA64_GENERIC select more stuff
+Date: Tue, 7 Feb 2006 18:17:47 -0800
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: alan@lxorguk.ukuu.org.uk
-Subject: libata pata atapi  errors
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcYsVJLJNGeo6gS2Tayhx8SCASRtkQAABShw
+In-Reply-To: <20060208020832.GK3524@stusta.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, been spending the day using libata's pata interface to my plextor 
-dvd writer.   All is good, it's burning dvdr's at their rated speed and 
-using dma and everything works perfectly.   Apparently, after some 
-amount of disks I got the following error.
+Adrian Bunk wrote on Tuesday, February 07, 2006 6:09 PM
+> > CONFIG_IA64_GENERIC is a platform type choice, you can have platform
+> > type of DIG, HPZX1, SGI SN2, or all of the above.  DIG platform depends
+> > on ACPI, thus need ACPI on.  SGI altix is a numa box, thus, need NUMA
+> > on.  NEC, Fujitsu build numa machines with ACPI SRAT table, thus, need
+> > ACPI_NUMA on.  When you build a kernel to boot on all platforms, you
+> > have no choice but to turn on all of the above.  Processor type and SMP
+> > is different from platform type.  It does not have any dependency on
+> > platform type.  They are orthogonal choice.
+> 
+> This is interesting, considering that e.g. IA64_SGI_SN2=y, NUMA=n or 
+> IA64_DIG=y, ACPI=n are currently allowed configurations.
 
-Assertion failed! qc->n_elem > 
-0,drivers/scsi/libata-core.c,ata_fill_sg,line=2586
-   (repeated many times)
-ata6: command 0xa0 timeout, stat 0xd0 host_stat 0x60
-ata6: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-ATA: abnormal status 0xD0 on port 0x177
-ATA: abnormal status 0xD0 on port 0x177
-ATA: abnormal status 0xD0 on port 0x177
-Device not ready. Make sure there is a disc in the drive.
-
-
-Now, i used sg3-utils (from debian unstable amd64) and reset the device 
-(using sg_reset) because it was stuck in a "writing" state.  I had to 
-then use the "eject" utility to get the door to open because it was 
-stuck in a locked state.  After all that, the device responds again, but 
-is now making a strange vibration noise like the lens motor is trying to 
-seek beyond where it's supposed to go.   and produces the errors again.  
-Eventually the drive gets stuck in an active state and wont respond to 
-any commands except spew errors when commands are attempted. 
+Right, that is what Matthew Wilcox said in earlier thread.
 
 
-this is with the amd/nvidia pata and sata drivers loaded on an smp 
-athlon dual core system in 64bit mode.   Any additional info, just ask.
+> > > Keith said IA64_GENERIC should select all the options required in
+> > > order to run on all the IA64 platforms out there.
+> >                           ^^^^^^^^^^^^^^
+> > > This is what my patch does.
+> > 
+> > You patch does more than what you described and is wrong.  Selecting
+> > platform type should not be tied into selecting SMP nor should it tied
+> 
+> This was what Keith wanted.
+> 
+> It seems everyone thinks I am wrong, but when I'm implementing what one 
+> person suggests, other people say that what I am doing is wrong.
+
+You have to digest what people say and *understand* why they said what they
+say. Checking earlier thread, Keith did not say "select CONFIG_ITANIUM
+for generic ia64 platforms".
+
+
+> > Theoretically and maybe academically interesting, I should be able to
+> > build a kernel that boots on all UP platforms, with your patch, that
+> > is not possible.
+> 
+> Theoretically and maybe academically interesting, I should be able to 
+> build a kernel that boots on all non-NUMA platforms, currently, that is 
+> not possible.
+
+This is going too far and very childish in my opinion. I'm going to shut
+up.
+
+- Ken
+

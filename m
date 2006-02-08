@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030565AbWBHGcu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030461AbWBHGex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030565AbWBHGcu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 01:32:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030563AbWBHGcu
+	id S1030461AbWBHGex (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 01:34:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030569AbWBHGex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 01:32:50 -0500
-Received: from smtp-4.smtp.ucla.edu ([169.232.46.138]:35007 "EHLO
-	smtp-4.smtp.ucla.edu") by vger.kernel.org with ESMTP
-	id S1030565AbWBHGct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 01:32:49 -0500
-Date: Tue, 7 Feb 2006 22:32:45 -0800 (PST)
-From: Chris Stromsoe <cbs@cts.ucla.edu>
-To: Willy TARREAU <willy@w.ods.org>
-cc: Roberto Nibali <ratz@drugphish.ch>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: bad pmd filemap.c, oops; 2.4.30 and 2.4.32
-In-Reply-To: <Pine.LNX.4.64.0601151452460.5053@potato.cts.ucla.edu>
-Message-ID: <Pine.LNX.4.64.0602072228500.3253@potato.cts.ucla.edu>
-References: <Pine.LNX.4.64.0601061352510.24856@potato.cts.ucla.edu>
- <Pine.LNX.4.64.0601061411350.24856@potato.cts.ucla.edu> <43BF8785.2010703@drugphish.ch>
- <Pine.LNX.4.64.0601070246150.29898@potato.cts.ucla.edu> <43C2C482.6090904@drugphish.ch>
- <Pine.LNX.4.64.0601091221260.1900@potato.cts.ucla.edu> <43C2E243.5000904@drugphish.ch>
- <Pine.LNX.4.64.0601091654380.6479@potato.cts.ucla.edu>
- <Pine.LNX.4.64.0601150322020.5053@potato.cts.ucla.edu>
- <Pine.LNX.4.64.0601151431250.5053@potato.cts.ucla.edu> <20060115224642.GA10069@w.ods.org>
- <Pine.LNX.4.64.0601151452460.5053@potato.cts.ucla.edu>
+	Wed, 8 Feb 2006 01:34:53 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:711 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1030461AbWBHGew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 01:34:52 -0500
+Message-ID: <43E99128.6090202@jp.fujitsu.com>
+Date: Wed, 08 Feb 2006 15:35:20 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Probable-Spam: no
-X-Spam-Report: none
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH] unify pfn_to_page take 2 [23/25] uml funcs
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Jan 2006, Chris Stromsoe wrote:
-> On Sun, 15 Jan 2006, Willy TARREAU wrote:
->> 
->> Thanks for the precision. So logically we should expect it to break 
->> sooner or later ?
->
-> It is the same .config as one that crashed before, except that it has 
-> DEBUG_SLAB defined.  If it does not crash, then adding pci=noacpi to the 
-> command fixes the problem for me.
+UML can use generic funcs.
 
-For what it's worth, I'm fairly certain at this point that the problem was 
-hardware related.  After a week of uptime with 2.6 we had another pmd 
-error and oops.  We then replaced the system board and one of the CPUs and 
-have not seen any problems since.
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+
+Index: test-layout-free-zone/include/asm-um/page.h
+===================================================================
+--- test-layout-free-zone.orig/include/asm-um/page.h
++++ test-layout-free-zone/include/asm-um/page.h
+@@ -106,9 +106,6 @@ extern unsigned long uml_physmem;
+  #define __pa(virt) to_phys((void *) (unsigned long) (virt))
+  #define __va(phys) to_virt((unsigned long) (phys))
+
+-#define page_to_pfn(page) ((page) - mem_map)
+-#define pfn_to_page(pfn) (mem_map + (pfn))
+-
+  #define phys_to_pfn(p) ((p) >> PAGE_SHIFT)
+  #define pfn_to_phys(pfn) ((pfn) << PAGE_SHIFT)
 
 
--Chris

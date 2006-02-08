@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965203AbWBHW10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965206AbWBHWar@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965203AbWBHW10 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 17:27:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965196AbWBHW1Z
+	id S965206AbWBHWar (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 17:30:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965207AbWBHWaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 17:27:25 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31250 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S965205AbWBHW1Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 17:27:25 -0500
-Date: Wed, 8 Feb 2006 22:27:19 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jordan Crouse <jordan.crouse@amd.com>
-Cc: trivial@kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [TRIVIAL] Remove extra character in AU1-X-X-X MMC Kconfig entry
-Message-ID: <20060208222718.GI8587@flint.arm.linux.org.uk>
-Mail-Followup-To: Jordan Crouse <jordan.crouse@amd.com>, trivial@kernel.org,
-	linux-kernel@vger.kernel.org
-References: <20060207211909.GD5227@cosmic.amd.com>
+	Wed, 8 Feb 2006 17:30:46 -0500
+Received: from gate.crashing.org ([63.228.1.57]:52661 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S965206AbWBHWaq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 17:30:46 -0500
+Subject: Re: sound problem on recent PowerBook5,8 MacRISC3
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Yaroslav Halchenko <yoh@psychology.rutgers.edu>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060208160002.GI5538@washoe.onerussian.com>
+References: <20060208160002.GI5538@washoe.onerussian.com>
+Content-Type: text/plain
+Date: Thu, 09 Feb 2006 09:29:10 +1100
+Message-Id: <1139437750.5003.19.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060207211909.GD5227@cosmic.amd.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 07, 2006 at 02:19:09PM -0700, Jordan Crouse wrote:
-> An obvious vi fat finger on my part.
+On Wed, 2006-02-08 at 11:00 -0500, Yaroslav Halchenko wrote:
+> Dear Kernel People,
+> 
+> Sound fails to work on the PowerBook laptop
+> information on which could be found from
+> http://www.onerussian.com/Linux/bugs/bug.sound/
+> 
+> On 2.6.16-rc1 and got
+> dmasound_pmac: couldn't find a Codec we can handle
+> ....
+> snd: Unknown layout ID 0x52
+> (and ALSA failed to find any device)
 
-Applied.  Mail sent a second time due to stupid LKML filters.  Please
-avoid three-X's in everything (subject lines, message bodies and
-filenames) in future.
+The sound chipset on these new machines isn't yet supported.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Ben.
+
+

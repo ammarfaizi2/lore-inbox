@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030317AbWBHDvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030511AbWBHDxt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030317AbWBHDvP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 22:51:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030511AbWBHDvP
+	id S1030511AbWBHDxt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 22:53:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030512AbWBHDxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 22:51:15 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43782 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030317AbWBHDvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 22:51:14 -0500
-Date: Wed, 8 Feb 2006 04:51:12 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Keith Owens'" <kaos@sgi.com>, "Luck, Tony" <tony.luck@intel.com>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] let IA64_GENERIC select more stuff
-Message-ID: <20060208035112.GM3524@stusta.de>
-References: <10378.1139366890@kao2.melbourne.sgi.com> <200602080258.k182wgg27146@unix-os.sc.intel.com>
+	Tue, 7 Feb 2006 22:53:49 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:5516 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030511AbWBHDxs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 22:53:48 -0500
+Message-ID: <43E96B42.9040005@pobox.com>
+Date: Tue, 07 Feb 2006 22:53:38 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602080258.k182wgg27146@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.11
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org, dale@farnsworth.org
+Subject: Re: [PATCH 04/29] missing includes in drivers/net/mv643xx_eth.c
+References: <E1F6fqN-0006Ba-W6@ZenIV.linux.org.uk>
+In-Reply-To: <E1F6fqN-0006Ba-W6@ZenIV.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Al Viro wrote: > Date: 1137630954 -0500 > >
+	Signed-off-by: Al Viro <viro@zeniv.linux.org.uk> ACK [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 07, 2006 at 06:58:42PM -0800, Chen, Kenneth W wrote:
->...
-> > >You patch does more than what you described and is wrong.  Selecting
-> > >platform type should not be tied into selecting SMP nor should it tied
->...
-> I'm not disagreeing with the SMP bit.  In my very first reply, I
->...
+Al Viro wrote:
+> Date: 1137630954 -0500
+> 
+> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
-It might be related to the fact that I'm not a native English speaker, 
-but for me this reads as if you contradict yourself, and I have 
-therefore problems understanding your emails.
+ACK
 
-> - Ken
->...
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030446AbWBHSpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030379AbWBHSsZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030446AbWBHSpN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 13:45:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030450AbWBHSpN
+	id S1030379AbWBHSsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 13:48:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030453AbWBHSsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 13:45:13 -0500
-Received: from static-151-204-232-50.bos.east.verizon.net ([151.204.232.50]:22237
-	"EHLO mail2.sicortex.com") by vger.kernel.org with ESMTP
-	id S1030446AbWBHSpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 13:45:11 -0500
-Date: Wed, 8 Feb 2006 13:45:06 -0500
-From: "Aaron D. Brooks" <aaron.brooks@sicortex.com>
+	Wed, 8 Feb 2006 13:48:25 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:6065 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S1030379AbWBHSsY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 13:48:24 -0500
+Date: Wed, 8 Feb 2006 10:48:16 -0800
+From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org
-Cc: Keith Owens <kaos@ocs.com.au>
-Subject: scripts/namespace.pl is not CROSS_COMPILE happy
-Message-ID: <20060208184506.GS11744@sicortex.com>
+Cc: dipankar@in.ibm.com, paul.mckenney@us.ibm.com,
+       linux-usb-devel@lists.sourceforge.net
+Subject: [patch 00/03] EXPORT_SYMBOL_GPL_FUTURE()
+Message-ID: <20060208184816.GA17016@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,36 +23,18 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+Currently we don't have a way to show people that some kernel symbols
+will be changed in the future from EXPORT_SYMBOL() to
+EXPORT_SYMBOL_GPL().  As we all know, not everyone reads the
+Documentation/feature_removal.txt file, so we need a bigger way to
+remind people.
 
-    I see that this has come up before:
+Here's a series of three patches that adds this functionality, and
+marks the RCU and USB subsystems with them.
 
-    http://lkml.org/lkml/2005/9/20/68
+I'll be adding these to my kernel trees to have them show up in the -mm
+releases for testing.
 
-but I don't see the inclusion of these changes in the current Linus
-linux-2.6 git tree. Are the changes hanging out somewhere or were they
-shot down for some reason?
+thanks,
 
-    I've attached an alternate patch which is a ever so slightly more
-clean (for some definitions of "clean").
-
--Aaron
-
-P.S. Please CC me, I'm not on the list.
-
-Index: scripts/namespace.pl
-===================================================================
---- old/scripts/namespace.pl        (revision 13486)
-+++ new/scripts/namespace.pl        (working copy)
-@@ -66,8 +66,8 @@
- use strict;
- use File::Find;
- 
--my $nm = "/usr/bin/nm -p";
--my $objdump = "/usr/bin/objdump -s -j .comment";
-+my $nm = ($ENV{'NM'} || "nm") . " -p";
-+my $objdump = ($ENV{'OBJDUMP'} || "objdump") . " -s -j .comment";
- my $srctree = "";
- my $objtree = "";
- $srctree = "$ENV{'srctree'}/" if (exists($ENV{'srctree'}));
-
+greg k-h

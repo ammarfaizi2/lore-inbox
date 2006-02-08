@@ -1,36 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030592AbWBHUK6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030607AbWBHUOo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030592AbWBHUK6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 15:10:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030594AbWBHUK6
+	id S1030607AbWBHUOo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 15:14:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030609AbWBHUOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 15:10:58 -0500
-Received: from uproxy.gmail.com ([66.249.92.196]:17689 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030592AbWBHUK5 convert rfc822-to-8bit
+	Wed, 8 Feb 2006 15:14:44 -0500
+Received: from science.horizon.com ([192.35.100.1]:11849 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S1030607AbWBHUOn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 15:10:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=hdrp7lf1h0l+rKZRka2/2vHGl9UQIVnwTzeqyveM9Si16Zru63x7hnwlpcmicthV/g/QplBFtu0weD59EVthIDv4ZjTxfir0UAxXwzP9eC3zkGuIx3peloSf1TcmLTi3Vh12issAY25x+5GuMDC7v06hKs1diVukFU6L5l33RDA=
-Message-ID: <b97d23040602081210g1ada4c97x432692d04add7761@mail.gmail.com>
-Date: Wed, 8 Feb 2006 23:10:54 +0300
-From: Jan Koss <kossjan@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: benchmarks
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Wed, 8 Feb 2006 15:14:43 -0500
+Date: 8 Feb 2006 15:14:36 -0500
+Message-ID: <20060208201436.14693.qmail@science.horizon.com>
+From: linux@horizon.com
+To: clameter@engr.sgi.com
+Subject: Re: Terminate process that fails on a constrained allocation
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Would perhaps a less drastic solution, that at least supports the common
+partitioned-system configuration, be to limit the oom killer to processes
+whose nodes are a *subset* of ours?
 
-Recently, I choosed between FreeBSD and Linux for server,
-I found out only such bechmarks:
+That way, a limited process won't kill any unlimited processes, but it
+can fight with other processes with the same limits.  However, an
+unlimited process discovering oom can kill anything on the system if
+necessary.
 
-http://geri.cc.fer.hr/~ivoras/web2/papers/osbench.html
-
-1)may be some one know any other benchmarks?
-2)something changed since 2.6.5?
+(This requires a modified version of cpuset_excl_nodes_overlap that
+calls nodes_subset() instead of nodes_intersects(), but it's pretty
+straightforward.)

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030412AbWBHNDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbWBHNE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030412AbWBHNDj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 08:03:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030415AbWBHNDj
+	id S1030420AbWBHNE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 08:04:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030376AbWBHNE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 08:03:39 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:41111 "EHLO
+	Wed, 8 Feb 2006 08:04:26 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:43927 "EHLO
 	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1030412AbWBHNDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 08:03:38 -0500
-Date: Wed, 8 Feb 2006 13:03:34 +0000
+	id S1030419AbWBHNEZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 08:04:25 -0500
+Date: Wed, 8 Feb 2006 13:04:22 +0000
 From: Matthew Garrett <mjg59@srcf.ucam.org>
 To: linux-pm@lists.osdl.org, linux-acpi@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: [PATCH, RFC] [2/3] ACPI support for generic in-kernel AC status
-Message-ID: <20060208130334.GA25659@srcf.ucam.org>
+Subject: Re: [PATCH, RFC] [1/3] Generic in-kernel AC status
+Message-ID: <20060208130422.GB25659@srcf.ucam.org>
 References: <20060208125753.GA25562@srcf.ucam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,98 +27,85 @@ X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The included patch adds support for the generic in-kernel AC status 
-code. Each AC adapter device is added to a list - when queried, if at 
-least one claims to be online then we assume that the system is on AC.
+Whoops - missing <linux/module.h>. Here's the fixed version.
 
 Signed-Off-By: Matthew Garrett <mjg59@srcf.ucam.org>
 
-diff --git a/drivers/acpi/ac.c b/drivers/acpi/ac.c
-index 61f95ce..aa2d9b9 100644
---- a/drivers/acpi/ac.c
-+++ b/drivers/acpi/ac.c
-@@ -29,6 +29,7 @@
- #include <linux/types.h>
- #include <linux/proc_fs.h>
- #include <linux/seq_file.h>
-+#include <linux/pm.h>
- #include <acpi/acpi_bus.h>
- #include <acpi/acpi_drivers.h>
+diff --git a/include/linux/pm.h b/include/linux/pm.h
+index 5be87ba..59ece0f 100644
+--- a/include/linux/pm.h
++++ b/include/linux/pm.h
+@@ -129,6 +129,8 @@ struct pm_ops {
  
-@@ -67,8 +68,11 @@ static struct acpi_driver acpi_ac_driver
- struct acpi_ac {
- 	acpi_handle handle;
- 	unsigned long state;
-+	struct list_head entry;
- };
+ extern void pm_set_ops(struct pm_ops *);
+ extern struct pm_ops *pm_ops;
++extern void pm_set_ac_status(int (*ac_status_function)(void));
++extern int pm_get_ac_status(void);
+ extern int pm_suspend(suspend_state_t state);
  
-+static struct list_head ac_adapter_list;
-+
- static struct file_operations acpi_ac_fops = {
- 	.open = acpi_ac_open_fs,
- 	.read = seq_read,
-@@ -255,6 +259,8 @@ static int acpi_ac_add(struct acpi_devic
- 		goto end;
- 	}
  
-+	list_add(&ac->entry, &ac_adapter_list);
-+
- 	printk(KERN_INFO PREFIX "%s [%s] (%s)\n",
- 	       acpi_device_name(device), acpi_device_bid(device),
- 	       ac->state ? "on-line" : "off-line");
-@@ -288,17 +294,34 @@ static int acpi_ac_remove(struct acpi_de
+diff --git a/kernel/power/main.c b/kernel/power/main.c
+index 46110d5..453cd0e 100644
+--- a/kernel/power/main.c
++++ b/kernel/power/main.c
+@@ -15,7 +15,7 @@
+ #include <linux/errno.h>
+ #include <linux/init.h>
+ #include <linux/pm.h>
+-
++#include <linux/module.h>
  
- 	acpi_ac_remove_fs(device);
+ #include "power.h"
  
-+	list_del(&ac->entry);
-+
- 	kfree(ac);
+@@ -25,6 +25,7 @@
+ DECLARE_MUTEX(pm_sem);
  
- 	return_VALUE(0);
+ struct pm_ops *pm_ops = NULL;
++int (*get_ac_status)(void);
+ suspend_disk_method_t pm_disk_mode = PM_DISK_SHUTDOWN;
+ 
+ /**
+@@ -39,6 +40,39 @@ void pm_set_ops(struct pm_ops * ops)
+ 	up(&pm_sem);
  }
  
-+static int acpi_ac_online_status(void)
-+{
-+	struct acpi_ac *adapter;
-+	
-+	list_for_each_entry(adapter, &ac_adapter_list, entry) {
-+		acpi_ac_get_state(adapter);
-+		if (adapter->state)
-+			return 1;
-+	}
++/**
++ *	pm_set_ac_status - Set the ac status callback
++ *	@ops:	Pointer to function
++ */
 +
-+	return 0;
++void pm_set_ac_status(int (*ac_status_function)(void))
++{
++	down(&pm_sem);
++	get_ac_status = ac_status_function;
++	up(&pm_sem);
 +}
 +
- static int __init acpi_ac_init(void)
- {
- 	int result = 0;
- 
- 	ACPI_FUNCTION_TRACE("acpi_ac_init");
- 
-+	INIT_LIST_HEAD(&ac_adapter_list);
++EXPORT_SYMBOL(pm_set_ac_status);
 +
- 	acpi_ac_dir = proc_mkdir(ACPI_AC_CLASS, acpi_root_dir);
- 	if (!acpi_ac_dir)
- 		return_VALUE(-ENODEV);
-@@ -310,6 +333,8 @@ static int __init acpi_ac_init(void)
- 		return_VALUE(-ENODEV);
- 	}
- 
-+	pm_set_ac_status(acpi_ac_online_status);
++/**
++ *	pm_get_ac_status - return true if the system is on AC
++ */
 +
- 	return_VALUE(0);
- }
- 
-@@ -317,6 +342,8 @@ static void __exit acpi_ac_exit(void)
- {
- 	ACPI_FUNCTION_TRACE("acpi_ac_exit");
- 
-+	pm_set_ac_status(NULL);
++int pm_get_ac_status(void)
++{
++	int status;
 +
- 	acpi_bus_unregister_driver(&acpi_ac_driver);
++	down (&pm_sem);
++	if (get_ac_status)
++		status = get_ac_status();
++	else
++		status = 0;
++	up (&pm_sem);
++
++	return status;
++}
++
++EXPORT_SYMBOL(pm_get_ac_status);
  
- 	remove_proc_entry(ACPI_AC_CLASS, acpi_root_dir);
+ /**
+  *	suspend_prepare - Do prep work before entering low-power state.
+
 
 -- 
 Matthew Garrett | mjg59@srcf.ucam.org

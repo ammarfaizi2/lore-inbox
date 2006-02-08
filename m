@@ -1,63 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965105AbWBHP7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965174AbWBHQAH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965105AbWBHP7a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 10:59:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965169AbWBHP7a
+	id S965174AbWBHQAH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 11:00:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965168AbWBHQAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 10:59:30 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:47791 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965105AbWBHP73 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 10:59:29 -0500
-Date: Wed, 8 Feb 2006 07:59:14 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: Bharata B Rao <bharata@in.ibm.com>, Ray Bryant <raybry@mpdtxmail.amd.com>,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes
- 2.6.16-rc1[2] on 2 node X86_64
-In-Reply-To: <200602081645.24733.ak@suse.de>
-Message-ID: <Pine.LNX.4.62.0602080755500.908@schroedinger.engr.sgi.com>
-References: <20060205163618.GB21972@in.ibm.com> <20060208121000.GA9906@in.ibm.com>
- <Pine.LNX.4.62.0602080736510.908@schroedinger.engr.sgi.com>
- <200602081645.24733.ak@suse.de>
+	Wed, 8 Feb 2006 11:00:06 -0500
+Received: from washoe.rutgers.edu ([165.230.95.67]:16849 "EHLO
+	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S965174AbWBHQAE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 11:00:04 -0500
+Date: Wed, 8 Feb 2006 11:00:03 -0500
+From: Yaroslav Halchenko <yoh@psychology.rutgers.edu>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: sound problem on recent PowerBook5,8 MacRISC3
+Message-ID: <20060208160002.GI5538@washoe.onerussian.com>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-URL: http://www.onerussian.com
+X-Image-Url: http://www.onerussian.com/img/yoh.png
+X-PGP-Key: http://www.onerussian.com/gpg-yoh.asc
+X-fingerprint: 3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
+User-Agent: mutt-ng/devel-r556 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Feb 2006, Andi Kleen wrote:
+Dear Kernel People,
 
-> On Wednesday 08 February 2006 16:42, Christoph Lameter wrote:
-> 
-> > However, this has implications for policy_zone. This variable should store
-> > the zone that policies apply to. However, in your case this zone will vary 
-> > which may lead to all sorts of weird behavior even if we fix 
-> > bind_zonelist. To which zone does policy apply? ZONE_NORMAL or ZONE_DMA32?
-> 
-> It really needs to apply to both (currently you can't police 4GB of your 
-> memory on x86-64) But I haven't worked out a good design how to implement it yet.
+Sound fails to work on the PowerBook laptop
+information on which could be found from
+http://www.onerussian.com/Linux/bugs/bug.sound/
 
-So a provisional solution would be to simply ignore empty zones in 
-bind_zonelist? Or fall back to earlier zones (which includes unpolicied 
-zones in the bind zone list?)
+On 2.6.16-rc1 and got
+dmasound_pmac: couldn't find a Codec we can handle
+....
+snd: Unknown layout ID 0x52
+(and ALSA failed to find any device)
 
-Index: linux-2.6.16-rc2/mm/mempolicy.c
-===================================================================
---- linux-2.6.16-rc2.orig/mm/mempolicy.c	2006-02-02 22:03:08.000000000 -0800
-+++ linux-2.6.16-rc2/mm/mempolicy.c	2006-02-08 07:55:29.000000000 -0800
-@@ -143,8 +143,12 @@ static struct zonelist *bind_zonelist(no
- 	if (!zl)
- 		return NULL;
- 	num = 0;
--	for_each_node_mask(nd, *nodes)
--		zl->zones[num++] = &NODE_DATA(nd)->node_zones[policy_zone];
-+	for_each_node_mask(nd, *nodes) {
-+		struct zone *zone = &NODE_DATA(nd)->node_zones[policy_zone];
-+
-+		if (zone->present_pages)
-+			zl->zones[num++] = &NODE_DATA(nd)->node_zones[policy_zone];
-+	}
- 	zl->zones[num] = NULL;
- 	return zl;
- }
+I added 0x52 layout in the list within sound/ppc/pmac.c
+
+                case 0x50:
+                case 0x52:
+                case 0x5c:
+                        chip->num_freqs = ARRAY_SIZE(tumbler_freqs);
+                        chip->model = PMAC_SNAPPER;
+                        chip->can_byte_swap = 0; /* FIXME: check this */
+                        chip->control_mask = MASK_IEPC | 0x11;/* disable IEE */
+                        break;
+after reboot (it was compiled in) and I get
+ dmasound_pmac: couldn't find a Codec we can handle
+ ...
+ snd: can't request rsrc  0 (Sound Control: 0x80000000:80004fff)
+
+I copied pmac.c from 2.6.16-rc2, added 0x52, compiled, reboot and I get
+just
+dmasound_pmac: couldn't find a Codec we can handle
+
+and no sound -- I have just
+
+$ ls /dev/{snd,dsp,audio}*
+ls: /dev/dsp*: No such file or directory
+ls: /dev/audio*: No such file or directory
+/dev/sndstat
+
+/dev/snd:
+seq  timer
+
+
+
+Pre history:
+I need to configure Linux in place of OS-X on my chief's laptop. After
+some struggle I managed to install Ubuntu Dapper which was running their
+2.6.15-14. I had few issues:
+sound kinda was there but nothing was produced audible,
+video - box freezes under some xorg config as reported
+elsewhere https://launchpad.net/malone/bugs/30426 
+and decided to give a try to vanilla kernel so I could also report a bug.
+
+-- 
+Yaroslav Halchenko
+Research Assistant, Psychology Department, Rutgers-Newark
+Office: (973) 353-5440x263 | FWD: 82823 | Fax: (973) 353-1171
+        101 Warren Str, Smith Hall, Rm 4-105, Newark NJ 07105
+Student  Ph.D. @ CS Dept. NJIT

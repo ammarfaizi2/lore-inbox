@@ -1,78 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030415AbWBHNFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965064AbWBHNXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030415AbWBHNFs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 08:05:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030416AbWBHNFr
+	id S965064AbWBHNXg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 08:23:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbWBHNXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 08:05:47 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:15786 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1030415AbWBHNFr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 08:05:47 -0500
-Date: Wed, 8 Feb 2006 13:05:43 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org,
-       sfr@canb.auug.org.au
-Subject: [PATCH, RFC] [3/3] APM support for generic in-kernel AC status
-Message-ID: <20060208130543.GC25659@srcf.ucam.org>
-References: <20060208125753.GA25562@srcf.ucam.org> <20060208130422.GB25659@srcf.ucam.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060208130422.GB25659@srcf.ucam.org>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+	Wed, 8 Feb 2006 08:23:36 -0500
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:44968 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S965064AbWBHNXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 08:23:35 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+To: Pavel Machek <pavel@ucw.cz>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Nigel Cunningham <nigel@suspend2.net>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Jim Crilly <jim@why.dont.jablowme.net>,
+       suspend2-devel@lists.suspend2.net, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Wed, 08 Feb 2006 14:23:18 +0100
+References: <5BoER-4GL-3@gated-at.bofh.it> <5DJOW-7ll-9@gated-at.bofh.it> <5DK8h-7YA-13@gated-at.bofh.it> <5DKrG-8nS-13@gated-at.bofh.it> <5DKUI-1Dm-21@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1F6pHz-0000kU-FN@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This adds APM support for the generic in-kernel AC status code.
+There are some questions I have while looking at this HOWTO,
+which I think should be answered there:
 
-Signed-Off-By: Matthew Garrett <mjg59@srcf.ucam.org>
+Pavel Machek <pavel@ucw.cz> wrote:
 
-diff --git a/arch/i386/kernel/apm.c b/arch/i386/kernel/apm.c
-index 6c8e483..e63f533 100644
---- a/arch/i386/kernel/apm.c
-+++ b/arch/i386/kernel/apm.c
-@@ -1627,6 +1627,18 @@ static int do_open(struct inode * inode,
- 	return 0;
- }
- 
-+static int apm_get_online_status(void)
-+{
-+	unsigned short bx;
-+	unsigned short cx;
-+	unsigned short dx;
-+
-+	if (apm_get_power_status(&bx, &cx, &dx))
-+		return 0;
-+	
-+	return ((bx >> 8) & 0xff);
-+};
-+
- static int apm_get_info(char *buf, char **start, off_t fpos, int length)
- {
- 	char *		p;
-@@ -2372,6 +2384,8 @@ static int __init apm_init(void)
- 
- 	misc_register(&apm_device);
- 
-+	pm_set_ac_status(apm_get_online_status);
-+
- 	if (HZ != 100)
- 		idle_period = (idle_period * HZ) / 100;
- 	if (idle_threshold < 100) {
-@@ -2396,6 +2410,9 @@ static void __exit apm_exit(void)
- 		 */
- 		cpu_idle_wait();
- 	}
-+
-+	pm_set_ac_status(NULL);
-+
- 	if (((apm_info.bios.flags & APM_BIOS_DISENGAGED) == 0)
- 	    && (apm_info.connection_version > 0x0100)) {
- 		error = apm_engage_power_management(APM_DEVICE_ALL, 0);
+> Suspend-to-disk HOWTO
+> ~~~~~~~~~~~~~~~~~~~~
+[...]
+> ./suspend /dev/<your_swap_partition>
 
+Does it need to be mounted (so it possibly gets filled and thereby unusable),
+or can it be a mkswapped partition?
+
+Can it even be a swap-file? Probably not, unless you want to resume by
+ro-nojournalreplay-mounting the corresponding partition.
+
+How big does it have to be, compared to the RAM? As big + n? Bigger? BIGGER?
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

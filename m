@@ -1,36 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030344AbWBHQ2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030355AbWBHQ2e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030344AbWBHQ2d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 11:28:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbWBHQ2d
+	id S1030355AbWBHQ2e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 11:28:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbWBHQ2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 11:28:33 -0500
-Received: from mail.suse.de ([195.135.220.2]:16537 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030344AbWBHQ2d (ORCPT
+	Wed, 8 Feb 2006 11:28:34 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:41136 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030355AbWBHQ2d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 8 Feb 2006 11:28:33 -0500
 From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <JBeulich@novell.com>
-Subject: Re: CONFIG_UNWIND_INFO
-Date: Wed, 8 Feb 2006 17:28:22 +0100
+To: discuss@x86-64.org
+Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes 2.6.16-rc1[2] on 2 node X86_64
+Date: Wed, 8 Feb 2006 17:27:31 +0100
 User-Agent: KMail/1.8.2
-Cc: "Andrew Morton" <akpm@osdl.org>, davej@redhat.com,
-       linux-kernel@vger.kernel.org
-References: <43E0719F020000780000FAF6@emea1-mh.id2.novell.com> <20060201005324.2c19d78c.akpm@osdl.org> <43EA268A.76F0.0078.0@novell.com>
-In-Reply-To: <43EA268A.76F0.0078.0@novell.com>
+Cc: Christoph Lameter <clameter@engr.sgi.com>,
+       Bharata B Rao <bharata@in.ibm.com>,
+       Ray Bryant <raybry@mpdtxmail.amd.com>, linux-kernel@vger.kernel.org
+References: <20060205163618.GB21972@in.ibm.com> <200602081706.26853.ak@suse.de> <Pine.LNX.4.62.0602080816560.2289@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0602080816560.2289@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200602081728.22726.ak@suse.de>
+Message-Id: <200602081727.31850.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 February 2006 17:12, Jan Beulich wrote:
-> Attached an updated patch, disallowing the option for all architectures that have been determined to potentially have
-> problems with the resulting relocations. Jan
+On Wednesday 08 February 2006 17:20, Christoph Lameter wrote:
+> On Wed, 8 Feb 2006, Andi Kleen wrote:
+> 
+> > > So a provisional solution would be to simply ignore empty zones in 
+> > > bind_zonelist?
+> > 
+> > That would likely prevent the crash yes (Bharata can you test?)
+> > 
+> > But of course it still has the problem of a lot of memory being unpolicied
+> > on machines with >4GB if there's both DMA32 and NORMAL.
+> 
+> The fix could result in a zonelist with no zones. So we can answer one 
+> question in __alloc_pages().
 
-Looks good to me.
+I don't think it can happen - at least one zone <= policy-zone has to 
+have memory otherwise the machine wouldn't work at all.
 
 -Andi

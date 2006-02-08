@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030564AbWBHQdK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030586AbWBHQee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030564AbWBHQdK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 11:33:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030584AbWBHQdK
+	id S1030586AbWBHQee (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 11:34:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030584AbWBHQee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 11:33:10 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:19121 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030564AbWBHQdJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 11:33:09 -0500
-Date: Wed, 8 Feb 2006 16:33:08 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: linux-kernel@vger.kernel.org, ralf@linux-mips.org
-Subject: Re: [PATCH 02/17] mips: namespace pollution - mem_... -> __mem_... in io.h
-Message-ID: <20060208163308.GI27946@ftp.linux.org.uk>
-References: <E1F6jSx-0002TE-Ur@ZenIV.linux.org.uk> <Pine.LNX.4.64N.0602081059020.27639@blysk.ds.pg.gda.pl> <20060208161435.GH27946@ftp.linux.org.uk> <Pine.LNX.4.64N.0602081615280.27639@blysk.ds.pg.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64N.0602081615280.27639@blysk.ds.pg.gda.pl>
-User-Agent: Mutt/1.4.1i
+	Wed, 8 Feb 2006 11:34:34 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:54152 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1030587AbWBHQed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 11:34:33 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Wed, 08 Feb 2006 17:32:38 +0100
+To: schilling@fokus.fraunhofer.de, jim@why.dont.jablowme.net
+Cc: peter.read@gmail.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43EA1D26.nail40E11SL53@burner>
+References: <200602021717.08100.luke@dashjr.org>
+ <Pine.LNX.4.61.0602031502000.7991@yvahk01.tjqt.qr>
+ <200602031724.55729.luke@dashjr.org> <43E7545E.nail7GN11WAQ9@burner>
+ <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de>
+ <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner>
+ <20060207183712.GC5341@voodoo> <43E9F1CD.nail2BR11FL52@burner>
+ <20060208162828.GA17534@voodoo>
+In-Reply-To: <20060208162828.GA17534@voodoo>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 08, 2006 at 04:21:45PM +0000, Maciej W. Rozycki wrote:
-> On Wed, 8 Feb 2006, Al Viro wrote:
-> 
-> > >  Then the corresponding ones with no "mem_" prefix (these for the PCI I/O 
-> > > port space) should be prefixed with "__" for consistency as well.
-> > 
-> > Huh???
-> > 
-> > Things like outb(), etc. *are* public; mem_... ones are not. 
-> 
->  I mean if we rename e.g. mem_ioswabb() to __mem_ioswabb(), then we should 
-> rename ioswabb() to __ioswabb() as well.  Sorry for not having been clear 
-> enough, but I have assumed it is obvious.
+"Jim Crilly" <jim@why.dont.jablowme.net> wrote:
 
-In principle that would be nice, but...  Take a look at those macros.
-We can do that, but it would mean #define readb __readb, etc.  Since
-really nasty clashes are in mem_inb() et.al. (let's face it, coming up
-with one of those is far more likely than using ioswabb() for driver-internal
-purposes) I've stopped at that.  Can do a followup switching to __ioswab...
-and adding defines compensating for changes in visible symbols, but IMO
-that's a separate patch...
+> On 02/08/06 02:27:41PM +0100, Joerg Schilling wrote:
+> > "Jim Crilly" <jim@why.dont.jablowme.net> wrote:
+> > 
+> > > All you've explained is that using SCSI ID for device names is the way
+> > > you want cdrecord to work, not why it's infinitely better than using real
+> > > device names like every other userland program on every OS in existance.
+> > 
+> > I did many times, but people don't seem to listen.
+>
+> But you've never answered the question as to why every other userland
+> program on every OS uses device names when cdrecord insists on using SCSI
+> IDs. Do you really think mount, fsck, tar, etc are broken because they let
+> the user use device names that they're accustomed to like /dev/c0t0d0s0? If
+> so, I look forward to the day that you try to patch OpenSolaris' userland
+> to work like cdrecord. 
+
+You just verify that you don't listen...
+
+I did answer this many times and I will not repeat it another time.
+
+Note that you are of course wrong with your statement on other CD/DVD writing 
+software.
+
+What you like to see does not work at all on MS-WIN.
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

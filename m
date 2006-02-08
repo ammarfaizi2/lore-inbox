@@ -1,113 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWBHUWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWBHUWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751143AbWBHUWg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 15:22:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWBHUWg
+	id S1751140AbWBHUWh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 15:22:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWBHUWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 8 Feb 2006 15:22:37 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:60033 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751140AbWBHUWg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 8 Feb 2006 15:22:36 -0500
-Received: from mxout01.versatel.de ([212.7.152.117]:34457 "EHLO
-	mxout01.versatel.de") by vger.kernel.org with ESMTP
-	id S1751140AbWBHUWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 15:22:34 -0500
-Date: Wed, 8 Feb 2006 21:22:07 +0100
-From: Christian Trefzer <ctrefzer@gmx.de>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] neofb: avoid resetting display config on unblank
-Message-ID: <20060208202207.GA26682@zeus.uziel.local>
+Date: Wed, 8 Feb 2006 12:22:27 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: clameter@engr.sgi.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Terminate process that fails on a constrained allocation
+Message-Id: <20060208122227.3379643e.pj@sgi.com>
+In-Reply-To: <200602082005.12657.ak@suse.de>
+References: <Pine.LNX.4.62.0602081004060.2648@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.62.0602081037240.3590@schroedinger.engr.sgi.com>
+	<20060208105714.15bb4bb2.pj@sgi.com>
+	<200602082005.12657.ak@suse.de>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If the oom killer is of any use on a numa system using set_mempolicy,
+mbind and/or cpusets, then it would be of use in the bootcpuset -- that
+cpuset which is often setup to hold the classic Unix daemons.  I'm not
+sure we want to do that.
 
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+If we changed the mm/oom_kill.c select_bad_process() constraint from
 
-This patch fixes issues with the NeoMagic framebuffer driver.
+                /* If p's nodes don't overlap ours, it won't help to kill p. */
+                if (!cpuset_excl_nodes_overlap(p))
+                        continue;
 
-It nicely complements my previous fix already in linus' tree. The only
-thing missing now is that the external CRT will not be activated at
-neofb init when external-only is selected, either by register read or
-module/kernel parameter.
+which kills any task that has any overlap with nodes with the current task:
 
-Testing was done on a Dell Latitude CPi-A/NM2200 chip.
+ 1) to the much tighter limit of only killing tasks that are on the same or
+    a subset of the same nodes, and
 
+ 2) changed it to look at -both- the cpuset and MPOL_BIND constraints,
 
-Previous behaviour:
-- before booting linux, set the preferred display config X via FN+F8
+then oom killer would work in a bootcpuset rather as it does now on
+simple UMA systems.
 
-- boot linux, neofb stores the register values in a private
-  variable
- =20
-- change the display config to Y via keystroke
+The new logic would be -- only kill tasks that are constrained to
+the same or a subset of the same nodes as the current task.
 
-- leave the machine in peace until display is blanked
+With this, the problem you describe with the oom killer and a task that
+has used mbind or cpuset to just allow a single node would be fixed --
+only tasks constrained to just that node, no more, would be considered
+for killing.
 
-- touching any key will result in display config X being restored
+At the same time, a typical bootcpuset would have oom killer behaviour
+resembling what people have become accustomed to.
 
-- booting up, the BIOS will acknowledge config Y, though...
+If we are going to neuter or eliminate the oom killer, it seems like
+we should do it across the board, not just on numa boxes using
+some form of memory constraint (mempolicy or cpuset).
 
-
-Current behaviour:
-At the time of unblanking, config Y is honoured because we now read back
-register contents instead of just overwriting them with outdated values.
-
-Signed-off by: Christian Trefzer <ctrefzer@gmx.de>
-
----
-
---- linux-2.6.15-ct3/drivers/video/neofb.c.orig	2006-02-08 19:59:39.1877938=
-48 +0100
-+++ linux-2.6.15-ct3/drivers/video/neofb.c	2006-02-08 20:52:28.174719064 +0=
-100
-@@ -1334,6 +1334,9 @@
- 	struct neofb_par *par =3D (struct neofb_par *)info->par;
- 	int seqflags, lcdflags, dpmsflags, reg;
-=20
-+	/* Reload the value stored in the register, might have been changed via F=
-N keystroke */
-+	par->PanelDispCntlReg1 =3D vga_rgfx(NULL, 0x20) & 0x03;
-+=09
- 	switch (blank_mode) {
- 	case FB_BLANK_POWERDOWN:	/* powerdown - both sync lines down */
- 		seqflags =3D VGA_SR01_SCREEN_OFF; /* Disable sequencer */
-@@ -1366,7 +1369,7 @@
- 	case FB_BLANK_NORMAL:		/* just blank screen (backlight stays on) */
- 		seqflags =3D VGA_SR01_SCREEN_OFF;	/* Disable sequencer */
- 		lcdflags =3D par->PanelDispCntlReg1 & 0x02; /* LCD normal */
--		dpmsflags =3D 0;			/* no hsync/vsync suppression */
-+		dpmsflags =3D 0x00;	/* no hsync/vsync suppression */
- 		break;
- 	case FB_BLANK_UNBLANK:		/* unblank */
- 		seqflags =3D 0;			/* Enable sequencer */
-
---zhXaljGHf11kAtnf
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iQIVAwUBQ+pS712m8MprmeOlAQIiMQ/8CXoy08yqGGb3uoYLS+JccNQ37iOMgIDo
-Cv+zCJCnZLieLsJLXsHrYKf2RAW4d3AQcdtLamuk6Tp5semCj8Q7df5HMe2NBuXN
-QWX5CjeMOcdzXzDO9vCgNzG72fMbPdewqXKCsEYDavS5G1Uz2h3P7zyYXyMC3+Xd
-Uiu/H5ZHk8FAeJ4Rj6CzxCuSW7RhBDKJcbRwXZHrdrmCRgtvzRo4uuBx+ubLLmFm
-FPXxsDgNGisk3uyo68wjuPuUwZk8pIGhtZsCdvmE+5uzajrq0oVlCT/WUB+FhKrz
-0goQW+inr2/6b0SxRkOCMYDL51TOwFH7xho4UeTin/VDT3RKjunAQgeDk2e4qZhT
-VBr19jQlOyuqa1t+Hm49KZJVXuIbjpRRu5rmzR1B7IUW+1cf4twxw1eizGZtVNcT
-cwJEIPnFdfGpdQ3P8oGCilPY1RKRhr9U3cPdSXayrqcSLbRbDCH2pV7yXm2NqI/u
-gOqTy3U8624F84Z3TEHoqn3VJXLa05fZz3vsteVCwhpr9zOJV1QAX1NYXljGtJaf
-H46R1YCyqeF6fa0CZ8ol5R0UW5vM82Rn/XXSPgeIIL7d8IEgOXNfUb7iu+b/EOul
-RA9GwuAM2GlWd2jAE0WXb8qYujnl5fHZ3sM9rSKOEKzEA6XuQSCnoeJ4DuDDEYWD
-bc9kGJRx9Zc=
-=Rs+X
------END PGP SIGNATURE-----
-
---zhXaljGHf11kAtnf--
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

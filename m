@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965067AbWBHMUm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030365AbWBHM2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965067AbWBHMUm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 07:20:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965107AbWBHMUm
+	id S1030365AbWBHM2X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 07:28:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbWBHM2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 07:20:42 -0500
-Received: from dsl85-104-54030.ttnet.net.tr ([85.104.211.14]:23563 "HELO
-	446A248") by vger.kernel.org with SMTP id S965067AbWBHMUl (ORCPT
+	Wed, 8 Feb 2006 07:28:23 -0500
+Received: from h142-az.mvista.com ([65.200.49.142]:57993 "HELO farnsworth.org")
+	by vger.kernel.org with SMTP id S965111AbWBHM2W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 07:20:41 -0500
-Date: Wed, 08 Feb 2006 11:19:28 -0100
-From: "Jefferson" <drNOMaguareub@yahoo.co.uk>
-To: linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org
-Subject: some stuffu
-Message-ID: <hd5hLd267.AD36.pd9.867Z0M9T6@localhost>
+	Wed, 8 Feb 2006 07:28:22 -0500
+From: "Dale Farnsworth" <dale@farnsworth.org>
+Date: Wed, 8 Feb 2006 05:28:21 -0700
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Al Viro <viro@ftp.linux.org.uk>, Olaf Hering <olh@suse.de>
+Subject: [PATCH] mv643xx_eth: remove repeated includes of linux/in.h and linux/ip.h
+Message-ID: <20060208122821.GA944@xyzzy.farnsworth.org>
+References: <E1F6fqN-0006Ba-W6@ZenIV.linux.org.uk>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1F6fqN-0006Ba-W6@ZenIV.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+From: Dale Farnsworth <dale@farnsworth.org>
 
-We makes it easy to our der the mea dica etions you need.
+Signed-off-by: Dale Farnsworth <dale@farnsworth.org>
 
-Sye Ellis not hard  - Lessa up to 80% online. At our site, we provide all
+---
 
-These are Safe, effectiveand best of all
+These includes were added twice:
+in commit 78a5e534758349fd3effc90ce1152b55368f52ee by Olaf Hering and
+in commit b6298c22c5e9f698812e2520003ee178aad50c10 by Al Viro.
+This patch reverts 78a5e534758349fd3effc90ce1152b55368f52ee.
 
-------------------------
+They probably should have been included before linux/tcp.h in
+the first place.
 
-Co py the   Ad dress   below and paste in u your web browser:
+ drivers/net/mv643xx_eth.c |    2 --
+ 1 file changed, 2 deletions(-)
 
-Africanization.maintaininar.com
-
-------------------------
-
-v a li d  for 24 hurs.
-
-
-They were luminescent without having form or light..
-In order that the race might live and grow.=20.
-I had nothing further to do with them,.
-Hooch lived on her own and looked after the needs of all the caravans on t=
-he site.
-It might be a small tuft of hair.
-
-Later,
-
-Rhea Jones
+Index: linux-2.6-mv643xx_enet/drivers/net/mv643xx_eth.c
+===================================================================
+--- linux-2.6-mv643xx_enet.orig/drivers/net/mv643xx_eth.c
++++ linux-2.6-mv643xx_enet/drivers/net/mv643xx_eth.c
+@@ -37,8 +37,6 @@
+ #include <linux/tcp.h>
+ #include <linux/udp.h>
+ #include <linux/etherdevice.h>
+-#include <linux/in.h>
+-#include <linux/ip.h>
+ 
+ #include <linux/bitops.h>
+ #include <linux/delay.h>

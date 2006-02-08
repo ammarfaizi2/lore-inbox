@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965200AbWBHEk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbWBHErI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965200AbWBHEk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 23:40:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965202AbWBHEk6
+	id S1030222AbWBHErI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 23:47:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030328AbWBHErI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 23:40:58 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:20314 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S965200AbWBHEk5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 23:40:57 -0500
-Date: Wed, 8 Feb 2006 05:40:41 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Dipankar Sarma <dipankar@in.ibm.com>, Richard Henderson <rth@twiddle.net>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Andrew Morton <akpm@osdl.org>, dada1@cosmosbay.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>, James.Bottomley@steeleye.com,
-       Ingo Molnar <mingo@elte.hu>, axboe@suse.de, anton@samba.org,
-       wli@holomorphy.com, ak@muc.de
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-Message-ID: <20060208044041.GA9357@osiris.boeblingen.de.ibm.com>
-References: <200602051959.k15JxoHK001630@hera.kernel.org> <20060207151541.GA32139@osiris.boeblingen.de.ibm.com> <43E8CA10.5070501@cosmosbay.com> <Pine.LNX.4.64.0602070833590.3854@g5.osdl.org> <20060207093458.176ac271.akpm@osdl.org> <Pine.LNX.4.64.0602070946190.3854@g5.osdl.org> <20060207183018.GA29056@in.ibm.com> <Pine.LNX.4.64.0602071036050.3854@g5.osdl.org> <20060207185355.GC5771@in.ibm.com> <Pine.LNX.4.64.0602071107200.3854@g5.osdl.org>
+	Tue, 7 Feb 2006 23:47:08 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:30406 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030222AbWBHErH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 23:47:07 -0500
+Date: Tue, 7 Feb 2006 20:46:55 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       akpm@osdl.org, ck@vds.kolivas.org
+Subject: Re: [PATCH] mm: implement swap prefetching
+Message-Id: <20060207204655.f1c69875.pj@sgi.com>
+In-Reply-To: <200602071502.41456.kernel@kolivas.org>
+References: <200602071028.30721.kernel@kolivas.org>
+	<43E80F36.8020209@yahoo.com.au>
+	<200602071502.41456.kernel@kolivas.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0602071107200.3854@g5.osdl.org>
-User-Agent: mutt-ng/devel (Linux)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I am looking at 2.6.16-rc1 and I don't see cpu_possible_map
-> > being set in setup_smp()
+Con, responding to Nick:
+> > It introduces global cacheline bouncing in pagecache allocation and removal
+> > and page reclaim paths, also low watermark failure is quite common in
+> > normal operation, so that is another global cacheline write in page
+> > allocation path.
 > 
-> You're right, my bad.  I looked at setup_smp() and how it walked through 
-> every CPU in the firmware, but it doesn't actually ever set the possible 
-> map, it fills in just hwrpb_cpu_present_mask (which is then then only used 
-> _later_ to set cpu_possible_map for some silly reason).
-> 
-> As far as I can tell, "hwrpb_cpu_present_mask" is just wrong, and the code 
-> _should_ be using cpu_possible_map.
+> None of these issues is going to remotely the target audience. If the issue is 
+> how scalable such a change can be then I cannot advocate making the code 
+> smart and complex enough to be numa and cpuset aware.. but then that's never 
+> going to be the target audience. It affects a particular class of user which 
+> happens to be quite a large population not affected by complex memory 
+> hardware.
 
-We still have this one in init/main.c:
+How about only moving memory back to the Memory Node (zone) that it
+came from?  And providing some call that Christoph Lameters migration
+code can call, to disable or fix this up, so you don't end up bringing
+back pages on their pre-migration nodes?
 
-        /* Sets up cpus_possible() */
-        smp_prepare_cpus(max_cpus);
+Just honoring the memory node placement should be sufficient.  No need
+to wrap your head around cpusets.
 
-That is actually why s390 is doing this in smp_prepare_cpus. We also use the
-passed value of max_cpus to set the number of bits in cpu_possible_map
-accordingly. This isn't possible anymore if this should be done in setup_arch.
+If you don't do that, then consider disabling this thing entirely
+if CONFIG_NUMA is enabled.  This swap prefetching sounds like it
+could be a loose canon ball in a NUMA box.
 
-So it looks like we have to switch to setup_arch and set NR_CPUS bits in
-cpu_possible_map on s390.
+As for non-NUMA boxes, like my humble desktop PC, I would -love-
+to have Firefox come back up faster in the morning.  I have a nightly
+cron jobs push everything out to swap, and it is slow going getting it
+back.
 
-Heiko
+The day will come (it has already gotten there for some of my
+colleagues who are using a small Altix system for their desktop
+software) when we want this prefetching for NUMA boxes too.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

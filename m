@@ -1,80 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422660AbWBHXy0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422664AbWBHXzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422660AbWBHXy0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 18:54:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422661AbWBHXy0
+	id S1422664AbWBHXzj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 18:55:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422663AbWBHXzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 18:54:26 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:3549 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1422660AbWBHXyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 18:54:25 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: chroot in swsusp userland interface (was: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Thu, 9 Feb 2006 09:51:06 +1000
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Olivier Galibert <galibert@pobox.com>,
-       linux-kernel@vger.kernel.org,
-       Bernard Blackham <bernard@blackham.com.au>
-References: <200602030918.07006.nigel@suspend2.net> <200602060902.50386.ncunningham@cyclades.com> <200602061613.40496.rjw@sisk.pl>
-In-Reply-To: <200602061613.40496.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1991179.4ChpfO9Med";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602090951.11050.ncunningham@cyclades.com>
+	Wed, 8 Feb 2006 18:55:39 -0500
+Received: from minus.inr.ac.ru ([194.67.69.97]:48285 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id S1422664AbWBHXzi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 18:55:38 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=ms2.inr.ac.ru;
+  b=D/obPCAvP94qoqwjebHy6ZEMK2fOZgMvZIQqB/WEDIcbFt7/nYMi/cPi6SkBzUDWuH51RsaMtwD3J7pC2ibo/iW7+/sl7J3hqIqJvNEGSvIlSIkzFrehol4ufQ3hiZCsB9kzB08W7YgDzi4s5QXxSYZhPmLZojlIMxzMrrnFkqw=;
+Date: Thu, 9 Feb 2006 02:53:48 +0300
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Kirill Korotaev <dev@sw.ru>, Kirill Korotaev <dev@openvz.org>,
+       serue@us.ibm.com, arjan@infradead.org, frankeh@watson.ibm.com,
+       clg@fr.ibm.com, haveblue@us.ibm.com, mrmacman_g4@mac.com,
+       alan@lxorguk.ukuu.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       devel@openvz.org
+Subject: Re: [RFC][PATCH 2/7] VPIDs: pid/vpid conversions
+Message-ID: <20060208235348.GC26035@ms2.inr.ac.ru>
+References: <43E22B2D.1040607@openvz.org> <43E23179.5010009@sw.ru> <m1irrpsifp.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1irrpsifp.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1991179.4ChpfO9Med
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hello!
 
-Hi.
+> Do you know how incomplete this patch is?
 
-On Tuesday 07 February 2006 01:13, Rafael J. Wysocki wrote:
-> > > I like the chroot idea too.
-> >=20
-> > You're making this too complicated. Just require that the userspace pro=
-gram=20
-> > does all it's file opening etc prior to telling kernelspace to do=20
-> > anything. Then clearly document the requirement. If someone breaks the=
-=20
-> > rule, it is their problem, and their testing should show their=20
-> > foolishness. We have done a similar thing in the Suspend2 userspace use=
-r=20
-> > interface code, and it works fine.
->=20
-> Unfortunately I'd like to open at least one device file after freeze, for=
- a
-> technical reason that probably does not exist in suspend2, so I need a
-> temporary filesystem anyway.  Chrooting to it is just a cake.
+The question is for me. It handles all the subsystems which are allowed
+to be used inside openvz containers. And _nothing_ more, it would be pure S&M.
 
-Does the open need to be delayed until after the freeze?
-=20
-> [BTW, we have the list suspend-devel@lists.sourceforge.net we'd like
-> to be a place for discussing the userspace suspend issues.  If you could
-> subscribe to it, we'd be able to move the discussion there.]
 
-Will do. Sorry for the slow reply - had a bogus mail filtering rule.
+> You missed get_xpid() on alpha.
 
-Nigel
+And probably something similar on all the archs except for i386/x86_64/ia64.
 
---nextPart1991179.4ChpfO9Med
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+> Is there a plan to catch all of the in-kernel use of pids
 
-iD8DBQBD6oPvN0y+n1M3mo0RAu6hAKDX5zAfSQWyNoDrUAl+sgwTi2ovxQCg361K
-ud01HdYK4c41ltUbvUMrwao=
-=zOZ0
------END PGP SIGNATURE-----
+grep for ->pid,->tgid,->pgid,->session and look. What could be better? :-)
 
---nextPart1991179.4ChpfO9Med--
+
+> You missed cap_set_all.
+
+No doubts, something is missing. Please, could you show how to fix it
+or to point directly at the place. Thank you.
+
+
+Actually, you cycled on this pid problem. If you think private pid spaces
+are really necessary, it is prefectly OK. openvz (and, maybe, all VPS-oriented
+solutions) do _not_ need this (well, look, virtuozzo is a mature product
+for 5 years already, and vpids were added very recently for one specific
+purpose), but can live within private spaces or just in peace with them.
+We can even apply vpids on top on pid spaces to preserve global process tree.
+Provided you leave a chance not to enforce use of private pid spaces
+inside containers, of course.
+
+Alexey

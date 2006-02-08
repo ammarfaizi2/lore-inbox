@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030445AbWBHSmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030446AbWBHSpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030445AbWBHSmc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 13:42:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030446AbWBHSmb
+	id S1030446AbWBHSpN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 13:45:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030450AbWBHSpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 13:42:31 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:53197 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030445AbWBHSmb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 13:42:31 -0500
-Date: Wed, 8 Feb 2006 10:42:19 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Paul Jackson <pj@sgi.com>
-cc: akpm@osdl.org, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Terminate process that fails on a constrained allocation
-In-Reply-To: <20060208103323.7ba3709e.pj@sgi.com>
-Message-ID: <Pine.LNX.4.62.0602081037240.3590@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0602081004060.2648@schroedinger.engr.sgi.com>
- <20060208103323.7ba3709e.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 8 Feb 2006 13:45:13 -0500
+Received: from static-151-204-232-50.bos.east.verizon.net ([151.204.232.50]:22237
+	"EHLO mail2.sicortex.com") by vger.kernel.org with ESMTP
+	id S1030446AbWBHSpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 13:45:11 -0500
+Date: Wed, 8 Feb 2006 13:45:06 -0500
+From: "Aaron D. Brooks" <aaron.brooks@sicortex.com>
+To: linux-kernel@vger.kernel.org
+Cc: Keith Owens <kaos@ocs.com.au>
+Subject: scripts/namespace.pl is not CROSS_COMPILE happy
+Message-ID: <20060208184506.GS11744@sicortex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Feb 2006, Paul Jackson wrote:
+All,
 
-> What your patch is doing affectively disables the oom_killer for
-> big numa systems, rather than having it operate within the set
-> of tasks using overlapping resources.
+    I see that this has come up before:
 
-No it only disables the oom killer for constrained allocations. If the big 
-numa system uses a cpuset that limits the number of nodes then those 
-allocations occurring within these cpusets are constrained allocations 
-which will then lead to the killing of the application that allocated too 
-much memory. I think this is much more consistent than trying to tame the 
-OOM killer enough to stay in a certain cpuset.
+    http://lkml.org/lkml/2005/9/20/68
 
-F.e. a sysadmin may mistakenly start a process allocating too much memory
-in a cpuset. The OOM killer will then start randomly shooting other 
-processes one of which may be a critical process.. Ouch.
+but I don't see the inclusion of these changes in the current Linus
+linux-2.6 git tree. Are the changes hanging out somewhere or were they
+shot down for some reason?
 
-> Do we need this more radical constraint on the oom_killer?
+    I've attached an alternate patch which is a ever so slightly more
+clean (for some definitions of "clean").
 
-Yes. One can make the OOM killer go postal if one specifies a memory 
-policy that contains only one node and then allocates enough memory.
+-Aaron
 
-Actually a good Denial of service attack than can be used with cpusets 
-and memory policies.
+P.S. Please CC me, I'm not on the list.
+
+Index: scripts/namespace.pl
+===================================================================
+--- old/scripts/namespace.pl        (revision 13486)
++++ new/scripts/namespace.pl        (working copy)
+@@ -66,8 +66,8 @@
+ use strict;
+ use File::Find;
+ 
+-my $nm = "/usr/bin/nm -p";
+-my $objdump = "/usr/bin/objdump -s -j .comment";
++my $nm = ($ENV{'NM'} || "nm") . " -p";
++my $objdump = ($ENV{'OBJDUMP'} || "objdump") . " -s -j .comment";
+ my $srctree = "";
+ my $objtree = "";
+ $srctree = "$ENV{'srctree'}/" if (exists($ENV{'srctree'}));
+

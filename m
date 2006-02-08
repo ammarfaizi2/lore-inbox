@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965208AbWBHWcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965210AbWBHWfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965208AbWBHWcN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 17:32:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965210AbWBHWcN
+	id S965210AbWBHWfg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 17:35:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965213AbWBHWfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 17:32:13 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:7621 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965208AbWBHWcL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 17:32:11 -0500
-Date: Wed, 8 Feb 2006 17:31:54 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cuia.boston.redhat.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Eric Dumazet <dada1@cosmosbay.com>, Linus Torvalds <torvalds@g5.osdl.org>
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-In-Reply-To: <200602051959.k15JxoHK001630@hera.kernel.org>
-Message-ID: <Pine.LNX.4.63.0602081728590.31711@cuia.boston.redhat.com>
-References: <200602051959.k15JxoHK001630@hera.kernel.org>
+	Wed, 8 Feb 2006 17:35:36 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:44969 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S965210AbWBHWfg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 17:35:36 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <43EA7226.60306@s5r6.in-berlin.de>
+Date: Wed, 08 Feb 2006 23:35:18 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+Subject: Re: [PATCH 7/8] don't mangle INQUIRY if cmddt or evpd bits are set
+References: <E1F6vyJ-00009k-3Z@ZenIV.linux.org.uk>
+In-Reply-To: <E1F6vyJ-00009k-3Z@ZenIV.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: (-0.742) AWL,BAYES_05
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Feb 2006, Linux Kernel Mailing List wrote:
+Al Viro wrote:
+> Date: 1139425740 -0500
+> 
+> sbp2.c mangles INQUIRY response in a way that only applies to standard
+> inquiry data (i.e. when both cmddt and evpd bits are 0).  Leave other cases
+> alone; e.g. when asking for VPD the length of reply is in byte 3, not 4
+> and byte 4 is the first byte of device serial number.
+> 
+> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+> 
+> ---
+> 
 
-> [PATCH] percpu data: only iterate over possible CPUs
+I tested the patch with 8 different SBP-2 bridges, based on 6 or 7 
+different bridge chips. Works for me.
 
-This sched.c bit breaks Xen, and probably also other architectures
-that have CPU hotplug.  I suspect the reason is that during early 
-bootup only the boot CPU is online, so nothing initialises the
-runqueues for CPUs that are brought up afterwards.
+In fact, not a single one of these bridges is affected by the code 
+change since the additional expression which was added always evaluates 
+true.
 
-I suspect we can get rid of this problem quite easily by moving
-runqueue initialisation to init_idle()...
-
-> diff --git a/kernel/sched.c b/kernel/sched.c
-> index f77f23f..839466f 100644
-> --- a/kernel/sched.c
-> +++ b/kernel/sched.c
-> @@ -6109,7 +6109,7 @@ void __init sched_init(void)
->  	runqueue_t *rq;
->  	int i, j, k;
->  
-> -	for (i = 0; i < NR_CPUS; i++) {
-> +	for_each_cpu(i) {
->  		prio_array_t *array;
->  
->  		rq = cpu_rq(i);
+...
+> -	switch (SCpnt->cmnd[0]) {
+> -
+> -	case INQUIRY:
+> +	if (SCpnt->cmnd[0] == INQUIRY && (SCpnt->cmnd[1] & 3) == 0) {
+>  		/*
+>  		 * Make sure data length is ok. Minimum length is 36 bytes
+>  		 */
+...
 
 -- 
-All Rights Reversed
+Stefan Richter
+-=====-=-==- --=- -=---
+http://arcgraph.de/sr/

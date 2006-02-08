@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030503AbWBHDUx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030495AbWBHDUx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030503AbWBHDUx (ORCPT <rfc822;willy@w.ods.org>);
+	id S1030495AbWBHDUx (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 7 Feb 2006 22:20:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030495AbWBHDUw
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030506AbWBHDUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 22:20:52 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:6529 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030480AbWBHDUM
+	Tue, 7 Feb 2006 22:20:50 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:7297 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030495AbWBHDUR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 22:20:12 -0500
+	Tue, 7 Feb 2006 22:20:17 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 28/29] nfsroot port= parameter fix [backport of 2.4 fix]
+Subject: [PATCH 29/29] umount_tree() decrements mount count on wrong dentry
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1F6fsK-0006Eu-6Y@ZenIV.linux.org.uk>
+Message-Id: <E1F6fsP-0006F1-6t@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Wed, 08 Feb 2006 03:20:12 +0000
+Date: Wed, 08 Feb 2006 03:20:17 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Date: 1136357057 -0500
+Date: 1138798401 -0500
 
-Direct backport of 2.4 fix that didn't get propagated to 2.6; original
-comment follows:
-<quote>
-   When I specify the NFS port for nfsroot (e.g.,
-   nfsroot=<dir>,port=2049), the
-   kernel uses the wrong port. In my case it tries to use 264 (0x108)
-   instead
-   of 2049 (0x801).
+*duh*
 
-   This patch adds the missing htons().
-
-   Eric
-</quote>
-
-Patch got applied in 2.4.21-pre6.  Author: Eric Lammerts (<eric@lammerts.org>,
-AFAICS).
+braino introduced when doing shared-tree patchset massage; missed during code
+review _and_ testing; credit for finally noticing that in some cases rmdir()
+and friends started returning -EBUSY even after umount() goes to
+janak@us.ibm.com
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- fs/nfs/nfsroot.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+ fs/namespace.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-8854eddbdb3e45b8d381ecff2937a942d0cb2067
-diff --git a/fs/nfs/nfsroot.c b/fs/nfs/nfsroot.c
-index e897e00..c0a754e 100644
---- a/fs/nfs/nfsroot.c
-+++ b/fs/nfs/nfsroot.c
-@@ -465,10 +465,11 @@ static int __init root_nfs_ports(void)
- 					"number from server, using default\n");
- 			port = nfsd_port;
- 		}
--		nfs_port = htons(port);
-+		nfs_port = port;
- 		dprintk("Root-NFS: Portmapper on server returned %d "
- 			"as nfsd port\n", port);
+f30ac319f1b91878cdc57a50930f15c36e0e103a
+diff --git a/fs/namespace.c b/fs/namespace.c
+index a2bef5c..058a448 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -494,7 +494,7 @@ void umount_tree(struct vfsmount *mnt, i
+ 		p->mnt_namespace = NULL;
+ 		list_del_init(&p->mnt_child);
+ 		if (p->mnt_parent != p)
+-			mnt->mnt_mountpoint->d_mounted--;
++			p->mnt_mountpoint->d_mounted--;
+ 		change_mnt_propagation(p, MS_PRIVATE);
  	}
-+	nfs_port = htons(nfs_port);
- 
- 	if ((port = root_nfs_getport(NFS_MNT_PROGRAM, mountd_ver, proto)) < 0) {
- 		printk(KERN_ERR "Root-NFS: Unable to get mountd port "
+ }
 -- 
 0.99.9.GIT
 

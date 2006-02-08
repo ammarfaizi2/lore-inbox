@@ -1,52 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030602AbWBHX1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030613AbWBHXaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030602AbWBHX1w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 18:27:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030608AbWBHX1w
+	id S1030613AbWBHXaV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 18:30:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030615AbWBHXaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 18:27:52 -0500
-Received: from fsmlabs.com ([168.103.115.128]:60907 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1030602AbWBHX1v (ORCPT
+	Wed, 8 Feb 2006 18:30:21 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:63655 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030613AbWBHXaU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 18:27:51 -0500
-X-ASG-Debug-ID: 1139441264-13688-11-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Wed, 8 Feb 2006 15:32:27 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: thomas <thomas.bsd@gmail.com>
-cc: linux-kernel@vger.kernel.org
-X-ASG-Orig-Subj: Re: Incomprehensible Boot freeze & Crash - Kernel 2.6.12
-Subject: Re: Incomprehensible Boot freeze & Crash - Kernel 2.6.12
-In-Reply-To: <2753bafa0602081333y2f0f8c37o210b8acb6b3b73d1@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0602081532040.1579@montezuma.fsmlabs.com>
-References: <2753bafa0602081333y2f0f8c37o210b8acb6b3b73d1@mail.gmail.com>
+	Wed, 8 Feb 2006 18:30:20 -0500
+Date: Wed, 8 Feb 2006 15:29:59 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, pj@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: Terminate process that fails on a constrained allocation
+In-Reply-To: <200602082341.02243.ak@suse.de>
+Message-ID: <Pine.LNX.4.62.0602081529160.5184@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0602081004060.2648@schroedinger.engr.sgi.com>
+ <20060208133909.183f19ea.akpm@osdl.org> <Pine.LNX.4.62.0602081402310.4735@schroedinger.engr.sgi.com>
+ <200602082341.02243.ak@suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.8474
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Feb 2006, thomas wrote:
+On Wed, 8 Feb 2006, Andi Kleen wrote:
 
-> Hello,
-> I'm running Debian GNU/Linux Etch on an Acer Aspire 1682 laptop with
-> kernel 2.6.12-1-686. So far the system was rock solid but I'm now
-> experiencing a boot freeze:
-> 
-> ... Setting up ICE socket directory /tmp/ICE-Unix... done
-> INIT: Entering runlevel: 2
-> Starting system log daemon: syslogd
-> 
-> Then, nothing. However I can boot in "recover mode" (that is, single
-> user & root login). There does not seem to be any hardware failure,
-> the partitions are properly mounted, and there is engough free space
-> on any of them. When I shut down the box, hundreds of lines of errors
-> messages are outputted. I cannot read them all but here are the last
-> ones:
+> Unfortunately Andrew's point with the GFP_NOFS still applies :/
+> But I would consider any caller of this not handling NULL be broken.
+> Andrew do you have any stronger evidence it's a real problem?
 
-I'd suggest running memtest on it.
-
+I would think that a caller will have to set __GFP_NOFAIL if a NULL is 
+unacceptable.

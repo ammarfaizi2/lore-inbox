@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161022AbWBHGp4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161030AbWBHGpv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161022AbWBHGp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 01:45:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161018AbWBHGpz
+	id S1161030AbWBHGpv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 01:45:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161025AbWBHGns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 01:45:55 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:50563 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1161022AbWBHGpJ
+	Wed, 8 Feb 2006 01:43:48 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:34690 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1161012AbWBHGnX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 01:45:09 -0500
-Message-Id: <20060208064905.800252000@sorel.sous-sol.org>
+	Wed, 8 Feb 2006 01:43:23 -0500
+Message-Id: <20060208064900.840808000@sorel.sous-sol.org>
 References: <20060208064503.924238000@sorel.sous-sol.org>
-Date: Tue, 07 Feb 2006 22:45:17 -0800
+Date: Tue, 07 Feb 2006 22:45:12 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -19,40 +19,39 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Adrian Bunk <bunk@stusta.de>, linville@tuxdriver.com
-Subject: [PATCH 14/23] [PATCH] PCMCIA=m, HOSTAP_CS=y is not a legal configuration
-Content-Disposition: inline; filename=pcmcia-m-hostap_cs-y-is-not-a-legal-configuration.patch
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Zinx Verituse <zinx@bluecherry.net>, Vojtech Pavlik <vojtech@suse.cz>,
+       Dmitry Torokhov <dtor@mail.ru>
+Subject: [PATCH 09/23] Input: sidewinder - fix an oops
+Content-Disposition: inline; filename=input-sidewinder-fix-an-oops.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-CONFIG_PCMCIA=m, CONFIG_HOSTAP_CS=y doesn't compile.
+Dynalloc conversion strikes again...
 
-Reported by "Gabriel C." <crazy@pimpmylinux.org>.
-
-This patch was already included in 2.6.16-rc2.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
 
- drivers/net/wireless/hostap/Kconfig |    2 +-
+ drivers/input/joystick/sidewinder.c |    2 +-
  1 files changed, 1 insertion(+), 1 deletion(-)
 
-Index: linux-2.6.15.3/drivers/net/wireless/hostap/Kconfig
+Index: linux-2.6.15.3/drivers/input/joystick/sidewinder.c
 ===================================================================
---- linux-2.6.15.3.orig/drivers/net/wireless/hostap/Kconfig
-+++ linux-2.6.15.3/drivers/net/wireless/hostap/Kconfig
-@@ -61,7 +61,7 @@ config HOSTAP_PCI
+--- linux-2.6.15.3.orig/drivers/input/joystick/sidewinder.c
++++ linux-2.6.15.3/drivers/input/joystick/sidewinder.c
+@@ -736,7 +736,7 @@ static int sw_connect(struct gameport *g
+ 		sprintf(sw->name, "Microsoft SideWinder %s", sw_name[sw->type]);
+ 		sprintf(sw->phys[i], "%s/input%d", gameport->phys, i);
  
- config HOSTAP_CS
- 	tristate "Host AP driver for Prism2/2.5/3 PC Cards"
--	depends on PCMCIA!=n && HOSTAP
-+	depends on PCMCIA && HOSTAP
- 	---help---
- 	Host AP driver's version for Prism2/2.5/3 PC Cards.
- 
+-		input_dev = input_allocate_device();
++		sw->dev[i] = input_dev = input_allocate_device();
+ 		if (!input_dev) {
+ 			err = -ENOMEM;
+ 			goto fail3;
 
 --

@@ -1,82 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030402AbWBHBX0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030401AbWBHBZ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030402AbWBHBX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 20:23:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030404AbWBHBX0
+	id S1030401AbWBHBZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 20:25:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030403AbWBHBZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 20:23:26 -0500
-Received: from penta.pentaserver.com ([66.45.247.194]:37281 "EHLO
-	penta.pentaserver.com") by vger.kernel.org with ESMTP
-	id S1030402AbWBHBXZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 20:23:25 -0500
-Message-ID: <43E94492.3020705@gmail.com>
-Date: Wed, 08 Feb 2006 05:08:34 +0400
-From: Manu Abraham <abraham.manu@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Tue, 7 Feb 2006 20:25:56 -0500
+Received: from zproxy.gmail.com ([64.233.162.199]:21399 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030401AbWBHBZz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 20:25:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=kzFRgwlD7vLhYhcUqg59KTLylXbPXkmXZTkL+fmPQRYpV5DZqeDj64k+E2PVbZYTbtpE75rfAaqRvQkezaLgrkpjz3Eh7DDMw2Y5dJ2VCrojAeuXwkZzrXfS2Bzf476fPfJlOu5sOHhDaqQnqD7T7iiC+zQALcABrxQs7He+1uU=
+From: Neal Becker <ndbecker2@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: 2.6.16-rc1 panic on startup (acpi)
+Date: Tue, 7 Feb 2006 20:25:51 -0500
+User-Agent: KMail/1.9.1
+Cc: Greg KH <greg@kroah.com>, Dave Jones <davej@redhat.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <ds7cu3$9c0$1@sea.gmane.org> <20060208000715.GA19233@kroah.com> <200602080110.06736.ak@suse.de>
+In-Reply-To: <200602080110.06736.ak@suse.de>
 MIME-Version: 1.0
-To: Edgar Toernig <froese@gmx.de>
-CC: mchehab@infradead.org, linux-kernel@vger.kernel.org,
-       linux-dvb-maintainer@linuxtv.org, Manu Abraham <manu@linuxtv.org>
-Subject: Re: [PATCH 04/16] Fix [Bug 5895] to correct snd_87x autodetect
-References: <20060207153248.PS50860900000@infradead.org>	<20060207153330.PS44220900004@infradead.org> <20060208012434.10d927c4.froese@gmx.de>
-In-Reply-To: <20060208012434.10d927c4.froese@gmx.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - penta.pentaserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - gmail.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Disposition: inline
+Message-Id: <200602072025.51573.ndbecker2@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Edgar Toernig wrote:
-> mchehab@infradead.org wrote:
->   
->> --- a/drivers/media/dvb/bt8xx/bt878.c
->> +++ b/drivers/media/dvb/bt8xx/bt878.c
->> @@ -381,6 +381,23 @@ bt878_device_control(struct bt878 *bt, u
->>  
->>  EXPORT_SYMBOL(bt878_device_control);
->>  
->> +
->> +struct cards card_list[] __devinitdata = {
->> +
->> +	{ 0x01010071, BTTV_BOARD_NEBULA_DIGITV,	"Nebula Electronics DigiTV" },
->> +	{ 0x07611461, BTTV_BOARD_AVDVBT_761,	"AverMedia AverTV DVB-T 761" },
->> [...]
->>     
+On Tuesday 07 February 2006 7:10 pm, Andi Kleen wrote:
+> On Wednesday 08 February 2006 01:07, Greg KH wrote:
+> > > In the meantime, here's what I got..
+> > >
+> > > http://people.redhat.com/davej/DSC00148.JPG
+> >
+> > Andi, didn't your change for this function make it into Linus's tree?
 >
-> I'm not very familiar with the pci configuration logic but
-> what's the point of this list and the BTTV_BOARD_xxx defines?
-> The defines are never used and the list is only used to let
-> the probe routine fail when the device is not in the list.
->   
-
-Yes, that's the idea. The naming is for identification in the failed case.
-
-> Anyway, the bttv driver already has this information in his card
-> list (field has_dvb).  As long as the bt878 isn't stand alone
-> and requires the bttv driver wouldn't it be better to query its
-> table?
+> Yes
 >
->   
+> See
+> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=comm
+>it;h=1de6bf33bc4601d856c286ad5c7d515468e24bbb
+>
+> Workaround is pci=nommconf btw
+>
 
-This is only the interim fix for bug [5895] prior to the merge, as was 
-discussed on the linux-dvb and video4linux mailing lists.
-Thread: [linux-dvb] Re: [Fwd: [Bug 5895] With DVB drivers enabled 
-snd_87x    (ALSA)    don't detect Broooktree audio]
-
-> Even if this table is kept, it should be static
->   
-
-Ack'd.
-
-
-Thanks,
-Manu
-
+Yes!  This patch worked.

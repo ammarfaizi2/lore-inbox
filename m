@@ -1,68 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030536AbWBHFnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030538AbWBHFpW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030536AbWBHFnq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 00:43:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030539AbWBHFnq
+	id S1030538AbWBHFpW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 00:45:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030539AbWBHFpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 00:43:46 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:36332 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030536AbWBHFnp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 00:43:45 -0500
-Message-ID: <43E98566.9020100@jp.fujitsu.com>
-Date: Wed, 08 Feb 2006 14:45:10 +0900
+	Wed, 8 Feb 2006 00:45:22 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:6852 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1030538AbWBHFpV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 00:45:21 -0500
+Message-ID: <43E985BB.9020901@jp.fujitsu.com>
+Date: Wed, 08 Feb 2006 14:46:35 +0900
 From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] unify pfn_to_page take 2 [1/25] i386 funcs
+CC: Andi Kleen <ak@suse.de>
+Subject: [PATCH] unify pfn_to_page take 2 [3/25] x86_64 funcs
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-386 can use generic ones.
+x86_64 can use generic one.
+When DISCONTIGMEM is selected, CONFIG_DONT_INLINE_PFN_TO_PAGE=y.
+pfn_to_page/page_to_pfn are not inlined.
 
 Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-Index: test-layout-free-zone/include/asm-i386/mmzone.h
+Index: test-layout-free-zone/arch/x86_64/mm/numa.c
 ===================================================================
---- test-layout-free-zone.orig/include/asm-i386/mmzone.h
-+++ test-layout-free-zone/include/asm-i386/mmzone.h
-@@ -86,21 +86,6 @@ static inline int pfn_to_nid(unsigned lo
-  /* XXX: FIXME -- wli */
-  #define kern_addr_valid(kaddr)	(0)
+--- test-layout-free-zone.orig/arch/x86_64/mm/numa.c
++++ test-layout-free-zone/arch/x86_64/mm/numa.c
+@@ -362,28 +362,6 @@ EXPORT_SYMBOL(memnodemap);
+  EXPORT_SYMBOL(node_data);
 
--#define pfn_to_page(pfn)						\
--({									\
--	unsigned long __pfn = pfn;					\
--	int __node  = pfn_to_nid(__pfn);				\
--	&NODE_DATA(__node)->node_mem_map[node_localnr(__pfn,__node)];	\
--})
+  #ifdef CONFIG_DISCONTIGMEM
+-/*
+- * Functions to convert PFNs from/to per node page addresses.
+- * These are out of line because they are quite big.
+- * They could be all tuned by pre caching more state.
+- * Should do that.
+- */
 -
--#define page_to_pfn(pg)							\
--({									\
--	struct page *__page = pg;					\
--	struct zone *__zone = page_zone(__page);			\
--	(unsigned long)(__page - __zone->zone_mem_map)			\
--		+ __zone->zone_start_pfn;				\
--})
+-/* Requires pfn_valid(pfn) to be true */
+-struct page *pfn_to_page(unsigned long pfn)
+-{
+-	int nid = phys_to_nid(((unsigned long)(pfn)) << PAGE_SHIFT);
+-	return (pfn - node_start_pfn(nid)) + NODE_DATA(nid)->node_mem_map;
+-}
+-EXPORT_SYMBOL(pfn_to_page);
 -
-  #ifdef CONFIG_X86_NUMAQ            /* we have contiguous memory on NUMA-Q */
-  #define pfn_valid(pfn)          ((pfn) < num_physpages)
-  #else
-Index: test-layout-free-zone/include/asm-i386/page.h
+-unsigned long page_to_pfn(struct page *page)
+-{
+-	return (long)(((page) - page_zone(page)->zone_mem_map) +
+-		      page_zone(page)->zone_start_pfn);
+-}
+-EXPORT_SYMBOL(page_to_pfn);
+-
+  int pfn_valid(unsigned long pfn)
+  {
+  	unsigned nid;
+Index: test-layout-free-zone/include/asm-x86_64/mmzone.h
 ===================================================================
---- test-layout-free-zone.orig/include/asm-i386/page.h
-+++ test-layout-free-zone/include/asm-i386/page.h
-@@ -126,8 +126,6 @@ extern int page_is_ram(unsigned long pag
-  #define __va(x)			((void *)((unsigned long)(x)+PAGE_OFFSET))
-  #define pfn_to_kaddr(pfn)      __va((pfn) << PAGE_SHIFT)
+--- test-layout-free-zone.orig/include/asm-x86_64/mmzone.h
++++ test-layout-free-zone/include/asm-x86_64/mmzone.h
+@@ -39,8 +39,6 @@ static inline __attribute__((pure)) int
+  #define pfn_to_nid(pfn) phys_to_nid((unsigned long)(pfn) << PAGE_SHIFT)
+  #define kvaddr_to_nid(kaddr)	phys_to_nid(__pa(kaddr))
+
+-extern struct page *pfn_to_page(unsigned long pfn);
+-extern unsigned long page_to_pfn(struct page *page);
+  extern int pfn_valid(unsigned long pfn);
+  #endif
+
+Index: test-layout-free-zone/include/asm-x86_64/page.h
+===================================================================
+--- test-layout-free-zone.orig/include/asm-x86_64/page.h
++++ test-layout-free-zone/include/asm-x86_64/page.h
+@@ -123,8 +123,6 @@ typedef struct { unsigned long pgprot; }
+  #define __boot_va(x)		__va(x)
+  #define __boot_pa(x)		__pa(x)
   #ifdef CONFIG_FLATMEM
 -#define pfn_to_page(pfn)	(mem_map + (pfn))
 -#define page_to_pfn(page)	((unsigned long)((page) - mem_map))
-  #define pfn_valid(pfn)		((pfn) < max_mapnr)
-  #endif /* CONFIG_FLATMEM */
-  #define virt_to_page(kaddr)	pfn_to_page(__pa(kaddr) >> PAGE_SHIFT)
+  #define pfn_valid(pfn)		((pfn) < end_pfn)
+  #endif
+
+Index: test-layout-free-zone/arch/x86_64/Kconfig
+===================================================================
+--- test-layout-free-zone.orig/arch/x86_64/Kconfig
++++ test-layout-free-zone/arch/x86_64/Kconfig
+@@ -321,6 +321,10 @@ config HAVE_ARCH_EARLY_PFN_TO_NID
+  	def_bool y
+  	depends on NUMA
+
++config DONT_INLINE_PFN_TO_PAGE
++	def_bool y
++	depends on DISCONTIGMEM
++
+  config NR_CPUS
+  	int "Maximum number of CPUs (2-256)"
+  	range 2 256
 

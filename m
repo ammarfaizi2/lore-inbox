@@ -1,71 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030474AbWBHC7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030470AbWBHDAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030474AbWBHC7q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 21:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030470AbWBHC7q
+	id S1030470AbWBHDAV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 22:00:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030473AbWBHDAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 21:59:46 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:28866 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030461AbWBHC7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 21:59:45 -0500
-Message-Id: <200602080258.k182wgg27146@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Keith Owens'" <kaos@sgi.com>
-Cc: "'Adrian Bunk'" <bunk@stusta.de>, "Luck, Tony" <tony.luck@intel.com>,
-       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: [2.6 patch] let IA64_GENERIC select more stuff 
-Date: Tue, 7 Feb 2006 18:58:42 -0800
+	Tue, 7 Feb 2006 22:00:21 -0500
+Received: from mail13.syd.optusnet.com.au ([211.29.132.194]:23460 "EHLO
+	mail13.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1030470AbWBHDAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 22:00:19 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: gcoady@gmail.com
+Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
+Date: Wed, 8 Feb 2006 14:00:59 +1100
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org
+References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com> <200602081335.18256.kernel@kolivas.org> <24niu1hrom6udfa2km18b8bagad62kjamc@4ax.com>
+In-Reply-To: <24niu1hrom6udfa2km18b8bagad62kjamc@4ax.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcYsWk0yTja611EJQWKimuWgXMhPfQAADtlg
-In-Reply-To: <10378.1139366890@kao2.melbourne.sgi.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Disposition: inline
+Message-Id: <200602081400.59931.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote on Tuesday, February 07, 2006 6:48 PM
-> >You patch does more than what you described and is wrong.  Selecting
-> >platform type should not be tied into selecting SMP nor should it tied
-> >with processor type, nor should it tied with ARCH_FLATMEM_ENABLE.  All
-> >of them are orthogonal and independent.
-> 
-> Blame me for the SMP bit.  I have a dim, distant memory that Intel
-> required all IA64 boxes to be SMP, but I could be wrong.  Also it is
-> almost pointless to do a generic build which pulls in NUMA etc.,
-> without also including SMP.
+On Wed, 8 Feb 2006 01:55 pm, Grant Coady wrote:
+> On Wed, 8 Feb 2006 13:35:18 +1100, Con Kolivas <kernel@kolivas.org> wrote:
+> >On Wed, 8 Feb 2006 01:11 pm, Grant Coady wrote:
+> >> Hi there,
+> >>
+> >> grant@deltree:~$ uname -r
+> >> 2.6.15.3a
+> >> grant@deltree:~$ time grep -v 192\.168\. /var/log/apache/access_log| cut
+> >> -c-95 ...
+> >> 2006-02-08 12:38:13 +1100: bugsplatter.mine.nu 193.196.182.215 "GET
+> >> /test/linux-2.6/tosh/ HTTP/
+> >>
+> >> real    0m8.537s
+> >> user    0m0.970s
+> >> sys     0m1.100s
+> >>
+> >> --> reboot to 2.4.32-hf32.2
+> >>
+> >> grant@deltree:~$ uname -r
+> >> 2.4.32-hf32.2
+> >> grant@deltree:~$ time grep -v 192\.168\. /var/log/apache/access_log| cut
+> >> -c-95 ...
+> >> 2006-02-08 12:38:13 +1100: bugsplatter.mine.nu 193.196.182.215 "GET
+> >> /test/linux-2.6/tosh/ HTTP/
+> >>
+> >> real    0m2.271s
+> >> user    0m0.730s
+> >> sys     0m0.540s
+> >>
+> >> Still a 4:1 slowdown, machine .config and dmesg info:
+> >>   http://bugsplatter.mine.nu/test/boxen/deltree/
+> >
+> >What happens if you add "| cat" on the end of your command?
+>
+> It gets faster with 2.4.32-hf32.2 by a little bit (I forgot to copy)
+>
+> reboot to 2.6.15.3a, without...
+>
+> real    0m8.737s
+> user    0m1.030s
+> sys     0m1.200s
+>
+> with...  oh shit / surprise!!
+>
+> real    0m1.861s
+> user    0m0.560s
+> sys     0m0.370s
+>
+> What is that telling me / you / us?
 
-I'm not disagreeing with the SMP bit.  In my very first reply, I
-disagree with the hunk that disable CONFIG_MCKINLEY for CONFIG_IA64_GENERIC.
-People tends to mix the terminology, CONFIG_IA64_GENERIC is a
-platform type choice, it is a sub-requirement for building a
-kernel that boots everywhere.  People keeps on promoting the
-config option.
+Heh.
 
-- Ken
+This is the terminal's fault. xterm et al use an algorithm to determine how 
+fast your machine is and decide whether to jump scroll or smooth scroll. This 
+algorithm is basically broken with the 2.6 scheduler and it decides to mostly 
+smooth scroll.
 
-
-Excerpt from earlier email:
-
-> --- linux-2.6.16-rc1-mm5-ia64/arch/ia64/Kconfig.old
-> +++ linux-2.6.16-rc1-mm5-ia64/arch/ia64/Kconfig
-> @@ -132,10 +134,11 @@
->  	  This choice is safe for all IA-64 systems, but may not perform
->  	  optimally on systems with, say, Itanium 2 or newer processors.
->  
->  config MCKINLEY
->  	bool "Itanium 2"
-> +	depends on IA64_GENERIC=n
->  	help
->  	  Select this to configure for an Itanium 2 (McKinley) processor.
->  
->  endchoice
->  
-
-This hunk does not make any logical sense.  Select generic system type
-does not mean Itanium processor is the only choice I can have.  What's
-wrong with having an option that works just fine right now?
-
+Cheers,
+Con

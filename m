@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030455AbWBHC2o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030460AbWBHCdN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030455AbWBHC2o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 21:28:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030458AbWBHC2o
+	id S1030460AbWBHCdN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 21:33:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030461AbWBHCdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 21:28:44 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:32183 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1030455AbWBHC2o (ORCPT
+	Tue, 7 Feb 2006 21:33:13 -0500
+Received: from [218.25.172.144] ([218.25.172.144]:4882 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S1030460AbWBHCdN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 21:28:44 -0500
-Date: Tue, 7 Feb 2006 21:24:11 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Grant Coady <gcoady@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
-Message-ID: <20060208022411.GD14748@kvack.org>
-References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 7 Feb 2006 21:33:13 -0500
+Message-ID: <43E95862.4080501@fc-cn.com>
+Date: Wed, 08 Feb 2006 10:33:06 +0800
+From: =?UTF-8?B?56WB5YuH?= <qiyong@fc-cn.com>
+Organization: FCD
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ja-JP; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rob Slifkin <comptiger5000@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Contact info for Linus Torvalds
+References: <000001c62c47$1b0217e0$9b01010a@ldsrobtop>
+In-Reply-To: <000001c62c47$1b0217e0$9b01010a@ldsrobtop>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 08, 2006 at 01:11:49PM +1100, Grant Coady wrote:
-> This console sluggishness is noticeable enough on older hardware for me to 
-> forgo exercising 2.6.latest.stable bugs for much time on it ;)
+Rob Slifkin wrote:
+
+>Due to a project i am working on, i need current email for Linus Torvalds,
+>I've found no other valid info, so this is my last place to look.  If anyone
+>can help, thanks a lot, and sorry for the disturbance.  
 > 
-> For those suffering deja vu, yes, I reported this last month (or, recently).
+>Please CC your reply to me (comptiger5000@gmail.com) directly
+>  
+>
 
-This bug report is a bit vague in terms of what the problem is -- the 
-test case hits 3 major subsystems (io, vm, net), all of which have changed 
-rather substantially in the course of 2.6 development.  Would it be possible 
-to profile the system using oprofile to get an idea what the hotspots are?  
-Have you compared basic hard disk throughput with hdparm, as well as 
-ensuring DMA is enabled with 32 bit io?  What about testing network 
-performance with netperf (or a netcat of /dev/zero)?  A few more data points 
-would be quite helpful.  Cheers,
+gemini:~/linux/linux-2.6> grep -C1 Linus CREDITS
 
-		-ben
--- 
-"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
-and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.
+                        Linus
+----------
+--
+
+N: Linus Torvalds
+E: torvalds@osdl.org
+

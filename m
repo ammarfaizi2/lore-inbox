@@ -1,61 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932474AbWBGXgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030301AbWBHAGY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932474AbWBGXgp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 18:36:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWBGXgo
+	id S1030301AbWBHAGY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 19:06:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030303AbWBHAGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 18:36:44 -0500
-Received: from mx1.suse.de ([195.135.220.2]:52104 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932476AbWBGXgn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 18:36:43 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Ray Bryant" <raybry@mpdtxmail.amd.com>
-Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes 2.6.16-rc1[2] on 2 node X86_64
-Date: Wed, 8 Feb 2006 00:36:30 +0100
-User-Agent: KMail/1.8.2
-Cc: "Christoph Lameter" <clameter@engr.sgi.com>,
-       "Bharata B Rao" <bharata@in.ibm.com>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-References: <20060205163618.GB21972@in.ibm.com> <Pine.LNX.4.62.0602070848450.24487@schroedinger.engr.sgi.com> <200602071727.18359.raybry@mpdtxmail.amd.com>
-In-Reply-To: <200602071727.18359.raybry@mpdtxmail.amd.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602080036.31059.ak@suse.de>
+	Tue, 7 Feb 2006 19:06:24 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:24306 "EHLO
+	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1030301AbWBHAGX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 19:06:23 -0500
+Date: Tue, 07 Feb 2006 18:06:45 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [2.6.15] frequent "BUG: soft lockup detected on CPU#0" in IDE
+ subsystem
+In-reply-to: <5DB5f-2uJ-21@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <43E93615.3080902@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <5DB5f-2uJ-21@gated-at.bofh.it>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 February 2006 00:27, Ray Bryant wrote:
-> On Tuesday 07 February 2006 10:49, Christoph Lameter wrote:
-> > On Tue, 7 Feb 2006, Bharata B Rao wrote:
-> > > I can still crash my x86_64 box with Christoph's program.
-> >
-> > So it looks like the problem is arch specific. Test program runs fine on
-> > ia64.
-> >
-> > > page = 0xffffffffffffffd8
-> > > &page->lru = 0000000000000000
-> >
-> > Yup lru field overwritten as I thought.
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+Folkert van Heusden wrote:
+> kernel: 2.6.15
+> system: 3.2GHz P4 hyperthreading, 1xIDE, 2GB ram
+> it seems to happen (altough I'm really not sure!) when the system is
+> under heavily load: > 8.0, while running sa-learn (the spamassassin
+> bayes training tool)
 > 
-> For what it is worth:
-> 
-> Christoph's test program runs fine on my 32 GB, 4 socket, 8 core Opteron 64 
 
-Opteron 64? A new exciting upcomming product? @)
+Lots of PIO transfers.. Is DMA not getting enabled on your drives?
 
-> box with 2.6.16-rc1.
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-Yes it also works on my test box and also some other simple tests with MPOL_BIND. 
-But we had similar reports on two different systems, so there's very likely a problem.
-Just need to reproduce it somehow. 
-
--Andi

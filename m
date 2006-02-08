@@ -1,75 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030284AbWBGXlV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbWBHAcp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030284AbWBGXlV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 18:41:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030283AbWBGXlU
+	id S1030319AbWBHAcp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 19:32:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030315AbWBHAcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 18:41:20 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:12531 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030284AbWBGXlT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 18:41:19 -0500
+	Tue, 7 Feb 2006 19:32:45 -0500
+Received: from wproxy.gmail.com ([64.233.184.201]:40736 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030314AbWBHAco (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 19:32:44 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=sZXGMpFHD2nhIBEborOM+MQ/UlMx8dFQWNPuJ1JPA/JU2WdNQjYorRXS88UhvfflsI/5lMTDOGwer9tVA03o/0xyusRTIp/JgjBkGr/uoqu75otMSFVs4pMjFKnP4IK9eP42m4AuGS7Ge1CUWmkuunZy/euuM6i8hTjEboFMaaA=
-Message-ID: <7f45d9390602071541n65693ae5m7428d59dedcd5ae5@mail.gmail.com>
-Date: Tue, 7 Feb 2006 16:41:16 -0700
-From: Shaun Jackman <sjackman@gmail.com>
-Reply-To: Shaun Jackman <sjackman@gmail.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: Elo touch panel
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060207081415.GA6731@suse.cz>
+        h=received:from:to:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:thread-index:x-mimeole;
+        b=Gs8kouza9C4uphAEubm6eLHaz1Ei5ksjgxs8qkh44xTKnmD78zePv4ENapFYMjhDWD+DHqJd3ZO8O9HBLdg6rUk+Gl0yW319kobOlcXXm5tjHQI2ckwa6+ne2pDhIGOQ1f4LK0FxZstvwc8UJr7szDTeIYZKK5J/3t4s0rKLe1g=
+From: "Rob Slifkin" <comptiger5000@gmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Contact info for Linus Torvalds
+Date: Tue, 7 Feb 2006 19:32:10 -0500
+Message-ID: <000001c62c47$1b0217e0$9b01010a@ldsrobtop>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <7f45d9390602061830k6b984ban6fb302a3089cac6c@mail.gmail.com>
-	 <20060207081415.GA6731@suse.cz>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AcYsRxlcmBxRXZ0eS5WkCxv3GRovew==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/7/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> On Mon, Feb 06, 2006 at 07:30:26PM -0700, Shaun Jackman wrote:
-...
-> > I then run...
-> >       $ inputattach -elo /dev/ttyS3
-> > .. at which point dmesg says...
-> >       serio: Serial port ttyS3
-> > but it never gives a message indicating that the Elo driver has been
-> > attached to ttyS3. Is there anything else I must configure?
->
-> Try to look at /proc/bus/input/devices. The elo_connect() function
-> should get called at the point the port is created. Unfortunately, I
-> never could test this driver, because I don't have any touchscreens
-> anymore (ever had one and it broke when I was moving). So there may be
-> problems in the driver. But I believe others had some success running
-> it.
->
-> Looking at the driver, one will probably need to set the panel type in
-> inputattach ...
+Due to a project i am working on, i need current email for Linus Torvalds,
+I've found no other valid info, so this is my last place to look.  If anyone
+can help, thanks a lot, and sorry for the disturbance.  
+ 
+Please CC your reply to me (comptiger5000@gmail.com) directly
+ 
+________________________________
+Sincerely, 
+Robert S
+Sfunction Sourceforge Project (developed by me):
+http://sfunction.sourceforge.net <http://sfunction.sourceforge.net/> 
 
-There's a bug in inputattach. The SERIO_RS232 constant is completely
-mucking the bits that specify the protocol.
-
---- inputattach.c-      2006-02-07 14:37:04.000000000 -0700
-+++ inputattach.c       2006-02-07 16:22:07.000000000 -0700
-@@ -455,7 +455,7 @@
-                return 1;
-        }
-
--       devt = SERIO_RS232 | input_types[type].type | (id << 8) | (extra << 16);
-+       devt = input_types[type].type | (id << 8) | (extra << 16);
-
-        if(ioctl(fd, SPIOCSTYPE, &devt)) {
-                fprintf(stderr, "inputattach: can't set device type\n");
-
-Cheers,
-Shaun
-
-APPENDIX A
-
-You probably know this better than I do, but the .type above is
-misnamed. It should really be .proto. It's impossible, as far as I can
-tell, to specify the type (like SERIO_RS232) with a SPIOCSTYPE call.

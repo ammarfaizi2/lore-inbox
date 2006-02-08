@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbWBHUu4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbWBHUyo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750922AbWBHUu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 15:50:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750939AbWBHUu4
+	id S1751117AbWBHUyo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 15:54:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbWBHUyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 15:50:56 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:45244 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750875AbWBHUuz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 15:50:55 -0500
-Date: Wed, 8 Feb 2006 12:50:33 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Bernd Schubert <bernd-schubert@gmx.de>
-Cc: John M Flinchbaugh <john@hjsoft.com>, reiserfs-list@namesys.com,
-       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15 Bug? New security model?
-Message-ID: <20060208205033.GB22771@shell0.pdx.osdl.net>
-References: <200602080212.27896.bernd-schubert@gmx.de> <43E94A02.2080205@vilain.net> <20060208053732.GA13560@butterfly.hjsoft.com> <200602081314.59639.bernd-schubert@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602081314.59639.bernd-schubert@gmx.de>
-User-Agent: Mutt/1.5.6i
+	Wed, 8 Feb 2006 15:54:44 -0500
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:5248 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751117AbWBHUyn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 15:54:43 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: Question regarding /proc/<pid>/fd and pipes
+To: John Schmerge <schmerge@speakeasy.net>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Wed, 08 Feb 2006 15:45:24 +0100
+References: <5DRW7-322-1@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1F6qZR-0002uc-Kc@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Bernd Schubert (bernd-schubert@gmx.de) wrote:
-> On Wednesday 08 February 2006 06:37, John M Flinchbaugh wrote:
-> > On Wed, Feb 08, 2006 at 02:31:46PM +1300, Sam Vilain wrote:
-> > > Bernd Schubert wrote:
-> > > >With 2.6.15:
-> > > >bathl:~# touch /var/run/test
-> > > >touch: cannot touch `/var/run/test': Permission denied
-> > > >With 2.6.13:
-> > > >bathl:~# touch /var/run/test
-> > > >(No error message)
-> > >
-> > > Some ideas; ACLs, SELinux, Attributes, Capabilities.
-> >
-> > lsattr -d /var/run && lsattr /var/run
-> 
-> Indeed, with 2.6.13
-> 
-> bathl:~# lsattr -d /var/run
-> lsattr: Inappropriate ioctl for device While reading flags on /var/run
-> 
-> with 2.6.15.3
+John Schmerge <schmerge@speakeasy.net> wrote:
 
-OK, this has a reiserfs fix for attrs support.  Rather than back it
-out, I'd like to get the proper fix.
+>   I know that the symlinks in the /proc/<pid>/fd directory point to
+> bogus filenames for pipes (i.e. 'pipe:[64682]') and am wondering if
+> every process that reads and writes from that pipe will share the same
+> bogus symlink name.
 
-> bathl:~# cat lsatr.out.2.6.15
-> --S-ia-AcBZXEj-t- /var/run
-> 
-> After the problem came up, I already suspected something like this and 
-> therefore already had the kernel recompiled without xattr support, so I  
-> don't know why lsattr shows something for 2.6.15 and nothing for 2.6.13.
+yes
 
-attrs != xattrs
+>   In essence, I'm wondering if there's any way to list all of the pid's
+> of processes using an anonomous pipe.
 
-Couple of things:
-
-1) what does 'grep attrs_cleared /proc/fs/reiserfs/on-disk-super' show?
-
-2) does mount -o attrs ... make a difference?
-
-thanks,
--chris
+man find. I don't know a bettre way.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

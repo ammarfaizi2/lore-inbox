@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965201AbWBHEhq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965204AbWBHElQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965201AbWBHEhq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 23:37:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965200AbWBHEhq
+	id S965204AbWBHElQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 23:41:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965203AbWBHElP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 23:37:46 -0500
-Received: from dialin-209-183-19-129.tor.primus.ca ([209.183.19.129]:60317
-	"EHLO node1.opengeometry.net") by vger.kernel.org with ESMTP
-	id S965201AbWBHEhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 23:37:45 -0500
-Date: Tue, 7 Feb 2006 23:37:28 -0500
-From: William Park <opengeometry@yahoo.ca>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: DMA in PCI chipset -- module vs. compiled-in
-Message-ID: <20060208043728.GA3357@node1.opengeometry.net>
-Mail-Followup-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-References: <20060206034312.GA2962@node1.opengeometry.net> <1139200372.2791.208.camel@mindpipe> <1139255365.10437.49.camel@localhost.localdomain> <1139257535.2791.298.camel@mindpipe> <58cb370e0602070014p3d21c8a4u1ca3c5951892cf52@mail.gmail.com> <1139310456.18391.4.camel@localhost.localdomain> <58cb370e0602070314l35b7c88blbe53844939c86f66@mail.gmail.com>
-Mime-Version: 1.0
+	Tue, 7 Feb 2006 23:41:15 -0500
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:63450 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S965202AbWBHElN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 23:41:13 -0500
+From: Grant Coady <gcoady@gmail.com>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
+Date: Wed, 08 Feb 2006 15:41:09 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <ehtiu1tfga9nnrnc97vras8hdbg30viaoq@4ax.com>
+References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com> <200602081335.18256.kernel@kolivas.org> <24niu1hrom6udfa2km18b8bagad62kjamc@4ax.com> <200602081400.59931.kernel@kolivas.org> <986ed62e0602072012g466b602ct1e78a778268e5710@mail.gmail.com>
+In-Reply-To: <986ed62e0602072012g466b602ct1e78a778268e5710@mail.gmail.com>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <58cb370e0602070314l35b7c88blbe53844939c86f66@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 07, 2006 at 12:14:09PM +0100, Bartlomiej Zolnierkiewicz wrote:
-> On 2/7/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > On Maw, 2006-02-07 at 09:14 +0100, Bartlomiej Zolnierkiewicz wrote:
-> > > * chipset specific driver
-> > >
-> > > The most common mistake is to built-in ide-generic driver
-> > > and compile chipset specific driver as module...
-> >
-> > Oh that no longer works. That worked in 2.4, as it would take over the
-> > chipset. Didn't work if it was in use at the time but did work correctly
-> > if idle.
-> 
-> I'm talking about _driver_ here and it works just fine.
-> 
-> If you are talking about "taking over" feature, you are right.
-> It was racy and indeed "worked" depending on timing.
+On Tue, 7 Feb 2006 20:12:40 -0800, "Barry K. Nathan" <barryn@pobox.com> wrote:
 
-Interesting.  I'll move the "generic" as module, and see how it goes.
+>On 2/7/06, Con Kolivas <kernel@kolivas.org> wrote:
+>> This is the terminal's fault. xterm et al use an algorithm to determine how
+>> fast your machine is and decide whether to jump scroll or smooth scroll. This
+>> algorithm is basically broken with the 2.6 scheduler and it decides to mostly
+>> smooth scroll.
+>
+>Recent versions of xterm are supposed to fix this. (Skimming xterm's
+>changelog, I think it might have been fixed in version 201, but I'm
+>not completely sure.)
 
--- 
-William Park <opengeometry@yahoo.ca>, Toronto, Canada
-ThinFlash: Linux thin-client on USB key (flash) drive
-	   http://home.eol.ca/~parkw/thinflash.html
-BashDiff: Super Bash shell
-	  http://freshmeat.net/projects/bashdiff/
+Yeah but I'm using ssh to PuTTY on windoze.  No GUI on linux box.
+
+Grant.

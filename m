@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030404AbWBHMjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030405AbWBHMjv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030404AbWBHMjB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 07:39:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030405AbWBHMjB
+	id S1030405AbWBHMjv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 07:39:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030406AbWBHMju
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 07:39:01 -0500
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:34322 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1030404AbWBHMjA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 07:39:00 -0500
-Date: Wed, 8 Feb 2006 13:38:28 +0100
+	Wed, 8 Feb 2006 07:39:50 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:21268 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1030405AbWBHMjt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 07:39:49 -0500
+Date: Wed, 8 Feb 2006 13:39:40 +0100
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Stefan Weinhuber <wein@de.ibm.com>,
-       Horst Hummel <horst.hummel@de.ibm.com>, hch@lst.de
-Subject: [patch 06/10] s390: cleanup of dasd eer module
-Message-ID: <20060208123828.GG1656@osiris.boeblingen.de.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch 07/10] s390: fix non smp build of kexec
+Message-ID: <20060208123940.GH1656@osiris.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,115 +22,50 @@ User-Agent: mutt-ng/devel (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Stefan Weinhuber <wein@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-This patch addresses some issues Christoph has with the dasd eer module:
+Add missing smp_cpu_not_running define to avoid build warnings
+in the non smp case.
 
-- make variables static
-- avoid mixed case in function names
-
-Signed-off-by: Stefan Weinhuber <wein@de.ibm.com>
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
 
- drivers/s390/block/dasd_eer.c |   22 +++++++++++-----------
- 1 files changed, 11 insertions(+), 11 deletions(-)
+ arch/s390/kernel/machine_kexec.c |    5 +++--
+ include/asm-s390/smp.h           |    1 +
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/block/dasd_eer.c linux-2.6-patched/drivers/s390/block/dasd_eer.c
---- linux-2.6/drivers/s390/block/dasd_eer.c	2006-02-08 12:56:18.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/block/dasd_eer.c	2006-02-08 12:56:18.000000000 +0100
-@@ -102,11 +102,11 @@ struct eerbuffer {
- 	int residual;
- };
- 
--LIST_HEAD(bufferlist);
-+static LIST_HEAD(bufferlist);
- 
- static spinlock_t bufferlock = SPIN_LOCK_UNLOCKED;
- 
--DECLARE_WAIT_QUEUE_HEAD(dasd_eer_read_wait_queue);
-+static DECLARE_WAIT_QUEUE_HEAD(dasd_eer_read_wait_queue);
- 
- /*
-  * Check if called ioctl is valid on this device type.
-@@ -485,7 +485,7 @@ dasd_eer_probe(struct dasd_device *devic
-  * dasd ccw queue so we can free the requests memory.
+diff --git a/arch/s390/kernel/machine_kexec.c b/arch/s390/kernel/machine_kexec.c
+index f0ed5c6..bad81b5 100644
+--- a/arch/s390/kernel/machine_kexec.c
++++ b/arch/s390/kernel/machine_kexec.c
+@@ -12,15 +12,16 @@
+  * on the S390 architecture.
   */
- static void
--dasd_eer_dequeue_SNSS_request(struct dasd_device *device,
-+dasd_eer_dequeue_snss_request(struct dasd_device *device,
- 			      struct dasd_eer_private *eer)
- {
- 	struct list_head *lst, *nxt;
-@@ -533,7 +533,7 @@ static void
- dasd_eer_destroy(struct dasd_device *device, struct dasd_eer_private *eer)
- {
- 	flush_workqueue(dasd_eer_workqueue);
--	dasd_eer_dequeue_SNSS_request(device, eer);
-+	dasd_eer_dequeue_snss_request(device, eer);
- 	dasd_kfree_request(eer->cqr, device);
- 	kfree(eer);
- };
-@@ -683,7 +683,7 @@ dasd_eer_write_standard_trigger(int trig
-  * This function writes a DASD_EER_STATECHANGE trigger.
-  */
- static void
--dasd_eer_write_SNSS_trigger(struct dasd_device *device,
-+dasd_eer_write_snss_trigger(struct dasd_device *device,
- 			    struct dasd_ccw_req *cqr)
- {
- 	int data_size;
-@@ -723,7 +723,7 @@ dasd_eer_write_SNSS_trigger(struct dasd_
-  * callback function for use with SNSS request
-  */
- static void
--dasd_eer_SNSS_cb(struct dasd_ccw_req *cqr, void *data)
-+dasd_eer_snss_cb(struct dasd_ccw_req *cqr, void *data)
- {
-         struct dasd_device *device;
- 	struct dasd_eer_private *private;
-@@ -731,7 +731,7 @@ dasd_eer_SNSS_cb(struct dasd_ccw_req *cq
  
-         device = (struct dasd_device *)data;
- 	private = (struct dasd_eer_private *)device->eer;
--	dasd_eer_write_SNSS_trigger(device, cqr);
-+	dasd_eer_write_snss_trigger(device, cqr);
- 	spin_lock_irqsave(&snsslock, irqflags);
- 	if(!test_and_clear_bit(SNSS_REQUESTED, &private->flags)) {
- 		clear_bit(CQR_IN_USE, &private->flags);
-@@ -748,7 +748,7 @@ dasd_eer_SNSS_cb(struct dasd_ccw_req *cq
-  * clean a used cqr before using it again
-  */
- static void
--dasd_eer_clean_SNSS_request(struct dasd_ccw_req *cqr)
-+dasd_eer_clean_snss_request(struct dasd_ccw_req *cqr)
- {
- 	struct ccw1 *cpaddr = cqr->cpaddr;
- 	void *data = cqr->data;
-@@ -789,7 +789,7 @@ dasd_eer_sense_subsystem_status(void *da
- 		return;
- 	};
- 	spin_unlock_irqrestore(&snsslock, irqflags);
--	dasd_eer_clean_SNSS_request(cqr);
-+	dasd_eer_clean_snss_request(cqr);
- 	cqr->device = device;
- 	cqr->retries = 255;
- 	cqr->expires = 10 * HZ;
-@@ -802,7 +802,7 @@ dasd_eer_sense_subsystem_status(void *da
+-#include <asm/cio.h>
+-#include <asm/setup.h>
+ #include <linux/device.h>
+ #include <linux/mm.h>
+ #include <linux/kexec.h>
+ #include <linux/delay.h>
++#include <asm/cio.h>
++#include <asm/setup.h>
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+ #include <asm/system.h>
++#include <asm/smp.h>
  
- 	cqr->buildclk = get_clock();
- 	cqr->status = DASD_CQR_FILLED;
--	cqr->callback = dasd_eer_SNSS_cb;
-+	cqr->callback = dasd_eer_snss_cb;
- 	cqr->callback_data = (void *)device;
-         dasd_add_request_head(cqr);
+ static void kexec_halt_all_cpus(void *);
  
-@@ -877,7 +877,7 @@ static int dasd_eer_notify(struct notifi
-  * to transfer in a readbuffer, which is protected by the readbuffer_mutex.
-  */
- static char readbuffer[PAGE_SIZE];
--DECLARE_MUTEX(readbuffer_mutex);
-+static DECLARE_MUTEX(readbuffer_mutex);
- 
- 
- static int
+diff --git a/include/asm-s390/smp.h b/include/asm-s390/smp.h
+index a2ae762..9c6e9c3 100644
+--- a/include/asm-s390/smp.h
++++ b/include/asm-s390/smp.h
+@@ -101,6 +101,7 @@ smp_call_function_on(void (*func) (void 
+ 	func(info);
+ 	return 0;
+ }
++#define smp_cpu_not_running(cpu)	1
+ #define smp_get_cpu(cpu) ({ 0; })
+ #define smp_put_cpu(cpu) ({ 0; })
+ #endif

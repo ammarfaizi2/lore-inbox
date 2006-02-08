@@ -1,55 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbWBGXhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030306AbWBHAPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932484AbWBGXhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 18:37:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWBGXhQ
+	id S1030306AbWBHAPU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 19:15:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbWBHAPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 18:37:16 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31393 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932479AbWBGXhO (ORCPT
+	Tue, 7 Feb 2006 19:15:20 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:60087 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1030306AbWBHAPT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 18:37:14 -0500
-Date: Wed, 8 Feb 2006 00:36:53 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Bojan Smojver <bojan@rexursive.com>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       suspend2-devel@lists.suspend2.net
+	Tue, 7 Feb 2006 19:15:19 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
 Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060207233653.GA10520@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602080814.02894.nigel@suspend2.net> <20060207230510.GF2753@elf.ucw.cz> <200602080917.24305.nigel@suspend2.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Wed, 8 Feb 2006 01:16:12 +0100
+User-Agent: KMail/1.9.1
+Cc: Nigel Cunningham <nigel@suspend2.net>, Lee Revell <rlrevell@joe-job.com>,
+       Jim Crilly <jim@why.dont.jablowme.net>,
+       suspend2-devel@lists.suspend2.net, linux-kernel@vger.kernel.org
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602080027.09305.rjw@sisk.pl> <20060207235011.GB10520@elf.ucw.cz>
+In-Reply-To: <20060207235011.GB10520@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200602080917.24305.nigel@suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200602080116.12992.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Please do not patch kernel for that.
+On Wednesday 08 February 2006 00:50, Pavel Machek wrote:
+> 
+> > > > themselves 
+> > > > (and then have their patches rejected by you) is no way to maintain a part 
+> > > > of the kernel. Stop being a liability instead of an asset!
+> > > 
+> > > Ugh?
+> > > 
+> > > Lee is a programmer. He wants faster swsusp, and improving uswsusp is
+> > > currently best way to get that. It may be alpha/beta quality, but
+> > > someone has to start testing, and Lee should be good for that (played
+> > > with realtime kernels etc...). Actually it is in good enough state
+> > > that I'd like non-programmers to test it, too.
 > > 
-> > Proper solution is probably creating s2disk program/script, and teach
-> > kpowersave/klaptop/etc. to just use it. Then s2disk can detect best
-> > method to use ... and then just do it. You already have suitable
-> > script, but I'm not sure what its name is.
+> > I'd rather like to wait with that until there's a howto. :-)
 > 
-> It occured to me as soon as I sent the last email (don't you hate that!)
-> that I'd forgotten the original impetus: backwards compatibility. If all
-> of the methods of suspending can be started with
+> Attached, now Lee or anyone can start hacking.
 > 
-> "echo disk > /sys/power/state"
+> Suspend-to-disk HOWTO
+> ~~~~~~~~~~~~~~~~~~~~
+> Copyright (C) 2006 Pavel Machek <pavel@suse.cz>
 > 
-> , your backwards compatability issue that you expressed concern about 
-> earlier in this discussion is addressed. So, I'm not sure that dropping the
-> idea is the right thing to do.
+> 
+> You'll need /dev/snapshot for these to work:
+> 
+> crw-r--r--  1 root root 10, 231 Jan 13 21:21 /dev/snapshot
+> 
+> Then compile userspace tools in usual way. You'll need an -mm kernel
+> for now. To suspend-to-disk, run
+> 
+> ./suspend /dev/<your_swap_partition>
+> 
+> . (There should be just one, for now.) Suspend is easy, resume is
+> slightly harder. Resume application has to be ran without any
+> filesystems mounted rw, and without any journalling filesystems
+> mounted at all, preferably from initrd (but read-only ext2 should do
+> the trick, too). Resume is then as easy as running
+> 
+> ./resume /dev/<your_swap_partition>
+> 
+> . You probably want to create script that attempts to resume with
+> above command, and if that fails, fall back to init.
 
-Yes, it probably is. echo > /sys/*/state needs to work for a while,
-but we should really move everyone into running single command. Your
-hibernate script probably good start. (I'd call it hibernate, not
-hibernate.sh, so it does not *have* to be implemented in shell).
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+If it's run fron an initrd, it'll fall back automatically.  Also you can set
+the name of the resume partition in the header file swsusp.h and
+you'll be able to use the tools without any command line
+parameters (useful if you want to start resume from an initrd).
+
+Besides, an -mm kernel is needed for this to work (preferrably
+2.6.16-rc1-mm5, for now), and the CVS changes on a daily basis.
+
+Greetings,
+Rafael

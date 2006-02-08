@@ -1,82 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161043AbWBHHKN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161014AbWBHHJV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161043AbWBHHKN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 02:10:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161042AbWBHHKM
+	id S1161014AbWBHHJV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 02:09:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161037AbWBHHJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 02:10:12 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:39127 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161041AbWBHHKL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 02:10:11 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 01/17] arm: fix dependencies for MTD_XIP
-Cc: rmk@arm.linux.org.uk
-Message-Id: <E1F6jSs-0002SX-UZ@ZenIV.linux.org.uk>
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Wed, 08 Feb 2006 07:10:10 +0000
+	Wed, 8 Feb 2006 02:09:21 -0500
+Received: from cabal.ca ([134.117.69.58]:32188 "EHLO fattire.cabal.ca")
+	by vger.kernel.org with ESMTP id S1161014AbWBHHJV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 02:09:21 -0500
+Date: Wed, 8 Feb 2006 02:07:58 -0500
+From: Kyle McMartin <kyle@mcmartin.ca>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, matthew@wil.cx,
+       grundler@parisc-linux.org
+Subject: Re: [PATCH] unify pfn_to_page take 2 [16/25] parisc funcs
+Message-ID: <20060208070758.GB21184@quicksilver.road.mcmartin.ca>
+References: <43E98C73.2050903@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43E98C73.2050903@jp.fujitsu.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Date: 1135027679 -0500
+On Wed, Feb 08, 2006 at 03:15:15PM +0900, KAMEZAWA Hiroyuki wrote:
+> parisc can use generic funcs.
+>
 
-MTD_XIP depends on having working asm/mtd-xip.h; it's not just per-architecture
-(arm-only, as current Kconfig would have it), but actually per-subarch as
-well.  Introduced a new symbol (ARCH_MTD_XIP) set by arch Kconfig; MTD_XIP
-depends on it.
+ACK... Looks fine to me. Maybe the BUG_ON(zone == NULL) in page_to_pfn might
+be worth keeping? 
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-
----
-
- arch/arm/Kconfig          |    5 +++++
- drivers/mtd/chips/Kconfig |    2 +-
- 2 files changed, 6 insertions(+), 1 deletions(-)
-
-034d2f5af1b97664381c00b827b274c95e22c397
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 5959e36..4a63a8e 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -69,6 +69,9 @@ config GENERIC_ISA_DMA
- config FIQ
- 	bool
- 
-+config ARCH_MTD_XIP
-+	bool
-+
- source "init/Kconfig"
- 
- menu "System Type"
-@@ -136,6 +139,7 @@ config ARCH_L7200
- 
- config ARCH_PXA
- 	bool "PXA2xx-based"
-+	select ARCH_MTD_XIP
- 
- config ARCH_RPC
- 	bool "RiscPC"
-@@ -152,6 +156,7 @@ config ARCH_SA1100
- 	bool "SA1100-based"
- 	select ISA
- 	select ARCH_DISCONTIGMEM_ENABLE
-+	select ARCH_MTD_XIP
- 
- config ARCH_S3C2410
- 	bool "Samsung S3C2410"
-diff --git a/drivers/mtd/chips/Kconfig b/drivers/mtd/chips/Kconfig
-index effa0d7..205bb70 100644
---- a/drivers/mtd/chips/Kconfig
-+++ b/drivers/mtd/chips/Kconfig
-@@ -301,7 +301,7 @@ config MTD_JEDEC
- 
- config MTD_XIP
- 	bool "XIP aware MTD support"
--	depends on !SMP && (MTD_CFI_INTELEXT || MTD_CFI_AMDSTD) && EXPERIMENTAL && ARM
-+	depends on !SMP && (MTD_CFI_INTELEXT || MTD_CFI_AMDSTD) && EXPERIMENTAL && ARCH_MTD_XIP
- 	default y if XIP_KERNEL
- 	help
- 	  This allows MTD support to work with flash memory which is also
--- 
-0.99.9.GIT
-
+Cheers,
+	Kyle

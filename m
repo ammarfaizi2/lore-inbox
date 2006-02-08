@@ -1,114 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161000AbWBHHwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161065AbWBHHyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161000AbWBHHwa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 02:52:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161065AbWBHHw3
+	id S1161065AbWBHHyp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 02:54:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161067AbWBHHyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 02:52:29 -0500
-Received: from smtprelay03.ispgateway.de ([80.67.18.15]:21690 "EHLO
-	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1161000AbWBHHw3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 02:52:29 -0500
-From: Ingo Oeser <ingo@oeser-vu.de>
-To: Robert Love <rml@novell.com>
-Subject: Re: [PATCH] inotify: fix one-shot support
-Date: Wed, 8 Feb 2006 08:52:04 +0100
-User-Agent: KMail/1.7.2
-References: <200602080105.k1815her002647@hera.kernel.org>
-In-Reply-To: <200602080105.k1815her002647@hera.kernel.org>
-Cc: John McCutchan <ttb@tentacle.dhs.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Wed, 8 Feb 2006 02:54:45 -0500
+Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:5312 "EHLO
+	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S1161065AbWBHHyo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 02:54:44 -0500
+From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: linux-kernel@vger.kernel.org
+Date: Wed, 08 Feb 2006 08:54:22 +0100
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart7448104.ErZdCL93S0";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602080852.18179.ingo@oeser-vu.de>
+Subject: time.c vs. timer.c: patch snipplet
+Message-ID: <43E9B1BF.17438.A81054D@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+X-mailer: Pegasus Mail for Windows (4.31)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.25/Sophos-P=4.02.0+V=4.02+U=2.07.127+R=06 February 2006+T=118589@20060208.074956Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart7448104.ErZdCL93S0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi,
 
-Hi Robert,
-hi John,
+maybe some of you know my PPSkit that implements (among others) a new kernel clock 
+with nanoseconds resolution for Linux 2.4 (i386). During that I tried to 
+streamline the code a bit, specifically moving most clock stuff from timer.c and 
+sched.c into time.c. You can make most of the NTP state variables static by doing 
+so. I did restrict access to messing with the NTP variables that way, too.
 
-just saw this commit.
+Similarly timex.h should only contain NTP related stuff. Currently timex seems to 
+be a "catch all" for add-ons. This mean that about any module includes timex.h, 
+and upon changing a single NTP define, about 98% of the kernel are recompiled.
 
-On Wednesday 08 February 2006 02:05, you wrote:
-> tree 5b5af4e03e627b66a9f37d25dd370a145ec72438
-> parent 8e08b756869eeb08ace17ad64c2a8cb97b18e856
-> author Robert Love <rml@novell.com> Wed, 08 Feb 2006 04:58:45 -0800
-> committer Linus Torvalds <torvalds@g5.osdl.org> Wed, 08 Feb 2006 08:12:33=
- -0800
->=20
-> [PATCH] inotify: fix one-shot support
->=20
-> Fix one-shot support in inotify.  We currently drop the IN_ONESHOT flag
-> during watch addition.  Fix is to not do that.
-=20
-Yes, but now you can add a watch without any event attached.=20
-This would revert the original sense of the test.
+As I'm currently working on a merge of the updated NTP algorithms into 2.6, I 
+thought I could ask for opinions here. (I'm not subscribed, so please CC: to me).
 
-> Signed-off-by: Robert Love <rml@novell.com>
-> Cc: John McCutchan <ttb@tentacle.dhs.org>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
->=20
->  fs/inotify.c |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/fs/inotify.c b/fs/inotify.c
-> index 878ccca..3041503 100644
-> --- a/fs/inotify.c
-> +++ b/fs/inotify.c
-> @@ -967,7 +967,7 @@ asmlinkage long sys_inotify_add_watch(in
->  		mask_add =3D 1;
-> =20
->  	/* don't let user-space set invalid bits: we don't want flags set */
-> -	mask &=3D IN_ALL_EVENTS;
-> +	mask &=3D IN_ALL_EVENTS | IN_ONESHOT;
->  	if (unlikely(!mask)) {
->  		ret =3D -EINVAL;
->  		goto out;
+As I've done some work already, I'm going to present a patch snipplet that you may 
+consider applying without great thought:
 
-See, now you can just pass IN_ONESHOT behavior flag without any
-events to shoot at, which you couldn't do before. But this makes only
-sense, if we would like to set a multi-shot mask to one-shot now.
+I really didn't understand what "if (unlikely(time_adjust < 0)) {" is trying to 
+fix:
 
-Does this transition (multi shot to single shot)makes sense at all?=20
-Is it race-free to allow this?.
+diff -u -r1.1.1.10 time.c
+--- arch/i386/kernel/time.c	15 Jan 2006 06:16:02 -0000	1.1.1.10
++++ arch/i386/kernel/time.c	7 Feb 2006 20:24:51 -0000
+@@ -126,7 +128,6 @@
+ {
+ 	unsigned long seq;
+ 	unsigned long usec, sec;
+-	unsigned long max_ntp_tick;
+ 
+ 	do {
+ 		unsigned long lost;
+@@ -141,22 +142,15 @@
+ 		 * so make sure not to go into next possible interval.
+ 		 * Better to lose some accuracy than have time go backwards..
+ 		 */
+-		if (unlikely(time_adjust < 0)) {
+-			max_ntp_tick = (USEC_PER_SEC / HZ) - tickadj;
+-			usec = min(usec, max_ntp_tick);
+-
+-			if (lost)
+-				usec += lost * max_ntp_tick;
+-		}
+-		else if (unlikely(lost))
+-			usec += lost * (USEC_PER_SEC / HZ);
++		if (unlikely(lost))
++			usec += lost * tick_usec;
+ 
+ 		sec = xtime.tv_sec;
+ 		usec += (xtime.tv_nsec / 1000);
+ 	} while (read_seqretry(&xtime_lock, seq));
+ 
+-	while (usec >= 1000000) {
+-		usec -= 1000000;
++	while (usec >= USEC_PER_SEC) {
++		usec -= USEC_PER_SEC;
+ 		sec++;
+ 	}
+ 
 
-So my suggested fix instead of yours would be:
+Also, I don't quite like the name "ntp_clear()": Is it a query, ot is it a 
+command? I'd prefer "set_ntp_unsync()", beacsue it says very much what it's about. 
+Likewise "ntp_synced()" might look like the opposite of "ntp_clear()" at first, 
+but it's actually a query, thus I'd prefer something like "is_ntp_synced()". 
+Actually it's "is_ntp_not_unsync()", but we only have binary logic here ;-)
 
-/* don't let user-space set invalid bits: we don't want flags set */
-mask &=3D IN_ALL_EVENTS | IN_ONESHOT;
-if (unlikely((mask & IN_ALL_EVENTS) =3D=3D 0 && !mask_add)) {
-	ret =3D -EINVAL;
-	goto out;
-}
+Regards,
+Ulrich
 
-Would you like a patch on top of the one submitted by you?
-
-
-Regards
-
-Ingo Oeser
-
-
---nextPart7448104.ErZdCL93S0
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD6aMyU56oYWuOrkARAg1ZAJ9RafuQ4Bc7XtK8R0HMYruqt4Cc7QCfdk40
-r0LvIfAoF0NMzXIZdO3/TqI=
-=prNV
------END PGP SIGNATURE-----
-
---nextPart7448104.ErZdCL93S0--

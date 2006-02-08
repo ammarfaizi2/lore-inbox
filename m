@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030373AbWBHMdk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030384AbWBHMfB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030373AbWBHMdk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 07:33:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbWBHMdj
+	id S1030384AbWBHMfB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 07:35:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030388AbWBHMfB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 07:33:39 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:51539 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1030373AbWBHMdj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 07:33:39 -0500
-Date: Wed, 8 Feb 2006 13:33:37 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
+	Wed, 8 Feb 2006 07:35:01 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:39625 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP
+	id S1030384AbWBHMfA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 07:35:00 -0500
+Date: Wed, 8 Feb 2006 13:35:02 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: art <art@usfltd.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch 03/10] s390: earlier initialization of cpu_possible_map
-Message-ID: <20060208123337.GD1656@osiris.boeblingen.de.ibm.com>
-Mime-Version: 1.0
+Subject: Re: kernel-2.6.16-rc2-git4 --- reiserfs write problems !!!
+Message-ID: <20060208123502.GA5775@stiffy.osknowledge.org>
+References: <200602080024.AA52494644@usfltd.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: mutt-ng/devel (Linux)
+In-Reply-To: <200602080024.AA52494644@usfltd.com>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.16-rc2-marc-gac171c46-dirty
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+* art <art@usfltd.com> [2006-02-08 00:24:05 -0600]:
 
-Initiliazing of cpu_possible_map was done in smp_prepare_cpus which is
-way too late. Therefore assign a static value to cpu_possible_map, since
-we don't have access to max_cpus in setup_arch.
+> kernel-2.6.16-rc2-git4 --- reiserfs write problems
+> 
+> looks like with rc2 reiserfs have problem with writing - reading is ok
+> 
+> reiserfs is mounted on ext3 mount
+> 
+> with kernel-2.6.16-rc1-git6 works
+> 
+> any idea ???
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
+Do you have any more info? dmesg? A calltrace? I cannot see anything weird
+over here... :/
 
- arch/s390/kernel/smp.c |    6 +-----
- 1 files changed, 1 insertion(+), 5 deletions(-)
-
-diff -urpN linux-2.6/arch/s390/kernel/smp.c linux-2.6-patched/arch/s390/kernel/smp.c
---- linux-2.6/arch/s390/kernel/smp.c	2006-02-08 10:48:03.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/smp.c	2006-02-08 10:48:43.000000000 +0100
-@@ -52,7 +52,7 @@ extern volatile int __cpu_logical_map[];
- struct _lowcore *lowcore_ptr[NR_CPUS];
- 
- cpumask_t cpu_online_map;
--cpumask_t cpu_possible_map;
-+cpumask_t cpu_possible_map = CPU_MASK_ALL;
- 
- static struct task_struct *current_set[NR_CPUS];
- 
-@@ -514,9 +514,6 @@ __init smp_check_cpus(unsigned int max_c
- 		num_cpus++;
- 	}
- 
--	for (cpu = 1; cpu < max_cpus; cpu++)
--		cpu_set(cpu, cpu_possible_map);
--
- 	printk("Detected %d CPU's\n",(int) num_cpus);
- 	printk("Boot cpu address %2X\n", boot_cpu_addr);
- }
-@@ -810,7 +807,6 @@ void __devinit smp_prepare_boot_cpu(void
- 
- 	cpu_set(0, cpu_online_map);
- 	cpu_set(0, cpu_present_map);
--	cpu_set(0, cpu_possible_map);
- 	S390_lowcore.percpu_offset = __per_cpu_offset[0];
- 	current_set[0] = current;
- }
+Marc

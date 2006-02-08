@@ -1,51 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030596AbWBHQ47@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030600AbWBHQ6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030596AbWBHQ47 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 11:56:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030594AbWBHQ47
+	id S1030600AbWBHQ6U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 11:58:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030599AbWBHQ6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 11:56:59 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:54226 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1161106AbWBHQ46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 11:56:58 -0500
-Subject: Re: [patch 05/10] s390: add missing validation for dasd discipline
-	specific ioctls
-From: Horst Hummel <horst.hummel@de.ibm.com>
-Reply-To: horst.hummel@de.ibm.com
-To: Christoph Hellwig <hch@lst.de>
-Cc: Martin <mschwid2@de.ibm.com>, kernel <linux-kernel@vger.kernel.org>,
-       Stefan Weinhuber <wein@de.ibm.com>, heiko <heicars2@de.ibm.com>,
-       Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 08 Feb 2006 17:56:59 +0100
-Message-Id: <1139417819.5945.16.camel@localhost.localdomain>
+	Wed, 8 Feb 2006 11:58:20 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:40081
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1030594AbWBHQ6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 11:58:19 -0500
+Date: Wed, 8 Feb 2006 08:58:03 -0800
+From: Greg KH <greg@kroah.com>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-pm@lists.osdl.org, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-pm] Re: [PATCH, RFC] [1/3] Generic in-kernel AC status
+Message-ID: <20060208165803.GA15239@kroah.com>
+References: <20060208125753.GA25562@srcf.ucam.org> <20060208130422.GB25659@srcf.ucam.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060208130422.GB25659@srcf.ucam.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@lst.de> wrote on 08.02.2006 15:08:39:
+On Wed, Feb 08, 2006 at 01:04:22PM +0000, Matthew Garrett wrote:
+> +/**
+> + *	pm_set_ac_status - Set the ac status callback
+> + *	@ops:	Pointer to function
+> + */
+> +
+> +void pm_set_ac_status(int (*ac_status_function)(void))
 
-> On Wed, Feb 08, 2006 at 01:37:09PM +0100, Heiko Carstens wrote:
-> > From: Horst Hummel <horst.hummel@de.ibm.com>
-> > 
-> > Because of missing discipline validition dasd ioctls calls may not
-return
-> > when called on a device handled by a different discipline.
-> > (e.g calling ECKD specific BIODASDGATTR on an FBA device).
-> > This addresses one of the issues Christoph has with the dasd driver.
-> 
-> Nack.  the right way to do this is to have per-discipline ioctl
-methods,
-> even if we can't remove the dasd_ioctl_register interface yet due to
-> other disagreements.  Just resurect those parts of my patch.
-> 
-As I already tried to explain, the DASD ioctls are _not_ discipline
-related. A discipline is more or less a 'access method to a physical 
-DASD'. Sine the ioctls are related to 'functional components', each
-ioctl could be valid in combination with none, one, two or every of
-the currently supported disciplines (ECKD, FBA, DIAG).
+No extra line in there please.
+And perhaps a bit more description of what this is used for?
+
+> +{
+> +	down(&pm_sem);
+
+Shouldn't this be a mutex?
+
+> +	get_ac_status = ac_status_function;
+> +	up(&pm_sem);
+> +}
+> +
+> +EXPORT_SYMBOL(pm_set_ac_status);
+
+No extra line between the function and the EXPORT_SYMBOL please.
+
+Also, how about EXPORT_SYMBOL_GPL()?
+
+And, who will be using this interface, and what for?
 
 
+
+> +
+> +/**
+> + *	pm_get_ac_status - return true if the system is on AC
+> + */
+> +
+> +int pm_get_ac_status(void)
+> +{
+> +	int status;
+> +
+> +	down (&pm_sem);
+> +	if (get_ac_status)
+> +		status = get_ac_status();
+> +	else
+> +		status = 0;
+> +	up (&pm_sem);
+
+You can save 2 lines by setting status = 0 on the first line of this
+function :)
+
+thanks,
+
+greg k-h

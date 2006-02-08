@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030511AbWBHDxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWBHDym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030511AbWBHDxt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 22:53:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030512AbWBHDxt
+	id S932073AbWBHDym (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 22:54:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWBHDym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 22:53:49 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:5516 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030511AbWBHDxs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 22:53:48 -0500
-Message-ID: <43E96B42.9040005@pobox.com>
-Date: Tue, 07 Feb 2006 22:53:38 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Tue, 7 Feb 2006 22:54:42 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:24213 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932073AbWBHDyl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 22:54:41 -0500
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Hubertus Franke <frankeh@watson.ibm.com>, Sam Vilain <sam@vilain.net>,
+       Rik van Riel <riel@redhat.com>, Kirill Korotaev <dev@openvz.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, clg@fr.ibm.com, haveblue@us.ibm.com,
+       greg@kroah.com, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
+       saw@sawoct.com, devel@openvz.org, Dmitry Mishin <dim@sw.ru>,
+       Andi Kleen <ak@suse.de>, Herbert Poetzl <herbert@13thfloor.at>
+Subject: Re: The issues for agreeing on a virtualization/namespaces
+ implementation.
+References: <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com>
+	<43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com>
+	<20060207201908.GJ6931@sergelap.austin.ibm.com>
+	<43E90716.4020208@watson.ibm.com>
+	<m17j86dds4.fsf_-_@ebiederm.dsl.xmission.com>
+	<43E92EDC.8040603@watson.ibm.com>
+	<20060208004325.GA15061@ms2.inr.ac.ru>
+	<m1k6c6bm57.fsf@ebiederm.dsl.xmission.com>
+	<20060208033633.GA8784@sergelap.austin.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 07 Feb 2006 20:52:15 -0700
+In-Reply-To: <20060208033633.GA8784@sergelap.austin.ibm.com> (Serge E.
+ Hallyn's message of "Tue, 7 Feb 2006 21:36:33 -0600")
+Message-ID: <m1d5hybj80.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Al Viro <viro@ftp.linux.org.uk>
-CC: torvalds@osdl.org, linux-kernel@vger.kernel.org, dale@farnsworth.org
-Subject: Re: [PATCH 04/29] missing includes in drivers/net/mv643xx_eth.c
-References: <E1F6fqN-0006Ba-W6@ZenIV.linux.org.uk>
-In-Reply-To: <E1F6fqN-0006Ba-W6@ZenIV.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Al Viro wrote: > Date: 1137630954 -0500 > >
-	Signed-off-by: Al Viro <viro@zeniv.linux.org.uk> ACK [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> Date: 1137630954 -0500
-> 
-> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+"Serge E. Hallyn" <serue@us.ibm.com> writes:
 
-ACK
+>
+> What I tried to do in a proof of concept long ago was to have
+> CLONE_NETNS mean that you get access to all the network devices, but
+> then you could drop/add them.  Conceptually I prefer that to getting an
+> empty namespace, but I'm not sure whether there's any practical use
+> where you'd want that...
 
+My observation was that the network stack does not come out cleanly
+as a namespace unless you adopt the rule that a network device
+belongs to exactly one network namespace.
 
+With that rule dealing with the network stack is just a matter of making
+some currently global variables/data structures per container.
+
+A pain to do the first round but easy to maintain once you are there
+and the logic of the code doesn't need to change.
+
+Eric

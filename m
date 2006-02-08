@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030365AbWBHM2X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbWBHMai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030365AbWBHM2X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 07:28:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbWBHM2X
+	id S1030372AbWBHMai (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 07:30:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbWBHMai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 07:28:23 -0500
-Received: from h142-az.mvista.com ([65.200.49.142]:57993 "HELO farnsworth.org")
-	by vger.kernel.org with SMTP id S965111AbWBHM2W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 07:28:22 -0500
-From: "Dale Farnsworth" <dale@farnsworth.org>
-Date: Wed, 8 Feb 2006 05:28:21 -0700
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Al Viro <viro@ftp.linux.org.uk>, Olaf Hering <olh@suse.de>
-Subject: [PATCH] mv643xx_eth: remove repeated includes of linux/in.h and linux/ip.h
-Message-ID: <20060208122821.GA944@xyzzy.farnsworth.org>
-References: <E1F6fqN-0006Ba-W6@ZenIV.linux.org.uk>
-MIME-Version: 1.0
+	Wed, 8 Feb 2006 07:30:38 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:55310 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1030372AbWBHMah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 07:30:37 -0500
+Date: Wed, 8 Feb 2006 13:30:35 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] remove bogus comment from init/main.c
+Message-ID: <20060208123035.GA1656@osiris.boeblingen.de.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1F6fqN-0006Ba-W6@ZenIV.linux.org.uk>
-User-Agent: Mutt/1.5.11
+User-Agent: mutt-ng/devel (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Dale Farnsworth <dale@farnsworth.org>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Signed-off-by: Dale Farnsworth <dale@farnsworth.org>
+Remove bogus comment from init function which could lead to the
+assumption that cpu_possible_map is setup in smp_prepare_cpus().
 
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
 
-These includes were added twice:
-in commit 78a5e534758349fd3effc90ce1152b55368f52ee by Olaf Hering and
-in commit b6298c22c5e9f698812e2520003ee178aad50c10 by Al Viro.
-This patch reverts 78a5e534758349fd3effc90ce1152b55368f52ee.
+ init/main.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-They probably should have been included before linux/tcp.h in
-the first place.
-
- drivers/net/mv643xx_eth.c |    2 --
- 1 file changed, 2 deletions(-)
-
-Index: linux-2.6-mv643xx_enet/drivers/net/mv643xx_eth.c
-===================================================================
---- linux-2.6-mv643xx_enet.orig/drivers/net/mv643xx_eth.c
-+++ linux-2.6-mv643xx_enet/drivers/net/mv643xx_eth.c
-@@ -37,8 +37,6 @@
- #include <linux/tcp.h>
- #include <linux/udp.h>
- #include <linux/etherdevice.h>
--#include <linux/in.h>
--#include <linux/ip.h>
+diff --git a/init/main.c b/init/main.c
+index 7c79da5..4c194c4 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -668,7 +668,6 @@ static int init(void * unused)
+ 	 */
+ 	child_reaper = current;
  
- #include <linux/bitops.h>
- #include <linux/delay.h>
+-	/* Sets up cpus_possible() */
+ 	smp_prepare_cpus(max_cpus);
+ 
+ 	do_pre_smp_initcalls();

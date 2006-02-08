@@ -1,97 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030449AbWBHSyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030463AbWBHS5W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030449AbWBHSyl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 13:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030463AbWBHSyl
+	id S1030463AbWBHS5W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 13:57:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030504AbWBHS5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 13:54:41 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:2257 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030449AbWBHSyk (ORCPT
+	Wed, 8 Feb 2006 13:57:22 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:41681 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030463AbWBHS5W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 13:54:40 -0500
-Date: Wed, 8 Feb 2006 10:54:31 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Paul Jackson <pj@sgi.com>
-cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
+	Wed, 8 Feb 2006 13:57:22 -0500
+Date: Wed, 8 Feb 2006 10:57:14 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: akpm@osdl.org, ak@suse.de, linux-kernel@vger.kernel.org
 Subject: Re: Terminate process that fails on a constrained allocation
-In-Reply-To: <20060208103448.588fdfa7.pj@sgi.com>
-Message-ID: <Pine.LNX.4.62.0602081053260.3590@schroedinger.engr.sgi.com>
+Message-Id: <20060208105714.15bb4bb2.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0602081037240.3590@schroedinger.engr.sgi.com>
 References: <Pine.LNX.4.62.0602081004060.2648@schroedinger.engr.sgi.com>
- <200602081914.00231.ak@suse.de> <20060208103448.588fdfa7.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	<20060208103323.7ba3709e.pj@sgi.com>
+	<Pine.LNX.4.62.0602081037240.3590@schroedinger.engr.sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Feb 2006, Paul Jackson wrote:
+> No it only disables the oom killer for constrained allocations.
 
-> good idea.
+But on many big numa systems, the way they are administered,
+that affectively disables the oom killer.
 
-Ok. Here is V2:
+> F.e. a sysadmin may mistakenly start a process allocating too much memory
+> in a cpuset. The OOM killer will then start randomly shooting other 
+> processes one of which may be a critical process.. Ouch.
 
-Terminate process that fails on a constrained allocation
+That same exact claim could be made to justify a patch that
+removed mm/oom_kill.c entirely.  And the same exact claim
+could be made, dropping the "in a cpuset" phrase, on an UMA
+desktop PC.
 
-Some allocations are restricted to a limited set of nodes (due to memory
-policies or cpuset constraints). If the page allocator is not able to find
-enough memory then that does not mean that overall system memory is low.
+The basic premise of the oom killer is that, instead of blowing
+off the caller, who might innocently have asked for one page
+too many after some other hog used up all the available memory,
+we try to pick the worst offender.
 
-In particular going postal and more or less randomly shooting at processes
-is not likely going to help the situation but may just lead to suicide (the
-whole system coming down).
+Get the worst offender, not just who ever finally hit the limit.
 
-It is better to signal to the process that no memory exists given the
-constraints that the process (or the configuration of the process) has
-placed on the allocation behavior. The process may be killed but then the
-sysadmin or developer can investigate the situation. The solution is similar
-to what we do when running out of hugepages.
+> Actually a good Denial of service attack than can be used with cpusets 
+> and memory policies.
 
-This patch adds a check before the out of memory killer is invoked. At that
-point performance considerations do not matter much so we just scan the zonelist
-and reconstruct a list of nodes. If the list of nodes does not contain all
-online nodes then this is a constrained allocation and we should not calle
-the OOM killer.
+Nothing special about cpusets there.   The same DOS opportunity
+exists on simple one cpu, one node systems.
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+...
 
-Index: linux-2.6.16-rc2/mm/page_alloc.c
-===================================================================
---- linux-2.6.16-rc2.orig/mm/page_alloc.c	2006-02-02 22:03:08.000000000 -0800
-+++ linux-2.6.16-rc2/mm/page_alloc.c	2006-02-08 10:53:08.000000000 -0800
-@@ -817,6 +818,27 @@ failed:
- #define ALLOC_CPUSET		0x40 /* check for correct cpuset */
- 
- /*
-+ * check if a given zonelist allows allocation over all the nodes
-+ * in the system.
-+ */
-+int zonelist_incomplete(struct zonelist *zonelist, gfp_t gfp_mask)
-+{
-+#ifdef CONFIG_NUMA
-+	struct zone **z;
-+	nodemask_t nodes;
-+
-+	nodes = node_online_map;
-+	for (z = zonelist->zones; *z; z++)
-+		if (cpuset_zone_allowed(*z, gfp_mask))
-+			node_clear((*z)->zone_pgdat->node_id,
-+					nodes);
-+	return !nodes_empty(nodes);
-+#else
-+	return 0;
-+#endif
-+}
-+
-+/*
-  * Return 1 if free pages are above 'mark'. This takes into account the order
-  * of the allocation.
-  */
-@@ -1011,6 +1033,9 @@ rebalance:
- 		if (page)
- 			goto got_pg;
- 
-+		if (zonelist_incomplete(zonelist, gfp_mask))
-+			return NULL;
-+
- 		out_of_memory(gfp_mask, order);
- 		goto restart;
- 	}
+Granted, I am objecting to this patch with mixed feelings.
+
+I've yet to be convinced that the oom killer is our friend,
+and half of me (not seriously) is almost wishing it were
+gone.
+
+Would another option be to continue to fine tune the heuristics
+that the oom killer uses to pick its next victim?
+
+What situation did you hit that motivated this change?
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

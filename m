@@ -1,84 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422644AbWBHXql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422655AbWBHXvm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422644AbWBHXql (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 18:46:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422647AbWBHXql
+	id S1422655AbWBHXvm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 18:51:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422656AbWBHXvm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 18:46:41 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:28565 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1422644AbWBHXqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 18:46:40 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] Dynamically allocated pageflags
-Date: Thu, 9 Feb 2006 09:43:21 +1000
-User-Agent: KMail/1.9.1
-Cc: "linux-mm" <linux-mm@kvack.org>, linux-kernel@vger.kernel.org
-References: <200602022111.32930.ncunningham@cyclades.com> <200602021431.30194.ak@suse.de>
-In-Reply-To: <200602021431.30194.ak@suse.de>
+	Wed, 8 Feb 2006 18:51:42 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:62381 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1422655AbWBHXvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 18:51:42 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <43EA8405.1070700@s5r6.in-berlin.de>
+Date: Thu, 09 Feb 2006 00:51:33 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1322261.PFn1ScY5Cy";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+Subject: Re: [PATCH 7/8] don't mangle INQUIRY if cmddt or evpd bits are set
+References: <E1F6vyJ-00009k-3Z@ZenIV.linux.org.uk> <43EA7226.60306@s5r6.in-berlin.de> <20060208230559.GK27946@ftp.linux.org.uk>
+In-Reply-To: <20060208230559.GK27946@ftp.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602090943.25550.ncunningham@cyclades.com>
+X-Spam-Score: (-0.742) AWL,BAYES_05
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1322261.PFn1ScY5Cy
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Al Viro wrote:
+> On Wed, Feb 08, 2006 at 11:35:18PM +0100, Stefan Richter wrote:
+>>In fact, not a single one of these bridges is affected by the code 
+>>change since the additional expression which was added always evaluates 
+>>true.
+> 
+> The hell it does.  Try scsiinfo -s and you'll see.  All INQUIRY generated
+> by scsi midlayer have both flags set to 0.  Userland ones do not;
 
-Hi.
-
-On Thursday 02 February 2006 23:31, Andi Kleen wrote:
-> On Thursday 02 February 2006 12:11, Nigel Cunningham wrote:
-> > Hi everyone.
-> >=20
-> > This is my latest revision of the dynamically allocated pageflags patch.
-> >=20
-> > The patch is useful for kernel space applications that sometimes need t=
-o flag
-> > pages for some purpose, but don't otherwise need the retain the state. =
-A prime
-> > example is suspend-to-disk, which needs to flag pages as unsaveable, al=
-located
-> > by suspend-to-disk and the like while it is working, but doesn't need to
-> > retain any of this state between cycles.
->=20
-> It looks like total overkill for a simple problem to me. And is there rea=
-lly
-> any other user of this other than swsusp?
-
-Sorry for the slow response. I switched email clients and gained a bogus
-filter along the way (entirely my fault, of course).
-
-As Dave said, he might make use of them too. I use about 5 or 6 of these,
-depending upon exactly how Suspend2 is configured.
-
-In the meanwhile, AKPM gave me a suggestion for a better solution
-(radix-trees). My algorithms & data-structures course was 14 years ago,
-so I'll go dust off Kingston (IIRC) and learn what he's talking about again=
- :)
-
-Thanks for the feedback and regards,
-
-Nigel
-
---nextPart1322261.PFn1ScY5Cy
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD6oIdN0y+n1M3mo0RAlEcAJ90Z50N05zRpayBvEN8kigs1ctAGgCgn0dv
-EaIQmZfFLw0FLtNvlO0u1/Q=
-=XGBJ
------END PGP SIGNATURE-----
-
---nextPart1322261.PFn1ScY5Cy--
+Ah, I see. Of course I didn't test that.
+-- 
+Stefan Richter
+-=====-=-==- --=- -=--=
+http://arcgraph.de/sr/

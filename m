@@ -1,87 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030470AbWBHDAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbWBHDCG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030470AbWBHDAV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 22:00:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030473AbWBHDAV
+	id S1030473AbWBHDCG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 22:02:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030477AbWBHDCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 22:00:21 -0500
-Received: from mail13.syd.optusnet.com.au ([211.29.132.194]:23460 "EHLO
-	mail13.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1030470AbWBHDAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 22:00:19 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: gcoady@gmail.com
-Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
-Date: Wed, 8 Feb 2006 14:00:59 +1100
-User-Agent: KMail/1.8.3
+	Tue, 7 Feb 2006 22:02:05 -0500
+Received: from uproxy.gmail.com ([66.249.92.194]:45531 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030473AbWBHDCE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 22:02:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iVhlqqOag+/sMBgFV0Zv/b43cxFceu4DGTAvbxlkbs+ofqSumNlqnFOcas1BPBSM8x1VlLwnBs/uWvxmEqwdh79MJ5AwXWogqYR3jj932PIjck4qKHW0g7lPkaFyhFUdXRRMQVo4sSHRdl9qGFhbqme5bsR+cde4UKycitk+uKc=
+Message-ID: <e282236e0602071902u41a5c005rdc9be5be0939b4ee@mail.gmail.com>
+Date: Wed, 8 Feb 2006 11:02:00 +0800
+From: Yoseph Basri <yoseph.basri@gmail.com>
+To: "Boris B. Zhmurov" <bb@kernelpanic.ru>
+Subject: Re: KERNEL: assertion (!sk->sk_forward_alloc) failed
 Cc: linux-kernel@vger.kernel.org
-References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com> <200602081335.18256.kernel@kolivas.org> <24niu1hrom6udfa2km18b8bagad62kjamc@4ax.com>
-In-Reply-To: <24niu1hrom6udfa2km18b8bagad62kjamc@4ax.com>
+In-Reply-To: <43E87749.8030206@kernelpanic.ru>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200602081400.59931.kernel@kolivas.org>
+References: <e282236e0602070146p1ed3fdb6k74aa75e15bbc37a3@mail.gmail.com>
+	 <43E87749.8030206@kernelpanic.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Feb 2006 01:55 pm, Grant Coady wrote:
-> On Wed, 8 Feb 2006 13:35:18 +1100, Con Kolivas <kernel@kolivas.org> wrote:
-> >On Wed, 8 Feb 2006 01:11 pm, Grant Coady wrote:
-> >> Hi there,
-> >>
-> >> grant@deltree:~$ uname -r
-> >> 2.6.15.3a
-> >> grant@deltree:~$ time grep -v 192\.168\. /var/log/apache/access_log| cut
-> >> -c-95 ...
-> >> 2006-02-08 12:38:13 +1100: bugsplatter.mine.nu 193.196.182.215 "GET
-> >> /test/linux-2.6/tosh/ HTTP/
-> >>
-> >> real    0m8.537s
-> >> user    0m0.970s
-> >> sys     0m1.100s
-> >>
-> >> --> reboot to 2.4.32-hf32.2
-> >>
-> >> grant@deltree:~$ uname -r
-> >> 2.4.32-hf32.2
-> >> grant@deltree:~$ time grep -v 192\.168\. /var/log/apache/access_log| cut
-> >> -c-95 ...
-> >> 2006-02-08 12:38:13 +1100: bugsplatter.mine.nu 193.196.182.215 "GET
-> >> /test/linux-2.6/tosh/ HTTP/
-> >>
-> >> real    0m2.271s
-> >> user    0m0.730s
-> >> sys     0m0.540s
-> >>
-> >> Still a 4:1 slowdown, machine .config and dmesg info:
-> >>   http://bugsplatter.mine.nu/test/boxen/deltree/
+Hi Boris,
+
+I think so, here is from the dmeg info:
+
+Intel(R) PRO/1000 Network Driver - version 6.0.60-k2
+Copyright (c) 1999-2005 Intel Corporation.
+ACPI: PCI Interrupt 0000:06:08.0[A] -> GSI 29 (level, low) -> IRQ 16
+e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
+ACPI: PCI Interrupt 0000:06:08.1[B] -> GSI 30 (level, low) -> IRQ 17
+e1000: eth1: e1000_probe: Intel(R) PRO/1000 Network Connection
+e100: Intel(R) PRO/100 Network Driver, 3.4.14-k2-NAPI
+e100: Copyright(c) 1999-2005 Intel Corporation
+
+any info regarding this warning?
+
+YB
+
+On 2/7/06, Boris B. Zhmurov <bb@kernelpanic.ru> wrote:
+> Hello, Yoseph Basri.
+>
+> On 07.02.2006 12:46 you said the following:
+>
+> > I am getting the warning log:
 > >
-> >What happens if you add "| cat" on the end of your command?
+> > kernel: KERNEL: assertion (!sk->sk_forward_alloc) failed at
+> > net/core/stream.c (279)
+> > kernel: KERNEL: assertion (!sk->sk_forward_alloc) failed at
+> > net/ipv4/af_inet.c (148)
 >
-> It gets faster with 2.4.32-hf32.2 by a little bit (I forgot to copy)
 >
-> reboot to 2.6.15.3a, without...
+> Do you have Intel Pro 1000 network card? Same here...
 >
-> real    0m8.737s
-> user    0m1.030s
-> sys     0m1.200s
 >
-> with...  oh shit / surprise!!
+> --
+> Boris B. Zhmurov
+> mailto: bb@kernelpanic.ru
+> "wget http://kernelpanic.ru/bb_public_key.pgp -O - | gpg --import"
 >
-> real    0m1.861s
-> user    0m0.560s
-> sys     0m0.370s
 >
-> What is that telling me / you / us?
-
-Heh.
-
-This is the terminal's fault. xterm et al use an algorithm to determine how 
-fast your machine is and decide whether to jump scroll or smooth scroll. This 
-algorithm is basically broken with the 2.6 scheduler and it decides to mostly 
-smooth scroll.
-
-Cheers,
-Con

@@ -1,86 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbWBHJlv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbWBHJmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030186AbWBHJlv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 04:41:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964918AbWBHJlv
+	id S964933AbWBHJmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 04:42:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWBHJmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 04:41:51 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:30121 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S964858AbWBHJlu convert rfc822-to-8bit (ORCPT
+	Wed, 8 Feb 2006 04:42:09 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:27323 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S964858AbWBHJmG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 04:41:50 -0500
-Date: Wed, 8 Feb 2006 04:41:42 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: preempt-rt, NUMA and strange latency traces
-In-Reply-To: <1139311689.19708.36.camel@frecb000686>
-Message-ID: <Pine.LNX.4.58.0602080436190.8578@gandalf.stny.rr.com>
-References: <1139311689.19708.36.camel@frecb000686>
+	Wed, 8 Feb 2006 04:42:06 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Date: Wed, 8 Feb 2006 10:43:11 +0100
+User-Agent: KMail/1.9.1
+Cc: Nigel Cunningham <nigel@suspend2.net>, Lee Revell <rlrevell@joe-job.com>,
+       Jim Crilly <jim@why.dont.jablowme.net>,
+       suspend2-devel@lists.suspend2.net, linux-kernel@vger.kernel.org
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602080116.12992.rjw@sisk.pl> <20060208082810.GB10961@elf.ucw.cz>
+In-Reply-To: <20060208082810.GB10961@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602081043.12662.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Tue, 7 Feb 2006, Sébastien Dugué wrote:
+On Wednesday 08 February 2006 09:28, Pavel Machek wrote:
+> > > Suspend-to-disk HOWTO
+> > > ~~~~~~~~~~~~~~~~~~~~
+> > > Copyright (C) 2006 Pavel Machek <pavel@suse.cz>
+> > > 
+> > > 
+> > > You'll need /dev/snapshot for these to work:
+> > > 
+> > > crw-r--r--  1 root root 10, 231 Jan 13 21:21 /dev/snapshot
+> 
+> 
+> > > Then compile userspace tools in usual way. You'll need an -mm kernel
+> > > for now. To suspend-to-disk, run
+> 
+> I actually added -mm warning here.
 
->   Hi,
->
->   I've been experimenting with 2.6.15-rt16 on a dual 2.8GHz Xeon box
-> with quite good results and decided to make a run on a NUMA dual node
-> IBM x440 (8 1.4GHz Xeon, 28GB ram).
->
->   However, the kernel crashes early when creating the slabs. Does the
-> current preempt-rt patchset supports NUMA machines or has support
-> been disabled until things settle down?
+Oh, I didn't notice, sorry.
 
-Yeah, currently the -rt patch doesn't work well with NUMA.
+> > > ./suspend /dev/<your_swap_partition>
+> > > 
+> > > . (There should be just one, for now.) Suspend is easy, resume is
+> > > slightly harder. Resume application has to be ran without any
+> > > filesystems mounted rw, and without any journalling filesystems
+> > > mounted at all, preferably from initrd (but read-only ext2 should do
+> > > the trick, too). Resume is then as easy as running
+> > > 
+> > > ./resume /dev/<your_swap_partition>
+> > > 
+> > > . You probably want to create script that attempts to resume with
+> > > above command, and if that fails, fall back to init.
+> > 
+> > If it's run fron an initrd, it'll fall back automatically.  Also you can set
+> > the name of the resume partition in the header file swsusp.h and
+> > you'll be able to use the tools without any command line
+> > parameters (useful if you want to start resume from an initrd).
+> 
+> I know a little about initrd. I've just commited HOWTO file, can you
+> edit it to describe that?
 
->
->   Going on, I compiled a non NUMA RT kernel which booted just fine,
-> but when examining the latency traces, I came upon strange jumps
-> in the latencies such as:
->
->
->    <...>-6459  2D.h1   42us : rcu_pending (update_process_times)
->    <...>-6459  2D.h1   42us : scheduler_tick (update_process_times)
->    <...>-6459  2D.h1   43us : sched_clock (scheduler_tick)
->    <...>-6459  2D.h1   44us!: _raw_spin_lock (scheduler_tick)
->    <...>-6459  2D.h2 28806us : _raw_spin_unlock (scheduler_tick)
->    <...>-6459  2D.h1 28806us : rebalance_tick (scheduler_tick)
->    <...>-6459  2D.h1 28807us : irq_exit (smp_apic_timer_interrupt)
->    <...>-6459  2D..1 28808us < (608)
->    <...>-6459  2D..1 28809us : smp_apic_timer_interrupt (c03e2a02 0 0)
->    <...>-6459  2D.h1 28810us : handle_nextevent_update (smp_apic_timer_interrupt)
->    <...>-6459  2D.h1 28810us : hrtimer_interrupt (handle_nextevent_update)
+OK, I will, but when I have some time for that (today in the night, probably).
 
-Hmm, are the TSC of the CPUS in sync?  If not, you will get bad
-messurements of the latency tracer.  That is currently why we can't use
-tracing with x86_64 x2 CPUS.
-
->
->   There does not seem to be a precise code path leading to those jumps,
-> it seems
-> they can appear anywhere. Furthermore the jump seems to always be of ~ 27 ms
->
->   I tried running on only 1 CPU, tried using the TSC instead of the cyclone
-> timer but to no avail, the phenomenon is still there.
-
-OK, this scares me.  You get these with only one CPU?  Is it still
-compiled for SMP?  If not, see if the latencies go away if you turn off
-SMP.
-
- >
->   My test program only consists in a thread running at max RT priority doing
-> a nanosleep().
->
->   What could be going on here?
-
-Good question.  Could you send your .config
-
--- Steve
+Greetings,
+Rafael

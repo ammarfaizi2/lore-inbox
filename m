@@ -1,38 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030439AbWBHSe5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030441AbWBHShH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030439AbWBHSe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 13:34:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030441AbWBHSe5
+	id S1030441AbWBHShH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 13:37:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030450AbWBHShH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 13:34:57 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:20684 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030439AbWBHSe5 (ORCPT
+	Wed, 8 Feb 2006 13:37:07 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:54214 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1030445AbWBHShE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 13:34:57 -0500
-Date: Wed, 8 Feb 2006 10:34:48 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andi Kleen <ak@suse.de>
-Cc: clameter@engr.sgi.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Terminate process that fails on a constrained allocation
-Message-Id: <20060208103448.588fdfa7.pj@sgi.com>
-In-Reply-To: <200602081914.00231.ak@suse.de>
-References: <Pine.LNX.4.62.0602081004060.2648@schroedinger.engr.sgi.com>
-	<200602081914.00231.ak@suse.de>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Wed, 8 Feb 2006 13:37:04 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [2.6 patch] let IA64_GENERIC select more stuff
+Date: Wed, 8 Feb 2006 10:35:57 -0800
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F05A6DEE7@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.6 patch] let IA64_GENERIC select more stuff
+Thread-Index: AcYstWF/Hbc/mNZuQfOk3ANjY2icgAAJsR5w
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Jes Sorensen" <jes@sgi.com>, "Adrian Bunk" <bunk@stusta.de>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, "Keith Owens" <kaos@sgi.com>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 08 Feb 2006 18:35:58.0531 (UTC) FILETIME=[8100C130:01C62CDE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi wrote:
-> Ok I would have used an noinline function instead of putting the code inline
-> to prevent register pressure etc. and make it more readable.
+Adrian> Is this OK for you?
 
-good idea.
+Jes> Not really, it helps a bit by selecting some things we know we need
+Jes> for all GENERIC builds. True we can't make it bullet proof, but whats
+Jes> there is better than removing it.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Which I think sums up why this is so contentious.  There is no right answer
+here as the purpose of the GENERIC entry is rather vague and has been
+interpreted differently by different people.  Mostly it is a convenience
+entry that auto-selects a bunch of other config options, but there isn't
+a single answer to what it should select, as different people have different
+goals, so what might be convenient for one person would be a pain for
+someone else.
+
+The current set looks close ... perhaps PCI should be added as it isn't
+likely to inconvenience anyone, but SMP is a lot further into murky territory
+(some distributors like to use a UP kernel for installation ... so they
+want a "generic" kernel, but don't need to worry about SMP ... there are few
+places where SMP would be advantageous during install).
+
+-Tony

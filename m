@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbWBHVBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932404AbWBHVD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751142AbWBHVBd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 16:01:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWBHVBd
+	id S932404AbWBHVD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 16:03:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWBHVD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 16:01:33 -0500
-Received: from cantor.suse.de ([195.135.220.2]:62153 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751142AbWBHVBc (ORCPT
+	Wed, 8 Feb 2006 16:03:56 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:64141 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932404AbWBHVD4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 16:01:32 -0500
-From: Andi Kleen <ak@suse.de>
-To: Paul Jackson <pj@sgi.com>
+	Wed, 8 Feb 2006 16:03:56 -0500
+Date: Wed, 8 Feb 2006 13:03:51 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: clameter@engr.sgi.com, akpm@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: Terminate process that fails on a constrained allocation
-Date: Wed, 8 Feb 2006 22:01:11 +0100
-User-Agent: KMail/1.8.2
-Cc: Christoph Lameter <clameter@engr.sgi.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.62.0602081004060.2648@schroedinger.engr.sgi.com> <Pine.LNX.4.62.0602081228260.4335@schroedinger.engr.sgi.com> <20060208125521.b9a2aa5e.pj@sgi.com>
-In-Reply-To: <20060208125521.b9a2aa5e.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Message-Id: <20060208130351.fc1c759c.pj@sgi.com>
+In-Reply-To: <200602082201.12371.ak@suse.de>
+References: <Pine.LNX.4.62.0602081004060.2648@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.62.0602081228260.4335@schroedinger.engr.sgi.com>
+	<20060208125521.b9a2aa5e.pj@sgi.com>
+	<200602082201.12371.ak@suse.de>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602082201.12371.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 February 2006 21:55, Paul Jackson wrote:
-
-> If that argument justifies OOM killing on a simple UMA system, then
-> surely, for -some- critical tasks, it justifies it on a big NUMA system.
+> I don't think you really want to open a  full scale "is the oom killer needed"
+> thread. Check the archives - there have been some going on for months.
 > 
-> Either OOM is useful in some cases or it is not.
+> But I think we can agree that together with mbind the oom killer is pretty
+> useless, can't we?
 
+Excellent points.
 
-I don't think you really want to open a  full scale "is the oom killer needed"
-thread. Check the archives - there have been some going on for months.
+I approve this patch.
 
-But I think we can agree that together with mbind the oom killer is pretty
-useless, can't we?
-
-
--Andi (who is definitely in favour of Christoph's latest patch) 
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

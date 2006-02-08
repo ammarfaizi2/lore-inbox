@@ -1,47 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965158AbWBHVjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWBHVqU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965158AbWBHVjk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 16:39:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965164AbWBHVjk
+	id S932274AbWBHVqU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 16:46:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbWBHVqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 16:39:40 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:22484 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965158AbWBHVjj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 16:39:39 -0500
-Date: Wed, 8 Feb 2006 13:39:09 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: pj@sgi.com, clameter@engr.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: Terminate process that fails on a constrained allocation
-Message-Id: <20060208133909.183f19ea.akpm@osdl.org>
-In-Reply-To: <200602082221.35671.ak@suse.de>
-References: <Pine.LNX.4.62.0602081004060.2648@schroedinger.engr.sgi.com>
-	<200602082201.12371.ak@suse.de>
-	<20060208130351.fc1c759c.pj@sgi.com>
-	<200602082221.35671.ak@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Feb 2006 16:46:20 -0500
+Received: from mail.gmx.net ([213.165.64.21]:33713 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751144AbWBHVqU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 16:46:20 -0500
+X-Authenticated: #19095397
+From: Bernd Schubert <bernd-schubert@gmx.de>
+To: Chris Wright <chrisw@osdl.org>
+Subject: Re: 2.6.15 Bug? New security model?
+Date: Wed, 8 Feb 2006 22:46:15 +0100
+User-Agent: KMail/1.8.3
+Cc: John M Flinchbaugh <john@hjsoft.com>, reiserfs-list@namesys.com,
+       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org
+References: <200602080212.27896.bernd-schubert@gmx.de> <200602081314.59639.bernd-schubert@gmx.de> <20060208205033.GB22771@shell0.pdx.osdl.net>
+In-Reply-To: <20060208205033.GB22771@shell0.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200602082246.15613.bernd-schubert@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
+> >
+> > After the problem came up, I already suspected something like this and
+> > therefore already had the kernel recompiled without xattr support, so I
+> > don't know why lsattr shows something for 2.6.15 and nothing for 2.6.13.
 >
-> On Wednesday 08 February 2006 22:03, Paul Jackson wrote:
-> > > I don't think you really want to open a  full scale "is the oom killer needed"
-> > > thread. Check the archives - there have been some going on for months.
-> > > 
-> > > But I think we can agree that together with mbind the oom killer is pretty
-> > > useless, can't we?
-> > 
-> > Excellent points.
-> > 
-> > I approve this patch.
-> 
-> I think it should be put into 2.6.16. Andrew?
+> attrs != xattrs
 
-Does every single caller of __alloc_pages(__GFP_FS) correctly handle a NULL
-return?  I doubt it, in which case this patch will cause oopses and hangs.
+Ah, I thought its the same.
+
+>
+> Couple of things:
+>
+> 1) what does 'grep attrs_cleared /proc/fs/reiserfs/on-disk-super' show?
+
+Er, you mean /proc/fs/reiserfs/{partition}/on-disk-super?
+
+bernd@bathl ~>grep attrs_cleared /proc/fs/reiserfs/hda6/on-disk-super
+flags:  1[attrs_cleared]
+
+
+>
+> 2) does mount -o attrs ... make a difference?
+
+Yes, 2.6.13 now makes the same trouble. No difference with 2.6.15.3. 
+I played with mount -o noattrs, this makes no difference with 2.6.13, but has 
+some effects to 2.6.15.3. Creating files in /var/run is possible again, 
+lsattr gives "lsattr: Inappropriate ioctl for device While reading flags 
+on /var/run", but deleting files in /var/run is still impossible (still 
+rather bad for the init-scripts).
+
+
+Thanks,
+	Bernd
+
+-- 
+Bernd Schubert
+PCI / Theoretische Chemie
+Universität Heidelberg
+INF 229
+69120 Heidelberg
 

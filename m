@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbWBHRLn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030292AbWBHRRD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030299AbWBHRLn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 12:11:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030346AbWBHRLn
+	id S1030292AbWBHRRD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 12:17:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030367AbWBHRRC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 12:11:43 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:47841 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1030299AbWBHRLm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 12:11:42 -0500
-Message-ID: <43EA386B.D1A20AEB@tv-sign.ru>
-Date: Wed, 08 Feb 2006 21:28:59 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fork:  Allow init to become a session leader.
-References: <m1acd196hr.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Feb 2006 12:17:02 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:42677
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1030292AbWBHRRB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 12:17:01 -0500
+Date: Wed, 8 Feb 2006 09:16:49 -0800
+From: Greg KH <greg@kroah.com>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-pm@lists.osdl.org, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-pm] Re: [PATCH, RFC] [1/3] Generic in-kernel AC status
+Message-ID: <20060208171649.GA21373@kroah.com>
+References: <20060208125753.GA25562@srcf.ucam.org> <20060208130422.GB25659@srcf.ucam.org> <20060208165803.GA15239@kroah.com> <20060208170857.GA29818@srcf.ucam.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060208170857.GA29818@srcf.ucam.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric W. Biederman" wrote:
+On Wed, Feb 08, 2006 at 05:08:58PM +0000, Matthew Garrett wrote:
+> On Wed, Feb 08, 2006 at 08:58:03AM -0800, Greg KH wrote:
+> > > +{
+> > > +	down(&pm_sem);
+> > 
+> > Shouldn't this be a mutex?
 > 
-> With the bug fixes from killing session == 0 and pgrp == 0 we
-> have essentially made pid == 1 a session leader.  However reading
-> through the code I can see nothing, that sets the session->leader
-> flag.  In fact we actively clear it in all cases during clone.
-> And setsid will fail to set it because the session == 1 and
-> process group == 1 already exist.
-> 
-> So this patch forces the session leader flag and for good measure
-> the pgrp, session and tty of init as well.
-> 
-> --- a/kernel/fork.c
-> +++ b/kernel/fork.c
-> @@ -1179,9 +1179,16 @@ static task_t *copy_process(unsigned lon
->                 attach_pid(p, PIDTYPE_PID, p->pid);
->                 attach_pid(p, PIDTYPE_TGID, p->tgid);
->                 if (thread_group_leader(p)) {
-> -                       p->signal->tty = current->signal->tty;
-> -                       p->signal->pgrp = process_group(current);
-> -                       p->signal->session = current->signal->session;
-> +                       if (unlikely(p->pid == 1)) {
-> +                               p->signal->tty = NULL;
-> +                               p->signal->leader = 1;
-> +                               p->signal->pgrp = 1;
-> +                               p->signal->session = 1;
+> It is, isn't it? The name's somewhat misleading, but I was just using 
+> what already existed...
 
-Isn't it enough to just set current->signal->leader = 1
-in init/main.c:init() ? This process was already forked
-with (1,1) special pids and ->tty == NULL.
+Ah, ok, nevermind, I thought this was new.
 
-Oleg.
+> +/**
+> + *	pm_set_ac_status - Set the ac status callback. Returns true if the
+> + *                         system is on AC and has a registered callback.
+
+kerneldoc will not work with this.  It needs to be a one line, short,
+description.  Put the full description below the function paramaters, it
+can be as many lines as you want there.
+
+thanks,
+
+greg k-h

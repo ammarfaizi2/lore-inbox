@@ -1,323 +1,205 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWBHJ3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWBHJlR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932403AbWBHJ3N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 04:29:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbWBHJ3N
+	id S964836AbWBHJlR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 04:41:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbWBHJlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 04:29:13 -0500
-Received: from webbox4.loswebos.de ([213.187.93.205]:41654 "EHLO
-	webbox4.loswebos.de") by vger.kernel.org with ESMTP id S932403AbWBHJ3N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 04:29:13 -0500
-Date: Wed, 8 Feb 2006 10:29:15 +0100
-From: Marc Koschewski <marc@osknowledge.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH GIT] drivers/block/ub.c - misc. cleanup/indentation, removed unneeded return
-Message-ID: <20060208092914.GA8628@stiffy.osknowledge.org>
+	Wed, 8 Feb 2006 04:41:17 -0500
+Received: from odin2.bull.net ([192.90.70.84]:7086 "EHLO odin2.bull.net")
+	by vger.kernel.org with ESMTP id S932435AbWBHJlQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 04:41:16 -0500
+From: "Serge Noiraud" <serge.noiraud@bull.net>
+To: linux-scsi <linux-scsi@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: PREEMPT_RT and mptbase, mptscsih : I loose my file systems ( 2.6.15-rt16 )
+Date: Wed, 8 Feb 2006 10:48:14 +0100
+User-Agent: KMail/1.7.1
+Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="x+6KMIRAuhnl3hBn"
+Message-Id: <200602081048.15418.Serge.Noiraud@bull.net>
+X-MIMETrack: Itemize by SMTP Server on MSGB-002/FR/BULL(Release 5.0.11  |July 24, 2002) at
+ 02/08/2006 10:41:12 AM,
+	Serialize by Router on MSGB-002/FR/BULL(Release 5.0.11  |July 24, 2002) at
+ 02/08/2006 10:41:14 AM,
+	Serialize complete at 02/08/2006 10:41:14 AM
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Disposition: inline
-X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
-X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
-X-Operating-System: Linux stiffy 2.6.16-rc2-marc-gce4b50f2
-User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---x+6KMIRAuhnl3hBn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	I have some problems with 2.6.15 and rt16 patch from ingo.
+I have the following problems :
 
-Hey hackers. ;)
+I can reproduce the problem easily after each reboot at any realtime priority with only one program.
+The problem occurs if all the IRQ's are affected to CPU 0 ( smp_affinity ) and the test run on CPU 0.
+Only one program which makes 60000000000ULL  loops.
+Before I run this program, I type the command script to keep the results.
+When the test stop, I quit the script command <ctrl>d.
+I am in the standard shell.
+The result file from the script command is empty. This is how I find the problem :
 
-I created this little patch while reading through drivers/block/ub.c. It fixes
-some indentation/whitespace as well as some empty commenting, an hardcoded
-module name and an unneeded return.
+I have no more access to the file system. I can only do less and some other command.
+I get Input/Output error for all new command not in memory.
+If I try to ssh from another machine, I obtain the following messages :
+[root@dist2 root]# ssh dist1
+root@dist1's password: 
+Last login: Mon Jan 16 11:13:49 2006 from dist2.btsn.xxxxxxxxxx
+/usr/X11R6/bin/xauth:  error in locking authority file /root/.Xauthority
+I can't access .Xauthority file which exists. I could access it before the test.
 
-The patch is against the latest -git.
+At this point, If I try to reboot, I get the following messages.
+<CTRL><ALT><DEL> => INIT: cannot execute "/sbin/shutdown"
+/sbin/reboot   => Input/Output error
 
-Marc
+Before launching the script and the test, the system works correctly.
 
---x+6KMIRAuhnl3hBn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ub.c.patch-git"
+If you need more infos, I can  try some commands, debug options ...
+Do I need to use a special CONFIG option ?
 
---- ub.c.orig	2006-02-07 23:35:32.000000000 +0100
-+++ ub.c	2006-02-07 23:53:56.000000000 +0100
-@@ -33,10 +33,10 @@
- #include <linux/timer.h>
- #include <scsi/scsi.h>
- 
--#define DRV_NAME "ub"
--#define DEVFS_NAME DRV_NAME
-+#define DRV_NAME		"ub"
-+#define DEVFS_NAME		DRV_NAME
- 
--#define UB_MAJOR 180
-+#define UB_MAJOR		180
- 
- /*
-  * The command state machine is the key model for understanding of this driver.
-@@ -109,19 +109,13 @@
-  * This many LUNs per USB device.
-  * Every one of them takes a host, see UB_MAX_HOSTS.
-  */
--#define UB_MAX_LUNS   9
-+#define UB_MAX_LUNS		9
- 
--/*
-- */
--
--#define UB_PARTS_PER_LUN      8
-+#define UB_PARTS_PER_LUN	8
- 
--#define UB_MAX_CDB_SIZE      16		/* Corresponds to Bulk */
-+#define UB_MAX_CDB_SIZE		16	/* Corresponds to Bulk */
- 
--#define UB_SENSE_SIZE  18
--
--/*
-- */
-+#define UB_SENSE_SIZE		18
- 
- /* command block wrapper */
- struct bulk_cb_wrap {
-@@ -161,28 +155,28 @@
-  */
- struct ub_dev;
- 
--#define UB_MAX_REQ_SG	9	/* cdrecord requires 32KB and maybe a header */
--#define UB_MAX_SECTORS 64
-+#define UB_MAX_REQ_SG		9	/* cdrecord requires 32KB and maybe a header */
-+#define UB_MAX_SECTORS		64
- 
- /*
-  * A second is more than enough for a 32K transfer (UB_MAX_SECTORS)
-  * even if a webcam hogs the bus, but some devices need time to spin up.
-  */
--#define UB_URB_TIMEOUT	(HZ*2)
--#define UB_DATA_TIMEOUT	(HZ*5)	/* ZIP does spin-ups in the data phase */
--#define UB_STAT_TIMEOUT	(HZ*5)	/* Same spinups and eject for a dataless cmd. */
--#define UB_CTRL_TIMEOUT	(HZ/2)	/* 500ms ought to be enough to clear a stall */
-+#define UB_URB_TIMEOUT		(HZ*2)
-+#define UB_DATA_TIMEOUT		(HZ*5)	/* ZIP does spin-ups in the data phase */
-+#define UB_STAT_TIMEOUT		(HZ*5)	/* Same spinups and eject for a dataless cmd. */
-+#define UB_CTRL_TIMEOUT		(HZ/2)	/* 500ms ought to be enough to clear a stall */
- 
- /*
-  * An instance of a SCSI command in transit.
-  */
--#define UB_DIR_NONE	0
--#define UB_DIR_READ	1
--#define UB_DIR_ILLEGAL2	2
--#define UB_DIR_WRITE	3
-+#define UB_DIR_NONE		0
-+#define UB_DIR_READ		1
-+#define UB_DIR_ILLEGAL2		2
-+#define UB_DIR_WRITE		3
- 
--#define UB_DIR_CHAR(c)  (((c)==UB_DIR_WRITE)? 'w': \
--			 (((c)==UB_DIR_READ)? 'r': 'n'))
-+#define UB_DIR_CHAR(c)		(((c)==UB_DIR_WRITE)? 'w': \
-+					(((c)==UB_DIR_READ)? 'r': 'n'))
- 
- enum ub_scsi_cmd_state {
- 	UB_CMDST_INIT,			/* Initial state */
-@@ -241,8 +235,6 @@
- 	struct scatterlist sgv[UB_MAX_REQ_SG];
- };
- 
--/*
-- */
- struct ub_capacity {
- 	unsigned long nsec;		/* Linux size - 512 byte sectors */
- 	unsigned int bsize;		/* Linux hardsect_size */
-@@ -253,8 +245,8 @@
-  * The SCSI command tracing structure.
-  */
- 
--#define SCMD_ST_HIST_SZ   8
--#define SCMD_TRACE_SZ    63		/* Less than 4KB of 61-byte lines */
-+#define SCMD_ST_HIST_SZ		8	/* history size */
-+#define SCMD_TRACE_SZ		63	/* Less than 4KB of 61-byte lines */
- 
- struct ub_scsi_cmd_trace {
- 	int hcur;
-@@ -263,7 +255,7 @@
- 	unsigned char op;
- 	unsigned char dir;
- 	unsigned char key, asc, ascq;
--	char st_hst[SCMD_ST_HIST_SZ];	
-+	char st_hst[SCMD_ST_HIST_SZ];
- };
- 
- struct ub_scsi_trace {
-@@ -313,8 +305,6 @@
- 	return ret;
- }
- 
--/*
-- */
- struct ub_scsi_cmd_queue {
- 	int qlen, qmax;
- 	struct ub_scsi_cmd *head, *tail;
-@@ -393,8 +383,6 @@
- 	struct ub_scsi_trace tr;
- };
- 
--/*
-- */
- static void ub_cleanup(struct ub_dev *sc);
- static int ub_request_fn_1(struct ub_lun *lun, struct request *rq);
- static void ub_cmd_build_block(struct ub_dev *sc, struct ub_lun *lun,
-@@ -428,8 +416,6 @@
- static int ub_probe_clear_stall(struct ub_dev *sc, int stalled_pipe);
- static int ub_probe_lun(struct ub_dev *sc, int lnum);
- 
--/*
-- */
- #ifdef CONFIG_USB_LIBUSUAL
- 
- #define ub_usb_ids  storage_usb_ids
-@@ -450,10 +436,10 @@
-  * This has to be thought out in detail before changing.
-  * If UB_MAX_HOST was 1000, we'd use a bitmap. Or a better data structure.
-  */
--#define UB_MAX_HOSTS  26
-+#define UB_MAX_HOSTS		26
- static char ub_hostv[UB_MAX_HOSTS];
- 
--#define UB_QLOCK_NUM 5
-+#define UB_QLOCK_NUM		5
- static spinlock_t ub_qlockv[UB_QLOCK_NUM];
- static int ub_qlock_next = 0;
- 
-@@ -785,12 +771,11 @@
- 	return cmd;
- }
- 
--#define ub_cmdq_peek(sc)  ((sc)->cmd_queue.head)
-+#define ub_cmdq_peek(sc)	((sc)->cmd_queue.head)
- 
- /*
-  * The request function is our main entry point
-  */
--
- static void ub_request_fn(request_queue_t *q)
- {
- 	struct ub_lun *lun = q->queuedata;
-@@ -1420,19 +1405,19 @@
- 		}
- 
- 		switch (bcs->Status) {
--		case US_BULK_STAT_OK:
--			break;
--		case US_BULK_STAT_FAIL:
--			ub_state_sense(sc, cmd);
--			return;
--		case US_BULK_STAT_PHASE:
--			/* P3 */ printk("%s: status PHASE\n", sc->name);
--			goto Bad_End;
--		default:
--			printk(KERN_INFO "%s: unknown CSW status 0x%x\n",
--			    sc->name, bcs->Status);
--			ub_state_done(sc, cmd, -EINVAL);
--			return;
-+			case US_BULK_STAT_OK:
-+				break;
-+			case US_BULK_STAT_FAIL:
-+				ub_state_sense(sc, cmd);
-+				return;
-+			case US_BULK_STAT_PHASE:
-+				/* P3 */ printk("%s: status PHASE\n", sc->name);
-+				goto Bad_End;
-+			default:
-+				printk(KERN_INFO "%s: unknown CSW status 0x%x\n",
-+				sc->name, bcs->Status);
-+				ub_state_done(sc, cmd, -EINVAL);
-+				return;
- 		}
- 
- 		/* Not zeroing error to preserve a babble indicator */
-@@ -1548,7 +1533,6 @@
-  */
- static void ub_state_stat(struct ub_dev *sc, struct ub_scsi_cmd *cmd)
- {
--
- 	if (__ub_state_stat(sc, cmd) != 0)
- 		return;
- 
-@@ -1660,8 +1644,6 @@
- 	return 0;
- }
- 
--/*
-- */
- static void ub_top_sense_done(struct ub_dev *sc, struct ub_scsi_cmd *scmd)
- {
- 	unsigned char *sense = sc->top_sense;
-@@ -1705,10 +1687,8 @@
-  * XXX Move usb_reset_device to khubd. Hogging kevent is not a good thing.
-  * XXX Make usb_sync_reset asynchronous.
-  */
--
- static void ub_reset_enter(struct ub_dev *sc, int try)
- {
--
- 	if (sc->reset) {
- 		/* This happens often on multi-LUN devices. */
- 		return;
-@@ -1799,7 +1779,6 @@
-  */
- static void ub_revalidate(struct ub_dev *sc, struct ub_lun *lun)
- {
--
- 	lun->readonly = 0;	/* XXX Query this from the device */
- 
- 	lun->capacity.nsec = 0;
-@@ -1894,8 +1873,6 @@
- 	return rc;
- }
- 
--/*
-- */
- static int ub_bd_release(struct inode *inode, struct file *filp)
- {
- 	struct gendisk *disk = inode->i_bdev->bd_disk;
-@@ -1969,7 +1946,6 @@
- 	 */
- 	if (ub_sync_tur(lun->udev, lun) != 0) {
- 		lun->changed = 1;
--		return 1;
- 	}
- 
- 	return lun->changed;
-@@ -2132,8 +2108,6 @@
- 	return rc;
- }
- 
--/*
-- */
- static void ub_probe_urb_complete(struct urb *urb, struct pt_regs *pt)
- {
- 	struct completion *cop = urb->context;
-@@ -2686,7 +2660,6 @@
- 	 * At this point there must be no commands coming from anyone
- 	 * and no URBs left in transit.
- 	 */
--
- 	device_remove_file(&sc->intf->dev, &dev_attr_diag);
- 	usb_set_intfdata(intf, NULL);
- 	// usb_put_intf(sc->intf);
-@@ -2698,7 +2671,7 @@
- }
- 
- static struct usb_driver ub_driver = {
--	.name =		"ub",
-+	.name =		DRV_NAME,
- 	.probe =	ub_probe,
- 	.disconnect =	ub_disconnect,
- 	.id_table =	ub_usb_ids,
+With more debug infos, I get the following messages :
+...
+mptscsih: ioc0: attempting task abort! (sc=f67e1680)
+sd 0:0:0:0:
+        command: Write (10): 2a 00 01 c3 db 1a 00 00 10 00
+mptbase: Initiating ioc0 recovery
+mptscsih: ioc0: task abort: SUCCESS (sc=f67e1680)
+mptscsih: ioc0: attempting task abort! (sc=f67e1680)
+sd 0:0:0:0:
+        command: Test Unit Ready: 00 00 00 00 00 00
+mptbase: Initiating ioc0 recovery
+mptscsih: ioc0: task abort: SUCCESS (sc=f67e1680)
+mptscsih: ioc0: attempting task abort! (sc=f67e1800)
+sd 0:0:0:0:
+        command: Test Unit Ready: 00 00 00 00 00 00
+mptbase: Initiating ioc1 recovery
+mptscsih: ioc0: task abort: SUCCESS (sc=f67e1800)
+mptscsih: ioc0: attempting task abort! (sc=f668c680)
+sd 0:0:0:0:
+        command: Test Unit Ready: 00 00 00 00 00 00
+mptbase: Initiating ioc0 recovery
+mptscsih: ioc0: task abort: SUCCESS (sc=f668c680)
+mptscsih: ioc0: attempting task abort! (sc=f668c500)
+sd 0:0:0:0:
+        command: Test Unit Ready: 00 00 00 00 00 00
+mptbase: Initiating ioc1 recovery
+mptscsih: ioc0: task abort: SUCCESS (sc=f668c500)
+mptscsih: ioc0: attempting target reset! (sc=f67e1680)
+sd 0:0:0:0:
+        command: Write (10): 2a 00 01 c3 db 1a 00 00 10 00
+mptscsih: ioc0: Issue of TaskMgmt failed!
+mptscsih: ioc0: target reset: FAILED (sc=f67e1680)
+mptscsih: ioc0: attempting bus reset! (sc=f67e1680)
+sd 0:0:0:0:
+        command: Write (10): 2a 00 01 c3 db 1a 00 00 10 00
+mptbase: Initiating ioc0 recovery
+mptscsih: ioc0: bus reset: SUCCESS (sc=f67e1680)
+mptscsih: ioc0: Attempting host reset! (sc=f67e1680)
+mptbase: Initiating ioc0 recovery
+sd 0:0:0:0: scsi: Device offlined - not ready after error recovery
+sd 0:0:0:0: scsi: Device offlined - not ready after error recovery
+sd 0:0:0:0: scsi: Device offlined - not ready after error recovery
+sd 0:0:0:0: scsi: Device offlined - not ready after error recovery
+sd 0:0:0:0: scsi: Device offlined - not ready after error recovery
+sd 0:0:0:0: scsi: Device offlined - not ready after error recovery
+sd 0:0:0:0: scsi: Device offlined - not ready after error recovery
+sd 0:0:0:0: scsi: Device offlined - not ready after error recovery
+sd 0:0:0:0: scsi: Device offlined - not ready after error recovery
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+Buffer I/O error on device sda6, logical block 1619926
+lost page write due to I/O error on sda6
+Buffer I/O error on device sda6, logical block 1619927
+lost page write due to I/O error on sda6
+sd 0:0:0:0: rejecting I/O to offline device
+Buffer I/O error on device sda6, logical block 1619948
+lost page write due to I/O error on sda6
+Buffer I/O error on device sda6, logical block 1619949
+lost page write due to I/O error on sda6
+sd 0:0:0:0: rejecting I/O to offline device
+Buffer I/O error on device sda6, logical block 1619908
+lost page write due to I/O error on sda6
+Buffer I/O error on device sda6, logical block 1619909
+lost page write due to I/O error on sda6
+sd 0:0:0:0: rejecting I/O to offline device
+Buffer I/O error on device sda6, logical block 1635317
+lost page write due to I/O error on sda6
+sd 0:0:0:0: rejecting I/O to offline device
+Buffer I/O error on device sda6, logical block 1637550
+lost page write due to I/O error on sda6
+sd 0:0:0:0: rejecting I/O to offline device
+Buffer I/O error on device sda6, logical block 8763
+lost page write due to I/O error on sda6
+sd 0:0:0:0: SCSI error: return code = 0x10000
+end_request: I/O error, dev sda, sector 17350666
+Buffer I/O error on device sda6, logical block 1616591
+lost page write due to I/O error on sda6
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+Aborting journal on device sda6.
+Aborting journal on device sda8.
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+__journal_remove_journal_head: freeing b_committed_data
+journal commit I/O error
+ext3_abort called.
+EXT3-fs error (device sda6): ext3_journal_start_sb: Detected aborted journal
+Remounting filesystem read-only
+sd 0:0:0:0: rejecting I/O to offline device
+printk: 26 messages suppressed.
+Buffer I/O error on device sda6, logical block 1605634
+lost page write due to I/O error on sda6
+sd 0:0:0:0: rejecting I/O to offline device
+Buffer I/O error on device sda8, logical block 6225925
+lost page write due to I/O error on sda8
+sd 0:0:0:0: rejecting I/O to offline device
+Buffer I/O error on device sda6, logical block 0
+lost page write due to I/O error on sda6
+Buffer I/O error on device sda6, logical block 1
+lost page write due to I/O error on sda6
+sd 0:0:0:0: rejecting I/O to offline device
+Buffer I/O error on device sda6, logical block 1245272
+lost page write due to I/O error on sda6
+sd 0:0:0:0: rejecting I/O to offline device
+Buffer I/O error on device sda6, logical block 1605635
+lost page write due to I/O error on sda6
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
+EXT3-fs error (device sda6): ext3_find_entry: reading directory #793762 offset 0
+sd 0:0:0:0: rejecting I/O to offline device
+sd 0:0:0:0: rejecting I/O to offline device
 
---x+6KMIRAuhnl3hBn--
+-- 
+Serge Noiraud

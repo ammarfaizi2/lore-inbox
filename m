@@ -1,73 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030370AbWBHNAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030412AbWBHNDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030370AbWBHNAw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 08:00:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030412AbWBHNAw
+	id S1030412AbWBHNDj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 08:03:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030415AbWBHNDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 08:00:52 -0500
-Received: from mx.laposte.net ([81.255.54.11]:61292 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id S1030370AbWBHNAv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 08:00:51 -0500
-Message-ID: <52896.192.54.193.35.1139403637.squirrel@rousalka.dyndns.org>
-Date: Wed, 8 Feb 2006 14:00:37 +0100 (CET)
-Subject: 
-From: "Nicolas Mailhot" <nicolas.mailhot@laposte.net>
-To: linux-kernel@vger.kernel.org
-Cc: bernd@firmix.at
-User-Agent: SquirrelMail/1.4.6 [CVS]-0.cvs20060118.1.fc5.1.nim
-MIME-Version: 1.0
-Content-Type: text/plain;charset=utf-8
-Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-Importance: Normal
+	Wed, 8 Feb 2006 08:03:39 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:41111 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S1030412AbWBHNDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 08:03:38 -0500
+Date: Wed, 8 Feb 2006 13:03:34 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: linux-pm@lists.osdl.org, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH, RFC] [2/3] ACPI support for generic in-kernel AC status
+Message-ID: <20060208130334.GA25659@srcf.ucam.org>
+References: <20060208125753.GA25562@srcf.ucam.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060208125753.GA25562@srcf.ucam.org>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >server space, compromising hasn't obviously been a bad strategy, with
-> >many SCSI and FC controller manufacturers deciding on their own to
-> >work with the Linux kernel development community.  (Sometimes with
-> >some help from major system vendors who write in a requirement for a
-                  ^^^^^^^^^^^^^^^^^^^^
->Do you knwo the contracts, agreements and result of meetings of major of
->major system vendors with the sales army of big OS corporations in the
->desktop area?
->Probably not.
+The included patch adds support for the generic in-kernel AC status 
+code. Each AC adapter device is added to a list - when queried, if at 
+least one claims to be online then we assume that the system is on AC.
 
-Right now all the big desktop deployments reuse hardware that was specced
-for windows. And they often occur in administrations where hardware has a
-long life, and suppliers change only every few years.
+Signed-Off-By: Matthew Garrett <mjg59@srcf.ucam.org>
 
-You don't need transcendental powers to guess what requirements the city
-of Munich, the French Gendarmerie or any of the other big desktop FOSS
-users will impose on their suppliers in the next years. Server-space
-vendors like IBM HP or Dell know the music because they already walked
-through the process for their servers :
-
-1. initial stage: early adopters, (re)use windows hardware, don't ask for
-much. Just putting "Linux" in your brochures may tip purchases. Hardware
-vendors sometimes are not even informed systems will be deployed using
-Linux.
-
-2. stage 2: customers ask for minimal support for the particular Linux
-Brand/Version they use, binary modules are deemed acceptable
-
-3. stage 3: vendors notice support costs for binary modules are high, that
-customers always ask for some other Linux variant. Customers notice they
-spend their time escalading binary module problems, that upgrades plans
-are frozen because of them. Vendors that still stick to external binary
-drivers loose market share at the moment the market starts to grow big
-time.
-
-Right now IMHO desktop Linux passed stage one, is firmly in stage two and
-verging  on stage three in some market segments (knowledge
-worker/administration workstations). A lot of organisations do not impose
-specific Linux requirements on hardware purchases yet because PHBs feel
-that would commit them to Linux, but it doesn't mean their IT deps are not
-thinking about it.
-
-Regards,
+diff --git a/drivers/acpi/ac.c b/drivers/acpi/ac.c
+index 61f95ce..aa2d9b9 100644
+--- a/drivers/acpi/ac.c
++++ b/drivers/acpi/ac.c
+@@ -29,6 +29,7 @@
+ #include <linux/types.h>
+ #include <linux/proc_fs.h>
+ #include <linux/seq_file.h>
++#include <linux/pm.h>
+ #include <acpi/acpi_bus.h>
+ #include <acpi/acpi_drivers.h>
+ 
+@@ -67,8 +68,11 @@ static struct acpi_driver acpi_ac_driver
+ struct acpi_ac {
+ 	acpi_handle handle;
+ 	unsigned long state;
++	struct list_head entry;
+ };
+ 
++static struct list_head ac_adapter_list;
++
+ static struct file_operations acpi_ac_fops = {
+ 	.open = acpi_ac_open_fs,
+ 	.read = seq_read,
+@@ -255,6 +259,8 @@ static int acpi_ac_add(struct acpi_devic
+ 		goto end;
+ 	}
+ 
++	list_add(&ac->entry, &ac_adapter_list);
++
+ 	printk(KERN_INFO PREFIX "%s [%s] (%s)\n",
+ 	       acpi_device_name(device), acpi_device_bid(device),
+ 	       ac->state ? "on-line" : "off-line");
+@@ -288,17 +294,34 @@ static int acpi_ac_remove(struct acpi_de
+ 
+ 	acpi_ac_remove_fs(device);
+ 
++	list_del(&ac->entry);
++
+ 	kfree(ac);
+ 
+ 	return_VALUE(0);
+ }
+ 
++static int acpi_ac_online_status(void)
++{
++	struct acpi_ac *adapter;
++	
++	list_for_each_entry(adapter, &ac_adapter_list, entry) {
++		acpi_ac_get_state(adapter);
++		if (adapter->state)
++			return 1;
++	}
++
++	return 0;
++}
++
+ static int __init acpi_ac_init(void)
+ {
+ 	int result = 0;
+ 
+ 	ACPI_FUNCTION_TRACE("acpi_ac_init");
+ 
++	INIT_LIST_HEAD(&ac_adapter_list);
++
+ 	acpi_ac_dir = proc_mkdir(ACPI_AC_CLASS, acpi_root_dir);
+ 	if (!acpi_ac_dir)
+ 		return_VALUE(-ENODEV);
+@@ -310,6 +333,8 @@ static int __init acpi_ac_init(void)
+ 		return_VALUE(-ENODEV);
+ 	}
+ 
++	pm_set_ac_status(acpi_ac_online_status);
++
+ 	return_VALUE(0);
+ }
+ 
+@@ -317,6 +342,8 @@ static void __exit acpi_ac_exit(void)
+ {
+ 	ACPI_FUNCTION_TRACE("acpi_ac_exit");
+ 
++	pm_set_ac_status(NULL);
++
+ 	acpi_bus_unregister_driver(&acpi_ac_driver);
+ 
+ 	remove_proc_entry(ACPI_AC_CLASS, acpi_root_dir);
 
 -- 
-Nicolas Mailhot
-
+Matthew Garrett | mjg59@srcf.ucam.org

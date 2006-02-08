@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbWBHNhg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030387AbWBHNjE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030362AbWBHNhg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 08:37:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965113AbWBHNhg
+	id S1030387AbWBHNjE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 08:39:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965113AbWBHNjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 08:37:36 -0500
-Received: from baldrick.bootc.net ([83.142.228.48]:3812 "EHLO
-	baldrick.bootc.net") by vger.kernel.org with ESMTP id S964850AbWBHNhf
+	Wed, 8 Feb 2006 08:39:04 -0500
+Received: from vanessarodrigues.com ([192.139.46.150]:18124 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S965111AbWBHNjC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 08:37:35 -0500
-Message-ID: <43E9F41C.30204@bootc.net>
-Date: Wed, 08 Feb 2006 13:37:32 +0000
-From: Chris Boot <bootc@bootc.net>
-User-Agent: Mail/News 1.5 (X11/20060114)
+	Wed, 8 Feb 2006 08:39:02 -0500
+To: Adrian Bunk <bunk@stusta.de>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       "'Keith Owens'" <kaos@sgi.com>, "Luck, Tony" <tony.luck@intel.com>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] let IA64_GENERIC select more stuff
+References: <20060208035112.GM3524@stusta.de>
+	<200602080552.k185q9g07813@unix-os.sc.intel.com>
+	<20060208115946.GN3524@stusta.de>
+From: Jes Sorensen <jes@sgi.com>
+Date: 08 Feb 2006 08:38:57 -0500
+In-Reply-To: <20060208115946.GN3524@stusta.de>
+Message-ID: <yq0d5hym0lq.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: libata PATA status report on 2.6.16-rc1-mm5
-References: <33D367D1-870E-46AE-A7EC-C938B51E816F@bootc.net> <1139400278.26270.10.camel@localhost.localdomain>
-In-Reply-To: <1139400278.26270.10.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Mer, 2006-02-08 at 09:58 +0000, Chris Boot wrote:
->> and everything seems to work fine. I notice PATA CD-ROMs still aren't  
->> being recognised (with libata.atapi_enabled=1) which is a bit of a  
->> shame, but fortunately I won't be needing to use the CD-ROM on this  
->> machine at all. In fact this machine has so little use that I'm quite  
->> happy to surrender it to testing.
-> 
-> What ports are the CDROM devices attached to. I'd expect to see them
-> found and reported as "being ignored" so it may indicate a bigger
-> problem.
-> 
-> 
+>>>>> "Adrian" == Adrian Bunk <bunk@stusta.de> writes:
 
-The HDD (that works) is Primary Master, the CD-RW is Secondary Master. I'll give 
--rc2-mm1 a shot later today, and maybe even -rc2 with your separate patches and 
-let you know.
+Adrian> On Tue, Feb 07, 2006 at 09:52:09PM -0800, Chen, Kenneth W
+Adrian> wrote:
+>> But for the bit that this thread started, which disables
+>> CONFIG_MCKINLEY for CONFIG_IA64_GENERIC, it is totally wrong and is
+>> the "over my dead body" type of thing.
 
-HTH,
-Chris
+Adrian> My initial patch that started this thread was to remove all
+Adrian> select's from CONFIG_IA64_GENERIC.
 
--- 
-Chris Boot
-bootc@bootc.net
-http://www.bootc.net/
+Adrian> Is this OK for you?
+
+Adrian,
+
+Not really, it helps a bit by selecting some things we know we need
+for all GENERIC builds. True we can't make it bullet proof, but whats
+there is better than removing it.
+
+Jes

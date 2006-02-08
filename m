@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030491AbWBHDXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030498AbWBHDT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030491AbWBHDXA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 22:23:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030494AbWBHDT6
+	id S1030498AbWBHDT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 22:19:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030484AbWBHDT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 22:19:58 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:2433 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030491AbWBHDTm
+	Tue, 7 Feb 2006 22:19:29 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:64640 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030479AbWBHDTR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 22:19:42 -0500
+	Tue, 7 Feb 2006 22:19:17 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 22/29] eeh_driver NULL noise removal
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
-Message-Id: <E1F6frq-0006Dl-5B@ZenIV.linux.org.uk>
+Subject: [PATCH 17/29] fix __user annotations in drivers/base/memory.c
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <E1F6frR-0006DE-3U@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Wed, 08 Feb 2006 03:19:42 +0000
+Date: Wed, 08 Feb 2006 03:19:17 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Date: 1138796604 -0500
+Date: 1138791976 -0500
+
+sysfs store doesn't deal with userland pointers
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/powerpc/platforms/pseries/eeh_driver.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/base/memory.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-d04e4e115bd9df2b748cb30abd610f3c0eb1e303
-diff --git a/arch/powerpc/platforms/pseries/eeh_driver.c b/arch/powerpc/platforms/pseries/eeh_driver.c
-index 6373372..e3cbba4 100644
---- a/arch/powerpc/platforms/pseries/eeh_driver.c
-+++ b/arch/powerpc/platforms/pseries/eeh_driver.c
-@@ -333,7 +333,7 @@ void handle_eeh_events (struct eeh_event
- 		rc = eeh_reset_device(frozen_pdn, NULL);
- 		if (rc)
- 			goto hard_fail;
--		pci_walk_bus(frozen_bus, eeh_report_reset, 0);
-+		pci_walk_bus(frozen_bus, eeh_report_reset, NULL);
- 	}
- 
- 	/* If all devices reported they can proceed, the re-enable PIO */
-@@ -342,11 +342,11 @@ void handle_eeh_events (struct eeh_event
- 		rc = eeh_reset_device(frozen_pdn, NULL);
- 		if (rc)
- 			goto hard_fail;
--		pci_walk_bus(frozen_bus, eeh_report_reset, 0);
-+		pci_walk_bus(frozen_bus, eeh_report_reset, NULL);
- 	}
- 
- 	/* Tell all device drivers that they can resume operations */
--	pci_walk_bus(frozen_bus, eeh_report_resume, 0);
-+	pci_walk_bus(frozen_bus, eeh_report_resume, NULL);
- 
- 	return;
- 	
-@@ -367,7 +367,7 @@ hard_fail:
- 	eeh_slot_error_detail(frozen_pdn, 2 /* Permanent Error */);
- 
- 	/* Notify all devices that they're about to go down. */
--	pci_walk_bus(frozen_bus, eeh_report_failure, 0);
-+	pci_walk_bus(frozen_bus, eeh_report_failure, NULL);
- 
- 	/* Shut down the device drivers for good. */
- 	pcibios_remove_pci_devices(frozen_bus);
+be7ee9b2f5ef11448f79c2ff7f47eb21b7c008b4
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index d1a0522..105a0d6 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -303,7 +303,7 @@ static int block_size_init(void)
+  */
+ #ifdef CONFIG_ARCH_MEMORY_PROBE
+ static ssize_t
+-memory_probe_store(struct class *class, const char __user *buf, size_t count)
++memory_probe_store(struct class *class, const char *buf, size_t count)
+ {
+ 	u64 phys_addr;
+ 	int ret;
 -- 
 0.99.9.GIT
 

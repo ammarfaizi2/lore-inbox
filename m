@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030617AbWBHUkT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030612AbWBHUoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030617AbWBHUkT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 15:40:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030616AbWBHUkS
+	id S1030612AbWBHUoj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 15:44:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030615AbWBHUoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 15:40:18 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:48353 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030612AbWBHUkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 15:40:17 -0500
-Date: Wed, 8 Feb 2006 20:40:15 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] fstatat64 support
-Message-ID: <20060208204015.GA25477@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ulrich Drepper <drepper@redhat.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, torvalds@osdl.org
-References: <200602082008.k18K8dqE026598@devserv.devel.redhat.com>
+	Wed, 8 Feb 2006 15:44:39 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:28307 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030612AbWBHUoi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 15:44:38 -0500
+Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>, Sam Vilain <sam@vilain.net>,
+       Rik van Riel <riel@redhat.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Kirill Korotaev <dev@openvz.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       clg@fr.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
+       serue@us.ibm.com, arjan@infradead.org, kuznet@ms2.inr.ac.ru,
+       saw@sawoct.com, devel@openvz.org, Dmitry Mishin <dim@sw.ru>
+In-Reply-To: <43EA1008.5040502@sw.ru>
+References: <43E7C65F.3050609@openvz.org>
+	 <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>
+	 <Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com>
+	 <43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com>
+	 <43EA1008.5040502@sw.ru>
+Content-Type: text/plain
+Date: Wed, 08 Feb 2006 12:43:55 -0800
+Message-Id: <1139431435.9452.45.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602082008.k18K8dqE026598@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 08, 2006 at 03:08:39PM -0500, Ulrich Drepper wrote:
-> The *at patches introduced fstatat and, due to inusfficient research, I
-> used the newfstat functions generally as the guideline.  The result is
-> that on 32-bit platforms we don't have all the information needed to
-> implement fstatat64.
-> 
-> This patch modifies the code to pass up 64-bit information if
-> __ARCH_WANT_STAT64 is defined.  I renamed the syscall entry point to
-> make this clear.  Other archs will continue to use the existing code.
-> On x86-64 the compat code is implemented using a new sys32_ function.
-> this is what is done for the other stat syscalls as well.
-> 
-> 
-> This patch might break some other archs (those which define
-> __ARCH_WANT_STAT64 and which already wired up the syscall).  Yet
-> others might need changes to accomodate the compatibility mode.
-> I really don't want to do that work because all this stat handling
-> is a mess (more so in glibc, but the kernel is also affected).  It
-> should be done by the arch maintainers.  I'll provide some
-> stand-alone test shortly.  Those who are eager could compile glibc
-> and run 'make check' (no installation needed).
+On Wed, 2006-02-08 at 18:36 +0300, Kirill Korotaev wrote: 
+> - full isolation can be inconvinient from containers management point of 
+> view. You will need to introduce new modified tools such as top/ps/kill 
+> and many many others. You won't be able to strace/gdb processes from the 
+> host also. 
 
-please remove the new from the syscall name.  just sys_fstatat64
+I'd like to put a theory out there:  the more isolation we perform, the
+easier checkpointing and migration become to guarantee.
+
+Agree?  Disagree?
+
+But, full isolation is hard to code.  The right approach is very likely
+somewhere in the middle where we require some things to happen
+underneath us.  For instance, requiring that the filesystem be made
+consistent if a container is moved across systems.
+
+-- Dave
 

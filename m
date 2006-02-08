@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWBHWEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWBHWFW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751120AbWBHWEg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 17:04:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWBHWEg
+	id S1751121AbWBHWFW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 17:05:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWBHWFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 17:04:36 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:54658 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1751120AbWBHWEg
+	Wed, 8 Feb 2006 17:05:21 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:502 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751138AbWBHWFU convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 17:04:36 -0500
-Date: Wed, 8 Feb 2006 14:11:24 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: Bernd Schubert <bernd-schubert@gmx.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, John M Flinchbaugh <john@hjsoft.com>,
-       reiserfs-list@namesys.com, Sam Vilain <sam@vilain.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15 Bug? New security model?
-Message-ID: <20060208221124.GN30803@sorel.sous-sol.org>
-References: <200602080212.27896.bernd-schubert@gmx.de> <200602081314.59639.bernd-schubert@gmx.de> <20060208205033.GB22771@shell0.pdx.osdl.net> <200602082246.15613.bernd-schubert@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Feb 2006 17:05:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=M0u2O38zmcz3jz6DFEWfIQ8bvsN50VQYPDVMK1uzOfaWAzlOkZklfjiAbLZ9++1cq9xPMIqfyA/J1mL79Vd/E4W+RYYumFwtQRbm8rBP1fDLuw5EkdEMOtZEn2i15UEO06SR2DbQ7YSHG02uMGAqk8TMnQBYTiYStiuV9CCZ1YE=
+Message-ID: <a4403ff60602081405r716d9026r67ddd9d744cdabdb@mail.gmail.com>
+Date: Wed, 8 Feb 2006 15:05:19 -0700
+From: David Wilk <davidwilk@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: data retention after mkfs.ext3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200602082246.15613.bernd-schubert@gmx.de>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Bernd Schubert (bernd-schubert@gmx.de) wrote:
-> Er, you mean /proc/fs/reiserfs/{partition}/on-disk-super?
+We deploy a linux system by rsync'ing a filesystem off of a squashfs
+FS on a CD.  The deployment is automated and always involves an
+mkfs.ext3 prior to any file copy.  We have had some reports that tend
+to indicate that some of the data from a previous install (of the same
+method) is corrupting at least some of the files on a new install. 
+Old settings and random behavior has been seen, and breaking the RAID1
+logical drive and rebuilding prior to install has always fixed the
+issue.
 
-Yup.
+ It is my impression that mkfs.ext3 will make any existing data on a
+block device invisiable to the new ext3 FS.  Is it possible that if
+the old FS is similar enough to the new one that the old data could
+somehow influence the new files written to a new ext3 FS?
 
-> bernd@bathl ~>grep attrs_cleared /proc/fs/reiserfs/hda6/on-disk-super
-> flags:  1[attrs_cleared]
-
-> > 2) does mount -o attrs ... make a difference?
-> 
-> Yes, 2.6.13 now makes the same trouble. No difference with 2.6.15.3. 
-> I played with mount -o noattrs, this makes no difference with 2.6.13, but has 
-> some effects to 2.6.15.3. Creating files in /var/run is possible again, 
-> lsattr gives "lsattr: Inappropriate ioctl for device While reading flags 
-> on /var/run", but deleting files in /var/run is still impossible (still 
-> rather bad for the init-scripts).
-
-Yes, that's what I thought.  There's still some backward logic in there.
-noattrs vs. attrs triggers whether the code path that's patched in
-2.6.15.3 is taken.  I'll dig a bit more, but hopefully the reiserfs folks 
-can fix this for us.
-
-thanks,
--chris
+ I know this *should* be impossible, but is it truly impossible?

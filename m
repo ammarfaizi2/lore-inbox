@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422637AbWBHXf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422636AbWBHXgd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422637AbWBHXf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 18:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422636AbWBHXf0
+	id S1422636AbWBHXgd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 18:36:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422638AbWBHXgd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 18:35:26 -0500
-Received: from wproxy.gmail.com ([64.233.184.197]:2833 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1422635AbWBHXf0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 18:35:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=c4TsfNhEvST49ZrQNfc24ZaRiexCNCiJhRcrdu1BETORsSy6naP9iuEqBzWWdoTQYJBqtwQhJhHU7vxkUa5fkPlCS10CunOxkO4AxFHKwcpq3u7t8yU9QWaMEDNnS2hCgYjHwhU95B/mHvyarr7EI09AkgllLGV7+u3udMcWrLE=
-Message-ID: <6bffcb0e0602081535t419d7530k@mail.gmail.com>
-Date: Thu, 9 Feb 2006 00:35:25 +0100
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: Jan Koss <kossjan@gmail.com>
-Subject: Re: benchmarks
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <b97d23040602081210g1ada4c97x432692d04add7761@mail.gmail.com>
-MIME-Version: 1.0
+	Wed, 8 Feb 2006 18:36:33 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:50576 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422636AbWBHXgc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 18:36:32 -0500
+Date: Wed, 8 Feb 2006 15:35:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: clameter@engr.sgi.com, pj@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: Terminate process that fails on a constrained allocation
+Message-Id: <20060208153551.04ee0c67.akpm@osdl.org>
+In-Reply-To: <200602082341.02243.ak@suse.de>
+References: <Pine.LNX.4.62.0602081004060.2648@schroedinger.engr.sgi.com>
+	<20060208133909.183f19ea.akpm@osdl.org>
+	<Pine.LNX.4.62.0602081402310.4735@schroedinger.engr.sgi.com>
+	<200602082341.02243.ak@suse.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <b97d23040602081210g1ada4c97x432692d04add7761@mail.gmail.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On 08/02/06, Jan Koss <kossjan@gmail.com> wrote:
-> Hello.
+Andi Kleen <ak@suse.de> wrote:
 >
-> Recently, I choosed between FreeBSD and Linux for server,
-> I found out only such bechmarks:
->
-> http://geri.cc.fer.hr/~ivoras/web2/papers/osbench.html
->
-> 1)may be some one know any other benchmarks?
+> 
+> Unfortunately Andrew's point with the GFP_NOFS still applies :/
+> But I would consider any caller of this not handling NULL be broken.
 
-http://bulk.fefe.de/scalability/ - It's _very_ (_very_! :) old benchmark.
+Sure.
 
-Regards,
-Michal Piotrowski
+> Andrew do you have any stronger evidence it's a real problem?
+
+No.  About a million years ago I had a make-alloc_pages-fail-at-1%-rate
+debug patch.  Doing that again would be an interesting exercise.
+
+Another option is to only fail userspace allocations (__GFP_HIGHMEM is set,
+or a new flag in GFP_HIGHUSER).  For the workloads which the NUMA guys care
+about I expect this is a 99% solution and the amount of code which it puts
+at risk is vastly less.
+

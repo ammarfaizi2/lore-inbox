@@ -1,81 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030561AbWBHGbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030565AbWBHGcu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030561AbWBHGbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 01:31:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030563AbWBHGbZ
+	id S1030565AbWBHGcu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 01:32:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030563AbWBHGcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 01:31:25 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:26007 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030561AbWBHGbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 01:31:24 -0500
-Message-ID: <43E9905E.7060609@jp.fujitsu.com>
-Date: Wed, 08 Feb 2006 15:31:58 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Wed, 8 Feb 2006 01:32:50 -0500
+Received: from smtp-4.smtp.ucla.edu ([169.232.46.138]:35007 "EHLO
+	smtp-4.smtp.ucla.edu") by vger.kernel.org with ESMTP
+	id S1030565AbWBHGct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 01:32:49 -0500
+Date: Tue, 7 Feb 2006 22:32:45 -0800 (PST)
+From: Chris Stromsoe <cbs@cts.ucla.edu>
+To: Willy TARREAU <willy@w.ods.org>
+cc: Roberto Nibali <ratz@drugphish.ch>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: bad pmd filemap.c, oops; 2.4.30 and 2.4.32
+In-Reply-To: <Pine.LNX.4.64.0601151452460.5053@potato.cts.ucla.edu>
+Message-ID: <Pine.LNX.4.64.0602072228500.3253@potato.cts.ucla.edu>
+References: <Pine.LNX.4.64.0601061352510.24856@potato.cts.ucla.edu>
+ <Pine.LNX.4.64.0601061411350.24856@potato.cts.ucla.edu> <43BF8785.2010703@drugphish.ch>
+ <Pine.LNX.4.64.0601070246150.29898@potato.cts.ucla.edu> <43C2C482.6090904@drugphish.ch>
+ <Pine.LNX.4.64.0601091221260.1900@potato.cts.ucla.edu> <43C2E243.5000904@drugphish.ch>
+ <Pine.LNX.4.64.0601091654380.6479@potato.cts.ucla.edu>
+ <Pine.LNX.4.64.0601150322020.5053@potato.cts.ucla.edu>
+ <Pine.LNX.4.64.0601151431250.5053@potato.cts.ucla.edu> <20060115224642.GA10069@w.ods.org>
+ <Pine.LNX.4.64.0601151452460.5053@potato.cts.ucla.edu>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: davem@davemloft.net
-Subject: [PATCH] unify pfn_to_page take 2 [22/25] sparc64 funcs
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Probable-Spam: no
+X-Spam-Report: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Select CONFIG_DONT_INLINE_PFN_TO_PAGE=y
-sparc64 can use generic funcs by defining ARCH_PFN_OFFSET as pfn_base.
+On Sun, 15 Jan 2006, Chris Stromsoe wrote:
+> On Sun, 15 Jan 2006, Willy TARREAU wrote:
+>> 
+>> Thanks for the precision. So logically we should expect it to break 
+>> sooner or later ?
+>
+> It is the same .config as one that crashed before, except that it has 
+> DEBUG_SLAB defined.  If it does not crash, then adding pci=noacpi to the 
+> command fixes the problem for me.
 
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitu.com>
-
-
-Index: test-layout-free-zone/arch/sparc64/Kconfig
-===================================================================
---- test-layout-free-zone.orig/arch/sparc64/Kconfig
-+++ test-layout-free-zone/arch/sparc64/Kconfig
-@@ -34,6 +34,10 @@ config ARCH_MAY_HAVE_PC_FDC
-  	bool
-  	default y
-
-+config ARCH_DONT_INLINE_PFN_TO_PAGE
-+	bool
-+	default y
-+
-  choice
-  	prompt "Kernel page size"
-  	default SPARC64_PAGE_SIZE_8KB
-Index: test-layout-free-zone/arch/sparc64/mm/init.c
-===================================================================
---- test-layout-free-zone.orig/arch/sparc64/mm/init.c
-+++ test-layout-free-zone/arch/sparc64/mm/init.c
-@@ -320,16 +320,6 @@ void __kprobes flush_icache_range(unsign
-  	}
-  }
-
--unsigned long page_to_pfn(struct page *page)
--{
--	return (unsigned long) ((page - mem_map) + pfn_base);
--}
--
--struct page *pfn_to_page(unsigned long pfn)
--{
--	return (mem_map + (pfn - pfn_base));
--}
--
-  void show_mem(void)
-  {
-  	printk("Mem-info:\n");
-Index: test-layout-free-zone/include/asm-sparc64/page.h
-===================================================================
---- test-layout-free-zone.orig/include/asm-sparc64/page.h
-+++ test-layout-free-zone/include/asm-sparc64/page.h
-@@ -129,8 +129,7 @@ typedef unsigned long pgprot_t;
-   * the first physical page in the machine is at some huge physical address,
-   * such as 4GB.   This is common on a partitioned E10000, for example.
-   */
--extern struct page *pfn_to_page(unsigned long pfn);
--extern unsigned long page_to_pfn(struct page *);
-+#define ARCH_PFN_OFFSET		(pfn_base)
-
-  #define virt_to_page(kaddr)	pfn_to_page(__pa(kaddr)>>PAGE_SHIFT)
+For what it's worth, I'm fairly certain at this point that the problem was 
+hardware related.  After a week of uptime with 2.6 we had another pmd 
+error and oops.  We then replaced the system board and one of the CPUs and 
+have not seen any problems since.
 
 
+-Chris

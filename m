@@ -1,247 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161051AbWBHHOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161063AbWBHHON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161051AbWBHHOO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 02:14:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161044AbWBHHKn
+	id S1161063AbWBHHON (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 02:14:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161045AbWBHHKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 02:10:43 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:31643 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161045AbWBHHKb
+	Wed, 8 Feb 2006 02:10:46 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:49879 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161041AbWBHHKQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 02:10:31 -0500
+	Wed, 8 Feb 2006 02:10:16 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 05/17] drivers/media/video __user annotations and fixes
-Cc: mchehab@infradead.org
-Message-Id: <E1F6jTC-0002Vx-Vf@ZenIV.linux.org.uk>
+Subject: [PATCH 02/17] mips: namespace pollution - mem_... -> __mem_... in io.h
+Cc: ralf@linux-mips.org
+Message-Id: <E1F6jSx-0002TE-Ur@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Wed, 08 Feb 2006 07:10:30 +0000
+Date: Wed, 08 Feb 2006 07:10:15 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Date: 1138789460 -0500
+Date: 1134015174 -0500
 
-* compat_alloc_user_space() returns __user pointer
-* copying between two userland areas is copy_in_user(), not copy_from_user()
-* dereferencing userland pointers is bad
-* so's get_user() from local variables
-
-... plus usual __user annotations
+A pile of internal functions use only inside mips io.h has names starting
+with mem_... and clashing with names in drivers; renamed to __mem_....
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- drivers/media/video/compat_ioctl32.c |   89 ++++++++++++++++------------------
- include/linux/videodev2.h            |    2 -
- 2 files changed, 42 insertions(+), 49 deletions(-)
+ include/asm-mips/io.h |   32 ++++++++++++++++----------------
+ 1 files changed, 16 insertions(+), 16 deletions(-)
 
-5b1a43d7df65689b4c3b5a1c5c8158f1d4f74fbd
-diff --git a/drivers/media/video/compat_ioctl32.c b/drivers/media/video/compat_ioctl32.c
-index 297c32a..840fe01 100644
---- a/drivers/media/video/compat_ioctl32.c
-+++ b/drivers/media/video/compat_ioctl32.c
-@@ -167,29 +167,32 @@ static int get_v4l2_window32(struct v4l2
- 	if (kp->clipcount > 2048)
- 		return -EINVAL;
- 	if (kp->clipcount) {
--		struct v4l2_clip32 *uclips = compat_ptr(up->clips);
--		struct v4l2_clip *kclips;
-+		struct v4l2_clip32 __user *uclips;
-+		struct v4l2_clip __user *kclips;
- 		int n = kp->clipcount;
-+		compat_caddr_t p;
+290f10ae4230ef06b71e57673101b7e70c1b29a6
+diff --git a/include/asm-mips/io.h b/include/asm-mips/io.h
+index a9fa125..6c0aae5 100644
+--- a/include/asm-mips/io.h
++++ b/include/asm-mips/io.h
+@@ -56,38 +56,38 @@
+  * variations of functions: non-prefixed ones that preserve the value
+  * and prefixed ones that preserve byte addresses.  The latters are
+  * typically used for moving raw data between a peripheral and memory (cf.
+- * string I/O functions), hence the "mem_" prefix.
++ * string I/O functions), hence the "__mem_" prefix.
+  */
+ #if defined(CONFIG_SWAP_IO_SPACE)
  
-+		if (get_user(p, &up->clips))
-+			return -EFAULT;
-+		uclips = compat_ptr(p);
- 		kclips = compat_alloc_user_space(n * sizeof(struct v4l2_clip));
- 		kp->clips = kclips;
- 		while (--n >= 0) {
--			if (!access_ok(VERIFY_READ, &uclips->c, sizeof(uclips->c)) ||
--				copy_from_user(&kclips->c, &uclips->c, sizeof(uclips->c)))
-+			if (copy_in_user(&kclips->c, &uclips->c, sizeof(uclips->c)))
-+				return -EFAULT;
-+			if (put_user(n ? kclips + 1 : NULL, &kclips->next))
- 				return -EFAULT;
--			kclips->next = n ? kclips + 1 : 0;
- 			uclips += 1;
- 			kclips += 1;
- 		}
- 	} else
--		kp->clips = 0;
-+		kp->clips = NULL;
- 	return 0;
+ # define ioswabb(x)		(x)
+-# define mem_ioswabb(x)		(x)
++# define __mem_ioswabb(x)	(x)
+ # ifdef CONFIG_SGI_IP22
+ /*
+  * IP22 seems braindead enough to swap 16bits values in hardware, but
+  * not 32bits.  Go figure... Can't tell without documentation.
+  */
+ #  define ioswabw(x)		(x)
+-#  define mem_ioswabw(x)	le16_to_cpu(x)
++#  define __mem_ioswabw(x)	le16_to_cpu(x)
+ # else
+ #  define ioswabw(x)		le16_to_cpu(x)
+-#  define mem_ioswabw(x)	(x)
++#  define __mem_ioswabw(x)	(x)
+ # endif
+ # define ioswabl(x)		le32_to_cpu(x)
+-# define mem_ioswabl(x)		(x)
++# define __mem_ioswabl(x)	(x)
+ # define ioswabq(x)		le64_to_cpu(x)
+-# define mem_ioswabq(x)		(x)
++# define __mem_ioswabq(x)	(x)
+ 
+ #else
+ 
+ # define ioswabb(x)		(x)
+-# define mem_ioswabb(x)		(x)
++# define __mem_ioswabb(x)	(x)
+ # define ioswabw(x)		(x)
+-# define mem_ioswabw(x)		cpu_to_le16(x)
++# define __mem_ioswabw(x)	cpu_to_le16(x)
+ # define ioswabl(x)		(x)
+-# define mem_ioswabl(x)		cpu_to_le32(x)
++# define __mem_ioswabl(x)	cpu_to_le32(x)
+ # define ioswabq(x)		(x)
+-# define mem_ioswabq(x)		cpu_to_le32(x)
++# define __mem_ioswabq(x)	cpu_to_le32(x)
+ 
+ #endif
+ 
+@@ -417,7 +417,7 @@ __BUILD_MEMORY_SINGLE(bus, bwlq, type, 1
+ 									\
+ __BUILD_MEMORY_PFX(__raw_, bwlq, type)					\
+ __BUILD_MEMORY_PFX(, bwlq, type)					\
+-__BUILD_MEMORY_PFX(mem_, bwlq, type)					\
++__BUILD_MEMORY_PFX(__mem_, bwlq, type)					\
+ 
+ BUILDIO_MEM(b, u8)
+ BUILDIO_MEM(w, u16)
+@@ -430,7 +430,7 @@ BUILDIO_MEM(q, u64)
+ 
+ #define BUILDIO_IOPORT(bwlq, type)					\
+ 	__BUILD_IOPORT_PFX(, bwlq, type)				\
+-	__BUILD_IOPORT_PFX(mem_, bwlq, type)
++	__BUILD_IOPORT_PFX(__mem_, bwlq, type)
+ 
+ BUILDIO_IOPORT(b, u8)
+ BUILDIO_IOPORT(w, u16)
+@@ -464,7 +464,7 @@ static inline void writes##bwlq(volatile
+ 	const volatile type *__addr = addr;				\
+ 									\
+ 	while (count--) {						\
+-		mem_write##bwlq(*__addr, mem);				\
++		__mem_write##bwlq(*__addr, mem);			\
+ 		__addr++;						\
+ 	}								\
+ }									\
+@@ -475,7 +475,7 @@ static inline void reads##bwlq(volatile 
+ 	volatile type *__addr = addr;					\
+ 									\
+ 	while (count--) {						\
+-		*__addr = mem_read##bwlq(mem);				\
++		*__addr = __mem_read##bwlq(mem);			\
+ 		__addr++;						\
+ 	}								\
  }
- 
- static int put_v4l2_window32(struct v4l2_window *kp, struct v4l2_window32 __user *up)
- {
--	if (!access_ok(VERIFY_WRITE, up, sizeof(struct v4l2_window32)) ||
--		copy_to_user(&up->w, &kp->w, sizeof(up->w)) ||
-+	if (copy_to_user(&up->w, &kp->w, sizeof(up->w)) ||
- 		put_user(kp->field, &up->field) ||
- 		put_user(kp->chromakey, &up->chromakey) ||
- 		put_user(kp->clipcount, &up->clipcount))
-@@ -199,33 +202,29 @@ static int put_v4l2_window32(struct v4l2
- 
- static inline int get_v4l2_pix_format(struct v4l2_pix_format *kp, struct v4l2_pix_format __user *up)
- {
--	if (!access_ok(VERIFY_READ, up, sizeof(struct v4l2_pix_format)) ||
--		copy_from_user(kp, up, sizeof(struct v4l2_pix_format)))
--			return -EFAULT;
-+	if (copy_from_user(kp, up, sizeof(struct v4l2_pix_format)))
-+		return -EFAULT;
- 	return 0;
+@@ -488,7 +488,7 @@ static inline void outs##bwlq(unsigned l
+ 	const volatile type *__addr = addr;				\
+ 									\
+ 	while (count--) {						\
+-		mem_out##bwlq(*__addr, port);				\
++		__mem_out##bwlq(*__addr, port);				\
+ 		__addr++;						\
+ 	}								\
+ }									\
+@@ -499,7 +499,7 @@ static inline void ins##bwlq(unsigned lo
+ 	volatile type *__addr = addr;					\
+ 									\
+ 	while (count--) {						\
+-		*__addr = mem_in##bwlq(port);				\
++		*__addr = __mem_in##bwlq(port);				\
+ 		__addr++;						\
+ 	}								\
  }
- 
- static inline int put_v4l2_pix_format(struct v4l2_pix_format *kp, struct v4l2_pix_format __user *up)
- {
--	if (!access_ok(VERIFY_WRITE, up, sizeof(struct v4l2_pix_format)) ||
--		copy_to_user(up, kp, sizeof(struct v4l2_pix_format)))
--			return -EFAULT;
-+	if (copy_to_user(up, kp, sizeof(struct v4l2_pix_format)))
-+		return -EFAULT;
- 	return 0;
- }
- 
- static inline int get_v4l2_vbi_format(struct v4l2_vbi_format *kp, struct v4l2_vbi_format __user *up)
- {
--	if (!access_ok(VERIFY_READ, up, sizeof(struct v4l2_vbi_format)) ||
--		copy_from_user(kp, up, sizeof(struct v4l2_vbi_format)))
--			return -EFAULT;
-+	if (copy_from_user(kp, up, sizeof(struct v4l2_vbi_format)))
-+		return -EFAULT;
- 	return 0;
- }
- 
- static inline int put_v4l2_vbi_format(struct v4l2_vbi_format *kp, struct v4l2_vbi_format __user *up)
- {
--	if (!access_ok(VERIFY_WRITE, up, sizeof(struct v4l2_vbi_format)) ||
--		copy_to_user(up, kp, sizeof(struct v4l2_vbi_format)))
--			return -EFAULT;
-+	if (copy_to_user(up, kp, sizeof(struct v4l2_vbi_format)))
-+		return -EFAULT;
- 	return 0;
- }
- 
-@@ -279,18 +278,16 @@ static int put_v4l2_format32(struct v4l2
- 
- static inline int get_v4l2_standard(struct v4l2_standard *kp, struct v4l2_standard __user *up)
- {
--	if (!access_ok(VERIFY_READ, up, sizeof(struct v4l2_standard)) ||
--		copy_from_user(kp, up, sizeof(struct v4l2_standard)))
--			return -EFAULT;
-+	if (copy_from_user(kp, up, sizeof(struct v4l2_standard)))
-+		return -EFAULT;
- 	return 0;
- 
- }
- 
- static inline int put_v4l2_standard(struct v4l2_standard *kp, struct v4l2_standard __user *up)
- {
--	if (!access_ok(VERIFY_WRITE, up, sizeof(struct v4l2_standard)) ||
--		copy_to_user(up, kp, sizeof(struct v4l2_standard)))
--			return -EFAULT;
-+	if (copy_to_user(up, kp, sizeof(struct v4l2_standard)))
-+		return -EFAULT;
- 	return 0;
- }
- 
-@@ -328,18 +325,16 @@ static int put_v4l2_standard32(struct v4
- 
- static inline int get_v4l2_tuner(struct v4l2_tuner *kp, struct v4l2_tuner __user *up)
- {
--	if (!access_ok(VERIFY_READ, up, sizeof(struct v4l2_tuner)) ||
--		copy_from_user(kp, up, sizeof(struct v4l2_tuner)))
--			return -EFAULT;
-+	if (copy_from_user(kp, up, sizeof(struct v4l2_tuner)))
-+		return -EFAULT;
- 	return 0;
- 
- }
- 
- static inline int put_v4l2_tuner(struct v4l2_tuner *kp, struct v4l2_tuner __user *up)
- {
--	if (!access_ok(VERIFY_WRITE, up, sizeof(struct v4l2_tuner)) ||
--		copy_to_user(up, kp, sizeof(struct v4l2_tuner)))
--			return -EFAULT;
-+	if (copy_to_user(up, kp, sizeof(struct v4l2_tuner)))
-+		return -EFAULT;
- 	return 0;
- }
- 
-@@ -380,11 +375,13 @@ static int get_v4l2_buffer32(struct v4l2
- 		break;
- 	case V4L2_MEMORY_USERPTR:
- 		{
--		unsigned long tmp = (unsigned long)compat_ptr(up->m.userptr);
-+		compat_long_t tmp;
- 
--		if(get_user(kp->length, &up->length) ||
--			get_user(kp->m.userptr, &tmp))
--				return -EFAULT;
-+		if (get_user(kp->length, &up->length) ||
-+		    get_user(tmp, &up->m.userptr))
-+			return -EFAULT;
-+
-+		kp->m.userptr = (unsigned long)compat_ptr(tmp);
- 		}
- 		break;
- 	case V4L2_MEMORY_OVERLAY:
-@@ -468,33 +465,29 @@ static int put_v4l2_framebuffer32(struct
- 
- static inline int get_v4l2_input32(struct v4l2_input *kp, struct v4l2_input __user *up)
- {
--	if (!access_ok(VERIFY_READ, up, sizeof(struct v4l2_input) - 4) ||
--		copy_from_user(kp, up, sizeof(struct v4l2_input) - 4))
--			return -EFAULT;
-+	if (copy_from_user(kp, up, sizeof(struct v4l2_input) - 4))
-+		return -EFAULT;
- 	return 0;
- }
- 
- static inline int put_v4l2_input32(struct v4l2_input *kp, struct v4l2_input __user *up)
- {
--	if (!access_ok(VERIFY_WRITE, up, sizeof(struct v4l2_input) - 4) ||
--		copy_to_user(up, kp, sizeof(struct v4l2_input) - 4))
--			return -EFAULT;
-+	if (copy_to_user(up, kp, sizeof(struct v4l2_input) - 4))
-+		return -EFAULT;
- 	return 0;
- }
- 
- static inline int get_v4l2_input(struct v4l2_input *kp, struct v4l2_input __user *up)
- {
--	if (!access_ok(VERIFY_READ, up, sizeof(struct v4l2_input)) ||
--		copy_from_user(kp, up, sizeof(struct v4l2_input)))
--			return -EFAULT;
-+	if (copy_from_user(kp, up, sizeof(struct v4l2_input)))
-+		return -EFAULT;
- 	return 0;
- }
- 
- static inline int put_v4l2_input(struct v4l2_input *kp, struct v4l2_input __user *up)
- {
--	if (!access_ok(VERIFY_WRITE, up, sizeof(struct v4l2_input)) ||
--		copy_to_user(up, kp, sizeof(struct v4l2_input)))
--			return -EFAULT;
-+	if (copy_to_user(up, kp, sizeof(struct v4l2_input)))
-+		return -EFAULT;
- 	return 0;
- }
- 
-diff --git a/include/linux/videodev2.h b/include/linux/videodev2.h
-index b23be44..5208b12 100644
---- a/include/linux/videodev2.h
-+++ b/include/linux/videodev2.h
-@@ -549,7 +549,7 @@ struct v4l2_framebuffer
- struct v4l2_clip
- {
- 	struct v4l2_rect        c;
--	struct v4l2_clip	*next;
-+	struct v4l2_clip	__user *next;
- };
- 
- struct v4l2_window
 -- 
 0.99.9.GIT
 

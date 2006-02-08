@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030529AbWBHXUG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030578AbWBHXXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030529AbWBHXUG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 18:20:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030534AbWBHXUG
+	id S1030578AbWBHXXw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 18:23:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030594AbWBHXXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 18:20:06 -0500
-Received: from mail.fuw.edu.pl ([193.0.80.14]:698 "EHLO mail.fuw.edu.pl")
-	by vger.kernel.org with ESMTP id S1030529AbWBHXUF (ORCPT
+	Wed, 8 Feb 2006 18:23:52 -0500
+Received: from ns2.suse.de ([195.135.220.15]:58860 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030578AbWBHXXw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 18:20:05 -0500
-From: "R. J. Wysocki" <Rafal.Wysocki@fuw.edu.pl>
-Organization: FUW
-To: 7eggert@gmx.de
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Thu, 9 Feb 2006 00:20:59 +0100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Nigel Cunningham <nigel@suspend2.net>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Jim Crilly <jim@why.dont.jablowme.net>,
-       suspend2-devel@lists.suspend2.net, linux-kernel@vger.kernel.org
-References: <5BoER-4GL-3@gated-at.bofh.it> <E1F6pHz-0000kU-FN@be1.lrz> <200602081523.15002.rjw@sisk.pl>
-In-Reply-To: <200602081523.15002.rjw@sisk.pl>
+	Wed, 8 Feb 2006 18:23:52 -0500
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: Terminate process that fails on a constrained allocation
+Date: Wed, 8 Feb 2006 23:41:01 +0100
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, pj@sgi.com, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.62.0602081004060.2648@schroedinger.engr.sgi.com> <20060208133909.183f19ea.akpm@osdl.org> <Pine.LNX.4.62.0602081402310.4735@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0602081402310.4735@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200602090021.00262.Rafal.Wysocki@fuw.edu.pl>
+Message-Id: <200602082341.02243.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wednesday 08 February 2006 15:23, Rafael J. Wysocki wrote:
-> On Wednesday 08 February 2006 14:23, Bodo Eggert wrote:
-> > There are some questions I have while looking at this HOWTO,
-> > which I think should be answered there:
-> > 
-> > Pavel Machek <pavel@ucw.cz> wrote:
-> > 
-> > > Suspend-to-disk HOWTO
-> > > ~~~~~~~~~~~~~~~~~~~~
-> > [...]
-> > > ./suspend /dev/<your_swap_partition>
-> > 
-> > Does it need to be mounted (so it possibly gets filled and thereby unusable),
-> > or can it be a mkswapped partition?
+On Wednesday 08 February 2006 23:11, Christoph Lameter wrote:
+> On Wed, 8 Feb 2006, Andrew Morton wrote:
 > 
-> A mkswapped one will do.
+> > > I think it should be put into 2.6.16. Andrew?
+> > 
+> > Does every single caller of __alloc_pages(__GFP_FS) correctly handle a NULL
+> > return?  I doubt it, in which case this patch will cause oopses and hangs.
+> 
+> I sent you a patch with static inline.....
 
-Sorry, that's not true.  For now the tools only work with mounted swap
-partitions, but they use the kernel to allocate free swap pages from them.
+noinline 
 
-Greetings,
-Rafael
+> But I am having second thoughts  
+> about this patch. Paul is partially right. Maybe we can move the logic 
+> into the out_of_memory handler for now? That would allow us to implement 
+> more sophisticated things later 
+
+I have my doubts that's really worth it, but ok.
+
+> (for example page migration would allow us 
+> to move memory of processes that can also allocate on other nodes from the 
+> nodes where we lack memory) and Paul may put something in there to 
+> address his concerns.
+> 
+> ---
+> 
+> Terminate process that fails on a constrained allocation
+
+Patch looks good for me too.  Thanks.
+
+Unfortunately Andrew's point with the GFP_NOFS still applies :/
+But I would consider any caller of this not handling NULL be broken.
+Andrew do you have any stronger evidence it's a real problem?
+
+Another way would be to force a default non strict policy with GFP_NOFS, but
+that would be somewhat ugly again and impact the fast paths.
+
+-Andi

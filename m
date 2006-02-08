@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbWBHSDR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030350AbWBHSGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030289AbWBHSDR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 13:03:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030322AbWBHSDR
+	id S1030350AbWBHSGK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 13:06:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030408AbWBHSGK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 13:03:17 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:52693 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030289AbWBHSDR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 13:03:17 -0500
-Date: Wed, 8 Feb 2006 12:03:09 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Hubertus Franke <frankeh@watson.ibm.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, Sam Vilain <sam@vilain.net>,
-       Rik van Riel <riel@redhat.com>, Kirill Korotaev <dev@openvz.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, clg@fr.ibm.com, haveblue@us.ibm.com,
-       greg@kroah.com, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
-       kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
-       Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>,
-       Herbert Poetzl <herbert@13thfloor.at>
-Subject: Re: The issues for agreeing on a virtualization/namespaces implementation.
-Message-ID: <20060208180309.GA20418@sergelap.austin.ibm.com>
-References: <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com> <43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com> <20060207201908.GJ6931@sergelap.austin.ibm.com> <43E90716.4020208@watson.ibm.com> <m17j86dds4.fsf_-_@ebiederm.dsl.xmission.com> <43E92EDC.8040603@watson.ibm.com> <m1ek2ea0fw.fsf@ebiederm.dsl.xmission.com> <43EA02D6.30208@watson.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Feb 2006 13:06:10 -0500
+Received: from xproxy.gmail.com ([66.249.82.204]:8936 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030350AbWBHSGI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 13:06:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ulNDd46L336IiEaFx0tK6X4cZOaVvVNSAhU7HWa4Z8GWHqfcjXx1bnf9rqNVzpplWFQoPlgxaV52w65WswDPBhM6uxIbSFdUyzHBLG/G845ZS62vAy2JfC5fCqRMaXumn/ziCKm2BLUcO8PJMGwYkFui6B3tzjUPpHPebBz/vXk=
+Message-ID: <661de9470602081006p2a3132e8x2436de89e9395748@mail.gmail.com>
+Date: Wed, 8 Feb 2006 23:36:06 +0530
+From: Balbir Singh <bsingharora@gmail.com>
+To: Jan Dittmer <jdi@l4x.org>
+Subject: Re: VFS: Busy inodes after unmount. Self-destruct in 5 seconds. Have a nice day...
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, dev@sw.ru,
+       jblunck@suse.de
+In-Reply-To: <43E9A260.6000202@l4x.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <43EA02D6.30208@watson.ibm.com>
-User-Agent: Mutt/1.5.11
+References: <43E90573.8040305@l4x.org> <20060207162335.5304ae61.akpm@osdl.org>
+	 <43E9A260.6000202@l4x.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Hubertus Franke (frankeh@watson.ibm.com):
-> IMHO, there is only a need to refer to a namespace from the global context.
-> Since one will be moving into a new container, but getting out of one
-> could be prohibitive (e.g. after migration)
-> It does not make sense therefore to know the name of a namespace in
-> a different container.
+> >>$ umount /mnt/data
+> >>Segmentation Fault
+> >>
+> >>dmesg:
+> >>
+> >>VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice day...
+> >>Unable to handle kernel NULL pointer dereference at virtual address 00000034
+> >
+> >
 
-Not sure I agree.  What if we are using a private namespace for a
-vserver, and then we want to create a private namespace in there for a
-mobile application.  Since we're talking about nested namespaces, this
-should be possible.
+There were a couple of fixes suggested for the busy inodes afer
+unmount problem. Please see
 
-Now I believe Eric's code so far would make it so that you can only
-refer to a namespace from it's *creating* context.  Still restrictive,
-but seems acceptable.
+http://lkml.org/lkml/2006/1/25/17
 
-(right?)
+and
 
--serge
+http://lkml.org/lkml/2006/1/30/108
+
+You could see if any one of them fixes your problem. There is also
+Kirill's fix which was in mm (not sure about it now)
+
+Balbir

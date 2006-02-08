@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbWBHDDw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbWBHDHT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750879AbWBHDDw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 22:03:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbWBHDDw
+	id S1750915AbWBHDHT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 22:07:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWBHDHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 22:03:52 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:2184 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750867AbWBHDDv (ORCPT
+	Tue, 7 Feb 2006 22:07:19 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:3256 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1750915AbWBHDHS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 22:03:51 -0500
-Date: Tue, 7 Feb 2006 22:03:35 -0500
-From: Dave Jones <davej@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Greg KH <greg@kroah.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Andrew Morton <akpm@osdl.org>, Neal Becker <ndbecker2@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1 panic on startup (acpi)
-Message-ID: <20060208030335.GC17665@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
-	Greg KH <greg@kroah.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-	Andrew Morton <akpm@osdl.org>, Neal Becker <ndbecker2@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <ds7cu3$9c0$1@sea.gmane.org> <20060207234043.GB17665@redhat.com> <20060208000715.GA19233@kroah.com> <200602080110.06736.ak@suse.de>
+	Tue, 7 Feb 2006 22:07:18 -0500
+Date: Tue, 7 Feb 2006 22:02:34 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Grant Coady <gcoady@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
+Message-ID: <20060208030234.GE14748@kvack.org>
+References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com> <20060208022411.GD14748@kvack.org> <igmiu15lgo31rh92ugm7i0c35jcsrj0631@4ax.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200602080110.06736.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <igmiu15lgo31rh92ugm7i0c35jcsrj0631@4ax.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 08, 2006 at 01:10:06AM +0100, Andi Kleen wrote:
- > On Wednesday 08 February 2006 01:07, Greg KH wrote:
- > 
- > > > In the meantime, here's what I got..
- > > > 
- > > > http://people.redhat.com/davej/DSC00148.JPG
- > > 
- > > Andi, didn't your change for this function make it into Linus's tree?
- > 
- > Yes
- > 
- > See
- > http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=1de6bf33bc4601d856c286ad5c7d515468e24bbb
- > 
- > Workaround is pci=nommconf btw
+On Wed, Feb 08, 2006 at 01:50:10PM +1100, Grant Coady wrote:
+> Vague 'cos I do not know where the problem is.  One might say slowdown 
+> is like a near a 1ms delay per line output, but slowdown does not 
+> correlate to kernel tick frequency.  :(
 
-I'm puzzled.  I'm still seeing this crash with latest -git which
-has this patch (I just double checked the source I built).
-The pci=nommconf workaround does indeed work though.
+Two things come to mind: can you try doing a vmstat 1 while running the 
+test and compare 2.4 vs 2.6?  Also, does it make a difference if you switch 
+from the e100 driver to eepro100?
 
-		Dave
+> I'll take a look at oprofile, report back if I can make sense of it ;)
+
+If the CPU is pegged that will guide fixing things quite nicely, but the 
+fact that it's 1ms per line sounds like something more sinister.
+
+		-ben
+-- 
+"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
+and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.

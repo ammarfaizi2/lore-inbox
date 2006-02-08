@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965064AbWBHNXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030360AbWBHN3n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965064AbWBHNXg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 08:23:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbWBHNXg
+	id S1030360AbWBHN3n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 08:29:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965113AbWBHN3n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 08:23:36 -0500
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:44968 "EHLO
-	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
-	id S965064AbWBHNXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 08:23:35 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-To: Pavel Machek <pavel@ucw.cz>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Nigel Cunningham <nigel@suspend2.net>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Jim Crilly <jim@why.dont.jablowme.net>,
-       suspend2-devel@lists.suspend2.net, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Wed, 08 Feb 2006 14:23:18 +0100
-References: <5BoER-4GL-3@gated-at.bofh.it> <5DJOW-7ll-9@gated-at.bofh.it> <5DK8h-7YA-13@gated-at.bofh.it> <5DKrG-8nS-13@gated-at.bofh.it> <5DKUI-1Dm-21@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1F6pHz-0000kU-FN@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+	Wed, 8 Feb 2006 08:29:43 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:22713 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964850AbWBHN3n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 08:29:43 -0500
+Subject: Re: libATA  PATA status report, new patch
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Meelis Roos <mroos@linux.ee>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SOC.4.61.0602071947030.15961@math.ut.ee>
+References: <20060207084347.54CD01430C@rhn.tartu-labor>
+	 <1139310335.18391.2.camel@localhost.localdomain>
+	 <Pine.SOC.4.61.0602071305310.10491@math.ut.ee>
+	 <1139312330.18391.14.camel@localhost.localdomain>
+	 <1139324653.18391.41.camel@localhost.localdomain>
+	 <Pine.SOC.4.61.0602071947030.15961@math.ut.ee>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 08 Feb 2006 13:31:54 +0000
+Message-Id: <1139405514.26270.35.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are some questions I have while looking at this HOWTO,
-which I think should be answered there:
+On Maw, 2006-02-07 at 19:50 +0200, Meelis Roos wrote:
+> ata2: PATA max UDMA/66 cmd 0x170 ctl 0x376 bmdma 0xFFA8 irq 15
+> ata2: dev 0 ATAPI, max UDMA/33
+> ata2: dev 0 configured for UDMA/33
 
-Pavel Machek <pavel@ucw.cz> wrote:
+So far so good.
 
-> Suspend-to-disk HOWTO
-> ~~~~~~~~~~~~~~~~~~~~
-[...]
-> ./suspend /dev/<your_swap_partition>
+> scsi1 : ata_piix
+> ata2: command 0xa0 timeout, stat 0xd0 host_stat 0x24
+> ata2: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
 
-Does it need to be mounted (so it possibly gets filled and thereby unusable),
-or can it be a mkswapped partition?
+Tries to do a packet command, which is reasonable as its ATAPI but the
+timeout is unexpected.
 
-Can it even be a swap-file? Probably not, unless you want to resume by
-ro-nojournalreplay-mounting the corresponding partition.
+> int3: 0000 [#1]
+> CPU:    0
+> EIP:    0060:[<c0148711>]    Not tainted VLI
 
-How big does it have to be, compared to the RAM? As big + n? Bigger? BIGGER?
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+The rest seems to be a generic problem with libata and early commands
+timing out (I think the device is getting deleted before the command
+completes).
+

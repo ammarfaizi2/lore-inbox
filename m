@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030469AbWBHCsj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030467AbWBHCt3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030469AbWBHCsj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 21:48:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030467AbWBHCsj
+	id S1030467AbWBHCt3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 21:49:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965183AbWBHCt3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 21:48:39 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:25806 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965183AbWBHCsi (ORCPT
+	Tue, 7 Feb 2006 21:49:29 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:51427 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S965185AbWBHCt2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 21:48:38 -0500
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@sgi.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-cc: "'Adrian Bunk'" <bunk@stusta.de>, "Luck, Tony" <tony.luck@intel.com>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] let IA64_GENERIC select more stuff 
-In-reply-to: Your message of "Tue, 07 Feb 2006 17:40:13 -0800."
-             <200602080140.k181eDg20764@unix-os.sc.intel.com> 
+	Tue, 7 Feb 2006 21:49:28 -0500
+Subject: Re: [PATCH 11/12] LED: Add IDE disk activity LED trigger
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1139154893.14624.15.camel@localhost.localdomain>
+References: <1139154893.14624.15.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 08 Feb 2006 02:49:20 +0000
+Message-Id: <1139366960.6422.151.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 08 Feb 2006 13:48:10 +1100
-Message-ID: <10378.1139366890@kao2.melbourne.sgi.com>
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Chen, Kenneth W" (on Tue, 7 Feb 2006 17:40:13 -0800) wrote:
->Adrian Bunk wrote on Tuesday, February 07, 2006 5:20 PM
->> You could ask the same question for NUMA:
->> Select generic system type does not mean NUMA systems are only choice I 
->> can have. What's wrong with having an option that works just fine?
->
->Please read more ia64 arch specific code ...
->
->CONFIG_IA64_GENERIC is a platform type choice, you can have platform
->type of DIG, HPZX1, SGI SN2, or all of the above.  DIG platform depends
->on ACPI, thus need ACPI on.  SGI altix is a numa box, thus, need NUMA
->on.  NEC, Fujitsu build numa machines with ACPI SRAT table, thus, need
->ACPI_NUMA on.  When you build a kernel to boot on all platforms, you
->have no choice but to turn on all of the above.  Processor type and SMP
->is different from platform type.  It does not have any dependency on
->platform type.  They are orthogonal choice.
->
->
->> Keith said IA64_GENERIC should select all the options required in
->> order to run on all the IA64 platforms out there.
->                          ^^^^^^^^^^^^^^
->> This is what my patch does.
->
->You patch does more than what you described and is wrong.  Selecting
->platform type should not be tied into selecting SMP nor should it tied
->with processor type, nor should it tied with ARCH_FLATMEM_ENABLE.  All
->of them are orthogonal and independent.
+IDE disk activity fixes: 
 
-Blame me for the SMP bit.  I have a dim, distant memory that Intel
-required all IA64 boxes to be SMP, but I could be wrong.  Also it is
-almost pointless to do a generic build which pulls in NUMA etc.,
-without also including SMP.
+Catch failure case of driver_register().
+Only trigger on blk_fs end requests.
+
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+
+Index: linux-2.6.15/drivers/ide/ide-disk.c
+===================================================================
+--- linux-2.6.15.orig/drivers/ide/ide-disk.c	2006-02-08 01:09:23.000000000 +0000
++++ linux-2.6.15/drivers/ide/ide-disk.c	2006-02-08 01:08:39.000000000 +0000
+@@ -302,7 +302,8 @@
+ 
+ static int ide_end_rw_disk(ide_drive_t *drive, int uptodate, int nr_sectors)
+ {
+-	led_trigger_event(ide_led_trigger, LED_OFF);
++	if (blk_fs_request(HWGROUP(drive)->rq))
++		led_trigger_event(ide_led_trigger, LED_OFF);
+ 	return ide_end_request(drive, uptodate, nr_sectors);
+ }
+ 
+@@ -1251,8 +1252,10 @@
+ 
+ static int __init idedisk_init(void)
+ {
+-	led_trigger_register_simple("ide-disk", &ide_led_trigger);
+-	return driver_register(&idedisk_driver.gen_driver);
++	int ret = driver_register(&idedisk_driver.gen_driver);
++	if (ret >= 0)
++		led_trigger_register_simple("ide-disk", &ide_led_trigger);
++	return ret;
+ }
+ 
+ MODULE_ALIAS("ide:*m-disk*");
+
 

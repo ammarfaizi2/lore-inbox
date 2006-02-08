@@ -1,119 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030610AbWBHUbu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030609AbWBHUbd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030610AbWBHUbu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 15:31:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030611AbWBHUbu
+	id S1030609AbWBHUbd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 15:31:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030610AbWBHUbd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 15:31:50 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52895 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030610AbWBHUbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 15:31:40 -0500
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Kirill Korotaev <dev@openvz.org>, serue@us.ibm.com, arjan@infradead.org,
-       frankeh@watson.ibm.com, clg@fr.ibm.com, haveblue@us.ibm.com,
-       mrmacman_g4@mac.com, alan@lxorguk.ukuu.org.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, devel@openvz.org
-Subject: Re: [RFC][PATCH 2/7] VPIDs: pid/vpid conversions
-References: <43E22B2D.1040607@openvz.org> <43E23179.5010009@sw.ru>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 08 Feb 2006 13:29:30 -0700
-In-Reply-To: <43E23179.5010009@sw.ru> (Kirill Korotaev's message of "Thu, 02
- Feb 2006 19:21:13 +0300")
-Message-ID: <m1irrpsifp.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Feb 2006 15:31:33 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:37053 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030609AbWBHUbc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 15:31:32 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 8/8] fix handling of st_nlink on procfs root
+Message-Id: <E1F6vyO-00009r-3a@ZenIV.linux.org.uk>
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Wed, 08 Feb 2006 20:31:32 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev <dev@sw.ru> writes:
+Date: 1139427460 -0500
 
-> This is one of the major patches,
-> it adds vpid-to-pid conversions by placing macros
-> introduced in diff-vpid-macro patch.
->
-> Note that in CONFIG_VIRTUAL_PIDS=n case these macros expand to default code.
+1) it should use nr_processes(), not nr_threads; otherwise we are getting
+very confused find(1) and friends, among other things.
+2) better do that at stat() time than at every damn lookup in procfs root.
 
-Do you know how incomplete this patch is?
- drivers/char/tty_io.c |    7 +++++--
- fs/binfmt_elf.c       |   16 ++++++++--------
- fs/exec.c             |    4 ++--
- fs/fcntl.c            |    3 ++-
- fs/locks.c            |    4 ++--
- fs/proc/array.c       |   18 ++++++++++--------
- fs/proc/base.c        |    6 +++---
- include/net/scm.h     |    2 +-
- ipc/msg.c             |    6 +++---
- ipc/sem.c             |    8 ++++----
- ipc/shm.c             |    6 +++---
- kernel/capability.c   |    8 ++++++--
- kernel/exit.c         |   28 ++++++++++++++++++++++------
- kernel/fork.c         |    2 +-
- kernel/sched.c        |    2 +-
- kernel/signal.c       |   23 ++++++++++++++---------
- kernel/sys.c          |   37 +++++++++++++++++++++++++++----------
- kernel/timer.c        |    6 +++---
- net/core/scm.c        |    2 +-
- net/unix/af_unix.c    |    8 +++-----
- 20 files changed, 121 insertions(+), 75 deletions(-)
+Patch had been sitting in FC4 kernels for many months now...
 
-You missed drivers/char/drm, and in your shipping OpenVZ patch.
-You missed get_xpid() on alpha.
-You missed nfs.
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
-All it seems you have found is the low hanging fruit where pids are used.
-Without compile errors to help I don't know how you are ever going to find
-everything, especially with the kernel constantly changing.
+---
 
-Honestly this approach looks like a maintenance nightmare, you didn't
-even correctly handle all of the interfaces you posted in you patch.
+ fs/proc/inode.c |    4 ----
+ fs/proc/root.c  |   17 +++++++++--------
+ 2 files changed, 9 insertions(+), 12 deletions(-)
 
-I suspect the tagging of the VPIDS and the WARN_ON's help so you have
-a chance of catching things if someone uses a code path you haven't
-caught.  But I don't see how you can possibly get full kernel
-coverage.
-
-Is there a plan to catch all of the in-kernel use of pids that I am
-being to dense to see?
-
-Eric
-
-> Kirill
-
-> --- ./kernel/capability.c.vpid_core	2006-02-02 14:15:35.152784704 +0300
-> +++ ./kernel/capability.c	2006-02-02 14:33:58.808003608 +0300
-> @@ -67,7 +67,7 @@ asmlinkage long sys_capget(cap_user_head
->       spin_lock(&task_capability_lock);
->       read_lock(&tasklist_lock); 
->  
-> -     if (pid && pid != current->pid) {
-> +     if (pid && pid != virt_pid(current)) {
->  	     target = find_task_by_pid(pid);
->  	     if (!target) {
->  	          ret = -ESRCH;
-> @@ -100,6 +100,10 @@ static inline int cap_set_pg(int pgrp, k
->  	int ret = -EPERM;
->  	int found = 0;
->  
-> +	pgrp = vpid_to_pid(pgrp);
-> +	if (pgrp < 0)
-> +		return ret;
-> +
->  	do_each_task_pid(pgrp, PIDTYPE_PGID, g) {
->  		target = g;
->  		while_each_thread(g, target) {
-> @@ -199,7 +203,7 @@ asmlinkage long sys_capset(cap_user_head
->       spin_lock(&task_capability_lock);
->       read_lock(&tasklist_lock);
->  
-> -     if (pid > 0 && pid != current->pid) {
-> +     if (pid > 0 && pid != virt_pid(current)) {
->            target = find_task_by_pid(pid);
->            if (!target) {
->                 ret = -ESRCH;
-
-You missed cap_set_all.
-
+ec5a7567ad58f55067f527e700723480cfbdbee5
+diff --git a/fs/proc/inode.c b/fs/proc/inode.c
+index 6573f31..075d3e9 100644
+--- a/fs/proc/inode.c
++++ b/fs/proc/inode.c
+@@ -204,10 +204,6 @@ int proc_fill_super(struct super_block *
+ 	root_inode = proc_get_inode(s, PROC_ROOT_INO, &proc_root);
+ 	if (!root_inode)
+ 		goto out_no_root;
+-	/*
+-	 * Fixup the root inode's nlink value
+-	 */
+-	root_inode->i_nlink += nr_processes();
+ 	root_inode->i_uid = 0;
+ 	root_inode->i_gid = 0;
+ 	s->s_root = d_alloc_root(root_inode);
+diff --git a/fs/proc/root.c b/fs/proc/root.c
+index 6889628..c3fd361 100644
+--- a/fs/proc/root.c
++++ b/fs/proc/root.c
+@@ -80,16 +80,16 @@ void __init proc_root_init(void)
+ 	proc_bus = proc_mkdir("bus", NULL);
+ }
+ 
+-static struct dentry *proc_root_lookup(struct inode * dir, struct dentry * dentry, struct nameidata *nd)
++static int proc_root_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat
++)
+ {
+-	/*
+-	 * nr_threads is actually protected by the tasklist_lock;
+-	 * however, it's conventional to do reads, especially for
+-	 * reporting, without any locking whatsoever.
+-	 */
+-	if (dir->i_ino == PROC_ROOT_INO) /* check for safety... */
+-		dir->i_nlink = proc_root.nlink + nr_threads;
++	generic_fillattr(dentry->d_inode, stat);
++	stat->nlink = proc_root.nlink + nr_processes();
++	return 0;
++}
+ 
++static struct dentry *proc_root_lookup(struct inode * dir, struct dentry * dentry, struct nameidata *nd)
++{
+ 	if (!proc_lookup(dir, dentry, nd)) {
+ 		return NULL;
+ 	}
+@@ -134,6 +134,7 @@ static struct file_operations proc_root_
+  */
+ static struct inode_operations proc_root_inode_operations = {
+ 	.lookup		= proc_root_lookup,
++	.getattr	= proc_root_getattr,
+ };
+ 
+ /*
+-- 
+0.99.9.GIT
 

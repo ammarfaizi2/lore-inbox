@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030355AbWBHQ2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030564AbWBHQdK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030355AbWBHQ2e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 11:28:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbWBHQ2e
+	id S1030564AbWBHQdK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 11:33:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030584AbWBHQdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 11:28:34 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:41136 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030355AbWBHQ2d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 11:28:33 -0500
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org
-Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes 2.6.16-rc1[2] on 2 node X86_64
-Date: Wed, 8 Feb 2006 17:27:31 +0100
-User-Agent: KMail/1.8.2
-Cc: Christoph Lameter <clameter@engr.sgi.com>,
-       Bharata B Rao <bharata@in.ibm.com>,
-       Ray Bryant <raybry@mpdtxmail.amd.com>, linux-kernel@vger.kernel.org
-References: <20060205163618.GB21972@in.ibm.com> <200602081706.26853.ak@suse.de> <Pine.LNX.4.62.0602080816560.2289@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0602080816560.2289@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Feb 2006 11:33:10 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:19121 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030564AbWBHQdJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 11:33:09 -0500
+Date: Wed, 8 Feb 2006 16:33:08 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: linux-kernel@vger.kernel.org, ralf@linux-mips.org
+Subject: Re: [PATCH 02/17] mips: namespace pollution - mem_... -> __mem_... in io.h
+Message-ID: <20060208163308.GI27946@ftp.linux.org.uk>
+References: <E1F6jSx-0002TE-Ur@ZenIV.linux.org.uk> <Pine.LNX.4.64N.0602081059020.27639@blysk.ds.pg.gda.pl> <20060208161435.GH27946@ftp.linux.org.uk> <Pine.LNX.4.64N.0602081615280.27639@blysk.ds.pg.gda.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602081727.31850.ak@suse.de>
+In-Reply-To: <Pine.LNX.4.64N.0602081615280.27639@blysk.ds.pg.gda.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 February 2006 17:20, Christoph Lameter wrote:
-> On Wed, 8 Feb 2006, Andi Kleen wrote:
+On Wed, Feb 08, 2006 at 04:21:45PM +0000, Maciej W. Rozycki wrote:
+> On Wed, 8 Feb 2006, Al Viro wrote:
 > 
-> > > So a provisional solution would be to simply ignore empty zones in 
-> > > bind_zonelist?
+> > >  Then the corresponding ones with no "mem_" prefix (these for the PCI I/O 
+> > > port space) should be prefixed with "__" for consistency as well.
 > > 
-> > That would likely prevent the crash yes (Bharata can you test?)
+> > Huh???
 > > 
-> > But of course it still has the problem of a lot of memory being unpolicied
-> > on machines with >4GB if there's both DMA32 and NORMAL.
+> > Things like outb(), etc. *are* public; mem_... ones are not. 
 > 
-> The fix could result in a zonelist with no zones. So we can answer one 
-> question in __alloc_pages().
+>  I mean if we rename e.g. mem_ioswabb() to __mem_ioswabb(), then we should 
+> rename ioswabb() to __ioswabb() as well.  Sorry for not having been clear 
+> enough, but I have assumed it is obvious.
 
-I don't think it can happen - at least one zone <= policy-zone has to 
-have memory otherwise the machine wouldn't work at all.
-
--Andi
+In principle that would be nice, but...  Take a look at those macros.
+We can do that, but it would mean #define readb __readb, etc.  Since
+really nasty clashes are in mem_inb() et.al. (let's face it, coming up
+with one of those is far more likely than using ioswabb() for driver-internal
+purposes) I've stopped at that.  Can do a followup switching to __ioswab...
+and adding defines compensating for changes in visible symbols, but IMO
+that's a separate patch...

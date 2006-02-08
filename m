@@ -1,97 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030437AbWBHCIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030443AbWBHCMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030437AbWBHCIf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 21:08:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030440AbWBHCIf
+	id S1030443AbWBHCMA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 21:12:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030445AbWBHCMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 21:08:35 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:4870 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030438AbWBHCIe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 21:08:34 -0500
-Date: Wed, 8 Feb 2006 03:08:32 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: Keith Owens <kaos@sgi.com>, "Luck, Tony" <tony.luck@intel.com>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] let IA64_GENERIC select more stuff
-Message-ID: <20060208020832.GK3524@stusta.de>
-References: <20060208011938.GJ3524@stusta.de> <200602080140.k181eDg20764@unix-os.sc.intel.com>
+	Tue, 7 Feb 2006 21:12:00 -0500
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:15583 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1030443AbWBHCL6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 21:11:58 -0500
+From: Grant Coady <gcoady@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6 vs 2.4, ssh terminal slowdown
+Date: Wed, 08 Feb 2006 13:11:49 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602080140.k181eDg20764@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 07, 2006 at 05:40:13PM -0800, Chen, Kenneth W wrote:
-> Adrian Bunk wrote on Tuesday, February 07, 2006 5:20 PM
-> > You could ask the same question for NUMA:
-> > Select generic system type does not mean NUMA systems are only choice I 
-> > can have. What's wrong with having an option that works just fine?
-> 
-> Please read more ia64 arch specific code ...
-> 
-> CONFIG_IA64_GENERIC is a platform type choice, you can have platform
-> type of DIG, HPZX1, SGI SN2, or all of the above.  DIG platform depends
-> on ACPI, thus need ACPI on.  SGI altix is a numa box, thus, need NUMA
-> on.  NEC, Fujitsu build numa machines with ACPI SRAT table, thus, need
-> ACPI_NUMA on.  When you build a kernel to boot on all platforms, you
-> have no choice but to turn on all of the above.  Processor type and SMP
-> is different from platform type.  It does not have any dependency on
-> platform type.  They are orthogonal choice.
+Hi there,
 
-This is interesting, considering that e.g. IA64_SGI_SN2=y, NUMA=n or 
-IA64_DIG=y, ACPI=n are currently allowed configurations.
+grant@deltree:~$ uname -r
+2.6.15.3a
+grant@deltree:~$ time grep -v 192\.168\. /var/log/apache/access_log| cut -c-95
+...
+2006-02-08 12:38:13 +1100: bugsplatter.mine.nu 193.196.182.215 "GET /test/linux-2.6/tosh/ HTTP/
 
-> > Keith said IA64_GENERIC should select all the options required in
-> > order to run on all the IA64 platforms out there.
->                           ^^^^^^^^^^^^^^
-> > This is what my patch does.
-> 
-> You patch does more than what you described and is wrong.  Selecting
-> platform type should not be tied into selecting SMP nor should it tied
+real    0m8.537s
+user    0m0.970s
+sys     0m1.100s
 
-This was what Keith wanted.
+--> reboot to 2.4.32-hf32.2
 
-It seems everyone thinks I am wrong, but when I'm implementing what one 
-person suggests, other people say that what I am doing is wrong.
+grant@deltree:~$ uname -r
+2.4.32-hf32.2
+grant@deltree:~$ time grep -v 192\.168\. /var/log/apache/access_log| cut -c-95
+...
+2006-02-08 12:38:13 +1100: bugsplatter.mine.nu 193.196.182.215 "GET /test/linux-2.6/tosh/ HTTP/
 
-> with processor type, nor should it tied with ARCH_FLATMEM_ENABLE.  All
-> of them are orthogonal and independent.
+real    0m2.271s
+user    0m0.730s
+sys     0m0.540s
 
-1. NUMA on ia64 currently depends on !FLATMEM.
-2. IA64_GENERIC currently select's NUMA.
-3. You say IA64_GENERIC should not be tied with ARCH_FLATMEM_ENABLE.
+Still a 4:1 slowdown, machine .config and dmesg info:
+  http://bugsplatter.mine.nu/test/boxen/deltree/
 
-It's impossible to fulfill all three of them.
+While it is very nice to know I can run recent 2.6 kernels without a fuss, 
+2.4.latest feels better in this particular context.
 
-My initial approach to fix them was to remove the select's from 
-IA64_GENERIC, therefore removing 2., but this patch was not accepted.
+This console sluggishness is noticeable enough on older hardware for me to 
+forgo exercising 2.6.latest.stable bugs for much time on it ;)
 
-This patch adds more select's to IA64_GENERIC, therefore removing 3., 
-but you disagree with it.
+For those suffering deja vu, yes, I reported this last month (or, recently).
 
-The last choice it to remove the dependency of NUMA on !FLATMEM...  ;-)
-
-> Theoretically and maybe academically interesting, I should be able to
-> build a kernel that boots on all UP platforms, with your patch, that
-> is not possible.
-
-Theoretically and maybe academically interesting, I should be able to 
-build a kernel that boots on all non-NUMA platforms, currently, that is 
-not possible.
-
-> - Ken
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Grant.

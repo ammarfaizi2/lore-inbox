@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030612AbWBHUoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbWBHUu4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030612AbWBHUoj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 15:44:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030615AbWBHUoj
+	id S1750922AbWBHUu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 15:50:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750939AbWBHUu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 15:44:39 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:28307 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030612AbWBHUoi (ORCPT
+	Wed, 8 Feb 2006 15:50:56 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:45244 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750875AbWBHUuz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 15:44:38 -0500
-Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Hubertus Franke <frankeh@watson.ibm.com>, Sam Vilain <sam@vilain.net>,
-       Rik van Riel <riel@redhat.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Kirill Korotaev <dev@openvz.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       clg@fr.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
-       serue@us.ibm.com, arjan@infradead.org, kuznet@ms2.inr.ac.ru,
-       saw@sawoct.com, devel@openvz.org, Dmitry Mishin <dim@sw.ru>
-In-Reply-To: <43EA1008.5040502@sw.ru>
-References: <43E7C65F.3050609@openvz.org>
-	 <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>
-	 <Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com>
-	 <43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com>
-	 <43EA1008.5040502@sw.ru>
-Content-Type: text/plain
-Date: Wed, 08 Feb 2006 12:43:55 -0800
-Message-Id: <1139431435.9452.45.camel@localhost.localdomain>
+	Wed, 8 Feb 2006 15:50:55 -0500
+Date: Wed, 8 Feb 2006 12:50:33 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Bernd Schubert <bernd-schubert@gmx.de>
+Cc: John M Flinchbaugh <john@hjsoft.com>, reiserfs-list@namesys.com,
+       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15 Bug? New security model?
+Message-ID: <20060208205033.GB22771@shell0.pdx.osdl.net>
+References: <200602080212.27896.bernd-schubert@gmx.de> <43E94A02.2080205@vilain.net> <20060208053732.GA13560@butterfly.hjsoft.com> <200602081314.59639.bernd-schubert@gmx.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602081314.59639.bernd-schubert@gmx.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-02-08 at 18:36 +0300, Kirill Korotaev wrote: 
-> - full isolation can be inconvinient from containers management point of 
-> view. You will need to introduce new modified tools such as top/ps/kill 
-> and many many others. You won't be able to strace/gdb processes from the 
-> host also. 
+* Bernd Schubert (bernd-schubert@gmx.de) wrote:
+> On Wednesday 08 February 2006 06:37, John M Flinchbaugh wrote:
+> > On Wed, Feb 08, 2006 at 02:31:46PM +1300, Sam Vilain wrote:
+> > > Bernd Schubert wrote:
+> > > >With 2.6.15:
+> > > >bathl:~# touch /var/run/test
+> > > >touch: cannot touch `/var/run/test': Permission denied
+> > > >With 2.6.13:
+> > > >bathl:~# touch /var/run/test
+> > > >(No error message)
+> > >
+> > > Some ideas; ACLs, SELinux, Attributes, Capabilities.
+> >
+> > lsattr -d /var/run && lsattr /var/run
+> 
+> Indeed, with 2.6.13
+> 
+> bathl:~# lsattr -d /var/run
+> lsattr: Inappropriate ioctl for device While reading flags on /var/run
+> 
+> with 2.6.15.3
 
-I'd like to put a theory out there:  the more isolation we perform, the
-easier checkpointing and migration become to guarantee.
+OK, this has a reiserfs fix for attrs support.  Rather than back it
+out, I'd like to get the proper fix.
 
-Agree?  Disagree?
+> bathl:~# cat lsatr.out.2.6.15
+> --S-ia-AcBZXEj-t- /var/run
+> 
+> After the problem came up, I already suspected something like this and 
+> therefore already had the kernel recompiled without xattr support, so I  
+> don't know why lsattr shows something for 2.6.15 and nothing for 2.6.13.
 
-But, full isolation is hard to code.  The right approach is very likely
-somewhere in the middle where we require some things to happen
-underneath us.  For instance, requiring that the filesystem be made
-consistent if a container is moved across systems.
+attrs != xattrs
 
--- Dave
+Couple of things:
 
+1) what does 'grep attrs_cleared /proc/fs/reiserfs/on-disk-super' show?
+
+2) does mount -o attrs ... make a difference?
+
+thanks,
+-chris

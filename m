@@ -1,35 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030416AbWBHPSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030427AbWBHP1o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030416AbWBHPSj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 10:18:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030424AbWBHPSj
+	id S1030427AbWBHP1o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 10:27:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030429AbWBHP1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 10:18:39 -0500
-Received: from ns2.suse.de ([195.135.220.15]:44197 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030416AbWBHPSi (ORCPT
+	Wed, 8 Feb 2006 10:27:44 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:1706 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030427AbWBHP1o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 10:18:38 -0500
-From: Andi Kleen <ak@suse.de>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: [PATCH] add execute_in_process_context() API
-Date: Wed, 8 Feb 2006 16:18:16 +0100
-User-Agent: KMail/1.8.2
+	Wed, 8 Feb 2006 10:27:44 -0500
+Date: Wed, 8 Feb 2006 07:27:38 -0800
+From: Paul Jackson <pj@sgi.com>
+To: "Dale Farnsworth" <dale@farnsworth.org>
 Cc: linux-kernel@vger.kernel.org
-References: <1139342419.6065.8.camel@mulgrave.il.steeleye.com.suse.lists.linux.kernel> <p737j86l1es.fsf@verdi.suse.de> <1139411751.3003.1.camel@mulgrave.il.steeleye.com>
-In-Reply-To: <1139411751.3003.1.camel@mulgrave.il.steeleye.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Subject: Re: How in tarnation do I git v2.6.16-rc2?  hg died and I still
+ don't git git
+Message-Id: <20060208072738.d7b6a6ae.pj@sgi.com>
+In-Reply-To: <20060208151459.16879.qmail@farnsworth.org>
+References: <20060208070301.1162e8c3.pj@sgi.com>
+	<20060208151459.16879.qmail@farnsworth.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602081618.16974.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 February 2006 16:15, James Bottomley wrote:
->  The problem is that
-> there's no real way to cope with failure in this case.
+The winner, by a slim six seconds over 2nd place ;)
 
-Then you can't use GFP_ATOMIC. You have to redesign.
+	git-checkout -b v2.6.16-rc2 v2.6.16-rc2
 
--Andi
+Thanks.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

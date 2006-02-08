@@ -1,51 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161018AbWBHGp5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161025AbWBHGql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161018AbWBHGp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 01:45:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161034AbWBHGpx
+	id S1161025AbWBHGql (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 01:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161027AbWBHGnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 01:45:53 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:1722 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1161026AbWBHGpJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 01:45:09 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: [PATCH] Complain if driver reenables interrupts during drivers_[suspend|resume] & re-disable
-Date: Wed, 8 Feb 2006 07:46:09 +0100
-User-Agent: KMail/1.9.1
-Cc: Nigel Cunningham <ncunningham@cyclades.com>, Linux PM <linux-pm@osdl.org>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <200602071906.55281.ncunningham@cyclades.com> <200602080040.41495.dtor_core@ameritech.net>
-In-Reply-To: <200602080040.41495.dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602080746.10524.rjw@sisk.pl>
+	Wed, 8 Feb 2006 01:43:43 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:30082 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1161026AbWBHGnj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 01:43:39 -0500
+Message-Id: <20060208064852.371401000@sorel.sous-sol.org>
+References: <20060208064503.924238000@sorel.sous-sol.org>
+Date: Tue, 07 Feb 2006 22:45:06 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org,
+       git-commits-head@vger.kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Oleg Drokin <green@linuxhacker.ru>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       <viro@parcelfarce.linux.theplanet.co.uk>,
+       Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 03/23] [PATCH] d_instantiate_unique / NFS inode leakage
+Content-Disposition: inline; filename=d_instantiate_unique-nfs-inode-leakage.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 February 2006 06:40, Dmitry Torokhov wrote:
-> On Tuesday 07 February 2006 04:06, Nigel Cunningham wrote:
-> > Hi all.
-> > 
-> > This patch is designed to help with diagnosing and fixing the cause of
-> > problems in suspending/resuming, due to drivers wrongly re-enabling
-> > interrupts in their .suspend or .resume methods. 
-> > 
-> > I nearly forgot about it in sending patches in suspend2 that might help
-> > where swsusp fails.
-> > 
-> 
-> Only sysdevs are guaranteed to be suspebded/resumed with interrupts off,
-> other devices are suspended with interrupts on (at least on first pass
-> over device list).
+-stable review patch.  If anyone has any objections, please let us know.
+------------------
 
-Yes, and AFAICT this is how it's supposed to be.  [There was an LKML thread
-last year that finished with this conclusion.  I think I can find it for reference,
-if necessary.]
+If we have found aliased dentry that we return, inode reference is not
+dropped and inode is not attached anywhere, so it seems the reference to
+inode is leaked in that case.
 
-Greetings,
-Rafael
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+Cc: <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+---
+
+ fs/dcache.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletion(-)
+
+Index: linux-2.6.15.3/fs/dcache.c
+===================================================================
+--- linux-2.6.15.3.orig/fs/dcache.c
++++ linux-2.6.15.3/fs/dcache.c
+@@ -808,10 +808,14 @@ void d_instantiate(struct dentry *entry,
+  *
+  * Fill in inode information in the entry. On success, it returns NULL.
+  * If an unhashed alias of "entry" already exists, then we return the
+- * aliased dentry instead.
++ * aliased dentry instead and drop one reference to inode.
+  *
+  * Note that in order to avoid conflicts with rename() etc, the caller
+  * had better be holding the parent directory semaphore.
++ *
++ * This also assumes that the inode count has been incremented
++ * (or otherwise set) by the caller to indicate that it is now
++ * in use by the dcache.
+  */
+ struct dentry *d_instantiate_unique(struct dentry *entry, struct inode *inode)
+ {
+@@ -838,6 +842,7 @@ struct dentry *d_instantiate_unique(stru
+ 		dget_locked(alias);
+ 		spin_unlock(&dcache_lock);
+ 		BUG_ON(!d_unhashed(alias));
++		iput(inode);
+ 		return alias;
+ 	}
+ 	list_add(&entry->d_alias, &inode->i_dentry);
+
+--

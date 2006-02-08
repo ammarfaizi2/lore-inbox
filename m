@@ -1,38 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161097AbWBHQOh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161093AbWBHQTq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161097AbWBHQOh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 11:14:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161095AbWBHQOg
+	id S1161093AbWBHQTq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 11:19:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161094AbWBHQTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 11:14:36 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:25997 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161093AbWBHQOg
+	Wed, 8 Feb 2006 11:19:46 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:18066 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S1161093AbWBHQTp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 11:14:36 -0500
-Date: Wed, 8 Feb 2006 16:14:35 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: linux-kernel@vger.kernel.org, ralf@linux-mips.org
-Subject: Re: [PATCH 02/17] mips: namespace pollution - mem_... -> __mem_... in io.h
-Message-ID: <20060208161435.GH27946@ftp.linux.org.uk>
-References: <E1F6jSx-0002TE-Ur@ZenIV.linux.org.uk> <Pine.LNX.4.64N.0602081059020.27639@blysk.ds.pg.gda.pl>
+	Wed, 8 Feb 2006 11:19:45 -0500
+Subject: Re: [PATCH] inotify: fix one-shot support
+From: Robert Love <rml@novell.com>
+To: Ingo Oeser <ingo@oeser-vu.de>
+Cc: John McCutchan <ttb@tentacle.dhs.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200602080852.18179.ingo@oeser-vu.de>
+References: <200602080105.k1815her002647@hera.kernel.org>
+	 <200602080852.18179.ingo@oeser-vu.de>
+Content-Type: text/plain
+Date: Wed, 08 Feb 2006 11:16:33 -0500
+Message-Id: <1139415393.8883.193.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64N.0602081059020.27639@blysk.ds.pg.gda.pl>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.4.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 08, 2006 at 11:01:52AM +0000, Maciej W. Rozycki wrote:
-> On Wed, 8 Feb 2006, Al Viro wrote:
-> 
-> > A pile of internal functions use only inside mips io.h has names starting
-> > with mem_... and clashing with names in drivers; renamed to __mem_....
-> 
->  Then the corresponding ones with no "mem_" prefix (these for the PCI I/O 
-> port space) should be prefixed with "__" for consistency as well.
+On Wed, 2006-02-08 at 08:52 +0100, Ingo Oeser wrote:
 
-Huh???
+> See, now you can just pass IN_ONESHOT behavior flag without any
+> events to shoot at, which you couldn't do before. But this makes only
+> sense, if we would like to set a multi-shot mask to one-shot now.
 
-Things like outb(), etc. *are* public; mem_... ones are not. 
+Ack!
+
+> Does this transition (multi shot to single shot)makes sense at all? 
+> Is it race-free to allow this?.
+
+It should be okay.  This was my intention in the patch.
+
+> So my suggested fix instead of yours would be:
+> 
+> /* don't let user-space set invalid bits: we don't want flags set */
+> mask &= IN_ALL_EVENTS | IN_ONESHOT;
+> if (unlikely((mask & IN_ALL_EVENTS) == 0 && !mask_add)) {
+> 	ret = -EINVAL;
+> 	goto out;
+> }
+> 
+> Would you like a patch on top of the one submitted by you?
+
+Yes, because my patch was already merged by Linus.
+
+	Robert Love
+

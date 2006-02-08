@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030391AbWBHFOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030522AbWBHFRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030391AbWBHFOL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 00:14:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030390AbWBHFOL
+	id S1030522AbWBHFRR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 00:17:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030524AbWBHFRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 00:14:11 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:25544 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030389AbWBHFOJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 00:14:09 -0500
-Date: Tue, 7 Feb 2006 21:13:58 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       akpm@osdl.org, ck@vds.kolivas.org
-Subject: Re: [PATCH] mm: implement swap prefetching
-Message-Id: <20060207211358.8b970343.pj@sgi.com>
-In-Reply-To: <200602081606.19656.kernel@kolivas.org>
-References: <200602071028.30721.kernel@kolivas.org>
-	<200602071502.41456.kernel@kolivas.org>
-	<20060207204655.f1c69875.pj@sgi.com>
-	<200602081606.19656.kernel@kolivas.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Wed, 8 Feb 2006 00:17:17 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:50706 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1030522AbWBHFRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 00:17:16 -0500
+Date: Wed, 8 Feb 2006 06:17:09 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Grant Coady <gcoady@gmail.com>
+Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
+Message-ID: <20060208051709.GE11380@w.ods.org>
+References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com> <200602081335.18256.kernel@kolivas.org> <24niu1hrom6udfa2km18b8bagad62kjamc@4ax.com> <200602081400.59931.kernel@kolivas.org> <nutiu1dkoldca31ddusfbd2rv41q7q0k3m@4ax.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <nutiu1dkoldca31ddusfbd2rv41q7q0k3m@4ax.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con wrote:
-> > If you don't do that, then consider disabling this thing entirely
-> > if CONFIG_NUMA is enabled.  This swap prefetching sounds like it
-> > could be a loose canon ball in a NUMA box.
+Hi Grant,
+
+On Wed, Feb 08, 2006 at 03:51:24PM +1100, Grant Coady wrote:
+> On Wed, 8 Feb 2006 14:00:59 +1100, Con Kolivas <kernel@kolivas.org> wrote:
 > 
-> That's probably a less satisfactory option since NUMA isn't that rare with the 
-> light numa of commodity hardware.
+> >This is the terminal's fault. xterm et al use an algorithm to determine how 
+> >fast your machine is and decide whether to jump scroll or smooth scroll. This 
+> >algorithm is basically broken with the 2.6 scheduler and it decides to mostly 
+> >smooth scroll.
+> 
+> Strange it does that over localnet to a PuTTY terminal on windoze.
+> 
+> Seems a strange thing to do in the kernel though, presentation 
+> buffering / management surely can be done in userspace?
 
-You're right -- my suggestion was not a good one.
+I suspect the sshd on the firewall gets woken up for each line and it
+behaves exactly like an xterm. After having done a lot of "ls -l|cat"
+on 2.6, I'm not surprized at all :-/
 
-I expect that the main distros are or will be shipping their stock PC
-kernel with NUMA enabled.  Most of these kernels end up on exactly the
-kind of system that is the target audience for swap prefetching.
+A good test would be to strace sshd under 2.4 and 2.6. You could even
+use strace -tt. Probably that you will see something like 1 ms between
+two reads on 2.6 and nearly nothing between them in 2.4.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+> Grant.
+
+Cheers,
+Willy
+

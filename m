@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030489AbWBHDTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030492AbWBHDT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030489AbWBHDTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 22:19:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030480AbWBHDTS
+	id S1030492AbWBHDT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 22:19:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030484AbWBHDTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 22:19:18 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:61312 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030477AbWBHDSr
+	Tue, 7 Feb 2006 22:19:16 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:62080 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030479AbWBHDSw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 22:18:47 -0500
+	Tue, 7 Feb 2006 22:18:52 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 11/29] fix __user annotations in fs/select.c
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1F6fqx-0006CZ-1f@ZenIV.linux.org.uk>
+Subject: [PATCH 12/29] ipv4 NULL noise removal
+Cc: linux-kernel@vger.kernel.org, davem@davemloft.net
+Message-Id: <E1F6fr2-0006Cf-21@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Wed, 08 Feb 2006 03:18:47 +0000
+Date: Wed, 08 Feb 2006 03:18:52 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Date: 1138789569 -0500
-
-pselect patch had introduced rather weird annotations; fix them
+Date: 1138791275 -0500
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- fs/select.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ net/ipv4/igmp.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-e110ab94ebc714de57f75f0c7c576dde8cf80944
-diff --git a/fs/select.c b/fs/select.c
-index c0f02d3..bc60a3e 100644
---- a/fs/select.c
-+++ b/fs/select.c
-@@ -510,9 +510,9 @@ asmlinkage long sys_pselect6(int n, fd_s
+76edc6051e02186fe664ab880447e2d1f96fd884
+diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
+index 0b4e95f..64ce52b 100644
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -1578,7 +1578,7 @@ static int sf_setstate(struct ip_mc_list
+ 			new_in = psf->sf_count[MCAST_INCLUDE] != 0;
+ 		if (new_in) {
+ 			if (!psf->sf_oldin) {
+-				struct ip_sf_list *prev = 0;
++				struct ip_sf_list *prev = NULL;
  
- 	if (sig) {
- 		if (!access_ok(VERIFY_READ, sig, sizeof(void *)+sizeof(size_t))
--		    || __get_user(up, (sigset_t * __user *)sig)
-+		    || __get_user(up, (sigset_t __user * __user *)sig)
- 		    || __get_user(sigsetsize,
--				(size_t * __user)(sig+sizeof(void *))))
-+				(size_t __user *)(sig+sizeof(void *))))
- 			return -EFAULT;
- 	}
- 
+ 				for (dpsf=pmc->tomb; dpsf; dpsf=dpsf->sf_next) {
+ 					if (dpsf->sf_inaddr == psf->sf_inaddr)
 -- 
 0.99.9.GIT
 

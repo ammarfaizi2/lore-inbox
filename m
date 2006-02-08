@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965111AbWBHV0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbWBHVdT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965111AbWBHV0f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 16:26:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965120AbWBHV0f
+	id S932400AbWBHVdT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 16:33:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWBHVdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 16:26:35 -0500
-Received: from mail.gmx.de ([213.165.64.21]:52113 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S965111AbWBHV0f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 16:26:35 -0500
-X-Authenticated: #428038
-Date: Wed, 8 Feb 2006 22:26:29 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060208212629.GB27240@merlin.emma.line.org>
-Mail-Followup-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-	linux-kernel@vger.kernel.org
-References: <200602031724.55729.luke@dashjr.org> <43E7545E.nail7GN11WAQ9@burner> <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de> <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner> <20060207183712.GC5341@voodoo> <43E9F1CD.nail2BR11FL52@burner> <20060208210219.GB9166@DervishD> <20060208211455.GC2480@csclub.uwaterloo.ca>
+	Wed, 8 Feb 2006 16:33:19 -0500
+Received: from xproxy.gmail.com ([66.249.82.196]:26595 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750765AbWBHVdT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 16:33:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=UAk02FZOxTcXzk7uscrJCnnY3reCV4QDywZ8TlxW4Vmoih1/zMKXKQUobkYojaay1OjKB3P9aySpN1EQPm9L6dnRc0YKAYndEcX9HSCzAbRRrddHaukWes9rkrE3AkK3MPxGTq1qa1JU2BFEPMFfUWz8fy8ctFD+JLPZJ9kSgng=
+Message-ID: <2753bafa0602081333y2f0f8c37o210b8acb6b3b73d1@mail.gmail.com>
+Date: Wed, 8 Feb 2006 22:33:17 +0100
+From: thomas <thomas.bsd@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Incomprehensible Boot freeze & Crash - Kernel 2.6.12
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060208211455.GC2480@csclub.uwaterloo.ca>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 08 Feb 2006, Lennart Sorensen wrote:
+Hello,
+I'm running Debian GNU/Linux Etch on an Acer Aspire 1682 laptop with
+kernel 2.6.12-1-686. So far the system was rock solid but I'm now
+experiencing a boot freeze:
 
-> Hmm, perhaps what should be done is that someone needs to write and
-> maintain a patch that linux users can apply to cdrecord (since other OSs
-> are different and hence have no reason to use such a patch), to make it
-> behave in a manner which is sane on linux.  It should of course be
+... Setting up ICE socket directory /tmp/ICE-Unix... done
+INIT: Entering runlevel: 2
+Starting system log daemon: syslogd
 
-In case you missed it, I wrote a patch for libscg and posted it here
-last week, and as it actually shrinks the code, it would benefit other
-systems as well - albeit only by reducing their download size.
+Then, nothing. However I can boot in "recover mode" (that is, single
+user & root login). There does not seem to be any hardware failure,
+the partitions are properly mounted, and there is engough free space
+on any of them. When I shut down the box, hundreds of lines of errors
+messages are outputted. I cannot read them all but here are the last
+ones:
 
-> clearly marked as having been changed in such a way.  It should use udev
-> if available and HAL and whatever else is appropriate on a modern linux
+EIP is at do_page_fault+0xd6/0x6bf
+eax: dfa40000 ebx:00000000 ecx:0000007b edx:ffffff7b esi:00030001
+edi:0000000d ebp:0000000b esp: dfa417c8
+ds: 007b es:007b ss:0008
+Unable to handle kernel paging request at virtual address ffffffef
+printing eip:
+c0114fe6
+*pde=00002067
+*pte=00000000
+Recursive die() failure, output suppressed
+ <0> Kernel panic - not syncing: Fatal exception in interrupt
+_
 
-That my patch doesn't do, but it unifies /dev/sg* and /dev/hd* into one
-view (no more ATA:1,2,3, just 1,2,3 will do, as will /dev/hdc or
-/dev/sg3).
+The last time Linux could boot properly, I did not perform any task at
+root: I did not install any hardware, nor I modified any config file.
+I did not change anything in the BIOS either.
 
--- 
-Matthias Andree
+I have tried to boot with special options (noapic, nolapic, pci=off,
+pnpbios=off) without success.
+
+I can show any file on my system if needed.
+
+Thanks in advance for your help. I have absolutely no idea of what I
+can do; without your help I can go nowhere.
+
+Best regards,
+Thomas

@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030384AbWBHMfB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030390AbWBHMfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030384AbWBHMfB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 07:35:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030388AbWBHMfB
+	id S1030390AbWBHMfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 07:35:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030404AbWBHMfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 07:35:01 -0500
-Received: from webbox4.loswebos.de ([213.187.93.205]:39625 "EHLO
-	webbox4.loswebos.de") by vger.kernel.org with ESMTP
-	id S1030384AbWBHMfA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 07:35:00 -0500
-Date: Wed, 8 Feb 2006 13:35:02 +0100
-From: Marc Koschewski <marc@osknowledge.org>
-To: art <art@usfltd.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel-2.6.16-rc2-git4 --- reiserfs write problems !!!
-Message-ID: <20060208123502.GA5775@stiffy.osknowledge.org>
-References: <200602080024.AA52494644@usfltd.com>
-MIME-Version: 1.0
+	Wed, 8 Feb 2006 07:35:24 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:54032 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1030388AbWBHMfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 07:35:22 -0500
+Date: Wed, 8 Feb 2006 13:35:20 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Frank Pavlic <fpavlic@de.ibm.com>,
+       Andreas Herrmann <aherrman@de.ibm.com>
+Subject: [patch 04/10] s390: update maintainers file
+Message-ID: <20060208123520.GE1656@osiris.boeblingen.de.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200602080024.AA52494644@usfltd.com>
-X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
-X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
-X-Operating-System: Linux stiffy 2.6.16-rc2-marc-gac171c46-dirty
-User-Agent: Mutt/1.5.11+cvs20060126
+User-Agent: mutt-ng/devel (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* art <art@usfltd.com> [2006-02-08 00:24:05 -0600]:
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-> kernel-2.6.16-rc2-git4 --- reiserfs write problems
-> 
-> looks like with rc2 reiserfs have problem with writing - reading is ok
-> 
-> reiserfs is mounted on ext3 mount
-> 
-> with kernel-2.6.16-rc1-git6 works
-> 
-> any idea ???
+Update URL for s390 and add maintainers for s390 networking and zfcp driver.
 
-Do you have any more info? dmesg? A calltrace? I cannot see anything weird
-over here... :/
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
 
-Marc
+ MAINTAINERS |   18 +++++++++++++++++-
+ 1 files changed, 17 insertions(+), 1 deletion(-)
+
+diff -urpN linux-2.6/MAINTAINERS linux-2.6-patched/MAINTAINERS
+--- linux-2.6/MAINTAINERS	2006-02-08 10:48:26.000000000 +0100
++++ linux-2.6-patched/MAINTAINERS	2006-02-08 10:48:44.000000000 +0100
+@@ -2232,7 +2232,23 @@ P:	Martin Schwidefsky
+ M:	schwidefsky@de.ibm.com
+ M:	linux390@de.ibm.com
+ L:	linux-390@vm.marist.edu
+-W:	http://oss.software.ibm.com/developerworks/opensource/linux390
++W:	http://www.ibm.com/developerworks/linux/linux390/
++S:	Supported
++
++S390 NETWORK DRIVERS
++P:	Frank Pavlic
++M:	fpavlic@de.ibm.com
++M:	linux390@de.ibm.com
++L:	linux-390@vm.marist.edu
++W:	http://www.ibm.com/developerworks/linux/linux390/
++S:	Supported
++
++S390 ZFCP DRIVER
++P:	Andreas Herrmann
++M:	aherrman@de.ibm.com
++M:	linux390@de.ibm.com
++L:	linux-390@vm.marist.edu
++W:	http://www.ibm.com/developerworks/linux/linux390/
+ S:	Supported
+ 
+ SAA7146 VIDEO4LINUX-2 DRIVER

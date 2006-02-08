@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030460AbWBHCdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030462AbWBHCei@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030460AbWBHCdN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 21:33:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030461AbWBHCdN
+	id S1030462AbWBHCei (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 21:34:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030463AbWBHCei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 21:33:13 -0500
-Received: from [218.25.172.144] ([218.25.172.144]:4882 "HELO mail.fc-cn.com")
-	by vger.kernel.org with SMTP id S1030460AbWBHCdN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 21:33:13 -0500
-Message-ID: <43E95862.4080501@fc-cn.com>
-Date: Wed, 08 Feb 2006 10:33:06 +0800
-From: =?UTF-8?B?56WB5YuH?= <qiyong@fc-cn.com>
-Organization: FCD
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ja-JP; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Tue, 7 Feb 2006 21:34:38 -0500
+Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:5537 "EHLO
+	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1030462AbWBHCeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 21:34:37 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: gcoady@gmail.com
+Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
+Date: Wed, 8 Feb 2006 13:35:18 +1100
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org
+References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
+In-Reply-To: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
 MIME-Version: 1.0
-To: Rob Slifkin <comptiger5000@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Contact info for Linus Torvalds
-References: <000001c62c47$1b0217e0$9b01010a@ldsrobtop>
-In-Reply-To: <000001c62c47$1b0217e0$9b01010a@ldsrobtop>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602081335.18256.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Slifkin wrote:
-
->Due to a project i am working on, i need current email for Linus Torvalds,
->I've found no other valid info, so this is my last place to look.  If anyone
->can help, thanks a lot, and sorry for the disturbance.  
-> 
->Please CC your reply to me (comptiger5000@gmail.com) directly
->  
+On Wed, 8 Feb 2006 01:11 pm, Grant Coady wrote:
+> Hi there,
 >
+> grant@deltree:~$ uname -r
+> 2.6.15.3a
+> grant@deltree:~$ time grep -v 192\.168\. /var/log/apache/access_log| cut
+> -c-95 ...
+> 2006-02-08 12:38:13 +1100: bugsplatter.mine.nu 193.196.182.215 "GET
+> /test/linux-2.6/tosh/ HTTP/
+>
+> real    0m8.537s
+> user    0m0.970s
+> sys     0m1.100s
+>
+> --> reboot to 2.4.32-hf32.2
+>
+> grant@deltree:~$ uname -r
+> 2.4.32-hf32.2
+> grant@deltree:~$ time grep -v 192\.168\. /var/log/apache/access_log| cut
+> -c-95 ...
+> 2006-02-08 12:38:13 +1100: bugsplatter.mine.nu 193.196.182.215 "GET
+> /test/linux-2.6/tosh/ HTTP/
+>
+> real    0m2.271s
+> user    0m0.730s
+> sys     0m0.540s
+>
+> Still a 4:1 slowdown, machine .config and dmesg info:
+>   http://bugsplatter.mine.nu/test/boxen/deltree/
 
-gemini:~/linux/linux-2.6> grep -C1 Linus CREDITS
+What happens if you add "| cat" on the end of your command?
 
-                        Linus
-----------
---
-
-N: Linus Torvalds
-E: torvalds@osdl.org
-
+Cheers,
+Con

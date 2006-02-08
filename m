@@ -1,76 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030454AbWBHCSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030455AbWBHC2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030454AbWBHCSv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 21:18:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbWBHCSv
+	id S1030455AbWBHC2o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 21:28:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030458AbWBHC2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 21:18:51 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:30397 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030454AbWBHCSu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 21:18:50 -0500
-Message-Id: <200602080217.k182Hlg23826@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Adrian Bunk'" <bunk@stusta.de>
-Cc: "Keith Owens" <kaos@sgi.com>, "Luck, Tony" <tony.luck@intel.com>,
-       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: [2.6 patch] let IA64_GENERIC select more stuff
-Date: Tue, 7 Feb 2006 18:17:47 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcYsVJLJNGeo6gS2Tayhx8SCASRtkQAABShw
-In-Reply-To: <20060208020832.GK3524@stusta.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Tue, 7 Feb 2006 21:28:44 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:32183 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1030455AbWBHC2o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 21:28:44 -0500
+Date: Tue, 7 Feb 2006 21:24:11 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Grant Coady <gcoady@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
+Message-ID: <20060208022411.GD14748@kvack.org>
+References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote on Tuesday, February 07, 2006 6:09 PM
-> > CONFIG_IA64_GENERIC is a platform type choice, you can have platform
-> > type of DIG, HPZX1, SGI SN2, or all of the above.  DIG platform depends
-> > on ACPI, thus need ACPI on.  SGI altix is a numa box, thus, need NUMA
-> > on.  NEC, Fujitsu build numa machines with ACPI SRAT table, thus, need
-> > ACPI_NUMA on.  When you build a kernel to boot on all platforms, you
-> > have no choice but to turn on all of the above.  Processor type and SMP
-> > is different from platform type.  It does not have any dependency on
-> > platform type.  They are orthogonal choice.
+On Wed, Feb 08, 2006 at 01:11:49PM +1100, Grant Coady wrote:
+> This console sluggishness is noticeable enough on older hardware for me to 
+> forgo exercising 2.6.latest.stable bugs for much time on it ;)
 > 
-> This is interesting, considering that e.g. IA64_SGI_SN2=y, NUMA=n or 
-> IA64_DIG=y, ACPI=n are currently allowed configurations.
+> For those suffering deja vu, yes, I reported this last month (or, recently).
 
-Right, that is what Matthew Wilcox said in earlier thread.
+This bug report is a bit vague in terms of what the problem is -- the 
+test case hits 3 major subsystems (io, vm, net), all of which have changed 
+rather substantially in the course of 2.6 development.  Would it be possible 
+to profile the system using oprofile to get an idea what the hotspots are?  
+Have you compared basic hard disk throughput with hdparm, as well as 
+ensuring DMA is enabled with 32 bit io?  What about testing network 
+performance with netperf (or a netcat of /dev/zero)?  A few more data points 
+would be quite helpful.  Cheers,
 
-
-> > > Keith said IA64_GENERIC should select all the options required in
-> > > order to run on all the IA64 platforms out there.
-> >                           ^^^^^^^^^^^^^^
-> > > This is what my patch does.
-> > 
-> > You patch does more than what you described and is wrong.  Selecting
-> > platform type should not be tied into selecting SMP nor should it tied
-> 
-> This was what Keith wanted.
-> 
-> It seems everyone thinks I am wrong, but when I'm implementing what one 
-> person suggests, other people say that what I am doing is wrong.
-
-You have to digest what people say and *understand* why they said what they
-say. Checking earlier thread, Keith did not say "select CONFIG_ITANIUM
-for generic ia64 platforms".
-
-
-> > Theoretically and maybe academically interesting, I should be able to
-> > build a kernel that boots on all UP platforms, with your patch, that
-> > is not possible.
-> 
-> Theoretically and maybe academically interesting, I should be able to 
-> build a kernel that boots on all non-NUMA platforms, currently, that is 
-> not possible.
-
-This is going too far and very childish in my opinion. I'm going to shut
-up.
-
-- Ken
-
+		-ben
+-- 
+"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
+and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.

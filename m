@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030409AbWBHMkz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030407AbWBHMmD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030409AbWBHMkz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 07:40:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030407AbWBHMkz
+	id S1030407AbWBHMmD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 07:42:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030417AbWBHMmC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 07:40:55 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:46680 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1030406AbWBHMky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 07:40:54 -0500
-Date: Wed, 8 Feb 2006 13:40:43 +0100
+	Wed, 8 Feb 2006 07:42:02 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:9238 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1030407AbWBHMmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 07:42:00 -0500
+Date: Wed, 8 Feb 2006 13:41:56 +0100
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch 08/10] s390: add support for unshare system call
-Message-ID: <20060208124043.GI1656@osiris.boeblingen.de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Maximilian Attems <maks@sternwelten.at>
+Subject: [patch 09/10] s390: add #ifdef __KERNEL__ to asm-s390/setup.h
+Message-ID: <20060208124156.GJ1656@osiris.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,50 +24,41 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Add support for unshare system call.
+Based on a patch from Maximilian Attems <maks@sternwelten.at> .
+Nothing in asm-s390/setup.h is of interest for user space.
 
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
 
- arch/s390/kernel/compat_wrapper.S |    5 +++++
- arch/s390/kernel/syscalls.S       |    1 +
- include/asm-s390/unistd.h         |    3 ++-
- 3 files changed, 8 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/kernel/compat_wrapper.S b/arch/s390/kernel/compat_wrapper.S
-index 83b33fe..38a6ef5 100644
---- a/arch/s390/kernel/compat_wrapper.S
-+++ b/arch/s390/kernel/compat_wrapper.S
-@@ -1602,3 +1602,8 @@ compat_sys_ppoll_wrapper:
- 	llgtr	%r5,%r5			# const sigset_t *
- 	llgfr	%r6,%r6			# size_t
- 	jg	compat_sys_ppoll
+diff --git a/include/asm-s390/setup.h b/include/asm-s390/setup.h
+index 348a881..da3fd4a 100644
+--- a/include/asm-s390/setup.h
++++ b/include/asm-s390/setup.h
+@@ -8,6 +8,8 @@
+ #ifndef _ASM_S390_SETUP_H
+ #define _ASM_S390_SETUP_H
+ 
++#ifdef __KERNEL__
 +
-+	.globl sys_unshare_wrapper
-+sys_unshare_wrapper:
-+	llgfr	%r2,%r2			# unsigned long
-+	jg	sys_unshare
-diff --git a/arch/s390/kernel/syscalls.S b/arch/s390/kernel/syscalls.S
-index 3280345..e86a4de 100644
---- a/arch/s390/kernel/syscalls.S
-+++ b/arch/s390/kernel/syscalls.S
-@@ -311,3 +311,4 @@ SYSCALL(sys_fchmodat,sys_fchmodat,sys_fc
- SYSCALL(sys_faccessat,sys_faccessat,sys_faccessat_wrapper)	/* 300 */
- SYSCALL(sys_pselect6,sys_pselect6,compat_sys_pselect6_wrapper)
- SYSCALL(sys_ppoll,sys_ppoll,compat_sys_ppoll_wrapper)
-+SYSCALL(sys_unshare,sys_unshare,sys_unshare_wrapper)
-diff --git a/include/asm-s390/unistd.h b/include/asm-s390/unistd.h
-index 29a9f35..0a2f666 100644
---- a/include/asm-s390/unistd.h
-+++ b/include/asm-s390/unistd.h
-@@ -295,8 +295,9 @@
- #define __NR_faccessat		300
- #define __NR_pselect6		301
- #define __NR_ppoll		302
-+#define __NR_unshare		303
+ #include <asm/types.h>
  
--#define NR_syscalls 303
-+#define NR_syscalls 304
+ #define PARMAREA		0x10400
+@@ -114,7 +116,7 @@ extern u16 ipl_devno;
+ 				 IPL_PARMBLOCK_ORIGIN)
+ #define IPL_PARMBLOCK_SIZE	(IPL_PARMBLOCK_START->hdr.length)
  
- /* 
-  * There are some system calls that are not present on 64 bit, some
+-#else 
++#else /* __ASSEMBLY__ */
+ 
+ #ifndef __s390x__
+ #define IPL_DEVICE        0x10404
+@@ -127,6 +129,6 @@ extern u16 ipl_devno;
+ #endif /* __s390x__ */
+ #define COMMAND_LINE      0x10480
+ 
+-#endif
+-
+-#endif
++#endif /* __ASSEMBLY__ */
++#endif /* __KERNEL__ */
++#endif /* _ASM_S390_SETUP_H */

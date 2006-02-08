@@ -1,86 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbWBHP5b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbWBHP6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964974AbWBHP5b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 10:57:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964997AbWBHP5b
+	id S964997AbWBHP6E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 10:58:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbWBHP6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 10:57:31 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:19381 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964974AbWBHP5b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 10:57:31 -0500
-Message-ID: <43EA14E4.4030806@watson.ibm.com>
-Date: Wed, 08 Feb 2006 10:57:24 -0500
-From: Hubertus Franke <frankeh@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-CC: "Serge E. Hallyn" <serue@us.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Sam Vilain <sam@vilain.net>, Rik van Riel <riel@redhat.com>,
-       Kirill Korotaev <dev@openvz.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       clg@fr.ibm.com, haveblue@us.ibm.com, greg@kroah.com,
-       alan@lxorguk.ukuu.org.uk, arjan@infradead.org, kuznet@ms2.inr.ac.ru,
-       saw@sawoct.com, devel@openvz.org, Dmitry Mishin <dim@sw.ru>,
-       Herbert Poetzl <herbert@13thfloor.at>
-Subject: Re: The issues for agreeing on a virtualization/namespaces implementation.
-References: <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com> <43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com> <20060207201908.GJ6931@sergelap.austin.ibm.com> <43E90716.4020208@watson.ibm.com> <m17j86dds4.fsf_-_@ebiederm.dsl.xmission.com> <43E92EDC.8040603@watson.ibm.com> <m1ek2ea0fw.fsf@ebiederm.dsl.xmission.com> <43EA02D6.30208@watson.ibm.com> <20060208151726.GA28602@sergelap.austin.ibm.com> <43EA0FDB.9050008@sw.ru>
-In-Reply-To: <43EA0FDB.9050008@sw.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 8 Feb 2006 10:58:04 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:48341 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S964997AbWBHP6C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 10:58:02 -0500
+Subject: Re: [PATCH] add execute_in_process_context() API
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200602081618.16974.ak@suse.de>
+References: <1139342419.6065.8.camel@mulgrave.il.steeleye.com.suse.lists.linux.kernel>
+	 <p737j86l1es.fsf@verdi.suse.de>
+	 <1139411751.3003.1.camel@mulgrave.il.steeleye.com>
+	 <200602081618.16974.ak@suse.de>
+Content-Type: text/plain
+Date: Wed, 08 Feb 2006 09:57:58 -0600
+Message-Id: <1139414279.3003.25.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev wrote:
->>> Eric W. Biederman wrote:
->>> So it seems the clone( flags ) is a reasonable approach to create new
->>> namespaces. Question is what is the initial state of each namespace?
->>> In pidspace we know we should be creating an empty pidmap !
->>> In network, someone suggested creating a loopback device
->>> In uts, create "localhost"
->>> Are there examples where we rather inherit ?  Filesystem ?
->>
->> Of course filesystem is already implemented, and does inheret a full
->> copy.
+On Wed, 2006-02-08 at 16:18 +0100, Andi Kleen wrote:
+> On Wednesday 08 February 2006 16:15, James Bottomley wrote:
+> >  The problem is that
+> > there's no real way to cope with failure in this case.
 > 
-> 
-> why do we want to use clone()? Just because of its name and flags?
-> I think it is really strange to fork() to create network context. What 
-> has process creation has to do with it?
-> 
-> After all these clone()'s are called, some management actions from host 
-> system are still required, to add these IPs/routings/etc.
-> So? Why mess it up? Why not create a separate clean interface for 
-> container management?
-> 
-> Kirill
-> 
+> Then you can't use GFP_ATOMIC. You have to redesign.
 
-We need a "init" per container, which represents the context of the
-system represented by the container.
-If that is the case, then why not create the container such that
-we specify what namespaces need to be new for a container at
-the container creation time and initialize them to a well understood
-state that makes sense (e.g. copy namespace (FS, uts) , new fresh state (pid) ).
+My mailer seems to have deleted the part of the email with your redesign
+suggestion in it...
 
-Then use the standard syscall to modify state (now "virtualized" through
-the task->xxx_namespace access ).
+My initial point is that the current scsi_reap_target() infrastructure
+is more broken than the new API, so it does represent an improvement.  I
+could also mitigate (but not solve) the problem by adding a wqw slab.
+However, I really think the redesign would be along the lines I
+suggested to Jens; do you agree?
 
-Do you see a need to change the namespace of a container after it
-has been created. I am not referring to the state of the namespace
-but truely moving to a completely different namespace after the
-container has been created.
-
-Obviously you seem to have some other usage in mind, beyond what my
-limited vision can see. Can you share some of those examples, because
-that would help this discussion along ...
-
-Thanks a 10^6.
-
--- Hubertus
-
-
+James
 
 

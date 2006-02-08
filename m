@@ -1,43 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030461AbWBHGex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161003AbWBHGhA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030461AbWBHGex (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 01:34:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030569AbWBHGex
+	id S1161003AbWBHGhA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 01:37:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161004AbWBHGhA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 01:34:53 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:711 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030461AbWBHGew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 01:34:52 -0500
-Message-ID: <43E99128.6090202@jp.fujitsu.com>
-Date: Wed, 08 Feb 2006 15:35:20 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH] unify pfn_to_page take 2 [23/25] uml funcs
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 8 Feb 2006 01:37:00 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:15837
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1161003AbWBHGg7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 01:36:59 -0500
+Date: Tue, 07 Feb 2006 22:36:47 -0800 (PST)
+Message-Id: <20060207.223647.00551741.davem@davemloft.net>
+To: kamezawa.hiroyu@jp.fujitsu.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] unify pfn_to_page take 2 [22/25] sparc64 funcs
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <43E9905E.7060609@jp.fujitsu.com>
+References: <43E9905E.7060609@jp.fujitsu.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-UML can use generic funcs.
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Date: Wed, 08 Feb 2006 15:31:58 +0900
 
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+> Select CONFIG_DONT_INLINE_PFN_TO_PAGE=y
+> sparc64 can use generic funcs by defining ARCH_PFN_OFFSET as pfn_base.
+> 
+> Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitu.com>
 
-Index: test-layout-free-zone/include/asm-um/page.h
-===================================================================
---- test-layout-free-zone.orig/include/asm-um/page.h
-+++ test-layout-free-zone/include/asm-um/page.h
-@@ -106,9 +106,6 @@ extern unsigned long uml_physmem;
-  #define __pa(virt) to_phys((void *) (unsigned long) (virt))
-  #define __va(phys) to_virt((unsigned long) (phys))
-
--#define page_to_pfn(page) ((page) - mem_map)
--#define pfn_to_page(pfn) (mem_map + (pfn))
--
-  #define phys_to_pfn(p) ((p) >> PAGE_SHIFT)
-  #define pfn_to_phys(pfn) ((pfn) << PAGE_SHIFT)
-
-
+This looks OK.

@@ -1,91 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030609AbWBHUbd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030611AbWBHUg7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030609AbWBHUbd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 15:31:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030610AbWBHUbd
+	id S1030611AbWBHUg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 15:36:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030613AbWBHUg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 15:31:33 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:37053 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030609AbWBHUbc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 15:31:32 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 8/8] fix handling of st_nlink on procfs root
-Message-Id: <E1F6vyO-00009r-3a@ZenIV.linux.org.uk>
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Wed, 08 Feb 2006 20:31:32 +0000
+	Wed, 8 Feb 2006 15:36:58 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:16567 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030612AbWBHUg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 15:36:58 -0500
+Date: Wed, 8 Feb 2006 12:36:51 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Paul Jackson <pj@sgi.com>
+cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Terminate process that fails on a constrained allocation
+In-Reply-To: <20060208122227.3379643e.pj@sgi.com>
+Message-ID: <Pine.LNX.4.62.0602081228260.4335@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0602081004060.2648@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.62.0602081037240.3590@schroedinger.engr.sgi.com>
+ <20060208105714.15bb4bb2.pj@sgi.com> <200602082005.12657.ak@suse.de>
+ <20060208122227.3379643e.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Date: 1139427460 -0500
+On Wed, 8 Feb 2006, Paul Jackson wrote:
 
-1) it should use nr_processes(), not nr_threads; otherwise we are getting
-very confused find(1) and friends, among other things.
-2) better do that at stat() time than at every damn lookup in procfs root.
+> The new logic would be -- only kill tasks that are constrained to
+> the same or a subset of the same nodes as the current task.
 
-Patch had been sitting in FC4 kernels for many months now...
+If a task has restricted its memory allocation to one node and does 
+excessive allocations then that process needs to die not other processes 
+that are harmlessly running on the node and that may not be allocating 
+memory at the time.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+> At the same time, a typical bootcpuset would have oom killer behaviour
+> resembling what people have become accustomed to.
 
----
+People are accustomed of having random processes killed? <shudder>
 
- fs/proc/inode.c |    4 ----
- fs/proc/root.c  |   17 +++++++++--------
- 2 files changed, 9 insertions(+), 12 deletions(-)
+> If we are going to neuter or eliminate the oom killer, it seems like
+> we should do it across the board, not just on numa boxes using
+> some form of memory constraint (mempolicy or cpuset).
 
-ec5a7567ad58f55067f527e700723480cfbdbee5
-diff --git a/fs/proc/inode.c b/fs/proc/inode.c
-index 6573f31..075d3e9 100644
---- a/fs/proc/inode.c
-+++ b/fs/proc/inode.c
-@@ -204,10 +204,6 @@ int proc_fill_super(struct super_block *
- 	root_inode = proc_get_inode(s, PROC_ROOT_INO, &proc_root);
- 	if (!root_inode)
- 		goto out_no_root;
--	/*
--	 * Fixup the root inode's nlink value
--	 */
--	root_inode->i_nlink += nr_processes();
- 	root_inode->i_uid = 0;
- 	root_inode->i_gid = 0;
- 	s->s_root = d_alloc_root(root_inode);
-diff --git a/fs/proc/root.c b/fs/proc/root.c
-index 6889628..c3fd361 100644
---- a/fs/proc/root.c
-+++ b/fs/proc/root.c
-@@ -80,16 +80,16 @@ void __init proc_root_init(void)
- 	proc_bus = proc_mkdir("bus", NULL);
- }
- 
--static struct dentry *proc_root_lookup(struct inode * dir, struct dentry * dentry, struct nameidata *nd)
-+static int proc_root_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat
-+)
- {
--	/*
--	 * nr_threads is actually protected by the tasklist_lock;
--	 * however, it's conventional to do reads, especially for
--	 * reporting, without any locking whatsoever.
--	 */
--	if (dir->i_ino == PROC_ROOT_INO) /* check for safety... */
--		dir->i_nlink = proc_root.nlink + nr_threads;
-+	generic_fillattr(dentry->d_inode, stat);
-+	stat->nlink = proc_root.nlink + nr_processes();
-+	return 0;
-+}
- 
-+static struct dentry *proc_root_lookup(struct inode * dir, struct dentry * dentry, struct nameidata *nd)
-+{
- 	if (!proc_lookup(dir, dentry, nd)) {
- 		return NULL;
- 	}
-@@ -134,6 +134,7 @@ static struct file_operations proc_root_
-  */
- static struct inode_operations proc_root_inode_operations = {
- 	.lookup		= proc_root_lookup,
-+	.getattr	= proc_root_getattr,
- };
- 
- /*
--- 
-0.99.9.GIT
+We are terminating processes perform restricted allocations. Restricted 
+allocations are only possible on NUMA boxes so the phrase "numa boxes 
+using some form of memory constraint" is a tautology. OOM killing makes 
+sense for global allocations if the system is really tight on memory and 
+survival is the main goal even if he have to cannibalize processes. 
+However, cannibalism is still a taboo.
 

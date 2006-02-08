@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965014AbWBHVWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965000AbWBHVV6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965014AbWBHVWU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 16:22:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965023AbWBHVWT
+	id S965000AbWBHVV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 16:21:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWBHVV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 16:22:19 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:29602 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965014AbWBHVWR (ORCPT
+	Wed, 8 Feb 2006 16:21:57 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:59870 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965000AbWBHVV4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 16:22:17 -0500
-Date: Wed, 8 Feb 2006 15:22:12 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Sam Vilain <sam@vilain.net>, Rik van Riel <riel@redhat.com>,
-       Kirill Korotaev <dev@openvz.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       clg@fr.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
-       arjan@infradead.org, kuznet@ms2.inr.ac.ru, saw@sawoct.com,
-       devel@openvz.org, Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>,
-       Herbert Poetzl <herbert@13thfloor.at>
-Subject: Re: The issues for agreeing on a virtualization/namespaces implementation.
-Message-ID: <20060208212212.GA6696@sergelap.austin.ibm.com>
-References: <43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com> <20060207201908.GJ6931@sergelap.austin.ibm.com> <43E90716.4020208@watson.ibm.com> <m17j86dds4.fsf_-_@ebiederm.dsl.xmission.com> <43E92EDC.8040603@watson.ibm.com> <m1ek2ea0fw.fsf@ebiederm.dsl.xmission.com> <43EA02D6.30208@watson.ibm.com> <20060208180309.GA20418@sergelap.austin.ibm.com> <1139430099.9452.41.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Feb 2006 16:21:56 -0500
+From: Andi Kleen <ak@suse.de>
+To: Paul Jackson <pj@sgi.com>
+Subject: Re: Terminate process that fails on a constrained allocation
+Date: Wed, 8 Feb 2006 22:21:35 +0100
+User-Agent: KMail/1.8.2
+Cc: clameter@engr.sgi.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.62.0602081004060.2648@schroedinger.engr.sgi.com> <200602082201.12371.ak@suse.de> <20060208130351.fc1c759c.pj@sgi.com>
+In-Reply-To: <20060208130351.fc1c759c.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1139430099.9452.41.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+Message-Id: <200602082221.35671.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Dave Hansen (haveblue@us.ibm.com):
-> On Wed, 2006-02-08 at 12:03 -0600, Serge E. Hallyn wrote:
-> > Now I believe Eric's code so far would make it so that you can only
-> > refer to a namespace from it's *creating* context.  Still restrictive,
-> > but seems acceptable.
+On Wednesday 08 February 2006 22:03, Paul Jackson wrote:
+> > I don't think you really want to open a  full scale "is the oom killer needed"
+> > thread. Check the archives - there have been some going on for months.
+> > 
+> > But I think we can agree that together with mbind the oom killer is pretty
+> > useless, can't we?
 > 
-> The same goes for filesystem namespaces.  You can't see into random
-> namespaces, just the ones underneath your own.  Sounds really reasonable
-> to me.
+> Excellent points.
+> 
+> I approve this patch.
 
-Hmmm?  I suspect I'm misreading what you're saying, but to be clear:
+I think it should be put into 2.6.16. Andrew?
 
-Let's say I start a screen session.  In one of those shells, I clone,
-specify CLONE_NEWNS, and exec a shell.  now i do a bunch of mounting.
-Other shells in the screen session won't see the results of those
-mounts, and if i ctrl-d, the shell which started the screen session
-can't either.  Each of these is in the "parent filesystem namespace".
+I had the small objection about adding static noinline, but it's really not important
+and the patch can be used as it.
 
-OTOH, shared subtrees specified in the parent shell could make it such
-that the parent ns, but not others, see the results.  Is that what
-you're referring to?
+-Andi
 
-thanks,
--serge
+

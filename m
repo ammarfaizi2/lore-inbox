@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030581AbWBHIvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030585AbWBHIyH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030581AbWBHIvd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 03:51:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030584AbWBHIvc
+	id S1030585AbWBHIyH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 03:54:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030587AbWBHIyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 03:51:32 -0500
-Received: from styx.suse.cz ([82.119.242.94]:63892 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1030581AbWBHIvb (ORCPT
+	Wed, 8 Feb 2006 03:54:07 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:13151 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1030585AbWBHIyF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 03:51:31 -0500
-Date: Wed, 8 Feb 2006 09:51:24 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Shaun Jackman <sjackman@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Elo touch panel
-Message-ID: <20060208085124.GA4078@suse.cz>
-References: <7f45d9390602061830k6b984ban6fb302a3089cac6c@mail.gmail.com> <20060207081415.GA6731@suse.cz> <7f45d9390602071541n65693ae5m7428d59dedcd5ae5@mail.gmail.com>
+	Wed, 8 Feb 2006 03:54:05 -0500
+Date: Wed, 8 Feb 2006 09:56:29 +0100
+From: Jens Axboe <axboe@suse.de>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [SCSI] fix wrong context bugs in SCSI
+Message-ID: <20060208085629.GE4338@suse.de>
+References: <1139342419.6065.8.camel@mulgrave.il.steeleye.com> <1139342922.6065.12.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <7f45d9390602071541n65693ae5m7428d59dedcd5ae5@mail.gmail.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1139342922.6065.12.camel@mulgrave.il.steeleye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 07, 2006 at 04:41:16PM -0700, Shaun Jackman wrote:
+On Tue, Feb 07 2006, James Bottomley wrote:
+> +static void scsi_device_dev_release(struct device *dev)
+> +{
+> +	execute_in_process_context(scsi_device_dev_release_usercontext,	dev);
+> +}
+> +
 
-> There's a bug in inputattach. The SERIO_RS232 constant is completely
-> mucking the bits that specify the protocol.
-> 
-> --- inputattach.c-      2006-02-07 14:37:04.000000000 -0700
-> +++ inputattach.c       2006-02-07 16:22:07.000000000 -0700
-> @@ -455,7 +455,7 @@
->                 return 1;
->         }
-> 
-> -       devt = SERIO_RS232 | input_types[type].type | (id << 8) | (extra << 16);
-> +       devt = input_types[type].type | (id << 8) | (extra << 16);
-> 
->         if(ioctl(fd, SPIOCSTYPE, &devt)) {
->                 fprintf(stderr, "inputattach: can't set device type\n");
-> 
-> Cheers,
-> Shaun
-> 
-> APPENDIX A
-> 
-> You probably know this better than I do, but the .type above is
-> misnamed. It should really be .proto. It's impossible, as far as I can
-> tell, to specify the type (like SERIO_RS232) with a SPIOCSTYPE call.
- 
-It's an incompatibility in a later rework of serio.h/serport.c.
-SERIO_RS232 used to be 0x02000000, now the constant isn't shifted up
-anymore, which messed up things. Also, the type used to be possible to
-set, but I don't think that needs to be fixed, since there are so far no
-ttys that'd need a different serio type. 
+Hmm, this (and further up) could fail, yet you don't check.
 
-I'll apply your fix to inpuatttach. Thanks for spotting the bug.
+I don't think this API is very nice to be honest, there's no good way to
+handle failures - you can't just sleep and loop retry the execute if you
+are in_interrupt(). I'd prefer passing in a work_queue_work (with a
+better name :-) that has been allocated at a reliable time during
+initialization.
+
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Jens Axboe
+

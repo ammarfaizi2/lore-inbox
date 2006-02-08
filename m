@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030477AbWBHPpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030357AbWBHPuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030477AbWBHPpo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 10:45:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030513AbWBHPpo
+	id S1030357AbWBHPuW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 10:50:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030374AbWBHPuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 10:45:44 -0500
-Received: from mail.suse.de ([195.135.220.2]:50832 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030477AbWBHPpn (ORCPT
+	Wed, 8 Feb 2006 10:50:21 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:34119 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1030361AbWBHPuU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 10:45:43 -0500
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes 2.6.16-rc1[2] on 2 node X86_64
-Date: Wed, 8 Feb 2006 16:45:24 +0100
-User-Agent: KMail/1.8.2
-Cc: Bharata B Rao <bharata@in.ibm.com>, Ray Bryant <raybry@mpdtxmail.amd.com>,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org
-References: <20060205163618.GB21972@in.ibm.com> <20060208121000.GA9906@in.ibm.com> <Pine.LNX.4.62.0602080736510.908@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0602080736510.908@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Feb 2006 10:50:20 -0500
+Date: Wed, 8 Feb 2006 16:52:43 +0100
+From: Jens Axboe <axboe@suse.de>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [SCSI] fix wrong context bugs in SCSI
+Message-ID: <20060208155242.GO4338@suse.de>
+References: <1139342419.6065.8.camel@mulgrave.il.steeleye.com> <1139342922.6065.12.camel@mulgrave.il.steeleye.com> <20060208085629.GE4338@suse.de> <1139412662.3003.5.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602081645.24733.ak@suse.de>
+In-Reply-To: <1139412662.3003.5.camel@mulgrave.il.steeleye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 February 2006 16:42, Christoph Lameter wrote:
-
-> However, this has implications for policy_zone. This variable should store
-> the zone that policies apply to. However, in your case this zone will vary 
-> which may lead to all sorts of weird behavior even if we fix 
-> bind_zonelist. To which zone does policy apply? ZONE_NORMAL or ZONE_DMA32?
-
-It really needs to apply to both (currently you can't police 4GB of your 
-memory on x86-64) But I haven't worked out a good design how to implement it yet.
-
--Andi
-
-
+On Wed, Feb 08 2006, James Bottomley wrote:
+> On Wed, 2006-02-08 at 09:56 +0100, Jens Axboe wrote:
+> > Hmm, this (and further up) could fail, yet you don't check.
 > 
+> By and large, you have process context, so this isn't going to be a
+> problem.
+> 
+> > I don't think this API is very nice to be honest, there's no good way to
+> > handle failures - you can't just sleep and loop retry the execute if you
+> > are in_interrupt(). I'd prefer passing in a work_queue_work (with a
+> > better name :-) that has been allocated at a reliable time during
+> > initialization.
+> 
+> Yes, I agree ... however, the failure is less prevalent in the new code
+> than the old.  The problem is that we may need to execute multiple puts
+> for a single target from irq contex, so under this scheme you need a wqw
+> (potentially) for every get.
+> 
+> I could solve this by binding the API more tightly into the device
+> model, so the generic device contains the wqw and it is told that the
+> release function of the final put must be called in process context, but
+> that's an awful lot of code changes.
+
+Yeah it does get a lot more complicated. I guess I'm fine with the
+current change, but please just keep it in SCSI then. It's not the sort
+of thing you'd want to advertise as an exported API.
+
+-- 
+Jens Axboe
+

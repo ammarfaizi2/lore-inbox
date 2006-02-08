@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965000AbWBHVV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965107AbWBHVYT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965000AbWBHVV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 16:21:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWBHVV5
+	id S965107AbWBHVYT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 16:24:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965111AbWBHVYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 16:21:57 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:59870 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965000AbWBHVV4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 16:21:56 -0500
-From: Andi Kleen <ak@suse.de>
-To: Paul Jackson <pj@sgi.com>
-Subject: Re: Terminate process that fails on a constrained allocation
-Date: Wed, 8 Feb 2006 22:21:35 +0100
-User-Agent: KMail/1.8.2
-Cc: clameter@engr.sgi.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.62.0602081004060.2648@schroedinger.engr.sgi.com> <200602082201.12371.ak@suse.de> <20060208130351.fc1c759c.pj@sgi.com>
-In-Reply-To: <20060208130351.fc1c759c.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Feb 2006 16:24:19 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:12737 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S965107AbWBHVYS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 16:24:18 -0500
+Date: Wed, 8 Feb 2006 14:24:16 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Jes Sorensen'" <jes@sgi.com>, Alex Williamson <alex.williamson@hp.com>,
+       "Luck, Tony" <tony.luck@intel.com>, Adrian Bunk <bunk@stusta.de>,
+       Keith Owens <kaos@sgi.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] let IA64_GENERIC select more stuff
+Message-ID: <20060208212416.GA1593@parisc-linux.org>
+References: <43EA4557.6070107@sgi.com> <200602081955.k18Jtug12275@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602082221.35671.ak@suse.de>
+In-Reply-To: <200602081955.k18Jtug12275@unix-os.sc.intel.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 February 2006 22:03, Paul Jackson wrote:
-> > I don't think you really want to open a  full scale "is the oom killer needed"
-> > thread. Check the archives - there have been some going on for months.
-> > 
-> > But I think we can agree that together with mbind the oom killer is pretty
-> > useless, can't we?
-> 
-> Excellent points.
-> 
-> I approve this patch.
+On Wed, Feb 08, 2006 at 11:55:58AM -0800, Chen, Kenneth W wrote:
+> CONFIG_IA64_GENERIC select CONFIG_ACPI, and CONFIG_ACPI select CONFIG_PCI,
+> This whole thread is silly since the beginning and it is a moot point for
+> all of previous discussions.  What are we talking about exactly??
 
-I think it should be put into 2.6.16. Andrew?
+I think the problem is that ia64 is abusing the 'select' feature.
+Select is a reverse dependency.  It should be used to turn things on
+which are required for this option to work.  Right now, the generic
+config uses it to turn on things which people think you probably want
+if you're building a generic kernel.
 
-I had the small objection about adding static noinline, but it's really not important
-and the patch can be used as it.
-
--Andi
-
-
+IMO, the select statements should be deleted.  They make it impossible to
+build a generic kernel without ACPI or NUMA.  While both are ubiquitous
+in ia64 implementations, they really aren't mandatory.

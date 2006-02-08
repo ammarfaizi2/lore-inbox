@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbWBHAFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030304AbWBHAKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030300AbWBHAFR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 19:05:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbWBHAFR
+	id S1030304AbWBHAKl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 19:10:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030305AbWBHAKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 19:05:17 -0500
-Received: from ishtar.tlinx.org ([64.81.245.74]:64919 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S1030300AbWBHAFQ (ORCPT
+	Tue, 7 Feb 2006 19:10:41 -0500
+Received: from cantor.suse.de ([195.135.220.2]:37004 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030304AbWBHAKk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 19:05:16 -0500
-Message-ID: <43E935BA.8050605@tlinx.org>
-Date: Tue, 07 Feb 2006 16:05:14 -0800
-From: Linda Walsh <lkml@tlinx.org>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 7 Feb 2006 19:10:40 -0500
+From: Andi Kleen <ak@suse.de>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.6.16-rc1 panic on startup (acpi)
+Date: Wed, 8 Feb 2006 01:10:06 +0100
+User-Agent: KMail/1.8.2
+Cc: Dave Jones <davej@redhat.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Andrew Morton <akpm@osdl.org>, Neal Becker <ndbecker2@gmail.com>,
+       linux-kernel@vger.kernel.org
+References: <ds7cu3$9c0$1@sea.gmane.org> <20060207234043.GB17665@redhat.com> <20060208000715.GA19233@kroah.com>
+In-Reply-To: <20060208000715.GA19233@kroah.com>
 MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: File "Changelog-2.6.15": unresolved commit 
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602080110.06736.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was examining and checking the Changelog for 2.6.15 and noticed
-one commit out of the 4959 that was problematic (near line 21375):
+On Wednesday 08 February 2006 01:07, Greg KH wrote:
 
-commit 7b7abfe3dd81d659a0889f88965168f7eef8c5c6
-Author: Steve French <sfrench@us.ibm.com>
-Date:   Wed Nov 9 15:21:09 2005 -0800
+> > In the meantime, here's what I got..
+> > 
+> > http://people.redhat.com/davej/DSC00148.JPG
+> 
+> Andi, didn't your change for this function make it into Linus's tree?
 
---- end of entry ---
+Yes
 
-This change has no description and no one listed as signing it off.
+See
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=1de6bf33bc4601d856c286ad5c7d515468e24bbb
 
-Was there a 1-line description for this commit and was this
-commit sign off by anyone?
-
-Do either, the missing "signoff", or "description", constitute the
-possibility that the "commit" went in "unapproved" & "unaudited"?
+Workaround is pci=nommconf btw
 
 
-On a less worrisome note, 62 of the 4958 commits had no "details"
-beyond (after) the 1-line description. Is it safe to say that further
-"details" after the 1-line description are optional?
-
-This is the first Changelog I've examined in this detail, so I can't
-say if this is a first or one-time problem.
-
-Thanks,
--linda
+-Andi
 

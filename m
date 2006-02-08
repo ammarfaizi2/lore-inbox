@@ -1,109 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161004AbWBHGur@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161006AbWBHG6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161004AbWBHGur (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 01:50:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161014AbWBHGuq
+	id S1161006AbWBHG6n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 01:58:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161008AbWBHG6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 01:50:46 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:65408 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1161004AbWBHGmk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 01:42:40 -0500
-Message-Id: <20060208064905.310066000@sorel.sous-sol.org>
-References: <20060208064503.924238000@sorel.sous-sol.org>
-Date: Tue, 07 Feb 2006 22:45:16 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, dhowells@redhat.com,
-       davi.arnaut@gmail.com
-Subject: [PATCH 13/23] Fix keyctl usage of strnlen_user()
-Content-Disposition: inline; filename=fix-keyctl-usage-of-strnlen_user.patch
+	Wed, 8 Feb 2006 01:58:43 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:14010 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1161006AbWBHG6m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 01:58:42 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <nigel@suspend2.net>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Date: Wed, 8 Feb 2006 07:59:49 +0100
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, Lee Revell <rlrevell@joe-job.com>,
+       Jim Crilly <jim@why.dont.jablowme.net>,
+       suspend2-devel@lists.suspend2.net, linux-kernel@vger.kernel.org
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060207230245.GD2753@elf.ucw.cz> <200602080911.08090.nigel@suspend2.net>
+In-Reply-To: <200602080911.08090.nigel@suspend2.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602080759.50579.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
-------------------
+Hi,
 
-In the small window between strnlen_user() and copy_from_user() userspace
-could alter the terminating `\0' character.
+On Wednesday 08 February 2006 00:11, Nigel Cunningham wrote:
+> On Wednesday 08 February 2006 09:02, Pavel Machek wrote:
+> > > > > Personally I agree with you on suspend2, I think this is something that
+> > > > > needed to Just Work yesterday, and every day it doesn't work we are
+> > > > > losing users... but who am I to talk, I'm not the one who will have to
+> > > > > maintain it.
+> > > > 
+> > > > It does just work in mainline now. If it does not please open bug
+> > > > account at bugzilla.kernel.org.
+> > > > 
+> > > > If mainline swsusp is too slow for you, install uswsusp. If it is
+> > > > still too slow for you, mail me a patch adding LZW to userland code
+> > > > (should be easy).
+> > > 
+> > > <horrified rebuke>
+> > > 
+> > > Pavel!
+> > > 
+> > > Responses like this are precisely why you're not the most popular kernel 
+> > > maintainer. Telling people to use beta (alpha?) code or fix it
+> > 
+> > I do not *want* to be the most popular maintainer. That is your place ;-).
+> > 
+> > > themselves 
+> > > (and then have their patches rejected by you) is no way to maintain a part 
+> > > of the kernel. Stop being a liability instead of an asset!
+> > 
+> > Ugh?
+> > 
+> > Lee is a programmer. He wants faster swsusp, and improving uswsusp is
+> > currently best way to get that. It may be alpha/beta quality, but
+> > someone has to start testing, and Lee should be good for that (played
+> > with realtime kernels etc...). Actually it is in good enough state
+> > that I'd like non-programmers to test it, too.
+> 
+> Ok. So Lee might be ok to test uswsusp. But this is your approach
+> regardless of who is emailing you. You consistently tell people to fix
+> problems themselves and send you a patch. That's not what a maintainer
+> should do. They're supposed to maintain, not get other people to do the
+> work. They're supposed to be helpful, not a source of anxiety. You might be
+> the maintainer of swsusp in name, but you're not in practice. Please, lift
+> your game!
 
-Signed-off-by: Davi Arnaut <davi.arnaut@gmail.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: <stable@kernel.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
----
+I strongly disagree with this opinion.  I don't think there's any problem with
+Pavel, at least I haven't had any problems in communicating with him.
+Moreover, I don't think the role of maintainer must be to actually write the
+code.  From my point of view Pavel is in the right place, because I need
+someone to tell me if I'm going to do something stupid who knows the kernel
+better than I do.
 
- security/keys/keyctl.c |   15 ++++++++++-----
- 1 files changed, 10 insertions(+), 5 deletions(-)
+Furthermore, in many cases this is not Pavel who opposes your patches.
+As we speak there is a discussion on linux-pm regarding a patch that you
+have submitted and I'm sure you are following it.  Please note that Pavel
+hasn't spoken yet, but the patch has already been opposed by at least
+two people.  Is _this_ a Pavel's fault?  No, it isn't.
 
-Index: linux-2.6.15.3/security/keys/keyctl.c
-===================================================================
---- linux-2.6.15.3.orig/security/keys/keyctl.c
-+++ linux-2.6.15.3/security/keys/keyctl.c
-@@ -66,9 +66,10 @@ asmlinkage long sys_add_key(const char _
- 	description = kmalloc(dlen + 1, GFP_KERNEL);
- 	if (!description)
- 		goto error;
-+	description[dlen] = '\0';
- 
- 	ret = -EFAULT;
--	if (copy_from_user(description, _description, dlen + 1) != 0)
-+	if (copy_from_user(description, _description, dlen) != 0)
- 		goto error2;
- 
- 	/* pull the payload in if one was supplied */
-@@ -160,9 +161,10 @@ asmlinkage long sys_request_key(const ch
- 	description = kmalloc(dlen + 1, GFP_KERNEL);
- 	if (!description)
- 		goto error;
-+	description[dlen] = '\0';
- 
- 	ret = -EFAULT;
--	if (copy_from_user(description, _description, dlen + 1) != 0)
-+	if (copy_from_user(description, _description, dlen) != 0)
- 		goto error2;
- 
- 	/* pull the callout info into kernel space */
-@@ -181,9 +183,10 @@ asmlinkage long sys_request_key(const ch
- 		callout_info = kmalloc(dlen + 1, GFP_KERNEL);
- 		if (!callout_info)
- 			goto error2;
-+		callout_info[dlen] = '\0';
- 
- 		ret = -EFAULT;
--		if (copy_from_user(callout_info, _callout_info, dlen + 1) != 0)
-+		if (copy_from_user(callout_info, _callout_info, dlen) != 0)
- 			goto error3;
- 	}
- 
-@@ -278,9 +281,10 @@ long keyctl_join_session_keyring(const c
- 		name = kmalloc(nlen + 1, GFP_KERNEL);
- 		if (!name)
- 			goto error;
-+		name[nlen] = '\0';
- 
- 		ret = -EFAULT;
--		if (copy_from_user(name, _name, nlen + 1) != 0)
-+		if (copy_from_user(name, _name, nlen) != 0)
- 			goto error2;
- 	}
- 
-@@ -582,9 +586,10 @@ long keyctl_keyring_search(key_serial_t 
- 	description = kmalloc(dlen + 1, GFP_KERNEL);
- 	if (!description)
- 		goto error;
-+	description[dlen] = '\0';
- 
- 	ret = -EFAULT;
--	if (copy_from_user(description, _description, dlen + 1) != 0)
-+	if (copy_from_user(description, _description, dlen) != 0)
- 		goto error2;
- 
- 	/* get the keyring at which to begin the search */
-
---
+Greetings,
+Rafael

@@ -1,46 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030478AbWBHDSn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030509AbWBHDUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030478AbWBHDSn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 22:18:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030477AbWBHDSm
+	id S1030509AbWBHDUu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 22:20:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030493AbWBHDUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 22:18:42 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:55936 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751136AbWBHDSO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 22:18:14 -0500
+	Tue, 7 Feb 2006 22:20:05 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:641 "EHLO ZenIV.linux.org.uk")
+	by vger.kernel.org with ESMTP id S1030480AbWBHDT1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 22:19:27 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 04/29] missing includes in drivers/net/mv643xx_eth.c
-Cc: linux-kernel@vger.kernel.org, dale@farnsworth.org, jgarzik@pobox.com
-Message-Id: <E1F6fqN-0006Ba-W6@ZenIV.linux.org.uk>
+Subject: [PATCH 19/29] cmm NULL noise removal, __user annotations
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <E1F6frb-0006DS-46@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Wed, 08 Feb 2006 03:18:11 +0000
+Date: Wed, 08 Feb 2006 03:19:27 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Date: 1137630954 -0500
+Date: 1138793354 -0500
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- drivers/net/mv643xx_eth.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+ arch/s390/mm/cmm.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
-b6298c22c5e9f698812e2520003ee178aad50c10
-diff --git a/drivers/net/mv643xx_eth.c b/drivers/net/mv643xx_eth.c
-index 7ef4b04..c0998ef 100644
---- a/drivers/net/mv643xx_eth.c
-+++ b/drivers/net/mv643xx_eth.c
-@@ -32,6 +32,8 @@
-  */
- #include <linux/init.h>
- #include <linux/dma-mapping.h>
-+#include <linux/in.h>
-+#include <linux/ip.h>
- #include <linux/tcp.h>
- #include <linux/udp.h>
- #include <linux/etherdevice.h>
+aaedd944d4dd25fdfafb10db65544e98eb66857d
+diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
+index 2d5cb13..b075ab4 100644
+--- a/arch/s390/mm/cmm.c
++++ b/arch/s390/mm/cmm.c
+@@ -42,8 +42,8 @@ static volatile long cmm_timed_pages_tar
+ static long cmm_timeout_pages = 0;
+ static long cmm_timeout_seconds = 0;
+ 
+-static struct cmm_page_array *cmm_page_list = 0;
+-static struct cmm_page_array *cmm_timed_page_list = 0;
++static struct cmm_page_array *cmm_page_list = NULL;
++static struct cmm_page_array *cmm_timed_page_list = NULL;
+ 
+ static unsigned long cmm_thread_active = 0;
+ static struct work_struct cmm_thread_starter;
+@@ -259,7 +259,7 @@ static struct ctl_table cmm_table[];
+ 
+ static int
+ cmm_pages_handler(ctl_table *ctl, int write, struct file *filp,
+-		  void *buffer, size_t *lenp, loff_t *ppos)
++		  void __user *buffer, size_t *lenp, loff_t *ppos)
+ {
+ 	char buf[16], *p;
+ 	long pages;
+@@ -300,7 +300,7 @@ cmm_pages_handler(ctl_table *ctl, int wr
+ 
+ static int
+ cmm_timeout_handler(ctl_table *ctl, int write, struct file *filp,
+-		    void *buffer, size_t *lenp, loff_t *ppos)
++		    void __user *buffer, size_t *lenp, loff_t *ppos)
+ {
+ 	char buf[64], *p;
+ 	long pages, seconds;
+@@ -419,7 +419,7 @@ cmm_init (void)
+ #ifdef CONFIG_CMM_IUCV
+ 	smsg_register_callback(SMSG_PREFIX, cmm_smsg_target);
+ #endif
+-	INIT_WORK(&cmm_thread_starter, (void *) cmm_start_thread, 0);
++	INIT_WORK(&cmm_thread_starter, (void *) cmm_start_thread, NULL);
+ 	init_waitqueue_head(&cmm_thread_wait);
+ 	init_timer(&cmm_timer);
+ 	return 0;
 -- 
 0.99.9.GIT
 

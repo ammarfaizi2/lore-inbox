@@ -1,44 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965213AbWBHWgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965217AbWBHWjf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965213AbWBHWgu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 17:36:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965216AbWBHWgu
+	id S965217AbWBHWjf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 17:39:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965218AbWBHWje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 17:36:50 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:59274 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S965213AbWBHWgt convert rfc822-to-8bit (ORCPT
+	Wed, 8 Feb 2006 17:39:34 -0500
+Received: from mx1.suse.de ([195.135.220.2]:58072 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965217AbWBHWje (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 17:36:49 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [2.6 patch] let IA64_GENERIC select more stuff
-Date: Wed, 8 Feb 2006 14:35:37 -0800
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F05A6E3E7@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [2.6 patch] let IA64_GENERIC select more stuff
-Thread-Index: AcYs+DS9IqDfRJRpTDukxy/9UEr1FwABMOUwAAB9riA=
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Adrian Bunk" <bunk@stusta.de>
-Cc: "Keith Owens" <kaos@sgi.com>, <linux-ia64@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "Jes Sorensen" <jes@sgi.com>
-X-OriginalArrivalTime: 08 Feb 2006 22:35:39.0035 (UTC) FILETIME=[FC7386B0:01C62CFF]
+	Wed, 8 Feb 2006 17:39:34 -0500
+Date: Wed, 8 Feb 2006 23:39:32 +0100
+From: Olaf Hering <olh@suse.de>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new tty buffering locking fix
+Message-ID: <20060208223932.GA29533@suse.de>
+References: <200602032312.k13NCbWb012991@hera.kernel.org> <20060207123450.GA854@suse.de> <1139329302.3019.14.camel@amdx2.microgate.com> <20060207171111.GA15912@suse.de> <1139347644.3174.16.camel@amdx2.microgate.com> <1139361293.22595.14.camel@localhost.localdomain> <1139436317.12888.7.camel@amdx2.microgate.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <1139436317.12888.7.camel@amdx2.microgate.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Drifting a little (perhaps).  "make allnoconfig" produces
-a config that doesn't compile. Lots or warnings during compile
-about implicit declaration of ia64_pfn_valid.  Then link errors
-for vmem_map and ia64_pfn_valid.
+ On Wed, Feb 08, Paul Fulghum wrote:
 
-What's the right thing to do about this?  It's been broken for a
-long time (definitely since SPARSE support was added, perhaps longer).
+> Olaf: can you please test this with the hvc?
 
+Yes, works for me, tested with -git6
 
--Tony
+-- 
+short story of a lazy sysadmin:
+ alias appserv=wotan

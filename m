@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030518AbWBHUC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbWBHT4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030518AbWBHUC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 15:02:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030513AbWBHUCN
+	id S1030268AbWBHT4L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 14:56:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbWBHT4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 15:02:13 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:37841 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030504AbWBHUBy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 15:01:54 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 4/8] gcc41 fixes: v850 get_user()
-Message-Id: <E1F6vVh-0008Bu-Kg@ZenIV.linux.org.uk>
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Wed, 08 Feb 2006 20:01:53 +0000
+	Wed, 8 Feb 2006 14:56:11 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:3011 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932491AbWBHT4K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 14:56:10 -0500
+Message-Id: <200602081955.k18Jtug12275@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Jes Sorensen'" <jes@sgi.com>, "Alex Williamson" <alex.williamson@hp.com>
+Cc: "Luck, Tony" <tony.luck@intel.com>, "Adrian Bunk" <bunk@stusta.de>,
+       "Keith Owens" <kaos@sgi.com>, <linux-ia64@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: [2.6 patch] let IA64_GENERIC select more stuff
+Date: Wed, 8 Feb 2006 11:55:58 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcYs5VZbZN8VZWpPRemOfGkgKlka/gAAx/1w
+In-Reply-To: <43EA4557.6070107@sgi.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Date: 1135880312 -0500
+Jes Sorensen wrote on Wednesday, February 08, 2006 11:24 AM
+> > Seems like maybe PCI was removed so that it was possible to configure
+> > a generic kernel to boot on the simulator...  I could imagine not having
+> > PCI might have some degree of usefulness when using a ramdisk.  Isn't
+> > this what the defconfigs are for?
+> > That could explain it, but the question is whether one would want to
+> 
+> boot a generic kernel when running on a simulator. After all then every
+> cycle does count ;)
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
----
+CONFIG_IA64_GENERIC select CONFIG_ACPI, and CONFIG_ACPI select CONFIG_PCI,
+This whole thread is silly since the beginning and it is a moot point for
+all of previous discussions.  What are we talking about exactly??
 
- include/asm-v850/uaccess.h |    7 +------
- 1 files changed, 1 insertions(+), 6 deletions(-)
-
-f24dd1b50636edb17b875d8b3290ff27727af0c3
-diff --git a/include/asm-v850/uaccess.h b/include/asm-v850/uaccess.h
-index 64563c4..b6c4409 100644
---- a/include/asm-v850/uaccess.h
-+++ b/include/asm-v850/uaccess.h
-@@ -59,18 +59,13 @@ extern int bad_user_access_length (void)
- #define __get_user(var, ptr)						      \
-   ({									      \
- 	  int __gu_err = 0;						      \
--	  typeof(*(ptr)) __gu_val = 0;					      \
-+	  typeof(*(ptr)) __gu_val = *ptr;				      \
- 	  switch (sizeof (*(ptr))) {					      \
- 	  case 1:							      \
- 	  case 2:							      \
- 	  case 4:							      \
--		  __gu_val = *(ptr);					      \
--		  break;						      \
--	  case 8:							      \
--		  memcpy(&__gu_val, ptr, sizeof(__gu_val));		      \
- 		  break;						      \
- 	  default:							      \
--		  __gu_val = 0;						      \
- 		  __gu_err = __get_user_bad ();				      \
- 		  break;						      \
- 	  }								      \
--- 
-0.99.9.GIT
+- Ken
 

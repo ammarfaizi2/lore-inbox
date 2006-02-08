@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965194AbWBHESt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWBHEWl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965194AbWBHESt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 23:18:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbWBHESt
+	id S932190AbWBHEWl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 23:22:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWBHEWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 23:18:49 -0500
-Received: from xenotime.net ([66.160.160.81]:17864 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932190AbWBHESs (ORCPT
+	Tue, 7 Feb 2006 23:22:41 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:63458 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932190AbWBHEWl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 23:18:48 -0500
-Date: Tue, 7 Feb 2006 20:19:23 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andi Kleen <ak@suse.de>
-Cc: haveblue@us.ibm.com, ebiederm@xmission.com, linux-kernel@vger.kernel.org,
-       vserver@list.linux-vserver.org, herbert@13thfloor.at, serue@us.ibm.com,
-       alan@lxorguk.ukuu.org.uk, arjan@infradead.org, ssouhlal@freebsd.org,
-       frankeh@watson.ibm.com, clg@fr.ibm.com, mrmacman_g4@mac.com, dev@sw.ru,
-       gkurz@fr.ibm.com, torvalds@osdl.org, akpm@osdl.org, greg@kroah.com,
-       riel@redhat.com, kuznet@ms2.inr.ac.ru, saw@sawoct.com, dev@openvz.org,
-       benh@kernel.crashing.org, jgarzik@pobox.com, trond.myklebust@fys.uio.no,
-       jes@sgi.com
-Subject: Re: [RFC][PATCH 0/20] Multiple instances of the process id
- namespace
-Message-Id: <20060207201923.1a97cfd6.rdunlap@xenotime.net>
-In-Reply-To: <200602071033.23316.ak@suse.de>
-References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
-	<1139273294.6189.170.camel@localhost.localdomain>
-	<200602071033.23316.ak@suse.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Tue, 7 Feb 2006 23:22:41 -0500
+Date: Tue, 7 Feb 2006 20:21:37 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Sam Vilain <sam@vilain.net>
+Cc: Kevin.Fox@pnl.gov, frankeh@watson.ibm.com, riel@redhat.com,
+       ebiederm@xmission.com, dev@openvz.org, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, clg@fr.ibm.com, haveblue@us.ibm.com,
+       greg@kroah.com, alan@lxorguk.ukuu.org.uk, serue@us.ibm.com,
+       arjan@infradead.org, kuznet@ms2.inr.ac.ru, saw@sawoct.com,
+       devel@openvz.org, dim@sw.ru, ak@suse.de
+Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
+Message-Id: <20060207202137.d5b80c47.pj@sgi.com>
+In-Reply-To: <43E94651.2090009@vilain.net>
+References: <43E7C65F.3050609@openvz.org>
+	<m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com>
+	<43E83E8A.1040704@vilain.net>
+	<43E8D160.4040803@watson.ibm.com>
+	<43E92602.8040403@vilain.net>
+	<1139364483.7169.20.camel@localhost.localdomain>
+	<43E94651.2090009@vilain.net>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Feb 2006 10:33:21 +0100 Andi Kleen wrote:
+The driving force for cpusets are NUMA architectures.
 
-> On Tuesday 07 February 2006 01:48, Dave Hansen wrote:
-> > On Mon, 2006-02-06 at 12:19 -0700, Eric W. Biederman wrote:
-> > > p.s.  My apologies at the size of the CC list.  It is very hard to tell who
-> > > the interested parties are, and since there is no one list we all subscribe
-> > > to other than linux-kernel how to reach everyone in a timely manner.  I am
-> > > copying everyone who has chimed in on a previous thread on the subject.  If
-> > > you don't want to be copied in the future tell and I will take your name off
-> > > of my list.
-> > 
-> > Is it worth creating a vger or OSDL mailing list for these discussions?
-> > There was some concern the cc list is getting too large. :)
-> 
-> No, linux-kernel is fine. It will keep everybody informed, instead of
-> small groups doing their own things. But just keep the cc lists short please.
-> I'm sure all interested people can get it from l-k.
+Cpusets represent the topologies of NUMA systems, with hierarchies
+of cabinets, drawers, boards, packages, cores, hyperthreads, and
+with chunks of main memory associated usually with the board, but
+sometimes a layer or two up or down.
 
-OK.  (Yes, I have a dream.)
+Since not all cpus have the same access performance (delay and
+bandwidth) to all memory chunks (nodes), for optimum performance one
+wants to bind tasks, cpus and memory together, so as to run tasks on
+sets of cpus and memory that are "near" to each other, and to size the
+sets appropriately for the workload presented by the tasks.
 
-I'd like to see less traffic on lkml, with various things moved off
-to other mailing lists.
+Cpusets have no explicit awareness of topology; they just provides a
+file system style hierarchy of named, permissioned sets, where each set
+has:
+  mems - the memory nodes in that set
+  cpus - the cpus in that set
+  tasks - the tasks running on these cpus and mems
 
-According to http://marc.theaimsgroup.com/?l=linux-kernel,
-Jan. 2006 was a near record month and Feb. is on track to be large also.
+For any cpuset, the 'cpus' and 'mems' are a subset of its parent in the
+hierarchy, and the root of the hierarchy (usually mounted at /dev/cpuset)
+contains all the online cpus and mems in the system.
 
----
-~Randy
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

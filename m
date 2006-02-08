@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030360AbWBHN3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030368AbWBHNa3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030360AbWBHN3n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 08:29:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965113AbWBHN3n
+	id S1030368AbWBHNa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 08:30:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbWBHNa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 08:29:43 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:22713 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964850AbWBHN3n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 08:29:43 -0500
-Subject: Re: libATA  PATA status report, new patch
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Meelis Roos <mroos@linux.ee>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SOC.4.61.0602071947030.15961@math.ut.ee>
-References: <20060207084347.54CD01430C@rhn.tartu-labor>
-	 <1139310335.18391.2.camel@localhost.localdomain>
-	 <Pine.SOC.4.61.0602071305310.10491@math.ut.ee>
-	 <1139312330.18391.14.camel@localhost.localdomain>
-	 <1139324653.18391.41.camel@localhost.localdomain>
-	 <Pine.SOC.4.61.0602071947030.15961@math.ut.ee>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 08 Feb 2006 13:31:54 +0000
-Message-Id: <1139405514.26270.35.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 8 Feb 2006 08:30:29 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:53994 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S965113AbWBHNa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 08:30:28 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Wed, 08 Feb 2006 14:27:41 +0100
+To: schilling@fokus.fraunhofer.de, jim@why.dont.jablowme.net
+Cc: peter.read@gmail.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43E9F1CD.nail2BR11FL52@burner>
+References: <20060123105634.GA17439@merlin.emma.line.org>
+ <200602021717.08100.luke@dashjr.org>
+ <Pine.LNX.4.61.0602031502000.7991@yvahk01.tjqt.qr>
+ <200602031724.55729.luke@dashjr.org> <43E7545E.nail7GN11WAQ9@burner>
+ <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de>
+ <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner>
+ <20060207183712.GC5341@voodoo>
+In-Reply-To: <20060207183712.GC5341@voodoo>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-02-07 at 19:50 +0200, Meelis Roos wrote:
-> ata2: PATA max UDMA/66 cmd 0x170 ctl 0x376 bmdma 0xFFA8 irq 15
-> ata2: dev 0 ATAPI, max UDMA/33
-> ata2: dev 0 configured for UDMA/33
+"Jim Crilly" <jim@why.dont.jablowme.net> wrote:
 
-So far so good.
+> All you've explained is that using SCSI ID for device names is the way
+> you want cdrecord to work, not why it's infinitely better than using real
+> device names like every other userland program on every OS in existance.
 
-> scsi1 : ata_piix
-> ata2: command 0xa0 timeout, stat 0xd0 host_stat 0x24
-> ata2: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
+I did many times, but people don't seem to listen.
 
-Tries to do a packet command, which is reasonable as its ATAPI but the
-timeout is unexpected.
 
-> int3: 0000 [#1]
-> CPU:    0
-> EIP:    0060:[<c0148711>]    Not tainted VLI
+> The people replying here are your users, if you don't want to listen to
+> them pretty much any conversation with you will be a waste of time.
 
-The rest seems to be a generic problem with libata and early commands
-timing out (I think the device is getting deleted before the command
-completes).
+Sorry, but from reading the mail from _real_ cdrecord users, it is obvious
+that the people here are either not my users or users with a stange way of 
+thinking.
 
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

@@ -1,37 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965217AbWBHWjf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965220AbWBHWmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965217AbWBHWjf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 17:39:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965218AbWBHWje
+	id S965220AbWBHWmk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 17:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965221AbWBHWmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 17:39:34 -0500
-Received: from mx1.suse.de ([195.135.220.2]:58072 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965217AbWBHWje (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 17:39:34 -0500
-Date: Wed, 8 Feb 2006 23:39:32 +0100
-From: Olaf Hering <olh@suse.de>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new tty buffering locking fix
-Message-ID: <20060208223932.GA29533@suse.de>
-References: <200602032312.k13NCbWb012991@hera.kernel.org> <20060207123450.GA854@suse.de> <1139329302.3019.14.camel@amdx2.microgate.com> <20060207171111.GA15912@suse.de> <1139347644.3174.16.camel@amdx2.microgate.com> <1139361293.22595.14.camel@localhost.localdomain> <1139436317.12888.7.camel@amdx2.microgate.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <1139436317.12888.7.camel@amdx2.microgate.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Wed, 8 Feb 2006 17:42:40 -0500
+Received: from 10.121.9.213.dsl.getacom.de ([213.9.121.10]:52657 "EHLO
+	ds666.starfleet") by vger.kernel.org with ESMTP id S965220AbWBHWmk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 17:42:40 -0500
+Message-ID: <43EA73C9.7010101@l4x.org>
+Date: Wed, 08 Feb 2006 23:42:17 +0100
+From: Jan Dittmer <jdi@l4x.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051017 Thunderbird/1.0.7 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Balbir Singh <bsingharora@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, dev@sw.ru,
+       jblunck@suse.de
+References: <43E90573.8040305@l4x.org> <20060207162335.5304ae61.akpm@osdl.org>	 <43E9A260.6000202@l4x.org> <661de9470602081006p2a3132e8x2436de89e9395748@mail.gmail.com>
+In-Reply-To: <661de9470602081006p2a3132e8x2436de89e9395748@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 192.168.2.134
+X-SA-Exim-Mail-From: jdi@l4x.org
+Subject: Re: VFS: Busy inodes after unmount. Self-destruct in 5 seconds. Have
+ a nice day...
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on ds666.starfleet)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Wed, Feb 08, Paul Fulghum wrote:
+Balbir Singh wrote:
+>>>>$ umount /mnt/data
+>>>>Segmentation Fault
+>>>>
+>>>>dmesg:
+>>>>
+>>>>VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice day...
+>>>>Unable to handle kernel NULL pointer dereference at virtual address 00000034
+>>>
+>>>
+> 
+> There were a couple of fixes suggested for the busy inodes afer
+> unmount problem. Please see
+> 
+> http://lkml.org/lkml/2006/1/25/17
+> 
+> and
+> 
+> http://lkml.org/lkml/2006/1/30/108
+> You could see if any one of them fixes your problem. There is also
+> Kirill's fix which was in mm (not sure about it now)
 
-> Olaf: can you please test this with the hvc?
+Thanks for the suggestion, but I couldn't reproduce it with a simple
+mount/umount and the partition in question is gone for good now. And I
+don't feel like risiking 450gb of data, even if I had a backup of the
+data...
 
-Yes, works for me, tested with -git6
-
--- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+Jan

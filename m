@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030615AbWBHXds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422637AbWBHXf0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030615AbWBHXds (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 18:33:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030618AbWBHXds
+	id S1422637AbWBHXf0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 18:35:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422636AbWBHXf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 18:33:48 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:14979 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1030615AbWBHXds
+	Wed, 8 Feb 2006 18:35:26 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:2833 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1422635AbWBHXf0 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 18:33:48 -0500
-Date: Wed, 8 Feb 2006 15:39:57 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Justin Forbes <jmforbes@linuxtx.org>, torvalds@osdl.org,
-       Randy Dunlap <rdunlap@xenotime.net>, Dave Jones <davej@redhat.com>,
-       Chuck Wolber <chuckw@quantumlinux.com>, alan@lxorguk.ukuu.org.uk
-Subject: [PATCH 24/23] md: remove slashes from disk names when creation dev names in sysfs
-Message-ID: <20060208233957.GP30803@sorel.sous-sol.org>
-References: <20060208064503.924238000@sorel.sous-sol.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Feb 2006 18:35:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=c4TsfNhEvST49ZrQNfc24ZaRiexCNCiJhRcrdu1BETORsSy6naP9iuEqBzWWdoTQYJBqtwQhJhHU7vxkUa5fkPlCS10CunOxkO4AxFHKwcpq3u7t8yU9QWaMEDNnS2hCgYjHwhU95B/mHvyarr7EI09AkgllLGV7+u3udMcWrLE=
+Message-ID: <6bffcb0e0602081535t419d7530k@mail.gmail.com>
+Date: Thu, 9 Feb 2006 00:35:25 +0100
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: Jan Koss <kossjan@gmail.com>
+Subject: Re: benchmarks
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <b97d23040602081210g1ada4c97x432692d04add7761@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060208064503.924238000@sorel.sous-sol.org>
-User-Agent: Mutt/1.4.2.1i
+References: <b97d23040602081210g1ada4c97x432692d04add7761@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
-(this should've been in the series.  i missed this one, mea culpa)
-------------------
+Hi,
 
-e.g. The sx8 driver uses names like sx8/0.
+On 08/02/06, Jan Koss <kossjan@gmail.com> wrote:
+> Hello.
+>
+> Recently, I choosed between FreeBSD and Linux for server,
+> I found out only such bechmarks:
+>
+> http://geri.cc.fer.hr/~ivoras/web2/papers/osbench.html
+>
+> 1)may be some one know any other benchmarks?
 
-This would make a md component dev name like
+http://bulk.fefe.de/scalability/ - It's _very_ (_very_! :) old benchmark.
 
-   /sys/block/md0/md/dev-sx8/0
-
-which is not allowed.  So we change the '/' to '!' just like
-fs/partitions/check.c(register_disk) does.
-
-Signed-off-by: Neil Brown <neilb@suse.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
----
- drivers/md/md.c |    3 +++
- 1 files changed, 3 insertions(+)
-
---- linux-2.6.15.3.orig/drivers/md/md.c
-+++ linux-2.6.15.3/drivers/md/md.c
-@@ -1182,6 +1182,7 @@ static int bind_rdev_to_array(mdk_rdev_t
- 	mdk_rdev_t *same_pdev;
- 	char b[BDEVNAME_SIZE], b2[BDEVNAME_SIZE];
- 	struct kobject *ko;
-+	char *s;
- 
- 	if (rdev->mddev) {
- 		MD_BUG();
-@@ -1213,6 +1214,8 @@ static int bind_rdev_to_array(mdk_rdev_t
- 	bdevname(rdev->bdev,b);
- 	if (kobject_set_name(&rdev->kobj, "dev-%s", b) < 0)
- 		return -ENOMEM;
-+	while ( (s=strchr(rdev->kobj.k_name, '/')) != NULL)
-+		*s = '!';
- 			
- 	list_add(&rdev->same_set, &mddev->disks);
- 	rdev->mddev = mddev;
+Regards,
+Michal Piotrowski

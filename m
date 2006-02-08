@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbWBHErI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030328AbWBHEsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030222AbWBHErI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 23:47:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030328AbWBHErI
+	id S1030328AbWBHEsg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 23:48:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030332AbWBHEsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 23:47:08 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:30406 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030222AbWBHErH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 23:47:07 -0500
-Date: Tue, 7 Feb 2006 20:46:55 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       akpm@osdl.org, ck@vds.kolivas.org
-Subject: Re: [PATCH] mm: implement swap prefetching
-Message-Id: <20060207204655.f1c69875.pj@sgi.com>
-In-Reply-To: <200602071502.41456.kernel@kolivas.org>
-References: <200602071028.30721.kernel@kolivas.org>
-	<43E80F36.8020209@yahoo.com.au>
-	<200602071502.41456.kernel@kolivas.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Feb 2006 23:48:36 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:8854 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030328AbWBHEsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 23:48:35 -0500
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Hubertus Franke <frankeh@watson.ibm.com>, Sam Vilain <sam@vilain.net>,
+       Rik van Riel <riel@redhat.com>, Kirill Korotaev <dev@openvz.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, clg@fr.ibm.com, haveblue@us.ibm.com,
+       greg@kroah.com, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
+       saw@sawoct.com, devel@openvz.org, Dmitry Mishin <dim@sw.ru>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: The issues for agreeing on a virtualization/namespaces
+ implementation.
+References: <43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com>
+	<20060207201908.GJ6931@sergelap.austin.ibm.com>
+	<43E90716.4020208@watson.ibm.com>
+	<m17j86dds4.fsf_-_@ebiederm.dsl.xmission.com>
+	<43E92EDC.8040603@watson.ibm.com>
+	<20060208004325.GA15061@ms2.inr.ac.ru>
+	<m1k6c6bm57.fsf@ebiederm.dsl.xmission.com>
+	<20060208033633.GA8784@sergelap.austin.ibm.com>
+	<m1d5hybj80.fsf@ebiederm.dsl.xmission.com>
+	<20060208043721.GA26692@MAIL.13thfloor.at>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 07 Feb 2006 21:46:26 -0700
+In-Reply-To: <20060208043721.GA26692@MAIL.13thfloor.at> (Herbert Poetzl's
+ message of "Wed, 8 Feb 2006 05:37:21 +0100")
+Message-ID: <m1u0baa259.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con, responding to Nick:
-> > It introduces global cacheline bouncing in pagecache allocation and removal
-> > and page reclaim paths, also low watermark failure is quite common in
-> > normal operation, so that is another global cacheline write in page
-> > allocation path.
-> 
-> None of these issues is going to remotely the target audience. If the issue is 
-> how scalable such a change can be then I cannot advocate making the code 
-> smart and complex enough to be numa and cpuset aware.. but then that's never 
-> going to be the target audience. It affects a particular class of user which 
-> happens to be quite a large population not affected by complex memory 
-> hardware.
+Herbert Poetzl <herbert@13thfloor.at> writes:
 
-How about only moving memory back to the Memory Node (zone) that it
-came from?  And providing some call that Christoph Lameters migration
-code can call, to disable or fix this up, so you don't end up bringing
-back pages on their pre-migration nodes?
+> yep, that's what the first network virtualization for
+> Linux-VServer aimed at, but found too complicated
+> the second one uses 'pairs' of communicating devices
+> to send between guests/host
 
-Just honoring the memory node placement should be sufficient.  No need
-to wrap your head around cpusets.
+Well you need the pairs of course, to communication between
+the two stack ``instances''.
 
-If you don't do that, then consider disabling this thing entirely
-if CONFIG_NUMA is enabled.  This swap prefetching sounds like it
-could be a loose canon ball in a NUMA box.
+>> With that rule dealing with the network stack is just a matter of
+>> making some currently global variables/data structures per container.
+>
+> yep, like the universal loopback and so ...
 
-As for non-NUMA boxes, like my humble desktop PC, I would -love-
-to have Firefox come back up faster in the morning.  I have a nightly
-cron jobs push everything out to swap, and it is slow going getting it
-back.
+:)
 
-The day will come (it has already gotten there for some of my
-colleagues who are using a small Altix system for their desktop
-software) when we want this prefetching for NUMA boxes too.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Eric

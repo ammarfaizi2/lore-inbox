@@ -1,87 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030530AbWBHFhg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030531AbWBHFjU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030530AbWBHFhg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 00:37:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030531AbWBHFhg
+	id S1030531AbWBHFjU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 00:39:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030532AbWBHFjU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 00:37:36 -0500
-Received: from rwcrmhc14.comcast.net ([204.127.192.84]:15577 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1030530AbWBHFhf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 00:37:35 -0500
-Date: Wed, 8 Feb 2006 00:37:32 -0500
-From: John M Flinchbaugh <john@hjsoft.com>
-To: Sam Vilain <sam@vilain.net>
-Cc: Bernd Schubert <bernd-schubert@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15 Bug? New security model?
-Message-ID: <20060208053732.GA13560@butterfly.hjsoft.com>
-References: <200602080212.27896.bernd-schubert@gmx.de> <43E94A02.2080205@vilain.net>
+	Wed, 8 Feb 2006 00:39:20 -0500
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:16052 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1030531AbWBHFjT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 00:39:19 -0500
+From: Grant Coady <gcoady@gmail.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
+Date: Wed, 08 Feb 2006 16:39:09 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <ql0ju1hesplkt6sto96viehbeck3uhkrdv@4ax.com>
+References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com> <200602081335.18256.kernel@kolivas.org> <24niu1hrom6udfa2km18b8bagad62kjamc@4ax.com> <200602081400.59931.kernel@kolivas.org> <nutiu1dkoldca31ddusfbd2rv41q7q0k3m@4ax.com> <20060208051709.GE11380@w.ods.org>
+In-Reply-To: <20060208051709.GE11380@w.ods.org>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
-Content-Disposition: inline
-In-Reply-To: <43E94A02.2080205@vilain.net>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Willy,
+On Wed, 8 Feb 2006 06:17:09 +0100, Willy Tarreau <willy@w.ods.org> wrote:
 
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>Hi Grant,
+>
+>On Wed, Feb 08, 2006 at 03:51:24PM +1100, Grant Coady wrote:
+>> On Wed, 8 Feb 2006 14:00:59 +1100, Con Kolivas <kernel@kolivas.org> wrote:
+>> 
+>> >This is the terminal's fault. xterm et al use an algorithm to determine how 
+>> >fast your machine is and decide whether to jump scroll or smooth scroll. This 
+>> >algorithm is basically broken with the 2.6 scheduler and it decides to mostly 
+>> >smooth scroll.
+>> 
+>> Strange it does that over localnet to a PuTTY terminal on windoze.
+>> 
+>> Seems a strange thing to do in the kernel though, presentation 
+>> buffering / management surely can be done in userspace?
+>
+>I suspect the sshd on the firewall gets woken up for each line and it
+>behaves exactly like an xterm. After having done a lot of "ls -l|cat"
+>on 2.6, I'm not surprized at all :-/
+>
+>A good test would be to strace sshd under 2.4 and 2.6. You could even
+>use strace -tt. Probably that you will see something like 1 ms between
+>two reads on 2.6 and nearly nothing between them in 2.4.
 
-On Wed, Feb 08, 2006 at 02:31:46PM +1300, Sam Vilain wrote:
-> Bernd Schubert wrote:
-> >With 2.6.15:
-> >bathl:~# touch /var/run/test
-> >touch: cannot touch `/var/run/test': Permission denied
-> >With 2.6.13:
-> >bathl:~# touch /var/run/test
-> >(No error message)
->=20
-> Some ideas; ACLs, SELinux, Attributes, Capabilities.
+Yes, it is nearly 1ms per line delay with 2.6, but 2.4 and 2.6 with the 
+trailing '|cat' give similar times, didn't try that notion last time.  
 
-lsattr -d /var/run && lsattr /var/run
+We know now it isn't the network cards, disk I/O, just an oddness in 2.6 ;)
 
-I saw very similar things going from 2.6.15.1 to 2.6.15.2.  2.6.15.2's
-changelog advertises a fix to reenable extended attributes on reiserfs.
-On one machine this is fine, and lsattr shows no attributes enabled
-(----------), but on another machine, I ended up with all sorts of crazy
-attributes set seemingly randomly -- compression, experimental flags,
-immutable, append-only, all over the map.
-
-I tried clearing them (chattr -R =3D /var ...etc), but I still found a
-file here and there which refused to be removed, even though lsattr
-showed no flags for it.  After a restart or 2, I saw some attributes
-revert back and I started having trouble removing files from /var/run
-and other places again.
-
-I ended up reverting back to 2.6.15.1 until I have a chance to
-investigate further and try to come up with something reportable.  In
-2.6.15.1, attributes didn't work at all, giving an ioctl error, though
-the same kernel options were used.  I suspect this is the fix to which
-the Changelog is referring.
-
-I must wonder if I'm suffering from some sort of fs corruption which
-only manifests itself in the attribute settings, and which a reisefsck
-doesn't recognize or correct.  I could be tempted to recreate the
-filesystems from scratch to see if they still have issues.
---=20
-John M Flinchbaugh
-john@hjsoft.com
-
---UlVJffcvxoiEqYs2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFD6YOcCGPRljI8080RAp1IAJ42B2FGEgTgw4qG3T/VU5pxf+B63QCePl+v
-J9kCr5SWEK1bamygs+QuhIk=
-=27BD
------END PGP SIGNATURE-----
-
---UlVJffcvxoiEqYs2--
+Cheers,
+Grant.

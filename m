@@ -1,44 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030559AbWBHGYZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030560AbWBHGY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030559AbWBHGYZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 01:24:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030561AbWBHGYZ
+	id S1030560AbWBHGY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 01:24:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030572AbWBHGY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 01:24:25 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:13966 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030559AbWBHGYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 01:24:25 -0500
-Message-ID: <43E98ED6.3020108@jp.fujitsu.com>
-Date: Wed, 08 Feb 2006 15:25:26 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: linuxsh-dev@lists.sourceforge.net
-Subject: [PATCH]  unify pfn_to_page take 2 [19/25] sh funcs
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Feb 2006 01:24:26 -0500
+Received: from mail.polishnetwork.com ([69.222.0.23]:40970 "EHLO usfltd.com")
+	by vger.kernel.org with ESMTP id S1030560AbWBHGY0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 01:24:26 -0500
+Date: Wed,  8 Feb 2006 00:24:05 -0600
+Message-Id: <200602080024.AA52494644@usfltd.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+From: "art" <art@usfltd.com>
+Reply-To: <art@usfltd.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel-2.6.16-rc2-git4 --- reiserfs write problems !!!
+X-Mailer: <IMail v8.05>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SH can use generic funcs.
+kernel-2.6.16-rc2-git4 --- reiserfs write problems
 
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+looks like with rc2 reiserfs have problem with writing - reading is ok
 
-Index: test-layout-free-zone/include/asm-sh/page.h
-===================================================================
---- test-layout-free-zone.orig/include/asm-sh/page.h
-+++ test-layout-free-zone/include/asm-sh/page.h
-@@ -105,9 +105,7 @@ typedef struct { unsigned long pgprot; }
+reiserfs is mounted on ext3 mount
 
-  /* PFN start number, because of __MEMORY_START */
-  #define PFN_START		(__MEMORY_START >> PAGE_SHIFT)
--
--#define pfn_to_page(pfn)	(mem_map + (pfn) - PFN_START)
--#define page_to_pfn(page)	((unsigned long)((page) - mem_map) + PFN_START)
-+#define ARCH_PFN_OFFSET		(PFN_START)
-  #define virt_to_page(kaddr)	pfn_to_page(__pa(kaddr) >> PAGE_SHIFT)
-  #define pfn_valid(pfn)		(((pfn) - PFN_START) < max_mapnr)
-  #define virt_addr_valid(kaddr)	pfn_valid(__pa(kaddr) >> PAGE_SHIFT)
+with kernel-2.6.16-rc1-git6 works
 
+any idea ???
+
+xboom

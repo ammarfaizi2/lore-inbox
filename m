@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030368AbWBHNa3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbWBHNhg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030368AbWBHNa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 08:30:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbWBHNa3
+	id S1030362AbWBHNhg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 08:37:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965113AbWBHNhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 08:30:29 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:53994 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S965113AbWBHNa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 08:30:28 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Wed, 08 Feb 2006 14:27:41 +0100
-To: schilling@fokus.fraunhofer.de, jim@why.dont.jablowme.net
-Cc: peter.read@gmail.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43E9F1CD.nail2BR11FL52@burner>
-References: <20060123105634.GA17439@merlin.emma.line.org>
- <200602021717.08100.luke@dashjr.org>
- <Pine.LNX.4.61.0602031502000.7991@yvahk01.tjqt.qr>
- <200602031724.55729.luke@dashjr.org> <43E7545E.nail7GN11WAQ9@burner>
- <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de>
- <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner>
- <20060207183712.GC5341@voodoo>
-In-Reply-To: <20060207183712.GC5341@voodoo>
-User-Agent: nail 11.2 8/15/04
+	Wed, 8 Feb 2006 08:37:36 -0500
+Received: from baldrick.bootc.net ([83.142.228.48]:3812 "EHLO
+	baldrick.bootc.net") by vger.kernel.org with ESMTP id S964850AbWBHNhf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 08:37:35 -0500
+Message-ID: <43E9F41C.30204@bootc.net>
+Date: Wed, 08 Feb 2006 13:37:32 +0000
+From: Chris Boot <bootc@bootc.net>
+User-Agent: Mail/News 1.5 (X11/20060114)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: libata PATA status report on 2.6.16-rc1-mm5
+References: <33D367D1-870E-46AE-A7EC-C938B51E816F@bootc.net> <1139400278.26270.10.camel@localhost.localdomain>
+In-Reply-To: <1139400278.26270.10.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jim Crilly" <jim@why.dont.jablowme.net> wrote:
+Alan Cox wrote:
+> On Mer, 2006-02-08 at 09:58 +0000, Chris Boot wrote:
+>> and everything seems to work fine. I notice PATA CD-ROMs still aren't  
+>> being recognised (with libata.atapi_enabled=1) which is a bit of a  
+>> shame, but fortunately I won't be needing to use the CD-ROM on this  
+>> machine at all. In fact this machine has so little use that I'm quite  
+>> happy to surrender it to testing.
+> 
+> What ports are the CDROM devices attached to. I'd expect to see them
+> found and reported as "being ignored" so it may indicate a bigger
+> problem.
+> 
+> 
 
-> All you've explained is that using SCSI ID for device names is the way
-> you want cdrecord to work, not why it's infinitely better than using real
-> device names like every other userland program on every OS in existance.
+The HDD (that works) is Primary Master, the CD-RW is Secondary Master. I'll give 
+-rc2-mm1 a shot later today, and maybe even -rc2 with your separate patches and 
+let you know.
 
-I did many times, but people don't seem to listen.
-
-
-> The people replying here are your users, if you don't want to listen to
-> them pretty much any conversation with you will be a waste of time.
-
-Sorry, but from reading the mail from _real_ cdrecord users, it is obvious
-that the people here are either not my users or users with a stange way of 
-thinking.
-
-Jörg
+HTH,
+Chris
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Chris Boot
+bootc@bootc.net
+http://www.bootc.net/

@@ -1,103 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbWBGXO3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030348AbWBHBF1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030240AbWBGXO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 18:14:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030239AbWBGXO2
+	id S1030348AbWBHBF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 20:05:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030350AbWBHBF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 18:14:28 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:38878 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1030240AbWBGXO2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 18:14:28 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Wed, 8 Feb 2006 09:11:02 +1000
-User-Agent: KMail/1.9.1
-Cc: Lee Revell <rlrevell@joe-job.com>, Jim Crilly <jim@why.dont.jablowme.net>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, suspend2-devel@lists.suspend2.net,
-       linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602071940.53843.nigel@suspend2.net> <20060207230245.GD2753@elf.ucw.cz>
-In-Reply-To: <20060207230245.GD2753@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart87652145.B6CoSVqagO";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602080911.08090.nigel@suspend2.net>
+	Tue, 7 Feb 2006 20:05:26 -0500
+Received: from atlas.pnl.gov ([130.20.248.194]:986 "EHLO atlas.pnl.gov")
+	by vger.kernel.org with ESMTP id S1030347AbWBHBFY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 20:05:24 -0500
+Date: Tue, 07 Feb 2006 18:08:03 -0800
+From: Kevin Fox <Kevin.Fox@pnl.gov>
+Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
+In-reply-to: <43E92602.8040403@vilain.net>
+To: Sam Vilain <sam@vilain.net>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>, Rik van Riel <riel@redhat.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Kirill Korotaev <dev@openvz.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       clg@fr.ibm.com, haveblue@us.ibm.com, greg@kroah.com,
+       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
+       kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
+       Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>
+Message-id: <1139364483.7169.20.camel@localhost.localdomain>
+MIME-version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5)
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <43E7C65F.3050609@openvz.org>
+ <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>
+ <Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com>
+ <43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com>
+ <43E92602.8040403@vilain.net>
+X-OriginalArrivalTime: 08 Feb 2006 01:05:22.0695 (UTC)
+ FILETIME=[BCB78170:01C62C4B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart87652145.B6CoSVqagO
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, 2006-02-08 at 11:58 +1300, Sam Vilain wrote:
+> Hubertus Franke wrote:
+> > The container is just an umbrella object that ties every "virtualized" 
+> > subsystem together.
+> 
+> I like this description; it matches roughly with the concepts as
+> presented by vserver; there is the process virtualisation (vx_info), and
+> the network virtualisation (nx_info) of Eric's that has been integrated
+> to the vserver 2.1.x development branch.  However the vx_info has become
+> the de facto umbrella object space as well.  These could almost
+> certainly be split out without too much pain or incurring major
+> rethinks.
+> 
+> Sam.
 
-Hello.
+How does all of this tie in with CPU Sets? It seems to me, they have
+something not unlike a container already that supports nesting.
 
-On Wednesday 08 February 2006 09:02, Pavel Machek wrote:
-> > > > Personally I agree with you on suspend2, I think this is something =
-that
-> > > > needed to Just Work yesterday, and every day it doesn't work we are
-> > > > losing users... but who am I to talk, I'm not the one who will have=
- to
-> > > > maintain it.
-> > >=20
-> > > It does just work in mainline now. If it does not please open bug
-> > > account at bugzilla.kernel.org.
-> > >=20
-> > > If mainline swsusp is too slow for you, install uswsusp. If it is
-> > > still too slow for you, mail me a patch adding LZW to userland code
-> > > (should be easy).
-> >=20
-> > <horrified rebuke>
-> >=20
-> > Pavel!
-> >=20
-> > Responses like this are precisely why you're not the most popular kerne=
-l=20
-> > maintainer. Telling people to use beta (alpha?) code or fix it
->=20
-> I do not *want* to be the most popular maintainer. That is your place ;-).
->=20
-> > themselves=20
-> > (and then have their patches rejected by you) is no way to maintain a p=
-art=20
-> > of the kernel. Stop being a liability instead of an asset!
->=20
-> Ugh?
->=20
-> Lee is a programmer. He wants faster swsusp, and improving uswsusp is
-> currently best way to get that. It may be alpha/beta quality, but
-> someone has to start testing, and Lee should be good for that (played
-> with realtime kernels etc...). Actually it is in good enough state
-> that I'd like non-programmers to test it, too.
+Kevin
 
-Ok. So Lee might be ok to test uswsusp. But this is your approach
-regardless of who is emailing you. You consistently tell people to fix
-problems themselves and send you a patch. That's not what a maintainer
-should do. They're supposed to maintain, not get other people to do the
-work. They're supposed to be helpful, not a source of anxiety. You might be
-the maintainer of swsusp in name, but you're not in practice. Please, lift
-your game!
-=20
-Nigel
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
-
---nextPart87652145.B6CoSVqagO
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD6SkMN0y+n1M3mo0RAijXAJ45NUrynA0w7TArPTk3RqbrJ55AyACcDAP4
-7dsd0mPAVTACkfAHy53NM00=
-=SzSe
------END PGP SIGNATURE-----
-
---nextPart87652145.B6CoSVqagO--
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

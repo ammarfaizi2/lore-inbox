@@ -1,53 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161002AbWBHGiR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030569AbWBHGky@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161002AbWBHGiR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 01:38:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030573AbWBHGiR
+	id S1030569AbWBHGky (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 01:40:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030570AbWBHGky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 01:38:17 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:53522 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1030569AbWBHGiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 01:38:17 -0500
-Date: Wed, 8 Feb 2006 07:37:54 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Chris Stromsoe <cbs@cts.ucla.edu>
-Cc: Roberto Nibali <ratz@drugphish.ch>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: bad pmd filemap.c, oops; 2.4.30 and 2.4.32
-Message-ID: <20060208063754.GA13668@w.ods.org>
-References: <Pine.LNX.4.64.0601070246150.29898@potato.cts.ucla.edu> <43C2C482.6090904@drugphish.ch> <Pine.LNX.4.64.0601091221260.1900@potato.cts.ucla.edu> <43C2E243.5000904@drugphish.ch> <Pine.LNX.4.64.0601091654380.6479@potato.cts.ucla.edu> <Pine.LNX.4.64.0601150322020.5053@potato.cts.ucla.edu> <Pine.LNX.4.64.0601151431250.5053@potato.cts.ucla.edu> <20060115224642.GA10069@w.ods.org> <Pine.LNX.4.64.0601151452460.5053@potato.cts.ucla.edu> <Pine.LNX.4.64.0602072228500.3253@potato.cts.ucla.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Feb 2006 01:40:54 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:17318 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030569AbWBHGky convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 01:40:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VBwX8eoIcGp+RKZh9F8F9srP5qcGNEdn+v6rayCPgTluxedWKkDOOSVQl8vVeh68mRAMeqA1p581uF445BpiKJlXZyoNp65ympaVZEiM6+C2LDylstu59Yi/L4H4TZPZoCNFRcx01joHIsdBz5zwddrTCpePa/PsCuAJNsGBKr8=
+Message-ID: <d63eb2da0602072240t376e6312l3d6e7d7936024ee1@mail.gmail.com>
+Date: Wed, 8 Feb 2006 12:10:53 +0530
+From: Gaurav Dhiman <gauravd.chd@gmail.com>
+To: anil dahiya <ak_ait@yahoo.com>
+Subject: Re: Badness in sleep_on_timeout on kernel 2.6.9-1.667 ( fedora core 3)
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
+       kernelnewbies@nl.linux.org
+In-Reply-To: <20060208055426.76961.qmail@web60215.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0602072228500.3253@potato.cts.ucla.edu>
-User-Agent: Mutt/1.5.10i
+References: <1139349028.3482.47.camel@pmac.infradead.org>
+	 <20060208055426.76961.qmail@web60215.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 07, 2006 at 10:32:45PM -0800, Chris Stromsoe wrote:
-> On Sun, 15 Jan 2006, Chris Stromsoe wrote:
-> >On Sun, 15 Jan 2006, Willy TARREAU wrote:
-> >>
-> >>Thanks for the precision. So logically we should expect it to break 
-> >>sooner or later ?
+On 2/8/06, anil dahiya <ak_ait@yahoo.com> wrote:
+> then which function i should use...beacause same
+> problem is with interruptible_sleep_on
+
+prefer to use wait_event_timeout() ; see its code in kernel.
+Its written fro handling race conditions, which might occur in
+interruptible_sleep_on() or other such functions.
+
+-Gaurav
+
+> thanks & Regards,
+> anil
+>
+> --- David Woodhouse <dwmw2@infradead.org> wrote:
+>
+> > On Tue, 2006-02-07 at 12:00 -0800, anil dahiya
+> > wrote:
+> > >  Badness in sleep_on_timeout at
+> > kernel/sched.c:3022
+> > >  [<02302bc3>] sleep_on_timeout+0x5d/0x23a
+> > >  [<0211b919>] default_wake_function+0x0/0xc
+> > >
+> > > can any suggest how i can avoid this oops.
 > >
-> >It is the same .config as one that crashed before, except that it has 
-> >DEBUG_SLAB defined.  If it does not crash, then adding pci=noacpi to the 
-> >command fixes the problem for me.
-> 
-> For what it's worth, I'm fairly certain at this point that the problem 
-> was hardware related.  After a week of uptime with 2.6 we had another pmd 
-> error and oops.  We then replaced the system board and one of the CPUs 
-> and have not seen any problems since.
-
-Chris, thank you very much for this useful feedback. Now we're sure that
-it's not worth investigating on the aic7xxx driver for any potential
-memory corruption bug.
-
-> -Chris
-
-Regards,
-Willy
-
+> > Stop using sleep_on_timeout(). It's almost certainly
+> > buggy.
+> >
+> > --
+> > dwmw2
+> >
+> >
+> > --
+> > Kernelnewbies: Help each other learn about the Linux
+> > kernel.
+> > Archive:
+> > http://mail.nl.linux.org/kernelnewbies/
+> > FAQ:           http://kernelnewbies.org/faq/
+> >
+> >
+>
+>
+> __________________________________________________
+> Do You Yahoo!?
+> Tired of spam?  Yahoo! Mail has the best spam protection around
+> http://mail.yahoo.com
+>
+> --
+> Kernelnewbies: Help each other learn about the Linux kernel.
+> Archive:       http://mail.nl.linux.org/kernelnewbies/
+> FAQ:           http://kernelnewbies.org/faq/
+>
+>

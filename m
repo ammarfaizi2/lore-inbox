@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWBHDNJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWBHDRs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751123AbWBHDNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 22:13:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWBHDNJ
+	id S1751131AbWBHDRs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 22:17:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWBHDRs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 22:13:09 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:45026 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1751123AbWBHDNI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 22:13:08 -0500
-Subject: Re: [PATCH 11/12] LED: Add IDE disk activity LED trigger
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <58cb370e0602060853i469d3449j5d2673b407aec460@mail.gmail.com>
-References: <1139154893.14624.15.camel@localhost.localdomain>
-	 <58cb370e0602060853i469d3449j5d2673b407aec460@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 08 Feb 2006 03:12:58 +0000
-Message-Id: <1139368379.6422.180.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Feb 2006 22:17:48 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:54144 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751131AbWBHDRr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 22:17:47 -0500
+To: torvalds@osdl.org
+Subject: [PATCHSET]  misc annotations and fixes
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <E1F6fpy-0006B8-Uf@ZenIV.linux.org.uk>
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Wed, 08 Feb 2006 03:17:46 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-06 at 17:53 +0100, Bartlomiej Zolnierkiewicz wrote:
-> > +{
-> > +       led_trigger_event(ide_led_trigger, LED_OFF);
-> 
-> It should check for blk_fs_request().
-> 
-> ->end_request() can be used for other request types.
-> 
-> > +       ide_end_request(drive, uptodate, nr_sectors);
-> > +}
-> > +
-> >
-> >  static void __exit idedisk_exit (void)
-> >  {
-> > +       led_trigger_unregister_simple(ide_led_trigger);
-> >         driver_unregister(&idedisk_driver.gen_driver);
-> 
-> Shouldn't ordering be reverse to this in idedisk_init()?
-> First driver_unregister(), then led_trigger_unregister_simple()?
-
-The other issues should have been addressed in -mm now, thanks. An event
-call after unregistering a trigger will not trouble the led trigger code
-as it was designed to withstand this. In -mm it now matches the order in
-the init function but this is purely cosmetic.
-
-Richard
-
+	Assorted trivial stuff all over the place.  Please, pull from
+for-linus branch in git.kernel.org/pub/scm/linux/kernel/git/viro/bird.git/
+Hopefully I haven't fscked it up - first attempt at passing stuff that way...
+	Individual patches will go to l-k (hopefully with all relevant Cc)
+in a few minutes.
+	Shortlog follows:
+Al Viro:
+      remove bogus asm/bug.h includes.
+      bogus asm/delay.h includes
+      drive_info removal outside of arch/i386
+      missing includes in drivers/net/mv643xx_eth.c
+      fix breakage in ocp.c
+      restore power-off on sparc32
+      ppc: last_task_.... is defined only on non-SMP
+      drivers/scsi/mac53c94.c __iomem annotations
+      fallout from ptrace consolidation patch: cris/arch-v10
+      missing include in ser_a2232
+      fix __user annotations in fs/select.c
+      ipv4 NULL noise removal
+      timer.c NULL noise removal
+      kernel/sys.c NULL noise removal
+      dvb NULL noise removal
+      drivers/char/watchdog/sbc_epx_c3.c __user annotations
+      fix __user annotations in drivers/base/memory.c
+      drivers/edac/i82875p_edac.c __user annotations
+      cmm NULL noise removal, __user annotations
+      scsi_transport_iscsi gfp_t annotations
+      sg gfp_t annotations
+      eeh_driver NULL noise removal
+      bogus extern in low_i2c.c
+      amd64 time.c __iomem annotations
+      __user annotations of video_spu_palette
+      net/ipv6/mcast.c NULL noise removal
+      arch/x86_64/pci/mmconfig.c NULL noise removal
+      nfsroot port= parameter fix [backport of 2.4 fix]
+      umount_tree() decrements mount count on wrong dentry

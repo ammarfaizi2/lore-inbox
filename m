@@ -1,81 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbWBHJ7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWBHJ6V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030187AbWBHJ7E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 04:59:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWBHJ7D
+	id S932435AbWBHJ6V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 04:58:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWBHJ6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 04:59:03 -0500
-Received: from baldrick.bootc.net ([83.142.228.48]:15233 "EHLO
-	baldrick.bootc.net") by vger.kernel.org with ESMTP id S932425AbWBHJ7C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 04:59:02 -0500
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <33D367D1-870E-46AE-A7EC-C938B51E816F@bootc.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Content-Transfer-Encoding: 7bit
-From: Chris Boot <bootc@bootc.net>
-Subject: libata PATA status report on 2.6.16-rc1-mm5
-Date: Wed, 8 Feb 2006 09:58:57 +0000
-To: linux-kernel@vger.kernel.org
-X-Mailer: Apple Mail (2.746.2)
+	Wed, 8 Feb 2006 04:58:21 -0500
+Received: from iona.labri.fr ([147.210.8.143]:46295 "EHLO iona.labri.fr")
+	by vger.kernel.org with ESMTP id S932435AbWBHJ6U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 04:58:20 -0500
+Date: Wed, 8 Feb 2006 10:58:23 +0100
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: christophe.lameter@sgi.com
+Cc: linux-mm@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Direct Migration and "Affinity on next touch" ?
+Message-ID: <20060208095823.GD5752@implementation.labri.fr>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	christophe.lameter@sgi.com, linux-mm@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
+Hi,
 
-I just gave 2.6.16-rc1-mm5 a shot on my old VIA-based Duron machine,  
-and everything seems to work fine. I notice PATA CD-ROMs still aren't  
-being recognised (with libata.atapi_enabled=1) which is a bit of a  
-shame, but fortunately I won't be needing to use the CD-ROM on this  
-machine at all. In fact this machine has so little use that I'm quite  
-happy to surrender it to testing.
+Direct Migration support is quite great, but some "migration on next
+touch" (aka affinity on next touch) would be quite useful too.
 
-HTH,
-Chris
+A bunch of parallel applications have an sequential part that
+initializes all data. Then threads are launched for achieving the actual
+computation in parallel. However, with a simple affinity on first touch
+policy, all data is allocated on the node which initialization ran
+on. Manually migrating data where threads will eventually run on may
+really not be easy.
 
-PS: relevant details below:
+A "simple" (from the userland point of view) solution is to have
+an "affinity on next touch" policy that would be set _after_
+initialization, for instance the application would:
+- initialize data, which gets allocated on some node ;
+- call mbind(data, size, MPOL_DEFAULT, NULL, 0, MPOL_MF_NEXTTOUCH), that
+  records the new policy and invalidates pages ;
+- run threads ;
+- threads start computing, hence they touch data pages; the page fault
+  handler migrates these pages to the node on which the fault occured,
+  i.e. hopefully the node on which it will be mostly used (this is
+  generally true with such applications) ;
+- after very little time, data pages are distributed as appropriate, and
+  then the computation runs fast.
 
-[   17.983579] libata version 1.20 loaded.
-[   17.983639] pata_via 0000:00:07.1: version 0.1.2
-[   17.983675] PCI: Via IRQ fixup for 0000:00:07.1, from 255 to 0
-[   17.983929] ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma  
-0xFFA0 irq 14
-[   18.140987] ata1: dev 0 cfg 49:2f00 82:74eb 83:43ea 84:4000  
-85:7469 86:0002 87:4000 88:203f
-[   18.141001] ata1: dev 0 ATA-5, max UDMA/100, 60036480 sectors: LBA
-[   18.141094] via_do_set_mode: Mode=12 ast broken=N udma=100 mul=3
-[   18.141191] via_do_set_mode: Mode=69 ast broken=N udma=100 mul=3
-[   18.141517] ata1: dev 0 configured for UDMA/100
-[   18.141579] scsi0 : pata_via
-[   18.141961]   Vendor: ATA       Model: IBM-DTLA-307030   Rev: TX4O
-[   18.142200]   Type:   Direct-Access                      ANSI SCSI  
-revision: 05
-[   18.142532] ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma  
-0xFFA8 irq 15
-[   18.452348] scsi1 : pata_via
-[   18.452687] SCSI device sda: 60036480 512-byte hdwr sectors (30739  
-MB)
-[   18.452801] sda: Write Protect is off
-[   18.452852] sda: Mode Sense: 00 3a 00 00
-[   18.452874] SCSI device sda: drive cache: write back
-[   18.453085] SCSI device sda: 60036480 512-byte hdwr sectors (30739  
-MB)
-[   18.453187] sda: Write Protect is off
-[   18.453236] sda: Mode Sense: 00 3a 00 00
-[   18.453258] SCSI device sda: drive cache: write back
-[   18.453325]  sda: sda1 sda2
-[   18.463389] sd 0:0:0:0: Attached scsi disk sda
+The cost of page fault + migration is quickly compensated by the
+resulting better data distribution. Being able to ask for bigger page
+sizes would also reduce page fault cot.
 
-0000:00:07.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/ 
-VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06) (prog-if 8a  
-[Master SecP PriP])
-         Flags: bus master, medium devsel, latency 64
-         I/O ports at ffa0 [size=16]
-         Capabilities: [c0] Power Management version 2
-00: 06 11 71 05 07 00 90 02 06 8a 01 01 00 40 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: a1 ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 c0 00 00 00 00 00 00 00 ff 00 00 00
+Solaris implements this solution through madvise(data, size,
+MADV_ACCESS_LWP); (see Solaris' madvise() manpage
+http://docs.sun.com/app/docs/doc/817-0677/6mgf9b66i?a=view ). Using this
+facility can bring quite interesting performance improvements:
+(for instance "affinity-on-next-touch: increasing the
+performance of an industrial PDE solver on a cc-NUMA system":
+http://portal.acm.org/ft_gateway.cfm%3Fid=1088201%26type=pdf )
 
+Could such facility be implemented?
 
+Regards,
+Samuel

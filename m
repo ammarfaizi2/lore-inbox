@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030431AbWBHPgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030381AbWBHPme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030431AbWBHPgj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 10:36:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030433AbWBHPgj
+	id S1030381AbWBHPme (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 10:42:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030450AbWBHPme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 10:36:39 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:62932 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1030431AbWBHPgi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 10:36:38 -0500
-Subject: Re: [PATCH] add execute_in_process_context() API
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Tejun <htejun@gmail.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <43EA0E7D.3030302@gmail.com>
-References: <1139342419.6065.8.camel@mulgrave.il.steeleye.com.suse.lists.linux.kernel>
-	 <p737j86l1es.fsf@verdi.suse.de>
-	 <1139411751.3003.1.camel@mulgrave.il.steeleye.com>
-	 <43EA0E7D.3030302@gmail.com>
-Content-Type: text/plain
-Date: Wed, 08 Feb 2006 09:36:33 -0600
-Message-Id: <1139412994.3003.10.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 8 Feb 2006 10:42:34 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:41814 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1030381AbWBHPmd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 10:42:33 -0500
+Message-ID: <43EA11C5.5010908@sw.ru>
+Date: Wed, 08 Feb 2006 18:44:05 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: Hubertus Franke <frankeh@watson.ibm.com>
+CC: "Eric W. Biederman" <ebiederm@xmission.com>, Sam Vilain <sam@vilain.net>,
+       Rik van Riel <riel@redhat.com>, Kirill Korotaev <dev@openvz.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, clg@fr.ibm.com, haveblue@us.ibm.com,
+       greg@kroah.com, alan@lxorguk.ukuu.org.uk, serue@us.ibm.com,
+       arjan@infradead.org, kuznet@ms2.inr.ac.ru, saw@sawoct.com,
+       devel@openvz.org, Dmitry Mishin <dim@sw.ru>
+Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
+References: <43E7C65F.3050609@openvz.org>	<m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>	<Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com>	<43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com>	<43E92602.8040403@vilain.net> <43E92AC9.3090308@watson.ibm.com> <m1oe1ia1c9.fsf@ebiederm.dsl.xmission.com> <43E9FC85.1000500@watson.ibm.com>
+In-Reply-To: <43E9FC85.1000500@watson.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-09 at 00:30 +0900, Tejun wrote:
-> I haven't really looked at the code carefully, but I think one work 
-> struct + atomic counter (say pending_reap_cnt) should do it. 
-> queue_work() guarantees the work is run at least once after the call, so 
-> bumping pending_reap_cnt and queueing the work in target reap and 
-> reaping pending_reap_cnt times in the work should work.
+> My point was to mainly identify the performance culprits and provide
+> an direct access to those "namespaces" for performance reasons.
+> So we all agreed on that we need to do that..
+After having looked at Eric's patch, I can tell that he does all these 
+dereferences in quite the same amount.
 
-Actually, no, unfortunately that doesn't work (and I did actually try
-it).  The problem is that the target_reap actually removes the target
-from the sysfs namespace.  So, if the reap is still pending but you
-cannot find the target, you'll allocate one, but then you may be racing
-to add it to the namespace (i.e. a quick succession of scsi
-remove-single-device followed by scsi add-single-device of the same
-H/C/T/L shows this).  If you lose the race, the add fails because the
-namespace is already occupied.  And, unfortunately, the device_del that
-does the namespace removal requires user context ...
+For example, lot's of skb->sk->host->...
+while in OpenVZ it would be econtainer()->... which is essentially 
+current->container->...
 
-James
+So until someone did measurements it looks doubtfull that one solution 
+is better than the another.
+
+> Question now (see other's note as well), should we provide
+> a pointer to each and every namespace in struct task.
+> Seem rather wasteful to me as certain path/namespaces are not
+> exercise heavily.
+
+> Having one object "struct container" that still embodies all
+> namespace still seems a reasonable idea.
+> Otherwise identifying the respective namespace of subsystems will
+> have to go through container->init->subsys_namespace or similar.
+> Not necessarily bad either..
+
+why not simply container->subsys_namespace?
+
+Kirill
+
+
 
 

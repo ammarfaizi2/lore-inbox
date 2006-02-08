@@ -1,35 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030361AbWBHQmM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030593AbWBHQm4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030361AbWBHQmM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 11:42:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030589AbWBHQmM
+	id S1030593AbWBHQm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 11:42:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030591AbWBHQm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 11:42:12 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:19857 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1030361AbWBHQmM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 11:42:12 -0500
-Date: Wed, 8 Feb 2006 11:43:01 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: Ulrich Drepper <drepper@gmail.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [PATCH 2/8] UML - Define jmpbuf access constants
-Message-ID: <20060208164301.GC5240@ccure.user-mode-linux.org>
-References: <200602070223.k172NpJa009654@ccure.user-mode-linux.org> <a36005b50602070937h60e35294q1dbef2c21f2fb50d@mail.gmail.com> <20060207185707.GB6841@ccure.user-mode-linux.org> <a36005b50602071123r8179c7di8e95bf0a336f1b0c@mail.gmail.com>
-Mime-Version: 1.0
+	Wed, 8 Feb 2006 11:42:56 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16797 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030589AbWBHQmz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 11:42:55 -0500
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>, Sam Vilain <sam@vilain.net>,
+       Rik van Riel <riel@redhat.com>, Kirill Korotaev <dev@openvz.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, clg@fr.ibm.com, haveblue@us.ibm.com,
+       greg@kroah.com, alan@lxorguk.ukuu.org.uk, serue@us.ibm.com,
+       arjan@infradead.org, kuznet@ms2.inr.ac.ru, saw@sawoct.com,
+       devel@openvz.org, Dmitry Mishin <dim@sw.ru>
+Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
+References: <43E7C65F.3050609@openvz.org>
+	<m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com>
+	<43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com>
+	<43E92602.8040403@vilain.net> <43E92AC9.3090308@watson.ibm.com>
+	<m1oe1ia1c9.fsf@ebiederm.dsl.xmission.com>
+	<43E9FC85.1000500@watson.ibm.com> <43EA11C5.5010908@sw.ru>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 08 Feb 2006 09:39:51 -0700
+In-Reply-To: <43EA11C5.5010908@sw.ru> (Kirill Korotaev's message of "Wed, 08
+ Feb 2006 18:44:05 +0300")
+Message-ID: <m14q399548.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a36005b50602071123r8179c7di8e95bf0a336f1b0c@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 07, 2006 at 11:23:42AM -0800, Ulrich Drepper wrote:
-> If you need this
-> functionality, implement it yourself.  setjmp is most likely overkill
-> anyway.
+Kirill Korotaev <dev@sw.ru> writes:
 
-OK, I'll roll my own version.
+>> My point was to mainly identify the performance culprits and provide
+>> an direct access to those "namespaces" for performance reasons.
+>> So we all agreed on that we need to do that..
+> After having looked at Eric's patch, I can tell that he does all these
+> dereferences in quite the same amount.
+>
+> For example, lot's of skb->sk->host->...
+> while in OpenVZ it would be econtainer()->... which is essentially
+> current->container->...
 
-				Jeff
+Except at that point in time I cannot use current, because it
+does not have necessarily have the appropriate context.  So doubt
+you could correctly use econtainer there.
+
+> So until someone did measurements it looks doubtfull that one solution is better
+> than the another.
+
+I agree, exactly where we look is a minor matter, unless we can find
+an instance where there are good reasons for preferring one representation
+over another.  Performance currently does not look a sufficient reason.
+
+
+My basis for preferring a flat layout is essentially because
+that is how other similar interfaces are currently implemented
+in the kernel.
+
+In linux we have a plan9 inspired system call called clone.
+One of the ideas with clone is that when you create a new
+task you either share or you don't share resources.  Namespaces
+are one of those resources.
+
+Since we are dealing with concepts that appear to fit the
+existing model beautifully my feeling is to use the existing
+model of how things are currently implemented in the kernel.
+
+
+The only other reason I can think of is namespace implementation
+independence.  If we have an additional structure that we collect
+up the pointers it feels like it causes unnecessary tying.
+
+
+
+The best justification I can think of for putting it all in
+one structure seems like the current->container current->econtainer
+thing that comes out of OpenVZ.  Currently I have followed the
+threads enough to know it exists but I yet understand it.
+
+If there is a good reason for the container/econtainer thing I can
+certainly seem some benefit.  
+
+Eric

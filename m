@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161032AbWBHGoQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161022AbWBHGp4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161032AbWBHGoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 01:44:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161010AbWBHGnw
+	id S1161022AbWBHGp4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 01:45:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161018AbWBHGpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 01:43:52 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:35971 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1161022AbWBHGnN
+	Wed, 8 Feb 2006 01:45:55 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:50563 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1161022AbWBHGpJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 01:43:13 -0500
-Message-Id: <20060208064903.678740000@sorel.sous-sol.org>
+	Wed, 8 Feb 2006 01:45:09 -0500
+Message-Id: <20060208064905.800252000@sorel.sous-sol.org>
 References: <20060208064503.924238000@sorel.sous-sol.org>
-Date: Tue, 07 Feb 2006 22:45:15 -0800
+Date: Tue, 07 Feb 2006 22:45:17 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -19,50 +19,40 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 12/23] [SPARC64]: Kill compat_sys_clock_settime sign extension stub.
-Content-Disposition: inline; filename=kill-compat_sys_clock_settime-sign-extension-stub.patch
+       Adrian Bunk <bunk@stusta.de>, linville@tuxdriver.com
+Subject: [PATCH 14/23] [PATCH] PCMCIA=m, HOSTAP_CS=y is not a legal configuration
+Content-Disposition: inline; filename=pcmcia-m-hostap_cs-y-is-not-a-legal-configuration.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-    
-It's wrong and totally unneeded.
+CONFIG_PCMCIA=m, CONFIG_HOSTAP_CS=y doesn't compile.
 
-Signed-off-by: "David S. Miller" <davem@davemloft.net>
+Reported by "Gabriel C." <crazy@pimpmylinux.org>.
+
+This patch was already included in 2.6.16-rc2.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
 
- arch/sparc64/kernel/sys32.S   |    1 -
- arch/sparc64/kernel/systbls.S |    2 +-
- 2 files changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/wireless/hostap/Kconfig |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Index: linux-2.6.15.3/arch/sparc64/kernel/sys32.S
+Index: linux-2.6.15.3/drivers/net/wireless/hostap/Kconfig
 ===================================================================
---- linux-2.6.15.3.orig/arch/sparc64/kernel/sys32.S
-+++ linux-2.6.15.3/arch/sparc64/kernel/sys32.S
-@@ -84,7 +84,6 @@ SIGN2(sys32_fadvise64_64, compat_sys_fad
- SIGN2(sys32_bdflush, sys_bdflush, %o0, %o1)
- SIGN1(sys32_mlockall, sys_mlockall, %o0)
- SIGN1(sys32_nfsservctl, compat_sys_nfsservctl, %o0)
--SIGN1(sys32_clock_settime, compat_sys_clock_settime, %o1)
- SIGN1(sys32_clock_nanosleep, compat_sys_clock_nanosleep, %o1)
- SIGN1(sys32_timer_settime, compat_sys_timer_settime, %o1)
- SIGN1(sys32_io_submit, compat_sys_io_submit, %o1)
-Index: linux-2.6.15.3/arch/sparc64/kernel/systbls.S
-===================================================================
---- linux-2.6.15.3.orig/arch/sparc64/kernel/systbls.S
-+++ linux-2.6.15.3/arch/sparc64/kernel/systbls.S
-@@ -71,7 +71,7 @@ sys_call_table32:
- /*240*/	.word sys_munlockall, sys32_sched_setparam, sys32_sched_getparam, sys32_sched_setscheduler, sys32_sched_getscheduler
- 	.word sys_sched_yield, sys32_sched_get_priority_max, sys32_sched_get_priority_min, sys32_sched_rr_get_interval, compat_sys_nanosleep
- /*250*/	.word sys32_mremap, sys32_sysctl, sys32_getsid, sys_fdatasync, sys32_nfsservctl
--	.word sys_ni_syscall, sys32_clock_settime, compat_sys_clock_gettime, compat_sys_clock_getres, sys32_clock_nanosleep
-+	.word sys_ni_syscall, compat_sys_clock_settime, compat_sys_clock_gettime, compat_sys_clock_getres, sys32_clock_nanosleep
- /*260*/	.word compat_sys_sched_getaffinity, compat_sys_sched_setaffinity, sys32_timer_settime, compat_sys_timer_gettime, sys_timer_getoverrun
- 	.word sys_timer_delete, sys32_timer_create, sys_ni_syscall, compat_sys_io_setup, sys_io_destroy
- /*270*/	.word sys32_io_submit, sys_io_cancel, compat_sys_io_getevents, sys32_mq_open, sys_mq_unlink
+--- linux-2.6.15.3.orig/drivers/net/wireless/hostap/Kconfig
++++ linux-2.6.15.3/drivers/net/wireless/hostap/Kconfig
+@@ -61,7 +61,7 @@ config HOSTAP_PCI
+ 
+ config HOSTAP_CS
+ 	tristate "Host AP driver for Prism2/2.5/3 PC Cards"
+-	depends on PCMCIA!=n && HOSTAP
++	depends on PCMCIA && HOSTAP
+ 	---help---
+ 	Host AP driver's version for Prism2/2.5/3 PC Cards.
+ 
 
 --

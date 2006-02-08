@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030601AbWBHUWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030603AbWBHUXZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030601AbWBHUWU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 15:22:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWBHUWT
+	id S1030603AbWBHUXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 15:23:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030602AbWBHUXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 15:22:19 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:65413 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751142AbWBHUWT (ORCPT
+	Wed, 8 Feb 2006 15:23:24 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:35849 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1030603AbWBHUXX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 15:22:19 -0500
-Subject: Re: The issues for agreeing on a virtualization/namespaces
-	implementation.
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Hubertus Franke <frankeh@watson.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Sam Vilain <sam@vilain.net>, Rik van Riel <riel@redhat.com>,
-       Kirill Korotaev <dev@openvz.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       clg@fr.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
-       arjan@infradead.org, kuznet@ms2.inr.ac.ru, saw@sawoct.com,
-       devel@openvz.org, Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>,
-       Herbert Poetzl <herbert@13thfloor.at>
-In-Reply-To: <20060208180309.GA20418@sergelap.austin.ibm.com>
-References: <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com>
-	 <Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com>
-	 <43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com>
-	 <20060207201908.GJ6931@sergelap.austin.ibm.com>
-	 <43E90716.4020208@watson.ibm.com>
-	 <m17j86dds4.fsf_-_@ebiederm.dsl.xmission.com>
-	 <43E92EDC.8040603@watson.ibm.com>
-	 <m1ek2ea0fw.fsf@ebiederm.dsl.xmission.com> <43EA02D6.30208@watson.ibm.com>
-	 <20060208180309.GA20418@sergelap.austin.ibm.com>
-Content-Type: text/plain
-Date: Wed, 08 Feb 2006 12:21:39 -0800
-Message-Id: <1139430099.9452.41.camel@localhost.localdomain>
+	Wed, 8 Feb 2006 15:23:23 -0500
+Date: Wed, 8 Feb 2006 21:22:51 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Aaron D. Brooks" <aaron.brooks@sicortex.com>
+Cc: linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>
+Subject: Re: scripts/namespace.pl is not CROSS_COMPILE happy
+Message-ID: <20060208202251.GA9550@mars.ravnborg.org>
+References: <20060208184506.GS11744@sicortex.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060208184506.GS11744@sicortex.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-02-08 at 12:03 -0600, Serge E. Hallyn wrote:
-> Now I believe Eric's code so far would make it so that you can only
-> refer to a namespace from it's *creating* context.  Still restrictive,
-> but seems acceptable.
+On Wed, Feb 08, 2006 at 01:45:06PM -0500, Aaron D. Brooks wrote:
+> All,
+> 
+>     I see that this has come up before:
+> 
+>     http://lkml.org/lkml/2005/9/20/68
+> 
+> but I don't see the inclusion of these changes in the current Linus
+> linux-2.6 git tree. Are the changes hanging out somewhere or were they
+> shot down for some reason?
+> 
+>     I've attached an alternate patch which is a ever so slightly more
+> clean (for some definitions of "clean").
 
-The same goes for filesystem namespaces.  You can't see into random
-namespaces, just the ones underneath your own.  Sounds really reasonable
-to me.
+Looks good and with same functionality as Keiths - which I lost somehow.
+Will take care when I'm back from holiday end of next week.
 
--- Dave
-
+	Sam

@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWBHWMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965190AbWBHW0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbWBHWMP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 17:12:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWBHWMP
+	id S965190AbWBHW0E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 17:26:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965196AbWBHW0D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 17:12:15 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:2793
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932098AbWBHWMN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 17:12:13 -0500
-Date: Wed, 08 Feb 2006 14:12:05 -0800 (PST)
-Message-Id: <20060208.141205.129707967.davem@davemloft.net>
-To: jesse.brandeburg@gmail.com
-Cc: yoseph.basri@gmail.com, bb@kernelpanic.ru, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: KERNEL: assertion (!sk->sk_forward_alloc) failed
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <4807377b0602081207s7604eceahb8bf4af6715a6534@mail.gmail.com>
-References: <e282236e0602070146p1ed3fdb6k74aa75e15bbc37a3@mail.gmail.com>
-	<4807377b0602081207s7604eceahb8bf4af6715a6534@mail.gmail.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Feb 2006 17:26:03 -0500
+Received: from ip-svs-1.Informatik.Uni-Oldenburg.DE ([134.106.12.126]:40405
+	"EHLO aechz.svs.informatik.uni-oldenburg.de") by vger.kernel.org
+	with ESMTP id S965190AbWBHW0A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 17:26:00 -0500
+Date: Wed, 8 Feb 2006 23:25:32 +0100
+From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-pm@lists.osdl.org, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH, RFC] [1/3] Generic in-kernel AC status
+Message-ID: <20060208222532.GA4824@titan.lahn.de>
+Mail-Followup-To: Matthew Garrett <mjg59@srcf.ucam.org>,
+	linux-pm@lists.osdl.org, linux-acpi@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20060208125753.GA25562@srcf.ucam.org> <20060208130422.GB25659@srcf.ucam.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060208130422.GB25659@srcf.ucam.org>
+Organization: UUCP-Freunde Lahn e.V.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-Date: Wed, 8 Feb 2006 12:07:14 -0800
+Hi!
 
-> this should be on netdev (cc'd), i included some of the thread here.
- ...
-> I though Herbert had fixed these, and it looks like half the patches
-> got into 2.6.14.3, but not the fix to the fix committed on 9-6 (not in
-> 2.6.14.* at all)
+On Wed, Feb 08, 2006 at 01:04:22PM +0000, Matthew Garrett wrote:
+> diff --git a/include/linux/pm.h b/include/linux/pm.h
+...
+> +void pm_set_ac_status(int (*ac_status_function)(void))
+> +{
+> +	down(&pm_sem);
+> +	get_ac_status = ac_status_function;
+> +	up(&pm_sem);
+> +}
 
-What are the changeset IDs so I can fix this?
+Why do you need a semaphore/mutex, when you only do one assignment,
+which is atomic by itself?
 
-Thanks.
+BYtE
+Philipp
+-- 
+  / /  (_)__  __ ____  __ Philipp Hahn
+ / /__/ / _ \/ // /\ \/ /
+/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de

@@ -1,74 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030396AbWBHBTm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030402AbWBHBX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030396AbWBHBTm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Feb 2006 20:19:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030398AbWBHBTm
+	id S1030402AbWBHBX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Feb 2006 20:23:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030404AbWBHBX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Feb 2006 20:19:42 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:49925 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030397AbWBHBTl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Feb 2006 20:19:41 -0500
-Date: Wed, 8 Feb 2006 02:19:38 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: Keith Owens <kaos@sgi.com>, "Luck, Tony" <tony.luck@intel.com>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] let IA64_GENERIC select more stuff
-Message-ID: <20060208011938.GJ3524@stusta.de>
-References: <20060207231713.GG3524@stusta.de> <200602080052.k180qxg16788@unix-os.sc.intel.com>
+	Tue, 7 Feb 2006 20:23:26 -0500
+Received: from penta.pentaserver.com ([66.45.247.194]:37281 "EHLO
+	penta.pentaserver.com") by vger.kernel.org with ESMTP
+	id S1030402AbWBHBXZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Feb 2006 20:23:25 -0500
+Message-ID: <43E94492.3020705@gmail.com>
+Date: Wed, 08 Feb 2006 05:08:34 +0400
+From: Manu Abraham <abraham.manu@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602080052.k180qxg16788@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.11
+To: Edgar Toernig <froese@gmx.de>
+CC: mchehab@infradead.org, linux-kernel@vger.kernel.org,
+       linux-dvb-maintainer@linuxtv.org, Manu Abraham <manu@linuxtv.org>
+Subject: Re: [PATCH 04/16] Fix [Bug 5895] to correct snd_87x autodetect
+References: <20060207153248.PS50860900000@infradead.org>	<20060207153330.PS44220900004@infradead.org> <20060208012434.10d927c4.froese@gmx.de>
+In-Reply-To: <20060208012434.10d927c4.froese@gmx.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - penta.pentaserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - gmail.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 07, 2006 at 04:52:59PM -0800, Chen, Kenneth W wrote:
-> Adrian Bunk wrote on Tuesday, February 07, 2006 3:17 PM
-> > IOW, you want the patch below?
-> > 
-> 
-> No, I really don't think so.
-> 
-> 
-> > --- linux-2.6.16-rc1-mm5-ia64/arch/ia64/Kconfig.old
-> > +++ linux-2.6.16-rc1-mm5-ia64/arch/ia64/Kconfig
-> > @@ -132,10 +134,11 @@
-> >  	  This choice is safe for all IA-64 systems, but may not perform
-> >  	  optimally on systems with, say, Itanium 2 or newer processors.
-> >  
-> >  config MCKINLEY
-> >  	bool "Itanium 2"
-> > +	depends on IA64_GENERIC=n
-> >  	help
-> >  	  Select this to configure for an Itanium 2 (McKinley) processor.
-> >  
-> >  endchoice
-> >  
-> 
-> This hunk does not make any logical sense.  Select generic system type
-> does not mean Itanium processor is the only choice I can have.  What's
-> wrong with having an option that works just fine right now?
+Edgar Toernig wrote:
+> mchehab@infradead.org wrote:
+>   
+>> --- a/drivers/media/dvb/bt8xx/bt878.c
+>> +++ b/drivers/media/dvb/bt8xx/bt878.c
+>> @@ -381,6 +381,23 @@ bt878_device_control(struct bt878 *bt, u
+>>  
+>>  EXPORT_SYMBOL(bt878_device_control);
+>>  
+>> +
+>> +struct cards card_list[] __devinitdata = {
+>> +
+>> +	{ 0x01010071, BTTV_BOARD_NEBULA_DIGITV,	"Nebula Electronics DigiTV" },
+>> +	{ 0x07611461, BTTV_BOARD_AVDVBT_761,	"AverMedia AverTV DVB-T 761" },
+>> [...]
+>>     
+>
+> I'm not very familiar with the pci configuration logic but
+> what's the point of this list and the BTTV_BOARD_xxx defines?
+> The defines are never used and the list is only used to let
+> the probe routine fail when the device is not in the list.
+>   
 
-You could ask the same question for NUMA:
-Select generic system type does not mean NUMA systems are only choice I 
-can have. What's wrong with having an option that works just fine?
+Yes, that's the idea. The naming is for identification in the failed case.
 
-Keith said IA64_GENERIC should select all the options required in order 
-to run on all the IA64 platforms out there.
-This is what my patch does.
+> Anyway, the bttv driver already has this information in his card
+> list (field has_dvb).  As long as the bt878 isn't stand alone
+> and requires the bttv driver wouldn't it be better to query its
+> table?
+>
+>   
 
-> - Ken
+This is only the interim fix for bug [5895] prior to the merge, as was 
+discussed on the linux-dvb and video4linux mailing lists.
+Thread: [linux-dvb] Re: [Fwd: [Bug 5895] With DVB drivers enabled 
+snd_87x    (ALSA)    don't detect Broooktree audio]
 
-cu
-Adrian
+> Even if this table is kept, it should be static
+>   
 
--- 
+Ack'd.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+
+Thanks,
+Manu
 

@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932520AbWBIOnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbWBIOrv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932520AbWBIOnM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 09:43:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbWBIOnM
+	id S932521AbWBIOrv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 09:47:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbWBIOrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 09:43:12 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:26092 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S932520AbWBIOnM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 09:43:12 -0500
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: git for dummies, anyone?
-References: <20060208070301.1162e8c3.pj@sgi.com>
-	<yq0vevollx4.fsf@jaguar.mkp.net> <43EB4F05.8090400@pobox.com>
-From: Jes Sorensen <jes@sgi.com>
-Date: 09 Feb 2006 09:43:10 -0500
-In-Reply-To: <43EB4F05.8090400@pobox.com>
-Message-ID: <yq0mzh0lhj5.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Thu, 9 Feb 2006 09:47:51 -0500
+Received: from math.ut.ee ([193.40.36.2]:63183 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S932494AbWBIOrv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 09:47:51 -0500
+Date: Thu, 9 Feb 2006 16:47:49 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
+Subject: megaraid bug in kobject_register when no device is present
+Message-ID: <Pine.SOC.4.61.0602091646050.19027@math.ut.ee>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jeff" == Jeff Garzik <jgarzik@pobox.com> writes:
+Loading megaraid modules when no actual cards are present yields this in 
+dmesg. 2.6.16-rc2+git.
 
-Jeff> Jes Sorensen wrote:
->> Hi Paul, I had a similar problem yesterday and was pointed at
->> https://wiki.ubuntu.com/KernelGitGuide?highlight=%28CategoryKernel%29
->> as a starting point.  I was thinking it would be really nice if
->> someone fancied writing a git guide for dummies (like me) who only
->> use git on and off. Something that could be put either on
->> git.kernel.org or a similar place.
+megasas: 00.00.02.02 Mon Jan 23 14:09:01 PST 2006
+megaraid cmm: 2.20.2.6 (Release Date: Mon Mar 7 00:01:03 EST 2005)
+megaraid: 2.20.4.7 (Release Date: Mon Nov 14 12:27:22 EST 2005)
+kobject_register failed for megaraid (-17)
+  [<b01b0fa1>] kobject_register+0x43/0x5f
+  [<b020b5ad>] bus_add_driver+0x51/0xa8
+  [<b01bc812>] __pci_register_driver+0x5e/0x89
+  [<b011ca7c>] printk+0x17/0x1b
+  [<f0e89070>] megaraid_init+0x70/0x98 [megaraid_mbox]
+  [<b0136759>] sys_init_module+0x128/0x1bd
+  [<b01029a7>] sysenter_past_esp+0x54/0x75
+megaraid: could not register hotplug support.
 
-Jeff> Check out: http://linux.yyz.us/git-howto.html
-
-Hi Jeff,
-
-Thanks, I'll add that to my bookmarks as well, but it's still missing
-some important stuff, like how to roll back to a specific commit id
-and git-bisect ;-) It seems a bit more targetted towards being a git
-tree maintainer than a client.
-
-Having some of this linked off git.kernel.org would be wonderful too
-since at least for me seems to be the most logical place for anyone to
-start looking for info.
-
-Thanks,
-Jes
+-- 
+Meelis Roos (mroos@linux.ee)

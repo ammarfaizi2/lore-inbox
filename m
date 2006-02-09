@@ -1,69 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422908AbWBIOAI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030398AbWBIOKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422908AbWBIOAI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 09:00:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422909AbWBIOAH
+	id S1030398AbWBIOKh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 09:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030459AbWBIOKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 09:00:07 -0500
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:62090 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1422908AbWBIOAG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 09:00:06 -0500
+	Thu, 9 Feb 2006 09:10:37 -0500
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:39023 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1030398AbWBIOKg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 09:10:36 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=yAyspFpobiJPCaOnT2ECVpsk0JQFtKc9MsZV4jAFWVs2aWXF9bg3NJ9HKQsioD7TDdls07/3fILQ2uqehAaZgWcQEPxx8Nofel8kncwfRDvxPjLW7iyWX5lWe7vAqffkwU/RVbHhNPq56fFTn3B1wdnKwQlp0BEm+0g8ywhPZxk=  ;
-Message-ID: <43EB4AE6.2090808@yahoo.com.au>
-Date: Fri, 10 Feb 2006 01:00:06 +1100
+  b=Rb9vqpM8/0L5HM1J921tPwg+DM46uGp49GYVAUE1/UiHR6oyJY9J2JBk8E1jCkP6SzTq0QxO1HPVaRLOZ3FnDFuSapwPLCSVDLmCMi+Oyz4Kquo2+bEYM2ouNg1hcDBDl1jHolFasUKCyFBDKp0Plcb64LkmNcco8uIB+TeUm5M=  ;
+Message-ID: <43EB4D5C.8030603@yahoo.com.au>
+Date: Fri, 10 Feb 2006 01:10:36 +1100
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-CC: matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de> <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner> <20060207183712.GC5341@voodoo> <43E9F1CD.nail2BR11FL52@burner> <20060208162828.GA17534@voodoo> <43EA1D26.nail40E11SL53@burner> <20060208165330.GB17534@voodoo> <43EB0DEB.nail52A1LVGUO@burner> <20060209104115.GA15173@merlin.emma.line.org> <43EB450D.nail972311S71@burner>
-In-Reply-To: <43EB450D.nail972311S71@burner>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       ck list <ck@vds.kolivas.org>, linux-mm@kvack.org,
+       Paul Jackson <pj@sgi.com>
+Subject: Re: [PATCH] mm: Implement Swap Prefetching v22
+References: <200602092339.49719.kernel@kolivas.org> <43EB43B9.5040001@yahoo.com.au> <200602100047.09722.kernel@kolivas.org>
+In-Reply-To: <200602100047.09722.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Joerg,
-
-Joerg Schilling wrote:
-> Matthias Andree <matthias.andree@gmx.de> wrote:
+Con Kolivas wrote:
+> On Friday 10 February 2006 00:29, Nick Piggin wrote:
+> 
+>>busy Con Kolivas wrote:
 > 
 > 
->>This all only matters to you since you are trying to enforce the botched
->>view from some other OS (MS-Windows perhaps, although I'm not too sure
->>if it's really Windows or Jörg Schilling who is the problem in this
->>scenario either, and I'm a long way from defending Microsoft) onto
->>Linux, which you have been denied for 1½ years now, and from what I've
->>seen this year, with good reason.
+> busy? that's an interesting mua comment...
 > 
 > 
-> You look confused. It is not me but the Linux maintainers refuse to fix
-> bugs since about 2 years.
+
+Oh I just added that.
+
+>>- Looking a lot better from an impact-on-rest-of-vm code wise inspection.
+> 
+> 
+> That's good to hear, thanks.
+> 
+> 
+>>I got a couple of suggestions to make it even better.
+>>
+>>- I still have big reservations about it. For example the fact that if you
+>>thrash memory and force everything to swap out, then exit your memory
+>>hog, it won't do anything if you just happened to `cat bigfile > /dev/null`
+>>
+>>- Then, it has the potential to make *useful* swapping much less useful
+>>(ie. it will page back in your unused programs and libraries, which will
+>>kick out unmapped pagecache on desktop workloads).
+>>
+>>- It does not appear to necessarily solve the updatedb problem.
+>>
+>>- People complaining about their browser getting swapped out of their 1GB+
+>>desktop systems due to a midnight cron run must be angering the VM gods.
+>>I'd rather try to work out what to sacrifice in order to appease them
+>>before sending another one up there to beat them into submission.
+> 
+> 
+> I really don't want to go throwing out pagecache without some smart semantics 
+> and then swap in random stuff that could be crap I agree. The answer to this 
+
+Sure. It is not an easy problem space.
+
+> is for the vm itself to have an ageing algorithm like the clockpro stuff 
+> which does this in a smart way. It could certainly age away the updatedb 
+> wrinkles and leave some free ram - which would help/be helped by prefetching.
+> 
+> I don't think I've ever said it fixes the updatedb debacle. Updatedb gets to 
+
+I'm not sure that you ever did either, although I (and it seems at least
+one other other in these recent threads) were perhaps under that impression
+at one stage.
+
+> rule another day, but that does not constitute every swap workload out there. 
+> It helps my daily workloads, and as you might have missed, others have 
+> reported demonstrable benefits (and not just the "it seems faster" type).
 > 
 
-Regardless of whether you consider it a bug or the naming wrong[1], you
-are not the Linux maintainer and Linux users have to put up with their
-choices of kernel architecture.
+Umm, yes I saw that. It is fairly plain that almost any VM change you could
+possibly make that actually compiles is going to improve something.
 
-So introducing your own naming scheme AFAIKS only serves to add more
-confusion to the picture -- it seems fairly unlikely that you'll get the
-kernel guys to change their minds.
+I'm not denying any improvements. I'm pointing out that there are problems
+too.
 
-Goes along the same lines as my point about filesystem naming. I wouldn't
-write a portable program that asks users to save their files on /dev/hda
-or /c_drive/blah when on windows. I'd agree to disagree with wnidows, and
-use C:\ for the sake of everyone's sanity.
+> 
+>>Sorry to sound negative about it. 
+> 
+> 
+> Well you're honest and that's worth respecting.
+> 
 
-[1] I don't want to argue *that* point with you and I don't pretend
-to know more about it than you or anyone else on this thread.
+Honesty shmonesty, I'm reviewing the thing :)
+
+> 
+>>Lucky for you nobody listens to me. 
+> 
+> 
+> After some thought I've decided I ain't touching that one.
+> 
+
+Well at least you do.... Just to be sure, you did see my comments through
+the code right?
 
 -- 
 SUSE Labs, Novell Inc.
+
 Send instant messages to your online friends http://au.messenger.yahoo.com 

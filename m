@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422748AbWBIQjS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422758AbWBIQkC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422748AbWBIQjS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 11:39:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422764AbWBIQjS
+	id S1422758AbWBIQkC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 11:40:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422767AbWBIQkB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 11:39:18 -0500
-Received: from vms042pub.verizon.net ([206.46.252.42]:38080 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1422748AbWBIQjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 11:39:17 -0500
-Date: Thu, 09 Feb 2006 11:31:12 -0500
-From: Jon Ringle <jringle@vertical.com>
-Subject: Re: Linux running on a PCI Option device?
-In-reply-to: <43EAE4AC.6070807@snapgear.com>
-To: Greg Ungerer <gerg@snapgear.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <200602091131.12535.jringle@vertical.com>
-Organization: Vertical
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <43EAE4AC.6070807@snapgear.com>
-User-Agent: KMail/1.8.3
+	Thu, 9 Feb 2006 11:40:01 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:65217 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422758AbWBIQkA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 11:40:00 -0500
+Date: Thu, 9 Feb 2006 11:38:45 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cuia.boston.redhat.com
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+cc: Nathan Lynch <ntl@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, mingo@elte.hu, ak@muc.de, 76306.1226@compuserve.com,
+       wli@holomorphy.com, Paul Jackson <pj@sgi.com>
+Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
+In-Reply-To: <20060209161331.GE20554@osiris.boeblingen.de.ibm.com>
+Message-ID: <Pine.LNX.4.63.0602091138350.23817@cuia.boston.redhat.com>
+References: <200602051959.k15JxoHK001630@hera.kernel.org>
+ <Pine.LNX.4.63.0602081728590.31711@cuia.boston.redhat.com>
+ <20060208190512.5ebcdfbe.akpm@osdl.org> <20060208190839.63c57a96.akpm@osdl.org>
+ <43EAC6BE.2060807@cosmosbay.com> <20060208204502.12513ae5.akpm@osdl.org>
+ <20060209160808.GL18730@localhost.localdomain> <20060209161331.GE20554@osiris.boeblingen.de.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 February 2006 01:43 am, Greg Ungerer wrote:
-> Hi Jon,
->
-> Jon Ringle wrote:
-> > I am working on a new board that will have Linux running on an xscale
-> > processor. This board will be a PCI Option device. I currently have a
-> > IXDP465 eval board which has a PCI Option connector that I will use for
-> > prototyping. From what I can tell so far, Linux wants to scan the PCI bus
-> > for devices as if it is the PCI host. Is there any provision in Linux so
-> > that it can take on the role of a PCI option rather than a PCI host?
->
-> Have a look at the code in arch/arm/mach-ixp4xx/common-pci.c, in
-> the function ixp4xx_pci_preinit().
->
-> It does a check on whether the PCI bus is configured as HOST or not.
-> I don't know if that code support is enough for it all to work right
-> though (I certainly haven't tried it on either the 425 or 465...)
+On Thu, 9 Feb 2006, Heiko Carstens wrote:
 
-Something that I don't quite understand is how I'm supposed to make vendor Id 
-information available to the PCI host. Any ideas there?
+> Simply because there is no such interface on s390. The only thing we know
+> for sure is that if we are running under z/VM the user is free to
+> configure up to 63 additional virtual cpus on the fly...
 
-TIA,
+Xen is in a similar situation.
 
-Jon
+-- 
+All Rights Reversed

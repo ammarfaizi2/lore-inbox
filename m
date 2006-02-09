@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422811AbWBIGFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422813AbWBIGJt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422811AbWBIGFR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 01:05:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422814AbWBIGFR
+	id S1422813AbWBIGJt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 01:09:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422814AbWBIGJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 01:05:17 -0500
-Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:31644 "EHLO
-	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S1422811AbWBIGFP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 01:05:15 -0500
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org
-Subject: Re: pktcdvd stack usage regression
-References: <20060209020932.GY3524@stusta.de>
-From: Peter Osterlund <petero2@telia.com>
-Date: 09 Feb 2006 07:01:25 +0100
-In-Reply-To: <20060209020932.GY3524@stusta.de>
-Message-ID: <m3lkwl6pfu.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 9 Feb 2006 01:09:49 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:32481 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1422813AbWBIGJt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 01:09:49 -0500
+Subject: Re: Linux drivers management
+From: Lee Revell <rlrevell@joe-job.com>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: David Chow <davidchow@shaolinmicro.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060207221513.GA7394@thunk.org>
+References: <20060207044204.8908.qmail@science.horizon.com>
+	 <m1zml3rvkg.fsf@ebiederm.dsl.xmission.com>
+	 <43E8F8EB.8010800@shaolinmicro.com>  <20060207221513.GA7394@thunk.org>
+Content-Type: text/plain
+Date: Thu, 09 Feb 2006 01:09:46 -0500
+Message-Id: <1139465386.30058.34.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.90 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> writes:
+On Tue, 2006-02-07 at 17:15 -0500, Theodore Ts'o wrote:
+> (In some cases, end-users send hate mail to the Linux kernel
+> developers when some idiot company's binary driver modules is buggy
+> and corrupts the kernel in hard-to-debug ways; one particular video
+> driver company is especially guilty here, and is viewed by some as
+> being directly responsible for the tainted kernel flags.) 
 
-> Hi Phillip,
-> 
-> your recent patch "pktcdvd: Allow larger packets" changed 
-> PACKET_MAX_SIZE in the pktcdvd driver from 32 to 128.
-> 
-> Unfortunately, drivers/block/pktcdvd.c contains the following:
-> 
-> <--  snip  -->
-> 
-> ...
-> static void pkt_start_write(struct pktcdvd_device *pd, struct 
-> packet_data *pkt)
-> {
->         struct bio *bio;
->         struct page *pages[PACKET_MAX_SIZE];
->         int offsets[PACKET_MAX_SIZE];
-> ...
-> 
-> <--  snip  -->
-> 
-> With PACKET_MAX_SIZE=128, this allocates more than 1 kB on the stack 
+Wouldn't the tainted kernel flags be necessary even if there had never
+been a single bug in any binary driver, simply because there's still no
+reasonable way to debug a kernel with binary drivers loaded?
 
-Yes, I know.
+Lee
 
-> which is not acceptable considering that we might have only 4 kB stack 
-> altogether.
-
-Why is it not acceptable? The pkt_start_write() function is only
-called from the kcdrwd() kernel thread and the pkt_start_write()
-function doesn't call anything else in the kernel that could require
-lots of stack space.
-
-The actual I/O is started from pkt_iosched_process_queue(), which
-calls generic_make_request(). However pkt_iosched_process_queue() is
-on a different call chain than pkt_start_write(), so I don't see how
-this could be a problem.
-
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340

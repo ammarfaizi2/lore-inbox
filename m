@@ -1,36 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422742AbWBIKIp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422746AbWBIKMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422742AbWBIKIp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 05:08:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422743AbWBIKIp
+	id S1422746AbWBIKMF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 05:12:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422749AbWBIKMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 05:08:45 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:28123 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1422742AbWBIKIp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 05:08:45 -0500
-Date: Thu, 9 Feb 2006 11:08:34 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: 76306.1226@compuserve.com, pj@sgi.com, wli@holomorphy.com, ak@muc.de,
-       mingo@elte.hu, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       riel@redhat.com, dada1@cosmobay.com
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-Message-ID: <20060209100834.GA9281@osiris.boeblingen.de.ibm.com>
-References: <200602090335_MC3-1-B7FA-621E@compuserve.com> <20060209010655.5cdeb192.akpm@osdl.org> <20060209011106.68aa890a.akpm@osdl.org>
+	Thu, 9 Feb 2006 05:12:05 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:29867 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422746AbWBIKME (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 05:12:04 -0500
+Date: Thu, 9 Feb 2006 02:11:36 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: MIke Galbraith <efault@gmx.de>
+Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [k2.6.16-rc1-mm5] kernel BUG at include/linux/mm.h:302!
+Message-Id: <20060209021136.410f1128.akpm@osdl.org>
+In-Reply-To: <1139478652.7867.9.camel@homer>
+References: <1139473463.8028.13.camel@homer>
+	<43EAFF6D.1040604@yahoo.com.au>
+	<20060209004712.3998e336.akpm@osdl.org>
+	<1139478652.7867.9.camel@homer>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060209011106.68aa890a.akpm@osdl.org>
-User-Agent: mutt-ng/devel (Linux)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > aargh.
-> Actually, x86 appears to be the only arch which suffers this braindamage. 
-> The rest use CPU_MASK_NONE (or just forget to initialise it and hope that
-> CPU_MASK_NONE equals all-zeroes).
+MIke Galbraith <efault@gmx.de> wrote:
+>
+> On Thu, 2006-02-09 at 00:47 -0800, Andrew Morton wrote:
+> > Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> > >
+> > > MIke Galbraith wrote:
+> > > > Greetings,
+> > > > 
+> > > > Excuse me if this is already known, I've been too busy tinkering to read
+> > > > lkml.
+> > > > 
+> > > 
+> > > It should be fixed as of current -git (not sure about the latest
+> > > -mm though). It would be good if you could verify that 2.6.16-rc2-git7
+> > > works OK for you.
+> > > 
+> > 
+> > This was a -mm kernel - how do we know it's not -mm breakage?
+> 
+> It _appears_ to be mm breakage.  I just built/ran rc1 with the same
+> config, and it works fine.
+> 
+> RL is calling, so I can't dig right this minute... in a couple hours I
+> hope to be able to start though.
+> 
+> Before I get to the 'what comes next' compile marathon, any likely
+> candidates?
 
-s390 will join, as soon as the cpu_possible_map fix is merged...
+rc2-mm1?
 
-Heiko
+>  (or Nick, do you have the supposed fix handy?)
+
+Yeah, I'm still scratching my head over the mystery fix.
+

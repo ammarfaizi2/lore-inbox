@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbWBIOVL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbWBIO0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932268AbWBIOVL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 09:21:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbWBIOVK
+	id S932509AbWBIO0F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 09:26:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWBIO0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 09:21:10 -0500
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:52323 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932268AbWBIOVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 09:21:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=Fd1cHtARlLalYjM89lADWEeKgqfNpl5Kys2wdj7rdyGTq1Oo0fgqYiacqm3ujZq9aDw5sO08sEWwoQ7w/UgZMPJ9y+KT3fs1y4T1ID31X1A2q6ghaBApulcf5+ZHpP7b5nfw0rB/lT0IUzeFco+DRPZnkHo/RAk57lDGnxQ1s1w=  ;
-Message-ID: <43EB4FD5.20107@yahoo.com.au>
-Date: Fri, 10 Feb 2006 01:21:09 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 9 Feb 2006 09:26:05 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:29619 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932509AbWBIO0E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 09:26:04 -0500
+Message-ID: <43EB518F.6000905@openvz.org>
+Date: Thu, 09 Feb 2006 17:28:31 +0300
+From: Kirill Korotaev <dev@openvz.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       ck list <ck@vds.kolivas.org>, linux-mm@kvack.org,
-       Paul Jackson <pj@sgi.com>
-Subject: Re: [PATCH] mm: Implement Swap Prefetching v22
-References: <200602092339.49719.kernel@kolivas.org> <43EB43B9.5040001@yahoo.com.au> <200602100047.09722.kernel@kolivas.org>
-In-Reply-To: <200602100047.09722.kernel@kolivas.org>
+To: Jeff Dike <jdike@addtoit.com>
+CC: linux-kernel@vger.kernel.org, saw@sawoct.com
+Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
+References: <43E7C65F.3050609@openvz.org> <m1bqxh5qhb.fsf@ebiederm.dsl.xmission.com> <20060209021828.GC9456@ccure.user-mode-linux.org>
+In-Reply-To: <20060209021828.GC9456@ccure.user-mode-linux.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-
-> I really don't want to go throwing out pagecache without some smart semantics 
-> and then swap in random stuff that could be crap I agree. The answer to this 
-> is for the vm itself to have an ageing algorithm like the clockpro stuff 
-> which does this in a smart way. It could certainly age away the updatedb 
-> wrinkles and leave some free ram - which would help/be helped by prefetching.
+>>To deal with networking there are currently a significant number of
+>>variables with static storage duration.  Making those variables global
+>>and placing them in structures is neither as efficient as it could be
+>>nor is it as maintainable as it should be.  Other subsystems have
+>>similar problems.
 > 
+> 
+> BTW, there is another solution, which you may or may not consider to
+> be clean.
+> 
+> That is to load a separate copy of the subsystem (code and data) as a
+> module when you want a new instance of it.  The code doesn't change,
+> but you probably have to move it around some and provide some sort of
+> interface to it.
+> 
+> I did this to the scheduler last year - see
+> 	http://marc.theaimsgroup.com/?l=linux-kernel&m=111404726721747&w=2
+It's really interesting!
+Have you tested fairness of your solution and it's performance overhead?
 
-AFAIK clockpro will not leave free ram, will it?
+Kirill
 
-Getting a little hand-wavy; I don't think the updatedb problem needs to
-be fixed by a really fancy page reclaim algorithm (IMO, and that's not to
-say that a fancy reclaim algorithm wouldn't be nice for other reasons).
-Just small improvements here and there, and there will always be a tradeoff
-between throughput and interactive pagein latency so in the end it might
-need a tunable (hey there is one - maybe it needs to be improved)
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 

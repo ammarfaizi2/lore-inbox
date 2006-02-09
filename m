@@ -1,275 +1,480 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422815AbWBIGLo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422817AbWBIGMH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422815AbWBIGLo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 01:11:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422816AbWBIGLo
+	id S1422817AbWBIGMH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 01:12:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422818AbWBIGMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 01:11:44 -0500
-Received: from sv1.valinux.co.jp ([210.128.90.2]:60133 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S1422815AbWBIGLn (ORCPT
+	Thu, 9 Feb 2006 01:12:07 -0500
+Received: from sv1.valinux.co.jp ([210.128.90.2]:61157 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S1422817AbWBIGLx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 01:11:43 -0500
+	Thu, 9 Feb 2006 01:11:53 -0500
 From: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
 To: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
 Cc: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
-Message-Id: <20060209061142.2164.35994.sendpatchset@debian>
-Subject: [PATCH 0/2] CKRM CPU resource controller
-Date: Thu,  9 Feb 2006 15:11:42 +0900 (JST)
+Message-Id: <20060209061152.2164.64958.sendpatchset@debian>
+In-Reply-To: <20060209061142.2164.35994.sendpatchset@debian>
+References: <20060209061142.2164.35994.sendpatchset@debian>
+Subject: [PATCH 2/2] connect the CPU resource controller to CKRM
+Date: Thu,  9 Feb 2006 15:11:52 +0900 (JST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patchset adds a CPU resource controller for CKRM.  The CPU
-resource controller manages CPU resources by scaling timeslice
-allocated for each task without changing the algorithm of the O(1)
-scheduler.  A document that describes how the resource controller
-works is attached at the end of this mail.
+This patch provides a resource controller for controlling the CPU ratio 
+per class in CKRM. It is just an interface to kernel/cpu_rc.c
 
-Performance tests showed us that the overhead introduced by this
-patchset was negligible small.  Here are the summary of performance tests:
+Signed-off-by: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
+Signed-off-by: Kurosawa Takahiro <kurosawa@valinux.co.jp>
 
-(1) overhead
+---
+ Documentation/ckrm/cpurc |   71 +++++++++
+ init/Kconfig             |   10 +
+ kernel/ckrm/Makefile     |    1 
+ kernel/ckrm/ckrm_cpu.c   |  334 +++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 416 insertions(+)
 
- lat_ctx -s 0 -W 100 -N 1000 $N,N=(2..500)
-
-  N    2.6.15  cpurc	delta (cpurc - 2.6.15) [us]
--------------------------------------------------
-  2	0.48	0.50	 0.02
-  3	0.69	0.70	 0.01
-  4	0.65	0.71	 0.06
-  5	0.68	0.70	 0.02
-  6	0.66	0.73	 0.07
-  7	0.74	0.69	-0.05
-  8	0.67	0.76	 0.09
-  9	0.68	0.71	 0.03
- 10	0.66	0.71	 0.05
- 20	0.72	0.74	 0.02
- 30	0.75	0.77	 0.04
- 40	0.77	0.79	 0.02
- 50	0.83	0.84	 0.02
- 60	0.86	0.86	-0.02
- 70	0.90	0.86	-0.04
- 80	0.92	0.89	-0.03
- 90	1.00	0.92	-0.08
-100	0.96	1.03	 0.07
-200	1.55	1.65	 0.10
-300	2.30	2.23	-0.07
-400	2.80	2.85	 0.05
-500	3.12	3.20	 0.08
-
-The overhead is smaller than the error limit.
-
-See also the following graph:
-http://prdownloads.sourceforge.net/ckrm/cpurc-v0.3-2615-lat_ctx.pdf?download
-
-(2) accuracy of share
-
- kernbench running with 2 infinite loops on 2 CPU machine
-
-%Share   Elaps   User    Sys	%CPU
--------------------------------------
- 10	2515.5  571.8   61.6	 24.8
- 20	1349.3  578.1	59.7	 46.8
- 30 	 905.5	575.7	59.8	 69.8
- 40	 706.9	574.1	60.1	 89.4
- 50 	 586.8	572.4	60.1	107.2
- 60 	 494.2	572.6	60.1	127.2
- 70 	 430.0	572.4	60.9	146.6
- 80	 368.4  571.2	60.5	171.0
- 90	 328.4  572.1	60.6	192.2
-100	 320.5	571.8	60.6	196.8
-
-Notice that maximun share is 100% regardless of # of CPU, and
-maximum %CPU is 200%. Therefore, %CPU should be two times of %Share.
-
-See also the following graph:
-http://prdownloads.sourceforge.net/ckrm/cpurc-v0.3-2615-kernbench.pdf?download
-
-
------------------------------------------------------------------------------
-
-How the CPU resource controller works
-
- There are 3 components in the CPU resource controller:
-
- (1)  load estimation
- (2)  hungry detection
- (3)  timeslice scaling
- (3') task requeueing
-
- We need to estimate the class load in order to check whether the
- guarantee is satisfied or not.  Class load also gets lower than the
- guarantee when all the tasks in the class tends to sleep. We need to
- check whether the class needs to schedule more or not by hungry
- detection.  If a class needs to schedule more, timeslices of tasks
- are scaled by timeslice scaling.  When timeslice scaling can't satisfy 
- the guarantee, task requeueing supplements timeslice scaling.
+Index: linux-2.6.15-f0.4-cpurc-v0.3/kernel/ckrm/ckrm_cpu.c
+===================================================================
+--- /dev/null
++++ linux-2.6.15-f0.4-cpurc-v0.3/kernel/ckrm/ckrm_cpu.c
+@@ -0,0 +1,334 @@
++/*
++ *  kernel/ckrm/ckrm_cpu.c
++ *
++ *  CPU resource controller for CKRM
++ *
++ *  Copyright 2005 FUJITSU LIMITED
++ *
++ *  This file is subject to the terms and conditions of the GNU General Public
++ *  License.  See the file COPYING in the main directory of the Linux
++ *  distribution for more details.
++ */
++
++#include <linux/module.h>
++#include <linux/config.h>
++#include <linux/notifier.h>
++#include <linux/cpu.h>
++#include <linux/cpu_rc.h>
++#include <linux/ckrm_rc.h>
++
++struct ckrm_cpu {
++	struct ckrm_class *class;	/* the class I belong to */
++	struct ckrm_class *parent;	/* parent of the class above. */
++	struct ckrm_shares shares;
++	spinlock_t cnt_lock;	/* always grab parent's lock before child's */
++	struct cpu_rc	cpu_rc;	/* cpu resource controller */
++	int 	cnt_total_guarantee; 	/* total guarantee behind the class */
++};
++
++static struct cpu_rc_domain grcd; /* system wide resource controller domain */
++static struct ckrm_res_ctlr rcbs; /* resource controller callback structure */
++
++struct cpu_rc *cpu_rc_get(task_t *tsk)
++{
++	struct ckrm_class *class = tsk->class;
++	struct ckrm_cpu *res;
++
++	if (unlikely(class == NULL))
++		return NULL;
++
++	res = ckrm_get_res_class(class, rcbs.resid, struct ckrm_cpu);
++
++	if (unlikely(res == NULL))
++		return NULL;
++
++	return &res->cpu_rc;
++}
++
++static void cpu_rc_set_guarantee(struct ckrm_cpu *res, int val)
++{
++	spin_lock(&res->cpu_rc.rcd->lock);
++	res->cpu_rc.guarantee = val;
++	spin_unlock(&res->cpu_rc.rcd->lock);
++}
++
++static void cpu_res_initcls_one(struct ckrm_cpu * res)
++{
++	res->shares.my_guarantee = 0;
++	res->shares.my_limit = CKRM_SHARE_DONTCARE;
++	res->shares.total_guarantee = CKRM_SHARE_DFLT_TOTAL_GUARANTEE;
++	res->shares.max_limit = CKRM_SHARE_DONTCARE;
++	res->shares.unused_guarantee = CKRM_SHARE_DFLT_TOTAL_GUARANTEE;
++
++	res->cpu_rc.rcd = &grcd;
++	res->cpu_rc.guarantee = 0;
++	res->cpu_rc.ts_factor = CPU_RC_TSFACTOR_MAX;
++	res->cnt_total_guarantee = 0;
++	spin_lock(&res->cpu_rc.rcd->lock);
++	res->cpu_rc.rcd->numcrs++;
++	spin_unlock(&res->cpu_rc.rcd->lock);
++
++	return;
++}
++
++static void *cpu_res_alloc(struct ckrm_class *class,
++				struct ckrm_class *parent)
++{
++	struct ckrm_cpu *res;
++
++	res = kmalloc(sizeof(struct ckrm_cpu), GFP_ATOMIC);
++
++	if (res) {
++		memset(res, 0, sizeof(struct ckrm_cpu));
++		res->class = class;
++		res->parent = parent;
++		cpu_res_initcls_one(res);
++		res->cnt_lock = SPIN_LOCK_UNLOCKED;
++		if (!parent)	{	/* root class */
++			res->cpu_rc.guarantee = CKRM_SHARE_DFLT_TOTAL_GUARANTEE;
++			res->cnt_total_guarantee = CKRM_SHARE_DFLT_TOTAL_GUARANTEE;
++			res->shares.my_guarantee = CKRM_SHARE_DONTCARE;
++		}
++	} else {
++		printk(KERN_ERR
++		       "cpu_res_alloc: failed GFP_ATOMIC alloc\n");
++	}
++	return res;
++}
++
++static void cpu_res_free(void *my_res)
++{
++	struct ckrm_cpu *res = my_res, *parres;
++	u64	temp = 0;
++
++	if (!res)
++		return;
++
++	parres = ckrm_get_res_class(res->parent, rcbs.resid, struct ckrm_cpu);
++	/* return child's guarantee to parent class */
++	spin_lock(&parres->cnt_lock);
++	ckrm_child_guarantee_changed(&parres->shares, res->shares.my_guarantee, 0);
++	if (parres->shares.total_guarantee) {
++		temp = (u64) parres->shares.unused_guarantee
++				* parres->cnt_total_guarantee;
++		do_div(temp, parres->shares.total_guarantee);
++	}
++	cpu_rc_set_guarantee(parres, temp);
++	spin_unlock(&parres->cnt_lock);
++
++	spin_lock(&res->cpu_rc.rcd->lock);
++	res->cpu_rc.is_hungry = 0;
++	res->cpu_rc.rcd->numcrs--;
++	spin_unlock(&res->cpu_rc.rcd->lock);
++	kfree(res);
++	return;
++}
++
++static void
++recalc_and_propagate(struct ckrm_cpu * res)
++{
++	struct ckrm_class *child = NULL;
++	struct ckrm_cpu *parres, *childres;
++	u64	cnt_total = 0,	cnt_guar = 0;
++
++	parres = ckrm_get_res_class(res->parent, rcbs.resid, struct ckrm_cpu);
++
++	if (parres) {
++		struct ckrm_shares *par = &parres->shares;
++		struct ckrm_shares *self = &res->shares;
++
++		/* calculate total and currnet guarantee */
++		if (par->total_guarantee && self->total_guarantee) {
++			cnt_total = (u64) self->my_guarantee
++					 * parres->cnt_total_guarantee;
++			do_div(cnt_total, par->total_guarantee);
++			cnt_guar = (u64) self->unused_guarantee * cnt_total;
++			do_div(cnt_guar, self->total_guarantee);
++		}
++		cpu_rc_set_guarantee(res, (int) cnt_guar);
++		res->cnt_total_guarantee = (int ) cnt_total;
++	}
++
++	/* propagate to children */
++	ckrm_lock_hier(res->class);
++	while ((child = ckrm_get_next_child(res->class, child)) != NULL) {
++		childres =
++			ckrm_get_res_class(child, rcbs.resid, struct ckrm_cpu);
++		if (childres) {
++		    spin_lock(&childres->cnt_lock);
++		    recalc_and_propagate(childres);
++		    spin_unlock(&childres->cnt_lock);
++		}
++	}
++	ckrm_unlock_hier(res->class);
++	return;
++}
++
++static int cpu_set_share_values(void *my_res, struct ckrm_shares *new)
++{
++	struct ckrm_cpu *parres, *res = my_res;
++	struct ckrm_shares *cur = &res->shares, *par;
++	int rc = -EINVAL;
++	u64	temp = 0;
++
++	if (!res)
++		return rc;
++
++	if (res->parent) {
++		parres =
++		   ckrm_get_res_class(res->parent, rcbs.resid, struct ckrm_cpu);
++		spin_lock(&parres->cnt_lock);
++		spin_lock(&res->cnt_lock);
++		par = &parres->shares;
++	} else {
++		spin_lock(&res->cnt_lock);
++		par = NULL;
++		parres = NULL;
++	}
++
++	/* limit is not supported */
++	new->my_limit = new->max_limit = CKRM_SHARE_UNCHANGED;
++
++	rc = ckrm_set_shares(new, cur, par);
++
++	if (rc)
++		goto share_err;
++
++	if (parres) {
++		/* adjust parent's unused guarantee */
++		if (par->total_guarantee) {
++			temp = (u64) par->unused_guarantee
++					* parres->cnt_total_guarantee;
++			do_div(temp, par->total_guarantee);
++		}
++		cpu_rc_set_guarantee(parres, temp);
++	} else {
++		/* adjust root class's unused guarantee */
++		temp = (u64) cur->unused_guarantee
++				* CKRM_SHARE_DFLT_TOTAL_GUARANTEE;
++		do_div(temp, cur->total_guarantee);
++		cpu_rc_set_guarantee(res, temp);
++	}
++	recalc_and_propagate(res);
++
++share_err:
++	spin_unlock(&res->cnt_lock);
++	if (res->parent)
++		spin_unlock(&parres->cnt_lock);
++	return rc;
++}
++
++static int cpu_get_share_values(void *my_res, struct ckrm_shares *shares)
++{
++	struct ckrm_cpu *res = my_res;
++
++	if (!res)
++		return -EINVAL;
++	*shares = res->shares;
++	return 0;
++}
++
++static ssize_t cpu_show_stats(void *my_res, char *buf)
++{
++	struct ckrm_cpu *res = my_res;
++	unsigned int load = 0;
++	ssize_t	i;
++
++	if (!res)
++		return -EINVAL;
++
++	load = cpu_rc_load(&res->cpu_rc);
++	i = sprintf(buf, "cpu:effective_guarantee=%d, load=%d\n",
++			res->cpu_rc.guarantee, load);
++	return i;
++}
++
++static struct ckrm_res_ctlr rcbs = {
++	.res_name = "cpu",
++	.resid = -1,
++	.res_alloc = cpu_res_alloc,
++	.res_free = cpu_res_free,
++	.set_share_values = cpu_set_share_values,
++	.get_share_values = cpu_get_share_values,
++	.show_stats = cpu_show_stats,
++};
++
++static void init_global_rcd(void)
++{
++	grcd.cpus = cpu_online_map;
++	spin_lock_init(&grcd.lock);
++	grcd.hungry_count = 0;
++	grcd.numcpus = cpus_weight(cpu_online_map);
++	grcd.numcrs = 0;
++}
++
++static inline void clear_cpu_rc_stat(struct ckrm_cpu *res, int cpu)
++{
++	if (res == NULL)
++		return;
++
++	res->cpu_rc.stat[cpu].timestamp = 0;
++	res->cpu_rc.stat[cpu].load = 0;
++	res->cpu_rc.stat[cpu].maybe_hungry = 0;
++}
++
++static int __devinit ckrm_cpu_notify(struct notifier_block *self,
++				unsigned long action, void *hcpu)
++{
++	struct ckrm_class *cls = &ckrm_default_class;
++	struct ckrm_class *child = NULL;
++	struct ckrm_cpu *res;
++	int	cpu = (long) hcpu;
++
++	switch (action)	{
++
++	case CPU_DEAD:
++		ckrm_lock_hier(cls);
++		res = ckrm_get_res_class(cls, rcbs.resid, struct ckrm_cpu);
++		clear_cpu_rc_stat(res, cpu);
++		while ((child = ckrm_get_next_child(cls, child)) != NULL) {
++			res = ckrm_get_res_class(child, rcbs.resid,
++							struct ckrm_cpu);
++			spin_lock(&res->cnt_lock);
++			clear_cpu_rc_stat(res, cpu);
++			spin_unlock(&res->cnt_lock);
++		}
++		ckrm_unlock_hier(cls);
++		/* FALL THROUGH */
++	case CPU_UP_PREPARE:
++		grcd.cpus = cpu_online_map;
++		grcd.numcpus = cpus_weight(cpu_online_map);
++		break;
++	default:
++		break;
++	}
++	return NOTIFY_OK;
++}
++
++static struct notifier_block ckrm_cpu_nb = {
++	.notifier_call	= ckrm_cpu_notify,
++};
++
++int __init init_ckrm_cpu_res(void)
++{
++	init_global_rcd();
++	if (rcbs.resid == CKRM_NO_RES)	{
++		ckrm_register_res_ctlr(&rcbs);
++		printk(KERN_INFO
++			 "init_ckrm_cpu_res %d cpus available\n", grcd.numcpus);
++	}
++	/* Register notifier for non-boot CPUs */
++	register_cpu_notifier(&ckrm_cpu_nb);
++	return 0;
++}
++
++void __exit exit_ckrm_cpu_res(void)
++{
++	ckrm_unregister_res_ctlr(&rcbs);
++	unregister_cpu_notifier(&ckrm_cpu_nb);
++}
++
++module_init(init_ckrm_cpu_res)
++module_exit(exit_ckrm_cpu_res)
++
++MODULE_LICENSE("GPL")
+Index: linux-2.6.15-f0.4-cpurc-v0.3/init/Kconfig
+===================================================================
+--- linux-2.6.15-f0.4-cpurc-v0.3.orig/init/Kconfig
++++ linux-2.6.15-f0.4-cpurc-v0.3/init/Kconfig
+@@ -197,6 +197,16 @@ config CKRM_RES_NUMTASKS
  
-
-1. Load estimation
-
- We calculate the class load as the accumulation of task loads in the
- class.  We need to calculate the task load first, then calculate the
- class load from the task loads.
-
- Task load estimation
-
-  Task load is estimated as the ratio of:
-   * the timeslice value allocated to the task (Ts)
-  to:
-   * the time that is taken for the task to run out the allocated timeslice
-     (Tr).
-  If a task can use all the CPU time, Ts / Tr becomes 1 for example.
-
-  The detailed procedure of the calculation is as follows:
-  (1) Record the timeslice (Ts) and the time when the timeslice is 
-      allocated to the task (by calling cpu_rc_record_allocation()).
-      * The timeslice value is recorded to task->last_slice ( = Ts).
-      * The time is recorded to task->ts_alloced.
-  (2) Calculate the task load when the timeslice is expired
-      (by calling cpu_rc_account()).
-      Tr is calculated as:
-       Tr = jiffies - task->ts_alloced
-      Then task load (Ts / Tr) becomes:
-       Ts / Tr = task->last_slice / (jiffies - task->ts_alloced)
-
-      The load value is scaled by CPU_RC_LOAD_SCALE.
-      If the load value equals to CPU_RC_LOAD_SCALE, it indicates 100% 
-      CPU usage.
-
-          task->ts_alloced   task scheduled             now
-             v               v                          v
-             |---------------===========================|
-
-                             |<------------------------>|
-                               Ts ( = task->last_slice)
-
-             |<---------------------------------------->|
-                Tr ( = now - task->ts_alloced)
-
-             |<------------->|
-               the time that the task isn't scheduled
-
-
-      Note that task load calculation is also needed for strict
-      accuracy when a task forks or exits, because timeslice is
-      changed on fork and exit.  But we don't do that in order to
-      simplify the code and in order not to introduce overhead on fork
-      and exit.  Probably we can get enough accurate number without
-      calculating the task load on fork/exit.
-
- Class load estimation:
-
-  Class load is the accumulation of load values of tasks in the class in
-  the duration of CPU_RC_SPREAD_PERIOD.
-  Per-CPU class load is recalculated each time the task load is calculated
-  in the cpu_rc_account() function.
-  Then on CPU_RC_RECALC_INTERVAL intervals, the class load value per-CPU 
-  value is calculated as the average of the per-CPU class load.
-
-  Task load is accumulated to the per-CPU class load as if the class uses 
-  Ts/Tr of the CPU time from task->ts_alloced to now (the time the timeslice 
-  expired).
-
-  So the time that the task has used the CPU from (now - CPU_RC_SPREAD_PERIOD)
-  to now (Ttsk) should be:
-
-   if task->ts_alloced < now - CPU_RC_SPREAD_PERIOD:
-     Ts/Tr * CPU_RC_SPREAD_PERIOD
-     (We assume that the task has used the CPU at the constant rate of Ts/Tr.)
-
-                    now-CPU_RC_SPREAD_PERIOD                now
-                    v                                       v
-                    |---------------------------------------|
-         |==================================================| load: Ts/Tr
-         ^
-         task->ts_alloced
-
-   else:
-     Ts
-
-                    now-CPU_RC_SPREAD_PERIOD                now
-                    v                                       v
-                    |---------------------------------------|
-                               |============================| load: Ts/Tr
-                               ^
-                               task->ts_alloced             
-
-  Also, we assume that the class uses the CPU at the rate of the class load
-  from (now - CPU_RC_SPREAD_PERIOD) to the last time the per-CPU class load
-  was calculated (stored in struct cpu_rc::stat[cpu].timestamp).  If
-  cpu_rc::stat[cpu].timestamp < now - CPU_RC_SPREAD_PERIOD, we assume that
-  the class doesn't use the CPU from (now - CPU_RC_SPREAD_PERIOD) to
-  task->ts_alloced.
-
-  So the time that the class use the CPU from (now - CPU_RC_SPREAD_PERIOD)
-  to now (Tcls) should be:
-   if cpu_rc::stat[cpu].timestamp < now - CPU_RC_SPREAD_PERIOD:
-     0
-   else:
-     cpu_rc::stat[cpu].load * (cpu_rc::stat[cpu].timestamp - (now - CPU_RC_SPREAD_PERIOD))
-
-  The new per-CPU class load that will be assigned to cpu_rc::stat[cpu].load
-  is calculated as:
-    (Ttsk + Tcls) / CPU_RC_SPREAD_PERIOD
-
-2. Hungry detection
-
- When the class load is less than the guarantee, there are 2 cases:
-  (a) the guarantee is enough and tasks in the class have time for sleep
-  (b) tasks in other classes overuse the CPU
-
- We should not scale the timeslice in case (a) even if the class load
- is lower than the guarantee.  In order to distinguish case (b) from
- case (a), we measure the time (Tsch) from when a task is activated
- (stored in task->last_activated) till when the task is actually
- scheduled.  If the class load is lower than the guarantee but tasks
- in the class are quickly scheduled, it can be classified to case (a).
- If Tsch / timeslice of a task is lower than the guarantee, the class
- that has the task is marked as "maybe hungry."  If the class load of
- the class that is marked as "maybe hungry" is lower than the
- guarantee, it is treated as hungry and the timeslices of tasks in
- other classes will be scaled down.
-
-
-3. Timeslice scaling
-
- If there are hungry classes, we need to adjust timeslices to satisfy
- the guarantee.  To scale timeslices, we introduce a scaling factor
- used for scaling timeslices.  The scaling factor is associated with
- the class (stored in the cpu_rc structure) and adaptively adjusted
- according to the class load and the guarantee.
-
- If some classes are hungry, the scaling factor of the class that is
- not hungry is calculated as follows (note: F is the scaling factor):
-   F_new = F * guarantee / class_load
-
- And the scaling factor of the hungry class is calculated as:
-   F_new = F + 1
-
- When all the classes are not hungry, the scaling factor is calculated
- as follows in order to recover the timeslices:
-   F_new = F + CPU_RC_TSFACTOR_INC   (CPU_RC_TSFACTOR_INC is defined as 5)
-
- Note that the maximum value of F is limited to CPU_RC_TSFACTOR_MAX.
- The timeslice assigned to each task is:
-   timeslice_scaled = timeslice_orig * F / CPU_RC_TSFACTOR_MAX
-
- where timeslice_orig is the value that is calculated by the conventional 
- O(1) scheduler.
-
-3'. Task requeueing
-
- There is cases that timeslice scaling is not enough for satisfying
- the guarantee because there is highest and lowest value defined for
- the timeslice.  The lowest value is 1, so a class that has low
- guarantee but has huge number of tasks may beat another class that
- has high guarantee but has small number of tasks.  Task requeueing
- works in such cases.
-
- If the hungry state continues more than CPU_RC_STARVE_THRESHOLD
- (defined as 2) on the scale factor recalculation, the class is
- considered as starving.  Tasks in the starving classes are requeued
- to the active queue again when the timeslices are expired.
-
--- 
-KUROSAWA, Takahiro
+ 	  Say N if unsure, Y to use the feature.
+ 
++config CKRM_RES_CPU
++	bool "CPU Resource Controller"
++	select CPU_RC
++	depends on CKRM
++	default y
++	help
++	  Provides a CPU Resource Controller for CKRM.
++
++	  Say N if unsure, Y to use the feature.
++
+ endmenu
+ config SYSCTL
+ 	bool "Sysctl support"
+Index: linux-2.6.15-f0.4-cpurc-v0.3/kernel/ckrm/Makefile
+===================================================================
+--- linux-2.6.15-f0.4-cpurc-v0.3.orig/kernel/ckrm/Makefile
++++ linux-2.6.15-f0.4-cpurc-v0.3/kernel/ckrm/Makefile
+@@ -4,3 +4,4 @@
+ 
+ obj-y = ckrm.o ckrmutils.o ckrm_tc.o ckrm_iface.o
+ obj-$(CONFIG_CKRM_RES_NUMTASKS) += ckrm_numtasks.o
++obj-$(CONFIG_CKRM_RES_CPU) += ckrm_cpu.o
+Index: linux-2.6.15-f0.4-cpurc-v0.3/Documentation/ckrm/cpurc
+===================================================================
+--- /dev/null
++++ linux-2.6.15-f0.4-cpurc-v0.3/Documentation/ckrm/cpurc
+@@ -0,0 +1,71 @@
++Introduction
++------------
++
++CPU resource controller enables user/sysadmin to control CPU time
++percentage of tasks in a class. It controls time_slice of tasks based on
++the feedback of difference between the target value and the current usage
++in order to control the percentage of the CPU usage to the target value.
++
++Installation
++------------
++
++1. Configure "CPU Resource Controller" under CKRM. Currently, this cannot be
++   configured as a module.
++
++2. Reboot the system with the new kernel.
++
++3. Verify that the CPU resource controller is present by reading
++   the file /config/ckrm/shares (should show a line with res=cpu).
++
++Assigning shares
++----------------
++
++Follows the general approach of setting shares for a class in CKRM.
++
++# echo "res=cpu,guarantee=val" > shares
++
++sets the guarantee of a class.
++
++The CPU resource controller calculates an effective guarantee in percent
++for each class. The followings is an example of class/guarantee settings
++and each effective guarantee.
++
++				/
++				  effective_guarantee
++				  = 100% - 15% - 30% - 10% - 25%
++				  = 20%
++		+---------------+---------------+
++		/A guarantee=50%		/B guarantee=30%
++		   effective_guarantee		   effective_guarantee
++	    	   = 50% - 10% - 25%	    	   = 30% - 0%
++		   = 15%			   = 30%
+++---------------+---------------+
++/C guarantee=20%		/D guarantee=50%
++   effective_guarantee		   effective_guarantee
++   = 20% of 50% - 0% = 10%	   = 50% of 50% - 0 %
++   = 10%			   = 25%
++
++If the guarantee in the class /A is changed 50% to 40% in the above
++example, the effective_guarantee of the class /A, /C and /D are automatically
++changed to 12%, 8% and 20% respectively.
++
++Although the total_guarantee can be changed, the effective_guarantee is
++always calculated in percent.
++
++Note that the CPU resource controller doesn't support the limit, so assigning
++the limit for "res=cpu" is meaningless.
++
++Monitoring
++----------
++
++stats file shows the effective guarantee and the current cpu usage of a class
++in percentage.
++
++# cat stats
++cpu:effective_guarantee=50, load=40
++
++That means the effective guarantee of the class is 50% and the current load
++average of the class is 40%.
++
++Since the tasks in the class do not always try to consume CPU, the load could be
++less or greater than the effective_guarantee. Both cases are normal.

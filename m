@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422651AbWBIKx3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422652AbWBIK5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422651AbWBIKx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 05:53:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422881AbWBIKx3
+	id S1422652AbWBIK5m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 05:57:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422666AbWBIK5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 05:53:29 -0500
-Received: from mail.gmx.de ([213.165.64.21]:63667 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1422651AbWBIKx2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 05:53:28 -0500
-X-Authenticated: #428038
-Date: Thu, 9 Feb 2006 11:53:24 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: peter.read@gmail.com, matthias.andree@gmx.de, lsorense@csclub.uwaterloo.ca,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060209105324.GC15173@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	peter.read@gmail.com, lsorense@csclub.uwaterloo.ca,
-	linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net
-References: <43E7545E.nail7GN11WAQ9@burner> <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de> <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner> <20060207183712.GC5341@voodoo> <43E9F1CD.nail2BR11FL52@burner> <20060208210219.GB9166@DervishD> <20060208211455.GC2480@csclub.uwaterloo.ca> <43EB1988.nail7EL2I7AN6@burner>
+	Thu, 9 Feb 2006 05:57:42 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:11230 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1422652AbWBIK5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 05:57:41 -0500
+Date: Thu, 09 Feb 2006 19:56:48 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Andi Kleen <ak@suse.de>,
+       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
+Subject: Re: [discuss] Re: [RFC:PATCH(003/003)] Memory add to onlined node. (ver. 2) (For x86_64)
+Cc: discuss@x86-64.org, "Brown, Len" <len.brown@intel.com>,
+       naveen.b.s@intel.com, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       ACPI-ML <linux-acpi@vger.kernel.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>
+In-Reply-To: <200602091141.44456.ak@suse.de>
+References: <20060209164036.6CFC.Y-GOTO@jp.fujitsu.com> <200602091141.44456.ak@suse.de>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060209195345.6D06.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43EB1988.nail7EL2I7AN6@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-02-09:
-
-> lsorense@csclub.uwaterloo.ca (Lennart Sorensen) wrote:
+> On Thursday 09 February 2006 10:50, Yasunori Goto wrote:
 > 
-> > Hmm, perhaps what should be done is that someone needs to write and
-> > maintain a patch that linux users can apply to cdrecord (since other OSs
-> > are different and hence have no reason to use such a patch), to make it
-> > behave in a manner which is sane on linux.  It should of course be
-> > clearly marked as having been changed in such a way.  It should use udev
-> > if available and HAL and whatever else is appropriate on a modern linux
-> > system, and if on an old system it should at least not break the
-> > interfaces that already worked on those systems in cdrecord.
+> > Current code adds memory to ZONE_NORMAL like this.
+> > But, ZONE_DMA32 is available on 2.6.15. So, I'm afraid there are
+> > 2 types trouble.
+> > 
+> >   a) When new memory is added to < 4GB, this should be added to 
+> >      Zone_DMA32.
+> >      Are there any real machine which allow to add memory under
+> >      4GB?
 > 
-> Unfortunately is it a matter oif facts that all known patches for cdrecord
-> break more things than they claim to fix.
+> x86-64 machines usually use a continuous memory map 
+> because Windows gets unhappy with too big memory holes (and even
+> Linux is not completely troublefree for UP install kernels)  And for a small
+> system this implies memory < 4GB.
 
-So prove my patch is wrong, and give a detailed report what it breaks,
-unless you wish to fix it yourself.
+Ah, Ok. Then, it is bug. :-P
+
+> 
+> >   b) If machine boots up with under 4GB memory, and new memory 
+> >      is added to over 4GB, then kernel might panic due to Zone Normal's
+> >      initialization is imcomplete.
+> >   
+> > Q2) 
+> >   Are there any real machine which can add memory with NUMA feature?
+> 
+> There are and will be.
+
+I see. I'll continue my job with x86_64 too. :-)
+
+Thanks.
 
 -- 
-Matthias Andree
+Yasunori Goto 
+
+

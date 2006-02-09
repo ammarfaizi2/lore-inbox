@@ -1,41 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbWBIOzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbWBIO4j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932511AbWBIOzc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 09:55:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932518AbWBIOzc
+	id S932518AbWBIO4j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 09:56:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbWBIO4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 09:55:32 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:59301 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932511AbWBIOzb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 09:55:31 -0500
-Date: Thu, 9 Feb 2006 06:55:24 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: jes@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: git for dummies, anyone?
-Message-Id: <20060209065524.8a7d00ce.pj@sgi.com>
-In-Reply-To: <43EB4F05.8090400@pobox.com>
-References: <20060208070301.1162e8c3.pj@sgi.com>
-	<yq0vevollx4.fsf@jaguar.mkp.net>
-	<43EB4F05.8090400@pobox.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Thu, 9 Feb 2006 09:56:38 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:8607 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S932518AbWBIO4h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 09:56:37 -0500
+Date: Thu, 9 Feb 2006 15:57:40 +0100
+From: DervishD <lkml@dervishd.net>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: peter.read@gmail.com, matthias.andree@gmx.de, lsorense@csclub.uwaterloo.ca,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060209145740.GB94@DervishD>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	peter.read@gmail.com, matthias.andree@gmx.de,
+	lsorense@csclub.uwaterloo.ca, linux-kernel@vger.kernel.org,
+	jim@why.dont.jablowme.net
+References: <43E7545E.nail7GN11WAQ9@burner> <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de> <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner> <20060207183712.GC5341@voodoo> <43E9F1CD.nail2BR11FL52@burner> <20060208210219.GB9166@DervishD> <20060208211455.GC2480@csclub.uwaterloo.ca> <43EB1988.nail7EL2I7AN6@burner>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43EB1988.nail7EL2I7AN6@burner>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff wrote:
-> Check out: http://linux.yyz.us/git-howto.html
+    Hi Joerg :)
 
-I did.  I spent some time reading it, as one of
-the best git howto's I could find.
+ * Joerg Schilling <schilling@fokus.fraunhofer.de> dixit:
+> lsorense@csclub.uwaterloo.ca (Lennart Sorensen) wrote:
+> > Hmm, perhaps what should be done is that someone needs to write and
+> > maintain a patch that linux users can apply to cdrecord (since other OSs
+> > are different and hence have no reason to use such a patch), to make it
+> > behave in a manner which is sane on linux.  It should of course be
+> > clearly marked as having been changed in such a way.  It should use udev
+> > if available and HAL and whatever else is appropriate on a modern linux
+> > system, and if on an old system it should at least not break the
+> > interfaces that already worked on those systems in cdrecord.
+> 
+> Unfortunately is it a matter oif facts that all known patches for
+> cdrecord break more things than they claim to fix.
 
-Me and the git UI just weren't met to be.
+    Could you please clarify which things are broken by Matthias
+patch? This way he (or other developer) can prepare a better patch
+and maintain it. BTW, I patched my cdrecord with Matthias patch and
+nothing seems to be broken :? Maybe am I missing something?
+
+    Raúl Núñez de Arenas Coronado
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to... RAmen!

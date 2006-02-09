@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422781AbWBICvj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422791AbWBIDGH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422781AbWBICvj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 21:51:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422782AbWBICvj
+	id S1422791AbWBIDGH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 22:06:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422792AbWBIDGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 21:51:39 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:47052 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422781AbWBICvi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 21:51:38 -0500
-Date: Wed, 8 Feb 2006 20:51:35 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Kirill Korotaev <dev@sw.ru>,
-       Kirill Korotaev <dev@openvz.org>, serue@us.ibm.com, arjan@infradead.org,
-       frankeh@watson.ibm.com, clg@fr.ibm.com, haveblue@us.ibm.com,
-       mrmacman_g4@mac.com, alan@lxorguk.ukuu.org.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       devel@openvz.org
-Subject: Re: [RFC][PATCH 2/7] VPIDs: pid/vpid conversions
-Message-ID: <20060209025135.GA29197@sergelap.austin.ibm.com>
-References: <43E22B2D.1040607@openvz.org> <43E23179.5010009@sw.ru> <m1irrpsifp.fsf@ebiederm.dsl.xmission.com> <20060208235348.GC26035@ms2.inr.ac.ru> <m11wyd5pv8.fsf@ebiederm.dsl.xmission.com> <20060209011126.GB5417@ms2.inr.ac.ru>
+	Wed, 8 Feb 2006 22:06:07 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:50887 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422791AbWBIDGG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 22:06:06 -0500
+Date: Wed, 8 Feb 2006 19:05:12 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rik van Riel <riel@redhat.com>
+Cc: linux-kernel@vger.kernel.org, dada1@cosmosbay.com,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Andi Kleen <ak@muc.de>, Chuck Ebbert <76306.1226@compuserve.com>,
+       Eric Dumazet <dada1@cosmosbay.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
+Message-Id: <20060208190512.5ebcdfbe.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.63.0602081728590.31711@cuia.boston.redhat.com>
+References: <200602051959.k15JxoHK001630@hera.kernel.org>
+	<Pine.LNX.4.63.0602081728590.31711@cuia.boston.redhat.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060209011126.GB5417@ms2.inr.ac.ru>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Alexey Kuznetsov (kuznet@ms2.inr.ac.ru):
-> Hello!
+Rik van Riel <riel@redhat.com> wrote:
+>
+> On Sun, 5 Feb 2006, Linux Kernel Mailing List wrote:
 > 
-> > In capability.c it does for_each_thread or something like that.  It is
-> > very similar to cap_set_pg.  But in a virtual context all != all :)
+>  > [PATCH] percpu data: only iterate over possible CPUs
 > 
-> Do you mean that VPID patch does not include this? Absolutely.
-> VPIDs are not to limit access, the patch virtualizes pids, rather
-> than deals with access policy.
+>  This sched.c bit breaks Xen, and probably also other architectures
+>  that have CPU hotplug.  I suspect the reason is that during early 
+>  bootup only the boot CPU is online, so nothing initialises the
+>  runqueues for CPUs that are brought up afterwards.
 > 
-> Take the whole openvz. Make patch -R < vpid_patch. The result is perfectly
-> working openvz. Only pids are not virtual, which does not matter. Capisco?
-> 
-> 
-> > I think for people doing migration a private pid space in some form is
-> > necessary, 
-> 
-> Not "private", but "virtual". VPIDs are made only for migration, not for fun.
-> 
-> And word "private" is critical, f.e. for us preserving some form of pid
-> space is critical. It is very sad, but we cannot do anything with this,
+>  I suspect we can get rid of this problem quite easily by moving
+>  runqueue initialisation to init_idle()...
 
-Hi,
+We've hit this snag with a few architectures.  They're setting up
+cpu_possible_map too late.  It's never been clearly defined.
 
-do you mean "preserving some sort of *global* pidspace"?
+sched_init() is called here:
 
-If not, then I also don't understand what you're saying...
+asmlinkage void __init start_kernel(void)
+{
+	...
+	printk(linux_banner);
+	setup_arch(&command_line);
+	setup_per_cpu_areas();
+	smp_prepare_boot_cpu();
+	sched_init();
 
-thanks,
--serge
+Users of __GENERIC_PER_CPU definitely need cpu_possible_map to be initialised
+by the time setup_per_cpu_areas() is called, so I think it makes sense to
+say "thou shalt initialise cpu_possible_map in setup_arch()".
+
+I guess Xen isn't doing that.  Can it be made to?

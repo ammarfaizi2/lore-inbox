@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932586AbWBIQbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932593AbWBIQcL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932586AbWBIQbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 11:31:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932596AbWBIQbJ
+	id S932593AbWBIQcL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 11:32:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932596AbWBIQcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 11:31:09 -0500
-Received: from atpro.com ([12.161.0.3]:40464 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S932586AbWBIQbI (ORCPT
+	Thu, 9 Feb 2006 11:32:10 -0500
+Received: from mail.gmx.net ([213.165.64.21]:42376 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932593AbWBIQcJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 11:31:08 -0500
-From: "Jim Crilly" <jim@why.dont.jablowme.net>
-Date: Thu, 9 Feb 2006 11:30:40 -0500
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: peter.read@gmail.com, matthias.andree@gmx.de, lsorense@csclub.uwaterloo.ca,
-       linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060209163039.GH18918@voodoo>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	peter.read@gmail.com, matthias.andree@gmx.de,
-	lsorense@csclub.uwaterloo.ca, linux-kernel@vger.kernel.org
-References: <43E89B56.nailA792EWNLG@burner> <20060207183712.GC5341@voodoo> <43E9F1CD.nail2BR11FL52@burner> <20060208210219.GB9166@DervishD> <20060208211455.GC2480@csclub.uwaterloo.ca> <43EB1988.nail7EL2I7AN6@burner> <20060209160035.GD18918@voodoo> <43EB676E.nailIC41AJMME@burner> <20060209161024.GF18918@voodoo> <43EB6A14.nailICJ36DJ1L@burner>
+	Thu, 9 Feb 2006 11:32:09 -0500
+X-Authenticated: #428038
+Message-ID: <43EB6E86.2040708@gmx.de>
+Date: Thu, 09 Feb 2006 17:32:06 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43EB6A14.nailICJ36DJ1L@burner>
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+CC: lkml@dervishd.net, peter.read@gmail.com, lsorense@csclub.uwaterloo.ca,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <43E7545E.nail7GN11WAQ9@burner> <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de> <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner> <20060207183712.GC5341@voodoo> <43E9F1CD.nail2BR11FL52@burner> <20060208210219.GB9166@DervishD> <20060208211455.GC2480@csclub.uwaterloo.ca> <43EB1988.nail7EL2I7AN6@burner> <20060209145740.GB94@DervishD> <43EB62CA.nailCFH31KKTA@burner>
+In-Reply-To: <43EB62CA.nailCFH31KKTA@burner>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02/09/06 05:13:08PM +0100, Joerg Schilling wrote:
-> "Jim Crilly" <jim@why.dont.jablowme.net> wrote:
+Joerg Schilling wrote:
+> DervishD <lkml@dervishd.net> wrote:
 > 
-> > > Just read my comments on the Debian bug tracking system
-> > > 
-> > > Jörg
-> >
-> > To which bugs are you referring? Looking at the bugs for the cdrtools
-> > package, I only see 1 functionality bug. All of the rest are policy
-> > violations, copyright updates, translation updates, etc. And ironically
-> > in that 1 real bug the entire thread degenerated into you pointing
-> > fingers and slinging mud at the Linux kernel maintainers again, just
-> > like this one.
+>>     Could you please clarify which things are broken by Matthias
+>> patch? This way he (or other developer) can prepare a better patch
+>> and maintain it. BTW, I patched my cdrecord with Matthias patch and
+>> nothing seems to be broken :? Maybe am I missing something?
 > 
-> It's not me who proablty did delete unwanted information on Debian.org.....
-> 
-> A few weeks ago, there have been aprox. 100 "bug" entries.
-> 
-> Jörg
+> It is completely broken and thus makes no sense at all.
 
-Nevermind, I found them. They're rightfully attributed to the cdrecord
-binary package and not the cdrtools source package. So far I've looked
-through two dozen or so bugs and found only like 3 comments from you,
-1 was telling someone that they had a hardware problem and the others
-were finger pointing at the Linux kernel devs.
+"Completely broken" is not a proper description that might become the basis
+of a technical discussion.
 
-Jim.
+It looks like the quick way of not having to look at it, at least there is
+no hint you could provide specific information as to what the patch breaks.

@@ -1,78 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422900AbWBIMj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422882AbWBIMos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422900AbWBIMj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 07:39:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422901AbWBIMj3
+	id S1422882AbWBIMos (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 07:44:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422902AbWBIMos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 07:39:29 -0500
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:54112 "HELO
+	Thu, 9 Feb 2006 07:44:48 -0500
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:2659 "HELO
 	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1422900AbWBIMj2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 07:39:28 -0500
+	id S1422882AbWBIMor (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 07:44:47 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=gU2WbsQH7HjIbn8+65567eMO6L7NWvC0lMvYSgGkXyoCa1LOhlTgACyeNS23twfTA4lXPY9a4/aeuYRSO50eJSiT2/+cC+zdXmvIC8TAY/nw8vNCxVJ4o7o4J7dGJV65jkWm9BBKD6vmRZeYYa5MzBR6hjqlX4ZQwDeW+QyOYFU=  ;
-Message-ID: <43EB3801.70903@yahoo.com.au>
-Date: Thu, 09 Feb 2006 23:39:29 +1100
+  b=ogEHBZ5h9SZL7KRM9ODh13b1qymDc/4nGI0YdvBzuFXLZnqDddxsM9lmA0U3aQJR5j76lMn+KSk2MLBdL7LaZzUfbrSUeRPaI7N2vZuQ+G3VHmHZsw5qTmBxW2jS5o6z7YZ+fsug0cnQzhNETfLq5FRoGRFGbbKcRGHJ+G7kMR8=  ;
+Message-ID: <43EB393F.1070409@yahoo.com.au>
+Date: Thu, 09 Feb 2006 23:44:47 +1100
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-CC: linux@horizon.com, linux-kernel@vger.kernel.org, sct@redhat.com
-Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
-References: <20060209071832.10500.qmail@science.horizon.com>	<20060209001850.18ca135f.akpm@osdl.org>	<43EAFEB9.2060000@yahoo.com.au> <20060209004208.0ada27ef.akpm@osdl.org>
-In-Reply-To: <20060209004208.0ada27ef.akpm@osdl.org>
+CC: MIke Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: [k2.6.16-rc1-mm5] kernel BUG at include/linux/mm.h:302!
+References: <1139473463.8028.13.camel@homer>	<43EAFF6D.1040604@yahoo.com.au>	<20060209004712.3998e336.akpm@osdl.org>	<1139478652.7867.9.camel@homer> <20060209021136.410f1128.akpm@osdl.org>
+In-Reply-To: <20060209021136.410f1128.akpm@osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Andrew Morton wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> MIke Galbraith <efault@gmx.de> wrote:
 > 
->>Andrew Morton wrote:
+>>On Thu, 2006-02-09 at 00:47 -0800, Andrew Morton wrote:
+
+>>>This was a -mm kernel - how do we know it's not -mm breakage?
 >>
+
+It's an educated guess. I suppose it could be -mm breakage.
+
+I sent Andrew a patch which tightens up some debug checking, and
+that is likely to be causing your BUGs.
+
+>>It _appears_ to be mm breakage.  I just built/ran rc1 with the same
+>>config, and it works fine.
 >>
->>>2.4:
->>>
->>>	MS_ASYNC: dirty the pagecache pages, start I/O
->>>	MS_SYNC: dirty the pagecache pages, start I/O, wait on I/O
->>>
->>>2.6:
->>>
->>>	MS_ASYNC: dirty the pagecache pages
->>>	MS_SYNC: dirty the pagecache pages, start I/O, wait on I/O.
->>>
->>>So you're saying that doing the I/O in that 25-100msec window allowed your
->>>app to do more pipelining.
->>>
->>>I think for most scenarios, what we have in 2.6 is better: it gives the app
->>>more control over when the I/O should be started. 
+>>RL is calling, so I can't dig right this minute... in a couple hours I
+>>hope to be able to start though.
 >>
->>How so?
->>
+>>Before I get to the 'what comes next' compile marathon, any likely
+>>candidates?
 > 
 > 
-> Well, for example you might want to msync a number of disjoint parts of the
-> mapping, then write them all out in one hit.
+> rc2-mm1?
+> 
+> 
+>> (or Nick, do you have the supposed fix handy?)
+> 
+> 
+> Yeah, I'm still scratching my head over the mystery fix.
+> 
 > 
 
-That should still be pretty efficient with 2.4 like behaviour? pdflush
-does write them out in file offset order doesn't it?
+The mm/swap.c hunk from git 8519fb30e438f8088b71a94a7d5a660a814d3872
+is the mystery fix (the mm.h hunk is already in there).
 
-> Or you may not actually _want_ to start the I/O now - you just want pdflush
-> to write things back in a reasonable time period, so you don't have unsynced
-> data floating about in memory for eight hours.  That's a quite reasonable
-> application of msync(MS_ASYNC).
-> 
+I suppose you'd better verify that -mm works fine with the patch as
+well, when you get time.
 
-I think data integrity requirements should be handled by MS_SYNC.
-
-What the app does lose some control of is when IO actually should get started,
-(MS_SYNC still allows it to control when IO *finishes*).
+Thanks,
 
 -- 
 SUSE Labs, Novell Inc.
+
 Send instant messages to your online friends http://au.messenger.yahoo.com 

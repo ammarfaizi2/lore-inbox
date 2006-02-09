@@ -1,155 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932504AbWBIOwI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbWBIOzR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932504AbWBIOwI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 09:52:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbWBIOwH
+	id S932480AbWBIOzR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 09:55:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932511AbWBIOzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 09:52:07 -0500
-Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:12969 "EHLO
-	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932504AbWBIOwG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 09:52:06 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH] mm: Implement Swap Prefetching v22
-Date: Fri, 10 Feb 2006 01:51:40 +1100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       ck list <ck@vds.kolivas.org>, linux-mm@kvack.org,
-       Nick Piggin <npiggin@suse.de>, Paul Jackson <pj@sgi.com>
-References: <200602092339.49719.kernel@kolivas.org> <43EB43B9.5040001@yahoo.com.au>
-In-Reply-To: <43EB43B9.5040001@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Feb 2006 09:55:17 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:4255 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S932480AbWBIOzQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 09:55:16 -0500
+Date: Thu, 9 Feb 2006 15:55:42 +0100
+From: DervishD <lkml@dervishd.net>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: peter.read@gmail.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060209145542.GA94@DervishD>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	peter.read@gmail.com, matthias.andree@gmx.de,
+	linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net
+References: <200602031724.55729.luke@dashjr.org> <43E7545E.nail7GN11WAQ9@burner> <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de> <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner> <20060207183712.GC5341@voodoo> <43E9F1CD.nail2BR11FL52@burner> <20060208210219.GB9166@DervishD> <43EB1912.nail7EL11L90P@burner>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200602100151.40894.kernel@kolivas.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43EB1912.nail7EL11L90P@burner>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 February 2006 00:29, Nick Piggin wrote:
-> busy Con Kolivas wrote:
-> > +	/* Swap prefetching is delayed if any watermark is low */
-> > +	delay_swap_prefetch();
-> > +
-> > +	return 0;
-> >  }
->
-> Do we really need to delay here? We do the watermark check anyway and it
-> would eliminate a hot cacheline bouncing site and further reduce impact
-> on vm code.
+    Hi Joerg :)
 
-Ack 
+ * Joerg Schilling <schilling@fokus.fraunhofer.de> dixit:
+> DervishD <lkml@dervishd.net> wrote:
+> > other half doesn't have it probably has a bad user interface. You
+> > know that if a program uses a naming convention different from ALL
+> > the rest of programs is because the program has a problem. You know
+> > that if the only UNIX program out there that doesn't use /dev entries
+> > to talk to devices is cdrecord, the problem *probably* is in
+> > cdrecord, and not in UNIX...
+> 
+> So why do you like to introduce a different naming scheme?
 
-> > +	struct radix_tree_root	swap_tree;	/* Lookup tree of pages */
->
-> Umm... what is swap_tree for, exactly?
+    Exactly, Joerg, why do YOU like to introduce a different naming
+scheme? UNIX uses /dev/whatever, Win32 uses <UNIT>:, etc. Why do you
+want to break those names, which are familiar to the user?
+ 
+> Look into the real world and you will find that most SCSI related
+> programs use a namischscheme that is either identical to what
+> cdrecord does or a very similar one.
 
-To avoid ...
+    I don't know any program, except cdrecord and family, which uses
+your naming scheme, but I will more than happy to hear examples, look
+at them and change my mind if I finally get convinced that the naming
+scheme you're using is finally better. But instead of telling me to
+look into the real world, tell me examples, please. I don't have at
+home any SCSI bus and so I don't use SCSI related programs.
 
-/me looks around
+    Thanks in advance :)
 
-It's because...
+    Raúl Núñez de Arenas Coronado
 
-/me scratches head
-
-wtf..
-
-/me comes up with the answer
-
-legacy that must die
-
-> > +	__set_bit(0, &swapped.busy);
-> > +}
-> > +
->
-> Test this first so you don't bounce the cacheline around in page
-> reclaim too much.
-
-Ack
-
-> > +		if (list_empty(&swapped.list))
-> > +			wake_up_process(kprefetchd_task);
->
-> Move this wake up outside the swapped.lock to keep lock hold times down.
-
-Ack
-
-> > +	if (unlikely(!spin_trylock_irqsave(&swapped.lock, flags)))
-> > +		return;
->
-> You never really hold swapped.lock long do you? By the time you disable
-> interrupts and hit the cacheline here, if it is contended you may as
-> well wait the few extra cycles for it to become unlocked no?
-
-It just seemed to be a lousy time to be taking a lock originally but I dropped 
-the other trylocks so I may as well here.
-
-> > +	page = __alloc_pages(GFP_HIGHUSER & ~__GFP_WAIT, 0, zonelist);
->
-> We have an alloc_pages_node for this.
-
-Ack
-
-> The whole function reminds me of read_swap_cache_async. I wonder if there
-> could be some sharing, or at least format it similarly and use things like
-> find_get_page rather than open coding?
-
-The reason the name is similar is because of starting with that function as my 
-codebase. Originally I started hacking it to share but it just got so ugly 
-and did too much that it seemed nicer and less intrusive to have a unique and 
-smaller function.
-
-> > +		if (z->pages_high * 3 > free) {
-> > +			node_clear(node, sp_stat.prefetch_nodes);
-> > +			continue;
-> > +		}
->
-> This ignores the reserve ratio stuff.
-
-Urgh
-
-> Doing this in pagevecs should improve icache utilisation and locking
-> efficiency. However at this stage you probably don't need to worry about
-> that.
-
-You got my vote about not worrying..
-
-> > +	if (mru) {
-> > +		spin_lock(&swapped.lock);
-> > +			if (likely(mru))
->
-> Why do you need to retest mru here?
-
-Brain fart. Was thinking about locking.
-
-> The list manipulation in this routine is a bit ugly. You should be able to
-> do basically the whole thing without touching .next or .prev (except maybe
-> to find the initial entry) shouldn't you?
-
-Well that's the point of the mru list_head, because if the initial entry is 
-dropped (and it almost always will by being prefetched), and we start 
-skipping entries because of nodes not suited to prefetching, we don't have 
-the head at the most recent entry.
-
-> > +	sys_ioprio_set(IOPRIO_WHO_PROCESS, 0, IOPRIO_CLASS_IDLE);
-> > +
->
-> What happens if your app suddenly faults the page while it is being
-> read in? Gets stuck with low prio still, I guess.
-
-Yes it does. It might get washed in with readahead or get merged with the 
-other requests too.
-
-> Probably not a big deal.
->
-> Can you make it delay prefetch if the swap device is busy as well?
-
-Delay prefetch happens if we are faulting in or out pages already. It just 
-doesn't test the device data itself; that seemed like overkill.
-
-Thanks!
-
-Cheers,
-Con
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to... RAmen!

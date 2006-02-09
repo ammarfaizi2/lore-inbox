@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWBJNFZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWBJNJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbWBJNFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 08:05:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbWBJNFZ
+	id S932072AbWBJNJc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 08:09:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWBJNJc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 08:05:25 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:11972 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932068AbWBJNFX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 08:05:23 -0500
-Date: Fri, 10 Feb 2006 14:02:10 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andi Kleen <ak@suse.de>
-cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: Cleanup possibility in asm-i386/string.h
-In-Reply-To: <200602100123.36077.ak@suse.de>
-Message-ID: <Pine.LNX.4.61.0602101355490.30994@scrub.home>
-References: <200602071215.46885.ak@suse.de> <Pine.LNX.4.61.0602071336060.30994@scrub.home>
- <20060210000523.GE3524@stusta.de> <200602100123.36077.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 10 Feb 2006 08:09:32 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:185 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932072AbWBJNJb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 08:09:31 -0500
+Subject: Re: RSS Limit implementation issue
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ram Gupta <ram.gupta5@gmail.com>
+Cc: linux mailing-list <linux-kernel@vger.kernel.org>
+In-Reply-To: <728201270602091310r67a3f2dcq4788199f26a69528@mail.gmail.com>
+References: <728201270602091310r67a3f2dcq4788199f26a69528@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 09 Feb 2006 23:07:26 +0000
+Message-Id: <1139526447.6692.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Fri, 10 Feb 2006, Andi Kleen wrote:
-
-> > I remember playing with using more gcc builtins in the kernel some time 
-> > ago, and some gcc builtin used a different library function, which was a 
-> > function the kernel did not supply.
+On Iau, 2006-02-09 at 15:10 -0600, Ram Gupta wrote:
+> I am working to implement enforcing RSS limits of a process. I am
+> planning to make a check for rss limit when setting up pte. If the
+> limit is crossed I see couple of  different ways of handling .
 > 
-> It works fine on x86-64. If something is missing it can be also supplied.
+> 1. Kill the process . In this case there is no swapping problem.
 
-I think I now see what the real problem was, x86-64 does:
+Not good as the process isn't responsible for the RSS size so it would
+be rather random.
 
-#define strcpy __builtin_strcpy
+> 2. Dont kill the process but dont allocate the memory & do yield as we
+> do for init process. Modify the scheduler not to chose the process
+> which has already allocated rss upto its limit. When rss usage
+> fallsbelow its limit then the scheduler may chose it again to run.
+> Here there is a scenario when no page of the process has been freed or
+> swapped out because there were enough free pages? Then we need a way
+> to reschedule the process by forcefully freeing some pages or need to
+> kill the process.
 
-which also renames the version in lib/string.c, so x86-64 never had a 
-fallback copy for __builtin_sprintf.
-Can we please get rid of -freestanding and fix x86-64 instead?
+That is what I would expect. Or perhaps even allowing the process to
+exceed the RSS but using the RSS limit as a swapper target so that the
+process is victimised early. No point forcing swapping and the RSS limit
+when there is free memory, only where the resource is contended ..
 
-bye, Roman

@@ -1,35 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422736AbWBIAt3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422737AbWBIBFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422736AbWBIAt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 19:49:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422737AbWBIAt3
+	id S1422737AbWBIBFf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 20:05:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422738AbWBIBFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 19:49:29 -0500
-Received: from master.soleranetworks.com ([67.137.28.188]:18058 "EHLO
-	master.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S1422736AbWBIAt2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 19:49:28 -0500
-Message-ID: <43EA9F4C.7010806@soleranetworks.com>
-Date: Wed, 08 Feb 2006 18:47:56 -0700
-From: "Jeff V. Merkey" <jmerkey@soleranetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Wed, 8 Feb 2006 20:05:35 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59810 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1422737AbWBIBFe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 20:05:34 -0500
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 8/8] fix handling of st_nlink on procfs root
+References: <E1F6vyO-00009r-3a@ZenIV.linux.org.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 08 Feb 2006 18:04:36 -0700
+In-Reply-To: <E1F6vyO-00009r-3a@ZenIV.linux.org.uk> (Al Viro's message of
+ "Wed, 08 Feb 2006 20:31:32 +0000")
+Message-ID: <m17j855om3.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] DSFS File System patches for 2.6.9 Fedora Core 3 Kernels
- Posted
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Al Viro <viro@ftp.linux.org.uk> writes:
 
-Patches for kernel 2.6.9 for Fedora Core 3 for the DSFS Foresnic File 
-System are posted at:
+> Date: 1139427460 -0500
+>
+> 1) it should use nr_processes(), not nr_threads; otherwise we are getting
+> very confused find(1) and friends, among other things.
+> 2) better do that at stat() time than at every damn lookup in procfs root.
+>
+> Patch had been sitting in FC4 kernels for many months now...
 
-ftp.soleranetworks.com:/pub/solera/dsfs/
+Ack.
 
-These patches are provided IAW the terms of the GPL.
+There are some other similar problems still in /proc.
 
-Jeff V. Merkey
-Solera Networks
+In my pid namespace work I have some managed to clean most of
+this up, and finally split proc into two filesystems.
+
+The only was I was able to get the union to work was
+to let lookup return files in an internal mount.
+
+The only problem was that /proc/irq/..  != /proc/
+
+I will finish all of this up shortly but do you know a good
+way to do a union mount when we mount proc?
+
+Eric

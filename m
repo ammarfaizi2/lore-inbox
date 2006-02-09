@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422663AbWBHX5X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422670AbWBIABL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422663AbWBHX5X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 18:57:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422668AbWBHX5X
+	id S1422670AbWBIABL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 19:01:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422671AbWBIABL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 18:57:23 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:15746 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1422663AbWBHX5W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 18:57:22 -0500
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: Terminate process that fails on a constrained allocation
-Date: Thu, 9 Feb 2006 00:57:09 +0100
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, pj@sgi.com, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.62.0602081004060.2648@schroedinger.engr.sgi.com> <20060208154332.715d617d.akpm@osdl.org> <Pine.LNX.4.62.0602081547180.5184@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0602081547180.5184@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 8 Feb 2006 19:01:11 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:56523 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S1422670AbWBIABK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 19:01:10 -0500
+Subject: Re: file system question
+From: Avishay Traeger <atraeger@cs.sunysb.edu>
+To: kapil a <kapilann@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <ef2d59350602081539w7b6780e3mf6d8326f6d4963f2@mail.gmail.com>
+References: <ef2d59350602081539w7b6780e3mf6d8326f6d4963f2@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 08 Feb 2006 19:01:08 -0500
+Message-Id: <1139443268.4902.11.camel@rockstar.fsl.cs.sunysb.edu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602090057.10232.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 February 2006 00:54, Christoph Lameter wrote:
-> On Wed, 8 Feb 2006, Andrew Morton wrote:
+On Wed, 2006-02-08 at 18:39 -0500, kapil a wrote:
+> I am trying to write a file system for 2.6.  I have written the
+> required things to mount my file system and now i am trying to get
+> some f_op's and d_op's. I was trying to make the 'ls' command work. So
+> i wrote a myfs_readdir() and linked it to the f_op field. My routine
+> gets called and also filldir gets called and stores the data in the
+> dirent but i dont get the output in stdout.
 > 
-> > > If a caller cannot handle NULL then __GFP_NOFAIL has to be set, right?
-> > 
-> > That would assume non-buggy code.  I'm talking about the exercising of
-> > hitherto-unused codepaths.  We've fixed many, many pieces of code which
-> > simply assumed that kmalloc(GFP_KERNEL) succeeds.  I doubt if many such
-> > simple bugs still exist, but there will be more subtle ones in there.
-> 
-> We could add __GFP_NOFAIL to kmem_getpages in slab.c to insure that 
-> kmalloc waits rather than return NULL. Also a too drastic measure right?
+>   On using strace i find that "ls" does not perform all the calls that
+> a "ls" in a directory mountedf in ext2 performs. To be specific, the
+> strace ouput ends after the getdents64 system call. In the normal "ls"
+> strace, i find there are a couple of more system calls namely a fstat
+> followed by a write to stdout and some more mmap calls.
 
-Definitely too drastic. I bet that would cause deadlocks in quite some loads.
+Correct.  The getdents system call will call your readdir function.
 
--Andi
+>   I dont understand the reason behind why the write is not called. My
+> guess is i have not over-ridden some function that i have to write as
+> part of my file system instead of using the default method.
+
+Why would your write function get called when 'ls' writes to stdout?
+Please explain your question more clearly.
+
+
+Avishay Traeger
+http://www.fsl.cs.sunysb.edu/~avishay/
 

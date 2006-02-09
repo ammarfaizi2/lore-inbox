@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932571AbWBIQD2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWBIQHr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932571AbWBIQD2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 11:03:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWBIQD2
+	id S932336AbWBIQHr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 11:07:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWBIQHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 11:03:28 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:30375 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932571AbWBIQD2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 11:03:28 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Thu, 09 Feb 2006 17:01:50 +0100
-To: schilling@fokus.fraunhofer.de, jim@why.dont.jablowme.net
-Cc: peter.read@gmail.com, matthias.andree@gmx.de, lsorense@csclub.uwaterloo.ca,
-       linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43EB676E.nailIC41AJMME@burner>
-References: <43E7545E.nail7GN11WAQ9@burner>
- <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de>
- <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner>
- <20060207183712.GC5341@voodoo> <43E9F1CD.nail2BR11FL52@burner>
- <20060208210219.GB9166@DervishD>
- <20060208211455.GC2480@csclub.uwaterloo.ca>
- <43EB1988.nail7EL2I7AN6@burner> <20060209160035.GD18918@voodoo>
-In-Reply-To: <20060209160035.GD18918@voodoo>
-User-Agent: nail 11.2 8/15/04
+	Thu, 9 Feb 2006 11:07:47 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:6620 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932336AbWBIQHq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 11:07:46 -0500
+Date: Thu, 9 Feb 2006 17:06:34 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Ulrich Mueller <ulm@kph.uni-mainz.de>, Bernd Petrovitsch <bernd@firmix.at>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Arjan van de Ven <arjan@infradead.org>, Mark Lord <lkml@rtr.ca>,
+       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>, Byron Stanoszek <gandalf@winds.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
+Subject: Re: RFC: add an ADVANCED_USER option
+In-Reply-To: <20060207144236.GH5937@stusta.de>
+Message-ID: <Pine.LNX.4.61.0602091705490.30108@yvahk01.tjqt.qr>
+References: <43E3DB99.9020604@rtr.ca> <Pine.LNX.4.61.0602041204490.30014@yvahk01.tjqt.qr>
+ <1139153913.3131.42.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0602052212430.330@yvahk01.tjqt.qr>
+ <1139174355.3131.50.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.61.0602061554550.31522@yvahk01.tjqt.qr> <20060207004147.GA21620@MAIL.13thfloor.at>
+ <1139305085.13091.17.camel@tara.firmix.at> <20060207121955.GD5937@stusta.de>
+ <17384.43328.181493.272871@a1i15.kph.uni-mainz.de> <20060207144236.GH5937@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jim Crilly" <jim@why.dont.jablowme.net> wrote:
+>> > config ADVANCED_USER
+>> > 	bool "ask questions that require a deeper knowledge of the kernel"
+>> 
+>> > config EXPERIMENTAL
+>> > 	bool "Prompt for development and/or incomplete code/drivers"
+>> > 	depends on ADVANCED_USER
+>> 
+>> Shouldn't this be the other way around, i.e. ADVANCED_USER depending
+>> on EXPERIMENTAL?
+>
+>No, if there's a dependency between the two, then in this direction.
 
-> I've been using the cdrecord packaged by Debian for years without a single
-> problem and it has 35 patches included in the source package. Please
-> enlighten me as to what they've broken because obviously none of it has
-> affected me.
+ACK. Advanced code is not necessarily "incomplete code/drivers".
 
-Are you unwilling to reead critisism?
+>> If you implement it as above, people will set ADVANCED_USER to "n" in
+>> oldconfig and then be surprised that all experimental drivers are
+>> gone.
+>
+>What about no dependency between ADVANCED_USER and EXPERIMENTAL?
+>
+Sounds good.
 
-Just read my comments on the Debian bug tracking system
 
-Jörg
-
+Jan Engelhardt
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

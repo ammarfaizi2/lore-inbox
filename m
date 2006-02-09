@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWBIVCY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWBIVGf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbWBIVCY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 16:02:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWBIVCY
+	id S1750781AbWBIVGf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 16:06:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWBIVGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 16:02:24 -0500
-Received: from webbox4.loswebos.de ([213.187.93.205]:32932 "EHLO
-	webbox4.loswebos.de") by vger.kernel.org with ESMTP
-	id S1750790AbWBIVCX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 16:02:23 -0500
-Date: Thu, 9 Feb 2006 22:00:23 +0100
-From: Marc Koschewski <marc@osknowledge.org>
-To: Marc Koschewski <marc@osknowledge.org>,
-       Anthony Tippett <atippett@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at mm/swap.c:49
-Message-ID: <20060209210023.GA6705@stiffy.osknowledge.org>
-References: <43EAB5FF.9030305@gmail.com> <20060209093548.GA5710@stiffy.osknowledge.org> <20060209204318.GL18918@voodoo>
+	Thu, 9 Feb 2006 16:06:35 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:38373 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750781AbWBIVGe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 16:06:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lM3P12ijw7x8gyENsZwZq3H6X/AID9xVdUxZtvw45Qi7jTYxOxldKl0d2fsyTm8mXrOxTCtQqPhZkguiLZ4HDDbxVN+C/dOcmIqRWSasgAjPlebonqU0TBF9Wvt/3dobABEP/CpkeSltobLeYiq79E+3XyJnlRcCsgA5ZNOeQuA=
+Message-ID: <9a8748490602091306x1773a438p94cbc50f004a5b8f@mail.gmail.com>
+Date: Thu, 9 Feb 2006 22:06:33 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: [PATCH] Megaraid cleanup
+Cc: "Ju, Seokmann" <Seokmann.Ju@lsil.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Kolli, Neela" <Neela.Kolli@engenio.com>, linux-scsi@vger.kernel.org
+In-Reply-To: <9a8748490601251322nc1f1b7di3c02444f66fbe625@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060209204318.GL18918@voodoo>
-X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
-X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
-X-Operating-System: Linux stiffy 2.6.16-rc2-marc-g0bdd340c-dirty
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <9738BCBE884FDB42801FAD8A7769C265142031@NAMAIL1.ad.lsil.com>
+	 <9a8748490601240741x5a54db53o37dcf46cf25d5420@mail.gmail.com>
+	 <1138122353.3662.7.camel@mulgrave>
+	 <9a8748490601251322nc1f1b7di3c02444f66fbe625@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jim Crilly <jim@why.dont.jablowme.net> [2006-02-09 15:43:18 -0500]:
+On 1/25/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> On 1/24/06, James Bottomley <James.Bottomley@steeleye.com> wrote:
+> > On Tue, 2006-01-24 at 16:41 +0100, Jesper Juhl wrote:
+> > > I assume you'll take care of pushing it forward or should I do that?
+> >
+> > I can't actually find this patch on the SCSI list, so resending it would
+> > be a good start.
+> >
+> Hmm, I guess it never made it due to size.
+>
+> Below is the description I initially wrote for the patch and the patch
+> itself is attached as a bzip2 archive so it will hopefully make it to
+> you.
+>
 
-> On 02/09/06 10:35:49AM +0100, Marc Koschewski wrote:
-> > * Anthony Tippett <atippett@gmail.com> [2006-02-08 19:24:47 -0800]:
-> > 
-> > > Can someone direct to whom I should send this kernel BUG or what else I 
-> > > should send as debugging information.
-> > > 
-> > > It looks like it might be an issue with Xorg and fglrx (ati drivers)
-> > > 
-> > > Feb  8 16:50:42 act kernel: kernel BUG at mm/swap.c:49!
-> > > Feb  8 16:50:42 act kernel: invalid operand: 0000 [#1]
-> > > Feb  8 16:50:42 act kernel: Modules linked in: fglrx binfmt_misc nfsd 
-> > > exportfs lockd nfs_acl sunrpc parport_pc lp parport autofs4 ipv6 deflate 
-> > > zlib_deflate twofish serpent aes blowfish des sha256 sha1 crypto_null 
-> > > af_key snd_bt87x emu10k1_gp gameport snd_emu10k1_synth snd_emux_synth 
-> > > snd_seq_virmidi snd_seq_midi_emul snd_seq_dummy snd_seq_oss snd_seq_midi 
-> > > snd_seq_midi_event snd_seq snd_emu10k1 snd_rawmidi snd_seq_device 
-> > > snd_util_mem snd_hwdep ohci1394 ieee1394 snd_intel8x0
-> > > snd_ac97_codec snd_ac97_bus snd_pcm_oss snd_mixer_oss snd_pcm snd_timer 
-> > > snd soundcore snd_page_alloc forcedeth ehci_hcd ohci_hcd ide_cd cdrom 
-> > > ide_disk ide_generic usb_storage nvidia_agp agpgart usbhid usbcore 
-> > > tvaudio tuner msp3400 bttv video_buf firmware_class v4l2_common 
-> > > btcx_risc tveeprom videodev i2c_algo_bit i2c_core amd74xx ide_core 
-> > > joydev ext3 jbd mbcache sd_mod sata_sil libata scsi_mod shpchp 
-> > > pci_hotplug evdev mousedev
-> > 
-> > Uhm ... for what reason do you use fglrx and nvidia_agp at the same time?
-> > 
-> > I guess - as usual - you have to get on to your hardware vendor when using
-> > closed source drivers.
-> > 
-> > Marc
-> 
-> I could be wrong, but I'm pretty sure nvidia_agp is the OSS nVidia AGPGART
-> driver, so I assume he has an nVidia-based motherboard and an ATI video
-> card.
+James: any comments on the patch?
+Any chance it'll be applied to mainline?
+If there's anything you want/need me to redo then please just let me
+know and I'll be happy to work out any issues there might be.
 
-OK, that could be the reason. I never had anything else than Intel stuff in my
-machines. Except my graphics. Dunno why. Maybe destiny. So far I never had
-probs with the chips. And ... anything works perfectly with my beloved Linux! :)
 
-Marc
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

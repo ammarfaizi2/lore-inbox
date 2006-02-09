@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422769AbWBICJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422773AbWBICRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422769AbWBICJe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 21:09:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422770AbWBICJe
+	id S1422773AbWBICRv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 21:17:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422775AbWBICRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 21:09:34 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:50950 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1422769AbWBICJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 21:09:33 -0500
-Date: Thu, 9 Feb 2006 03:09:32 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: linux-kernel@vger.kernel.org, Peter Osterlund <petero2@telia.com>
-Subject: pktcdvd stack usage regression
-Message-ID: <20060209020932.GY3524@stusta.de>
-MIME-Version: 1.0
+	Wed, 8 Feb 2006 21:17:51 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:23172 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1422773AbWBICRu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 21:17:50 -0500
+Date: Thu, 9 Feb 2006 02:17:49 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 8/8] fix handling of st_nlink on procfs root
+Message-ID: <20060209021749.GM27946@ftp.linux.org.uk>
+References: <E1F6vyO-00009r-3a@ZenIV.linux.org.uk> <m17j855om3.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <m17j855om3.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Phillip,
+On Wed, Feb 08, 2006 at 06:04:36PM -0700, Eric W. Biederman wrote:
+> There are some other similar problems still in /proc.
+> 
+> In my pid namespace work I have some managed to clean most of
+> this up, and finally split proc into two filesystems.
+> 
+> The only was I was able to get the union to work was
+> to let lookup return files in an internal mount.
+> 
+> The only problem was that /proc/irq/..  != /proc/
 
-your recent patch "pktcdvd: Allow larger packets" changed 
-PACKET_MAX_SIZE in the pktcdvd driver from 32 to 128.
+That's not the only problem here, unfortunately.
 
-Unfortunately, drivers/block/pktcdvd.c contains the following:
+> I will finish all of this up shortly but do you know a good
+> way to do a union mount when we mount proc?
 
-<--  snip  -->
-
-...
-static void pkt_start_write(struct pktcdvd_device *pd, struct 
-packet_data *pkt)
-{
-        struct bio *bio;
-        struct page *pages[PACKET_MAX_SIZE];
-        int offsets[PACKET_MAX_SIZE];
-...
-
-<--  snip  -->
-
-With PACKET_MAX_SIZE=128, this allocates more than 1 kB on the stack 
-which is not acceptable considering that we might have only 4 kB stack 
-altogether.
-
-Please either fix this before 2.6.16 or ask Linus to revert commit 
-5c55ac9bbca22ee134408f83de5f2bda3b1b2a53.
-
-TIA
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Not transparently; mount(2) should _not_ mount two filesystems at once.
+Note that you'll run into serious problems as soon as you try to mount/umount/
+mount --move the stuff there.  And doing unionfs <spit> approach will cause
+fsckloads of fun issues with lifetimes.

@@ -1,66 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWBIUBv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWBIUCw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWBIUBv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 15:01:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWBIUBv
+	id S1750751AbWBIUCw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 15:02:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWBIUCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 15:01:51 -0500
-Received: from smtp6.wanadoo.fr ([193.252.22.25]:29066 "EHLO smtp6.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S1750746AbWBIUBv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 15:01:51 -0500
-X-ME-UUID: 20060209200143667.A2E101C0015B@mwinf0612.wanadoo.fr
-From: Vincent ETIENNE <ve@vetienne.net>
-To: linux-kernel@vger.kernel.org
-Subject: BUG at drivers/net/dl2k.c
-Date: Thu, 9 Feb 2006 21:01:41 +0100
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602092101.41970.ve@vetienne.net>
+	Thu, 9 Feb 2006 15:02:52 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:11955 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750751AbWBIUCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 15:02:51 -0500
+Subject: Re: preempt-rt, NUMA and strange latency traces
+From: Lee Revell <rlrevell@joe-job.com>
+To: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1139484275.5706.19.camel@frecb000686>
+References: <1139311689.19708.36.camel@frecb000686>
+	 <Pine.LNX.4.58.0602080436190.8578@gandalf.stny.rr.com>
+	 <1139395534.21471.13.camel@frecb000686>
+	 <1139465045.30058.31.camel@mindpipe> <1139484275.5706.19.camel@frecb000686>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Thu, 09 Feb 2006 15:02:44 -0500
+Message-Id: <1139515365.30058.91.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.90 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-02-09 at 12:24 +0100, Sébastien Dugué wrote:
+> On Thu, 2006-02-09 at 01:04 -0500, Lee Revell wrote:
+> > On Wed, 2006-02-08 at 11:45 +0100, Sébastien Dugué wrote:
+> > > The more I think about it, the more I tend to believe it's hardware 
+> > > related. It seems as if the CPU just hangs for ~27 ms before
+> > > resuming processing. 
+> > 
+> > That would be an exceptionally long latency - you would probably notice
+> > it if the mouse froze, VOIP dropped out, ping stops, etc for 30ms.
+> > 
+> 
+>   It's a test machine and I use it remotely with console redirected so
+> no mouse, no RT applications aside from my silly nanosleep() loop. But 
+> I do notice that that test sometimes takes more time (ie when I get 
+> those weird latencies). 
 
-I'm using 2.6.14-mm2 kernel (x86_64) on a Bi-Opteron 246 board with a   PCI-64 
-card ( DLINK 550 GT ) plug  on PCI-X interface. This card use the DL2000 
-driver which seems to cause this problem logged during boot time  : 
+Argh.  You would think the vendors would consider a 30ms delay
+unacceptable.  This is big enough to show up on an MRTG graph of ping
+times ferchrissake.
 
-BUG: warning at drivers/net/dl2k.c:1481/mii_wait_link()
+I guess the assumption is that most hardware will never be used for even
+soft RT work...
 
-Call Trace: <IRQ> <ffffffff802a9c0a>{rio_interrupt+1709}
-       <ffffffff8013f3ef>{hrtimer_run_queues+197} 
-<ffffffff801465ac>{handle_IRQ_event+41}
-       <ffffffff80146678>{__do_IRQ+155} <ffffffff8010d69e>{do_IRQ+57}
-       <ffffffff80108ce5>{default_idle+0} <ffffffff8010afa8>{ret_from_intr+0} 
-<EOI>
-       <ffffffff803a6d03>{thread_return+87} 
-<ffffffff80108d10>{default_idle+43}
-       <ffffffff80108f47>{cpu_idle+98} 
-<ffffffff8052d114>{start_secondary+1271}
-eth0: Link up
-Auto 1000 Mbps, Full duplex
-Enable Tx Flow Control
-Enable Rx Flow Control
-
-This is a new ethernet card so i don't have old bootlog to see if it happens 
-before. I just test it with 2.6.15-mm4 where i don't see this problem  and 
-2.6.16.rc1-mm4 ( where i see it)
-
-Except this message everything is running fine (even the ethernet card)  so 
-it's probably not so important. But in case it could be useful....
-
-If you would like more information or would like me to test something don't 
-hesitate.
-
-Sorry for poor english,  it's not my mother tongue language
-
-Vincent ETIENNE
-
-
-
-
+Lee
 

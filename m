@@ -1,50 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030625AbWBIKAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422647AbWBIKCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030625AbWBIKAL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 05:00:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030513AbWBIKAL
+	id S1422647AbWBIKCH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 05:02:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422652AbWBIKCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 05:00:11 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:49891 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1030625AbWBIKAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 05:00:09 -0500
-Date: Thu, 9 Feb 2006 11:00:08 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: jim@why.dont.jablowme.net, peter.read@gmail.com, matthias.andree@gmx.de,
+	Thu, 9 Feb 2006 05:02:07 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:2231 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1422647AbWBIKCF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 05:02:05 -0500
+From: Andi Kleen <ak@suse.de>
+To: bharata@in.ibm.com
+Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes 2.6.16-rc1[2] on 2 node X86_64
+Date: Thu, 9 Feb 2006 10:58:26 +0100
+User-Agent: KMail/1.8.2
+Cc: Christoph Lameter <clameter@engr.sgi.com>,
+       Ray Bryant <raybry@mpdtxmail.amd.com>, discuss@x86-64.org,
        linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <mj+md-20060209.095744.7127.atrey@ucw.cz>
-References: <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de> <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner> <20060207183712.GC5341@voodoo> <43E9F1CD.nail2BR11FL52@burner> <20060208162828.GA17534@voodoo> <43EA1D26.nail40E11SL53@burner> <20060208165330.GB17534@voodoo> <43EB0DEB.nail52A1LVGUO@burner>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <20060205163618.GB21972@in.ibm.com> <200602081706.26853.ak@suse.de> <20060209043933.GA2986@in.ibm.com>
+In-Reply-To: <20060209043933.GA2986@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <43EB0DEB.nail52A1LVGUO@burner>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200602091058.26811.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-
-> Please explain me:
+On Thursday 09 February 2006 05:39, Bharata B Rao wrote:
+> On Wed, Feb 08, 2006 at 05:06:26PM +0100, Andi Kleen wrote:
+> > On Wednesday 08 February 2006 16:59, Christoph Lameter wrote:
+> > > On Wed, 8 Feb 2006, Andi Kleen wrote:
+> > > 
+> > > > On Wednesday 08 February 2006 16:42, Christoph Lameter wrote:
+> > > > 
+> > > > > However, this has implications for policy_zone. This variable should store
+> > > > > the zone that policies apply to. However, in your case this zone will vary 
+> > > > > which may lead to all sorts of weird behavior even if we fix 
+> > > > > bind_zonelist. To which zone does policy apply? ZONE_NORMAL or ZONE_DMA32?
+> > > > 
+> > > > It really needs to apply to both (currently you can't police 4GB of your 
+> > > > memory on x86-64) But I haven't worked out a good design how to implement it yet.
+> > > 
+> > > So a provisional solution would be to simply ignore empty zones in 
+> > > bind_zonelist?
+> > 
+> > That would likely prevent the crash yes (Bharata can you test?)
 > 
-> -	how to use /dev/hd* in order to scan an image from a scanner
-> -	how to use /dev/hd* in order to talk to a CPU device
-> -	how to use /dev/hd* in order to talk to a tape device
-> -	how to use /dev/hd* in order to talk to a printer
-> -	how to use /dev/hd* in order to talk to a jukebox
-> -	how to use /dev/hd* in order to talk to a graphical device
+> With this solution, the kernel doesn't crash, but the application does.
+> 
+> Shouldn't we fail mbind if we can't bind any zones ?
 
-Nobody speaks about using /dev/hd* for all that, just about that
-there always will be a /dev/something corresponding to the device.
+Really need to fix this properly to support both zones in mbind
 
-Also, as you have mentioned /dev/hd*, it seems that you consider
-all these devices connected over ATAPI. Again an exercise in mythical
-zoology as in the ATAPI tape example.
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-For every complex problem, there's a solution that is simple, neat and wrong.
+
+
+> Does it make sense to have a separate policy_zone for each node so that we
+> have atleast one(highest) zone in a node which comes under memory policy ?
+
+That wouldn't solve the problem. The problem is that the mempolicy needs 
+at least two zonelists to handle all type of allocations (that is why 
+i added the concept of policy zone in the first place - to avoid the need
+of multilevel zonelists in the policies)
+
+Or maybe it's better to just don't do any policy for GFP_DMA32 
+allocations and always use the highest zonelist. I guess they're somewhat
+rare anyways and the policy will rarely succeed.
+
+-Andi

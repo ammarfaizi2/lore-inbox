@@ -1,44 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932503AbWBIPdU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbWBIPfx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932503AbWBIPdU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 10:33:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbWBIPdU
+	id S932531AbWBIPfx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 10:35:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbWBIPfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 10:33:20 -0500
-Received: from mail.gmx.de ([213.165.64.21]:54210 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932503AbWBIPdU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 10:33:20 -0500
-X-Authenticated: #428038
-Message-ID: <43EB60BC.9070703@gmx.de>
-Date: Thu, 09 Feb 2006 16:33:16 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-CC: peter.read@gmail.com, lsorense@csclub.uwaterloo.ca,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <43E7545E.nail7GN11WAQ9@burner> <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de> <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner> <20060207183712.GC5341@voodoo> <43E9F1CD.nail2BR11FL52@burner> <20060208210219.GB9166@DervishD> <20060208211455.GC2480@csclub.uwaterloo.ca> <43EB1988.nail7EL2I7AN6@burner> <20060209105324.GC15173@merlin.emma.line.org> <43EB46A9.nail9726Q73FS@burner>
-In-Reply-To: <43EB46A9.nail9726Q73FS@burner>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Thu, 9 Feb 2006 10:35:52 -0500
+Received: from uproxy.gmail.com ([66.249.92.199]:44433 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932531AbWBIPfw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 10:35:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=UoUuC9zCCYZ7K4xyEvelaE/RasIxNM4f/IhjyvOY2bR54vhGFfvVoOsgWtHYItO9MYgM/n9IsY+xjOBD1gI9ebYFmhrPRwMhTmYFvh1FZItxYyb8ydqkFRqklQjzpQHSdI03ifueH4xtuPQE/M3g5zGb/Kqbq/RDf/d2hTdWvbA=
+Date: Thu, 9 Feb 2006 16:35:46 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: jes@sgi.com, pj@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: git for dummies, anyone?
+Message-Id: <20060209163546.493334f8.diegocg@gmail.com>
+In-Reply-To: <43EB4F05.8090400@pobox.com>
+References: <20060208070301.1162e8c3.pj@sgi.com>
+	<yq0vevollx4.fsf@jaguar.mkp.net>
+	<43EB4F05.8090400@pobox.com>
+X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling wrote:
-> Matthias Andree <matthias.andree@gmx.de> wrote:
-> 
->>> Unfortunately is it a matter oif facts that all known patches for cdrecord
->>> break more things than they claim to fix.
->> So prove my patch is wrong, and give a detailed report what it breaks,
->> unless you wish to fix it yourself.
-> 
-> Give a detailed report on what it fixes. It does not make sense to discuss
-> useless code that introduces more bugs than it pretends to fix.
+El Thu, 09 Feb 2006 09:17:41 -0500,
+Jeff Garzik <jgarzik@pobox.com> escribió:
 
-That was contained in the message you blatantly ignored. I'm not going to
-repost, see <http://www.ussg.iu.edu/hypermail/linux/kernel/0602.0/1103.html>
+
+> Check out:
+> http://linux.yyz.us/git-howto.html
+
+That is a nice guide, but is oriented to developers, I think jes
+was asking from a user POV (I've needed to google for such things
+several times) ie how to switch to a given tag and return to master,
+how to update the repository periodically, etc; no stuff about how to
+manage patches. It may be nice to see such thing on your guide, something
+like this:
+
+
+- How to get a copy of linus'tree
+  git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+
+- Update your copy:
+  cd linux-2.6; git pull; git pull --tags
+
+- How to go back to a certain snapshot
+  git reset --hard v2.6.13 (ls .git/refs/tags to see all the tags). Not the
+  cleanest method, I think. "git-checkout -f master" will return to the "head"
+  of the repository. You can also pass commit-IDs to git-reset instead of tags?
+
+- bisect search
+  git reset --hard BrokenVersion
+  git bisect start
+  git bisect good v2.6.13-rc2
+  
+  Compile, test, and do "git bisect good" or "git bisect bad" until you find
+  the culprit. If it doesn't compile or something you can do a "git bisect good/bad"
+  "git bisect reset" resets the repository when you are done.
+  http://www.kernel.org/pub/software/scm/git/docs/howto/isolate-bugs-with-bisect.txt
+  explains it with more detail.

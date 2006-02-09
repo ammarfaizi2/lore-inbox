@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWBIUCw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbWBIUFS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbWBIUCw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 15:02:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWBIUCw
+	id S1750752AbWBIUFS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 15:05:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWBIUFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 15:02:52 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:11955 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750751AbWBIUCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 15:02:51 -0500
-Subject: Re: preempt-rt, NUMA and strange latency traces
-From: Lee Revell <rlrevell@joe-job.com>
-To: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1139484275.5706.19.camel@frecb000686>
-References: <1139311689.19708.36.camel@frecb000686>
-	 <Pine.LNX.4.58.0602080436190.8578@gandalf.stny.rr.com>
-	 <1139395534.21471.13.camel@frecb000686>
-	 <1139465045.30058.31.camel@mindpipe> <1139484275.5706.19.camel@frecb000686>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Thu, 09 Feb 2006 15:02:44 -0500
-Message-Id: <1139515365.30058.91.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 
-Content-Transfer-Encoding: 8bit
+	Thu, 9 Feb 2006 15:05:18 -0500
+Received: from ns1.suse.de ([195.135.220.2]:42658 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750752AbWBIUFQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 15:05:16 -0500
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: Terminate process that fails on a constrained allocation V3
+Date: Thu, 9 Feb 2006 21:05:04 +0100
+User-Agent: KMail/1.8.2
+Cc: akpm@osdl.org, pj@sgi.com, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.62.0602091152300.9941@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0602091152300.9941@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602092105.04412.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-09 at 12:24 +0100, Sébastien Dugué wrote:
-> On Thu, 2006-02-09 at 01:04 -0500, Lee Revell wrote:
-> > On Wed, 2006-02-08 at 11:45 +0100, Sébastien Dugué wrote:
-> > > The more I think about it, the more I tend to believe it's hardware 
-> > > related. It seems as if the CPU just hangs for ~27 ms before
-> > > resuming processing. 
-> > 
-> > That would be an exceptionally long latency - you would probably notice
-> > it if the mouse froze, VOIP dropped out, ping stops, etc for 30ms.
-> > 
+On Thursday 09 February 2006 20:53, Christoph Lameter wrote:
+> Changes V2->V3:
 > 
->   It's a test machine and I use it remotely with console redirected so
-> no mouse, no RT applications aside from my silly nanosleep() loop. But 
-> I do notice that that test sometimes takes more time (ie when I get 
-> those weird latencies). 
+> - Do the killing of the current process following the execution
+>   procedure already established by the OOM killer.
+> 
+> - Do not return NULL and therefore do not change the return values of
+>   __alloc_pages.
 
-Argh.  You would think the vendors would consider a 30ms delay
-unacceptable.  This is big enough to show up on an MRTG graph of ping
-times ferchrissake.
+Hmm, to make this work well i guess mmap() would need to be changed
+to take the policy into account when doing the !MAP_NORESERVE checking
+when the kernel runs in strict no overcommit mode.
+Otherwise there is no fool proof way an application can prevent getting killed.
+And mbind() would need to recompute it and fail if the new policy's possible
+allocation are not guaranteed to work.
 
-I guess the assumption is that most hardware will never be used for even
-soft RT work...
+Doing this all properly would probably get quite messy.
 
-Lee
-
+-Andi

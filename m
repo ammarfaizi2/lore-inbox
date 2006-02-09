@@ -1,40 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932500AbWBIQcr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422672AbWBIQhd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932500AbWBIQcr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 11:32:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932600AbWBIQcr
+	id S1422672AbWBIQhd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 11:37:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422748AbWBIQhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 11:32:47 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:43752 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932596AbWBIQcq (ORCPT
+	Thu, 9 Feb 2006 11:37:33 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:48266 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP
+	id S1422672AbWBIQhc convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 11:32:46 -0500
-Date: Thu, 9 Feb 2006 17:32:42 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-cc: lkml@dervishd.net, matthias.andree@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-In-Reply-To: <43EB63D4.nailCFH6H3J0U@burner>
-Message-ID: <Pine.LNX.4.61.0602091732300.30108@yvahk01.tjqt.qr>
-References: <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner>
- <20060207183712.GC5341@voodoo> <43E9F1CD.nail2BR11FL52@burner>
- <20060208162828.GA17534@voodoo> <43EA1D26.nail40E11SL53@burner>
- <43EA2A58.9070501@gmx.de> <43EB1067.nail52A2154ZR@burner>
- <20060209105043.GB15173@merlin.emma.line.org> <43EB4645.nail972416EGE@burner>
- <20060209151140.GB111@DervishD> <43EB63D4.nailCFH6H3J0U@burner>
+	Thu, 9 Feb 2006 11:37:32 -0500
+Date: Thu, 9 Feb 2006 17:37:34 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, jes@sgi.com, pj@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: git for dummies, anyone?
+Message-ID: <20060209163734.GB5710@stiffy.osknowledge.org>
+References: <20060208070301.1162e8c3.pj@sgi.com> <yq0vevollx4.fsf@jaguar.mkp.net> <43EB4F05.8090400@pobox.com> <20060209163546.493334f8.diegocg@gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20060209163546.493334f8.diegocg@gmail.com>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.16-rc2-marc-g0bdd340c-dirty
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>     Joerg, it's really sad to see a person as talented and clever as
->> you resorting to personal offences. Matthias sent you a patch, hoping
->
->I am not sure whether Matthias is telented, but he was unfortunately
->starting personal offenses....
->
-With a patch?
+* Diego Calleja <diegocg@gmail.com> [2006-02-09 16:35:46 +0100]:
 
+> El Thu, 09 Feb 2006 09:17:41 -0500,
+> Jeff Garzik <jgarzik@pobox.com> escribió:
+> 
+> 
+> > Check out:
+> > http://linux.yyz.us/git-howto.html
+> 
+> That is a nice guide, but is oriented to developers, I think jes
+> was asking from a user POV (I've needed to google for such things
+> several times) ie how to switch to a given tag and return to master,
+> how to update the repository periodically, etc; no stuff about how to
+> manage patches. It may be nice to see such thing on your guide, something
+> like this:
+> 
+> 
+> - How to get a copy of linus'tree
+>   git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+> 
+> - Update your copy:
+>   cd linux-2.6; git pull; git pull --tags
+> 
+> - How to go back to a certain snapshot
+>   git reset --hard v2.6.13 (ls .git/refs/tags to see all the tags). Not the
+>   cleanest method, I think. "git-checkout -f master" will return to the "head"
+>   of the repository. You can also pass commit-IDs to git-reset instead of tags?
+> 
+> - bisect search
+>   git reset --hard BrokenVersion
+>   git bisect start
+>   git bisect good v2.6.13-rc2
 
-Jan Engelhardt
--- 
+I can be sooo easy. Thanks! ;)
+
+Marc

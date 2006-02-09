@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422746AbWBIKMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422745AbWBIKO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422746AbWBIKMF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 05:12:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422749AbWBIKMF
+	id S1422745AbWBIKO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 05:14:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422749AbWBIKO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 05:12:05 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:29867 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422746AbWBIKME (ORCPT
+	Thu, 9 Feb 2006 05:14:26 -0500
+Received: from ns.suse.de ([195.135.220.2]:40374 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1422745AbWBIKO0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 05:12:04 -0500
-Date: Thu, 9 Feb 2006 02:11:36 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: MIke Galbraith <efault@gmx.de>
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [k2.6.16-rc1-mm5] kernel BUG at include/linux/mm.h:302!
-Message-Id: <20060209021136.410f1128.akpm@osdl.org>
-In-Reply-To: <1139478652.7867.9.camel@homer>
-References: <1139473463.8028.13.camel@homer>
-	<43EAFF6D.1040604@yahoo.com.au>
-	<20060209004712.3998e336.akpm@osdl.org>
-	<1139478652.7867.9.camel@homer>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 9 Feb 2006 05:14:26 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: [PATCH] early_printk: cleanup trailiing whitespace
+Date: Thu, 9 Feb 2006 11:04:24 +0100
+User-Agent: KMail/1.8.2
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+References: <20060208223959.5052de3b.rdunlap@xenotime.net>
+In-Reply-To: <20060208223959.5052de3b.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602091104.24409.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-MIke Galbraith <efault@gmx.de> wrote:
->
-> On Thu, 2006-02-09 at 00:47 -0800, Andrew Morton wrote:
-> > Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> > >
-> > > MIke Galbraith wrote:
-> > > > Greetings,
-> > > > 
-> > > > Excuse me if this is already known, I've been too busy tinkering to read
-> > > > lkml.
-> > > > 
-> > > 
-> > > It should be fixed as of current -git (not sure about the latest
-> > > -mm though). It would be good if you could verify that 2.6.16-rc2-git7
-> > > works OK for you.
-> > > 
-> > 
-> > This was a -mm kernel - how do we know it's not -mm breakage?
+On Thursday 09 February 2006 07:39, Randy.Dunlap wrote:
+> From: Randy Dunlap <rdunlap@xenotime.net>
 > 
-> It _appears_ to be mm breakage.  I just built/ran rc1 with the same
-> config, and it works fine.
-> 
-> RL is calling, so I can't dig right this minute... in a couple hours I
-> hope to be able to start though.
-> 
-> Before I get to the 'what comes next' compile marathon, any likely
-> candidates?
+> Remove all trailing tabs and spaces.  No other changes.
 
-rc2-mm1?
+I'm following Andrew's strategy. Everytime I submit a patch all
+the trailing white spaces are removed. This means they will slowly
+disappear. If they don't this means this code is not changing
+and stable and then it doesn't matter anyways.
 
->  (or Nick, do you have the supposed fix handy?)
+But big patches like this are not a good idea because they
+just cause patch rejects and trouble.
 
-Yeah, I'm still scratching my head over the mystery fix.
+-Andi
 

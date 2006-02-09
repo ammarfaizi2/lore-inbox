@@ -1,105 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422837AbWBIG7b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422835AbWBIHAw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422837AbWBIG7b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 01:59:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422838AbWBIG7b
+	id S1422835AbWBIHAw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 02:00:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422838AbWBIHAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 01:59:31 -0500
-Received: from xenotime.net ([66.160.160.81]:9192 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1422837AbWBIG7b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 01:59:31 -0500
-Date: Wed, 8 Feb 2006 23:00:09 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
-Subject: Re: [PATCH/RFC] arch/x86_common: more formal reuse of i386+x86_64
- source code
-Message-Id: <20060208230009.525ab514.rdunlap@xenotime.net>
-In-Reply-To: <20060208225336.23539710.rdunlap@xenotime.net>
-References: <20060208225336.23539710.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
+	Thu, 9 Feb 2006 02:00:52 -0500
+Received: from uproxy.gmail.com ([66.249.92.196]:44460 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1422835AbWBIHAv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 02:00:51 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=g65M5LWHqLA27FdiUh+rprQCaLfgDxVSOsbxb3fyWIqop2OypGWXDMMHKvBI4wqMUeRnIsHAOepTSHCQ0KQ07syE8XrQVOuiBxVcdHA0ER7DvmL3qejwvK93lAM3lcLTSYdf3+erdbL+uZhvOJAFHD3mBenRYcNPRw/6TZrfQ5Y=
+Message-ID: <aec7e5c30602082300i6257606csdc005e6a442bfec5@mail.gmail.com>
+Date: Thu, 9 Feb 2006 16:00:47 +0900
+From: Magnus Damm <magnus.damm@gmail.com>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Subject: Re: [PATCH] Dynamically allocated pageflags
+Cc: linux-mm <linux-mm@kvack.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200602022111.32930.ncunningham@cyclades.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200602022111.32930.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Feb 2006 22:53:36 -0800 Randy.Dunlap wrote:
+Hi Nigel,
 
-> (not completed yet)
-> (patch applies to 2.6.16-rc2)
+On 2/2/06, Nigel Cunningham <ncunningham@cyclades.com> wrote:
+> Hi everyone.
+>
+> This is my latest revision of the dynamically allocated pageflags patch.
+>
+> The patch is useful for kernel space applications that sometimes need to flag
+> pages for some purpose, but don't otherwise need the retain the state. A prime
+> example is suspend-to-disk, which needs to flag pages as unsaveable, allocated
+> by suspend-to-disk and the like while it is working, but doesn't need to
+> retain any of this state between cycles.
+>
+> Since the last revision, I have switched to using per-zone bitmaps within each
+> bitmap.
+>
+> I know that I could still add hotplug memory support. Is there anything else
+> missing?
 
-oh, this really is an RFC.  I built x86_64 but haven't built i386 yet.
-and the early_printk whitespace patch conflicts with this one.  :)
+I like the idea of the patch, but the code looks a bit too complicated
+IMO. What is wrong with using vmalloc() to allocate a virtual
+contiguous range of 0-order pages (one bit per page), and then use the
+functions in linux/bitmap.h...? Or maybe I'm misunderstanding.
 
-g/nite.
+A system that has 2 GB RAM and 4 KB pages would use 64 KB per bitmap
+(one bitmap per node), which is not so bad memory wise if you plan to
+use all bits.
 
+OTOH, if your plan is to use a single bit here and there, and leave
+most of the bits unused then some kind of tree is probably better.
 
-> Patch is 331 KB and is at
->   http://www.xenotime.net/linux/patches/x86-common1.patch
-> 
-> From: Randy Dunlap <rdunlap@xenotime.net>
-> 
-> Move lots of i386 & x86_64 common code into arch/x86_common/
-> and modify Makefiles to use it from there.
-> 
-> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-> ---
->  arch/i386/boot/edd.S                         |  176 --
->  arch/i386/boot/setup.S                       |    2
->  arch/i386/kernel/Makefile                    |    8
->  arch/i386/kernel/bootflag.c                  |   99 -
->  arch/i386/kernel/cpu/Makefile                |    2
->  arch/i386/kernel/cpu/intel_cacheinfo.c       |  655 ---------
->  arch/i386/kernel/cpuid.c                     |  245 ---
->  arch/i386/kernel/dmi_scan.c                  |  301 ----
->  arch/i386/kernel/early_printk.c              |    2
->  arch/i386/kernel/i8237.c                     |   67
->  arch/i386/kernel/microcode.c                 |  516 -------
->  arch/i386/kernel/msr.c                       |  326 ----
->  arch/i386/kernel/quirks.c                    |   51
->  arch/i386/mm/Makefile                        |    2
->  arch/i386/mm/hugetlbpage.c                   |  289 ----
->  arch/i386/pci/Makefile                       |   10
->  arch/i386/pci/acpi.c                         |   68
->  arch/i386/pci/common.c                       |  261 ---
->  arch/i386/pci/direct.c                       |  289 ----
->  arch/i386/pci/fixup.c                        |  467 ------
->  arch/i386/pci/i386.c                         |  295 ----
->  arch/i386/pci/irq.c                          | 1199 -----------------
->  arch/i386/pci/legacy.c                       |   56
->  arch/i386/pci/pci.h                          |   83 -
->  arch/x86_64/boot/setup.S                     |    2
->  arch/x86_64/kernel/Makefile                  |   16
->  arch/x86_64/kernel/early_printk.c            |  271 ---
->  arch/x86_64/mm/Makefile                      |    2
->  arch/x86_64/pci/Makefile                     |   19
->  arch/x86_common/boot/edd.S                   |  176 ++
->  arch/x86_common/kernel/bootflag.c            |   99 +
->  arch/x86_common/kernel/cpu/intel_cacheinfo.c |  655 +++++++++
->  arch/x86_common/kernel/cpuid.c               |  245 +++
->  arch/x86_common/kernel/dmi_scan.c            |  301 ++++
->  arch/x86_common/kernel/early_printk.c        |  271 +++
->  arch/x86_common/kernel/i8237.c               |   67
->  arch/x86_common/kernel/microcode.c           |  516 +++++++
->  arch/x86_common/kernel/msr.c                 |  326 ++++
->  arch/x86_common/kernel/quirks.c              |   51
->  arch/x86_common/mm/hugetlbpage.c             |  289 ++++
->  arch/x86_common/pci/acpi.c                   |   68
->  arch/x86_common/pci/common.c                 |  261 +++
->  arch/x86_common/pci/direct.c                 |  289 ++++
->  arch/x86_common/pci/fixup.c                  |  467 ++++++
->  arch/x86_common/pci/i386.c                   |  295 ++++
->  arch/x86_common/pci/irq.c                    | 1199 +++++++++++++++++
->  arch/x86_common/pci/legacy.c                 |   56
->  arch/x86_common/pci/pci.h                    |   83 +
->  48 files changed, 5759 insertions(+), 5734 deletions(-)
-> 
-> ---
-> ~Randy
+Or does the kernel already implement some kind of data structure that
+never consumes _that_ much more space than a bitmap when fully used,
+and saves a lot of memory when just sparsely populated?
 
-
----
-~Randy
+/ magnus

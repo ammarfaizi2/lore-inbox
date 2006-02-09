@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422711AbWBIAKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422714AbWBIAKu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422711AbWBIAKF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 19:10:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422714AbWBIAKF
+	id S1422714AbWBIAKu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 19:10:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422715AbWBIAKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 19:10:05 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46532 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1422711AbWBIAKB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 19:10:01 -0500
-Date: Thu, 9 Feb 2006 01:06:17 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: suspend2-devel@lists.suspend2.net, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060209000617.GG2654@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602081733.47134.nigel@suspend2.net> <200602081103.46156.rjw@sisk.pl> <200602082208.56599.nigel@suspend2.net>
+	Wed, 8 Feb 2006 19:10:50 -0500
+Received: from spooner.celestial.com ([192.136.111.35]:6577 "EHLO
+	spooner.celestial.com") by vger.kernel.org with ESMTP
+	id S1422714AbWBIAKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 19:10:49 -0500
+Date: Wed, 8 Feb 2006 19:10:48 -0500
+From: Kurt Wall <kwall@kurtwerks.com>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: "Changelog-2.6.15": missing signoffs, descriptions
+Message-ID: <20060209001048.GA6279@kurtwerks.com>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <43E935BA.8050605@tlinx.org> <43E943FD.7090508@tlinx.org> <20060208193202.GA8275@agluck-lia64.sc.intel.com> <43EA7680.6000207@tlinx.org> <Pine.LNX.4.58.0602081457500.1564@shark.he.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200602082208.56599.nigel@suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.58.0602081457500.1564@shark.he.net>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.16-rc1-mm5krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> On Wednesday 08 February 2006 20:03, Rafael J. Wysocki wrote:
-> > Well, that's probably because I always do my best to be nice and follow 
-> the
-> > rules that Pavel sets.  I post patches to modify the existing code and 
-> not to
-> > replace it top-down.  I keep them as compact as reasonably possible
-> > and focus on one thing at a time.  I remove the parts that Pavel and 
-> other
-> > people don't like or I try to modify these parts to be more acceptable.
-> > Etc.  This is not _that_ difficult.
+On Wed, Feb 08, 2006 at 03:00:01PM -0800, Randy.Dunlap took 50 lines to write:
+> On Wed, 8 Feb 2006, Linda Walsh wrote:
 > 
-> Yeah. I guess those are the differences. Thanks for putting it so clearly.
-> Well, we're obviously not getting anywhere while I'm trying to redesign the
-> existing code, so I guess I'll just go back to finishing the git tree and
-> leave anyone who wants to use it to use it.
+> > Luck, Tony wrote:
+> > > On Tue, Feb 07, 2006 at 05:06:05PM -0800, Linda Walsh wrote:
+> > >
+> > >> Actually, ("talking" to myself?), parsing this file a bit more,
+> > >> I find many (~134) that are missing "Sign-offs".
+> > >>
+> > >> I take it that "Sign-off"s are also "optional" on commits
+> > >> and represent that the author specified under the "commit"
+> > >> tag did not need a "Sign-off"?
 
-At one point you said you'd like to work with us, and earlier in the
-threads you stated that porting suspend2 to userland should be easy.
+[...]
 
-[I do not think that putting suspend2 into git is useful thing to
-do. Of course, it is your option; but it seems to me that people
-likely to use suspend2 are not the kind of people that use git.]
+> Linda, did you have some other point that you are trying to get to,
+> or is that it?  There are real efforts being made, although not
+> perfect.  That happens when people are involved.
+> Anyway, it feels like you are just getting to the surface/edge
+> of your complaint.
 
-It would be very helpful if you could install uswsusp, then try to
-make suspend2 run in userland on top of uswsusp interface. Not
-everything will be possible that way, but it most of features should
-be doable that way. I'd hate to code yet another splashscreen code,
-for example...
-								Pavel
+The way I read this thread, I thought the complaint was that she's
+having difficulty writing one or more tools to process the changes
+automatically. Perhaps I'm not seeing past the surface.
+
+Kurt
 -- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+On a paper submitted by a physicist colleague:
+
+"This isn't right.  This isn't even wrong."
+		-- Wolfgang Pauli

@@ -1,57 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422903AbWBIMqk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWBIMxQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422903AbWBIMqk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 07:46:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422904AbWBIMqk
+	id S1751029AbWBIMxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 07:53:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWBIMxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 07:46:40 -0500
-Received: from mf01.sitadelle.com ([212.94.174.68]:38088 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1422903AbWBIMqj
+	Thu, 9 Feb 2006 07:53:16 -0500
+Received: from vanessarodrigues.com ([192.139.46.150]:27626 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1750993AbWBIMxP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 07:46:39 -0500
-Message-ID: <43EB39A8.2010202@cosmosbay.com>
-Date: Thu, 09 Feb 2006 13:46:32 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Thu, 9 Feb 2006 07:53:15 -0500
+To: Adrian Bunk <bunk@stusta.de>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       "'Keith Owens'" <kaos@sgi.com>, "Luck, Tony" <tony.luck@intel.com>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] let IA64_GENERIC select more stuff
+References: <20060208035112.GM3524@stusta.de>
+	<200602080552.k185q9g07813@unix-os.sc.intel.com>
+	<20060208115946.GN3524@stusta.de> <yq0d5hym0lq.fsf@jaguar.mkp.net>
+	<20060208213825.GQ3524@stusta.de>
+From: Jes Sorensen <jes@sgi.com>
+Date: 09 Feb 2006 07:53:11 -0500
+In-Reply-To: <20060208213825.GQ3524@stusta.de>
+Message-ID: <yq0zml0lmmg.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, 76306.1226@compuserve.com, pj@sgi.com,
-       wli@holomorphy.com, ak@muc.de, mingo@elte.hu, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, riel@redhat.com, dada1@cosmobay.com
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-References: <200602090335_MC3-1-B7FA-621E@compuserve.com> <20060209010655.5cdeb192.akpm@osdl.org> <20060209011106.68aa890a.akpm@osdl.org> <20060209100834.GA9281@osiris.boeblingen.de.ibm.com> <20060209021314.23a9096f.akpm@osdl.org> <20060209102317.GA20554@osiris.boeblingen.de.ibm.com> <20060209023106.10c53c0b.akpm@osdl.org> <20060209114700.GB20554@osiris.boeblingen.de.ibm.com>
-In-Reply-To: <20060209114700.GB20554@osiris.boeblingen.de.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Heiko Carstens a écrit :
->>>>>  > Actually, x86 appears to be the only arch which suffers this braindamage. 
->>>>>  > The rest use CPU_MASK_NONE (or just forget to initialise it and hope that
->>>>>  > CPU_MASK_NONE equals all-zeroes).
->>>>>
->>>>>  s390 will join, as soon as the cpu_possible_map fix is merged...
->>>> What cpu_possible_map fix?
->>> This one:
->>>
->>> http://lkml.org/lkml/2006/2/8/162
->>>
->> Oh, OK.  Ow, I don't think you want to do that.  It means that all those
->> for_each_cpu() loops will now be iterating over all NR_CPUS cpus, whether
->> or not they're even possible.
-> 
-> That's ok. We're mainly running under z/VM where you can attach new virtual
-> cpus on the fly to the virtual machine (up to 64 cpus).
-> The only difference to before is that it was possible to limit the waste of
-> resources by passing a number with 'maxcpus'. This value was used to generate
-> the cpu_possible_map.
-> But since the map needs to be ready when we return from setup_arch, we don't
-> have access to max_cpus, unless we parse commandline on our own...
-> 
+>>>>> "Adrian" == Adrian Bunk <bunk@stusta.de> writes:
 
-Then it's OK to clear bits from cpu_possible_map once you have max_cpus value
+Adrian> On Wed, Feb 08, 2006 at 08:38:57AM -0500, Jes Sorensen wrote:
+>> Not really, it helps a bit by selecting some things we know we need
+>> for all GENERIC builds. True we can't make it bullet proof, but
+>> whats there is better than removing it.
 
-for (cpu = max_cpus ; cpu < NR_CPUS ; cpu++)
-	cpu_clear(cpu, cpu_possible_map);
+Adrian> Like the bug of allowing the illegal configuration NUMA=y,
+Adrian> FLATMEM=y?
 
+Adrian,
+
+There's other reasons why this is a moot exercise anyway, allyesconfig
+doesn't link on ia64 due to the size of the object exceeding the reach
+of the relative link relocs. Not much you can do about that.
+
+Here's a patch that will make it all build until it tries to link. It
+includes a simplified version of Ken's patch. Now can we please
+dismiss this issue once and for all and go back to getting real work
+done?
+
+Tony, would you apply at least the part of this touching
+arch/ia64/Kconfig if you do not fancy taking it all, please.
+
+Thanks,
+Jes
+
+Various fixes to help allyesconfig on ia64:
+- ARCH_FLATMEM_ENABLE is incompatible with NUMA
+- atm code tries to include kernel headers to decide upon byteorder
+  without allowing for said header file to include other files
+- HP100 driver cannot be compiled on systems without ISA support in it's
+  current state.
+- Add check_signature() to include/asm-ia64/io.h
+- Include vmalloc.h in mixart_hwdep.c which uses vmalloc
+
+Signed-off-by: Jes Sorensen <jes@sgi.com>
+
+----
+
+ arch/ia64/Kconfig               |    1 +
+ drivers/atm/Makefile            |    2 +-
+ drivers/net/Kconfig             |    2 +-
+ include/asm-ia64/io.h           |   15 +++++++++++++++
+ sound/pci/mixart/mixart_hwdep.c |    1 +
+ 5 files changed, 19 insertions(+), 2 deletions(-)
+
+Index: linux-2.6/arch/ia64/Kconfig
+===================================================================
+--- linux-2.6.orig/arch/ia64/Kconfig
++++ linux-2.6/arch/ia64/Kconfig
+@@ -297,6 +297,7 @@
+  	  See <file:Documentation/vm/numa> for more.
+ 
+ config ARCH_FLATMEM_ENABLE
++	depends on !NUMA
+ 	def_bool y
+ 
+ config ARCH_SPARSEMEM_ENABLE
+Index: linux-2.6/drivers/atm/Makefile
+===================================================================
+--- linux-2.6.orig/drivers/atm/Makefile
++++ linux-2.6/drivers/atm/Makefile
+@@ -41,7 +41,7 @@
+   # guess the target endianess to choose the right PCA-200E firmware image
+   ifeq ($(CONFIG_ATM_FORE200E_PCA_DEFAULT_FW),y)
+     byteorder.h			:= include$(if $(patsubst $(srctree),,$(objtree)),2)/asm/byteorder.h
+-    CONFIG_ATM_FORE200E_PCA_FW	:= $(obj)/pca200e$(if $(shell $(CC) -E -dM $(byteorder.h) | grep ' __LITTLE_ENDIAN '),.bin,_ecd.bin2)
++    CONFIG_ATM_FORE200E_PCA_FW	:= $(obj)/pca200e$(if $(shell $(CC) -I$(srctree)/include -E -dM $(byteorder.h) | grep ' __LITTLE_ENDIAN '),.bin,_ecd.bin2)
+   endif
+ endif
+ 
+Index: linux-2.6/drivers/net/Kconfig
+===================================================================
+--- linux-2.6.orig/drivers/net/Kconfig
++++ linux-2.6/drivers/net/Kconfig
+@@ -946,7 +946,7 @@
+ 
+ config HP100
+ 	tristate "HP 10/100VG PCLAN (ISA, EISA, PCI) support"
+-	depends on NET_ETHERNET && (ISA || EISA || PCI)
++	depends on NET_ETHERNET && ISA || EISA
+ 	help
+ 	  If you have a network (Ethernet) card of this type, say Y and read
+ 	  the Ethernet-HOWTO, available from
+Index: linux-2.6/include/asm-ia64/io.h
+===================================================================
+--- linux-2.6.orig/include/asm-ia64/io.h
++++ linux-2.6/include/asm-ia64/io.h
+@@ -435,6 +435,21 @@
+ 
+ #define ioremap_nocache(o,s)	ioremap(o,s)
+ 
++static inline int
++check_signature(void __iomem *io_addr, const unsigned char *signature,
++		int length)
++{
++	int retval = 0;
++	do {
++		if (readb(io_addr) != *signature++)
++			goto out;
++		io_addr++;
++	} while (--length);
++	retval = 1;
++ out:
++	return retval;
++}
++
+ # ifdef __KERNEL__
+ 
+ /*
+Index: linux-2.6/sound/pci/mixart/mixart_hwdep.c
+===================================================================
+--- linux-2.6.orig/sound/pci/mixart/mixart_hwdep.c
++++ linux-2.6/sound/pci/mixart/mixart_hwdep.c
+@@ -24,6 +24,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/pci.h>
+ #include <linux/firmware.h>
++#include <linux/vmalloc.h>
+ #include <asm/io.h>
+ #include <sound/core.h>
+ #include "mixart.h"

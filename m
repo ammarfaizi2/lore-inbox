@@ -1,66 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422796AbWBIEqd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422795AbWBIEqU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422796AbWBIEqd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 23:46:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422797AbWBIEqd
+	id S1422795AbWBIEqU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 23:46:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422797AbWBIEqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 23:46:33 -0500
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:52565 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1422796AbWBIEqb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 23:46:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=X8uZQNnPPuRra+qthHuwlK4bdrLfcIPr7zSKeZHO4tg7xBCA05np/U9tX3NalMtBa7l9jqhFTZ2FEDTtQ4Zra8JRwP1kuBURlEkQdQZbr9JyntshVH/TzTDfqxvX8eBGy1d1V0XXzi9UgNSLuDt5lfJpaqz2To+8vdHbiugEk/A=  ;
-Message-ID: <43EAC925.1010202@yahoo.com.au>
-Date: Thu, 09 Feb 2006 15:46:29 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-CC: Rik van Riel <riel@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@g5.osdl.org>
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-References: <200602051959.k15JxoHK001630@hera.kernel.org> <Pine.LNX.4.63.0602081728590.31711@cuia.boston.redhat.com> <43EAC78E.8000908@cosmosbay.com>
-In-Reply-To: <43EAC78E.8000908@cosmosbay.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 8 Feb 2006 23:46:20 -0500
+Received: from smtpout.mac.com ([17.250.248.88]:39874 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1422795AbWBIEqS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 23:46:18 -0500
+In-Reply-To: <m17j86dds4.fsf_-_@ebiederm.dsl.xmission.com>
+References: <43E7C65F.3050609@openvz.org> <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com> <43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com> <20060207201908.GJ6931@sergelap.austin.ibm.com> <43E90716.4020208@watson.ibm.com> <m17j86dds4.fsf_-_@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <C7D99186-5EBF-412D-B977-963570CD914D@mac.com>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Sam Vilain <sam@vilain.net>,
+       Rik van Riel <riel@redhat.com>, Kirill Korotaev <dev@openvz.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, clg@fr.ibm.com, haveblue@us.ibm.com,
+       greg@kroah.com, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
+       kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
+       Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>,
+       Herbert Poetzl <herbert@13thfloor.at>
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: The issues for agreeing on a virtualization/namespaces implementation.
+Date: Wed, 8 Feb 2006 23:45:02 -0500
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet wrote:
-> Rik van Riel a écrit :
-> 
->> On Sun, 5 Feb 2006, Linux Kernel Mailing List wrote:
->>
->>> [PATCH] percpu data: only iterate over possible CPUs
->>
->>
->> This sched.c bit breaks Xen, and probably also other architectures
->> that have CPU hotplug.  I suspect the reason is that during early 
->> bootup only the boot CPU is online, so nothing initialises the
->> runqueues for CPUs that are brought up afterwards.
->>
->> I suspect we can get rid of this problem quite easily by moving
->> runqueue initialisation to init_idle()...
-> 
-> 
-> Please fix Xen to match include/linux/cpumask.h documentation that says :
-> 
-> /*
->  * The following particular system cpumasks and operations manage
->  * possible, present and online cpus.  Each of them is a fixed size
->  * bitmap of size NR_CPUS.
->  *
->  *  #ifdef CONFIG_HOTPLUG_CPU
->  *     cpu_possible_map - all NR_CPUS bits set
+On Feb 07, 2006, at 17:06, Eric W. Biederman wrote:
+> I think I can boil the discussion down into some of the fundamental  
+> questions that we are facing.
+>
+> Currently everyone seems to agree that we need something like my  
+> namespace concept that isolates multiple resources.
+>
+> We need these for
+> UIDS
+> FILESYSTEM
 
-Note that this shouldn't have to be all NR_CPUs if the platform
-can determine all possible hotpluggable CPUs.
+I have one suggestion for this (it also covers capabilities to a  
+certain extent).  Could we use the kernel credentials system to  
+abstract away the concept of a single UID/GID?  We currently have  
+uid, euid, gid, egid, groups, fsid.  I'm thinking that there would be  
+virtualized UID tables to determine ownership of processes/SHM/etc.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Each process would have a (uid_container,uid) pair (or similar) as  
+its "uid" and likewise for gid.  Then the ability to send signals to  
+any given (uid_container,uid) or (gid_container,gid) pair would be  
+given by keys in the kernel keyring indexed by the "uid_container"  
+part and containing the "uid" part (or maybe just a pointer).
+
+Likewise the filesystem access could be virtualized by using uid and  
+gid keys in the kernel keyring indexed by vfsmount (Not superblock,  
+so that it would be possible to have different UID representations on  
+different mounts/parts of the same filesystem).
+
+I'm guessing that the performance implications of the above would not  
+be quite so nice, as it would put a lot of code in the fastpath, but  
+I would guess that it might be possible to use the existing fields  
+for processes without any virtualization needs.
+
+Cheers,
+Kyle Moffett
+
+--
+There is no way to make Linux robust with unreliable memory  
+subsystems, sorry.  It would be like trying to make a human more  
+robust with an unreliable O2 supply. Memory just has to work.
+   -- Andi Kleen
+
+

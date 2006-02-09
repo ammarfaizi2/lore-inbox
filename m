@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422771AbWBICKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422769AbWBICJe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422771AbWBICKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 21:10:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422773AbWBICKZ
+	id S1422769AbWBICJe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 21:09:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422770AbWBICJe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 21:10:25 -0500
-Received: from xproxy.gmail.com ([66.249.82.203]:34699 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1422770AbWBICKY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 21:10:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UNFqZLFQ8C/I2jlf3Li7+sjHuCKsDs8lC7Ds/f6Jum3lv3f/nwL15IGvrYqUaR7n/Zp+jVkt8PeAJTgj/mGoLAvIaEiMJDVP7Y/B4IZOLp4FfKe327VC841zAvnAl4bjL6fG1800UuD6FuyEzRUIEJALvNvhf3+NdPblRtTCrQw=
-Message-ID: <4807377b0602081810l55e4cbdfyeb9102bd50d04641@mail.gmail.com>
-Date: Wed, 8 Feb 2006 18:10:21 -0800
-From: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-To: "David S. Miller" <davem@davemloft.net>
-Subject: Re: KERNEL: assertion (!sk->sk_forward_alloc) failed
-Cc: yoseph.basri@gmail.com, bb@kernelpanic.ru, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <20060208.141205.129707967.davem@davemloft.net>
+	Wed, 8 Feb 2006 21:09:34 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:50950 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1422769AbWBICJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 21:09:33 -0500
+Date: Thu, 9 Feb 2006 03:09:32 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Phillip Susi <psusi@cfl.rr.com>
+Cc: linux-kernel@vger.kernel.org, Peter Osterlund <petero2@telia.com>
+Subject: pktcdvd stack usage regression
+Message-ID: <20060209020932.GY3524@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <e282236e0602070146p1ed3fdb6k74aa75e15bbc37a3@mail.gmail.com>
-	 <4807377b0602081207s7604eceahb8bf4af6715a6534@mail.gmail.com>
-	 <20060208.141205.129707967.davem@davemloft.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/8/06, David S. Miller <davem@davemloft.net> wrote:
-> From: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-> Date: Wed, 8 Feb 2006 12:07:14 -0800
->
-> > this should be on netdev (cc'd), i included some of the thread here.
->  ...
-> > I though Herbert had fixed these, and it looks like half the patches
-> > got into 2.6.14.3, but not the fix to the fix committed on 9-6 (not in
-> > 2.6.14.* at all)
->
-> What are the changeset IDs so I can fix this?
+Hi Phillip,
 
-I think the commit id that is missing from 2.6.14.X is
-fb5f5e6e0cebd574be737334671d1aa8f170d5f3
+your recent patch "pktcdvd: Allow larger packets" changed 
+PACKET_MAX_SIZE in the pktcdvd driver from 32 to 128.
 
-but here is the web link if i gave the wrong info
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=fb5f5e6e0cebd574be737334671d1aa8f170d5f3
+Unfortunately, drivers/block/pktcdvd.c contains the following:
+
+<--  snip  -->
+
+...
+static void pkt_start_write(struct pktcdvd_device *pd, struct 
+packet_data *pkt)
+{
+        struct bio *bio;
+        struct page *pages[PACKET_MAX_SIZE];
+        int offsets[PACKET_MAX_SIZE];
+...
+
+<--  snip  -->
+
+With PACKET_MAX_SIZE=128, this allocates more than 1 kB on the stack 
+which is not acceptable considering that we might have only 4 kB stack 
+altogether.
+
+Please either fix this before 2.6.16 or ask Linus to revert commit 
+5c55ac9bbca22ee134408f83de5f2bda3b1b2a53.
+
+TIA
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

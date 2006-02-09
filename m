@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbWBIQKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161033AbWBIQKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932512AbWBIQKn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 11:10:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932574AbWBIQKn
+	id S1161033AbWBIQKq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 11:10:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbWBIQKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 11:10:43 -0500
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:1348 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S932512AbWBIQKn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 11:10:43 -0500
-Date: Thu, 9 Feb 2006 17:10:40 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
-Subject: [patch] sparc64: fix syscall table - sys_newfstatat
-Message-ID: <20060209161040.GD20554@osiris.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 9 Feb 2006 11:10:46 -0500
+Received: from atpro.com ([12.161.0.3]:29707 "EHLO atpro.com")
+	by vger.kernel.org with ESMTP id S932574AbWBIQKp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 11:10:45 -0500
+From: "Jim Crilly" <jim@why.dont.jablowme.net>
+Date: Thu, 9 Feb 2006 11:10:24 -0500
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: peter.read@gmail.com, matthias.andree@gmx.de, lsorense@csclub.uwaterloo.ca,
+       linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060209161024.GF18918@voodoo>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	peter.read@gmail.com, matthias.andree@gmx.de,
+	lsorense@csclub.uwaterloo.ca, linux-kernel@vger.kernel.org
+References: <43E7680E.2000506@gmx.de> <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner> <20060207183712.GC5341@voodoo> <43E9F1CD.nail2BR11FL52@burner> <20060208210219.GB9166@DervishD> <20060208211455.GC2480@csclub.uwaterloo.ca> <43EB1988.nail7EL2I7AN6@burner> <20060209160035.GD18918@voodoo> <43EB676E.nailIC41AJMME@burner>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: mutt-ng/devel (Linux)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43EB676E.nailIC41AJMME@burner>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+On 02/09/06 05:01:50PM +0100, Joerg Schilling wrote:
+> "Jim Crilly" <jim@why.dont.jablowme.net> wrote:
+> 
+> > I've been using the cdrecord packaged by Debian for years without a single
+> > problem and it has 35 patches included in the source package. Please
+> > enlighten me as to what they've broken because obviously none of it has
+> > affected me.
+> 
+> Are you unwilling to reead critisism?
+> 
+> Just read my comments on the Debian bug tracking system
+> 
+> Jörg
 
-The sparc64 64 bit syscall table seems to be broken as it has
-compat_sys_newfstatat in its syscall table instead of sys_newfstatat.
+To which bugs are you referring? Looking at the bugs for the cdrtools
+package, I only see 1 functionality bug. All of the rest are policy
+violations, copyright updates, translation updates, etc. And ironically
+in that 1 real bug the entire thread degenerated into you pointing
+fingers and slinging mud at the Linux kernel maintainers again, just
+like this one.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
-
- arch/sparc64/kernel/systbls.S |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/sparc64/kernel/systbls.S b/arch/sparc64/kernel/systbls.S
-index 5928b3c..a191685 100644
---- a/arch/sparc64/kernel/systbls.S
-+++ b/arch/sparc64/kernel/systbls.S
-@@ -146,7 +146,7 @@ sys_call_table:
- /*270*/	.word sys_io_submit, sys_io_cancel, sys_io_getevents, sys_mq_open, sys_mq_unlink
- 	.word sys_mq_timedsend, sys_mq_timedreceive, sys_mq_notify, sys_mq_getsetattr, sys_waitid
- /*280*/	.word sys_nis_syscall, sys_add_key, sys_request_key, sys_keyctl, sys_openat
--	.word sys_mkdirat, sys_mknodat, sys_fchownat, sys_futimesat, compat_sys_newfstatat
-+	.word sys_mkdirat, sys_mknodat, sys_fchownat, sys_futimesat, sys_newfstatat
- /*285*/	.word sys_unlinkat, sys_renameat, sys_linkat, sys_symlinkat, sys_readlinkat
- 	.word sys_fchmodat, sys_faccessat, sys_pselect6, sys_ppoll, sys_unshare
- 
+Jim.

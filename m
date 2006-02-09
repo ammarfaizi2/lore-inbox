@@ -1,38 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422810AbWBIGEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422802AbWBIGEK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422810AbWBIGEg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 01:04:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422811AbWBIGEg
+	id S1422802AbWBIGEK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 01:04:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422810AbWBIGEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 01:04:36 -0500
-Received: from vms046pub.verizon.net ([206.46.252.46]:223 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1422810AbWBIGEf convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 01:04:35 -0500
-Date: Thu, 09 Feb 2006 01:06:09 -0500
-From: Jon Ringle <jringle@vertical.com>
-Subject: Linux running on a PCI Option device?
-To: linux-kernel@vger.kernel.org
-Message-id: <200602090106.10411.jringle@vertical.com>
-Organization: Vertical
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 8BIT
-Content-disposition: inline
-User-Agent: KMail/1.9.1
+	Thu, 9 Feb 2006 01:04:10 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:2529 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1422802AbWBIGEJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 01:04:09 -0500
+Subject: Re: preempt-rt, NUMA and strange latency traces
+From: Lee Revell <rlrevell@joe-job.com>
+To: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1139395534.21471.13.camel@frecb000686>
+References: <1139311689.19708.36.camel@frecb000686>
+	 <Pine.LNX.4.58.0602080436190.8578@gandalf.stny.rr.com>
+	 <1139395534.21471.13.camel@frecb000686>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Thu, 09 Feb 2006 01:04:05 -0500
+Message-Id: <1139465045.30058.31.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.90 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 2006-02-08 at 11:45 +0100, Sébastien Dugué wrote:
+> The more I think about it, the more I tend to believe it's hardware 
+> related. It seems as if the CPU just hangs for ~27 ms before
+> resuming processing. 
 
-I am working on a new board that will have Linux running on an xscale 
-processor. This board will be a PCI Option device. I currently have a IXDP465 
-eval board which has a PCI Option connector that I will use for prototyping. 
->From what I can tell so far, Linux wants to scan the PCI bus for devices as 
-if it is the PCI host. Is there any provision in Linux so that it can take on 
-the role of a PCI option rather than a PCI host?
+That would be an exceptionally long latency - you would probably notice
+it if the mouse froze, VOIP dropped out, ping stops, etc for 30ms.
 
-Jon
+Lee
 
-PS. Please CC me on replies.

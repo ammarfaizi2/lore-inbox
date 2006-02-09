@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422758AbWBIQkC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161034AbWBIQrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422758AbWBIQkC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 11:40:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422767AbWBIQkB
+	id S1161034AbWBIQrR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 11:47:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161073AbWBIQrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 11:40:01 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:65217 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1422758AbWBIQkA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 11:40:00 -0500
-Date: Thu, 9 Feb 2006 11:38:45 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cuia.boston.redhat.com
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-cc: Nathan Lynch <ntl@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, mingo@elte.hu, ak@muc.de, 76306.1226@compuserve.com,
-       wli@holomorphy.com, Paul Jackson <pj@sgi.com>
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-In-Reply-To: <20060209161331.GE20554@osiris.boeblingen.de.ibm.com>
-Message-ID: <Pine.LNX.4.63.0602091138350.23817@cuia.boston.redhat.com>
-References: <200602051959.k15JxoHK001630@hera.kernel.org>
- <Pine.LNX.4.63.0602081728590.31711@cuia.boston.redhat.com>
- <20060208190512.5ebcdfbe.akpm@osdl.org> <20060208190839.63c57a96.akpm@osdl.org>
- <43EAC6BE.2060807@cosmosbay.com> <20060208204502.12513ae5.akpm@osdl.org>
- <20060209160808.GL18730@localhost.localdomain> <20060209161331.GE20554@osiris.boeblingen.de.ibm.com>
+	Thu, 9 Feb 2006 11:47:17 -0500
+Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:54156 "EHLO
+	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
+	id S1161034AbWBIQrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 11:47:16 -0500
+To: Paul Jackson <pj@sgi.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, jes@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: git for dummies, anyone?
+References: <20060208070301.1162e8c3.pj@sgi.com>
+	<yq0vevollx4.fsf@jaguar.mkp.net> <43EB4F05.8090400@pobox.com>
+	<20060209065524.8a7d00ce.pj@sgi.com>
+From: Catalin Marinas <catalin.marinas@arm.com>
+Date: Thu, 09 Feb 2006 16:46:55 +0000
+In-Reply-To: <20060209065524.8a7d00ce.pj@sgi.com> (Paul Jackson's message of
+ "Thu, 9 Feb 2006 06:55:24 -0800")
+Message-ID: <tnxd5hwlbsw.fsf@arm.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 09 Feb 2006 16:47:00.0445 (UTC) FILETIME=[7269C0D0:01C62D98]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Feb 2006, Heiko Carstens wrote:
+Paul Jackson <pj@sgi.com> wrote:
+> Jeff wrote:
+>> Check out: http://linux.yyz.us/git-howto.html
+>
+> I did.  I spent some time reading it, as one of
+> the best git howto's I could find.
+>
+> Me and the git UI just weren't met to be.
 
-> Simply because there is no such interface on s390. The only thing we know
-> for sure is that if we are running under z/VM the user is free to
-> configure up to 63 additional virtual cpus on the fly...
-
-Xen is in a similar situation.
+If you've ever used Quilt (even if you haven't), try StGIT -
+http://www.procode.org/stgit/, it might suit you better (IIRC, you
+tried it already but were not happy with the first version; it is much
+improved now :-)).
 
 -- 
-All Rights Reversed
+Catalin

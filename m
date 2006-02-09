@@ -1,66 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422835AbWBIHAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422842AbWBIHHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422835AbWBIHAw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 02:00:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422838AbWBIHAw
+	id S1422842AbWBIHHN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 02:07:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422843AbWBIHHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 02:00:52 -0500
-Received: from uproxy.gmail.com ([66.249.92.196]:44460 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1422835AbWBIHAv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 02:00:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=g65M5LWHqLA27FdiUh+rprQCaLfgDxVSOsbxb3fyWIqop2OypGWXDMMHKvBI4wqMUeRnIsHAOepTSHCQ0KQ07syE8XrQVOuiBxVcdHA0ER7DvmL3qejwvK93lAM3lcLTSYdf3+erdbL+uZhvOJAFHD3mBenRYcNPRw/6TZrfQ5Y=
-Message-ID: <aec7e5c30602082300i6257606csdc005e6a442bfec5@mail.gmail.com>
-Date: Thu, 9 Feb 2006 16:00:47 +0900
-From: Magnus Damm <magnus.damm@gmail.com>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Subject: Re: [PATCH] Dynamically allocated pageflags
-Cc: linux-mm <linux-mm@kvack.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200602022111.32930.ncunningham@cyclades.com>
+	Thu, 9 Feb 2006 02:07:13 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:16521 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1422841AbWBIHHK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 02:07:10 -0500
+Date: Thu, 09 Feb 2006 16:05:46 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Andi Kleen <ak@suse.de>, "Luck, Tony" <tony.luck@intel.com>,
+       "Brown, Len" <len.brown@intel.com>,
+       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
+       naveen.b.s@intel.com, Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: [RFC:PATCH(000/003)] Memory add to onlined node. (ver. 2)
+Cc: ACPI-ML <linux-acpi@vger.kernel.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, x86-64 Discuss <discuss@x86-64.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060209153539.6CEE.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200602022111.32930.ncunningham@cyclades.com>
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nigel,
+Hello.
 
-On 2/2/06, Nigel Cunningham <ncunningham@cyclades.com> wrote:
-> Hi everyone.
->
-> This is my latest revision of the dynamically allocated pageflags patch.
->
-> The patch is useful for kernel space applications that sometimes need to flag
-> pages for some purpose, but don't otherwise need the retain the state. A prime
-> example is suspend-to-disk, which needs to flag pages as unsaveable, allocated
-> by suspend-to-disk and the like while it is working, but doesn't need to
-> retain any of this state between cycles.
->
-> Since the last revision, I have switched to using per-zone bitmaps within each
-> bitmap.
->
-> I know that I could still add hotplug memory support. Is there anything else
-> missing?
+I updated patches for memory hot-add.
+Current code allow addition to just node 0.
+By this patch, the new memory is able to be added to appropriate node,
+- if the node is already online.-  If the node is offline, 
+(It means new node is comming!)  then the memory will belongs
+to node 0 yet.
 
-I like the idea of the patch, but the code looks a bit too complicated
-IMO. What is wrong with using vmalloc() to allocate a virtual
-contiguous range of 0-order pages (one bit per page), and then use the
-functions in linux/bitmap.h...? Or maybe I'm misunderstanding.
+If new memory belongs to new node, new pgdat must be initialized.
+But, it still need more many steps. So, I would like to propose
+this small steps for a while.
 
-A system that has 2 GB RAM and 4 KB pages would use 64 KB per bitmap
-(one bitmap per node), which is not so bad memory wise if you plan to
-use all bits.
+This patch is use acpi's DSDT to find node id from physicall address.
+So, this patch is just for intel/AMD architecture.
 
-OTOH, if your plan is to use a single bit here and there, and leave
-most of the bits unused then some kind of tree is probably better.
+I tested this patch on ia64 and x86-64 box with custermized  SRAT & DSDT
+node emulation.
 
-Or does the kernel already implement some kind of data structure that
-never consumes _that_ much more space than a bitmap when fully used,
-and saves a lot of memory when just sparsely populated?
+This patch is for 2.6.16-rc2-mm1. 
 
-/ magnus
+Please comment.
+
+Change log from ver.1 is
+  - The parameter of size of add_memory() was changed from (_MAX - _MIN + 1)
+    to _LEN by Bjorn Helgaas-san.
+    To compare physical memory and DSDT at
+    acpi_memory_match_paddr_to_memdevice(), using MAX-MIN +1 was changed 
+    to using length.
+  - change from using acpi_map_pxm_to_node() to pxm_to_node().
+    acpi_map_pxm_to_node() is useful to decide new node's id
+    when new node can be added, but it is not appropriate for 
+    current code.
+  - Remove extra \n from ACPI_TRACE_FUNCTION().
+  - Update for 2.6.16-rc2-mm1.
+  - Tested on x86_64 box with SRAT & DSDT emulation.
+
+Please comment.
+-- 
+Yasunori Goto 
+
+

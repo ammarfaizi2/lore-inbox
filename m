@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbWBISEv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932516AbWBISHf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932515AbWBISEv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 13:04:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWBISEv
+	id S932516AbWBISHf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 13:07:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbWBISHf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 13:04:51 -0500
-Received: from moraine.clusterfs.com ([66.96.26.190]:43432 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S932515AbWBISEu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 13:04:50 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 9 Feb 2006 13:07:35 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:48310 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932516AbWBISHe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 13:07:34 -0500
+Date: Thu, 9 Feb 2006 10:04:29 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: ntl@pobox.com, dada1@cosmosbay.com, riel@redhat.com,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, mingo@elte.hu,
+       ak@muc.de, 76306.1226@compuserve.com, wli@holomorphy.com,
+       heiko.carstens@de.ibm.com, pj@sgi.com
+Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
+Message-Id: <20060209100429.03f0b1c3.akpm@osdl.org>
+In-Reply-To: <20060209090321.A9380@unix-os.sc.intel.com>
+References: <20060209160808.GL18730@localhost.localdomain>
+	<20060209090321.A9380@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <17387.33855.858274.530175@gargle.gargle.HOWL>
-Date: Thu, 9 Feb 2006 21:04:47 +0300
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       ck list <ck@vds.kolivas.org>, linux-mm@kvack.org,
-       Nick Piggin <npiggin@suse.de>, Paul Jackson <pj@sgi.com>
-Subject: Re: [PATCH] mm: Implement Swap Prefetching v22
-Newsgroups: gmane.linux.kernel,gmane.linux.kernel.ck,gmane.linux.kernel.mm
-In-Reply-To: <43EB43B9.5040001@yahoo.com.au>
-References: <200602092339.49719.kernel@kolivas.org>
-	<43EB43B9.5040001@yahoo.com.au>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin writes:
+Ashok Raj <ashok.raj@intel.com> wrote:
+>
+> The problem was with ACPI just simply looking at the namespace doesnt
+>  exactly give us an idea of how many processors are possible in this platform.
 
-[...]
+We need to fix this asap - the performance penalty for HOTPLUG_CPU=y,
+NR_CPUS=lots will be appreciable.
 
- > > +/*
- > > + * We check to see no part of the vm is busy. If it is this will interrupt
- > > + * trickle_swap and wait another PREFETCH_DELAY. Purposefully racy.
- > > + */
- > > +inline void delay_swap_prefetch(void)
- > > +{
- > > +	__set_bit(0, &swapped.busy);
- > > +}
- > > +
- > 
- > Test this first so you don't bounce the cacheline around in page
- > reclaim too much.
+Do any x86 platforms actually support CPU hotplug?
 
-Shouldn't we have special macros/inlines for this? Like, e.g.,
-
-static inline void __set_bit_weak(int nr, volatile unsigned long * addr)
-{
-        if (!__test_bit(nr, addr))
-                __set_bit(nr, addr);
-}
-
-? These test-then-set sequences start to proliferate throughout the code.
-
-[...]
-
-Nikita.
+Does the ACPI problem which you describe occur with present-CPUs,
+or only with possible-but-not-present ones?

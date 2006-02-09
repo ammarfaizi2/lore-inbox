@@ -1,53 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422828AbWBIGnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422833AbWBIGw5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422828AbWBIGnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 01:43:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422829AbWBIGnQ
+	id S1422833AbWBIGw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 01:52:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422834AbWBIGw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 01:43:16 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:15622 "EHLO
-	cyberguard.com.au") by vger.kernel.org with ESMTP id S1422828AbWBIGnP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 01:43:15 -0500
-Message-ID: <43EAE4AC.6070807@snapgear.com>
-Date: Thu, 09 Feb 2006 16:43:56 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Jon Ringle <jringle@vertical.com>
-Subject: Re: Linux running on a PCI Option device?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 9 Feb 2006 01:52:57 -0500
+Received: from xenotime.net ([66.160.160.81]:20189 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1422833AbWBIGw4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 01:52:56 -0500
+Date: Wed, 8 Feb 2006 22:53:36 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>, ak@suse.de
+Subject: [PATCH/RFC] arch/x86_common: more formal reuse of i386+x86_64
+ source code
+Message-Id: <20060208225336.23539710.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(not completed yet)
+(patch applies to 2.6.16-rc2)
 
-Hi Jon,
+Patch is 331 KB and is at
+  http://www.xenotime.net/linux/patches/x86-common1.patch
 
-Jon Ringle wrote:
-> I am working on a new board that will have Linux running on an xscale 
-> processor. This board will be a PCI Option device. I currently have a IXDP465 
-> eval board which has a PCI Option connector that I will use for prototyping. 
-> From what I can tell so far, Linux wants to scan the PCI bus for devices as 
-> if it is the PCI host. Is there any provision in Linux so that it can take on 
-> the role of a PCI option rather than a PCI host?
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Have a look at the code in arch/arm/mach-ixp4xx/common-pci.c, in
-the function ixp4xx_pci_preinit().
+Move lots of i386 & x86_64 common code into arch/x86_common/
+and modify Makefiles to use it from there.
 
-It does a check on whether the PCI bus is configured as HOST or not.
-I don't know if that code support is enough for it all to work right
-though (I certainly haven't tried it on either the 425 or 465...)
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ arch/i386/boot/edd.S                         |  176 --
+ arch/i386/boot/setup.S                       |    2
+ arch/i386/kernel/Makefile                    |    8
+ arch/i386/kernel/bootflag.c                  |   99 -
+ arch/i386/kernel/cpu/Makefile                |    2
+ arch/i386/kernel/cpu/intel_cacheinfo.c       |  655 ---------
+ arch/i386/kernel/cpuid.c                     |  245 ---
+ arch/i386/kernel/dmi_scan.c                  |  301 ----
+ arch/i386/kernel/early_printk.c              |    2
+ arch/i386/kernel/i8237.c                     |   67
+ arch/i386/kernel/microcode.c                 |  516 -------
+ arch/i386/kernel/msr.c                       |  326 ----
+ arch/i386/kernel/quirks.c                    |   51
+ arch/i386/mm/Makefile                        |    2
+ arch/i386/mm/hugetlbpage.c                   |  289 ----
+ arch/i386/pci/Makefile                       |   10
+ arch/i386/pci/acpi.c                         |   68
+ arch/i386/pci/common.c                       |  261 ---
+ arch/i386/pci/direct.c                       |  289 ----
+ arch/i386/pci/fixup.c                        |  467 ------
+ arch/i386/pci/i386.c                         |  295 ----
+ arch/i386/pci/irq.c                          | 1199 -----------------
+ arch/i386/pci/legacy.c                       |   56
+ arch/i386/pci/pci.h                          |   83 -
+ arch/x86_64/boot/setup.S                     |    2
+ arch/x86_64/kernel/Makefile                  |   16
+ arch/x86_64/kernel/early_printk.c            |  271 ---
+ arch/x86_64/mm/Makefile                      |    2
+ arch/x86_64/pci/Makefile                     |   19
+ arch/x86_common/boot/edd.S                   |  176 ++
+ arch/x86_common/kernel/bootflag.c            |   99 +
+ arch/x86_common/kernel/cpu/intel_cacheinfo.c |  655 +++++++++
+ arch/x86_common/kernel/cpuid.c               |  245 +++
+ arch/x86_common/kernel/dmi_scan.c            |  301 ++++
+ arch/x86_common/kernel/early_printk.c        |  271 +++
+ arch/x86_common/kernel/i8237.c               |   67
+ arch/x86_common/kernel/microcode.c           |  516 +++++++
+ arch/x86_common/kernel/msr.c                 |  326 ++++
+ arch/x86_common/kernel/quirks.c              |   51
+ arch/x86_common/mm/hugetlbpage.c             |  289 ++++
+ arch/x86_common/pci/acpi.c                   |   68
+ arch/x86_common/pci/common.c                 |  261 +++
+ arch/x86_common/pci/direct.c                 |  289 ++++
+ arch/x86_common/pci/fixup.c                  |  467 ++++++
+ arch/x86_common/pci/i386.c                   |  295 ++++
+ arch/x86_common/pci/irq.c                    | 1199 +++++++++++++++++
+ arch/x86_common/pci/legacy.c                 |   56
+ arch/x86_common/pci/pci.h                    |   83 +
+ 48 files changed, 5759 insertions(+), 5734 deletions(-)
 
-Regards
-Greg
-
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
-SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
-825 Stanley St,                             FAX:         +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
+---
+~Randy

@@ -1,80 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWBIQze@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWBIQ6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932481AbWBIQze (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 11:55:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWBIQze
+	id S932366AbWBIQ6i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 11:58:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWBIQ6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 11:55:34 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:44492 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932481AbWBIQzd (ORCPT
+	Thu, 9 Feb 2006 11:58:38 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:39909 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932366AbWBIQ6h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 11:55:33 -0500
-Date: Thu, 9 Feb 2006 08:55:01 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Marc Koschewski <marc@osknowledge.org>
-Cc: marc@osknowledge.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH GIT] drivers/block/ub.c - misc. cleanup/indentation,
- removed unneeded return
-Message-Id: <20060209085501.0a29c7e7.zaitcev@redhat.com>
-In-Reply-To: <20060209092143.GA5676@stiffy.osknowledge.org>
-References: <mailman.1139418724.17734.linux-kernel2news@redhat.com>
-	<20060208194057.55b02719.zaitcev@redhat.com>
-	<20060209092143.GA5676@stiffy.osknowledge.org>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Feb 2006 11:58:37 -0500
+Date: Thu, 9 Feb 2006 17:58:34 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pid_t range question
+In-Reply-To: <m1pslystkz.fsf@ebiederm.dsl.xmission.com>
+Message-ID: <Pine.LNX.4.61.0602091751220.30108@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0602071122520.327@chaos.analogic.com>
+ <m1pslystkz.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Feb 2006 10:21:43 +0100, Marc Koschewski <marc@osknowledge.org> wrote:
+>> On Linux, type pid_t is defined as an int if you look
+>> through all the intermediate definitions such as S32_T,
+>> etc. However, it wraps at 32767, the next value being 300.
 
-> > But the rest is quite bad, the worst being indenting the switch statement.
-> 
-> I see. Why do you use if-statement-indenting then?
+There is also an aesthetical reason. If pids were allowed to exceed, say, 
+ten million, you would need a quite wide field in `ps` for the process 
+number which is on "normal desktop user" systems just require 5 or 6 
+decimal places. Well, what I mean, just look at this sample ps output:
 
-Insides of case blocks are indented, didn't you notice? Why waste a tab?
+17:59 shanghai:../fs/proc # ps
+        PID TTY          TIME CMD
+          1 -        00:00:00 init [3]
+ 4215914607 tty2     00:00:00 bash
+ 4215914653 tty2     00:00:00 ps
 
-> What is the sense of the empty comments? What sense does the 'immediate
-> return' make when the value is returned 2 lines below (where one line is just
-> a closing brace)?
+mingw/msys and cygwin already have this "cosmetic problem" since windows 
+"pids" are usually above one million.
 
-Empty comments segregate related groups of functions.
+>> I know the
+>> code "reserves" the first 300 pids.
 
-The return is there in case something else is needed between the if and
-the function's end. It's there to underscore the regular structure of the
-code. Though the big block comment obscures the intent there. Perhaps
-I should relocate it.
+I cannot confirm that. When I start in "-b" mode and 'use' up all pids by 
+repeatedly executing /bin/noop, I someday get pids as low as 10 
+again, defined by how many kernel threads there are active before /bin/bash 
+started.
 
-You didn't mention empty lines on top of functions. They appear where
-variables are likely to be, or if the function body has a break, to make
-it fair to all little segments :-)
+>I know for certain that proc assumes it can fit pid in
+>the upper bits of an ino_t taking the low 16bits for itself
+>so that may the entire reason for the limit.
+>
+inode number in /proc/XXX/fd creation currently is, IIRC
+  ino = (pid << 16) | fd
+which limits both pid to 16 bits and the fdtable to 16 bits. See 
+fs/proc/inode-alloc.txt. At best, procfs should start using 64bit inode 
+numbers.
 
-> > Is there nothing else you can do in the whole kernel?
-> 
-> Sure, but I guess you don't have to tell me what files I put my nose in, do
-> you? I didn't mean to personally piss you off by sending this in. Tzzz ...
-> 
-> Unfortunately my understanding of how ie. the Linux VM works is not very good.
-> In fact it's poor. But I will dig into this and try to make even you happy with
-> a patch that makes sense _in your eyes_.
 
-I don't know anything about VM either and I do not see how this is
-relevant.
-
-The bigger point is, if you strive to make a meaningful contribution,
-meaningless code rearrangements is not the way to go about it. And
-we have plenty of work under the subsystem level, though usually it
-has something to do with specific hardware. For example, Firewire
-appears to be in dire need of fixing right now.
-
-I remember a period of time when the janitoring project produced
-meaningful cleanups, such as verification of failure paths. This work
-is still relevant. Just the other day I sent a patch to Dmitry for
-a leak in mousedev. And remember the debacle of memset(p, size, 0)!
-I'm not going to tell you where to put your nose in, but I would like
-to hint that the janitoring project might use some help with something
-going beyond the uglification of my pretty code :-)
-
--- Pete
+Jan Engelhardt
+-- 

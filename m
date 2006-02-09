@@ -1,56 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965113AbWBIIlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965164AbWBIImx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965113AbWBIIlp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 03:41:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbWBIIlp
+	id S965164AbWBIImx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 03:42:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750993AbWBIImx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 03:41:45 -0500
-Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:9653 "EHLO
-	liaag2ag.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750798AbWBIIlo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 03:41:44 -0500
-Date: Thu, 9 Feb 2006 03:32:55 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paul Jackson <pj@sgi.com>, heiko.carstens@de.ibm.com, wli@holomorphy.com,
-       ak@muc.de, mingo@elte.hu, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, riel@redhat.com,
-       Eric Dumazet <dada1@cosmobay.com>
-Message-ID: <200602090335_MC3-1-B7FA-621E@compuserve.com>
+	Thu, 9 Feb 2006 03:42:53 -0500
+Received: from smtprelay02.ispgateway.de ([80.67.18.14]:44729 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1750828AbWBIImw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 03:42:52 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] inotify: fix one-shot support
+Date: Thu, 9 Feb 2006 09:42:43 +0100
+User-Agent: KMail/1.7.2
+Cc: Robert Love <rml@novell.com>, John McCutchan <ttb@tentacle.dhs.org>
+References: <200602080105.k1815her002647@hera.kernel.org> <200602080852.18179.ingo@oeser-vu.de> <1139415393.8883.193.camel@betsy.boston.ximian.com>
+In-Reply-To: <1139415393.8883.193.camel@betsy.boston.ximian.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
-	 charset=us-ascii
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200602090942.44977.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060208204502.12513ae5.akpm@osdl.org>
+Hi Robert,
+hi John,
 
-On Wed, 8 Feb 2006 at 20:45:02 -0800, Andrew Morton wrote:
-
-> > Its even documented in line 332 of include/linux/cpumask.h
-> > 
-> >   *  #ifdef CONFIG_HOTPLUG_CPU
-> >   *     cpu_possible_map - all NR_CPUS bits set
+On Wednesday 08 February 2006 17:16, Robert Love wrote:
+> On Wed, 2006-02-08 at 08:52 +0100, Ingo Oeser wrote:
+> > See, now you can just pass IN_ONESHOT behavior flag without any
+> > events to shoot at, which you couldn't do before. But this makes only
+> > sense, if we would like to set a multi-shot mask to one-shot now.
 > 
-> That seems a quite bad idea.  If we know which CPUs are possible we should
-> populate cpu_possible_map correctly, whether or not CONFIG_HOTPLUG_CPU is
-> set.
+> Ack!
 
-I don't think that's, um, "possible."  Even if you could discover how many
-empty sockets there were in a system, someone might be able to hotplug
-a board with more of them on it.  And there's no way to tell how many CPUs
-to reserve for each socket anyway, e.g. AMD has already announced quad-core
-processors.
+Ok, here comes the patch (against Linus' HEAD). 
+It turned out, that we needed to change some more places to avoid having zero
+events to watch for. If you are ok with it, I'll send it straight to Linus with
+your Ack included and in proper patch format.
 
-But what really surprised me is that for_each_cpu() actually walks
-cpu_possible_map and not cpu_present_map as I had assumed.  This violates
-the Principle Of Least Surprise.  Maybe renaming for_each_cpu to
-for_each_possible_cpu might be a good idea?
 
--- 
-Chuck
-"Equations are the Devil's sentences."  --Stephen Colbert
+Regards
+
+Ingo Oeser
+
+
+diff --git a/fs/inotify.c b/fs/inotify.c
+index 3041503..16ec5fb 100644
+--- a/fs/inotify.c
++++ b/fs/inotify.c
+@@ -935,6 +935,7 @@ asmlinkage long sys_inotify_add_watch(in
+ 	struct file *filp;
+ 	int ret, fput_needed;
+ 	int mask_add = 0;
++	int no_events = 0;
+ 	unsigned flags = 0;
+ 
+ 	filp = fget_light(fd, &fput_needed);
+@@ -966,9 +967,13 @@ asmlinkage long sys_inotify_add_watch(in
+ 	if (mask & IN_MASK_ADD)
+ 		mask_add = 1;
+ 
+-	/* don't let user-space set invalid bits: we don't want flags set */
++	/* Do we change and events or only multishot/singleshot? */
++	if (!(mask & IN_ALL_EVENTS))
++		no_events = 1;
++
++	/* Don't let user-space set invalid bits: we don't want flags set. */
+ 	mask &= IN_ALL_EVENTS | IN_ONESHOT;
+-	if (unlikely(!mask)) {
++	if (unlikely(no_events && !mask_add)) {
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+@@ -987,6 +992,15 @@ asmlinkage long sys_inotify_add_watch(in
+ 		goto out;
+ 	}
+ 
++	/* 
++	 * Want to change only multishot/singleshot, 
++	 * but has no existing watch? -> Illegal -ioe 
++	 */
++	if (unlikely(no_events)) {
++		ret = -EINVAL;
++		goto out;
++	}
++
+ 	watch = create_watch(dev, mask, inode);
+ 	if (unlikely(IS_ERR(watch))) {
+ 		ret = PTR_ERR(watch);
 

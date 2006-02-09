@@ -1,42 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932516AbWBISHf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWBISMo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932516AbWBISHf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 13:07:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbWBISHf
+	id S932523AbWBISMo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 13:12:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932525AbWBISMo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 13:07:35 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:48310 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932516AbWBISHe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 13:07:34 -0500
-Date: Thu, 9 Feb 2006 10:04:29 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: ntl@pobox.com, dada1@cosmosbay.com, riel@redhat.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, mingo@elte.hu,
-       ak@muc.de, 76306.1226@compuserve.com, wli@holomorphy.com,
-       heiko.carstens@de.ibm.com, pj@sgi.com
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-Message-Id: <20060209100429.03f0b1c3.akpm@osdl.org>
-In-Reply-To: <20060209090321.A9380@unix-os.sc.intel.com>
-References: <20060209160808.GL18730@localhost.localdomain>
-	<20060209090321.A9380@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Feb 2006 13:12:44 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56748 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932523AbWBISMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 13:12:43 -0500
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pid_t range question
+References: <Pine.LNX.4.61.0602071122520.327@chaos.analogic.com>
+	<m1pslystkz.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.61.0602091751220.30108@yvahk01.tjqt.qr>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 09 Feb 2006 11:11:56 -0700
+In-Reply-To: <Pine.LNX.4.61.0602091751220.30108@yvahk01.tjqt.qr> (Jan
+ Engelhardt's message of "Thu, 9 Feb 2006 17:58:34 +0100 (MET)")
+Message-ID: <m1r76c2yhf.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ashok Raj <ashok.raj@intel.com> wrote:
+Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
+
+>>> On Linux, type pid_t is defined as an int if you look
+>>> through all the intermediate definitions such as S32_T,
+>>> etc. However, it wraps at 32767, the next value being 300.
 >
-> The problem was with ACPI just simply looking at the namespace doesnt
->  exactly give us an idea of how many processors are possible in this platform.
+> There is also an aesthetical reason. If pids were allowed to exceed, say, 
+> ten million, you would need a quite wide field in `ps` for the process 
+> number which is on "normal desktop user" systems just require 5 or 6 
+> decimal places. Well, what I mean, just look at this sample ps output:
+>
+> 17:59 shanghai:../fs/proc # ps
+>         PID TTY          TIME CMD
+>           1 -        00:00:00 init [3]
+>  4215914607 tty2     00:00:00 bash
+>  4215914653 tty2     00:00:00 ps
+>
+> mingw/msys and cygwin already have this "cosmetic problem" since windows 
+> "pids" are usually above one million.
 
-We need to fix this asap - the performance penalty for HOTPLUG_CPU=y,
-NR_CPUS=lots will be appreciable.
+Yes.  Although this I'm not I'm not certain how bad the cosmetic problem
+is.  Certainly significant enough that we don't want to change a good
+thing when we got it.  But if there were real problems a big pid
+would solve I don't expect large pid numbers to stop us.
 
-Do any x86 platforms actually support CPU hotplug?
+>>> I know the
+>>> code "reserves" the first 300 pids.
+>
+> I cannot confirm that. When I start in "-b" mode and 'use' up all pids by 
+> repeatedly executing /bin/noop, I someday get pids as low as 10 
+> again, defined by how many kernel threads there are active before /bin/bash 
+> started.
 
-Does the ACPI problem which you describe occur with present-CPUs,
-or only with possible-but-not-present ones?
+Odd.  When the search wraps it starts searching at 300.
+Still there are no locks around last_pid.
+
+>>I know for certain that proc assumes it can fit pid in
+>>the upper bits of an ino_t taking the low 16bits for itself
+>>so that may the entire reason for the limit.
+>>
+> inode number in /proc/XXX/fd creation currently is, IIRC
+>   ino = (pid << 16) | fd
+> which limits both pid to 16 bits and the fdtable to 16 bits. See 
+> fs/proc/inode-alloc.txt. At best, procfs should start using 64bit inode 
+> numbers.
+
+Well it does use 64bit inode numbers but only on 64bit systems.
+Internally /proc doesn't care about the inode it is only for keep find
+and friends from getting confused.
+
+Figuring out how to use find_inode_number would likely be interesting,
+and a random inode allocation scheme would be interesting.
+
+Eric
+

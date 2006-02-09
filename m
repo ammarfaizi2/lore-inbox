@@ -1,91 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422723AbWBIA0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422732AbWBIAjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422723AbWBIA0q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 19:26:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422724AbWBIA0q
+	id S1422732AbWBIAjK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 19:39:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422733AbWBIAjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 19:26:46 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:32418 "EHLO
+	Wed, 8 Feb 2006 19:39:10 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42658 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1422723AbWBIA0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 19:26:45 -0500
-To: Kirill Korotaev <dev@openvz.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, frankeh@watson.ibm.com, clg@fr.ibm.com,
-       haveblue@us.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
-       serue@us.ibm.com, arjan@infradead.org, riel@redhat.com,
-       kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
-       "Dmitry Mishin" <dim@sw.ru>, Andi Kleen <ak@suse.de>,
-       Herbert Poetzl <herbert@13thfloor.at>
-Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
-References: <43E7C65F.3050609@openvz.org>
+	id S1422732AbWBIAjJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 19:39:09 -0500
+To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Cc: Kirill Korotaev <dev@sw.ru>, Kirill Korotaev <dev@openvz.org>,
+       serue@us.ibm.com, arjan@infradead.org, frankeh@watson.ibm.com,
+       clg@fr.ibm.com, haveblue@us.ibm.com, mrmacman_g4@mac.com,
+       alan@lxorguk.ukuu.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       devel@openvz.org
+Subject: Re: [RFC][PATCH 2/7] VPIDs: pid/vpid conversions
+References: <43E22B2D.1040607@openvz.org> <43E23179.5010009@sw.ru>
+	<m1irrpsifp.fsf@ebiederm.dsl.xmission.com>
+	<20060208235348.GC26035@ms2.inr.ac.ru>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 08 Feb 2006 17:24:16 -0700
-In-Reply-To: <43E7C65F.3050609@openvz.org> (Kirill Korotaev's message of
- "Tue, 07 Feb 2006 00:57:51 +0300")
-Message-ID: <m1bqxh5qhb.fsf@ebiederm.dsl.xmission.com>
+Date: Wed, 08 Feb 2006 17:37:31 -0700
+In-Reply-To: <20060208235348.GC26035@ms2.inr.ac.ru> (Alexey Kuznetsov's
+ message of "Thu, 9 Feb 2006 02:53:48 +0300")
+Message-ID: <m11wyd5pv8.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev <dev@openvz.org> writes:
+Alexey Kuznetsov <kuznet@ms2.inr.ac.ru> writes:
 
-> Hello,
+> Hello!
 >
-> I tried to take into account all the comments from you guys (thanks a lot for
-> them!) and prepared a new version of virtualization patches. I will send only 4
-> patches today, just not to overflow everyone and keep it clear/tidy/possible to
-> review.
+>> Do you know how incomplete this patch is?
 >
-> This patch introduces some abstract container kernel structure and a number of
-> operations on it.
+> The question is for me. It handles all the subsystems which are allowed
+> to be used inside openvz containers. And _nothing_ more, it would be pure S&M.
+
+I agree and this is why I don't like VPIDS I don't see a way for them
+to be anything but pure S&M.
+
+>> Is there a plan to catch all of the in-kernel use of pids
 >
-> The important properties of the proposed container implementation:
-> - each container has unique ID in the system
-> - each process in the kernel can belong to one container only
-> - effective container pointer (econtainer()) is used on the task to avoid
-> insertion of additional argument "container" to all functions where it is
-> required.
-> - kernel compilation with disabled virtualization should result in old good
-> linux kernel
+> grep for ->pid,->tgid,->pgid,->session and look. What could be better? :-)
+
+Ouch.  I know there are cases that the above test fails for.  Which
+is why I prefer an interface that takes a global reference and gives
+you a compile error if you don't.  You are much more likely to catch
+all of the users that way.
+
+>> You missed cap_set_all.
 >
-> Patches following this one will be used for virtualization of the kernel
-> resources based on this container infrastructure, including those VPID patches I
-> sent before. Every virtualized resource can be given separate config option if
-> needed (just give me to know if it is desired).
+> No doubts, something is missing. Please, could you show how to fix it
+> or to point directly at the place. Thank you.
 
-After having digested this I think there is something sane with regard to
-this container idea.  I still think the implementation is totally wrong but
-there is a potential problem the basic idea solves.
+In capability.c it does for_each_thread or something like that.  It is
+very similar to cap_set_pg.  But in a virtual context all != all :)
 
-In the traditional linux/plan9 style of namespaces the question is
-which resources different tasks share, and we pass clone bits to determine
-what we want to share and what we don't want to share.  Semantically this
-is very clean and allows for a great deal of flexibility.  However
-as the flexibility increases we get more code in do_fork more
-reference counts and ultimately the performance decreases.  In addition
-it is not common for us to change which resources we share.
+The current OpenVZ patch appears to at least catch cap_set_all.
 
-So our traditional route is flexible but it does not optimize the common
-case where we share all of the same things.  Containers can potentially
-optimize that case.  So long as anyone can create a new container even
-someone inside a container we do not loose flexibility.
+> Actually, you cycled on this pid problem. If you think private pid spaces
+> are really necessary, it is prefectly OK. openvz (and, maybe, all VPS-oriented
+> solutions) do _not_ need this (well, look, virtuozzo is a mature product
+> for 5 years already, and vpids were added very recently for one specific
+> purpose), but can live within private spaces or just in peace with them.
+> We can even apply vpids on top on pid spaces to preserve global process tree.
+> Provided you leave a chance not to enforce use of private pid spaces
+> inside containers, of course.
 
-To deal with networking there are currently a significant number of
-variables with static storage duration.  Making those variables global
-and placing them in structures is neither as efficient as it could be
-nor is it as maintainable as it should be.  Other subsystems have
-similar problems.
+I think for people doing migration a private pid space in some form is
+necessary, I agree it is generally overkill for the VPS case but if it
+is efficient it should be usable.  And certainly having facilities
+like this be optional seems very important.
 
-So if we put econtainer in struct thread_info and optimize it like we
-do current, create an interface to variables similar to
-DEFINE_PER_CPU, create a syscall interface similar to clone, and
-show that by doing this we don't loose flexibility, then it looks like
-a good idea.
-
-If we can't do better than the current clone model of shared resources
-then this model feels like gratuitous change.
+My problem with the vpid case and it's translate at the kernel
+boundary is that boundary is huge, and there is no compile time
+checking to help you find the problem users.  So I don't think vpids
+make a solution that can be maintained, and thus merging them looks
+like a very bad idea.
 
 Eric

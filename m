@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbWBINI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWBINMa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932367AbWBINI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 08:08:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbWBINI0
+	id S932377AbWBINMa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 08:12:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWBINMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 08:08:26 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:31210 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S932367AbWBINI0
+	Thu, 9 Feb 2006 08:12:30 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:64743 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932377AbWBINMa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 08:08:26 -0500
-To: Paul Jackson <pj@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: git for dummies, anyone? (was: Re: How in tarnation do I git v2.6.16-rc2?  hg died and I still don't git git)
-References: <20060208070301.1162e8c3.pj@sgi.com>
-From: Jes Sorensen <jes@sgi.com>
-Date: 09 Feb 2006 08:08:23 -0500
-In-Reply-To: <20060208070301.1162e8c3.pj@sgi.com>
-Message-ID: <yq0vevollx4.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
+	Thu, 9 Feb 2006 08:12:30 -0500
+Date: Thu, 9 Feb 2006 14:12:20 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Andrew Morton <akpm@osdl.org>, 76306.1226@compuserve.com, pj@sgi.com,
+       wli@holomorphy.com, ak@muc.de, mingo@elte.hu, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, riel@redhat.com, dada1@cosmobay.com
+Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
+Message-ID: <20060209131220.GC20554@osiris.boeblingen.de.ibm.com>
+References: <200602090335_MC3-1-B7FA-621E@compuserve.com> <20060209010655.5cdeb192.akpm@osdl.org> <20060209011106.68aa890a.akpm@osdl.org> <20060209100834.GA9281@osiris.boeblingen.de.ibm.com> <20060209021314.23a9096f.akpm@osdl.org> <20060209102317.GA20554@osiris.boeblingen.de.ibm.com> <20060209023106.10c53c0b.akpm@osdl.org> <20060209114700.GB20554@osiris.boeblingen.de.ibm.com> <43EB39A8.2010202@cosmosbay.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43EB39A8.2010202@cosmosbay.com>
+User-Agent: mutt-ng/devel (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Paul" == Paul Jackson <pj@sgi.com> writes:
+> >>Oh, OK.  Ow, I don't think you want to do that.  It means that all those
+> >>for_each_cpu() loops will now be iterating over all NR_CPUS cpus, whether
+> >>or not they're even possible.
+> >That's ok. We're mainly running under z/VM where you can attach new virtual
+> >cpus on the fly to the virtual machine (up to 64 cpus).
+> >The only difference to before is that it was possible to limit the waste of
+> >resources by passing a number with 'maxcpus'. This value was used to generate
+> >the cpu_possible_map.
+> >But since the map needs to be ready when we return from setup_arch, we don't
+> >have access to max_cpus, unless we parse commandline on our own...
+> 
+> Then it's OK to clear bits from cpu_possible_map once you have max_cpus value
+> 
+> for (cpu = max_cpus ; cpu < NR_CPUS ; cpu++)
+> 	cpu_clear(cpu, cpu_possible_map);
 
-Paul> I'm trying to git a copy of Linus's tree, checked out only up
-Paul> through revision v2.6.16-rc2, so that I can lay down Andrew's
-Paul> latest broken-out quilt patch set for 2.6.16-rc2-mm1 on top of
-Paul> it.
+Hmm... I don't think the semantics of cpu_possible_map allow to change it.
+Also any code that uses for_each_cpu() may allocate memory _before_
+cpu_possible_map is changed back to reflect a smaller number of cpus.
+Doesn't look like the correct way to fix this.
+Thinking a bit longer this was probably a reason why initialization of
+this map was done in smp_prepare_cpus() before it silently moved to
+setup_arch().
 
-Hi Paul,
-
-I had a similar problem yesterday and was pointed at
-https://wiki.ubuntu.com/KernelGitGuide?highlight=%28CategoryKernel%29
-as a starting point.
-
-I was thinking it would be really nice if someone fancied writing a
-git guide for dummies (like me) who only use git on and off. Something
-that could be put either on git.kernel.org or a similar place.
-
-Things like how to do basic checkouts, how to revert back to a certain
-snapshot or a certain commit id, how to use git-bisect to track
-breakage and other basic stuff.
-
-Anyone looking for a pet project who fancies writing up something like
-this? I can say for sure that it will be appreciated.
-
-Cheers,
-Jes
+Heiko

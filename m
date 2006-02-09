@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWBIUM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWBIUNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWBIUM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 15:12:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWBIUMZ
+	id S1750755AbWBIUNN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 15:13:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbWBIUNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 15:12:25 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:32965 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750754AbWBIUMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 15:12:25 -0500
-Date: Thu, 9 Feb 2006 12:12:18 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: akpm@osdl.org, pj@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: Terminate process that fails on a constrained allocation V3
-In-Reply-To: <200602092105.04412.ak@suse.de>
-Message-ID: <Pine.LNX.4.62.0602091209220.9952@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0602091152300.9941@schroedinger.engr.sgi.com>
- <200602092105.04412.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 9 Feb 2006 15:13:13 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:51404 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750755AbWBIUNM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 15:13:12 -0500
+Subject: [ANNOUNCE] libhugetlbfs
+From: Adam Litke <agl@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: "ADAM G. LITKE [imap]" <agl@us.ibm.com>,
+       David Gibson <david@gibson.dropbear.id.au>, wli@holomorphy.com
+Content-Type: text/plain
+Organization: IBM
+Date: Thu, 09 Feb 2006 14:12:55 -0600
+Message-Id: <1139515975.21667.37.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Feb 2006, Andi Kleen wrote:
+Announcing libhugetlbfs -- A library to provide easier access to
+hugetlbfs.
 
-> > - Do not return NULL and therefore do not change the return values of
-> >   __alloc_pages.
-> 
-> Hmm, to make this work well i guess mmap() would need to be changed
-> to take the policy into account when doing the !MAP_NORESERVE checking
-> when the kernel runs in strict no overcommit mode.
-> Otherwise there is no fool proof way an application can prevent getting killed.
+Adam Litke and David Gibson began work on this library to enable
+applications to benefit from using hugetlb pages in a transparent way
+and without source-level modifications.  We'd like to see this become
+the focal point for userspace development and are interested in
+integrating other functionality beyond what's listed below. 
 
-There is no fool proof way right now for the MPOL_BIND case. 
+Currently supported uses:
+ - Transparent hugetlb-backed malloc
+ - Remapping ELF program segments into hugetlb pages
 
-> And mbind() would need to recompute it and fail if the new policy's possible
-> allocation are not guaranteed to work.
+See the HOWTO included in the distribution for usage instructions.
 
-Well we need to fix that but the patch does not introduce the problem.
+Git tree: git://ozlabs.org/~dgibson/git/libhugetlbfs.git
+Sourceforge project page: http://sourceforge.net/projects/libhugetlbfs
 
-> Doing this all properly would probably get quite messy.
+Comments, suggestions and patches welcome.
+-- 
+Adam Litke - (agl at us.ibm.com)
+IBM Linux Technology Center
 
-I'd say making overcommit working nicely with MPOL_BIND is yet another 
-fundamental issue for the policy layer but it does not matter for this 
-patch.

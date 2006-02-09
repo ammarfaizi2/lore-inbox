@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932535AbWBIPjw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932537AbWBIPng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932535AbWBIPjw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 10:39:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbWBIPjw
+	id S932537AbWBIPng (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 10:43:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbWBIPnf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 10:39:52 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:20637 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932535AbWBIPjv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 10:39:51 -0500
-Date: Thu, 9 Feb 2006 10:40:46 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: Kirill Korotaev <dev@openvz.org>
-Cc: linux-kernel@vger.kernel.org, saw@sawoct.com
-Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
-Message-ID: <20060209154046.GA3814@ccure.user-mode-linux.org>
-References: <43E7C65F.3050609@openvz.org> <m1bqxh5qhb.fsf@ebiederm.dsl.xmission.com> <20060209021828.GC9456@ccure.user-mode-linux.org> <43EB518F.6000905@openvz.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 9 Feb 2006 10:43:35 -0500
+Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:2996 "EHLO
+	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932537AbWBIPnf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 10:43:35 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Paul Jackson <pj@sgi.com>
+Subject: Re: [PATCH] mm: Implement Swap Prefetching v22
+Date: Fri, 10 Feb 2006 02:33:06 +1100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ck@vds.kolivas.org,
+       linux-mm@kvack.org, npiggin@suse.de
+References: <200602092339.49719.kernel@kolivas.org> <20060209071239.ea95e97c.pj@sgi.com>
+In-Reply-To: <20060209071239.ea95e97c.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <43EB518F.6000905@openvz.org>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200602100233.07007.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 09, 2006 at 05:28:31PM +0300, Kirill Korotaev wrote:
-> >I did this to the scheduler last year - see
-> >	http://marc.theaimsgroup.com/?l=linux-kernel&m=111404726721747&w=2
-> It's really interesting!
-> Have you tested fairness of your solution and it's performance overhead?
+On Friday 10 February 2006 02:12, Paul Jackson wrote:
+> >  (/me looks at PJ pleadingly)
+>
+> So much to do, so little time ...
+>
+> Maybe in a few days I can fit it in.
 
-What do you mean by fairness, exactly?
+Thanks. I'll ping you again with the next version when I get it out. At least 
+you're not using your time trying to learn git any more.
 
-As for its overhead, I just got it working inside UML.  I tried it on
-x86_64, but something was wrong with the low-level switching stuff,
-and the machine hung whenever a guest scheduler process tried to run.
-So, I never got any real measurements.
-
-I had better things to do, so I dropped this and went back to them.
-
-				Jeff
+Cheers,
+Con

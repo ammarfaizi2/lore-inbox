@@ -1,61 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWBIVyJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWBIV51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbWBIVyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 16:54:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWBIVyJ
+	id S1750776AbWBIV51 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 16:57:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWBIV51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 16:54:09 -0500
-Received: from uproxy.gmail.com ([66.249.92.202]:54934 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750724AbWBIVyI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 16:54:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=r+6pOcSAUIbSOBDpquogWMWyTbDvp/o3F4FjuQUy0fTdsUM1ZD9E8aXFsyap6knelFkxkP3NmJKYZ34ZI+eoTNIA2JpBJ/67wlYaNTIXlCqf0HL91WO5Vs3DIdWID4svaLgiSkGYMefflKzeM1yxf2eMfSA5/gPxzvQ5xbByFJU=
-Message-ID: <728201270602091354r7bc145c7i35e0b90ebf3d3af4@mail.gmail.com>
-Date: Thu, 9 Feb 2006 15:54:03 -0600
-From: Ram Gupta <ram.gupta5@gmail.com>
-To: kapil a <kapilann@gmail.com>
-Subject: Re: file system question
-Cc: Avishay Traeger <atraeger@cs.sunysb.edu>, lloyd@randombit.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <ef2d59350602090957o1a86757fk31c361e2e37f1e1f@mail.gmail.com>
+	Thu, 9 Feb 2006 16:57:27 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:7578 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750776AbWBIV51 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 16:57:27 -0500
+Date: Thu, 9 Feb 2006 22:57:26 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: CD writing in future Linux
+In-Reply-To: <Pine.LNX.4.61.0602091837100.30108@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.61.0602092254170.5967@yvahk01.tjqt.qr>
+References: <200602031724.55729.luke@dashjr.org> <43E7545E.nail7GN11WAQ9@burner>
+ <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de>
+ <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner>
+ <20060207183712.GC5341@voodoo> <43E9F1CD.nail2BR11FL52@burner>
+ <20060208162828.GA17534@voodoo> <43EA1D26.nail40E11SL53@burner>
+ <20060208165330.GB17534@voodoo> <43EB0DEB.nail52A1LVGUO@burner>
+ <Pine.LNX.4.61.0602091729560.30108@yvahk01.tjqt.qr> <43EB7210.nailIDH2JUBZE@burner>
+ <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr> <43EB7BBA.nailIFG412CGY@burner>
+ <43EB7D8A.1030906@gmx.de> <Pine.LNX.4.61.0602091837100.30108@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <ef2d59350602081539w7b6780e3mf6d8326f6d4963f2@mail.gmail.com>
-	 <1139443268.4902.11.camel@rockstar.fsl.cs.sunysb.edu>
-	 <ef2d59350602081611h4492bf47ne24e3d591efd29e7@mail.gmail.com>
-	 <1139447727.4902.13.camel@rockstar.fsl.cs.sunysb.edu>
-	 <ef2d59350602090957o1a86757fk31c361e2e37f1e1f@mail.gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/9/06, kapil a <kapilann@gmail.com> wrote:
-> I am only sending the relevant stuff.
->
-> My strace output :
->
-> fstat64(3, {st_mode=S_IFDIR|0755, st_size=48, ...}) = 0
-> fcntl64(3, F_SETFD, FD_CLOEXEC)         = 0
-> getdents64(3, /* 3 entries */, 4096)    = 80
-> getdents64(3, /* 0 entries */, 4096)    = 0
-> close(3)                                = 0
-> exit_group(0)
->
-> strace output on a partition under ext2
->
-> fstat64(3, {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
-> fcntl64(3, F_SETFD, FD_CLOEXEC)         = 0
-> getdents64(3, /* 4 entries */, 4096)    = 104
-> getdents64(3, /* 0 entries */, 4096)    = 0
-
-
-Why dont you write a simple program which makes call to
-open,read,write & others you want to test. That  would not make these
-unnecessary  calls.
-
-Regards
-Ram Gupta
+>Don't interrupt my (trick) thread (as explained before in private).
+...which consisted of avoiding potential flamewars, but it's already 
+failed long before I posted.

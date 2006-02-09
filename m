@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422793AbWBIEqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422796AbWBIEqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422793AbWBIEqE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 23:46:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422795AbWBIEqD
+	id S1422796AbWBIEqd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 23:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422797AbWBIEqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 23:46:03 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:53210 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422793AbWBIEqB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 23:46:01 -0500
-Date: Wed, 8 Feb 2006 20:45:02 -0800
-From: Andrew Morton <akpm@osdl.org>
+	Wed, 8 Feb 2006 23:46:33 -0500
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:52565 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1422796AbWBIEqb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 23:46:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=X8uZQNnPPuRra+qthHuwlK4bdrLfcIPr7zSKeZHO4tg7xBCA05np/U9tX3NalMtBa7l9jqhFTZ2FEDTtQ4Zra8JRwP1kuBURlEkQdQZbr9JyntshVH/TzTDfqxvX8eBGy1d1V0XXzi9UgNSLuDt5lfJpaqz2To+8vdHbiugEk/A=  ;
+Message-ID: <43EAC925.1010202@yahoo.com.au>
+Date: Thu, 09 Feb 2006 15:46:29 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: riel@redhat.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       mingo@elte.hu, ak@muc.de, 76306.1226@compuserve.com, wli@holomorphy.com,
-       heiko.carstens@de.ibm.com, Paul Jackson <pj@sgi.com>
+CC: Rik van Riel <riel@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@g5.osdl.org>
 Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-Message-Id: <20060208204502.12513ae5.akpm@osdl.org>
-In-Reply-To: <43EAC6BE.2060807@cosmosbay.com>
-References: <200602051959.k15JxoHK001630@hera.kernel.org>
-	<Pine.LNX.4.63.0602081728590.31711@cuia.boston.redhat.com>
-	<20060208190512.5ebcdfbe.akpm@osdl.org>
-	<20060208190839.63c57a96.akpm@osdl.org>
-	<43EAC6BE.2060807@cosmosbay.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+References: <200602051959.k15JxoHK001630@hera.kernel.org> <Pine.LNX.4.63.0602081728590.31711@cuia.boston.redhat.com> <43EAC78E.8000908@cosmosbay.com>
+In-Reply-To: <43EAC78E.8000908@cosmosbay.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet <dada1@cosmosbay.com> wrote:
->
-> Andrew Morton a écrit :
-> > Andrew Morton <akpm@osdl.org> wrote:
-> >> Users of __GENERIC_PER_CPU definitely need cpu_possible_map to be initialised
-> >>  by the time setup_per_cpu_areas() is called,
-> > 
-> > err, they'll need it once Eric's
-> > dont-waste-percpu-memory-on-not-possible-CPUs patch is merged..
-> > 
-> >> so I think it makes sense to
-> >>  say "thou shalt initialise cpu_possible_map in setup_arch()".
-> >>
-> >>  I guess Xen isn't doing that.  Can it be made to?
-> > 
-> > Lame fix:  cpu_possible_map = (1<<NR_CPUS)-1 in setup_arch().
+Eric Dumazet wrote:
+> Rik van Riel a écrit :
 > 
-> I dont understand why this HOTPLUG stuff is problematic for Xen (or other 
-> arch) : If CONFIG_HOTPLUG_CPU is configured, then the map should be preset to 
-> CPU_MASK_ALL.
-
-Presumably not all architectures are doing that.   And some of the problems
-we've had are with CONFIG_HOTPLUG_CPU=n.
-
-> Its even documented in line 332 of include/linux/cpumask.h
+>> On Sun, 5 Feb 2006, Linux Kernel Mailing List wrote:
+>>
+>>> [PATCH] percpu data: only iterate over possible CPUs
+>>
+>>
+>> This sched.c bit breaks Xen, and probably also other architectures
+>> that have CPU hotplug.  I suspect the reason is that during early 
+>> bootup only the boot CPU is online, so nothing initialises the
+>> runqueues for CPUs that are brought up afterwards.
+>>
+>> I suspect we can get rid of this problem quite easily by moving
+>> runqueue initialisation to init_idle()...
 > 
->   *  #ifdef CONFIG_HOTPLUG_CPU
->   *     cpu_possible_map - all NR_CPUS bits set
+> 
+> Please fix Xen to match include/linux/cpumask.h documentation that says :
+> 
+> /*
+>  * The following particular system cpumasks and operations manage
+>  * possible, present and online cpus.  Each of them is a fixed size
+>  * bitmap of size NR_CPUS.
+>  *
+>  *  #ifdef CONFIG_HOTPLUG_CPU
+>  *     cpu_possible_map - all NR_CPUS bits set
 
-That seems a quite bad idea.  If we know which CPUs are possible we should
-populate cpu_possible_map correctly, whether or not CONFIG_HOTPLUG_CPU is
-set.  Setting all the bits like that wastes memory and wastes CPU cycles.
+Note that this shouldn't have to be all NR_CPUs if the platform
+can determine all possible hotpluggable CPUs.
 
-<greps>
-
-That comment came from the tender pinkies of pj@sgi.com, although I suspect
-it was just a transliteration of then-current practice.
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

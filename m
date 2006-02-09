@@ -1,46 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWBIU6R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWBIVCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbWBIU6R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 15:58:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbWBIU6R
+	id S1750790AbWBIVCY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 16:02:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWBIVCY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 15:58:17 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:5773 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750784AbWBIU6R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 15:58:17 -0500
-Date: Thu, 9 Feb 2006 15:57:54 -0500
-From: Dave Jones <davej@redhat.com>
-To: Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
-       Neal Becker <ndbecker2@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1 panic on startup (acpi)
-Message-ID: <20060209205754.GD9576@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
-	Greg KH <greg@kroah.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-	Andrew Morton <akpm@osdl.org>, Neal Becker <ndbecker2@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <ds7cu3$9c0$1@sea.gmane.org> <200602080110.06736.ak@suse.de> <20060208030335.GC17665@redhat.com> <200602080855.06000.ak@suse.de> <20060209204940.GC9576@redhat.com>
-Mime-Version: 1.0
+	Thu, 9 Feb 2006 16:02:24 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:32932 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP
+	id S1750790AbWBIVCX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 16:02:23 -0500
+Date: Thu, 9 Feb 2006 22:00:23 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: Marc Koschewski <marc@osknowledge.org>,
+       Anthony Tippett <atippett@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at mm/swap.c:49
+Message-ID: <20060209210023.GA6705@stiffy.osknowledge.org>
+References: <43EAB5FF.9030305@gmail.com> <20060209093548.GA5710@stiffy.osknowledge.org> <20060209204318.GL18918@voodoo>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060209204940.GC9576@redhat.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060209204318.GL18918@voodoo>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.16-rc2-marc-g0bdd340c-dirty
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 09, 2006 at 03:49:40PM -0500, Dave Jones wrote:
- > On Wed, Feb 08, 2006 at 08:55:05AM +0100, Andi Kleen wrote:
- >  > >  > Workaround is pci=nommconf btw
- >  > > I'm puzzled.  I'm still seeing this crash with latest -git which
- >  > > has this patch (I just double checked the source I built).
- >  > 
- >  > That's surprising. Can you addr2line the exactly address it's crashing on?
- > 
- > Still there in todays git snapshot.
- > http://people.redhat.com/davej/dsc00150.jpg is the top of the oops.
+* Jim Crilly <jim@why.dont.jablowme.net> [2006-02-09 15:43:18 -0500]:
 
-Actually I think this is pilot error.  I've been running a mispatched tree.
+> On 02/09/06 10:35:49AM +0100, Marc Koschewski wrote:
+> > * Anthony Tippett <atippett@gmail.com> [2006-02-08 19:24:47 -0800]:
+> > 
+> > > Can someone direct to whom I should send this kernel BUG or what else I 
+> > > should send as debugging information.
+> > > 
+> > > It looks like it might be an issue with Xorg and fglrx (ati drivers)
+> > > 
+> > > Feb  8 16:50:42 act kernel: kernel BUG at mm/swap.c:49!
+> > > Feb  8 16:50:42 act kernel: invalid operand: 0000 [#1]
+> > > Feb  8 16:50:42 act kernel: Modules linked in: fglrx binfmt_misc nfsd 
+> > > exportfs lockd nfs_acl sunrpc parport_pc lp parport autofs4 ipv6 deflate 
+> > > zlib_deflate twofish serpent aes blowfish des sha256 sha1 crypto_null 
+> > > af_key snd_bt87x emu10k1_gp gameport snd_emu10k1_synth snd_emux_synth 
+> > > snd_seq_virmidi snd_seq_midi_emul snd_seq_dummy snd_seq_oss snd_seq_midi 
+> > > snd_seq_midi_event snd_seq snd_emu10k1 snd_rawmidi snd_seq_device 
+> > > snd_util_mem snd_hwdep ohci1394 ieee1394 snd_intel8x0
+> > > snd_ac97_codec snd_ac97_bus snd_pcm_oss snd_mixer_oss snd_pcm snd_timer 
+> > > snd soundcore snd_page_alloc forcedeth ehci_hcd ohci_hcd ide_cd cdrom 
+> > > ide_disk ide_generic usb_storage nvidia_agp agpgart usbhid usbcore 
+> > > tvaudio tuner msp3400 bttv video_buf firmware_class v4l2_common 
+> > > btcx_risc tveeprom videodev i2c_algo_bit i2c_core amd74xx ide_core 
+> > > joydev ext3 jbd mbcache sd_mod sata_sil libata scsi_mod shpchp 
+> > > pci_hotplug evdev mousedev
+> > 
+> > Uhm ... for what reason do you use fglrx and nvidia_agp at the same time?
+> > 
+> > I guess - as usual - you have to get on to your hardware vendor when using
+> > closed source drivers.
+> > 
+> > Marc
+> 
+> I could be wrong, but I'm pretty sure nvidia_agp is the OSS nVidia AGPGART
+> driver, so I assume he has an nVidia-based motherboard and an ATI video
+> card.
 
-		Dave
+OK, that could be the reason. I never had anything else than Intel stuff in my
+machines. Except my graphics. Dunno why. Maybe destiny. So far I never had
+probs with the chips. And ... anything works perfectly with my beloved Linux! :)
 
+Marc

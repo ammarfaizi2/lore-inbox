@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422676AbWBIACR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422711AbWBIAKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422676AbWBIACR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 19:02:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422677AbWBIACR
+	id S1422711AbWBIAKF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 19:10:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422714AbWBIAKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 19:02:17 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:5297 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1422676AbWBIACQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 19:02:16 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: [PATCH] Complain if driver reenables interrupts during drivers_[suspend|resume] & re-disable
-Date: Thu, 9 Feb 2006 09:58:57 +1000
-User-Agent: KMail/1.9.1
-Cc: Linux PM <linux-pm@osdl.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-References: <200602071906.55281.ncunningham@cyclades.com> <200602080040.41495.dtor_core@ameritech.net>
-In-Reply-To: <200602080040.41495.dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2320783.6PeMDbYEdH";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602090959.02015.ncunningham@cyclades.com>
+	Wed, 8 Feb 2006 19:10:05 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46532 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1422711AbWBIAKB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 19:10:01 -0500
+Date: Thu, 9 Feb 2006 01:06:17 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: suspend2-devel@lists.suspend2.net, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Message-ID: <20060209000617.GG2654@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602081733.47134.nigel@suspend2.net> <200602081103.46156.rjw@sisk.pl> <200602082208.56599.nigel@suspend2.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602082208.56599.nigel@suspend2.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2320783.6PeMDbYEdH
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi!
 
-Hi Dmitry et al.
+> On Wednesday 08 February 2006 20:03, Rafael J. Wysocki wrote:
+> > Well, that's probably because I always do my best to be nice and follow 
+> the
+> > rules that Pavel sets.  I post patches to modify the existing code and 
+> not to
+> > replace it top-down.  I keep them as compact as reasonably possible
+> > and focus on one thing at a time.  I remove the parts that Pavel and 
+> other
+> > people don't like or I try to modify these parts to be more acceptable.
+> > Etc.  This is not _that_ difficult.
+> 
+> Yeah. I guess those are the differences. Thanks for putting it so clearly.
+> Well, we're obviously not getting anywhere while I'm trying to redesign the
+> existing code, so I guess I'll just go back to finishing the git tree and
+> leave anyone who wants to use it to use it.
 
-On Wednesday 08 February 2006 15:40, Dmitry Torokhov wrote:
-> On Tuesday 07 February 2006 04:06, Nigel Cunningham wrote:
-> > Hi all.
-> >=20
-> > This patch is designed to help with diagnosing and fixing the cause of
-> > problems in suspending/resuming, due to drivers wrongly re-enabling
-> > interrupts in their .suspend or .resume methods.=20
-> >=20
-> > I nearly forgot about it in sending patches in suspend2 that might help
-> > where swsusp fails.
-> >=20
->=20
-> Only sysdevs are guaranteed to be suspebded/resumed with interrupts off,
-> other devices are suspended with interrupts on (at least on first pass
-> over device list).
+At one point you said you'd like to work with us, and earlier in the
+threads you stated that porting suspend2 to userland should be easy.
 
-Ok. I guess I missed that outcome of that discussion. Sorry for the=20
-bogusness :(. Is the sysdev bit useful at all?
+[I do not think that putting suspend2 into git is useful thing to
+do. Of course, it is your option; but it seems to me that people
+likely to use suspend2 are not the kind of people that use git.]
 
-Regards,
-
-Nigel
-
---nextPart2320783.6PeMDbYEdH
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD6oXFN0y+n1M3mo0RAuoFAJ94/oBsts/BU8fGeNtMTRJdhBERkwCePsdh
-Vw7rlAXmMISOhLQBmn6k/Ck=
-=WJdf
------END PGP SIGNATURE-----
-
---nextPart2320783.6PeMDbYEdH--
+It would be very helpful if you could install uswsusp, then try to
+make suspend2 run in userland on top of uswsusp interface. Not
+everything will be possible that way, but it most of features should
+be doable that way. I'd hate to code yet another splashscreen code,
+for example...
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

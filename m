@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965222AbWBIJnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965228AbWBIJqG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965222AbWBIJnG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 04:43:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965228AbWBIJnG
+	id S965228AbWBIJqG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 04:46:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965234AbWBIJqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 04:43:06 -0500
-Received: from mta2.srv.hcvlny.cv.net ([167.206.4.197]:10421 "EHLO
-	mta2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S965222AbWBIJnF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 04:43:05 -0500
-Date: Thu, 09 Feb 2006 04:42:45 -0500
-From: redhat <destructojunior@optonline.net>
-Subject: Re: USB Host Stack Debugging
-In-reply-to: <3AEC1E10243A314391FE9C01CD65429B31D121@mail.esn.co.in>
-To: "Mukund JB." <mukundjb@esntechnologies.co.in>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <1139478164.5258.2.camel@localhost.localdomain>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4)
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <3AEC1E10243A314391FE9C01CD65429B31D121@mail.esn.co.in>
+	Thu, 9 Feb 2006 04:46:06 -0500
+Received: from mail.gmx.net ([213.165.64.21]:8909 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965228AbWBIJqF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 04:46:05 -0500
+X-Authenticated: #14349625
+Subject: Re: [k2.6.16-rc1-mm5] kernel BUG at include/linux/mm.h:302!
+From: MIke Galbraith <efault@gmx.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060209004712.3998e336.akpm@osdl.org>
+References: <1139473463.8028.13.camel@homer> <43EAFF6D.1040604@yahoo.com.au>
+	 <20060209004712.3998e336.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 09 Feb 2006 10:50:52 +0100
+Message-Id: <1139478652.7867.9.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-09 at 04:21, Mukund JB. wrote:
-> Dear All,
+On Thu, 2006-02-09 at 00:47 -0800, Andrew Morton wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> >
+> > MIke Galbraith wrote:
+> > > Greetings,
+> > > 
+> > > Excuse me if this is already known, I've been too busy tinkering to read
+> > > lkml.
+> > > 
+> > 
+> > It should be fixed as of current -git (not sure about the latest
+> > -mm though). It would be good if you could verify that 2.6.16-rc2-git7
+> > works OK for you.
+> > 
 > 
-> Please help me perform my case study over USB Host Hardware & general
-> stack Architecture. My idea is to understand the Hardware.
-> 
-> I would like to explore the complete USB Host side stack. I have seen
-> the Linus written early USB Debug Mouse Driver + Stack which is very
-> compact and I guess this will help be debug the USB Architecture in
-> whole.
-> I have downloaded the USB Stack from
-> ftp://ftp.kernel.org/pub/linux/kernel/testing/old/usb/usb-0.01.tar.gz
-> 
-> I understand from the Makefile of this version of USB Mouse + stack is
-> for Linux 2.2v.
-> But, which version of Linux 2.2 should I use exactly. I have asked this
-> on USB Linux maillits. 
-> Which version of Linux is compatible with USB Stack?
-> 
-> Thanks & Regards,
-> Mukund Jampala
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> This was a -mm kernel - how do we know it's not -mm breakage?
 
-it *should* be compatible with 2.2.* (all 2.2 releases)
+It _appears_ to be mm breakage.  I just built/ran rc1 with the same
+config, and it works fine.
+
+RL is calling, so I can't dig right this minute... in a couple hours I
+hope to be able to start though.
+
+Before I get to the 'what comes next' compile marathon, any likely
+candidates?  (or Nick, do you have the supposed fix handy?)
+
+	-Mike
 

@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932524AbWBIP3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932503AbWBIPdU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932524AbWBIP3c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 10:29:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932531AbWBIP3c
+	id S932503AbWBIPdU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 10:33:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbWBIPdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 10:29:32 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:11737 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932524AbWBIP3c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 10:29:32 -0500
-Subject: Re: libATA  PATA status report, new patch
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOC.4.61.0602082024010.21660@math.ut.ee>
-References: <20060207084347.54CD01430C@rhn.tartu-labor>
-	 <1139310335.18391.2.camel@localhost.localdomain>
-	 <Pine.SOC.4.61.0602071305310.10491@math.ut.ee>
-	 <1139312330.18391.14.camel@localhost.localdomain>
-	 <1139324653.18391.41.camel@localhost.localdomain>
-	 <Pine.SOC.4.61.0602082024010.21660@math.ut.ee>
-Content-Type: text/plain
+	Thu, 9 Feb 2006 10:33:20 -0500
+Received: from mail.gmx.de ([213.165.64.21]:54210 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932503AbWBIPdU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 10:33:20 -0500
+X-Authenticated: #428038
+Message-ID: <43EB60BC.9070703@gmx.de>
+Date: Thu, 09 Feb 2006 16:33:16 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+CC: peter.read@gmail.com, lsorense@csclub.uwaterloo.ca,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <43E7545E.nail7GN11WAQ9@burner> <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de> <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner> <20060207183712.GC5341@voodoo> <43E9F1CD.nail2BR11FL52@burner> <20060208210219.GB9166@DervishD> <20060208211455.GC2480@csclub.uwaterloo.ca> <43EB1988.nail7EL2I7AN6@burner> <20060209105324.GC15173@merlin.emma.line.org> <43EB46A9.nail9726Q73FS@burner>
+In-Reply-To: <43EB46A9.nail9726Q73FS@burner>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Thu, 09 Feb 2006 15:31:42 +0000
-Message-Id: <1139499102.1255.45.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2006-02-08 at 20:28 +0200, Meelis Roos wrote:
-> A new kind of crash on ALi chipset laptop (Toshiba Satellite 1800), 
-> lspci below. I could not use netconsole on this laptop since yenta is 
-> initialized after netconsole and so my cardbus NIC is not usable for 
-> netconsole. I captured the details using a digital camera, in 2 
-> different vga resolutions (to see different parts of it):
+Joerg Schilling wrote:
+> Matthias Andree <matthias.andree@gmx.de> wrote:
 > 
-> http://www.cs.ut.ee/~mroos/alicrash1.png
-> http://www.cs.ut.ee/~mroos/alicrash2.png
+>>> Unfortunately is it a matter oif facts that all known patches for cdrecord
+>>> break more things than they claim to fix.
+>> So prove my patch is wrong, and give a detailed report what it breaks,
+>> unless you wish to fix it yourself.
+> 
+> Give a detailed report on what it fixes. It does not make sense to discuss
+> useless code that introduces more bugs than it pretends to fix.
 
-
-Thanks: Utterly dumb bug made while converting to the newer refcounting
-PCI API
-
---- drivers/scsi/pata_ali.c~	2006-02-09 15:17:06.430326208 +0000
-+++ drivers/scsi/pata_ali.c	2006-02-09 15:17:06.431326056 +0000
-@@ -528,7 +528,7 @@
- 		pci_write_config_byte(pdev, 0x4B, tmp | 0x08);
- 	}
- 		
--	north = pci_get_slot(0, PCI_DEVFN(0,0));
-+	north = pci_get_slot(pdev->bus, PCI_DEVFN(0,0));
- 	isa_bridge = pci_get_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M1533, NULL);
- 	
- 	if(north && north->vendor == PCI_VENDOR_ID_AL) {
-
+That was contained in the message you blatantly ignored. I'm not going to
+repost, see <http://www.ussg.iu.edu/hypermail/linux/kernel/0602.0/1103.html>

@@ -1,59 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbWBIVIQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWBIVIP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750793AbWBIVIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 16:08:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWBIVIP
+	id S1750786AbWBIVIP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 16:08:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWBIVIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Thu, 9 Feb 2006 16:08:15 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:31659 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750793AbWBIVIO (ORCPT
+Received: from mail.windriver.com ([147.11.1.11]:4008 "EHLO mail.wrs.com")
+	by vger.kernel.org with ESMTP id S1750786AbWBIVIO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 9 Feb 2006 16:08:14 -0500
-Date: Thu, 9 Feb 2006 13:07:53 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Michael Buesch <mbuesch@freenet.de>
-Cc: akpm@osdl.org, steiner@sgi.com, dgc@sgi.com, Simon.Derr@bull.net,
-       ak@suse.de, linux-kernel@vger.kernel.org, clameter@sgi.com
-Subject: Re: [PATCH v2 02/07] cpuset use combined atomic_inc_return calls
-Message-Id: <20060209130753.685ce15e.pj@sgi.com>
-In-Reply-To: <200602092023.51547.mbuesch@freenet.de>
-References: <20060209185418.8596.90838.sendpatchset@jackhammer.engr.sgi.com>
-	<20060209185424.8596.89333.sendpatchset@jackhammer.engr.sgi.com>
-	<200602092023.51547.mbuesch@freenet.de>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <43EBAF34.1020105@windriver.com>
+Date: Thu, 09 Feb 2006 16:08:04 -0500
+From: martin rogers <martin.rogers@windriver.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Help with 2.6.10 concurrency issue
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Feb 2006 21:08:05.0666 (UTC) FILETIME=[EB9CC820:01C62DBC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael wrote:
-> Is this hunk really correct? I did not look into the code, but from
-> the patch context it seems like it adds an inc here.
+All,
+I need help with a concurrency issue on 2.6.10.
+CONFIG_PREEMPT not set, but my code must run on both uni and SMP systems.
 
-You have sharp eyes.
 
-It doesn't matter much either way whether we increment or not here.
+I have a function, that runs from a tastlet:
 
-That's because this is in cpuset_init_early(), which is the -very- first
-use of the global cpuset_mems_generation counter.  All other uses must
-increment, so that they don't reuse a generation value someone else
-used.  But we're first, so no possibility of reuse.
+void readlist(unsigned long arg)
+{    
+  int flags;
+  my_type *entry, *n;
 
-We can start with the first value, zero (0), or we can increment and
-use one (1).
+  if (list_empty(&mylist.list)) return;
+  list_for_each_entry_safe(entry, n, &mylist.list, list)
+  {
+        spin_lock_irqsave(&mylock, flags); // protect against intr
+        list_del(&entry->list);
+        spin_unlock_irqrestore(&mylock, flags);
+        INIT_LIST_HEAD(&entry->list);
+        do_stuff(entry);
+  }
+}
 
-I changed it to atomic_inc_return() just to be consistent with all the
-other locations that read this.  That way, if anyone else ever has to
-get a value of cpuset_mems_generation and looks around to see how to do
-it, they will see that it is always done using atomic_inc_return(), and
-probably do it the same way, with minimum risk of confusion.
 
-Just avoiding gratuitous differences in code that don't have a good
-reason.
+And the func that puts things on the list:
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+void writeList(my_type *record)
+{
+  spin_lock(&mylock);
+  list_add_tail(&record->list, &mylist.list);
+  spin_unlock(&mylock);
+  tasklet_schedule(&mytasklet.tlet);
+}
+
+
+Problem is, the function writeList can be called from a H/W intr,
+and a workqueue (and that intr could of course happen while either
+the workqueue or the tasklet is running, right?).
+
+If I use spin_lock_irqsave in writeList, it protects against the intr
+but not the tasklet.  If I use spin_lock_bh, I don't get protection
+from the intr I think; plus, I get :
+
+Badness in local_bh_enable at kernel/softirq.c:142
+
+when the intr runs (what does this mean?).
+
+So, how can I protect my data (my list) from both intrs (calling
+writeList) and the tasklet (calling readList) while the workqueue is
+inside of writeList?  Combination of spin_lock_irqsave and local_bh_disable
+inside writeList ?
+
+Thanks to all,
+Martin Rogers
+Wind River
+

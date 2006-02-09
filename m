@@ -1,65 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWBJMl7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWBJMle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbWBJMl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 07:41:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWBJMl7
+	id S1751245AbWBJMle (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 07:41:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbWBJMle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 07:41:59 -0500
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:42633 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751249AbWBJMlv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 07:41:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=T6iAUb67G2jb5HgXPwTO+/2zrvObwREhZvKM9YOYklBsOUPk8nAFGxo2VciHeS8yEonRJJiy+nBqwknsNeiaROyG0ZhcHpsZIiSbvgRs5ZJjtu4XytNVF7E9QzshKoqOrNlxBGBJtW8xCov1hSx6BotbtSYA3K5XT4jH8DCRtTo=  ;
-Message-ID: <43EC8A06.40405@yahoo.com.au>
-Date: Fri, 10 Feb 2006 23:41:42 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Fri, 10 Feb 2006 07:41:34 -0500
+Received: from smtp.enter.net ([216.193.128.24]:29189 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S1751245AbWBJMld (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 07:41:33 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Date: Thu, 9 Feb 2006 07:37:46 -0500
+User-Agent: KMail/1.8.1
+Cc: mrmacman_g4@mac.com, peter.read@gmail.com, mj@ucw.cz,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net
+References: <73d8d0290602060706o75f04c1cx@mail.gmail.com> <233CD3FF-0017-4A74-BE6A-0487DF3F4EA8@mac.com> <43EC83EC.nailISD91HRFF@burner>
+In-Reply-To: <43EC83EC.nailISD91HRFF@burner>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux@horizon.com, linux-kernel@vger.kernel.org, sct@redhat.com,
-       torvalds@osdl.org
-Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
-References: <20060209071832.10500.qmail@science.horizon.com>	<20060209001850.18ca135f.akpm@osdl.org>	<43EAFEB9.2060000@yahoo.com.au>	<20060209004208.0ada27ef.akpm@osdl.org>	<43EB3801.70903@yahoo.com.au>	<20060209094815.75041932.akpm@osdl.org>	<43EC0A44.1020302@yahoo.com.au>	<20060209195035.5403ce95.akpm@osdl.org>	<43EC0F3F.1000805@yahoo.com.au>	<20060209201333.62db0e24.akpm@osdl.org>	<43EC16D8.8030300@yahoo.com.au>	<20060209204314.2dae2814.akpm@osdl.org>	<43EC1BFF.1080808@yahoo.com.au>	<20060209211356.6c3a641a.akpm@osdl.org>	<43EC24B1.9010104@yahoo.com.au>	<20060209215040.0dcb36b1.akpm@osdl.org>	<43EC2C9A.7000507@yahoo.com.au>	<20060209221324.53089938.akpm@osdl.org>	<43EC3326.4080706@yahoo.com.au>	<20060209224656.7533ce2b.akpm@osdl.org>	<43EC3961.3030904@yahoo.com.au> <20060209231432.03a09dee.akpm@osdl.org>
-In-Reply-To: <20060209231432.03a09dee.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602090737.47747.dhazelton@enter.net>
+X-Virus-Checker-Version: Enter.Net Virus Scanner 1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
->>Instead of
->> LINUX_FADV_ASYNC_WRITE
->> LINUX_FADV_WRITE_WAIT
->>
->> can we have something more consistent? Perhaps
->> FADV_WRITE_ASYNC
->> FADV_WRITE_SYNC
-> 
-> 
-> Nope, I had a bit of a think about this and decided that the two operations
-> which we need are:
-> 
-> 
+On Friday 10 February 2006 07:15, Joerg Schilling wrote:
+> Kyle Moffett <mrmacman_g4@mac.com> wrote:
+> > Joerg Schilling wrote:
+> > > -	how to use /dev/hd* in order to scan an image from a scanner
+> > > -	how to use /dev/hd* in order to talk to a printer
+> > > -	how to use /dev/hd* in order to talk to a jukebox
+> > > -	how to use /dev/hd* in order to talk to a graphical device
+> >
+> > Does cdrecord scan images, print files, or talk to SCSI graphical
+>
+> Are you _completely_ ingnoring the facts that have been discused here?
+>
+> This does not apply to cdrecord but to libscg.
+>
+> You either need to approach reality or stop this thread.
 
-Do you need to introduce a completely new concept 'wait upon writeout'
-though? Not to say they can't solve the problem but I don't think they
-are any more expressive and they definitely depart from the norm which
-has always been sync / async AFAIK.
+I've taken the time to look through the libscg code and I see only one reason 
+why it needs to use the BTL mappings at all - Joerg has a clean interface 
+that is consistent across all the platforms.
 
-It may be a very useful operation in kernel, but I think userspace either
-wants to definitely know the data is on disk (WRITE_SYNC), or give a hint
-to start writing (WRITE_ASYNC).
+Not that I'm going to defend him. I've kept quiet and tracked this thread from 
+the beginning, hoping he would "see the light" as it were and realise that he 
+can export a stable interface across almost all platforms with a few ifdefs 
+and a bit of trickery to use various OS quirks to handle the work.
 
- From a kernel implementation point of view, WRITE_SYNC may be doing
-several things (start writeout, wait writeout), but from userspace it is
-just a single logical operation.
+I am no expert on Windows, so I cannot comment on that, but I can, have and do 
+read relevant sections of the POSIX and SuS when looking at problems and know 
+that the _proper_, _portable_ and _UNIX_ way of accessing devices is via the 
+block device special file. For SCSI cd burners the only way (I know of) to 
+access them for writing (as /dev/sr0 cannot be opened for "write") is via the 
+"SCSI Generic" (/dev/sg*) nodes, and to find and cross-map which /dev/sr* is 
+which /dev/sg* is by the BTL. Needless to say, that should all be transparent 
+to the user.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+And, much to my surprise, Joerg's assertion that using /dev/hd* for accessing 
+ATA/PI devices would require patching libscg is bunk. All he'd have to do is 
+modify cdrecord to _internally_ (if it has to) perform the BTL mapping it 
+wants. What's more, said interface code can be compiled out if it isn't a 
+Linux system with a simple ifdef. 
+
+But please note that libscg _is_ a generic SCSI access library. If needed it 
+_can_ be used to access any SCSI device (and any ATA/PI device, at this 
+point) via hand-crafted command packets. Not useful to the generic 
+programmer, who is happy with the interfaces an OS provides, but for people 
+doing things like data forensics...
+
+(No disrespect meant for anyone, but if my tone comes off a bit rant-like it's 
+because I'm sick of seeing one developer (of a GPL'd program) drag so many 
+people down.)
+
+DRH
+
+PS: If I thought I had the knowledge of SCSI/ATAPI protocol to do so, I'd fork 
+the code myself.

@@ -1,163 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422759AbWBIB3Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422766AbWBIBiV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422759AbWBIB3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 20:29:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422760AbWBIB3Z
+	id S1422766AbWBIBiV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 20:38:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422768AbWBIBiV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 20:29:25 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:64899 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1422759AbWBIB3Y convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 20:29:24 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 8 Feb 2006 20:38:21 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:30115 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1422766AbWBIBiU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 20:38:20 -0500
+To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Cc: Kirill Korotaev <dev@sw.ru>, Kirill Korotaev <dev@openvz.org>,
+       serue@us.ibm.com, arjan@infradead.org, frankeh@watson.ibm.com,
+       clg@fr.ibm.com, haveblue@us.ibm.com, mrmacman_g4@mac.com,
+       alan@lxorguk.ukuu.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       devel@openvz.org
+Subject: Re: [RFC][PATCH 2/7] VPIDs: pid/vpid conversions
+References: <43E22B2D.1040607@openvz.org> <43E23179.5010009@sw.ru>
+	<m1irrpsifp.fsf@ebiederm.dsl.xmission.com>
+	<20060208235348.GC26035@ms2.inr.ac.ru>
+	<m11wyd5pv8.fsf@ebiederm.dsl.xmission.com>
+	<20060209011126.GB5417@ms2.inr.ac.ru>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 08 Feb 2006 18:36:33 -0700
+In-Reply-To: <20060209011126.GB5417@ms2.inr.ac.ru> (Alexey Kuznetsov's
+ message of "Thu, 9 Feb 2006 04:11:26 +0300")
+Message-ID: <m1slqt48ke.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: EC interrupt mode by default breaks power button and lid button
-Date: Thu, 9 Feb 2006 09:29:16 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F840AE28A07@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: EC interrupt mode by default breaks power button and lid button
-thread-index: AcYr8Bawd64bHHWbRiOHNX+5gkOj7ABJ4ijw
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Gerhard Schrenk" <deb.gschrenk@gmx.de>
-Cc: "Brown, Len" <len.brown@intel.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 09 Feb 2006 01:29:18.0400 (UTC) FILETIME=[3EE07400:01C62D18]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's interesting. Could you file a bug in ACPI category on
-bugzilla.kernel.org?
-I don't want it be lost, because it's so interesting.
+Alexey Kuznetsov <kuznet@ms2.inr.ac.ru> writes:
 
-BTW, does battery work?
+> Hello!
+>
+>> In capability.c it does for_each_thread or something like that.  It is
+>> very similar to cap_set_pg.  But in a virtual context all != all :)
+>
+> Do you mean that VPID patch does not include this? Absolutely.
+> VPIDs are not to limit access, the patch virtualizes pids, rather
+> than deals with access policy.
+>
+> Take the whole openvz. Make patch -R < vpid_patch. The result is perfectly
+> working openvz. Only pids are not virtual, which does not matter. Capisco?
 
-Thanks,
-Luming
+Not quite.
 
+sys_kill knows about three kinds of things referred to by pid.
+- individual processes (positive pid)
+- process groups (pid < -1 or pid == 0)
+- The group of all processes.
+
+When you have multiple instances of the same pid on the box
+The group of all processes becomes the group of all processes I
+can see.  At least that was my impression.
+
+>> I think for people doing migration a private pid space in some form is
+>> necessary, 
 >
->* Yu, Luming <luming.yu@intel.com> [2006-02-07 13:33]:
->> >> Please don't revert that patch, and test kernel parameter 
->ec_intr=0
->> >
->> >Yes, boot option ec_initr=0 helps power/lid buttons. (Tested with
->> >yesterdays newest kernel from linus' tree.)
->> 
->> Any difference with ec_initr=1 with this kernel ?
+> Not "private", but "virtual". VPIDs are made only for migration, not for fun.
 >
->No. Neither powerbutton nor lidbutton works with ec_initr=1.
+> And word "private" is critical, f.e. for us preserving some form of pid
+> space is critical. It is very sad, but we cannot do anything with this,
+> customers will not allow to change status quo.
+
+Ok. I'm not quite certain what the difference is.  In OpenVZ it appears
+to be something significant.  In most conversations it is not.
+
+>> My problem with the vpid case and it's translate at the kernel
+>> boundary is that boundary is huge
 >
->> If pressing power button, can you see acpi interrupt increases?
->
->Where do I find this? Do you mean interrupt 9 "IO-APIC-edge  acpi" in
->/proc/interrupts?
->
->With ec_initr=1 I don't see that interrupt 9 increases. 
->
->--- tmp/ec1/interrupts	2006-02-07 14:31:54.000000000 +0100
->+++ tmp/ec1/interrupts-after-powerbutton	2006-02-07 
->14:33:07.000000000 +0100
->@@ -1,10 +1,10 @@
->            CPU0       
->-  0:      42181    IO-APIC-edge  timer
->-  1:        446    IO-APIC-edge  i8042
->+  0:      60423    IO-APIC-edge  timer
->+  1:        676    IO-APIC-edge  i8042
->   2:          0          XT-PIC  cascade
->   9:          1    IO-APIC-edge  acpi
->- 12:       2177    IO-APIC-edge  i8042
->- 14:       6494    IO-APIC-edge  ide0
->+ 12:       3221    IO-APIC-edge  i8042
->+ 14:       6547    IO-APIC-edge  ide0
->  16:          0   IO-APIC-level  uhci_hcd:usb5, i915@pci:0000:00:02.0
->  17:          1   IO-APIC-level  Intel ICH6, ipw2200
->  18:          0   IO-APIC-level  uhci_hcd:usb4
->@@ -12,6 +12,6 @@
->  20:          0   IO-APIC-level  yenta, Intel ICH6 Modem
->  23:          0   IO-APIC-level  ehci_hcd:usb1, uhci_hcd:usb2
-> NMI:          0 
->-LOC:      42140 
->+LOC:      60383 
-> ERR:          0
-> MIS:          0
->
->
->With ec_initr=1 /proc/acpi/button/lid/LID0/state seems to work sane:
->
->gps@medusa:~$ cat /proc/acpi/button/lid/LID0/state # lid opened
->state:      open
->gps@medusa:~$ sleep 5 && cat /proc/acpi/button/lid/LID0/state 
-># closing lid quicker than 5 seconds
->state:      closed
->
->With ec_initr=0 (and acpid *stopped*) I see interrupt 9 increases.
->
->--- tmp/ec0/acpid-off/interrupts	2006-02-07 
->14:40:55.000000000 +0100
->+++ tmp/ec0/acpid-off/interrupts-after-powerbutton	
->2006-02-07 14:42:13.000000000 +0100
->@@ -1,10 +1,10 @@
->            CPU0       
->-  0:      27910    IO-APIC-edge  timer
->-  1:        375    IO-APIC-edge  i8042
->+  0:      47228    IO-APIC-edge  timer
->+  1:        599    IO-APIC-edge  i8042
->   2:          0          XT-PIC  cascade
->-  9:         27    IO-APIC-edge  acpi
->- 12:        755    IO-APIC-edge  i8042
->- 14:       6259    IO-APIC-edge  ide0
->+  9:         28    IO-APIC-edge  acpi
->+ 12:       2105    IO-APIC-edge  i8042
->+ 14:       6465    IO-APIC-edge  ide0
->  16:          0   IO-APIC-level  uhci_hcd:usb5, i915@pci:0000:00:02.0
->  17:          1   IO-APIC-level  Intel ICH6, ipw2200
->  18:          0   IO-APIC-level  uhci_hcd:usb4
->@@ -12,6 +12,6 @@
->  20:          0   IO-APIC-level  yenta, Intel ICH6 Modem
->  23:          0   IO-APIC-level  ehci_hcd:usb1, uhci_hcd:usb2
-> NMI:          0 
->-LOC:      27872 
->+LOC:      47191 
-> ERR:          0
-> MIS:          0
->
->With ec_initr=0 and acpid *started* I see this change in /var/log/acpid
->
->--- tmp/ec0/acpid-after-boot	2006-02-07 14:20:21.000000000 +0100
->+++ tmp/ec0/acpid-after-powerbutton-and-lid-switch	
->2006-02-07 15:01:50.000000000 +0100
->@@ -327,3 +327,20 @@
-> [Tue Feb  7 14:13:41 2006] exiting
-> [Tue Feb  7 14:18:44 2006] starting up
-> [Tue Feb  7 14:18:44 2006] 8 rules loaded
->+[Tue Feb  7 14:20:25 2006] received event "button/power PWRF 
->00000080 00000001"
->+[Tue Feb  7 14:20:25 2006] executing action 
->"/etc/acpi/actions/my_powerbtn.sh"
->+[Tue Feb  7 14:20:25 2006] BEGIN HANDLER MESSAGES
->+[Tue Feb  7 14:20:37 2006] END HANDLER MESSAGES
->+[Tue Feb  7 14:20:37 2006] action exited with status 0
->+[Tue Feb  7 14:20:37 2006] completed event "button/power PWRF 
->00000080 00000001"
->+[Tue Feb  7 14:23:20 2006] received event "button/lid LID0 
->00000080 00000001"
->+[Tue Feb  7 14:23:20 2006] executing action 
->"/etc/acpi/actions/lm_lid.sh button/lid LID0 00000080 00000001"
->+[Tue Feb  7 14:23:20 2006] BEGIN HANDLER MESSAGES
->+[Tue Feb  7 14:23:20 2006] END HANDLER MESSAGES
->+[Tue Feb  7 14:23:20 2006] action exited with status 0
->+[Tue Feb  7 14:23:20 2006] executing action 
->"/etc/acpi/actions/my_lid.sh button/lid LID0 00000080 00000001"
->+[Tue Feb  7 14:23:20 2006] BEGIN HANDLER MESSAGES
->+[Tue Feb  7 14:24:27 2006] END HANDLER MESSAGES
->+[Tue Feb  7 14:24:27 2006] action exited with status 0
->+[Tue Feb  7 14:24:27 2006] completed event "button/lid LID0 
->00000080 00000001"
->
->Hope this helps
->-- Gerhard
->
+> Believe me, it is surprizingly small.
+
+Well the number of places you need to translate may be small.
+But the number of lines of code is certainly large.
+Every driver, every ioctl, every other function that could
+be abused ioctl.
+
+And if the values are ever stored instead of used immediately
+you can get a context mismatch.
+
+Eric
+

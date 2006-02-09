@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWBINMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWBINSH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbWBINMa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 08:12:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWBINMa
+	id S964787AbWBINSH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 08:18:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964774AbWBINSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 08:12:30 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:64743 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932377AbWBINMa
+	Thu, 9 Feb 2006 08:18:07 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:30896 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S932486AbWBINSE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 08:12:30 -0500
-Date: Thu, 9 Feb 2006 14:12:20 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Andrew Morton <akpm@osdl.org>, 76306.1226@compuserve.com, pj@sgi.com,
-       wli@holomorphy.com, ak@muc.de, mingo@elte.hu, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, riel@redhat.com, dada1@cosmobay.com
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-Message-ID: <20060209131220.GC20554@osiris.boeblingen.de.ibm.com>
-References: <200602090335_MC3-1-B7FA-621E@compuserve.com> <20060209010655.5cdeb192.akpm@osdl.org> <20060209011106.68aa890a.akpm@osdl.org> <20060209100834.GA9281@osiris.boeblingen.de.ibm.com> <20060209021314.23a9096f.akpm@osdl.org> <20060209102317.GA20554@osiris.boeblingen.de.ibm.com> <20060209023106.10c53c0b.akpm@osdl.org> <20060209114700.GB20554@osiris.boeblingen.de.ibm.com> <43EB39A8.2010202@cosmosbay.com>
+	Thu, 9 Feb 2006 08:18:04 -0500
+Date: Thu, 9 Feb 2006 06:18:02 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Jes Sorensen <jes@sgi.com>
+Cc: Adrian Bunk <bunk@stusta.de>, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       "'Keith Owens'" <kaos@sgi.com>, "Luck, Tony" <tony.luck@intel.com>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] let IA64_GENERIC select more stuff
+Message-ID: <20060209131802.GE1593@parisc-linux.org>
+References: <20060208035112.GM3524@stusta.de> <200602080552.k185q9g07813@unix-os.sc.intel.com> <20060208115946.GN3524@stusta.de> <yq0d5hym0lq.fsf@jaguar.mkp.net> <20060208213825.GQ3524@stusta.de> <yq0zml0lmmg.fsf@jaguar.mkp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43EB39A8.2010202@cosmosbay.com>
-User-Agent: mutt-ng/devel (Linux)
+In-Reply-To: <yq0zml0lmmg.fsf@jaguar.mkp.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>Oh, OK.  Ow, I don't think you want to do that.  It means that all those
-> >>for_each_cpu() loops will now be iterating over all NR_CPUS cpus, whether
-> >>or not they're even possible.
-> >That's ok. We're mainly running under z/VM where you can attach new virtual
-> >cpus on the fly to the virtual machine (up to 64 cpus).
-> >The only difference to before is that it was possible to limit the waste of
-> >resources by passing a number with 'maxcpus'. This value was used to generate
-> >the cpu_possible_map.
-> >But since the map needs to be ready when we return from setup_arch, we don't
-> >have access to max_cpus, unless we parse commandline on our own...
-> 
-> Then it's OK to clear bits from cpu_possible_map once you have max_cpus value
-> 
-> for (cpu = max_cpus ; cpu < NR_CPUS ; cpu++)
-> 	cpu_clear(cpu, cpu_possible_map);
+On Thu, Feb 09, 2006 at 07:53:11AM -0500, Jes Sorensen wrote:
+> There's other reasons why this is a moot exercise anyway, allyesconfig
+> doesn't link on ia64 due to the size of the object exceeding the reach
+> of the relative link relocs. Not much you can do about that.
 
-Hmm... I don't think the semantics of cpu_possible_map allow to change it.
-Also any code that uses for_each_cpu() may allocate memory _before_
-cpu_possible_map is changed back to reflect a smaller number of cpus.
-Doesn't look like the correct way to fix this.
-Thinking a bit longer this was probably a reason why initialization of
-this map was done in smp_prepare_cpus() before it silently moved to
-setup_arch().
+That'd be a toolchain problem then ... need to insert stubs.
 
-Heiko
+> - HP100 driver cannot be compiled on systems without ISA support in it's
+>   current state.
+
+I have it enabled on parisc without ISA or EISA.  More details, please.
+
+>  config HP100
+>  	tristate "HP 10/100VG PCLAN (ISA, EISA, PCI) support"
+> -	depends on NET_ETHERNET && (ISA || EISA || PCI)
+> +	depends on NET_ETHERNET && ISA || EISA
+>  	help
+
+Also I think this is wrong.  Doesn't the precedence make this evaluate
+as (NET_ETHERNET && ISA) || EISA ?

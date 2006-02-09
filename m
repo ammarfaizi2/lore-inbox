@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422895AbWBILXq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422890AbWBILrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422895AbWBILXq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 06:23:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422896AbWBILXq
+	id S1422890AbWBILrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 06:47:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422893AbWBILrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 06:23:46 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:57225 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1422895AbWBILXp convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 06:23:45 -0500
-Subject: Re: preempt-rt, NUMA and strange latency traces
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1139483492.5706.12.camel@frecb000686>
-References: <1139311689.19708.36.camel@frecb000686>
-	 <Pine.LNX.4.58.0602080436190.8578@gandalf.stny.rr.com>
-	 <1139395534.21471.13.camel@frecb000686>
-	 <1139417369.16302.1.camel@leatherman>
-	 <1139483492.5706.12.camel@frecb000686>
-Date: Thu, 09 Feb 2006 12:26:53 +0100
-Message-Id: <1139484413.5706.22.camel@frecb000686>
+	Thu, 9 Feb 2006 06:47:09 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:21188 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1422890AbWBILrI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 06:47:08 -0500
+Date: Thu, 9 Feb 2006 12:47:00 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: 76306.1226@compuserve.com, pj@sgi.com, wli@holomorphy.com, ak@muc.de,
+       mingo@elte.hu, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       riel@redhat.com, dada1@cosmobay.com
+Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
+Message-ID: <20060209114700.GB20554@osiris.boeblingen.de.ibm.com>
+References: <200602090335_MC3-1-B7FA-621E@compuserve.com> <20060209010655.5cdeb192.akpm@osdl.org> <20060209011106.68aa890a.akpm@osdl.org> <20060209100834.GA9281@osiris.boeblingen.de.ibm.com> <20060209021314.23a9096f.akpm@osdl.org> <20060209102317.GA20554@osiris.boeblingen.de.ibm.com> <20060209023106.10c53c0b.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 09/02/2006 12:24:46,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 09/02/2006 12:24:46,
-	Serialize complete at 09/02/2006 12:24:46
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060209023106.10c53c0b.akpm@osdl.org>
+User-Agent: mutt-ng/devel (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-09 at 12:11 +0100, Sébastien Dugué wrote:
-> On Wed, 2006-02-08 at 08:49 -0800, john stultz wrote:
-> > On Wed, 2006-02-08 at 11:45 +0100, Sébastien Dugué wrote:
-> > >   The more I think about it, the more I tend to believe it's hardware 
-> > > related. It seems as if the CPU just hangs for ~27 ms before
-> > > resuming processing.
+> > > >  > Actually, x86 appears to be the only arch which suffers this braindamage. 
+> > > >  > The rest use CPU_MASK_NONE (or just forget to initialise it and hope that
+> > > >  > CPU_MASK_NONE equals all-zeroes).
+> > > > 
+> > > >  s390 will join, as soon as the cpu_possible_map fix is merged...
+> > > 
+> > > What cpu_possible_map fix?
 > > 
-> > That sounds like to the ~30ms RSA caused SMIs. Does this system have an
-> > RSA1 or RSA2 card?
+> > This one:
 > > 
+> > http://lkml.org/lkml/2006/2/8/162
+> > 
+> 
+> Oh, OK.  Ow, I don't think you want to do that.  It means that all those
+> for_each_cpu() loops will now be iterating over all NR_CPUS cpus, whether
+> or not they're even possible.
 
-  OK just found burried deep into IBM website docs that the x440 comes
-standard with a plain RSA (not RSA2).
+That's ok. We're mainly running under z/VM where you can attach new virtual
+cpus on the fly to the virtual machine (up to 64 cpus).
+The only difference to before is that it was possible to limit the waste of
+resources by passing a number with 'maxcpus'. This value was used to generate
+the cpu_possible_map.
+But since the map needs to be ready when we return from setup_arch, we don't
+have access to max_cpus, unless we parse commandline on our own...
 
-  Sébastien.
-
+Heiko

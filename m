@@ -1,68 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422734AbWBIQio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422748AbWBIQjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422734AbWBIQio (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 11:38:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422748AbWBIQio
+	id S1422748AbWBIQjS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 11:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422764AbWBIQjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 11:38:44 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:25798 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422734AbWBIQin
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 11:38:43 -0500
-Message-ID: <43EB7007.5040208@watson.ibm.com>
-Date: Thu, 09 Feb 2006 11:38:31 -0500
-From: Hubertus Franke <frankeh@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Dike <jdike@addtoit.com>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Kirill Korotaev <dev@openvz.org>, Linus Torvalds <torvalds@osdl.org>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, clg@fr.ibm.com,
-       haveblue@us.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
-       serue@us.ibm.com, arjan@infradead.org, riel@redhat.com,
-       kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
-       Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>,
-       Herbert Poetzl <herbert@13thfloor.at>
-Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
-References: <43E7C65F.3050609@openvz.org> <m1bqxh5qhb.fsf@ebiederm.dsl.xmission.com> <20060209021828.GC9456@ccure.user-mode-linux.org>
-In-Reply-To: <20060209021828.GC9456@ccure.user-mode-linux.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Feb 2006 11:39:18 -0500
+Received: from vms042pub.verizon.net ([206.46.252.42]:38080 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1422748AbWBIQjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 11:39:17 -0500
+Date: Thu, 09 Feb 2006 11:31:12 -0500
+From: Jon Ringle <jringle@vertical.com>
+Subject: Re: Linux running on a PCI Option device?
+In-reply-to: <43EAE4AC.6070807@snapgear.com>
+To: Greg Ungerer <gerg@snapgear.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <200602091131.12535.jringle@vertical.com>
+Organization: Vertical
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <43EAE4AC.6070807@snapgear.com>
+User-Agent: KMail/1.8.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike wrote:
-> On Wed, Feb 08, 2006 at 05:24:16PM -0700, Eric W. Biederman wrote:
-> 
->>To deal with networking there are currently a significant number of
->>variables with static storage duration.  Making those variables global
->>and placing them in structures is neither as efficient as it could be
->>nor is it as maintainable as it should be.  Other subsystems have
->>similar problems.
-> 
-> 
-> BTW, there is another solution, which you may or may not consider to
-> be clean.
-> 
-> That is to load a separate copy of the subsystem (code and data) as a
-> module when you want a new instance of it.  The code doesn't change,
-> but you probably have to move it around some and provide some sort of
-> interface to it.
-> 
-> I did this to the scheduler last year - see
-> 	http://marc.theaimsgroup.com/?l=linux-kernel&m=111404726721747&w=2
-> 
-> 				Jeff
-> 
+On Thursday 09 February 2006 01:43 am, Greg Ungerer wrote:
+> Hi Jon,
+>
+> Jon Ringle wrote:
+> > I am working on a new board that will have Linux running on an xscale
+> > processor. This board will be a PCI Option device. I currently have a
+> > IXDP465 eval board which has a PCI Option connector that I will use for
+> > prototyping. From what I can tell so far, Linux wants to scan the PCI bus
+> > for devices as if it is the PCI host. Is there any provision in Linux so
+> > that it can take on the role of a PCI option rather than a PCI host?
+>
+> Have a look at the code in arch/arm/mach-ixp4xx/common-pci.c, in
+> the function ixp4xx_pci_preinit().
+>
+> It does a check on whether the PCI bus is configured as HOST or not.
+> I don't know if that code support is enough for it all to work right
+> though (I certainly haven't tried it on either the 425 or 465...)
 
+Something that I don't quite understand is how I'm supposed to make vendor Id 
+information available to the PCI host. Any ideas there?
 
-Jeff, interesting, but won't that post some serious scalability issue?
-Imaging 100s of container/namespace ?
+TIA,
 
-The namespace is mainly there to identify which data needs to be private
-when multiple instances of a subsystem are considered and
-encapsulate that data in an object/datastructure !
-
--- Hubertus
-
+Jon

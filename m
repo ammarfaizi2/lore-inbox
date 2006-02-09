@@ -1,59 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422719AbWBIANx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422723AbWBIA0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422719AbWBIANx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 19:13:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422718AbWBIANw
+	id S1422723AbWBIA0q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 19:26:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422724AbWBIA0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 19:13:52 -0500
-Received: from xenotime.net ([66.160.160.81]:28088 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1422719AbWBIANw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 19:13:52 -0500
-Date: Wed, 8 Feb 2006 16:13:48 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Kurt Wall <kwall@kurtwerks.com>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: "Changelog-2.6.15": missing signoffs, descriptions
-In-Reply-To: <20060209001048.GA6279@kurtwerks.com>
-Message-ID: <Pine.LNX.4.58.0602081612370.1564@shark.he.net>
-References: <43E935BA.8050605@tlinx.org> <43E943FD.7090508@tlinx.org>
- <20060208193202.GA8275@agluck-lia64.sc.intel.com> <43EA7680.6000207@tlinx.org>
- <Pine.LNX.4.58.0602081457500.1564@shark.he.net> <20060209001048.GA6279@kurtwerks.com>
+	Wed, 8 Feb 2006 19:26:46 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:32418 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1422723AbWBIA0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Feb 2006 19:26:45 -0500
+To: Kirill Korotaev <dev@openvz.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, frankeh@watson.ibm.com, clg@fr.ibm.com,
+       haveblue@us.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
+       serue@us.ibm.com, arjan@infradead.org, riel@redhat.com,
+       kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
+       "Dmitry Mishin" <dim@sw.ru>, Andi Kleen <ak@suse.de>,
+       Herbert Poetzl <herbert@13thfloor.at>
+Subject: Re: [PATCH 1/4] Virtualization/containers: introduction
+References: <43E7C65F.3050609@openvz.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 08 Feb 2006 17:24:16 -0700
+In-Reply-To: <43E7C65F.3050609@openvz.org> (Kirill Korotaev's message of
+ "Tue, 07 Feb 2006 00:57:51 +0300")
+Message-ID: <m1bqxh5qhb.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Feb 2006, Kurt Wall wrote:
+Kirill Korotaev <dev@openvz.org> writes:
 
-> On Wed, Feb 08, 2006 at 03:00:01PM -0800, Randy.Dunlap took 50 lines to write:
-> > On Wed, 8 Feb 2006, Linda Walsh wrote:
-> >
-> > > Luck, Tony wrote:
-> > > > On Tue, Feb 07, 2006 at 05:06:05PM -0800, Linda Walsh wrote:
-> > > >
-> > > >> Actually, ("talking" to myself?), parsing this file a bit more,
-> > > >> I find many (~134) that are missing "Sign-offs".
-> > > >>
-> > > >> I take it that "Sign-off"s are also "optional" on commits
-> > > >> and represent that the author specified under the "commit"
-> > > >> tag did not need a "Sign-off"?
+> Hello,
 >
-> [...]
+> I tried to take into account all the comments from you guys (thanks a lot for
+> them!) and prepared a new version of virtualization patches. I will send only 4
+> patches today, just not to overflow everyone and keep it clear/tidy/possible to
+> review.
 >
-> > Linda, did you have some other point that you are trying to get to,
-> > or is that it?  There are real efforts being made, although not
-> > perfect.  That happens when people are involved.
-> > Anyway, it feels like you are just getting to the surface/edge
-> > of your complaint.
+> This patch introduces some abstract container kernel structure and a number of
+> operations on it.
 >
-> The way I read this thread, I thought the complaint was that she's
-> having difficulty writing one or more tools to process the changes
-> automatically. Perhaps I'm not seeing past the surface.
+> The important properties of the proposed container implementation:
+> - each container has unique ID in the system
+> - each process in the kernel can belong to one container only
+> - effective container pointer (econtainer()) is used on the task to avoid
+> insertion of additional argument "container" to all functions where it is
+> required.
+> - kernel compilation with disabled virtualization should result in old good
+> linux kernel
+>
+> Patches following this one will be used for virtualization of the kernel
+> resources based on this container infrastructure, including those VPID patches I
+> sent before. Every virtualized resource can be given separate config option if
+> needed (just give me to know if it is desired).
 
-You could be right, but then she has solved it (noted as
-"optional" fields above).  Good.
+After having digested this I think there is something sane with regard to
+this container idea.  I still think the implementation is totally wrong but
+there is a potential problem the basic idea solves.
 
--- 
-~Randy
+In the traditional linux/plan9 style of namespaces the question is
+which resources different tasks share, and we pass clone bits to determine
+what we want to share and what we don't want to share.  Semantically this
+is very clean and allows for a great deal of flexibility.  However
+as the flexibility increases we get more code in do_fork more
+reference counts and ultimately the performance decreases.  In addition
+it is not common for us to change which resources we share.
+
+So our traditional route is flexible but it does not optimize the common
+case where we share all of the same things.  Containers can potentially
+optimize that case.  So long as anyone can create a new container even
+someone inside a container we do not loose flexibility.
+
+To deal with networking there are currently a significant number of
+variables with static storage duration.  Making those variables global
+and placing them in structures is neither as efficient as it could be
+nor is it as maintainable as it should be.  Other subsystems have
+similar problems.
+
+So if we put econtainer in struct thread_info and optimize it like we
+do current, create an interface to variables similar to
+DEFINE_PER_CPU, create a syscall interface similar to clone, and
+show that by doing this we don't loose flexibility, then it looks like
+a good idea.
+
+If we can't do better than the current clone model of shared resources
+then this model feels like gratuitous change.
+
+Eric

@@ -1,121 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422722AbWBIQya@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWBIQze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422722AbWBIQya (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 11:54:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWBIQya
+	id S932481AbWBIQze (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 11:55:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWBIQze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 11:54:30 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:2768 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S932359AbWBIQy3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 11:54:29 -0500
-Date: Thu, 9 Feb 2006 16:54:07 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Pavel Machek <pavel@ucw.cz>, john@neggie.net, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-Subject: Re: [PATCH] Add generic backlight support to toshiba_acpi driver
-Message-ID: <20060209165407.GA20754@srcf.ucam.org>
-References: <20060207133456.GA2452@srcf.ucam.org> <20060208090757.GB11895@elf.ucw.cz> <Pine.LNX.4.61.0602091747070.30108@yvahk01.tjqt.qr>
+	Thu, 9 Feb 2006 11:55:34 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:44492 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932481AbWBIQzd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 11:55:33 -0500
+Date: Thu, 9 Feb 2006 08:55:01 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Marc Koschewski <marc@osknowledge.org>
+Cc: marc@osknowledge.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH GIT] drivers/block/ub.c - misc. cleanup/indentation,
+ removed unneeded return
+Message-Id: <20060209085501.0a29c7e7.zaitcev@redhat.com>
+In-Reply-To: <20060209092143.GA5676@stiffy.osknowledge.org>
+References: <mailman.1139418724.17734.linux-kernel2news@redhat.com>
+	<20060208194057.55b02719.zaitcev@redhat.com>
+	<20060209092143.GA5676@stiffy.osknowledge.org>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0602091747070.30108@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 09, 2006 at 05:47:49PM +0100, Jan Engelhardt wrote:
+On Thu, 9 Feb 2006 10:21:43 +0100, Marc Koschewski <marc@osknowledge.org> wrote:
 
-> Note to self: Don't forget to change 2.6-sony-acpi?.diff from -mm to use 
-> this /sys/class/backlight instead of /proc/acpi/sony/brightness when it's 
-> ready.
+> > But the rest is quite bad, the worst being indenting the switch statement.
+> 
+> I see. Why do you use if-statement-indenting then?
 
-Ah, you're maintaining that now. Here you go (Stelian took a look and 
-seemed happy with it - the /sys/class/backlight stuff is in mainstream)
+Insides of case blocks are indented, didn't you notice? Why waste a tab?
 
-diff --git a/drivers/acpi/sony_acpi.c b/drivers/acpi/sony_acpi.c
-index 7636bba..6505b24 100644
---- a/drivers/acpi/sony_acpi.c
-+++ b/drivers/acpi/sony_acpi.c
-@@ -27,6 +27,8 @@
- #include <linux/moduleparam.h>
- #include <linux/init.h>
- #include <linux/types.h>
-+#include <linux/backlight.h>
-+#include <linux/err.h>
- #include <acpi/acpi_drivers.h>
- #include <acpi/acpi_bus.h>
- #include <asm/uaccess.h>
-@@ -62,6 +64,8 @@ static struct acpi_driver sony_acpi_driv
- static acpi_handle sony_acpi_handle;
- static struct proc_dir_entry *sony_acpi_dir;
- 
-+static struct backlight_device *sony_backlight_device;
-+
- static struct sony_acpi_value {
- 	char			*name;	 /* name of the entry */
- 	struct proc_dir_entry 	*proc;	 /* /proc entry */
-@@ -258,6 +262,31 @@ static acpi_status sony_walk_callback(ac
- 	return AE_OK;
- }
- 
-+static int sony_brightness_get(struct backlight_device *bd) 
-+{
-+	int value;
-+
-+	if (acpi_callgetfunc(sony_acpi_handle, "GBRT", &value))
-+		return 0;
-+
-+	return value-1;
-+}
-+	
-+
-+static int sony_brightness_set(struct backlight_device *bd, int value) {
-+	value &= 0x7;
-+	value++;
-+
-+	return acpi_callsetfunc(sony_acpi_handle, "SBRT", value, NULL);
-+}
-+
-+static struct backlight_properties sonybl_data = {
-+	.owner          = THIS_MODULE,
-+	.get_brightness = sony_brightness_get,
-+	.set_brightness = sony_brightness_set,
-+	.max_brightness = 7,
-+};
-+
- static int __init sony_acpi_add(struct acpi_device *device)
- {
- 	acpi_status status;
-@@ -378,12 +407,24 @@ static int __init sony_acpi_init(void)
- 		remove_proc_entry("sony", acpi_root_dir);
- 		return -ENODEV;
- 	}
-+
-+	sony_backlight_device = backlight_device_register ("sony_bl", NULL,
-+							   &sonybl_data);
-+
-+	if (IS_ERR (sony_backlight_device)) {
-+		printk("Unable to register backlight\n");
-+		acpi_bus_unregister_driver(&sony_acpi_driver);
-+		remove_proc_entry("sony", acpi_root_dir);
-+		return -ENODEV;
-+	}
-+
- 	return 0;
- }
- 
- 
- static void __exit sony_acpi_exit(void)
- {
-+	backlight_device_unregister(sony_backlight_device);
- 	acpi_bus_unregister_driver(&sony_acpi_driver);
- 	remove_proc_entry("sony", acpi_root_dir);
- }
+> What is the sense of the empty comments? What sense does the 'immediate
+> return' make when the value is returned 2 lines below (where one line is just
+> a closing brace)?
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Empty comments segregate related groups of functions.
+
+The return is there in case something else is needed between the if and
+the function's end. It's there to underscore the regular structure of the
+code. Though the big block comment obscures the intent there. Perhaps
+I should relocate it.
+
+You didn't mention empty lines on top of functions. They appear where
+variables are likely to be, or if the function body has a break, to make
+it fair to all little segments :-)
+
+> > Is there nothing else you can do in the whole kernel?
+> 
+> Sure, but I guess you don't have to tell me what files I put my nose in, do
+> you? I didn't mean to personally piss you off by sending this in. Tzzz ...
+> 
+> Unfortunately my understanding of how ie. the Linux VM works is not very good.
+> In fact it's poor. But I will dig into this and try to make even you happy with
+> a patch that makes sense _in your eyes_.
+
+I don't know anything about VM either and I do not see how this is
+relevant.
+
+The bigger point is, if you strive to make a meaningful contribution,
+meaningless code rearrangements is not the way to go about it. And
+we have plenty of work under the subsystem level, though usually it
+has something to do with specific hardware. For example, Firewire
+appears to be in dire need of fixing right now.
+
+I remember a period of time when the janitoring project produced
+meaningful cleanups, such as verification of failure paths. This work
+is still relevant. Just the other day I sent a patch to Dmitry for
+a leak in mousedev. And remember the debacle of memset(p, size, 0)!
+I'm not going to tell you where to put your nose in, but I would like
+to hint that the janitoring project might use some help with something
+going beyond the uglification of my pretty code :-)
+
+-- Pete

@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWBIXcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWBIXeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbWBIXcm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 18:32:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWBIXcl
+	id S1750809AbWBIXeq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 18:34:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWBIXeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 18:32:41 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:35014
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1750831AbWBIXck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 18:32:40 -0500
-Date: Thu, 9 Feb 2006 15:32:33 -0800
-From: Greg KH <greg@kroah.com>
-To: Voluspa <lista1@telia.com>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       len.brown@intel.com
-Subject: Re: [2.6.16-rc2] Error - nsxfeval - And uncool silence from kernel hackers.
-Message-ID: <20060209233233.GB23971@kroah.com>
-References: <20060210000101.2f028801.lista1@telia.com>
+	Thu, 9 Feb 2006 18:34:46 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29110 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750809AbWBIXep (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 18:34:45 -0500
+Date: Fri, 10 Feb 2006 00:34:06 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, suspend2-devel@lists.suspend2.net,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Message-ID: <20060209233406.GD3389@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060209092555.GB2940@elf.ucw.cz> <200602091422.40738.rjw@sisk.pl> <200602100816.18904.nigel@suspend2.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060210000101.2f028801.lista1@telia.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200602100816.18904.nigel@suspend2.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 10, 2006 at 12:01:01AM +0100, Voluspa wrote:
+Hi!
+
+> > > Any changes to userspace are a fair game. OTOH kernel provides linear
+> > > image to be saved to userspace, and what it uses internally should not
+> > > be important to userland parts. (And Rafael did some changes in that
+> > > area to make it more effective, IIRC).
+> >
+> > Yes.  The code is now split into the part that handles the snapshot image
+> > (in snapshot.c) and the part that writes/reads it to swap (in swap.c). [I'm
+> > referring to recent -mm kernels.]
+> >
+> > The access to the snapshot image is provided via the functions
+> > snapshot_write_next() and snapshot_read_next() that are called by the
+> > code in swap.c and may be used by the user space tools via the
+> > interface in user.c.  In principle it ought to be possible to plug
+> > something else instead of the code in snapshot.c without
+> > breaking the rest.
 > 
-> Booted 2.6.16-rc2 on my AMD x86_64 notebook and saw something new in the
-> log (different from 2.6.15):
+> So, what is the answer then? If I submitted patches to provide the possibility 
+> of separating LRU pages into a separate stream of pages to be read/written, 
+> would it have any chance of getting merged? (Along with other patches to make 
+> writing a full image of memory possible).
 
-So, 2.6.16-rc2 works just fine, with out your reversal of that one
-patch?
-
-> "1) Silence is _not_ golden."
-> 
-> Please, we the users breathe and bleed just like you do.
-
-Sorry, and like you, we are human and drop things on the floor all the
-time.  Sorry for not following up on this before.
-
-Persistance is a good trait to have when dealing with overworked kernel
-developers :)
-
-thanks,
-
-greg k-h
+Could we do the other stuff, first, please? Userland
+LZF/encryption/progress should be easy to do, and doing that should
+teach us how to cooperate.
+									Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

@@ -1,81 +1,276 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWBITw1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWBITyD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbWBITw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 14:52:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWBITw1
+	id S1750745AbWBITyD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 14:54:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWBITyB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 14:52:27 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:21170 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750742AbWBITw0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 14:52:26 -0500
-Subject: kernel BUG at :49795!
-From: Lee Revell <rlrevell@joe-job.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 09 Feb 2006 14:52:06 -0500
-Message-Id: <1139514726.30058.81.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Feb 2006 14:54:01 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:39875 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750745AbWBITyB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 14:54:01 -0500
+Date: Thu, 9 Feb 2006 11:53:52 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: akpm@osdl.org
+cc: ak@suse.de, pj@sgi.com, linux-kernel@vger.kernel.org
+Subject: Terminate process that fails on a constrained allocation V3
+Message-ID: <Pine.LNX.4.62.0602091152300.9941@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Someone on the ubuntu users list posted this BUG:
+Changes V2->V3:
 
-Feb 2 11:32:17 localhost /usr/sbin/cron[6869]: (CRON) INFO (Running 
-@reboot jobs)
-Feb 2 11:32:19 localhost kernel: [ 92.602039] eth0: no IPv6 routers present
-Feb 2 11:32:25 localhost kernel: [ 172.565720] ------------[ cut here 
-]------------
-Feb 2 11:32:25 localhost kernel: [ 172.570071] kernel BUG at :49795!
-Feb 2 11:32:25 localhost kernel: [ 172.574546] invalid operand: 0000 [#1]
-Feb 2 11:32:25 localhost kernel: [ 172.578942] Modules linked in: rfcomm 
-l2cap bluetooth powernow_k8 cpufreq_userspace cpufreq_stats freq_table 
-cpufreq_powersave cpufreq_ondemand cpufreq_conservative apm ipv6 
-af_packet analog gameport floppy pcspkr rtc pci_hotplug snd_intel8x0 
-snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore 
-snd_page_alloc i2c_nforce2 i2c_core amd64_agp agpgart dm_mod tsdev evdev 
-psmouse mousedev parport_pc lp parport md ext3 jbd processor skge 
-forcedeth ehci_hcd ohci_hcd usbcore ide_cd cdrom ide_disk ide_generic 
-sata_nv libata scsi_mod amd74xx ide_core unix vesafb capability 
-commoncap vga16fb vgastate softcursor cfbimgblt cfbfillrect cfbcopyarea 
-fbcon tileblit font bitblit
-Feb 2 11:32:25 localhost kernel: [ 172.624610] CPU: 0
-Feb 2 11:32:25 localhost kernel: [ 172.624612] EIP: 0060:[kmem_freepages+57/136] Not tainted VLI
-Feb 2 11:32:25 localhost kernel: [ 172.624614] EFLAGS: 00010246 (2.6.12-9-386)
-Feb 2 11:32:25 localhost kernel: [ 172.639079] EIP is at kmem_freepages+0x39/0x88
-Feb 2 11:32:25 localhost kernel: [ 172.644010] eax: 00000000 ebx: 00000001 ecx: 00000000 edx: c16e1f00
-Feb 2 11:32:25 localhost kernel: [ 172.649076] esi: dfffff80 edi: f70f8f01 ebp: 00000001 esp: dfa07f1c
-Feb 2 11:32:25 localhost kernel: [ 172.654349] ds: 007b es: 007b ss: 0068
-Feb 2 11:32:25 localhost kernel: [ 172.659739] Process events/0 (pid: 3, threadinfo=dfa06000 task=dfb35020)
-Feb 2 11:32:25 localhost kernel: [ 172.659908] Stack: dfffff80 f70ec740 f70f8f01 c01341d2 dfffff80 f70f8f01 dfffff80 dffffff0
-Feb 2 11:32:25 localhost kernel: [ 172.671298] 00000005 dfffb640 c0135070 dfffff80 f70ec740 c03715e0 c03715e4 00000297
-Feb 2 11:32:25 localhost kernel: [ 172.683074] 00000000 c01214c8 00000000 c0134f98 ffffffff ffffffff 00000001 00000000
-Feb 2 11:32:25 localhost kernel: [ 172.695537] Call Trace:
-Feb 2 11:32:25 localhost kernel: [ 172.707760] [slab_destroy+88/121] slab_destroy+0x58/0x79
-Feb 2 11:32:25 localhost kernel: [ 172.713972] [cache_reap+216/269] cache_reap+0xd8/0x10d
-Feb 2 11:32:25 localhost kernel: [ 172.720110] [worker_thread+343/443] worker_thread+0x157/0x1bb
-Feb 2 11:32:25 localhost kernel: [ 172.726124] [cache_reap+0/269] cache_reap+0x0/0x10d
-Feb 2 11:32:25 localhost kernel: [ 172.732103] [default_wake_function+0/18] default_wake_function+0x0/0x12
-Feb 2 11:32:25 localhost kernel: [ 172.738126] [schedule+1086/1188] schedule+0x43e/0x4a4
-Feb 2 11:32:25 localhost kernel: [ 172.744022] [default_wake_function+0/18] default_wake_function+0x0/0x12
-Feb 2 11:32:25 localhost kernel: [ 172.749923] [worker_thread+0/443] worker_thread+0x0/0x1bb
-Feb 2 11:32:25 localhost kernel: [ 172.755711] [kthread+109/151] kthread+0x6d/0x97
-Feb 2 11:32:25 localhost kernel: [ 172.761534] [kthread+0/151] kthread+0x0/0x97
-Feb 2 11:32:25 localhost kernel: [ 172.767297] [kernel_thread_helper+5/11] kernel_thread_helper+0x5/0xb
-Feb 2 11:32:25 localhost kernel: [ 172.773033] Code: 24 10 8d 97 00 00 00 40 8b 4e 44 c1 ea 0c d3 e3 c1 e2 05 8d 4b ff 03 15 30 6b 37 c0 83 f9 
-ff 74 12 0f ba 32 07 19 c0 85 c0 75 02 <0f> 0b 83 c2 20 49 eb e9 89 d8 f7 d8 50 6a 14 e8 df e3 ff ff 58
-Feb 2 11:32:31 localhost kernel: [ 172.795224] pdflush: bogus wakeup!
-Feb 2 11:32:31 localhost kernel: [ 179.006884] pdflush: bogus wakeup!
-Feb 2 11:32:31 localhost kernel: [ 179.013119] pdflush: bogus wakeup!
-Feb 2 11:32:31 localhost kernel: [ 179.019239] pdflush: bogus wakeup!
-Feb 2 11:32:31 localhost kernel: [ 179.025298] pdflush: bogus wakeup!
-Feb 2 11:32:31 localhost kernel: [ 179.031178] pdflush: bogus wakeup!
-Feb 2 11:32:31 localhost kernel: [ 179.036769] pdflush: bogus wakeup!
+- Do the killing of the current process following the execution
+  procedure already established by the OOM killer.
 
-I realize 2.6.12 is old but is this a known problem?
+- Do not return NULL and therefore do not change the return values of
+  __alloc_pages.
 
-Lee
+- Identify the reason for the constraint so that something special may
+  be done if a cpuset runs out of memory.
 
+
+Some allocations are restricted to a limited set of nodes (due to memory
+policies or cpuset constraints). If the page allocator is not able to find
+enough memory then that does not mean that overall system memory is low.
+
+In particular going postal and more or less randomly shooting at processes
+is not likely going to help the situation but may just lead to suicide (the
+whole system coming down).
+
+It is better to signal to the process that no memory exists given the
+constraints that the process (or the configuration of the process) has
+placed on the allocation behavior. The process may be killed but then the
+sysadmin or developer can investigate the situation. The solution is similar
+to what we do when running out of hugepages.
+
+This patch adds a check before we kill processes. At that
+point performance considerations do not matter much so we just scan the zonelist
+and reconstruct a list of nodes. If the list of nodes does not contain all
+online nodes then this is a constrained allocation and we should kill the
+currnet process.
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.16-rc2/mm/oom_kill.c
+===================================================================
+--- linux-2.6.16-rc2.orig/mm/oom_kill.c	2006-02-02 22:03:08.000000000 -0800
++++ linux-2.6.16-rc2/mm/oom_kill.c	2006-02-09 11:52:05.000000000 -0800
+@@ -131,6 +131,36 @@ unsigned long badness(struct task_struct
+ }
+ 
+ /*
++ * Types of limitations to the nodes from which allocations may occur
++ */
++#define CONSTRAINT_NONE 1
++#define CONSTRAINT_MEMORY_POLICY 2
++#define CONSTRAINT_CPUSET 3
++
++/*
++ * Determine the type of allocation constraint.
++ */
++static int constrained_alloc(struct zonelist *zonelist, gfp_t gfp_mask)
++{
++#ifdef CONFIG_NUMA
++	struct zone **z;
++	nodemask_t nodes = node_online_map;
++
++	for (z = zonelist->zones; *z; z++)
++		if (cpuset_zone_allowed(*z, gfp_mask))
++			node_clear((*z)->zone_pgdat->node_id,
++					nodes);
++		else
++			return CONSTRAINT_CPUSET;
++
++	if (!nodes_empty(nodes))
++		return CONSTRAINT_MEMORY_POLICY;
++#endif
++
++	return CONSTRAINT_NONE;
++}
++
++/*
+  * Simple selection loop. We chose the process with the highest
+  * number of 'points'. We expect the caller will lock the tasklist.
+  *
+@@ -182,7 +212,7 @@ static struct task_struct * select_bad_p
+  * CAP_SYS_RAW_IO set, send SIGTERM instead (but it's unlikely that
+  * we select a process with CAP_SYS_RAW_IO set).
+  */
+-static void __oom_kill_task(task_t *p)
++static void __oom_kill_task(task_t *p, const char *message)
+ {
+ 	if (p->pid == 1) {
+ 		WARN_ON(1);
+@@ -198,8 +228,8 @@ static void __oom_kill_task(task_t *p)
+ 		return;
+ 	}
+ 	task_unlock(p);
+-	printk(KERN_ERR "Out of Memory: Killed process %d (%s).\n",
+-							p->pid, p->comm);
++	printk(KERN_ERR "%s: Killed process %d (%s).\n",
++				message, p->pid, p->comm);
+ 
+ 	/*
+ 	 * We give our sacrificial lamb high priority and access to
+@@ -212,7 +242,7 @@ static void __oom_kill_task(task_t *p)
+ 	force_sig(SIGKILL, p);
+ }
+ 
+-static struct mm_struct *oom_kill_task(task_t *p)
++static struct mm_struct *oom_kill_task(task_t *p, const char *message)
+ {
+ 	struct mm_struct *mm = get_task_mm(p);
+ 	task_t * g, * q;
+@@ -224,20 +254,20 @@ static struct mm_struct *oom_kill_task(t
+ 		return NULL;
+ 	}
+ 
+-	__oom_kill_task(p);
++	__oom_kill_task(p, message);
+ 	/*
+ 	 * kill all processes that share the ->mm (i.e. all threads),
+ 	 * but are in a different thread group
+ 	 */
+ 	do_each_thread(g, q)
+ 		if (q->mm == mm && q->tgid != p->tgid)
+-			__oom_kill_task(q);
++			__oom_kill_task(q, message);
+ 	while_each_thread(g, q);
+ 
+ 	return mm;
+ }
+ 
+-static struct mm_struct *oom_kill_process(struct task_struct *p)
++static struct mm_struct *oom_kill_process(struct task_struct *p, const char *message)
+ {
+  	struct mm_struct *mm;
+ 	struct task_struct *c;
+@@ -248,11 +278,11 @@ static struct mm_struct *oom_kill_proces
+ 		c = list_entry(tsk, struct task_struct, sibling);
+ 		if (c->mm == p->mm)
+ 			continue;
+-		mm = oom_kill_task(c);
++		mm = oom_kill_task(c, message);
+ 		if (mm)
+ 			return mm;
+ 	}
+-	return oom_kill_task(p);
++	return oom_kill_task(p, message);
+ }
+ 
+ /**
+@@ -263,7 +293,7 @@ static struct mm_struct *oom_kill_proces
+  * OR try to be smart about which process to kill. Note that we
+  * don't have to be perfect here, we just have to be good.
+  */
+-void out_of_memory(gfp_t gfp_mask, int order)
++void out_of_memory(struct zonelist *zonelist, gfp_t gfp_mask, int order)
+ {
+ 	struct mm_struct *mm = NULL;
+ 	task_t * p;
+@@ -277,24 +307,50 @@ void out_of_memory(gfp_t gfp_mask, int o
+ 
+ 	cpuset_lock();
+ 	read_lock(&tasklist_lock);
++
++	/*
++	 * Check if there were limitations on the allocation (only relevant for
++	 * NUMA) that may require different handling.
++	 */
++	switch (constrained_alloc(zonelist, gfp_mask)) {
++
++	case CONSTRAINT_MEMORY_POLICY :
++
++		mm = oom_kill_process(current, "No available memory (MPOL_BIND)");
++		break;
++
++	case CONSTRAINT_CPUSET :
++
++		mm = oom_kill_process(current, "No available memory in cpuset");
++		break;
++
++	case CONSTRAINT_NONE:
++
+ retry:
+-	p = select_bad_process();
++		/*
++		 * Rambo mode: Shoot down a process and hope it solves whatever
++		 * issues we may have.
++		 */
++		p = select_bad_process();
+ 
+-	if (PTR_ERR(p) == -1UL)
+-		goto out;
++		if (PTR_ERR(p) == -1UL)
++			goto out;
+ 
+-	/* Found nothing?!?! Either we hang forever, or we panic. */
+-	if (!p) {
+-		read_unlock(&tasklist_lock);
+-		cpuset_unlock();
+-		panic("Out of memory and no killable processes...\n");
+-	}
++		/* Found nothing?!?! Either we hang forever, or we panic. */
++		if (!p) {
++			read_unlock(&tasklist_lock);
++			cpuset_unlock();
++			panic("Out of memory and no killable processes...\n");
++		}
+ 
+-	mm = oom_kill_process(p);
+-	if (!mm)
+-		goto retry;
++		mm = oom_kill_process(p, "Out of Memory");
++		if (!mm)
++			goto retry;
++
++		break;
++	}
+ 
+- out:
++out:
+ 	read_unlock(&tasklist_lock);
+ 	cpuset_unlock();
+ 	if (mm)
+Index: linux-2.6.16-rc2/include/linux/swap.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/linux/swap.h	2006-02-02 22:03:08.000000000 -0800
++++ linux-2.6.16-rc2/include/linux/swap.h	2006-02-09 10:40:33.000000000 -0800
+@@ -147,7 +147,7 @@ struct swap_list_t {
+ #define vm_swap_full() (nr_swap_pages*2 < total_swap_pages)
+ 
+ /* linux/mm/oom_kill.c */
+-extern void out_of_memory(gfp_t gfp_mask, int order);
++extern void out_of_memory(struct zonelist *zonelist, gfp_t gfp_mask, int order);
+ 
+ /* linux/mm/memory.c */
+ extern void swapin_readahead(swp_entry_t, unsigned long, struct vm_area_struct *);
+Index: linux-2.6.16-rc2/mm/page_alloc.c
+===================================================================
+--- linux-2.6.16-rc2.orig/mm/page_alloc.c	2006-02-02 22:03:08.000000000 -0800
++++ linux-2.6.16-rc2/mm/page_alloc.c	2006-02-09 10:40:50.000000000 -0800
+@@ -1011,7 +1011,7 @@ rebalance:
+ 		if (page)
+ 			goto got_pg;
+ 
+-		out_of_memory(gfp_mask, order);
++		out_of_memory(zonelist, gfp_mask, order);
+ 		goto restart;
+ 	}
+ 
+Index: linux-2.6.16-rc2/drivers/char/sysrq.c
+===================================================================
+--- linux-2.6.16-rc2.orig/drivers/char/sysrq.c	2006-02-02 22:03:08.000000000 -0800
++++ linux-2.6.16-rc2/drivers/char/sysrq.c	2006-02-09 11:34:42.000000000 -0800
+@@ -243,7 +243,7 @@ static struct sysrq_key_op sysrq_term_op
+ 
+ static void moom_callback(void *ignored)
+ {
+-	out_of_memory(GFP_KERNEL, 0);
++	out_of_memory(&NODE_DATA(0)->node_zonelists[ZONE_NORMAL], GFP_KERNEL, 0);
+ }
+ 
+ static DECLARE_WORK(moom_work, moom_callback, NULL);

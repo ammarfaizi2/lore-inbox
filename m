@@ -1,84 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWBISMo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932532AbWBISXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932523AbWBISMo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 13:12:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932525AbWBISMo
+	id S932532AbWBISXd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 13:23:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932533AbWBISXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 13:12:44 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56748 "EHLO
+	Thu, 9 Feb 2006 13:23:33 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:2733 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932523AbWBISMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 13:12:43 -0500
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: pid_t range question
-References: <Pine.LNX.4.61.0602071122520.327@chaos.analogic.com>
-	<m1pslystkz.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.61.0602091751220.30108@yvahk01.tjqt.qr>
+	id S932532AbWBISXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 13:23:32 -0500
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
+       Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       frankeh@watson.ibm.com, clg@fr.ibm.com, greg@kroah.com,
+       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
+       Pavel Emelianov <xemul@sw.ru>
+Subject: Re: swsusp done by migration (was Re: [RFC][PATCH 1/5]
+ Virtualization/containers: startup)
+References: <43E38BD1.4070707@openvz.org>
+	<Pine.LNX.4.64.0602030905380.4630@g5.osdl.org>
+	<43E3915A.2080000@sw.ru>
+	<Pine.LNX.4.64.0602030939250.4630@g5.osdl.org>
+	<m1lkwoubiw.fsf@ebiederm.dsl.xmission.com> <43E71018.8010104@sw.ru>
+	<m1hd7condi.fsf@ebiederm.dsl.xmission.com>
+	<1139243874.6189.71.camel@localhost.localdomain>
+	<m13biwnxkc.fsf@ebiederm.dsl.xmission.com>
+	<20060208215412.GD2353@ucw.cz>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 09 Feb 2006 11:11:56 -0700
-In-Reply-To: <Pine.LNX.4.61.0602091751220.30108@yvahk01.tjqt.qr> (Jan
- Engelhardt's message of "Thu, 9 Feb 2006 17:58:34 +0100 (MET)")
-Message-ID: <m1r76c2yhf.fsf@ebiederm.dsl.xmission.com>
+Date: Thu, 09 Feb 2006 11:20:13 -0700
+In-Reply-To: <20060208215412.GD2353@ucw.cz> (Pavel Machek's message of "Wed,
+ 8 Feb 2006 21:54:13 +0000")
+Message-ID: <m1mzh02y3m.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
+Pavel Machek <pavel@ucw.cz> writes:
 
->>> On Linux, type pid_t is defined as an int if you look
->>> through all the intermediate definitions such as S32_T,
->>> etc. However, it wraps at 32767, the next value being 300.
+> Well, for now software suspend is done at very different level
+> (it snapshots complete kernel state), but being able to use
+> migration for this is certainly nice option.
 >
-> There is also an aesthetical reason. If pids were allowed to exceed, say, 
-> ten million, you would need a quite wide field in `ps` for the process 
-> number which is on "normal desktop user" systems just require 5 or 6 
-> decimal places. Well, what I mean, just look at this sample ps output:
->
-> 17:59 shanghai:../fs/proc # ps
->         PID TTY          TIME CMD
->           1 -        00:00:00 init [3]
->  4215914607 tty2     00:00:00 bash
->  4215914653 tty2     00:00:00 ps
->
-> mingw/msys and cygwin already have this "cosmetic problem" since windows 
-> "pids" are usually above one million.
+> BTW you could do whole-machine-migration now with uswsusp; but you'd
+> need identical hardware and it would take a bit long... 
 
-Yes.  Although this I'm not I'm not certain how bad the cosmetic problem
-is.  Certainly significant enough that we don't want to change a good
-thing when we got it.  But if there were real problems a big pid
-would solve I don't expect large pid numbers to stop us.
+Right part of the goal is with doing it as we are doing it is that we can
+define what the interesting state is.
 
->>> I know the
->>> code "reserves" the first 300 pids.
->
-> I cannot confirm that. When I start in "-b" mode and 'use' up all pids by 
-> repeatedly executing /bin/noop, I someday get pids as low as 10 
-> again, defined by how many kernel threads there are active before /bin/bash 
-> started.
+Replacing software suspend is not an immediate goal but I think it is
+a worthy thing to target.  In part because if we really can rip things
+out of the kernel store them in a portable format and restore them
+we will also have the ability to upgrade the kernel with out stopping
+user space applications...
 
-Odd.  When the search wraps it starts searching at 300.
-Still there are no locks around last_pid.
-
->>I know for certain that proc assumes it can fit pid in
->>the upper bits of an ino_t taking the low 16bits for itself
->>so that may the entire reason for the limit.
->>
-> inode number in /proc/XXX/fd creation currently is, IIRC
->   ino = (pid << 16) | fd
-> which limits both pid to 16 bits and the fdtable to 16 bits. See 
-> fs/proc/inode-alloc.txt. At best, procfs should start using 64bit inode 
-> numbers.
-
-Well it does use 64bit inode numbers but only on 64bit systems.
-Internally /proc doesn't care about the inode it is only for keep find
-and friends from getting confused.
-
-Figuring out how to use find_inode_number would likely be interesting,
-and a random inode allocation scheme would be interesting.
+But being able to avoid the uninteresting parts, and having the policy
+complete controlled outside the kernel are the big wins we are shooting for.
 
 Eric
-

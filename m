@@ -1,115 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422741AbWBINt1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422906AbWBIN5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422741AbWBINt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 08:49:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422758AbWBINt1
+	id S1422906AbWBIN5E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 08:57:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422908AbWBIN5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 08:49:27 -0500
-Received: from mail.gmx.de ([213.165.64.21]:48029 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1422741AbWBINt0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 08:49:26 -0500
-X-Authenticated: #14349625
-Subject: Re: [k2.6.16-rc1-mm5] kernel BUG at include/linux/mm.h:302!
-From: MIke Galbraith <efault@gmx.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <43EB393F.1070409@yahoo.com.au>
-References: <1139473463.8028.13.camel@homer>	<43EAFF6D.1040604@yahoo.com.au>
-	 <20060209004712.3998e336.akpm@osdl.org>	<1139478652.7867.9.camel@homer>
-	 <20060209021136.410f1128.akpm@osdl.org>  <43EB393F.1070409@yahoo.com.au>
-Content-Type: text/plain
-Date: Thu, 09 Feb 2006 14:53:07 +0100
-Message-Id: <1139493187.7618.4.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Thu, 9 Feb 2006 08:57:04 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:16321 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1422906AbWBIN5C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 08:57:02 -0500
+Message-ID: <43EB49D7.8030601@cosmosbay.com>
+Date: Thu, 09 Feb 2006 14:55:35 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, 76306.1226@compuserve.com, pj@sgi.com,
+       wli@holomorphy.com, ak@muc.de, mingo@elte.hu, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, riel@redhat.com, dada1@cosmobay.com
+Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
+References: <200602090335_MC3-1-B7FA-621E@compuserve.com> <20060209010655.5cdeb192.akpm@osdl.org> <20060209011106.68aa890a.akpm@osdl.org> <20060209100834.GA9281@osiris.boeblingen.de.ibm.com> <20060209021314.23a9096f.akpm@osdl.org> <20060209102317.GA20554@osiris.boeblingen.de.ibm.com> <20060209023106.10c53c0b.akpm@osdl.org> <20060209114700.GB20554@osiris.boeblingen.de.ibm.com> <43EB39A8.2010202@cosmosbay.com> <20060209131220.GC20554@osiris.boeblingen.de.ibm.com>
+In-Reply-To: <20060209131220.GC20554@osiris.boeblingen.de.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 09 Feb 2006 14:55:36 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-09 at 23:44 +1100, Nick Piggin wrote:
-> Andrew Morton wrote:
-
-> >> (or Nick, do you have the supposed fix handy?)
-> > 
-> > 
-> > Yeah, I'm still scratching my head over the mystery fix.
-> > 
-> > 
+Heiko Carstens a écrit :
+>> for (cpu = max_cpus ; cpu < NR_CPUS ; cpu++)
+>> 	cpu_clear(cpu, cpu_possible_map);
 > 
-> The mm/swap.c hunk from git 8519fb30e438f8088b71a94a7d5a660a814d3872
-> is the mystery fix (the mm.h hunk is already in there).
-> 
-> I suppose you'd better verify that -mm works fine with the patch as
-> well, when you get time.
+> Hmm... I don't think the semantics of cpu_possible_map allow to change it.
+> Also any code that uses for_each_cpu() may allocate memory _before_
+> cpu_possible_map is changed back to reflect a smaller number of cpus.
+> Doesn't look like the correct way to fix this.
+> Thinking a bit longer this was probably a reason why initialization of
+> this map was done in smp_prepare_cpus() before it silently moved to
+> setup_arch().
 
-Verified.  rc2-mm1 worked fine, and plugging the extracted bit below
-into rc1-mm5 fixed it's BUG.
+Hum... of course you may loose some bits of memory (percpu data for example) 
+but clearing a cpu in cpu_possible_map is allowed.
 
-	Thanks,
-
-	-Mike
-
---- linux-2.6.16-rc1-mm5/mm/swap.c	2006-02-09 05:38:11.000000000 +0100
-+++ linux-2.6.16-rc2-mm1/mm/swap.c	2006-02-09 13:04:04.000000000 +0100
-@@ -34,19 +34,22 @@
- /* How many pages do we try to swap or page in/out together? */
- int page_cluster;
- 
--void put_page(struct page *page)
-+static void put_compound_page(struct page *page)
- {
--	if (unlikely(PageCompound(page))) {
--		page = (struct page *)page_private(page);
--		if (put_page_testzero(page)) {
--			void (*dtor)(struct page *page);
-+	page = (struct page *)page_private(page);
-+	if (put_page_testzero(page)) {
-+		void (*dtor)(struct page *page);
- 
--			dtor = (void (*)(struct page *))page[1].mapping;
--			(*dtor)(page);
--		}
--		return;
-+		dtor = (void (*)(struct page *))page[1].mapping;
-+		(*dtor)(page);
- 	}
--	if (put_page_testzero(page))
-+}
-+
-+void put_page(struct page *page)
-+{
-+	if (unlikely(PageCompound(page)))
-+		put_compound_page(page);
-+	else if (put_page_testzero(page))
- 		__page_cache_release(page);
- }
- EXPORT_SYMBOL(put_page);
-@@ -242,6 +245,15 @@
- 	for (i = 0; i < nr; i++) {
- 		struct page *page = pages[i];
- 
-+		if (unlikely(PageCompound(page))) {
-+			if (zone) {
-+				spin_unlock_irq(&zone->lru_lock);
-+				zone = NULL;
-+			}
-+			put_compound_page(page);
-+			continue;
-+		}
-+
- 		if (!put_page_testzero(page))
- 			continue;
- 
-@@ -265,7 +277,7 @@
- 			}
- 			__pagevec_free(&pages_to_free);
- 			pagevec_reinit(&pages_to_free);
--		}
-+  		}
- 	}
- 	if (zone)
- 		spin_unlock_irq(&zone->lru_lock);
+See arch/alpha/kernel/process.c and arch/x86_64/kernel/smpboot.c for uses of 
+cpu_clear()
 
 

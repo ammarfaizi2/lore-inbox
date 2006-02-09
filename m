@@ -1,81 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWBIVIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWBIVKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbWBIVIP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 16:08:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWBIVIP
+	id S1750794AbWBIVKr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 16:10:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWBIVKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 16:08:15 -0500
-Received: from mail.windriver.com ([147.11.1.11]:4008 "EHLO mail.wrs.com")
-	by vger.kernel.org with ESMTP id S1750786AbWBIVIO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 16:08:14 -0500
-Message-ID: <43EBAF34.1020105@windriver.com>
-Date: Thu, 09 Feb 2006 16:08:04 -0500
-From: martin rogers <martin.rogers@windriver.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
-X-Accept-Language: en-us, en
+	Thu, 9 Feb 2006 16:10:47 -0500
+Received: from uproxy.gmail.com ([66.249.92.196]:62192 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750794AbWBIVKr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 16:10:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=NbzUyR+08ppNQyta+bX91BTUo1HsxujQrjly3yBnw8+aX/HNtAAkrRi2Yyl/w0DUkXRva+XVGQklMLxry5x4gmoCXNwelbe9ffZlUNhFtATn+eAUAGpfPasJdNbQa2ndMxXspBa2WZryqR2h1znUCiWiDToXcnzk2WT+mfMFuwk=
+Message-ID: <728201270602091310r67a3f2dcq4788199f26a69528@mail.gmail.com>
+Date: Thu, 9 Feb 2006 15:10:45 -0600
+From: Ram Gupta <ram.gupta5@gmail.com>
+To: linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: RSS Limit implementation issue
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Help with 2.6.10 concurrency issue
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Feb 2006 21:08:05.0666 (UTC) FILETIME=[EB9CC820:01C62DBC]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
-I need help with a concurrency issue on 2.6.10.
-CONFIG_PREEMPT not set, but my code must run on both uni and SMP systems.
+I am working to implement enforcing RSS limits of a process. I am
+planning to make a check for rss limit when setting up pte. If the
+limit is crossed I see couple of  different ways of handling .
 
+1. Kill the process . In this case there is no swapping problem.
 
-I have a function, that runs from a tastlet:
+2. Dont kill the process but dont allocate the memory & do yield as we
+do for init process. Modify the scheduler not to chose the process
+which has already allocated rss upto its limit. When rss usage
+fallsbelow its limit then the scheduler may chose it again to run.
+Here there is a scenario when no page of the process has been freed or
+swapped out because there were enough free pages? Then we need a way
+to reschedule the process by forcefully freeing some pages or need to
+kill the process.
 
-void readlist(unsigned long arg)
-{    
-  int flags;
-  my_type *entry, *n;
+I am looking forward for your comments & pros/cons of both approach &
+any other alternatives you might come up with.
 
-  if (list_empty(&mylist.list)) return;
-  list_for_each_entry_safe(entry, n, &mylist.list, list)
-  {
-        spin_lock_irqsave(&mylock, flags); // protect against intr
-        list_del(&entry->list);
-        spin_unlock_irqrestore(&mylock, flags);
-        INIT_LIST_HEAD(&entry->list);
-        do_stuff(entry);
-  }
-}
-
-
-And the func that puts things on the list:
-
-void writeList(my_type *record)
-{
-  spin_lock(&mylock);
-  list_add_tail(&record->list, &mylist.list);
-  spin_unlock(&mylock);
-  tasklet_schedule(&mytasklet.tlet);
-}
-
-
-Problem is, the function writeList can be called from a H/W intr,
-and a workqueue (and that intr could of course happen while either
-the workqueue or the tasklet is running, right?).
-
-If I use spin_lock_irqsave in writeList, it protects against the intr
-but not the tasklet.  If I use spin_lock_bh, I don't get protection
-from the intr I think; plus, I get :
-
-Badness in local_bh_enable at kernel/softirq.c:142
-
-when the intr runs (what does this mean?).
-
-So, how can I protect my data (my list) from both intrs (calling
-writeList) and the tasklet (calling readList) while the workqueue is
-inside of writeList?  Combination of spin_lock_irqsave and local_bh_disable
-inside writeList ?
-
-Thanks to all,
-Martin Rogers
-Wind River
-
+Thanks
+Ram Gupta

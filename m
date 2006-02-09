@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWBIVcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWBIVjf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750804AbWBIVcS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 16:32:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWBIVcS
+	id S1750803AbWBIVjf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 16:39:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWBIVje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 16:32:18 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5039 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750800AbWBIVcR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 16:32:17 -0500
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: linux-kernel@vger.kernel.org, oleg@tv-sign.ru, mm-commits@vger.kernel.org
-Subject: Re: + fork-allow-init-to-become-a-session-leader.patch added to -mm
- tree
-References: <200602082314.k18NEuN0017390@shell0.pdx.osdl.net>
-	<Pine.LNX.4.62.0602081518580.5184@schroedinger.engr.sgi.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 09 Feb 2006 14:31:32 -0700
-In-Reply-To: <Pine.LNX.4.62.0602081518580.5184@schroedinger.engr.sgi.com> (Christoph
- Lameter's message of "Wed, 8 Feb 2006 15:19:54 -0800 (PST)")
-Message-ID: <m1lkwk1aob.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Thu, 9 Feb 2006 16:39:34 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:62857 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750803AbWBIVjd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 16:39:33 -0500
+Message-ID: <43EBB68A.3040105@austin.ibm.com>
+Date: Thu, 09 Feb 2006 15:39:22 -0600
+From: Joel Schopp <jschopp@austin.ibm.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Luck, Tony" <tony.luck@intel.com>
+CC: Yasunori Goto <y-goto@jp.fujitsu.com>, Andi Kleen <ak@suse.de>,
+       "Brown, Len" <len.brown@intel.com>,
+       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
+       "S, Naveen B" <naveen.b.s@intel.com>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       ACPI-ML <linux-acpi@vger.kernel.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, x86-64 Discuss <discuss@x86-64.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>
+Subject: Re: [Lhms-devel] [RFC:PATCH(000/003)] Memory add to onlined node.
+ (ver. 2)
+References: <B8E391BBE9FE384DAA4C5C003888BE6F05AA16C3@scsmsx401.amr.corp.intel.com>
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F05AA16C3@scsmsx401.amr.corp.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@engr.sgi.com> writes:
+>> - if the node is already online.-  If the node is offline, 
+>> (It means new node is comming!)  then the memory will belongs
+>> to node 0 yet.
+> 
+> What is the long term plan to address this?  Can you make sure
+> that the new node is always brought online before you get to
+> this code?  Or will you have to bring the node online in the
+> middle of the memory hot-add code?
+> 
+> Presumably there is a similar issue with hot add cpu.
+> 
 
-> On Wed, 8 Feb 2006 akpm@osdl.org wrote:
->
->> +			if (unlikely(p->pid == 1)) {
->> +				p->signal->tty = NULL;
->> +				p->signal->leader = 1;
->> +				p->signal->pgrp = 1;
->> +				p->signal->session = 1;
->
-> Would it not be better to do these special settings for init from 
-> init itself?
+Yes, cpu hot add has the same issue.  It's really a performance issue, 
+not a functional one so you haven't seen people beating down the doors 
+to fix it.
 
-So if you mean from within the kernel context that is doable,
-so long as we only have one process with pid == 1.
+Technically there isn't anything but manpower standing in the way of 
+doing it.  But it is a good amount of work for the little it gains.
 
-Although we may be able fix the kernel limitations in setsid().
-
-For multiple pid == 1 case I don't know of another place in
-the kernel I can possibly put this.  I can't put it later
-because there is no place later, and I can't put it earlier
-or else my efforts would just get stomped.
-
-So I did it this way so I don't have to come back and change it to
-this next week.  I'd love to have a better place to put this
-code.
-
-Eric
+-Joel

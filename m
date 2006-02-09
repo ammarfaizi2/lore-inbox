@@ -1,63 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422751AbWBIBNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422752AbWBIBPx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422751AbWBIBNF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Feb 2006 20:13:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422750AbWBIBNF
+	id S1422752AbWBIBPx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Feb 2006 20:15:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422753AbWBIBPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Feb 2006 20:13:05 -0500
-Received: from minus.inr.ac.ru ([194.67.69.97]:10406 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id S1422751AbWBIBNE (ORCPT
+	Wed, 8 Feb 2006 20:15:53 -0500
+Received: from quechua.inka.de ([193.197.184.2]:23209 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S1422752AbWBIBPw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Feb 2006 20:13:04 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=ms2.inr.ac.ru;
-  b=P+npV9V+NZ52wy39UAmcsRrWBcvbgVGhR7qai56TCx4Y0W/McITLbVcBmHW+JSLCYphJFNpIYhF5DeRMYebVR+A9matt1hRFGSvY6oDvmT7dlOhVSCrSIHaD/UgPynvvKkIexWOwXyms8ipvFL9EairfY2s/xfgVqRkNLjXVWS0=;
-Date: Thu, 9 Feb 2006 04:11:26 +0300
-From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Kirill Korotaev <dev@sw.ru>, Kirill Korotaev <dev@openvz.org>,
-       serue@us.ibm.com, arjan@infradead.org, frankeh@watson.ibm.com,
-       clg@fr.ibm.com, haveblue@us.ibm.com, mrmacman_g4@mac.com,
-       alan@lxorguk.ukuu.org.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       devel@openvz.org
-Subject: Re: [RFC][PATCH 2/7] VPIDs: pid/vpid conversions
-Message-ID: <20060209011126.GB5417@ms2.inr.ac.ru>
-References: <43E22B2D.1040607@openvz.org> <43E23179.5010009@sw.ru> <m1irrpsifp.fsf@ebiederm.dsl.xmission.com> <20060208235348.GC26035@ms2.inr.ac.ru> <m11wyd5pv8.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m11wyd5pv8.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 8 Feb 2006 20:15:52 -0500
+From: be-news06@lina.inka.de (Bernd Eckenfels)
+To: linux-kernel@vger.kernel.org
+Subject: Re: file system question
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <ef2d59350602081613y5ba8c264j45a64363360bd58e@mail.gmail.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
+Message-Id: <E1F70PW-0005Kw-00@calista.inka.de>
+Date: Thu, 09 Feb 2006 02:15:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+kapil a <kapilann@gmail.com> wrote:
+> When i did some debugging i found that filldir which is suppose to
+> fill the dirent with the directory entries does its job. My filesystem
+> currently has only one inode with one block of data where i have a
+> ".", ".." and "test" written into it.
+> 
+> The problem is it does not go further to do some of the other calls as
+> in a mountpoint in ext2 file system.
 
-> In capability.c it does for_each_thread or something like that.  It is
-> very similar to cap_set_pg.  But in a virtual context all != all :)
-
-Do you mean that VPID patch does not include this? Absolutely.
-VPIDs are not to limit access, the patch virtualizes pids, rather
-than deals with access policy.
-
-Take the whole openvz. Make patch -R < vpid_patch. The result is perfectly
-working openvz. Only pids are not virtual, which does not matter. Capisco?
-
-
-> I think for people doing migration a private pid space in some form is
-> necessary, 
-
-Not "private", but "virtual". VPIDs are made only for migration, not for fun.
-
-And word "private" is critical, f.e. for us preserving some form of pid
-space is critical. It is very sad, but we cannot do anything with this,
-customers will not allow to change status quo.
+in that case ls is missing something, maybe a count, a size, filetype,
+permission... why dont you debug ls to see where it is exiting? I mean if
+you write kernel mode code one could expect that you can step through a user
+mode tool?
 
 
-> My problem with the vpid case and it's translate at the kernel
-> boundary is that boundary is huge
-
-Believe me, it is surprizingly small.
-
-Alexey
+Gruss
+Bernd

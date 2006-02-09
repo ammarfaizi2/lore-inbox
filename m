@@ -1,68 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030534AbWBIJwH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422648AbWBIJ51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030534AbWBIJwH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 04:52:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030523AbWBIJwH
+	id S1422648AbWBIJ51 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 04:57:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422647AbWBIJ51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 04:52:07 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:54216 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030345AbWBIJwE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 04:52:04 -0500
-Date: Thu, 09 Feb 2006 18:50:35 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [RFC:PATCH(003/003)] Memory add to onlined node. (ver. 2) (For x86_64)
-Cc: "Brown, Len" <len.brown@intel.com>, naveen.b.s@intel.com,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       ACPI-ML <linux-acpi@vger.kernel.org>,
-       x86-64 Discuss <discuss@x86-64.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>
-In-Reply-To: <20060209153803.6CF4.Y-GOTO@jp.fujitsu.com>
-References: <20060209153803.6CF4.Y-GOTO@jp.fujitsu.com>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060209164036.6CFC.Y-GOTO@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
+	Thu, 9 Feb 2006 04:57:27 -0500
+Received: from minus.inr.ac.ru ([194.67.69.97]:9690 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id S1030624AbWBIJ50 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 04:57:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=ms2.inr.ac.ru;
+  b=nQcp11IVQTieuAfhCauAQPno3rz5rdjTRLjiXj5ybb7qmtngLc6UG++oXglompgL6Vqe+rIDc0bC98cPDuFJX8QOj8hwQdl0BBVNnSkQb6/HDlJBrmTwxY2vN/Rsnl6RzTfpe9GZmgnfZbFqGIgMGzaAgHHNq8sEZKXSLVcBICU=;
+Date: Thu, 9 Feb 2006 12:55:09 +0300
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Kirill Korotaev <dev@sw.ru>,
+       Kirill Korotaev <dev@openvz.org>, arjan@infradead.org,
+       frankeh@watson.ibm.com, clg@fr.ibm.com, haveblue@us.ibm.com,
+       mrmacman_g4@mac.com, alan@lxorguk.ukuu.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       devel@openvz.org
+Subject: Re: [RFC][PATCH 2/7] VPIDs: pid/vpid conversions
+Message-ID: <20060209095509.GA5747@ms2.inr.ac.ru>
+References: <43E22B2D.1040607@openvz.org> <43E23179.5010009@sw.ru> <m1irrpsifp.fsf@ebiederm.dsl.xmission.com> <20060208235348.GC26035@ms2.inr.ac.ru> <m11wyd5pv8.fsf@ebiederm.dsl.xmission.com> <20060209011126.GB5417@ms2.inr.ac.ru> <20060209025135.GA29197@sergelap.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060209025135.GA29197@sergelap.austin.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-BTW, I have 2 question about x86_64's memory hot-add.
+> do you mean "preserving some sort of *global* pidspace"?
 
-Q1) 
->  int add_memory(u64 start, u64 size)
->  {
-> -	struct pglist_data *pgdat = NODE_DATA(0);
-> -	struct zone *zone = pgdat->node_zones + MAX_NR_ZONES-2;
+Of course.
 
-Current code adds memory to ZONE_NORMAL like this.
-But, ZONE_DMA32 is available on 2.6.15. So, I'm afraid there are
-2 types trouble.
-
-  a) When new memory is added to < 4GB, this should be added to 
-     Zone_DMA32.
-     Are there any real machine which allow to add memory under
-     4GB?
-  b) If machine boots up with under 4GB memory, and new memory 
-     is added to over 4GB, then kernel might panic due to Zone Normal's
-     initialization is imcomplete.
-  
-Q2) 
-  Are there any real machine which can add memory with NUMA feature?
-  Or will be there?
-  In my patch, I assume that DSDT is defined well for NUMA by firmware.
-  (Container device, Memory device...). 
-  But, if firmware doesn't define it, my patch is nonsense..
-  (Oh, I'm silly.....)
-
-
--- 
-Yasunori Goto 
-
-
+Alexey

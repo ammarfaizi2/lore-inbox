@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbWBIIyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965209AbWBII47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750828AbWBIIyp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 03:54:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965209AbWBIIyp
+	id S965209AbWBII47 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 03:56:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965224AbWBII47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 03:54:45 -0500
-Received: from mail.gmx.net ([213.165.64.21]:45457 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750993AbWBIIyo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 03:54:44 -0500
-X-Authenticated: #14349625
-Subject: Re: [k2.6.16-rc1-mm5] kernel BUG at include/linux/mm.h:302!
-From: MIke Galbraith <efault@gmx.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <43EAFF6D.1040604@yahoo.com.au>
-References: <1139473463.8028.13.camel@homer> <43EAFF6D.1040604@yahoo.com.au>
-Content-Type: text/plain
-Date: Thu, 09 Feb 2006 09:59:30 +0100
-Message-Id: <1139475570.8418.5.camel@homer>
+	Thu, 9 Feb 2006 03:56:59 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:50054 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S965209AbWBII47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 03:56:59 -0500
+Date: Thu, 9 Feb 2006 00:55:53 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: akpm@osdl.org, heiko.carstens@de.ibm.com, wli@holomorphy.com, ak@muc.de,
+       mingo@elte.hu, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       riel@redhat.com, dada1@cosmobay.com
+Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
+Message-Id: <20060209005553.088a2a78.pj@sgi.com>
+In-Reply-To: <200602090335_MC3-1-B7FA-621E@compuserve.com>
+References: <200602090335_MC3-1-B7FA-621E@compuserve.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-09 at 19:38 +1100, Nick Piggin wrote:
-> MIke Galbraith wrote:
-> > Greetings,
-> > 
-> > Excuse me if this is already known, I've been too busy tinkering to read
-> > lkml.
-> > 
-> 
-> It should be fixed as of current -git (not sure about the latest
-> -mm though). It would be good if you could verify that 2.6.16-rc2-git7
-> works OK for you.
+Chuck wrote:
+> I don't think that's, um, "possible."  Even if you could discover how many
+> empty sockets there were in a system, someone might be able to hotplug
+> a board with more of them on it. 
 
-Well shoot.  I'd be happy to if I could find it.  That extension makes
-me suspect I need to gitified to get there from here.  Yes?  I'm more
-accustomed to digging bits and pieces out of mondo patches... no SCM
-thingies here.
+That's going to depend on your system hardware configuration.
 
-	-Mike  (SCM wimp)
+cpu_possible_map should be whatever is the largest set of
+cpus you might possibly want to deal with plugging in.
 
+Some hardware configurations will support more addition
+of hardware cpus than others.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

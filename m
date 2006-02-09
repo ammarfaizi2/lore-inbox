@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422905AbWBIRE7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422911AbWBIRFu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422905AbWBIRE7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 12:04:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422892AbWBIRE6
+	id S1422911AbWBIRFu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 12:05:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422913AbWBIRFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 12:04:58 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:51397 "EHLO
+	Thu, 9 Feb 2006 12:05:50 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:64197 "EHLO
 	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S965239AbWBIRE5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 12:04:57 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [Lhms-devel] [RFC:PATCH(000/003)] Memory add to onlined node. (ver. 2)
-Date: Thu, 9 Feb 2006 09:04:43 -0800
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F05AA16C3@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Lhms-devel] [RFC:PATCH(000/003)] Memory add to onlined node. (ver. 2)
-Thread-Index: AcYtR3OCbasF05daTp6P1eV/NPvM5gAUwAOg
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Yasunori Goto" <y-goto@jp.fujitsu.com>, "Andi Kleen" <ak@suse.de>,
-       "Brown, Len" <len.brown@intel.com>,
-       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
-       "S, Naveen B" <naveen.b.s@intel.com>,
-       "Bjorn Helgaas" <bjorn.helgaas@hp.com>
-Cc: "ACPI-ML" <linux-acpi@vger.kernel.org>,
-       "Linux Kernel ML" <linux-kernel@vger.kernel.org>,
-       <linux-ia64@vger.kernel.org>, "x86-64 Discuss" <discuss@x86-64.org>,
-       "Linux Hotplug Memory Support" <lhms-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 09 Feb 2006 17:04:44.0821 (UTC) FILETIME=[ECD4A450:01C62D9A]
+	id S1422911AbWBIRFt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 12:05:49 -0500
+Date: Thu, 9 Feb 2006 09:03:21 -0800
+From: Ashok Raj <ashok.raj@intel.com>
+To: Nathan Lynch <ntl@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, Eric Dumazet <dada1@cosmosbay.com>,
+       riel@redhat.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       mingo@elte.hu, ak@muc.de, 76306.1226@compuserve.com, wli@holomorphy.com,
+       heiko.carstens@de.ibm.com, Paul Jackson <pj@sgi.com>
+Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
+Message-ID: <20060209090321.A9380@unix-os.sc.intel.com>
+References: <20060209160808.GL18730@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060209160808.GL18730@localhost.localdomain>; from ntl@pobox.com on Thu, Feb 09, 2006 at 08:08:09AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> - if the node is already online.-  If the node is offline, 
-> (It means new node is comming!)  then the memory will belongs
-> to node 0 yet.
+On Thu, Feb 09, 2006 at 08:08:09AM -0800, Nathan Lynch wrote:
+> 
+>    powerpc/ppc64, for instance, determines the number of possible cpus
+>    from information exported by firmware (and I'm mystified as to why
+>    other platforms don't do this).  So it's typical to have a kernel an a
+>    pSeries partition with NR_CPUS=128, but cpu_possible_map = 0xff.
+> 
 
-What is the long term plan to address this?  Can you make sure
-that the new node is always brought online before you get to
-this code?  Or will you have to bring the node online in the
-middle of the memory hot-add code?
+Iam assuming in the above ase, cpu_possible_map == cpu_present_map and both
+dont change after the OS is booted. v.s in platforms capable of hot-plug
+cpus present could grow up to cpu_possible_map (max) when a new cpu is
+newly added, that wasnt even present at boot time.
 
-Presumably there is a similar issue with hot add cpu.
+The problem was with ACPI just simply looking at the namespace doesnt
+exactly give us an idea of how many processors are possible in this platform.
 
--Tony
+The reason is we could get more added via SSDT dynamically.
+
+on x86_64, we used the number of disabled cpus reported in MADT at boot time
+as an indicator to set cpu_possible_map. So if you had 4 sockets, but just
+2 populated, the BIOS would set the missing CPUS with disabled flag. We 
+simply count the number of disabled CPUs and add to possible map.
+
+Andi added documentation to cover that as well in 
+Documentation/x86_64/cpu-hotplug-spec as a guideline for BIOS folks.
+
+
+-- 
+Cheers,
+Ashok Raj
+- Open Source Technology Center

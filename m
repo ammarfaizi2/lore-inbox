@@ -1,83 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWBITcQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWBITZM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbWBITcQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 14:32:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWBITcP
+	id S1750729AbWBITZM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 14:25:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWBITZM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 14:32:15 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:16360 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S1750731AbWBITcO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 14:32:14 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: omkar lagu <omkarlagu@yahoo.com>
-Subject: Re: Fwd: How to call a function in a module from the kernel code !!! (Linux kernel)
-Date: Thu, 9 Feb 2006 20:32:11 +0100
-User-Agent: KMail/1.8.3
-References: <20060209192510.32377.qmail@web50307.mail.yahoo.com>
-In-Reply-To: <20060209192510.32377.qmail@web50307.mail.yahoo.com>
-Cc: linux-kernel@vger.kernel.org
+	Thu, 9 Feb 2006 14:25:12 -0500
+Received: from web50307.mail.yahoo.com ([206.190.38.61]:37977 "HELO
+	web50307.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1750727AbWBITZL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 14:25:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=PQNZbVw4IUuZttFJWRsfC9sMWcN95Vn8bGTC1297Bxyuow2NAsytVDIhHkJ5R+wWi4R7Ac0UfWHQOp8VrEq5WvPFVK4BgrLuSdlX+TdJosnUcEIqMIu3BhDsvUdM9TWEzU07TGmc/J9w0jl4CVpgHIwrkcqIviN8zC/DXTS/0vE=  ;
+Message-ID: <20060209192510.32377.qmail@web50307.mail.yahoo.com>
+Date: Thu, 9 Feb 2006 11:25:09 -0800 (PST)
+From: omkar lagu <omkarlagu@yahoo.com>
+Subject: Fwd: How to call a function in a module from the kernel code !!! (Linux kernel)
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1770331.H220ak0R8s";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602092032.12091.mbuesch@freenet.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1770331.H220ak0R8s
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-On Thursday 09 February 2006 20:25, you wrote:
->=20
->  hello sir,
-> =20
->  PROBLEM::How to call a function in a module from the
->  kernel code ??
-> =20
->  what we did ? ::=20
->  we wanted to call a function in our module ll from
->  shm.c file (which is in the kernel)
-> =20
->  so we declared function pointer in shm.c
->  :: unsigned long long (*ptr1)(int)
-> =20
->  we declared it as extern in shm.h
->  :: extern unsigned long long (*ptr1)(int)
-> =20
->  then we declared also in our module  (ll)
->  :: extern unsigned long long (*ptr1)(int)
-> =20
->  we initialized it to ptr1 =3D commun; in init module
->  of ll.c
->  where commun is we wanted to call from the kernel
->   =20
->  but it gave an error as undefined refernce to ptr1
->  when we inserted our module..
-> =20
->  can you help on this thing or can you give us a
->  example=20
->  regarding how it is done ??
 
-EXPORT_SYMBOL(ptr1);
+ hello sir,
+ 
+ PROBLEM::How to call a function in a module from the
+ kernel code ??
+ 
+ what we did ? :: 
+ we wanted to call a function in our module ll from
+ shm.c file (which is in the kernel)
+ 
+ so we declared function pointer in shm.c
+ :: unsigned long long (*ptr1)(int)
+ 
+ we declared it as extern in shm.h
+ :: extern unsigned long long (*ptr1)(int)
+ 
+ then we declared also in our module  (ll)
+ :: extern unsigned long long (*ptr1)(int)
+ 
+ we initialized it to ptr1 = commun; in init module
+ of ll.c
+ where commun is we wanted to call from the kernel
+   
+ but it gave an error as undefined refernce to ptr1
+ when we inserted our module..
+ 
+ can you help on this thing or can you give us a
+ example 
+ regarding how it is done ??
+ 
+ waiting for a reply 
+ plz cc to omkarlagu@yahoo.com
 
-=2D-=20
-Greetings Michael.
 
---nextPart1770331.H220ak0R8s
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD65i8lb09HEdWDKgRAkWVAJ4xIPrN9jXeEhFlAc+jmLKNpwjGxQCgisoK
-jOpqiMJNRku7cRftyUEPFqw=
-=N9Lc
------END PGP SIGNATURE-----
-
---nextPart1770331.H220ak0R8s--
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

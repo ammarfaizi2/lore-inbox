@@ -1,64 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965223AbWBIJAQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965224AbWBIJCM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965223AbWBIJAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 04:00:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965224AbWBIJAP
+	id S965224AbWBIJCM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 04:02:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbWBIJCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 04:00:15 -0500
-Received: from mail.gmx.de ([213.165.64.21]:42467 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S965223AbWBIJAO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 04:00:14 -0500
-X-Authenticated: #14349625
-Subject: Re: [k2.6.16-rc1-mm5] kernel BUG at include/linux/mm.h:302!
-From: MIke Galbraith <efault@gmx.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060209004609.2120928a.akpm@osdl.org>
-References: <1139473463.8028.13.camel@homer>
-	 <20060209004609.2120928a.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 09 Feb 2006 10:05:04 +0100
-Message-Id: <1139475904.8418.10.camel@homer>
+	Thu, 9 Feb 2006 04:02:12 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:54174 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S965224AbWBIJCK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 04:02:10 -0500
+Date: Thu, 9 Feb 2006 10:02:59 +0100
+From: DervishD <lkml@dervishd.net>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, jim@why.dont.jablowme.net,
+       peter.read@gmail.com, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060209090259.GC93@DervishD>
+Mail-Followup-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+	Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	jim@why.dont.jablowme.net, peter.read@gmail.com,
+	matthias.andree@gmx.de, linux-kernel@vger.kernel.org
+References: <200602031724.55729.luke@dashjr.org> <43E7545E.nail7GN11WAQ9@burner> <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de> <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner> <20060207183712.GC5341@voodoo> <43E9F1CD.nail2BR11FL52@burner> <20060208210219.GB9166@DervishD> <20060208211455.GC2480@csclub.uwaterloo.ca>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060208211455.GC2480@csclub.uwaterloo.ca>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-09 at 00:46 -0800, Andrew Morton wrote:
-> MIke Galbraith <efault@gmx.de> wrote:
-> >
-> >
-> >  kernel BUG at include/linux/mm.h:302!
-> >  invalid opcode: 0000 [#1]
-> >  PREEMPT SMP 
-> >  last sysfs file: /devices/pci0000:00/0000:00:1e.0/0000:02:09.0/subsystem_device
-> >  Modules linked in: xt_pkttype ipt_LOG xt_limit snd_pcm_oss snd_mixer_oss button battery snd_seq snd_seq_device ac edd ip6t_REJECT xt_tcpudp ipt_REJECT xt_state iptable_mangle iptable_nat ip_nat iptable_filter ip6table_mangle ip_conntrack ip_tables ip6table_filter ip6_tables x_tables tda9887 at76c651 prism54 saa7134 ohci1394 ieee1394 bt878 ir_kbd_i2c snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd soundcore snd_page_alloc i2c_i801 tuner bttv video_buf firmware_class btcx_risc ir_common tveeprom nls_iso8859_1 nls_cp437 nls_utf8 sd_mod fan thermal processor
-> >  CPU:    0
-> >  EIP:    0060:[<c01461cb>]    Not tainted VLI
-> >  EFLAGS: 00210246   (2.6.16-rc1-mm5 #1) 
-> >  EIP is at release_pages+0x165/0x196
-> >  eax: 00000000   ebx: c16f3220   ecx: 00000000   edx: 00000008
-> >  esi: c18077d0   edi: c18077b4   ebp: 00000000   esp: f6644e74
-> >  ds: 007b   es: 007b   ss: 0068
-> >  Process knotify (pid: 7482, threadinfo=f6644000 task=f658b030)
-> >  Stack: <0>00000008 00000008 00000001 00000000 00000000 c161e920 c161e940 c161e960 
-> >         c161e980 c161e9a0 c057f600 f6644edc 00000001 00000002 f6644ed4 c01446de 
-> >         c161e9a0 c18077d0 00000008 c16f32e0 c18077d0 00000008 00000008 c01521b5 
-> >  Call Trace:
-> >   <c01446de> __pagevec_free+0x1f/0x2e   <c01521b5> free_pages_and_swap_cache+0x74/0xb6
-> >   <c014afd4> unmap_vmas+0x5da/0x642   <c014de7d> unmap_region+0xa7/0x131
-> >   <c014e5cd> do_munmap+0x139/0x1cc   <c014e6a0> sys_munmap+0x40/0x59
-> 
-> Doesn't happen here (but it never does).
-> 
-> Is it always knotify, always dying in the same manner?
-> 
+    Hi Lennart :)
 
-Yes, tentatively.  I haven't rebooted many times, but every time I have,
-It's been knotify.
+ * Lennart Sorensen <lsorense@csclub.uwaterloo.ca> dixit:
+> On Wed, Feb 08, 2006 at 10:02:19PM +0100, DervishD wrote:
+> >     cdrecord is GPL, so in the end nobody has the right to ask you to
+> > modify it in ways you don't like or you don't want it to. That goes
+> > with free software: you don't pay, you don't have the right to ask
+> > for things. But, how about trying to listen to third parties? I mean,
+> > you are probably OK ignoring my suggestions, I am probably a mediocre
+> > programmer, but... do you _really_ think that you are more clever
+> > than ALL the programmers in this mailing list? Do you _really_ think
+> > that you have the correct answer and that ALL of them are plainly
+> > wrong? Do you _REALLY_ think that EVERYBODY is wrong *except* you in
+> > this issue about the user interface?
+> 
+> Hmm, perhaps what should be done is that someone needs to write and
+> maintain a patch that linux users can apply to cdrecord (since other OSs
+> are different and hence have no reason to use such a patch), to make it
+> behave in a manner which is sane on linux.  It should of course be
+> clearly marked as having been changed in such a way.  It should use udev
+> if available and HAL and whatever else is appropriate on a modern linux
+> system, and if on an old system it should at least not break the
+> interfaces that already worked on those systems in cdrecord.
 
-	-Mike
+    Matthias Andree posted such a patch last week, and he was ignored
+by Joerg. In fact, he got an answer of "I haven't looked at it and I
+never will" or something like that (check the list archives).
 
+    Joerg was offered help to maintain a bit of code he doesn't want
+to maintain and rejected it.
+ 
+> cdrecord does a wonderful job writing CDs, once you get the silly
+> command line syntax right and figure out which device option it
+> wants you to tell it to access your write.  I still find the syntax
+> of driveropts=option=value is a bit odd, although the linux kernel
+> does the same thing for some kernel boot arguments as far as I
+> recall, so who am I to argue.
+
+    cdrecord is a good tool, no doubt about that. IMHO it can be
+improved by changing the user interface and getting rid of useless
+warnings, but nonetheless it is a good tool. The problem is Joerg
+attitude...
+ 
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to... RAmen!

@@ -1,40 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWBIFJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbWBIFad@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750795AbWBIFJz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 00:09:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWBIFJz
+	id S932311AbWBIFad (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 00:30:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932502AbWBIFad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 00:09:55 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:49537 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S1750795AbWBIFJz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 00:09:55 -0500
-Message-ID: <43EACED9.2030405@t-online.de>
-Date: Thu, 09 Feb 2006 06:10:49 +0100
-From: Knut Petersen <Knut_Petersen@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.10) Gecko/20050726
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Assert: CPU #..., mangle/filter comefrom(....) = ...
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 9 Feb 2006 00:30:33 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:50916 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932311AbWBIFac (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 00:30:32 -0500
+Date: Wed, 8 Feb 2006 21:30:25 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Matt Mackall <mpm@selenic.com>
+Subject: Re: 2.6.16-rc2-mm1 patches don't apply
+Message-Id: <20060208213025.ef61a679.pj@sgi.com>
+In-Reply-To: <20060208201644.568379d6.akpm@osdl.org>
+References: <20060208194359.bd1c1a4b.pj@sgi.com>
+	<20060208201644.568379d6.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-ID: XpkOd8ZDZeUBFP8lIQk+laV8AHf78EEWitFzg0g1QT1NzUhA87jg8F@t-dialin.net
-X-TOI-MSGID: 9f170f08-a987-4844-9558-f2579be83363
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As there probably is a reason to printk assertions:
+Andrew wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc2/2.6.16-rc2-mm1/broken-out/linus.patch
+> applies cleanly to
+> ftp://ftp.kernel.org/pub/linux/kernel/v2.6/testing/linux-2.6.16-rc2.tar.bz2
 
-[   28.616455] ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
-[   28.617112] ASSERT: CPU #0, mangle comefrom(f75ae890) = 1
-[   28.617115] ASSERT: CPU #0, filter comefrom(f79ca090) = 2
-[   28.934256] ASSERT: CPU #0, mangle comefrom(f7051890) = 1
-[   28.934260] ASSERT: CPU #0, filter comefrom(f7aa9090) = 2
-[   32.766440] ASSERT: CPU #0, mangle comefrom(f709c090) = 1
-[   32.766443] ASSERT: CPU #0, filter comefrom(f71f3090) = 2
+Indeed.  That combination does work.
 
-cu,
- Knut
+And that's the same linus.patch as I extracted from:
+
+  ~akpm/patches/2.6/2.6.16-rc2//2.6.16-rc2-mm1/2.6.16-rc2-mm1-broken-out.tar.bz2
+
+So no problem with you linus.patch.
+
+The difference -might- be a different linux-2.6.16-rc2 with the above
+than with hg's http://www.kernel.org/hg/linux-2.6, with the command "hg
+co 19933", which is the release tagged v2.6.16-rc2:
+
+    changeset:   19933:6a79f5a2de38
+    tag:         v2.6.16-rc2
+    user:        Linus Torvalds <torvalds@g5.osdl.org>
+    date:        Fri Feb  3 14:03:08 2006 +0800
+    summary:     Linux v2.6.16-rc2
+
+My current suspicions ... a combination of:
+
+ 1) a congenital mental defect that causes me to find git difficult to use,
+    and led to me thinking something had failed when it had not, and
+ 2) further fallout from some apparent burp in the production of the hg
+    (mercurial) linux trees that Matt fixed today.
+
+I can't do much about (1).  I will see if I can nail down (2), and send
+Matt details, if I get far enough to be useful.
+
+Thanks, Andrew, for running your <wget, wget> test.
+
+That got me back on the road again.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

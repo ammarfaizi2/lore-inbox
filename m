@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWBJOul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751273AbWBJOwB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751264AbWBJOul (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 09:50:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWBJOul
+	id S1751273AbWBJOwB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 09:52:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWBJOwB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 09:50:41 -0500
-Received: from uproxy.gmail.com ([66.249.92.199]:12262 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751264AbWBJOul convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 09:50:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nMVKroNkCGXXASPgfYFqTqSlTI5pBkDTS8kdt+TltzofmcT/VeOrMyAnu+bOIVFah+qVVBppwKYbYH4urgd/OtvYysgBhGMHsgMMog2anFElIYANlgLaAUcGGjuDV73jRkWjcYb8Zp6fFfwSi0lR+sfBLThKUklZOLW8/8vWYtk=
-Message-ID: <728201270602100650q22938b88x237b8fb043c82408@mail.gmail.com>
-Date: Fri, 10 Feb 2006 08:50:38 -0600
-From: Ram Gupta <ram.gupta5@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: RSS Limit implementation issue
-Cc: linux mailing-list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1139526447.6692.7.camel@localhost.localdomain>
+	Fri, 10 Feb 2006 09:52:01 -0500
+Received: from odin2.bull.net ([192.90.70.84]:40949 "EHLO odin2.bull.net")
+	by vger.kernel.org with ESMTP id S1751272AbWBJOwA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 09:52:00 -0500
+From: "Serge Noiraud" <serge.noiraud@bull.net>
+To: linux-kernel@vger.kernel.org
+Subject: Memory managment differences between 2.4 and 2.6 with mem=
+Date: Fri, 10 Feb 2006 15:59:04 +0100
+User-Agent: KMail/1.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Message-Id: <200602101559.04954.Serge.Noiraud@bull.net>
+X-MIMETrack: Itemize by SMTP Server on MSGB-002/FR/BULL(Release 5.0.11  |July 24, 2002) at
+ 02/10/2006 03:51:56 PM,
+	Serialize by Router on MSGB-002/FR/BULL(Release 5.0.11  |July 24, 2002) at
+ 02/10/2006 03:51:58 PM,
+	Serialize complete at 02/10/2006 03:51:58 PM
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Disposition: inline
-References: <728201270602091310r67a3f2dcq4788199f26a69528@mail.gmail.com>
-	 <1139526447.6692.7.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/9/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+Hi,
+	In 2.4 I used to have mem=2000 on a machine with 2GB of memory.
+I used the differences between 2000 and 2048 for a specific driver. 
+This means I use addresses between 0x7d000000 and 0x7fffffff.
+I was sure the system did not take this memory.
 
->
-> That is what I would expect. Or perhaps even allowing the process to
-> exceed the RSS but using the RSS limit as a swapper target so that the
-> process is victimised early. No point forcing swapping and the RSS limit
-> when there is free memory, only where the resource is contended ..
->
->
+In 2.6 it does not work like that.
+In /proc/iomem the end of memory is 0x7d000000.
+I think this is normal.
+but I saw the IDE driver allocate 1KB in addresses between 0x7d000000 and 0x7d0003ff
 
-So we will need some kind of free memory threshold . If free memory is
-more than it than we can let RSS exceed & scheduler can also schedule
-it in this situation but not if free memory is less than the
-threshhold. Also we need to figure out a way for swapper to target
-pages based on RSS limit. One possible  disadvantage I can think is
-that  as the swapper swaps out a page based on RSS limit , the
-process's rss will become within the rss limit & then scheduler will
-schedule this process again & hence possibly same page might have to
-be brought in. This may cause increase in swapping. What do you think
-how much realistic is this scenario?
+	I have some question  :
+Is it normal ?
+If it is not, how to get the same functionality ? are there some new options ?
+Does memap= can help ?
+Is there any impact in the driver ?
+
+I red mel gorman "Understanding the Linux Virtual Memory Manager", but it does not help me.
+In which chapter this is explained ?
+
+-- 
+Serge Noiraud

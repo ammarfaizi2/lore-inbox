@@ -1,79 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWBJUj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWBJUjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932184AbWBJUj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 15:39:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWBJUj2
+	id S932191AbWBJUjo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 15:39:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWBJUjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 15:39:28 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:8361 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932184AbWBJUj1 (ORCPT
+	Fri, 10 Feb 2006 15:39:44 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:21031 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932185AbWBJUjn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 15:39:27 -0500
-Date: Fri, 10 Feb 2006 12:38:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Miles Lane <miles.lane@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc2-mm1 - BUG: unable to handle kernel NULL pointer
- dereference at virtual address 0000003a
-Message-Id: <20060210123848.7cb84eeb.akpm@osdl.org>
-In-Reply-To: <a44ae5cd0602101224l63886192sec85a8771cf77ba9@mail.gmail.com>
-References: <a44ae5cd0602101224l63886192sec85a8771cf77ba9@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 10 Feb 2006 15:39:43 -0500
+Message-ID: <43ECFA46.3050001@sw.ru>
+Date: Fri, 10 Feb 2006 23:40:38 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: [RFC][PATCH 20/20] proc: Update /proc to support multiple pid
+ spaces.
+References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>	<m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>	<m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com>	<m1fymwmgk0.fsf_-_@ebiederm.dsl.xmission.com>	<m1bqxkmgcv.fsf_-_@ebiederm.dsl.xmission.com>	<m17j88mg8l.fsf_-_@ebiederm.dsl.xmission.com>	<m13biwmg4p.fsf_-_@ebiederm.dsl.xmission.com>	<m1y80ol1gh.fsf_-_@ebiederm.dsl.xmission.com>	<m1u0bcl1ai.fsf_-_@ebiederm.dsl.xmission.com>	<m1psm0l170.fsf_-_@ebiederm.dsl.xmission.com>	<m1lkwol133.fsf_-_@ebiederm.dsl.xmission.com>	<m1hd7cl0yp.fsf_-_@ebiederm.dsl.xmission.com>	<m1d5i0l0ua.fsf_-_@ebiederm.dsl.xmission.com>	<m18xsol0p9.fsf_-_@ebiederm.dsl.xmission.com>	<m14q3cl0mk.fsf_-_@ebiederm.dsl.xmission.com>	<m1zml4jlzk.fsf_-_@ebiederm.dsl.xmission.com>	<m1vevsjlxa.fsf_-_@ebiederm.dsl.xmission.com>	<m1r76gjlua.fsf_-_@ebiederm.dsl.xmission.com>	<m1mzh4jlrl.fsf_-_@ebiederm.dsl.xmission.com>	<m1irrsjlnn.fsf_-_@ebiederm.dsl.xmission.com> <m1ek2gjlgh.fsf_-_@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1ek2gjlgh.fsf_-_@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane <miles.lane@gmail.com> wrote:
->
-> BUG: unable to handle kernel NULL pointer dereference at virtual
->  address 0000003a
->   printing eip:
->  0000003a
->  *pde = 00000000
->  Oops: 0000 [#1]
->  SMP
->  last sysfs file: /devices/pci0000:00/0000:00:02.2/usb3/idProduct
->  Modules linked in: sr_mod eth1394 snd_mpu401 8250_pnp snd_mpu401_uart
->  snd_rawmidi pcspkr ehci_hcd autofs4 vfat
->   fat 3c59x mii forcedeth parport_pc parport 8250 serial_core ohci1394
->  ieee1394 ohci_hcd uhci_hcd usbcore conta
->  iner ide_cd cdrom ide_scsi
->  CPU:    0
->  EIP:    0060:[<0000003a>]    Not tainted VLI
->  EFLAGS: 00010286   (2.6.16-rc2-mm1 #9)
->  EIP is at 0x3a
->  eax: ffffff85   ebx: 00000000   ecx: 00000000   edx: 00000020
->  esi: 00020070   edi: 12000000   ebp: 00000000   esp: f6b60c70
->  ds: 007b   es: 007b   ss: 0068
->  Process cdrom_id (pid: 3482, threadinfo=f6b60000 task=f6b6f6f0)
->  Stack: <0>00000000 00000000 00000000 00000000 00000000 00000000
->  00000000 00000000
->         00000000 00000000 00000000 00000000 00000043 00000000 0000400c c04aaca4
->         0000000c ffffff85 00000000 00000002 00000001 00007530 00000000 f64006ac
->  Call Trace:
->   <c01038b9> show_stack_log_lvl+0xaa/0xb5   <c01039fd> show_registers+0x139/0x1a5
->   <c0103cf6> die+0x162/0x1ef   <c01120e6> do_page_fault+0x389/0x4cc
->   <c01032bf> error_code+0x4f/0x54
->  Code:  Bad EIP value.
->   BUG: cdrom_id/3482, lock held at task exit time!
->   [dfca557c] {init_once}
->  .. held by:          cdrom_id: 3482 [f6b6f6f0, 123]
->  ... acquired at:               do_open+0x61/0x2f0
+Hello,
 
-gack, what a mess.  At a guess, I'd say that block_dev.c:do_open() found a
-stupid value in disk->fops->open and did an indirect jump to it.
+> This patch does a couple of things.
+> - It splits proc into proc and proc_sysinfo
+> - It adds pspace support to proc
+> - It adds getattr methods to ensure proc has the proper hard link count.
+> - It increases the size of a couple of buffers by one to avoid buffer overflow
+> - It moves /proc/mounts and /proc/loadavg into the proc filesystem from proc_sysinfo
+> 
+> Sorry for the big patch.  When I start feeding this changes seriously I will
+> split this patch.
+> 
+> The split of /proc into mutliple filesystems works well however it comes
+> with one downsides.  There are now some directories where cd -P <subdir>/..
+> is not a noop.  Basically it is doing the equivalent of following symlinks
+> into an internal kernel mount.  It is well defined and safe behaviour but
+> I'm not certain if it is desirable.
+> 
+> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 
-What is `cdrom_id'?
+This one is really ugly.
+And it is also controversial to your own idea of having separate 
+namespaces, but introduces a pointer to proc_mnt in pspace.
 
-Can you describe what was happening at the time?  What does your cdrom
-setup look like, which cdrom drivers were loaded at the time, etc?
+You have many namespaces to which task_struct refers.
+Do you want proc to work in any configuration of namespaces?
+Then you can't have pointers to proc_mnt from namespaces.
+Well, I understand that proc is the most painfull for you... yeah...
 
-It might help if you could change the value of CONFIG_FRAME_POINTER, try
-again, see if we can get a better backtrace.
-
-Also, try disabling cdrom_id (mv cdrom_id cdrom_id~), then when the machine
-is booted, run `strace cdrom_id'.  But one would need to work out which
-arguments were begin passed to cdrom_id.
+Kirill
 

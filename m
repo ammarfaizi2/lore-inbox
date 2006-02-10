@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbWBJFiU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWBJFkv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751122AbWBJFiU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 00:38:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWBJFiU
+	id S1751124AbWBJFkv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 00:40:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWBJFkv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 00:38:20 -0500
-Received: from mail14.syd.optusnet.com.au ([211.29.132.195]:59545 "EHLO
-	mail14.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751122AbWBJFiT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 00:38:19 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH] mm: Implement Swap Prefetching v23
-Date: Fri, 10 Feb 2006 16:37:57 +1100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org, ck@vds.kolivas.org,
-       pj@sgi.com, linux-kernel@vger.kernel.org
-References: <200602101355.41421.kernel@kolivas.org> <200602101626.12824.kernel@kolivas.org> <43EC2572.7010100@yahoo.com.au>
-In-Reply-To: <43EC2572.7010100@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Feb 2006 00:40:51 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:48707 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1751124AbWBJFkv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 00:40:51 -0500
+Date: Fri, 10 Feb 2006 14:40:37 +0900
+To: Andi Kleen <ak@suse.de>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] alpha: remove __alpha_cix__ and __alpha_fix__
+Message-ID: <20060210054037.GA6374@miraclelinux.com>
+References: <20060201090224.536581000@localhost.localdomain> <200602011006.09596.ak@suse.de> <43E07EB2.4020409@tls.msk.ru> <200602011124.29423.ak@suse.de> <20060202125007.GA5918@miraclelinux.com> <20060209055531.GA2642@miraclelinux.com> <20060209191236.GA7259@twiddle.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602101637.57821.kernel@kolivas.org>
+In-Reply-To: <20060209191236.GA7259@twiddle.net>
+User-Agent: Mutt/1.5.9i
+From: mita@miraclelinux.com (Akinobu Mita)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 February 2006 16:32, Nick Piggin wrote:
-> Con Kolivas wrote:
-> > Just so it's clear I understand, is this what you (both) had in mind?
-> > Inline so it's not built for !CONFIG_SWAP_PREFETCH
->
-> Close...
+On Thu, Feb 09, 2006 at 11:12:36AM -0800, Richard Henderson wrote:
+> On Thu, Feb 09, 2006 at 02:55:31PM +0900, Akinobu Mita wrote:
+> > -#if defined(__alpha_fix__) && defined(__alpha_cix__)
+> > +#ifdef CONFIG_ALPHA_EV67
+> 
+> What in the world is this supposed to fix?  You aren't seriously
+> suggesting that the compiler has stopped defining these, have you?
 
-> > +inline void lru_cache_add_tail(struct page *page)
->
-> Is this inline going to do what you intend?
+I just want to imply the use of optimized hweight*() routines to
+kbuild system.  In other word I want to tell the kbuild system
+the condition of "defined(__alpha_fix__) && defined(__alpha_cix__)".
 
-I don't care if it's actually inlined, but the subtleties of compilers is way 
-beyond me. All it positively achieves is silencing the unused function 
-warning so I had hoped it meant that function was not built. I tend to be 
-wrong though...
+So I suggested to add previous patch and write below lines in
+arch/alpha/Kconfig
 
->      spin_lock_irq(&zone->lru_lock);
->
-> > +	add_page_to_inactive_list_tail(zone, page);
->
->      spin_unlock_irq(&zone->lru_lock);
+config GENERIC_HWEIGHT
+        bool
+        default y if !ALPHA_EV6 && !ALPHA_EV67
 
-Thanks!
+Also, I wonder why there are such gcc builtin definition in kernel code.
+Even if the gcc built with the support architecture extensions like CIX
+and FIX, It doesn't mean the vmlinux built by that gcc always run
+on those machines.
 
-Cheers,
-Con

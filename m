@@ -1,87 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbWBJOjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWBJOpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932118AbWBJOjt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 09:39:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWBJOjt
+	id S1751089AbWBJOpm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 09:45:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbWBJOpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 09:39:49 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:39693 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932118AbWBJOjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 09:39:48 -0500
-Date: Fri, 10 Feb 2006 15:39:47 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Peter Osterlund <petero2@telia.com>
-Cc: Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org
-Subject: Re: pktcdvd stack usage regression
-Message-ID: <20060210143947.GE19918@stusta.de>
-References: <20060209020932.GY3524@stusta.de> <m3lkwl6pfu.fsf@telia.com>
+	Fri, 10 Feb 2006 09:45:42 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:44031 "EHLO
+	zcars04f.nortel.com") by vger.kernel.org with ESMTP
+	id S1751089AbWBJOpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 09:45:41 -0500
+Message-ID: <43ECA70C.8050906@nortel.com>
+Date: Fri, 10 Feb 2006 08:45:32 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3lkwl6pfu.fsf@telia.com>
-User-Agent: Mutt/1.5.11
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+CC: tytso@mit.edu, peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       jengelh@linux01.gwdg.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr> <43EB7BBA.nailIFG412CGY@burner> <mj+md-20060209.173519.1949.atrey@ucw.cz> <43EC71FB.nailISD31LRCB@burner> <20060210114721.GB20093@merlin.emma.line.org> <43EC887B.nailISDGC9CP5@burner> <mj+md-20060210.123726.23341.atrey@ucw.cz> <43EC8E18.nailISDJTQDBG@burner> <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr> <43EC93A2.nailJEB1AMIE6@burner> <20060210141651.GB18707@thunk.org> <43ECA3FC.nailJGC110XNX@burner>
+In-Reply-To: <43ECA3FC.nailJGC110XNX@burner>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Feb 2006 14:45:34.0403 (UTC) FILETIME=[A601B930:01C62E50]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 09, 2006 at 07:01:25AM +0100, Peter Osterlund wrote:
-> Adrian Bunk <bunk@stusta.de> writes:
+Joerg Schilling wrote:
+> "Theodore Ts'o" <tytso@mit.edu> wrote:
+
+>>Can you please list the POSIX standard, section, and line number which
+>>states that a particular device must always have the same st_rdev
+>>across reboots, and hot plugs/unplugs?
 > 
-> > Hi Phillip,
-> > 
-> > your recent patch "pktcdvd: Allow larger packets" changed 
-> > PACKET_MAX_SIZE in the pktcdvd driver from 32 to 128.
-> > 
-> > Unfortunately, drivers/block/pktcdvd.c contains the following:
-> > 
-> > <--  snip  -->
-> > 
-> > ...
-> > static void pkt_start_write(struct pktcdvd_device *pd, struct 
-> > packet_data *pkt)
-> > {
-> >         struct bio *bio;
-> >         struct page *pages[PACKET_MAX_SIZE];
-> >         int offsets[PACKET_MAX_SIZE];
-> > ...
-> > 
-> > <--  snip  -->
-> > 
-> > With PACKET_MAX_SIZE=128, this allocates more than 1 kB on the stack 
 > 
-> Yes, I know.
+> A particular file on the system must not change st_dev while the system
+> is running.
 > 
-> > which is not acceptable considering that we might have only 4 kB stack 
-> > altogether.
-> 
-> Why is it not acceptable? The pkt_start_write() function is only
-> called from the kcdrwd() kernel thread and the pkt_start_write()
-> function doesn't call anything else in the kernel that could require
-> lots of stack space.
-> 
-> The actual I/O is started from pkt_iosched_process_queue(), which
-> calls generic_make_request(). However pkt_iosched_process_queue() is
-> on a different call chain than pkt_start_write(), so I don't see how
-> this could be a problem.
+> http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/stat.h.html
 
-You might be able to verify this is true today, but it is a bit fragile 
-and other changes might always add even more stack usage in some places. 
-Therefore, functions using 1 kB stack aren't a good idea.
 
-As an exercise, pkt_open() currently uses more than 0,5 kB stack
-(kernel 2.6.16-rc2-mm1, i386, gcc 4.0). Try to understand where this 
-stack usage comes from (hint: add up the stack usages of all only once 
-used static functions gcc automatically inlines).
+I don't actually see that requirement listed there. It says that st_dev 
+must be unique, and that all files are uniquely identified by st_ino and 
+st_dev.
 
-> Peter Osterlund
+There's nothing there that says the mapping cannot change with 
+time...just that it has to be unique.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Chris

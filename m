@@ -1,85 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWBJFvZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWBJFxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751134AbWBJFvZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 00:51:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWBJFvZ
+	id S1751146AbWBJFxl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 00:53:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWBJFxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 00:51:25 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:59297 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751134AbWBJFvY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 00:51:24 -0500
-Date: Thu, 9 Feb 2006 21:50:40 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux@horizon.com, linux-kernel@vger.kernel.org, sct@redhat.com
-Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
-Message-Id: <20060209215040.0dcb36b1.akpm@osdl.org>
-In-Reply-To: <43EC24B1.9010104@yahoo.com.au>
-References: <20060209071832.10500.qmail@science.horizon.com>
-	<20060209001850.18ca135f.akpm@osdl.org>
-	<43EAFEB9.2060000@yahoo.com.au>
-	<20060209004208.0ada27ef.akpm@osdl.org>
-	<43EB3801.70903@yahoo.com.au>
-	<20060209094815.75041932.akpm@osdl.org>
-	<43EC0A44.1020302@yahoo.com.au>
-	<20060209195035.5403ce95.akpm@osdl.org>
-	<43EC0F3F.1000805@yahoo.com.au>
-	<20060209201333.62db0e24.akpm@osdl.org>
-	<43EC16D8.8030300@yahoo.com.au>
-	<20060209204314.2dae2814.akpm@osdl.org>
-	<43EC1BFF.1080808@yahoo.com.au>
-	<20060209211356.6c3a641a.akpm@osdl.org>
-	<43EC24B1.9010104@yahoo.com.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 10 Feb 2006 00:53:41 -0500
+Received: from penta.pentaserver.com ([66.45.247.194]:56812 "EHLO
+	penta.pentaserver.com") by vger.kernel.org with ESMTP
+	id S1751146AbWBJFxk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 00:53:40 -0500
+Message-ID: <43EC26E1.5020804@gmail.com>
+Date: Fri, 10 Feb 2006 09:38:41 +0400
+From: Manu Abraham <abraham.manu@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: v4l-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/media/dvb/bt8xx/: make 2 structs static
+References: <20060210004643.GL3524@stusta.de>
+In-Reply-To: <20060210004643.GL3524@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - penta.pentaserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - gmail.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Adrian Bunk wrote:
+> This patch makes two needlessly global structs static.
 >
-> Andrew Morton wrote:
-> > Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> > 
-> >>If you want to start the IO *now* without waiting on it, call msync(MS_ASYNC)
-> >> If you don't want to start the IO now, that's really easy, do nothing.
-> >> If you want to start the IO now and also wait for it to finish, call msync(MS_SYNC)
-> > 
-> > 
-> > I've already explained the problems with the start-io-in-MS_ASYNC approach.
-> > 
-> 
-> But I've explained that they only matter for people using it in stupid ways.
-> fsync also poses a performance problem for programs that call it after every
-> write(2).
+>
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>
+> ---
+>
+>  drivers/media/dvb/bt8xx/bt878.c |    2 +-
+>  drivers/media/dvb/bt8xx/dst.c   |    2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+>
+> --- linux-2.6.16-rc2-mm1-full/drivers/media/dvb/bt8xx/bt878.c.old	2006-02-09 22:09:00.000000000 +0100
+> +++ linux-2.6.16-rc2-mm1-full/drivers/media/dvb/bt8xx/bt878.c	2006-02-09 22:09:07.000000000 +0100
+> @@ -382,7 +382,7 @@
+>  EXPORT_SYMBOL(bt878_device_control);
+>  
+>  
+> -struct cards card_list[] __devinitdata = {
+> +static struct cards card_list[] __devinitdata = {
+>  
+>  	{ 0x01010071, BTTV_BOARD_NEBULA_DIGITV,			"Nebula Electronics DigiTV" },
+>  	{ 0x07611461, BTTV_BOARD_AVDVBT_761,			"AverMedia AverTV DVB-T 761" },
+> --- linux-2.6.16-rc2-mm1-full/drivers/media/dvb/bt8xx/dst.c.old	2006-02-09 22:09:21.000000000 +0100
+> +++ linux-2.6.16-rc2-mm1-full/drivers/media/dvb/bt8xx/dst.c	2006-02-09 22:09:29.000000000 +0100
+> @@ -602,7 +602,7 @@
+>  
+>  */
+>  
+> -struct dst_types dst_tlist[] = {
+> +static struct dst_types dst_tlist[] = {
+>  	{
+>  		.device_id = "200103A",
+>  		.offset = 0,
+>
+> -
+>   
 
-There's absolutely nothing stupid about
 
-	*p = <expr>
-	msync(p, sizeof(*p), MS_ASYNC);
+Ack'd-by: Manu Abraham <manu@linuxtv.org>
 
-> > 
-> >> Presently, the first option is unavailable.
-> > 
-> > 
-> > We need to patch the kernel either way.  There's no point in going back to
-> > either the known-problematic approach or to something half-assed.
-> > 
-> 
-> The system call indicates to the kernel that IO submission should be started.
-> The earlier the kernel does that, the better (because it is likely that an
-> MS_SYNC is coming soon).
-> 
-> I think the current way of just moving the dirty bits is half-assed.
-> 
-> Is a more efficient implementation know-problematic?
-
-It's less efficient for some things.  A lot.
-
-> What applications did
-> you observe problems with, can you remember?
-
-Linus has some application which was doing the above.  It ran extremely
-slowly, so we changed MS_ASYNC (ie: made it "more efficient"...)

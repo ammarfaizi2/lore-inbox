@@ -1,54 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWBJBTn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbWBJBf7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750987AbWBJBTn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 20:19:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbWBJBTn
+	id S1750978AbWBJBf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 20:35:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbWBJBf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 20:19:43 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:2747 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750985AbWBJBTm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 20:19:42 -0500
-Message-ID: <43EBEA26.8000709@pobox.com>
-Date: Thu, 09 Feb 2006 20:19:34 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] block: kill not-so-popular simple flag testing macros
-References: <20060208085728.GA21065@htj.dyndns.org> <43EB8D2C.6020708@pobox.com> <43EBDC70.6050302@gmail.com>
-In-Reply-To: <43EBDC70.6050302@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 9 Feb 2006 20:35:58 -0500
+Received: from ypolyans.student.Princeton.EDU ([140.180.169.193]:17860 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1750976AbWBJBf6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 20:35:58 -0500
+Subject: [BUG] sysfs_d_iput()
+From: Yury Polyanskiy <yura_pol@mail.ru>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Tejun Heo wrote: > The code he was talking about looks
-	like. > > if (rq->flags & (REQ_SOFTBARRIER | REQ_HARDBARRIER) { Yes, I
-	certainly agree you don't want to test the same variable multiple
-	times, if you are just testing bits in the same variable. [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Date: Thu, 09 Feb 2006 20:32:38 -0500
+Message-Id: <1139535158.23241.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> The code he was talking about looks like.
-> 
-> if (rq->flags & (REQ_SOFTBARRIER | REQ_HARDBARRIER) {
+Hi!
 
+Just discovered this BUG_ON() result in logs. Happened while a system
+was under a very disk/memory-intensive load.
 
-Yes, I certainly agree you don't want to test the same variable multiple 
-times, if you are just testing bits in the same variable.
+This is unlikely to be a memory corruption (pretty new ThinkPad with
+original memory).
 
-	Jeff
+BUG_ON called from here:
+
+static void sysfs_d_iput(struct dentry * dentry, struct inode * inode)
+{
+	struct sysfs_dirent * sd = dentry->d_fsdata;
+
+	if (sd) {
+		BUG_ON(sd->s_dentry != dentry);
+		sd->s_dentry = NULL;
+		sysfs_put(sd);
+	}
+	iput(inode);
+}
+
+Bug report below. Please CC me
+
+Yury.
+
+ kernel BUG at fs/sysfs/dir.c:21!
+ CPU:    0
+ EIP:    0060:[sysfs_d_iput+123/144]    Not tainted VLI
+ EFLAGS: 00010206   (2.6.13.3) 
+ EIP is at sysfs_d_iput+0x7b/0x90
+ eax: c079a72c   ebx: cf6c5818   ecx: c01d3f30   edx: cf6c5818
+ esi: cfc99290   edi: cf6c5818   ebp: c92ab000   esp: c92abc4c
+ ds: 007b   es: 007b   ss: 0068
+ Process monotone (pid: 12389, threadinfo=c92ab000 task=c0ae6cf0)
+ Stack: cf6c5818 c079a72c 00000005 c01a0a3e 00000000 c11cb680 c10c1860 
+c117e080 c015cd40 c92abc98 c015cd65 000016a8 00000000 00000080 c127ea60
+c01a1b54 c0163c19 0005aa00 00000000 0000d2fb 00000006 00000000 00000000
+000201d2 
+
+ Call Trace:
+  [prune_dcache+1406/2032] prune_dcache+0x57e/0x7f0
+  [get_writeback_state+48/64] get_writeback_state+0x30/0x40
+  [get_dirty_limits+21/192] get_dirty_limits+0x15/0xc0
+  [shrink_dcache_memory+20/64] shrink_dcache_memory+0x14/0x40
+  [shrink_slab+345/416] shrink_slab+0x159/0x1a0
+  [try_to_free_pages+210/400] try_to_free_pages+0xd2/0x190
+  [__alloc_pages+427/1072] __alloc_pages+0x1ab/0x430
+  [__do_page_cache_readahead+313/400] __do_page_cache_readahead
++0x139/0x190
+  [blockable_page_cache_readahead+81/208] blockable_page_cache_readahead
++0x
+51/0xd0
+  [make_ahead_window+112/176] make_ahead_window+0x70/0xb0
+  [page_cache_readahead+203/384] page_cache_readahead+0xcb/0x180
+  [file_read_actor+229/240] file_read_actor+0xe5/0xf0
+  [do_generic_mapping_read+1486/1520] do_generic_mapping_read
++0x5ce/0x5f0
+  [__generic_file_aio_read+478/544] __generic_file_aio_read+0x1de/0x220
 
 

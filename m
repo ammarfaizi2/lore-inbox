@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbWBJA5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbWBJA4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750919AbWBJA5M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 19:57:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbWBJA5M
+	id S1750920AbWBJA4u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 19:56:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbWBJA4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 19:57:12 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:36030 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750919AbWBJA5K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 19:57:10 -0500
-Date: Fri, 10 Feb 2006 01:53:41 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Adrian Bunk <bunk@stusta.de>
-cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Cleanup possibility in asm-i386/string.h
-In-Reply-To: <20060210000523.GE3524@stusta.de>
-Message-ID: <Pine.LNX.4.61.0602100143460.30994@scrub.home>
-References: <200602071215.46885.ak@suse.de> <Pine.LNX.4.61.0602071230520.9696@scrub.home>
- <200602071308.59827.ak@suse.de> <Pine.LNX.4.61.0602071336060.30994@scrub.home>
- <20060210000523.GE3524@stusta.de>
+	Thu, 9 Feb 2006 19:56:50 -0500
+Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:38606 "EHLO
+	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750919AbWBJA4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 19:56:49 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: [PATCH] mm: Implement Swap Prefetching v22
+Date: Fri, 10 Feb 2006 11:56:08 +1100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       ck list <ck@vds.kolivas.org>, linux-mm@kvack.org,
+       Nick Piggin <npiggin@suse.de>, Paul Jackson <pj@sgi.com>
+References: <200602092339.49719.kernel@kolivas.org> <43EBE3AB.1010009@jp.fujitsu.com>
+In-Reply-To: <43EBE3AB.1010009@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602101156.09326.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 10 February 2006 11:51, KAMEZAWA Hiroyuki wrote:
+> Hi,
+>
+> Con Kolivas wrote:
+> > +void add_to_swapped_list(struct page *page)
+> > +{
+> > +	struct swapped_entry *entry;
+> > +	unsigned long index;
+> > +
+> > +	spin_lock(&swapped.lock);
+> > +	if (swapped.count >= swapped.maxcount) {
+>
+> Assume x86 system with 8G memory, swapped_maxcount is maybe 5G+ here.
+> Then, swapped_entry can consume 5G/PAGE_SIZE * 16bytes = 10 M byte more
+> slabs from ZONE_NORMAL. Could you add check like this?
+> ==
+> void add_to_swapped_list(struct page *page)
+> {
+> 	<snip>
+> 	if (!swap_prefetch)
+> 		return;
+> 	spin_lcok(&spwapped.lock);
+> }
+> ==
 
-On Fri, 10 Feb 2006, Adrian Bunk wrote:
+Sure why not. It made testing easier to not stop adding entries to the swapped 
+list when it was disabled, but for release your idea makes sense. Thanks for 
+the suggestion.
 
-> I remember playing with using more gcc builtins in the kernel some time 
-> ago, and some gcc builtin used a different library function, which was a 
-> function the kernel did not supply.
-> 
-> I don't remember the exact details, but this was the reason why I 
-> preferred using builtins only when explicitely enabled.
-
-gcc can turn a sprintf() into strcpy(), which is a valid thing to do even 
-in a kernel environment. It can be turned off selectively, if it should 
-be a problem, so using -free-standing is IMO complete overkill.
-
-bye, Roman
+Cheers,
+Con

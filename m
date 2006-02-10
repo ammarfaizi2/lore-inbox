@@ -1,57 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWBJTkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbWBJTon@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbWBJTkV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 14:40:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWBJTkV
+	id S1751086AbWBJTon (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 14:44:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWBJTon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 14:40:21 -0500
-Received: from vms040pub.verizon.net ([206.46.252.40]:11605 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751320AbWBJTkU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 14:40:20 -0500
-Date: Fri, 10 Feb 2006 14:39:53 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: CD-blanking leads to machine freeze with current -git [was: Re: CD
- writing in future Linux try #2 [ was: Re: CD writing in future Linux (stirring
- up a hornets' nest) ]]
-In-reply-to: <43ECE734.5010907@cfl.rr.com>
-To: linux-kernel@vger.kernel.org
-Reply-to: gene.heskett@verizon.net
-Message-id: <200602101439.53394.gene.heskett@verizon.net>
-Organization: Absolutely none - usually detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com>
- <20060210175848.GA5533@stiffy.osknowledge.org> <43ECE734.5010907@cfl.rr.com>
-User-Agent: KMail/1.7
+	Fri, 10 Feb 2006 14:44:43 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:56986 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751086AbWBJTom (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 14:44:42 -0500
+Date: Fri, 10 Feb 2006 11:44:23 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Andrew Morton <akpm@osdl.org>, linux@horizon.com,
+       linux-kernel@vger.kernel.org, sct@redhat.com
+Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
+In-Reply-To: <43ECE97F.1080902@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0602101138480.19172@g5.osdl.org>
+References: <20060209071832.10500.qmail@science.horizon.com>
+ <20060209094815.75041932.akpm@osdl.org> <43EC0A44.1020302@yahoo.com.au>
+ <20060209195035.5403ce95.akpm@osdl.org> <43EC0F3F.1000805@yahoo.com.au>
+ <20060209201333.62db0e24.akpm@osdl.org> <43EC16D8.8030300@yahoo.com.au>
+ <20060209204314.2dae2814.akpm@osdl.org> <43EC1BFF.1080808@yahoo.com.au>
+ <20060209211356.6c3a641a.akpm@osdl.org> <43EC24B1.9010104@yahoo.com.au>
+ <20060209215040.0dcb36b1.akpm@osdl.org> <43EC2C9A.7000507@yahoo.com.au>
+ <20060209221324.53089938.akpm@osdl.org> <43EC3326.4080706@yahoo.com.au>
+ <20060209224656.7533ce2b.akpm@osdl.org> <43EC3961.3030904@yahoo.com.au>
+ <20060209231432.03a09dee.akpm@osdl.org> <43EC8A06.40405@yahoo.com.au>
+ <Pine.LNX.4.64.0602100815580.19172@g5.osdl.org> <43ECC69D.1010001@yahoo.com.au>
+ <Pine.LNX.4.64.0602100904330.19172@g5.osdl.org> <43ECD471.9080203@yahoo.com.au>
+ <Pine.LNX.4.64.0602101011350.19172@g5.osdl.org> <43ECE97F.1080902@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 February 2006 14:19, Phillip Susi wrote:
->Marc Koschewski wrote:
->> I just tried blanking a CD-RW with the latest -git tree. The machine
->> just became unresponsive and then froze. When it became unresponsive
->> the clock in GNOME still displayed the current time but I could not
->> focus any windows anymore. Then I had to hard reboot the machine.
->> The logs say nothing. I repeat: nothing.
->>
->> Does anyone have similar problems?
->
->Instead of rebooting, just wait for the blanking to finish.  My guess
-> is that your burner and hard drive are both on the same ide channel,
-> and so you can not access the disk while the burner is blanking.  If
-> this is the case, put each drive on their own ide channel.
->
-It takes hard drive access to switch window focus? Yes, thats a 
-question.
 
--- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+
+On Sat, 11 Feb 2006, Nick Piggin wrote:
+> > 
+> > Your pattern would actually be
+> > 
+> > 	.. dirty offset 100-200 ..
+> > 	fadvice(fd, 100, 200, FADV_WRITE_START);
+> > 
+> > 	.. dirty offset 200-300 ..
+> > 	fadvice(fd, 200, 300, FADV_WRITE_START);
+> > 
+> > 	.. dirty offset 300-400 ..
+> > 	fadvice(fd, 300, 400, FADV_WRITE_START);
+> > 
+> > 	.. dirty offset 400-415 .. (for the next transaction)
+> > 
+> 
+> - IOW if the app or OS crashed here it would be possible to see 400-415 on
+> the disk and none of the previous transactions (assuming we don't know
+> the page size).
+
+If the app/OS crashed here, nothing would matter. We haven't committed 
+anything at all yet. We've just started the IO. What is at 400-415 simply 
+doesn't matter, because nobody would have any reason to look at it.
+
+(Besides, it's not at all clear that 400-415 would or would not be on 
+disk. It depends on entirely on timing and buffering of the IO system at 
+that point - the fact that its dirty in memory doesn't mean that it ever 
+made it into the IO buffer that was started).
+
+> > 	fadvice(fd, 100, 400, FADV_JUST_WAIT); (for the previous one)
+
+This is the one that waits for it to finish, so _now_ we can update the 
+pointers (elsewhere) to that log (and if the app/OS crashes before that, 
+nobody will even know about it).
+
+See?
+
+> I'm not convinced. You above example was bogus.
+
+No, your understanding was incomplete. I'm talking about just parts of a 
+much bigger transaction. 
+
+A single write on its own is almost never a transaction unless your system 
+is _purely_ log-based (which it could be, of course. Not in my example).
+
+		Linus

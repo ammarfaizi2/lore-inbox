@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWBJK3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbWBJK2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751234AbWBJK3m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 05:29:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWBJK2T
+	id S1751230AbWBJK2h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 05:28:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWBJK20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 05:28:19 -0500
-Received: from mail20.bluewin.ch ([195.186.19.65]:7142 "EHLO mail20.bluewin.ch")
-	by vger.kernel.org with ESMTP id S1751232AbWBJK2A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 05:28:00 -0500
-Cc: Arthur Othieno <apgo@patchbomb.org>, p_gortmaker@yahoo.com,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH 4/4] net: remove CONFIG_NET_CBUS conditional for NS8390
+	Fri, 10 Feb 2006 05:28:26 -0500
+Received: from mail19.bluewin.ch ([195.186.18.65]:40837 "EHLO
+	mail19.bluewin.ch") by vger.kernel.org with ESMTP id S1751226AbWBJK17
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 05:27:59 -0500
+Cc: Arthur Othieno <apgo@patchbomb.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/4] block: floppy98 removal, really.
 In-Reply-To: <11395672534150-git-send-email-apgo@patchbomb.org>
 X-Mailer: git-send-email
-Date: Fri, 10 Feb 2006 05:27:34 -0500
-Message-Id: <11395672544147-git-send-email-apgo@patchbomb.org>
+Date: Fri, 10 Feb 2006 05:27:33 -0500
+Message-Id: <11395672534184-git-send-email-apgo@patchbomb.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Arthur Othieno <apgo@patchbomb.org>
@@ -25,30 +24,29 @@ From: Arthur Othieno <apgo@patchbomb.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't bother testing for CONFIG_NET_CBUS ("NEC PC-9800 C-bus cards");
-it went out with the rest of PC98 subarch.
+floppy98 went out together with the rest of PC98 subarch.
+Remove stale Makefile entry that remained.
 
 Signed-off-by: Arthur Othieno <apgo@patchbomb.org>
 
 ---
 
- drivers/net/8390.h |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/block/Makefile |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-6eca48257ddfe560447fda2c0c1961d78b06a047
-diff --git a/drivers/net/8390.h b/drivers/net/8390.h
-index 599b68d..51e39dc 100644
---- a/drivers/net/8390.h
-+++ b/drivers/net/8390.h
-@@ -134,7 +134,7 @@ struct ei_device {
- #define inb_p(_p)	inb(_p)
- #define outb_p(_v,_p)	outb(_v,_p)
+80a4684b196db130039c8cd471f9dc10416da7db
+diff --git a/drivers/block/Makefile b/drivers/block/Makefile
+index 3ec1f8d..410f259 100644
+--- a/drivers/block/Makefile
++++ b/drivers/block/Makefile
+@@ -7,7 +7,6 @@
  
--#elif defined(CONFIG_NET_CBUS) || defined(CONFIG_NE_H8300) || defined(CONFIG_NE_H8300_MODULE)
-+#elif defined(CONFIG_NE_H8300) || defined(CONFIG_NE_H8300_MODULE)
- #define EI_SHIFT(x)	(ei_local->reg_offset[x])
- #else
- #define EI_SHIFT(x)	(x)
+ obj-$(CONFIG_MAC_FLOPPY)	+= swim3.o
+ obj-$(CONFIG_BLK_DEV_FD)	+= floppy.o
+-obj-$(CONFIG_BLK_DEV_FD98)	+= floppy98.o
+ obj-$(CONFIG_AMIGA_FLOPPY)	+= amiflop.o
+ obj-$(CONFIG_ATARI_FLOPPY)	+= ataflop.o
+ obj-$(CONFIG_BLK_DEV_SWIM_IOP)	+= swim_iop.o
 -- 
 1.1.5
 

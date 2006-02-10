@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbWBJEqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751076AbWBJErF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751002AbWBJEqE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 23:46:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWBJEqE
+	id S1751076AbWBJErF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 23:47:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWBJErF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 23:46:04 -0500
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:44968 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751004AbWBJEqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 23:46:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=oHnlJCZYgmscRdhyM1+I0/iVxL/Y72C9ykC4lJ2gp3rm+u3vdWs/av8RffUxHzIN8bDPd0SRtih9vBFtY1q+dLhRlOcy63L8TDwi+15XuSPWywUDotMaIUCC+5z4uIbKwjNJ1zsHzrkVtQWFUMH/QF7jB7aVHr+UZgBnTrl5uMk=  ;
-Message-ID: <43EC1A85.2000001@yahoo.com.au>
-Date: Fri, 10 Feb 2006 15:45:57 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Con Kolivas <kernel@kolivas.org>, linux-mm@kvack.org, ck@vds.kolivas.org,
-       pj@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm: Implement Swap Prefetching v23
-References: <200602101355.41421.kernel@kolivas.org>	<200602101449.59486.kernel@kolivas.org>	<43EC1164.4000605@yahoo.com.au>	<200602101514.40140.kernel@kolivas.org> <20060209202507.26f66be0.akpm@osdl.org>
-In-Reply-To: <20060209202507.26f66be0.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 9 Feb 2006 23:47:05 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:35990 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751080AbWBJErD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 23:47:03 -0500
+Date: Thu, 9 Feb 2006 20:43:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux@horizon.com, linux-kernel@vger.kernel.org, sct@redhat.com
+Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
+Message-Id: <20060209204314.2dae2814.akpm@osdl.org>
+In-Reply-To: <43EC16D8.8030300@yahoo.com.au>
+References: <20060209071832.10500.qmail@science.horizon.com>
+	<20060209001850.18ca135f.akpm@osdl.org>
+	<43EAFEB9.2060000@yahoo.com.au>
+	<20060209004208.0ada27ef.akpm@osdl.org>
+	<43EB3801.70903@yahoo.com.au>
+	<20060209094815.75041932.akpm@osdl.org>
+	<43EC0A44.1020302@yahoo.com.au>
+	<20060209195035.5403ce95.akpm@osdl.org>
+	<43EC0F3F.1000805@yahoo.com.au>
+	<20060209201333.62db0e24.akpm@osdl.org>
+	<43EC16D8.8030300@yahoo.com.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Con Kolivas <kernel@kolivas.org> wrote:
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+> > Secondly, consider the behaviour of the above application if it is modifying
+>  > the same page relatively frequently (quite likely).  If MS_ASYNC starts I/O
+>  > immediately, that page will get written 10, 100 or 1000 times per second. 
+>  > If MS_ASYNC leaves it to pdflush, that page gets written once per 30
+>  > seconds, so we do far much less I/O.
+>  > 
+>  > We just don't know.  It's better to leave it up to the application designer
+>  > rather than lumping too many operations into the one syscall.
 > 
->> Ok I see. We don't have a way to add to the tail of that list though?
-> 
-> 
-> del_page_from_lru() + (new) add_page_to_inactive_list_tail().
-> 
-> 
->>Is that 
->> a worthwhile addition to this (ever growing) project? That would definitely 
->> have an impact on the other code if not all done within swap_prefetch.c.. 
->> which would also be quite a large open coded something.
-> 
-> 
-> Do both of the above in a new function in swap.c.
-> 
+>  Well it remains the same conceptual operation (asynchronously "schedule"
+>  dirty pages for writeout). However it simply becomes more useful to start
+>  the writeout immediately, given that's the (pretty explicit) hint that is
+>  given to us.
 
-That'll require the caller to do lru locking.
+If you want to start the I/O now, fine, start the I/O now.
 
-I'd add an lru_cache_add_tail, use it instead of the current lru_cache_add
-that Con's got now, and just implement it in a simple manner, without
-pagevecs.
+If you don't want to start I/O now, fine, don't start I/O now.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+If msync() were to unconditionally start I/O, you don't get that option.
+
+It's pretty simple, isn't it?

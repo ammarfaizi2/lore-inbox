@@ -1,40 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWBJQa4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWBJQbG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbWBJQa4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 11:30:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWBJQa4
+	id S932157AbWBJQbG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 11:31:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWBJQbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 11:30:56 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:25050 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932153AbWBJQay (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 11:30:54 -0500
-Subject: Re: [Lhms-devel] [RFC/PATCH: 001/010] Memory hotplug for new nodes
-	with pgdat allocation. (pgdat allocation)
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-Cc: "Luck, Tony" <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
-       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
-       linux-ia64@vger.kernel.org,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>,
-       x86-64 Discuss <discuss@x86-64.org>
-In-Reply-To: <20060210223757.C530.Y-GOTO@jp.fujitsu.com>
-References: <20060210223757.C530.Y-GOTO@jp.fujitsu.com>
-Content-Type: text/plain
-Date: Fri, 10 Feb 2006 08:30:41 -0800
-Message-Id: <1139589041.9209.77.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Fri, 10 Feb 2006 11:31:06 -0500
+Received: from moutng.kundenserver.de ([212.227.126.188]:35560 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932157AbWBJQbE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 11:31:04 -0500
+From: Prakash Punnoor <prakash@punnoor.de>
+To: Marc Perkel <marc@perkel.com>
+Subject: Re: ata1: command 0x35 timeout sata_nv driver
+Date: Fri, 10 Feb 2006 17:30:42 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <43ECB9EA.9000804@perkel.com>
+In-Reply-To: <43ECB9EA.9000804@perkel.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1139591323.nPI5Mfr6lf";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200602101730.47512.prakash@punnoor.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-02-10 at 23:20 +0900, Yasunori Goto wrote:
-> +       NODE_DATA(nid)->kswapd = kthread_create(kswapd, NODE_DATA(nid), "kswapd%d", nid); 
+--nextPart1139591323.nPI5Mfr6lf
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Can this fail?
+Am Freitag Februar 10 2006 17:06 schrieb Marc Perkel:
+> Are there still problems with sata_nv?
+>
+> Running 2 maxtor 250gig drives with 16mb buffer.
+>
+> Getting this error:
+> ata1: command 0x35 timeout, stat 0x50 hos_stat 0x24
+> ata2: command 0x35 timeout, stat 0x50 hos_stat 0x24
 
--- Dave
+Maxtor released a new BIOS fixing issues with nforce4. Maybe you want to as=
+k=20
+bios for the fw and test it?
 
+=2D-=20
+(=B0=3D                 =3D=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
+
+--nextPart1139591323.nPI5Mfr6lf
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBD7L+3xU2n/+9+t5gRAhxSAKCy25xW/fzEBqc/n7jFRnYcr99trwCg9XPH
+XcU1J0J/eFyb1XwJpMNbAho=
+=CpIj
+-----END PGP SIGNATURE-----
+
+--nextPart1139591323.nPI5Mfr6lf--

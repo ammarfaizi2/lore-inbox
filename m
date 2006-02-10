@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWBJNGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWBJNFZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbWBJNGN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 08:06:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWBJNGM
+	id S932068AbWBJNFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 08:05:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbWBJNFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 08:06:12 -0500
-Received: from mr1.bfh.ch ([147.87.250.50]:63410 "EHLO mr1.bfh.ch")
-	by vger.kernel.org with ESMTP id S932076AbWBJNGK (ORCPT
+	Fri, 10 Feb 2006 08:05:25 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:11972 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932068AbWBJNFX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 08:06:10 -0500
-X-PMWin-Version: 2.5.0e, Antispam-Engine: 2.2.0.0, Antivirus-Engine: 2.32.10
-Thread-Index: AcYuQr5p5N5K5CK2QIClvXPXvfTYEQ==
-Content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
-Importance: normal
-Message-ID: <43EC8FBA.1080307@bfh.ch>
-Date: Fri, 10 Feb 2006 14:06:02 +0100
-From: "Seewer Philippe" <philippe.seewer@bfh.ch>
-Organization: BFH
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050811)
-X-Accept-Language: en-us, en
+	Fri, 10 Feb 2006 08:05:23 -0500
+Date: Fri, 10 Feb 2006 14:02:10 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andi Kleen <ak@suse.de>
+cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: Cleanup possibility in asm-i386/string.h
+In-Reply-To: <200602100123.36077.ak@suse.de>
+Message-ID: <Pine.LNX.4.61.0602101355490.30994@scrub.home>
+References: <200602071215.46885.ak@suse.de> <Pine.LNX.4.61.0602071336060.30994@scrub.home>
+ <20060210000523.GE3524@stusta.de> <200602100123.36077.ak@suse.de>
 MIME-Version: 1.0
-To: <linux-kernel@vger.kernel.org>
-Subject: RFC: disk geometry via sysfs
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Feb 2006 13:06:02.0117 (UTC) FILETIME=[BE3F3350:01C62E42]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all!
+Hi,
 
-I don't want to start another geometry war, but with the introduction of
-the general getgeo function by Christoph Hellwig for all disks this
-simply would become a matter of extending the basic gendisk block driver.
+On Fri, 10 Feb 2006, Andi Kleen wrote:
 
-There are people out there (like me) who need to know about disk
-geometry. But since this is clearly post 2.6.16 I prefer to ask here
-before writing a patch...
+> > I remember playing with using more gcc builtins in the kernel some time 
+> > ago, and some gcc builtin used a different library function, which was a 
+> > function the kernel did not supply.
+> 
+> It works fine on x86-64. If something is missing it can be also supplied.
 
-Q1: Yes or No?
-If no, the other questions do not apply
+I think I now see what the real problem was, x86-64 does:
 
-Q2: Where under sysfs?
-Either do /sys/block/hdx/heads, /sys/block/hdx/sectors, etc. or should
-there be a new sub-object like /sys/block/hdx/geometry/heads?
+#define strcpy __builtin_strcpy
 
-Q3: Writable?
-Under some (weird) circumstances it would actually be quite nice to
-overwrite the kernels idea of a disks geometry. This would require a
-general function like setgeo. Acceptable?
+which also renames the version in lib/string.c, so x86-64 never had a 
+fallback copy for __builtin_sprintf.
+Can we please get rid of -freestanding and fix x86-64 instead?
 
-Regards
-Philippe Seewer
+bye, Roman

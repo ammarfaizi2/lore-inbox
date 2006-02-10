@@ -1,84 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbWBJXPs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWBJXVe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbWBJXPs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 18:15:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWBJXPs
+	id S1750885AbWBJXVe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 18:21:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWBJXVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 18:15:48 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:56021 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750832AbWBJXPr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 18:15:47 -0500
-Date: Fri, 10 Feb 2006 15:15:02 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       linux@horizon.com, linux-kernel@vger.kernel.org, sct@redhat.com
-Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
-In-Reply-To: <1139612574.7877.17.camel@lade.trondhjem.org>
-Message-ID: <Pine.LNX.4.64.0602101507530.19172@g5.osdl.org>
-References: <20060209071832.10500.qmail@science.horizon.com> 
- <20060209094815.75041932.akpm@osdl.org> <43EC1BFF.1080808@yahoo.com.au> 
- <20060209211356.6c3a641a.akpm@osdl.org> <43EC24B1.9010104@yahoo.com.au> 
- <20060209215040.0dcb36b1.akpm@osdl.org> <43EC2C9A.7000507@yahoo.com.au> 
- <20060209221324.53089938.akpm@osdl.org> <43EC3326.4080706@yahoo.com.au> 
- <20060209224656.7533ce2b.akpm@osdl.org> <43EC3961.3030904@yahoo.com.au> 
- <Pine.LNX.4.64.0602100759190.19172@g5.osdl.org>  <43ECC13F.5080109@yahoo.com.au>
-  <Pine.LNX.4.64.0602100846170.19172@g5.osdl.org>  <43ECCF68.3010605@yahoo.com.au>
-  <Pine.LNX.4.64.0602100944280.19172@g5.osdl.org>  <43ECDD9B.7090709@yahoo.com.au>
-  <Pine.LNX.4.64.0602101056130.19172@g5.osdl! .org>  <43ECF182.9020505@yahoo.com.au>
-  <Pine.LNX.4.64.0602101254081.19172@g5.osdl.org>  <1139608513.7877.9.camel@lade.trondhjem.org>
-  <Pine.LNX.4.64.0602101432400.19172@g5.osdl.org> <1139612574.7877.17.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 10 Feb 2006 18:21:34 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:27293 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750885AbWBJXVd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 18:21:33 -0500
+Subject: Re: CD-blanking leads to machine freeze with current -git [was:
+	Re: CD writing in future Linux try #2 [ was: Re: CD writing in future Linux
+	(stirring up a hornets' nest) ]]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marc Koschewski <marc@osknowledge.org>
+Cc: Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060210210006.GA5585@stiffy.osknowledge.org>
+References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com>
+	 <20060210175848.GA5533@stiffy.osknowledge.org>
+	 <43ECE734.5010907@cfl.rr.com>
+	 <20060210210006.GA5585@stiffy.osknowledge.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 10 Feb 2006 23:23:54 +0000
+Message-Id: <1139613834.14383.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Gwe, 2006-02-10 at 22:00 +0100, Marc Koschewski wrote:
+> than to run this as root. Couldn't cdrecord 'watch' ide load or - even better -
+> forcecast it? It knows blanking leads to inresponsiveness sometimes (even more due
+> to the fact that both devices share the same bus). Why not kind of  'renice'
+> the process that blanks?
 
+It isn't about load. You issue a command to an ATA device and there is
+no disconnect sequence as SCSI has. That bus is now locked until the
+command completes.
 
-On Fri, 10 Feb 2006, Trond Myklebust wrote:
-> > 
-> > Now, in a _coherent_ environment (like Linux) it should probably be a 
-> > no-op, since the mapping is always consistent with storage (where 
-> > "storage" doesn't actyally mean "disk", but the virtual file underneath 
-> > the mapping).
-> 
-> Hmmm.... When talking about syncing to _permanent_ storage one usually
-> is talking about what is actually on the disk.
+There are mechanisms for certain cases like blanking and fixating that
+allow you to avoid this. Some cd record apps let you choose them.  There
+isn't anything the kernel can do however.
 
-Ok, in that case Linux has never done what MS_INVALIDATE says, and I doubt 
-anybody else has either. It's neither sane nor even really doable (you'd 
-have to yank out everybody _elses_ caches too, not just your own).
+Alan
 
-So I think that within this context, the "permanent storage" really means 
-the "file" that is mapped, and doesn't care about whether it has actually 
-hit the disk yet.
-
-> In any case, we do have non-coherent mmapped environments in Linux (need 
-> I mention NFS, CIFS, ... ;-)?).
-
-Good point. That's an argument for actually dropping the local page cache 
-entirely on such a filesystem, since such a filesystem really isn't 
-fundamentally coherent.
-
-However, that would be some really _nasty_ semantics, because it would 
-mean that something like NFS would behave very fundamentally differently 
-than a local filesystem, even if the user only actually uses it on the 
-local machine and there are no other writers ("..but there _could_ be 
-other writers that we don't know about").
-
-So I'd have to veto that just on the grounds of trying to keep users sane.
-
-> IIRC msync(MS_INVALIDATE) on Solaris was actually often used by some
-> applications to resync the client page cache to the server when using
-> odd locking schemes, so I believe this interpretation is a valid one.
-
-I think you're right. Although I would also guess that 99% of the time, 
-you'd only do that for read-only mappings. Doing the same in the presense 
-of also doing writes is just asking for getting shot.
-
-Even for read-only mappings, it's actually quite hard to globally flush a 
-page cache page if somebody else happens to be using it for a read() or 
-something at exactly the same time.
-
-		Linus

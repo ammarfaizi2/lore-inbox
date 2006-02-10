@@ -1,114 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWBJEtl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWBJEwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751082AbWBJEtl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 23:49:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWBJEtl
+	id S1751091AbWBJEwT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 23:52:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWBJEwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 23:49:41 -0500
-Received: from 63.15.233.220.exetel.com.au ([220.233.15.63]:16361 "EHLO
-	sydlxfw01.samad.com.au") by vger.kernel.org with ESMTP
-	id S1751082AbWBJEtk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 23:49:40 -0500
-Date: Fri, 10 Feb 2006 15:49:13 +1100
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: jim@why.dont.jablowme.net, peter.read@gmail.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060210044913.GG26235@samad.com.au>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	jim@why.dont.jablowme.net, peter.read@gmail.com,
-	matthias.andree@gmx.de, linux-kernel@vger.kernel.org
-References: <73d8d0290602060706o75f04c1cx@mail.gmail.com> <43E7680E.2000506@gmx.de> <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner> <20060207183712.GC5341@voodoo> <43E9F1CD.nail2BR11FL52@burner> <20060208162828.GA17534@voodoo> <43EA1D26.nail40E11SL53@burner> <20060208165330.GB17534@voodoo> <43EB0DEB.nail52A1LVGUO@burner>
+	Thu, 9 Feb 2006 23:52:19 -0500
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:13461 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751091AbWBJEwS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 23:52:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=T/zOqvS4sXUBES7ruthhA4I3yuYOASkpH9fnvjIyaJVqr+BzLsdSxByQYpXlNhcfqg0/76dRQ5OZ5wo9N83K5AKN3xELecKdzmEDtoTYhMy+da3qVz9AwKvb3Nn0tUIBWPuYRD1h34saNl5b9llSb3sCfE8WaDnglOumpeDcUSc=  ;
+Message-ID: <43EC1BFF.1080808@yahoo.com.au>
+Date: Fri, 10 Feb 2006 15:52:15 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QWpDgw58+k1mSFBj"
-Content-Disposition: inline
-In-Reply-To: <43EB0DEB.nail52A1LVGUO@burner>
-User-Agent: Mutt/1.5.11
-From: Alexander Samad <alex@samad.com.au>
+To: Andrew Morton <akpm@osdl.org>
+CC: linux@horizon.com, linux-kernel@vger.kernel.org, sct@redhat.com
+Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
+References: <20060209071832.10500.qmail@science.horizon.com>	<20060209001850.18ca135f.akpm@osdl.org>	<43EAFEB9.2060000@yahoo.com.au>	<20060209004208.0ada27ef.akpm@osdl.org>	<43EB3801.70903@yahoo.com.au>	<20060209094815.75041932.akpm@osdl.org>	<43EC0A44.1020302@yahoo.com.au>	<20060209195035.5403ce95.akpm@osdl.org>	<43EC0F3F.1000805@yahoo.com.au>	<20060209201333.62db0e24.akpm@osdl.org>	<43EC16D8.8030300@yahoo.com.au> <20060209204314.2dae2814.akpm@osdl.org>
+In-Reply-To: <20060209204314.2dae2814.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+>>>Secondly, consider the behaviour of the above application if it is modifying
+>>
+>> > the same page relatively frequently (quite likely).  If MS_ASYNC starts I/O
+>> > immediately, that page will get written 10, 100 or 1000 times per second. 
+>> > If MS_ASYNC leaves it to pdflush, that page gets written once per 30
+>> > seconds, so we do far much less I/O.
+>> > 
+>> > We just don't know.  It's better to leave it up to the application designer
+>> > rather than lumping too many operations into the one syscall.
+>>
+>> Well it remains the same conceptual operation (asynchronously "schedule"
+>> dirty pages for writeout). However it simply becomes more useful to start
+>> the writeout immediately, given that's the (pretty explicit) hint that is
+>> given to us.
+> 
+> 
+> If you want to start the I/O now, fine, start the I/O now.
+> 
+> If you don't want to start I/O now, fine, don't start I/O now.
+> 
+> If msync() were to unconditionally start I/O, you don't get that option.
+> 
 
---QWpDgw58+k1mSFBj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Huh? Sure you do.
 
-On Thu, Feb 09, 2006 at 10:39:55AM +0100, Joerg Schilling wrote:
-> "Jim Crilly" <jim@why.dont.jablowme.net> wrote:
->=20
-> > > You just verify that you don't listen...
-> > =20
-> > Yes, I have been listening and I haven't seen you list one reason why
-> > cdrecord absolutely has to use SCSI IDs when fsck can get away with usi=
-ng
-> > /dev/blah just fine.
->=20
-> Are you _really_ missing basic know how to understand that fsck is using =
-the
-> block layer of a virtual "block device" emulated by UNIX while libscg is
-> offering _direct_ acces to _any_ type of device allowing you to send _com=
-mands_
-> understood by the device?
->=20
-> fsck is just sending abstract instructions to a virtual device and does=
-=20
-> not care about=20
->=20
-> Please explain me:
->=20
-> -	how to use /dev/hd* in order to scan an image from a scanner
->=20
-> -	how to use /dev/hd* in order to talk to a CPU device
->=20
-> -	how to use /dev/hd* in order to talk to a tape device
->=20
-> -	how to use /dev/hd* in order to talk to a printer
->=20
-> -	how to use /dev/hd* in order to talk to a jukebox
->=20
-> -	how to use /dev/hd* in order to talk to a graphical device
+If you want to start the IO *now* without waiting on it, call msync(MS_ASYNC)
+If you don't want to start the IO now, that's really easy, do nothing.
+If you want to start the IO now and also wait for it to finish, call msync(MS_SYNC)
 
-Hi=20
+Presently, the first option is unavailable.
 
-I have been following this thread for quite a while, would just like to
-point out that you are quick pedantic about accuracy. =20
+> It's pretty simple, isn't it?
+> 
 
-so even though it might be a bit of a pain to create a file called
-/dev/hd*, I believe with mknod you could assign this name to any device
-you wanted to or even symlink it to any device so you could use you
-/dev/hd* the same way as you used /dev/sda etc
+Yes.
 
->=20
-> J?rg
->=20
-> --=20
->  EMail:joerg@schily.isdn.cs.tu-berlin.de (home) J?rg Schilling D-13353 Be=
-rlin
->        js@cs.tu-berlin.de                (uni) =20
->        schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogs=
-pot.com/
->  URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/s=
-chily
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->=20
-
---QWpDgw58+k1mSFBj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFD7BtJkZz88chpJ2MRAtxQAKDKI4CTlQOd4P7otnebx2cL9p33bACeMw2H
-ii1D0v6MyKKn7+JPcHiohv0=
-=fKOM
------END PGP SIGNATURE-----
-
---QWpDgw58+k1mSFBj--
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWBJPPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWBJPWB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbWBJPPo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 10:15:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWBJPPo
+	id S932133AbWBJPWB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 10:22:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWBJPWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 10:15:44 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:47899 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S932131AbWBJPPn (ORCPT
+	Fri, 10 Feb 2006 10:22:01 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:23446 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932133AbWBJPWA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 10:15:43 -0500
-Message-ID: <43ECADE6.9020609@cfl.rr.com>
-Date: Fri, 10 Feb 2006 10:14:46 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Fri, 10 Feb 2006 10:22:00 -0500
+From: Andi Kleen <ak@suse.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: Cleanup possibility in asm-i386/string.h
+Date: Fri, 10 Feb 2006 16:02:18 +0100
+User-Agent: KMail/1.8.2
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+References: <200602071215.46885.ak@suse.de> <200602101449.07491.ak@suse.de> <Pine.LNX.4.61.0602101523040.30994@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0602101523040.30994@scrub.home>
 MIME-Version: 1.0
-To: "Darrick J. Wong" <djwong@us.ibm.com>
-CC: dm-devel@redhat.com, Chris McDermott <lcm@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Support HDIO_GETGEO on device-mapper volumes
-References: <43EBEDD0.60608@us.ibm.com> <43EC218A.9000402@cfl.rr.com> <43EC4B57.9000408@us.ibm.com>
-In-Reply-To: <43EC4B57.9000408@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Feb 2006 15:16:44.0719 (UTC) FILETIME=[00CD4BF0:01C62E55]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14259.000
-X-TM-AS-Result: No--2.200000-5.000000-31
+Content-Disposition: inline
+Message-Id: <200602101602.19154.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Darrick J. Wong wrote:
-> Phillip... are you the person working on dmraid support in Ubuntu?  
-> For the first time, I boot Ubuntu off that HostRAID array this 
-> afternoon without the need for a helper disk and with dmraid in the 
-> initramfs.  I appreciated the howto. :)
->
+On Friday 10 February 2006 15:46, Roman Zippel wrote:
+> Hi,
+> 
+> On Fri, 10 Feb 2006, Andi Kleen wrote:
+> 
+> > > #define strcpy __builtin_strcpy
+> > > 
+> > > which also renames the version in lib/string.c, so x86-64 never had a 
+> > > fallback copy for __builtin_sprintf.
+> > > Can we please get rid of -freestanding and fix x86-64 instead?
+> > 
+> > Ok I can fix that. Just removing the defines should be ok i guess 
+> > (afaik gcc detects them automatically as the builtin) 
+> 
+> Not with -freestanding.
 
-Yes, I'm currently working on getting it nicely packaged, udebified, and 
-integrated into the installer.  Might not make it in time for dapper. 
+True.
+
+> 
+> > I don't know if the freestanding in the main Makefile isn't needed 
+> > for other architectures so I won't touch it right now.
+> 
+> Well, it was added for x86-64...
+> It shouldn't break anything, that isn't already broken. 
+
+Ok i will remove it then.
 
 
+Thanks,
+-Andi

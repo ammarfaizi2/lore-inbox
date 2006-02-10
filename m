@@ -1,77 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWBJPc2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWBJPiv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbWBJPc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 10:32:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbWBJPc2
+	id S932129AbWBJPiv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 10:38:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWBJPiv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 10:32:28 -0500
-Received: from eastrmmtao03.cox.net ([68.230.240.36]:43224 "EHLO
-	eastrmmtao03.cox.net") by vger.kernel.org with ESMTP
-	id S932139AbWBJPc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 10:32:28 -0500
-Date: Fri, 10 Feb 2006 10:32:23 -0500
-From: Chris Shoemaker <c.shoemaker@cox.net>
-To: Christopher Friesen <cfriesen@nortel.com>
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, tytso@mit.edu,
-       peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-       jengelh@linux01.gwdg.de
+	Fri, 10 Feb 2006 10:38:51 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:5820 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932129AbWBJPiu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 10:38:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=J307I8WpSxLt20TomQtpiZw7eTxiMAJx1qKtUSPAOvU6ePoQ0/nFiZtVnHEj0mNSFuf4OWxZ8El4QrsTv0WO90FkAPwQlsc0Otypu+MZ6Mdlnn/vevSWiz5khBYQjvj0+RYjBgMQIn9smy9AU+Z78+oC123BVslr4UDz/YlTt8I=
+Message-ID: <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com>
+Date: Fri, 10 Feb 2006 16:38:48 +0100
+From: jerome lacoste <jerome.lacoste@gmail.com>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060210153223.GA27599@pe.Belkin>
-References: <43EC887B.nailISDGC9CP5@burner> <mj+md-20060210.123726.23341.atrey@ucw.cz> <43EC8E18.nailISDJTQDBG@burner> <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr> <43EC93A2.nailJEB1AMIE6@burner> <20060210141651.GB18707@thunk.org> <43ECA3FC.nailJGC110XNX@burner> <43ECA70C.8050906@nortel.com> <43ECA8BC.nailJHD157VRM@burner> <43ECADA8.9030609@nortel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: dhazelton@enter.net, peter.read@gmail.com, mj@ucw.cz,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
+In-Reply-To: <43EC8F22.nailISDL17DJF@burner>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <43ECADA8.9030609@nortel.com>
-User-Agent: Mutt/1.4.1i
+References: <20060208162828.GA17534@voodoo>
+	 <20060210114721.GB20093@merlin.emma.line.org>
+	 <43EC887B.nailISDGC9CP5@burner>
+	 <200602090757.13767.dhazelton@enter.net>
+	 <43EC8F22.nailISDL17DJF@burner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 10, 2006 at 09:13:44AM -0600, Christopher Friesen wrote:
-> Joerg Schilling wrote:
-> >"Christopher Friesen" <cfriesen@nortel.com> wrote:
-> 
-> >>There's nothing there that says the mapping cannot change with 
-> >>time...just that it has to be unique.
-> >
-> >
-> >If it changes over the runtime of a program, it is not unique from the
-> >view of that program.
-> 
-> That depends on what "uniquely identified" actually means.
+On 2/10/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
+> "D. Hazelton" <dhazelton@enter.net> wrote:
+>
+> > And does cdrecord even need libscg anymore? From having actually gone through
+> > your code, Joerg, I can tell you that it does serve a larger purpose. But at
+> > this point I have to ask - besides cdrecord and a few other _COMPACT_ _DISC_
+> > writing programs, does _ANYONE_ use libscg? Is it ever used to access any
+> > other devices that are either SCSI or use a SCSI command protocol (like
+> > ATAPI)?  My point there is that you have a wonderful library, but despite
+> > your wishes, there is no proof that it is ever used for anything except
+> > writing/ripping CD's.
+>
+> Name a single program (not using libscg) that implements user space SCSI and runs
+> on as many platforms as cdrecord/libscg does.
 
-"The st_ino and st_dev fields taken together uniquely identify the
-file within the system."
 
-> One possible definition is that at any time, a particular path maps to a 
-> single unique st_ino/st_dev tuple.
+I have 2 technical questions, and I hope that you will take the time
+to answer them.
 
-The quoted sentence certainly implies _at_least_ that much.
+1) extract from the README of the latest stable cdrtools package:
 
-> The other possibility (and this is what you seem to be advocating) is 
-> that a st_ino/st_dev tuple always maps to the same file over the entire 
-> runtime of the system.
+        Linux driver design oddities ******************************************
+        Although cdrecord supports to use dev=/dev/sgc, it is not recommended
+        and it is unsupported.
 
-However, I don't think this is a reasonable interpretation, and it's
-clearly _not_ the one that Joerg is implying.
+        The /dev/sg* device mapping in Linux is not stable! Using dev=/dev/sgc
+        in a shell script may fail after a reboot because the device you want
+        to talk to has moved to /dev/sgd. For the proper and OS independent
+        dev=<bus>,<tgt>,<lun> syntax read the man page of cdrecord.
 
-Joerg is claiming that the quoted sentence also implies that
-_different_ st_ino/st_dev pairs will _always_ identify different
-files.  Taken in just the immediate context of stat.h, this is a
-very reasonable interpretation.
+My understanding of that is you say to not use dev=/dev/sgc because it
+isn't stable. Now that you've said that bus,tgt,lun is not stable on
+Linux (because of a "Linux bug") why is the b,t,l scheme preferred
+over the /dev/sg* one ?
 
-> This second possibility seems easily disproved.  If you delete and 
-> recreate files on a filesystem (assuming nobody has open files in the 
-> filesystem), at some point a new file will end up with the same inode as 
-> an old (deleted) file.  The two files are different, but have the same 
-> st_ino/st_dev tuple.
-> 
-> This leaves the first possibility as the only choice...
 
-If you want to show that his interpretation is incorrent (which it
-may be for all I know), you need a better argument than this.
+2) design question:
 
--chris
+- cdrecord scans then maps the device to the b,t,l scheme.
+- the libsg uses the b,t,l ids in its interface to perform the operations
 
-> 
-> Chris
+So now, if cdrecord could have a new option called -scanbusmap that
+displays the mapping it performs in a way that people can parse the
+output, I think that will solve most issues.
+
+cdrecord already has this information available, it just doesn't display it:
+
+$ cdrecord debug=2 dev=ATAPI -scanbus 2>&1 | grep INFO
+INFO: /dev/hdc, (host0/bus1/target0/lun0) will be mapped on the
+schilly bus No 0 (0,0,0)
+INFO: /dev/hdd, (host0/bus1/target1/lun0) will be mapped on the
+schilly bus No 0 (0,1,0)
+
+It could perform in the following way:
+
+$ cdrecord dev=ATAPI  -scanbusmap
+...
+
+0,0,0 <= /dev/hdc
+0,1,0 <= /dev/hdd
+
+
+Are you accepting such a patch?
+
+Jerome

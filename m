@@ -1,121 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWBJLqR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbWBJLr0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbWBJLqR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 06:46:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWBJLqR
+	id S1751078AbWBJLr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 06:47:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWBJLr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 06:46:17 -0500
-Received: from wine.ocn.ne.jp ([220.111.47.146]:59099 "EHLO
-	smtp.wine.ocn.ne.jp") by vger.kernel.org with ESMTP
-	id S1751080AbWBJLqQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 06:46:16 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [IPv6 since 2.6.12] connect() without bind() can't time out.
-From: Tetsuo Handa <from-linux-kernel@i-love.sakura.ne.jp>
-Message-Id: <200602102045.HEI44709.SGNtSLVOtOFMJFPYM@i-love.sakura.ne.jp>
-X-Mailer: Winbiff [Version 2.50]
-X-Accept-Language: ja,en
-Date: Fri, 10 Feb 2006 20:45:55 +0900
-Mime-Version: 1.0
+	Fri, 10 Feb 2006 06:47:26 -0500
+Received: from mail.gmx.de ([213.165.64.21]:40603 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751078AbWBJLrZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 06:47:25 -0500
+X-Authenticated: #428038
+Date: Fri, 10 Feb 2006 12:47:21 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: mj@ucw.cz, peter.read@gmail.com, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       jengelh@linux01.gwdg.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060210114721.GB20093@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	mj@ucw.cz, peter.read@gmail.com, linux-kernel@vger.kernel.org,
+	jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
+References: <20060208162828.GA17534@voodoo> <43EA1D26.nail40E11SL53@burner> <20060208165330.GB17534@voodoo> <43EB0DEB.nail52A1LVGUO@burner> <Pine.LNX.4.61.0602091729560.30108@yvahk01.tjqt.qr> <43EB7210.nailIDH2JUBZE@burner> <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr> <43EB7BBA.nailIFG412CGY@burner> <mj+md-20060209.173519.1949.atrey@ucw.cz> <43EC71FB.nailISD31LRCB@burner>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43EC71FB.nailISD31LRCB@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Joerg Schilling schrieb am 2006-02-10:
 
-I think timer check for TCP's "connect() without bind()" for IPv6
-doesn't work when no local port is available.
+> Martin Mares <mj@ucw.cz> wrote:
+> 
+> > Hello!
+> >
+> > > This is why the mapping engine is in the Linux adoption part of
+> > > libscg. It maps the non-stable device <-> /dev/sg* relation to a
+> > > stable b,t,l address.
+> >
+> > Nonsense. The b,t,l addresses are NOT stable (at least for transports
+> 
+> Dou you like to verify that you have no clue on SCSI?
 
-I can run the following program for 2.4.30, 2.4.31, 2.4.32 and 2.6.11.
-But I can't run it for 2.6.12 and later (including 2.6.16-rc2).
+How does, for instance, libscg make sure that the b,t,l mappings are
+hotplug invariant?
 
-The stream socket enters to SYN_SENT state. But when there is no free
-port in the range defined by /proc/sys/net/ipv4/ip_local_port_range,
-the connect() call sleeps forever; even after some ports became free.
+How does libscg make sure that two external writers, say USB, retain
+their b,t,l mappings if both are unplugged and then replugged in reverse
+order, perhaps into different USB hubs?
 
-Other operations such as TCP's "bind() with port = 0",
-UDP's "bind() with port = 0", UDP's "connect() without bind()",
-UDP's "sendto() without bind()" return immediately
-when no free port is available.
+What assumptions does libscg (or cdrecord) make to procure stable
+mappings?
 
----- Start of code. -----
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <netinet/in.h>
-#include <signal.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
+You complained the discussion were non-technical, yet rather than
+correcting false information at detail scale, you resort to personal
+insults, and I think you're standing on pretty thin ice with those
+attacks. Your credibility is about to reach zero.
 
-static void Test(unsigned short int port) {
-	int i = 0;
-	for (i = 0; ; i++) {
-		const int fd = socket(AF_INET6, SOCK_STREAM, 0);
-		struct sockaddr_in6 addr;
-		socklen_t size = sizeof(addr);
-		memset(&addr, 0, sizeof(addr));
-		addr.sin6_family = AF_INET6;
-		addr.sin6_addr = in6addr_loopback;
-		addr.sin6_port = htons(port);
-		printf("i=%d\n", i); fflush(stdout);
-		if (connect(fd, (struct sockaddr *) &addr, sizeof(addr))) break;
-		if (getsockname(fd, (struct sockaddr *) &addr, &size)) {
-			printf("getsockname() failed.\n"); break;
-		}
-	}
-	printf("IPv6/TCP connect port exhausted at %d\n", i); fflush(stdout);
-}
-	
-int main(int argc, char *argv[]) {
-	FILE *fp = fopen("/proc/sys/net/ipv4/ip_local_port_range", "r");
-	int original_range[2], narrow_range[2] = { 32768, 32768 + 100 };
-	if (!fp || fscanf(fp, "%u %u", &original_range[0], &original_range[1]) != 2) {
-		fprintf(stderr, "Can't open /proc/sys/net/ipv4/ip_local_port_range .\n");
-		exit(1);
-	}
-	fclose(fp);
-	if ((fp = fopen("/proc/sys/net/ipv4/ip_local_port_range", "w")) == NULL) {
-		fprintf(stderr, "Can't open /proc/sys/net/ipv4/ip_local_port_range .\n");
-		exit(1);
-	}
-	fprintf(fp, "%d %d\n", narrow_range[0], narrow_range[1]);
-	fclose(fp);
-	{
-		struct sockaddr_in6 addr;
-		socklen_t size = sizeof(addr);
-		pid_t pid;
-		const int listener = socket(AF_INET6, SOCK_STREAM, 0);
-		unsigned short int port;
-		memset(&addr, 0, sizeof(addr));
-		addr.sin6_family = AF_INET6;
-		addr.sin6_addr = in6addr_any;
-		addr.sin6_port = htons(0);
-		bind(listener, (struct sockaddr *) &addr, sizeof(addr));
-		getsockname(listener, (struct sockaddr *) &addr, &size);
-		port = ntohs(addr.sin6_port);
-		listen(listener, 512);
-		if ((pid = fork()) == 0) {
-			while (1) {
-				size_t size = sizeof(addr);
-				const int fd = accept(listener, (struct sockaddr *) &addr, &size);
-				fprintf(stderr, "accept=%d\n", fd);
-			}
-		}
-		close(listener);
-		Test(port);
-		kill(pid, SIGHUP);
-	}
-	if ((fp = fopen("/proc/sys/net/ipv4/ip_local_port_range", "w")) == NULL) {
-		fprintf(stderr, "Can't open /proc/sys/net/ipv4/ip_local_port_range .\n");
-		exit(1);
-	}
-	fprintf(fp, "%d %d\n", original_range[0], original_range[1]);
-	fclose(fp);
-	printf("Done.\n");
-	return 0;
-}
----- End of code. -----
-
-Regards.
+-- 
+Matthias Andree

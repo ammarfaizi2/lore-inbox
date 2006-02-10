@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWBJK1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWBJK1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751227AbWBJK1L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 05:27:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWBJK0q
+	id S1751225AbWBJK1O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 05:27:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWBJK1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 10 Feb 2006 05:27:13 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:2831 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751226AbWBJK0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 10 Feb 2006 05:26:46 -0500
-Received: from mail22.bluewin.ch ([195.186.19.66]:49386 "EHLO
-	mail22.bluewin.ch") by vger.kernel.org with ESMTP id S1751224AbWBJK0o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 05:26:44 -0500
-Cc: Arthur Othieno <apgo@patchbomb.org>, p_gortmaker@yahoo.com,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH 4/4] net: remove CONFIG_NET_CBUS conditional for NS8390
-In-Reply-To: <11395671853420-git-send-email-apgo@patchbomb.org>
-X-Mailer: git-send-email
-Date: Fri, 10 Feb 2006 05:26:26 -0500
-Message-Id: <1139567186923-git-send-email-apgo@patchbomb.org>
+Date: Fri, 10 Feb 2006 11:26:37 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch 1/2] s390: compat signal compile fix
+Message-ID: <20060210102637.GB9307@osiris.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Arthur Othieno <apgo@patchbomb.org>
-To: apgo@patchbomb.org
-Content-Transfer-Encoding: 7BIT
-From: Arthur Othieno <apgo@patchbomb.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: mutt-ng/devel (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't bother testing for CONFIG_NET_CBUS ("NEC PC-9800 C-bus cards");
-it went out with the rest of PC98 subarch.
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Signed-off-by: Arthur Othieno <apgo@patchbomb.org>
+For some reason we have a prototype of do_sigaction in our compat signal
+code which conflicts with the new prototype.
 
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
 
- drivers/net/8390.h |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ arch/s390/kernel/compat_signal.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
-6eca48257ddfe560447fda2c0c1961d78b06a047
-diff --git a/drivers/net/8390.h b/drivers/net/8390.h
-index 599b68d..51e39dc 100644
---- a/drivers/net/8390.h
-+++ b/drivers/net/8390.h
-@@ -134,7 +134,7 @@ struct ei_device {
- #define inb_p(_p)	inb(_p)
- #define outb_p(_v,_p)	outb(_v,_p)
+diff --git a/arch/s390/kernel/compat_signal.c b/arch/s390/kernel/compat_signal.c
+index ef70669..5291b5f 100644
+--- a/arch/s390/kernel/compat_signal.c
++++ b/arch/s390/kernel/compat_signal.c
+@@ -195,9 +195,6 @@ sys32_sigaction(int sig, const struct ol
+ 	return ret;
+ }
  
--#elif defined(CONFIG_NET_CBUS) || defined(CONFIG_NE_H8300) || defined(CONFIG_NE_H8300_MODULE)
-+#elif defined(CONFIG_NE_H8300) || defined(CONFIG_NE_H8300_MODULE)
- #define EI_SHIFT(x)	(ei_local->reg_offset[x])
- #else
- #define EI_SHIFT(x)	(x)
--- 
-1.1.5
-
-
+-int
+-do_sigaction(int sig, const struct k_sigaction *act, struct k_sigaction *oact);
+-
+ asmlinkage long
+ sys32_rt_sigaction(int sig, const struct sigaction32 __user *act,
+ 	   struct sigaction32 __user *oact,  size_t sigsetsize)

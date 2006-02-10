@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbWBJEpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbWBJEqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751003AbWBJEpW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 23:45:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbWBJEpW
+	id S1751002AbWBJEqE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 23:46:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWBJEqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 23:45:22 -0500
-Received: from thing.hostingexpert.com ([67.15.235.34]:44996 "EHLO
-	thing.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S1751002AbWBJEpV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 23:45:21 -0500
-Message-ID: <43EC1A54.2030709@linuxtv.org>
-Date: Thu, 09 Feb 2006 23:45:08 -0500
-From: Michael Krufky <mkrufky@linuxtv.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Thu, 9 Feb 2006 23:46:04 -0500
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:44968 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751004AbWBJEqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 23:46:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=oHnlJCZYgmscRdhyM1+I0/iVxL/Y72C9ykC4lJ2gp3rm+u3vdWs/av8RffUxHzIN8bDPd0SRtih9vBFtY1q+dLhRlOcy63L8TDwi+15XuSPWywUDotMaIUCC+5z4uIbKwjNJ1zsHzrkVtQWFUMH/QF7jB7aVHr+UZgBnTrl5uMk=  ;
+Message-ID: <43EC1A85.2000001@yahoo.com.au>
+Date: Fri, 10 Feb 2006 15:45:57 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Andreas Oberritter <obi@linuxtv.org>, linux-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/media/dvb/frontends/mt312.c: cleanups
-References: <20060204233751.GH4528@stusta.de> <43E5A23D.8080107@linuxtv.org> <20060207223844.GC3524@stusta.de>
-In-Reply-To: <20060207223844.GC3524@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: Con Kolivas <kernel@kolivas.org>, linux-mm@kvack.org, ck@vds.kolivas.org,
+       pj@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm: Implement Swap Prefetching v23
+References: <200602101355.41421.kernel@kolivas.org>	<200602101449.59486.kernel@kolivas.org>	<43EC1164.4000605@yahoo.com.au>	<200602101514.40140.kernel@kolivas.org> <20060209202507.26f66be0.akpm@osdl.org>
+In-Reply-To: <20060209202507.26f66be0.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - linuxtv.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> This patch contains the following possible cleanups:
-> - update the Kconfig help to mention the VP310
-> - merge vp310_attach and mt312_attach into a new vp310_mt312_attach
->   to remove some code duplication
+Andrew Morton wrote:
+> Con Kolivas <kernel@kolivas.org> wrote:
+> 
+>> Ok I see. We don't have a way to add to the tail of that list though?
 > 
 > 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> del_page_from_lru() + (new) add_page_to_inactive_list_tail().
 > 
-> ---
 > 
->  drivers/media/dvb/b2c2/flexcop-fe-tuner.c |    2 
->  drivers/media/dvb/frontends/Kconfig       |    2 
->  drivers/media/dvb/frontends/mt312.c       |  116 ++++++++--------------
->  drivers/media/dvb/frontends/mt312.h       |    6 -
->  4 files changed, 48 insertions(+), 78 deletions(-)
+>>Is that 
+>> a worthwhile addition to this (ever growing) project? That would definitely 
+>> have an impact on the other code if not all done within swap_prefetch.c.. 
+>> which would also be quite a large open coded something.
+> 
+> 
+> Do both of the above in a new function in swap.c.
+> 
 
-Thanks, Adrian.  I've applied this to my tree.
+That'll require the caller to do lru locking.
 
-Regards,
+I'd add an lru_cache_add_tail, use it instead of the current lru_cache_add
+that Con's got now, and just implement it in a simple manner, without
+pagevecs.
 
-Michael Krufky
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

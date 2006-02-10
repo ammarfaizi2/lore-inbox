@@ -1,84 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbWBJBf7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbWBJBfQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750978AbWBJBf7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 20:35:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbWBJBf6
+	id S1750951AbWBJBfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 20:35:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbWBJBfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 20:35:58 -0500
-Received: from ypolyans.student.Princeton.EDU ([140.180.169.193]:17860 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1750976AbWBJBf6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 20:35:58 -0500
-Subject: [BUG] sysfs_d_iput()
-From: Yury Polyanskiy <yura_pol@mail.ru>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 09 Feb 2006 20:32:38 -0500
-Message-Id: <1139535158.23241.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Thu, 9 Feb 2006 20:35:16 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:53657 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750951AbWBJBfO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 20:35:14 -0500
+Message-ID: <43EBEDD0.60608@us.ibm.com>
+Date: Thu, 09 Feb 2006 17:35:12 -0800
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+User-Agent: Mail/News 1.5 (X11/20060119)
+MIME-Version: 1.0
+To: dm-devel@redhat.com, Chris McDermott <lcm@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Support HDIO_GETGEO on device-mapper volumes
+Content-Type: multipart/mixed;
+ boundary="------------040208000100020706020004"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is a multi-part message in MIME format.
+--------------040208000100020706020004
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Just discovered this BUG_ON() result in logs. Happened while a system
-was under a very disk/memory-intensive load.
+Hi again,
 
-This is unlikely to be a memory corruption (pretty new ThinkPad with
-original memory).
+I'm trying to install grub on a device-mapper RAID1 array that I set up 
+via dmraid (in other words, a bootable software fakeraid).  Since dm 
+doesn't implement the HDIO_GETGEO ioctl, grub assumes that the CHS 
+geometry is 620/128/63, which makes it impossible to configure it to 
+boot a filesystem that lives beyond the 2GB mark, even if the system 
+BIOS supports that.
 
-BUG_ON called from here:
+The attached patch implements a simple ioctl handler that supplies a 
+compatible geometry when HDIO_GETGEO is called against a device-mapper 
+device.  Its behavior is somewhat similar to what sd_mod does if the 
+scsi controller doesn't provide its own geometry.  Granted, the notion 
+of cylinders, heads and sectors is silly on a RAID array, but with this 
+patch, interested programs can obtain CHS data that's somewhat close to 
+correct; this seems to be a better option than having each program make 
+up its own potentially different geometry, or making an arbitrary guess. 
+  Assuming that all of the programs that need to know CHS geometry will 
+query the kernel via HDIO_GETGEO, this patch makes it so that all of 
+those programs end up using the same geometry.
 
-static void sysfs_d_iput(struct dentry * dentry, struct inode * inode)
-{
-	struct sysfs_dirent * sd = dentry->d_fsdata;
+The patch applies cleanly against 2.6.15.3; if there aren't any 
+objections then I'm submitting this for upstream.  However, I'm all ears 
+for suggestions.
 
-	if (sd) {
-		BUG_ON(sd->s_dentry != dentry);
-		sd->s_dentry = NULL;
-		sysfs_put(sd);
-	}
-	iput(inode);
-}
+Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
 
-Bug report below. Please CC me
+--Darrick
 
-Yury.
+--------------040208000100020706020004
+Content-Type: text/x-patch;
+ name="dm-getgeo_1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="dm-getgeo_1.patch"
 
- kernel BUG at fs/sysfs/dir.c:21!
- CPU:    0
- EIP:    0060:[sysfs_d_iput+123/144]    Not tainted VLI
- EFLAGS: 00010206   (2.6.13.3) 
- EIP is at sysfs_d_iput+0x7b/0x90
- eax: c079a72c   ebx: cf6c5818   ecx: c01d3f30   edx: cf6c5818
- esi: cfc99290   edi: cf6c5818   ebp: c92ab000   esp: c92abc4c
- ds: 007b   es: 007b   ss: 0068
- Process monotone (pid: 12389, threadinfo=c92ab000 task=c0ae6cf0)
- Stack: cf6c5818 c079a72c 00000005 c01a0a3e 00000000 c11cb680 c10c1860 
-c117e080 c015cd40 c92abc98 c015cd65 000016a8 00000000 00000080 c127ea60
-c01a1b54 c0163c19 0005aa00 00000000 0000d2fb 00000006 00000000 00000000
-000201d2 
+diff -Naurp a/drivers/md/dm.c b/drivers/md/dm.c
+--- a/drivers/md/dm.c	2006-01-14 22:16:02.000000000 -0800
++++ b/drivers/md/dm.c	2006-02-09 14:05:18.000000000 -0800
+@@ -17,6 +17,7 @@
+ #include <linux/mempool.h>
+ #include <linux/slab.h>
+ #include <linux/idr.h>
++#include <linux/hdreg.h>
+ 
+ static const char *_name = DM_NAME;
+ 
+@@ -223,6 +224,47 @@ static int dm_blk_close(struct inode *in
+ 	return 0;
+ }
+ 
++static int dm_blk_ioctl(struct inode * inode, struct file * filp,
++			unsigned int cmd, unsigned long arg)
++{
++	struct block_device *bdev = inode->i_bdev;
++	struct hd_geometry __user *loc = (void __user *)arg;
++	struct mapped_device *md;
++	int diskinfo[4];
++
++	if (cmd == HDIO_GETGEO) {
++		if (!arg)
++			return -EINVAL;
++
++		/* Make up some fake geometry. */
++		md = bdev->bd_disk->private_data;
++		diskinfo[0] = 0x40;	/* 1 << 6 */
++		diskinfo[1] = 0x20;	/* 1 << 5 */
++		diskinfo[2] = md->disk->capacity >> 11;
++		diskinfo[3] = 0;
++
++		/* cylinder count too big? */
++		if (diskinfo[2] > 65536) {
++			diskinfo[0] = 255;
++			diskinfo[1] = 63;
++			diskinfo[2] = md->disk->capacity / 16065; /* 255*63 */
++		}
++
++		if (put_user(diskinfo[0], &loc->heads))
++			return -EFAULT;
++		if (put_user(diskinfo[1], &loc->sectors))
++			return -EFAULT;
++		if (put_user(diskinfo[2], &loc->cylinders))
++			return -EFAULT;
++		if (put_user(diskinfo[3], &loc->start))
++			return -EFAULT;
++
++		return 0;
++	}
++
++	return -ENOTTY;
++}
++
+ static inline struct dm_io *alloc_io(struct mapped_device *md)
+ {
+ 	return mempool_alloc(md->io_pool, GFP_NOIO);
+@@ -1179,6 +1221,7 @@ int dm_suspended(struct mapped_device *m
+ static struct block_device_operations dm_blk_dops = {
+ 	.open = dm_blk_open,
+ 	.release = dm_blk_close,
++	.ioctl = dm_blk_ioctl,
+ 	.owner = THIS_MODULE
+ };
+ 
 
- Call Trace:
-  [prune_dcache+1406/2032] prune_dcache+0x57e/0x7f0
-  [get_writeback_state+48/64] get_writeback_state+0x30/0x40
-  [get_dirty_limits+21/192] get_dirty_limits+0x15/0xc0
-  [shrink_dcache_memory+20/64] shrink_dcache_memory+0x14/0x40
-  [shrink_slab+345/416] shrink_slab+0x159/0x1a0
-  [try_to_free_pages+210/400] try_to_free_pages+0xd2/0x190
-  [__alloc_pages+427/1072] __alloc_pages+0x1ab/0x430
-  [__do_page_cache_readahead+313/400] __do_page_cache_readahead
-+0x139/0x190
-  [blockable_page_cache_readahead+81/208] blockable_page_cache_readahead
-+0x
-51/0xd0
-  [make_ahead_window+112/176] make_ahead_window+0x70/0xb0
-  [page_cache_readahead+203/384] page_cache_readahead+0xcb/0x180
-  [file_read_actor+229/240] file_read_actor+0xe5/0xf0
-  [do_generic_mapping_read+1486/1520] do_generic_mapping_read
-+0x5ce/0x5f0
-  [__generic_file_aio_read+478/544] __generic_file_aio_read+0x1de/0x220
-
-
+--------------040208000100020706020004--

@@ -1,66 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWBJWPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWBJWSy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbWBJWPI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 17:15:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWBJWPI
+	id S932215AbWBJWSy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 17:18:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbWBJWSy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 17:15:08 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:13246 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S932224AbWBJWPG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 17:15:06 -0500
-Message-Id: <200602061614.k16GBrDY002916@laptop11.inf.utfsm.cl>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Karim Yaghmour <karim@opersys.com>,
-       Filip Brcic <brcha@users.sourceforge.net>,
-       Glauber de Oliveira Costa <glommer@gmail.com>,
-       Thomas Horsten <thomas@horsten.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders 
-In-Reply-To: Message from Pierre Ossman <drzeus-list@drzeus.cx> 
-   of "Thu, 02 Feb 2006 19:27:09 BST." <43E24EFD.1000905@drzeus.cx> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
-Date: Mon, 06 Feb 2006 13:11:53 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Fri, 10 Feb 2006 19:12:50 -0300 (CLST)
+	Fri, 10 Feb 2006 17:18:54 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:43230 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932215AbWBJWSy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 17:18:54 -0500
+From: Pat Gefre <pfg@sgi.com>
+Message-Id: <200602102218.k1AMIelr069357@fsgi900.americas.sgi.com>
+Subject: [PATCH] 2.6 Altix : more ioc3 cleanups
+To: akpm@osdl.org
+Date: Fri, 10 Feb 2006 16:18:39 -0600 (CST)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman <drzeus-list@drzeus.cx> wrote:
-> Lennart Sorensen wrote:
-> > On Thu, Feb 02, 2006 at 06:54:47PM +0100, Pierre Ossman wrote:
+Some "inline" removing that Andrew suggested, removed some locking on
+add/remove at this level - we'll let the callees decide.
 
-[...]
+This is a resend.
 
-> >> Then I have to ask, why GPL and not a BSD license? GPL is after all,
-> >> forcing our beliefs onto anyone who wishes to benefit from our work.
 
-Nobody is forcing anybody to use Linux. If you don't agree, use something
-else. Which probably has its own strings attached...
+Signed-off-by: Patrick Gefre <pfg@sgi.com>
 
-> > The GPL enforced the view on free software, the BSD license does not.
-> > The BSD license lets you do whatever you want pretty much.
 
-> I am aware of the difference between GPL and BSD. My point was that if
-> Linus feels that we should not enforce our rules on others then why does
-> he prefer a license that does just that? If people will come around just
-> by seeing how well the community works then BSD should be sufficient, or
-> even public domain.
+ ioc3.c |   11 +++--------
+ 1 files changed, 3 insertions(+), 8 deletions(-)
 
-> I don't share this view, which is why I like the DRM ideas in GPLv3
-> which close something I see as a loophole in GPLv2.
 
-You are free to create your own kernel under your rules, and see how well
-that one does. Linux is successful (at least in part) because people who
-work on it on the whole agree with its GPLv2, and so do people who use it.
 
-In any case, the split you present is quite something... either BSD's most
-everything goes or adding draconian no-DRM-ever-anywhere rules, GPLv3
-style.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Index: linux-2.6/drivers/sn/ioc3.c
+===================================================================
+--- linux-2.6.orig/drivers/sn/ioc3.c	2006-02-10 14:45:25.644934864 -0600
++++ linux-2.6/drivers/sn/ioc3.c	2006-02-10 14:48:59.455007147 -0600
+@@ -62,7 +62,7 @@
+         return presence;
+ }
+ 
+-static inline int nic_read_bit(struct ioc3_driver_data *idd)
++static int nic_read_bit(struct ioc3_driver_data *idd)
+ {
+ 	int result;
+ 	unsigned long flags;
+@@ -77,7 +77,7 @@
+ 	return result;
+ }
+ 
+-static inline void nic_write_bit(struct ioc3_driver_data *idd, int bit)
++static void nic_write_bit(struct ioc3_driver_data *idd, int bit)
+ {
+ 	if (bit)
+ 		idd->vma->mcr = mcr_pack(6, 110);
+@@ -371,8 +371,7 @@
+ 
+ /* Interrupts */
+ 
+-static inline void
+-write_ireg(struct ioc3_driver_data *idd, uint32_t val, int which)
++static void write_ireg(struct ioc3_driver_data *idd, uint32_t val, int which)
+ {
+ 	unsigned long flags;
+ 
+@@ -735,14 +734,12 @@
+ 	}
+ 
+ 	/* Add this IOC3 to all submodules */
+-	read_lock(&ioc3_submodules_lock);
+ 	for(id=0;id<IOC3_MAX_SUBMODULES;id++)
+ 		if(ioc3_submodules[id] && ioc3_submodules[id]->probe) {
+ 			idd->active[id] = 1;
+ 			idd->active[id] = !ioc3_submodules[id]->probe
+ 						(ioc3_submodules[id], idd);
+ 		}
+-	read_unlock(&ioc3_submodules_lock);
+ 
+ 	printk(KERN_INFO "IOC3 Master Driver loaded for %s\n", pci_name(pdev));
+ 
+@@ -767,7 +764,6 @@
+ 	idd = pci_get_drvdata(pdev);
+ 
+ 	/* Remove this IOC3 from all submodules */
+-	read_lock(&ioc3_submodules_lock);
+ 	for(id=0;id<IOC3_MAX_SUBMODULES;id++)
+ 		if(idd->active[id]) {
+ 			if(ioc3_submodules[id] && ioc3_submodules[id]->remove)
+@@ -781,7 +777,6 @@
+ 					        pci_name(pdev));
+ 			idd->active[id] = 0;
+ 		}
+-	read_unlock(&ioc3_submodules_lock);
+ 
+ 	/* Clear and disable all IRQs */
+ 	write_ireg(idd, ~0, IOC3_W_IEC);

@@ -1,91 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751376AbWBJUYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWBJU1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751376AbWBJUYH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 15:24:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWBJUYG
+	id S1750964AbWBJU1b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 15:27:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWBJU1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 15:24:06 -0500
-Received: from uproxy.gmail.com ([66.249.92.204]:48312 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751376AbWBJUYF convert rfc822-to-8bit
+	Fri, 10 Feb 2006 15:27:30 -0500
+Received: from uproxy.gmail.com ([66.249.92.199]:32816 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750964AbWBJU1a convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 15:24:05 -0500
+	Fri, 10 Feb 2006 15:27:30 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Bk3o/D5LvINPJ36OVt0OcXUKZHm4TppkyTPp+IwMCm6QgJrpdXLarE5bb4eIh/waD1hguIoV4o+KVS5Tc0j06PmVjCr8aoFsTJW5Z4tcsS9T7wytU2h9Py64CL1XvhE2yNw8u1/nPumi9xNIAKhKxM4+us2E1oQNNSGN9T8KoXQ=
-Message-ID: <a44ae5cd0602101224l63886192sec85a8771cf77ba9@mail.gmail.com>
-Date: Fri, 10 Feb 2006 15:24:03 -0500
-From: Miles Lane <miles.lane@gmail.com>
-To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.16-rc2-mm1 - BUG: unable to handle kernel NULL pointer dereference at virtual address 0000003a
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=r3DQlP3Jw1RozmWk6CjNTpH6Hqks1Grq2GdVtbdI7yat+qEfBbVIMwG4FeDK0culo7XT4D5ZVfOqOoEBtogsjl8INO2hA5GLDwcomwshRb3NWnN8FA/nr5XTupLXGJx2BMbGoWmNU8R8ly5BxWZV9TJoodqIF25cU3pHKmUMzEU=
+Message-ID: <62b0912f0602101227q719e712bq40da5b2f0c5422c5@mail.gmail.com>
+Date: Fri, 10 Feb 2006 20:27:28 +0000
+From: Molle Bestefich <molle.bestefich@gmail.com>
+To: device-mapper development <dm-devel@redhat.com>
+Subject: Re: Support HDIO_GETGEO on device-mapper volumes
+Cc: "Darrick J. Wong" <djwong@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <43ECAD5B.9070308@cfl.rr.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
+References: <43EBEDD0.60608@us.ibm.com>
+	 <20060210145348.GA12173@agk.surrey.redhat.com>
+	 <43ECAD5B.9070308@cfl.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BUG: unable to handle kernel NULL pointer dereference at virtual
-address 0000003a
- printing eip:
-0000003a
-*pde = 00000000
-Oops: 0000 [#1]
-SMP
-last sysfs file: /devices/pci0000:00/0000:00:02.2/usb3/idProduct
-Modules linked in: sr_mod eth1394 snd_mpu401 8250_pnp snd_mpu401_uart
-snd_rawmidi pcspkr ehci_hcd autofs4 vfat
- fat 3c59x mii forcedeth parport_pc parport 8250 serial_core ohci1394
-ieee1394 ohci_hcd uhci_hcd usbcore conta
-iner ide_cd cdrom ide_scsi
-CPU:    0
-EIP:    0060:[<0000003a>]    Not tainted VLI
-EFLAGS: 00010286   (2.6.16-rc2-mm1 #9)
-EIP is at 0x3a
-eax: ffffff85   ebx: 00000000   ecx: 00000000   edx: 00000020
-esi: 00020070   edi: 12000000   ebp: 00000000   esp: f6b60c70
-ds: 007b   es: 007b   ss: 0068
-Process cdrom_id (pid: 3482, threadinfo=f6b60000 task=f6b6f6f0)
-Stack: <0>00000000 00000000 00000000 00000000 00000000 00000000
-00000000 00000000
-       00000000 00000000 00000000 00000000 00000043 00000000 0000400c c04aaca4
-       0000000c ffffff85 00000000 00000002 00000001 00007530 00000000 f64006ac
-Call Trace:
- <c01038b9> show_stack_log_lvl+0xaa/0xb5   <c01039fd> show_registers+0x139/0x1a5
- <c0103cf6> die+0x162/0x1ef   <c01120e6> do_page_fault+0x389/0x4cc
- <c01032bf> error_code+0x4f/0x54
-Code:  Bad EIP value.
- BUG: cdrom_id/3482, lock held at task exit time!
- [dfca557c] {init_once}
-.. held by:          cdrom_id: 3482 [f6b6f6f0, 123]
-... acquired at:               do_open+0x61/0x2f0
-BUG: unable to handle kernel NULL pointer dereference at virtual
-address 00000024
- printing eip:
-00000024
-*pde = 00000000
-Oops: 0000 [#2]
-SMP
-last sysfs file: /devices/pci0000:00/0000:00:02.2/usb3/idProduct
-Modules linked in: sr_mod eth1394 snd_mpu401 8250_pnp snd_mpu401_uart
-snd_rawmidi pcspkr ehci_hcd autofs4 vfat
- fat 3c59x mii forcedeth parport_pc parport 8250 serial_core ohci1394
-ieee1394 ohci_hcd uhci_hcd usbcore conta
-iner ide_cd cdrom ide_scsi
-CPU:    0
-EIP:    0060:[<00000024>]    Not tainted VLI
-EFLAGS: 00010286   (2.6.16-rc2-mm1 #9)
-EIP is at 0x24
-eax: fffffffb   ebx: 00000000   ecx: 00000000   edx: 00000020
-esi: 00050070   edi: 0a000000   ebp: 00000000   esp: f6ba6c70
-ds: 007b   es: 007b   ss: 0068
-Process cdrom_id (pid: 3480, threadinfo=f6ba6000 task=f6b6ec30)
-Stack: <0>00000000 00000000 00000000 00000000 00000000 00000000
-00000000 00000000
-       00000000 00000000 00000000 00000000 00000043 00000000 0000400c c04aaa98
-       0000000c 00000000 00000000 00000002 00000001 00007530 00000000 f6b2e968
-Call Trace:
- <c01038b9> show_stack_log_lvl+0xaa/0xb5   <c01039fd> show_registers+0x139/0x1a5
- <c0103cf6> die+0x162/0x1ef   <c01120e6> do_page_fault+0x389/0x4cc
- <c01032bf> error_code+0x4f/0x54
-Code:  Bad EIP value.
+Phillip Susi wrote:
+> Yes, I think this could also be fixed on grub's end.  It seems that
+> fdisk assumes usable default values for the geometry but grub has
+> different defaults that cause it problems.  I think that the defaults
+> could be modified in grub so that it will work when HDIO_GETGEO fails.
+
+It would be better to make the decision once and for all, in one place.
+
+It would be even better for the HDIO_GETGEO call to return the same
+geometry that the BIOS uses, so that Grub is handed numbers that
+actually mean *something*.
+
+When 'dmraid' has assembled an array, it should find the matching BIOS
+drive in /proc/bios/int13_dev* and then it should tell device-mapper
+to present that geometry to whomever asks via HDIO_GETGEO.
+
+And while we're at it, <some component> should do the same for eg.
+/dev/hd?.  It's very annoying trying to fix up a harddrive's partition
+table when the numbers you see in Linux is different to the numbers
+you'll see when rebooting into DOS, or Windows XP, or whatever it is
+that's on the disk you're trying to fix.

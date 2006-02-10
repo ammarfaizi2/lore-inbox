@@ -1,52 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWBJORH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWBJOSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932103AbWBJORH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 09:17:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWBJORH
+	id S932100AbWBJOSX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 09:18:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWBJOSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 09:17:07 -0500
-Received: from thunk.org ([69.25.196.29]:13803 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S932103AbWBJORE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 09:17:04 -0500
-Date: Fri, 10 Feb 2006 09:16:51 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: jengelh@linux01.gwdg.de, peter.read@gmail.com, mj@ucw.cz,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060210141651.GB18707@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	jengelh@linux01.gwdg.de, peter.read@gmail.com, mj@ucw.cz,
-	matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-	jim@why.dont.jablowme.net
-References: <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr> <43EB7BBA.nailIFG412CGY@burner> <mj+md-20060209.173519.1949.atrey@ucw.cz> <43EC71FB.nailISD31LRCB@burner> <20060210114721.GB20093@merlin.emma.line.org> <43EC887B.nailISDGC9CP5@burner> <mj+md-20060210.123726.23341.atrey@ucw.cz> <43EC8E18.nailISDJTQDBG@burner> <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr> <43EC93A2.nailJEB1AMIE6@burner>
+	Fri, 10 Feb 2006 09:18:23 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:50901 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S932100AbWBJOSW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 09:18:22 -0500
+Message-ID: <43EC9F89.7090809@cosmosbay.com>
+Date: Fri, 10 Feb 2006 15:13:29 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43EC93A2.nailJEB1AMIE6@burner>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+To: Andrew Morton <akpm@osdl.org>
+CC: ak@muc.de, ashok.raj@intel.com, ntl@pobox.com, riel@redhat.com,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, mingo@elte.hu,
+       76306.1226@compuserve.com, wli@holomorphy.com,
+       heiko.carstens@de.ibm.com, pj@sgi.com
+Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
+References: <20060209160808.GL18730@localhost.localdomain>	<20060209090321.A9380@unix-os.sc.intel.com>	<20060209100429.03f0b1c3.akpm@osdl.org>	<200602101102.25437.ak@muc.de>	<20060210024222.67db06f3.akpm@osdl.org>	<43EC7473.20109@cosmosbay.com> <20060210032332.13ed3b67.akpm@osdl.org>
+In-Reply-To: <20060210032332.13ed3b67.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------060307030607060606000403"
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Fri, 10 Feb 2006 15:13:34 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 10, 2006 at 02:22:42PM +0100, Joerg Schilling wrote:
-> >
-> > The struct stat->st_rdev field need to be stable too to comply to POSIX?
+This is a multi-part message in MIME format.
+--------------060307030607060606000403
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+
+Andrew Morton a écrit :
+> Eric Dumazet <dada1@cosmosbay.com> wrote:
+>> Andrew Morton a écrit :
+>>> Andi Kleen <ak@muc.de> wrote:
+>>>> On Thursday 09 February 2006 19:04, Andrew Morton wrote:
+>>>>> Ashok Raj <ashok.raj@intel.com> wrote:
+>>>>>> The problem was with ACPI just simply looking at the namespace doesnt
+>>>>>>  exactly give us an idea of how many processors are possible in this platform.
+>>>>> We need to fix this asap - the performance penalty for HOTPLUG_CPU=y,
+>>>>> NR_CPUS=lots will be appreciable.
+>>>> What is this performance penalty exactly? 
+>>> All those for_each_cpu() loops will hit NR_CPUS cachelines instead of
+>>> hweight(cpu_possible_map) cachelines.
+>> You mean NR_CPUS bits, mostly all included in a single cacheline, and even in 
+>> a single long word :) for most cases (NR_CPUS <= 32 or 64)
+>>
 > 
-> Correct.
+> No, I mean cachelines:
 > 
+> static void recalc_bh_state(void)
+> {
+> 	int i;
+> 	int tot = 0;
+> 
+> 	if (__get_cpu_var(bh_accounting).ratelimit++ < 4096)
+> 		return;
+> 	__get_cpu_var(bh_accounting).ratelimit = 0;
+> 	for_each_cpu(i)
+> 		tot += per_cpu(bh_accounting, i).nr;
+> 
+> That's going to hit NR_CPUS cachelines even on a 2-way.
+> 
+> Or am I missing something really obvious here?
 
-Chapter and verse, please?  
 
-Can you please list the POSIX standard, section, and line number which
-states that a particular device must always have the same st_rdev
-across reboots, and hot plugs/unplugs?
+OK I see. This can be solved with this patch :
 
-Regards,
+[PATCH] HOTPLUG_CPU : avoid hitting too many cachelines in recalc_bh_state()
 
-						- Ted
+Instead of using for_each_cpu(i), we can use for_each_online_cpu(i) : The 
+difference matters if HOTPUG_CPU=y
+
+When a CPU goes offline (ie removed from online map), it might have a non null 
+bh_accounting.nr, so this patch adds a transfert of this counter to an online 
+CPU counter.
+
+We already have a hotcpu_notifier, (function buffer_cpu_notify()), where we 
+can do this bh_accounting.nr transfert.
+
+Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+
+--------------060307030607060606000403
+Content-Type: text/plain;
+ name="buffer.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="buffer.patch"
+
+--- a/fs/buffer.c	2006-02-10 15:08:21.000000000 +0100
++++ b/fs/buffer.c	2006-02-10 15:47:55.000000000 +0100
+@@ -3138,7 +3138,7 @@
+ 	if (__get_cpu_var(bh_accounting).ratelimit++ < 4096)
+ 		return;
+ 	__get_cpu_var(bh_accounting).ratelimit = 0;
+-	for_each_cpu(i)
++	for_each_online_cpu(i)
+ 		tot += per_cpu(bh_accounting, i).nr;
+ 	buffer_heads_over_limit = (tot > max_buffer_heads);
+ }
+@@ -3187,6 +3187,9 @@
+ 		brelse(b->bhs[i]);
+ 		b->bhs[i] = NULL;
+ 	}
++	get_cpu_var(bh_accounting).nr += per_cpu(bh_accounting, cpu).nr ;
++	per_cpu(bh_accounting, cpu).nr = 0;
++	put_cpu_var(bh_accounting);
+ }
+ 
+ static int buffer_cpu_notify(struct notifier_block *self,
+
+--------------060307030607060606000403--

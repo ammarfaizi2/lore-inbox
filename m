@@ -1,48 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbWBJLLD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWBJLMW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751353AbWBJLLD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 06:11:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbWBJLLD
+	id S1750894AbWBJLMW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 06:12:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWBJLMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 06:11:03 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:3985 "EHLO gw1.cosmosbay.com")
-	by vger.kernel.org with ESMTP id S1751353AbWBJLLB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 06:11:01 -0500
-Message-ID: <43EC7473.20109@cosmosbay.com>
-Date: Fri, 10 Feb 2006 12:09:39 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Fri, 10 Feb 2006 06:12:21 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5131 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750894AbWBJLMT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 06:12:19 -0500
+Date: Fri, 10 Feb 2006 12:12:17 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: jgarzik@pobox.com
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/scsi/libata-scsi.c: make some functions static
+Message-ID: <20060210111217.GB19918@stusta.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Andi Kleen <ak@muc.de>, ashok.raj@intel.com, ntl@pobox.com,
-       riel@redhat.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       mingo@elte.hu, 76306.1226@compuserve.com, wli@holomorphy.com,
-       heiko.carstens@de.ibm.com, pj@sgi.com
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-References: <20060209160808.GL18730@localhost.localdomain>	<20060209090321.A9380@unix-os.sc.intel.com>	<20060209100429.03f0b1c3.akpm@osdl.org>	<200602101102.25437.ak@muc.de> <20060210024222.67db06f3.akpm@osdl.org>
-In-Reply-To: <20060210024222.67db06f3.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Fri, 10 Feb 2006 12:09:42 +0100 (CET)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton a écrit :
-> Andi Kleen <ak@muc.de> wrote:
->> On Thursday 09 February 2006 19:04, Andrew Morton wrote:
->>> Ashok Raj <ashok.raj@intel.com> wrote:
->>>> The problem was with ACPI just simply looking at the namespace doesnt
->>>>  exactly give us an idea of how many processors are possible in this platform.
->>> We need to fix this asap - the performance penalty for HOTPLUG_CPU=y,
->>> NR_CPUS=lots will be appreciable.
->> What is this performance penalty exactly? 
-> 
-> All those for_each_cpu() loops will hit NR_CPUS cachelines instead of
-> hweight(cpu_possible_map) cachelines.
-
-You mean NR_CPUS bits, mostly all included in a single cacheline, and even in 
-a single long word :) for most cases (NR_CPUS <= 32 or 64)
+This patch makes some needlesly global functions static.
 
 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+This patch was already sent on:
+- 31 Jan 2006
+
+ drivers/scsi/libata-scsi.c |   19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
+
+--- linux-2.6.15-rc1-mm2-full/drivers/scsi/libata-scsi.c.old	2005-11-20 03:06:38.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/drivers/scsi/libata-scsi.c	2005-11-20 03:08:34.000000000 +0100
+@@ -325,10 +325,10 @@
+  *	RETURNS:
+  *	Command allocated, or %NULL if none available.
+  */
+-struct ata_queued_cmd *ata_scsi_qc_new(struct ata_port *ap,
+-				       struct ata_device *dev,
+-				       struct scsi_cmnd *cmd,
+-				       void (*done)(struct scsi_cmnd *))
++static struct ata_queued_cmd *ata_scsi_qc_new(struct ata_port *ap,
++					      struct ata_device *dev,
++					      struct scsi_cmnd *cmd,
++					      void (*done)(struct scsi_cmnd *))
+ {
+ 	struct ata_queued_cmd *qc;
+ 
+@@ -364,7 +364,7 @@
+  *	LOCKING:
+  *	inherited from caller
+  */
+-void ata_dump_status(unsigned id, struct ata_taskfile *tf)
++static void ata_dump_status(unsigned id, struct ata_taskfile *tf)
+ {
+ 	u8 stat = tf->command, err = tf->feature;
+ 
+@@ -413,8 +413,8 @@
+  *	LOCKING:
+  *	spin_lock_irqsave(host_set lock)
+  */
+-void ata_to_sense_error(unsigned id, u8 drv_stat, u8 drv_err, u8 *sk, u8 *asc, 
+-			u8 *ascq)
++static void ata_to_sense_error(unsigned id, u8 drv_stat, u8 drv_err,
++			       u8 *sk, u8 *asc, u8 *ascq)
+ {
+ 	int i;
+ 
+@@ -524,7 +524,7 @@
+  *	LOCKING:
+  *	spin_lock_irqsave(host_set lock)
+  */
+-void ata_gen_ata_desc_sense(struct ata_queued_cmd *qc)
++static void ata_gen_ata_desc_sense(struct ata_queued_cmd *qc)
+ {
+ 	struct scsi_cmnd *cmd = qc->scsicmd;
+ 	struct ata_taskfile *tf = &qc->tf;
+@@ -600,7 +600,7 @@
+  *	LOCKING:
+  *	inherited from caller
+  */
+-void ata_gen_fixed_sense(struct ata_queued_cmd *qc)
++static void ata_gen_fixed_sense(struct ata_queued_cmd *qc)
+ {
+ 	struct scsi_cmnd *cmd = qc->scsicmd;
+ 	struct ata_taskfile *tf = &qc->tf;
 

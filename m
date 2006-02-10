@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWBJVbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWBJVfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932203AbWBJVbW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 16:31:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWBJVbW
+	id S932204AbWBJVfE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 16:35:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWBJVfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 16:31:22 -0500
-Received: from hummeroutlaws.com ([12.161.0.3]:54027 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S932203AbWBJVbV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 16:31:21 -0500
-From: "Jim Crilly" <jim@why.dont.jablowme.net>
-Date: Fri, 10 Feb 2006 16:30:58 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: 2.6.16-rc2-mm1
-Message-ID: <20060210213058.GE11297@voodoo>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, jgarzik@pobox.com
-References: <20060207220627.345107c3.akpm@osdl.org>
-MIME-Version: 1.0
+	Fri, 10 Feb 2006 16:35:04 -0500
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:37266 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S932204AbWBJVfC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 16:35:02 -0500
+Date: Fri, 10 Feb 2006 16:35:01 -0500
+To: Phillip Susi <psusi@cfl.rr.com>
+Cc: Marc Koschewski <marc@osknowledge.org>, linux-kernel@vger.kernel.org
+Subject: Re: CD-blanking leads to machine freeze with current -git [was: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future Linux (stirring up a hornets' nest) ]]
+Message-ID: <20060210213501.GA29940@csclub.uwaterloo.ca>
+References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com> <20060210175848.GA5533@stiffy.osknowledge.org> <43ECE734.5010907@cfl.rr.com> <20060210210006.GA5585@stiffy.osknowledge.org> <43ED04E9.9040900@cfl.rr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060207220627.345107c3.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <43ED04E9.9040900@cfl.rr.com>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02/07/06 10:06:27PM -0800, Andrew Morton wrote:
+On Fri, Feb 10, 2006 at 04:26:01PM -0500, Phillip Susi wrote:
+> If that is what is going on, there is nothing linux can do about it; 
+> it's a limitation of the hardware.  The IDE controller can only accept 
+> one command at a time, so if that command takes a while to complete, the 
+> other drive on the same channel can not be accessed until the first 
+> command completes. 
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc2/2.6.16-rc2-mm1/
->
+> If the system doesn't come back though after sufficient time has gone by 
+> for the burn to complete, then this is probably not what is happening.  
+> I'd suggest using magic-sysreq to force an unmount and reboot, then see 
+> if there's anything in the logs. 
 
-I got the following BUG with the tulip driver because there's a mdelay(1)
-at the end of the tulip_media_select() function. Removing the mdelay(1)
-is trivial so I've attached a patch, but I'm not sure if it's the
-correct fix so I've CC'd Jeff Garzik.
+Perhaps a good test would be to try cdrecord from the command line to
+blank the cd, to avoid issues to do with X, xcdroast, etc.  Just the
+minimum you can have.
 
-BUG: warning at drivers/net/tulip/media.c:402/tulip_select_media()
-<f0c8e288> tulip_select_media+0x7b8/0x7db [tulip]   <b02103ac> dma_pool_free+0xc4/0x10e
-<f0c9130b> t21142_lnk_change+0x1af/0x4f4 [tulip]   <f0c7c490> finish_urb+0x98/0xc0 [ohci_hcd]
-<f0c8d374> tulip_interrupt+0x65f/0x803 [tulip]   <f0c7e153> ohci_irq+0x148/0x16d [ohci_hcd]
-<b013cb3f> handle_IRQ_event+0x20/0x4c   <b013cbf7> __do_IRQ+0x8c/0xdd
-<b0105250> do_IRQ+0x3c/0x54
-  =======================
-<b0103662> common_interrupt+0x1a/0x20   <b0101aa6> default_idle+0x0/0x55
-<b0101ad2> default_idle+0x2c/0x55   <b0101b8a> cpu_idle+0x8f/0xae
-<b02f8707> start_kernel+0x37f/0x386
+Also what command line does xcdroast generate for the blanking?
 
-Signed-off-by: Jim Crilly <jim@why.dont.jablowme.net>
-
----
-drivers/net/tulip/media.c |    2 --
- 1 file changed, 2 deletions(-)
-
---- linux-2.6.16-rc2-mm1/drivers/net/tulip/media.c  2006-02-09 22:13:36.403653502 -0500
-+++ linux-2.6.16-rc2-mm1-new/drivers/net/tulip/media.c  2006-02-10 15:51:41.821983228 -0500
-@@ -399,8 +399,6 @@ void tulip_select_media(struct net_devic
-
-  tp->csr6 = new_csr6 | (tp->csr6 & 0xfdff) | (tp->full_duplex ? 0x0200 : 0);
-
-- mdelay(1);
--
-  return;
- }
-  
+Len Sorensen

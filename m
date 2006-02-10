@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbWBJV1V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWBJV1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751378AbWBJV1V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 16:27:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWBJV1V
+	id S932186AbWBJV1b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 16:27:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWBJV1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 16:27:21 -0500
-Received: from mail.tmr.com ([64.65.253.246]:57485 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S1751378AbWBJV1T (ORCPT
+	Fri, 10 Feb 2006 16:27:31 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:904 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932186AbWBJV1a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 16:27:19 -0500
-Message-ID: <43ED05E2.9000403@tmr.com>
-Date: Fri, 10 Feb 2006 16:30:10 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alex Davis <alex14641@yahoo.com>,
-       Linux Kernel mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Let's get rid of  ide-scsi
-References: <20060210002148.37683.qmail@web50201.mail.yahoo.com>
-In-Reply-To: <20060210002148.37683.qmail@web50201.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Feb 2006 16:27:30 -0500
+Date: Fri, 10 Feb 2006 16:27:11 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Fix s390 build failure.
+Message-ID: <20060210212711.GD31949@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060210200425.GA11913@redhat.com> <Pine.LNX.4.64.0602101314082.19172@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0602101314082.19172@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Davis wrote:
-> I think we should get rid of ide-scsi.
-> 
-> Reasons:
-> 1) It's broken.
-> 2) It's unmaintained.
-> 3) It's unneeded.
-> 
-> I'll submit a patch if people agree.
 
-People don't agree, could we not have another war like cdrecord? Please?
+arch/s390/kernel/compat_signal.c:199: error: conflicting types for 'do_sigaction'
+include/linux/sched.h:1115: error: previous declaration of 'do_sigaction' was here
 
-Go back and read the old posts, particularly discussing tape, MO drives, 
-and some ide-floppy devices.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-It's there, it's maintained as needed, and it works far better than the 
-alternatives for some devices.
-
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+--- linux-2.6.15.noarch/arch/s390/kernel/compat_signal.c~	2006-02-10 12:47:57.000000000 -0500
++++ linux-2.6.15.noarch/arch/s390/kernel/compat_signal.c	2006-02-10 12:48:05.000000000 -0500
+@@ -196,7 +196,4 @@ sys32_sigaction(int sig, const struct ol
+ }
+ 
+-int
+-do_sigaction(int sig, const struct k_sigaction *act, struct k_sigaction *oact);
+-
+ asmlinkage long
+ sys32_rt_sigaction(int sig, const struct sigaction32 __user *act,

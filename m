@@ -1,70 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWBJVWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWBJV1D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751382AbWBJVWw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 16:22:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWBJVWw
+	id S932181AbWBJV1D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 16:27:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWBJV07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 16:22:52 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:44067 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1751382AbWBJVWv (ORCPT
+	Fri, 10 Feb 2006 16:26:59 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:31268 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1751378AbWBJV06 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 16:22:51 -0500
-Message-ID: <43ED03F1.4010308@cfl.rr.com>
-Date: Fri, 10 Feb 2006 16:21:53 -0500
+	Fri, 10 Feb 2006 16:26:58 -0500
+Message-ID: <43ED04E9.9040900@cfl.rr.com>
+Date: Fri, 10 Feb 2006 16:26:01 -0500
 From: Phillip Susi <psusi@cfl.rr.com>
 User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: Molle Bestefich <molle.bestefich@gmail.com>
-CC: device-mapper development <dm-devel@redhat.com>,
-       "Darrick J. Wong" <djwong@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Support HDIO_GETGEO on device-mapper volumes
-References: <43EBEDD0.60608@us.ibm.com>  <20060210145348.GA12173@agk.surrey.redhat.com>  <43ECAD5B.9070308@cfl.rr.com> <62b0912f0602101227q719e712bq40da5b2f0c5422c5@mail.gmail.com>
-In-Reply-To: <62b0912f0602101227q719e712bq40da5b2f0c5422c5@mail.gmail.com>
+To: Marc Koschewski <marc@osknowledge.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: CD-blanking leads to machine freeze with current -git [was: Re:
+ CD writing in future Linux try #2 [ was: Re: CD writing in future Linux (stirring
+ up a hornets' nest) ]]
+References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com> <20060210175848.GA5533@stiffy.osknowledge.org> <43ECE734.5010907@cfl.rr.com> <20060210210006.GA5585@stiffy.osknowledge.org>
+In-Reply-To: <20060210210006.GA5585@stiffy.osknowledge.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Feb 2006 21:23:36.0632 (UTC) FILETIME=[40ECAB80:01C62E88]
+X-OriginalArrivalTime: 10 Feb 2006 21:27:44.0439 (UTC) FILETIME=[D4A10470:01C62E88]
 X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14260.000
-X-TM-AS-Result: No--5.900000-5.000000-31
+X-TM-AS-Result: No--4.550000-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Molle Bestefich wrote:
-> It would be better to make the decision once and for all, in one place.
+Marc Koschewski wrote:
+> I've been waiting 30 minutes for the machine to come back but no chance. SSH
+> didn't work either. I thought I could login remote... but uh uh.
 >
-> It would be even better for the HDIO_GETGEO call to return the same
-> geometry that the BIOS uses, so that Grub is handed numbers that
-> actually mean *something*.
->   
+> The problem is, it's a laptop. So there not much chance to move the cdrom device
+> over to another controller or whatever. ;)
+>
+> But let's face it: is it really crappy to render a laptop unusable just because
+> blanking a CD-RW. The circumstances were: run xcdroast via gksu (thus running as
+> root), blank CD-RW. Due to cd-burning being totally unusable as a user (problems
+> here and there if it was just doing anything at all). So I've no other chance
+> than to run this as root. Couldn't cdrecord 'watch' ide load or - even better -
+> forcecast it? It knows blanking leads to inresponsiveness sometimes (even more due
+> to the fact that both devices share the same bus). Why not kind of  'renice'
+> the process that blanks?
+>
+> Marc
 
-The problem is that the numbers don't actually mean anything, even to 
-the bios.  They are only there for backward compatibility with real mode 
-software that makes int 13 calls.  The bios just fakes the geometry 
-anyway so it can emulate something, but there really is no meaning to 
-the geometry; it's just smoke and mirrors. 
+If that is what is going on, there is nothing linux can do about it; 
+it's a limitation of the hardware.  The IDE controller can only accept 
+one command at a time, so if that command takes a while to complete, the 
+other drive on the same channel can not be accessed until the first 
+command completes. 
 
-In the case of dm, which geometry should it report?  In some cases it 
-might make sense to pass up the values from the bios, but in most, there 
-is no sensible way to choose what to report, and any value you do report 
-is meaningless gibberish anyhow, so why bother at all?  Just bring the 
-apps still using it ( grub, lilo ) into the 21st century and have them 
-stop using these meaningless values in the first place.  LBA has been 
-around for a good 10 years now, so I think it is safe to no longer 
-require these made up values to support CHS addressing. 
-> When 'dmraid' has assembled an array, it should find the matching BIOS
-> drive in /proc/bios/int13_dev* and then it should tell device-mapper
-> to present that geometry to whomever asks via HDIO_GETGEO.
->   
-dmraid is only one client of the kernel device mapper.  It has numerous 
-uses that have nothing to do with hardware fakeraid, including LVM.  In 
-the special case of dmraid there is a bios int13 dev for the raid that 
-provides some geometry, but why hack dm for this special case when it is 
-totally unnecessary in the first place?
-> And while we're at it, <some component> should do the same for eg.
-> /dev/hd?.  It's very annoying trying to fix up a harddrive's partition
-> table when the numbers you see in Linux is different to the numbers
-> you'll see when rebooting into DOS, or Windows XP, or whatever it is
-> that's on the disk you're trying to fix.
-> -
->   
+If the system doesn't come back though after sufficient time has gone by 
+for the burn to complete, then this is probably not what is happening.  
+I'd suggest using magic-sysreq to force an unmount and reboot, then see 
+if there's anything in the logs. 
+
 

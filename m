@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWBJLzr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbWBJMCE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751090AbWBJLzr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 06:55:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWBJLzr
+	id S1751097AbWBJMCE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 07:02:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWBJMCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 06:55:47 -0500
-Received: from mail.gmx.de ([213.165.64.21]:65240 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751090AbWBJLzq (ORCPT
+	Fri, 10 Feb 2006 07:02:04 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:29912 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751097AbWBJMCD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 06:55:46 -0500
-X-Authenticated: #428038
-Date: Fri, 10 Feb 2006 12:55:42 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>, mj@ucw.cz,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-       jengelh@linux01.gwdg.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060210115542.GA22337@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	mj@ucw.cz, linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-	jengelh@linux01.gwdg.de
-References: <43EA1D26.nail40E11SL53@burner> <20060208165330.GB17534@voodoo> <43EB0DEB.nail52A1LVGUO@burner> <Pine.LNX.4.61.0602091729560.30108@yvahk01.tjqt.qr> <43EB7210.nailIDH2JUBZE@burner> <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr> <43EB7BBA.nailIFG412CGY@burner> <mj+md-20060209.173519.1949.atrey@ucw.cz> <43EC71FB.nailISD31LRCB@burner> <20060210114930.GC2750@DervishD>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 10 Feb 2006 07:02:03 -0500
+Date: Fri, 10 Feb 2006 13:01:58 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Meelis Roos <mroos@linux.ee>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: libATA  PATA status report, new patch
+Message-ID: <20060210120157.GB28676@harddisk-recovery.com>
+References: <20060207084347.54CD01430C@rhn.tartu-labor> <1139310335.18391.2.camel@localhost.localdomain> <Pine.SOC.4.61.0602071305310.10491@math.ut.ee> <1139312330.18391.14.camel@localhost.localdomain> <1139324653.18391.41.camel@localhost.localdomain> <Pine.SOC.4.61.0602082024010.21660@math.ut.ee> <1139499102.1255.45.camel@localhost.localdomain> <Pine.SOC.4.61.0602092307460.16686@math.ut.ee>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060210114930.GC2750@DervishD>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+In-Reply-To: <Pine.SOC.4.61.0602092307460.16686@math.ut.ee>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DervishD schrieb am 2006-02-10:
-
->     Hi Joerg :)
+On Thu, Feb 09, 2006 at 11:12:27PM +0200, Meelis Roos wrote:
+> >Thanks: Utterly dumb bug made while converting to the newer refcounting
+> >PCI API
 > 
->  * Joerg Schilling <schilling@fokus.fraunhofer.de> dixit:
-> > Martin Mares <mj@ucw.cz> wrote:
-> > > > This is why the mapping engine is in the Linux adoption part of
-> > > > libscg. It maps the non-stable device <-> /dev/sg* relation to a
-> > > > stable b,t,l address.
-> > >
-> > > Nonsense. The b,t,l addresses are NOT stable (at least for transports
-> > 
-> > Dou you like to verify that you have no clue on SCSI?
-> 
->     My system is clueless, too! If I write a CD before plugging my
-> USB storage device, my CD writer is on 0,0,0. If I plug my USB
-> storage device *before* doing any access, my cdwriter is on 1,0,0.
-> Pretty stable.
+> Yes, it boots now. But reading the disk fails - partition table reading 
+> bails out. Maybe this is the same early command problem that affects 
+> other controllers too.
 
-Thanks for answering the question I directed towards Jörg, which proves
-Martin Mares's point that b,t,l is not stable.
+Alan, can this related to LBA48 compatibility? I remember having
+problems with this when Andre Hedrick added LBA48 support around
+linux-2.4.19. The drive (Maxtor 4D040H2) advertised it supported LBA48,
+but the chipset (Ali 1543 rev C3, IIRC) didn't.
 
-I think, Martin, too deserves Jörg's apology, and Jörg shouldn't only be
-more respectful, but listen to those who know their system better than
-he does. (Of course this'll turn into a flame feast how stupid Linux
-is.)
+Unfortunately I can't test it, my Ali main board died a couple of
+months ago so I'm just guessing :-(.
+
+
+Erik
 
 -- 
-Matthias Andree
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

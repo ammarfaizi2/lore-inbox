@@ -1,93 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWBJOYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWBJOdx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWBJOYl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 09:24:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbWBJOVh
+	id S932124AbWBJOdx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 09:33:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWBJOdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 09:21:37 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:32204 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751260AbWBJOV1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 09:21:27 -0500
-Date: Fri, 10 Feb 2006 23:21:02 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Andi Kleen <ak@suse.de>, "Luck, Tony" <tony.luck@intel.com>,
-       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
-Subject: [RFC/PATCH: 004/010] Memory hotplug for new nodes with pgdat allocation. (pgdat alloc caller for x86_64)
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>, linux-ia64@vger.kernel.org,
-       x86-64 Discuss <discuss@x86-64.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060210224257.C536.Y-GOTO@jp.fujitsu.com>
+	Fri, 10 Feb 2006 09:33:53 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:60322 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S932117AbWBJOdw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 09:33:52 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Fri, 10 Feb 2006 15:32:28 +0100
+To: tytso@mit.edu, schilling@fokus.fraunhofer.de
+Cc: peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       jengelh@linux01.gwdg.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43ECA3FC.nailJGC110XNX@burner>
+References: <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr>
+ <43EB7BBA.nailIFG412CGY@burner>
+ <mj+md-20060209.173519.1949.atrey@ucw.cz>
+ <43EC71FB.nailISD31LRCB@burner>
+ <20060210114721.GB20093@merlin.emma.line.org>
+ <43EC887B.nailISDGC9CP5@burner>
+ <mj+md-20060210.123726.23341.atrey@ucw.cz>
+ <43EC8E18.nailISDJTQDBG@burner>
+ <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr>
+ <43EC93A2.nailJEB1AMIE6@burner> <20060210141651.GB18707@thunk.org>
+In-Reply-To: <20060210141651.GB18707@thunk.org>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is sample code of calling pgdat allocation function for x86_64.
-Basically it is same with ia64. 
+"Theodore Ts'o" <tytso@mit.edu> wrote:
 
-I've not tried this patch yet, due to I couldn't make emulation for
-new node addtion for x86_64. This is just to reference. :-P
+> On Fri, Feb 10, 2006 at 02:22:42PM +0100, Joerg Schilling wrote:
+> > >
+> > > The struct stat->st_rdev field need to be stable too to comply to POSIX?
+> > 
+> > Correct.
+> > 
+>
+> Chapter and verse, please?  
+>
+> Can you please list the POSIX standard, section, and line number which
+> states that a particular device must always have the same st_rdev
+> across reboots, and hot plugs/unplugs?
 
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+A particular file on the system must not change st_dev while the system
+is running.
 
-Index: pgdat2/arch/x86_64/mm/init.c
-===================================================================
---- pgdat2.orig/arch/x86_64/mm/init.c	2006-02-10 17:29:20.000000000 +0900
-+++ pgdat2/arch/x86_64/mm/init.c	2006-02-10 17:30:42.000000000 +0900
-@@ -26,6 +26,7 @@
- #include <linux/dma-mapping.h>
- #include <linux/module.h>
- #include <linux/memory_hotplug.h>
-+#include <linux/acpi.h>
- 
- #include <asm/processor.h>
- #include <asm/system.h>
-@@ -494,11 +495,25 @@ void online_page(struct page *page)
- 
- int add_memory(u64 start, u64 size)
- {
--	struct pglist_data *pgdat = NODE_DATA(0);
--	struct zone *zone = pgdat->node_zones + MAX_NR_ZONES-2;
-+	struct pglist_data *pgdat;
-+	struct zone *zone;
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
--	int ret;
-+	int ret, node, new_pgdat = 0;
-+
-+	node = acpi_paddr_to_node(start, size);
-+
-+	if (node < 0)
-+		node = 0; /* pxm is undefined in DSDT.
-+			     This might be non NUMA case */
-+
-+	if (!node_online(node)) {
-+		ret = new_pgdat_init(node, start_pfn, nr_pages);
-+		if (ret)
-+			goto err;
-+		new_pgdat = 1;
-+	}
-+
- 
- 	ret = __add_pages(zone, start_pfn, nr_pages);
- 	if (ret)
-@@ -509,6 +524,9 @@ int add_memory(u64 start, u64 size)
- 	return ret;
- error:
- 	printk("%s: Problem encountered in __add_pages!\n", __func__);
-+	if (new_pgdat)
-+		release_pgdat(ret);
-+
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(add_memory);
+http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/stat.h.html
+
+Jörg
 
 -- 
-Yasunori Goto 
-
-
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

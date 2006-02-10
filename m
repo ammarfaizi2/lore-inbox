@@ -1,110 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbWBKDgR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWBKDkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbWBKDgR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 22:36:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWBKDgR
+	id S932177AbWBKDkO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 22:40:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWBKDkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 22:36:17 -0500
-Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:21137 "EHLO
-	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932160AbWBKDgR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 22:36:17 -0500
-Message-ID: <43ED5BAE.1020307@bigpond.net.au>
-Date: Sat, 11 Feb 2006 14:36:14 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 10 Feb 2006 22:40:14 -0500
+Received: from smtp.enter.net ([216.193.128.24]:60175 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S932177AbWBKDkM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 22:40:12 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: dtor_core@ameritech.net
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Date: Thu, 9 Feb 2006 22:36:26 -0500
+User-Agent: KMail/1.8.1
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, peter.read@gmail.com,
+       mj@ucw.cz, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
+References: <20060208162828.GA17534@voodoo> <43EC8F22.nailISDL17DJF@burner> <d120d5000602100525w752b6df8t6c72a9a4164bdbcf@mail.gmail.com>
+In-Reply-To: <d120d5000602100525w752b6df8t6c72a9a4164bdbcf@mail.gmail.com>
 MIME-Version: 1.0
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-CC: Andrew Morton <akpm@osdl.org>, kernel@kolivas.org, npiggin@suse.de,
-       mingo@elte.hu, rostedt@goodmis.org, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [rfc][patch] sched: remove smpnice
-References: <20060207142828.GA20930@wotan.suse.de>	<200602080157.07823.kernel@kolivas.org>	<20060207141525.19d2b1be.akpm@osdl.org>	<200602081011.09749.kernel@kolivas.org>	<20060207153617.6520f126.akpm@osdl.org>	<20060209230145.A17405@unix-os.sc.intel.com> <20060209231703.4bd796bf.akpm@osdl.org> <43ED3D6A.8010300@bigpond.net.au>
-In-Reply-To: <43ED3D6A.8010300@bigpond.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 11 Feb 2006 03:36:14 +0000
+Content-Disposition: inline
+Message-Id: <200602092236.27379.dhazelton@enter.net>
+X-Virus-Checker-Version: Enter.Net Virus Scanner 1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Andrew Morton wrote:
-> 
->> "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
->>
->>> On Tue, Feb 07, 2006 at 03:36:17PM -0800, Andrew Morton wrote:
->>>
->>>> Suresh, Martin, Ingo, Nick and Con: please drop everything, 
->>>> triple-check
->>>> and test this:
->>>>
->>>> From: Peter Williams <pwil3058@bigpond.net.au>
->>>>
->>>> This is a modified version of Con Kolivas's patch to add "nice" 
->>>> support to
->>>> load balancing across physical CPUs on SMP systems.
->>>
->>>
->>> I have couple of issues with this patch.
->>>
->>> a) on a lightly loaded system, this will result in higher priority 
->>> job hopping around from one processor to another processor.. This is 
->>> because of the code in find_busiest_group() which assumes that 
->>> SCHED_LOAD_SCALE represents a unit process load and with nice_to_bias 
->>> calculations this is no longer true(in the presence of non nice-0 tasks)
->>>
->>> My testing showed that 178.galgel in SPECfp2000 is down by ~10% when 
->>> run with nice -20 on a 4P(8-way with HT) system compared to a nice-0 
->>> run.
-> 
-> 
-> This is a bit of a surprise.  Surely, even with this mod, a task 
-> shouldn't be moved if it's the only runnable one on its CPU.  If it 
-> isn't the only runnable one on its CPU, it's not actually on the CPU and 
-> it's not cache hot then moving it to another (presumably) idle CPU 
-> should be a gain?
-> 
-> Presumably the delay waiting for the current task to exit the CPU is 
-> less than the time taken to move the task to the new CPU?  I'd guess 
-> that this means that the task about to be moved is either: a) higher 
-> priority than the current task on the CPU and is waiting for it to be 
-> preempted off or b) it's equal priority (or at least next one due to be 
-> scheduled) to the current task, waiting for the current task to 
-> surrender the CPU and that surrender is going to happen pretty quickly 
-> due to the current task's natural behaviour?
+On Friday 10 February 2006 08:25, Dmitry Torokhov wrote:
+> On 2/10/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
+> > "D. Hazelton" <dhazelton@enter.net> wrote:
+> > > And does cdrecord even need libscg anymore? From having actually gone
+> > > through your code, Joerg, I can tell you that it does serve a larger
+> > > purpose. But at this point I have to ask - besides cdrecord and a few
+> > > other _COMPACT_ _DISC_ writing programs, does _ANYONE_ use libscg? Is
+> > > it ever used to access any other devices that are either SCSI or use a
+> > > SCSI command protocol (like ATAPI)?  My point there is that you have a
+> > > wonderful library, but despite your wishes, there is no proof that it
+> > > is ever used for anything except writing/ripping CD's.
+> >
+> > Name a single program (not using libscg) that implements user space SCSI
+> > and runs on as many platforms as cdrecord/libscg does.
+>
+> Joerg,
+>
+> Please name a single program/package besides cdrtools that is using
+> libscg. Face it, you created and maintained a very decent CD writing
+> program but world domination is a bit out of reach.
 
-After a little lie down :-),  I now think that this problem has been 
-misdiagnosed and the actual problem is that movement of high priority 
-tasks on lightly loaded systems is supressed by this patch rather than 
-it causing such tasks to hop from CPU to CPU.
+Exactly.
 
-The reason that I think this is that the implementation of biased_load() 
-makes it a likely outcome.  As a shortcut to converting weighted load to 
-biased load it assumes the the average weighted load per runnable task 
-is 1 (or, equivalently, that the average biased prio per runnable is 
-NICE_TO_BIAS_PRIO(p)) and this means that if there's only one task to 
-move and its nice value is less than zero (i.e. it's high priority) then 
-the biased load to be moved that is calculated will be smaller than that 
-task's bias_prio causing it to NOT be moved by move_tasks().
+He has done exactly that, but since then the world has moved on and he refuses 
+to see the truth.
 
-Do you have any direct evidence to support your "hopping" hypothesis or 
-is my hypothesis equally likely?
+Joerg - Lieber gott in himmel! You probably missed 90% of my argument anyway. 
+So here it is encapsulated:
 
-If my hypothesis holds there is a relatively simple fix that would 
-involve modifying biased_load() to take into account rq->prio_bias and 
-rq->nr_running during its calculations.  Basically, in that function, 
-(wload * NICE_TO_BIAS_PRIO(0)) would be replaced by (wload * 
-rq->prio_bias / rq->nr_running) which would, in turn, create a 
-requirement for rq to be passed in as an argument.
+Userspace does not define kernel semantics or facilities. Standards do that, 
+and where standards are lacking, the kernel has to provide what it can.
 
-If there is direct evidence of hopping then, because of my hypothesis 
-above, I would shift the suspicion from find_busiest_group() to 
-try_to_wake_up().
+Now before you go off and start screaming about the SCSI spec, be aware that I 
+_HAVE_ _READ_ _THEM_ and nowhere do I see it stated that the kernel has to 
+export the SCSI transport layers internal numbering to userspace. All I have 
+seen is that the SCSI system uses a "Host/Bus/Target/Lun" identification 
+system internally. As someone else pointed out, /dev/sr* can be used for 
+writing CD's with the SG_IO system since the same transport code sits under 
+said device as all other block devices. This means that if a program wants to 
+write to the device identified by /dev/sr0 or /dev/hda the kernel knows which 
+HOST/BUS/TARGET/LUN is meant by it. No need to artificially provide those 
+identifiers.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+As someone else also pointed out, your code doesn't map devices in a sane 
+manner. BTL mapping can change with hotplug, and all your arguments about 
+st_dev are bullshit. From reading the spec you pointed at it seems that 
+st_dev points to the _underlying_ _device_ - which will be stable despite 
+everything.
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Understood?
+
+And before I go, let me reiterate a true statement someone else said:
+libscg is not the problem - it is the backend. If you _need_ said BTL 
+mappings, why can't cdrecord take the provide /dev/hd* or /dev/sr* and 
+translate it internally into the BTL mapping you need?
+
+DRH

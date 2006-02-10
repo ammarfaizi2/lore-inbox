@@ -1,1331 +1,1883 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751237AbWBJKa5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWBJKbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751237AbWBJKa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 05:30:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbWBJKa4
+	id S1751232AbWBJKbo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 05:31:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWBJKbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 05:30:56 -0500
-Received: from web50302.mail.yahoo.com ([206.190.38.56]:48256 "HELO
-	web50302.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1751236AbWBJKay (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 05:30:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=OvUUF+OWRcBp1XK4rb+tWs5kcPVMAsLdfyCI38FGZeJk0pLZPNOcz84ubiqj8STnbHWUKeVFqZJYwFz973d2a8IxSCsXteiyJh5M0ejlA+AMeGUwPLsQPbicwWJMUeDghPFOVvXWOhqoYysm7urBfA2w3Xl+zZIdK8lIdMbFgEQ=  ;
-Message-ID: <20060210103053.97293.qmail@web50302.mail.yahoo.com>
-Date: Fri, 10 Feb 2006 02:30:53 -0800 (PST)
-From: omkar lagu <omkarlagu@yahoo.com>
-Subject: Fwd: How to call a function in a module from the kernel code !!! (Linux kernel)
-To: linux-kernel@vger.kernel.org
+	Fri, 10 Feb 2006 05:31:44 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:21910 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751238AbWBJKbm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 05:31:42 -0500
+Message-ID: <43EC6C24.6040805@in.ibm.com>
+Date: Fri, 10 Feb 2006 16:04:12 +0530
+From: Sachin Sant <sachinp@in.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050523
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-267740606-1139567453=:96814"
-Content-Transfer-Encoding: 8bit
+To: linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.16-rc2-mm1
+References: <20060207220627.345107c3.akpm@osdl.org> <20060208131708.f81b025e.pj@sgi.com>
+In-Reply-To: <20060208131708.f81b025e.pj@sgi.com>
+Content-Type: multipart/mixed;
+ boundary="------------020003030402090000090708"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-267740606-1139567453=:96814
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
-Content-Disposition: inline
-
-hello sir,
-  
-  PROBLEM::How to call a function in a module from
-  the kernel code ??
-  
-  what we did ? :: 
-  we wanted to call a function in our module ll from
-  shm.c file (which is in the kernel)
- 
-  so we declared function pointer in shm.c
-  :: unsigned long long (*ptr1)(int)
-  
-  we declared it as extern in shm.h
-  :: extern unsigned long long (*ptr1)(int)
-  
-  then we declared also in our module  (ll)
-  :: extern unsigned long long (*ptr1)(int)
-  
-  error
-    
-  but it gave an error as undefined refernce to ptr1
-  when we inserted our module..
-  
-  as per the request i am attaching the source code 
-  plz look into it i have put comments where i tried
-to 
-  do all this stuff ??
-  after doing this i was expecting ptr1 ptr2 ptr3 to 
-  be in the file kallsyms which is in /proc after
-compiling the kernel.
-  but it didn`t happen ??
-  but ptr1 ptr2 ptr3 are present in system.map file
-  when i compiled the kernel
-  i want to do all this cause i want to implement the 
-  hook i.e the function ptr1 ptr2 ptr3 are only called
-
-  when i insmod my module
-  i have attached shm.c shm.h and ll.c
-  in ll.c you will find only ptr1 and ptr2 you won`t 
-  find ptr3
-  plz cc to omkarlagu@yahoo.com
- 
- 
- 
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
---0-267740606-1139567453=:96814
-Content-Type: text/x-csrc; name="shm.c"
-Content-Description: 2679966476-shm.c
-Content-Disposition: inline; filename="shm.c"
-
-/*
- * linux/ipc/shm.c
- * Copyright (C) 1992, 1993 Krishna Balasubramanian
- *	 Many improvements/fixes by Bruno Haible.
- * Replaced `struct shm_desc' by `struct vm_area_struct', July 1994.
- * Fixed the shm swap deallocation (shm_unuse()), August 1998 Andrea Arcangeli.
- *
- * /proc/sysvipc/shm support (c) 1999 Dragos Acostachioaie <dragos@iname.com>
- * BIGMEM support, Andrea Arcangeli <andrea@suse.de>
- * SMP thread shm, Jean-Luc Boyard <jean-luc.boyard@siemens.fr>
- * HIGHMEM support, Ingo Molnar <mingo@redhat.com>
- * Make shmmax, shmall, shmmni sysctl'able, Christoph Rohland <cr@sap.com>
- * Shared /dev/zero support, Kanoj Sarcar <kanoj@sgi.com>
- * Move the mm functionality over to mm/shmem.c, Christoph Rohland <cr@sap.com>
- *
- */
-
-#include <linux/config.h>
-#include <linux/slab.h>
-#include <linux/mm.h>
-#include <linux/hugetlb.h>
-#include <linux/shm.h>
-#include <linux/init.h>
-#include <linux/file.h>
-#include <linux/mman.h>
-#include <linux/shmem_fs.h>
-#include <linux/security.h>
-#include <linux/syscalls.h>
-#include <linux/audit.h>
-#include <linux/ptrace.h>
-#include <linux/seq_file.h>
-#include <asm/uaccess.h>
-#include <linux/ipc.h>           /* For DIPC definition */
-#include "util.h"
-//#include <linux/module.h>
-#define shm_flags	shm_perm.mode
-
-static struct file_operations shm_file_operations;
-static struct vm_operations_struct shm_vm_ops;
-static struct ipc_ids shm_ids;
-
-#define shm_lock(id)	((struct shmid_kernel*)ipc_lock(&shm_ids,id))
-#define shm_unlock(shp)	ipc_unlock(&(shp)->shm_perm)
-#define shm_get(id)	((struct shmid_kernel*)ipc_get(&shm_ids,id))
-#define shm_buildid(id, seq) \
-	ipc_buildid(&shm_ids, id, seq)
-
-static int newseg (unsigned long long j, key_t key, int shmflg, size_t size);
-static void shm_open (struct vm_area_struct *shmd);
-static void shm_close (struct vm_area_struct *shmd);
-unsigned long long concatanate(int shmid);
-
-
-
-/* Here are the three function pointers declared */ 
-/* you can see this 3 functions are called in sys_shmget function below */ 
-
-unsigned long long (*ptr1)(int);
-void (*ptr2)(int, unsigned long long);
-unsigned long long (*ptr3)(int,struct buffer *,int);
-
-
-/*---------------------------------------------------------*/
-
-
-
-#ifdef CONFIG_PROC_FS
-static int sysvipc_shm_proc_show(struct seq_file *s, void *it);
-#endif
-
-size_t	shm_ctlmax = SHMMAX;
-size_t 	shm_ctlall = SHMALL;
-int 	shm_ctlmni = SHMMNI;
-
-static int shm_tot; /* total number of shared memory pages */
-
-void __init shm_init (void)
-{
-	ipc_init_ids(&shm_ids, 1);
-	ipc_init_proc_interface("sysvipc/shm",
-				"       key      shmid perms       size  cpid  lpid nattch   uid   gid  cuid  cgid      atime      dtime      ctime\n",
-				&shm_ids,
-				sysvipc_shm_proc_show);
-}
-
-static inline int shm_checkid(struct shmid_kernel *s, int id)
-{
-	if (ipc_checkid(&shm_ids,&s->shm_perm,id))
-		return -EIDRM;
-	return 0;
-}
-
-static inline struct shmid_kernel *shm_rmid(int id)
-{
-	return (struct shmid_kernel *)ipc_rmid(&shm_ids,id);
-}
-
-static inline int shm_addid(struct shmid_kernel *shp)
-{
-	return ipc_addid(&shm_ids, &shp->shm_perm, shm_ctlmni);
-}
-
-
-
-static inline void shm_inc (int id) {
-	struct shmid_kernel *shp;
-
-	if(!(shp = shm_lock(id)))
-		BUG();
-	shp->shm_atim = get_seconds();
-	shp->shm_lprid = current->tgid;
-	shp->shm_nattch++;
-	shm_unlock(shp);
-}
-
-/* This is called by fork, once for every shm attach. */
-static void shm_open (struct vm_area_struct *shmd)
-{
-	shm_inc (shmd->vm_file->f_dentry->d_inode->i_ino);
-}
-
-/*
- * shm_destroy - free the struct shmid_kernel
- *
- * @shp: struct to free
- *
- * It has to be called with shp and shm_ids.sem locked,
- * but returns with shp unlocked and freed.
- */
-static void shm_destroy (struct shmid_kernel *shp)
-{
-	shm_tot -= (shp->shm_segsz + PAGE_SIZE - 1) >> PAGE_SHIFT;
-	shm_rmid (shp->id);
-	shm_unlock(shp);
-	if (!is_file_hugepages(shp->shm_file))
-		shmem_lock(shp->shm_file, 0, shp->mlock_user);
-	else
-		user_shm_unlock(shp->shm_file->f_dentry->d_inode->i_size,
-						shp->mlock_user);
-	fput (shp->shm_file);
-	security_shm_free(shp);
-	ipc_rcu_putref(shp);
-}
-
-/*
- * remove the attach descriptor shmd.
- * free memory for segment if it is marked destroyed.
- * The descriptor has already been removed from the current->mm->mmap list
- * and will later be kfree()d.
- */
-static void shm_close (struct vm_area_struct *shmd)
-{
-	struct file * file = shmd->vm_file;
-	int id = file->f_dentry->d_inode->i_ino;
-	struct shmid_kernel *shp;
-
-	down (&shm_ids.sem);
-	/* remove from the list of attaches of the shm segment */
-	if(!(shp = shm_lock(id)))
-		BUG();
-	shp->shm_lprid = current->tgid;
-	shp->shm_dtim = get_seconds();
-	shp->shm_nattch--;
-	if(shp->shm_nattch == 0 &&
-	   shp->shm_flags & SHM_DEST)
-		shm_destroy (shp);
-	else
-		shm_unlock(shp);
-	up (&shm_ids.sem);
-}
-
-static int shm_mmap(struct file * file, struct vm_area_struct * vma)
-{
-	file_accessed(file);
-	vma->vm_ops = &shm_vm_ops;
-	shm_inc(file->f_dentry->d_inode->i_ino);
-	return 0;
-}
-
-static struct file_operations shm_file_operations = {
-	.mmap	= shm_mmap
-};
-
-static struct vm_operations_struct shm_vm_ops = {
-	.open	= shm_open,	/* callback for a new vm-area open */
-	.close	= shm_close,	/* callback for when the vm-area is released */
-	.nopage	= shmem_nopage,
-#if defined(CONFIG_NUMA) && defined(CONFIG_SHMEM)
-	.set_policy = shmem_set_policy,
-	.get_policy = shmem_get_policy,
-#endif
-};
-
-unsigned long long concatanate(int shmid) {
-	unsigned long long temp1, temp2;
-	temp1 = shmid;
-	temp2 = CURR_NODE;
-	temp2 = temp2 << 33;
-	return ((temp1 | temp2));
-}
-
-static int newseg (unsigned long long j, key_t key, int shmflg, size_t size)
-{
-	int error;
-	struct shmid_kernel *shp;
-	int numpages = (size + PAGE_SIZE -1) >> PAGE_SHIFT;
-	struct file * file;
-	char name[13];
-	int id;
-	unsigned long long temp;
-
-	if (size < SHMMIN || size > shm_ctlmax)
-		return -EINVAL;
-
-	if (shm_tot + numpages >= shm_ctlall)
-		return -ENOSPC;
-
-	shp = ipc_rcu_alloc(sizeof(*shp));
-	if (!shp)
-		return -ENOMEM;
-
-	shp->shm_perm.key = key;
-	shp->shm_flags = ((shmflg & S_IRWXUGO));
-	shp->mlock_user = NULL;
-
-	shp->shm_perm.security = NULL;
-	error = security_shm_alloc(shp);
-	if (error) {
-		ipc_rcu_putref(shp);
-		return error;
-	}
-
-	if (shmflg & SHM_HUGETLB) {
-		/* hugetlb_zero_setup takes care of mlock user accounting */
-		file = hugetlb_zero_setup(size);
-		shp->mlock_user = current->user;
-	} else {
-		sprintf (name, "SYSV%08x", key);
-		file = shmem_file_setup(name, size, VM_ACCOUNT);
-	}
-	error = PTR_ERR(file);
-	if (IS_ERR(file))
-		goto no_file;
-
-	error = -ENOSPC;
-	id = shm_addid(shp);
-	if(id == -1) 
-		goto no_id;
-
-	shp->shm_cprid = current->tgid;
-	shp->shm_lprid = 0;
-	shp->shm_atim = shp->shm_dtim = 0;
-	shp->shm_ctim = get_seconds();
-	shp->shm_segsz = size;
-	shp->shm_nattch = 0;
-	shp->id = shm_buildid(id,shp->shm_perm.seq);
-	if (shmflg & IPC_DIPC) {
-		if( j == 0 || j == 1) {
-			temp = concatanate(shp->id);
-			shp->glob_info.global_id = temp;
-	      		if (j == 0)
-			if(ptr2)
-				(*ptr2)(key,shp->glob_info.global_id);
-		}
-		else
-			shp->glob_info.global_id = j;
-	}
-	else
-		shp->glob_info.global_id = 0;
-	shp->shm_file = file;
-	file->f_dentry->d_inode->i_ino = shp->id;
-	if (shmflg & SHM_HUGETLB)
-		set_file_hugepages(file);
-	else
-		file->f_op = &shm_file_operations;
-	shm_tot += numpages;
-	shm_unlock(shp);
-	return shp->id;
-
-no_id:
-	fput(file);
-no_file:
-	security_shm_free(shp);
-	ipc_rcu_putref(shp);
-	return error;
-}
-
-int hash(int key) {	/* Hash function */
-	return(key % 2); 
-	
-}
-
-	
-asmlinkage long sys_shmget (key_t key, size_t size, int shmflg)
-{
-	struct shmid_kernel *shp;
-	int err, id = 0, i = 0, nodeid;
-	unsigned long long j = 0, temp;
-	struct buffer *bf;
-	down(&shm_ids.sem);
-	
-	if (shmflg & IPC_DIPC) {       /* Checking if DIPC flag is set */           
-		if((nodeid = hash(key)) == CURR_NODE) {	/* Checking if key mgr is present node */
-			if(ptr1)
-				j = (*ptr1)(key); //Function call in ll module
-			if(j == 0) 	/* Segment with given key is being created for the first time on local node*/
-				err = newseg(j, key, shmflg, size);
-			else {
-				if((id = ipc_findkey(&shm_ids, key)) == -1) { /*Segment with given key exists but we */
-					err = newseg(j, key, shmflg, size);   /*have to check if it has been created */ 
-				}					      /*on local node.*/	
-				else {
-					shp = shm_lock(id);
-					if(shp==NULL)
-						BUG();
-					if (shp->shm_segsz < size)
-						err = -EINVAL;
-					else if (ipcperms(&shp->shm_perm, shmflg))
-						err = -EACCES;
-					     else {
-							int shmid = shm_buildid(id, shp->shm_perm.seq);
-							err = security_shm_associate(shp, shmflg);
-							if (!err)
-								err = shmid;
-				     		  }
-					shm_unlock(shp);
-				      }
-			      }	
-		}
-		else {
-			printk("Key manager not present node");
-			bf = (struct buffer*)kmalloc(sizeof(struct buffer),GFP_KERNEL);
-			bf->msgtype = 1;
-			bf->data.key = key;
-			printk(KERN_ALERT "\n First time key : %d",bf->data.key);
-			if(ptr3)
-					j=(*ptr3)(nodeid,bf,sizeof(struct buffer));  //Functioncall
-			if(j == 1) {
-				err = newseg(j, key, shmflg, size);
-				temp = concatanate(err);
-				bf = (struct buffer*)kmalloc(sizeof(struct buffer),GFP_KERNEL);
-				bf->msgtype = 6;
-				bf->data.key = key;
-				bf->data.global_id = temp;
-				printk(KERN_ALERT "\nSecond time key :%d -> %lli", bf->data.key, bf->data.global_id);
-				if(ptr3)
-					j=(*ptr3)(nodeid,bf,sizeof(struct buffer)); //Function call
-			}
-			else {
-				if((id = ipc_findkey(&shm_ids, key)) == -1) { /*Segment with given key exists but we */
-					err = newseg(j, key, shmflg, size);   /*have to check if it has been created */ 
-				}					      /*on local node.*/	
-				else {
-					shp = shm_lock(id);
-					if(shp==NULL)
-						BUG();
-					if (shp->shm_segsz < size)
-						err = -EINVAL;
-					else if (ipcperms(&shp->shm_perm, shmflg))
-						err = -EACCES;
-					     else {
-							int shmid = shm_buildid(id, shp->shm_perm.seq);
-							err = security_shm_associate(shp, shmflg);
-							if (!err)
-								err = shmid;
-				     		  }
-					shm_unlock(shp);
-				}
-			}
-			/* Code for communication with communication layer */
-		}
-	}
-	else {
-	if (key == IPC_PRIVATE) {
-		err = newseg(j, key, shmflg, size);
-	} else if ((id = ipc_findkey(&shm_ids, key)) == -1) {
-		if (!(shmflg & IPC_CREAT))
-			err = -ENOENT;
-		else
-			err = newseg(j, key, shmflg, size);
-	} else if ((shmflg & IPC_CREAT) && (shmflg & IPC_EXCL)) {
-		err = -EEXIST;
-	} else {
-		shp = shm_lock(id);
-		if(shp==NULL)
-			BUG();
-		if (shp->shm_segsz < size)
-			err = -EINVAL;
-		else if (ipcperms(&shp->shm_perm, shmflg))
-			err = -EACCES;
-		else {
-			int shmid = shm_buildid(id, shp->shm_perm.seq);
-			err = security_shm_associate(shp, shmflg);
-			if (!err)
-				err = shmid;
-		}
-		shm_unlock(shp);
-	}
-	}
-	up(&shm_ids.sem);
-
-	return err;
-}
-
-
-
-/* The 3 pointers are expoted here */
-EXPORT_SYMBOL(ptr1);
-EXPORT_SYMBOL(ptr2);
-EXPORT_SYMBOL(ptr3);
-/*------------------------------------------------------------*/
-
-
-
-static inline unsigned long copy_shmid_to_user(void __user *buf, struct shmid64_ds *in, int version)
-{
-	switch(version) {
-	case IPC_64:
-		return copy_to_user(buf, in, sizeof(*in));
-	case IPC_OLD:
-	    {
-		struct shmid_ds out;
-
-		ipc64_perm_to_ipc_perm(&in->shm_perm, &out.shm_perm);
-		out.shm_segsz	= in->shm_segsz;
-		out.shm_atime	= in->shm_atime;
-		out.shm_dtime	= in->shm_dtime;
-		out.shm_ctime	= in->shm_ctime;
-		out.shm_cpid	= in->shm_cpid;
-		out.shm_lpid	= in->shm_lpid;
-		out.shm_nattch	= in->shm_nattch;
-
-		return copy_to_user(buf, &out, sizeof(out));
-	    }
-	default:
-		return -EINVAL;
-	}
-}
-
-struct shm_setbuf {
-	uid_t	uid;
-	gid_t	gid;
-	mode_t	mode;
-};	
-
-static inline unsigned long copy_shmid_from_user(struct shm_setbuf *out, void __user *buf, int version)
-{
-	switch(version) {
-	case IPC_64:
-	    {
-		struct shmid64_ds tbuf;
-
-		if (copy_from_user(&tbuf, buf, sizeof(tbuf)))
-			return -EFAULT;
-
-		out->uid	= tbuf.shm_perm.uid;
-		out->gid	= tbuf.shm_perm.gid;
-		out->mode	= tbuf.shm_flags;
-
-		return 0;
-	    }
-	case IPC_OLD:
-	    {
-		struct shmid_ds tbuf_old;
-
-		if (copy_from_user(&tbuf_old, buf, sizeof(tbuf_old)))
-			return -EFAULT;
-
-		out->uid	= tbuf_old.shm_perm.uid;
-		out->gid	= tbuf_old.shm_perm.gid;
-		out->mode	= tbuf_old.shm_flags;
-
-		return 0;
-	    }
-	default:
-		return -EINVAL;
-	}
-}
-
-static inline unsigned long copy_shminfo_to_user(void __user *buf, struct shminfo64 *in, int version)
-{
-	switch(version) {
-	case IPC_64:
-		return copy_to_user(buf, in, sizeof(*in));
-	case IPC_OLD:
-	    {
-		struct shminfo out;
-
-		if(in->shmmax > INT_MAX)
-			out.shmmax = INT_MAX;
-		else
-			out.shmmax = (int)in->shmmax;
-
-		out.shmmin	= in->shmmin;
-		out.shmmni	= in->shmmni;
-		out.shmseg	= in->shmseg;
-		out.shmall	= in->shmall; 
-
-		return copy_to_user(buf, &out, sizeof(out));
-	    }
-	default:
-		return -EINVAL;
-	}
-}
-
-static void shm_get_stat(unsigned long *rss, unsigned long *swp) 
-{
-	int i;
-
-	*rss = 0;
-	*swp = 0;
-
-	for (i = 0; i <= shm_ids.max_id; i++) {
-		struct shmid_kernel *shp;
-		struct inode *inode;
-
-		shp = shm_get(i);
-		if(!shp)
-			continue;
-
-		inode = shp->shm_file->f_dentry->d_inode;
-
-		if (is_file_hugepages(shp->shm_file)) {
-			struct address_space *mapping = inode->i_mapping;
-			*rss += (HPAGE_SIZE/PAGE_SIZE)*mapping->nrpages;
-		} else {
-			struct shmem_inode_info *info = SHMEM_I(inode);
-			spin_lock(&info->lock);
-			*rss += inode->i_mapping->nrpages;
-			*swp += info->swapped;
-			spin_unlock(&info->lock);
-		}
-	}
-}
-
-asmlinkage long sys_shmctl (int shmid, int cmd, struct shmid_ds __user *buf)
-{
-	struct shm_setbuf setbuf;
-	struct shmid_kernel *shp;
-	int err, version;
-
-	if (cmd < 0 || shmid < 0) {
-		err = -EINVAL;
-		goto out;
-	}
-
-	version = ipc_parse_version(&cmd);
-
-	switch (cmd) { /* replace with proc interface ? */
-	case IPC_INFO:
-	{
-		struct shminfo64 shminfo;
-
-		err = security_shm_shmctl(NULL, cmd);
-		if (err)
-			return err;
-
-		memset(&shminfo,0,sizeof(shminfo));
-		shminfo.shmmni = shminfo.shmseg = shm_ctlmni;
-		shminfo.shmmax = shm_ctlmax;
-		shminfo.shmall = shm_ctlall;
-
-		shminfo.shmmin = SHMMIN;
-		if(copy_shminfo_to_user (buf, &shminfo, version))
-			return -EFAULT;
-		/* reading a integer is always atomic */
-		err= shm_ids.max_id;
-		if(err<0)
-			err = 0;
-		goto out;
-	}
-	case SHM_INFO:
-	{
-		struct shm_info shm_info;
-
-		err = security_shm_shmctl(NULL, cmd);
-		if (err)
-			return err;
-
-		memset(&shm_info,0,sizeof(shm_info));
-		down(&shm_ids.sem);
-		shm_info.used_ids = shm_ids.in_use;
-		shm_get_stat (&shm_info.shm_rss, &shm_info.shm_swp);
-		shm_info.shm_tot = shm_tot;
-		shm_info.swap_attempts = 0;
-		shm_info.swap_successes = 0;
-		err = shm_ids.max_id;
-		up(&shm_ids.sem);
-		if(copy_to_user (buf, &shm_info, sizeof(shm_info))) {
-			err = -EFAULT;
-			goto out;
-		}
-
-		err = err < 0 ? 0 : err;
-		goto out;
-	}
-	case SHM_STAT:
-	case IPC_STAT:
-	{
-		struct shmid64_ds tbuf;
-		int result;
-		memset(&tbuf, 0, sizeof(tbuf));
-		shp = shm_lock(shmid);
-		if(shp==NULL) {
-			err = -EINVAL;
-			goto out;
-		} else if(cmd==SHM_STAT) {
-			err = -EINVAL;
-			if (shmid > shm_ids.max_id)
-				goto out_unlock;
-			result = shm_buildid(shmid, shp->shm_perm.seq);
-		} else {
-			err = shm_checkid(shp,shmid);
-			if(err)
-				goto out_unlock;
-			result = 0;
-		}
-		err=-EACCES;
-		if (ipcperms (&shp->shm_perm, S_IRUGO))
-			goto out_unlock;
-		err = security_shm_shmctl(shp, cmd);
-		if (err)
-			goto out_unlock;
-		kernel_to_ipc64_perm(&shp->shm_perm, &tbuf.shm_perm);
-		tbuf.shm_segsz	= shp->shm_segsz;
-		tbuf.shm_atime	= shp->shm_atim;
-		tbuf.shm_dtime	= shp->shm_dtim;
-		tbuf.shm_ctime	= shp->shm_ctim;
-		tbuf.shm_cpid	= shp->shm_cprid;
-		tbuf.shm_lpid	= shp->shm_lprid;
-		if (!is_file_hugepages(shp->shm_file))
-			tbuf.shm_nattch	= shp->shm_nattch;
-		else
-			tbuf.shm_nattch = file_count(shp->shm_file) - 1;
-		shm_unlock(shp);
-		if(copy_shmid_to_user (buf, &tbuf, version))
-			err = -EFAULT;
-		else
-			err = result;
-		goto out;
-	}
-	case SHM_LOCK:
-	case SHM_UNLOCK:
-	{
-		shp = shm_lock(shmid);
-		if(shp==NULL) {
-			err = -EINVAL;
-			goto out;
-		}
-		err = shm_checkid(shp,shmid);
-		if(err)
-			goto out_unlock;
-
-		if (!capable(CAP_IPC_LOCK)) {
-			err = -EPERM;
-			if (current->euid != shp->shm_perm.uid &&
-			    current->euid != shp->shm_perm.cuid)
-				goto out_unlock;
-			if (cmd == SHM_LOCK &&
-			    !current->signal->rlim[RLIMIT_MEMLOCK].rlim_cur)
-				goto out_unlock;
-		}
-
-		err = security_shm_shmctl(shp, cmd);
-		if (err)
-			goto out_unlock;
-		
-		if(cmd==SHM_LOCK) {
-			struct user_struct * user = current->user;
-			if (!is_file_hugepages(shp->shm_file)) {
-				err = shmem_lock(shp->shm_file, 1, user);
-				if (!err) {
-					shp->shm_flags |= SHM_LOCKED;
-					shp->mlock_user = user;
-				}
-			}
-		} else if (!is_file_hugepages(shp->shm_file)) {
-			shmem_lock(shp->shm_file, 0, shp->mlock_user);
-			shp->shm_flags &= ~SHM_LOCKED;
-			shp->mlock_user = NULL;
-		}
-		shm_unlock(shp);
-		goto out;
-	}
-	case IPC_RMID:
-	{
-		/*
-		 *	We cannot simply remove the file. The SVID states
-		 *	that the block remains until the last person
-		 *	detaches from it, then is deleted. A shmat() on
-		 *	an RMID segment is legal in older Linux and if 
-		 *	we change it apps break...
-		 *
-		 *	Instead we set a destroyed flag, and then blow
-		 *	the name away when the usage hits zero.
-		 */
-		down(&shm_ids.sem);
-		shp = shm_lock(shmid);
-		err = -EINVAL;
-		if (shp == NULL) 
-			goto out_up;
-		err = shm_checkid(shp, shmid);
-		if(err)
-			goto out_unlock_up;
-
-		if (current->euid != shp->shm_perm.uid &&
-		    current->euid != shp->shm_perm.cuid && 
-		    !capable(CAP_SYS_ADMIN)) {
-			err=-EPERM;
-			goto out_unlock_up;
-		}
-
-		err = security_shm_shmctl(shp, cmd);
-		if (err)
-			goto out_unlock_up;
-
-		if (shp->shm_nattch){
-			shp->shm_flags |= SHM_DEST;
-			/* Do not find it any more */
-			shp->shm_perm.key = IPC_PRIVATE;
-			shm_unlock(shp);
-		} else
-			shm_destroy (shp);
-		up(&shm_ids.sem);
-		goto out;
-	}
-
-	case IPC_SET:
-	{
-		if (copy_shmid_from_user (&setbuf, buf, version)) {
-			err = -EFAULT;
-			goto out;
-		}
-		if ((err = audit_ipc_perms(0, setbuf.uid, setbuf.gid, setbuf.mode)))
-			return err;
-		down(&shm_ids.sem);
-		shp = shm_lock(shmid);
-		err=-EINVAL;
-		if(shp==NULL)
-			goto out_up;
-		err = shm_checkid(shp,shmid);
-		if(err)
-			goto out_unlock_up;
-		err=-EPERM;
-		if (current->euid != shp->shm_perm.uid &&
-		    current->euid != shp->shm_perm.cuid && 
-		    !capable(CAP_SYS_ADMIN)) {
-			goto out_unlock_up;
-		}
-
-		err = security_shm_shmctl(shp, cmd);
-		if (err)
-			goto out_unlock_up;
-		
-		shp->shm_perm.uid = setbuf.uid;
-		shp->shm_perm.gid = setbuf.gid;
-		shp->shm_flags = (shp->shm_flags & ~S_IRWXUGO)
-			| (setbuf.mode & S_IRWXUGO);
-		shp->shm_ctim = get_seconds();
-		break;
-	}
-
-	default:
-		err = -EINVAL;
-		goto out;
-	}
-
-	err = 0;
-out_unlock_up:
-	shm_unlock(shp);
-out_up:
-	up(&shm_ids.sem);
-	goto out;
-out_unlock:
-	shm_unlock(shp);
-out:
-	return err;
-}
-
-/*
- * Fix shmaddr, allocate descriptor, map shm, add attach descriptor to lists.
- *
- * NOTE! Despite the name, this is NOT a direct system call entrypoint. The
- * "raddr" thing points to kernel space, and there has to be a wrapper around
- * this.
- */
-long do_shmat(int shmid, char __user *shmaddr, int shmflg, ulong *raddr)
-{
-	struct shmid_kernel *shp;
-	unsigned long addr;
-	unsigned long size;
-	struct file * file;
-	int    err;
-	unsigned long flags;
-	unsigned long prot;
-	unsigned long o_flags;
-	int acc_mode;
-	void *user_addr;
-
-	if (shmid < 0) {
-		err = -EINVAL;
-		goto out;
-	} else if ((addr = (ulong)shmaddr)) {
-		if (addr & (SHMLBA-1)) {
-			if (shmflg & SHM_RND)
-				addr &= ~(SHMLBA-1);	   /* round down */
-			else
-#ifndef __ARCH_FORCE_SHMLBA
-				if (addr & ~PAGE_MASK)
-#endif
-					return -EINVAL;
-		}
-		flags = MAP_SHARED | MAP_FIXED;
-	} else {
-		if ((shmflg & SHM_REMAP))
-			return -EINVAL;
-
-		flags = MAP_SHARED;
-	}
-
-	if (shmflg & SHM_RDONLY) {
-		prot = PROT_READ;
-		o_flags = O_RDONLY;
-		acc_mode = S_IRUGO;
-	} else {
-		prot = PROT_READ | PROT_WRITE;
-		o_flags = O_RDWR;
-		acc_mode = S_IRUGO | S_IWUGO;
-	}
-	if (shmflg & SHM_EXEC) {
-		prot |= PROT_EXEC;
-		acc_mode |= S_IXUGO;
-	}
-
-	/*
-	 * We cannot rely on the fs check since SYSV IPC does have an
-	 * additional creator id...
-	 */
-	shp = shm_lock(shmid);
-	if(shp == NULL) {
-		err = -EINVAL;
-		goto out;
-	}
-	err = shm_checkid(shp,shmid);
-	if (err) {
-		shm_unlock(shp);
-		goto out;
-	}
-	if (ipcperms(&shp->shm_perm, acc_mode)) {
-		shm_unlock(shp);
-		err = -EACCES;
-		goto out;
-	}
-
-	err = security_shm_shmat(shp, shmaddr, shmflg);
-	if (err) {
-		shm_unlock(shp);
-		return err;
-	}
-		
-	file = shp->shm_file;
-	size = i_size_read(file->f_dentry->d_inode);
-	shp->shm_nattch++;
-	shm_unlock(shp);
-
-	down_write(&current->mm->mmap_sem);
-	if (addr && !(shmflg & SHM_REMAP)) {
-		user_addr = ERR_PTR(-EINVAL);
-		if (find_vma_intersection(current->mm, addr, addr + size))
-			goto invalid;
-		/*
-		 * If shm segment goes below stack, make sure there is some
-		 * space left for the stack to grow (at least 4 pages).
-		 */
-		if (addr < current->mm->start_stack &&
-		    addr > current->mm->start_stack - size - PAGE_SIZE * 5)
-			goto invalid;
-	}
-		
-	user_addr = (void*) do_mmap (file, addr, size, prot, flags, 0);
-
-invalid:
-	up_write(&current->mm->mmap_sem);
-
-	down (&shm_ids.sem);
-	if(!(shp = shm_lock(shmid)))
-		BUG();
-	shp->shm_nattch--;
-	if(shp->shm_nattch == 0 &&
-	   shp->shm_flags & SHM_DEST)
-		shm_destroy (shp);
-	else
-		shm_unlock(shp);
-	up (&shm_ids.sem);
-
-	*raddr = (unsigned long) user_addr;
-	err = 0;
-	if (IS_ERR(user_addr))
-		err = PTR_ERR(user_addr);
-out:
-	return err;
-}
-
-
-EXPORT_SYMBOL(ptr1);
-EXPORT_SYMBOL(ptr2);
-EXPORT_SYMBOL(ptr3);
-
-asmlinkage long sys_shmat(int shmid, char __user *shmaddr, int shmflg)
-{
-	unsigned long ret;
-	long err;
-
-	err = do_shmat(shmid, shmaddr, shmflg, &ret);
-	if (err)
-		return err;
-	force_successful_syscall_return();
-	return (long)ret;
-}
-
-/*
- * detach and kill segment if marked destroyed.
- * The work is done in shm_close.
- */
-asmlinkage long sys_shmdt(char __user *shmaddr)
-{
-	struct mm_struct *mm = current->mm;
-	struct vm_area_struct *vma, *next;
-	unsigned long addr = (unsigned long)shmaddr;
-	loff_t size = 0;
-	int retval = -EINVAL;
-
-	down_write(&mm->mmap_sem);
-
-	/*
-	 * This function tries to be smart and unmap shm segments that
-	 * were modified by partial mlock or munmap calls:
-	 * - It first determines the size of the shm segment that should be
-	 *   unmapped: It searches for a vma that is backed by shm and that
-	 *   started at address shmaddr. It records it's size and then unmaps
-	 *   it.
-	 * - Then it unmaps all shm vmas that started at shmaddr and that
-	 *   are within the initially determined size.
-	 * Errors from do_munmap are ignored: the function only fails if
-	 * it's called with invalid parameters or if it's called to unmap
-	 * a part of a vma. Both calls in this function are for full vmas,
-	 * the parameters are directly copied from the vma itself and always
-	 * valid - therefore do_munmap cannot fail. (famous last words?)
-	 */
-	/*
-	 * If it had been mremap()'d, the starting address would not
-	 * match the usual checks anyway. So assume all vma's are
-	 * above the starting address given.
-	 */
-	vma = find_vma(mm, addr);
-
-	while (vma) {
-		next = vma->vm_next;
-
-		/*
-		 * Check if the starting address would match, i.e. it's
-		 * a fragment created by mprotect() and/or munmap(), or it
-		 * otherwise it starts at this address with no hassles.
-		 */
-		if ((vma->vm_ops == &shm_vm_ops || is_vm_hugetlb_page(vma)) &&
-			(vma->vm_start - addr)/PAGE_SIZE == vma->vm_pgoff) {
-
-
-			size = vma->vm_file->f_dentry->d_inode->i_size;
-			do_munmap(mm, vma->vm_start, vma->vm_end - vma->vm_start);
-			/*
-			 * We discovered the size of the shm segment, so
-			 * break out of here and fall through to the next
-			 * loop that uses the size information to stop
-			 * searching for matching vma's.
-			 */
-			retval = 0;
-			vma = next;
-			break;
-		}
-		vma = next;
-	}
-
-	/*
-	 * We need look no further than the maximum address a fragment
-	 * could possibly have landed at. Also cast things to loff_t to
-	 * prevent overflows and make comparisions vs. equal-width types.
-	 */
-	while (vma && (loff_t)(vma->vm_end - addr) <= size) {
-		next = vma->vm_next;
-
-		/* finding a matching vma now does not alter retval */
-		if ((vma->vm_ops == &shm_vm_ops || is_vm_hugetlb_page(vma)) &&
-			(vma->vm_start - addr)/PAGE_SIZE == vma->vm_pgoff)
-
-			do_munmap(mm, vma->vm_start, vma->vm_end - vma->vm_start);
-		vma = next;
-	}
-
-	up_write(&mm->mmap_sem);
-	return retval;
-}
-
-#ifdef CONFIG_PROC_FS
-static int sysvipc_shm_proc_show(struct seq_file *s, void *it)
-{
-	struct shmid_kernel *shp = it;
-	char *format;
-
-#define SMALL_STRING "%10d %10d  %4o %10u %5u %5u  %5d %5u %5u %5u %5u %10lu %10lu %10lu\n"
-#define BIG_STRING   "%10d %10d  %4o %21u %5u %5u  %5d %5u %5u %5u %5u %10lu %10lu %10lu\n"
-
-	if (sizeof(size_t) <= sizeof(int))
-		format = SMALL_STRING;
-	else
-		format = BIG_STRING;
-	return seq_printf(s, format,
-			  shp->shm_perm.key,
-			  shp->id,
-			  shp->shm_flags,
-			  shp->shm_segsz,
-			  shp->shm_cprid,
-			  shp->shm_lprid,
-			  is_file_hugepages(shp->shm_file) ? (file_count(shp->shm_file) - 1) : shp->shm_nattch,
-			  shp->shm_perm.uid,
-			  shp->shm_perm.gid,
-			  shp->shm_perm.cuid,
-			  shp->shm_perm.cgid,
-			  shp->shm_atim,
-			  shp->shm_dtim,
-			  shp->shm_ctim);
-}
-#endif
-
---0-267740606-1139567453=:96814
-Content-Type: text/x-csrc; name="ll.c"
-Content-Description: 3386611429-ll.c
-Content-Disposition: inline; filename="ll.c"
-
-      
-	    /* Implementation  of Linklist in Kernel */
- 
- # include <linux/init.h>
- # include <linux/module.h>
- # include <linux/list.h>
- # include <linux/ipc.h>
- # include <linux/shm.h>
- 
-typedef struct key_map {
-      struct list_head list;
-      int key;
-      unsigned long long global_id;
-} key_map;
- 
-int i=0;
-key_map *ptr = NULL;
-
-/** here i have declared it as extern and then assigned them in ll_init */
-extern unsigned long long (*ptr1)(int);
-extern void (*ptr2)(int, unsigned long long);
-/*--------------------------------------------------------------------- */
-
-
- void start(void)
- {
-    ptr=(key_map *)kmalloc(sizeof(key_map),GFP_KERNEL);
-    ptr->key = 0;
-    ptr->global_id = 0;
-    INIT_LIST_HEAD(&ptr->list);
-  } 
-    
- 
-  void addk(int key, unsigned long long global_id) {   
-    	key_map *temp = NULL;
-        temp = (key_map *)kmalloc(sizeof(key_map),GFP_KERNEL);  
-        temp->key = key;  
-	temp->global_id = global_id;
-	list_add(&temp->list,&ptr->list);
-	printk(KERN_ALERT "\n Inserted a value : %d -> %lli ",temp->key,temp->global_id);
-  }    
-
-  unsigned long long findk(int key) {
-	key_map *temp = NULL;
-	int i=0;
-	printk(KERN_ALERT "\nwhat is the value of key(findk)::%d",key);
-	for (temp=(key_map *)ptr->list.next;temp!=ptr;temp=(key_map *)temp->list.next) {
- 		printk(KERN_ALERT "\n%d -> %lli(findk)",temp->key,temp->global_id);
-		if(temp->key == key) {
-			i++;
-			return(temp->global_id);
-		}
-        
-       	}   
-	printk(KERN_ALERT "\nhow many times i went in da loop %d\n",i);
-	return 0;
- 
-  } 
- 
-static int ll_init(void) {
- 	printk(KERN_ALERT "\nLL entered !!!");
-	start();
-	ptr1 = findk;
-	ptr2 = addk;
-	return 0;
- }
-  
- static void ll_exit(void) {
-   printk(KERN_ALERT "\nLL exited  !!!");
-}
-
-module_init(ll_init);
-module_exit(ll_exit);
-
---0-267740606-1139567453=:96814
-Content-Type: text/x-chdr; name="shm.h"
-Content-Description: 152604362-shm.h
-Content-Disposition: inline; filename="shm.h"
-
-#ifndef _LINUX_SHM_H_
-#define _LINUX_SHM_H_
-
-#include <linux/ipc.h>
-#include <linux/errno.h>
-#include <asm/page.h>
-
-/*
- * SHMMAX, SHMMNI and SHMALL are upper limits are defaults which can
- * be increased by sysctl
- */
-
-#define SHMMAX 0x2000000		 /* max shared seg size (bytes) */
-#define SHMMIN 1			 /* min shared seg size (bytes) */
-#define SHMMNI 4096			 /* max num of segs system wide */
-#define SHMALL (SHMMAX/PAGE_SIZE*(SHMMNI/16)) /* max shm system wide (pages) */
-#define SHMSEG SHMMNI			 /* max shared segs per process */
-
-#include <asm/shmparam.h>
-
-/*Declared as extern over here */
-extern unsigned long long (*ptr1)(int);
-extern void (*ptr2)(int, unsigned long long);
-extern unsigned long long (*ptr3)(int,struct buffer *,int);
-/*--------------------------------------------------------------------*/
-
-
-/* Obsolete, used only for backwards compatibility and libc5 compiles */
-struct shmid_ds {
-	struct ipc_perm		shm_perm;	/* operation perms */
-	int			shm_segsz;	/* size of segment (bytes) */
-	__kernel_time_t		shm_atime;	/* last attach time */
-	__kernel_time_t		shm_dtime;	/* last detach time */
-	__kernel_time_t		shm_ctime;	/* last change time */
-	__kernel_ipc_pid_t	shm_cpid;	/* pid of creator */
-	__kernel_ipc_pid_t	shm_lpid;	/* pid of last operator */
-	unsigned short		shm_nattch;	/* no. of current attaches */
-	unsigned short 		shm_unused;	/* compatibility */
-	void 			*shm_unused2;	/* ditto - used by DIPC */
-	void			*shm_unused3;	/* unused */
-};
-
-/* Include the definition of shmid64_ds and shminfo64 */
-#include <asm/shmbuf.h>
-
-/* permission flag for shmget */
-#define SHM_R		0400	/* or S_IRUGO from <linux/stat.h> */
-#define SHM_W		0200	/* or S_IWUGO from <linux/stat.h> */
-
-/* mode for attach */
-#define	SHM_RDONLY	010000	/* read-only access */
-#define	SHM_RND		020000	/* round attach address to SHMLBA boundary */
-#define	SHM_REMAP	040000	/* take-over region on attach */
-#define	SHM_EXEC	0100000	/* execution access */
-
-/* super user shmctl commands */
-#define SHM_LOCK 	11
-#define SHM_UNLOCK 	12
-
-/* ipcs ctl commands */
-#define SHM_STAT 	13
-#define SHM_INFO 	14
-
-
-/* Obsolete, used only for backwards compatibility */
-struct	shminfo {
-	int shmmax;
-	int shmmin;
-	int shmmni;
-	int shmseg;
-	int shmall;
-};
-
-struct shm_info {
-	int used_ids;
-	unsigned long shm_tot;	/* total allocated shm */
-	unsigned long shm_rss;	/* total resident shm */
-	unsigned long shm_swp;	/* total swapped shm */
-	unsigned long swap_attempts;
-	unsigned long swap_successes;
-};
-
-
-
-#ifdef __KERNEL__
-
-struct dipc_info {
-	unsigned long long global_id;
-};
-
-
-struct shmid_kernel /* private to the kernel */
-{	
-	struct kern_ipc_perm	shm_perm;
-	struct file *		shm_file;
-	struct dipc_info 	glob_info;
-	int			id;
-	unsigned long		shm_nattch;
-	unsigned long		shm_segsz;
-	time_t			shm_atim;
-	time_t			shm_dtim;
-	time_t			shm_ctim;
-	pid_t			shm_cprid;
-	pid_t			shm_lprid;
-	struct user_struct	*mlock_user;
-};
-
-/* shm_mode upper byte flags */
-#define	SHM_DEST	01000	/* segment will be destroyed on last detach */
-#define SHM_LOCKED      02000   /* segment will not be swapped */
-#define SHM_HUGETLB     04000   /* segment will use huge TLB pages */
-
-#ifdef CONFIG_SYSVIPC
-long do_shmat(int shmid, char __user *shmaddr, int shmflg, unsigned long *addr);
-#else
-static inline long do_shmat(int shmid, char __user *shmaddr,
-				int shmflg, unsigned long *addr)
-{
-	return -ENOSYS;
-}
-#endif
-
-#endif /* __KERNEL__ */
-
-#endif /* _LINUX_SHM_H_ */
-
---0-267740606-1139567453=:96814--
+This is a multi-part message in MIME format.
+--------------020003030402090000090708
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+I am facing a build break while compiling 2.6.16-rc2-mm1 on a powerpc box.
+
+LD      lib/built-in.o
+GEN     .version
+CHK     include/linux/compile.h
+UPD     include/linux/compile.h
+CC      init/version.o
+LD      init/built-in.o
+LD      .tmp_vmlinux1
+fs/built-in.o(.text+0xff328): In function `print_address':
+fs/reiser4/search.c:1518: multiple definition of `.print_address'
+arch/powerpc/xmon/built-in.o(.text+0xa9c):arch/powerpc/xmon/xmon.c:2057: 
+first d                                            efined here
+ld: Warning: size of symbol `.print_address' changed from 12 in 
+arch/powerpc/xmo                                            n/built-in.o 
+to 80 in fs/built-in.o
+fs/built-in.o(.opd+0xd2c0): In function `kill_litter_super':
+fs/super.c:650: multiple definition of `print_address'
+arch/powerpc/xmon/built-in.o(.opd+0x168):arch/powerpc/xmon/xmon.c:1170: 
+first de                                            fined here
+make: *** [.tmp_vmlinux1] Error 1
+llm20:/home/sachin/linux-2.6.16-rc2 #
+
+Seems like reiser4 as well as xmon define print_address symbol.
+
+I have attached the .config here
+
+--------------020003030402090000090708
+Content-Type: text/plain;
+ name="config"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="config"
+
+#
+# Automatically generated make config: don't edit
+# Linux kernel version: 2.6.16-rc2-mm1
+# Sat Feb 11 05:59:34 2006
+#
+CONFIG_PPC64=y
+CONFIG_64BIT=y
+CONFIG_PPC_MERGE=y
+CONFIG_MMU=y
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_PPC=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_COMPAT=y
+CONFIG_SYSVIPC_COMPAT=y
+CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER=y
+CONFIG_ARCH_MAY_HAVE_PC_FDC=y
+CONFIG_PPC_OF=y
+CONFIG_PPC_UDBG_16550=y
+CONFIG_GENERIC_TBSYNC=y
+# CONFIG_DEFAULT_UIMAGE is not set
+
+#
+# Processor support
+#
+CONFIG_POWER4_ONLY=y
+CONFIG_POWER4=y
+CONFIG_PPC_FPU=y
+CONFIG_ALTIVEC=y
+CONFIG_PPC_STD_MMU=y
+CONFIG_SMP=y
+CONFIG_NR_CPUS=32
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+CONFIG_LOCK_KERNEL=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
+
+#
+# General setup
+#
+CONFIG_LOCALVERSION=""
+CONFIG_LOCALVERSION_AUTO=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+# CONFIG_BSD_PROCESS_ACCT is not set
+CONFIG_SYSCTL=y
+# CONFIG_AUDIT is not set
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_CPUSETS=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+# CONFIG_EMBEDDED is not set
+CONFIG_KALLSYMS=y
+CONFIG_KALLSYMS_ALL=y
+# CONFIG_KALLSYMS_EXTRA_PASS is not set
+CONFIG_HOTPLUG=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_ELF_CORE=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_CC_ALIGN_FUNCTIONS=0
+CONFIG_CC_ALIGN_LABELS=0
+CONFIG_CC_ALIGN_LOOPS=0
+CONFIG_CC_ALIGN_JUMPS=0
+CONFIG_SLAB=y
+CONFIG_SERIAL_PCI=y
+# CONFIG_TINY_SHMEM is not set
+CONFIG_BASE_SMALL=0
+# CONFIG_SLOB is not set
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+# CONFIG_MODULE_FORCE_UNLOAD is not set
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_MODVERSIONS=y
+CONFIG_MODULE_SRCVERSION_ALL=y
+CONFIG_KMOD=y
+CONFIG_STOP_MACHINE=y
+
+#
+# Block layer
+#
+# CONFIG_BLK_DEV_IO_TRACE is not set
+
+#
+# IO Schedulers
+#
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_DEFAULT_AS=y
+# CONFIG_DEFAULT_DEADLINE is not set
+# CONFIG_DEFAULT_CFQ is not set
+# CONFIG_DEFAULT_NOOP is not set
+CONFIG_DEFAULT_IOSCHED="anticipatory"
+
+#
+# Platform support
+#
+CONFIG_PPC_MULTIPLATFORM=y
+# CONFIG_PPC_ISERIES is not set
+# CONFIG_EMBEDDED6xx is not set
+# CONFIG_APUS is not set
+CONFIG_PPC_PSERIES=y
+CONFIG_PPC_PMAC=y
+CONFIG_PPC_PMAC64=y
+CONFIG_PPC_MAPLE=y
+CONFIG_PPC_CELL=y
+CONFIG_XICS=y
+CONFIG_U3_DART=y
+CONFIG_MPIC=y
+CONFIG_PPC_RTAS=y
+CONFIG_RTAS_ERROR_LOGGING=y
+CONFIG_RTAS_PROC=y
+CONFIG_RTAS_FLASH=m
+CONFIG_MMIO_NVRAM=y
+CONFIG_MPIC_BROKEN_U3=y
+CONFIG_CELL_IIC=y
+CONFIG_IBMVIO=y
+# CONFIG_IBMEBUS is not set
+# CONFIG_PPC_MPC106 is not set
+CONFIG_CPU_FREQ=y
+CONFIG_CPU_FREQ_TABLE=y
+# CONFIG_CPU_FREQ_DEBUG is not set
+CONFIG_CPU_FREQ_STAT=y
+CONFIG_CPU_FREQ_STAT_DETAILS=y
+CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
+# CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE is not set
+CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_GOV_POWERSAVE=y
+CONFIG_CPU_FREQ_GOV_USERSPACE=y
+# CONFIG_CPU_FREQ_GOV_ONDEMAND is not set
+# CONFIG_CPU_FREQ_GOV_CONSERVATIVE is not set
+CONFIG_CPU_FREQ_PMAC64=y
+# CONFIG_WANT_EARLY_SERIAL is not set
+
+#
+# Cell Broadband Engine options
+#
+CONFIG_SPU_FS=m
+
+#
+# Kernel options
+#
+# CONFIG_HZ_100 is not set
+CONFIG_HZ_250=y
+# CONFIG_HZ_1000 is not set
+CONFIG_HZ=250
+CONFIG_PREEMPT_NONE=y
+# CONFIG_PREEMPT_VOLUNTARY is not set
+# CONFIG_PREEMPT is not set
+# CONFIG_PREEMPT_BKL is not set
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_FORCE_MAX_ZONEORDER=9
+CONFIG_IOMMU_VMERGE=y
+CONFIG_HOTPLUG_CPU=y
+CONFIG_KEXEC=y
+CONFIG_CRASH_DUMP=y
+CONFIG_IRQ_ALL_CPUS=y
+CONFIG_PPC_SPLPAR=y
+CONFIG_EEH=y
+CONFIG_SCANLOG=m
+CONFIG_LPARCFG=y
+CONFIG_NUMA=y
+CONFIG_ARCH_SELECT_MEMORY_MODEL=y
+CONFIG_ARCH_SPARSEMEM_ENABLE=y
+CONFIG_ARCH_SPARSEMEM_DEFAULT=y
+CONFIG_SELECT_MEMORY_MODEL=y
+# CONFIG_FLATMEM_MANUAL is not set
+# CONFIG_DISCONTIGMEM_MANUAL is not set
+CONFIG_SPARSEMEM_MANUAL=y
+CONFIG_SPARSEMEM=y
+CONFIG_NEED_MULTIPLE_NODES=y
+CONFIG_HAVE_MEMORY_PRESENT=y
+# CONFIG_SPARSEMEM_STATIC is not set
+CONFIG_SPARSEMEM_EXTREME=y
+CONFIG_MEMORY_HOTPLUG=y
+CONFIG_SPLIT_PTLOCK_CPUS=4
+CONFIG_MIGRATION=y
+CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID=y
+CONFIG_ARCH_MEMORY_PROBE=y
+CONFIG_PPC_64K_PAGES=y
+CONFIG_SCHED_SMT=y
+CONFIG_PROC_DEVICETREE=y
+# CONFIG_CMDLINE_BOOL is not set
+CONFIG_PM=y
+CONFIG_PM_LEGACY=y
+CONFIG_PM_DEBUG=y
+CONFIG_SECCOMP=y
+CONFIG_ISA_DMA_API=y
+
+#
+# Bus options
+#
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_PPC_I8259=y
+# CONFIG_PPC_INDIRECT_PCI is not set
+CONFIG_PCI=y
+CONFIG_PCI_DOMAINS=y
+# CONFIG_PCI_LEGACY_PROC is not set
+# CONFIG_PCI_DEBUG is not set
+
+#
+# PCCARD (PCMCIA/CardBus) support
+#
+# CONFIG_PCCARD is not set
+
+#
+# PCI Hotplug Support
+#
+CONFIG_HOTPLUG_PCI=m
+# CONFIG_HOTPLUG_PCI_FAKE is not set
+# CONFIG_HOTPLUG_PCI_CPCI is not set
+# CONFIG_HOTPLUG_PCI_SHPC is not set
+CONFIG_HOTPLUG_PCI_RPA=m
+CONFIG_HOTPLUG_PCI_RPA_DLPAR=m
+CONFIG_KERNEL_START=0xc000000000000000
+
+#
+# Networking
+#
+CONFIG_NET=y
+
+#
+# Networking options
+#
+# CONFIG_NETDEBUG is not set
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_XFRM=y
+CONFIG_XFRM_USER=m
+CONFIG_NET_KEY=m
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_ASK_IP_FIB_HASH=y
+# CONFIG_IP_FIB_TRIE is not set
+CONFIG_IP_FIB_HASH=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_FWMARK=y
+CONFIG_IP_ROUTE_MULTIPATH=y
+CONFIG_IP_ROUTE_MULTIPATH_CACHED=y
+CONFIG_IP_ROUTE_MULTIPATH_RR=y
+CONFIG_IP_ROUTE_MULTIPATH_RANDOM=y
+CONFIG_IP_ROUTE_MULTIPATH_WRANDOM=y
+CONFIG_IP_ROUTE_MULTIPATH_DRR=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_IP_PNP=y
+CONFIG_IP_PNP_DHCP=y
+CONFIG_IP_PNP_BOOTP=y
+CONFIG_IP_PNP_RARP=y
+CONFIG_NET_IPIP=y
+CONFIG_NET_IPGRE=y
+CONFIG_NET_IPGRE_BROADCAST=y
+CONFIG_IP_MROUTE=y
+CONFIG_IP_PIMSM_V1=y
+CONFIG_IP_PIMSM_V2=y
+CONFIG_ARPD=y
+CONFIG_SYN_COOKIES=y
+CONFIG_INET_AH=m
+CONFIG_INET_ESP=m
+CONFIG_INET_IPCOMP=m
+CONFIG_INET_TUNNEL=y
+CONFIG_INET_DIAG=y
+CONFIG_INET_TCP_DIAG=y
+CONFIG_TCP_CONG_ADVANCED=y
+
+#
+# TCP congestion control
+#
+CONFIG_TCP_CONG_BIC=y
+CONFIG_TCP_CONG_CUBIC=y
+CONFIG_TCP_CONG_WESTWOOD=y
+CONFIG_TCP_CONG_HTCP=y
+CONFIG_TCP_CONG_HSTCP=y
+CONFIG_TCP_CONG_HYBLA=y
+CONFIG_TCP_CONG_VEGAS=y
+CONFIG_TCP_CONG_SCALABLE=y
+
+#
+# IP: Virtual Server Configuration
+#
+CONFIG_IP_VS=y
+CONFIG_IP_VS_DEBUG=y
+CONFIG_IP_VS_TAB_BITS=12
+
+#
+# IPVS transport protocol load balancing support
+#
+CONFIG_IP_VS_PROTO_TCP=y
+CONFIG_IP_VS_PROTO_UDP=y
+CONFIG_IP_VS_PROTO_ESP=y
+CONFIG_IP_VS_PROTO_AH=y
+
+#
+# IPVS scheduler
+#
+CONFIG_IP_VS_RR=y
+CONFIG_IP_VS_WRR=y
+CONFIG_IP_VS_LC=y
+CONFIG_IP_VS_WLC=y
+CONFIG_IP_VS_LBLC=y
+CONFIG_IP_VS_LBLCR=y
+CONFIG_IP_VS_DH=y
+CONFIG_IP_VS_SH=y
+CONFIG_IP_VS_SED=y
+CONFIG_IP_VS_NQ=y
+
+#
+# IPVS application helper
+#
+CONFIG_IP_VS_FTP=y
+CONFIG_IPV6=y
+CONFIG_IPV6_PRIVACY=y
+CONFIG_IPV6_ROUTER_PREF=y
+CONFIG_IPV6_ROUTE_INFO=y
+CONFIG_INET6_AH=y
+CONFIG_INET6_ESP=y
+CONFIG_INET6_IPCOMP=y
+CONFIG_INET6_TUNNEL=y
+CONFIG_IPV6_TUNNEL=y
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+CONFIG_BRIDGE_NETFILTER=y
+
+#
+# Core Netfilter Configuration
+#
+CONFIG_NETFILTER_NETLINK=y
+CONFIG_NETFILTER_NETLINK_QUEUE=m
+CONFIG_NETFILTER_NETLINK_LOG=m
+# CONFIG_NETFILTER_XTABLES is not set
+
+#
+# IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_CT_ACCT=y
+CONFIG_IP_NF_CONNTRACK_MARK=y
+CONFIG_IP_NF_CONNTRACK_EVENTS=y
+CONFIG_IP_NF_CONNTRACK_NETLINK=m
+CONFIG_IP_NF_CT_PROTO_SCTP=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+# CONFIG_IP_NF_NETBIOS_NS is not set
+CONFIG_IP_NF_TFTP=m
+CONFIG_IP_NF_AMANDA=m
+# CONFIG_IP_NF_PPTP is not set
+CONFIG_IP_NF_QUEUE=m
+
+#
+# IPv6: Netfilter Configuration (EXPERIMENTAL)
+#
+# CONFIG_IP6_NF_QUEUE is not set
+
+#
+# DECnet: Netfilter Configuration
+#
+# CONFIG_DECNET_NF_GRABULATOR is not set
+
+#
+# Bridge: Netfilter Configuration
+#
+# CONFIG_BRIDGE_NF_EBTABLES is not set
+
+#
+# DCCP Configuration (EXPERIMENTAL)
+#
+CONFIG_IP_DCCP=m
+CONFIG_INET_DCCP_DIAG=m
+CONFIG_IP_DCCP_ACKVEC=y
+
+#
+# DCCP CCIDs Configuration (EXPERIMENTAL)
+#
+CONFIG_IP_DCCP_CCID2=m
+CONFIG_IP_DCCP_CCID3=m
+CONFIG_IP_DCCP_TFRC_LIB=m
+
+#
+# DCCP Kernel Hacking
+#
+CONFIG_IP_DCCP_DEBUG=y
+CONFIG_IP_DCCP_UNLOAD_HACK=y
+
+#
+# SCTP Configuration (EXPERIMENTAL)
+#
+CONFIG_IP_SCTP=y
+CONFIG_SCTP_DBG_MSG=y
+CONFIG_SCTP_DBG_OBJCNT=y
+# CONFIG_SCTP_HMAC_NONE is not set
+# CONFIG_SCTP_HMAC_SHA1 is not set
+CONFIG_SCTP_HMAC_MD5=y
+
+#
+# TIPC Configuration (EXPERIMENTAL)
+#
+CONFIG_TIPC=y
+CONFIG_TIPC_ADVANCED=y
+CONFIG_TIPC_ZONES=3
+CONFIG_TIPC_CLUSTERS=1
+CONFIG_TIPC_NODES=255
+CONFIG_TIPC_SLAVE_NODES=0
+CONFIG_TIPC_PORTS=8191
+CONFIG_TIPC_LOG=0
+CONFIG_TIPC_DEBUG=y
+CONFIG_ATM=y
+CONFIG_ATM_CLIP=y
+CONFIG_ATM_CLIP_NO_ICMP=y
+CONFIG_ATM_LANE=y
+CONFIG_ATM_MPOA=y
+CONFIG_ATM_BR2684=y
+CONFIG_ATM_BR2684_IPFILTER=y
+CONFIG_BRIDGE=y
+CONFIG_VLAN_8021Q=y
+CONFIG_DECNET=y
+CONFIG_DECNET_ROUTER=y
+CONFIG_DECNET_ROUTE_FWMARK=y
+CONFIG_LLC=y
+CONFIG_LLC2=y
+CONFIG_IPX=y
+CONFIG_IPX_INTERN=y
+CONFIG_ATALK=y
+CONFIG_DEV_APPLETALK=y
+CONFIG_IPDDP=y
+CONFIG_IPDDP_ENCAP=y
+CONFIG_IPDDP_DECAP=y
+CONFIG_X25=y
+CONFIG_LAPB=y
+CONFIG_NET_DIVERT=y
+CONFIG_ECONET=y
+CONFIG_ECONET_AUNUDP=y
+CONFIG_ECONET_NATIVE=y
+CONFIG_WAN_ROUTER=y
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Network testing
+#
+CONFIG_NET_PKTGEN=y
+# CONFIG_HAMRADIO is not set
+CONFIG_IRDA=y
+
+#
+# IrDA protocols
+#
+# CONFIG_IRLAN is not set
+# CONFIG_IRNET is not set
+# CONFIG_IRCOMM is not set
+# CONFIG_IRDA_ULTRA is not set
+
+#
+# IrDA options
+#
+# CONFIG_IRDA_CACHE_LAST_LSAP is not set
+# CONFIG_IRDA_FAST_RR is not set
+# CONFIG_IRDA_DEBUG is not set
+
+#
+# Infrared-port device drivers
+#
+
+#
+# SIR device drivers
+#
+# CONFIG_IRTTY_SIR is not set
+
+#
+# Dongle support
+#
+
+#
+# Old SIR device drivers
+#
+
+#
+# Old Serial dongle support
+#
+
+#
+# FIR device drivers
+#
+# CONFIG_USB_IRDA is not set
+# CONFIG_SIGMATEL_FIR is not set
+# CONFIG_NSC_FIR is not set
+# CONFIG_WINBOND_FIR is not set
+# CONFIG_SMC_IRCC_FIR is not set
+# CONFIG_ALI_FIR is not set
+# CONFIG_VLSI_FIR is not set
+# CONFIG_VIA_FIR is not set
+CONFIG_BT=y
+# CONFIG_BT_L2CAP is not set
+# CONFIG_BT_SCO is not set
+
+#
+# Bluetooth device drivers
+#
+# CONFIG_BT_HCIUSB is not set
+# CONFIG_BT_HCIUART is not set
+# CONFIG_BT_HCIBCM203X is not set
+# CONFIG_BT_HCIBPA10X is not set
+# CONFIG_BT_HCIBFUSB is not set
+# CONFIG_BT_HCIVHCI is not set
+CONFIG_IEEE80211=y
+CONFIG_IEEE80211_DEBUG=y
+CONFIG_IEEE80211_CRYPT_WEP=y
+CONFIG_IEEE80211_CRYPT_CCMP=y
+
+#
+# Device Drivers
+#
+
+#
+# Generic Driver Options
+#
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_FW_LOADER=y
+# CONFIG_DEBUG_DRIVER is not set
+
+#
+# Connector - unified userspace <-> kernelspace linker
+#
+CONFIG_CONNECTOR=y
+CONFIG_PROC_EVENTS=y
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+# CONFIG_PARPORT is not set
+
+#
+# Plug and Play support
+#
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+# CONFIG_BLK_DEV_UMEM is not set
+# CONFIG_BLK_DEV_COW_COMMON is not set
+CONFIG_BLK_DEV_LOOP=y
+# CONFIG_BLK_DEV_CRYPTOLOOP is not set
+CONFIG_BLK_DEV_NBD=m
+# CONFIG_BLK_DEV_SX8 is not set
+# CONFIG_BLK_DEV_UB is not set
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_COUNT=16
+CONFIG_BLK_DEV_RAM_SIZE=65536
+CONFIG_BLK_DEV_INITRD=y
+# CONFIG_CDROM_PKTCDVD is not set
+# CONFIG_ATA_OVER_ETH is not set
+
+#
+# ATA/ATAPI/MFM/RLL support
+#
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+# CONFIG_BLK_DEV_IDE_SATA is not set
+CONFIG_BLK_DEV_IDEDISK=y
+# CONFIG_IDEDISK_MULTI_MODE is not set
+CONFIG_BLK_DEV_IDECD=y
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_BLK_DEV_IDESCSI is not set
+# CONFIG_IDE_TASK_IOCTL is not set
+
+#
+# IDE chipset support/bugfixes
+#
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+CONFIG_BLK_DEV_GENERIC=y
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_SL82C105 is not set
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+CONFIG_BLK_DEV_AMD74XX=y
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_TRIFLEX is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5520 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+# CONFIG_BLK_DEV_SC1200 is not set
+# CONFIG_BLK_DEV_PIIX is not set
+# CONFIG_BLK_DEV_IT821X is not set
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_PDC202XX_OLD is not set
+# CONFIG_BLK_DEV_PDC202XX_NEW is not set
+# CONFIG_BLK_DEV_SVWKS is not set
+# CONFIG_BLK_DEV_SIIMAGE is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_BLK_DEV_VIA82CXXX is not set
+CONFIG_BLK_DEV_IDE_PMAC=y
+CONFIG_BLK_DEV_IDE_PMAC_ATA100FIRST=y
+CONFIG_BLK_DEV_IDEDMA_PMAC=y
+# CONFIG_BLK_DEV_IDE_PMAC_BLINK is not set
+# CONFIG_IDE_ARM is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_IVB is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_BLK_DEV_HD is not set
+
+#
+# SCSI device support
+#
+# CONFIG_RAID_ATTRS is not set
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+
+#
+# SCSI support type (disk, tape, CD-ROM)
+#
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_ST=y
+# CONFIG_CHR_DEV_OSST is not set
+CONFIG_BLK_DEV_SR=y
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_CHR_DEV_SG=y
+# CONFIG_CHR_DEV_SCH is not set
+
+#
+# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
+#
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+# CONFIG_SCSI_LOGGING is not set
+
+#
+# SCSI Transports
+#
+CONFIG_SCSI_SPI_ATTRS=y
+CONFIG_SCSI_FC_ATTRS=y
+CONFIG_SCSI_ISCSI_ATTRS=m
+# CONFIG_SCSI_SAS_ATTRS is not set
+# CONFIG_SAS_CLASS is not set
+
+#
+# SCSI low-level drivers
+#
+# CONFIG_ISCSI_TCP is not set
+# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
+# CONFIG_SCSI_3W_9XXX is not set
+# CONFIG_SCSI_ACARD is not set
+# CONFIG_SCSI_AACRAID is not set
+# CONFIG_SCSI_AIC7XXX is not set
+# CONFIG_SCSI_AIC7XXX_OLD is not set
+# CONFIG_SCSI_AIC79XX is not set
+# CONFIG_SCSI_ARCMSR is not set
+# CONFIG_MEGARAID_NEWGEN is not set
+# CONFIG_MEGARAID_LEGACY is not set
+# CONFIG_MEGARAID_SAS is not set
+CONFIG_SCSI_SATA=y
+# CONFIG_SCSI_SATA_AHCI is not set
+# CONFIG_SCSI_PATA_AMD is not set
+CONFIG_SCSI_SATA_SVW=y
+# CONFIG_SCSI_PATA_TRIFLEX is not set
+# CONFIG_SCSI_PATA_MPIIX is not set
+# CONFIG_SCSI_PATA_OLDPIIX is not set
+# CONFIG_SCSI_ATA_PIIX is not set
+# CONFIG_SCSI_SATA_MV is not set
+# CONFIG_SCSI_SATA_NV is not set
+# CONFIG_SCSI_PATA_OPTI is not set
+# CONFIG_SCSI_PDC_ADMA is not set
+# CONFIG_SCSI_SATA_QSTOR is not set
+# CONFIG_SCSI_PATA_PDC2027X is not set
+# CONFIG_SCSI_SATA_PROMISE is not set
+# CONFIG_SCSI_SATA_SX4 is not set
+# CONFIG_SCSI_SATA_SIL is not set
+# CONFIG_SCSI_SATA_SIL24 is not set
+# CONFIG_SCSI_PATA_SIL680 is not set
+# CONFIG_SCSI_SATA_SIS is not set
+# CONFIG_SCSI_SATA_ULI is not set
+# CONFIG_SCSI_PATA_VIA is not set
+# CONFIG_SCSI_SATA_VIA is not set
+# CONFIG_SCSI_SATA_VITESSE is not set
+# CONFIG_SCSI_BUSLOGIC is not set
+# CONFIG_SCSI_DMX3191D is not set
+# CONFIG_SCSI_EATA is not set
+# CONFIG_SCSI_FUTURE_DOMAIN is not set
+# CONFIG_SCSI_GDTH is not set
+# CONFIG_SCSI_IPS is not set
+CONFIG_SCSI_IBMVSCSI=y
+# CONFIG_SCSI_INITIO is not set
+# CONFIG_SCSI_INIA100 is not set
+CONFIG_SCSI_SYM53C8XX_2=y
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=0
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+CONFIG_SCSI_SYM53C8XX_MMIO=y
+CONFIG_SCSI_IPR=y
+CONFIG_SCSI_IPR_TRACE=y
+CONFIG_SCSI_IPR_DUMP=y
+# CONFIG_SCSI_QLOGIC_FC is not set
+# CONFIG_SCSI_QLOGIC_1280 is not set
+# CONFIG_SCSI_QLA_FC is not set
+CONFIG_SCSI_LPFC=m
+# CONFIG_SCSI_DC395x is not set
+# CONFIG_SCSI_DC390T is not set
+CONFIG_SCSI_DEBUG=m
+
+#
+# Multi-device support (RAID and LVM)
+#
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_LINEAR=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_MD_RAID10=y
+CONFIG_MD_RAID5=y
+CONFIG_MD_RAID6=m
+CONFIG_MD_MULTIPATH=m
+CONFIG_MD_FAULTY=m
+CONFIG_BLK_DEV_DM=y
+CONFIG_DM_CRYPT=m
+CONFIG_DM_SNAPSHOT=m
+CONFIG_DM_MIRROR=m
+CONFIG_DM_ZERO=m
+CONFIG_DM_MULTIPATH=m
+CONFIG_DM_MULTIPATH_EMC=m
+
+#
+# Fusion MPT device support
+#
+# CONFIG_FUSION is not set
+# CONFIG_FUSION_SPI is not set
+# CONFIG_FUSION_FC is not set
+# CONFIG_FUSION_SAS is not set
+
+#
+# IEEE 1394 (FireWire) support
+#
+CONFIG_IEEE1394=y
+
+#
+# Subsystem Options
+#
+# CONFIG_IEEE1394_VERBOSEDEBUG is not set
+# CONFIG_IEEE1394_OUI_DB is not set
+CONFIG_IEEE1394_EXTRA_CONFIG_ROMS=y
+CONFIG_IEEE1394_CONFIG_ROM_IP1394=y
+# CONFIG_IEEE1394_EXPORT_FULL_API is not set
+
+#
+# Device Drivers
+#
+# CONFIG_IEEE1394_PCILYNX is not set
+CONFIG_IEEE1394_OHCI1394=y
+
+#
+# Protocol Drivers
+#
+CONFIG_IEEE1394_VIDEO1394=m
+CONFIG_IEEE1394_SBP2=m
+# CONFIG_IEEE1394_SBP2_PHYS_DMA is not set
+CONFIG_IEEE1394_ETH1394=m
+CONFIG_IEEE1394_DV1394=m
+CONFIG_IEEE1394_RAWIO=y
+
+#
+# I2O device support
+#
+# CONFIG_I2O is not set
+
+#
+# Macintosh device drivers
+#
+CONFIG_ADB_PMU=y
+CONFIG_PMAC_SMU=y
+CONFIG_THERM_PM72=y
+CONFIG_WINDFARM=y
+CONFIG_WINDFARM_PM81=y
+CONFIG_WINDFARM_PM91=y
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_BONDING=m
+# CONFIG_EQUALIZER is not set
+CONFIG_TUN=m
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+
+#
+# PHY device support
+#
+# CONFIG_PHYLIB is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+# CONFIG_HAPPYMEAL is not set
+CONFIG_SUNGEM=y
+# CONFIG_CASSINI is not set
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=y
+# CONFIG_TYPHOON is not set
+
+#
+# Tulip family network device support
+#
+# CONFIG_NET_TULIP is not set
+# CONFIG_HP100 is not set
+CONFIG_IBMVETH=m
+CONFIG_NET_PCI=y
+CONFIG_PCNET32=y
+# CONFIG_AMD8111_ETH is not set
+# CONFIG_ADAPTEC_STARFIRE is not set
+# CONFIG_B44 is not set
+# CONFIG_FORCEDETH is not set
+# CONFIG_DGRS is not set
+# CONFIG_EEPRO100 is not set
+CONFIG_E100=y
+# CONFIG_FEALNX is not set
+# CONFIG_NATSEMI is not set
+# CONFIG_NE2K_PCI is not set
+# CONFIG_8139CP is not set
+# CONFIG_8139TOO is not set
+# CONFIG_SIS900 is not set
+# CONFIG_EPIC100 is not set
+# CONFIG_SUNDANCE is not set
+# CONFIG_VIA_RHINE is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+CONFIG_ACENIC=y
+CONFIG_ACENIC_OMIT_TIGON_I=y
+# CONFIG_DL2K is not set
+CONFIG_E1000=y
+# CONFIG_E1000_NAPI is not set
+# CONFIG_E1000_DISABLE_PACKET_SPLIT is not set
+# CONFIG_NS83820 is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_R8169 is not set
+# CONFIG_SIS190 is not set
+# CONFIG_SKGE is not set
+# CONFIG_SKY2 is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_VIA_VELOCITY is not set
+CONFIG_TIGON3=y
+# CONFIG_BNX2 is not set
+# CONFIG_SPIDER_NET is not set
+# CONFIG_MV643XX_ETH is not set
+
+#
+# Ethernet (10000 Mbit)
+#
+# CONFIG_CHELSIO_T1 is not set
+CONFIG_IXGB=m
+# CONFIG_IXGB_NAPI is not set
+# CONFIG_S2IO is not set
+
+#
+# Token Ring devices
+#
+CONFIG_TR=y
+CONFIG_IBMOL=y
+# CONFIG_3C359 is not set
+# CONFIG_TMS380TR is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+
+#
+# ATM drivers
+#
+# CONFIG_ATM_DUMMY is not set
+# CONFIG_ATM_TCP is not set
+# CONFIG_ATM_LANAI is not set
+# CONFIG_ATM_ENI is not set
+# CONFIG_ATM_FIRESTREAM is not set
+# CONFIG_ATM_ZATM is not set
+# CONFIG_ATM_IDT77252 is not set
+# CONFIG_ATM_AMBASSADOR is not set
+# CONFIG_ATM_HORIZON is not set
+# CONFIG_ATM_FORE200E_MAYBE is not set
+# CONFIG_ATM_HE is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+CONFIG_PPP=m
+# CONFIG_PPP_MULTILINK is not set
+# CONFIG_PPP_FILTER is not set
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+# CONFIG_PPP_MPPE is not set
+CONFIG_PPPOE=m
+# CONFIG_PPPOATM is not set
+# CONFIG_SLIP is not set
+# CONFIG_NET_FC is not set
+# CONFIG_SHAPER is not set
+CONFIG_NETCONSOLE=y
+# CONFIG_KGDBOE is not set
+CONFIG_NETPOLL=y
+# CONFIG_NETPOLL_RX is not set
+# CONFIG_NETPOLL_TRAP is not set
+CONFIG_NET_POLL_CONTROLLER=y
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+
+#
+# Input device support
+#
+CONFIG_INPUT=y
+
+#
+# Userland interfaces
+#
+CONFIG_INPUT_MOUSEDEV=y
+# CONFIG_INPUT_MOUSEDEV_PSAUX is not set
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_TSDEV is not set
+CONFIG_INPUT_EVDEV=m
+# CONFIG_INPUT_EVBUG is not set
+
+#
+# Input Device Drivers
+#
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+# CONFIG_KEYBOARD_SUNKBD is not set
+# CONFIG_KEYBOARD_LKKBD is not set
+# CONFIG_KEYBOARD_XTKBD is not set
+# CONFIG_KEYBOARD_NEWTON is not set
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+# CONFIG_MOUSE_SERIAL is not set
+# CONFIG_MOUSE_VSXXXAA is not set
+# CONFIG_INPUT_JOYSTICK is not set
+# CONFIG_INPUT_TOUCHSCREEN is not set
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=m
+# CONFIG_INPUT_UINPUT is not set
+
+#
+# Hardware I/O ports
+#
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+# CONFIG_SERIO_SERPORT is not set
+# CONFIG_SERIO_PCIPS2 is not set
+CONFIG_SERIO_LIBPS2=y
+# CONFIG_SERIO_RAW is not set
+# CONFIG_GAMEPORT is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+# CONFIG_SERIAL_NONSTANDARD is not set
+
+#
+# Serial drivers
+#
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_8250_RUNTIME_UARTS=4
+# CONFIG_SERIAL_8250_EXTENDED is not set
+
+#
+# Non-8250 serial port support
+#
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+# CONFIG_SERIAL_PMACZILOG is not set
+CONFIG_SERIAL_ICOM=m
+# CONFIG_SERIAL_JSM is not set
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+CONFIG_HVC_CONSOLE=y
+CONFIG_HVCS=m
+
+#
+# IPMI
+#
+# CONFIG_IPMI_HANDLER is not set
+
+#
+# Watchdog Cards
+#
+# CONFIG_WATCHDOG is not set
+# CONFIG_RTC is not set
+CONFIG_GEN_RTC=y
+# CONFIG_GEN_RTC_X is not set
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_AGP is not set
+# CONFIG_DRM is not set
+CONFIG_RAW_DRIVER=y
+CONFIG_MAX_RAW_DEVS=256
+# CONFIG_HANGCHECK_TIMER is not set
+
+#
+# TPM devices
+#
+# CONFIG_TCG_TPM is not set
+# CONFIG_TELCLOCK is not set
+
+#
+# I2C support
+#
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=y
+
+#
+# I2C Algorithms
+#
+CONFIG_I2C_ALGOBIT=y
+# CONFIG_I2C_ALGOPCF is not set
+# CONFIG_I2C_ALGOPCA is not set
+
+#
+# I2C Hardware Bus support
+#
+# CONFIG_I2C_ALI1535 is not set
+# CONFIG_I2C_ALI1563 is not set
+# CONFIG_I2C_ALI15X3 is not set
+# CONFIG_I2C_AMD756 is not set
+CONFIG_I2C_AMD8111=y
+# CONFIG_I2C_I801 is not set
+# CONFIG_I2C_I810 is not set
+# CONFIG_I2C_PIIX4 is not set
+CONFIG_I2C_POWERMAC=y
+# CONFIG_I2C_NFORCE2 is not set
+# CONFIG_I2C_PARPORT_LIGHT is not set
+# CONFIG_I2C_PROSAVAGE is not set
+# CONFIG_I2C_SAVAGE4 is not set
+# CONFIG_I2C_SIS5595 is not set
+# CONFIG_I2C_SIS630 is not set
+# CONFIG_I2C_SIS96X is not set
+# CONFIG_I2C_STUB is not set
+# CONFIG_I2C_VIA is not set
+# CONFIG_I2C_VIAPRO is not set
+# CONFIG_I2C_VOODOO3 is not set
+# CONFIG_I2C_PCA_ISA is not set
+
+#
+# Miscellaneous I2C Chip support
+#
+# CONFIG_SENSORS_DS1337 is not set
+# CONFIG_SENSORS_DS1374 is not set
+# CONFIG_SENSORS_EEPROM is not set
+# CONFIG_SENSORS_PCF8574 is not set
+# CONFIG_SENSORS_PCA9539 is not set
+# CONFIG_SENSORS_PCF8591 is not set
+# CONFIG_SENSORS_RTC8564 is not set
+# CONFIG_SENSORS_MAX6875 is not set
+# CONFIG_RTC_X1205_I2C is not set
+# CONFIG_I2C_DEBUG_CORE is not set
+# CONFIG_I2C_DEBUG_ALGO is not set
+# CONFIG_I2C_DEBUG_BUS is not set
+# CONFIG_I2C_DEBUG_CHIP is not set
+
+#
+# SPI support
+#
+# CONFIG_SPI is not set
+# CONFIG_SPI_MASTER is not set
+
+#
+# Dallas's 1-wire bus
+#
+# CONFIG_W1 is not set
+
+#
+# Hardware Monitoring support
+#
+# CONFIG_HWMON is not set
+# CONFIG_HWMON_VID is not set
+
+#
+# Misc devices
+#
+
+#
+# Multimedia Capabilities Port drivers
+#
+
+#
+# Multimedia devices
+#
+# CONFIG_VIDEO_DEV is not set
+
+#
+# Digital Video Broadcasting Devices
+#
+# CONFIG_DVB is not set
+
+#
+# Graphics support
+#
+CONFIG_FB=y
+CONFIG_FB_CFB_FILLRECT=y
+CONFIG_FB_CFB_COPYAREA=y
+CONFIG_FB_CFB_IMAGEBLIT=y
+CONFIG_FB_MACMODES=y
+CONFIG_FB_MODE_HELPERS=y
+CONFIG_FB_TILEBLITTING=y
+# CONFIG_FB_CIRRUS is not set
+# CONFIG_FB_PM2 is not set
+# CONFIG_FB_CYBER2000 is not set
+CONFIG_FB_OF=y
+# CONFIG_FB_CONTROL is not set
+# CONFIG_FB_PLATINUM is not set
+# CONFIG_FB_VALKYRIE is not set
+# CONFIG_FB_CT65550 is not set
+# CONFIG_FB_ASILIANT is not set
+# CONFIG_FB_IMSTT is not set
+# CONFIG_FB_VGA16 is not set
+# CONFIG_FB_S1D13XXX is not set
+# CONFIG_FB_NVIDIA is not set
+# CONFIG_FB_RIVA is not set
+CONFIG_FB_MATROX=y
+CONFIG_FB_MATROX_MILLENIUM=y
+CONFIG_FB_MATROX_MYSTIQUE=y
+CONFIG_FB_MATROX_G=y
+CONFIG_FB_MATROX_I2C=m
+CONFIG_FB_MATROX_MAVEN=m
+CONFIG_FB_MATROX_MULTIHEAD=y
+# CONFIG_FB_RADEON_OLD is not set
+CONFIG_FB_RADEON=y
+CONFIG_FB_RADEON_I2C=y
+# CONFIG_FB_RADEON_DEBUG is not set
+# CONFIG_FB_ATY128 is not set
+# CONFIG_FB_ATY is not set
+# CONFIG_FB_SAVAGE is not set
+# CONFIG_FB_SIS is not set
+# CONFIG_FB_NEOMAGIC is not set
+# CONFIG_FB_KYRO is not set
+# CONFIG_FB_3DFX is not set
+# CONFIG_FB_VOODOO1 is not set
+# CONFIG_FB_TRIDENT is not set
+# CONFIG_FB_VIRTUAL is not set
+
+#
+# Console display driver support
+#
+# CONFIG_VGA_CONSOLE is not set
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+# CONFIG_FRAMEBUFFER_CONSOLE_ROTATION is not set
+# CONFIG_FONTS is not set
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+
+#
+# Logo configuration
+#
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_MONO=y
+CONFIG_LOGO_LINUX_VGA16=y
+CONFIG_LOGO_LINUX_CLUT224=y
+CONFIG_BACKLIGHT_LCD_SUPPORT=y
+CONFIG_BACKLIGHT_CLASS_DEVICE=y
+CONFIG_BACKLIGHT_DEVICE=y
+CONFIG_LCD_CLASS_DEVICE=y
+CONFIG_LCD_DEVICE=y
+
+#
+# Sound
+#
+CONFIG_SOUND=m
+
+#
+# Advanced Linux Sound Architecture
+#
+CONFIG_SND=m
+CONFIG_SND_TIMER=m
+CONFIG_SND_PCM=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_SEQ_DUMMY=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_PCM_OSS_PLUGINS=y
+CONFIG_SND_SEQUENCER_OSS=y
+# CONFIG_SND_DYNAMIC_MINORS is not set
+CONFIG_SND_SUPPORT_OLD_API=y
+CONFIG_SND_VERBOSE_PROCFS=y
+# CONFIG_SND_VERBOSE_PRINTK is not set
+# CONFIG_SND_DEBUG is not set
+
+#
+# Generic devices
+#
+# CONFIG_SND_DUMMY is not set
+# CONFIG_SND_VIRMIDI is not set
+# CONFIG_SND_MTPAV is not set
+# CONFIG_SND_SERIAL_U16550 is not set
+# CONFIG_SND_MPU401 is not set
+
+#
+# PCI devices
+#
+# CONFIG_SND_AD1889 is not set
+# CONFIG_SND_ALS4000 is not set
+# CONFIG_SND_ALI5451 is not set
+# CONFIG_SND_ATIIXP is not set
+# CONFIG_SND_ATIIXP_MODEM is not set
+# CONFIG_SND_AU8810 is not set
+# CONFIG_SND_AU8820 is not set
+# CONFIG_SND_AU8830 is not set
+# CONFIG_SND_AZT3328 is not set
+# CONFIG_SND_BT87X is not set
+# CONFIG_SND_CA0106 is not set
+# CONFIG_SND_CMIPCI is not set
+# CONFIG_SND_CS4281 is not set
+# CONFIG_SND_CS46XX is not set
+# CONFIG_SND_EMU10K1 is not set
+# CONFIG_SND_EMU10K1X is not set
+# CONFIG_SND_ENS1370 is not set
+# CONFIG_SND_ENS1371 is not set
+# CONFIG_SND_ES1938 is not set
+# CONFIG_SND_ES1968 is not set
+# CONFIG_SND_FM801 is not set
+# CONFIG_SND_HDA_INTEL is not set
+# CONFIG_SND_HDSP is not set
+# CONFIG_SND_HDSPM is not set
+# CONFIG_SND_ICE1712 is not set
+# CONFIG_SND_ICE1724 is not set
+# CONFIG_SND_INTEL8X0 is not set
+# CONFIG_SND_INTEL8X0M is not set
+# CONFIG_SND_KORG1212 is not set
+# CONFIG_SND_MAESTRO3 is not set
+# CONFIG_SND_MIXART is not set
+# CONFIG_SND_NM256 is not set
+# CONFIG_SND_PCXHR is not set
+# CONFIG_SND_RME32 is not set
+# CONFIG_SND_RME96 is not set
+# CONFIG_SND_RME9652 is not set
+# CONFIG_SND_SONICVIBES is not set
+# CONFIG_SND_TRIDENT is not set
+# CONFIG_SND_VIA82XX is not set
+# CONFIG_SND_VIA82XX_MODEM is not set
+# CONFIG_SND_VX222 is not set
+# CONFIG_SND_YMFPCI is not set
+
+#
+# ALSA PowerMac devices
+#
+CONFIG_SND_POWERMAC=m
+CONFIG_SND_POWERMAC_AUTO_DRC=y
+
+#
+# USB devices
+#
+# CONFIG_SND_USB_AUDIO is not set
+# CONFIG_SND_USB_USX2Y is not set
+
+#
+# Open Sound System
+#
+# CONFIG_SOUND_PRIME is not set
+
+#
+# USB support
+#
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB_ARCH_HAS_EHCI=y
+CONFIG_USB=y
+# CONFIG_USB_DEBUG is not set
+
+#
+# Miscellaneous USB options
+#
+CONFIG_USB_DEVICEFS=y
+# CONFIG_USB_BANDWIDTH is not set
+# CONFIG_USB_DYNAMIC_MINORS is not set
+# CONFIG_USB_SUSPEND is not set
+# CONFIG_USB_OTG is not set
+
+#
+# USB Host Controller Drivers
+#
+CONFIG_USB_EHCI_HCD=y
+# CONFIG_USB_EHCI_SPLIT_ISO is not set
+# CONFIG_USB_EHCI_ROOT_HUB_TT is not set
+# CONFIG_USB_ISP116X_HCD is not set
+CONFIG_USB_OHCI_HCD=y
+# CONFIG_USB_OHCI_BIG_ENDIAN is not set
+CONFIG_USB_OHCI_LITTLE_ENDIAN=y
+# CONFIG_USB_UHCI_HCD is not set
+# CONFIG_USB_SL811_HCD is not set
+# CONFIG_USB_IP is not set
+
+#
+# USB Device Class drivers
+#
+# CONFIG_USB_ACM is not set
+# CONFIG_USB_PRINTER is not set
+
+#
+# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support'
+#
+
+#
+# may also be needed; see USB_STORAGE Help for more information
+#
+CONFIG_USB_STORAGE=m
+# CONFIG_USB_STORAGE_DEBUG is not set
+# CONFIG_USB_STORAGE_DATAFAB is not set
+# CONFIG_USB_STORAGE_FREECOM is not set
+# CONFIG_USB_STORAGE_ISD200 is not set
+# CONFIG_USB_STORAGE_DPCM is not set
+# CONFIG_USB_STORAGE_USBAT is not set
+# CONFIG_USB_STORAGE_SDDR09 is not set
+# CONFIG_USB_STORAGE_SDDR55 is not set
+# CONFIG_USB_STORAGE_JUMPSHOT is not set
+# CONFIG_USB_STORAGE_ALAUDA is not set
+# CONFIG_USB_LIBUSUAL is not set
+
+#
+# USB Input Devices
+#
+CONFIG_USB_HID=y
+CONFIG_USB_HIDINPUT=y
+# CONFIG_USB_HIDINPUT_POWERBOOK is not set
+# CONFIG_HID_FF is not set
+CONFIG_USB_HIDDEV=y
+# CONFIG_USB_AIPTEK is not set
+# CONFIG_USB_WACOM is not set
+# CONFIG_USB_ACECAD is not set
+# CONFIG_USB_KBTAB is not set
+# CONFIG_USB_POWERMATE is not set
+# CONFIG_USB_MTOUCH is not set
+# CONFIG_USB_ITMTOUCH is not set
+# CONFIG_USB_EGALAX is not set
+# CONFIG_USB_YEALINK is not set
+# CONFIG_USB_XPAD is not set
+# CONFIG_USB_ATI_REMOTE is not set
+# CONFIG_USB_ATI_REMOTE2 is not set
+# CONFIG_USB_KEYSPAN_REMOTE is not set
+# CONFIG_USB_APPLETOUCH is not set
+
+#
+# USB Imaging devices
+#
+# CONFIG_USB_MDC800 is not set
+# CONFIG_USB_MICROTEK is not set
+
+#
+# USB Multimedia devices
+#
+# CONFIG_USB_DABUSB is not set
+
+#
+# Video4Linux support is needed for USB Multimedia device support
+#
+
+#
+# USB Network Adapters
+#
+# CONFIG_USB_CATC is not set
+# CONFIG_USB_KAWETH is not set
+# CONFIG_USB_PEGASUS is not set
+# CONFIG_USB_RTL8150 is not set
+# CONFIG_USB_USBNET is not set
+# CONFIG_USB_MON is not set
+
+#
+# USB port drivers
+#
+
+#
+# USB Serial Converter support
+#
+# CONFIG_USB_SERIAL is not set
+
+#
+# USB Miscellaneous drivers
+#
+# CONFIG_USB_EMI62 is not set
+# CONFIG_USB_EMI26 is not set
+# CONFIG_USB_AUERSWALD is not set
+# CONFIG_USB_RIO500 is not set
+# CONFIG_USB_LEGOTOWER is not set
+# CONFIG_USB_LCD is not set
+# CONFIG_USB_LED is not set
+# CONFIG_USB_CYTHERM is not set
+# CONFIG_USB_GOTEMP is not set
+# CONFIG_USB_PHIDGETKIT is not set
+# CONFIG_USB_PHIDGETSERVO is not set
+# CONFIG_USB_IDMOUSE is not set
+# CONFIG_USB_SISUSBVGA is not set
+# CONFIG_USB_LD is not set
+# CONFIG_USB_TEST is not set
+
+#
+# USB DSL modem support
+#
+# CONFIG_USB_ATM is not set
+
+#
+# USB Gadget Support
+#
+# CONFIG_USB_GADGET is not set
+
+#
+# MMC/SD Card support
+#
+# CONFIG_MMC is not set
+
+#
+# LED devices
+#
+# CONFIG_NEW_LEDS is not set
+
+#
+# InfiniBand support
+#
+CONFIG_INFINIBAND=m
+# CONFIG_INFINIBAND_USER_MAD is not set
+# CONFIG_INFINIBAND_USER_ACCESS is not set
+CONFIG_INFINIBAND_MTHCA=m
+# CONFIG_INFINIBAND_MTHCA_DEBUG is not set
+CONFIG_INFINIBAND_IPOIB=m
+# CONFIG_INFINIBAND_IPOIB_DEBUG is not set
+# CONFIG_INFINIBAND_SRP is not set
+
+#
+# SN Devices
+#
+
+#
+# EDAC - error detection and reporting (RAS)
+#
+
+#
+# Distributed Lock Manager
+#
+# CONFIG_DLM is not set
+
+#
+# File systems
+#
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT2_FS_POSIX_ACL=y
+CONFIG_EXT2_FS_SECURITY=y
+CONFIG_EXT2_FS_XIP=y
+CONFIG_FS_XIP=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_EXT3_FS_SECURITY=y
+CONFIG_JBD=y
+CONFIG_JBD_DEBUG=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISER4_FS=y
+CONFIG_REISER4_DEBUG=y
+CONFIG_REISERFS_FS=y
+# CONFIG_REISERFS_CHECK is not set
+CONFIG_REISERFS_PROC_INFO=y
+CONFIG_REISERFS_FS_XATTR=y
+CONFIG_REISERFS_FS_POSIX_ACL=y
+CONFIG_REISERFS_FS_SECURITY=y
+CONFIG_JFS_FS=y
+CONFIG_JFS_POSIX_ACL=y
+CONFIG_JFS_SECURITY=y
+# CONFIG_JFS_DEBUG is not set
+# CONFIG_JFS_STATISTICS is not set
+CONFIG_FS_POSIX_ACL=y
+CONFIG_XFS_FS=m
+CONFIG_XFS_EXPORT=y
+# CONFIG_XFS_QUOTA is not set
+CONFIG_XFS_SECURITY=y
+CONFIG_XFS_POSIX_ACL=y
+CONFIG_XFS_RT=y
+CONFIG_OCFS2_FS=y
+# CONFIG_MINIX_FS is not set
+# CONFIG_ROMFS_FS is not set
+CONFIG_INOTIFY=y
+# CONFIG_QUOTA is not set
+CONFIG_DNOTIFY=y
+CONFIG_AUTOFS_FS=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_FUSE_FS=y
+
+#
+# CD-ROM/DVD Filesystems
+#
+CONFIG_ISO9660_FS=y
+# CONFIG_JOLIET is not set
+# CONFIG_ZISOFS is not set
+CONFIG_UDF_FS=m
+CONFIG_UDF_NLS=y
+
+#
+# DOS/FAT/NT Filesystems
+#
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+# CONFIG_NTFS_FS is not set
+
+#
+# Pseudo filesystems
+#
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_PROC_VMCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_HUGETLBFS=y
+CONFIG_HUGETLB_PAGE=y
+CONFIG_RAMFS=y
+CONFIG_RELAYFS_FS=y
+CONFIG_CONFIGFS_FS=y
+
+#
+# Miscellaneous filesystems
+#
+# CONFIG_ADFS_FS is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_ASFS_FS is not set
+CONFIG_HFS_FS=m
+CONFIG_HFSPLUS_FS=m
+# CONFIG_BEFS_FS is not set
+# CONFIG_BFS_FS is not set
+# CONFIG_EFS_FS is not set
+CONFIG_CRAMFS=y
+# CONFIG_VXFS_FS is not set
+# CONFIG_HPFS_FS is not set
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_SYSV_FS is not set
+# CONFIG_UFS_FS is not set
+
+#
+# Network File Systems
+#
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFS_V3_ACL=y
+CONFIG_NFS_V4=y
+CONFIG_NFS_DIRECTIO=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V2_ACL=y
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_V3_ACL=y
+CONFIG_NFSD_V4=y
+CONFIG_NFSD_TCP=y
+CONFIG_ROOT_NFS=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=m
+CONFIG_NFS_ACL_SUPPORT=y
+CONFIG_NFS_COMMON=y
+CONFIG_SUNRPC=y
+CONFIG_SUNRPC_GSS=y
+CONFIG_RPCSEC_GSS_KRB5=y
+CONFIG_RPCSEC_GSS_SPKM3=m
+# CONFIG_SMB_FS is not set
+CONFIG_CIFS=m
+# CONFIG_CIFS_STATS is not set
+CONFIG_CIFS_XATTR=y
+CONFIG_CIFS_POSIX=y
+CONFIG_CIFS_EXPERIMENTAL=y
+CONFIG_CIFS_UPCALL=y
+CONFIG_NCP_FS=y
+CONFIG_NCPFS_PACKET_SIGNING=y
+CONFIG_NCPFS_IOCTL_LOCKING=y
+CONFIG_NCPFS_STRONG=y
+CONFIG_NCPFS_NFS_NS=y
+CONFIG_NCPFS_OS2_NS=y
+CONFIG_NCPFS_SMALLDOS=y
+CONFIG_NCPFS_NLS=y
+CONFIG_NCPFS_EXTRAS=y
+CONFIG_CODA_FS=y
+# CONFIG_CODA_FS_OLD_API is not set
+CONFIG_AFS_FS=m
+CONFIG_RXRPC=m
+CONFIG_9P_FS=m
+
+#
+# Partition Types
+#
+CONFIG_PARTITION_ADVANCED=y
+# CONFIG_ACORN_PARTITION is not set
+# CONFIG_OSF_PARTITION is not set
+# CONFIG_AMIGA_PARTITION is not set
+# CONFIG_ATARI_PARTITION is not set
+CONFIG_MAC_PARTITION=y
+CONFIG_MSDOS_PARTITION=y
+# CONFIG_BSD_DISKLABEL is not set
+# CONFIG_MINIX_SUBPARTITION is not set
+# CONFIG_SOLARIS_X86_PARTITION is not set
+# CONFIG_UNIXWARE_DISKLABEL is not set
+# CONFIG_LDM_PARTITION is not set
+# CONFIG_SGI_PARTITION is not set
+# CONFIG_ULTRIX_PARTITION is not set
+# CONFIG_SUN_PARTITION is not set
+# CONFIG_KARMA_PARTITION is not set
+# CONFIG_EFI_PARTITION is not set
+
+#
+# Native Language Support
+#
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_CODEPAGE_737=m
+CONFIG_NLS_CODEPAGE_775=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_CODEPAGE_852=m
+CONFIG_NLS_CODEPAGE_855=m
+CONFIG_NLS_CODEPAGE_857=m
+CONFIG_NLS_CODEPAGE_860=m
+CONFIG_NLS_CODEPAGE_861=m
+CONFIG_NLS_CODEPAGE_862=m
+CONFIG_NLS_CODEPAGE_863=m
+CONFIG_NLS_CODEPAGE_864=m
+CONFIG_NLS_CODEPAGE_865=m
+CONFIG_NLS_CODEPAGE_866=m
+CONFIG_NLS_CODEPAGE_869=m
+CONFIG_NLS_CODEPAGE_936=m
+CONFIG_NLS_CODEPAGE_950=m
+CONFIG_NLS_CODEPAGE_932=m
+CONFIG_NLS_CODEPAGE_949=m
+CONFIG_NLS_CODEPAGE_874=m
+CONFIG_NLS_ISO8859_8=m
+CONFIG_NLS_CODEPAGE_1250=m
+CONFIG_NLS_CODEPAGE_1251=m
+CONFIG_NLS_ASCII=m
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_2=m
+CONFIG_NLS_ISO8859_3=m
+CONFIG_NLS_ISO8859_4=m
+CONFIG_NLS_ISO8859_5=m
+CONFIG_NLS_ISO8859_6=m
+CONFIG_NLS_ISO8859_7=m
+CONFIG_NLS_ISO8859_9=m
+CONFIG_NLS_ISO8859_13=m
+CONFIG_NLS_ISO8859_14=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_KOI8_R=m
+CONFIG_NLS_KOI8_U=m
+CONFIG_NLS_UTF8=m
+
+#
+# Library routines
+#
+CONFIG_CRC_CCITT=y
+# CONFIG_CRC16 is not set
+CONFIG_CRC32=y
+CONFIG_LIBCRC32C=m
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+
+#
+# Instrumentation Support
+#
+CONFIG_PROFILING=y
+CONFIG_OPROFILE=y
+# CONFIG_KPROBES is not set
+
+#
+# Kernel hacking
+#
+CONFIG_PRINTK_TIME=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_DEBUG_SHIRQ=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_LOG_BUF_SHIFT=17
+CONFIG_DETECT_SOFTLOCKUP=y
+CONFIG_SCHEDSTATS=y
+CONFIG_DEBUG_SLAB=y
+CONFIG_DEBUG_MUTEXES=y
+CONFIG_DEBUG_SPINLOCK=y
+CONFIG_DEBUG_SPINLOCK_SLEEP=y
+CONFIG_DEBUG_KOBJECT=y
+CONFIG_DEBUG_INFO=y
+CONFIG_DEBUG_FS=y
+CONFIG_DEBUG_VM=y
+CONFIG_FORCED_INLINING=y
+CONFIG_RCU_TORTURE_TEST=y
+CONFIG_DEBUG_SYNCHRO_TEST=y
+CONFIG_DEBUG_STACKOVERFLOW=y
+CONFIG_DEBUG_STACK_USAGE=y
+CONFIG_DEBUGGER=y
+CONFIG_XMON=y
+CONFIG_XMON_DEFAULT=y
+CONFIG_IRQSTACKS=y
+CONFIG_BOOTX_TEXT=y
+# CONFIG_PPC_EARLY_DEBUG_LPAR is not set
+# CONFIG_PPC_EARLY_DEBUG_G5 is not set
+# CONFIG_PPC_EARLY_DEBUG_RTAS is not set
+# CONFIG_PPC_EARLY_DEBUG_MAPLE is not set
+# CONFIG_PPC_EARLY_DEBUG_ISERIES is not set
+
+#
+# Security options
+#
+CONFIG_KEYS=y
+CONFIG_KEYS_DEBUG_PROC_KEYS=y
+CONFIG_SECURITY=y
+CONFIG_SECURITY_NETWORK=y
+CONFIG_SECURITY_NETWORK_XFRM=y
+CONFIG_SECURITY_CAPABILITIES=m
+CONFIG_SECURITY_ROOTPLUG=m
+CONFIG_SECURITY_SECLVL=m
+CONFIG_KEYS_COMPAT=y
+
+#
+# Cryptographic options
+#
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_NULL=m
+CONFIG_CRYPTO_MD4=m
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=y
+CONFIG_CRYPTO_SHA256=m
+CONFIG_CRYPTO_SHA512=m
+CONFIG_CRYPTO_WP512=m
+CONFIG_CRYPTO_TGR192=m
+CONFIG_CRYPTO_DES=y
+CONFIG_CRYPTO_BLOWFISH=m
+CONFIG_CRYPTO_TWOFISH=m
+CONFIG_CRYPTO_SERPENT=m
+CONFIG_CRYPTO_AES=y
+CONFIG_CRYPTO_CAST5=m
+CONFIG_CRYPTO_CAST6=m
+CONFIG_CRYPTO_TEA=m
+CONFIG_CRYPTO_ARC4=y
+CONFIG_CRYPTO_KHAZAD=m
+CONFIG_CRYPTO_ANUBIS=m
+CONFIG_CRYPTO_DEFLATE=y
+CONFIG_CRYPTO_MICHAEL_MIC=m
+CONFIG_CRYPTO_CRC32C=m
+CONFIG_CRYPTO_TEST=m
+
+#
+# Hardware crypto devices
+#
+
+--------------020003030402090000090708--

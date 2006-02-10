@@ -1,76 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWBJAWu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWBJAcQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750871AbWBJAWu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 19:22:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbWBJAWt
+	id S1750873AbWBJAcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 19:32:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWBJAcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 19:22:49 -0500
-Received: from smtpout.mac.com ([17.250.248.71]:61923 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1750837AbWBJAWt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 19:22:49 -0500
-In-Reply-To: <m1mzh02y3m.fsf@ebiederm.dsl.xmission.com>
-References: <43E38BD1.4070707@openvz.org> <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org> <43E3915A.2080000@sw.ru> <Pine.LNX.4.64.0602030939250.4630@g5.osdl.org> <m1lkwoubiw.fsf@ebiederm.dsl.xmission.com> <43E71018.8010104@sw.ru> <m1hd7condi.fsf@ebiederm.dsl.xmission.com> <1139243874.6189.71.camel@localhost.localdomain> <m13biwnxkc.fsf@ebiederm.dsl.xmission.com> <20060208215412.GD2353@ucw.cz> <m1mzh02y3m.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <7CCC1159-BF55-4961-BC24-A759F893D43F@mac.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Dave Hansen <haveblue@us.ibm.com>,
-       Kirill Korotaev <dev@sw.ru>, Linus Torvalds <torvalds@osdl.org>,
-       Kirill Korotaev <dev@openvz.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       frankeh@watson.ibm.com, clg@fr.ibm.com, greg@kroah.com,
-       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
-       Pavel Emelianov <xemul@sw.ru>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: swsusp done by migration (was Re: [RFC][PATCH 1/5] Virtualization/containers: startup)
-Date: Thu, 9 Feb 2006 19:21:50 -0500
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-X-Mailer: Apple Mail (2.746.2)
+	Thu, 9 Feb 2006 19:32:16 -0500
+Received: from mail.gmx.net ([213.165.64.21]:20955 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750869AbWBJAcP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 19:32:15 -0500
+X-Authenticated: #19095397
+From: Bernd Schubert <bernd-schubert@gmx.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: a couple of oopses with 2.6.14
+Date: Fri, 10 Feb 2006 01:32:11 +0100
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-scsi@vger.kernel.org
+References: <200602091934.20732.bernd.schubert@pci.uni-heidelberg.de> <20060209152744.00de43f6.akpm@osdl.org>
+In-Reply-To: <20060209152744.00de43f6.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200602100132.12120.bernd-schubert@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 09, 2006, at 13:20, Eric W. Biederman wrote:
-> Pavel Machek <pavel@ucw.cz> writes:
->> Well, for now software suspend is done at very different level (it  
->> snapshots complete kernel state), but being able to use migration  
->> for this is certainly nice option.
->>
->> BTW you could do whole-machine-migration now with uswsusp; but  
->> you'd need identical hardware and it would take a bit long...
+Hello Andrew and James,
+
+thanks for your help.
+
+
+On Friday 10 February 2006 00:27, Andrew Morton wrote:
+> Bernd Schubert <bernd.schubert@pci.uni-heidelberg.de> wrote:
+> > Hi,
+> >
+> > here's a machine that works perfectly with 2.6.11, but gives oopes during
+> > the boot process with 2.6.14. Unfortunately its everytime another oops.
+> > Usually I would assume its a memory issue, but the machine really works
+> > perfectly with 2.6.11.
 >
-> Right part of the goal is with doing it as we are doing it is that  
-> we can define what the interesting state is.
+> scsi has had a few problems with error recovery lately.
 >
-> Replacing software suspend is not an immediate goal but I think it  
-> is a worthy thing to target.  In part because if we really can rip  
-> things out of the kernel store them in a portable format and  
-> restore them we will also have the ability to upgrade the kernel  
-> with out stopping user space applications...
+> > We will run a memory test over the weekend, but so far I don't believe it
+> > will find anything.
 >
-> But being able to avoid the uninteresting parts, and having the  
-> policy complete controlled outside the kernel are the big wins we  
-> are shooting for.
+> No, I wouldn't bother doing that.
 
-<wishful thinking>
-I can see another extension to this functionality.  With appropriate  
-changes it might also be possible to have a container exist across  
-multiple computers using some cluster code for synchronization and  
-fencing.  The outermost container would be the system boot container,  
-and multiple inner containers would use some sort of network- 
-container-aware cluster filesystem to spread multiple vservers across  
-multiple servers, distributing CPU and network load appropriately.
-</wishful thinking>
+Ok.
 
-Cheers,
-Kyle Moffett
+>
+> > ------------- example 1
+> > ------------------------------------------------------
+> >
+> > [4294676.669000] scsi0 : ata_piix
+> > [4294676.831000] ATA: abnormal status 0x7F on port 0xE407
+>
+> So we have a sata problem.  It triggered two scsi bugs.  The first (a
+> warning) is being fixed.  I don't know if the second has been fixed.
 
---
-I have yet to see any problem, however complicated, which, when you  
-looked at it in the right way, did not become still more complicated.
-   -- Poul Anderson
+I'm not sure if its only a sata problem, I saw several of other oopses, one 
+was related to Firewire/scsi (ok, could be a consequence of the previous sata 
+problem), one came from bluesmoke (external patch) and some of them I 
+couldn't associate to anything (but those I couldn't also capture via 
+netconsole).
 
 
+>
+> Can you test 2.6.15?
+>
+
+Sure, I will test 2.6.15 this evening. I will also enable most debugging 
+information for this testkernel, ok?
+
+
+Thanks,
+	Bernd
+
+
+PS: For production we unfortunately can't use 2.6.15 - reiserfs trouble (well, 
+I could try to revert commit 5fa8ad644faa114c4190484ac50e15236fc7cdd9, but 
+I'm still waiting for an offical statement of the reiserfs poeple) and 
+Win4Lin patches are available up to 2.6.14 only (its the PC of our secretary 
+and she really wouldn't like that ;) ).
+
+-- 
+Bernd Schubert
+PCI / Theoretische Chemie
+Universität Heidelberg
+INF 229
+69120 Heidelberg
 

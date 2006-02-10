@@ -1,56 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWBJRGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbWBJRNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751325AbWBJRGO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 12:06:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWBJRGN
+	id S1751328AbWBJRNF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 12:13:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbWBJRNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 12:06:13 -0500
-Received: from smtp.bulldogdsl.com ([212.158.248.7]:45838 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1751325AbWBJRGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 12:06:13 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Prakash Punnoor <prakash@punnoor.de>
-Subject: Re: ata1: command 0x35 timeout sata_nv driver
-Date: Fri, 10 Feb 2006 17:06:17 +0000
-User-Agent: KMail/1.9.1
-Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-References: <43ECB9EA.9000804@perkel.com> <200602101730.47512.prakash@punnoor.de>
-In-Reply-To: <200602101730.47512.prakash@punnoor.de>
+	Fri, 10 Feb 2006 12:13:05 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:59105 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751328AbWBJRNE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 12:13:04 -0500
+Date: Fri, 10 Feb 2006 09:12:43 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Andrew Morton <akpm@osdl.org>, linux@horizon.com,
+       linux-kernel@vger.kernel.org, sct@redhat.com
+Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
+In-Reply-To: <43ECC69D.1010001@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0602100904330.19172@g5.osdl.org>
+References: <20060209071832.10500.qmail@science.horizon.com>
+ <20060209001850.18ca135f.akpm@osdl.org> <43EAFEB9.2060000@yahoo.com.au>
+ <20060209004208.0ada27ef.akpm@osdl.org> <43EB3801.70903@yahoo.com.au>
+ <20060209094815.75041932.akpm@osdl.org> <43EC0A44.1020302@yahoo.com.au>
+ <20060209195035.5403ce95.akpm@osdl.org> <43EC0F3F.1000805@yahoo.com.au>
+ <20060209201333.62db0e24.akpm@osdl.org> <43EC16D8.8030300@yahoo.com.au>
+ <20060209204314.2dae2814.akpm@osdl.org> <43EC1BFF.1080808@yahoo.com.au>
+ <20060209211356.6c3a641a.akpm@osdl.org> <43EC24B1.9010104@yahoo.com.au>
+ <20060209215040.0dcb36b1.akpm@osdl.org> <43EC2C9A.7000507@yahoo.com.au>
+ <20060209221324.53089938.akpm@osdl.org> <43EC3326.4080706@yahoo.com.au>
+ <20060209224656.7533ce2b.akpm@osdl.org> <43EC3961.3030904@yahoo.com.au>
+ <20060209231432.03a09dee.akpm@osdl.org> <43EC8A06.40405@yahoo.com.au>
+ <Pine.LNX.4.64.0602100815580.19172@g5.osdl.org> <43ECC69D.1010001@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602101706.17898.s0348365@sms.ed.ac.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 February 2006 16:30, Prakash Punnoor wrote:
-> Am Freitag Februar 10 2006 17:06 schrieb Marc Perkel:
-> > Are there still problems with sata_nv?
-> >
-> > Running 2 maxtor 250gig drives with 16mb buffer.
-> >
-> > Getting this error:
-> > ata1: command 0x35 timeout, stat 0x50 hos_stat 0x24
-> > ata2: command 0x35 timeout, stat 0x50 hos_stat 0x24
->
-> Maxtor released a new BIOS fixing issues with nforce4. Maybe you want to
-> ask bios for the fw and test it?
 
-I've got 2x200GB DiamondMax 10s running on a sata_nv ports with no issues 
-whatsoever. This problem is more likely to be a software issue on the 
-controller side.
 
-Let's see a .config for this machine? Have you successfully used the sata 
-ports prior to these HDs?
+On Sat, 11 Feb 2006, Nick Piggin wrote:
+> 
+> No, you are thinking about what the kernel does. Subtle difference. A
+> smart user wants to:
+> 
+> - start writing this
+> - start writing that
+> - start writing that-other-thing
+> - make sure this that and the other have reached backing store
+> 
+> OK so in effect it is the same thing, but it is better to export the
+> interface that reflects how the user interacts with pagecache.
+> 
+> WRITE_SYNC obviously does the "wait for them all" (aka ensure they
+> hit backing store) thing too, right? It performs exactly the same
+> role that WRITE_WAIT would do in the above example.
 
--- 
-Cheers,
-Alistair.
+NOOOOOO!
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+Think about it for a second. Think about the usage case you yourself were 
+quoting.
+
+The "magic" in IO is "overlapping IO". If you don't get overlapping IO, 
+your interfaces are broken. End of story.
+
+And WRITE_SYNC _cannot_ do overlapping IO.
+
+It's entirely possible that somebody else (or that very same program) has 
+dirtied the same pages that you started write-out on earlier. And that is 
+when "wait for writes to finish" and "WRITE_SYNC" _differ_. 
+
+If you want synchronous writes, use synchronous writes. But if you want 
+asynchronous writes, you do _not_ implement them as "start writes now" and 
+"write synchronously". You implement them as "start writes now" and "wait 
+for the writes to have finished".
+
+There's another very specific and important difference: "wait for the 
+writes" is fundamentally an interruptible and pollable operation, which 
+means that it's a lot easier to integrate into any system that has to do 
+other things too. In contrast, WRITE_SYNC is _neither_ easily 
+interruptible nor pollable.
+
+So WRITE_SYNC has clearly different behaviour. There's a good reason the 
+kernel internally has "start write" + "wait for write", and I'll repeat: 
+none of those reasons go away just because you move to user space.
+
+> My proposal isn't really different to Andrew's in terms of functionality
+> (unless I've missed something), but it is more consistent because it
+> does not introduce this completely new concept to our userspace API but
+> rather uses the SYNC/ASYNC distinction like everything else.
+
+Your proposal has two _huge_ downsides:
+
+ - it changes semantics, and you have absolutely _no_ idea of who depends 
+   on the performance semantics of the old behaviour. In contrast, I can 
+   tell you that we did it once before, and we reverted it.
+
+ - it's not at all consistent. The _current_ behaviour is consistent, and 
+   matches 100% the current behaviour of sync vs async write().
+
+I really don't see the point.
+
+		Linus

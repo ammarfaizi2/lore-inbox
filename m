@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWBJAco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWBJAcu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbWBJAco (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 19:32:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWBJAcn
+	id S1750877AbWBJAcu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 19:32:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbWBJAct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 19:32:43 -0500
-Received: from ns1.suse.de ([195.135.220.2]:11456 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750874AbWBJAcn (ORCPT
+	Thu, 9 Feb 2006 19:32:49 -0500
+Received: from animx.eu.org ([216.98.75.249]:44431 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S1750877AbWBJAcs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 19:32:43 -0500
-From: Andi Kleen <ak@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: Cleanup possibility in asm-i386/string.h
-Date: Fri, 10 Feb 2006 01:23:35 +0100
-User-Agent: KMail/1.8.2
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-References: <200602071215.46885.ak@suse.de> <Pine.LNX.4.61.0602071336060.30994@scrub.home> <20060210000523.GE3524@stusta.de>
-In-Reply-To: <20060210000523.GE3524@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Feb 2006 19:32:48 -0500
+Date: Thu, 9 Feb 2006 19:36:14 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: Alex Davis <alex14641@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Let's get rid of  ide-scsi
+Message-ID: <20060210003614.GA26114@animx.eu.org>
+Mail-Followup-To: Alex Davis <alex14641@yahoo.com>,
+	linux-kernel@vger.kernel.org
+References: <20060210002148.37683.qmail@web50201.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602100123.36077.ak@suse.de>
+In-Reply-To: <20060210002148.37683.qmail@web50201.mail.yahoo.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 February 2006 01:05, Adrian Bunk wrote:
-> On Tue, Feb 07, 2006 at 01:39:50PM +0100, Roman Zippel wrote:
-> > Hi,
-> > 
-> > On Tue, 7 Feb 2006, Andi Kleen wrote:
-> > 
-> > > > This means you define a prototype for the builtin function and not for the 
-> > > > normal function. I'm not sure this is really intended.
-> > > 
-> > > What good would be a prototype for a symbol that is defined to a different symbol?
-> > 
-> > The point is you define a prototype for a builtin function, I'm not sure 
-> > that's a good thing to do.
-> > Actually I'd prefer to remove -ffreestanding again, especially because it
-> > disables builtin functions, which we have to painfully enable all again 
-> > one by one, instead of leaving it just to gcc.
+Alex Davis wrote:
+> I think we should get rid of ide-scsi.
 > 
-> I remember playing with using more gcc builtins in the kernel some time 
-> ago, and some gcc builtin used a different library function, which was a 
-> function the kernel did not supply.
+> Reasons:
+> 1) It's broken.
+> 2) It's unmaintained.
+> 3) It's unneeded.
+> 
+> I'll submit a patch if people agree.
+> 
+> I code, therefore I am
 
-It works fine on x86-64. If something is missing it can be also supplied.
+I personally do not agree with this.  I worked on at boot disk(floppy) which
+contained the kernel and modules to find a cdrom (or usb disk) and use it as
+my 2nd stage.  If I had to use ide-cd, I would not beable to do my first
+stage loader on a single floppy (I support ide and scsi cdroms via sr-mod).
 
--Andi
+ide-cd.ko is > than sr-mod.ko + ide-scsi.ko
 
+I am aware that scsi_mod.ko is larger than those 3 combined and I still need
+it regardless for usb.
+
+My personal vote would be to drop the entire ide subsystem which would thus
+drop ide-scsi.  The SCSI layer has been a general block device layer for
+more than true scsi devices.  USB, Firewire, and SATA use the scsi layer. 
+And as I understand it, libata is starting to handle PATA devices.  Once it
+can handle PATA fine, the ide code would pretty much be useless.
+
+I am also against the seperate USB block layer, I personally saw no use in
+it.
+
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals
+ Got Gas???

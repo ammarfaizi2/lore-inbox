@@ -1,68 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWBJFQa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWBJFR6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751098AbWBJFQa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 00:16:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWBJFQa
+	id S1751104AbWBJFR6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 00:17:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWBJFR6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 00:16:30 -0500
-Received: from ms-smtp-05-smtplb.tampabay.rr.com ([65.32.5.135]:21713 "EHLO
-	ms-smtp-05.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S1751098AbWBJFQ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 00:16:29 -0500
-Message-ID: <43EC218A.9000402@cfl.rr.com>
-Date: Fri, 10 Feb 2006 00:15:54 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Mail/News 1.5 (X11/20060119)
+	Fri, 10 Feb 2006 00:17:58 -0500
+Received: from mail.gmx.de ([213.165.64.21]:25292 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751105AbWBJFR6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 00:17:58 -0500
+X-Authenticated: #7534793
+Date: Fri, 10 Feb 2006 06:14:52 +0100
+From: Gerhard Schrenk <deb.gschrenk@gmx.de>
+To: "Yu, Luming" <luming.yu@intel.com>
+Cc: "Brown, Len" <len.brown@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: EC interrupt mode by default breaks power button and lid button
+Message-ID: <20060210051451.GA4351@mailhub.uni-konstanz.de>
+References: <3ACA40606221794F80A5670F0AF15F840AE28A07@pdsmsx403>
 MIME-Version: 1.0
-To: "Darrick J. Wong" <djwong@us.ibm.com>
-CC: dm-devel@redhat.com, Chris McDermott <lcm@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Support HDIO_GETGEO on device-mapper volumes
-References: <43EBEDD0.60608@us.ibm.com>
-In-Reply-To: <43EBEDD0.60608@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F840AE28A07@pdsmsx403>
+User-Agent: mutt-ng/devel-r655 (Debian)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hrm... when I setup my system on a dmraid controlled hardware fakeraid 
-raid-0, I just gave grub a suitable geometry command since it couldn't 
-auto detect it.  I suppose this would make that unnecessary.
+* Yu, Luming <luming.yu@intel.com> [2006-02-10 00:37]:
 
-I think that ultimately, grub shouldn't care about the geometry since 
-that information has been obsolete for years.  If it can't detect the 
-geometry, then it should just assume the system supports LBA and to hell 
-with using made up geometry numbers.
+> It's interesting. Could you file a bug in ACPI category on
+> bugzilla.kernel.org?
+
+http://bugzilla.kernel.org/show_bug.cgi?id=6049
+
+BTW with ec_initr=1 I cannot toggle the hardware based rf_kill (for ipw2200).
+But with ec_initr=0 I can toggle it. This is reflected by the blue "WLAN" led and
+
+/sys/devices/pci0000:00/0000:00:1e.0/0000:01:09.0/rf_kill
+
+> BTW, does battery work?
+
+Mmmh. I see interrupt 9 "IO-APIC-edge  acpi" in /proc/interrupts
+increase for ec_intr=0. But it seems to increase all the time so I'm not
+sure if it's triggered by battery (un)plug events.
+
+However I cannot see any acpid-events in /var/log/acpid with ec_initr=0 when
+(un)plugging the battery. (battery was present and correctly detected on boot.)
+
+For ec_intr=1 interrupt 9 "IO-APIC-edge  acpi in /proc/interrupts is
+definitely always constant to 1. No acpid-events, too.
 
 
-Darrick J. Wong wrote:
-> Hi again,
-> 
-> I'm trying to install grub on a device-mapper RAID1 array that I set up 
-> via dmraid (in other words, a bootable software fakeraid).  Since dm 
-> doesn't implement the HDIO_GETGEO ioctl, grub assumes that the CHS 
-> geometry is 620/128/63, which makes it impossible to configure it to 
-> boot a filesystem that lives beyond the 2GB mark, even if the system 
-> BIOS supports that.
-> 
-> The attached patch implements a simple ioctl handler that supplies a 
-> compatible geometry when HDIO_GETGEO is called against a device-mapper 
-> device.  Its behavior is somewhat similar to what sd_mod does if the 
-> scsi controller doesn't provide its own geometry.  Granted, the notion 
-> of cylinders, heads and sectors is silly on a RAID array, but with this 
-> patch, interested programs can obtain CHS data that's somewhat close to 
-> correct; this seems to be a better option than having each program make 
-> up its own potentially different geometry, or making an arbitrary guess. 
->  Assuming that all of the programs that need to know CHS geometry will 
-> query the kernel via HDIO_GETGEO, this patch makes it so that all of 
-> those programs end up using the same geometry.
-> 
-> The patch applies cleanly against 2.6.15.3; if there aren't any 
-> objections then I'm submitting this for upstream.  However, I'm all ears 
-> for suggestions.
-> 
-> Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
-> 
-> --Darrick
-> 
+Interestingly the following battery problem is independant of ec_intr:
 
+/proc/acpi/battery/BAT1/{info,state} shows only sensible battery data, if the
+battery was **present at boot time**. When unplugging the battery it still says
+"present: yes" and /proc/acpi/battery/BAT1/info does not change at all. 
+/proc/acpi/battery/BAT1/state does change like this:
+
+--- ec1-plugged-state   2006-02-10 04:40:54.000000000 +0100
++++ ec1-unplugged-state 2006-02-10 04:42:31.000000000 +0100
+@@ -1,6 +1,6 @@
+ present:                 yes
+ capacity state:          ok
+-charging state:          charging
+-present rate:            1930 mA
+-remaining capacity:      2433 mAh
+-present voltage:         16202 mV
++charging state:          charged
++present rate:            unknown
++remaining capacity:      unknown
++present voltage:         10000 mV
+
+
+If the battery was **not present at boot time** and is plugged in *after* booting
+the system, it will never be detected by /proc/acpi/battery/BAT1/{info,state}.
+It always says "present: no". With Kernel v2.6.15 compiling the acpi drivers as modules, i.e. 
+CONFIG_ACPI_BATTERY=m and same fo other acpi drivers helps. But I have to
+
+  $ rmmod battery
+  $ modprobe battery
+
+first. No chance with statically compiled acpi-drivers. :(
+
+-- Gerhard

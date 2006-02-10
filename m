@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWBJOQu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWBJORH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932097AbWBJOQu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 09:16:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932103AbWBJOQu
+	id S932103AbWBJORH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 09:17:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWBJORH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 09:16:50 -0500
-Received: from smtp.enternet.hu ([62.112.192.21]:43276 "EHLO smtp.enternet.hu")
-	by vger.kernel.org with ESMTP id S932097AbWBJOQt (ORCPT
+	Fri, 10 Feb 2006 09:17:07 -0500
+Received: from thunk.org ([69.25.196.29]:13803 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932103AbWBJORE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 09:16:49 -0500
-Message-ID: <00af01c62e4d$8de8c6c0$9d00a8c0@dcccs>
-From: "JaniD++" <djani22@dynamicweb.hu>
-To: <linux-kernel@vger.kernel.org>
-Subject: netconsole problem
-Date: Fri, 10 Feb 2006 15:23:23 +0100
+	Fri, 10 Feb 2006 09:17:04 -0500
+Date: Fri, 10 Feb 2006 09:16:51 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: jengelh@linux01.gwdg.de, peter.read@gmail.com, mj@ucw.cz,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060210141651.GB18707@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	jengelh@linux01.gwdg.de, peter.read@gmail.com, mj@ucw.cz,
+	matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+	jim@why.dont.jablowme.net
+References: <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr> <43EB7BBA.nailIFG412CGY@burner> <mj+md-20060209.173519.1949.atrey@ucw.cz> <43EC71FB.nailISD31LRCB@burner> <20060210114721.GB20093@merlin.emma.line.org> <43EC887B.nailISDGC9CP5@burner> <mj+md-20060210.123726.23341.atrey@ucw.cz> <43EC8E18.nailISDJTQDBG@burner> <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr> <43EC93A2.nailJEB1AMIE6@burner>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43EC93A2.nailJEB1AMIE6@burner>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, list,
+On Fri, Feb 10, 2006 at 02:22:42PM +0100, Joerg Schilling wrote:
+> >
+> > The struct stat->st_rdev field need to be stable too to comply to POSIX?
+> 
+> Correct.
+> 
 
-I have a little problem, with netconsole.
-It does not work for me.
+Chapter and verse, please?  
 
-On the "client":
+Can you please list the POSIX standard, section, and line number which
+states that a particular device must always have the same st_rdev
+across reboots, and hot plugs/unplugs?
 
-modprobe netconsole netconsole=@/,514@192.168.2.100/
-dmesg:
-netconsole: local port 6665
-netconsole: interface eth0
-netconsole: remote port 514
-netconsole: remote IP 192.168.2.100
-netconsole: remote ethernet address ff:ff:ff:ff:ff:ff
-netconsole: local IP 192.168.2.50
-netconsole: network logging started
+Regards,
 
-(kernel: 2.6.15-rc5, and 2.6.16-rc1,2)
-
-On the server:
-]# netcat -u -l -v -s 192.168.2.100 -p 514
-192.168.2.100: inverse host lookup failed: Unknown host
-listening on [192.168.2.100] 514 ...
-
-And nothing comes.
-
-The firewall is off on both system.
-The ping comes from any direction.
-
-If i try the remote and local syslog, it works well, two.
-And in this case, the netlog only displays what the syslog is sends.
-
-What can be the problem?
-
-Thanks,
-Janos
+						- Ted

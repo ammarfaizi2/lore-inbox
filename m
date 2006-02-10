@@ -1,42 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWBJHXE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWBJHYT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWBJHXE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 02:23:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWBJHXE
+	id S1751174AbWBJHYT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 02:24:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbWBJHYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 02:23:04 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:60223 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751173AbWBJHXB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 02:23:01 -0500
-Date: Fri, 10 Feb 2006 08:25:23 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] block: kill not-so-popular simple flag testing macros
-Message-ID: <20060210072523.GH24124@suse.de>
-References: <20060208085728.GA21065@htj.dyndns.org> <43EB8D2C.6020708@pobox.com> <43EBDC70.6050302@gmail.com> <43EBEA26.8000709@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Feb 2006 02:24:19 -0500
+Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:40325 "EHLO
+	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751174AbWBJHYS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 02:24:18 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [rfc][patch] sched: remove smpnice
+Date: Fri, 10 Feb 2006 18:23:28 +1100
+User-Agent: KMail/1.9.1
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, npiggin@suse.de,
+       mingo@elte.hu, rostedt@goodmis.org, pwil3058@bigpond.net.au,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <20060207142828.GA20930@wotan.suse.de> <20060209230145.A17405@unix-os.sc.intel.com> <20060209231703.4bd796bf.akpm@osdl.org>
+In-Reply-To: <20060209231703.4bd796bf.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <43EBEA26.8000709@pobox.com>
+Message-Id: <200602101823.29530.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 09 2006, Jeff Garzik wrote:
-> Tejun Heo wrote:
-> >The code he was talking about looks like.
+On Friday 10 February 2006 18:17, Andrew Morton wrote:
+> "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
+> > On Tue, Feb 07, 2006 at 03:36:17PM -0800, Andrew Morton wrote:
+> > > Suresh, Martin, Ingo, Nick and Con: please drop everything,
+> > > triple-check and test this:
+> > >
+> > > From: Peter Williams <pwil3058@bigpond.net.au>
+> > >
+> > > This is a modified version of Con Kolivas's patch to add "nice" support
+> > > to load balancing across physical CPUs on SMP systems.
 > >
-> >if (rq->flags & (REQ_SOFTBARRIER | REQ_HARDBARRIER) {
-> 
-> 
-> Yes, I certainly agree you don't want to test the same variable multiple 
-> times, if you are just testing bits in the same variable.
+> > I have couple of issues with this patch.
+> >
+> > a) on a lightly loaded system, this will result in higher priority job
+> > hopping around from one processor to another processor.. This is because
+> > of the code in find_busiest_group() which assumes that SCHED_LOAD_SCALE
+> > represents a unit process load and with nice_to_bias calculations this is
+> > no longer true(in the presence of non nice-0 tasks)
+> >
+> > My testing showed that 178.galgel in SPECfp2000 is down by ~10% when run
+> > with nice -20 on a 4P(8-way with HT) system compared to a nice-0 run.
+> >
+> > b) On a lightly loaded system, this can result in HT scheduler
+> > optimizations being disabled in presence of low priority tasks... in this
+> > case, they(low priority ones) can end up running on the same package,
+> > even in the presence of other idle packages.. Though this is not as
+> > serious as "a" above...
+>
+> Thanks very much for discvoring those things.
+>
+> That rather leaves us in a pickle wrt 2.6.16.
+>
+> It looks like we back out smpnice after all?
 
-Very few of the flags are usually tested together, so we could just fix
-this particular instance. So blk_softbarrier_rq() and
-blk_hardbarrier_rq(), combined tested with blk_barrier_rq().
+Give it the arse.
 
--- 
-Jens Axboe
+> Whatever we do, time is pressing.
 
+We did without smp nice from 2.6.0 till 2.6.14, we can do without it again for 
+some more time. Put it back in -mm for more tweaking and hopefully this added 
+attention will get it more testing before being pushed.
+
+Cheers,
+Con

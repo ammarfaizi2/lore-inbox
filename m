@@ -1,37 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWBJUWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWBJUUT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751375AbWBJUWM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 15:22:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbWBJUWM
+	id S1751374AbWBJUUT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 15:20:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWBJUUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 15:22:12 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:54948 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751375AbWBJUWK (ORCPT
+	Fri, 10 Feb 2006 15:20:19 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:38315 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751374AbWBJUUS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 15:22:10 -0500
-Date: Fri, 10 Feb 2006 12:21:31 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Miles Lane <miles.lane@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-Subject: Re: 2.6.16-rc2-mm1 -- BUG: warning at
- drivers/ieee1394/ohci1394.c:235/get_phy_reg()
-Message-Id: <20060210122131.4b98cfb4.akpm@osdl.org>
-In-Reply-To: <a44ae5cd0602101207s4b2d61d7nc6705067b7913322@mail.gmail.com>
-References: <a44ae5cd0602101207s4b2d61d7nc6705067b7913322@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 10 Feb 2006 15:20:18 -0500
+Date: Fri, 10 Feb 2006 21:20:00 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, nigel@suspend2.net
+Subject: vfork makes processes uninterruptible [was Re: [PATCH -mm] swsusp: freeze user space processes first]
+Message-ID: <20060210202000.GB1696@elf.ucw.cz>
+References: <200602051014.43938.rjw@sisk.pl> <200602051211.07103.rjw@sisk.pl> <20060205111815.GG1790@elf.ucw.cz> <200602051239.53175.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602051239.53175.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane <miles.lane@gmail.com> wrote:
->
-> BUG: warning at drivers/ieee1394/ohci1394.c:235/get_phy_reg()
+Hi!
 
-That's a -mm-only warning telling you that get_phy_reg() is doing a
-one-millisecond-or-more busywait while local interrupts are disabled.
+> > Can you produce userland testcase? If we have uninterruptible process for
+> > days... that's a bug in kernel, suspend or not.
+> 
+> Sure, no problem.  [Pretty scary, no?]
 
-That's the sort of thing which makes audio developers pursue 1394 developers
-with sharp sticks.
+Yes, pretty scary. It will also raise system load for 300 seconds
+without any real load.
 
+> The test code:
+> 
+> #include <sys/types.h>
+> #include <unistd.h>
+> 
+> int main(int argc, char *argv[])
+> {
+> 	vfork();
+> 	sleep(300);
+> 
+> 	return 0;
+> }
+> 
+> The result:
+> 
+> rafael@albercik:~/programming/c> ./vfork_test &
+> [1] 12288
+> rafael@albercik:~/programming/c> ps l
+> F   UID   PID  PPID PRI  NI    VSZ   RSS WCHAN  STAT TTY        TIME COMMAND
+> 0   500  6937  6931  17   0  10048  2368 read_c Ss+  pts/1      0:00 /bin/bash
+> 0   500 12139 12133  15   0  10052  2380 wait   Ss   pts/2      0:00 /bin/bash
+> 0   500 12288 12139  15   0   2420   304 fork   D    pts/2      0:00 ./vfork_tes
+> 1   500 12291 12288  18   0   2420   304 hrtime S    pts/2      0:00 ./vfork_tes
+> 0   500 12372 12139  15   0   3596   820 -      R+   pts/2      0:00 ps l
+> rafael@albercik:~/programming/c> kill 12288
+> rafael@albercik:~/programming/c> ps l
+> F   UID   PID  PPID PRI  NI    VSZ   RSS WCHAN  STAT TTY        TIME COMMAND
+> 0   500  6937  6931  17   0  10048  2368 read_c Ss+  pts/1      0:00 /bin/bash
+> 0   500 12139 12133  15   0  10052  2380 wait   Ss   pts/2      0:00 /bin/bash
+> 0   500 12288 12139  15   0   2420   304 fork   D    pts/2      0:00 ./vfork_tes
+> 1   500 12291 12288  18   0   2420   304 hrtime S    pts/2      0:00 ./vfork_tes
+> 0   500 12380 12139  17   0   3600   820 -      R+   pts/2      0:00 ps l
+> rafael@albercik:~/programming/c> kill -9 12288
+> rafael@albercik:~/programming/c> ps l
+> F   UID   PID  PPID PRI  NI    VSZ   RSS WCHAN  STAT TTY        TIME COMMAND
+> 0   500  6937  6931  17   0  10048  2368 read_c Ss+  pts/1      0:00 /bin/bash
+> 0   500 12139 12133  15   0  10052  2380 wait   Ss   pts/2      0:00 /bin/bash
+> 0   500 12288 12139  15   0   2420   304 fork   D    pts/2      0:00 ./vfork_tes
+> 1   500 12291 12288  18   0   2420   304 hrtime S    pts/2      0:00 ./vfork_tes
+> 0   500 12387 12139  16   0   3596   816 -      R+   pts/2      0:00 ps l
+> rafael@albercik:~/programming/c>
+> 
+> Greetings,
+> Rafael
+
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

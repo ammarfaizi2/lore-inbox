@@ -1,22 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbWBJVOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWBJVP4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750948AbWBJVOq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 16:14:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWBJVOq
+	id S932188AbWBJVP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 16:15:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWBJVP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 16:14:46 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:47793 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750948AbWBJVOp (ORCPT
+	Fri, 10 Feb 2006 16:15:56 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:1714 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932188AbWBJVPz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 16:14:45 -0500
-Date: Fri, 10 Feb 2006 13:14:31 -0800 (PST)
+	Fri, 10 Feb 2006 16:15:55 -0500
+Date: Fri, 10 Feb 2006 13:15:29 -0800 (PST)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Dave Jones <davej@redhat.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Fix s390 build failure.
-In-Reply-To: <20060210200425.GA11913@redhat.com>
-Message-ID: <Pine.LNX.4.64.0602101314082.19172@g5.osdl.org>
-References: <20060210200425.GA11913@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: oliver@neukum.org, nickpiggin@yahoo.com.au, linux@horizon.com,
+       linux-kernel@vger.kernel.org, sct@redhat.com
+Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
+In-Reply-To: <20060210121130.57db39bc.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0602101315100.19172@g5.osdl.org>
+References: <20060209071832.10500.qmail@science.horizon.com>
+ <43ECDD9B.7090709@yahoo.com.au> <Pine.LNX.4.64.0602101056130.19172@g5.osdl.org>
+ <200602102034.07531.oliver@neukum.org> <Pine.LNX.4.64.0602101152150.19172@g5.osdl.org>
+ <20060210121130.57db39bc.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,23 +28,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 10 Feb 2006, Dave Jones wrote:
->
-> arch/s390/kernel/compat_signal.c:199: error: conflicting types for 'do_sigaction'
-> include/linux/sched.h:1115: error: previous declaration of 'do_sigaction' was here
+On Fri, 10 Feb 2006, Andrew Morton wrote:
 > 
-> Signed-off-by: Dave Jones <davej@redhat.com>
+> Yes, it would make sense to run balance_dirty_pages_ratelimited() inside
+> msync_pte_range().  So pdflush will get poked if we hit
+> background_dirty_ratio threshold, or we go into caller-initiated writeout
+> if we hit dirty_ratio.
 > 
-> --- linux-2.6.15.noarch/arch/s390/kernel/compat_signal.c~	2006-02-10 12:47:57.000000000 -0500
-> +++ linux-2.6.15.noarch/arch/s390/kernel/compat_signal.c	2006-02-10 12:48:05.000000000 -0500
-> @@ -196,7 +196,7 @@ sys32_sigaction(int sig, const struct ol
->  }
->  
->  int
-> -do_sigaction(int sig, const struct k_sigaction *act, struct k_sigaction *oact);
-> +do_sigaction(int sig, struct k_sigaction *act, struct k_sigaction *oact);
+> But it's not completely trivial, because I don't think we want to be doing
+> blocking writeback with mmap_sem held.
 
-Umm. Shouldn't we just _remove_ the incorrect and unnecessary 
-extra declaration?
+Why not just do it once, at the end? 
 
 		Linus

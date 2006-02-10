@@ -1,85 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWBJMle@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWBJMqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751245AbWBJMle (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 07:41:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbWBJMle
+	id S1751252AbWBJMqb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 07:46:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWBJMqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 07:41:34 -0500
-Received: from smtp.enter.net ([216.193.128.24]:29189 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S1751245AbWBJMld (ORCPT
+	Fri, 10 Feb 2006 07:46:31 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:44992 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751252AbWBJMq3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 07:41:33 -0500
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Thu, 9 Feb 2006 07:37:46 -0500
-User-Agent: KMail/1.8.1
-Cc: mrmacman_g4@mac.com, peter.read@gmail.com, mj@ucw.cz,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net
-References: <73d8d0290602060706o75f04c1cx@mail.gmail.com> <233CD3FF-0017-4A74-BE6A-0487DF3F4EA8@mac.com> <43EC83EC.nailISD91HRFF@burner>
-In-Reply-To: <43EC83EC.nailISD91HRFF@burner>
+	Fri, 10 Feb 2006 07:46:29 -0500
+Message-ID: <43EC8B1E.8050207@pobox.com>
+Date: Fri, 10 Feb 2006 07:46:22 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Philippe Seewer <philippe.seewer@bfh.ch>
+CC: linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: libata janitor project
+References: <43EC7EFB.5020100@pobox.com> <loom.20060210T132349-817@post.gmane.org>
+In-Reply-To: <loom.20060210T132349-817@post.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602090737.47747.dhazelton@enter.net>
-X-Virus-Checker-Version: Enter.Net Virus Scanner 1.1
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Philippe Seewer wrote: > Jeff Garzik <jgarzik <at>
+	pobox.com> writes: (please don't cut CC's, particularly linux-ide)
+	>>Long term, we should work to replace the assert() in libata with
+	>>standard kernel WARN_ON(). >> >>If someone wanted to handle that
+	conversion, that would be useful. Make >>sure to pay attention, the
+	sense of each test must be reversed. >> >> Jeff >> >>- >>To unsubscribe
+	from this list: send the line "unsubscribe linux-ide" in >>the body of
+	a message to majordomo <at> vger.kernel.org >>More majordomo info at
+	http://vger.kernel.org/majordomo-info.html >> >> > > > Just so stupid
+	little me understands this: > replace for example: > assert(sg != NULL)
+	> with > WARN_ON(sg == NULL) > > right? [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 February 2006 07:15, Joerg Schilling wrote:
-> Kyle Moffett <mrmacman_g4@mac.com> wrote:
-> > Joerg Schilling wrote:
-> > > -	how to use /dev/hd* in order to scan an image from a scanner
-> > > -	how to use /dev/hd* in order to talk to a printer
-> > > -	how to use /dev/hd* in order to talk to a jukebox
-> > > -	how to use /dev/hd* in order to talk to a graphical device
-> >
-> > Does cdrecord scan images, print files, or talk to SCSI graphical
->
-> Are you _completely_ ingnoring the facts that have been discused here?
->
-> This does not apply to cdrecord but to libscg.
->
-> You either need to approach reality or stop this thread.
+Philippe Seewer wrote:
+> Jeff Garzik <jgarzik <at> pobox.com> writes:
 
-I've taken the time to look through the libscg code and I see only one reason 
-why it needs to use the BTL mappings at all - Joerg has a clean interface 
-that is consistent across all the platforms.
+(please don't cut CC's, particularly linux-ide)
 
-Not that I'm going to defend him. I've kept quiet and tracked this thread from 
-the beginning, hoping he would "see the light" as it were and realise that he 
-can export a stable interface across almost all platforms with a few ifdefs 
-and a bit of trickery to use various OS quirks to handle the work.
 
-I am no expert on Windows, so I cannot comment on that, but I can, have and do 
-read relevant sections of the POSIX and SuS when looking at problems and know 
-that the _proper_, _portable_ and _UNIX_ way of accessing devices is via the 
-block device special file. For SCSI cd burners the only way (I know of) to 
-access them for writing (as /dev/sr0 cannot be opened for "write") is via the 
-"SCSI Generic" (/dev/sg*) nodes, and to find and cross-map which /dev/sr* is 
-which /dev/sg* is by the BTL. Needless to say, that should all be transparent 
-to the user.
+>>Long term, we should work to replace the assert() in libata with 
+>>standard kernel WARN_ON().
+>>
+>>If someone wanted to handle that conversion, that would be useful.  Make 
+>>sure to pay attention, the sense of each test must be reversed.
+>>
+>>	Jeff
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-ide" in
+>>the body of a message to majordomo <at> vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>
+>>
+> 
+> 
+> Just so stupid little me understands this:
+> replace for example: 
+>   assert(sg != NULL)
+> with
+>   WARN_ON(sg == NULL)
+> 
+> right? 
 
-And, much to my surprise, Joerg's assertion that using /dev/hd* for accessing 
-ATA/PI devices would require patching libscg is bunk. All he'd have to do is 
-modify cdrecord to _internally_ (if it has to) perform the BTL mapping it 
-wants. What's more, said interface code can be compiled out if it isn't a 
-Linux system with a simple ifdef. 
+Correct.
 
-But please note that libscg _is_ a generic SCSI access library. If needed it 
-_can_ be used to access any SCSI device (and any ATA/PI device, at this 
-point) via hand-crafted command packets. Not useful to the generic 
-programmer, who is happy with the interfaces an OS provides, but for people 
-doing things like data forensics...
 
-(No disrespect meant for anyone, but if my tone comes off a bit rant-like it's 
-because I'm sick of seeing one developer (of a GPL'd program) drag so many 
-people down.)
+> ...What about WARN_ON being defined bu HAVE_ARCH_BUG_ON and assert by ATA_DEBUG?
 
-DRH
+I would rather just unconditionally use WARN_ON(), and eliminate assert().
 
-PS: If I thought I had the knowledge of SCSI/ATAPI protocol to do so, I'd fork 
-the code myself.
+	Jeff
+
+

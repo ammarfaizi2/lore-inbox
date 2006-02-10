@@ -1,62 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWBJAcu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbWBJAhj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbWBJAcu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 19:32:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbWBJAct
+	id S1750881AbWBJAhj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 19:37:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWBJAhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 19:32:49 -0500
-Received: from animx.eu.org ([216.98.75.249]:44431 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S1750877AbWBJAcs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 19:32:48 -0500
-Date: Thu, 9 Feb 2006 19:36:14 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Alex Davis <alex14641@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Let's get rid of  ide-scsi
-Message-ID: <20060210003614.GA26114@animx.eu.org>
-Mail-Followup-To: Alex Davis <alex14641@yahoo.com>,
-	linux-kernel@vger.kernel.org
-References: <20060210002148.37683.qmail@web50201.mail.yahoo.com>
-Mime-Version: 1.0
+	Thu, 9 Feb 2006 19:37:39 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:51461 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750881AbWBJAhi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 19:37:38 -0500
+Date: Fri, 10 Feb 2006 01:37:37 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@lst.de>
+Cc: linux-kernel@vger.kernel.org, achim_leubner@adaptec.com,
+       linux-scsi@vger.kernel.org
+Subject: [-mm patch] drivers/scsi/gdth.c: make __gdth_execute() static
+Message-ID: <20060210003737.GH3524@stusta.de>
+References: <20060207220627.345107c3.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060210002148.37683.qmail@web50201.mail.yahoo.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20060207220627.345107c3.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Davis wrote:
-> I think we should get rid of ide-scsi.
+On Tue, Feb 07, 2006 at 10:06:27PM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.16-rc1-mm5:
+>...
+> +gdth-add-execute-firmware-command-abstraction.patch
 > 
-> Reasons:
-> 1) It's broken.
-> 2) It's unmaintained.
-> 3) It's unneeded.
-> 
-> I'll submit a patch if people agree.
-> 
-> I code, therefore I am
+>  scsi driver API modernisation
+>...
 
-I personally do not agree with this.  I worked on at boot disk(floppy) which
-contained the kernel and modules to find a cdrom (or usb disk) and use it as
-my 2nd stage.  If I had to use ide-cd, I would not beable to do my first
-stage loader on a single floppy (I support ide and scsi cdroms via sr-mod).
 
-ide-cd.ko is > than sr-mod.ko + ide-scsi.ko
+I don't see any reason for __gdth_execute() being global.
 
-I am aware that scsi_mod.ko is larger than those 3 combined and I still need
-it regardless for usb.
 
-My personal vote would be to drop the entire ide subsystem which would thus
-drop ide-scsi.  The SCSI layer has been a general block device layer for
-more than true scsi devices.  USB, Firewire, and SATA use the scsi layer. 
-And as I understand it, libata is starting to handle PATA devices.  Once it
-can handle PATA fine, the ide code would pretty much be useless.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I am also against the seperate USB block layer, I personally saw no use in
-it.
+---
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
- Got Gas???
+ drivers/scsi/gdth.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+--- linux-2.6.16-rc2-mm1-full/drivers/scsi/gdth.c.old	2006-02-10 00:49:53.000000000 +0100
++++ linux-2.6.16-rc2-mm1-full/drivers/scsi/gdth.c	2006-02-10 00:51:05.000000000 +0100
+@@ -693,8 +693,8 @@
+ 		complete(scp->request->waiting);
+ }
+ 
+-int __gdth_execute(struct scsi_device *sdev, gdth_cmd_str *gdtcmd, char *cmnd,
+-		 int timeout, u32 *info)
++static int __gdth_execute(struct scsi_device *sdev, gdth_cmd_str *gdtcmd,
++			  char *cmnd, int timeout, u32 *info)
+ {
+ 	struct scsi_request *scp = scsi_allocate_request(sdev, GFP_KERNEL);
+ 	unsigned bufflen = gdtcmd ? sizeof(gdth_cmd_str) : 0;
+@@ -727,8 +727,8 @@
+ 		complete(scp->request.waiting);
+ }
+ 
+-int __gdth_execute(struct scsi_device *sdev, gdth_cmd_str *gdtcmd, char *cmnd,
+-		 int timeout, u32 *info)
++static int __gdth_execute(struct scsi_device *sdev, gdth_cmd_str *gdtcmd,
++			  char *cmnd, int timeout, u32 *info)
+ {
+ 	Scsi_Cmnd *scp = scsi_allocate_device(sdev, 1, FALSE);
+ 	unsigned bufflen = gdtcmd ? sizeof(gdth_cmd_str) : 0;
+

@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWBJNS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWBJNTe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbWBJNS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 08:18:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWBJNS7
+	id S932088AbWBJNTe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 08:19:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWBJNTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 08:18:59 -0500
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:20064 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751253AbWBJNS6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 08:18:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=jwZdiJR9KAnFlnYmjF4OXzoyRIkfVW89U0mHrwfLshHy+XWmShM8dI6s5hvMkIoC7ZLIrNcsM6iU2CpwhSM8+jhR78cWrfQn2EymtO5aDTmRNMFhD9dtBR/hy3YL3YHl6WB7M7FQmZUhj0ccaoFAQrrsTMjC5cdwSpp9lH4V2N4=  ;
-Message-ID: <43EC92BE.7080409@yahoo.com.au>
-Date: Sat, 11 Feb 2006 00:18:54 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux@horizon.com
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, sct@redhat.com,
-       torvalds@osdl.org
-Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
-References: <20060210080013.6572.qmail@science.horizon.com>
-In-Reply-To: <20060210080013.6572.qmail@science.horizon.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Feb 2006 08:19:34 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:21396 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S1751163AbWBJNTc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 08:19:32 -0500
+Date: Fri, 10 Feb 2006 13:19:14 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Gabor Gombas <gombasg@sztaki.hu>
+Cc: Pavel Machek <pavel@suse.cz>, Greg KH <greg@kroah.com>,
+       linux-pm@lists.osdl.org, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-pm] Re: [PATCH, RFC] [1/3] Generic in-kernel AC status
+Message-ID: <20060210131914.GA7609@srcf.ucam.org>
+References: <20060208125753.GA25562@srcf.ucam.org> <20060208130422.GB25659@srcf.ucam.org> <20060208165803.GA15239@kroah.com> <20060208170857.GA29818@srcf.ucam.org> <20060209085344.GF16052@boogie.lpds.sztaki.hu> <20060210122131.GC4974@elf.ucw.cz> <20060210131337.GD11740@boogie.lpds.sztaki.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060210131337.GD11740@boogie.lpds.sztaki.hu>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux@horizon.com wrote:
+On Fri, Feb 10, 2006 at 02:13:38PM +0100, Gabor Gombas wrote:
 
->>That's what MS_ASYNC already does.
-> 
-> 
-> Yes, in violation of the SuS spec.  That's what msync(0) already does,
-> too, so the linux-specific extension already exists.
-> 
-> The standard description of MS_INVALIDATE is very confusing and poorly
-> worded, but I think it's designed for a model where mmap() copies rather
-> than playing page table tricks, and the OS has to copy the dirty pages
-> back and forth between the buffer cache "by hand".  Looked at that way,
-> the MS_INVALIDATE wording seems to be intended as something of a "commit
-> memory writes back to the file system level" operation.
-> 
-> Which could also be expected to cause the traditional 30-second sync
-> timeout to start applying to the written data.  In the current Linux
+> Also, doing things differently when on AC power smells like a policy
+> decision, and AFAIK policy handling is not wanted in the kernel.
 
-Yes as we already have something that does the pte->page work (I'd agree
-with your interpretation of MS_INVALIDATE), then we definitely have room
-to make MS_ASYNC more efficient for applications like yours that use it
-properly.
-
+Backlight drivers are supposed to return the current brightness. With 
+some hardware, the only way to do that requires knowing whether the 
+system is on AC or not.
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Matthew Garrett | mjg59@srcf.ucam.org

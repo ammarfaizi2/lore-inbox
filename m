@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWBJGZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWBJGa0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751155AbWBJGZw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 01:25:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWBJGZw
+	id S1751160AbWBJGa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 01:30:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWBJGa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 01:25:52 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:32662 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751155AbWBJGZw (ORCPT
+	Fri, 10 Feb 2006 01:30:26 -0500
+Received: from mail.gmx.de ([213.165.64.21]:17646 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751160AbWBJGaZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 01:25:52 -0500
-Message-ID: <43EC317C.9090101@sw.ru>
-Date: Fri, 10 Feb 2006 09:23:56 +0300
-From: Vasily Averin <vvs@sw.ru>
-Organization: SW-soft
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050921
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: devel@openvz.org
-CC: Kyle Moffett <mrmacman_g4@mac.com>, Andrew Morton <akpm@osdl.org>,
-       Kirill Korotaev <dev@openvz.org>, frankeh@watson.ibm.com,
-       Andrey Savochkin <saw@sawoct.com>, Rik van Riel <riel@redhat.com>,
-       greg@kroah.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Pavel Machek <pavel@ucw.cz>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       serue@us.ibm.com, alan@lxorguk.ukuu.org.uk, arjan@infradead.org
-Subject: Re: [Devel] Re: swsusp done by migration (was Re: [RFC][PATCH 1/5]
- Virtualization/containers: startup)
-References: <43E38BD1.4070707@openvz.org>	<Pine.LNX.4.64.0602030905380.4630@g5.osdl.org>	<43E3915A.2080000@sw.ru>	<Pine.LNX.4.64.0602030939250.4630@g5.osdl.org>	<m1lkwoubiw.fsf@ebiederm.dsl.xmission.com> <43E71018.8010104@sw.ru>	<m1hd7condi.fsf@ebiederm.dsl.xmission.com>	<1139243874.6189.71.camel@localhost.localdomain>	<m13biwnxkc.fsf@ebiederm.dsl.xmission.com>	<20060208215412.GD2353@ucw.cz>	<m1mzh02y3m.fsf@ebiederm.dsl.xmission.com>	<7CCC1159-BF55-4961-BC24-A759F893D43F@mac.com> <43EC170C.6090807@vilain.net>
-In-Reply-To: <43EC170C.6090807@vilain.net>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Feb 2006 01:30:25 -0500
+X-Authenticated: #14349625
+Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
+From: MIke Galbraith <efault@gmx.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Con Kolivas <kernel@kolivas.org>,
+       gcoady@gmail.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1139515605.30058.94.camel@mindpipe>
+References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
+	 <200602081335.18256.kernel@kolivas.org>
+	 <Pine.LNX.4.61.0602091806100.30108@yvahk01.tjqt.qr>
+	 <1139515605.30058.94.camel@mindpipe>
+Content-Type: text/plain
+Date: Fri, 10 Feb 2006 07:35:19 +0100
+Message-Id: <1139553319.8850.79.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Vilain wrote:
-> Kyle Moffett wrote:
->> <wishful thinking>
->> I can see another extension to this functionality.  With appropriate 
->> changes it might also be possible to have a container exist across 
->> multiple computers using some cluster code for synchronization and 
->> fencing.  The outermost container would be the system boot container, 
->> and multiple inner containers would use some sort of network-
->> container-aware cluster filesystem to spread multiple vservers across 
->> multiple servers, distributing CPU and network load appropriately.
->> </wishful thinking>
+On Thu, 2006-02-09 at 15:06 -0500, Lee Revell wrote:
+> On Thu, 2006-02-09 at 18:06 +0100, Jan Engelhardt wrote:
+> > >> grant@deltree:~$ time grep -v 192\.168\. /var/log/apache/access_log| cut
+> > >> -c-95 ...
+> > >
+> > >What happens if you add "| cat" on the end of your command?
+> > >
+> > Do you think it's the new pipe buffering thing? (Introduced 2.6.10-.12, 
+> > don't remember exactly)
 > 
-> Yeah.  If you fudged/virtualised /dev/random, the system clock, etc you
-> could even have Tandem-style transparent High Availability.
-> </more wishful thinking>
+> If it's the same problem I've been seeing it goes back much farther than
+> 2.6.10.
+> 
+> Lately I suspect the scheduler.
 
-Could you please explain, why you want to virtualize /dev/random?
+Hmm.  I ran into an oddity while testing a modified kernel, and see
+something in schedule() that I don't think is right...
 
-Tnank you,
-	Vasily Averin
+Down where it does requeue_task(next, array) if a freshly awakened task
+is to possibly receive a priority boost for the time it sat on the
+runqueue, I see a potential problem.  If the task didn't sit on the
+queue long enough to be promoted, and isn't at the very top, it is going
+to the back of the bus as soon it gets preempted by say xmms.  For a
+task that possibly just sat through the full rotation of a busy queue
+waiting for a shot at the cpu, that has got to hurt.  Speculating, that
+requeue looks like it's there to increase the queue rotation rate, ie to
+reduce latency, but it looks to me like it can also accomplish the
+opposite if the context switch rate for your queue isn't very high.
 
-Virtuozzo Linux Kernel Team
+... I ended up sharing a queue with a few rampaging irman2 threads, and
+each keystroke took ages.  [btw, i wonder how the heck next->array could
+not be rq->active there]  
+
+	-Mike
+

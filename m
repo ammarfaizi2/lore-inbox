@@ -1,81 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWBJRet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbWBJRfj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751275AbWBJRet (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 12:34:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWBJRet
+	id S1751356AbWBJRfj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 12:35:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWBJRfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 12:34:49 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:52664 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S1751275AbWBJRes (ORCPT
+	Fri, 10 Feb 2006 12:35:39 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:58600 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751356AbWBJRfi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 12:34:48 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Fri, 10 Feb 2006 18:32:29 +0100
-User-Agent: KMail/1.8.3
-References: <200602031724.55729.luke@dashjr.org> <Pine.LNX.4.61.0602091832500.30108@yvahk01.tjqt.qr> <43EC72E3.nailISD4HI9WC@burner>
-In-Reply-To: <43EC72E3.nailISD4HI9WC@burner>
-Cc: eter.read@gmail.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
+	Fri, 10 Feb 2006 12:35:38 -0500
+Date: Fri, 10 Feb 2006 09:35:21 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Andrew Morton <akpm@osdl.org>, linux@horizon.com,
+       linux-kernel@vger.kernel.org, sct@redhat.com
+Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
+In-Reply-To: <Pine.LNX.4.64.0602100904330.19172@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0602100923400.19172@g5.osdl.org>
+References: <20060209071832.10500.qmail@science.horizon.com>
+ <43EAFEB9.2060000@yahoo.com.au> <20060209004208.0ada27ef.akpm@osdl.org>
+ <43EB3801.70903@yahoo.com.au> <20060209094815.75041932.akpm@osdl.org>
+ <43EC0A44.1020302@yahoo.com.au> <20060209195035.5403ce95.akpm@osdl.org>
+ <43EC0F3F.1000805@yahoo.com.au> <20060209201333.62db0e24.akpm@osdl.org>
+ <43EC16D8.8030300@yahoo.com.au> <20060209204314.2dae2814.akpm@osdl.org>
+ <43EC1BFF.1080808@yahoo.com.au> <20060209211356.6c3a641a.akpm@osdl.org>
+ <43EC24B1.9010104@yahoo.com.au> <20060209215040.0dcb36b1.akpm@osdl.org>
+ <43EC2C9A.7000507@yahoo.com.au> <20060209221324.53089938.akpm@osdl.org>
+ <43EC3326.4080706@yahoo.com.au> <20060209224656.7533ce2b.akpm@osdl.org>
+ <43EC3961.3030904@yahoo.com.au> <20060209231432.03a09dee.akpm@osdl.org>
+ <43EC8A06.40405@yahoo.com.au> <Pine.LNX.4.64.0602100815580.19172@g5.osdl.org>
+ <43ECC69D.1010001@yahoo.com.au> <Pine.LNX.4.64.0602100904330.19172@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3189547.49poKJXB4P";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602101832.29992.mbuesch@freenet.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3189547.49poKJXB4P
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-On Friday 10 February 2006 12:02, you wrote:
-> Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
->=20
->=20
-> > Right. The question was rather like this:
-> > Say we have our non-stable /dev/sr0 mapping to /dev/sg0, and it has got=
- BTL=20
-> > 1,1,0. Now, if the user starts `cdrecord -dev=3D1,1,0`,
-> > `ls -l /proc/$(pidof -s cdrecord)/fd/` should show (and in fact did whe=
-n I=20
-> > used ide-scsi back then) /dev/sg0, right?
-> >
-> > If so, what's wrong with just opening /dev/sg0 directly (as per user=20
-> > request, i.e. cdrecord -dev=3D/dev/sg0) and sending the scsi commands d=
-own=20
-> > the fd?
->=20
-> As I did write _many_ times, this was done by the program "cdwrite" on Li=
-nux
-> in 1995 and as cdwrite did not check whether if actually got a CD writer,
-> cdwrite did destroy many hard disk drives just _because_ the /dev/sg*=20
-> is non-stable.
->=20
-> People did not believe this and did write shell scripts with e.g. /dev/sg=
-0=20
-> inside and later suffered from the non-stable /dev/sg* <-> device relatio=
-n.
 
-I am sure they used udev, back in 1995...
+On Fri, 10 Feb 2006, Linus Torvalds wrote:
+> 
+> So WRITE_SYNC has clearly different behaviour. There's a good reason the 
+> kernel internally has "start write" + "wait for write", and I'll repeat: 
+> none of those reasons go away just because you move to user space.
 
-=2D-=20
-Greetings Michael.
+Btw, just to clarify: there _are_ things that do change when you go from 
+user space to kernel space. It's true that you lose some visibility, and 
+it's also true that the kernel has more than just "start write" semantics. 
 
---nextPart3189547.49poKJXB4P
-Content-Type: application/pgp-signature
+So the kernel actually has "start write, but don't wait for stuff that 
+has IO already pending", and "start write, and if writeback was active on 
+a re-dirtied page, wait for and re-start it". 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+I don't know if user space wants quite -that- much choice. The "start 
+write but ignore busy areas" doesn't actually make sense together with 
+"wait for it", since you don't know what (if any) you're really waiting 
+for.
 
-iD8DBQBD7M4tlb09HEdWDKgRAnhsAKC5BgviAv2XrN4DQg7J4gw1SK3wFACgqG9S
-7kGNbLZ9cEvhI/mbBwAxwu4=
-=ARtx
------END PGP SIGNATURE-----
+So it's really three operations
+ - try to start flushing, so that you'll have less work pending later
+ - start flushing
+ - wait for any pending flush
 
---nextPart3189547.49poKJXB4P--
+[ From a pure "correctness" angle, we could say that "start flushing" 
+  is the same as "wait for pending" + "try to start". However, the "IO 
+  should overlap as much as possible" argument says that that is the
+  wrong thing to do, since we can start flushing non-pending IO before we 
+  wait for the old pending one ]
+
+Now, most user programs probably don't care one whit.
+
+But I think Andrew's patch makes sense. It exposes the internal kernel 
+working in a logical fasion for people who do care. Yes, it's 
+Linux-specific, but hey, so is arguing about the exact semantics of 
+MS_INVALIDATE (which is version-specific).
+
+		Linus

@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWBJXWx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWBJX2N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751396AbWBJXWx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 18:22:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWBJXWx
+	id S932243AbWBJX2N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 18:28:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWBJX2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 18:22:53 -0500
-Received: from streetfiresound.liquidweb.com ([64.91.233.29]:26336 "EHLO
-	host.streetfiresound.liquidweb.com") by vger.kernel.org with ESMTP
-	id S1751396AbWBJXWw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 18:22:52 -0500
-Subject: Re: [PATCH] spi: Updated PXA2xx SSP SPI Driver
-From: Stephen Street <stephen@streetfiresound.com>
-Reply-To: stephen@streetfiresound.com
-To: Nicolas Pitre <nico@cam.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, dvrabel@arcom.com,
-       David Brownell <david-b@pacbell.net>,
-       spi-devel-general@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0602101732590.5397@localhost.localdomain>
-References: <43e80ec3.oEr+gtyMVtunRTyE%stephen@streetfiresound.com>
-	 <1139535480.30189.30.camel@ststephen.streetfiresound.com>
-	 <Pine.LNX.4.64.0602101102520.5397@localhost.localdomain>
-	 <1139609981.30189.84.camel@ststephen.streetfiresound.com>
-	 <Pine.LNX.4.64.0602101732590.5397@localhost.localdomain>
-Content-Type: text/plain
-Organization: StreetFire Sound Labs
-Date: Fri, 10 Feb 2006 15:22:48 -0800
-Message-Id: <1139613768.30189.139.camel@ststephen.streetfiresound.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-22) 
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host.streetfiresound.liquidweb.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - streetfiresound.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 10 Feb 2006 18:28:13 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:18913 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP id S932243AbWBJX2M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 18:28:12 -0500
+Date: Sat, 11 Feb 2006 00:28:08 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, tytso@mit.edu,
+       peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       jengelh@linux01.gwdg.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060210232807.GB5713@stiffy.osknowledge.org>
+References: <43EC887B.nailISDGC9CP5@burner> <mj+md-20060210.123726.23341.atrey@ucw.cz> <43EC8E18.nailISDJTQDBG@burner> <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr> <43EC93A2.nailJEB1AMIE6@burner> <20060210141651.GB18707@thunk.org> <43ECA3FC.nailJGC110XNX@burner> <20060210145238.GC18707@thunk.org> <43ECA934.nailJHD2NPUCH@burner> <20060210154256.GG28676@harddisk-recovery.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060210154256.GG28676@harddisk-recovery.com>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.16-rc2-marc-g418aade4-dirty
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-02-10 at 17:45 -0500, Nicolas Pitre wrote:
+* Erik Mouw <erik@harddisk-recovery.com> [2006-02-10 16:42:56 +0100]:
+
+> On Fri, Feb 10, 2006 at 03:54:44PM +0100, Joerg Schilling wrote:
+> > "Theodore Ts'o" <tytso@mit.edu> wrote:
+> > > On Fri, Feb 10, 2006 at 03:32:28PM +0100, Joerg Schilling wrote:
+> > > > A particular file on the system must not change st_dev while the system
+> > > > is running.
+> > > > 
+> > > > http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/stat.h.html
+> > >
+> > > 1)  File != device.
+> > 
+> > I am sorry, but it turns out that you did not understand the problem.
 > 
-> Actually, it will do almost the same as you originally did if you look 
-> at its definition.  However, because a solution needs to be implemented 
-> to support multiple ports then using __raw_readl() at the driver level 
-> is more familiar to other kernel people.
-> 
-Yea, I did notice that also.  I just wanted to make sure I understood
-what is going on so that I do not make the same mistake for the third
-time.
+> Why do you start an ad hominem attack every time somebody shows you're
+> wrong for technical reasons?
 
-> In fact, if there was only one SSP port, I'd have asked you to use 
-> SSPCR0, SSPDR, etc. directly.  But the fact that the driver can handle 
-> multiple ports makes it rather messy (and the SSP*_P() macros in 
-> pxa-regs.h are an abomination IMHO).
-> 
-I did not use the SSP*_P functions because of the mess.  Actually at one
-point the driver implemented register accesses in similar manner as
-SSP*_P but David Brownell got me straightened out.  Thus the original
-question.
+Duuude ... could you all calm down and get the facts together? What if you'd all
+be in the same room with a knife by the hand every one of you?!
 
-Stephen
+I suggest Joerg summarizes the facts from his point of view _in detail_ and
+people are going to respond to it. I think it pretty useless to get people
+respond to you, Joerg, where you just drop a two-liner where one line is that
+someone is stupid or not as good at something and the other line is a quick
+statement that just always leaves place for people to ask more questions and
+proceed arguing.
 
+Please clarify. Summarize. This whole thing turns into some totally useles infitine
+state machine...
 
+Thanks anyone for your eyes. :)
 
+Marc

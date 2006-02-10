@@ -1,45 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWBJV1b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbWBJV37@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbWBJV1b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 16:27:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWBJV1b
+	id S932200AbWBJV37 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 16:29:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWBJV37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 16:27:31 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:904 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932186AbWBJV1a (ORCPT
+	Fri, 10 Feb 2006 16:29:59 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:53685 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932200AbWBJV36 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 16:27:30 -0500
-Date: Fri, 10 Feb 2006 16:27:11 -0500
-From: Dave Jones <davej@redhat.com>
+	Fri, 10 Feb 2006 16:29:58 -0500
+Date: Fri, 10 Feb 2006 13:28:51 -0800
+From: Andrew Morton <akpm@osdl.org>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Fix s390 build failure.
-Message-ID: <20060210212711.GD31949@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060210200425.GA11913@redhat.com> <Pine.LNX.4.64.0602101314082.19172@g5.osdl.org>
+Cc: oliver@neukum.org, nickpiggin@yahoo.com.au, linux@horizon.com,
+       linux-kernel@vger.kernel.org, sct@redhat.com
+Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
+Message-Id: <20060210132851.6cb5c6c7.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602101315100.19172@g5.osdl.org>
+References: <20060209071832.10500.qmail@science.horizon.com>
+	<43ECDD9B.7090709@yahoo.com.au>
+	<Pine.LNX.4.64.0602101056130.19172@g5.osdl.org>
+	<200602102034.07531.oliver@neukum.org>
+	<Pine.LNX.4.64.0602101152150.19172@g5.osdl.org>
+	<20060210121130.57db39bc.akpm@osdl.org>
+	<Pine.LNX.4.64.0602101315100.19172@g5.osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0602101314082.19172@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> 
+> 
+> On Fri, 10 Feb 2006, Andrew Morton wrote:
+> > 
+> > Yes, it would make sense to run balance_dirty_pages_ratelimited() inside
+> > msync_pte_range().  So pdflush will get poked if we hit
+> > background_dirty_ratio threshold, or we go into caller-initiated writeout
+> > if we hit dirty_ratio.
+> > 
+> > But it's not completely trivial, because I don't think we want to be doing
+> > blocking writeback with mmap_sem held.
+> 
+> Why not just do it once, at the end? 
+> 
 
-arch/s390/kernel/compat_signal.c:199: error: conflicting types for 'do_sigaction'
-include/linux/sched.h:1115: error: previous declaration of 'do_sigaction' was here
+We could, sort-of.
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+balance_dirty_pages() is quite CPU-intensive (hence the presence of
+balance_dirty_pages_ratelimited()).
 
---- linux-2.6.15.noarch/arch/s390/kernel/compat_signal.c~	2006-02-10 12:47:57.000000000 -0500
-+++ linux-2.6.15.noarch/arch/s390/kernel/compat_signal.c	2006-02-10 12:48:05.000000000 -0500
-@@ -196,7 +196,4 @@ sys32_sigaction(int sig, const struct ol
- }
- 
--int
--do_sigaction(int sig, const struct k_sigaction *act, struct k_sigaction *oact);
--
- asmlinkage long
- sys32_rt_sigaction(int sig, const struct sigaction32 __user *act,
+balance_dirty_pages_ratelimited() expects to be called once per
+page-dirtying.  
+
+- We can't use balance_dirty_pages() because workloads which do lots of
+  teeny msyncs would chew lots of CPU.
+
+- We can't use balance_dirty_pages_ratelimited() because it thinks only a
+  single page was dirtied.
+
+So the thing to do is to change msync to keep track of how many pages were
+dirtied, then at the end call
+
+balance_dirty_pages_ratelimited_new_improved_api(mapping, nr_pages_dirtied).
+
+Except an msync can cover multiple mappings, so we'd need to pop the lock
+in the top-level loop, run the above for each VMA.  Not rocket-science, I
+guess.

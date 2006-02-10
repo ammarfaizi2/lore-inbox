@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWBJXnF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWBJXuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932198AbWBJXnF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 18:43:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWBJXnF
+	id S1750825AbWBJXuo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 18:50:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWBJXuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 18:43:05 -0500
-Received: from bayc1-pasmtp11.bayc1.hotmail.com ([65.54.191.171]:25641 "EHLO
-	BAYC1-PASMTP11.BAYC1.HOTMAIL.COM") by vger.kernel.org with ESMTP
-	id S1751391AbWBJXnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 18:43:04 -0500
-Message-ID: <BAYC1-PASMTP11631D316096854AF9EA67AE020@CEZ.ICE>
-X-Originating-IP: [65.94.251.146]
-X-Originating-Email: [seanlkml@sympatico.ca]
-Date: Fri, 10 Feb 2006 18:42:41 -0500
-From: sean <seanlkml@sympatico.ca>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: nix@esperi.org.uk, axboe@suse.de, schilling@fokus.fraunhofer.de,
+	Fri, 10 Feb 2006 18:50:44 -0500
+Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:53265 "EHLO
+	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
+	id S1750825AbWBJXun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 18:50:43 -0500
+To: Marc Koschewski <marc@osknowledge.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Phillip Susi <psusi@cfl.rr.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-Id: <20060210184241.35332e78.seanlkml@sympatico.ca>
-In-Reply-To: <43ED005F.5060804@tmr.com>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
-	<Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
-	<20060125144543.GY4212@suse.de>
-	<Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
-	<20060125153057.GG4212@suse.de>
-	<43D7AF56.nailDFJ882IWI@burner>
-	<20060125181847.b8ca4ceb.grundig@teleline.es>
-	<20060125173127.GR4212@suse.de>
-	<43D7C1DF.1070606@gmx.de>
-	<878xt3rfjc.fsf@amaterasu.srvr.nix>
-	<43ED005F.5060804@tmr.com>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.11; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Feb 2006 23:45:18.0718 (UTC) FILETIME=[0C9009E0:01C62E9C]
+Subject: Re: CD-blanking leads to machine freeze with current -git
+References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com>
+	<20060210175848.GA5533@stiffy.osknowledge.org>
+	<43ECE734.5010907@cfl.rr.com>
+	<20060210210006.GA5585@stiffy.osknowledge.org>
+	<1139613834.14383.5.camel@localhost.localdomain>
+	<20060210234121.GC5713@stiffy.osknowledge.org>
+From: Doug McNaught <doug@mcnaught.org>
+Date: Fri, 10 Feb 2006 18:50:37 -0500
+In-Reply-To: <20060210234121.GC5713@stiffy.osknowledge.org> (Marc
+ Koschewski's message of "Sat, 11 Feb 2006 00:41:21 +0100")
+Message-ID: <87accyu62a.fsf@asmodeus.mcnaught.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Feb 2006 16:06:39 -0500
-Bill Davidsen <davidsen@tmr.com> wrote:
+Marc Koschewski <marc@osknowledge.org> writes:
 
+> I'm also curious when DELL will release their first mobile with SCSI
+> onboard instead of IDE. The chips are the same size...
 
-> I notice that the first thing people suggest is to make things like 
-> udev, hal and sysfs required instead of optional to do something as 
-> simple as burn a CD. 
-> [snip]
+That's very unlikely to ever happen, but I do hear that laptops are
+starting to use SATA rather than IDE, at least for the hard disk.
+That would help with the bus-locking problem...
 
-All that is required is a proper device node in /dev; is this really
-so much of a burden?   This device node can be created statically
-at install time or via udev or any other method.   In fact if you're 
-using udev and a device node isn't automatically created for all 
-of your cd burners, you can file a bug report and get it fixed.   So in 
-the end all you ever have to teach a user is to pick the device they
-want from /dev.
-
-Sean
+-Doug

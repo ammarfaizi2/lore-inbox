@@ -1,52 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbWBJOXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWBJOWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751270AbWBJOXg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 09:23:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWBJOXE
+	id S932108AbWBJOWV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 09:22:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWBJOWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 09:23:04 -0500
-Received: from dtp.xs4all.nl ([80.126.206.180]:31531 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S932122AbWBJOWZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 09:22:25 -0500
-Date: Fri, 10 Feb 2006 15:22:24 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Imre Gergely <imre.gergely@astral.ro>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: disabling libata
-Message-ID: <20060210142224.GF28676@harddisk-recovery.com>
-References: <43EC97C6.10607@astral.ro> <20060210141130.GE28676@harddisk-recovery.com> <43ECA035.5040302@astral.ro>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43ECA035.5040302@astral.ro>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+	Fri, 10 Feb 2006 09:22:20 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:19345 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932108AbWBJOVw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 09:21:52 -0500
+Date: Fri, 10 Feb 2006 23:21:23 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: "Luck, Tony" <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
+       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
+Subject: [RFC/PATCH: 007/010] Memory hotplug for new nodes with pgdat allocation. (pgdat link insert)
+Cc: x86-64 Discuss <discuss@x86-64.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060210224529.C53E.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 10, 2006 at 04:16:21PM +0200, Imre Gergely wrote:
-> Erik Mouw wrote:
-> > On Fri, Feb 10, 2006 at 03:40:22PM +0200, Imre Gergely wrote:
-> >> i have a SATA hardisk, and am using FC4 with default kernel
-> >> (2.6.14-1.1644_FC4). i was wondering if it's possible to tell the kernel to use
-> >> the old ATA driver with SATA support instead of libata, for my harddisk to
-> >> appear as hdX, and not sdX.
-> > 
-> > Why would you want to do that? SATA are driven by libata and the disks
-> > turn up as SCSI devices. There's no way around that (yet).
-> 
-> if i recompile the kernel, and leave out the libata part, and compile in
-> support for SATA, under ATA, the harddisks turn up as normal IDE devices (ie
-> hde, hdf, etc). i would like that without recompiling. if it's possible of course.
+This is to insert pgdat to its link.
+To be honest, I would like remove this pgdat link, and
+I posted patches to remove it for a long time ago to -mm.
 
-Yes, I know that's possible for some SATA adapters, but my question is
-why would you want to do that? The SATA support in the IDE subsystem is
-deprecated, you should really use libata.
+http://marc.theaimsgroup.com/?l=linux-mm&m=112808582217281&w=2
+http://marc.theaimsgroup.com/?l=linux-mm&m=112808582227966&w=2
 
+But, it might have influence against performance for big NUMA box.
+So, I should check it.
+However, I'm very hard to access big NUMA box. Our machine is 
+divided as small partitioned for test of each team inside of fujitsu
+every time. Sigh. :-(. 
 
-Erik
+This is small lazy patch instead of them.
+
+Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+
+Index: pgdat2/arch/ia64/mm/discontig.c
+===================================================================
+--- pgdat2.orig/arch/ia64/mm/discontig.c	2006-02-10 17:40:05.000000000 +0900
++++ pgdat2/arch/ia64/mm/discontig.c	2006-02-10 19:42:27.000000000 +0900
+@@ -384,7 +384,7 @@ static void __init *memory_less_node_all
+  * pgdat_insert - insert the pgdat into global pgdat_list
+  * @pgdat: the pgdat for a node.
+  */
+-static void __init pgdat_insert(pg_data_t *pgdat)
++void __meminit pgdat_insert(pg_data_t *pgdat)
+ {
+ 	pg_data_t *prev = NULL, *next;
+ 
+Index: pgdat2/arch/ia64/mm/init.c
+===================================================================
+--- pgdat2.orig/arch/ia64/mm/init.c	2006-02-10 17:29:30.000000000 +0900
++++ pgdat2/arch/ia64/mm/init.c	2006-02-10 19:42:41.000000000 +0900
+@@ -647,6 +647,8 @@ void online_page(struct page *page)
+ 	num_physpages++;
+ }
+ 
++extern void __meminit pgdat_insert(pg_data_t *pgdat);
++
+ int add_memory(u64 start, u64 size)
+ {
+ 	pg_data_t *pgdat;
+@@ -663,6 +665,7 @@ int add_memory(u64 start, u64 size)
+ 
+ 	if (!node_online(node)){
+ 		ret = new_pgdat_init(node, start_pfn, nr_pages);
++		pgdat_insert(NODE_DATA(node));
+ 		if (ret)
+ 			return ret;
+ 
 
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+Yasunori Goto 
+
+

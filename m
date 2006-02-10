@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbWBJBwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbWBJCKY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750983AbWBJBwi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 20:52:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750986AbWBJBwi
+	id S1750977AbWBJCKY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 21:10:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbWBJCKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 20:52:38 -0500
-Received: from hummeroutlaws.com ([12.161.0.3]:8204 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S1750980AbWBJBwh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 20:52:37 -0500
-From: "Jim Crilly" <jim@why.dont.jablowme.net>
-Date: Thu, 9 Feb 2006 20:52:02 -0500
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, Martin Mares <mj@ucw.cz>,
-       peter.read@gmail.com, Matthias Andree <matthias.andree@gmx.de>,
-       LKML Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060210015201.GP18918@voodoo>
-Mail-Followup-To: Kyle Moffett <mrmacman_g4@mac.com>,
-	Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	Martin Mares <mj@ucw.cz>, peter.read@gmail.com,
-	Matthias Andree <matthias.andree@gmx.de>,
-	LKML Kernel <linux-kernel@vger.kernel.org>
-References: <20060206205437.GA12270@voodoo> <43E89B56.nailA792EWNLG@burner> <20060207183712.GC5341@voodoo> <43E9F1CD.nail2BR11FL52@burner> <20060208162828.GA17534@voodoo> <43EA1D26.nail40E11SL53@burner> <20060208165330.GB17534@voodoo> <43EB0DEB.nail52A1LVGUO@burner> <mj+md-20060209.095744.7127.atrey@ucw.cz> <233CD3FF-0017-4A74-BE6A-0487DF3F4EA8@mac.com>
+	Thu, 9 Feb 2006 21:10:23 -0500
+Received: from adelphi.physics.adelaide.edu.au ([129.127.102.1]:5253 "EHLO
+	adelphi.physics.adelaide.edu.au") by vger.kernel.org with ESMTP
+	id S1750976AbWBJCKX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 21:10:23 -0500
+From: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
+Message-Id: <200602100212.k1A2CEat012522@auster.physics.adelaide.edu.au>
+Subject: 2.6.15-rt16: possible sound-related side-effect
+To: linux-kernel@vger.kernel.org
+Date: Fri, 10 Feb 2006 12:42:14 +1030 (CST)
+Cc: jwoithe@physics.adelaide.edu.au (Jonathan Woithe)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <233CD3FF-0017-4A74-BE6A-0487DF3F4EA8@mac.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02/09/06 06:14:40PM -0500, Kyle Moffett wrote:
-> Does cdrecord talk to CPU devices? No! Why do you care?  BTW: What  
-> the hell is a "CPU device" and why the hell would you think you could  
-> talk to it through a disk interface, let alone some other random SCSI  
-> interface?
-> 
+Hi all
 
-We have several fiber controllers and the controller itself does show up as
-a SCSI device that sg can bind to, I believe the management software can
-actually manage the storage via that node but we've never used it and I
-highly doubt anyone uses cdrecord or libscg for that purpose.
+In the last week I have updated the kernel on our laptop to 2.6.15-rt16.
+By and large this worked well and had the attractive side effect of making
+the clock run at the correct speed once more.
 
-Jim.
+During development of an ALSA patch I had the need to remove and reinsert
+the hda-intel and hda-codec modules on numerous occasions.  Every so often
+(perhaps once every 5 or 6 times on average) the initialisation sequence of
+hda-intel would get hung up and the associated insmod would never return.  A
+reboot was required to clear the problem.  The following messages were
+written to syslog repeatedly and often:
+
+  Feb  5 21:36:24: ALSA sound/pci/hda/hda_intel.c:511: azx_get_response timeout
+  Feb  5 21:36:26 halite last message repeated 9 times
+  Feb  5 21:36:29 halite kernel: printk: 31 messages suppressed.
+
+I have noticed the "azx_get_response timeout" messages in earlier kernels
+as well, but up until now the hda initialisation hasn't gotten hung up.
+
+The latching up of the hda-intel initialisation does not appear to occur
+when doing the same thing under a non-RT 2.6.15 kernel.  Furthermore, I have
+had an instance where the lockup occured while cold-booting an unmodified
+2.6.15-rt16, which rules out any changes I made to ALSA as the cause of the
+problem.  In any case the changes I was making to ALSA don't affect the
+initialisation code.
+
+Prior to this kernel I was running an unmodified 2.6.14-rt21 kernel and
+while these messages did occur they didn't cause hda-intel to lock up.
+
+Any suggestions as to what might be causing this and/or of further tests
+which might help narrow down the cause?
+
+Regards
+  jonathan

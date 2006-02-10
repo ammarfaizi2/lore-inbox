@@ -1,90 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWBJMqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWBJM5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbWBJMqb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 07:46:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWBJMqb
+	id S932066AbWBJM5k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 07:57:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWBJM5k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 07:46:31 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:44992 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751252AbWBJMq3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 07:46:29 -0500
-Message-ID: <43EC8B1E.8050207@pobox.com>
-Date: Fri, 10 Feb 2006 07:46:22 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Philippe Seewer <philippe.seewer@bfh.ch>
-CC: linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: libata janitor project
-References: <43EC7EFB.5020100@pobox.com> <loom.20060210T132349-817@post.gmane.org>
-In-Reply-To: <loom.20060210T132349-817@post.gmane.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Philippe Seewer wrote: > Jeff Garzik <jgarzik <at>
-	pobox.com> writes: (please don't cut CC's, particularly linux-ide)
-	>>Long term, we should work to replace the assert() in libata with
-	>>standard kernel WARN_ON(). >> >>If someone wanted to handle that
-	conversion, that would be useful. Make >>sure to pay attention, the
-	sense of each test must be reversed. >> >> Jeff >> >>- >>To unsubscribe
-	from this list: send the line "unsubscribe linux-ide" in >>the body of
-	a message to majordomo <at> vger.kernel.org >>More majordomo info at
-	http://vger.kernel.org/majordomo-info.html >> >> > > > Just so stupid
-	little me understands this: > replace for example: > assert(sg != NULL)
-	> with > WARN_ON(sg == NULL) > > right? [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+	Fri, 10 Feb 2006 07:57:40 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:41425 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S1751163AbWBJM5j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 07:57:39 -0500
+Date: Fri, 10 Feb 2006 13:58:38 +0100
+From: DervishD <lkml@dervishd.net>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: peter.read@gmail.com, matthias.andree@gmx.de, lsorense@csclub.uwaterloo.ca,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060210125838.GA2810@DervishD>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	peter.read@gmail.com, matthias.andree@gmx.de,
+	lsorense@csclub.uwaterloo.ca, linux-kernel@vger.kernel.org,
+	jim@why.dont.jablowme.net
+References: <43E9F1CD.nail2BR11FL52@burner> <20060208210219.GB9166@DervishD> <20060208211455.GC2480@csclub.uwaterloo.ca> <43EB1988.nail7EL2I7AN6@burner> <20060209145740.GB94@DervishD> <43EB62CA.nailCFH31KKTA@burner> <20060209173351.GA432@DervishD> <43EC7199.nailISD1164I0@burner> <20060210114505.GB2750@DervishD> <43EC882E.nailISDFNVTCC@burner>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43EC882E.nailISDFNVTCC@burner>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philippe Seewer wrote:
-> Jeff Garzik <jgarzik <at> pobox.com> writes:
+    Hi Joerg :)
 
-(please don't cut CC's, particularly linux-ide)
-
-
->>Long term, we should work to replace the assert() in libata with 
->>standard kernel WARN_ON().
->>
->>If someone wanted to handle that conversion, that would be useful.  Make 
->>sure to pay attention, the sense of each test must be reversed.
->>
->>	Jeff
->>
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-ide" in
->>the body of a message to majordomo <at> vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>
->>
+ * Joerg Schilling <schilling@fokus.fraunhofer.de> dixit:
+> DervishD <lkml@dervishd.net> wrote:
+> > > What is your intent for writing this?
+> >
+> >     My intention is to get real proofs about the "brokenness" of the
+> > patch, not just an "It is completely broken". That's not technical.
+> > That's the same than saying "Windows sucks". Now, tell why it sucks,
+> > in technical terms.
+> >
 > 
-> 
-> Just so stupid little me understands this:
-> replace for example: 
->   assert(sg != NULL)
-> with
->   WARN_ON(sg == NULL)
-> 
-> right? 
+> So why don't you look at the patch then?
 
-Correct.
+    I've done it. I told in my first message. Have you done it?
 
+    Raúl Núñez de Arenas Coronado
 
-> ...What about WARN_ON being defined bu HAVE_ARCH_BUG_ON and assert by ATA_DEBUG?
-
-I would rather just unconditionally use WARN_ON(), and eliminate assert().
-
-	Jeff
-
-
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to... RAmen!

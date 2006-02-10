@@ -1,64 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750848AbWBJKNr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbWBJKT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750848AbWBJKNr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 05:13:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWBJKNr
+	id S1751220AbWBJKT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 05:19:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWBJKT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 05:13:47 -0500
-Received: from cantor.suse.de ([195.135.220.2]:12680 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750848AbWBJKNq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 05:13:46 -0500
-From: Andi Kleen <ak@muc.de>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-Date: Fri, 10 Feb 2006 11:13:12 +0100
-User-Agent: KMail/1.8.2
-Cc: Nathan Lynch <ntl@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Eric Dumazet <dada1@cosmosbay.com>, riel@redhat.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, mingo@elte.hu,
-       76306.1226@compuserve.com, wli@holomorphy.com,
-       Paul Jackson <pj@sgi.com>, jbeulich@novell.com,
-       Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-References: <200602051959.k15JxoHK001630@hera.kernel.org> <20060209173726.GA39278@muc.de> <20060210100521.GA9307@osiris.boeblingen.de.ibm.com>
-In-Reply-To: <20060210100521.GA9307@osiris.boeblingen.de.ibm.com>
+	Fri, 10 Feb 2006 05:19:27 -0500
+Received: from loadbalancer1.core.taytron.net ([80.190.249.152]:23300 "EHLO
+	taytron.net") by vger.kernel.org with ESMTP id S1751220AbWBJKT0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 05:19:26 -0500
+Message-ID: <04cc01c62e2b$724a2110$be02010a@bln.nativeinstruments.de>
+From: "Florian Schirmer" <jolt@tuxbox.org>
+To: "Manu Abraham" <abraham.manu@gmail.com>, "Adrian Bunk" <bunk@stusta.de>
+Cc: <v4l-dvb-maintainer@linuxtv.org>, <linux-kernel@vger.kernel.org>
+References: <20060210004643.GL3524@stusta.de> <43EC26E1.5020804@gmail.com>
+Subject: Re: [v4l-dvb-maintainer] Re: [2.6 patch] drivers/media/dvb/bt8xx/: make2 structs static
+Date: Fri, 10 Feb 2006 11:19:15 +0100
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=response
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602101113.13632.ak@muc.de>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2527
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[putting some Xen people into cc]
+Hi,
 
-On Friday 10 February 2006 11:05, Heiko Carstens wrote:
-> > > > powerpc/ppc64, for instance, determines the number of possible cpus
-> > > > from information exported by firmware (and I'm mystified as to why
-> > > > other platforms don't do this).  So it's typical to have a kernel an a
-> > > > pSeries partition with NR_CPUS=128, but cpu_possible_map = 0xff.
-> > > 
-> > > Simply because there is no such interface on s390. The only thing we know
-> > > for sure is that if we are running under z/VM the user is free to
-> > > configure up to 63 additional virtual cpus on the fly...
-> > 
-> > x86-64 had the same problem, but we now require that you 
-> > boot with additional_cpus=... for how many you want. Default is 0
-> > (used to be half available CPUs but that lead to confusion)
+looks good. Thanks.
+
+Signed-off-by: Florian Schirmer <jolt@tuxbox.org>
+
+Best,
+  Florian
+
+----- Original Message ----- 
+From: "Manu Abraham" <abraham.manu@gmail.com>
+To: "Adrian Bunk" <bunk@stusta.de>
+Cc: <v4l-dvb-maintainer@linuxtv.org>; <linux-kernel@vger.kernel.org>
+Sent: Friday, February 10, 2006 6:38 AM
+Subject: [v4l-dvb-maintainer] Re: [2.6 patch] drivers/media/dvb/bt8xx/: 
+make2 structs static
+
+
+> Adrian Bunk wrote:
+>> This patch makes two needlessly global structs static.
+>>
+>>
+>> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>>
+>> ---
+>>
+>>  drivers/media/dvb/bt8xx/bt878.c |    2 +-
+>>  drivers/media/dvb/bt8xx/dst.c   |    2 +-
+>>  2 files changed, 2 insertions(+), 2 deletions(-)
+>>
+>> --- linux-2.6.16-rc2-mm1-full/drivers/media/dvb/bt8xx/bt878.c.old 
+>> 2006-02-09 22:09:00.000000000 +0100
+>> +++ linux-2.6.16-rc2-mm1-full/drivers/media/dvb/bt8xx/bt878.c 2006-02-09 
+>> 22:09:07.000000000 +0100
+>> @@ -382,7 +382,7 @@
+>>  EXPORT_SYMBOL(bt878_device_control);
+>>  -struct cards card_list[] __devinitdata = {
+>> +static struct cards card_list[] __devinitdata = {
+>>  { 0x01010071, BTTV_BOARD_NEBULA_DIGITV, "Nebula Electronics DigiTV" },
+>>  { 0x07611461, BTTV_BOARD_AVDVBT_761, "AverMedia AverTV DVB-T 761" },
+>> --- linux-2.6.16-rc2-mm1-full/drivers/media/dvb/bt8xx/dst.c.old 
+>> 2006-02-09 22:09:21.000000000 +0100
+>> +++ linux-2.6.16-rc2-mm1-full/drivers/media/dvb/bt8xx/dst.c 2006-02-09 
+>> 22:09:29.000000000 +0100
+>> @@ -602,7 +602,7 @@
+>>  */
+>>  -struct dst_types dst_tlist[] = {
+>> +static struct dst_types dst_tlist[] = {
+>>  {
+>>  .device_id = "200103A",
+>>  .offset = 0,
+>>
+>> -
+>>
+>
+>
+> Ack'd-by: Manu Abraham <manu@linuxtv.org>
+>
+>
+> _______________________________________________
+> v4l-dvb-maintainer mailing list
+> v4l-dvb-maintainer@linuxtv.org
+> http://www.linuxtv.org/cgi-bin/mailman/listinfo/v4l-dvb-maintainer
 > 
-> So introducing the additional_cpus kernel parameter seems to be the way
-> to go (for XEN probably too). Even though it seems to be a bit odd if the
-> user specifies both maxcpus=... and additional_cpus=...
 
-With additional_cpus you don't need maxcpus. They are added together.
-
-Also for Xen it's probably not needed by default, but the hypervisor can somehow
-pass it (it doesn't make sense to have more vcpus than real cpus
-and that should be relatively small number, so the memory waste
-shouldn't be that bad). 
-
-On x86-64 there is also a new firmware
-way to specify it, but current machines don't support that yet.
-
--Andi

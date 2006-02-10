@@ -1,61 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbWBJUDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbWBJUDT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751363AbWBJUDo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 15:03:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWBJUDo
+	id S1751050AbWBJUDT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 15:03:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWBJUDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 15:03:44 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:20128 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751363AbWBJUDn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 15:03:43 -0500
-Date: Fri, 10 Feb 2006 12:03:24 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Andrew Morton <akpm@osdl.org>, linux@horizon.com,
+	Fri, 10 Feb 2006 15:03:19 -0500
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:17998 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751050AbWBJUDS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 15:03:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=JEMhsiu7JL54kpPDXIGWm2W3DlRHItfGWjqeiZbZtpMYi9rowlXFLIbqoLw2t/zdwFVEQrfkiSreYiXE2ebSDVRO7YfG5tWV6Qx227hLTjPkEDRp1qAYKIkecfwAMCiu1TMSfOcj6NuEg9INrEy2nFeItXT1q9IkR6WT6ZDxXb0=  ;
+Message-ID: <43ECF182.9020505@yahoo.com.au>
+Date: Sat, 11 Feb 2006 07:03:14 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, linux@horizon.com,
        linux-kernel@vger.kernel.org, sct@redhat.com
 Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
-In-Reply-To: <43ECEEFF.7050905@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0602101200080.19172@g5.osdl.org>
-References: <20060209071832.10500.qmail@science.horizon.com>
- <20060209195035.5403ce95.akpm@osdl.org> <43EC0F3F.1000805@yahoo.com.au>
- <20060209201333.62db0e24.akpm@osdl.org> <43EC16D8.8030300@yahoo.com.au>
- <20060209204314.2dae2814.akpm@osdl.org> <43EC1BFF.1080808@yahoo.com.au>
- <20060209211356.6c3a641a.akpm@osdl.org> <43EC24B1.9010104@yahoo.com.au>
- <20060209215040.0dcb36b1.akpm@osdl.org> <43EC2C9A.7000507@yahoo.com.au>
- <20060209221324.53089938.akpm@osdl.org> <43EC3326.4080706@yahoo.com.au>
- <20060209224656.7533ce2b.akpm@osdl.org> <43EC3961.3030904@yahoo.com.au>
- <20060209231432.03a09dee.akpm@osdl.org> <43EC8A06.40405@yahoo.com.au>
- <Pine.LNX.4.64.0602100815580.19172@g5.osdl.org> <43ECC69D.1010001@yahoo.com.au>
- <Pine.LNX.4.64.0602100904330.19172@g5.osdl.org> <43ECD471.9080203@yahoo.com.au>
- <Pine.LNX.4.64.0602101011350.19172@g5.osdl.org> <43ECE97F.1080902@yahoo.com.au>
- <Pine.LNX.4.64.0602101138480.19172@g5.osdl! .org> <43ECEEFF.7050905@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <20060209071832.10500.qmail@science.horizon.com> <20060209004208.0ada27ef.akpm@osdl.org> <43EB3801.70903@yahoo.com.au> <20060209094815.75041932.akpm@osdl.org> <43EC0A44.1020302@yahoo.com.au> <20060209195035.5403ce95.akpm@osdl.org> <43EC0F3F.1000805@yahoo.com.au> <20060209201333.62db0e24.akpm@osdl.org> <43EC16D8.8030300@yahoo.com.au> <20060209204314.2dae2814.akpm@osdl.org> <43EC1BFF.1080808@yahoo.com.au> <20060209211356.6c3a641a.akpm@osdl.org> <43EC24B1.9010104@yahoo.com.au> <20060209215040.0dcb36b1.akpm@osdl.org> <43EC2C9A.7000507@yahoo.com.au> <20060209221324.53089938.akpm@osdl.org> <43EC3326.4080706@yahoo.com.au> <20060209224656.7533ce2b.akpm@osdl.org> <43EC3961.3030904@yahoo.com.au> <Pine.LNX.4.64.0602100759190.19172@g5.osdl.org> <43ECC13F.5080109@yahoo.com.au> <Pine.LNX.4.64.0602100846170.19172@g5.osdl.org> <43ECCF68.3010605@yahoo.com.au> <Pine.LNX.4.64.0602100944280.19172@g5.osdl.org> <43ECDD9B.7090709@yahoo.com.au> <Pine.LNX.4.64.0602101056130.19172@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602101056130.19172@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 11 Feb 2006, Nick Piggin wrote:
+Linus Torvalds wrote:
 > 
-> Well in that case in your argument your FADV_WRITE_START is of
-> the "waits for writeout then starts writeout if dirty" type.
+> On Sat, 11 Feb 2006, Nick Piggin wrote:
 > 
-> In which case you've just made 3 consecutive  write+wait cycles
-> to the same page, so it is hardly an optimal IO pattern.
+>>    When MS_ASYNC is specified, msync() shall return immediately once all
+>>    the write operations are initiated or queued for servicing;
+>>
+>>It is talking about write operations, not dirtying. Actually the only
+>>difference with MS_SYNC is that it waits for said write operations (of the
+>>type queued up by MS_ASYNC) to complete.
+> 
+> 
+> Right. And it's what we do. We queue them by moving the pages to the dirty 
+> lists (yeah, it's just a tag on the page index thing, whatever).
+> 
+> And yes, you argue that we should move the queue closer to the actual 
+> disk, but I have used at least one app that really hated the "start IO 
+> now" approach. I can't talk about that app in any detail, but I can say 
+> that it was an in-memory checkpoint thing with the checkpoints easily 
+> being in the hundred-meg range.
+> 
 
-The point is, this is the interface that an app would want to use if they 
-want _perfect_ IO patterns. 
+Hey fix your damn broken proprietary app (nah just kidding)
 
-Obviously, such an app wouldn't do writes every 100 bytes (or would do 
-them only if it knows that enough time has passed that the previous IO 
-will be done - but it can't _risk_ dropping an IO if something strange 
-happens).
+> And moving a hundred megs to the IO layer is insane. It also makes the 
+> system pretty unusable.
+> 
+> So we may have different expectations, because we've seen different 
+> patterns. Me, I've seen the "events are huge, and you stagger them", so 
+> that the previous event has time to flow out to disk while you generate 
+> the next one. There, MS_ASYNC starting IO is _wrong_, because the scale of 
+> the event is just huge, so trying to push it through the IO subsystem asap 
+> just makes everything suck.
+> 
+> In contrast, you seem to be coming at it from a standpoint of "only one 
+> event ever outstanding at any particular time, and it's either small or 
+> it's the only thing the whole system is doing". In which case pushing it 
+> out to IO buffers is probably the right thing to do.
+> 
 
-The point being the ".. it might have dirtied the page since it's last 
-WRITE_START" thing. That's where it can very validly basically say "ok, I 
-now need for my last write to have finished, but I don't care about the 
-fact that I've made other changes _since_ in that same page". See?
+The way I see it, it stems from simply a different expectation of
+MS_ASYNC semantics, rather than exactly what the app is doing.
 
-		Linus
+If there are no data integrity requirements, then the writing should
+be left up to the VM. If there are, then there will be a MS_SYNC,
+which *will* move those hundred megs to the IO layer so there is no
+reason for MS_ASYNC *not* to get it started earlier (and it will
+be more efficient if it does).
+
+The semantics your app wants, in my interpretation, are provided
+by MS_INVALIDATE. Which kind of says "bring mmap data into coherence
+with system cache", which would presumably transfer dirty bits if
+modified (though as an implementation detail, we are never actually
+incoherent as far as the data goes, only dirty bits).
+
+At this point the best I can do is agree to disagree if you are
+still not convinced and I'll leave it to Linux to keep debating it.
+We reached something of an agreement on the fadvise thing at least.
+
+Thanks,
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,50 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWBJFTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbWBJFYJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbWBJFTi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 00:19:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWBJFTi
+	id S1751107AbWBJFYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 00:24:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbWBJFYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 00:19:38 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:30364 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751103AbWBJFTh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 00:19:37 -0500
-Date: Thu, 9 Feb 2006 21:13:56 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux@horizon.com, linux-kernel@vger.kernel.org, sct@redhat.com
-Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
-Message-Id: <20060209211356.6c3a641a.akpm@osdl.org>
-In-Reply-To: <43EC1BFF.1080808@yahoo.com.au>
-References: <20060209071832.10500.qmail@science.horizon.com>
-	<20060209001850.18ca135f.akpm@osdl.org>
-	<43EAFEB9.2060000@yahoo.com.au>
-	<20060209004208.0ada27ef.akpm@osdl.org>
-	<43EB3801.70903@yahoo.com.au>
-	<20060209094815.75041932.akpm@osdl.org>
-	<43EC0A44.1020302@yahoo.com.au>
-	<20060209195035.5403ce95.akpm@osdl.org>
-	<43EC0F3F.1000805@yahoo.com.au>
-	<20060209201333.62db0e24.akpm@osdl.org>
-	<43EC16D8.8030300@yahoo.com.au>
-	<20060209204314.2dae2814.akpm@osdl.org>
-	<43EC1BFF.1080808@yahoo.com.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 10 Feb 2006 00:24:08 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:16571
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751107AbWBJFYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 00:24:08 -0500
+Date: Thu, 9 Feb 2006 21:24:04 -0800
+From: Greg KH <greg@kroah.com>
+To: Alex Davis <alex14641@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Let's get rid of  ide-scsi
+Message-ID: <20060210052404.GB29421@kroah.com>
+References: <20060210002148.37683.qmail@web50201.mail.yahoo.com> <20060210003614.GA26114@animx.eu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060210003614.GA26114@animx.eu.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> If you want to start the IO *now* without waiting on it, call msync(MS_ASYNC)
->  If you don't want to start the IO now, that's really easy, do nothing.
->  If you want to start the IO now and also wait for it to finish, call msync(MS_SYNC)
+On Thu, Feb 09, 2006 at 07:36:14PM -0500, Wakko Warner wrote:
+> 
+> I am also against the seperate USB block layer, I personally saw no use in
+> it.
 
-I've already explained the problems with the start-io-in-MS_ASYNC approach.
+What "seperate USB block layer"?
 
->  Presently, the first option is unavailable.
+thanks,
 
-We need to patch the kernel either way.  There's no point in going back to
-either the known-problematic approach or to something half-assed.
+greg k-h

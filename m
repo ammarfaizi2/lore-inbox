@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWBJXxc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWBJX5L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbWBJXxc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 18:53:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbWBJXxc
+	id S932254AbWBJX5L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 18:57:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWBJX5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 18:53:32 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:5608 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932238AbWBJXxb
+	Fri, 10 Feb 2006 18:57:11 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:2789 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S932254AbWBJX5J
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 18:53:31 -0500
-Subject: Re: CD-blanking leads to machine freeze with current -git [was:
-	Re: CD writing in future Linux try #2 [ was: Re: CD writing in future Linux
-	(stirring up a hornets' nest) ]]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marc Koschewski <marc@osknowledge.org>
-Cc: Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060210234121.GC5713@stiffy.osknowledge.org>
-References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com>
-	 <20060210175848.GA5533@stiffy.osknowledge.org>
-	 <43ECE734.5010907@cfl.rr.com>
-	 <20060210210006.GA5585@stiffy.osknowledge.org>
-	 <1139613834.14383.5.camel@localhost.localdomain>
-	 <20060210234121.GC5713@stiffy.osknowledge.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 10 Feb 2006 23:56:12 +0000
-Message-Id: <1139615772.14383.8.camel@localhost.localdomain>
+	Fri, 10 Feb 2006 18:57:09 -0500
+Date: Fri, 10 Feb 2006 15:56:54 -0800
+From: Greg KH <greg@kroah.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Nix <nix@esperi.org.uk>, Jens Axboe <axboe@suse.de>,
+       Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060210235654.GA22512@kroah.com>
+References: <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr> <20060125144543.GY4212@suse.de> <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner> <20060125181847.b8ca4ceb.grundig@teleline.es> <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43ED005F.5060804@tmr.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2006-02-11 at 00:41 +0100, Marc Koschewski wrote:
-> I'm also curious when DELL will release their first mobile with SCSI onboard
-> instead of IDE. The chips are the same size... 
+On Fri, Feb 10, 2006 at 04:06:39PM -0500, Bill Davidsen wrote:
+> 
+> The kernel could provide a list of devices by category. It doesn't have 
+> to name them, run scripts, give descriptions, or paint them blue. Just a 
+> list of all block devices, tapes, by major/minor and category (ie. 
+> block, optical, floppy) would give the application layer a chance to do 
+> it's own interpretation.
 
-SCSI I think is dead, but SATA is normally one device per bus so the
-problem goes away
+It does so today in sysfs, that is what it is there for.
 
-> Thanks anyone for clarification. There's still sooo much to learn. But the code
-> is here and I'll try to do my very best... ;)
+thanks,
 
-
-The magic cdrecord option is "-immed"
-
-
+greg k-h

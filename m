@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbWBJNxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWBJNyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751262AbWBJNxL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 08:53:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbWBJNxL
+	id S932069AbWBJNyj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 08:54:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWBJNyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 08:53:11 -0500
-Received: from ns2.suse.de ([195.135.220.15]:15488 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751262AbWBJNxJ (ORCPT
+	Fri, 10 Feb 2006 08:54:39 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:64967 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932069AbWBJNyi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 08:53:09 -0500
-From: Andi Kleen <ak@suse.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: Cleanup possibility in asm-i386/string.h
-Date: Fri, 10 Feb 2006 14:49:05 +0100
-User-Agent: KMail/1.8.2
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-References: <200602071215.46885.ak@suse.de> <200602100123.36077.ak@suse.de> <Pine.LNX.4.61.0602101355490.30994@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0602101355490.30994@scrub.home>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Feb 2006 08:54:38 -0500
+Date: Fri, 10 Feb 2006 14:54:15 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Gabor Gombas <gombasg@sztaki.hu>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Greg KH <greg@kroah.com>,
+       linux-pm@lists.osdl.org, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, seife@suse.de
+Subject: Re: [linux-pm] Re: [PATCH, RFC] [1/3] Generic in-kernel AC status
+Message-ID: <20060210135415.GC5109@elf.ucw.cz>
+References: <20060208125753.GA25562@srcf.ucam.org> <20060208130422.GB25659@srcf.ucam.org> <20060208165803.GA15239@kroah.com> <20060208170857.GA29818@srcf.ucam.org> <20060209085344.GF16052@boogie.lpds.sztaki.hu> <20060210122131.GC4974@elf.ucw.cz> <20060210131337.GD11740@boogie.lpds.sztaki.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200602101449.07491.ak@suse.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060210131337.GD11740@boogie.lpds.sztaki.hu>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 February 2006 14:02, Roman Zippel wrote:
-> Hi,
+On Pá 10-02-06 14:13:38, Gabor Gombas wrote:
+> On Fri, Feb 10, 2006 at 01:21:31PM +0100, Pavel Machek wrote:
 > 
-> On Fri, 10 Feb 2006, Andi Kleen wrote:
+> > Still "set current brightness" operation makes a lot of sense.
 > 
-> > > I remember playing with using more gcc builtins in the kernel some time 
-> > > ago, and some gcc builtin used a different library function, which was a 
-> > > function the kernel did not supply.
-> > 
-> > It works fine on x86-64. If something is missing it can be also supplied.
-> 
-> I think I now see what the real problem was, x86-64 does:
-> 
-> #define strcpy __builtin_strcpy
-> 
-> which also renames the version in lib/string.c, so x86-64 never had a 
-> fallback copy for __builtin_sprintf.
-> Can we please get rid of -freestanding and fix x86-64 instead?
+> Yes, but userspace already knows if you are on AC power or not,
+> therefore it can decide what "current" means. If this is the only reason
+> then adding a new kernel infrastructure is overkill.
 
-Ok I can fix that. Just removing the defines should be ok i guess 
-(afaik gcc detects them automatically as the builtin) 
+It is not.
 
-I don't know if the freestanding in the main Makefile isn't needed 
-for other architectures so I won't touch it right now.
+powernow-k8 needs to know if ac is plugged, else it can overload
+battery.
 
--Andi
+backlight code needs it for get current brightness.
+
+on Zauruses, battery charging is done in kernel (not in
+hardware). Battery charging obviously needs to know if ac is
+connected.
+
+on Zauruses, IIRC backlight control code needs to know ac/dc, because
+voltage differs on some internal buses and backlight power needs to be
+programmed in different way.
+
+> Also, doing things differently when on AC power smells like a policy
+> decision, and AFAIK policy handling is not wanted in the kernel.
+
+It is not policy decision, it is protect-hardware-from-damage on
+embedded platorms/pn-k8.
+
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

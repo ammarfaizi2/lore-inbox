@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWBJOIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWBJOLc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbWBJOIs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 09:08:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbWBJOIr
+	id S932091AbWBJOLc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 09:11:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWBJOLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 09:08:47 -0500
-Received: from thunk.org ([69.25.196.29]:60906 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1751247AbWBJOIr (ORCPT
+	Fri, 10 Feb 2006 09:11:32 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:50686 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S932091AbWBJOLb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 09:08:47 -0500
-Date: Fri, 10 Feb 2006 09:08:42 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Paul Jackson <pj@sgi.com>, jes@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: git for dummies, anyone? (was: Re: How in tarnation do I git v2.6.16-rc2?  hg died and I still don't git git)
-Message-ID: <20060210140842.GA18707@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Willy Tarreau <willy@w.ods.org>, Paul Jackson <pj@sgi.com>,
-	jes@sgi.com, linux-kernel@vger.kernel.org
-References: <20060208070301.1162e8c3.pj@sgi.com> <yq0vevollx4.fsf@jaguar.mkp.net> <20060209065011.45ba1b88.pj@sgi.com> <20060209231650.GF11380@w.ods.org> <20060209160358.5de62d54.pj@sgi.com> <20060210062309.GA22620@w.ods.org>
-MIME-Version: 1.0
+	Fri, 10 Feb 2006 09:11:31 -0500
+Date: Fri, 10 Feb 2006 15:11:30 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Imre Gergely <imre.gergely@astral.ro>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: disabling libata
+Message-ID: <20060210141130.GE28676@harddisk-recovery.com>
+References: <43EC97C6.10607@astral.ro>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060210062309.GA22620@w.ods.org>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+In-Reply-To: <43EC97C6.10607@astral.ro>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 10, 2006 at 07:23:09AM +0100, Willy Tarreau wrote:
-> I did the opposite : I tried hg as soon as Matt announced it, but I
-> got lost in the "python dumps" which appeared at the slightest error,
-> because I did not understand what the problem was. Then I tried git,
-> at least to be able to keep in sync with Marcelo. With git, I had
-> some opportunities to catch some understandable error messages spit
-> out of some shell scripts even when not caught by the script itself.
-> But using it less than twice a week requires me to read the manual
-> again before doing anything useful :-(
+On Fri, Feb 10, 2006 at 03:40:22PM +0200, Imre Gergely wrote:
+> i have a SATA hardisk, and am using FC4 with default kernel
+> (2.6.14-1.1644_FC4). i was wondering if it's possible to tell the kernel to use
+> the old ATA driver with SATA support instead of libata, for my harddisk to
+> appear as hdX, and not sdX.
 
-Mercurial has gotten a lot better about "python dumps" as a signal
-that you had typed something wrong, or had permissions problems, etc.
-I got annoyed about that too, but I just learned to ignore them and
-assume that 90% of the time, it was due to a mistake on my end.
-Things are a lot better there; claiming mercurial sucks for its early
-rough edges is about as far as claiming that git sucks because its
-performance sucked rocks on laptop drives in its early days before
-Linus added support for packs.  
+Why would you want to do that? SATA are driven by libata and the disks
+turn up as SCSI devices. There's no way around that (yet).
 
-						- Ted
+
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

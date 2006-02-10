@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWBJFI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWBJFQa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751101AbWBJFI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 00:08:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWBJFI1
+	id S1751098AbWBJFQa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 00:16:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWBJFQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 00:08:27 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:37539
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751101AbWBJFI1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 00:08:27 -0500
-Date: Thu, 9 Feb 2006 21:08:19 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, stable@kernel.org,
-       jmforbes@linuxtx.org, zwane@arm.linux.org.uk, tytso@mit.edu,
-       rdunlap@xenotime.net, davej@redhat.com, chuckw@quantumlinux.com,
-       torvalds@osdl.org, alan@lxorguk.ukuu.org.uk, kaber@trash.net
-Subject: Re: [stable] Re: [patch 6/6] [NETFILTER]: Fix another crash in ip_nat_pptp (CVE-2006-0037)
-Message-ID: <20060210050819.GA29085@kroah.com>
-References: <20060128015840.722214000@press.kroah.org> <20060128021835.GG10362@kroah.com> <20060208123541.GA6004@kruemel.my-eitzenberger.de> <20060210044754.GC27457@kroah.com> <20060209205729.211cf713.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060209205729.211cf713.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+	Fri, 10 Feb 2006 00:16:30 -0500
+Received: from ms-smtp-05-smtplb.tampabay.rr.com ([65.32.5.135]:21713 "EHLO
+	ms-smtp-05.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S1751098AbWBJFQ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 00:16:29 -0500
+Message-ID: <43EC218A.9000402@cfl.rr.com>
+Date: Fri, 10 Feb 2006 00:15:54 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Mail/News 1.5 (X11/20060119)
+MIME-Version: 1.0
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+CC: dm-devel@redhat.com, Chris McDermott <lcm@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Support HDIO_GETGEO on device-mapper volumes
+References: <43EBEDD0.60608@us.ibm.com>
+In-Reply-To: <43EBEDD0.60608@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 09, 2006 at 08:57:29PM -0800, Andrew Morton wrote:
-> Greg KH <greg@kroah.com> wrote:
-> >
-> > On Wed, Feb 08, 2006 at 01:35:41PM +0100, Holger Eitzenberger wrote:
-> > > On Fri, Jan 27, 2006 at 06:18:35PM -0800, Greg KH wrote:
-> > > 
-> > > >  	DEBUGP("altering call id from 0x%04x to 0x%04x\n",
-> > > > -		ntohs(*cid), ntohs(new_callid));
-> > > > +		ntohs(*(u_int16_t *)pptpReq + cid_off), ntohs(new_callid));
-> > > 
-> > > Note that this fix introduces another bug in the above use DEBUGP
-> > > statement, as there is (u_int16_t *) ptr arithmetic used, whereas
-> > > cid_off is a byte offset.
-> > > 
-> > > A fix for that was send a few weeks ago on netfilter-devel.
-> > 
-> > Great, care to forward it to stable@kernel.org so we can get it in the
-> > next release?
-> > 
+Hrm... when I setup my system on a dmraid controlled hardware fakeraid 
+raid-0, I just gave grub a suitable geometry command since it couldn't 
+auto detect it.  I suppose this would make that unnecessary.
+
+I think that ultimately, grub shouldn't care about the geometry since 
+that information has been obsolete for years.  If it can't detect the 
+geometry, then it should just assume the system supports LBA and to hell 
+with using made up geometry numbers.
+
+
+Darrick J. Wong wrote:
+> Hi again,
 > 
-> I have a copy of the patch and I'll cc stable@ on it.  Although afaik this
-> bug just causes wrong debug info to come out, so I don't think it's
-> terribly important (?)
+> I'm trying to install grub on a device-mapper RAID1 array that I set up 
+> via dmraid (in other words, a bootable software fakeraid).  Since dm 
+> doesn't implement the HDIO_GETGEO ioctl, grub assumes that the CHS 
+> geometry is 620/128/63, which makes it impossible to configure it to 
+> boot a filesystem that lives beyond the 2GB mark, even if the system 
+> BIOS supports that.
+> 
+> The attached patch implements a simple ioctl handler that supplies a 
+> compatible geometry when HDIO_GETGEO is called against a device-mapper 
+> device.  Its behavior is somewhat similar to what sd_mod does if the 
+> scsi controller doesn't provide its own geometry.  Granted, the notion 
+> of cylinders, heads and sectors is silly on a RAID array, but with this 
+> patch, interested programs can obtain CHS data that's somewhat close to 
+> correct; this seems to be a better option than having each program make 
+> up its own potentially different geometry, or making an arbitrary guess. 
+>  Assuming that all of the programs that need to know CHS geometry will 
+> query the kernel via HDIO_GETGEO, this patch makes it so that all of 
+> those programs end up using the same geometry.
+> 
+> The patch applies cleanly against 2.6.15.3; if there aren't any 
+> objections then I'm submitting this for upstream.  However, I'm all ears 
+> for suggestions.
+> 
+> Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
+> 
+> --Darrick
+> 
 
-If that's the only problem with it, no it's not worth adding to -stable.
-
-thanks though.
-
-greg k-h

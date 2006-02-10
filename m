@@ -1,72 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWBJQUK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWBJQXt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbWBJQUK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 11:20:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbWBJQUK
+	id S932120AbWBJQXt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 11:23:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWBJQXt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 11:20:10 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:28373 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932110AbWBJQUI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 11:20:08 -0500
-Date: Fri, 10 Feb 2006 08:19:45 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Andrew Morton <akpm@osdl.org>, linux@horizon.com,
-       linux-kernel@vger.kernel.org, sct@redhat.com
-Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
-In-Reply-To: <43EC8A06.40405@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0602100815580.19172@g5.osdl.org>
-References: <20060209071832.10500.qmail@science.horizon.com>
- <20060209001850.18ca135f.akpm@osdl.org> <43EAFEB9.2060000@yahoo.com.au>
- <20060209004208.0ada27ef.akpm@osdl.org> <43EB3801.70903@yahoo.com.au>
- <20060209094815.75041932.akpm@osdl.org> <43EC0A44.1020302@yahoo.com.au>
- <20060209195035.5403ce95.akpm@osdl.org> <43EC0F3F.1000805@yahoo.com.au>
- <20060209201333.62db0e24.akpm@osdl.org> <43EC16D8.8030300@yahoo.com.au>
- <20060209204314.2dae2814.akpm@osdl.org> <43EC1BFF.1080808@yahoo.com.au>
- <20060209211356.6c3a641a.akpm@osdl.org> <43EC24B1.9010104@yahoo.com.au>
- <20060209215040.0dcb36b1.akpm@osdl.org> <43EC2C9A.7000507@yahoo.com.au>
- <20060209221324.53089938.akpm@osdl.org> <43EC3326.4080706@yahoo.com.au>
- <20060209224656.7533ce2b.akpm@osdl.org> <43EC3961.3030904@yahoo.com.au>
- <20060209231432.03a09dee.akpm@osdl.org> <43EC8A06.40405@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 10 Feb 2006 11:23:49 -0500
+Received: from vms042pub.verizon.net ([206.46.252.42]:19916 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932120AbWBJQXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 11:23:48 -0500
+Date: Fri, 10 Feb 2006 11:23:12 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+In-reply-to: <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com>
+To: linux-kernel@vger.kernel.org
+Reply-to: gene.heskett@verizon.net
+Message-id: <200602101123.12299.gene.heskett@verizon.net>
+Organization: Absolutely none - usually detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20060208162828.GA17534@voodoo> <43EC8F22.nailISDL17DJF@burner>
+ <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 10 February 2006 10:38, jerome lacoste wrote:
+>On 2/10/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
+>> "D. Hazelton" <dhazelton@enter.net> wrote:
+>> > And does cdrecord even need libscg anymore? From having actually
+>> > gone through your code, Joerg, I can tell you that it does serve a
+>> > larger purpose. But at this point I have to ask - besides cdrecord
+>> > and a few other _COMPACT_ _DISC_ writing programs, does _ANYONE_
+>> > use libscg? Is it ever used to access any other devices that are
+>> > either SCSI or use a SCSI command protocol (like ATAPI)?  My point
+>> > there is that you have a wonderful library, but despite your
+>> > wishes, there is no proof that it is ever used for anything except
+>> > writing/ripping CD's.
+>>
+>> Name a single program (not using libscg) that implements user space
+>> SCSI and runs on as many platforms as cdrecord/libscg does.
+>
+>I have 2 technical questions, and I hope that you will take the time
+>to answer them.
+>
+>1) extract from the README of the latest stable cdrtools package:
+>
+>        Linux driver design oddities
+> ****************************************** Although cdrecord supports
+> to use dev=/dev/sgc, it is not recommended and it is unsupported.
+>
+>        The /dev/sg* device mapping in Linux is not stable! Using
+> dev=/dev/sgc in a shell script may fail after a reboot because the
+> device you want to talk to has moved to /dev/sgd. For the proper and
+> OS independent dev=<bus>,<tgt>,<lun> syntax read the man page of
+> cdrecord.
+>
+>My understanding of that is you say to not use dev=/dev/sgc because it
+>isn't stable. Now that you've said that bus,tgt,lun is not stable on
+>Linux (because of a "Linux bug") why is the b,t,l scheme preferred
+>over the /dev/sg* one ?
+>
+>
+>2) design question:
+>
+>- cdrecord scans then maps the device to the b,t,l scheme.
+>- the libsg uses the b,t,l ids in its interface to perform the
+> operations
+>
+>So now, if cdrecord could have a new option called -scanbusmap that
+>displays the mapping it performs in a way that people can parse the
+>output, I think that will solve most issues.
+>
+>cdrecord already has this information available, it just doesn't
+> display it:
+>
+>$ cdrecord debug=2 dev=ATAPI -scanbus 2>&1 | grep INFO
+>INFO: /dev/hdc, (host0/bus1/target0/lun0) will be mapped on the
+>schilly bus No 0 (0,0,0)
+>INFO: /dev/hdd, (host0/bus1/target1/lun0) will be mapped on the
+>schilly bus No 0 (0,1,0)
 
+And here I'd call the -scanbus output broken, extremely so, and in a 
+manner that makes all of your arguments rather specious.  I've tried to 
+stay the hell out of this thread because its clearly a pissing match 
+between some with excessive ego's, but this example requires an answer.
 
-On Fri, 10 Feb 2006, Nick Piggin wrote:
-> 
-> It may be a very useful operation in kernel, but I think userspace either
-> wants to definitely know the data is on disk (WRITE_SYNC), or give a hint
-> to start writing (WRITE_ASYNC).
+[root@coyote]# cdrecord debug=2 dev=ATAPI -scanbus 2>&1 | grep INFO
+INFO: /dev/hdd, (host0/bus1/target1/lun0) will be mapped on the schilly 
+bus No 0 (0,1,0)
+INFO: /dev/hdc, (host0/bus1/target0/lun0) will be mapped on the schilly 
+bus No 0 (0,0,0)
+INFO: /dev/hda, (host0/bus0/target0/lun0) will be mapped on the schilly 
+bus No 1 (1,0,0)
 
-Only from a _stupid_ user standpoint.
+The above make very little sense, and argues against Jorg's assertions 
+that his way is the 'correct' way.
 
-The fact is, "start writing and wait for the result" is fundamentally a 
-totally broken operation.
+Since when in the hello is /dev/hda NOT the first device in this 
+so-called mapping scheme? 
 
-Why?
+This is clearly broken, but I have no trouble at all burning whatever I 
+want to burn when using /deb/hdc at the target in k3b.
 
-Because a smart user actually would want to do
+True, cdrecord does place that target at 0,0,0 but that has to be 
+because of some mechanation in the cdrecord code to defeat what really 
+should be common sense that says /dev/hdc SHOULD be 1,0,0 as its the 
+first device found on the 2nd buss(or cable as some would call it).
 
- - start writing this
- - start writing that
- - start writing that-other-thing
- - wait for them all.
+Now, take this next as a users statement, not from the point of a coder 
+although I have written some in past decades when the machinery was a 
+little simpler.  Now I'm just an old codger user at 71.
 
-The reason synchronous write performance is absolutely disgusting is 
-exactly that people think "start writing" should be paired up with "wait 
-for it".
+So how Jorg, can you justify your reticence to make use of a system that  
+linux has, and which clearly works now since very close to the 2.6 
+kernel series transition?  Your constant harping on how solaris does it 
+is as distastefull as some winderz dweeb coming in here to try and 
+evangelize windows use.  This IS linux, and our numbers probably exceed 
+solaris users by a factor of at least 10.  We're here, and unless a 
+buss hits Linus and no similar minded person is named as his successor, 
+get over it.  You are drasticly outnumbered.
 
-So the kernel internally separates "start writing" and "wait for it" for 
-very good reasons. Reasons that in no way go away just because you use to 
-user space.
+We just want it to work and we don't care about your mostly FUD, often 
+silly, usually specious/empty arguments because no facts are ever 
+stated more than once over a given 5 year period.  We are all in your 
+view expected to have photographic memory.  Not guilty here, we do have 
+other concerns in life.
 
-And yes, there very much is a third operation too: "mark dirty". That's 
-the _common_ one. That's the fundamental one. That's the one that we use 
-every single day, without even realizing. The "start writing" and "wait 
-for it" operations are actually the rare ones.
+>It could perform in the following way:
+>
+>$ cdrecord dev=ATAPI  -scanbusmap
+>...
+>
+>0,0,0 <= /dev/hdc
+>0,1,0 <= /dev/hdd
+>
+>
+>Are you accepting such a patch?
+>
+>Jerome
 
-		Linus
+-- 
+Cheers, Gene
+People having trouble with vz bouncing email to me should add the word
+'online' between the 'verizon', and the dot which bypasses vz's
+stupid bounce rules.  I do use spamassassin too. :-)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

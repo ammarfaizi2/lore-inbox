@@ -1,171 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWBJDkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbWBJDuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751034AbWBJDkO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 22:40:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbWBJDkO
+	id S1751037AbWBJDuU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 22:50:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751038AbWBJDuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 22:40:14 -0500
-Received: from gate.crashing.org ([63.228.1.57]:58311 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751034AbWBJDkM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 22:40:12 -0500
-Subject: Re: [Patch] Generic AGP PM support.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200602070910.18808.ncunningham@cyclades.com>
-References: <200602070910.18808.ncunningham@cyclades.com>
-Content-Type: text/plain
-Date: Fri, 10 Feb 2006 14:38:47 +1100
-Message-Id: <1139542727.5003.77.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Thu, 9 Feb 2006 22:50:20 -0500
+Received: from mail03.syd.optusnet.com.au ([211.29.132.184]:34013 "EHLO
+	mail03.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751036AbWBJDuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 22:50:19 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] mm: Implement Swap Prefetching v23
+Date: Fri, 10 Feb 2006 14:49:58 +1100
+User-Agent: KMail/1.9.1
+Cc: nickpiggin@yahoo.com.au, linux-mm@kvack.org, ck@vds.kolivas.org,
+       pj@sgi.com, linux-kernel@vger.kernel.org
+References: <200602101355.41421.kernel@kolivas.org> <20060209192556.2629e36b.akpm@osdl.org>
+In-Reply-To: <20060209192556.2629e36b.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602101449.59486.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-07 at 09:10 +1000, Nigel Cunningham wrote:
-> Hi.
-> 
-> This patch implements generic AGP power management support, and uses it for
-> the Ati and NVidia drivers. It is an update on the patch that Matthew
-> Garrett broke out of Suspend2 a while ago and sent to the list.
+On Friday 10 February 2006 14:25, Andrew Morton wrote:
+> Con Kolivas <kernel@kolivas.org> wrote:
+> > Here's a respin with Nick's suggestions and a modification to not cost us
+> > extra slab on non-numa.
+>
+> v23?  I'm sure we can do better than that.
 
-Are you aware that this will not work in a number of cases because there
-is no proper ordering between suspend/resume of the AGP bridge and of
-the video card ? Yes it sucks, no we don't have any infrastructure to
-deal with that... we sucks for anything remotely related to gfx, news at
-11.
+:D
 
-Ben.
+> > This patch implements swap prefetching when the vm is relatively idle and
+> > there is free ram available.
+>
+> I think "free ram available" is the critical thing here.  If it doesn't
+> evict anyhing else then OK, it basically uses unutilised disk bandwidth for
+> free.
+>
+> But where does it put the pages?  If it was really "free", they'd go onto
+> the tail of the inactive list.
 
-> Regards,
-> 
-> Nigel
-> 
->  agp_suspend.h |   43 +++++++++++++++++++++++++++++++++++++++++++
->  ati-agp.c     |   14 ++++++++++++++
->  nvidia-agp.c  |   14 ++++++++++++++
->  3 files changed, 71 insertions(+)
-> diff -ruNp 3030-agp-resume-support.patch-old/drivers/char/agp/agp_suspend.h 3030-agp-resume-support.patch-new/drivers/char/agp/agp_suspend.h
-> --- 3030-agp-resume-support.patch-old/drivers/char/agp/agp_suspend.h	1970-01-01 10:00:00.000000000 +1000
-> +++ 3030-agp-resume-support.patch-new/drivers/char/agp/agp_suspend.h	2005-12-05 21:26:57.000000000 +1100
-> @@ -0,0 +1,43 @@
-> +/*
-> + * Generic routines for suspending and resuming an agp bridge.
-> + *
-> + * Include "agp.h" first.
-> + */
-> +
-> +#ifdef CONFIG_PM
-> +static int agp_common_suspend(struct pci_dev *pdev, pm_message_t state)
-> +{
-> +	pci_save_state(pdev);
-> +	pci_set_power_state(pdev, 3);
-> +
-> +	return 0;
-> +}
-> +
-> +static int agp_common_resume(struct pci_dev *pdev,
-> +			     struct agp_bridge_driver * generic_bridge,
-> +			     int reconfigure(void))
-> +{
-> +	struct agp_bridge_data *bridge = pci_get_drvdata(pdev);
-> +
-> +	/* set power state 0 and restore PCI space */
-> +	pci_set_power_state(pdev, 0);
-> +	pci_restore_state(pdev);
-> +
-> +	/* reconfigure AGP hardware again */
-> +	if (bridge->driver == generic_bridge)
-> +		return reconfigure();
-> +
-> +	return 0;
-> +}
-> +#else
-> +static int agp_common_suspend(struct pci_dev *pdev, pm_message_t state)
-> +{
-> +	return 0;
-> +}
-> +
-> +static int agp_common_resume(struct pci_dev *pdev, _something_ * bridge,
-> +			     void *reconfigure)
-> +{
-> +	return 0;
-> +}
-> +#endif
-> diff -ruNp 3030-agp-resume-support.patch-old/drivers/char/agp/ati-agp.c 3030-agp-resume-support.patch-new/drivers/char/agp/ati-agp.c
-> --- 3030-agp-resume-support.patch-old/drivers/char/agp/ati-agp.c	2005-11-11 14:12:17.000000000 +1100
-> +++ 3030-agp-resume-support.patch-new/drivers/char/agp/ati-agp.c	2005-12-05 21:26:57.000000000 +1100
-> @@ -9,6 +9,7 @@
->  #include <linux/agp_backend.h>
->  #include <asm/agp.h>
->  #include "agp.h"
-> +#include "agp_suspend.h"
->  
->  #define ATI_GART_MMBASE_ADDR	0x14
->  #define ATI_RS100_APSIZE	0xac
-> @@ -507,6 +508,17 @@ static void __devexit agp_ati_remove(str
->  	agp_put_bridge(bridge);
->  }
->  
-> +static int agp_ati_suspend(struct pci_dev *pdev, pm_message_t state)
-> +{
-> +	return (agp_common_suspend(pdev, state));
-> +}
-> +
-> +static int agp_ati_resume(struct pci_dev *pdev)
-> +{
-> +	return agp_common_resume(pdev, &ati_generic_bridge,
-> +				 ati_configure);
-> +}
-> +
->  static struct pci_device_id agp_ati_pci_table[] = {
->  	{
->  	.class		= (PCI_CLASS_BRIDGE_HOST << 8),
-> @@ -526,6 +538,8 @@ static struct pci_driver agp_ati_pci_dri
->  	.id_table	= agp_ati_pci_table,
->  	.probe		= agp_ati_probe,
->  	.remove		= agp_ati_remove,
-> +	.suspend	= agp_ati_suspend,
-> +	.resume		= agp_ati_resume,
->  };
->  
->  static int __init agp_ati_init(void)
-> diff -ruNp 3030-agp-resume-support.patch-old/drivers/char/agp/nvidia-agp.c 3030-agp-resume-support.patch-new/drivers/char/agp/nvidia-agp.c
-> --- 3030-agp-resume-support.patch-old/drivers/char/agp/nvidia-agp.c	2005-11-11 14:12:17.000000000 +1100
-> +++ 3030-agp-resume-support.patch-new/drivers/char/agp/nvidia-agp.c	2005-12-05 21:26:59.000000000 +1100
-> @@ -12,6 +12,7 @@
->  #include <linux/page-flags.h>
->  #include <linux/mm.h>
->  #include "agp.h"
-> +#include "agp_suspend.h"
->  
->  /* NVIDIA registers */
->  #define NVIDIA_0_APSIZE		0x80
-> @@ -397,11 +398,24 @@ static struct pci_device_id agp_nvidia_p
->  
->  MODULE_DEVICE_TABLE(pci, agp_nvidia_pci_table);
->  
-> +static int agp_nvidia_suspend(struct pci_dev *pdev, pm_message_t state)
-> +{
-> +	return (agp_common_suspend(pdev, state));
-> +}
-> +
-> +static int agp_nvidia_resume(struct pci_dev *pdev)
-> +{
-> +	return agp_common_resume(pdev, &agp_bridge,
-> +				 nvidia_configure);
-> +}
-> +
->  static struct pci_driver agp_nvidia_pci_driver = {
->  	.name		= "agpgart-nvidia",
->  	.id_table	= agp_nvidia_pci_table,
->  	.probe		= agp_nvidia_probe,
->  	.remove		= agp_nvidia_remove,
-> +	.suspend	= agp_nvidia_suspend,
-> +	.resume		= agp_nvidia_resume,
->  };
->  
->  static int __init agp_nvidia_init(void)
+It puts them in swapcache. This seems to work nicely as a nowhere-land place 
+where they don't have much affect on anything until we need them or need more 
+ram. This has worked well, but I'm open to other suggestions.
 
+> And what about all those unpaged text pages which the app will need to
+> fault back in?
+
+Tracking these would make the perceived time to wakeup much much faster but 
+also make the list a heck of a lot larger.. but more to the point I have no 
+idea how to do it and get what we really want on the list.
+
+> > Once pages have been added to the swapped list, a timer is started,
+> > testing for conditions suitable to prefetch swap pages every 5 seconds.
+> > Suitable conditions are defined as lack of swapping out or in any pages,
+> > and no watermark tests failing. Significant amounts of dirtied ram and
+> > changes in free ram representing disk writes or reads also prevent
+> > prefetching.
+>
+> OK.   The has-the-disk-been-used-recently test still isn't there?
+
+No, but you'd have to free up +/- SWAP_SCAN_MAX as many pages as you fill when 
+reading from disk for this indirect method to not pick it up. It's easy 
+enough to see that it's effective: You can sit and watch vmstat for many 
+minutes after say an oom-kill in the hope you see it quiet enough before 
+prefetch does anything. After allowing 'tail -f /dev/zero' to be oomkilled in 
+a full gui environment it usually takes >5 mins before swap prefetch starts 
+prefetching.
+
+> > @@ -844,6 +844,7 @@ int zone_watermark_ok(struct zone *z, in
+> >  		if (free_pages <= min)
+> >  			return 0;
+> >  	}
+> > +
+> >  	return 1;
+> >  }
+>
+> ?
+
+Legacy of v1->v22..
+
+>
+> > +	read_lock(&swapper_space.tree_lock);
+>
+> That's interesting.  We conventionally do read_lock_irq() on an
+> address_space.tree_lock.  Because
+> end_page_writeback()->rotate_reclaimable_page()->test_clear_page_writeback(
+>) needs to take a write_lock from interrupt context.  end_swap_bio_write()
+> calls end_page_writeback() so I don't immediately see why we don't have a
+> deadlock here.
+
+Wasn't sure of the semantics. I was lucky I guess.
+
+> Ordinarily we'd just use find_get_page(), but
+>
+> > +	/* Entry may already exist */
+> > +	page = radix_tree_lookup(&swapper_space.page_tree, entry.val);
+> > +	read_unlock(&swapper_space.tree_lock);
+> > +	if (page) {
+> > +		remove_from_swapped_list(entry.val);
+> > +		goto out;
+> > +	}
+>
+> you don't take a ref on the page.
+>
+> Which makes one wonder what happens here if `page' got whipped out of
+> swapcache between the lookup and the remove_from_swapped_list().  Probably
+> nothing much.
+>
+> Did you consider borrowing swapper_space.tree_lock to provide the list and
+> radix-tree locking throughout here?
+
+I did. I was concerned that since most of the functions occur as we swap in or 
+out that we'd end up with more contention of that lock.
+
+> > +out:
+> > +	if (mru) {
+> > +		spin_lock(&swapped.lock);
+> > +		swapped.list.next = mru;
+> > +		spin_unlock(&swapped.lock);
+> > +	}
+>
+> That looks strange.  What happens to swapped.list.prev?
+
+Left dangling for future null dereferencing... Only would have been hit on 
+numa.
+
+> > +			schedule_timeout_interruptible(MAX_SCHEDULE_TIMEOUT);
+>
+> 	set_current_state(TASK_INTERRUPTIBLE);
+> 	schedule();
+
+Ack.
+
+Thanks! I guess I will be working on v24 in the near future...
+
+Cheers,
+Con

@@ -1,100 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWBJIAQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWBJIB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751178AbWBJIAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 03:00:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWBJIAP
+	id S1751179AbWBJIB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 03:01:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbWBJIB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 03:00:15 -0500
-Received: from science.horizon.com ([192.35.100.1]:26441 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S1751178AbWBJIAO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 03:00:14 -0500
-Date: 10 Feb 2006 03:00:13 -0500
-Message-ID: <20060210080013.6572.qmail@science.horizon.com>
-From: linux@horizon.com
-To: akpm@osdl.org, nickpiggin@yahoo.com.au
-Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
-Cc: linux-kernel@vger.kernel.org, linux@horizon.com, sct@redhat.com,
-       torvalds@osdl.org
-In-Reply-To: <20060209224656.7533ce2b.akpm@osdl.org>
+	Fri, 10 Feb 2006 03:01:26 -0500
+Received: from user-0c93tin.cable.mindspring.com ([24.145.246.87]:50139 "EHLO
+	tsurukikun.utopios.org") by vger.kernel.org with ESMTP
+	id S1751179AbWBJIBZ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 03:01:25 -0500
+From: Luke-Jr <luke@dashjr.org>
+To: linux-kernel@vger.kernel.org
+Subject: Firmware Flashing (Was: CD writing in future Linux (stirring up a hornets' nest))
+Date: Fri, 10 Feb 2006 08:01:20 +0000
+User-Agent: KMail/1.9
+Cc: Zoltan Boszormenyi <zboszor@freemail.hu>
+References: <43EB7E28.2030208@freemail.hu>
+In-Reply-To: <43EB7E28.2030208@freemail.hu>
+Public-GPG-Key: 0xD53E9583
+Public-GPG-Key-URI: http://dashjr.org/~luke-jr/myself/Luke-Jr.pgp
+IM-Address: luke-jr@jabber.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200602100801.23404.luke@dashjr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> But the main function of msync(MS_ASYNC) AFAIK is to *start* IO.
->> Why do we care so much if some application goes stupid with it?
->
-> Because delaying the writeback to permit combining is a good optimisation.
+On Thursday 09 February 2006 17:38, Zoltan Boszormenyi wrote:
+> For those who don't know, there even exists a firmware updater for Pioneer
+> DVD+-RW drives that work on Linux with /dev entries, on a live system,
+> without the need for a reboot... http://lasvegas.rpc1.org/
+> Look, Jörg, they don't need HOST/TARGET/LUN triplets for this task!
 
-In *some* cases.  The application may very well know that there won't
-be any following writes to combine with.
+On the topic of firmware updating, I also have a project for a 
+firmware-flashing API that supports both BTC and BenQ DVD burners (in theory, 
+anyway-- it's 100% untested at this point). It uses libscg (indirectly, 
+though calls to fwscsi_*) to access the devices, but uses regular old /dev 
+device names (or the SCSI number things). If anyone wants a snapshot (or CVS 
+access, to contribute), let me know and I'll post it in my public_html...
 
-> The alternative of not starting new writeout of a dirty page if that page
-> happens to be under writeout at the time is neither one nor the other. 
+Current plugins:
+	Image formats: CVT, Intel HEX, and BenQ EXE
+	User interfaces: 'fwflash' (commandline)
+	Devices:
+		DVD+-RW: BTC and BenQ
 
-It's a sub-optimal kludge, but it's something.  As everyone is perfectly
-aware, msync(MS_ASYNC) is *only* a performanc optimization; you cannot
-rely on it for correctness because the time to do the write is not
-bounded.  So if the OS screws up occasionally, not a disaster.
+Build output:
+	lib/libfwflash.so
+	lib/libfwflashscsi.so
+	lib/fwflash/device/dvdrw_benq.so
+	lib/fwflash/device/dvdrw_btc.so
+	lib/fwflash/imgfmt/benq_exe.so
+	lib/fwflash/imgfmt/cvt.so
+	lib/fwflash/imgfmt/intel_hex.so
+	bin/fwflash
 
-So Linux has a limitation that it can't start a second write on a
-particular page that's already being written.  (It seems like a simple
-flag, tested on completion of the first writeback, would solve that
-problem.)
-
-But msync() means nothing unless people are writing to a file, and
-concurrent writers have to cooperate anyway, so I don't see this as
-being a big problem in practice.  MS_ASYNC is a performace optimization,
-so it only has to work most of the time.
-
-Thus, this is a perfectly acceptable solution.
-
-For example, my application only calls msync(MS_ASYNC) on a particular
-page once, ever, as soon as it knows there will be no more writes to
-that page.  Thus, the problem would never occur.  It might be nice to
-extend Linux to cope gracefully with the case where I start the write
-when I'm 99% sure there will be no more data (but just might be wrong),
-but I don't think that's done too commonly.
-
->> Why not introduce a linux specific MS_flag to propogate pte dirty
->> bits?
-
-> That's what MS_ASYNC already does.
-
-Yes, in violation of the SuS spec.  That's what msync(0) already does,
-too, so the linux-specific extension already exists.
-
-The standard description of MS_INVALIDATE is very confusing and poorly
-worded, but I think it's designed for a model where mmap() copies rather
-than playing page table tricks, and the OS has to copy the dirty pages
-back and forth between the buffer cache "by hand".  Looked at that way,
-the MS_INVALIDATE wording seems to be intended as something of a "commit
-memory writes back to the file system level" operation.
-
-Which could also be expected to cause the traditional 30-second sync
-timeout to start applying to the written data.  In the current Linux
-code, the only effect of MS_INVALIDATE over msync(0) is an extra 
-validity check that I'm not clear on the purpose of.
-
-> Another point here is that msync(MS_SYNC) starts writeout of _all_ dirty
-> pages in the file (as MS_ASYNC used to do) and it waits upon writeback of
-> the whole file.  That's quite inefficient for an app which has lots of
-> threads writing to and msync()ing the same MAP_SHARED file.
-
-Ick.
-
-> We could easily enough convert msync() to only operate on the affected
-> region of the (non-linearly-mapped) file.  But I don't think we can do that
-> now, because people might be relying upon the side-effects.
-
-Um, they shouldn't be.  It certainly hasn't been documented.  If someone
-wants that, they can use fdatasync().  Do you have any reason to believe
-that there exist applications that rely on such non-portable behaviour
-for correctness?  I'd think someone writing such careful code would
-carefully follow the guarantees.
-
-> The fadvise() extensions allow us to fix this.  And we've needed them for
-> some time for regular write()s anyway.  
-
-I'm not objecting to them, just to the fact that they're non-portable
-extensions needed to make the portable system calls behave in the
-standard-defined way.
+Current API (unstable):
+--- core.h ---
+extern const char * fwflash_get_error ();
+extern void fwflash_error (const char *fmt, ...);
+extern void fwflash_warn (const char *fmt, ...);
+extern void fwflash_checksum (const unsigned char *data, size_t size, const 
+char **wanted, void *output);
+extern void fwflash_checksum_one (const unsigned char *data, size_t size, 
+const char *wanted, void *output);
+extern int fwflash_flash (hdevice, himage);
+extern hdevice fwflash_device_open (const char *);
+extern const char * fwflash_device_name (hdevice);
+extern const char * fwflash_device_id (hdevice);
+extern const char * fwflash_device_protocol_name (hdevice);
+extern const char * fwflash_device_firmware_id (hdevice);
+extern himage fwflash_image_open (const char *);
+extern const char * fwflash_image_name (himage);
+extern const char * fwflash_image_format_name (himage);
+extern const char * fwflash_image_echksum (himage);
+extern const char * fwflash_image_achksum (himage);
+extern int fwflash_image_verify_chksum (himage);
+extern const char * fwflash_image_firmware_id (himage);
+extern const char * fwflash_image_device_id (himage);
+extern size_t fwflash_image_data_size (himage);
+extern const char * fwflash_image_data (himage);
+--- device.h ---
+extern const char * fwdevice_protocol_name ();
+extern void * fwdevice_load_file (FILE *);
+extern void * fwdevice_load_filename (const char *);
+extern const char * fwdevice_name (void *);
+extern const char * fwdevice_id (void *);
+extern const char * fwdevice_firmware_id (void *);
+extern int fwdevice_flash_image (void *h, himage img);
+--- imgfmt.h ---
+extern const char * fwimage_format_name ();
+extern void * fwimage_load_file (FILE *);
+extern void * fwimage_load_filename (const char *);
+extern const char * fwimage_name (void *);
+extern const char * fwimage_echksum (void *);
+extern const char * fwimage_achksum (void *);
+extern int fwimage_verify_chksum (void *);
+extern const char * fwimage_firmware_id (void *);
+extern const char * fwimage_device_id (void *);
+extern size_t fwimage_data_size (void *);
+extern const char * fwimage_data (void *);
+--- scsi.h ---
+extern void * fwscsi_open_filename (const char *fn);
+extern void * fwscsi_open_scsidev (int bus, int target, int lun);
+extern void fwscsi_cmd_setbyte (void *h, int i, char v);
+extern void fwscsi_cmd_setcdb (void *h, char *data, size_t len);
+extern int fwscsi_exec_command (void *h, const char *flags, char *buf, int 
+bufsize);

@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbWBJHSB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWBJHUH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751170AbWBJHSB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 02:18:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWBJHSA
+	id S1751171AbWBJHUH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 02:20:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWBJHUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 02:18:00 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:57776 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751170AbWBJHSA (ORCPT
+	Fri, 10 Feb 2006 02:20:07 -0500
+Received: from smtp2.ist.utl.pt ([193.136.128.22]:12269 "EHLO smtp2.ist.utl.pt")
+	by vger.kernel.org with ESMTP id S1751171AbWBJHUF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 02:18:00 -0500
-Date: Thu, 9 Feb 2006 23:17:03 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: kernel@kolivas.org, npiggin@suse.de, mingo@elte.hu, rostedt@goodmis.org,
-       pwil3058@bigpond.net.au, suresh.b.siddha@intel.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [rfc][patch] sched: remove smpnice
-Message-Id: <20060209231703.4bd796bf.akpm@osdl.org>
-In-Reply-To: <20060209230145.A17405@unix-os.sc.intel.com>
-References: <20060207142828.GA20930@wotan.suse.de>
-	<200602080157.07823.kernel@kolivas.org>
-	<20060207141525.19d2b1be.akpm@osdl.org>
-	<200602081011.09749.kernel@kolivas.org>
-	<20060207153617.6520f126.akpm@osdl.org>
-	<20060209230145.A17405@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 10 Feb 2006 02:20:05 -0500
+From: Claudio Martins <ctpm@rnl.ist.utl.pt>
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Subject: Re: OCFS2 Filesystem inconsistency across nodes
+Date: Fri, 10 Feb 2006 07:20:03 +0000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com
+References: <200602100536.02893.ctpm@rnl.ist.utl.pt> <20060210064612.GE12046@ca-server1.us.oracle.com>
+In-Reply-To: <20060210064612.GE12046@ca-server1.us.oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602100720.04005.ctpm@rnl.ist.utl.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
+
+On Friday 10 February 2006 06:46, Mark Fasheh wrote:
 >
-> On Tue, Feb 07, 2006 at 03:36:17PM -0800, Andrew Morton wrote:
-> > Suresh, Martin, Ingo, Nick and Con: please drop everything, triple-check
-> > and test this:
-> > 
-> > From: Peter Williams <pwil3058@bigpond.net.au>
-> > 
-> > This is a modified version of Con Kolivas's patch to add "nice" support to
-> > load balancing across physical CPUs on SMP systems.
-> 
-> I have couple of issues with this patch.
-> 
-> a) on a lightly loaded system, this will result in higher priority job hopping 
-> around from one processor to another processor.. This is because of the 
-> code in find_busiest_group() which assumes that SCHED_LOAD_SCALE represents 
-> a unit process load and with nice_to_bias calculations this is no longer 
-> true(in the presence of non nice-0 tasks)
-> 
-> My testing showed that 178.galgel in SPECfp2000 is down by ~10% when run with 
-> nice -20 on a 4P(8-way with HT) system compared to a nice-0 run.
-> 
-> b) On a lightly loaded system, this can result in HT scheduler optimizations
-> being disabled in presence of low priority tasks... in this case, they(low
-> priority ones) can end up running on the same package, even in the presence 
-> of other idle packages.. Though this is not as serious as "a" above...
-> 
+> Great. We'll keep things simple at first. If I could get a copy of the
+> /etc/ocfs2/cluster.conf files from each node that'd be great. A full log of
+> the OCFS2 messages you see on each node, starting from mount to unmount
+> would also help. That includes any dlm_* messages - in particular the ones
+> printed when a node mounts and unmounts. If you're using any mount options
+> it'd be helpful to know those too.
 
-Thanks very much for discvoring those things.
 
-That rather leaves us in a pickle wrt 2.6.16.
+ Hi Mark
 
-It looks like we back out smpnice after all?
+ Thanks for the quick reply. I'll redo the steps from scratch, capture the 
+messages since the first mount and send that info ASAP.
 
-Whatever we do, time is pressing.
+ Thanks for the help
+
+Regards
+
+Claudio
+

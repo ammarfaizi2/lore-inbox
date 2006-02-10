@@ -1,42 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWBJUEj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWBJUGB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751366AbWBJUEj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 15:04:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbWBJUEj
+	id S1751367AbWBJUGB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 15:06:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbWBJUGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 15:04:39 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:16310 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751366AbWBJUEi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 15:04:38 -0500
-Date: Fri, 10 Feb 2006 15:04:25 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: torvalds@osdl.org
-Subject: Fix s390 build failure.
-Message-ID: <20060210200425.GA11913@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, torvalds@osdl.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Feb 2006 15:06:00 -0500
+Received: from uproxy.gmail.com ([66.249.92.198]:65401 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751367AbWBJUGA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 15:06:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FUprqkkDIG4Sdqw7q78Oc1jq+yfQLRmXCc6SYkawSLviiLQtxWTw8R24UZsXIdgU4lCnkFv1jss9xjdAn4oVNKFePlPInQZFDuYSl8EcSfzhSp2vj9Jd9XRnxAai+C0b+YIYvC2GDj2ECgJ0UYYbVOLFmWuPfG7ZC/LzY0fBgQA=
+Message-ID: <2cd57c900602101205s7a884ce2w@mail.gmail.com>
+Date: Sat, 11 Feb 2006 04:05:58 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.16-rc2-mm1
+Cc: linux-kernel@vger.kernel.org, Matthias Urlichs <smurf@smurf.noris.de>
+In-Reply-To: <20060210112530.540fec62.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+References: <20060207220627.345107c3.akpm@osdl.org>
+	 <2cd57c900602101017l61dd9ddbh@mail.gmail.com>
+	 <20060210112530.540fec62.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arch/s390/kernel/compat_signal.c:199: error: conflicting types for 'do_sigaction'
-include/linux/sched.h:1115: error: previous declaration of 'do_sigaction' was here
+2006/2/11, Andrew Morton <akpm@osdl.org>:
+> Coywolf Qi Hunt <coywolf@gmail.com> wrote:
+> >
+> > 2006/2/8, Andrew Morton <akpm@osdl.org>:
+> > >
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc2/2.6.16-rc2-mm1/
+> > >
+> > >
+> > > - Should also be available at:
+> > >
+> > >         git://git.kernel.org/pub/scm/linux/kernel/git/smurf/linux-trees.git
+> > >
+> > >   browseable at:
+> > >
+> > >         ftp://ftp.kernel.org/pub/scm/linux/kernel/git/smurf/linux-trees.git
+> > >
+> > >   thanks to a script which Matthias Urlichs <smurf@smurf.noris.de> has
+> > >   prepared.  I haven't tried this, so please let us know how it goes.
+> >
+> > The master branch seems not correct. It should be v2.6.16-rc2-mm1, but
+> > it is v2.6.13-rc4-mm1 or something.
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+"v2.6.15-mm3" actually.
 
---- linux-2.6.15.noarch/arch/s390/kernel/compat_signal.c~	2006-02-10 12:47:57.000000000 -0500
-+++ linux-2.6.15.noarch/arch/s390/kernel/compat_signal.c	2006-02-10 12:48:05.000000000 -0500
-@@ -196,7 +196,7 @@ sys32_sigaction(int sig, const struct ol
- }
- 
- int
--do_sigaction(int sig, const struct k_sigaction *act, struct k_sigaction *oact);
-+do_sigaction(int sig, struct k_sigaction *act, struct k_sigaction *oact);
- 
- asmlinkage long
- sys32_rt_sigaction(int sig, const struct sigaction32 __user *act,
+> >
+>
+> There is a 2.6.16-rc2-mm1 tag in there.  Perhaps Matthias could describe
+> how things are organised, recommendations for how people should use that
+> tree?
+>
+
+We should use "tags" for particular releases, and just one "master" branch.
+--
+Coywolf Qi Hunt

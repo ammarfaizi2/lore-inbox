@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWBJP5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWBJQCf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbWBJP5T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 10:57:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWBJP5T
+	id S932151AbWBJQCf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 11:02:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWBJQCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 10:57:19 -0500
-Received: from thunk.org ([69.25.196.29]:12014 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S932147AbWBJP5T (ORCPT
+	Fri, 10 Feb 2006 11:02:34 -0500
+Received: from mail.astral.ro ([193.230.240.11]:9143 "EHLO mail.astral.ro")
+	by vger.kernel.org with ESMTP id S932151AbWBJQCe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 10:57:19 -0500
-Date: Fri, 10 Feb 2006 10:57:11 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-       jengelh@linux01.gwdg.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060210155711.GA11566@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
-	linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-	jengelh@linux01.gwdg.de
-References: <20060210114721.GB20093@merlin.emma.line.org> <43EC887B.nailISDGC9CP5@burner> <mj+md-20060210.123726.23341.atrey@ucw.cz> <43EC8E18.nailISDJTQDBG@burner> <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr> <43EC93A2.nailJEB1AMIE6@burner> <20060210141651.GB18707@thunk.org> <43ECA3FC.nailJGC110XNX@burner> <20060210145238.GC18707@thunk.org> <43ECA934.nailJHD2NPUCH@burner>
+	Fri, 10 Feb 2006 11:02:34 -0500
+Message-ID: <43ECB91E.6060109@astral.ro>
+Date: Fri, 10 Feb 2006 18:02:38 +0200
+From: Imre Gergely <imre.gergely@astral.ro>
+Organization: Astral Telecom SA
+User-Agent: Thunderbird 1.5 (X11/20051025)
 MIME-Version: 1.0
+To: Erik Mouw <erik@harddisk-recovery.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: disabling libata
+References: <43EC97C6.10607@astral.ro> <20060210141130.GE28676@harddisk-recovery.com> <43ECA035.5040302@astral.ro> <20060210142224.GF28676@harddisk-recovery.com>
+In-Reply-To: <20060210142224.GF28676@harddisk-recovery.com>
+X-Enigmail-Version: 0.93.0.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43ECA934.nailJHD2NPUCH@burner>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 10, 2006 at 03:54:44PM +0100, Joerg Schilling wrote:
-> >
-> > 1)  File != device.
+
+
+Erik Mouw wrote:
+> On Fri, Feb 10, 2006 at 04:16:21PM +0200, Imre Gergely wrote:
+>> Erik Mouw wrote:
+>>> On Fri, Feb 10, 2006 at 03:40:22PM +0200, Imre Gergely wrote:
+>>>> i have a SATA hardisk, and am using FC4 with default kernel
+>>>> (2.6.14-1.1644_FC4). i was wondering if it's possible to tell the kernel to use
+>>>> the old ATA driver with SATA support instead of libata, for my harddisk to
+>>>> appear as hdX, and not sdX.
+>>> Why would you want to do that? SATA are driven by libata and the disks
+>>> turn up as SCSI devices. There's no way around that (yet).
+>> if i recompile the kernel, and leave out the libata part, and compile in
+>> support for SATA, under ATA, the harddisks turn up as normal IDE devices (ie
+>> hde, hdf, etc). i would like that without recompiling. if it's possible of course.
 > 
-> I am sorry, but it turns out that you did not understand the problem.
+> Yes, I know that's possible for some SATA adapters, but my question is
+> why would you want to do that? The SATA support in the IDE subsystem is
+> deprecated, you should really use libata.
 > 
-> Try to inform yourself about the relevence (and content) of st_dev before
-> replying again.
+> 
+> Erik
+> 
 
-st_dev is irrelevant in the context of CD burning.
+maybe it's just me... but it looks like if as SCSI device the whole thing is
+slower than with IDE. i haven't tested it yet, but as sda the system load is
+very high, i did some tests with dd, and the CPU usage is always at 98-100%.
+and when i'm copying something to another disk, the other programs barely move,
+sometimes even the mouse gets stuck. i dunno where this is coming from. i
+thought i try with the old driver.
 
-In the context of mounted files, the only guarantee given by POSIX is
-that st_dev and st_ino for a particular file is unique.  But that
-clearly is true while the containing filesystem is mounted.  Even with
-Solaris, if a particular removable filesystem is unmounted and removed
-from one device (say one Jazz/Zip drive) and inserted into another
-device (say another Jazz/Zip drive), st_dev will change --- while the
-system is running.
+maybe if you could give me some hints about how to test the whole thing, i
+could post some results. i know that driver change isn't the answer, but i
+still wanted to know if one can switch between the old and the libata driver
+without recompiling (with some boot parameters to the kernel perhaps).
 
-So your claim is __still__ false.
 
-Please try again and give a fully formed argument, and assume that
-your discussion partners might know what they are talk about in the
-future.
-
-						- Ted

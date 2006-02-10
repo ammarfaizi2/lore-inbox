@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbWBJAFY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbWBJAJb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750852AbWBJAFY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 19:05:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbWBJAFY
+	id S1750854AbWBJAJb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 19:09:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWBJAJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 19:05:24 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:25861 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750841AbWBJAFY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 19:05:24 -0500
-Date: Fri, 10 Feb 2006 01:05:23 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Cleanup possibility in asm-i386/string.h
-Message-ID: <20060210000523.GE3524@stusta.de>
-References: <200602071215.46885.ak@suse.de> <Pine.LNX.4.61.0602071230520.9696@scrub.home> <200602071308.59827.ak@suse.de> <Pine.LNX.4.61.0602071336060.30994@scrub.home>
+	Thu, 9 Feb 2006 19:09:31 -0500
+Received: from mail08.syd.optusnet.com.au ([211.29.132.189]:7636 "EHLO
+	mail08.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750853AbWBJAJa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 19:09:30 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Nikita Danilov <nikita@clusterfs.com>
+Subject: Re: [PATCH] mm: Implement Swap Prefetching v22
+Date: Fri, 10 Feb 2006 11:08:46 +1100
+User-Agent: KMail/1.9.1
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, ck list <ck@vds.kolivas.org>,
+       linux-mm@kvack.org, Nick Piggin <npiggin@suse.de>,
+       Paul Jackson <pj@sgi.com>
+References: <200602092339.49719.kernel@kolivas.org> <43EB43B9.5040001@yahoo.com.au> <17387.33855.858274.530175@gargle.gargle.HOWL>
+In-Reply-To: <17387.33855.858274.530175@gargle.gargle.HOWL>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0602071336060.30994@scrub.home>
-User-Agent: Mutt/1.5.11
+Message-Id: <200602101108.47614.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 07, 2006 at 01:39:50PM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Tue, 7 Feb 2006, Andi Kleen wrote:
-> 
-> > > This means you define a prototype for the builtin function and not for the 
-> > > normal function. I'm not sure this is really intended.
-> > 
-> > What good would be a prototype for a symbol that is defined to a different symbol?
-> 
-> The point is you define a prototype for a builtin function, I'm not sure 
-> that's a good thing to do.
-> Actually I'd prefer to remove -ffreestanding again, especially because it
-> disables builtin functions, which we have to painfully enable all again 
-> one by one, instead of leaving it just to gcc.
+On Friday 10 February 2006 05:04, Nikita Danilov wrote:
+> Nick Piggin writes:
+>
+> [...]
+>
+>  > > +/*
+>  > > + * We check to see no part of the vm is busy. If it is this will
+>  > > interrupt + * trickle_swap and wait another PREFETCH_DELAY.
+>  > > Purposefully racy. + */
+>  > > +inline void delay_swap_prefetch(void)
+>  > > +{
+>  > > +	__set_bit(0, &swapped.busy);
+>  > > +}
+>  > > +
+>  >
+>  > Test this first so you don't bounce the cacheline around in page
+>  > reclaim too much.
+>
+> Shouldn't we have special macros/inlines for this? Like, e.g.,
+>
+> static inline void __set_bit_weak(int nr, volatile unsigned long * addr)
+> {
+>         if (!__test_bit(nr, addr))
+>                 __set_bit(nr, addr);
+> }
+>
+> ? These test-then-set sequences start to proliferate throughout the code.
 
-I remember playing with using more gcc builtins in the kernel some time 
-ago, and some gcc builtin used a different library function, which was a 
-function the kernel did not supply.
+Maybe.
 
-I don't remember the exact details, but this was the reason why I 
-preferred using builtins only when explicitely enabled.
+There isn't actually a non-atomic __test_bit anyway, only a test_bit. The 
+non-atomic __test_and_set_bit already exists, but that sets the bit 
+regardless of what the bit was as far as I can tell.
 
-> bye, Roman
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Cheers,
+Con

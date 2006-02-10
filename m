@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWBJHUH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWBJHXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751171AbWBJHUH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 02:20:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWBJHUH
+	id S1751173AbWBJHXE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 02:23:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWBJHXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 02:20:07 -0500
-Received: from smtp2.ist.utl.pt ([193.136.128.22]:12269 "EHLO smtp2.ist.utl.pt")
-	by vger.kernel.org with ESMTP id S1751171AbWBJHUF (ORCPT
+	Fri, 10 Feb 2006 02:23:04 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:60223 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751173AbWBJHXB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 02:20:05 -0500
-From: Claudio Martins <ctpm@rnl.ist.utl.pt>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-Subject: Re: OCFS2 Filesystem inconsistency across nodes
-Date: Fri, 10 Feb 2006 07:20:03 +0000
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com
-References: <200602100536.02893.ctpm@rnl.ist.utl.pt> <20060210064612.GE12046@ca-server1.us.oracle.com>
-In-Reply-To: <20060210064612.GE12046@ca-server1.us.oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Feb 2006 02:23:01 -0500
+Date: Fri, 10 Feb 2006 08:25:23 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] block: kill not-so-popular simple flag testing macros
+Message-ID: <20060210072523.GH24124@suse.de>
+References: <20060208085728.GA21065@htj.dyndns.org> <43EB8D2C.6020708@pobox.com> <43EBDC70.6050302@gmail.com> <43EBEA26.8000709@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602100720.04005.ctpm@rnl.ist.utl.pt>
+In-Reply-To: <43EBEA26.8000709@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 09 2006, Jeff Garzik wrote:
+> Tejun Heo wrote:
+> >The code he was talking about looks like.
+> >
+> >if (rq->flags & (REQ_SOFTBARRIER | REQ_HARDBARRIER) {
+> 
+> 
+> Yes, I certainly agree you don't want to test the same variable multiple 
+> times, if you are just testing bits in the same variable.
 
-On Friday 10 February 2006 06:46, Mark Fasheh wrote:
->
-> Great. We'll keep things simple at first. If I could get a copy of the
-> /etc/ocfs2/cluster.conf files from each node that'd be great. A full log of
-> the OCFS2 messages you see on each node, starting from mount to unmount
-> would also help. That includes any dlm_* messages - in particular the ones
-> printed when a node mounts and unmounts. If you're using any mount options
-> it'd be helpful to know those too.
+Very few of the flags are usually tested together, so we could just fix
+this particular instance. So blk_softbarrier_rq() and
+blk_hardbarrier_rq(), combined tested with blk_barrier_rq().
 
-
- Hi Mark
-
- Thanks for the quick reply. I'll redo the steps from scratch, capture the 
-messages since the first mount and send that info ASAP.
-
- Thanks for the help
-
-Regards
-
-Claudio
+-- 
+Jens Axboe
 

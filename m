@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWBJWUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWBJWUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932218AbWBJWUj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 17:20:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWBJWUj
+	id S932222AbWBJWUs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 17:20:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWBJWUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 17:20:39 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:35254 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932218AbWBJWUi (ORCPT
+	Fri, 10 Feb 2006 17:20:48 -0500
+Received: from mail.gmx.net ([213.165.64.21]:39864 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932222AbWBJWUr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 17:20:38 -0500
-Date: Fri, 10 Feb 2006 17:20:35 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cuia.boston.redhat.com
-To: Ram Gupta <ram.gupta5@gmail.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: RSS Limit implementation issue
-In-Reply-To: <728201270602100650q22938b88x237b8fb043c82408@mail.gmail.com>
-Message-ID: <Pine.LNX.4.63.0602101717590.25390@cuia.boston.redhat.com>
-References: <728201270602091310r67a3f2dcq4788199f26a69528@mail.gmail.com> 
- <1139526447.6692.7.camel@localhost.localdomain>
- <728201270602100650q22938b88x237b8fb043c82408@mail.gmail.com>
+	Fri, 10 Feb 2006 17:20:47 -0500
+X-Authenticated: #428038
+Date: Fri, 10 Feb 2006 23:20:43 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [cdrtools PATCH (GPL)] Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060210222043.GA4265@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <787b0d920602021827m4890fbf4j24d110dc656d2d3a@mail.gmail.com> <43E374CF.nail5CAMKAKEV@burner> <20060203182049.GB11083@merlin.emma.line.org> <43E3A19E.nail6A511N92B@burner> <20060203184240.GC11241@voodoo> <43E3AA95.nail6AV21A253@burner> <20060203192827.GC18533@merlin.emma.line.org> <20060208221305.GF2353@ucw.cz> <20060209223840.GB4590@merlin.emma.line.org> <43EC82E6.nailISD7ZM3F1@burner>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43EC82E6.nailISD7ZM3F1@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Feb 2006, Ram Gupta wrote:
+Joerg Schilling schrieb am 2006-02-10:
 
-> Also we need to figure out a way for swapper to target pages based on 
-> RSS limit.
+> Matthias Andree <matthias.andree@gmx.de> wrote:
+> 
+> > You have apparently missed that I offered to relicense the patch under
+> > MIT license (which is liberal, allows modifications and everything)
+> 
+> It seems that you still miss the point that you don't have the right
+> to require a license for your patch (check the UrhG for more information).
 
-Indeed.  You do not want an RSS limited process to get stuck
-on an idle system, because nothing wants to free its memory.
+Why do care then?
 
-> One possible disadvantage I can think is that as the swapper 
-> swaps out a page based on RSS limit, the process's rss will become 
-> within the rss limit & then scheduler will schedule this process again & 
-> hence possibly same page might have to be brought in. This may cause 
-> increase in swapping. What do you think how much realistic is this 
-> scenario?
+> And please finally note that you did already cause a mail thread that
+> did cost more time than your patch is worth.
 
-Thanks to the swap cache, this should not be an issue.
-
-You don't need to actually write the page to disk when removing
-the page from the process RSS - you simply add it to the swap
-cache, unmap it and move it to the far end of the inactive list,
-where kswapd will run into it quickly if the system needs memory
-again in the future.
+Nobody forces you to answer every side note someone makes, and nobody
+ask you to reiterate identical replies over and over.
 
 -- 
-All Rights Reversed
+Matthias Andree

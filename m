@@ -1,91 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWBJVFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWBJVK6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbWBJVFF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 16:05:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWBJVFF
+	id S932201AbWBJVK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 16:10:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWBJVK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 16:05:05 -0500
-Received: from mail.tmr.com ([64.65.253.246]:54925 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S932195AbWBJVFE (ORCPT
+	Fri, 10 Feb 2006 16:10:58 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:42160 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932201AbWBJVK5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 16:05:04 -0500
-Message-ID: <43ED005F.5060804@tmr.com>
-Date: Fri, 10 Feb 2006 16:06:39 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Fri, 10 Feb 2006 16:10:57 -0500
+Date: Fri, 10 Feb 2006 13:10:33 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Andrew Morton <akpm@osdl.org>, linux@horizon.com,
+       linux-kernel@vger.kernel.org, sct@redhat.com
+Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
+In-Reply-To: <43ECF182.9020505@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0602101254081.19172@g5.osdl.org>
+References: <20060209071832.10500.qmail@science.horizon.com>
+ <20060209094815.75041932.akpm@osdl.org> <43EC0A44.1020302@yahoo.com.au>
+ <20060209195035.5403ce95.akpm@osdl.org> <43EC0F3F.1000805@yahoo.com.au>
+ <20060209201333.62db0e24.akpm@osdl.org> <43EC16D8.8030300@yahoo.com.au>
+ <20060209204314.2dae2814.akpm@osdl.org> <43EC1BFF.1080808@yahoo.com.au>
+ <20060209211356.6c3a641a.akpm@osdl.org> <43EC24B1.9010104@yahoo.com.au>
+ <20060209215040.0dcb36b1.akpm@osdl.org> <43EC2C9A.7000507@yahoo.com.au>
+ <20060209221324.53089938.akpm@osdl.org> <43EC3326.4080706@yahoo.com.au>
+ <20060209224656.7533ce2b.akpm@osdl.org> <43EC3961.3030904@yahoo.com.au>
+ <Pine.LNX.4.64.0602100759190.19172@g5.osdl.org> <43ECC13F.5080109@yahoo.com.au>
+ <Pine.LNX.4.64.0602100846170.19172@g5.osdl.org> <43ECCF68.3010605@yahoo.com.au>
+ <Pine.LNX.4.64.0602100944280.19172@g5.osdl.org> <43ECDD9B.7090709@yahoo.com.au>
+ <Pine.LNX.4.64.0602101056130.19172@g5.osdl! .org> <43ECF182.9020505@yahoo.com.au>
 MIME-Version: 1.0
-To: Nix <nix@esperi.org.uk>
-CC: Jens Axboe <axboe@suse.de>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>	<Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>	<20060125144543.GY4212@suse.de>	<Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>	<20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>	<20060125181847.b8ca4ceb.grundig@teleline.es>	<20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix>
-In-Reply-To: <878xt3rfjc.fsf@amaterasu.srvr.nix>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-red brick + atlantaNix wrote:
-> On 25 Jan 2006, Matthias Andree prattled cheerily:
-> 
->>Jens Axboe wrote:
 
 
->>Hm. sysfs, procfs, udev, hotplug, netlink (for IPv6) - this all looks rather
->>complicated and non-portable. I understand that applications that can just
->>open every device and send SCSI INQUIRY might want to do that on Linux, too.
+On Sat, 11 Feb 2006, Nick Piggin wrote:
 > 
+> The way I see it, it stems from simply a different expectation of
+> MS_ASYNC semantics, rather than exactly what the app is doing.
 > 
-> Applications (already) do this by asking HAL, which can be informed of
-> new devices in a variety of ways: the up-and-coming one is for the
-> kernel to notify udevd, following which a udev rule sends a dbus message
-> to HAL. Everything from the dbus message on up is cross-OS portable.
-> -scanbus is *totally* unnecessary.
+> If there are no data integrity requirements, then the writing should
+> be left up to the VM. If there are, then there will be a MS_SYNC,
+> which *will* move those hundred megs to the IO layer so there is no
+> reason for MS_ASYNC *not* to get it started earlier (and it will
+> be more efficient if it does).
 
-I notice that the first thing people suggest is to make things like 
-udev, hal and sysfs required instead of optional to do something as 
-simple as burn a CD. As I mentioned before, if the kernel provided a 
-list of devices then applications wouldn't break every time a new kernel 
-came out which needs a new this, and new that, and a few new other 
-support things.
+Yes, largely. 
 
-The kernel could provide a list of devices by category. It doesn't have 
-to name them, run scripts, give descriptions, or paint them blue. Just a 
-list of all block devices, tapes, by major/minor and category (ie. 
-block, optical, floppy) would give the application layer a chance to do 
-it's own interpretation. HAL is great, but because it's not part of the 
-kernel it's also going to suffer from "tracking error" for some changes. 
-I find it easier to teach someone to use -scanbus than to explain how to 
-make rules for udev.
-> 
-> (Furthermore, it fails to work in a quite laughable fashion in the
-> presence of hotpluggable storage media. udev handles giving hotpluggable
-> storage media consistent device names with extreme ease, and tells HAL
-> about them so that users see the new devices appear even if they don't
-> have a clue that /dev even exists.
-> 
-> The change that J. Random Nontechnical User will ever run `cdrecord
-> -scanbus' is *nil*, and applications don't run it either because they
-> can't judge between all the devices that are listed to pick the one
-> which is a CD recorder (consider the consequences should they guess
-> wrong!). Instead, they invariably ask for a device name, or, in more
-> recent versions get the info from HAL. HAL knows if something is a CD
-> recorder because its backend, e.g. udev, told it.)
-> 
-Worth repeating: I find it easier to teach someone to use -scanbus than 
-to explain how to make rules for udev. HAL is the right answer, but *in* 
-the kernel, where it will track changes. Since -scanbus tells you a 
-device is a CDrecorder, or something else, *any user* is likely to be 
-able to tell it from DCD, CD-ROM, etc. Nice like of text for most devices...
+> The semantics your app wants, in my interpretation, are provided
+> by MS_INVALIDATE. Which kind of says "bring mmap data into coherence
+> with system cache", which would presumably transfer dirty bits if
+> modified (though as an implementation detail, we are never actually
+> incoherent as far as the data goes, only dirty bits).
 
-Note: my example of major/minor is just that, almost any presentation 
-which showed all devices user applications would normally use, in a well 
-defined way, would address the identifications issue.
+This historical meaning as far as I can tell, for MS_INVALIDATE really 
+_forgets_ the old mmap'ped contents in a non-coherent system.
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Quoting from a UNIX man-page (as found by google):
+
+	...
+
+     If flags is MS_INVALIDATE,  the  function  synchronizes  the
+     contents  of  the  memory  region  to match the current file
+     contents.
+
+        o  All writes to the mapped  portion  of  the  file  made
+           prior  to  the  call  are  visible  by subsequent read
+           references to the mapped memory region.
+
+        o  All write references prior to the call,  by  any  pro-
+           cess,  to memory regions mapped to the same portion of
+           the file using MAP_SHARED, are visible by read  refer-
+           ences to the region.
+
+	...
+
+now, it's confusing, but I read that as meaning that the mmap'ed region is 
+literally thrown away, and that anybody who has done a "write()" call will 
+have their recently written data show up. That's also what the naming 
+("invalidate") suggests.
+
+In a non-coherent system (and remember, that's what old UNIX was, when 
+MS_INVALIDATE came to be), you -cannot- reasonably synchronize your caches 
+any other way than by throwing away your own cached copy.
+
+(Think non-coherent CPU caches in the old non-coherent NUMA machines that 
+happily nobody makes any more - same exact deal. The cache ops are either 
+"writeback" or "throw away" or a combination of the two.)
+
+So I don't think MS_INVALIDATE has ever really meant what you say it 
+means: it certainly hasn't meant it in Linux, and it cannot really have 
+meant it in old UNIX either because the kind of op that you imply of a 
+two-way coherency simply wasn't _possible_ in original unix..
+
+Now, the "msync(0)" case _could_ very sanely mean "just synchronize with 
+the page cache".
+
+			Linus

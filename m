@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWBJGET@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWBJGXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbWBJGET (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 01:04:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWBJGET
+	id S1751150AbWBJGXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 01:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWBJGXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 01:04:19 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:6324 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751152AbWBJGER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 01:04:17 -0500
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
-       Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@openvz.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       frankeh@watson.ibm.com, clg@fr.ibm.com, greg@kroah.com,
-       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
-       Pavel Emelianov <xemul@sw.ru>
-Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
-References: <43E38BD1.4070707@openvz.org>
-	<1139243874.6189.71.camel@localhost.localdomain>
-	<m13biwnxkc.fsf@ebiederm.dsl.xmission.com>
-	<200602101541.07631.ncunningham@cyclades.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 09 Feb 2006 23:01:26 -0700
-In-Reply-To: <200602101541.07631.ncunningham@cyclades.com> (Nigel
- Cunningham's message of "Fri, 10 Feb 2006 15:40:56 +1000")
-Message-ID: <m1d5hvzr9l.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 10 Feb 2006 01:23:15 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:60178 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751150AbWBJGXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 01:23:15 -0500
+Date: Fri, 10 Feb 2006 07:23:09 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: jes@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: git for dummies, anyone? (was: Re: How in tarnation do I git v2.6.16-rc2?  hg died and I still don't git git)
+Message-ID: <20060210062309.GA22620@w.ods.org>
+References: <20060208070301.1162e8c3.pj@sgi.com> <yq0vevollx4.fsf@jaguar.mkp.net> <20060209065011.45ba1b88.pj@sgi.com> <20060209231650.GF11380@w.ods.org> <20060209160358.5de62d54.pj@sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060209160358.5de62d54.pj@sgi.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham <ncunningham@cyclades.com> writes:
+On Thu, Feb 09, 2006 at 04:03:58PM -0800, Paul Jackson wrote:
+> Willy wrote:
+> > BTW, have you tried cogito ? 
+> 
+> Yes - I used it for a little, until I discovered
+> Matt Mackall's Mercurial (Hg):
+> 
+>   http://selenic.com/mercurial/
+> 
+> I've been a delighted user of hg ever since.
 
-> Am I missing something? I though migration referred only to userspace 
-> processes. Software suspend on the other hand, deals with the whole system, 
-> of which process data/context is only a part.
+I did the opposite : I tried hg as soon as Matt announced it, but I
+got lost in the "python dumps" which appeared at the slightest error,
+because I did not understand what the problem was. Then I tried git,
+at least to be able to keep in sync with Marcelo. With git, I had
+some opportunities to catch some understandable error messages spit
+out of some shell scripts even when not caught by the script itself.
+But using it less than twice a week requires me to read the manual
+again before doing anything useful :-(
 
-The problem domain is user process and the kernel state they depend on.
-Implementation wise we are looking at two totally different problems.
+Willy
 
-However the effects should be similar if the set of processes to
-migrate are all of the processes in the system.
-
-For most of the interesting cases migration does not need to be that
-ambitious.
-
-Eric

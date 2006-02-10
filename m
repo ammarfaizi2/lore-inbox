@@ -1,81 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWBJGDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWBJGDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbWBJGDe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 01:03:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWBJGDe
+	id S1751151AbWBJGDL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 01:03:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWBJGDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 01:03:34 -0500
-Received: from web50212.mail.yahoo.com ([206.190.39.176]:52846 "HELO
-	web50212.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1751153AbWBJGDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 01:03:34 -0500
+	Fri, 10 Feb 2006 01:03:11 -0500
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:49851 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751151AbWBJGDJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 01:03:09 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=wJMb/QXO9sPstfmE1fXsPf+haWf8QMz5o0HNQYLYXQ36Ndm8U2Xzs5116n83ojzzdduHulm56CvWbtJ+hwLqxjQ6/Ko95qKcRx19j8QdBbP4s05uuI63t7DcCmWgviwmLY24qST1te6Ii4lH/RInrfxJAwShojDNE79ZvrYmhTw=  ;
-Message-ID: <20060210060333.8628.qmail@web50212.mail.yahoo.com>
-Date: Thu, 9 Feb 2006 22:03:33 -0800 (PST)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: Re: Let's get rid of  ide-scsi
-To: Wakko Warner <wakko@animx.eu.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060210003614.GA26114@animx.eu.org>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=tF/NIku0bp4LZQ+DVjIZ8TYpbS5KeJEFx1pDDaJegU+8XUm4UTBV4CWNKxuAHJolytSRgMzGUGbR+JHSGJqeeQ+2D5l4ADlZ5PCGPePZMjDyXLTrvbIOoiryTP4SHwWHA4qyoml1U2ue38LxHnDl6UD124CjRLuGGabMSQ1byBw=  ;
+Message-ID: <43EC2C9A.7000507@yahoo.com.au>
+Date: Fri, 10 Feb 2006 17:03:06 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Andrew Morton <akpm@osdl.org>
+CC: linux@horizon.com, linux-kernel@vger.kernel.org, sct@redhat.com,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
+References: <20060209071832.10500.qmail@science.horizon.com>	<20060209001850.18ca135f.akpm@osdl.org>	<43EAFEB9.2060000@yahoo.com.au>	<20060209004208.0ada27ef.akpm@osdl.org>	<43EB3801.70903@yahoo.com.au>	<20060209094815.75041932.akpm@osdl.org>	<43EC0A44.1020302@yahoo.com.au>	<20060209195035.5403ce95.akpm@osdl.org>	<43EC0F3F.1000805@yahoo.com.au>	<20060209201333.62db0e24.akpm@osdl.org>	<43EC16D8.8030300@yahoo.com.au>	<20060209204314.2dae2814.akpm@osdl.org>	<43EC1BFF.1080808@yahoo.com.au>	<20060209211356.6c3a641a.akpm@osdl.org>	<43EC24B1.9010104@yahoo.com.au> <20060209215040.0dcb36b1.akpm@osdl.org>
+In-Reply-To: <20060209215040.0dcb36b1.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-
---- Wakko Warner <wakko@animx.eu.org> wrote:
-
-> Alex Davis wrote:
-> > I think we should get rid of ide-scsi.
-> > 
-> > Reasons:
-> > 1) It's broken.
-> > 2) It's unmaintained.
-> > 3) It's unneeded.
-> > 
-> > I'll submit a patch if people agree.
-> > 
-> > I code, therefore I am
+>>But I've explained that they only matter for people using it in stupid ways.
+>>fsync also poses a performance problem for programs that call it after every
+>>write(2).
 > 
-> I personally do not agree with this.  I worked on at boot disk(floppy) which
-> contained the kernel and modules to find a cdrom (or usb disk) and use it as
-> my 2nd stage.  If I had to use ide-cd, I would not beable to do my first
-> stage loader on a single floppy (I support ide and scsi cdroms via sr-mod).
 > 
-> ide-cd.ko is > than sr-mod.ko + ide-scsi.ko
+> There's absolutely nothing stupid about
 > 
-> I am aware that scsi_mod.ko is larger than those 3 combined and I still need
-> it regardless for usb.
-> 
-> My personal vote would be to drop the entire ide subsystem which would thus
-> drop ide-scsi.  The SCSI layer has been a general block device layer for
-> more than true scsi devices.  USB, Firewire, and SATA use the scsi layer. 
-> And as I understand it, libata is starting to handle PATA devices.  Once it
-> can handle PATA fine, the ide code would pretty much be useless.
-> 
-> I am also against the seperate USB block layer, I personally saw no use in
-> it.
-> 
-> -- 
->  Lab tests show that use of micro$oft causes cancer in lab animals
->  Got Gas???
+> 	*p = <expr>
+> 	msync(p, sizeof(*p), MS_ASYNC);
 > 
 
-Wakko:
+There really is if you're expecting a short time later to do
 
-Modules can be compressed: On a 2.6.15 kernel doing a 'gzip -9 idecd.ko' reduced its size
-from 43616 bytes to 19234 bytes. The only additional step is modifying 'modules.dep' and
-changing idecd.ko to idecd.ko.gz. You now have a fully functional ide cdrom driver.
+	*p = <expr2>
 
+and had no need for a MS_SYNC anywhere in the meantime.
+If you did have the need for MS_SYNC, then kicking off the IO
+ASAP is going to be more efficient.
 
+>>
+>>Is a more efficient implementation know-problematic?
+> 
+> 
+> It's less efficient for some things.  A lot.
+> 
 
-I code, therefore I am
+But only for stupid things, right?
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+> 
+>>What applications did
+>>you observe problems with, can you remember?
+> 
+> 
+> Linus has some application which was doing the above.  It ran extremely
+> slowly, so we changed MS_ASYNC (ie: made it "more efficient"...)
+
+Can he remember what it is? It sounds like it is broken.
+
+OTOH, it could have been blocking on pages already under writeout
+but a smarter implementation could ignore those (at the cost of
+worse IO efficiency in these rare cases).
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

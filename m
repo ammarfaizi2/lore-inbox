@@ -1,91 +1,185 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWBJXDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWBJXHq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbWBJXDS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 18:03:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWBJXDS
+	id S932241AbWBJXHq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 18:07:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWBJXHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 18:03:18 -0500
-Received: from pat.uio.no ([129.240.130.16]:49901 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932239AbWBJXDS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 18:03:18 -0500
-Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       linux@horizon.com, linux-kernel@vger.kernel.org, sct@redhat.com
-In-Reply-To: <Pine.LNX.4.64.0602101432400.19172@g5.osdl.org>
-References: <20060209071832.10500.qmail@science.horizon.com>
-	 <20060209094815.75041932.akpm@osdl.org> <43EC16D8.8030300@yahoo.com.au>
-	 <20060209204314.2dae2814.akpm@osdl.org> <43EC1BFF.1080808@yahoo.com.au>
-	 <20060209211356.6c3a641a.akpm@osdl.org> <43EC24B1.9010104@yahoo.com.au>
-	 <20060209215040.0dcb36b1.akpm@osdl.org> <43EC2C9A.7000507@yahoo.com.au>
-	 <20060209221324.53089938.akpm@osdl.org> <43EC3326.4080706@yahoo.com.au>
-	 <20060209224656.7533ce2b.akpm@osdl.org> <43EC3961.3030904@yahoo.com.au>
-	 <Pine.LNX.4.64.0602100759190.19172@g5.osdl.org>
-	 <43ECC13F.5080109@yahoo.com.au>
-	 <Pine.LNX.4.64.0602100846170.19172@g5.osdl.org>
-	 <43ECCF68.3010605@yahoo.com.au>
-	 <Pine.LNX.4.64.0602100944280.19172@g5.osdl.org>
-	 <43ECDD9B.7090709@yahoo.com.au>
-	 <Pine.LNX.4.64.0602101056130.19172@g5.osdl! .org>
-	 <43ECF182.9020505@yahoo.com.au>
-	 <Pine.LNX.4.64.0602101254081.19172@g5.osdl.org>
-	 <1139608513.7877.9.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.64.0602101432400.19172@g5.osdl.org>
+	Fri, 10 Feb 2006 18:07:45 -0500
+Received: from streetfiresound.liquidweb.com ([64.91.233.29]:8926 "EHLO
+	host.streetfiresound.liquidweb.com") by vger.kernel.org with ESMTP
+	id S932241AbWBJXHp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 18:07:45 -0500
+Subject: Re: [PATCH] spi: Updated PXA2xx SSP SPI Driver
+From: Stephen Street <stephen@streetfiresound.com>
+Reply-To: stephen@streetfiresound.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, dvrabel@arcom.com,
+       David Brownell <david-b@pacbell.net>,
+       spi-devel-general@lists.sourceforge.net, nico@cam.org
+In-Reply-To: <20060209181841.73e5d0b2.akpm@osdl.org>
+References: <43e80ec3.oEr+gtyMVtunRTyE%stephen@streetfiresound.com>
+	 <1139535480.30189.30.camel@ststephen.streetfiresound.com>
+	 <20060209181841.73e5d0b2.akpm@osdl.org>
 Content-Type: text/plain
-Date: Fri, 10 Feb 2006 18:02:53 -0500
-Message-Id: <1139612574.7877.17.camel@lade.trondhjem.org>
+Organization: StreetFire Sound Labs
+Date: Fri, 10 Feb 2006 15:07:41 -0800
+Message-Id: <1139612861.30189.126.camel@ststephen.streetfiresound.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+X-Mailer: Evolution 2.0.2 (2.0.2-22) 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.661, required 12,
-	autolearn=disabled, AWL 1.15, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - host.streetfiresound.liquidweb.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - streetfiresound.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-02-10 at 14:46 -0800, Linus Torvalds wrote:
-> 
-> On Fri, 10 Feb 2006, Trond Myklebust wrote:
-> > 
-> > The Single Unix Spec appears to have a very different interpretation.
-> 
-> Hmm. Very different wording, but same meaning, I think.
-> 
-> >         When MS_INVALIDATE is specified, msync() shall invalidate all
-> >         cached copies of mapped data that are inconsistent with the
-> >         permanent storage locations such that subsequent references
-> >         shall obtain data that was consistent with the permanent storage
-> >         locations sometime between the call to msync() and the first
-> >         subsequent memory reference to the data.
-> 
-> Again, this says that the _mapping_ is invalidated, and should match 
-> persistent storage.
-> 
-> Any dirty bits in the mapping (ie anything that hasn't been msync'ed) 
-> should be made persistent with permanent storage. Again, that is entirely 
-> consistent with just throwing the mmap'ed page away (dirty state and all) 
-> in a non-coherent environment.
-> 
-> I don't think we really have any modern Unixes with non-coherent mmap's 
-> (although HP-UX used to be that way for a _loong_ time). But in the 
-> timeframe that was written, it was probably still an issue.
-> 
-> Now, in a _coherent_ environment (like Linux) it should probably be a 
-> no-op, since the mapping is always consistent with storage (where 
-> "storage" doesn't actyally mean "disk", but the virtual file underneath 
-> the mapping).
+On Thu, 2006-02-09 at 18:18 -0800, Andrew Morton wrote:
+> Driver looks pretty clean.  It's refreshingly deviod of comments ;)
+Thanks. Add more comments?  I got scared of over commenting as a result
+of reading the kernel code style document.
 
-Hmmm.... When talking about syncing to _permanent_ storage one usually
-is talking about what is actually on the disk. In any case, we do have
-non-coherent mmapped environments in Linux (need I mention NFS,
-CIFS, ... ;-)?).
+> > +static void null_writer(struct driver_data *drv_data)
+> > +{
+> > +	u32 sssr = drv_data->sssr;
+> > +	u32 ssdr = drv_data->ssdr;
+> > +	u8 n_bytes = drv_data->cur_chip->n_bytes;
+> > +
+> > +	while ((SSP_REG(sssr) & SSSR_TNF)
+> > +			&& (drv_data->tx < drv_data->tx_end)) {
+> > +		SSP_REG(ssdr) = 0;
+> > +		drv_data->tx += n_bytes;
+> > +	}
+> > +}
+> 
+> hm.
+> 
+> 	#define SSP_REG(x) (*((volatile unsigned long *)x))
+> 
+> what's this doing?  Accessing a device register?  Cannot we use readl/writel?
+> 
+Just following the pattern in include/asm-arm/arch-pxa/pxa_regs.h
+Nicolas made a similar comment. I'm changing it now.
 
-IIRC msync(MS_INVALIDATE) on Solaris was actually often used by some
-applications to resync the client page cache to the server when using
-odd locking schemes, so I believe this interpretation is a valid one.
+> > +		*(u32 *)(drv_data->null_dma_buf) = 0;
+> 
+> null_dma_buf gets typecast a lot.  Maybe make it a u32*?
+Yes.
 
-Cheers,
-  Trond
+> > +	/* PXA255x_SSP has no timeout interrupt, wait for tailing bytes */
+> > +	if ((drv_data->ssp_type == PXA25x_SSP)
+> > +		&& (channel == drv_data->tx_channel)
+> > +		&& (irq_status & DCSR_ENDINTR)) {
+> > +
+> > +		/* Wait for rx to stall */
+> > +		while (SSP_REG(sssr) & SSSR_BSY)
+> > +			cpu_relax();
+> 
+> A timeout here, perhaps?
+> 
+> > +		while (!(DCSR(drv_data->rx_channel) & DCSR_STOPSTATE))
+> > +			cpu_relax();
+> 
+Ok, but if a SSP or the DMA channel never stops then the CPU is probably
+toast anywise.
+
+> > +		unmap_dma_buffers(drv_data);
+> > +
+> > +		/* Calculate number of trailing bytes, read them */
+> > +		trailing_sssr = SSP_REG(sssr);
+> > +		if ((trailing_sssr & 0xf008) != 0xf000) {
+> > +			drv_data->rx = drv_data->rx_end -
+> > +					(((trailing_sssr >> 12) & 0x0f) + 1);
+> > +			drv_data->read(drv_data);
+> > +		}
+> > +		msg->actual_length += drv_data->len;
+> > +
+> > +		/* Release chip select if requested, transfer delays are
+> > +		 * handled in pump_transfers */
+> > +		if (drv_data->cs_change)
+> > +			drv_data->cs_control(PXA2XX_CS_DEASSERT);
+> > +
+> > +		/* Move to next transfer */
+> > +		msg->state = next_transfer(drv_data);
+> > +
+> > +		/* Schedule transfer tasklet */
+> > +		tasklet_schedule(&drv_data->pump_transfers);
+> > +
+> > +		return IRQ_HANDLED;
+> > +	}
+> > +
+> > +	/* Never Fail */
+> 
+> WARN_ON(1)?
+> 
+> Why not return IRQ_NONE here?  That way, the IRQ system will save the
+> machine if the IRQ gets stuck.
+> 
+In my generally confused state I decided that if the IRQ handler ran
+then by definition I handled the interrupt. But thats probably not
+right.  Will change.
+
+> > +static void cleanup(const struct spi_device *spi)
+> > +{
+> > +	struct chip_data *chip = spi_get_ctldata((struct spi_device *)spi);
+> 
+> Remove the typecast, change spi_get_ctldata() to take a const struct
+> spi_device *?  I guess that might cause warnings too - the compiler might
+> want spi_get_ctldata() to return a const thing.
+> 
+I will talk with David about this.  Maybe the right answer is changing
+the cleanup function signiture.
+
+> > +	drv_data->null_dma_buf = drv_data + sizeof(struct driver_data);
+> > +	drv_data->null_dma_buf = (void *)(((u32)(drv_data->null_dma_buf)
+> > +					 & 0xfffffff8) | 8);
+> 
+> Consider using the ALIGN() macro here.
+> 
+I been looking for someway to due this for weeks and now I found it.
+THANKS!
+
+> This all looks very non-64-bit-capable.
+Just the null_dma_buf issue or something more?
+
+> > +#ifdef CONFIG_PM
+> > +static int stall_queue(struct driver_data *drv_data)
+> > +{
+> > +	unsigned long flags;
+> > +	unsigned limit = 500;
+> > +
+> > +	spin_lock_irqsave(&drv_data->lock, flags);
+> > +
+> > +	drv_data->run = QUEUE_STALLED;
+> > +
+> > +	while (drv_data->busy && limit--) {
+> > +		spin_unlock_irqrestore(&drv_data->lock, flags);
+> > +		msleep(10);
+> > +		spin_lock_irqsave(&drv_data->lock, flags);
+> > +	}
+> 
+> That looks a bit lame.  What's happening here?
+Sort of dumb, I agree.  I interpreted PM_EVENT_FREEZE to mean that I
+should stop processing the internal message queue but leave the queue
+intact so that it can be restarted. "stall_queue" does this by setting
+the run flag to QUEUE_STALLED (checked in pump_messages) and waiting for
+the busy to indicate the idle state.  I considered using an wait_queue
+but this seemed to much for to little.  Would you prefer a wait_queue?
+
+
+> > +	spin_unlock_irqrestore(&drv_data->lock, flags);
+> > +
+> > +	if (!list_empty(&drv_data->queue) || drv_data->busy)
+> > +		return -EBUSY;
+> 
+> Does the list_empty() make sense outside the lock?
+Badness
+
+Thanks for the through review!
+
+Stephen
 

@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWBJHPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbWBJHSB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbWBJHPO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 02:15:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWBJHPO
+	id S1751170AbWBJHSB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 02:18:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWBJHSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 02:15:14 -0500
-Received: from science.horizon.com ([192.35.100.1]:12086 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S1751169AbWBJHPM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 02:15:12 -0500
-Date: 10 Feb 2006 02:15:04 -0500
-Message-ID: <20060210071504.31345.qmail@science.horizon.com>
-From: linux@horizon.com
-To: akpm@osdl.org, nickpiggin@yahoo.com.au
-Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
-Cc: linux-kernel@vger.kernel.org, linux@horizon.com, sct@redhat.com
-In-Reply-To: <20060209201333.62db0e24.akpm@osdl.org>
+	Fri, 10 Feb 2006 02:18:00 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:57776 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751170AbWBJHSA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 02:18:00 -0500
+Date: Thu, 9 Feb 2006 23:17:03 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: kernel@kolivas.org, npiggin@suse.de, mingo@elte.hu, rostedt@goodmis.org,
+       pwil3058@bigpond.net.au, suresh.b.siddha@intel.com,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [rfc][patch] sched: remove smpnice
+Message-Id: <20060209231703.4bd796bf.akpm@osdl.org>
+In-Reply-To: <20060209230145.A17405@unix-os.sc.intel.com>
+References: <20060207142828.GA20930@wotan.suse.de>
+	<200602080157.07823.kernel@kolivas.org>
+	<20060207141525.19d2b1be.akpm@osdl.org>
+	<200602081011.09749.kernel@kolivas.org>
+	<20060207153617.6520f126.akpm@osdl.org>
+	<20060209230145.A17405@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well, no.  Consider a continuously-running application which modifies its
-> data store via MAP_SHARED+msync(MS_ASYNC).  If the msync() immediately
-> started I/O, the disk would be seeking all over the place all the time.  The
-> queue merging and timer-based unplugging would help here, but it won't be
-> as good as a big, infrequent ascending-file-offset pdflush pass.
+"Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
 >
-> Secondly, consider the behaviour of the above application if it is modifying
-> the same page relatively frequently (quite likely).  If MS_ASYNC starts I/O
-> immediately, that page will get written 10, 100 or 1000 times per second. 
-> If MS_ASYNC leaves it to pdflush, that page gets written once per 30
-> seconds, so we do far much less I/O.
+> On Tue, Feb 07, 2006 at 03:36:17PM -0800, Andrew Morton wrote:
+> > Suresh, Martin, Ingo, Nick and Con: please drop everything, triple-check
+> > and test this:
+> > 
+> > From: Peter Williams <pwil3058@bigpond.net.au>
+> > 
+> > This is a modified version of Con Kolivas's patch to add "nice" support to
+> > load balancing across physical CPUs on SMP systems.
+> 
+> I have couple of issues with this patch.
+> 
+> a) on a lightly loaded system, this will result in higher priority job hopping 
+> around from one processor to another processor.. This is because of the 
+> code in find_busiest_group() which assumes that SCHED_LOAD_SCALE represents 
+> a unit process load and with nice_to_bias calculations this is no longer 
+> true(in the presence of non nice-0 tasks)
+> 
+> My testing showed that 178.galgel in SPECfp2000 is down by ~10% when run with 
+> nice -20 on a 4P(8-way with HT) system compared to a nice-0 run.
+> 
+> b) On a lightly loaded system, this can result in HT scheduler optimizations
+> being disabled in presence of low priority tasks... in this case, they(low
+> priority ones) can end up running on the same package, even in the presence 
+> of other idle packages.. Though this is not as serious as "a" above...
+> 
 
-You're assuming a brain-dead application.  Which can already thrash the
-disk very nicely with O_SYNC.  Yes, if you ask for control and then do
-something stupid, you can send performance into the toilet.
+Thanks very much for discvoring those things.
 
-That's not a reason to not do what the application asks unless it's
-a serious DoS attack.
+That rather leaves us in a pickle wrt 2.6.16.
 
-(For example, In my appliction, I'm using a raw device as a circular
-buffer, so I'm already delivering perfectly sequential block numbers.
-And it's a flash memory disk anyway.)
+It looks like we back out smpnice after all?
 
-> We just don't know.  It's better to leave it up to the application designer
-> rather than lumping too many operations into the one syscall.
-
-I know the operating system doesn't know.  If it did, there wouldn't
-be any need for the application to tell it by making a system call.
-So do what the application asks for, which is what the SuS says
-msync(MS_ASYNC) means, which is start the write immediately.
-(I'd call it "I/O", but it's only "O".)
-
-As I said, I'm actively looking for a way, on Linux 2.6.x, x <= 15,
-to start disk writes on part of an mmapped file without either blocking
-(yet) or writing other dirty pages that aren't complete yet.
+Whatever we do, time is pressing.

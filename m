@@ -1,123 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWBJSi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWBJSiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750869AbWBJSi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 13:38:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750864AbWBJSi6
+	id S1750774AbWBJSiY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 13:38:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750864AbWBJSiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 13:38:58 -0500
-Received: from mail.astral.ro ([193.230.240.11]:15515 "EHLO mail.astral.ro")
-	by vger.kernel.org with ESMTP id S1750863AbWBJSi5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 13:38:57 -0500
-Message-ID: <43ECDDC7.50200@astral.ro>
-Date: Fri, 10 Feb 2006 20:39:03 +0200
-From: Imre Gergely <imre.gergely@astral.ro>
-Organization: Astral Telecom SA
-User-Agent: Thunderbird 1.5 (X11/20051025)
+	Fri, 10 Feb 2006 13:38:24 -0500
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:53355 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1750774AbWBJSiX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 13:38:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=V/F7SVOKGZk+vo5d8AlwHJt8VvA6IIrDKwCYfJemBJlFMd5unSdisG54S7IPLL0tCBi0hwWvFS4bDn2vc2iYP9KIY9gdcUeKdVIAtn0pgRb3qf/olYvaGdo8YvEAeVZE5IIiTzlvJQYtG1wr+sbT2KEPABCAteIkaQB4Pp0BA30=  ;
+Message-ID: <43ECDD9B.7090709@yahoo.com.au>
+Date: Sat, 11 Feb 2006 05:38:19 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org
-Subject: Re: disabling libata
-References: <43EC97C6.10607@astral.ro>	 <20060210141130.GE28676@harddisk-recovery.com> <43ECA035.5040302@astral.ro>	 <20060210142224.GF28676@harddisk-recovery.com> <43ECB91E.6060109@astral.ro> <1139592347.12521.18.camel@localhost.localdomain>
-In-Reply-To: <1139592347.12521.18.camel@localhost.localdomain>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, linux@horizon.com,
+       linux-kernel@vger.kernel.org, sct@redhat.com
+Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
+References: <20060209071832.10500.qmail@science.horizon.com> <20060209001850.18ca135f.akpm@osdl.org> <43EAFEB9.2060000@yahoo.com.au> <20060209004208.0ada27ef.akpm@osdl.org> <43EB3801.70903@yahoo.com.au> <20060209094815.75041932.akpm@osdl.org> <43EC0A44.1020302@yahoo.com.au> <20060209195035.5403ce95.akpm@osdl.org> <43EC0F3F.1000805@yahoo.com.au> <20060209201333.62db0e24.akpm@osdl.org> <43EC16D8.8030300@yahoo.com.au> <20060209204314.2dae2814.akpm@osdl.org> <43EC1BFF.1080808@yahoo.com.au> <20060209211356.6c3a641a.akpm@osdl.org> <43EC24B1.9010104@yahoo.com.au> <20060209215040.0dcb36b1.akpm@osdl.org> <43EC2C9A.7000507@yahoo.com.au> <20060209221324.53089938.akpm@osdl.org> <43EC3326.4080706@yahoo.com.au> <20060209224656.7533ce2b.akpm@osdl.org> <43EC3961.3030904@yahoo.com.au> <Pine.LNX.4.64.0602100759190.19172@g5.osdl.org> <43ECC13F.5080109@yahoo.com.au> <Pine.LNX.4.64.0602100846170.19172@g5.osdl.org> <43ECCF68.3010605@yahoo.com.au> <Pine.LNX.4.64.0602100944280.19172@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602100944280.19172@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Alan Cox wrote:
-> On Gwe, 2006-02-10 at 18:02 +0200, Imre Gergely wrote:
->> maybe it's just me... but it looks like if as SCSI device the whole thing is
->> slower than with IDE. i haven't tested it yet, but as sda the system load is
->> very high, i did some tests with dd, and the CPU usage is always at 98-100%.
+Linus Torvalds wrote:
+> 
+> On Sat, 11 Feb 2006, Nick Piggin wrote:
+> 
+>>It seems very obvious to me that it is a hint. If you wer expecting
+>>to call msync(MS_SYNC) at some point, then you could hope that hinting
+>>with msync(MS_ASYNC) at some point earlier might improve its efficiency.
 > 
 > 
-> Not expected behaviour. Can you provide hardware info and boot up
-> messages please.
+> And it will. MS_ASYNC tells the system about dirty pages. It _should_ 
+> actually initiate writeback if the system decides that it has lots of 
+> dirty pages. Of course, if the system doesn't have a lot of dirty pages, 
+> the kernel will decide that no writeback is necessary.
 > 
+> If you (as an application) know that you will wait for the IO later (which 
+> is _not_ what MS_ASYNC talks about), why don't you just start it?
 > 
 
-AMD Sempron 2600+, 512MB
+It depends how you interpret the standards and what you think sensible
+behaviour would be, I guess (obviously our current MS_ASYNC is not
+technically buggy, we're arguing about whether or not it is suboptimal).
 
-00:09.0 IDE interface: nVidia Corporation MCP2A IDE (rev a3)
-00:0b.0 IDE interface: nVidia Corporation nForce2 Serial ATA Controller (rev a3)
+But given that there is an MS_INVALIDATE (I interpret mmap + MS_INVALIDATE
+should work as write()), and that one would _expect_ MS_ASYNC to closely
+match MS_SYNC, I think MS_ASYNC should start writeout straight away.
 
-...
-ata1: SATA max UDMA/133 cmd 0x9F0 ctl 0xBF2 bmdma 0xC800 irq 11
-ata2: SATA max UDMA/133 cmd 0x970 ctl 0xB72 bmdma 0xC808 irq 11
-input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
-ata1: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4003 85:3468 86:3c01 87:4003 88:407f
-ata1: dev 0 ATA, max UDMA/133, 312579695 sectors: lba48
-nv_sata: Primary device added
-nv_sata: Primary device removed
-nv_sata: Secondary device removed
-ata1: dev 0 configured for UDMA/133
-scsi0 : sata_nv
-ata2: no device found (phy stat 00000000)
-scsi1 : sata_nv
-  Vendor: ATA       Model: ST3160023AS       Rev: 3.01
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sda: 312579695 512-byte hdwr sectors (160041 MB)
-SCSI device sda: drive cache: write back
-SCSI device sda: 312579695 512-byte hdwr sectors (160041 MB)
-SCSI device sda: drive cache: write back
- sda: sda1 sda2 sda3 sda4
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-kjournald starting.  Commit interval 5 seconds
-...
+The fact that we've historically had a buggy MS_INVALIDATE implementation
+is a non argument when it comes to the interpretation of the standards.
 
-[root@imi ~]# hdparm -tT /dev/sda
+> ie what's wrong with Andrew's patch which is what I also encourage?
+> 
+> I contend that "mmap + MS_ASYNC" should work as "write()". That's just 
+> _sensible_.
+> 
+> Btw, you can equally well make the argument that "write()" is a hint that 
+> we should start IO, so that if we do fdatasync() later, it will finish 
+> more quickly. It's _true_. It just isn't the whole truth. It makes things 
+> _slowe_ if you don't do fdatasync(), the same way you can do MS_ASYNC 
+> without doing MS_SYNC afterwards.
+> 
 
-/dev/sda:
- Timing cached reads:   1652 MB in  2.00 seconds = 825.95 MB/sec
-HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate ioctl for
-device
- Timing buffered disk reads:  146 MB in  3.00 seconds =  48.60 MB/sec
-HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate ioctl for
-device
+I wouldn't argue that because I don't agree with your contention. I
+argue that MS_ASYNC should do as much of the work of MS_SYNC as possible,
+without blocking.
 
-[root@imi stuff]# hdparm /dev/sda
+ From the standard (msync):
 
-/dev/sda:
- IO_support   =  0 (default 16-bit)
- readonly     =  0 (off)
- readahead    = 256 (on)
- geometry     = 19457/255/63, sectors = 160040803840, start = 0
+   Description
+     The msync() function shall write all modified data to permanent storage
+     locations...
 
-[root@imi stuff]# cat /sys/block/sda/queue/scheduler
-noop anticipatory deadline [cfq]
+     When MS_ASYNC is specified, msync() shall return immediately once all
+     the write operations are initiated or queued for servicing;
 
-(but i tried all schedulers, didn't see any big improvements)
+It is talking about write operations, not dirtying. Actually the only
+difference with MS_SYNC is that it waits for said write operations (of the
+type queued up by MS_ASYNC) to complete.
 
-i tried to create an 1gb file like this:
+So our current MS_ASYNC behaviour might technically not violate a standard
+(depending on what you consider initiating / queueing writes), but it would
+be akin to having MS_SYNC waiting for pages to become clean without actually
+starting the writeout either (which is likewise inefficient but technically
+correct).
 
-[root@imi stuff]# time dd if=/dev/zero of=./1gbfile bs=512k count=2048
-2048+0 records in
-2048+0 records out
+[snip smooth writeback]
 
-real    1m6.086s
-user    0m0.012s
-sys     0m5.920s
+That would be a nice thing yes, but again I don't agree that MS_ASYNC
+is semantically equivalent to write()
 
-vmstat output lookes like this:
-
-
-[root@imi ~]# vmstat 1
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 1  0    112  94208   1416  96616    0    0   762   427  933  3359 15  4 69 12
- 2  3    112   5076    808 180052    0    0    28 71260  768  3001  3 55 42  0
- 0  3    112   7060    820 178608    0    0     8 20500  632  2596  1  5  0 94
- 4  3    112   9292    820 178612    0    0     4     0  606  2695  1  1  0 98
- 0  2    112   6340    876 181740    0    0    16 22440  608  2689  1 49  0 50
- 0  2    112   5964    888 179848    0    0    20 54188  589  2761  5 25  0 70
- 0  2    112   7580    904 179900    0    0    40     0  583  2603  1  1  0 98
- 1  3    112   4956    932 182972    0    0    40 27404  622  2635  3 16  0 81
- 0  6    112   4952    952 182772    0    0    28  4000  664  2775  1 26  0 73
-
-i read somewhere about some tests, SATA vs IDE, and they were talking about a
-constant 10-13% CPU usage, nothing more.
-
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

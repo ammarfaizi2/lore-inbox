@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWBJNFa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWBJNGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbWBJNFa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 08:05:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932071AbWBJNF3
+	id S932076AbWBJNGN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 08:06:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWBJNGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 08:05:29 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:27110 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932070AbWBJNF1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 08:05:27 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Fri, 10 Feb 2006 14:03:30 +0100
-To: schilling@fokus.fraunhofer.de, dhazelton@enter.net
-Cc: peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-       jengelh@linux01.gwdg.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43EC8F22.nailISDL17DJF@burner>
-References: <20060208162828.GA17534@voodoo>
- <20060210114721.GB20093@merlin.emma.line.org>
- <43EC887B.nailISDGC9CP5@burner>
- <200602090757.13767.dhazelton@enter.net>
-In-Reply-To: <200602090757.13767.dhazelton@enter.net>
-User-Agent: nail 11.2 8/15/04
+	Fri, 10 Feb 2006 08:06:12 -0500
+Received: from mr1.bfh.ch ([147.87.250.50]:63410 "EHLO mr1.bfh.ch")
+	by vger.kernel.org with ESMTP id S932076AbWBJNGK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 08:06:10 -0500
+X-PMWin-Version: 2.5.0e, Antispam-Engine: 2.2.0.0, Antivirus-Engine: 2.32.10
+Thread-Index: AcYuQr5p5N5K5CK2QIClvXPXvfTYEQ==
+Content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
+Importance: normal
+Message-ID: <43EC8FBA.1080307@bfh.ch>
+Date: Fri, 10 Feb 2006 14:06:02 +0100
+From: "Seewer Philippe" <philippe.seewer@bfh.ch>
+Organization: BFH
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050811)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: <linux-kernel@vger.kernel.org>
+Subject: RFC: disk geometry via sysfs
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Feb 2006 13:06:02.0117 (UTC) FILETIME=[BE3F3350:01C62E42]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"D. Hazelton" <dhazelton@enter.net> wrote:
+Hello all!
 
-> And does cdrecord even need libscg anymore? From having actually gone through 
-> your code, Joerg, I can tell you that it does serve a larger purpose. But at 
-> this point I have to ask - besides cdrecord and a few other _COMPACT_ _DISC_ 
-> writing programs, does _ANYONE_ use libscg? Is it ever used to access any 
-> other devices that are either SCSI or use a SCSI command protocol (like 
-> ATAPI)?  My point there is that you have a wonderful library, but despite 
-> your wishes, there is no proof that it is ever used for anything except 
-> writing/ripping CD's.
+I don't want to start another geometry war, but with the introduction of
+the general getgeo function by Christoph Hellwig for all disks this
+simply would become a matter of extending the basic gendisk block driver.
 
-Name a single program (not using libscg) that implements user space SCSI and runs 
-on as many platforms as cdrecord/libscg does.
+There are people out there (like me) who need to know about disk
+geometry. But since this is clearly post 2.6.16 I prefer to ask here
+before writing a patch...
 
-Jörg
+Q1: Yes or No?
+If no, the other questions do not apply
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Q2: Where under sysfs?
+Either do /sys/block/hdx/heads, /sys/block/hdx/sectors, etc. or should
+there be a new sub-object like /sys/block/hdx/geometry/heads?
+
+Q3: Writable?
+Under some (weird) circumstances it would actually be quite nice to
+overwrite the kernels idea of a disks geometry. This would require a
+general function like setgeo. Acceptable?
+
+Regards
+Philippe Seewer

@@ -1,77 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbWBJGqR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWBJG5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751162AbWBJGqR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 01:46:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWBJGqR
+	id S1751164AbWBJG5l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 01:57:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWBJG5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 01:46:17 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:37265 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1751162AbWBJGqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 01:46:17 -0500
-Date: Thu, 9 Feb 2006 22:46:12 -0800
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Claudio Martins <ctpm@rnl.ist.utl.pt>
-Cc: linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com
-Subject: Re: OCFS2 Filesystem inconsistency across nodes
-Message-ID: <20060210064612.GE12046@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <200602100536.02893.ctpm@rnl.ist.utl.pt>
+	Fri, 10 Feb 2006 01:57:41 -0500
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:63826 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751164AbWBJG5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 01:57:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=aO1FO6DgUwL4CTbyA5IqdKQMJYjSzMce2Kxa/8Jj5NiBnGxY0z0V5ogpF/nNi6quGukhzpMbAFYdtXaJYLRlGvSAWTWwq4fogs0kYUeuO/zbEVrv/+1wCpy4TDDB/1DyJ9D2ryski49UuuxX4/BCDZyCS4jLU5rEfrnkyV5WR6Q=  ;
+Message-ID: <43EC3961.3030904@yahoo.com.au>
+Date: Fri, 10 Feb 2006 17:57:37 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602100536.02893.ctpm@rnl.ist.utl.pt>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+To: Andrew Morton <akpm@osdl.org>
+CC: linux@horizon.com, linux-kernel@vger.kernel.org, sct@redhat.com,
+       torvalds@osdl.org
+Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
+References: <20060209071832.10500.qmail@science.horizon.com>	<20060209001850.18ca135f.akpm@osdl.org>	<43EAFEB9.2060000@yahoo.com.au>	<20060209004208.0ada27ef.akpm@osdl.org>	<43EB3801.70903@yahoo.com.au>	<20060209094815.75041932.akpm@osdl.org>	<43EC0A44.1020302@yahoo.com.au>	<20060209195035.5403ce95.akpm@osdl.org>	<43EC0F3F.1000805@yahoo.com.au>	<20060209201333.62db0e24.akpm@osdl.org>	<43EC16D8.8030300@yahoo.com.au>	<20060209204314.2dae2814.akpm@osdl.org>	<43EC1BFF.1080808@yahoo.com.au>	<20060209211356.6c3a641a.akpm@osdl.org>	<43EC24B1.9010104@yahoo.com.au>	<20060209215040.0dcb36b1.akpm@osdl.org>	<43EC2C9A.7000507@yahoo.com.au>	<20060209221324.53089938.akpm@osdl.org>	<43EC3326.4080706@yahoo.com.au> <20060209224656.7533ce2b.akpm@osdl.org>
+In-Reply-To: <20060209224656.7533ce2b.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew Morton wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-On Fri, Feb 10, 2006 at 05:36:02AM +0000, Claudio Martins wrote:
+>>If there is no actual need for the application to start a write (eg
+>>for data integrity) then why would it ever do that?
 > 
->  (I'm posting this to lkml since ocfs2-users@oss.oracle.com doesn't seem
-> to be accepting new subscription requests)
-Thanks for testing this out :) There does indeed seem to be something wrong
-with our mailing list, so thanks for pointing that out too.
+> 
+> To get the data sent to disk in a reasonable amount of time - don't leave it
+> floating about in memory for hours or days.
+> 
 
-<snip testing info>
+This is a Linux implementation detail. As such it would make sense to
+introduce a new Linux specific MS_ flag for this.
 
->  At first I thought this might be caused by the metadata info being propagated 
-> to the other nodes but the caches not being flushed to disk on the node that 
-> wrote to a file. So I tested this by copying ~2GB sized files to try to cause 
-> some memory pressure, yet with the same kind of disappointing results.
-It definitely looks like the messages you're getting are due to some nodes
-reading old or invalid metadata. If the cache is bad on the other nodes,
-re-writing blocks from the same node won't necessarily make things better.
+>>Oh yeah it is easy if you want to define some more APIs and do
+>>it in a Linux specific way.
+>>
+>>But the main function of msync(MS_ASYNC) AFAIK is to *start* IO.
+>>Why do we care so much if some application goes stupid with it?
+> 
+> 
+> Because delaying the writeback to permit combining is a good optimisation.
+> 
 
->  I'd like to know if anyone on the list has had the opportunity of testing 
-> OCFS2 or had similar problems. OTOH, if I'm wrongly assuming something about 
-> OCFS2 which I shouldn't be, please tell me and I'll apologise for wasting 
-> your time ;-)
-No, it doesn't seem like you're assuming any behavior that it shouldn't be
-doing, so there's certainly something wrong going on. I have some
-suggestions below. As far as testing goes, we have a pretty fair number of
-folks running large production systems on this so I'd definitely say it's
-getting tested ;) That said, things can always get temporarily broken,
-which is where hearing from folks like you helps alot.
+Definitely. And when the app gives us a hint that it really wants the
+data on the disk, starting it as early as possible is also a good
+optimisation.
 
->  I'm willing to make any tests or apply any patches you want. I'll be trying 
-> to keep the machines and the disk box for as many days as possible, so please 
-> try to bug me if you think these are real bugs and you want me to test fixes 
-> before 2.6.16 comes out.
->  If you need kernel .config or any other info please ask.
-Great. We'll keep things simple at first. If I could get a copy of the
-/etc/ocfs2/cluster.conf files from each node that'd be great. A full log of the
-OCFS2 messages you see on each node, starting from mount to unmount would also
-help. That includes any dlm_* messages - in particular the ones printed when
-a node mounts and unmounts. If you're using any mount options it'd be
-helpful to know those too.
-	--Mark
 
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com
+> 
+>>Why not introduce a linux specific MS_flag to propogate pte dirty
+>>bits?
+> 
+> 
+> That's what MS_ASYNC already does.  We're agreed that something needs to
+> change and we're just discussing what that is.  I'm proposing something
+> which is complete and flexible.
+> 
+
+I don't think there's anything wrong with your fadvise additions.
+I'd rather see MS_ASYNC start IO immediately and add another MS_
+flag for Linux to propogate bits.
+
+MS_ASYNC behaviour would also somewhat match your proposed FADV_ASYNC
+behaviour.
+
+> 
+> 
+> Another point here is that msync(MS_SYNC) starts writeout of _all_ dirty
+> pages in the file (as MS_ASYNC used to do) and it waits upon writeback of
+> the whole file.  That's quite inefficient for an app which has lots of
+> threads writing to and msync()ing the same MAP_SHARED file.
+> 
+> We could easily enough convert msync() to only operate on the affected
+> region of the (non-linearly-mapped) file.  But I don't think we can do that
+> now, because people might be relying upon the side-effects.
+> 
+
+I think if the interface was always documented correctly then we should
+be able to. If the app breaks it was buggy anyway.
+
+> The fadvise() extensions allow us to fix this.  And we've needed them for
+> some time for regular write()s anyway.  
+> 
+
+Yes they'd be nice.
+
+Instead of
+LINUX_FADV_ASYNC_WRITE
+LINUX_FADV_WRITE_WAIT
+
+can we have something more consistent? Perhaps
+FADV_WRITE_ASYNC
+FADV_WRITE_SYNC
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

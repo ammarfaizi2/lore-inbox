@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWBJPOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWBJPOA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932128AbWBJPOG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 10:14:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWBJPOF
+	id S932130AbWBJPOA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 10:14:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWBJPOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 10:14:05 -0500
-Received: from pproxy.gmail.com ([64.233.166.182]:54776 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932128AbWBJPOE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 10:14:04 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=fEjks0Brec2QterrR32+S55+PGGEmOQJV7rXj5B810T298Fw092ppkr+6jBUZygVKUnRT4RKr3azwMrMDdgix4d2E1f+nJsGF9dge/VkCL8lscT/wHnqAJnkDgE+EZechodHnOVNv45jjJZ2PFVKTNy9BtUF//BdOhNOa9or3lw=
-Message-ID: <43ECADBC.2080107@gmail.com>
-Date: Fri, 10 Feb 2006 23:14:04 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Fri, 10 Feb 2006 10:14:00 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:916 "EHLO
+	zcars04f.nortel.com") by vger.kernel.org with ESMTP id S932129AbWBJPN7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 10:13:59 -0500
+Message-ID: <43ECADA8.9030609@nortel.com>
+Date: Fri, 10 Feb 2006 09:13:44 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net
-CC: malattia@linux.it
-Subject: [PATCH] fbdev: Fix typo in fbmem.c
-References: <20060207220627.345107c3.akpm@osdl.org> <20060210145243.GA3581@inferi.kami.home>
-In-Reply-To: <20060210145243.GA3581@inferi.kami.home>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+CC: tytso@mit.edu, peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       jengelh@linux01.gwdg.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr> <43EB7BBA.nailIFG412CGY@burner> <mj+md-20060209.173519.1949.atrey@ucw.cz> <43EC71FB.nailISD31LRCB@burner> <20060210114721.GB20093@merlin.emma.line.org> <43EC887B.nailISDGC9CP5@burner> <mj+md-20060210.123726.23341.atrey@ucw.cz> <43EC8E18.nailISDJTQDBG@burner> <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr> <43EC93A2.nailJEB1AMIE6@burner> <20060210141651.GB18707@thunk.org> <43ECA3FC.nailJGC110XNX@burner> <43ECA70C.8050906@nortel.com> <43ECA8BC.nailJHD157VRM@burner>
+In-Reply-To: <43ECA8BC.nailJHD157VRM@burner>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Feb 2006 15:13:47.0017 (UTC) FILETIME=[96E21F90:01C62E54]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A typo in fbmem.c prevents recognition of video= parameter.
+Joerg Schilling wrote:
+> "Christopher Friesen" <cfriesen@nortel.com> wrote:
 
-Signed-off-by: Antonino Daplas <adaplas@pol.net>
-
----
-Mattia Dongili wrote:
-
-> On Tue, Feb 07, 2006 at 10:06:27PM -0800, Andrew Morton wrote:
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc2/2.6.16-rc2-mm1/
+>>There's nothing there that says the mapping cannot change with 
+>>time...just that it has to be unique.
 > 
-> Hello,
 > 
-> radeonfb ignores the video= parameter and always run at 1400x1050 (the
-> highest available). Things where fine with .16-rc1-mm5.
-> I also tried booting with 640x480-32@60 without success.
+> If it changes over the runtime of a program, it is not unique from the
+> view of that program.
 
-Try this patch.
+That depends on what "uniquely identified" actually means.
 
-Tony
+One possible definition is that at any time, a particular path maps to a 
+single unique st_ino/st_dev tuple.
 
-PS: Andrew, maybe this patch should go into your hotfixes?
+The other possibility (and this is what you seem to be advocating) is 
+that a st_ino/st_dev tuple always maps to the same file over the entire 
+runtime of the system.
 
- fbmem.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+This second possibility seems easily disproved.  If you delete and 
+recreate files on a filesystem (assuming nobody has open files in the 
+filesystem), at some point a new file will end up with the same inode as 
+an old (deleted) file.  The two files are different, but have the same 
+st_ino/st_dev tuple.
 
+This leaves the first possibility as the only choice...
 
-diff --git a/drivers/video/fbmem.c b/drivers/video/fbmem.c
-index 6454a37..3ff1a54 100644
---- a/drivers/video/fbmem.c
-+++ b/drivers/video/fbmem.c
-@@ -1569,7 +1569,7 @@ int fb_get_options(char *name, char **op
- 	return retval;
- }
- 
--#ifdef MODULE
-+#ifndef MODULE
- /**
-  *	video_setup - process command line options
-  *	@options: string of options
+Chris

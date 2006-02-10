@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWBJRQN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWBJRXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751334AbWBJRQN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 12:16:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbWBJRQN
+	id S1751333AbWBJRXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 12:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWBJRXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 12:16:13 -0500
-Received: from mx2.suse.de ([195.135.220.15]:44463 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751331AbWBJRQM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 12:16:12 -0500
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org
-Subject: Re: [discuss] [RFC/PATCH: 004/010] Memory hotplug for new nodes with pgdat allocation. (pgdat alloc caller for x86_64)
-Date: Fri, 10 Feb 2006 18:15:12 +0100
-User-Agent: KMail/1.8.2
-Cc: Yasunori Goto <y-goto@jp.fujitsu.com>, "Luck, Tony" <tony.luck@intel.com>,
-       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>
-References: <20060210224257.C536.Y-GOTO@jp.fujitsu.com>
-In-Reply-To: <20060210224257.C536.Y-GOTO@jp.fujitsu.com>
+	Fri, 10 Feb 2006 12:23:16 -0500
+Received: from xproxy.gmail.com ([66.249.82.193]:51410 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751333AbWBJRXP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 12:23:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=klXWK97FnbufPvfcxBsFm3CzdNa4muVwhUf1ZtesdEhlKaIHsjZAM7gTEdtfwXxzErmhiAIAj6PRltrJVpeStWrx0nevhMIq2QJH4iZ3bZtG3p4FsTfvovQTaTuhLbsrw4ZhsPKFODyQIlPGpkx6y/mXJqCztJUkDXuwqe0D5KE=
+Message-ID: <986ed62e0602100923k7238072dib76162f5babba246@mail.gmail.com>
+Date: Fri, 10 Feb 2006 09:23:14 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Subject: Re: disabling libata
+Cc: Imre Gergely <imre.gergely@astral.ro>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060210141130.GE28676@harddisk-recovery.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200602101815.12914.ak@suse.de>
+References: <43EC97C6.10607@astral.ro>
+	 <20060210141130.GE28676@harddisk-recovery.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 February 2006 15:21, Yasunori Goto wrote:
-> This is sample code of calling pgdat allocation function for x86_64.
-> Basically it is same with ia64. 
-> 
-> I've not tried this patch yet, due to I couldn't make emulation for
-> new node addtion for x86_64. This is just to reference. :-P
+On 2/10/06, Erik Mouw <erik@harddisk-recovery.com> wrote:
+> Why would you want to do that? SATA are driven by libata and the disks
+> turn up as SCSI devices. There's no way around that (yet).
 
-Looks ok basically assuming someone tests it
+"Yet"? I haven't been following things closely enough, but I got the
+impression that the long-term plan was something like this:
 
-(I guess it would be possible to hack the numa emulation to support
-hotplug) 
+1. Move all the IDE drivers over to libata (Alan Cox has a patch to do
+this, at least part of that patch is in -mm, and I'm already running
+this flawlessly on one of my systems -- it's not debugged yet, but
+none of the bugs happen to hit me). Yes, this means *all* ATA hard
+drives become /dev/sd*, not just SATA.
 
--Andi
+2. Reorganize the Kconfig menus so that ATA stuff is no longer a
+subsection of SCSI.
+
+3. Rename /dev/sd* to /dev/disk*.
+
+Of course, I could be mistaken (in which case, please feel free to correct me).
+--
+-Barry K. Nathan <barryn@pobox.com>

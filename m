@@ -1,97 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbWBJPNd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWBJPOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751282AbWBJPNd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 10:13:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWBJPNd
+	id S932128AbWBJPOG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 10:14:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWBJPOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 10:13:33 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:29467 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1751282AbWBJPNc (ORCPT
+	Fri, 10 Feb 2006 10:14:05 -0500
+Received: from pproxy.gmail.com ([64.233.166.182]:54776 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932128AbWBJPOE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 10:13:32 -0500
-Message-ID: <43ECAD5B.9070308@cfl.rr.com>
-Date: Fri, 10 Feb 2006 10:12:27 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Fri, 10 Feb 2006 10:14:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=fEjks0Brec2QterrR32+S55+PGGEmOQJV7rXj5B810T298Fw092ppkr+6jBUZygVKUnRT4RKr3azwMrMDdgix4d2E1f+nJsGF9dge/VkCL8lscT/wHnqAJnkDgE+EZechodHnOVNv45jjJZ2PFVKTNy9BtUF//BdOhNOa9or3lw=
+Message-ID: <43ECADBC.2080107@gmail.com>
+Date: Fri, 10 Feb 2006 23:14:04 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: "Darrick J. Wong" <djwong@us.ibm.com>, dm-devel@redhat.com,
-       Chris McDermott <lcm@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Support HDIO_GETGEO on device-mapper volumes
-References: <43EBEDD0.60608@us.ibm.com> <20060210145348.GA12173@agk.surrey.redhat.com>
-In-Reply-To: <20060210145348.GA12173@agk.surrey.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fbdev-devel@lists.sourceforge.net
+CC: malattia@linux.it
+Subject: [PATCH] fbdev: Fix typo in fbmem.c
+References: <20060207220627.345107c3.akpm@osdl.org> <20060210145243.GA3581@inferi.kami.home>
+In-Reply-To: <20060210145243.GA3581@inferi.kami.home>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Feb 2006 15:14:25.0749 (UTC) FILETIME=[ADF82850:01C62E54]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14259.000
-X-TM-AS-Result: No--25.100000-5.000000-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alasdair G Kergon wrote:
-> On Thu, Feb 09, 2006 at 05:35:12PM -0800, Darrick J. Wong wrote:
->   
->> Since dm doesn't implement the HDIO_GETGEO ioctl,
->>     
->
-> Why should it?  Device-mapper constructs a virtual device and
-> I think it's completely wrong for it to 'fake' a geometry.
->
-> Of course dm could recognise the ioctl - but the default response
-> should be the one that indicates the geometry is unknown.
->
->   
+A typo in fbmem.c prevents recognition of video= parameter.
 
-That is what it did before.  By failing the ioctl, that indicates that 
-the geometry is unknown, and that causes problems for grub. 
+Signed-off-by: Antonino Daplas <adaplas@pol.net>
 
->> grub assumes that the CHS
->> geometry is 620/128/63, which makes it impossible to configure it to
->> boot a filesystem that lives beyond the 2GB mark, even if the system
->> BIOS supports that.
->>     
->
-> Surely a problem in grub, not the kernel?
->
->   
+---
+Mattia Dongili wrote:
 
-Yes, I think this could also be fixed on grub's end.  It seems that 
-fdisk assumes usable default values for the geometry but grub has 
-different defaults that cause it problems.  I think that the defaults 
-could be modified in grub so that it will work when HDIO_GETGEO fails. 
+> On Tue, Feb 07, 2006 at 10:06:27PM -0800, Andrew Morton wrote:
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc2/2.6.16-rc2-mm1/
+> 
+> Hello,
+> 
+> radeonfb ignores the video= parameter and always run at 1400x1050 (the
+> highest available). Things where fine with .16-rc1-mm5.
+> I also tried booting with 640x480-32@60 without success.
 
->> The attached patch implements a simple ioctl handler that supplies a
->> compatible geometry when HDIO_GETGEO is called against a device-mapper
->> device.  Its behavior is somewhat similar to what sd_mod does if the
->> scsi controller doesn't provide its own geometry. 
->>     
->
-> What if the dm device is a linear mapping to an sd device that *does*
-> provide a different geometry?  Then the 'fake' geometry dm would return
-> with this patch would be wrong!
->
->   
+Try this patch.
 
-There is no 'right' or 'wrong' geometry; it is all made up anyhow. 
+Tony
 
->> this seems to be a better option than having each program make
->> up its own potentially different geometry, or making an arbitrary guess.
->>     
->
-> I disagree - either dm should work out the *correct* geometry to
-> return for those mappings where a geometry is known and it's sensible
-> to return one (e.g. linear mapping to the start of certain scsi
-> devices), or else it should leave it to userspace to decide how to
-> handle the situation.  (And there's nothing currently stopping
-> userspace seeing that a dm device is constructed out of a scsi device
-> and choosing to use the geometry of that underlying device.)
+PS: Andrew, maybe this patch should go into your hotfixes?
 
-Except that most user space tools are not aware of dm and shouldn't need 
-to be.
-
-In this case, I think the correct solution is to patch grub so that if 
-there is already a valid MBR on the disk, it should take the geometry 
-from there.  If it is creating a brand new MBR, then it should use the 
-geometry from HDIO_GETGEO and if that fails, make up sensible defaults 
-like fdisk does. 
+ fbmem.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
 
+diff --git a/drivers/video/fbmem.c b/drivers/video/fbmem.c
+index 6454a37..3ff1a54 100644
+--- a/drivers/video/fbmem.c
++++ b/drivers/video/fbmem.c
+@@ -1569,7 +1569,7 @@ int fb_get_options(char *name, char **op
+ 	return retval;
+ }
+ 
+-#ifdef MODULE
++#ifndef MODULE
+ /**
+  *	video_setup - process command line options
+  *	@options: string of options

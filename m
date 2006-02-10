@@ -1,80 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWBJK1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWBJK2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751228AbWBJK1u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 05:27:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWBJK1s
+	id S1751229AbWBJK2h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 05:28:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbWBJK2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 05:27:48 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:40526 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751229AbWBJK13 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 05:27:29 -0500
-Date: Fri, 10 Feb 2006 11:27:20 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, linux-kernel@vger.kernel.org
-Subject: [patch 2/2] s390: fix locking in __chp_add() and s390_subchannel_remove_chpid()
-Message-ID: <20060210102720.GC9307@osiris.boeblingen.de.ibm.com>
+	Fri, 10 Feb 2006 05:28:22 -0500
+Received: from mail20.bluewin.ch ([195.186.19.65]:6886 "EHLO mail20.bluewin.ch")
+	by vger.kernel.org with ESMTP id S1751229AbWBJK2A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 05:28:00 -0500
+Cc: Arthur Othieno <apgo@patchbomb.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH 2/4] input: 98kbd{,-io} and 98spkr removal, really.
+In-Reply-To: <11395672534150-git-send-email-apgo@patchbomb.org>
+X-Mailer: git-send-email
+Date: Fri, 10 Feb 2006 05:27:33 -0500
+Message-Id: <1139567253123-git-send-email-apgo@patchbomb.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: mutt-ng/devel (Linux)
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Arthur Othieno <apgo@patchbomb.org>
+To: akpm@osdl.org
+Content-Transfer-Encoding: 7BIT
+From: Arthur Othieno <apgo@patchbomb.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+98kbd{,-io} and 98spkr all went out with PC98 subarch.
+Remove stale Makefile entries that remained.
 
-Fix locking in __chp_add() and s390_subchannel_remove_chpid():
-Need to disable/enable because they are always called from a thread (and not
-directly from a machine check...)
+Signed-off-by: Arthur Othieno <apgo@patchbomb.org>
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
 
- drivers/s390/cio/chsc.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/input/keyboard/Makefile |    1 -
+ drivers/input/misc/Makefile     |    1 -
+ drivers/input/serio/Makefile    |    1 -
+ 3 files changed, 0 insertions(+), 3 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/cio/chsc.c linux-2.6-patched/drivers/s390/cio/chsc.c
---- linux-2.6/drivers/s390/cio/chsc.c	2006-02-10 08:22:28.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/cio/chsc.c	2006-02-10 08:23:00.000000000 +0100
-@@ -232,7 +232,7 @@ s390_subchannel_remove_chpid(struct devi
- 		return 0;
- 
- 	mask = 0x80 >> j;
--	spin_lock(&sch->lock);
-+	spin_lock_irq(&sch->lock);
- 
- 	stsch(sch->schid, &schib);
- 	if (!schib.pmcw.dnv)
-@@ -281,10 +281,10 @@ s390_subchannel_remove_chpid(struct devi
- 	if (sch->driver && sch->driver->verify)
- 		sch->driver->verify(&sch->dev);
- out_unlock:
--	spin_unlock(&sch->lock);
-+	spin_unlock_irq(&sch->lock);
- 	return 0;
- out_unreg:
--	spin_unlock(&sch->lock);
-+	spin_unlock_irq(&sch->lock);
- 	sch->lpm = 0;
- 	if (css_enqueue_subchannel_slow(sch->schid)) {
- 		css_clear_subchannel_slow_list();
-@@ -652,7 +652,7 @@ __chp_add(struct subchannel_id schid, vo
- 	if (!sch)
- 		/* Check if the subchannel is now available. */
- 		return __chp_add_new_sch(schid);
--	spin_lock(&sch->lock);
-+	spin_lock_irq(&sch->lock);
- 	for (i=0; i<8; i++)
- 		if (sch->schib.pmcw.chpid[i] == chp->id) {
- 			if (stsch(sch->schid, &sch->schib) != 0) {
-@@ -674,7 +674,7 @@ __chp_add(struct subchannel_id schid, vo
- 	if (sch->driver && sch->driver->verify)
- 		sch->driver->verify(&sch->dev);
- 
--	spin_unlock(&sch->lock);
-+	spin_unlock_irq(&sch->lock);
- 	put_device(&sch->dev);
- 	return 0;
- }
+c35a909838076b3eb593c50a784b2f8604857441
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index 6e0afbb..2708167 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -11,7 +11,6 @@ obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
+ obj-$(CONFIG_KEYBOARD_AMIGA)		+= amikbd.o
+ obj-$(CONFIG_KEYBOARD_LOCOMO)		+= locomokbd.o
+ obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
+-obj-$(CONFIG_KEYBOARD_98KBD)		+= 98kbd.o
+ obj-$(CONFIG_KEYBOARD_CORGI)		+= corgikbd.o
+ obj-$(CONFIG_KEYBOARD_SPITZ)		+= spitzkbd.o
+ obj-$(CONFIG_KEYBOARD_HIL)		+= hil_kbd.o
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 184c412..415c491 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -7,7 +7,6 @@
+ obj-$(CONFIG_INPUT_SPARCSPKR)		+= sparcspkr.o
+ obj-$(CONFIG_INPUT_PCSPKR)		+= pcspkr.o
+ obj-$(CONFIG_INPUT_M68K_BEEP)		+= m68kspkr.o
+-obj-$(CONFIG_INPUT_98SPKR)		+= 98spkr.o
+ obj-$(CONFIG_INPUT_UINPUT)		+= uinput.o
+ obj-$(CONFIG_INPUT_WISTRON_BTNS)	+= wistron_btns.o
+ obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
+diff --git a/drivers/input/serio/Makefile b/drivers/input/serio/Makefile
+index 678a859..4155197 100644
+--- a/drivers/input/serio/Makefile
++++ b/drivers/input/serio/Makefile
+@@ -13,7 +13,6 @@ obj-$(CONFIG_SERIO_RPCKBD)	+= rpckbd.o
+ obj-$(CONFIG_SERIO_SA1111)	+= sa1111ps2.o
+ obj-$(CONFIG_SERIO_AMBAKMI)	+= ambakmi.o
+ obj-$(CONFIG_SERIO_Q40KBD)	+= q40kbd.o
+-obj-$(CONFIG_SERIO_98KBD)	+= 98kbd-io.o
+ obj-$(CONFIG_SERIO_GSCPS2)	+= gscps2.o
+ obj-$(CONFIG_HP_SDC)		+= hp_sdc.o
+ obj-$(CONFIG_HIL_MLC)		+= hp_sdc_mlc.o hil_mlc.o
+-- 
+1.1.5
+
+

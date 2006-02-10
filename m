@@ -1,82 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWBJAWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWBJAWu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbWBJAWv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 19:22:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWBJAWv
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 19:22:51 -0500
-Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:28894 "EHLO
-	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1750870AbWBJAWu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1750871AbWBJAWu (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 9 Feb 2006 19:22:50 -0500
-Message-ID: <43EBDCD7.7020005@bigpond.net.au>
-Date: Fri, 10 Feb 2006 11:22:47 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>,
-       Paolo Ornati <ornati@fastwebnet.it>, Ingo Molnar <mingo@elte.hu>
-Subject: [ANNOUNCE][RFC] PlugSched-6.3 for  2.6.16-rc2 and 2.6.16-rc2-mm1
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbWBJAWt
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 9 Feb 2006 19:22:49 -0500
+Received: from smtpout.mac.com ([17.250.248.71]:61923 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1750837AbWBJAWt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 19:22:49 -0500
+In-Reply-To: <m1mzh02y3m.fsf@ebiederm.dsl.xmission.com>
+References: <43E38BD1.4070707@openvz.org> <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org> <43E3915A.2080000@sw.ru> <Pine.LNX.4.64.0602030939250.4630@g5.osdl.org> <m1lkwoubiw.fsf@ebiederm.dsl.xmission.com> <43E71018.8010104@sw.ru> <m1hd7condi.fsf@ebiederm.dsl.xmission.com> <1139243874.6189.71.camel@localhost.localdomain> <m13biwnxkc.fsf@ebiederm.dsl.xmission.com> <20060208215412.GD2353@ucw.cz> <m1mzh02y3m.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <7CCC1159-BF55-4961-BC24-A759F893D43F@mac.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Dave Hansen <haveblue@us.ibm.com>,
+       Kirill Korotaev <dev@sw.ru>, Linus Torvalds <torvalds@osdl.org>,
+       Kirill Korotaev <dev@openvz.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       frankeh@watson.ibm.com, clg@fr.ibm.com, greg@kroah.com,
+       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
+       Pavel Emelianov <xemul@sw.ru>
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Fri, 10 Feb 2006 00:22:47 +0000
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: swsusp done by migration (was Re: [RFC][PATCH 1/5] Virtualization/containers: startup)
+Date: Thu, 9 Feb 2006 19:21:50 -0500
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This version introduces a new scheduler, ingo_ll, which is a 
-modification of ingosched that uses average latencies to determine the 
-interactive bonuses awarded to tasks.  In effect, tasks only receive 
-bonuses if they are necessary for the task to achieve satisfactory 
-latencies.  For tasks waking from "interactive" sleeps their average 
-interactive latency is compared to a fixed limit and if it exceeds this 
-amount then their bonus is increased (if not it is compared to the same 
-limit divided by 2^8 and if it is smaller than this the bonus is 
-reduced).  The limit may be set via the sysfs file 
-/sys/cpusched/ingo_ll/unacceptable_ia_latency.  A similar process is 
-conducted for tasks waking from "non interactive" sleep except that the 
-limit is adjusted to take account of the number of tasks running on the 
-same CPU.
+On Feb 09, 2006, at 13:20, Eric W. Biederman wrote:
+> Pavel Machek <pavel@ucw.cz> writes:
+>> Well, for now software suspend is done at very different level (it  
+>> snapshots complete kernel state), but being able to use migration  
+>> for this is certainly nice option.
+>>
+>> BTW you could do whole-machine-migration now with uswsusp; but  
+>> you'd need identical hardware and it would take a bit long...
+>
+> Right part of the goal is with doing it as we are doing it is that  
+> we can define what the interesting state is.
+>
+> Replacing software suspend is not an immediate goal but I think it  
+> is a worthy thing to target.  In part because if we really can rip  
+> things out of the kernel store them in a portable format and  
+> restore them we will also have the ability to upgrade the kernel  
+> with out stopping user space applications...
+>
+> But being able to avoid the uninteresting parts, and having the  
+> policy complete controlled outside the kernel are the big wins we  
+> are shooting for.
 
-This version also continues the major gutting of the SPA based 
-schedulers to reduce overhead.
+<wishful thinking>
+I can see another extension to this functionality.  With appropriate  
+changes it might also be possible to have a container exist across  
+multiple computers using some cluster code for synchronization and  
+fencing.  The outermost container would be the system boot container,  
+and multiple inner containers would use some sort of network- 
+container-aware cluster filesystem to spread multiple vservers across  
+multiple servers, distributing CPU and network load appropriately.
+</wishful thinking>
 
-A patch for 2.6.16-rc2 is available at:
+Cheers,
+Kyle Moffett
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-6.3-for-2.6.16-rc2.patch?download>
+--
+I have yet to see any problem, however complicated, which, when you  
+looked at it in the right way, did not become still more complicated.
+   -- Poul Anderson
 
-and a patch for 2.6.16-rc2-mm1 is available at:
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-6.3-for-2.6.16-rc2-mm1.patch?download>
 
-Very Brief Documentation:
-
-You can select a default scheduler at kernel build time.  If you wish to
-boot with a scheduler other than the default it can be selected at boot
-time by adding:
-
-cpusched=<scheduler>
-
-to the boot command line where <scheduler> is one of: ingosched, 
-ingo_ll, nicksched, staircase, spa_no_frills, spa_ws, spa_svr, spa_ebs 
-or zaphod.  If you don't change the default when you build the kernel 
-the default scheduler will be ingosched (which is the normal scheduler).
-
-The scheduler in force on a running system can be determined by the
-contents of:
-
-/proc/scheduler
-
-Control parameters for the scheduler can be read/set via files in:
-
-/sys/cpusched/<scheduler>/
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbWBJQcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWBJQcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751293AbWBJQcW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 11:32:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWBJQcW
+	id S1751290AbWBJQcd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 11:32:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWBJQcc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 11:32:22 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:39579 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751275AbWBJQcU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 11:32:20 -0500
-Subject: Re: [Lhms-devel] [RFC/PATCH: 002/010] Memory hotplug for new nodes
-	with pgdat allocation. (Wait table and zonelists initalization)
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-Cc: "Luck, Tony" <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
-       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
-       linux-ia64@vger.kernel.org,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       x86-64 Discuss <discuss@x86-64.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>
-In-Reply-To: <20060210223841.C532.Y-GOTO@jp.fujitsu.com>
-References: <20060210223841.C532.Y-GOTO@jp.fujitsu.com>
-Content-Type: text/plain
-Date: Fri, 10 Feb 2006 08:32:08 -0800
-Message-Id: <1139589128.9209.80.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Fri, 10 Feb 2006 11:32:32 -0500
+Received: from user-0c93tin.cable.mindspring.com ([24.145.246.87]:45549 "EHLO
+	tsurukikun.utopios.org") by vger.kernel.org with ESMTP
+	id S1751290AbWBJQcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 11:32:31 -0500
+From: Luke-Jr <luke@dashjr.org>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Date: Fri, 10 Feb 2006 16:32:19 +0000
+User-Agent: KMail/1.9
+Cc: mrmacman_g4@mac.com, peter.read@gmail.com, mj@ucw.cz,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net
+References: <73d8d0290602060706o75f04c1cx@mail.gmail.com> <233CD3FF-0017-4A74-BE6A-0487DF3F4EA8@mac.com> <43EC83EC.nailISD91HRFF@burner>
+In-Reply-To: <43EC83EC.nailISD91HRFF@burner>
+Public-GPG-Key: 0xD53E9583
+Public-GPG-Key-URI: http://dashjr.org/~luke-jr/myself/Luke-Jr.pgp
+IM-Address: luke-jr@jabber.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602101632.24649.luke@dashjr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-02-10 at 23:20 +0900, Yasunori Goto wrote:
-> 
->  static __meminit
->  void zone_wait_table_init(struct zone *zone, unsigned long
-> zone_size_pages)
->  {
-> -       int i;
-> +       int i, hotadd = (system_state == SYSTEM_RUNNING);
->         struct pglist_data *pgdat = zone->zone_pgdat;
-> +       unsigned long allocsize;
->  
->         /*
->          * The per-page waitqueue mechanism uses hashed waitqueues
->          * per zone.
->          */
-> +       if (hotadd && (zone_size_pages == PAGES_PER_SECTION))
-> +               zone_size_pages = PAGES_PER_SECTION << 2; 
+On Friday 10 February 2006 12:15, Joerg Schilling wrote:
+> Kyle Moffett <mrmacman_g4@mac.com> wrote:
+> > Joerg Schilling wrote:
+> > > -	how to use /dev/hd* in order to scan an image from a scanner
+> > > -	how to use /dev/hd* in order to talk to a printer
+> > > -	how to use /dev/hd* in order to talk to a jukebox
+> > > -	how to use /dev/hd* in order to talk to a graphical device
+> >
+> > Does cdrecord scan images, print files, or talk to SCSI graphical
+>
+> Are you _completely_ ingnoring the facts that have been discused here?
 
-I don't think I understand this calculation.  You online only 4 sections
-worth of pages?
+Are you completely ignoring that nobody in this thread cares about libscg's 
+ability to work with other devices? The problem is in the user-interface, and 
+underlying workings is really pretty irrelevant to the matter.
 
--- Dave
+> This does not apply to cdrecord but to libscg.
 
+cdrecord contains the UI, so it is the only program relevant to the problem. 
+If libscg is impeding fixing the bug (I don't think it is, but you seem to), 
+then maybe cdrecord should use transport.hxx from growisofs.

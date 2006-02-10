@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWBJLyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWBJLzr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751092AbWBJLyl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 06:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbWBJLyl
+	id S1751090AbWBJLzr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 06:55:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWBJLzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 06:54:41 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:15296 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751087AbWBJLyk (ORCPT
+	Fri, 10 Feb 2006 06:55:47 -0500
+Received: from mail.gmx.de ([213.165.64.21]:65240 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751090AbWBJLzq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 06:54:40 -0500
-Message-ID: <43EC7EFB.5020100@pobox.com>
-Date: Fri, 10 Feb 2006 06:54:35 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 10 Feb 2006 06:55:46 -0500
+X-Authenticated: #428038
+Date: Fri, 10 Feb 2006 12:55:42 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>, mj@ucw.cz,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       jengelh@linux01.gwdg.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060210115542.GA22337@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	mj@ucw.cz, linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+	jengelh@linux01.gwdg.de
+References: <43EA1D26.nail40E11SL53@burner> <20060208165330.GB17534@voodoo> <43EB0DEB.nail52A1LVGUO@burner> <Pine.LNX.4.61.0602091729560.30108@yvahk01.tjqt.qr> <43EB7210.nailIDH2JUBZE@burner> <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr> <43EB7BBA.nailIFG412CGY@burner> <mj+md-20060209.173519.1949.atrey@ucw.cz> <43EC71FB.nailISD31LRCB@burner> <20060210114930.GC2750@DervishD>
 MIME-Version: 1.0
-To: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: libata janitor project
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.6 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Long term, we should work to replace the assert() in
-	libata with standard kernel WARN_ON(). If someone wanted to handle that
-	conversion, that would be useful. Make sure to pay attention, the sense
-	of each test must be reversed. [...] 
-	Content analysis details:   (0.6 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.5 TO_ADDRESS_EQ_REAL     To: repeats address as real name
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060210114930.GC2750@DervishD>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+DervishD schrieb am 2006-02-10:
 
-Long term, we should work to replace the assert() in libata with 
-standard kernel WARN_ON().
+>     Hi Joerg :)
+> 
+>  * Joerg Schilling <schilling@fokus.fraunhofer.de> dixit:
+> > Martin Mares <mj@ucw.cz> wrote:
+> > > > This is why the mapping engine is in the Linux adoption part of
+> > > > libscg. It maps the non-stable device <-> /dev/sg* relation to a
+> > > > stable b,t,l address.
+> > >
+> > > Nonsense. The b,t,l addresses are NOT stable (at least for transports
+> > 
+> > Dou you like to verify that you have no clue on SCSI?
+> 
+>     My system is clueless, too! If I write a CD before plugging my
+> USB storage device, my CD writer is on 0,0,0. If I plug my USB
+> storage device *before* doing any access, my cdwriter is on 1,0,0.
+> Pretty stable.
 
-If someone wanted to handle that conversion, that would be useful.  Make 
-sure to pay attention, the sense of each test must be reversed.
+Thanks for answering the question I directed towards Jörg, which proves
+Martin Mares's point that b,t,l is not stable.
 
-	Jeff
+I think, Martin, too deserves Jörg's apology, and Jörg shouldn't only be
+more respectful, but listen to those who know their system better than
+he does. (Of course this'll turn into a flame feast how stupid Linux
+is.)
 
-
-
+-- 
+Matthias Andree

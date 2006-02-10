@@ -1,50 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWBJNNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWBJNQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932080AbWBJNNq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 08:13:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWBJNNq
+	id S932087AbWBJNQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 08:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWBJNQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 08:13:46 -0500
-Received: from boogie.lpds.sztaki.hu ([193.225.12.226]:64725 "EHLO
-	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
-	id S932080AbWBJNNp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 08:13:45 -0500
-Date: Fri, 10 Feb 2006 14:13:38 +0100
-From: Gabor Gombas <gombasg@sztaki.hu>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Greg KH <greg@kroah.com>,
-       linux-pm@lists.osdl.org, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-pm] Re: [PATCH, RFC] [1/3] Generic in-kernel AC status
-Message-ID: <20060210131337.GD11740@boogie.lpds.sztaki.hu>
-References: <20060208125753.GA25562@srcf.ucam.org> <20060208130422.GB25659@srcf.ucam.org> <20060208165803.GA15239@kroah.com> <20060208170857.GA29818@srcf.ucam.org> <20060209085344.GF16052@boogie.lpds.sztaki.hu> <20060210122131.GC4974@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060210122131.GC4974@elf.ucw.cz>
-X-Copyright: Forwarding or publishing without permission is prohibited.
+	Fri, 10 Feb 2006 08:16:56 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:5547 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S932087AbWBJNQz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 08:16:55 -0500
+Subject: Re: preempt-rt, NUMA and strange latency traces
+From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1139515365.30058.91.camel@mindpipe>
+References: <1139311689.19708.36.camel@frecb000686>
+	 <Pine.LNX.4.58.0602080436190.8578@gandalf.stny.rr.com>
+	 <1139395534.21471.13.camel@frecb000686>
+	 <1139465045.30058.31.camel@mindpipe> <1139484275.5706.19.camel@frecb000686>
+	 <1139515365.30058.91.camel@mindpipe>
+Date: Fri, 10 Feb 2006 14:18:54 +0100
+Message-Id: <1139577535.5706.81.camel@frecb000686>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 10/02/2006 14:16:49,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 10/02/2006 14:17:58,
+	Serialize complete at 10/02/2006 14:17:58
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 10, 2006 at 01:21:31PM +0100, Pavel Machek wrote:
+On Thu, 2006-02-09 at 15:02 -0500, Lee Revell wrote:
+> On Thu, 2006-02-09 at 12:24 +0100, Sébastien Dugué wrote:
+> > On Thu, 2006-02-09 at 01:04 -0500, Lee Revell wrote:
+> > > On Wed, 2006-02-08 at 11:45 +0100, Sébastien Dugué wrote:
+> > > > The more I think about it, the more I tend to believe it's hardware 
+> > > > related. It seems as if the CPU just hangs for ~27 ms before
+> > > > resuming processing. 
+> > > 
+> > > That would be an exceptionally long latency - you would probably notice
+> > > it if the mouse froze, VOIP dropped out, ping stops, etc for 30ms.
+> > > 
+> > 
+> >   It's a test machine and I use it remotely with console redirected so
+> > no mouse, no RT applications aside from my silly nanosleep() loop. But 
+> > I do notice that that test sometimes takes more time (ie when I get 
+> > those weird latencies). 
+> 
+> Argh.  You would think the vendors would consider a 30ms delay
+> unacceptable.  This is big enough to show up on an MRTG graph of ping
+> times ferchrissake.
+> 
+> I guess the assumption is that most hardware will never be used for even
+> soft RT work...
+> 
+> Lee
+> 
 
-> Still "set current brightness" operation makes a lot of sense.
+  That may be but in that case I may be pushing it a bit far testing
+that kind of box with realtime stuff.
 
-Yes, but userspace already knows if you are on AC power or not,
-therefore it can decide what "current" means. If this is the only reason
-then adding a new kernel infrastructure is overkill.
+  As a former hw designer I find it useful to have some hardware 
+monitoring capabilities on a system but it should either not be so
+intrusive or at least we should be able to disable it.
 
-Also, doing things differently when on AC power smells like a policy
-decision, and AFAIK policy handling is not wanted in the kernel.
+  Sébastien.
 
-Gabor
 
--- 
-     ---------------------------------------------------------
-     MTA SZTAKI Computer and Automation Research Institute
-                Hungarian Academy of Sciences,
-     Laboratory of Parallel and Distributed Systems
-     Address   : H-1132 Budapest Victor Hugo u. 18-22. Hungary
-     Phone/Fax : +36 1 329-78-64 (secretary)
-     W3        : http://www.lpds.sztaki.hu
-     ---------------------------------------------------------
+

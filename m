@@ -1,51 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWBJWUs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbWBJW00@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932222AbWBJWUs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 17:20:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWBJWUs
+	id S1751385AbWBJW00 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 17:26:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWBJW00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 17:20:48 -0500
-Received: from mail.gmx.net ([213.165.64.21]:39864 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932222AbWBJWUr (ORCPT
+	Fri, 10 Feb 2006 17:26:26 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:29126 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751385AbWBJW00 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 17:20:47 -0500
-X-Authenticated: #428038
-Date: Fri, 10 Feb 2006 23:20:43 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [cdrtools PATCH (GPL)] Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060210222043.GA4265@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <787b0d920602021827m4890fbf4j24d110dc656d2d3a@mail.gmail.com> <43E374CF.nail5CAMKAKEV@burner> <20060203182049.GB11083@merlin.emma.line.org> <43E3A19E.nail6A511N92B@burner> <20060203184240.GC11241@voodoo> <43E3AA95.nail6AV21A253@burner> <20060203192827.GC18533@merlin.emma.line.org> <20060208221305.GF2353@ucw.cz> <20060209223840.GB4590@merlin.emma.line.org> <43EC82E6.nailISD7ZM3F1@burner>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43EC82E6.nailISD7ZM3F1@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+	Fri, 10 Feb 2006 17:26:26 -0500
+Date: Fri, 10 Feb 2006 14:25:02 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Jim Crilly" <jim@why.dont.jablowme.net>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: 2.6.16-rc2-mm1
+Message-Id: <20060210142502.2fd320ff.akpm@osdl.org>
+In-Reply-To: <20060210213058.GE11297@voodoo>
+References: <20060207220627.345107c3.akpm@osdl.org>
+	<20060210213058.GE11297@voodoo>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-02-10:
-
-> Matthias Andree <matthias.andree@gmx.de> wrote:
+"Jim Crilly" <jim@why.dont.jablowme.net> wrote:
+>
+> On 02/07/06 10:06:27PM -0800, Andrew Morton wrote:
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc2/2.6.16-rc2-mm1/
+> >
 > 
-> > You have apparently missed that I offered to relicense the patch under
-> > MIT license (which is liberal, allows modifications and everything)
+> I got the following BUG with the tulip driver because there's a mdelay(1)
+> at the end of the tulip_media_select() function. Removing the mdelay(1)
+> is trivial so I've attached a patch, but I'm not sure if it's the
+> correct fix so I've CC'd Jeff Garzik.
 > 
-> It seems that you still miss the point that you don't have the right
-> to require a license for your patch (check the UrhG for more information).
+> BUG: warning at drivers/net/tulip/media.c:402/tulip_select_media()
+> <f0c8e288> tulip_select_media+0x7b8/0x7db [tulip]   <b02103ac> dma_pool_free+0xc4/0x10e
+> <f0c9130b> t21142_lnk_change+0x1af/0x4f4 [tulip]   <f0c7c490> finish_urb+0x98/0xc0 [ohci_hcd]
+> <f0c8d374> tulip_interrupt+0x65f/0x803 [tulip]   <f0c7e153> ohci_irq+0x148/0x16d [ohci_hcd]
+> <b013cb3f> handle_IRQ_event+0x20/0x4c   <b013cbf7> __do_IRQ+0x8c/0xdd
+> <b0105250> do_IRQ+0x3c/0x54
+>   =======================
+> <b0103662> common_interrupt+0x1a/0x20   <b0101aa6> default_idle+0x0/0x55
+> <b0101ad2> default_idle+0x2c/0x55   <b0101b8a> cpu_idle+0x8f/0xae
+> <b02f8707> start_kernel+0x37f/0x386
+> 
+> Signed-off-by: Jim Crilly <jim@why.dont.jablowme.net>
+> 
+> ---
+> drivers/net/tulip/media.c |    2 --
+>  1 file changed, 2 deletions(-)
+> 
+> --- linux-2.6.16-rc2-mm1/drivers/net/tulip/media.c  2006-02-09 22:13:36.403653502 -0500
+> +++ linux-2.6.16-rc2-mm1-new/drivers/net/tulip/media.c  2006-02-10 15:51:41.821983228 -0500
+> @@ -399,8 +399,6 @@ void tulip_select_media(struct net_devic
+> 
+>   tp->csr6 = new_csr6 | (tp->csr6 & 0xfdff) | (tp->full_duplex ? 0x0200 : 0);
+> 
+> - mdelay(1);
+> -
+>   return;
+>  }
 
-Why do care then?
+It might not be.  And the knowledge of which cards this will bust and why
+may be lost in the mists of time.
 
-> And please finally note that you did already cause a mail thread that
-> did cost more time than your patch is worth.
+So I suspect we're stuck with this irqs-off latency in here.
 
-Nobody forces you to answer every side note someone makes, and nobody
-ask you to reiterate identical replies over and over.
+(The warning patch in -mm is only permitted once per callsite, so it's a
+harmless irritant).
 
--- 
-Matthias Andree

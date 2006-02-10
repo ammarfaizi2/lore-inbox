@@ -1,233 +1,186 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWBJSv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbWBJSzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbWBJSv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 13:51:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWBJSv6
+	id S1750893AbWBJSzq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 13:55:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbWBJSzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 13:51:58 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:544 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932171AbWBJSv5 (ORCPT
+	Fri, 10 Feb 2006 13:55:46 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:45710 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750835AbWBJSzp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 13:51:57 -0500
-Message-ID: <43ECE0AB.1010608@sw.ru>
-Date: Fri, 10 Feb 2006 21:51:23 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Fri, 10 Feb 2006 13:55:45 -0500
+Date: Fri, 10 Feb 2006 10:55:21 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Andrew Morton <akpm@osdl.org>, linux@horizon.com,
+       linux-kernel@vger.kernel.org, sct@redhat.com
+Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
+In-Reply-To: <43ECD471.9080203@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0602101011350.19172@g5.osdl.org>
+References: <20060209071832.10500.qmail@science.horizon.com>
+ <20060209004208.0ada27ef.akpm@osdl.org> <43EB3801.70903@yahoo.com.au>
+ <20060209094815.75041932.akpm@osdl.org> <43EC0A44.1020302@yahoo.com.au>
+ <20060209195035.5403ce95.akpm@osdl.org> <43EC0F3F.1000805@yahoo.com.au>
+ <20060209201333.62db0e24.akpm@osdl.org> <43EC16D8.8030300@yahoo.com.au>
+ <20060209204314.2dae2814.akpm@osdl.org> <43EC1BFF.1080808@yahoo.com.au>
+ <20060209211356.6c3a641a.akpm@osdl.org> <43EC24B1.9010104@yahoo.com.au>
+ <20060209215040.0dcb36b1.akpm@osdl.org> <43EC2C9A.7000507@yahoo.com.au>
+ <20060209221324.53089938.akpm@osdl.org> <43EC3326.4080706@yahoo.com.au>
+ <20060209224656.7533ce2b.akpm@osdl.org> <43EC3961.3030904@yahoo.com.au>
+ <20060209231432.03a09dee.akpm@osdl.org> <43EC8A06.40405@yahoo.com.au>
+ <Pine.LNX.4.64.0602100815580.19172@g5.osdl.org> <43ECC69D.1010001@yahoo.com.au>
+ <Pine.LNX.4.64.0602100904330.19172@g5.osdl.org> <43ECD471.9080203@yahoo.com.au>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: [RFC][PATCH 01/20] pid: Intoduce the concept of a wid (wait id)
-References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com> <m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric,
-
-1. I would rename wid to wpid :)
-2. Maybe I'm missing something in the discussions, but why is it 
-required? if you provide fully isolated pid spaces, why do you care for wid?
-And how ptrace can work at all if cldstop reports some pid, but child is 
-not accessiable via ptrace()? and if it doesn't work, what are your 
-changes for?
-
-Kirill
 
 
-> The wait id is the pid returned by wait.  For tasks that span 2
-> namespaces (i.e. the process leaders of the pid namespaces) their
-> parent knows the task by a different PID value than the task knows
-> itself. Having a child with PID == 1 would be confusing. 
+On Sat, 11 Feb 2006, Nick Piggin wrote:
 > 
-> This patch introduces the wid and walks through kernel and modifies
-> the places that observe the pid from the parent processes perspective
-> to use the wid instead of the pid. 
-> 
-> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-> 
-> 
-> ---
-> 
->  include/linux/sched.h |    1 +
->  kernel/exit.c         |   18 +++++++++---------
->  kernel/fork.c         |    4 ++--
->  kernel/sched.c        |    2 +-
->  kernel/signal.c       |    6 +++---
->  5 files changed, 16 insertions(+), 15 deletions(-)
-> 
-> 598714d79648463ab3f2cbf6f6acd3cd6c09c87a
-> diff --git a/include/linux/sched.h b/include/linux/sched.h
-> index f368048..e8ea561 100644
-> --- a/include/linux/sched.h
-> +++ b/include/linux/sched.h
-> @@ -740,6 +740,7 @@ struct task_struct {
->  	/* ??? */
->  	unsigned long personality;
->  	unsigned did_exec:1;
-> +	pid_t wid;
->  	pid_t pid;
->  	pid_t tgid;
->  	/* 
-> diff --git a/kernel/exit.c b/kernel/exit.c
-> index fb4c8b1..749bc8b 100644
-> --- a/kernel/exit.c
-> +++ b/kernel/exit.c
-> @@ -941,7 +941,7 @@ asmlinkage void sys_exit_group(int error
->  static int eligible_child(pid_t pid, int options, task_t *p)
->  {
->  	if (pid > 0) {
-> -		if (p->pid != pid)
-> +		if (p->wid != pid)
->  			return 0;
->  	} else if (!pid) {
->  		if (process_group(p) != process_group(current))
-> @@ -1018,7 +1018,7 @@ static int wait_task_zombie(task_t *p, i
->  	int status;
->  
->  	if (unlikely(noreap)) {
-> -		pid_t pid = p->pid;
-> +		pid_t pid = p->wid;
->  		uid_t uid = p->uid;
->  		int exit_code = p->exit_code;
->  		int why, status;
-> @@ -1130,7 +1130,7 @@ static int wait_task_zombie(task_t *p, i
->  			retval = put_user(status, &infop->si_status);
->  	}
->  	if (!retval && infop)
-> -		retval = put_user(p->pid, &infop->si_pid);
-> +		retval = put_user(p->wid, &infop->si_pid);
->  	if (!retval && infop)
->  		retval = put_user(p->uid, &infop->si_uid);
->  	if (retval) {
-> @@ -1138,7 +1138,7 @@ static int wait_task_zombie(task_t *p, i
->  		p->exit_state = EXIT_ZOMBIE;
->  		return retval;
->  	}
-> -	retval = p->pid;
-> +	retval = p->wid;
->  	if (p->real_parent != p->parent) {
->  		write_lock_irq(&tasklist_lock);
->  		/* Double-check with lock held.  */
-> @@ -1198,7 +1198,7 @@ static int wait_task_stopped(task_t *p, 
->  	read_unlock(&tasklist_lock);
->  
->  	if (unlikely(noreap)) {
-> -		pid_t pid = p->pid;
-> +		pid_t pid = p->wid;
->  		uid_t uid = p->uid;
->  		int why = (p->ptrace & PT_PTRACED) ? CLD_TRAPPED : CLD_STOPPED;
->  
-> @@ -1269,11 +1269,11 @@ bail_ref:
->  	if (!retval && infop)
->  		retval = put_user(exit_code, &infop->si_status);
->  	if (!retval && infop)
-> -		retval = put_user(p->pid, &infop->si_pid);
-> +		retval = put_user(p->wid, &infop->si_pid);
->  	if (!retval && infop)
->  		retval = put_user(p->uid, &infop->si_uid);
->  	if (!retval)
-> -		retval = p->pid;
-> +		retval = p->wid;
->  	put_task_struct(p);
->  
->  	BUG_ON(!retval);
-> @@ -1310,7 +1310,7 @@ static int wait_task_continued(task_t *p
->  		p->signal->flags &= ~SIGNAL_STOP_CONTINUED;
->  	spin_unlock_irq(&p->sighand->siglock);
->  
-> -	pid = p->pid;
-> +	pid = p->wid;
->  	uid = p->uid;
->  	get_task_struct(p);
->  	read_unlock(&tasklist_lock);
-> @@ -1321,7 +1321,7 @@ static int wait_task_continued(task_t *p
->  		if (!retval && stat_addr)
->  			retval = put_user(0xffff, stat_addr);
->  		if (!retval)
-> -			retval = p->pid;
-> +			retval = pid;
->  	} else {
->  		retval = wait_noreap_copyout(p, pid, uid,
->  					     CLD_CONTINUED, SIGCONT,
-> diff --git a/kernel/fork.c b/kernel/fork.c
-> index f4a7281..743d46c 100644
-> --- a/kernel/fork.c
-> +++ b/kernel/fork.c
-> @@ -931,10 +931,10 @@ static task_t *copy_process(unsigned lon
->  
->  	p->did_exec = 0;
->  	copy_flags(clone_flags, p);
-> -	p->pid = pid;
-> +	p->wid = p->pid = pid;
->  	retval = -EFAULT;
->  	if (clone_flags & CLONE_PARENT_SETTID)
-> -		if (put_user(p->pid, parent_tidptr))
-> +		if (put_user(p->wid, parent_tidptr))
->  			goto bad_fork_cleanup;
->  
->  	p->proc_dentry = NULL;
-> diff --git a/kernel/sched.c b/kernel/sched.c
-> index f77f23f..6579d49 100644
-> --- a/kernel/sched.c
-> +++ b/kernel/sched.c
-> @@ -1674,7 +1674,7 @@ asmlinkage void schedule_tail(task_t *pr
->  	preempt_enable();
->  #endif
->  	if (current->set_child_tid)
-> -		put_user(current->pid, current->set_child_tid);
-> +		put_user(current->wid, current->set_child_tid);
->  }
->  
->  /*
-> diff --git a/kernel/signal.c b/kernel/signal.c
-> index 1f54ed7..70c226c 100644
-> --- a/kernel/signal.c
-> +++ b/kernel/signal.c
-> @@ -1564,7 +1564,7 @@ void do_notify_parent(struct task_struct
->  
->  	info.si_signo = sig;
->  	info.si_errno = 0;
-> -	info.si_pid = tsk->pid;
-> +	info.si_pid = tsk->wid;
->  	info.si_uid = tsk->uid;
->  
->  	/* FIXME: find out whether or not this is supposed to be c*time. */
-> @@ -1629,7 +1629,7 @@ static void do_notify_parent_cldstop(str
->  
->  	info.si_signo = SIGCHLD;
->  	info.si_errno = 0;
-> -	info.si_pid = tsk->pid;
-> +	info.si_pid = tsk->wid;
->  	info.si_uid = tsk->uid;
->  
->  	/* FIXME: find out whether or not this is supposed to be c*time. */
-> @@ -1732,7 +1732,7 @@ void ptrace_notify(int exit_code)
->  	memset(&info, 0, sizeof info);
->  	info.si_signo = SIGTRAP;
->  	info.si_code = exit_code;
-> -	info.si_pid = current->pid;
-> +	info.si_pid = current->wid;
->  	info.si_uid = current->uid;
->  
->  	/* Let the debugger run.  */
+> What do you mean by overlapping?
 
+I'm just talking about the "same area gets re-dirtied while it's already 
+busy being written". Depending on the _program_, this:
+ - never happens in practice
+ - is very common
+ - should just leave the page dirty
+ - should always start a new IO (waiting for the old one first, or use a 
+   barrier if you want to be fancy).
 
+Let's do a more hands-on example, just to make it less abstract.
+
+ - let's say that you have some kind of file-backed storage, and you 
+   basically want to let the kernel know about your modifications, so that 
+   it can DTRT (and let's ignore what the "right thing" is for a moment)
+
+ - The "dirty" bit very fundamentally is obviously at a page granularity, 
+   but your data may well be at a much finer granularity. In particular, 
+   your data may be a log that keeps growing.
+
+ - So let's say that you append to the log, and chose (for some reason, 
+   never mind) to let the kernel know. So you effectively do something 
+   like
+
+		memcpy(logptr, newentry, newentrysize);
+		logptr = logptr + newentrysize;
+		if (time_to_msync) {
+			msync(msyncptr, logptr - msyncptr, MS_ASYNC);
+			msyncptr = logptr;
+		}
+
+Ok? 
+
+Now, the question is, what do we want to happen at the MS_ASYNC.
+
+In particular, what happens if the _previous_ MS_ASYNC had started the IO 
+(either directly, like in your world, or by bdflush just picking it up, 
+it really doesn't matter) on the _previous_ old end of the log area, so 
+the partial page at the old "msyncptr" point may actually be under IO 
+still.
+
+We have multiple choices:
+ - we ignore the issue (which is what the current behaviour for MS_ASYNC 
+   is, since it just marks things dirty in the page cache)
+ - we mark the page dirty, but we don't start IO on it, since it's busy 
+   (and since it's dirty, it will _eventually_ get written out)
+ - we actually wait for the old IO, in order to start IO on it again.
+
+Now, I don't think that the third option is sane for MS_ASYNC (ie I don't 
+think even you want -that- behaviour), but in general, all these three 
+choices are actually sane. Notice how none of them actually involve 
+waiting for the new _result_. It's only a question about whether to wait 
+for an old write when we start a new one, or leave the new one entirely 
+_unstarted_.
+
+> fadvise(fd, 100, 200, FADV_ASYNC_WRITE);
+> fadvise(fd, 300, 400, FADV_ASYNC_WRITE);
+> fadvise(fd, 100, 200, FADV_WRITE_WAIT);
+> fadvise(fd, 300, 400, FADV_WRITE_WAIT);
+
+I'm saying that a valid pattern is
+
+	.. dirty offset 100-200 ..
+	fadvice(fd, 100, 200, FADV_WRITE_START_TRY);
+
+	.. dirty offset 200-300 ..
+	fadvice(fd, 200, 300, FADV_WRITE_START_TRY);
+
+	.. dirty offset 300-400 ..
+	fadvice(fd, 300, 400, FADV_WRITE_START_TRY);
+
+is a valid thing to do ("try to start IO, but don't guarantee it") as a 
+way to get things going. But that would never pair up with a "wait for 
+IO", because there's no guarantee that the IO got started (for example, we 
+may have started the IO when only bytes 100-200 were dirty, then we 
+dirtied the other bytes, but we didn't re-start the IO for them because 
+the previous IO to the same page was still pending, so the bytes never hit 
+storage and they aren't even outstanding).
+
+But the "FADV_WRITE_START_TRY" is actually the best thing if what you are 
+trying to do is to keep changes _minimal_ so that when you later acutally 
+finish the whole thing, you can do
+
+	fadvice(fd, 100, 400, FADV_WRITE_WAIT);
+
+which is your "write and wait".
+
+So far so good, and we don't actually care. The unconditional "write and 
+wait" at the end means that it's irrelevant whether the "START_TRY" thing 
+actually started the IO or not - the START_TRY thing _can_ be a no-op if 
+you want to. 
+
+These sound like the semantics you want. No?
+
+And yes, I'm perfectly happy with them. I think this is what people would 
+do. I just wanted to make sure that we're AWARE of the fact that it 
+implies that the ASYNC thing wouldn't necessarily always even start IO.
+
+And the reason I wanted to make sure of that is that the whole thread 
+started from you complaining about MS_ASYNC not starting the IO. I'm 
+saying that if you _require_ starting of IO, then the FADV_WRITE_WAIT 
+actually sensibly has different semantics, which can be a lot cheaper to 
+do in the presense of other writers (ie then the write-wait would only 
+need to wait for any outstanding IO, not start writing out stuff that 
+somebody else had written).
+
+And the reason I wanted to take up the semantic difference is because 
+there _are_ semantic differences.
+
+If you only "commit" things when you have nothing dangling, you'll see the 
+above patterns. But it's a valid thing to commit things after you've made 
+"further" log changes (that you're _not_ ready to commit). For example, 
+say that your log is really dirtying all the time, but you synchronize it 
+at certain points and write the pointer to the synchronized state 
+somewhere else. What would you do?
+
+Your pattern would actually be
+
+	.. dirty offset 100-200 ..
+	fadvice(fd, 100, 200, FADV_WRITE_START);
+
+	.. dirty offset 200-300 ..
+	fadvice(fd, 200, 300, FADV_WRITE_START);
+
+	.. dirty offset 300-400 ..
+	fadvice(fd, 300, 400, FADV_WRITE_START);
+
+	.. dirty offset 400-415 .. (for the next transaction)
+
+	fadvice(fd, 100, 400, FADV_JUST_WAIT); (for the previous one)
+
+and here is where the semantics differ. The "always start IO, and just 
+wait for IO" won't be waiting for the partial stuff (that doesn't matter). 
+While the "write and wait" would synchronously write stuff that we just 
+don't care about (just because they happen to be on the same "IO 
+granularity" block).
+
+This "unconditional write start" + "unconditional wait only" pattern in 
+theory allows you to optimize all the IO patterns by hand, and have less 
+synchronous waits, because it wouldn't wait for state that is dirty, but 
+that doesn't matter.
+
+But as long as people are _aware_ of this issue, I don't much care. 
+
+			Linus

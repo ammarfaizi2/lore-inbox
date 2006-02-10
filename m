@@ -1,95 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWBJFoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWBJFsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751128AbWBJFoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 00:44:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWBJFoY
+	id S1751126AbWBJFsb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 00:48:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbWBJFsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 00:44:24 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:19413 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1751128AbWBJFoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 00:44:23 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
-Date: Fri, 10 Feb 2006 15:40:56 +1000
+	Fri, 10 Feb 2006 00:48:30 -0500
+Received: from mail12.syd.optusnet.com.au ([211.29.132.193]:17819 "EHLO
+	mail12.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751126AbWBJFsa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 00:48:30 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH] mm: Implement Swap Prefetching v23
+Date: Fri, 10 Feb 2006 16:48:01 +1100
 User-Agent: KMail/1.9.1
-Cc: Dave Hansen <haveblue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
-       Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@openvz.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       frankeh@watson.ibm.com, clg@fr.ibm.com, greg@kroah.com,
-       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
-       Pavel Emelianov <xemul@sw.ru>
-References: <43E38BD1.4070707@openvz.org> <1139243874.6189.71.camel@localhost.localdomain> <m13biwnxkc.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m13biwnxkc.fsf@ebiederm.dsl.xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org, ck@vds.kolivas.org,
+       pj@sgi.com, linux-kernel@vger.kernel.org
+References: <200602101355.41421.kernel@kolivas.org> <200602101637.57821.kernel@kolivas.org> <43EC281B.2030000@yahoo.com.au>
+In-Reply-To: <43EC281B.2030000@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1642133.X4aiA4iKce";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602101541.07631.ncunningham@cyclades.com>
+Content-Disposition: inline
+Message-Id: <200602101648.01923.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1642133.X4aiA4iKce
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-Hi.
-
-On Tuesday 07 February 2006 04:37, Eric W. Biederman wrote:
-> Dave Hansen <haveblue@us.ibm.com> writes:
-> > On Mon, 2006-02-06 at 02:19 -0700, Eric W. Biederman wrote:
-> >> That you placed the namespaces in a separate structure from
-> >> task_struct.
-> >> That part seems completely unnecessary, that and the addition of a
-> >> global id in a completely new namespace that will be a pain to
-> >> virtualize
-> >> when it's time comes.
+On Friday 10 February 2006 16:43, Nick Piggin wrote:
+> Con Kolivas wrote:
+> > On Friday 10 February 2006 16:32, Nick Piggin wrote:
+> >>Con Kolivas wrote:
+> >>>Just so it's clear I understand, is this what you (both) had in mind?
+> >>>Inline so it's not built for !CONFIG_SWAP_PREFETCH
+> >>
+> >>Close...
+> >>
+> >>>+inline void lru_cache_add_tail(struct page *page)
+> >>
+> >>Is this inline going to do what you intend?
 > >
-> > Could you explain a bit why the container ID would need to be
-> > virtualized?
+> > I don't care if it's actually inlined, but the subtleties of compilers is
+> > way beyond me. All it positively achieves is silencing the unused
+> > function warning so I had hoped it meant that function was not built. I
+> > tend to be wrong though...
 >
-> As someone said to me a little bit ago, for migration or checkpointing
-> ultimately you have to capture the entire user/kernel interface if
-> things are going to work properly.  Now if we add this facility to
-> the kernel and it is a general purpose facility.  It is only a matter
-> of time before we need to deal with nested containers.
->
-> Not considering the case of having nested containers now is just foolish.
-> Maybe we don't have to implement it yet but not considering it is silly.
->
-> As far as I can tell there is a very reasonable chance that when we
-> are complete there is a very reasonable chance that software suspend
-> will just be a special case of migration, done complete in user space.
-> That is one of the more practical examples I can think of where this
-> kind of functionality would be used.
+> I don't think it can because it is not used in the same file.
+> You'd have to put it into the header file.
 
-Am I missing something? I though migration referred only to userspace=20
-processes. Software suspend on the other hand, deals with the whole system,=
-=20
-of which process data/context is only a part.
+Yes that was the stream of "unimplemented" errors we started seeing on new 
+gccs that couldn't inline and said so. The build process is mystical and 
+somewhat random in order but I guessed if it encounters this first it should 
+be able to inline it. However as I said I don't really need it inlined.
 
-Regards,
+> Not sure why it silences the unused function warning.
 
-Nigel
+It probably just fools it... Will probably warn on newer gccs soon.
 
---nextPart1642133.X4aiA4iKce
-Content-Type: application/pgp-signature
+> You didn't 
+> replace a 'static' with the inline? I don't think there is any
+> other way the compiler can know the function isn't used externally.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Well I could always just put it in a header file under CONFIG_SWAP_PREFETCH.. 
+I was trying to do the swap.c thing that akpm suggested though.
 
-iD8DBQBD7CdzN0y+n1M3mo0RApY3AKDVDudQK48i8jz7c0xW+MTe4ThBAgCfVBci
-xtGWfEr+u9rgKYtzitfZsvE=
-=KZIX
------END PGP SIGNATURE-----
-
---nextPart1642133.X4aiA4iKce--
+Cheers,
+Con

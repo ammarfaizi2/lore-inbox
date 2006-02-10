@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWBJSZE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWBJS1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbWBJSZE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 13:25:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbWBJSZD
+	id S932174AbWBJS1J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 13:27:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbWBJS1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 13:25:03 -0500
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:59078 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S1751306AbWBJSZA convert rfc822-to-8bit (ORCPT
+	Fri, 10 Feb 2006 13:27:09 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:21406 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932170AbWBJS1I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 13:25:00 -0500
-From: Bernd Schubert <bernd.schubert@pci.uni-heidelberg.de>
-Reply-To: bernd-schubert@gmx.de
-To: Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: a couple of oopses with 2.6.14
-Date: Fri, 10 Feb 2006 19:24:44 +0100
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <200602091934.20732.bernd.schubert@pci.uni-heidelberg.de> <20060209152744.00de43f6.akpm@osdl.org>
-In-Reply-To: <20060209152744.00de43f6.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200602101924.45467.bernd.schubert@pci.uni-heidelberg.de>
+	Fri, 10 Feb 2006 13:27:08 -0500
+Subject: Re: perfmon2 code review: 32-bit ABI on 64-bit OS
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: eranian@hpl.hp.com
+Cc: linux-kernel@vger.kernel.org, perfmon@napali.hpl.hp.com,
+       perfctr-devel@lists.sourceforge.net, linux-ia64@vger.kernel.org
+In-Reply-To: <20060210153608.GC28311@frankl.hpl.hp.com>
+References: <3C87FFF91369A242B9C9147F8BD0908A02C6955C@cacexc04.americas.cpqcorp.net>
+	 <1138221212.15295.35.camel@serpentine.pathscale.com>
+	 <20060125222844.GB10451@frankl.hpl.hp.com>
+	 <1138649612.4077.50.camel@localhost.localdomain>
+	 <1138651545.4487.13.camel@camp4.serpentine.com>
+	 <1139155731.4279.0.camel@localhost.localdomain>
+	 <1139245253.27739.8.camel@camp4.serpentine.com>
+	 <20060210153608.GC28311@frankl.hpl.hp.com>
+Content-Type: text/plain
+Date: Fri, 10 Feb 2006 10:27:02 -0800
+Message-Id: <1139596023.9646.111.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can you test 2.6.15?
+On Fri, 2006-02-10 at 07:36 -0800, Stephane Eranian wrote:
 
-Yes, 2.6.15.3 works, no oopses. Only this information 
+> Many 64-bit Linux kernel do support running 32-bit native applications.
+> That is the case on PPC64, MIPS64K, X86-64, for instance.
 
-[4294743.341000] scsi0 : ata_piix
-[4294743.514000] ATA: abnormal status 0x7F on port 0xE407
+And sparc64 and s390.
 
-I can't test if sata works, there's just nothing connected.
+>  One could well
+> write a 32-bit monitoring tool on top of a 64-bit OS.
 
-Btw, the printk timing information seem to be uninitalized, is this by 
-intentention or is it a bug?
+On some 64-bit arches (e.g. x86_64), most userspace code is 64-bit,
+while on others (e.g. powerpc), most is 32-bit.  Reducing the number of
+things that a userspace tool or library writer can trip over seems like
+a good thing here, even if it slightly complicates perfmon's internals.
 
-Thanks,
-	Bernd
+> Note that there are similar issues with the remapped sampling buffer.
+> There, you need to explicitly compile your tool with a special option
+> to force certain types to be 64-bit (size_t, void *).
 
+It's pretty normal to just use 64-bit quantities in these cases, and
+cast appropriately.
 
--- 
-Bernd Schubert
-Physikalisch Chemisches Institut / Theoretische Chemie
-Universität Heidelberg
-INF 229
-69120 Heidelberg
-e-mail: bernd.schubert@pci.uni-heidelberg.de
+	<b
+

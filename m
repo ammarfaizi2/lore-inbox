@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbWBJWbG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWBJWer@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751388AbWBJWbG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 17:31:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbWBJWbG
+	id S1751129AbWBJWer (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 17:34:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWBJWer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 17:31:06 -0500
-Received: from atpro.com ([12.161.0.3]:31756 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S1751388AbWBJWbF (ORCPT
+	Fri, 10 Feb 2006 17:34:47 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:42434 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751129AbWBJWeq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 17:31:05 -0500
-From: "Jim Crilly" <jim@why.dont.jablowme.net>
-Date: Fri, 10 Feb 2006 17:30:53 -0500
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+	Fri, 10 Feb 2006 17:34:46 -0500
+Date: Fri, 10 Feb 2006 17:34:41 -0500
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jim Crilly <jim@why.dont.jablowme.net>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
 Subject: Re: 2.6.16-rc2-mm1
-Message-ID: <20060210223053.GF11297@voodoo>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060207220627.345107c3.akpm@osdl.org> <20060210213058.GE11297@voodoo> <43ED1390.40809@pobox.com>
-MIME-Version: 1.0
+Message-ID: <20060210223441.GJ31949@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Jim Crilly <jim@why.dont.jablowme.net>,
+	linux-kernel@vger.kernel.org, jgarzik@pobox.com
+References: <20060207220627.345107c3.akpm@osdl.org> <20060210213058.GE11297@voodoo> <20060210142502.2fd320ff.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43ED1390.40809@pobox.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20060210142502.2fd320ff.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02/10/06 05:28:32PM -0500, Jeff Garzik wrote:
-> Jim Crilly wrote:
-> >On 02/07/06 10:06:27PM -0800, Andrew Morton wrote:
-> >
-> >>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc2/2.6.16-rc2-mm1/
-> >>
-> >
-> >
-> >I got the following BUG with the tulip driver because there's a mdelay(1)
-> >at the end of the tulip_media_select() function. Removing the mdelay(1)
-> >is trivial so I've attached a patch, but I'm not sure if it's the
-> >correct fix so I've CC'd Jeff Garzik.
-> >
-> >BUG: warning at drivers/net/tulip/media.c:402/tulip_select_media()
-> ><f0c8e288> tulip_select_media+0x7b8/0x7db [tulip]   <b02103ac> 
-> >dma_pool_free+0xc4/0x10e
-> ><f0c9130b> t21142_lnk_change+0x1af/0x4f4 [tulip]   <f0c7c490> 
-> >finish_urb+0x98/0xc0 [ohci_hcd]
-> ><f0c8d374> tulip_interrupt+0x65f/0x803 [tulip]   <f0c7e153> 
-> >ohci_irq+0x148/0x16d [ohci_hcd]
-> ><b013cb3f> handle_IRQ_event+0x20/0x4c   <b013cbf7> __do_IRQ+0x8c/0xdd
-> ><b0105250> do_IRQ+0x3c/0x54
-> >  =======================
-> ><b0103662> common_interrupt+0x1a/0x20   <b0101aa6> default_idle+0x0/0x55
-> ><b0101ad2> default_idle+0x2c/0x55   <b0101b8a> cpu_idle+0x8f/0xae
-> ><b02f8707> start_kernel+0x37f/0x386
-> >
-> >Signed-off-by: Jim Crilly <jim@why.dont.jablowme.net>
-> 
-> Its wrong, and further we don't need obvious spam email addresses in the 
-> changelog.
-> 
-> 	Jeff
+On Fri, Feb 10, 2006 at 02:25:02PM -0800, Andrew Morton wrote:
+ 
+ > > --- linux-2.6.16-rc2-mm1/drivers/net/tulip/media.c  2006-02-09 22:13:36.403653502 -0500
+ > > +++ linux-2.6.16-rc2-mm1-new/drivers/net/tulip/media.c  2006-02-10 15:51:41.821983228 -0500
+ > > @@ -399,8 +399,6 @@ void tulip_select_media(struct net_devic
+ > > 
+ > >   tp->csr6 = new_csr6 | (tp->csr6 & 0xfdff) | (tp->full_duplex ? 0x0200 : 0);
+ > > 
+ > > - mdelay(1);
+ > > -
+ > >   return;
+ > >  }
+ > 
+ > It might not be.  And the knowledge of which cards this will bust and why
+ > may be lost in the mists of time.
 
-My apologies then, but the address isn't a spam address.
+Tulip fixes for Cobalt Qube/RaQ
 
-Jim.
+change 12755c16a9e4fa2fd5b0ca1963e83d671a6251da
+on 2005-06-26 16 by Ralf Baechle <ralf@linux-mips.org> 
+
+		Dave
+

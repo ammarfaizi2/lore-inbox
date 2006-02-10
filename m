@@ -1,26 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWBJKir@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWBJKqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751336AbWBJKir (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 05:38:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWBJKir
+	id S1751339AbWBJKqi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 05:46:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWBJKqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 05:38:47 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:30691 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751337AbWBJKir (ORCPT
+	Fri, 10 Feb 2006 05:46:37 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:27109 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751339AbWBJKqh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 05:38:47 -0500
-Date: Fri, 10 Feb 2006 02:38:00 -0800
+	Fri, 10 Feb 2006 05:46:37 -0500
+Date: Fri, 10 Feb 2006 02:42:22 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Dan Faerch <dan@scannet.dk>
-Cc: s-briggs@cecer.army.mil, linux-ns83820@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drivers/net/ns83820.c: add paramter to disable auto
- negotiation
-Message-Id: <20060210023800.630fa2a7.akpm@osdl.org>
-In-Reply-To: <1139564963.15033.40.camel@dan>
-References: <200602092203.28290.s-briggs@cecer.army.mil>
-	<20060209201716.0c6d1fea.akpm@osdl.org>
-	<1139564963.15033.40.camel@dan>
+To: Andi Kleen <ak@muc.de>
+Cc: ashok.raj@intel.com, ntl@pobox.com, dada1@cosmosbay.com, riel@redhat.com,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, mingo@elte.hu,
+       76306.1226@compuserve.com, wli@holomorphy.com,
+       heiko.carstens@de.ibm.com, pj@sgi.com
+Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
+Message-Id: <20060210024222.67db06f3.akpm@osdl.org>
+In-Reply-To: <200602101102.25437.ak@muc.de>
+References: <20060209160808.GL18730@localhost.localdomain>
+	<20060209090321.A9380@unix-os.sc.intel.com>
+	<20060209100429.03f0b1c3.akpm@osdl.org>
+	<200602101102.25437.ak@muc.de>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -28,48 +30,32 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Faerch <dan@scannet.dk> wrote:
+Andi Kleen <ak@muc.de> wrote:
 >
-> On Thu, 2006-02-09 at 20:17 -0800, Andrew Morton wrote: 
-> > Steve Briggs <s-briggs@cecer.army.mil> wrote:
+> On Thursday 09 February 2006 19:04, Andrew Morton wrote:
+> > Ashok Raj <ashok.raj@intel.com> wrote:
 > > >
-> > > This patch adds a module paramter, "auto_neg" which is
-> > >  by default =1.  If it's set to zero, the auto negotiation
-> > >  code in ns83820_init_one() is skipped and the interface is
-> > >  set to 1000F.
+> > > The problem was with ACPI just simply looking at the namespace doesnt
+> > >  exactly give us an idea of how many processors are possible in this platform.
 > > 
-> > Better to do this via `ethtool autoneg off'.
+> > We need to fix this asap - the performance penalty for HOTPLUG_CPU=y,
+> > NR_CPUS=lots will be appreciable.
 > 
-> Actually I did somewhat the same patch about a year ago and got the same
-> response:
+> What is this performance penalty exactly? 
+
+All those for_each_cpu() loops will hit NR_CPUS cachelines instead of
+hweight(cpu_possible_map) cachelines.
+
+> It wastes quite some memory (each possible CPU needs 32K of memory which
+> adds quickly up), but it shouldn't impact other CPU use. 
 > 
-> "This functionality should likelz be done via ethtool..." - Benjamin
-> LaHaise[1]
+> > 
+> > Do any x86 platforms actually support CPU hotplug?
 > 
-> So i went back and spend about a week redoing the whole thing to enable
-> ethtool support and reposted a patch[2], but didnt receive any response
-> to this whatsoever. I even wrote the maintainer later on personally to
-> ask if something was wrong with the patch, bad coding, anything, since
-> there was no reply or reaction. I never received a reply.
-> 
-> So. There IS an ethtool patch and it works for me, though i dont know
-> how well its made (there must be SOME reason i didnt get a response :)).
+> Xen does.
 
-Well, sometimes one needs to persist.  Or copy me on the patch and I persist
-for you ;)
+yup.
 
-> It supports autoneg, duplex and speed if i recall correctly.
-> If you try it out, id love to hear comments (since this was/is the first
-> time i messed around in kernel stuff).
-> 
+> And it's needed for suspend/resume on normal x86 now.
 
-The patch you have here has all its tabs replaced with spaces and apart
-from that doesn't apply to the current development tree.  And it seems
-to have some very random whitespace usage as well, although I usually
-fix those things up if the patch isn't enormous.
-
-Could you fix all this up, generate a nice changelog, add a Signed-off-by:
-as per section 11 of Documentation/SubmittingPatches and resend?
-
-Thanks.
-
+True.

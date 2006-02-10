@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWBJOVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWBJOVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751260AbWBJOVl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 09:21:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWBJOVk
+	id S932106AbWBJOVH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 09:21:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWBJOVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 09:21:40 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:3020 "EHLO
+	Fri, 10 Feb 2006 09:21:06 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:59851 "EHLO
 	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932108AbWBJOVL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 09:21:11 -0500
-Date: Fri, 10 Feb 2006 23:20:48 +0900
+	id S932107AbWBJOVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 09:21:04 -0500
+Date: Fri, 10 Feb 2006 23:20:38 +0900
 From: Yasunori Goto <y-goto@jp.fujitsu.com>
 To: "Luck, Tony" <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
        "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
-Subject: [RFC/PATCH: 002/010] Memory hotplug for new nodes with pgdat allocation. (Wait table and zonelists initalization)
+Subject: [RFC/PATCH: 001/010] Memory hotplug for new nodes with pgdat allocation. (pgdat allocation)
 Cc: linux-ia64@vger.kernel.org, Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       x86-64 Discuss <discuss@x86-64.org>,
        Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>
+	<lhms-devel@lists.sourceforge.net>,
+       x86-64 Discuss <discuss@x86-64.org>
 X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060210223841.C532.Y-GOTO@jp.fujitsu.com>
+Message-Id: <20060210223757.C530.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
@@ -27,166 +27,180 @@ X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch is main patch for pgdat allocation for new node.
+When, new pgdat is required, kernel allocates memory for it
+and initialize it by calling free_area_init_node().
 
-This patch is to initialize wait table and zonelists for new pgdat.
-When new node is added, free_area_init_node() is called to initialize
-pgdat. But, wait table must be allocated by kmalloc (not bootmem) for it.
-And, zonelists is accessed from any other process every time,
-So, stop_machine_run() is used for safety update.
+Finally, NODE_DATA() macro can use by registering node_data[] array.
+Ia64 needs special code for node_data[], but 
+  node_data[node] = pgdat;
+is enough for other archtectures. 
 
+To allocate pgdat, this patch use kmalloc() for it.
+This means its place is not appropriate. 
+Kmalloc() will use other node for new pgdat. Because new node's memory
+management structure (it means new pgdat) must be initalized ITSELF
+for kmalloc. But I use kemalloc to simplify patch now....
 
- Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
- Signed-off-by: Hiroyuki Kamezawa <kamezawa.hiroyu@jp.fujitsu.com>
- Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
 
-Index: pgdat2/mm/page_alloc.c
+Index: pgdat2/include/linux/bootmem.h
 ===================================================================
---- pgdat2.orig/mm/page_alloc.c	2006-02-10 17:02:22.000000000 +0900
-+++ pgdat2/mm/page_alloc.c	2006-02-10 17:02:34.000000000 +0900
-@@ -37,6 +37,7 @@
- #include <linux/nodemask.h>
- #include <linux/vmalloc.h>
- #include <linux/mempolicy.h>
-+#include <linux/stop_machine.h>
- 
- #include <asm/tlbflush.h>
- #include "internal.h"
-@@ -2071,18 +2072,24 @@ void __init setup_per_cpu_pageset(void)
- static __meminit
- void zone_wait_table_init(struct zone *zone, unsigned long zone_size_pages)
- {
--	int i;
-+	int i, hotadd = (system_state == SYSTEM_RUNNING);
- 	struct pglist_data *pgdat = zone->zone_pgdat;
-+	unsigned long allocsize;
- 
- 	/*
- 	 * The per-page waitqueue mechanism uses hashed waitqueues
- 	 * per zone.
- 	 */
-+	if (hotadd && (zone_size_pages == PAGES_PER_SECTION))
-+		zone_size_pages = PAGES_PER_SECTION << 2;
- 	zone->wait_table_size = wait_table_size(zone_size_pages);
- 	zone->wait_table_bits =	wait_table_bits(zone->wait_table_size);
--	zone->wait_table = (wait_queue_head_t *)
--		alloc_bootmem_node(pgdat, zone->wait_table_size
--					* sizeof(wait_queue_head_t));
-+	allocsize = zone->wait_table_size * sizeof(wait_queue_head_t);
-+	if (hotadd)
-+		zone->wait_table = kmalloc(allocsize, GFP_KERNEL);
-+	else
-+		zone->wait_table = (wait_queue_head_t *)
-+			alloc_bootmem_node(pgdat, allocsize);
- 
- 	for(i = 0; i < zone->wait_table_size; ++i)
- 		init_waitqueue_head(zone->wait_table + i);
-@@ -2111,7 +2118,6 @@ static __meminit void init_currently_emp
- {
- 	struct pglist_data *pgdat = zone->zone_pgdat;
- 
--	zone_wait_table_init(zone, size);
- 	pgdat->nr_zones = zone_idx(zone) + 1;
- 
- 	zone->zone_mem_map = pfn_to_page(zone_start_pfn);
-@@ -2120,6 +2126,7 @@ static __meminit void init_currently_emp
- 	memmap_init(size, pgdat->node_id, zone_idx(zone), zone_start_pfn);
- 
- 	zone_init_free_lists(pgdat, zone, zone->spanned_pages);
-+	zone->spanned_pages = size;
+--- pgdat2.orig/include/linux/bootmem.h	2006-02-10 16:49:57.000000000 +0900
++++ pgdat2/include/linux/bootmem.h	2006-02-10 17:01:48.000000000 +0900
+@@ -86,8 +86,8 @@ static inline void *alloc_remap(int nid,
  }
+ #endif
  
- /*
-@@ -2175,6 +2182,7 @@ void __meminit free_area_init_core(struc
- 			continue;
+-extern unsigned long __initdata nr_kernel_pages;
+-extern unsigned long __initdata nr_all_pages;
++extern unsigned long __meminitdata nr_kernel_pages;
++extern unsigned long __meminitdata nr_all_pages;
  
- 		zonetable_add(zone, nid, j, zone_start_pfn, size);
-+		zone_wait_table_init(zone, size);
- 		init_currently_empty_zone(zone, zone_start_pfn, size);
- 		zone_start_pfn += size;
- 	}
-@@ -2818,3 +2826,54 @@ void *__init alloc_large_system_hash(con
- 
- 	return table;
- }
-+
-+static inline int zone_previously_initialized(struct zone *zone)
-+{
-+	if (zone->wait_table_size)
-+		return 1;
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_MEMORY_HOTPLUG
-+static int __build_all_zonelists(void *dummy)
-+{
-+	int i;
-+	for_each_online_node(i)
-+		build_zonelists(NODE_DATA(i));
-+	/* XXX: Cpuset must be updated when node is hotplugged. */
-+	return 0;
-+}
-+
-+DEFINE_SPINLOCK(zone_init_lock);
-+int hot_add_zone_init(struct zone *zone, unsigned long phys_start_pfn,
-+		      unsigned long size_pages)
-+{
-+	int ret = 0;
-+	unsigned long flags;
-+	spin_lock_irqsave(&zone_init_lock,flags);
-+	if (zone_previously_initialized(zone)) {
-+		ret = -EEXIST;
-+		goto out;
-+	}
-+
-+	zone_wait_table_init(zone, size_pages);
-+	printk(KERN_DEBUG "hot add zone init %lx %lx.....\n",
-+	       phys_start_pfn, size_pages);
-+	init_currently_empty_zone(zone, phys_start_pfn, size_pages);
-+	zone_pcp_init(zone);
-+
-+	/*
-+	 * This is an awfully blunt way to do this.  But, the
-+	 * zonelists are accessed many times over large areas
-+	 * of performance-critical code in the allocator.
-+	 * That makes it very hard to get a conventional lock
-+	 * to work.  This of this as a rw lock with a huge
-+	 * write cost.
-+	 */
-+	stop_machine_run(__build_all_zonelists, zone->zone_pgdat, NR_CPUS);
-+out:
-+	spin_unlock_irqrestore(&zone_init_lock, flags);
-+	return ret;
-+}
-+#endif
-Index: pgdat2/include/linux/mmzone.h
-===================================================================
---- pgdat2.orig/include/linux/mmzone.h	2006-02-10 16:59:51.000000000 +0900
-+++ pgdat2/include/linux/mmzone.h	2006-02-10 17:02:34.000000000 +0900
-@@ -403,7 +403,9 @@ static inline struct zone *next_zone(str
- 
- static inline int populated_zone(struct zone *zone)
- {
--	return (!!zone->present_pages);
-+	/* When hot-dadd, present page is 0 at this point.
-+	   So check spanned_pages instead of present_pages */
-+	return (!!zone->spanned_pages);
- }
- 
- static inline int is_highmem_idx(int idx)
+ extern void *__init alloc_large_system_hash(const char *tablename,
+ 					    unsigned long bucketsize,
 Index: pgdat2/mm/memory_hotplug.c
 ===================================================================
---- pgdat2.orig/mm/memory_hotplug.c	2006-02-10 16:59:51.000000000 +0900
-+++ pgdat2/mm/memory_hotplug.c	2006-02-10 17:02:34.000000000 +0900
-@@ -48,6 +48,8 @@ static int __add_section(struct zone *zo
+--- pgdat2.orig/mm/memory_hotplug.c	2006-02-10 16:49:57.000000000 +0900
++++ pgdat2/mm/memory_hotplug.c	2006-02-10 16:59:51.000000000 +0900
+@@ -21,6 +21,7 @@
+ #include <linux/memory_hotplug.h>
+ #include <linux/highmem.h>
+ #include <linux/vmalloc.h>
++#include <linux/kthread.h>
  
- 	ret = sparse_add_one_section(zone, phys_start_pfn, nr_pages);
+ #include <asm/tlbflush.h>
  
-+	hot_add_zone_init(zone, phys_start_pfn, PAGES_PER_SECTION);
+@@ -54,6 +55,44 @@ static int __add_section(struct zone *zo
+ 	return register_new_memory(__pfn_to_section(phys_start_pfn));
+ }
+ 
++extern int kswapd(void *);
++int new_pgdat_init(int nid, unsigned long start_pfn, unsigned long nr_pages)
++{
++	unsigned long zones_size[MAX_NR_ZONES] = {0};
++	unsigned long zholes_size[MAX_NR_ZONES] = {0};
++        unsigned long size = arch_pernode_size(nid);
++	pg_data_t *pgdat;
 +
- 	if (ret < 0)
- 		return ret;
++	pgdat = kmalloc(size, GFP_KERNEL);
++	if (!pgdat){
++		printk("%s node_data allocation failed\n", __FUNCTION__);
++		return -ENODEV;
++	}
++
++	memset(pgdat, 0, size);
++	set_node_data_array(nid, pgdat);
++	/* NODE_DATA(nid) macro can use from here */
++
++	free_area_init_node(nid, NODE_DATA(nid), zones_size, start_pfn, zholes_size);
++
++	NODE_DATA(nid)->kswapd = kthread_create(kswapd, NODE_DATA(nid), "kswapd%d", nid);
++
++	node_set_online(nid);
++	arch_register_node(nid);
++
++	return 0;
++
++}
++
++void release_pgdat(pg_data_t *pgdat)
++{
++	arch_unregister_node(pgdat->node_id);
++	node_set_offline(pgdat->node_id);
++	clear_node_data_array(pgdat);
++	kfree(pgdat);
++}
++
++
+ /*
+  * Reasonably generic function for adding memory.  It is
+  * expected that archs that support memory hotplug will
+Index: pgdat2/mm/page_alloc.c
+===================================================================
+--- pgdat2.orig/mm/page_alloc.c	2006-02-10 16:49:57.000000000 +0900
++++ pgdat2/mm/page_alloc.c	2006-02-10 17:02:22.000000000 +0900
+@@ -80,8 +80,8 @@ EXPORT_SYMBOL(zone_table);
+ static char *zone_names[MAX_NR_ZONES] = { "DMA", "DMA32", "Normal", "HighMem" };
+ int min_free_kbytes = 1024;
  
+-unsigned long __initdata nr_kernel_pages;
+-unsigned long __initdata nr_all_pages;
++unsigned long __meminitdata nr_kernel_pages;
++unsigned long __meminitdata nr_all_pages;
+ 
+ #ifdef CONFIG_DEBUG_VM
+ static int page_outside_zone_boundaries(struct zone *zone, struct page *page)
+@@ -2128,7 +2128,7 @@ static __meminit void init_currently_emp
+  *   - mark all memory queues empty
+  *   - clear the memory bitmaps
+  */
+-static void __init free_area_init_core(struct pglist_data *pgdat,
++void __meminit free_area_init_core(struct pglist_data *pgdat,
+ 		unsigned long *zones_size, unsigned long *zholes_size)
+ {
+ 	unsigned long j;
+@@ -2208,7 +2208,7 @@ static void __init alloc_node_mem_map(st
+ #endif /* CONFIG_FLAT_NODE_MEM_MAP */
+ }
+ 
+-void __init free_area_init_node(int nid, struct pglist_data *pgdat,
++void __meminit free_area_init_node(int nid, struct pglist_data *pgdat,
+ 		unsigned long *zones_size, unsigned long node_start_pfn,
+ 		unsigned long *zholes_size)
+ {
+Index: pgdat2/mm/vmscan.c
+===================================================================
+--- pgdat2.orig/mm/vmscan.c	2006-02-10 16:49:57.000000000 +0900
++++ pgdat2/mm/vmscan.c	2006-02-10 16:59:47.000000000 +0900
+@@ -1664,7 +1664,7 @@ out:
+  * If there are applications that are active memory-allocators
+  * (most normal use), this basically shouldn't matter.
+  */
+-static int kswapd(void *p)
++int kswapd(void *p)
+ {
+ 	unsigned long order;
+ 	pg_data_t *pgdat = (pg_data_t*)p;
+Index: pgdat2/include/linux/memory_hotplug.h
+===================================================================
+--- pgdat2.orig/include/linux/memory_hotplug.h	2006-02-10 16:49:57.000000000 +0900
++++ pgdat2/include/linux/memory_hotplug.h	2006-02-10 16:59:47.000000000 +0900
+@@ -61,6 +61,34 @@ extern int online_pages(unsigned long, u
+ /* reasonably generic interface to expand the physical pages in a zone  */
+ extern int __add_pages(struct zone *zone, unsigned long start_pfn,
+ 	unsigned long nr_pages);
++
++#ifdef CONFIG_ARCH_PERNODE_SIZE
++extern unsigned long arch_pernode_size(int node);
++#else /* CONFIG_ARCH_PERNODE_SIZE */
++static inline unsigned long arch_pernode_size(int)
++{
++	return ALIGN(sizeof(pg_data_t), PAGE_SIZE);
++}
++#endif /* CONFIG_ARCH_PERNODE_SIZE */
++
++#ifdef CONFIG_ARCH_UPDATE_NODE_DATA
++extern void set_node_data_array(int, pg_data_t *);
++extern void clear_node_data_array(pg_data_t *);
++#else /* CONFIG_ARCH_UPDATE_NODE_DATA */
++static inline void set_node_data_array(int nid, pg_data_t *pgdat)
++{
++	NODE_DATA(nid) = pgdat;
++}
++
++static inline void clear_node_data_array(pg_data_t *pgdat)
++{
++	NODE_DATA(pgdat->node_id) = NULL;
++}
++#endif /* CONFIG_ARCH_UPDATE_NODE_DATA */
++
++extern int new_pgdat_init(int, unsigned long, unsigned long);
++extern void release_pgdat(pg_data_t *);
++
+ #else /* ! CONFIG_MEMORY_HOTPLUG */
+ /*
+  * Stub functions for when hotplug is off
 
 -- 
 Yasunori Goto 

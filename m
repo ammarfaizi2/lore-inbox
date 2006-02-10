@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWBJUcv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWBJUg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbWBJUcv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 15:32:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWBJUcv
+	id S932187AbWBJUg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 15:36:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWBJUg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 15:32:51 -0500
-Received: from mail.tmr.com ([64.65.253.246]:47245 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S932179AbWBJUcu (ORCPT
+	Fri, 10 Feb 2006 15:36:57 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:6859 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932187AbWBJUgy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 15:32:50 -0500
-Message-ID: <43ECF916.9080001@tmr.com>
-Date: Fri, 10 Feb 2006 15:35:34 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: gcoady@gmail.com
-CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] 2.4.32 - Neighbour Cache (ARP) State machine bug Fixed
-References: <9fda5f510511281257o364acb3gd634f8e412cd7301@mail.gmail.com> <9fda5f510602031806j2f9ef743t206c9ee2c3bef384@mail.gmail.com> <20060203.181839.104353534.davem@davemloft.net> <9fda5f510602062357n38292cebk3c5738ccdbee83@mail.gmail.com> <20060207215341.GC11380@w.ods.org> <9fda5f510602071750o53f76fc8gc94c280a9998343d@mail.gmail.com> <4skiu150r13a2a78i68bg28cvdb67a8qjb@4ax.com>
-In-Reply-To: <4skiu150r13a2a78i68bg28cvdb67a8qjb@4ax.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Feb 2006 15:36:54 -0500
+Date: Fri, 10 Feb 2006 21:36:37 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, nigel@suspend2.net,
+       Ulrich Drepper <drepper@redhat.com>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH -mm] swsusp: freeze user space processes first
+Message-ID: <20060210203636.GA1761@elf.ucw.cz>
+References: <200602051014.43938.rjw@sisk.pl> <20060205013859.60a6e5ab.akpm@osdl.org> <200602051134.19490.rjw@sisk.pl> <20060205105037.GA26222@elte.hu> <20060205111145.GE1790@elf.ucw.cz> <20060205142226.GA20141@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060205142226.GA20141@elte.hu>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Coady wrote:
-> On Tue, 7 Feb 2006 17:50:03 -0800, Pradeep Vincent <pradeep.vincent@gmail.com> wrote:
-> 
-> 
->>One more attempt. Attaching the diff file as well.
->>
->>Signed off by: Pradeep Vincent <pradeep.vincent@gmail.com>
->>
->>--- old/net/core/neighbour.c    Wed Nov  9 16:48:10 2005
->>+++ new/net/core/neighbour.c    Tue Feb  7 17:38:26 2006
->>@@ -14,6 +14,7 @@
->> *     Vitaly E. Lavrov        releasing NULL neighbor in neigh_add.
->> *     Harald Welte            Add neighbour cache statistics like rtstat
->> *     Harald Welte            port neighbour cache rework from 2.6.9-rcX
->>+ *     Pradeep Vincent         fix neighbour cache state machine
->> */
->>
->>#include <linux/config.h>
->>@@ -705,6 +706,13 @@
->>                       neigh_release(n);
->>                       continue;
->>               }
->>+               /* Move to NUD_STALE state */
->>+               if (n->nud_state&NUD_REACHABLE &&
->>+                   now - n->confirmed > n->parms->reachable_time) {
-> 
-> 
-> Hmm, you're suffering tab -> space conversion syndrome :(
-> 
-> Grant.
+Hi!
 
-The attachment has tabs here, don't know what you're seeing.
+> > > then i'd suggest to change the vfork implementation to make this code 
+> > > freezable. Nothing that userspace does should cause freezing to fail.  
+> > > If it does, we've designed things incorrectly on the kernel side.
+> > 
+> > Does that also mean we have bugs with signal delivery? If vfork(); 
+> > sleep(100000); causes process to be uninterruptible for few days, it 
+> > will not be killable and increase load average...
+> 
+> "half-done" vforks are indeed in uninterruptible sleep. They are not 
+> directly killable, but they are killable indirectly through their 
+> parent. But yes, in theory it would be cleaner if the vfork code used 
+> wait_for_completion_interruptible(). It has to be done carefully though, 
+> for two reasons:
+> 
+> - implementational: use task_lock()/task_unlock() to protect
+>   p->vfork_done in mm_release() and in do_fork().
+> 
+> - semantical: signals to a vfork-ing parent are defined to be delayed
+>   to after the child has released the parent/MM.
+
+We could still deliver sigkill and stopping for the freezer, no?
+
+> the (untested) patch below handles issue #1, but doesnt handle issue #2: 
+> this patch opens up a vfork parent to get interrupted early, with any 
+> signal.
+
+It seems to fix D state for me, and does not seem to have any ill
+effects.
+
+							Pavel
 
 -- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

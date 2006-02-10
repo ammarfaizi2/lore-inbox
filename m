@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbWBJArV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWBJAvO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750904AbWBJArV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Feb 2006 19:47:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbWBJArV
+	id S1750913AbWBJAvO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Feb 2006 19:51:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbWBJAvO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Feb 2006 19:47:21 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:37750 "EHLO
-	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1750904AbWBJArU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Feb 2006 19:47:20 -0500
-Date: Thu, 09 Feb 2006 18:48:47 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Help with 2.6.10 concurrency issue
-In-reply-to: <5Erdv-5iS-39@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <43EBE2EF.4080204@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <5Erdv-5iS-39@gated-at.bofh.it>
+	Thu, 9 Feb 2006 19:51:14 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:43979 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750910AbWBJAvN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Feb 2006 19:51:13 -0500
+Message-ID: <43EBE3AB.1010009@jp.fujitsu.com>
+Date: Fri, 10 Feb 2006 09:51:55 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       ck list <ck@vds.kolivas.org>, linux-mm@kvack.org,
+       Nick Piggin <npiggin@suse.de>, Paul Jackson <pj@sgi.com>
+Subject: Re: [PATCH] mm: Implement Swap Prefetching v22
+References: <200602092339.49719.kernel@kolivas.org>
+In-Reply-To: <200602092339.49719.kernel@kolivas.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-martin rogers wrote:
-> Problem is, the function writeList can be called from a H/W intr,
-> and a workqueue (and that intr could of course happen while either
-> the workqueue or the tasklet is running, right?).
-> 
-> If I use spin_lock_irqsave in writeList, it protects against the intr
-> but not the tasklet.
+Hi,
+Con Kolivas wrote:
+> +void add_to_swapped_list(struct page *page)
+> +{
+> +	struct swapped_entry *entry;
+> +	unsigned long index;
+> +
+> +	spin_lock(&swapped.lock);
+> +	if (swapped.count >= swapped.maxcount) {
 
-Yes, it protects against the tasklet as well. Disabling interrupts also 
-implicity disables BH execution (tasklets).
+Assume x86 system with 8G memory, swapped_maxcount is maybe 5G+ here.
+Then, swapped_entry can consume 5G/PAGE_SIZE * 16bytes = 10 M byte more slabs from
+ZONE_NORMAL. Could you add check like this?
+==
+void add_to_swapped_list(struct page *page)
+{
+	<snip>
+	if (!swap_prefetch)
+		return;
+	spin_lcok(&spwapped.lock);
+}
+==
 
-   If I use spin_lock_bh, I don't get protection
-> from the intr I think; plus, I get :
-> 
-> Badness in local_bh_enable at kernel/softirq.c:142
-> 
-> when the intr runs (what does this mean?).
-
-It means you're enabling BHs when interrupts are disabled, which doesn't 
-make any sense. You can't use spin_lock_bh/spin_unlock_bh when 
-interrupts are disabled.
-
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Thanks,
+-- Kame
 

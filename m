@@ -1,85 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWBJUUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWBJUXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751374AbWBJUUT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 15:20:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWBJUUT
+	id S1751377AbWBJUXK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 15:23:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWBJUXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 15:20:19 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:38315 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751374AbWBJUUS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 15:20:18 -0500
-Date: Fri, 10 Feb 2006 21:20:00 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, nigel@suspend2.net
-Subject: vfork makes processes uninterruptible [was Re: [PATCH -mm] swsusp: freeze user space processes first]
-Message-ID: <20060210202000.GB1696@elf.ucw.cz>
-References: <200602051014.43938.rjw@sisk.pl> <200602051211.07103.rjw@sisk.pl> <20060205111815.GG1790@elf.ucw.cz> <200602051239.53175.rjw@sisk.pl>
-Mime-Version: 1.0
+	Fri, 10 Feb 2006 15:23:10 -0500
+Received: from run.smurf.noris.de ([192.109.102.41]:52127 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S1751378AbWBJUXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 15:23:09 -0500
+Date: Fri, 10 Feb 2006 21:22:01 +0100
+To: Andrew Morton <akpm@osdl.org>
+Cc: Coywolf Qi Hunt <coywolf@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc2-mm1
+Message-ID: <20060210202201.GR25875@kiste.smurf.noris.de>
+References: <20060207220627.345107c3.akpm@osdl.org> <2cd57c900602101017l61dd9ddbh@mail.gmail.com> <20060210112530.540fec62.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200602051239.53175.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060210112530.540fec62.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
+From: Matthias Urlichs <smurf@smurf.noris.de>
+X-Smurf-Spam-Score: -2.2 (--)
+X-Smurf-Whitelist: +relay_from_hosts
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> > Can you produce userland testcase? If we have uninterruptible process for
-> > days... that's a bug in kernel, suspend or not.
+Andrew Morton:
+> > 
+> > The master branch seems not correct. It should be v2.6.16-rc2-mm1, but
+> > it is v2.6.13-rc4-mm1 or something.
 > 
-> Sure, no problem.  [Pretty scary, no?]
+> There is a 2.6.16-rc2-mm1 tag in there.  Perhaps Matthias could describe
+> how things are organised, recommendations for how people should use that
+> tree?
+> 
+The master branch does not make much sense. The problem is that you
+cannot update it -- the -mm tree is always built from scratch. 
 
-Yes, pretty scary. It will also raise system load for 300 seconds
-without any real load.
-
-> The test code:
-> 
-> #include <sys/types.h>
-> #include <unistd.h>
-> 
-> int main(int argc, char *argv[])
-> {
-> 	vfork();
-> 	sleep(300);
-> 
-> 	return 0;
-> }
-> 
-> The result:
-> 
-> rafael@albercik:~/programming/c> ./vfork_test &
-> [1] 12288
-> rafael@albercik:~/programming/c> ps l
-> F   UID   PID  PPID PRI  NI    VSZ   RSS WCHAN  STAT TTY        TIME COMMAND
-> 0   500  6937  6931  17   0  10048  2368 read_c Ss+  pts/1      0:00 /bin/bash
-> 0   500 12139 12133  15   0  10052  2380 wait   Ss   pts/2      0:00 /bin/bash
-> 0   500 12288 12139  15   0   2420   304 fork   D    pts/2      0:00 ./vfork_tes
-> 1   500 12291 12288  18   0   2420   304 hrtime S    pts/2      0:00 ./vfork_tes
-> 0   500 12372 12139  15   0   3596   820 -      R+   pts/2      0:00 ps l
-> rafael@albercik:~/programming/c> kill 12288
-> rafael@albercik:~/programming/c> ps l
-> F   UID   PID  PPID PRI  NI    VSZ   RSS WCHAN  STAT TTY        TIME COMMAND
-> 0   500  6937  6931  17   0  10048  2368 read_c Ss+  pts/1      0:00 /bin/bash
-> 0   500 12139 12133  15   0  10052  2380 wait   Ss   pts/2      0:00 /bin/bash
-> 0   500 12288 12139  15   0   2420   304 fork   D    pts/2      0:00 ./vfork_tes
-> 1   500 12291 12288  18   0   2420   304 hrtime S    pts/2      0:00 ./vfork_tes
-> 0   500 12380 12139  17   0   3600   820 -      R+   pts/2      0:00 ps l
-> rafael@albercik:~/programming/c> kill -9 12288
-> rafael@albercik:~/programming/c> ps l
-> F   UID   PID  PPID PRI  NI    VSZ   RSS WCHAN  STAT TTY        TIME COMMAND
-> 0   500  6937  6931  17   0  10048  2368 read_c Ss+  pts/1      0:00 /bin/bash
-> 0   500 12139 12133  15   0  10052  2380 wait   Ss   pts/2      0:00 /bin/bash
-> 0   500 12288 12139  15   0   2420   304 fork   D    pts/2      0:00 ./vfork_tes
-> 1   500 12291 12288  18   0   2420   304 hrtime S    pts/2      0:00 ./vfork_tes
-> 0   500 12387 12139  16   0   3596   816 -      R+   pts/2      0:00 ps l
-> rafael@albercik:~/programming/c>
-> 
-> Greetings,
-> Rafael
+On the other hand, cleaning that up makes sense; I'll set "master" to
+the current -linus version in my script.
 
 -- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+HARDWARILY adv. In a way pertaining to hardware.  "The system is
+   hardwarily unreliable."  The adjective "hardwary" is NOT used.  See
+   SOFTWARILY.
+				-- From the AI Hackers' Dictionary

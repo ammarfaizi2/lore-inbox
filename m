@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWBJQcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWBJQde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbWBJQcd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 11:32:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWBJQcc
+	id S1751287AbWBJQde (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 11:33:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbWBJQde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 11:32:32 -0500
-Received: from user-0c93tin.cable.mindspring.com ([24.145.246.87]:45549 "EHLO
-	tsurukikun.utopios.org") by vger.kernel.org with ESMTP
-	id S1751290AbWBJQcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 11:32:31 -0500
-From: Luke-Jr <luke@dashjr.org>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Fri, 10 Feb 2006 16:32:19 +0000
-User-Agent: KMail/1.9
-Cc: mrmacman_g4@mac.com, peter.read@gmail.com, mj@ucw.cz,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net
-References: <73d8d0290602060706o75f04c1cx@mail.gmail.com> <233CD3FF-0017-4A74-BE6A-0487DF3F4EA8@mac.com> <43EC83EC.nailISD91HRFF@burner>
-In-Reply-To: <43EC83EC.nailISD91HRFF@burner>
-Public-GPG-Key: 0xD53E9583
-Public-GPG-Key-URI: http://dashjr.org/~luke-jr/myself/Luke-Jr.pgp
-IM-Address: luke-jr@jabber.org
+	Fri, 10 Feb 2006 11:33:34 -0500
+Received: from 213-140-2-68.ip.fastwebnet.it ([213.140.2.68]:12749 "EHLO
+	aa001msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1751287AbWBJQdc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 11:33:32 -0500
+Date: Fri, 10 Feb 2006 17:34:07 +0100
+From: Mattia Dongili <malattia@linux.it>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: [PATCH] fbdev: Fix typo in fbmem.c
+Message-ID: <20060210163407.GA3531@inferi.kami.home>
+Mail-Followup-To: "Antonino A. Daplas" <adaplas@gmail.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-fbdev-devel@lists.sourceforge.net
+References: <20060207220627.345107c3.akpm@osdl.org> <20060210145243.GA3581@inferi.kami.home> <43ECADBC.2080107@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602101632.24649.luke@dashjr.org>
+In-Reply-To: <43ECADBC.2080107@gmail.com>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.16-rc2-mm1-2 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 February 2006 12:15, Joerg Schilling wrote:
-> Kyle Moffett <mrmacman_g4@mac.com> wrote:
-> > Joerg Schilling wrote:
-> > > -	how to use /dev/hd* in order to scan an image from a scanner
-> > > -	how to use /dev/hd* in order to talk to a printer
-> > > -	how to use /dev/hd* in order to talk to a jukebox
-> > > -	how to use /dev/hd* in order to talk to a graphical device
-> >
-> > Does cdrecord scan images, print files, or talk to SCSI graphical
->
-> Are you _completely_ ingnoring the facts that have been discused here?
+On Fri, Feb 10, 2006 at 11:14:04PM +0800, Antonino A. Daplas wrote:
+> A typo in fbmem.c prevents recognition of video= parameter.
+> 
+> Signed-off-by: Antonino Daplas <adaplas@pol.net>
+> 
+> ---
+> Mattia Dongili wrote:
+> 
+> > On Tue, Feb 07, 2006 at 10:06:27PM -0800, Andrew Morton wrote:
+> >> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc2/2.6.16-rc2-mm1/
+> > 
+> > Hello,
+> > 
+> > radeonfb ignores the video= parameter and always run at 1400x1050 (the
+> > highest available). Things where fine with .16-rc1-mm5.
+> > I also tried booting with 640x480-32@60 without success.
+> 
+> Try this patch.
 
-Are you completely ignoring that nobody in this thread cares about libscg's 
-ability to work with other devices? The problem is in the user-interface, and 
-underlying workings is really pretty irrelevant to the matter.
+Thanks, now working as usual. (BTW: my ISP smtp is blacklisted so my
+messages won't reach linux-fbdev-devel)
 
-> This does not apply to cdrecord but to libscg.
-
-cdrecord contains the UI, so it is the only program relevant to the problem. 
-If libscg is impeding fixing the bug (I don't think it is, but you seem to), 
-then maybe cdrecord should use transport.hxx from growisofs.
+ciao
+-- 
+mattia
+:wq!

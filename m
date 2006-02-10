@@ -1,85 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWBJPKP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbWBJPNd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751278AbWBJPKP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 10:10:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWBJPKO
+	id S1751282AbWBJPNd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 10:13:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWBJPNd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 10:10:14 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:37125 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1751278AbWBJPKM convert rfc822-to-8bit (ORCPT
+	Fri, 10 Feb 2006 10:13:33 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:29467 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1751282AbWBJPNc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 10:10:12 -0500
+	Fri, 10 Feb 2006 10:13:32 -0500
+Message-ID: <43ECAD5B.9070308@cfl.rr.com>
+Date: Fri, 10 Feb 2006 10:12:27 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <200602101559.04954.Serge.Noiraud@bull.net>
-X-OriginalArrivalTime: 10 Feb 2006 15:10:09.0267 (UTC) FILETIME=[15181C30:01C62E54]
-Content-class: urn:content-classes:message
-Subject: Re: Memory managment differences between 2.4 and 2.6 with mem=
-Date: Fri, 10 Feb 2006 10:10:03 -0500
-Message-ID: <Pine.LNX.4.61.0602101000340.3425@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Memory managment differences between 2.4 and 2.6 with mem=
-Thread-Index: AcYuVBUfm7UJnC2KRb6xXnmfv98lVg==
-References: <200602101559.04954.Serge.Noiraud@bull.net>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Serge Noiraud" <serge.noiraud@bull.net>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Darrick J. Wong" <djwong@us.ibm.com>, dm-devel@redhat.com,
+       Chris McDermott <lcm@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Support HDIO_GETGEO on device-mapper volumes
+References: <43EBEDD0.60608@us.ibm.com> <20060210145348.GA12173@agk.surrey.redhat.com>
+In-Reply-To: <20060210145348.GA12173@agk.surrey.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Feb 2006 15:14:25.0749 (UTC) FILETIME=[ADF82850:01C62E54]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14259.000
+X-TM-AS-Result: No--25.100000-5.000000-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 10 Feb 2006, Serge Noiraud wrote:
-
-> Hi,
-> 	In 2.4 I used to have mem=2000 on a machine with 2GB of memory.
-> I used the differences between 2000 and 2048 for a specific driver.
-> This means I use addresses between 0x7d000000 and 0x7fffffff.
-> I was sure the system did not take this memory.
+Alasdair G Kergon wrote:
+> On Thu, Feb 09, 2006 at 05:35:12PM -0800, Darrick J. Wong wrote:
+>   
+>> Since dm doesn't implement the HDIO_GETGEO ioctl,
+>>     
 >
-> In 2.6 it does not work like that.
-> In /proc/iomem the end of memory is 0x7d000000.
-> I think this is normal.
+> Why should it?  Device-mapper constructs a virtual device and
+> I think it's completely wrong for it to 'fake' a geometry.
 >
-> but I saw the IDE driver allocate 1KB in addresses between 0x7d000000 and
-> 0x7d0003ff
+> Of course dm could recognise the ioctl - but the default response
+> should be the one that indicates the geometry is unknown.
 >
-> 	I have some question  :
-> Is it normal ?
-> If it is not, how to get the same functionality ? are there some new
-> options ?
-> Does memap= can help ?
-> Is there any impact in the driver ?
+>   
+
+That is what it did before.  By failing the ioctl, that indicates that 
+the geometry is unknown, and that causes problems for grub. 
+
+>> grub assumes that the CHS
+>> geometry is 620/128/63, which makes it impossible to configure it to
+>> boot a filesystem that lives beyond the 2GB mark, even if the system
+>> BIOS supports that.
+>>     
 >
-> I red mel gorman "Understanding the Linux Virtual Memory Manager", but it does not help me.
-> In which chapter this is explained ?
+> Surely a problem in grub, not the kernel?
 >
-> --
-> Serge Noiraud
+>   
 
-Don't use a fixed address! When you load your driver, use the value
-in the global, num_physpages, to find out how many pages the kernel
-owns. Multiply that by PAGE_SIZE, then add one extra page. Use that
-at the starting address for your private page to 'ioremap...'
-In principle, you shouldn't have to add an additional page but
-the last time I checked, something in the kernel scribbles beyond
-the address-space it owns. Also, you should check to see if
-some other driver owns the area you want to claim (request_mem_region).
-If so, claim another. Remember to release it when unloading your
-driver.
+Yes, I think this could also be fixed on grub's end.  It seems that 
+fdisk assumes usable default values for the geometry but grub has 
+different defaults that cause it problems.  I think that the defaults 
+could be modified in grub so that it will work when HDIO_GETGEO fails. 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.66 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-_
-
+>> The attached patch implements a simple ioctl handler that supplies a
+>> compatible geometry when HDIO_GETGEO is called against a device-mapper
+>> device.  Its behavior is somewhat similar to what sd_mod does if the
+>> scsi controller doesn't provide its own geometry. 
+>>     
+>
+> What if the dm device is a linear mapping to an sd device that *does*
+> provide a different geometry?  Then the 'fake' geometry dm would return
+> with this patch would be wrong!
+>
+>   
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+There is no 'right' or 'wrong' geometry; it is all made up anyhow. 
 
-Thank you.
+>> this seems to be a better option than having each program make
+>> up its own potentially different geometry, or making an arbitrary guess.
+>>     
+>
+> I disagree - either dm should work out the *correct* geometry to
+> return for those mappings where a geometry is known and it's sensible
+> to return one (e.g. linear mapping to the start of certain scsi
+> devices), or else it should leave it to userspace to decide how to
+> handle the situation.  (And there's nothing currently stopping
+> userspace seeing that a dm device is constructed out of a scsi device
+> and choosing to use the geometry of that underlying device.)
+
+Except that most user space tools are not aware of dm and shouldn't need 
+to be.
+
+In this case, I think the correct solution is to patch grub so that if 
+there is already a valid MBR on the disk, it should take the geometry 
+from there.  If it is creating a brand new MBR, then it should use the 
+geometry from HDIO_GETGEO and if that fails, make up sensible defaults 
+like fdisk does. 
+
+

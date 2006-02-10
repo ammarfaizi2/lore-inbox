@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbWBJSKe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWBJSRe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932163AbWBJSKe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 13:10:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWBJSKe
+	id S932167AbWBJSRe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 13:17:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWBJSRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 13:10:34 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:54995 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932163AbWBJSKe
+	Fri, 10 Feb 2006 13:17:34 -0500
+Received: from uproxy.gmail.com ([66.249.92.194]:3568 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932167AbWBJSRd convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 13:10:34 -0500
-Subject: Re: Let's get rid of  ide-scsi
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: Greg KH <greg@kroah.com>, Alex Davis <alex14641@yahoo.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060210173110.GA29028@animx.eu.org>
-References: <20060210002148.37683.qmail@web50201.mail.yahoo.com>
-	 <20060210003614.GA26114@animx.eu.org> <20060210052404.GB29421@kroah.com>
-	 <20060210121107.GC27814@animx.eu.org> <20060210163114.GA26203@kroah.com>
-	 <20060210173110.GA29028@animx.eu.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 10 Feb 2006 18:12:54 +0000
-Message-Id: <1139595174.12521.21.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 10 Feb 2006 13:17:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iEeeXXkC6dWvJYaCgDdZUN6m43hdsmV4ahU2da/qzOY9zBL7i19OIZi9tvD2l8dO9JEhYGKoOZUViEHiQFxMTmpiUy5fDwkOfgnA4suNDlvCjLVoQU9IXyxDYMkOVTQFl1jrXkxqhLbMnUXqYxLIBInG2R4CgZDKV54K8dJu5Os=
+Message-ID: <2cd57c900602101017l61dd9ddbh@mail.gmail.com>
+Date: Sat, 11 Feb 2006 02:17:29 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.16-rc2-mm1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060207220627.345107c3.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060207220627.345107c3.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2006-02-10 at 12:31 -0500, Wakko Warner wrote:
-> If/When libata takes over ide in general, how many of these machine will
-> then require the scsi layer?  I would think all systems would except ones
-> without internal disks (non-usb/firewire).
+2006/2/8, Andrew Morton <akpm@osdl.org>:
+>
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc2/2.6.16-rc2-mm1/
+>
+>
+> - Should also be available at:
+>
+>         git://git.kernel.org/pub/scm/linux/kernel/git/smurf/linux-trees.git
+>
+>   browseable at:
+>
+>         ftp://ftp.kernel.org/pub/scm/linux/kernel/git/smurf/linux-trees.git
+>
+>   thanks to a script which Matthias Urlichs <smurf@smurf.noris.de> has
+>   prepared.  I haven't tried this, so please let us know how it goes.
 
-You'll want libata (but not eventually all of the scsi layer) for just
-about anything at that point. On the bright side you won't have scsi
-loaded for your USB devices and drivers/ide loaded for your IDE disks so
-for most cases I suspect it will be neutral or save memory.
+The master branch seems not correct. It should be v2.6.16-rc2-mm1, but
+it is v2.6.13-rc4-mm1 or something.
 
-If you are really tighht on memory and just using CF then its probably
-worth writing a simple CF driver for embedded use. Its probably a matter
-of 10K of code if that for the subset in question.
+>
+> - Patches were added and removed.  Nothing very exciting.
+>
 
+--
+Coywolf Qi Hunt

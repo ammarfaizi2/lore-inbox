@@ -1,65 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbWBKXfQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750845AbWBKXfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750843AbWBKXfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 18:35:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750847AbWBKXfQ
+	id S1750845AbWBKXfU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 18:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbWBKXfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 18:35:16 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:43941 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750843AbWBKXfP (ORCPT
+	Sat, 11 Feb 2006 18:35:19 -0500
+Received: from smtpout.mac.com ([17.250.248.86]:11257 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1750845AbWBKXfS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 18:35:15 -0500
-Date: Sat, 11 Feb 2006 15:34:25 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Hermanowski <lkml@martin.mh57.de>
-Cc: linux-kernel@vger.kernel.org, hdaps-devel@lists.sourceforge.net,
-       dtor_core@ameritech.net
-Subject: Re: 2.6.16-rc2-mm1
-Message-Id: <20060211153425.19242f9e.akpm@osdl.org>
-In-Reply-To: <20060211222718.GB9020@mh57.de>
-References: <20060207220627.345107c3.akpm@osdl.org>
-	<20060211203158.GA9020@mh57.de>
-	<20060211134142.11c1af44.akpm@osdl.org>
-	<20060211222718.GB9020@mh57.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 11 Feb 2006 18:35:18 -0500
+In-Reply-To: <200602111136.56325.merka@highsphere.net>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602101337.22078.rjw@sisk.pl> <20060210233507.GC1952@elf.ucw.cz> <200602111136.56325.merka@highsphere.net>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <B5780C33-81CE-4B8A-9583-B9B3973FCC11@mac.com>
+Cc: suspend2-devel@lists.suspend2.net, Pavel Machek <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Flames over -- Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Date: Sat, 11 Feb 2006 18:35:07 -0500
+To: Jan Merka <merka@highsphere.net>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Hermanowski <lkml@martin.mh57.de> wrote:
+On Feb 11, 2006, at 11:36, Jan Merka wrote:
+> On Friday 10 February 2006 18:35, Pavel Machek wrote:
+>> Anyway, it means that suspend is still quite a hot topic, and that  
+>> is good. (Linus said that suspend-to-disk is basically for people  
+>> that can't get suspend-to-RAM to work, and after I got suspend-to- 
+>> RAM to work reliably here, I can see his point).
 >
-> > 
-> > You could try reverting that patch (wget
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc2/2.6.16-rc2-mm1/broken-out/hdaps-convert-to-the-new-platform-device-interface.patch
-> > ; patch -p1 -R < hdaps-convert-to-the-new-platform-device-interface.patch) or please test next -mm, let us know?
-> 
-> This fails:
-> ,----[ patch -p1 -R < ../hdaps-convert-to-the-new-platform-device-interface.patch ]
-> | patching file drivers/hwmon/hdaps.c
-> | Hunk #1 succeeded at 37 (offset 1 line).
-> | Hunk #2 succeeded at 63 (offset 1 line).
-> | Hunk #3 succeeded at 285 with fuzz 2 (offset 1 line).
-> | Hunk #4 FAILED at 321.
-> | Hunk #5 FAILED at 340.
-> | Hunk #6 succeeded at 474 (offset 1 line).
-> | Hunk #7 succeeded at 512 (offset 1 line).
-> | Hunk #8 succeeded at 533 (offset 1 line).
-> | 2 out of 8 hunks FAILED -- saving rejects to file
-> | drivers/hwmon/hdaps.c.rej
-> `----
-> 
-> At hunk 4/5, the patch expects `down_trylock' and `up', while
-> `mutex_trylock' and `mutex_unlock' are used in the actual file, I think.
+> I strongly disagree. I got suspend-to-RAM to work but its utility  
+> is seriously limited by battery capacity. For example, on my laptop  
+> (Sony VGN-B100B) with 1.5GB of RAM, a fully charged battery is  
+> drained in about 18 hours if the laptop was suspended to RAM.
 
-Yes, one of Greg's patches plays with hdaps too. 
-gregkh-i2c-hwmon-convert-semaphores-to-mutexes.patch.  Perhaps reverting
-that first will get you there.
+Ick, that's kind of sucky hardware then.  My PowerBook with 1GB RAM  
+easily gets a week of sleep time off a fully charged battery; I don't  
+think I've rebooted it _once_ in the last 2 months, I just leave it  
+sleeping in my bag the whole time.  Sony must be doing something  
+wrong, because there's easily enough power in a single battery to  
+keep RAM refreshed for a _long_ time.
 
-> I will try next -mm anyway, because although the fsck-errors caused by
-> ext3_getblocks are not harmful, they make me nervous ;-)
+> Yes, for a few hours suspend-to-RAM is convenient but suspend-to- 
+> disk is _reliable_ and _safe_.
 
-I haven't heard from Mingming, so unless I feel inspired to roll up the
-sleeves and fix it (P=0.002), that won't be fixed in next -mm.
+As to the safety issue, I have my Apple Powerbook configured to  
+suspend to RAM, and if it gets critically low on battery I have the  
+firmware set to resume it automatically and my scripts shut it down  
+so I don't lose data.  Suspend-to-RAM when implemented properly _is_  
+reliable and safe, but it seems like a lot of hardware manufacturers  
+get it wrong.
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/E/U d- s++: a18 C++++>$ ULBX*++++(+++)>$ P++++(+++)>$ L++++ 
+(+++)>$ !E- W+++(++) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+ PGP 
++ t+(+++) 5 X R? !tv-(--) b++++(++) DI+(++) D+++ G e>++++$ h*(+)>++$ r 
+%(--)  !y?-(--)
+------END GEEK CODE BLOCK------
+
+
 

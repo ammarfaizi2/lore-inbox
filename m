@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWBKEQa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWBKEh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932230AbWBKEQa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 23:16:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbWBKEQa
+	id S932231AbWBKEh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 23:37:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbWBKEh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 23:16:30 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:1216 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932227AbWBKEQ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 23:16:29 -0500
-Date: Sat, 11 Feb 2006 13:15:17 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [Lhms-devel] [RFC/PATCH: 002/010] Memory hotplug for new nodes with pgdat allocation. (Wait table and zonelists initalization)
-Cc: "Luck, Tony" <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
-       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
-       linux-ia64@vger.kernel.org,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       x86-64 Discuss <discuss@x86-64.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>,
-       Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <1139589128.9209.80.camel@localhost.localdomain>
-References: <20060210223841.C532.Y-GOTO@jp.fujitsu.com> <1139589128.9209.80.camel@localhost.localdomain>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060211125941.D35C.Y-GOTO@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+	Fri, 10 Feb 2006 23:37:59 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:5801 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932231AbWBKEh6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 23:37:58 -0500
+Date: Fri, 10 Feb 2006 20:37:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: miles.lane@gmail.com, linux-kernel@vger.kernel.org,
+       linux1394-devel@lists.sourceforge.net
+Subject: Re: 2.6.16-rc2-mm1 -- BUG: warning at
+ drivers/ieee1394/ohci1394.c:235/get_phy_reg()
+Message-Id: <20060210203715.57b39b0d.akpm@osdl.org>
+In-Reply-To: <1139624931.19342.46.camel@mindpipe>
+References: <a44ae5cd0602101207s4b2d61d7nc6705067b7913322@mail.gmail.com>
+	<20060210122131.4b98cfb4.akpm@osdl.org>
+	<1139624931.19342.46.camel@mindpipe>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-> On Fri, 2006-02-10 at 23:20 +0900, Yasunori Goto wrote:
+Lee Revell <rlrevell@joe-job.com> wrote:
+>
+> On Fri, 2006-02-10 at 12:21 -0800, Andrew Morton wrote:
+> > Miles Lane <miles.lane@gmail.com> wrote:
+> > >
+> > > BUG: warning at drivers/ieee1394/ohci1394.c:235/get_phy_reg()
 > > 
-> >  static __meminit
-> >  void zone_wait_table_init(struct zone *zone, unsigned long
-> > zone_size_pages)
-> >  {
-> > -       int i;
-> > +       int i, hotadd = (system_state == SYSTEM_RUNNING);
-> >         struct pglist_data *pgdat = zone->zone_pgdat;
-> > +       unsigned long allocsize;
-> >  
-> >         /*
-> >          * The per-page waitqueue mechanism uses hashed waitqueues
-> >          * per zone.
-> >          */
-> > +       if (hotadd && (zone_size_pages == PAGES_PER_SECTION))
-> > +               zone_size_pages = PAGES_PER_SECTION << 2; 
+> > That's a -mm-only warning telling you that get_phy_reg() is doing a
+> > one-millisecond-or-more busywait while local interrupts are disabled.
+> > 
+> > That's the sort of thing which makes audio developers pursue 1394 developers
+> > with sharp sticks.
 > 
-> I don't think I understand this calculation.  You online only 4 sections
-> worth of pages?
+> Hmm, interesting, did -mm get a "lite" version of Ingo's latency tracer?
+> 
 
-Ummmmm.
-I realized that I've forgotten many things about this patch
-due to long time keeping in storage. 
-At least here looks strange indeed.
-I need shake my brain to recall it. :-(
-
-
--- 
-Yasunori Goto 
-
-
-
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc2/2.6.16-rc2-mm1/broken-out/debug-warn-if-we-sleep-in-an-irq-for-a-long-time.patch

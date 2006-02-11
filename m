@@ -1,75 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWBKT4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbWBKT6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbWBKT4X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 14:56:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWBKT4X
+	id S964789AbWBKT6w (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 14:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbWBKT6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 14:56:23 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:64398 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964786AbWBKT4W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 14:56:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=cxmQht7sPfG4qJpz+y2dnZuqLln4LCaJGcGxEOI/rR+2c1zgJr0fFI9SHpJbMSG4hUGzjlIdivLVibOpKdypf29Rd72/nLqpdSl00L5yVuiE1NRVj6qYRBqAWehkIRrj2Enz09Y6qJ5Cc6EWo9ygXvtuocFBq99+0zjhaVFs11E=
-Message-ID: <43EE415F.2000805@gmail.com>
-Date: Sat, 11 Feb 2006 20:56:15 +0100
-From: Xose Vazquez Perez <xose.vazquez@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: old patches in -mm
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 11 Feb 2006 14:58:51 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:26567 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S964789AbWBKT6v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 14:58:51 -0500
+Date: Sat, 11 Feb 2006 20:57:18 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Vincent ETIENNE <ve@vetienne.net>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: BUG at drivers/net/dl2k.c
+Message-ID: <20060211195718.GA24012@electric-eye.fr.zoreil.com>
+References: <200602092101.41970.ve@vetienne.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602092101.41970.ve@vetienne.net>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Vincent ETIENNE <ve@vetienne.net> :
+> 
+> I'm using 2.6.14-mm2 kernel (x86_64) on a Bi-Opteron 246 board with a   PCI-64 
+> card ( DLINK 550 GT ) plug  on PCI-X interface. This card use the DL2000 
+> driver which seems to cause this problem logged during boot time  : 
+> 
+> BUG: warning at drivers/net/dl2k.c:1481/mii_wait_link()
+[...]
 
-There are 35 patches(not included reiser4 and post-halloween-doc) older
-than 2 months that still are not in mainline. Forgotten or experimental ?
+Try the bandaid below. If it is not enough, please open a PR at
+http://bugzilla.kernel.org and add me to the Cc: list.
 
+1ms delay in irq context always hurt. This stuff should be done in
+an user-context.
 
-2.6-sony_acpi4.patch
-acx1xx-allow-modular-build.patch
-acx1xx-wireless-driver-spy_offset-went-away.patch
-acx1xx-wireless-driver-usb-is-bust.patch
-acx-should-select-not-depend-on-fw_loader.patch
-acx-update-2.patch
-acx-update.patch
-debug-warn-if-we-sleep-in-an-irq-for-a-long-time.patch
-dlm-build-fix-2.patch
-dlm-build-fix.patch
-dlm-communication-fix-lowcomms-race.patch
-dlm-core-locking-resend-lookups.patch
-dlm-device-interface-dlm-force-unlock.patch
-dlm-device-interface-fix-device-refcount.patch
-dlm-recovery-clear-new_master-flag.patch
-dlm-recovery-make-code-static.patch
-dlm-use-configfs-fix-2.patch
-dlm-use-configfs-fix.patch
-documentation-ioctl-messtxt-add-260-more-ioctls.patch
-documentation-ioctl-messtxt-document-85-more-ioctls.patch
-documentation-ioctl-messtxt-fill-more-holes-in-b-p-range.patch
-documentation-ioctl-messtxt-start-annotating-i-o.patch
-drivers-net-wireless-tiacx-add-missing-include-linux-vmallocha.patch
-export-file_ra_state_init-again.patch
-fbdev-update-framebuffer-feature-list.patch
-firestream-warnings.patch
-fs-asfs-make-code-static.patch
-journal_add_journal_head-debug.patch
-nr_blockdev_pages-in_interrupt-warning.patch
-nvidia-agp-use-time_before_eq.patch
-oops-reporting-tool.patch
-releasing-resources-with-children.patch
-remove-checkconfigpl.patch
-slab-cache-shrinker-statistics-fix.patch
-tiacx-usb_driver-build-fix.patch
+Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
 
+diff --git a/drivers/net/dl2k.c b/drivers/net/dl2k.c
+index 430c628..2d47804 100644
+--- a/drivers/net/dl2k.c
++++ b/drivers/net/dl2k.c
+@@ -972,7 +972,7 @@ rio_error (struct net_device *dev, int i
+ 
+ 	/* Link change event */
+ 	if (int_status & LinkEvent) {
+-		if (mii_wait_link (dev, 10) == 0) {
++		if (mii_wait_link (dev, 1000) == 0) {
+ 			printk (KERN_INFO "%s: Link up\n", dev->name);
+ 			if (np->phy_media)
+ 				mii_get_media_pcs (dev);
+@@ -1478,7 +1478,7 @@ mii_wait_link (struct net_device *dev, i
+ 		bmsr.image = mii_read (dev, phy_addr, MII_BMSR);
+ 		if (bmsr.bits.link_status)
+ 			return 0;
+-		mdelay (1);
++		udelay(10);
+ 	} while (--wait > 0);
+ 	return -1;
+ }
 
--thanks-
-
--- 
-Politicos de mierda, yo no soy un terrorista.

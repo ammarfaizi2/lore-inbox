@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbWBKCGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWBKCQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750963AbWBKCGj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 21:06:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWBKCGj
+	id S932079AbWBKCQr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 21:16:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWBKCQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 21:06:39 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:10246 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id S1750962AbWBKCGj (ORCPT
+	Fri, 10 Feb 2006 21:16:47 -0500
+Received: from macferrin.com ([65.98.32.91]:50437 "EHLO macferrin.com")
+	by vger.kernel.org with ESMTP id S932079AbWBKCQq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 21:06:39 -0500
-Date: Fri, 10 Feb 2006 21:06:23 -0500 (EST)
-Message-Id: <200602110206.k1B26N8Q184606@saturn.cs.uml.edu>
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
-Subject: [PATCH] document sysenter path
+	Fri, 10 Feb 2006 21:16:46 -0500
+Message-ID: <43ED48AD.6060106@macferrin.com>
+Date: Fri, 10 Feb 2006 19:15:09 -0700
+From: Ken MacFerrin <lists@macferrin.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Thunderbird/1.0.7 Mnenhy/0.7
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+CC: Dave Spring <dspring@acm.org>, linux-kernel@vger.kernel.org,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: PROBLEM: kernel BUG at mm/rmap.c:486 - kernel 2.6.15-r1
+References: <43E0FC55.6080503@acm.org> <43EBD67E.9020308@acm.org> <200602100013.15276.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200602100013.15276.s0348365@sms.ed.ac.uk>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alistair John Strachan wrote:
+> On Thursday 09 February 2006 23:55, Dave Spring wrote:
+> 
+>>Just for closure's sake:
+>> This turned out to be a hardware problem.
+>>Memtest86+ http://www.memtest.org/ found an intermittent and
+>>pattern-sensitive memory error,
+>>and only appearing at one or two random locations within the 256M module.
+>>Replacing the dodgy RAM module did the trick.
+> 
+> 
+> Thanks Dave. Any update on your problem Ken? I'm keen to hear whether you had 
+> crashes without the NVIDIA driver loaded.
+> 
 
-This path isn't obvious. It looks as if the kernel will be taking
-three args from the user stack, but it only takes one from there.
-
-Signed-off-by: Albert Cahalan <acahalan@gmail.com>
-
-diff -Naurd old/arch/i386/kernel/vsyscall-sysenter.S new/arch/i386/kernel/vsyscall-sysenter.S
---- old/arch/i386/kernel/vsyscall-sysenter.S	2006-02-10 19:55:27.000000000 -0500
-+++ new/arch/i386/kernel/vsyscall-sysenter.S	2006-02-10 20:29:39.000000000 -0500
-@@ -7,6 +7,21 @@
-  *    for details.
-  */
- 
-+/*
-+ * The caller puts arg2 in %ecx, which gets pushed. The kernel will use
-+ * %ecx itself for arg2. The pushing is because the sysexit instruction
-+ * (found in entry.S) requires that we clobber %ecx with the desired %esp.
-+ * User code might expect that %ecx is unclobbered though, as it would be
-+ * for returning via the iret instruction, so we must push and pop.
-+ *
-+ * The caller puts arg3 in %edx, which the sysexit instruction requires
-+ * for %eip. Thus, exactly as for arg2, we must push and pop.
-+ *
-+ * Arg6 is different. The caller puts arg6 in %ebp. Since the sysenter
-+ * instruction clobbers %esp, the user's %esp won't even survive entry
-+ * into the kernel. We store %esp in %ebp. Code in entry.S must fetch
-+ * arg6 from the stack.
-+ */
- 	.text
- 	.globl __kernel_vsyscall
- 	.type __kernel_vsyscall,@function
+Sorry, I got called out of town last weekend so I didn't get a chance to 
+try this out yet..
+-Ken

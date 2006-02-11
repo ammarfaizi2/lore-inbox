@@ -1,109 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWBKDpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWBKEEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbWBKDpN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 22:45:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWBKDpN
+	id S932179AbWBKEEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 23:04:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWBKEEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 22:45:13 -0500
-Received: from smtp.enter.net ([216.193.128.24]:41233 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S932199AbWBKDpM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 22:45:12 -0500
-From: "D. Hazelton" <dhazelton@enter.net>
-To: jerome lacoste <jerome.lacoste@gmail.com>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Thu, 9 Feb 2006 22:41:28 -0500
-User-Agent: KMail/1.8.1
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, peter.read@gmail.com,
-       mj@ucw.cz, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
-References: <20060208162828.GA17534@voodoo> <43EC8F22.nailISDL17DJF@burner> <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com>
-In-Reply-To: <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com>
+	Fri, 10 Feb 2006 23:04:16 -0500
+Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:20169 "EHLO
+	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932179AbWBKEEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 23:04:15 -0500
+Message-ID: <43ED623D.90401@bigpond.net.au>
+Date: Sat, 11 Feb 2006 15:04:13 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, kernel@kolivas.org,
+       npiggin@suse.de, mingo@elte.hu, rostedt@goodmis.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [rfc][patch] sched: remove smpnice
+References: <20060207142828.GA20930@wotan.suse.de>	<200602080157.07823.kernel@kolivas.org>	<20060207141525.19d2b1be.akpm@osdl.org>	<200602081011.09749.kernel@kolivas.org>	<20060207153617.6520f126.akpm@osdl.org>	<20060209230145.A17405@unix-os.sc.intel.com> <20060209231703.4bd796bf.akpm@osdl.org> <43ED3D6A.8010300@bigpond.net.au>
+In-Reply-To: <43ED3D6A.8010300@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602092241.29294.dhazelton@enter.net>
-X-Virus-Checker-Version: Enter.Net Virus Scanner 1.1
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 11 Feb 2006 04:04:13 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 February 2006 10:38, jerome lacoste wrote:
-> On 2/10/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
-> > "D. Hazelton" <dhazelton@enter.net> wrote:
-> > > And does cdrecord even need libscg anymore? From having actually gone
-> > > through your code, Joerg, I can tell you that it does serve a larger
-> > > purpose. But at this point I have to ask - besides cdrecord and a few
-> > > other _COMPACT_ _DISC_ writing programs, does _ANYONE_ use libscg? Is
-> > > it ever used to access any other devices that are either SCSI or use a
-> > > SCSI command protocol (like ATAPI)?  My point there is that you have a
-> > > wonderful library, but despite your wishes, there is no proof that it
-> > > is ever used for anything except writing/ripping CD's.
-> >
-> > Name a single program (not using libscg) that implements user space SCSI
-> > and runs on as many platforms as cdrecord/libscg does.
->
-> I have 2 technical questions, and I hope that you will take the time
-> to answer them.
->
-> 1) extract from the README of the latest stable cdrtools package:
->
->         Linux driver design oddities
-> ****************************************** Although cdrecord supports to
-> use dev=/dev/sgc, it is not recommended and it is unsupported.
->
->         The /dev/sg* device mapping in Linux is not stable! Using
-> dev=/dev/sgc in a shell script may fail after a reboot because the device
-> you want to talk to has moved to /dev/sgd. For the proper and OS
-> independent dev=<bus>,<tgt>,<lun> syntax read the man page of cdrecord.
->
-> My understanding of that is you say to not use dev=/dev/sgc because it
-> isn't stable. Now that you've said that bus,tgt,lun is not stable on
-> Linux (because of a "Linux bug") why is the b,t,l scheme preferred
-> over the /dev/sg* one ?
+Peter Williams wrote:
+> Andrew Morton wrote:
+> 
+>> "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
+>>
+>>> b) On a lightly loaded system, this can result in HT scheduler 
+>>> optimizations
+>>> being disabled in presence of low priority tasks... in this case, 
+>>> they(low
+>>> priority ones) can end up running on the same package, even in the 
+>>> presence of other idle packages.. Though this is not as serious as 
+>>> "a" above...
+>>>
+> 
+> I think that this issue comes under the heading of "Result of better 
+> nice enforcement" which is the purpose of the patch :-).
 
-Excellent question. Well Joerg, can you give us a good answer, or will it be 
-more finger pointing, mud slinging and FUD ?
+On the assumption that this enforcement is considered to be too 
+vigorous,  I think that it is also amenable to a fix based on a new 
+biased_load() function by replacing the (*imbalance < SCHED_LOAD_SCALE) 
+test with (biased_load(*imbalance, busiest) == 0) and (possibly) some 
+modifications within the if statement's body (most notably replacing the 
+NICE_TO_BIAS_PRIO(0) expressions with (busiest->prio_bias / 
+busiest->nr_running) or something similar).
 
->
-> 2) design question:
->
-> - cdrecord scans then maps the device to the b,t,l scheme.
-> - the libsg uses the b,t,l ids in its interface to perform the operations
->
-> So now, if cdrecord could have a new option called -scanbusmap that
-> displays the mapping it performs in a way that people can parse the
-> output, I think that will solve most issues.
+This change would cause no change in functionality in the case where all 
+tasks are nice==0.
 
-I'm wondering this myself. If Joerg didn't seem to think everyone in the world 
-was an idiot I'd attempt this myself and submit it.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-> cdrecord already has this information available, it just doesn't display
-> it:
->
-> $ cdrecord debug=2 dev=ATAPI -scanbus 2>&1 | grep INFO
-> INFO: /dev/hdc, (host0/bus1/target0/lun0) will be mapped on the
-> schilly bus No 0 (0,0,0)
-> INFO: /dev/hdd, (host0/bus1/target1/lun0) will be mapped on the
-> schilly bus No 0 (0,1,0)
->
-> It could perform in the following way:
->
-> $ cdrecord dev=ATAPI  -scanbusmap
-> ...
->
-> 0,0,0 <= /dev/hdc
-> 0,1,0 <= /dev/hdd
->
->
-> Are you accepting such a patch?
-
-If his response to the last patch someone provided is any example the answer 
-is going to be no. And I firmly believe the old adage that a leopard can't 
-change it's spots.
-
-> Jerome
-
-
-DRH
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

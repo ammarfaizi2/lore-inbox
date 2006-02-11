@@ -1,69 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbWBKK7F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWBKLBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751400AbWBKK7F (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 05:59:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWBKK7E
+	id S1751393AbWBKLBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 06:01:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWBKLBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 05:59:04 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:39903 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751392AbWBKK7D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 05:59:03 -0500
-Message-ID: <43EDC35B.5060106@jp.fujitsu.com>
-Date: Sat, 11 Feb 2006 19:58:35 +0900
-From: Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-CC: Dave Hansen <haveblue@us.ibm.com>, "Luck, Tony" <tony.luck@intel.com>,
-       Andi Kleen <ak@suse.de>,
-       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
-       linux-ia64@vger.kernel.org,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       x86-64 Discuss <discuss@x86-64.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>
-Subject: Re: [Lhms-devel] [RFC/PATCH: 002/010] Memory hotplug for new nodes
- with pgdat allocation. (Wait table and zonelists initalization)
-References: <20060210223841.C532.Y-GOTO@jp.fujitsu.com> <1139589128.9209.80.camel@localhost.localdomain> <20060211125941.D35C.Y-GOTO@jp.fujitsu.com>
-In-Reply-To: <20060211125941.D35C.Y-GOTO@jp.fujitsu.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 11 Feb 2006 06:01:09 -0500
+Received: from mail15.bluewin.ch ([195.186.18.63]:21238 "EHLO
+	mail15.bluewin.ch") by vger.kernel.org with ESMTP id S1751393AbWBKLBH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 06:01:07 -0500
+Cc: Arthur Othieno <apgo@patchbomb.org>, vandrove@vc.cvut.cz,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] matroxfb: simply return what i2c_add_driver() does
+In-Reply-To: 
+X-Mailer: git-send-email
+Date: Sat, 11 Feb 2006 06:00:34 -0500
+Message-Id: <11396556342192-git-send-email-apgo@patchbomb.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Arthur Othieno <apgo@patchbomb.org>
+To: akpm@osdl.org
+Content-Transfer-Encoding: 7BIT
+From: Arthur Othieno <apgo@patchbomb.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yasunori Goto wrote:
-> 
->> On Fri, 2006-02-10 at 23:20 +0900, Yasunori Goto wrote:
->>>  static __meminit
->>>  void zone_wait_table_init(struct zone *zone, unsigned long
->>> zone_size_pages)
->>>  {
->>> -       int i;
->>> +       int i, hotadd = (system_state == SYSTEM_RUNNING);
->>>         struct pglist_data *pgdat = zone->zone_pgdat;
->>> +       unsigned long allocsize;
->>>  
->>>         /*
->>>          * The per-page waitqueue mechanism uses hashed waitqueues
->>>          * per zone.
->>>          */
->>> +       if (hotadd && (zone_size_pages == PAGES_PER_SECTION))
->>> +               zone_size_pages = PAGES_PER_SECTION << 2; 
->> I don't think I understand this calculation.  You online only 4 sections
->> worth of pages?
-> 
-> Ummmmm.
-> I realized that I've forgotten many things about this patch
-> due to long time keeping in storage. 
-> At least here looks strange indeed.
-> I need shake my brain to recall it. :-(
+insmod will tell us when the module failed to load. We do no further
+processing on the return from i2c_add_driver(), so just return what
+i2c_add_driver() did, instead of storing it.
 
-Ah, I'm not sure but it was because I didn't have a patch for zone's waittable resizing,
-and resizing it looked impossible. Above code was just a quick hack for the case a zone
-is initialized with only 1 section.
-How large it should be ? or Resizing it, is necessary to be discussed.
+Add __init/__exit annotations while we're at it.
 
--- Kame
+Signed-off-by: Arthur Othieno <apgo@patchbomb.org>
+
+---
+
+Andrew, originally sent 12/19/05. No notification from mm-commits of
+patch being accepted/dropped. Assuming it got lost along the way? ;-)
+
+
+ drivers/video/matrox/matroxfb_maven.c |   17 +++++------------
+ 1 files changed, 5 insertions(+), 12 deletions(-)
+
+3d7e2f6d53ac04029f02e1ce7b966f3521617447
+diff --git a/drivers/video/matrox/matroxfb_maven.c b/drivers/video/matrox/matroxfb_maven.c
+index 6019710..531a0c3 100644
+--- a/drivers/video/matrox/matroxfb_maven.c
++++ b/drivers/video/matrox/matroxfb_maven.c
+@@ -1297,20 +1297,13 @@ static struct i2c_driver maven_driver={
+ 	.detach_client	= maven_detach_client,
+ };
+ 
+-/* ************************** */
+-
+-static int matroxfb_maven_init(void) {
+-	int err;
+-
+-	err = i2c_add_driver(&maven_driver);
+-	if (err) {
+-		printk(KERN_ERR "maven: Maven driver failed to register (%d).\n", err);
+-		return err;
+-	}
+-	return 0;
++static int __init matroxfb_maven_init(void)
++{
++	return i2c_add_driver(&maven_driver);
+ }
+ 
+-static void matroxfb_maven_exit(void) {
++static void __exit matroxfb_maven_exit(void)
++{
+ 	i2c_del_driver(&maven_driver);
+ }
+ 
+-- 
+1.1.5
 
 

@@ -1,65 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWBKVmf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWBKVwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbWBKVmf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 16:42:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbWBKVmf
+	id S1750723AbWBKVwk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 16:52:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWBKVwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 16:42:35 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:19090 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750715AbWBKVme (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 16:42:34 -0500
-Date: Sat, 11 Feb 2006 13:41:42 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Hermanowski <lkml@martin.mh57.de>
-Cc: linux-kernel@vger.kernel.org, hdaps-devel@lists.sourceforge.net,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: 2.6.16-rc2-mm1
-Message-Id: <20060211134142.11c1af44.akpm@osdl.org>
-In-Reply-To: <20060211203158.GA9020@mh57.de>
-References: <20060207220627.345107c3.akpm@osdl.org>
-	<20060211203158.GA9020@mh57.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 11 Feb 2006 16:52:40 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1294 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750723AbWBKVwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 16:52:40 -0500
+Date: Sat, 11 Feb 2006 22:52:38 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Xose Vazquez Perez <xose.vazquez@gmail.com>
+Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: old patches in -mm
+Message-ID: <20060211215238.GF30922@stusta.de>
+References: <43EE415F.2000805@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43EE415F.2000805@gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Hermanowski <lkml@martin.mh57.de> wrote:
->
-> Hi,
+On Sat, Feb 11, 2006 at 08:56:15PM +0100, Xose Vazquez Perez wrote:
+> hi,
 > 
-> 2.6.16-rc2-mm1 is running fine on my IBM notebook, but the hdaps module
-> (acceleration sensor) does not work like I expected:
-> 
-> ,----[ modprobe hdaps ]
-> | Feb 11 21:24:26 nimrais kernel: hdaps: inverting axis readings.
-> | Feb 11 21:24:26 nimrais kernel: hdaps: IBM ThinkPad T41p detected.
-> | Feb 11 21:24:26 nimrais kernel: hdaps: driver successfully loaded.
-> `----
-> 
-> AFAIK the module should create sysfs files in
-> /sys/devices/platform/hdaps/, but I see only `bus', `power' and
-> `uevent'.
-> 
-> When unloading the hdaps module, I get a BUG:
-> 
-> ,----[ rmmod hdaps ]
-> | Feb 11 21:24:49 nimrais kernel:  <c011d8b6> release_resource+0x76/0x80 <c0265bf4> platform_device_del+0x44/0x60
-> | Feb 11 21:24:49 nimrais kernel:  <c0265c18> platform_device_unregister+0x8/0x10   <f9b9c8ed> hdaps_exit+0xd/0x25 [hdaps]
-> | Feb 11 21:24:49 nimrais kernel:  <f9b9c8e0> hdaps_exit+0x0/0x25 [hdaps] <c0132e05> sys_delete_module+0x145/0x1c0
-> | Feb 11 21:24:49 nimrais kernel:  <c0149901> remove_vma+0x41/0x50 <c014ab57> do_munmap+0x1a7/0x200
-> | Feb 11 21:24:49 nimrais kernel:  <c0102d91> syscall_call+0x7/0xb  
-> | Feb 11 21:24:49 nimrais kernel: hdaps: driver unloaded.
-> `----
-> 
-> Do you need more information?
-> 
+> There are 35 patches(not included reiser4 and post-halloween-doc) older
+> than 2 months that still are not in mainline. Forgotten or experimental ?
+>...
+> acx1xx-allow-modular-build.patch
+> acx1xx-wireless-driver-spy_offset-went-away.patch
+> acx1xx-wireless-driver-usb-is-bust.patch
+> acx-should-select-not-depend-on-fw_loader.patch
+> acx-update-2.patch
+> acx-update.patch
 
-Thanks, I'll drop hdaps-convert-to-the-new-platform-device-interface.patch,
-which very likely to have caused this.
+They do all depend on acx1xx-wireless-driver.patch.
 
-You could try reverting that patch (wget
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc2/2.6.16-rc2-mm1/broken-out/hdaps-convert-to-the-new-platform-device-interface.patch
-; patch -p1 -R < hdaps-convert-to-the-new-platform-device-interface.patch) or please test next -mm, let us know?
+>...
+> dlm-build-fix-2.patch
+> dlm-build-fix.patch
+> dlm-communication-fix-lowcomms-race.patch
+> dlm-core-locking-resend-lookups.patch
+> dlm-device-interface-dlm-force-unlock.patch
+> dlm-device-interface-fix-device-refcount.patch
+> dlm-recovery-clear-new_master-flag.patch
+> dlm-recovery-make-code-static.patch
+> dlm-use-configfs-fix-2.patch
+> dlm-use-configfs-fix.patch
+
+They do all depend on DLM which is only in -mm.
+
+>...
+> drivers-net-wireless-tiacx-add-missing-include-linux-vmallocha.patch
+
+Depends on acx1xx-wireless-driver.patch.
+
+> export-file_ra_state_init-again.patch
+
+This is currently not even used in -mm - it should be dropped since 
+recreating this patch is trivial.
+
+> fbdev-update-framebuffer-feature-list.patch
+> firestream-warnings.patch
+> fs-asfs-make-code-static.patch
+
+Depends on asfs-filesystem-driver.patch.
+
+>...
+> remove-checkconfigpl.patch
+
+This patch is broken - the purpose of this patch was to remove 
+checkconfig.pl, but it seems the part to remove checkconfig.pl was lost 
+somewhere through Andrew's scripts.
+
+> slab-cache-shrinker-statistics-fix.patch
+
+Bug fix that should go into 2.6.16 - but a static inline in slab.h would 
+be the better solution.
+
+> tiacx-usb_driver-build-fix.patch
+
+Depends on acx1xx-wireless-driver.patch.
+
+> -thanks-
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

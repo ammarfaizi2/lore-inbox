@@ -1,60 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWBKOth@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbWBKOv7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbWBKOth (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 09:49:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWBKOth
+	id S932303AbWBKOv7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 09:51:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWBKOv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 09:49:37 -0500
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:57701 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932302AbWBKOtg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 09:49:36 -0500
-Date: Sat, 11 Feb 2006 15:49:29 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Nathan Lynch <ntl@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Eric Dumazet <dada1@cosmosbay.com>, riel@redhat.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, mingo@elte.hu,
-       76306.1226@compuserve.com, wli@holomorphy.com,
-       Paul Jackson <pj@sgi.com>, jbeulich@novell.com,
-       Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-Message-ID: <20060211144929.GA4334@osiris.boeblingen.de.ibm.com>
-References: <200602051959.k15JxoHK001630@hera.kernel.org> <20060209173726.GA39278@muc.de> <20060210100521.GA9307@osiris.boeblingen.de.ibm.com> <200602101113.13632.ak@muc.de>
-Mime-Version: 1.0
+	Sat, 11 Feb 2006 09:51:59 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:28834 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S932304AbWBKOv6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 09:51:58 -0500
+Date: Sat, 11 Feb 2006 15:50:50 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] update OBSOLETE_OSS_DRIVER schedule and dependencies
+Message-ID: <20060211145050.GA30922@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200602101113.13632.ak@muc.de>
-User-Agent: mutt-ng/devel (Linux)
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > x86-64 had the same problem, but we now require that you 
-> > > boot with additional_cpus=... for how many you want. Default is 0
-> > > (used to be half available CPUs but that lead to confusion)
-> > 
-> > So introducing the additional_cpus kernel parameter seems to be the way
-> > to go (for XEN probably too). Even though it seems to be a bit odd if the
-> > user specifies both maxcpus=... and additional_cpus=...
-> 
-> With additional_cpus you don't need maxcpus. They are added together.
+This patch updates the schedule for the removal of drivers depending on 
+OBSOLETE_OSS_DRIVER as follows:
+- adjust OBSOLETE_OSS_DRIVER dependencie
+- from the release of 2.6.16 till the release of 2.6.17:
+  approx. two months for users to report problems with the ALSA
+  drivers for the same hardware
+- after the release of 2.6.17 (and before 2.6.18):
+  remove the subset of drivers marked at OBSOLETE_OSS_DRIVER without
+  known regressions in the ALSA drivers for the same hardware
 
-How does x86_64 manage to get 'additional_cpus' parsed early enough? As far
-as I can see this is done when parse_args() in start_kernel() gets called,
-but that's after you need the parameter in prefill_possible_map().
-IMHO that should be an early_param and you would need to call
-parse_early_param() from setup_arch(). But then again, maybe I got it all
-wrong.
+Additionally, it corrects some OBSOLETE_OSS_DRIVER dependencies.
+A rationale of the changes is in
+  http://lkml.org/lkml/2006/1/28/135
 
-But the more interesting question is: what do you do if the command line
-contains both additional_cpus and maxcpus. I was just trying to make some
-sense of this, but the result is questionable.
-I ended up with a cpu_possible_map that has 'present cpus' +
-'additional_cpus' bits set. And in smp_prepare_cpus I make sure that
-cpu_present_map has not more than max_cpus bits set.
 
-At least that doesn't break the current semantics of the maxcpus parameter.
-But we're still wasting memory, since it would make sense that the
-cpu_possible_map shouldn't have more than max_cpus bits set.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Heiko
+---
+
+ Documentation/feature-removal-schedule.txt |    2 +-
+ sound/oss/Kconfig                          |   16 ++++++++--------
+ 2 files changed, 9 insertions(+), 9 deletions(-)
+
+--- linux-2.6.16-rc2-mm1-full/Documentation/feature-removal-schedule.txt.old	2006-02-11 15:25:07.000000000 +0100
++++ linux-2.6.16-rc2-mm1-full/Documentation/feature-removal-schedule.txt	2006-02-11 15:26:04.000000000 +0100
+@@ -26,7 +26,7 @@
+ ---------------------------
+ 
+ What:	drivers depending on OBSOLETE_OSS_DRIVER
+-When:	January 2006
++When:	before 2.6.18
+ Why:	OSS drivers with ALSA replacements
+ Who:	Adrian Bunk <bunk@stusta.de>
+ 
+--- linux-2.6.16-rc2-mm1-full/sound/oss/Kconfig.old	2006-02-11 15:20:12.000000000 +0100
++++ linux-2.6.16-rc2-mm1-full/sound/oss/Kconfig	2006-02-11 15:24:06.000000000 +0100
+@@ -21,7 +21,7 @@
+ 
+ config SOUND_BT878
+ 	tristate "BT878 audio dma"
+-	depends on SOUND_PRIME && PCI && OBSOLETE_OSS_DRIVER
++	depends on SOUND_PRIME && PCI
+ 	---help---
+ 	  Audio DMA support for bt878 based grabber boards.  As you might have
+ 	  already noticed, bt878 is listed with two functions in /proc/pci.
+@@ -76,7 +76,7 @@
+ 
+ config SOUND_EMU10K1
+ 	tristate "Creative SBLive! (EMU10K1)"
+-	depends on SOUND_PRIME && PCI && OBSOLETE_OSS_DRIVER
++	depends on SOUND_PRIME && PCI
+ 	---help---
+ 	  Say Y or M if you have a PCI sound card using the EMU10K1 chipset,
+ 	  such as the Creative SBLive!, SB PCI512 or Emu-APS.
+@@ -102,7 +102,7 @@
+ 
+ config SOUND_FUSION
+ 	tristate "Crystal SoundFusion (CS4280/461x)"
+-	depends on SOUND_PRIME && PCI
++	depends on SOUND_PRIME && PCI && OBSOLETE_OSS_DRIVER
+ 	help
+ 	  This module drives the Crystal SoundFusion devices (CS4280/46xx
+ 	  series) when wired as native sound drivers with AC97 codecs.  If
+@@ -140,7 +140,7 @@
+ 
+ config SOUND_ES1371
+ 	tristate "Creative Ensoniq AudioPCI 97 (ES1371)"
+-	depends on SOUND_PRIME && PCI && OBSOLETE_OSS_DRIVER
++	depends on SOUND_PRIME && PCI
+ 	help
+ 	  Say Y or M if you have a PCI sound card utilizing the Ensoniq
+ 	  ES1371 chipset, such as Ensoniq's AudioPCI97. To find out if
+@@ -571,7 +571,7 @@
+ 
+ config SOUND_AD1889
+ 	tristate "AD1889 based cards (AD1819 codec) (EXPERIMENTAL)"
+-	depends on EXPERIMENTAL && SOUND_OSS && PCI
++	depends on EXPERIMENTAL && SOUND_OSS && PCI && OBSOLETE_OSS_DRIVER
+ 	help
+ 	  Say M here if you have a sound card based on the Analog Devices
+ 	  AD1889 chip.
+@@ -742,7 +742,7 @@
+ 
+ config SOUND_NM256
+ 	tristate "NM256AV/NM256ZX audio support"
+-	depends on SOUND_OSS && OBSOLETE_OSS_DRIVER
++	depends on SOUND_OSS
+ 	help
+ 	  Say M here to include audio support for the NeoMagic 256AV/256ZX
+ 	  chipsets. These are the audio chipsets found in the Sony
+@@ -919,7 +919,7 @@
+ 
+ config SOUND_YM3812
+ 	tristate "Yamaha FM synthesizer (YM3812/OPL-3) support"
+-	depends on SOUND_OSS && OBSOLETE_OSS_DRIVER
++	depends on SOUND_OSS
+ 	---help---
+ 	  Answer Y if your card has a FM chip made by Yamaha (OPL2/OPL3/OPL4).
+ 	  Answering Y is usually a safe and recommended choice, however some
+@@ -947,7 +947,7 @@
+ 
+ config SOUND_OPL3SA2
+ 	tristate "Yamaha OPL3-SA2 and SA3 based PnP cards"
+-	depends on SOUND_OSS
++	depends on SOUND_OSS && OBSOLETE_OSS_DRIVER
+ 	help
+ 	  Say Y or M if you have a card based on one of these Yamaha sound
+ 	  chipsets or the "SAx", which is actually a SA3. Read
+

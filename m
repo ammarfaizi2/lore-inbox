@@ -1,73 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWBKFto@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWBKIjp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbWBKFto (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 00:49:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWBKFto
+	id S932245AbWBKIjp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 03:39:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbWBKIjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 00:49:44 -0500
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:41871 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751207AbWBKFto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 00:49:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=lKo6A+JtqCSl+MzRihwLpAeZiWKwioFVlJf7YPQI38C2KxC+hHU2pFQ6WVrL1WQ8JPWUYXjACAnR+VREOnKlqg7e9z9ilkZmJcSD1i90KHtJxykAS2L3LioMEC539Vk7+Z9XelBM3FWT52TMGHKexllxjZ2N8anjv62xsgfuZVo=  ;
-Message-ID: <43ED7AEE.6060902@yahoo.com.au>
-Date: Sat, 11 Feb 2006 16:49:34 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Sat, 11 Feb 2006 03:39:45 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:28084 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932245AbWBKIjp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 03:39:45 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <43EDA2A5.6000901@s5r6.in-berlin.de>
+Date: Sat, 11 Feb 2006 09:39:01 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, linux@horizon.com,
-       linux-kernel@vger.kernel.org, sct@redhat.com
-Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
-References: <20060209071832.10500.qmail@science.horizon.com> <43EC0F3F.1000805@yahoo.com.au> <20060209201333.62db0e24.akpm@osdl.org> <43EC16D8.8030300@yahoo.com.au> <20060209204314.2dae2814.akpm@osdl.org> <43EC1BFF.1080808@yahoo.com.au> <20060209211356.6c3a641a.akpm@osdl.org> <43EC24B1.9010104@yahoo.com.au> <20060209215040.0dcb36b1.akpm@osdl.org> <43EC2C9A.7000507@yahoo.com.au> <20060209221324.53089938.akpm@osdl.org> <43EC3326.4080706@yahoo.com.au> <20060209224656.7533ce2b.akpm@osdl.org> <43EC3961.3030904@yahoo.com.au> <20060209231432.03a09dee.akpm@osdl.org> <43EC8A06.40405@yahoo.com.au> <Pine.LNX.4.64.0602100815580.19172@g5.osdl.org> <43ECC69D.1010001@yahoo.com.au> <Pine.LNX.4.64.0602100904330.19172@g5.osdl.org> <43ECD471.9080203@yahoo.com.au> <Pine.LNX.4.64.0602101011350.19172@g5.osdl.org> <43ECE97F.1080902@yahoo.com.au> <Pine.LNX.4.64.0602101138480.19172@g5.osdl! .org> <43ECEEFF.7050905@yahoo.com.au> <Pine.LNX.4.64.0602101200080.19172@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0602101200080.19172@g5.osdl.org>
+To: Lee Revell <rlrevell@joe-job.com>
+CC: linux1394-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       Miles Lane <miles.lane@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc2-mm1 -- BUG: warning at	drivers/ieee1394/ohci1394.c:235/get_phy_reg()
+References: <a44ae5cd0602101207s4b2d61d7nc6705067b7913322@mail.gmail.com>	 <20060210122131.4b98cfb4.akpm@osdl.org>	 <43ED3046.6020407@s5r6.in-berlin.de> <1139625039.19342.49.camel@mindpipe>
+In-Reply-To: <1139625039.19342.49.camel@mindpipe>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: (0.519) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Sat, 11 Feb 2006, Nick Piggin wrote:
-> 
->>Well in that case in your argument your FADV_WRITE_START is of
->>the "waits for writeout then starts writeout if dirty" type.
+Lee Revell wrote:
+> On Sat, 2006-02-11 at 01:31 +0100, Stefan Richter wrote:
+>>Andrew Morton wrote:
+>>>That's a -mm-only warning telling you that get_phy_reg() is doing a
+>>>one-millisecond-or-more busywait while local interrupts are disabled.
 >>
->>In which case you've just made 3 consecutive  write+wait cycles
->>to the same page, so it is hardly an optimal IO pattern.
-> 
-> 
-> The point is, this is the interface that an app would want to use if they 
-> want _perfect_ IO patterns. 
-> 
+>>Same with set_phy_reg, ohci_soft_reset, ohci_hw_csr_reg.
+[...]
+> In fact I'm pretty sure we have seen reports on the linux-audio-user
+> list of apps reporting underruns when a 1394 drive is accessed.
 
-I'll be annoying and take you up on this again.
+These might have different causes. The 1394 storage driver, sbp2, 
+performs quite a lot of protocol handling in IRQ or soft IRQ context. I 
+have been planning to move this off into process context -- not really 
+because of potential latency issues but for sake of more reliable 
+protocol handling. I hope I get to it RSN.
 
-It is possible that my FADV_WRITE_SYNC will do an extra write of a page
-if it has since become dirty again, however that would seem to be rare
-for such a thing to happen (ie. because the app has asked for some previous
-copy of data to be on disk).
-
-I'm not saying it would never happen, your sub-page sized example is one
-probably valid case - however in that case Andrew's wait-for-write doesn't
-always do the right thing either.
-
-But I will grant that start-writeout + wait-for-write must be at least as
-expressive as write-and-wait.
-
-*however*, it still isn't perfect and it still does things worse than my
-proposal. For example, if the kernel itself actually decides to start writeout
-before you call fadvise(FADV_START_WRITEOUT) then it is now going to block
-and wait for the io to finish.
-
-Anyway if we agree they are both much of a muchness, then I hope we can
-go for FADV_WRITE_ASYNC, FADV_WRITE_SYNC because it is consistent with the
-rest of the userspace API we expose.
-
+AFAICS the offending ohci1394 functions mentioned above are never called 
+during normal access to an SBP-2 device. They only happen when a host 
+adapter is initialized or shut down or whenever a 1394 device is plugged 
+in or out (actually whenever self ID reception is completed).
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Stefan Richter
+-=====-=-==- --=- -=-==
+http://arcgraph.de/sr/

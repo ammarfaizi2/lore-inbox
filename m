@@ -1,149 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWBKC6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWBKDDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbWBKC6A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 21:58:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbWBKC57
+	id S932154AbWBKDDy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 22:03:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWBKDDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 21:57:59 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:63419 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932122AbWBKC57
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 21:57:59 -0500
-Subject: [BUG -rt] -rt16 hang w/ realtime thread test
-From: john stultz <johnstul@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: lkml <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>
-Content-Type: multipart/mixed; boundary="=-xzODBkNk9kTFmCpvJal4"
-Date: Fri, 10 Feb 2006 18:57:54 -0800
-Message-Id: <1139626674.28536.30.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 10 Feb 2006 22:03:54 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:54486 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932134AbWBKDDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 22:03:53 -0500
+Date: Sat, 11 Feb 2006 12:02:58 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [Lhms-devel] [RFC/PATCH: 001/010] Memory hotplug for new nodes with pgdat allocation. (pgdat allocation)
+Cc: "Luck, Tony" <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
+       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
+       linux-ia64@vger.kernel.org,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>,
+       x86-64 Discuss <discuss@x86-64.org>
+In-Reply-To: <1139588807.9209.71.camel@localhost.localdomain>
+References: <20060210223757.C530.Y-GOTO@jp.fujitsu.com> <1139588807.9209.71.camel@localhost.localdomain>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060211120209.D354.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Fri, 2006-02-10 at 23:20 +0900, Yasunori Goto wrote:
+> > 
+> > -extern unsigned long __initdata nr_kernel_pages;
+> > -extern unsigned long __initdata nr_all_pages;
+> > +extern unsigned long __meminitdata nr_kernel_pages;
+> > +extern unsigned long __meminitdata nr_all_pages; 
+> 
+> Can you separate out these trivial changes into separate patches?
 
---=-xzODBkNk9kTFmCpvJal4
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Ok.
 
-Hey Ingo,
-	I've been hunting a report that lower priority realtime threads are not
-preempting higher priority realtime threads. However, in generating test
-cases, I found I was locking the system quite frequently.
+> 
+> > +extern int kswapd(void *);
+> > +int new_pgdat_init(int nid, unsigned long start_pfn, unsigned long
+> > nr_pages)
+> > +{
+> > +       unsigned long zones_size[MAX_NR_ZONES] = {0};
+> > +       unsigned long zholes_size[MAX_NR_ZONES] = {0};
+> > +        unsigned long size = arch_pernode_size(nid);
+> > +       pg_data_t *pgdat;
+> 
+> Whitespace borkage?
 
-The attached test runs to completion on 2.6.15, but with 2.6.15-rt16, it
-hangs the box. It could very well be a test issue, but I'm not sure I
-see where the problem is.
+Oops. Yeah. Thanks.
 
-thanks
--john
+-- 
+Yasunori Goto 
 
-
---=-xzODBkNk9kTFmCpvJal4
-Content-Disposition: attachment; filename=hangbox.c
-Content-Type: text/x-csrc; name=hangbox.c; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <time.h>
-#include <string.h>
-#include <pthread.h>
-#include <sched.h>
-#include <errno.h>
-#include <sys/syscall.h>
-
-
-#define MAXTHREADS 256
-#define TEST_LENGTH 5
-
-volatile int test_finished;
-volatile int running_count;
-
-pthread_mutex_t     mutex = PTHREAD_MUTEX_INITIALIZER;
-
-
-void *busy(void* arg)
-{
-	struct timeval start, now;
-
-    	pthread_mutex_lock(&mutex);
-	running_count = running_count + 1;
-    	pthread_mutex_unlock(&mutex);
-
-	gettimeofday(&start,0);
-	while (!test_finished){
-		gettimeofday(&now,0);
-		if (now.tv_sec - start.tv_sec > 10) {
-			printf("Something is broken\n");
-			break;
-		}
-		sched_yield();
-	}
-    	pthread_mutex_lock(&mutex);
-	running_count--;
-    	pthread_mutex_unlock(&mutex);
-
-}
-
-void create_thread(pthread_t *thread, void*(*func)(void*), int prio)
-{
-	pthread_attr_t attr;
-	struct sched_param param;
-
-	param.sched_priority = sched_get_priority_min(SCHED_FIFO) + prio;
-
-	pthread_attr_init(&attr);
-	pthread_attr_setinheritsched (&attr, PTHREAD_EXPLICIT_SCHED);
-	pthread_attr_setschedparam(&attr, &param);
-	pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
-
-	if (pthread_create(thread, &attr, func, (void *)0)) {
-		perror("pthread_create failed");
-	}
-
-	pthread_attr_destroy(&attr);
-}
-
-int main(int argc, char* argv[])
-{
-	struct sched_param param;
-	int num_threads;
-	int priority;
-	int thread_count = 0;
-	pthread_t thread_id[MAXTHREADS];
-	int i;
-
-	if (argc != 2) {
-		printf("Usage: %s num_threads\n", argv[0]);
-		exit(1);
-	}
-
-	num_threads = atoi(argv[1]);
-
-
-	param.sched_priority = sched_get_priority_min(SCHED_FIFO) + 80;
-	sched_setscheduler(0, SCHED_FIFO, &param);
-
-	priority = 30;
-	for (i = 0; i < num_threads; i++)
-		create_thread(&thread_id[thread_count++],
-				busy, priority);
-	while (running_count < num_threads)
-		usleep(100);
-
-
-	sleep(TEST_LENGTH);
-	test_finished = 1;
-
-	for (i = 0; i < thread_count; i++)
-		pthread_join(thread_id[i], 0);
-
-	return 0;
-}
-
-
---=-xzODBkNk9kTFmCpvJal4--
 

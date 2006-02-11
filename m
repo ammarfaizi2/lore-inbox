@@ -1,611 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWBKPBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbWBKPBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbWBKPBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 10:01:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWBKPBZ
+	id S932300AbWBKPBV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 10:01:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWBKPBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 10:01:25 -0500
-Received: from wp060.webpack.hosteurope.de ([80.237.132.67]:34188 "EHLO
+	Sat, 11 Feb 2006 10:01:21 -0500
+Received: from wp060.webpack.hosteurope.de ([80.237.132.67]:32908 "EHLO
 	wp060.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S932301AbWBKPBY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 10:01:24 -0500
-Date: Sat, 11 Feb 2006 15:52:28 +0100
+	id S932300AbWBKPBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 10:01:20 -0500
+Date: Sat, 11 Feb 2006 15:52:27 +0100
 From: Hansjoerg Lipp <hjlipp@web.de>
 To: Karsten Keil <kkeil@suse.de>
 Cc: i4ldeveloper@listserv.isdn4linux.de, linux-usb-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>,
        Tilman Schmidt <tilman@imap.cc>
-Subject: [PATCH 4/9] isdn4linux: Siemens Gigaset drivers - isdn4linux interface
-Message-ID: <gigaset307x.2006.02.11.001.4@hjlipp.my-fqdn.de>
-References: <gigaset307x.2006.02.11.001.0@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.1@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.2@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.3@hjlipp.my-fqdn.de>
+Subject: [PATCH 1/9] isdn4linux: Siemens Gigaset drivers - Kconfigs and Makefiles
+Message-ID: <gigaset307x.2006.02.11.001.1@hjlipp.my-fqdn.de>
+References: <gigaset307x.2006.02.11.001.0@hjlipp.my-fqdn.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <gigaset307x.2006.02.11.001.3@hjlipp.my-fqdn.de>
+In-Reply-To: <gigaset307x.2006.02.11.001.0@hjlipp.my-fqdn.de>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Tilman Schmidt <tilman@imap.cc>, Hansjoerg Lipp <hjlipp@web.de>
 
-This patch adds the isdn4linux subsystem interface to the gigaset module.
-The isdn4linux subsystem interface handles requests from and notifications
-to the isdn4linux subsystem.
+This patch prepares the kernel build infrastructure for addition of the
+Gigaset ISDN drivers. It creates a Makefile and Kconfig file for the
+Gigaset driver and hooks them into those of the isdn4linux subsystem.
+It also adds a MAINTAINERS entry for the driver.
+
+This patch depends on patches 2 to 9 of the present set, as without the
+actual source files, activating the options added here will cause the
+kernel build to fail.
 
 Signed-off-by: Hansjoerg Lipp <hjlipp@web.de>
 Signed-off-by: Tilman Schmidt <tilman@imap.cc>
 ---
 
- drivers/isdn/gigaset/i4l.c |  567 +++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 567 insertions(+)
+ MAINTAINERS                   |    9 +++++++++
+ drivers/isdn/Makefile         |    1 +
+ drivers/isdn/gigaset/Kconfig  |   42 ++++++++++++++++++++++++++++++++++++++++++
+ drivers/isdn/gigaset/Makefile |    6 ++++++
+ drivers/isdn/i4l/Kconfig      |    1 +
+ 5 files changed, 59 insertions(+)
 
---- linux-2.6.16-rc2/drivers/isdn/gigaset/i4l.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.16-rc2-gig/drivers/isdn/gigaset/i4l.c	2006-02-11 15:20:26.000000000 +0100
-@@ -0,0 +1,567 @@
-+/*
-+ * Stuff used by all variants of the driver
-+ *
-+ * Copyright (c) 2001 by Stefan Eilers (Eilers.Stefan@epost.de),
-+ *                       Hansjoerg Lipp (hjlipp@web.de),
-+ *                       Tilman Schmidt (tilman@imap.cc).
-+ *
-+ * =====================================================================
-+ *	This program is free software; you can redistribute it and/or
-+ *	modify it under the terms of the GNU General Public License as
-+ *	published by the Free Software Foundation; either version 2 of
-+ *	the License, or (at your option) any later version.
-+ * =====================================================================
-+ * ToDo: ...
-+ * =====================================================================
-+ * Version: $Id: i4l.c,v 1.3.2.9 2006/02/04 18:28:16 hjlipp Exp $
-+ * =====================================================================
-+ */
-+
-+#include "gigaset.h"
-+
-+/* == Handling of I4L IO ============================================================================*/
-+
-+/* writebuf_from_LL
-+ * called by LL to transmit data on an open channel
-+ * inserts the buffer data into the send queue and starts the transmission
-+ * Note that this operation must not sleep!
-+ * When the buffer is processed completely, gigaset_skb_sent() should be called.
-+ * parameters:
-+ *	driverID	driver ID as assigned by LL
-+ *	channel		channel number
-+ *	ack		if != 0 LL wants to be notified on completion via statcallb(ISDN_STAT_BSENT)
-+ *	skb		skb containing data to send
-+ * return value:
-+ *	number of accepted bytes
-+ *	0 if temporarily unable to accept data (out of buffer space)
-+ *	<0 on error (eg. -EINVAL)
-+ */
-+static int writebuf_from_LL(int driverID, int channel, int ack, struct sk_buff *skb)
-+{
-+	struct cardstate *cs;
-+	struct bc_state *bcs;
-+	unsigned len;
-+	unsigned skblen;
-+
-+	if (!(cs = gigaset_get_cs_by_id(driverID))) {
-+		err("%s: invalid driver ID (%d)", __func__, driverID);
-+		return -ENODEV;
-+	}
-+	if (channel < 0 || channel >= cs->channels) {
-+		err("%s: invalid channel ID (%d)", __func__, channel);
-+		return -ENODEV;
-+	}
-+	bcs = &cs->bcs[channel];
-+	len = skb->len;
-+
-+	dbg(DEBUG_LLDATA,
-+	    "Receiving data from LL (id: %d, channel: %d, ack: %d, size: %d)",
-+	    driverID, channel, ack, len);
-+
-+	if (!len) {
-+		if (ack)
-+			warn("not ACKing empty packet from LL");
-+		return 0;
-+	}
-+	if (len > MAX_BUF_SIZE) {
-+		err("%s: packet too large (%d bytes)", __func__, channel);
-+		return -EINVAL;
-+	}
-+
-+	if (!atomic_read(&cs->connected))
-+		return -ENODEV;
-+
-+	skblen = ack ? len : 0;
-+	skb->head[0] = skblen & 0xff;
-+	skb->head[1] = skblen >> 8;
-+	dbg(DEBUG_MCMD, "skb: len=%u, skblen=%u: %02x %02x", len, skblen,
-+	     (unsigned) skb->head[0], (unsigned) skb->head[1]);
-+
-+	/* pass to device-specific module */
-+	return cs->ops->send_skb(bcs, skb);
-+}
-+
-+void gigaset_skb_sent(struct bc_state *bcs, struct sk_buff *skb)
-+{
-+	unsigned len;
-+	isdn_ctrl response;
-+
-+	++bcs->trans_up;
-+
-+	if (skb->len)
-+		warn("%s: skb->len==%d", __func__, skb->len);
-+
-+	len = (unsigned char) skb->head[0] |
-+	      (unsigned) (unsigned char) skb->head[1] << 8;
-+	if (len) {
-+		dbg(DEBUG_MCMD,
-+		    "Acknowledge sending to LL (id: %d, channel: %d size: %u)",
-+		    bcs->cs->myid, bcs->channel, len);
-+
-+		response.driver = bcs->cs->myid;
-+		response.command = ISDN_STAT_BSENT;
-+		response.arg = bcs->channel;
-+		response.parm.length = len;
-+		bcs->cs->iif.statcallb(&response);
-+	}
-+}
-+EXPORT_SYMBOL_GPL(gigaset_skb_sent);
-+
-+/* This function will be called by LL to send commands
-+ * NOTE: LL ignores the returned value, for commands other than ISDN_CMD_IOCTL,
-+ * so don't put too much effort into it.
-+ */
-+static int command_from_LL(isdn_ctrl *cntrl)
-+{
-+	struct cardstate *cs = gigaset_get_cs_by_id(cntrl->driver);
-+	//isdn_ctrl response;
-+	//unsigned long flags;
-+	struct bc_state *bcs;
-+	int retval = 0;
-+	struct setup_parm *sp;
-+
-+	//dbg(DEBUG_ANY, "Gigaset_HW: Receiving command");
-+	gigaset_debugdrivers();
-+
-+	/* Terminate this call if no device is present. Bt if the command is "ISDN_CMD_LOCK" or
-+	 * "ISDN_CMD_UNLOCK" then execute it due to the fact that they are device independent !
-+	 */
-+	//FIXME "remove test for &connected"
-+	if ((!cs || !atomic_read(&cs->connected))) {
-+		warn("LL tried to access unknown device with nr. %d",
-+		     cntrl->driver);
-+		return -ENODEV;
-+	}
-+
-+	switch (cntrl->command) {
-+	case ISDN_CMD_IOCTL:
-+
-+		dbg(DEBUG_ANY, "ISDN_CMD_IOCTL (driver:%d,arg: %ld)",
-+		    cntrl->driver, cntrl->arg);
-+
-+		warn("ISDN_CMD_IOCTL is not supported.");
-+		return -EINVAL;
-+
-+	case ISDN_CMD_DIAL:
-+		dbg(DEBUG_ANY, "ISDN_CMD_DIAL (driver: %d, channel: %ld, "
-+		    "phone: %s,ownmsn: %s, si1: %d, si2: %d)",
-+		    cntrl->driver, cntrl->arg,
-+		    cntrl->parm.setup.phone, cntrl->parm.setup.eazmsn,
-+		    cntrl->parm.setup.si1, cntrl->parm.setup.si2);
-+
-+		if (cntrl->arg >= cs->channels) {
-+			err("invalid channel (%d)", (int) cntrl->arg);
-+			return -EINVAL;
-+		}
-+
-+		bcs = cs->bcs + cntrl->arg;
-+
-+		if (!gigaset_get_channel(bcs)) {
-+			err("channel not free");
-+			return -EBUSY;
-+		}
-+
-+		sp = kmalloc(sizeof *sp, GFP_ATOMIC);
-+		if (!sp) {
-+			gigaset_free_channel(bcs);
-+			err("ISDN_CMD_DIAL: out of memory");
-+			return -ENOMEM;
-+		}
-+		*sp = cntrl->parm.setup;
-+
-+		if (!gigaset_add_event(cs, &bcs->at_state, EV_DIAL, sp,
-+			               atomic_read(&bcs->at_state.seq_index),
-+			               NULL)) {
-+			//FIXME what should we do?
-+			kfree(sp);
-+			gigaset_free_channel(bcs);
-+			return -ENOMEM;
-+		}
-+
-+		dbg(DEBUG_CMD, "scheduling DIAL");
-+		gigaset_schedule_event(cs);
-+		break;
-+	case ISDN_CMD_ACCEPTD: //FIXME
-+		dbg(DEBUG_ANY, "ISDN_CMD_ACCEPTD");
-+
-+		if (cntrl->arg >= cs->channels) {
-+			err("invalid channel (%d)", (int) cntrl->arg);
-+			return -EINVAL;
-+		}
-+
-+		if (!gigaset_add_event(cs, &cs->bcs[cntrl->arg].at_state,
-+			               EV_ACCEPT, NULL, 0, NULL)) {
-+			//FIXME what should we do?
-+			return -ENOMEM;
-+		}
-+
-+		dbg(DEBUG_CMD, "scheduling ACCEPT");
-+		gigaset_schedule_event(cs);
-+
-+		break;
-+	case ISDN_CMD_ACCEPTB:
-+		dbg(DEBUG_ANY, "ISDN_CMD_ACCEPTB");
-+		break;
-+	case ISDN_CMD_HANGUP:
-+		dbg(DEBUG_ANY,
-+		    "ISDN_CMD_HANGUP (channel: %d)", (int) cntrl->arg);
-+
-+		if (cntrl->arg >= cs->channels) {
-+			err("ISDN_CMD_HANGUP: invalid channel (%u)",
-+			    (unsigned) cntrl->arg);
-+			return -EINVAL;
-+		}
-+
-+		if (!gigaset_add_event(cs, &cs->bcs[cntrl->arg].at_state,
-+			               EV_HUP, NULL, 0, NULL)) {
-+			//FIXME what should we do?
-+			return -ENOMEM;
-+		}
-+
-+		dbg(DEBUG_CMD, "scheduling HUP");
-+		gigaset_schedule_event(cs);
-+
-+		break;
-+	case ISDN_CMD_CLREAZ:               /* Do not signal incoming signals */ //FIXME
-+		dbg(DEBUG_ANY, "ISDN_CMD_CLREAZ");
-+		break;
-+	case ISDN_CMD_SETEAZ:               /* Signal incoming calls for given MSN */ //FIXME
-+		dbg(DEBUG_ANY,
-+		    "ISDN_CMD_SETEAZ (id:%d, channel: %ld, number: %s)",
-+		    cntrl->driver, cntrl->arg, cntrl->parm.num);
-+		break;
-+	case ISDN_CMD_SETL2:                /* Set L2 to given protocol */
-+		dbg(DEBUG_ANY, "ISDN_CMD_SETL2 (Channel: %ld, Proto: %lx)",
-+		     cntrl->arg & 0xff, (cntrl->arg >> 8));
-+
-+		if ((cntrl->arg & 0xff) >= cs->channels) {
-+			err("invalid channel (%u)",
-+			    (unsigned) cntrl->arg & 0xff);
-+			return -EINVAL;
-+		}
-+
-+		if (!gigaset_add_event(cs, &cs->bcs[cntrl->arg & 0xff].at_state,
-+		                       EV_PROTO_L2, NULL, cntrl->arg >> 8,
-+		                       NULL)) {
-+			//FIXME what should we do?
-+			return -ENOMEM;
-+		}
-+
-+		dbg(DEBUG_CMD, "scheduling PROTO_L2");
-+		gigaset_schedule_event(cs);
-+		break;
-+	case ISDN_CMD_SETL3:              /* Set L3 to given protocol */
-+		dbg(DEBUG_ANY, "ISDN_CMD_SETL3 (Channel: %ld, Proto: %lx)",
-+		     cntrl->arg & 0xff, (cntrl->arg >> 8));
-+
-+		if ((cntrl->arg & 0xff) >= cs->channels) {
-+			err("invalid channel (%u)",
-+			    (unsigned) cntrl->arg & 0xff);
-+			return -EINVAL;
-+		}
-+
-+		if (cntrl->arg >> 8 != ISDN_PROTO_L3_TRANS) {
-+			err("invalid protocol %lu", cntrl->arg >> 8);
-+			return -EINVAL;
-+		}
-+
-+		break;
-+	case ISDN_CMD_PROCEED:
-+		dbg(DEBUG_ANY, "ISDN_CMD_PROCEED"); //FIXME
-+		break;
-+	case ISDN_CMD_ALERT:
-+		dbg(DEBUG_ANY, "ISDN_CMD_ALERT"); //FIXME
-+		if (cntrl->arg >= cs->channels) {
-+			err("invalid channel (%d)", (int) cntrl->arg);
-+			return -EINVAL;
-+		}
-+		//bcs = cs->bcs + cntrl->arg;
-+		//bcs->proto2 = -1;
-+		// FIXME
-+		break;
-+	case ISDN_CMD_REDIR:
-+		dbg(DEBUG_ANY, "ISDN_CMD_REDIR"); //FIXME
-+		break;
-+	case ISDN_CMD_PROT_IO:
-+		dbg(DEBUG_ANY, "ISDN_CMD_PROT_IO");
-+		break;
-+	case ISDN_CMD_FAXCMD:
-+		dbg(DEBUG_ANY, "ISDN_CMD_FAXCMD");
-+		break;
-+	case ISDN_CMD_GETL2:
-+		dbg(DEBUG_ANY, "ISDN_CMD_GETL2");
-+		break;
-+	case ISDN_CMD_GETL3:
-+		dbg(DEBUG_ANY, "ISDN_CMD_GETL3");
-+		break;
-+	case ISDN_CMD_GETEAZ:
-+		dbg(DEBUG_ANY, "ISDN_CMD_GETEAZ");
-+		break;
-+	case ISDN_CMD_SETSIL:
-+		dbg(DEBUG_ANY, "ISDN_CMD_SETSIL");
-+		break;
-+	case ISDN_CMD_GETSIL:
-+		dbg(DEBUG_ANY, "ISDN_CMD_GETSIL");
-+		break;
-+	default:
-+		err("unknown command %d from LL",
-+		     cntrl->command);
-+		return -EINVAL;
-+	}
-+
-+	return retval;
-+}
-+
-+void gigaset_i4l_cmd(struct cardstate *cs, int cmd)
-+{
-+	isdn_ctrl command;
-+
-+	command.driver = cs->myid;
-+	command.command = cmd;
-+	command.arg = 0;
-+	cs->iif.statcallb(&command);
-+}
-+
-+void gigaset_i4l_channel_cmd(struct bc_state *bcs, int cmd)
-+{
-+	isdn_ctrl command;
-+
-+	command.driver = bcs->cs->myid;
-+	command.command = cmd;
-+	command.arg = bcs->channel;
-+	bcs->cs->iif.statcallb(&command);
-+}
-+
-+int gigaset_isdn_setup_dial(struct at_state_t *at_state, void *data)
-+{
-+	struct bc_state *bcs = at_state->bcs;
-+	unsigned proto;
-+	const char *bc;
-+	size_t length[AT_NUM];
-+	size_t l;
-+	int i;
-+	struct setup_parm *sp = data;
-+
-+	switch (bcs->proto2) {
-+	case ISDN_PROTO_L2_HDLC:
-+		proto = 1; /* 0: Bitsynchron, 1: HDLC, 2: voice */
-+		break;
-+	case ISDN_PROTO_L2_TRANS:
-+		proto = 2; /* 0: Bitsynchron, 1: HDLC, 2: voice */
-+		break;
-+	default:
-+		err("invalid protocol: %u", bcs->proto2);
-+		return -EINVAL;
-+	}
-+
-+	switch (sp->si1) {
-+	case 1:		/* audio */
-+		bc = "9090A3";	/* 3.1 kHz audio, A-law */
-+		break;
-+	case 7:		/* data */
-+	default:	/* hope the app knows what it is doing */
-+		bc = "8890";	/* unrestricted digital information */
-+	}
-+	//FIXME add missing si1 values from 1TR6, inspect si2, set HLC/LLC
-+
-+	length[AT_DIAL ] = 1 + strlen(sp->phone) + 1 + 1;
-+	l = strlen(sp->eazmsn);
-+	length[AT_MSN  ] = l ? 6 + l + 1 + 1 : 0;
-+	length[AT_BC   ] = 5 + strlen(bc) + 1 + 1;
-+	length[AT_PROTO] = 6 + 1 + 1 + 1; /* proto: 1 character */
-+	length[AT_ISO  ] = 6 + 1 + 1 + 1; /* channel: 1 character */
-+	length[AT_TYPE ] = 6 + 1 + 1 + 1; /* call type: 1 character */
-+	length[AT_HLC  ] = 0;
-+
-+	for (i = 0; i < AT_NUM; ++i) {
-+		kfree(bcs->commands[i]);
-+		bcs->commands[i] = NULL;
-+		if (length[i] &&
-+		    !(bcs->commands[i] = kmalloc(length[i], GFP_ATOMIC))) {
-+			err("out of memory");
-+			return -ENOMEM;
-+		}
-+	}
-+
-+	/* type = 1: extern, 0: intern, 2: recall, 3: door, 4: centrex */
-+	if (sp->phone[0] == '*' && sp->phone[1] == '*') {
-+		/* internal call: translate ** prefix to CTP value */
-+		snprintf(bcs->commands[AT_DIAL], length[AT_DIAL],
-+			 "D%s\r", sp->phone+2);
-+		strncpy(bcs->commands[AT_TYPE], "^SCTP=0\r", length[AT_TYPE]);
-+	} else {
-+		snprintf(bcs->commands[AT_DIAL], length[AT_DIAL],
-+			 "D%s\r", sp->phone);
-+		strncpy(bcs->commands[AT_TYPE], "^SCTP=1\r", length[AT_TYPE]);
-+	}
-+
-+	if (bcs->commands[AT_MSN])
-+		snprintf(bcs->commands[AT_MSN], length[AT_MSN], "^SMSN=%s\r", sp->eazmsn);
-+	snprintf(bcs->commands[AT_BC   ], length[AT_BC   ], "^SBC=%s\r", bc);
-+	snprintf(bcs->commands[AT_PROTO], length[AT_PROTO], "^SBPR=%u\r", proto);
-+	snprintf(bcs->commands[AT_ISO  ], length[AT_ISO  ], "^SISO=%u\r", (unsigned)bcs->channel + 1);
-+
-+	return 0;
-+}
-+
-+int gigaset_isdn_setup_accept(struct at_state_t *at_state)
-+{
-+	unsigned proto;
-+	size_t length[AT_NUM];
-+	int i;
-+	struct bc_state *bcs = at_state->bcs;
-+
-+	switch (bcs->proto2) {
-+	case ISDN_PROTO_L2_HDLC:
-+		proto = 1; /* 0: Bitsynchron, 1: HDLC, 2: voice */
-+		break;
-+	case ISDN_PROTO_L2_TRANS:
-+		proto = 2; /* 0: Bitsynchron, 1: HDLC, 2: voice */
-+		break;
-+	default:
-+		err("invalid protocol: %u", bcs->proto2);
-+		return -EINVAL;
-+	}
-+
-+	length[AT_DIAL ] = 0;
-+	length[AT_MSN  ] = 0;
-+	length[AT_BC   ] = 0;
-+	length[AT_PROTO] = 6 + 1 + 1 + 1; /* proto: 1 character */
-+	length[AT_ISO  ] = 6 + 1 + 1 + 1; /* channel: 1 character */
-+	length[AT_TYPE ] = 0;
-+	length[AT_HLC  ] = 0;
-+
-+	for (i = 0; i < AT_NUM; ++i) {
-+		kfree(bcs->commands[i]);
-+		bcs->commands[i] = NULL;
-+		if (length[i] &&
-+		    !(bcs->commands[i] = kmalloc(length[i], GFP_ATOMIC))) {
-+			err("out of memory");
-+			return -ENOMEM;
-+		}
-+	}
-+
-+	snprintf(bcs->commands[AT_PROTO], length[AT_PROTO], "^SBPR=%u\r", proto);
-+	snprintf(bcs->commands[AT_ISO  ], length[AT_ISO  ], "^SISO=%u\r", (unsigned) bcs->channel + 1);
-+
-+	return 0;
-+}
-+
-+int gigaset_isdn_icall(struct at_state_t *at_state)
-+{
-+	struct cardstate *cs = at_state->cs;
-+	struct bc_state *bcs = at_state->bcs;
-+	isdn_ctrl response;
-+	int retval;
-+
-+	/* fill ICALL structure */
-+	response.parm.setup.si1 = 0;	/* default: unknown */
-+	response.parm.setup.si2 = 0;
-+	response.parm.setup.screen = 0;	//FIXME how to set these?
-+	response.parm.setup.plan = 0;
-+	if (!at_state->str_var[STR_ZBC]) {
-+		/* no BC (internal call): assume speech, A-law */
-+		response.parm.setup.si1 = 1;
-+	} else if (!strcmp(at_state->str_var[STR_ZBC], "8890")) {
-+		/* unrestricted digital information */
-+		response.parm.setup.si1 = 7;
-+	} else if (!strcmp(at_state->str_var[STR_ZBC], "8090A3")) {
-+		/* speech, A-law */
-+		response.parm.setup.si1 = 1;
-+	} else if (!strcmp(at_state->str_var[STR_ZBC], "9090A3")) {
-+		/* 3,1 kHz audio, A-law */
-+		response.parm.setup.si1 = 1;
-+		response.parm.setup.si2 = 2;
-+	} else {
-+		warn("RING ignored - unsupported BC %s",
-+		     at_state->str_var[STR_ZBC]);
-+		return ICALL_IGNORE;
-+	}
-+	if (at_state->str_var[STR_NMBR]) {
-+		strncpy(response.parm.setup.phone, at_state->str_var[STR_NMBR],
-+			sizeof response.parm.setup.phone - 1);
-+		response.parm.setup.phone[sizeof response.parm.setup.phone - 1] = 0;
-+	} else
-+		response.parm.setup.phone[0] = 0;
-+	if (at_state->str_var[STR_ZCPN]) {
-+		strncpy(response.parm.setup.eazmsn, at_state->str_var[STR_ZCPN],
-+			sizeof response.parm.setup.eazmsn - 1);
-+		response.parm.setup.eazmsn[sizeof response.parm.setup.eazmsn - 1] = 0;
-+	} else
-+		response.parm.setup.eazmsn[0] = 0;
-+
-+	if (!bcs) {
-+		notice("no channel for incoming call");
-+		dbg(DEBUG_CMD, "Sending ICALLW");
-+		response.command = ISDN_STAT_ICALLW;
-+		response.arg = 0; //FIXME
-+	} else {
-+		dbg(DEBUG_CMD, "Sending ICALL");
-+		response.command = ISDN_STAT_ICALL;
-+		response.arg = bcs->channel; //FIXME
-+	}
-+	response.driver = cs->myid;
-+	retval = cs->iif.statcallb(&response);
-+	dbg(DEBUG_CMD, "Response: %d", retval);
-+	switch (retval) {
-+	case 0:	/* no takers */
-+		return ICALL_IGNORE;
-+	case 1:	/* alerting */
-+		bcs->chstate |= CHS_NOTIFY_LL;
-+		return ICALL_ACCEPT;
-+	case 2:	/* reject */
-+		return ICALL_REJECT;
-+	case 3:	/* incomplete */
-+		warn("LL requested unsupported feature: Incomplete Number");
-+		return ICALL_IGNORE;
-+	case 4:	/* proceeding */
-+		/* Gigaset will send ALERTING anyway.
-+		 * There doesn't seem to be a way to avoid this.
-+		 */
-+		return ICALL_ACCEPT;
-+	case 5:	/* deflect */
-+		warn("LL requested unsupported feature: Call Deflection");
-+		return ICALL_IGNORE;
-+	default:
-+		err("LL error %d on ICALL", retval);
-+		return ICALL_IGNORE;
-+	}
-+}
-+
-+/* Set Callback function pointer */
-+int gigaset_register_to_LL(struct cardstate *cs, const char *isdnid)
-+{
-+	isdn_if *iif = &cs->iif;
-+
-+	dbg(DEBUG_ANY, "Register driver capabilities to LL");
-+
-+	//iif->id[sizeof(iif->id) - 1]=0;
-+	//strncpy(iif->id, isdnid, sizeof(iif->id) - 1);
-+	if (snprintf(iif->id, sizeof iif->id, "%s_%u", isdnid, cs->minor_index)
-+	    >= sizeof iif->id)
-+		return -ENOMEM; //FIXME EINVAL/...??
-+
-+	iif->owner = THIS_MODULE;
-+	iif->channels = cs->channels;                        /* I am supporting just one channel *//* I was supporting...*/
-+	iif->maxbufsize = MAX_BUF_SIZE;
-+	iif->features = ISDN_FEATURE_L2_TRANS |   /* Our device is very advanced, therefore */
-+		ISDN_FEATURE_L2_HDLC |
-+#ifdef GIG_X75
-+		ISDN_FEATURE_L2_X75I |
-+#endif
-+		ISDN_FEATURE_L3_TRANS |
-+		ISDN_FEATURE_P_EURO;
-+	iif->hl_hdrlen = HW_HDR_LEN;              /* Area for storing ack */
-+	iif->command = command_from_LL;
-+	iif->writebuf_skb = writebuf_from_LL;
-+	iif->writecmd = NULL;                     /* Don't support isdnctrl */
-+	iif->readstat = NULL;                     /* Don't support isdnctrl */
-+	iif->rcvcallb_skb = NULL;                 /* Will be set by LL */
-+	iif->statcallb = NULL;                    /* Will be set by LL */
-+
-+	if (!register_isdn(iif))
-+		return 0;
-+
-+	cs->myid = iif->channels;                 /* Set my device id */
-+	return 1;
-+}
+--- linux-2.6.16-rc2/MAINTAINERS	2006-02-04 18:14:05.000000000 +0100
++++ linux-2.6.16-rc2-gig/MAINTAINERS	2006-02-04 18:37:17.000000000 +0100
+@@ -1019,6 +1019,15 @@
+ W:	http://www.kernel.org/pub/linux/utils/net/hdlc/
+ S:	Maintained
+ 
++GIGASET ISDN DRIVERS
++P:	Hansjoerg Lipp
++M:	hjlipp@web.de
++P:	Tilman Schmidt
++M:	tilman@imap.cc
++L:	gigaset307x-common@lists.sourceforge.net
++W:	http://gigaset307x.sourceforge.net/
++S:	Maintained
++
+ HARDWARE MONITORING
+ P:	Jean Delvare
+ M:	khali@linux-fr.org
+--- linux-2.6.16-rc2/drivers/isdn/Makefile	2005-07-16 20:04:00.000000000 +0200
++++ linux-2.6.16-rc2-gig/drivers/isdn/Makefile	2006-02-04 18:37:51.000000000 +0100
+@@ -13,3 +13,4 @@
+ obj-$(CONFIG_ISDN_DRV_LOOP)		+= isdnloop/
+ obj-$(CONFIG_ISDN_DRV_ACT2000)		+= act2000/
+ obj-$(CONFIG_HYSDN)			+= hysdn/
++obj-$(CONFIG_ISDN_DRV_GIGASET)		+= gigaset/
+--- linux-2.6.16-rc2/drivers/isdn/i4l/Kconfig	2005-07-16 20:04:00.000000000 +0200
++++ linux-2.6.16-rc2-gig/drivers/isdn/i4l/Kconfig	2006-02-04 18:38:22.000000000 +0100
+@@ -139,3 +139,4 @@
+ 
+ endmenu
+ 
++source "drivers/isdn/gigaset/Kconfig"
+--- linux-2.6.16-rc2/drivers/isdn/gigaset/Kconfig	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.16-rc2-gig/drivers/isdn/gigaset/Kconfig	2005-12-11 13:20:50.000000000 +0100
+@@ -0,0 +1,42 @@
++menu "Siemens Gigaset"
++	depends on ISDN_I4L
++
++config ISDN_DRV_GIGASET
++	tristate "Siemens Gigaset support (isdn)"
++	depends on ISDN_I4L && m
++#	depends on ISDN_I4L && MODULES
++	help
++	  Say m here if you have a Gigaset or Sinus isdn device.
++
++if ISDN_DRV_GIGASET!=n
++
++config GIGASET_BASE
++	tristate "Gigaset base station support"
++	depends on ISDN_DRV_GIGASET && USB
++	help
++	  Say m here if you need to communicate with the base
++	  directly via USB.
++
++config GIGASET_M105
++	tristate "Gigaset M105 support"
++	depends on ISDN_DRV_GIGASET && USB
++	help
++	  Say m here if you need the driver for the Gigaset M105 device.
++
++config GIGASET_DEBUG
++	bool "Gigaset debugging"
++	help
++	  This enables debugging code in the Gigaset drivers.
++	  If in doubt, say yes.
++
++config GIGASET_UNDOCREQ
++	bool "Support for undocumented USB requests"
++	help
++	  This enables support for USB requests we only know from
++	  reverse engineering (currently M105 only). If you need
++	  features like configuration mode of M105, say yes. If you
++	  care about your device, say no.
++
++endif
++
++endmenu
+--- linux-2.6.16-rc2/drivers/isdn/gigaset/Makefile	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.16-rc2-gig/drivers/isdn/gigaset/Makefile	2005-12-11 13:20:54.000000000 +0100
+@@ -0,0 +1,6 @@
++gigaset-y := common.o interface.o proc.o ev-layer.o i4l.o
++usb_gigaset-y := usb-gigaset.o asyncdata.o
++bas_gigaset-y := bas-gigaset.o isocdata.o
++
++obj-$(CONFIG_GIGASET_M105) += usb_gigaset.o gigaset.o
++obj-$(CONFIG_GIGASET_BASE) += bas_gigaset.o gigaset.o

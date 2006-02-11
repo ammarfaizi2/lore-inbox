@@ -1,99 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbWBKUW2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWBKUW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932357AbWBKUW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 15:22:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWBKUW1
+	id S964792AbWBKUW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 15:22:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbWBKUW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 15:22:27 -0500
+	Sat, 11 Feb 2006 15:22:26 -0500
 Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:14709 "EHLO
 	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S932354AbWBKUW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 15:22:26 -0500
+	id S932348AbWBKUWZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 15:22:25 -0500
 X-IronPort-AV: i="4.02,105,1139212800"; 
-   d="scan'208"; a="403834576:sNHT30925876"
-Subject: [git patch review 3/4] IB/mthca: Don't print debugging info until we
-	have all values
+   d="scan'208"; a="403834565:sNHT30373384"
+Subject: [git patch review 1/4] IPoIB: Don't start send-only joins while
+	multicast thread is stopped
 From: Roland Dreier <rolandd@cisco.com>
 Date: Sat, 11 Feb 2006 20:22:21 +0000
 To: linux-kernel@vger.kernel.org, openib-general@openib.org
 X-Mailer: IB-patch-reviewer
 Content-Transfer-Encoding: 8bit
-Message-ID: <1139689341370-48a55ba994088cbc@cisco.com>
-In-Reply-To: <1139689341370-af4160238007a6e3@cisco.com>
-X-OriginalArrivalTime: 11 Feb 2006 20:22:24.0357 (UTC) FILETIME=[DE7DB950:01C62F48]
+Message-ID: <1139689341370-68b63fa9b8e76d91@cisco.com>
+X-OriginalArrivalTime: 11 Feb 2006 20:22:23.0091 (UTC) FILETIME=[DDBC8C30:01C62F48]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When debugging is enabled, the mthca_QUERY_DEV_LIM() firmware command
-function prints out some of the device limits that it queries.
-However the debugging prints happen before all of the fields are
-extracted from the firmware response, so some of the values that get
-printed are uninitialized junk.  Move the prints to the end of the
-function to fix this.
+Fix the following race scenario:
+  - Device is up.
+  - Port event or set mcast list triggers ipoib_mcast_stop_thread,
+    this cancels the query and waits on mcast "done" completion.
+  - Completion is called and "done" is set.
+  - Meanwhile, ipoib_mcast_send arrives and starts a new query,
+    re-initializing "done".
 
+Fix this by adding a "multicast started" bit and checking it before
+starting a send-only join.
+
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
 Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
 ---
 
- drivers/infiniband/hw/mthca/mthca_cmd.c |   38 ++++++++++++++++---------------
- 1 files changed, 19 insertions(+), 19 deletions(-)
+ drivers/infiniband/ulp/ipoib/ipoib.h           |    1 +
+ drivers/infiniband/ulp/ipoib/ipoib_multicast.c |   15 +++++++++++++++
+ 2 files changed, 16 insertions(+), 0 deletions(-)
 
-f295c79b6766b25fe8c1aad88211c54d1caa7e0b
-diff --git a/drivers/infiniband/hw/mthca/mthca_cmd.c b/drivers/infiniband/hw/mthca/mthca_cmd.c
-index f9b9b93..2825615 100644
---- a/drivers/infiniband/hw/mthca/mthca_cmd.c
-+++ b/drivers/infiniband/hw/mthca/mthca_cmd.c
-@@ -1029,25 +1029,6 @@ int mthca_QUERY_DEV_LIM(struct mthca_dev
- 	MTHCA_GET(size, outbox, QUERY_DEV_LIM_UAR_ENTRY_SZ_OFFSET);
- 	dev_lim->uar_scratch_entry_sz = size;
+479a079663bd4c5f3d2714643b1b8c406aaba3e0
+diff --git a/drivers/infiniband/ulp/ipoib/ipoib.h b/drivers/infiniband/ulp/ipoib/ipoib.h
+index e0a5412..2f85a9a 100644
+--- a/drivers/infiniband/ulp/ipoib/ipoib.h
++++ b/drivers/infiniband/ulp/ipoib/ipoib.h
+@@ -78,6 +78,7 @@ enum {
+ 	IPOIB_FLAG_SUBINTERFACE   = 4,
+ 	IPOIB_MCAST_RUN 	  = 5,
+ 	IPOIB_STOP_REAPER         = 6,
++	IPOIB_MCAST_STARTED       = 7,
  
--	mthca_dbg(dev, "Max QPs: %d, reserved QPs: %d, entry size: %d\n",
--		  dev_lim->max_qps, dev_lim->reserved_qps, dev_lim->qpc_entry_sz);
--	mthca_dbg(dev, "Max SRQs: %d, reserved SRQs: %d, entry size: %d\n",
--		  dev_lim->max_srqs, dev_lim->reserved_srqs, dev_lim->srq_entry_sz);
--	mthca_dbg(dev, "Max CQs: %d, reserved CQs: %d, entry size: %d\n",
--		  dev_lim->max_cqs, dev_lim->reserved_cqs, dev_lim->cqc_entry_sz);
--	mthca_dbg(dev, "Max EQs: %d, reserved EQs: %d, entry size: %d\n",
--		  dev_lim->max_eqs, dev_lim->reserved_eqs, dev_lim->eqc_entry_sz);
--	mthca_dbg(dev, "reserved MPTs: %d, reserved MTTs: %d\n",
--		  dev_lim->reserved_mrws, dev_lim->reserved_mtts);
--	mthca_dbg(dev, "Max PDs: %d, reserved PDs: %d, reserved UARs: %d\n",
--		  dev_lim->max_pds, dev_lim->reserved_pds, dev_lim->reserved_uars);
--	mthca_dbg(dev, "Max QP/MCG: %d, reserved MGMs: %d\n",
--		  dev_lim->max_pds, dev_lim->reserved_mgms);
--	mthca_dbg(dev, "Max CQEs: %d, max WQEs: %d, max SRQ WQEs: %d\n",
--		  dev_lim->max_cq_sz, dev_lim->max_qp_sz, dev_lim->max_srq_sz);
--
--	mthca_dbg(dev, "Flags: %08x\n", dev_lim->flags);
--
- 	if (mthca_is_memfree(dev)) {
- 		MTHCA_GET(field, outbox, QUERY_DEV_LIM_MAX_SRQ_SZ_OFFSET);
- 		dev_lim->max_srq_sz = 1 << field;
-@@ -1093,6 +1074,25 @@ int mthca_QUERY_DEV_LIM(struct mthca_dev
- 		dev_lim->mpt_entry_sz = MTHCA_MPT_ENTRY_SIZE;
+ 	IPOIB_MAX_BACKOFF_SECONDS = 16,
+ 
+diff --git a/drivers/infiniband/ulp/ipoib/ipoib_multicast.c b/drivers/infiniband/ulp/ipoib/ipoib_multicast.c
+index ccaa0c3..1c71482 100644
+--- a/drivers/infiniband/ulp/ipoib/ipoib_multicast.c
++++ b/drivers/infiniband/ulp/ipoib/ipoib_multicast.c
+@@ -601,6 +601,10 @@ int ipoib_mcast_start_thread(struct net_
+ 		queue_work(ipoib_workqueue, &priv->mcast_task);
+ 	mutex_unlock(&mcast_mutex);
+ 
++	spin_lock_irq(&priv->lock);
++	set_bit(IPOIB_MCAST_STARTED, &priv->flags);
++	spin_unlock_irq(&priv->lock);
++
+ 	return 0;
+ }
+ 
+@@ -611,6 +615,10 @@ int ipoib_mcast_stop_thread(struct net_d
+ 
+ 	ipoib_dbg_mcast(priv, "stopping multicast thread\n");
+ 
++	spin_lock_irq(&priv->lock);
++	clear_bit(IPOIB_MCAST_STARTED, &priv->flags);
++	spin_unlock_irq(&priv->lock);
++
+ 	mutex_lock(&mcast_mutex);
+ 	clear_bit(IPOIB_MCAST_RUN, &priv->flags);
+ 	cancel_delayed_work(&priv->mcast_task);
+@@ -693,6 +701,12 @@ void ipoib_mcast_send(struct net_device 
+ 	 */
+ 	spin_lock(&priv->lock);
+ 
++	if (!test_bit(IPOIB_MCAST_STARTED, &priv->flags)) {
++		++priv->stats.tx_dropped;
++		dev_kfree_skb_any(skb);
++		goto unlock;
++	}
++
+ 	mcast = __ipoib_mcast_find(dev, mgid);
+ 	if (!mcast) {
+ 		/* Let's create a new send only group now */
+@@ -754,6 +768,7 @@ out:
+ 		ipoib_send(dev, skb, mcast->ah, IB_MULTICAST_QPN);
  	}
  
-+	mthca_dbg(dev, "Max QPs: %d, reserved QPs: %d, entry size: %d\n",
-+		  dev_lim->max_qps, dev_lim->reserved_qps, dev_lim->qpc_entry_sz);
-+	mthca_dbg(dev, "Max SRQs: %d, reserved SRQs: %d, entry size: %d\n",
-+		  dev_lim->max_srqs, dev_lim->reserved_srqs, dev_lim->srq_entry_sz);
-+	mthca_dbg(dev, "Max CQs: %d, reserved CQs: %d, entry size: %d\n",
-+		  dev_lim->max_cqs, dev_lim->reserved_cqs, dev_lim->cqc_entry_sz);
-+	mthca_dbg(dev, "Max EQs: %d, reserved EQs: %d, entry size: %d\n",
-+		  dev_lim->max_eqs, dev_lim->reserved_eqs, dev_lim->eqc_entry_sz);
-+	mthca_dbg(dev, "reserved MPTs: %d, reserved MTTs: %d\n",
-+		  dev_lim->reserved_mrws, dev_lim->reserved_mtts);
-+	mthca_dbg(dev, "Max PDs: %d, reserved PDs: %d, reserved UARs: %d\n",
-+		  dev_lim->max_pds, dev_lim->reserved_pds, dev_lim->reserved_uars);
-+	mthca_dbg(dev, "Max QP/MCG: %d, reserved MGMs: %d\n",
-+		  dev_lim->max_pds, dev_lim->reserved_mgms);
-+	mthca_dbg(dev, "Max CQEs: %d, max WQEs: %d, max SRQ WQEs: %d\n",
-+		  dev_lim->max_cq_sz, dev_lim->max_qp_sz, dev_lim->max_srq_sz);
-+
-+	mthca_dbg(dev, "Flags: %08x\n", dev_lim->flags);
-+
- out:
- 	mthca_free_mailbox(dev, mailbox);
- 	return err;
++unlock:
+ 	spin_unlock(&priv->lock);
+ }
+ 
 -- 
 1.1.3

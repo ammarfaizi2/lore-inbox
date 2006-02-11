@@ -1,53 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbWBKLaR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbWBKLez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751410AbWBKLaR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 06:30:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbWBKLaR
+	id S1751404AbWBKLez (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 06:34:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbWBKLez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 06:30:17 -0500
-Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:18936 "EHLO
-	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S1751410AbWBKLaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 06:30:16 -0500
-To: iSteve <isteve@rulez.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Packet writing issue on 2.6.15.1
-References: <20060211103520.455746f6@silver>
-From: Peter Osterlund <petero2@telia.com>
-Date: 11 Feb 2006 12:30:03 +0100
-In-Reply-To: <20060211103520.455746f6@silver>
-Message-ID: <m3r76a875w.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 11 Feb 2006 06:34:55 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:6630 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1751404AbWBKLey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 06:34:54 -0500
+Subject: Re: [PATCH] slab: fix kernel-doc warnings
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+In-Reply-To: <20060210214555.1ec88891.rdunlap@xenotime.net>
+References: <20060210214555.1ec88891.rdunlap@xenotime.net>
+Date: Sat, 11 Feb 2006 13:34:52 +0200
+Message-Id: <1139657692.8541.0.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-iSteve <isteve@rulez.cz> writes:
-
-> Greetings,
-> I've wanted to try out packet writing on my Plextor CD-RW (PLEXTOR CD-R
-> PREMIUM, ATAPI CD/DVD-ROM drive). Setting up device via "pktcdvd 0 /dev/hdc"
-> went without any problem and I had the device created. 
+On Fri, 2006-02-10 at 21:45 -0800, Randy.Dunlap wrote:
+> From: Randy Dunlap <rdunlap@xenotime.net>
 > 
-> I then mounted UDF on the device, /proc/mounts reported it as rw. However, when
-> attempting to write and then sync, the sync fails and I get sinister output in
-> dmesg (below). I wonder what causes this issue and if I may resolve it somehow.
-
-> Kernel: 2.6.15.1 + swsup2, vesafb-tng (as module, not loaded), squashfs.
-
-> Dmesg output since the first moment pktcdvd is involved:
+> Fix kernel-doc warnings in mm/slab.c.
 > 
-> pktcdvd: inserted media is CD-RW
-> pktcdvd: detected zero packet size!
-> pktcdvd: Variable packets, 32 blocks, Mode-1 disc
+> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 
-Unfortunately the driver doesn't support variable packet sizes. You
-have to format the disc with a fixed packet size.
+Looks good to me. Thanks.
 
-Incidentally, the latest git tree (2.6.16-rc2-git10) already contains
-a change which would have made the mount command fail in this case.
+			Pekka
 
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340

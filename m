@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWBKUJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWBKUJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964781AbWBKUJk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 15:09:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWBKUJk
+	id S964785AbWBKUJn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 15:09:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWBKUJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 15:09:40 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:64706 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964781AbWBKUJj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 15:09:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QOFVgOHGlWrM6CJRG1dlVyryn6iCIvhwJVe8yYcVSam/E7prXpc6flUeX2Y5i1QARE8xMsU0NbK8mZf6PjHyAeP5MUkMGzxNYLFceAOZR807FqKWFvAkBxavoiTHe4IycuCAKInaz5YPAnNSbsCBS/e2xQWDC0y2a4sO+lXsoyA=
-Message-ID: <6bffcb0e0602111209x568e38f7j@mail.gmail.com>
-Date: Sat, 11 Feb 2006 21:09:38 +0100
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: Xose Vazquez Perez <xose.vazquez@gmail.com>
-Subject: Re: old patches in -mm
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <43EE415F.2000805@gmail.com>
+	Sat, 11 Feb 2006 15:09:43 -0500
+Received: from ms-smtp-05-smtplb.tampabay.rr.com ([65.32.5.135]:51632 "EHLO
+	ms-smtp-05.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S964785AbWBKUJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 15:09:42 -0500
+Message-ID: <43EE446C.8010402@cfl.rr.com>
+Date: Sat, 11 Feb 2006 15:09:16 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Mail/News 1.5 (X11/20060119)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43EE415F.2000805@gmail.com>
+To: iSteve <isteve@rulez.cz>
+CC: Peter Osterlund <petero2@telia.com>, linux-kernel@vger.kernel.org
+Subject: Re: Packet writing issue on 2.6.15.1
+References: <20060211103520.455746f6@silver> <m3r76a875w.fsf@telia.com> <20060211124818.063074cc@silver> <m3bqxd999u.fsf@telia.com> <20060211170813.3fb47a03@silver>
+In-Reply-To: <20060211170813.3fb47a03@silver>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+iSteve wrote:
+> 
+> Any plans or time estimation to support variable packet size?
+> 
+> BTW, can I currently work with packet writing if I only have a CDR? I know it
+> technically is possible, I've seen it done (not on Linux though), but I wonder
+> if it is possible with current codebase.
 
-On 11/02/06, Xose Vazquez Perez <xose.vazquez@gmail.com> wrote:
-> hi,
->
-> There are 35 patches(not included reiser4 and post-halloween-doc) older
-> than 2 months that still are not in mainline. Forgotten or experimental ?
-[snip]
-> oops-reporting-tool.patch
+I've been working on this area lately and thought about implementing 
+such support, but I am still not even sure it can really be done, short 
+of hacking the udf filesystem to hell so it understands and issues 
+commands to burn the variable length packets.
 
-It is useful only for kernel testers.
+How did you format the existing disc?  What does cdrwtool -i show?  My 
+guess is that you formatted this disc in windows or something and this 
+disc isn't using packet mode at all, but rather has been formatted for 
+mount rainier mode, in which case, you don't need pktcdvd at all to 
+write to it.
 
-BTW here is new version:
-http://stud.wsi.edu.pl/~piotrowskim/files/ort/ltg/
-
-Regards,
-Michal Piotrowski

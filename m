@@ -1,64 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWBKEEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWBKEQa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbWBKEEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 23:04:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWBKEEQ
+	id S932230AbWBKEQa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 23:16:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbWBKEQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 23:04:16 -0500
-Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:20169 "EHLO
-	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932179AbWBKEEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 23:04:15 -0500
-Message-ID: <43ED623D.90401@bigpond.net.au>
-Date: Sat, 11 Feb 2006 15:04:13 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 10 Feb 2006 23:16:30 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:1216 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932227AbWBKEQ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 23:16:29 -0500
+Date: Sat, 11 Feb 2006 13:15:17 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [Lhms-devel] [RFC/PATCH: 002/010] Memory hotplug for new nodes with pgdat allocation. (Wait table and zonelists initalization)
+Cc: "Luck, Tony" <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
+       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
+       linux-ia64@vger.kernel.org,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       x86-64 Discuss <discuss@x86-64.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>,
+       Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <1139589128.9209.80.camel@localhost.localdomain>
+References: <20060210223841.C532.Y-GOTO@jp.fujitsu.com> <1139589128.9209.80.camel@localhost.localdomain>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060211125941.D35C.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, kernel@kolivas.org,
-       npiggin@suse.de, mingo@elte.hu, rostedt@goodmis.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [rfc][patch] sched: remove smpnice
-References: <20060207142828.GA20930@wotan.suse.de>	<200602080157.07823.kernel@kolivas.org>	<20060207141525.19d2b1be.akpm@osdl.org>	<200602081011.09749.kernel@kolivas.org>	<20060207153617.6520f126.akpm@osdl.org>	<20060209230145.A17405@unix-os.sc.intel.com> <20060209231703.4bd796bf.akpm@osdl.org> <43ED3D6A.8010300@bigpond.net.au>
-In-Reply-To: <43ED3D6A.8010300@bigpond.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 11 Feb 2006 04:04:13 +0000
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Andrew Morton wrote:
+
+
+> On Fri, 2006-02-10 at 23:20 +0900, Yasunori Goto wrote:
+> > 
+> >  static __meminit
+> >  void zone_wait_table_init(struct zone *zone, unsigned long
+> > zone_size_pages)
+> >  {
+> > -       int i;
+> > +       int i, hotadd = (system_state == SYSTEM_RUNNING);
+> >         struct pglist_data *pgdat = zone->zone_pgdat;
+> > +       unsigned long allocsize;
+> >  
+> >         /*
+> >          * The per-page waitqueue mechanism uses hashed waitqueues
+> >          * per zone.
+> >          */
+> > +       if (hotadd && (zone_size_pages == PAGES_PER_SECTION))
+> > +               zone_size_pages = PAGES_PER_SECTION << 2; 
 > 
->> "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
->>
->>> b) On a lightly loaded system, this can result in HT scheduler 
->>> optimizations
->>> being disabled in presence of low priority tasks... in this case, 
->>> they(low
->>> priority ones) can end up running on the same package, even in the 
->>> presence of other idle packages.. Though this is not as serious as 
->>> "a" above...
->>>
-> 
-> I think that this issue comes under the heading of "Result of better 
-> nice enforcement" which is the purpose of the patch :-).
+> I don't think I understand this calculation.  You online only 4 sections
+> worth of pages?
 
-On the assumption that this enforcement is considered to be too 
-vigorous,  I think that it is also amenable to a fix based on a new 
-biased_load() function by replacing the (*imbalance < SCHED_LOAD_SCALE) 
-test with (biased_load(*imbalance, busiest) == 0) and (possibly) some 
-modifications within the if statement's body (most notably replacing the 
-NICE_TO_BIAS_PRIO(0) expressions with (busiest->prio_bias / 
-busiest->nr_running) or something similar).
+Ummmmm.
+I realized that I've forgotten many things about this patch
+due to long time keeping in storage. 
+At least here looks strange indeed.
+I need shake my brain to recall it. :-(
 
-This change would cause no change in functionality in the case where all 
-tasks are nice==0.
 
-Peter
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
+Yasunori Goto 
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+
+

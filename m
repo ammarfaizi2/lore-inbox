@@ -1,41 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWBJX5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWBKALA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932254AbWBJX5L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 18:57:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWBJX5L
+	id S932261AbWBKALA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 19:11:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWBKALA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 18:57:11 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:2789 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S932254AbWBJX5J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 18:57:09 -0500
-Date: Fri, 10 Feb 2006 15:56:54 -0800
-From: Greg KH <greg@kroah.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Nix <nix@esperi.org.uk>, Jens Axboe <axboe@suse.de>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060210235654.GA22512@kroah.com>
-References: <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr> <20060125144543.GY4212@suse.de> <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner> <20060125181847.b8ca4ceb.grundig@teleline.es> <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com>
+	Fri, 10 Feb 2006 19:11:00 -0500
+Received: from proof.pobox.com ([207.106.133.28]:47580 "EHLO proof.pobox.com")
+	by vger.kernel.org with ESMTP id S932261AbWBKALA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 19:11:00 -0500
+Date: Fri, 10 Feb 2006 18:10:45 -0600
+From: Nathan Lynch <ntl@pobox.com>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Andrew Morton <akpm@osdl.org>, ak@muc.de, ashok.raj@intel.com,
+       riel@redhat.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       mingo@elte.hu, 76306.1226@compuserve.com, wli@holomorphy.com,
+       heiko.carstens@de.ibm.com, pj@sgi.com
+Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
+Message-ID: <20060211001045.GP18730@localhost.localdomain>
+References: <20060209160808.GL18730@localhost.localdomain> <20060209090321.A9380@unix-os.sc.intel.com> <20060209100429.03f0b1c3.akpm@osdl.org> <200602101102.25437.ak@muc.de> <20060210024222.67db06f3.akpm@osdl.org> <43EC7473.20109@cosmosbay.com> <20060210032332.13ed3b67.akpm@osdl.org> <43EC9F89.7090809@cosmosbay.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43ED005F.5060804@tmr.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <43EC9F89.7090809@cosmosbay.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 10, 2006 at 04:06:39PM -0500, Bill Davidsen wrote:
+Eric Dumazet wrote:
+>
+> [PATCH] HOTPLUG_CPU : avoid hitting too many cachelines in recalc_bh_state()
 > 
-> The kernel could provide a list of devices by category. It doesn't have 
-> to name them, run scripts, give descriptions, or paint them blue. Just a 
-> list of all block devices, tapes, by major/minor and category (ie. 
-> block, optical, floppy) would give the application layer a chance to do 
-> it's own interpretation.
+> Instead of using for_each_cpu(i), we can use for_each_online_cpu(i) : The 
+> difference matters if HOTPUG_CPU=y
+> 
+> When a CPU goes offline (ie removed from online map), it might have a non 
+> null bh_accounting.nr, so this patch adds a transfert of this counter to an 
+> online CPU counter.
+> 
+> We already have a hotcpu_notifier, (function buffer_cpu_notify()), where we 
+> can do this bh_accounting.nr transfert.
+> 
+> Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
 
-It does so today in sysfs, that is what it is there for.
+> --- a/fs/buffer.c	2006-02-10 15:08:21.000000000 +0100
+> +++ b/fs/buffer.c	2006-02-10 15:47:55.000000000 +0100
+> @@ -3138,7 +3138,7 @@
+>  	if (__get_cpu_var(bh_accounting).ratelimit++ < 4096)
+>  		return;
+>  	__get_cpu_var(bh_accounting).ratelimit = 0;
+> -	for_each_cpu(i)
+> +	for_each_online_cpu(i)
+>  		tot += per_cpu(bh_accounting, i).nr;
+>  	buffer_heads_over_limit = (tot > max_buffer_heads);
+>  }
+> @@ -3187,6 +3187,9 @@
+>  		brelse(b->bhs[i]);
+>  		b->bhs[i] = NULL;
+>  	}
+> +	get_cpu_var(bh_accounting).nr += per_cpu(bh_accounting, cpu).nr ;
+> +	per_cpu(bh_accounting, cpu).nr = 0;
+> +	put_cpu_var(bh_accounting);
+>  }
 
-thanks,
+But now there is a window between the time the cpu is marked offline
+and the time its bh_accounting.nr is moved to another cpu.  So
+recalc_bh_state could fail to set buffer_heads_over_limit when it
+should.
 
-greg k-h
+Maybe it's not worth worrying about?  I don't really know this code,
+just thought I would point it out.

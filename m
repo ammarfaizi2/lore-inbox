@@ -1,42 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbWBKW4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWBKX0z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbWBKW4J (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 17:56:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbWBKW4J
+	id S1750827AbWBKX0z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 18:26:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWBKX0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 17:56:09 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:52693 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750829AbWBKW4I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 17:56:08 -0500
-Date: Sat, 11 Feb 2006 16:56:04 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
+	Sat, 11 Feb 2006 18:26:55 -0500
+Received: from pproxy.gmail.com ([64.233.166.176]:29774 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750827AbWBKX0y convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 18:26:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Ya0nC42Ryp2MYEDdTUZ2fWsfDaVpOngMn3c73l77hfbIWxOWZw7I1ws6lb1SgOLj0lFPoSSt7msw/aNk+iPGZLiRnZUdUXKk8IZ4jUamSCtaxcVdjeY82qjOXhdLOEdQescKUvgIfG0y12etv+osoq22prDDYK/Ak07I9kvMMkE=
+Message-ID: <bda6d13a0602111526y6f0d3382v9e9d8143f5b85966@mail.gmail.com>
+Date: Sat, 11 Feb 2006 15:26:53 -0800
+From: Joshua Hudson <joshudson@gmail.com>
 To: linux-kernel@vger.kernel.org
-Cc: paulkf@microgate.com, alan@lxorguk.ukuu.org.uk
-Subject: Re: + tty-buffering-stall-fix.patch added to -mm tree
-Message-ID: <20060211225604.GA3759@sergelap.austin.ibm.com>
-References: <200602100452.k1A4qRNF031102@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200602100452.k1A4qRNF031102@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting akpm@osdl.org (akpm@osdl.org):
-> 
-> The patch titled
-> 
->      tty buffering stall fix
-> 
-> has been added to the -mm tree.  Its filename is
-> 
->      tty-buffering-stall-fix.patch
+I feel like putting my two cents in.
 
-Dunno if you're looking for confirmation, but this fixes the console on
-my power5 partition.  I'd been waiting to report console locking up until
-I could make sure it wasn't a local config (ie selinux or lib) problem.
-
-thanks,
--serge
+Suppose you just made 4K stacks the default. Since users of
+ndiswrapper already have to recompile the kernel, making one
+configuration change as well can't be that hard, especially since
+ndiswrapper checks kernel options when compiling.

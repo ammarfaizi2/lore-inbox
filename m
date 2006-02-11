@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbWBKLWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbWBKLaR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751405AbWBKLWK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 06:22:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWBKLWK
+	id S1751410AbWBKLaR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 06:30:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbWBKLaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 06:22:10 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:39995 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751405AbWBKLWI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 06:22:08 -0500
-Date: Sat, 11 Feb 2006 12:21:57 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] updated fstatat64 support
-Message-ID: <20060211112157.GA9371@osiris.boeblingen.de.ibm.com>
-References: <200602101528.k1AFSFIg011658@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	Sat, 11 Feb 2006 06:30:17 -0500
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:18936 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S1751410AbWBKLaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 06:30:16 -0500
+To: iSteve <isteve@rulez.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Packet writing issue on 2.6.15.1
+References: <20060211103520.455746f6@silver>
+From: Peter Osterlund <petero2@telia.com>
+Date: 11 Feb 2006 12:30:03 +0100
+In-Reply-To: <20060211103520.455746f6@silver>
+Message-ID: <m3r76a875w.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602101528.k1AFSFIg011658@devserv.devel.redhat.com>
-User-Agent: mutt-ng/devel (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> --- linux-2.6.15.i686/arch/i386/kernel/syscall_table.S-at	2006-02-06 13:11:24.000000000 -0800
-> +++ linux-2.6.15.i686/arch/i386/kernel/syscall_table.S	2006-02-06 13:11:34.000000000 -0800
-> @@ -299,7 +299,7 @@
->  	.long sys_mknodat
->  	.long sys_fchownat
->  	.long sys_futimesat
-> -	.long sys_newfstatat		/* 300 */
-> +	.long sys_fstatat64		/* 300 */
->  	.long sys_unlinkat
->  	.long sys_renameat
->  	.long sys_linkat
-> --- linux-2.6.15.i686/arch/x86_64/ia32/ia32entry.S-at	2006-02-06 13:05:04.000000000 -0800
-> +++ linux-2.6.15.i686/arch/x86_64/ia32/ia32entry.S	2006-02-06 13:05:21.000000000 -0800
-> @@ -677,7 +677,7 @@
->  	.quad sys_mknodat
->  	.quad sys_fchownat
->  	.quad compat_sys_futimesat
-> -	.quad compat_sys_newfstatat	/* 300 */
-> +	.quad sys32_fstatat		/* 300 */
->  	.quad sys_unlinkat
->  	.quad sys_renameat
->  	.quad sys_linkat
+iSteve <isteve@rulez.cz> writes:
 
-So we end up with sys_newfstatat for 64 bit architectures, sys_fstatat64
-for 32 bit architectures and sys32_fstatat for compat mode. Shouldn't the
-name of the compat call changed to sys32_fstatat64?
-At least that is how it used to be for all other *64 compat system calls
-like e.g. fstat64.
+> Greetings,
+> I've wanted to try out packet writing on my Plextor CD-RW (PLEXTOR CD-R
+> PREMIUM, ATAPI CD/DVD-ROM drive). Setting up device via "pktcdvd 0 /dev/hdc"
+> went without any problem and I had the device created. 
+> 
+> I then mounted UDF on the device, /proc/mounts reported it as rw. However, when
+> attempting to write and then sync, the sync fails and I get sinister output in
+> dmesg (below). I wonder what causes this issue and if I may resolve it somehow.
 
-Heiko
+> Kernel: 2.6.15.1 + swsup2, vesafb-tng (as module, not loaded), squashfs.
+
+> Dmesg output since the first moment pktcdvd is involved:
+> 
+> pktcdvd: inserted media is CD-RW
+> pktcdvd: detected zero packet size!
+> pktcdvd: Variable packets, 32 blocks, Mode-1 disc
+
+Unfortunately the driver doesn't support variable packet sizes. You
+have to format the disc with a fixed packet size.
+
+Incidentally, the latest git tree (2.6.16-rc2-git10) already contains
+a change which would have made the mount command fail in this case.
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

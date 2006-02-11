@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWBKV4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWBKV6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbWBKV4G (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 16:56:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWBKV4G
+	id S1750756AbWBKV6S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 16:58:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWBKV6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 16:56:06 -0500
-Received: from angel35-131-99-82-liberec.bluetone.cz ([82.99.131.35]:54917
-	"EHLO anubis.vysinka.tfn") by vger.kernel.org with ESMTP
-	id S1750736AbWBKV4E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 16:56:04 -0500
-Message-ID: <43EE5D68.5080501@turnovfree.net>
-Date: Sat, 11 Feb 2006 22:55:52 +0100
-From: Zdenek Styblik <stybla@turnovfree.net>
-Organization: TurnovFree.net
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Sat, 11 Feb 2006 16:58:17 -0500
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:22350 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S1750743AbWBKV6R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 16:58:17 -0500
+Message-ID: <43EE5DFC.7020908@suse.com>
+Date: Sat, 11 Feb 2006 16:58:20 -0500
+From: Jeffrey Mahoney <jeffm@suse.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Macintosh/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: NCR 53c700-66 MCA(EISA) doesn't want to work(2.4.x)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: art@usfltd.com
+Cc: linux-kernel@vger.kernel.org, reiser@namesys.com
+Subject: Re: kernel-2.6.16-rc2-git8 - reiserfs 3.6 - write problem !!!
+References: <200602101830.AA329122124@usfltd.com>
+In-Reply-To: <200602101830.AA329122124@usfltd.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+art wrote:
+> kernel-2.6.16-rc2-git8 - reiserfs - write problem !!!
+> 
+> it started ~from kernel-2.6.16-rc2
+> 2.6.16-rc1-git6 works ok
+> 
+> with 2.6.16-rc2-git8
+> --reiserfs is 3.6 on ide hdd mounted on /mnt on scsi-hdd with ext3 on it--
+> mount
+> /dev/hda1 on /mnt/mountpoint-reiserfs type reiserfs (rw)
+> /dev/sdb1 on /mnt/mountpoint-ext3 type ext3 (rw)
+> 
+> [bebe@localhost mnt]$ ls -l -Z
+> drwxr-xr-x root root system_u:object_r:file_t mountpoint-ext3
+> drwxr-xr-x root root system_u:object_r:file_t mountpoint-reiserfs
+> 
+> [root@localhost mountpoint-ext3]# ls -Z
+> drwxrwxrwx root root root:object_r:file_t abc
+> drwxr-xr-x bebe bebe root:object_r:file_t def
+> drwx------  root root system_u:object_r:file_t lost+found
+> 
+> [root@localhost mountpoint-reiserfs]# ls -Z
+> drwxr-xr--  bebe bebe system_u:object_r:file_t abc
+> drwxr-xr-x  root root system_u:object_r:file_t def
+> 
+> [bebe@localhost abc]$ su
+> Password:
+> [root@localhost abc]# ls >xxxxxx
+> bash: xxxxxx: Permission denied
+> [root@localhost abc]#
+> 
+> same in targeted and permissive mode in selinux
+> 
+> up to 2.6.16-rc1-git6 it works OK
 
-I have Intel Professional Workstation with LP468 motherboard which has
-everything else except PCI. There is integrated SCSI controller NCR
-53c700-66 50pin which is probably on MCA(or EISA bus). Problem is that
-I can't make it work. I tried NCR 53c7xx, 8xx support(naturally), but
-no way. I tried all other drivers, but no success. Googling around was
-also unsuccessful. Everything points on that it should work, but it
-does not.
+Can you post the output of 'lsattr <dir>' where you get permission
+denied? Also, please include any relevant dmesg output as well.
 
-# quote from Intel Professional Workstation documentation
-1. NCR 53C700 SCSI I/O Processor (SIOP)
-The on-board SCSI I/O processor is a NCR 53C700. This component has
-internal FIFOs on the SCSI and host data
-busses, 32-bit address and data busses, and an internal SCRIPTS
-processor capable of fast DMA. A custom ASIC is
-used to convert the 386-like bus interface of the NCR 53C700 to the
-asynchronous strobed interface required by the
-82359 DRAM Controller. The SIOP runs at 33 MHz, the maximum
-theoretical data transfer rate is 66 MBytes/sec across
-the Buffered Bus, and 8.25 MBytes/sec across the SCSI bus.
-# end of quote
-
-Do you have any ideas how to make this SCSI controller to work?
-
-Thank you very much for your replies.
-
-Zdenek Styblik
+-Jeff

@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbWBKWqB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbWBKWxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750778AbWBKWqB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 17:46:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWBKWqB
+	id S1750802AbWBKWxS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 17:53:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbWBKWxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 17:46:01 -0500
-Received: from mail.kroah.org ([69.55.234.183]:23168 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750778AbWBKWqB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 17:46:01 -0500
-Date: Sat, 11 Feb 2006 14:45:26 -0800
-From: Greg KH <greg@kroah.com>
-To: Nathan Lynch <ntl@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sysfs-related oops during module unload (2.6.16-rc2)
-Message-ID: <20060211224526.GA25237@kroah.com>
-References: <20060211220351.GA3293@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 11 Feb 2006 17:53:18 -0500
+Received: from 74.red-82-159-197.user.auna.net ([82.159.197.74]:43919 "EHLO
+	indy.cmartin.tk") by vger.kernel.org with ESMTP id S1750802AbWBKWxR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 17:53:17 -0500
+From: Carlos =?iso-8859-1?q?Mart=EDn?= <carlos@cmartin.tk>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [BUG GIT] Unable to handle kernel paging request at virtual address e1380288
+Date: Sat, 11 Feb 2006 23:54:02 +0100
+User-Agent: KMail/1.9.1
+Cc: Doug McNaught <doug@mcnaught.org>, marc@osknowledge.org,
+       mrmacman_g4@mac.com, adobriyan@gmail.com, linux-kernel@vger.kernel.org
+References: <20060210214122.GA13881@stiffy.osknowledge.org> <87psltsy56.fsf@asmodeus.mcnaught.org> <20060211131008.55f19bb6.akpm@osdl.org>
+In-Reply-To: <20060211131008.55f19bb6.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20060211220351.GA3293@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+Message-Id: <200602112354.03198.carlos@cmartin.tk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 11, 2006 at 04:03:53PM -0600, Nathan Lynch wrote:
-> If the refcnt attribute of a module is open when the module is
-> unloaded, we get an oops when the file is closed.  I used ide_cd for
-> this report but I don't think the oops is caused by the driver itself.
-> This bug seems to be restricted to the /sys/module hierarchy; it
-> doesn't happen with /sys/class etc.
+On Saturday 11 February 2006 22:10, Andrew Morton wrote:
+> Doug McNaught <doug@mcnaught.org> wrote:
+> > You have no idea what might have happened a second ago, or a minute
+> > ago, or five minutes ago.  Corrupted memory is like a
+> > time-bomb--things don't always break right away.
+> > 
 > 
-> I suspect it's an extra put or a missing get somewhere, but the fix
-> isn't obvious to me after looking at it for a little while, so I'm
-> punting.
+> Probability this bug was caused by the nvidia module: 0.1%
+> Probability this bug was caused by USB or SCSI: 99.9%
 > 
-> I'm pretty sure this happens with 2.6.15; I can double-check if
-> needed.
+> SCSI and USB device management remain quite buggy and we need all the help
+> we can get in finding and fixing these problems.
 
-Ugh, we aren't setting the owner of these fields properly, good catch.
+I once had a PCI probe function OOPS with the nvidia module loaded. Previous 
+run was alright, and rebooting with exact same setup worked the next time and 
+never failed again for the time I was using the nvidia module on that 
+computer.
 
-Does the patch below (built tested only), solve this for you?
+I can't be positive that it was the nvidia module, but the probability of it 
+having to do with it is quite high. It at least triggered something.
 
-thanks,
-
-greg k-h
-
------------------
-
- kernel/module.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
---- gregkh-2.6.orig/kernel/module.c	2006-01-17 08:27:49.000000000 -0800
-+++ gregkh-2.6/kernel/module.c	2006-02-11 14:44:19.000000000 -0800
-@@ -1085,8 +1085,10 @@
- 
- 	for (i = 0; (attr = modinfo_attrs[i]) && !error; i++) {
- 		if (!attr->test ||
--		    (attr->test && attr->test(mod)))
-+		    (attr->test && attr->test(mod))) {
-+			attr->attr.owner = mod;
- 			error = sysfs_create_file(&mod->mkobj.kobj,&attr->attr);
-+		}
- 	}
- 	return error;
- }
+   cmn
+-- 
+Carlos Martín Nieto    |   http://www.cmartin.tk
+Hobbyist programmer    |

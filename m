@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbWBKT6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWBKUJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbWBKT6w (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 14:58:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbWBKT6v
+	id S964781AbWBKUJk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 15:09:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWBKUJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 14:58:51 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:26567 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S964789AbWBKT6v
+	Sat, 11 Feb 2006 15:09:40 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:64706 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964781AbWBKUJj convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 14:58:51 -0500
-Date: Sat, 11 Feb 2006 20:57:18 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Vincent ETIENNE <ve@vetienne.net>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: BUG at drivers/net/dl2k.c
-Message-ID: <20060211195718.GA24012@electric-eye.fr.zoreil.com>
-References: <200602092101.41970.ve@vetienne.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 11 Feb 2006 15:09:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QOFVgOHGlWrM6CJRG1dlVyryn6iCIvhwJVe8yYcVSam/E7prXpc6flUeX2Y5i1QARE8xMsU0NbK8mZf6PjHyAeP5MUkMGzxNYLFceAOZR807FqKWFvAkBxavoiTHe4IycuCAKInaz5YPAnNSbsCBS/e2xQWDC0y2a4sO+lXsoyA=
+Message-ID: <6bffcb0e0602111209x568e38f7j@mail.gmail.com>
+Date: Sat, 11 Feb 2006 21:09:38 +0100
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: Xose Vazquez Perez <xose.vazquez@gmail.com>
+Subject: Re: old patches in -mm
+Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <43EE415F.2000805@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200602092101.41970.ve@vetienne.net>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+References: <43EE415F.2000805@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vincent ETIENNE <ve@vetienne.net> :
-> 
-> I'm using 2.6.14-mm2 kernel (x86_64) on a Bi-Opteron 246 board with a   PCI-64 
-> card ( DLINK 550 GT ) plug  on PCI-X interface. This card use the DL2000 
-> driver which seems to cause this problem logged during boot time  : 
-> 
-> BUG: warning at drivers/net/dl2k.c:1481/mii_wait_link()
-[...]
+Hi,
 
-Try the bandaid below. If it is not enough, please open a PR at
-http://bugzilla.kernel.org and add me to the Cc: list.
+On 11/02/06, Xose Vazquez Perez <xose.vazquez@gmail.com> wrote:
+> hi,
+>
+> There are 35 patches(not included reiser4 and post-halloween-doc) older
+> than 2 months that still are not in mainline. Forgotten or experimental ?
+[snip]
+> oops-reporting-tool.patch
 
-1ms delay in irq context always hurt. This stuff should be done in
-an user-context.
+It is useful only for kernel testers.
 
-Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+BTW here is new version:
+http://stud.wsi.edu.pl/~piotrowskim/files/ort/ltg/
 
-diff --git a/drivers/net/dl2k.c b/drivers/net/dl2k.c
-index 430c628..2d47804 100644
---- a/drivers/net/dl2k.c
-+++ b/drivers/net/dl2k.c
-@@ -972,7 +972,7 @@ rio_error (struct net_device *dev, int i
- 
- 	/* Link change event */
- 	if (int_status & LinkEvent) {
--		if (mii_wait_link (dev, 10) == 0) {
-+		if (mii_wait_link (dev, 1000) == 0) {
- 			printk (KERN_INFO "%s: Link up\n", dev->name);
- 			if (np->phy_media)
- 				mii_get_media_pcs (dev);
-@@ -1478,7 +1478,7 @@ mii_wait_link (struct net_device *dev, i
- 		bmsr.image = mii_read (dev, phy_addr, MII_BMSR);
- 		if (bmsr.bits.link_status)
- 			return 0;
--		mdelay (1);
-+		udelay(10);
- 	} while (--wait > 0);
- 	return -1;
- }
-
+Regards,
+Michal Piotrowski

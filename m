@@ -1,82 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWBKRGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbWBKRJm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbWBKRGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 12:06:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbWBKRGQ
+	id S932345AbWBKRJm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 12:09:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWBKRJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 12:06:16 -0500
-Received: from smtpout10-04.prod.mesa1.secureserver.net ([64.202.165.238]:53988
-	"HELO smtpout10-04.prod.mesa1.secureserver.net") by vger.kernel.org
-	with SMTP id S932342AbWBKRGP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 12:06:15 -0500
-Message-ID: <43EE1982.1050201@hackmiester.com>
-Date: Sat, 11 Feb 2006 11:06:10 -0600
-From: "hackmiester (Hunter Fuller)" <hackmiester@hackmiester.com>
-Reply-To: hackmiester@hackmiester.com
-Organization: hackmiester.com, Ltd.
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.12) Gecko/20050915
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org
-Subject: Re: Flames over -- Re: Which is simpler? (Was Re: [Suspend2-devel]
- Re: [ 00/10] [Suspend2] Modules support.)
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060209233406.GD3389@elf.ucw.cz> <200602101008.32368.nigel@suspend2.net> <200602101337.22078.rjw@sisk.pl> <20060210233507.GC1952@elf.ucw.cz> <70FB74EB-5503-432D-8749-FD5A6807C23C@mac.com>
-In-Reply-To: <70FB74EB-5503-432D-8749-FD5A6807C23C@mac.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 11 Feb 2006 12:09:42 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:5382 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S932341AbWBKRJl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 12:09:41 -0500
+Date: Sun, 12 Feb 2006 02:11:03 +0900 (JST)
+Message-Id: <20060212.021103.76157181.yoshfuji@linux-ipv6.org>
+To: davem@davemloft.net
+Cc: ioe-lkml@rameria.de, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       yoshfuji@linux-ipv6.org
+Subject: Re: [PATCH] IPv6: Cleanups for net/ipv6/addrconf.c (kzalloc, early
+ exit) v2
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <200602111737.20010.ioe-lkml@rameria.de>
+References: <200602091736.18000.ioe-lkml@rameria.de>
+	<20060210.014853.13643277.yoshfuji@linux-ipv6.org>
+	<200602111737.20010.ioe-lkml@rameria.de>
+Organization: USAGI/WIDE Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett wrote:
+Hello.
 
-> On Feb 10, 2006, at 18:35, Pavel Machek wrote:
-> 
->> Anyway, it means that suspend is still quite a hot topic, and that  is 
->> good. (Linus said that suspend-to-disk is basically for people  that 
->> can't get suspend-to-RAM to work, and after I got suspend-to- RAM to 
->> work reliably here, I can see his point).
-> 
-> 
-> I completely agree.  My Mac PowerBook has had suspend-to-RAM for a  long 
-> time; I shut the lid and about 3 seconds later it's asleep, open  it and 
-> 3 seconds later it's awake.  Leave it sleeping for a week on a  full 
-> charge, come back to find it still asleep.  I can even put it to  sleep, 
-> remove a drained battery and put in a fresh one (it has a  small 
-> internal 2-minute RAM battery), then wake it up and resume  work.  I'm 
-> curious though, what proportion of laptop hardware  actually has support 
-> for suspend-to-RAM?  (including hardware for  which linux does not yet 
-> have support).  
+In article <200602111737.20010.ioe-lkml@rameria.de> (at Sat, 11 Feb 2006 17:37:18 +0100), Ingo Oeser <ioe-lkml@rameria.de> says:
 
-I'd say about... 100% of all in use today :-) Really, I've not seen a 
-machine without APM or ACPI in ages...
+> From: Ingo Oeser <ioe-lkml@rameria.de>
+> 
+> Here are some possible (and trivial) cleanups.
+> - use kzalloc() where possible
+> - remove unused label
+> - invert allocation failure test like
+:
+> Signed-off-by: Ingo Oeser <ioe-lkml@rameria.de>
+Acked-by: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
 
-> What percent of that  hardware _does_ have Linux support?
-
-85% I'd say. My notebook supports suspend, but not stand by, in Linux. 
-Suspend uses more battery. :-(
-
-> 
-> Cheers,
-> Kyle Moffett
-> 
-> -- 
-> If you don't believe that a case based on [nothing] could potentially  
-> drag on in court for _years_, then you have no business playing with  
-> the legal system at all.
->   -- Rob Landley
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-
-
--- 
---hackmiester
-Walk a mile in my shoes and you will be a mile away in a new pair of shoes.
+--yoshfuji

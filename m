@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWBKQpI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbWBKRHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932331AbWBKQpI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 11:45:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbWBKQpI
+	id S932339AbWBKRHK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 12:07:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWBKRHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 11:45:08 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:47627 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932331AbWBKQpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 11:45:06 -0500
-Date: Sat, 11 Feb 2006 17:45:05 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Scott_Kilau@digi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: jsm: Email address of Wendy Xiong is bouncing
-Message-ID: <20060211164504.GC30922@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Sat, 11 Feb 2006 12:07:10 -0500
+Received: from iris.cobite.com ([208.222.83.2]:64724 "EHLO
+	email-pri.cobite.com") by vger.kernel.org with ESMTP
+	id S932339AbWBKRHI (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 12:07:08 -0500
+Subject: question about values in /sys/block/???/device/type
+From: David Mansfield <lkml@dm.cobite.com>
+To: Linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Sat, 11 Feb 2006 12:07:06 -0500
+Message-Id: <1139677626.18414.26.camel@gandalf.cobite.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The email address wendyx@us.ltcfwd.linux.ibm.com of Wendy Xiong present 
-in three files under drivers/serial/jsm/ is bouncing.
+Hi, 
 
-Is there a new address, or should the old one simply be removed?
+I'm trying to debug why my firewire harddrive is no longer handled by
+'hald', and it seems that the value in /sys/block/sdb/device/type is 14
+(0x0e) and this is not a value handled by the program.  It is expecting
+0x00 for disk and 0x05 for cdrom. 
 
-As a related note, can we move the maintainer information from the 
-source files to MAINTAINERS?
+In the hald source (blockdev.c), there is a comment:
 
-cu
-Adrian
+    /* These magic values are documented in the kernel source */
 
--- 
+and for the life of me I cannot find out where.  You can't exactly grep
+for 0x0e and get anything meaningful! 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Does anyone know?
+
+BTW, I'm running the FC4 kernel: 2.6.15-1.1830_FC4 on ia32, if that
+matters.
+
+David Mansfieldq
 

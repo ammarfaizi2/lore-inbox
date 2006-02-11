@@ -1,48 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbWBKPjW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbWBKPm2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932324AbWBKPjW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 10:39:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWBKPjW
+	id S932149AbWBKPm2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 10:42:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWBKPm2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 10:39:22 -0500
-Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:18447 "EHLO
-	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
-	id S932324AbWBKPjW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 10:39:22 -0500
-To: Marc Koschewski <marc@osknowledge.org>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Alexey Dobriyan <adobriyan@gmail.com>,
-       Linux-LKLM <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG GIT] Unable to handle kernel paging request at virtual
- address e1380288
-References: <20060210214122.GA13881@stiffy.osknowledge.org>
-	<20060210222515.GA4793@mipter.zuzino.mipt.ru>
-	<20060210224238.GA5713@stiffy.osknowledge.org>
-	<269F4ADB-FA82-47DD-9087-D07CA11DD681@mac.com>
-	<20060211151005.GA5721@stiffy.osknowledge.org>
-	<87y80hsz26.fsf@asmodeus.mcnaught.org>
-	<20060211152930.GC5721@stiffy.osknowledge.org>
-From: Doug McNaught <doug@mcnaught.org>
-Date: Sat, 11 Feb 2006 10:39:17 -0500
-In-Reply-To: <20060211152930.GC5721@stiffy.osknowledge.org> (Marc
- Koschewski's message of "Sat, 11 Feb 2006 16:29:30 +0100")
-Message-ID: <87psltsy56.fsf@asmodeus.mcnaught.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.4 (gnu/linux)
+	Sat, 11 Feb 2006 10:42:28 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:59291 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP id S932149AbWBKPm1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 10:42:27 -0500
+Date: Sat, 11 Feb 2006 16:42:06 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: linux-kernel@vger.kernel.org
+Subject: [QUESTION] Your way doing kernel/module development
+Message-ID: <20060211154206.GD5721@stiffy.osknowledge.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.16-rc2-marc-g25bf368b-dirty
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Koschewski <marc@osknowledge.org> writes:
+I'd like to get some short but, however, fully descriptive statements about how
+you do your module development. I mean, what your way of doing coding,
+insmod-ing, rmmod-ing, ... And what about code, that cannot be <M>, just [*] or
+must-be-built-in.
 
-> But the trace I sent didn't (directly) do any memory allocation so
-> the case was clear to me.
->
-> From a developers point of view I totally agree that doing some bad
-> code 'here' might crash us 'there'. But the backtrace didn't look
-> like this to me...
+Hm, actually there's nothing more to say. Except that I'm tired of rebooting. ;)
+I tried kexec() but somehow I dont have all IDE devices sometimes on 'kexec -e'.
+So this just not a solution for me... :)
 
-You have no idea what might have happened a second ago, or a minute
-ago, or five minutes ago.  Corrupted memory is like a
-time-bomb--things don't always break right away.
-
--Doug
+Marc

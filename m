@@ -1,79 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbWBKTH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbWBKToN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964772AbWBKTH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 14:07:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbWBKTH2
+	id S964783AbWBKToN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 14:44:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWBKToM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 14:07:28 -0500
-Received: from pat.uio.no ([129.240.130.16]:58081 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S964772AbWBKTH2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 14:07:28 -0500
-Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       linux@horizon.com, linux-kernel@vger.kernel.org, sct@redhat.com
-In-Reply-To: <Pine.LNX.4.64.0602101507530.19172@g5.osdl.org>
-References: <20060209071832.10500.qmail@science.horizon.com>
-	 <20060209094815.75041932.akpm@osdl.org> <43EC1BFF.1080808@yahoo.com.au>
-	 <20060209211356.6c3a641a.akpm@osdl.org> <43EC24B1.9010104@yahoo.com.au>
-	 <20060209215040.0dcb36b1.akpm@osdl.org> <43EC2C9A.7000507@yahoo.com.au>
-	 <20060209221324.53089938.akpm@osdl.org> <43EC3326.4080706@yahoo.com.au>
-	 <20060209224656.7533ce2b.akpm@osdl.org> <43EC3961.3030904@yahoo.com.au>
-	 <Pine.LNX.4.64.0602100759190.19172@g5.osdl.org>
-	 <43ECC13F.5080109@yahoo.com.au>
-	 <Pine.LNX.4.64.0602100846170.19172@g5.osdl.org>
-	 <43ECCF68.3010605@yahoo.com.au>
-	 <Pine.LNX.4.64.0602100944280.19172@g5.osdl.org>
-	 <43ECDD9B.7090709@yahoo.com.au>
-	 <Pine.LNX.4.64.0602101056130.19172@g5.osdl! .org>
-	 <43ECF182.9020505@yahoo.com.au>
-	 <Pine.LNX.4.64.0602101254081.19172@g5.osdl.org>
-	 <1139608513.7877.9.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.64.0602101432400.19172@g5.osdl.org>
-	 <1139612574.7877.17.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.64.0602101507530.19172@g5.osdl.org>
+	Sat, 11 Feb 2006 14:44:12 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:22659 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964783AbWBKToM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 14:44:12 -0500
+Subject: Re: [Alsa-devel] Re: ALSA - pnp OS bios option
+From: Lee Revell <rlrevell@joe-job.com>
+To: Nick Warne <nick@linicks.net>
+Cc: Takashi Iwai <tiwai@suse.de>, Clemens Ladisch <clemens@ladisch.de>,
+       linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
+In-Reply-To: <200602111054.50947.nick@linicks.net>
+References: <200601092022.56244.nick@linicks.net>
+	 <200601101759.20707.nick@linicks.net> <s5hek3geyup.wl%tiwai@suse.de>
+	 <200602111054.50947.nick@linicks.net>
 Content-Type: text/plain
-Date: Sat, 11 Feb 2006 14:07:02 -0500
-Message-Id: <1139684822.7867.24.camel@lade.trondhjem.org>
+Date: Sat, 11 Feb 2006 14:44:06 -0500
+Message-Id: <1139687047.19342.91.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+X-Mailer: Evolution 2.5.90 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.332, required 12,
-	autolearn=disabled, AWL 1.48, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-02-10 at 15:15 -0800, Linus Torvalds wrote:
-
-> > IIRC msync(MS_INVALIDATE) on Solaris was actually often used by some
-> > applications to resync the client page cache to the server when using
-> > odd locking schemes, so I believe this interpretation is a valid one.
+On Sat, 2006-02-11 at 10:54 +0000, Nick Warne wrote:
+> Sorting SB Live! sound (alsactl restore)...
+> alsactl: set_control:894: warning: name mismatch (Sigmatel Surround
+> Playback 
+> Volume/Sigmatel Surround Playback Switch) for control #47
+> alsactl: set_control:896: warning: index mismatch (0/0) for control
+> #47
+> alsactl: set_control:1008: bad control.47.value index
 > 
-> I think you're right. Although I would also guess that 99% of the time, 
-> you'd only do that for read-only mappings. Doing the same in the presense 
-> of also doing writes is just asking for getting shot.
 > 
-> Even for read-only mappings, it's actually quite hard to globally flush a 
-> page cache page if somebody else happens to be using it for a read() or 
-> something at exactly the same time.
 
-I'm thinking specifically of the case where the application is using
-some fancy user space locking scheme of its own to guarantee safe read
-access to a part of the file that is known to have changed on the
-server.
+Harmless
 
-We do have fadvise(POSIX_FADV_DONTNEED), which gets you most of the way.
-However that calls invalidate_mapping_pages(), which only clears
-unlocked pages. This again means that kernel activities like readahead
-or VM scanning can cause pages the user would otherwise like to eject to
-be preserved.
+> Ummm.  At the command line, same errors also.  So I
+> deleted /etc/asound.state 
+> and reconfigured alsamixer from scratch.  Then following 'alsactl
+> store', 
+> 'alsactl restore' completes without issue (i.e. works clean).
+> 
+> If I then reboot, the same damn control #47 errors happen again.  It's
+> as if 
+> something changes my asound.state file at boot time time?
+> 
 
-The other alternative is to use O_DIRECT file access, but that forces
-the application to handle caching and readahead in user space too.
-
-Cheers,
-  Trond
+Probably you have two different alsactl's installed, one that's
+hardcoded to save the state in /etc/asound.state, and a distro version
+that wants to save it in /var/lib/whatever.  It sounds like one is being
+run at boot and a different one at shutdown.
 

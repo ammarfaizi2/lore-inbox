@@ -1,39 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWBKBIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWBKBNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751224AbWBKBIf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 20:08:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWBKBIf
+	id S932282AbWBKBNI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 20:13:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWBKBNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 20:08:35 -0500
-Received: from webbox4.loswebos.de ([213.187.93.205]:9641 "EHLO
-	webbox4.loswebos.de") by vger.kernel.org with ESMTP
-	id S1751224AbWBKBIf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 20:08:35 -0500
-Date: Sat, 11 Feb 2006 02:08:28 +0100
-From: Marc Koschewski <marc@osknowledge.org>
-To: "hackmiester (Hunter Fuller)" <hackmiester@hackmiester.com>
-Cc: Marc Koschewski <marc@osknowledge.org>, linux-kernel@vger.kernel.org
-Subject: Re: CD-blanking leads to machine freeze with current -git [was: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future Linux (stirring up a hornets' nest) ]]
-Message-ID: <20060211010828.GB5684@stiffy.osknowledge.org>
-References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com> <20060210175848.GA5533@stiffy.osknowledge.org> <43ECE734.5010907@cfl.rr.com> <20060210210006.GA5585@stiffy.osknowledge.org> <43ED37E2.3060800@hackmiester.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Feb 2006 20:13:08 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5610 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751341AbWBKBNF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 20:13:05 -0500
+Date: Sat, 11 Feb 2006 02:12:22 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Sebastian =?iso-8859-1?Q?K=FCgler?= <sebas@kde.org>
+Cc: suspend2-devel@lists.suspend2.net, Nigel Cunningham <nigel@suspend2.net>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Message-ID: <20060211011222.GB2174@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602091926.38666.nigel@suspend2.net> <20060209232453.GC3389@elf.ucw.cz> <200602110116.57639.sebas@kde.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <43ED37E2.3060800@hackmiester.com>
-X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
-X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
-X-Operating-System: Linux stiffy 2.6.16-rc2-marc-g25bf368b-dirty
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200602110116.57639.sebas@kde.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* hackmiester (Hunter Fuller) <hackmiester@hackmiester.com> [2006-02-10 19:03:30 -0600]:
+On So 11-02-06 01:16:51, Sebastian Kügler wrote:
+> On Saturday 11 February 2006 00:35, Pavel Machek wrote:
+> > So another flamewar is over, good. I even received one apology ;-),
+> > and probably should have sent some apologies, too...
+> [...]
+> > version. How you could help?
+> >
+> > * testing is useful at this point. Few confirmations that it works in
+> > different configurations would make us feel warm and fuzzy.
+> >
+> > * documentation improvements, and small scripts. Having script that
+> > prepares initrd would be nice, for example.
+> >
+> > * having someone to maintain suspend.sf.net web pages / release CVS
+> > snapshot as package would help, too.
+> >
+> > * userspace code improvements. Encryption, LZW and graphical progress
+> > should be reasonably easy to do. There's some tricky stuff, if you
+> > prefer -- support for swap files and normal files would help,
+> > too. Plus I guess everyone has their favourite feature...
+> 
+> That all makes sense.
+> 
+> To make uswsusp a success you need it tested [T], supporting scripts [S], 
+> someone [B] who puts work in the webpages [W] with decent documentation [D], 
+> and a bunch of spiffy features [F].
+> 
+> [T] * http://wiki.suspend2.net/FeatureUserRegister 
+>     * http://www.suspend2.net/lists
+> [S] http://www.suspend2.net/downloads/all/hibernate-script-1.12.tar.gz
+> [B] Bernard Blackham, b-swweb@blackham.com.au
+> [W] http://www.suspend2.net
+> [D] * http://www.suspend2.net/links
+>     * http://www.suspend2.net/HOWTO
+>     * http://www.suspend2.net/FAQ
+> [F] http://www.suspend2.net/features
+> 
+> I, as a contributors to suspend2, have been working on all that stuff for 
+> about two-and-a-half years, and it makes me really sad to see that
+> someone in 
 
-> Hrm. ssh into the box and then try to blank the CD on the local machine. 
-> Is the ssh session still responsive? I suspect it will be, especially if 
-> the GNOME clock's still running.
+If you think current situation makes me happy... think again.
 
-The clock stopped working after a while. I guess sshd would just 'die away' as
-any other process did in that case. I'll try with the flag set as Alan suggested.
+> a position to make a decision towards progress wants to start that whole 
+> process all over, rather than acknowledging the existance of a
+> technical 
 
-Marc
+We don't have to start all over. It should be possible to port most of
+suspend2 into userspace...
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

@@ -1,62 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWBKKdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbWBKKnB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751407AbWBKKdh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 05:33:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWBKKdh
+	id S1751330AbWBKKnB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 05:43:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbWBKKnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 05:33:37 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:59539 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751407AbWBKKdg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 05:33:36 -0500
-Subject: RE: EC interrupt mode by default breaks power button and lid button
-Date: Mon, 6 Feb 2006 15:37:47 +0800
-In-reply-to: <3ACA40606221794F80A5670F0AF15F84041AC24F@pdsmsx403>
-From: Jiri Slaby <jirislaby@gmail.com>
-To: "Yu, Luming" <luming.yu@intel.com>
-Cc: "Gerhard Schrenk" <deb.gschrenk@gmx.de>,
-       "Brown, Len" <len.brown@intel.com>, <linux-kernel@vger.kernel.org>
-Message-Id: <E1F7s49-0003gB-00@decibel.fi.muni.cz>
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: xslaby@informatics.muni.cz
-X-Muni-Virus-Test: Clean
+	Sat, 11 Feb 2006 05:43:01 -0500
+Received: from mail.gmx.net ([213.165.64.21]:43656 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751330AbWBKKnA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 05:43:00 -0500
+X-Authenticated: #2308221
+Date: Sat, 11 Feb 2006 11:42:54 +0100
+From: Christian Trefzer <ctrefzer@gmx.de>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: "Antonino A. Daplas" <adaplas@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] neofb: add more logic to determine sensibility of register readback
+Message-ID: <20060211104253.GA13789@hermes.uziel.local>
+References: <20060208202207.GA26682@zeus.uziel.local> <20060210113616.GA17482@hermes.uziel.local> <43EC7EA7.5030105@gmail.com> <632EF49A-33EB-4FAE-B2E2-F36446F9C8B6@mac.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
+Content-Disposition: inline
+In-Reply-To: <632EF49A-33EB-4FAE-B2E2-F36446F9C8B6@mac.com>
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luming Yu wrote:
->Please don't revert that patch, and test kernel parameter ec_intr=0
->Also, please send me acpidump output.
->
->I'm wondering how ec interrupt mode breaks power & lid button.
-Hello, I have some problems too:
-ACPI: write EC, IB not empty
-ACPI: write EC, IB not empty
-ACPI: write EC, IB not empty
-ACPI Exception (evregion-0409): AE_TIME, Returned by Handler for [EmbeddedControl] [20060127]
-ACPI Error (psparse-0517): Method parse/execution failed [\_SB_.PCI0.SBRG.EC0_.RDC3] (Node ddf13fa8), AE_TIME
-ACPI Error (psparse-0517): Method parse/execution failed [\ECIO] (Node ddf13628), AE_TIME
-ACPI Error (psparse-0517): Method parse/execution failed [\_SB_.PCI0.SBRG.EC0_.ACPS] (Node ddf11228), AE_TIME
-ACPI Error (psparse-0517): Method parse/execution failed [\ACPS] (Node ddf0b368), AE_TIME
-ACPI Error (psparse-0517): Method parse/execution failed [\_SB_.PCI0.AC0_._PSR] (Node ddf10228), AE_TIME
- acpi_ac-0095 [10] ac_get_state          : Error reading AC Adapter state
 
-acpidump here:
-http://www.fi.muni.cz/~xslaby/sklad/adump
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-dmesgs here:
-http://www.fi.muni.cz/~xslaby/sklad/intr0 ec_intr=0
-http://www.fi.muni.cz/~xslaby/sklad/intr1 ec_intr=1
-http://www.fi.muni.cz/~xslaby/sklad/intrx without ec_intr param
+On Fri, Feb 10, 2006 at 11:41:34AM -0500, Kyle Moffett wrote:
+> On Feb 10, 2006, at 06:53, Antonino A. Daplas wrote:
+> >Christian Trefzer wrote:
+> >>+		par->PanelDispCntlRegRead =3D 0;
+> >>+		par->PanelDispCntlRegRead =3D 0;
+> >>+		par->PanelDispCntlRegRead =3D 0;
+> >>+		par->PanelDispCntlRegRead =3D 0;
+> >>+		par->PanelDispCntlRegRead =3D 1;
+> >
+> >You can save a few lines by
+> >
+> >par->PanelDispCntlRegRead =3D (blank_mode) ? 0 : 1;
+>=20
+> How about the really simple so-obvious-its-impossible-to-misread =20
+> solution?
+>=20
+> par->PanelDispCntlRegRead =3D !blank_mode;
 
-acpi irqs with ec_intr1 increments by touching the button, but acpi_listen says
-nothing.
+Where is my mind..?
 
-I had to use ec_burst=1 in latest kernels, now there is no option such this.
-I had to use patch from bug 4980 (if the number is correct), but they become to
-kernel in 2.6.16-rc1-git8, so I tried rc2, but with this error.
+Sure, why not. Guess I had my head too much in the smoke clouds of not
+knowing why a dead-sure-to-work implementation still would not do the
+right thing, I already thought I got the C representation of true and
+false wrong. Even Tony's hint would be clearer than my code, but that
+can in turn be condensed into something really obvious. It's just a
+negation, after all. Silly me.
 
-regards,
---
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+Changed patch below. Should be the final one now, right?
+
+Signed-off-by: Christian Trefzer <ctrefzer@gmx.de>
+
+
+--- a/include/video/neomagic.h	2006-01-03 04:21:10.000000000 +0100
++++ b/include/video/neomagic.h	2006-02-09 20:59:20.164839408 +0100
+@@ -159,6 +159,7 @@
+ 	unsigned char PanelDispCntlReg1;
+ 	unsigned char PanelDispCntlReg2;
+ 	unsigned char PanelDispCntlReg3;
++	unsigned char PanelDispCntlRegRead;
+ 	unsigned char PanelVertCenterReg1;
+ 	unsigned char PanelVertCenterReg2;
+ 	unsigned char PanelVertCenterReg3;
+--- a/drivers/video/neofb.c	2006-02-08 21:24:05.000000000 +0100
++++ b/drivers/video/neofb.c	2006-02-11 11:39:39.346365480 +0100
+@@ -843,6 +843,9 @@
+=20
+ 	par->SysIfaceCntl2 =3D 0xc0;	/* VESA Bios sets this to 0x80! */
+=20
++	/* Initialize: by default, we want display config register to be read */
++	par->PanelDispCntlRegRead =3D 1;
++
+ 	/* Enable any user specified display devices. */
+ 	par->PanelDispCntlReg1 =3D 0x00;
+ 	if (par->internal_display)
+@@ -1334,8 +1337,12 @@
+ 	struct neofb_par *par =3D (struct neofb_par *)info->par;
+ 	int seqflags, lcdflags, dpmsflags, reg;
+=20
+-	/* Reload the value stored in the register, might have been changed via F=
+N keystroke */
+-	par->PanelDispCntlReg1 =3D vga_rgfx(NULL, 0x20) & 0x03;
++	/* Reload the value stored in the register, if sensible. It might have be=
+en
++	 * changed via FN keystroke. */
++	if (par->PanelDispCntlRegRead && !blank_mode) {
++		par->PanelDispCntlReg1 =3D vga_rgfx(NULL, 0x20) & 0x03;
++	}
++	par->PanelDispCntlRegRead =3D !blank_mode;
+ =09
+ 	switch (blank_mode) {
+ 	case FB_BLANK_POWERDOWN:	/* powerdown - both sync lines down */
+
+--dDRMvlgZJXvWKvBx
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iQIVAwUBQ+2/rF2m8MprmeOlAQJo1BAAp7KWrA3POTybpf28Dv7KkS17pnKecYKU
+3eh7PHYIJInkMpRrolIf/6k9aFGo9E//Czi7JLUvfNzz8BM5X2J2ByAaM2uHzPad
+BRWmHwus8fetLFX+CPSh0cx4nRVxAvxcSL7bWAnwpIOZ/kFF4MBPLTMG8TP2w09a
+bNMA1v1GHUPx6FU4ReWpt4L0ruaBc4ywGtDeHe6QGp4JofEvY9ZdXp7RlEiLKdni
+u1Gc3algEf7AlgArSWYxofijZ1oaOZDJYHaOmFOJ5LUAyYOtapR/O+2fnxM34B4C
+1K2RQelhYJIWnKGtsqH9sXvaoHKk57Rh+v2OrRZgfQn6d4NL+RdohsgGizHDoCpW
+QiSZuIpx+PyZvCq4DMdNgW7kL4mRolJwMlTudvfPUPbEgqq/Q1/vOWCZzgwtmk3Z
+uPv57eLuSH4qt/mD8DDd7oBoLnWzTiFA5vRAEJQBX2OgLmx/dNwcMYZXAEApbLOs
+62syGOLHShCmjIK3rORbOAZW55Z4sal3XAOQ/X81MQqu0CUQvyaU776CG2JKIT3s
+IZ6BhtnPxbX+fcw5PUROori6XKuhiRnBJzh4aOA+UqQ5hEtfYO1zF68hBwyk2OCg
+6P+tRmuF1pwaJvCa6vJQjjlgemCVVzt79XRzeZ85IL6wqr8AG9Uvil0IUd7isQOM
+7qQnfXMu4ng=
+=+nuc
+-----END PGP SIGNATURE-----
+
+--dDRMvlgZJXvWKvBx--
+

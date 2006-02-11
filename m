@@ -1,151 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbWBKBYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbWBKB1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932295AbWBKBYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 20:24:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbWBKBYJ
+	id S1750973AbWBKB1K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 20:27:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWBKB1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 20:24:09 -0500
-Received: from wg.technophil.ch ([213.189.149.230]:55479 "HELO
-	hydrogenium.schottelius.org") by vger.kernel.org with SMTP
-	id S932295AbWBKBYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 20:24:08 -0500
-Date: Sat, 11 Feb 2006 02:23:40 +0100
-From: Nico Schottelius <nico-kernel@schottelius.org>
-To: Arthur Othieno <apgo@patchbomb.org>
-Cc: Nico Schottelius <nico-kernel2@schottelius.org>,
-       LKML <linux-kernel@vger.kernel.org>, neilb@cse.unsw.edu.au,
-       Gero Kuhlmann <gero@gkminix.han.de>,
-       Martin Mares <mj@atrey.karlin.mff.cuni.cz>
-Subject: [RERESEND] [PATCH] Updated Documentation/nfsroot.txt
-Message-ID: <20060211012340.GC25800@schottelius.org>
-Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
-	Arthur Othieno <apgo@patchbomb.org>,
-	Nico Schottelius <nico-kernel2@schottelius.org>,
-	LKML <linux-kernel@vger.kernel.org>, neilb@cse.unsw.edu.au,
-	Gero Kuhlmann <gero@gkminix.han.de>,
-	Martin Mares <mj@atrey.karlin.mff.cuni.cz>
-References: <20060210084508.GB11533@schottelius.org> <20060210151140.GA14516@krypton>
+	Fri, 10 Feb 2006 20:27:09 -0500
+Received: from omta05sl.mx.bigpond.com ([144.140.93.195]:60111 "EHLO
+	omta05sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750973AbWBKB1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 20:27:08 -0500
+Message-ID: <43ED3D6A.8010300@bigpond.net.au>
+Date: Sat, 11 Feb 2006 12:27:06 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XMCwj5IQnwKtuyBG"
-Content-Disposition: inline
-In-Reply-To: <20060210151140.GA14516@krypton>
-User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
-X-Linux-Info: http://linux.schottelius.org/
-X-Operating-System: Linux 2.6.14
+To: Andrew Morton <akpm@osdl.org>
+CC: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, kernel@kolivas.org,
+       npiggin@suse.de, mingo@elte.hu, rostedt@goodmis.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [rfc][patch] sched: remove smpnice
+References: <20060207142828.GA20930@wotan.suse.de>	<200602080157.07823.kernel@kolivas.org>	<20060207141525.19d2b1be.akpm@osdl.org>	<200602081011.09749.kernel@kolivas.org>	<20060207153617.6520f126.akpm@osdl.org>	<20060209230145.A17405@unix-os.sc.intel.com> <20060209231703.4bd796bf.akpm@osdl.org>
+In-Reply-To: <20060209231703.4bd796bf.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 11 Feb 2006 01:27:06 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
+> 
+>>On Tue, Feb 07, 2006 at 03:36:17PM -0800, Andrew Morton wrote:
+>>
+>>>Suresh, Martin, Ingo, Nick and Con: please drop everything, triple-check
+>>>and test this:
+>>>
+>>>From: Peter Williams <pwil3058@bigpond.net.au>
+>>>
+>>>This is a modified version of Con Kolivas's patch to add "nice" support to
+>>>load balancing across physical CPUs on SMP systems.
+>>
+>>I have couple of issues with this patch.
+>>
+>>a) on a lightly loaded system, this will result in higher priority job hopping 
+>>around from one processor to another processor.. This is because of the 
+>>code in find_busiest_group() which assumes that SCHED_LOAD_SCALE represents 
+>>a unit process load and with nice_to_bias calculations this is no longer 
+>>true(in the presence of non nice-0 tasks)
+>>
+>>My testing showed that 178.galgel in SPECfp2000 is down by ~10% when run with 
+>>nice -20 on a 4P(8-way with HT) system compared to a nice-0 run.
 
---XMCwj5IQnwKtuyBG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is a bit of a surprise.  Surely, even with this mod, a task 
+shouldn't be moved if it's the only runnable one on its CPU.  If it 
+isn't the only runnable one on its CPU, it's not actually on the CPU and 
+it's not cache hot then moving it to another (presumably) idle CPU 
+should be a gain?
 
-[I followed the instructions in
- http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt and
- Documentation/SubmittingPatches and corrected my patch submission.
- I hope it's ok this time. I copied the original text so you can
- use it for the changelog.] =20
+Presumably the delay waiting for the current task to exit the CPU is 
+less than the time taken to move the task to the new CPU?  I'd guess 
+that this means that the task about to be moved is either: a) higher 
+priority than the current task on the CPU and is waiting for it to be 
+preempted off or b) it's equal priority (or at least next one due to be 
+scheduled) to the current task, waiting for the current task to 
+surrender the CPU and that surrender is going to happen pretty quickly 
+due to the current task's natural behaviour?
 
+Is it normal to run enough -20 tasks to cause this problem to manifest?
 
-Hello dear developers,
+>>
+>>b) On a lightly loaded system, this can result in HT scheduler optimizations
+>>being disabled in presence of low priority tasks... in this case, they(low
+>>priority ones) can end up running on the same package, even in the presence 
+>>of other idle packages.. Though this is not as serious as "a" above...
+>>
 
-I today booted the first time my embedded device using Linux 2.6.15.2,
-which was booted by pxelinux, which then bootet itself from the nfsroot.
+I think that this issue comes under the heading of "Result of better 
+nice enforcement" which is the purpose of the patch :-).  I wouldn't 
+call this HT disablement or do I misunderstand the issue.
 
-This went pretty fine, but when I was reading through
-Documentation/nfsroot.txt I saw that there are some more modern versions
-available of loading the kernel and passing parameters.
+The only way that I can see load balancing subverting the HT scheduling 
+mechanisms is if (say) there are 2 CPUs with 2 HT channels each and all 
+of the high priority tasks end up sharing the 2 channels of one CPU 
+while all of the low priority tasks share the 2 channels of the other 
+one.  This scenario is far more likely to happen without the smpnice 
+patches than with them.
 
-So I added them and the patch for that is attached to this mail.
+> 
+> 
+> Thanks very much for discvoring those things.
+> 
+> That rather leaves us in a pickle wrt 2.6.16.
+> 
+> It looks like we back out smpnice after all?
+> 
+> Whatever we do, time is pressing.
 
-Sincerly,
+I don't think either of these issues warrant abandoning smpnice.  The 
+first is highly unlikely to occur on real systems and the second is just 
+an example of the patch doing its job (maybe too officiously).  I don't 
+think users would notice either on real systems.
 
-Nico
+Even if you pull it from 2.6.16 rather than upgrading it with my patch 
+can you please leave both in -mm?
 
+I think that there a few inexpensive things that can be tried before we 
+go as far as sophisticated solutions (such as guesstimating how long a 
+task will have to wait for CPU access if we don't move it).  E.g. with 
+this patch move_tasks() takes two arguments: a) maximum number of tasks 
+to be moved and b) maximum amount of biased load to be moved; and for 
+normal use is just passed max(nr_running - 1, 0) as the first of these 
+arguments and the move is controlled by the second but we could modify 
+find_busiest_group() to give us values for both arguments.  Other 
+options include modifying the function that maps nice to bias_prio so 
+that the weights aren't quite so heavy.  Leaving the patches in -mm 
+would allow some of these options to be tested.
 
-   Signed-off-by: Nico Schottelius <nico-kernel@schottelius.org>
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-
---- linux/Documentation/nfsroot.txt.orig	2006-02-06 16:05:32.000000000 +0100
-+++ linux/Documentation/nfsroot.txt	2006-02-06 16:19:37.000000000 +0100
-@@ -3,6 +3,7 @@
-=20
- Written 1996 by Gero Kuhlmann <gero@gkminix.han.de>
- Updated 1997 by Martin Mares <mj@atrey.karlin.mff.cuni.cz>
-+Updated 2006 by Nico Schottelius <nico-kernel-nfsroot@schottelius.org>
-=20
-=20
-=20
-@@ -168,7 +169,6 @@
- 	root. If it got a BOOTP answer the directory name in that answer
- 	is used.
-=20
--
- 3.2) Using LILO
- 	When using LILO you can specify all necessary command line
- 	parameters with the 'append=3D' command in the LILO configuration
-@@ -177,7 +177,11 @@
- 	LILO and its 'append=3D' command please refer to the LILO
- 	documentation.
-=20
--3.3) Using loadlin
-+3.3) Using GRUB
-+	When you use GRUB, you simply append the parameters after the kernel
-+	specification: "kernel <kernel> <parameters>" (without the quotes).
-+
-+3.4) Using loadlin
- 	When you want to boot Linux from a DOS command prompt without
- 	having a local hard disk to mount as root, you can use loadlin.
- 	I was told that it works, but haven't used it myself yet. In
-@@ -185,7 +189,7 @@
- 	lar to how LILO is doing it. Please refer to the loadlin docu-
- 	mentation for further information.
-=20
--3.4) Using a boot ROM
-+3.5) Using a boot ROM
- 	This is probably the most elegant way of booting a diskless
- 	client. With a boot ROM the kernel gets loaded using the TFTP
- 	protocol. As far as I know, no commercial boot ROMs yet
-@@ -194,6 +198,13 @@
- 	and its mirrors. They are called 'netboot-nfs' and 'etherboot'.
- 	Both contain everything you need to boot a diskless Linux client.
-=20
-+3.6) Using pxelinux
-+	Using pxelinux you specify the kernel you built with
-+	"kernel <relative-path-below /tftpboot>". The nfsroot parameters
-+	are passed to the kernel by adding them to the "append" line.
-+	You may perhaps also want to fine tune the console output,
-+	see Documentation/serial-console.txt for serial console help.
-+
-=20
-=20
---=20
-Latest release: ccollect-0.3.2 (http://linux.schottelius.org/ccollect/)
-Open Source nutures open minds and free, creative developers.
-
---XMCwj5IQnwKtuyBG
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iQIVAwUBQ+08m7OTBMvCUbrlAQKQGQ//R1TQpd7weZoZUUml62zd+8VuGmvkAhni
-7wOo8ArhDIaYyM44taQM9wtteGaA4oGVofMnzzbFezka1BOrlPxZNj16LWJzirc9
-fxhterGRIFjVLACb/k6P0qntjZakWKRQ7wiZ/dkVoEYqpOtwIsQEQ6YT95Lx4YBF
-r68cLPUrggYhMM44GN5Yr2R6xcfH6L3vlnAADEwvkgxoiTAtomkvyy+dY7ZKCvl/
-TtDjEhEpxEfzg3HbDmlA0zu/9pu8LifiKGyXW++cY4+EwKEwXtNmqgtOzBHqXRpQ
-9DUi9Q47q/LwcVYunmHFDJFxApP8hiOurUGVx2AUzYsQh6JxVmMsfZMX9L1t7B+/
-UG1Vq+c17tHUd/j4bq14rXk2xptTftcsikwn7GU/PORUmoEGC4LnuPSEdDkSghcI
-C6eubkfpBkCVgxE7Sylu3HGk60ugueVohd6f7QwqwDmYJKrl3LuFfGqDF7CGA/8F
-y2k8/mEzrt2ys9Gt6LXu0V3hxTWGJA39c2RX78j0XtCB4QYmHCZNHCXLszPoM1Zl
-bsJFe98UobHSG6ObCW8DvVnaGdiulu7SvBgKkI99leptetN7mIPQEY/1FhWZcHdV
-SJavuUUmbVCoUeQTgdipOi6ha60o9osca3pqijsvw/ZkZ+9DLiTuOAjz1gmrkm46
-DWptrz3xXtw=
-=BIO+
------END PGP SIGNATURE-----
-
---XMCwj5IQnwKtuyBG--
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

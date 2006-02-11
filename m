@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbWBKVK7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbWBKVSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932359AbWBKVK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 16:10:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbWBKVK7
+	id S964798AbWBKVSj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 16:18:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWBKVSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 16:10:59 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:64653 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932359AbWBKVK7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 16:10:59 -0500
-Date: Sat, 11 Feb 2006 13:10:08 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Doug McNaught <doug@mcnaught.org>
-Cc: marc@osknowledge.org, mrmacman_g4@mac.com, adobriyan@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BUG GIT] Unable to handle kernel paging request at virtual
- address e1380288
-Message-Id: <20060211131008.55f19bb6.akpm@osdl.org>
-In-Reply-To: <87psltsy56.fsf@asmodeus.mcnaught.org>
-References: <20060210214122.GA13881@stiffy.osknowledge.org>
-	<20060210222515.GA4793@mipter.zuzino.mipt.ru>
-	<20060210224238.GA5713@stiffy.osknowledge.org>
-	<269F4ADB-FA82-47DD-9087-D07CA11DD681@mac.com>
-	<20060211151005.GA5721@stiffy.osknowledge.org>
-	<87y80hsz26.fsf@asmodeus.mcnaught.org>
-	<20060211152930.GC5721@stiffy.osknowledge.org>
-	<87psltsy56.fsf@asmodeus.mcnaught.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 11 Feb 2006 16:18:38 -0500
+Received: from natipslore.rzone.de ([81.169.145.179]:59563 "EHLO
+	natipslore.rzone.de") by vger.kernel.org with ESMTP id S964798AbWBKVSi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 16:18:38 -0500
+Date: Sat, 11 Feb 2006 21:47:34 +0100
+From: Nico Golde <nico@ngolde.de>
+To: linux-kernel@vger.kernel.org
+Subject: Getting cpu frequency
+Message-ID: <20060211204733.GA7813@ngolde.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="x+6KMIRAuhnl3hBn"
+Content-Disposition: inline
+X-Editor: VIM - Vi IMproved 6.4 (2005 Oct 15, compiled Jan 15 2006 19:02:40)
+X-Mailer: Mutt-ng http://www.muttng.org
+X-Operating-System: Debian GNU/Linux sid
+X-My-Homepage: http://www.ngolde.de
+User-Agent: mutt-ng/devel-r556 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug McNaught <doug@mcnaught.org> wrote:
->
-> Marc Koschewski <marc@osknowledge.org> writes:
-> 
-> > But the trace I sent didn't (directly) do any memory allocation so
-> > the case was clear to me.
-> >
-> > From a developers point of view I totally agree that doing some bad
-> > code 'here' might crash us 'there'. But the backtrace didn't look
-> > like this to me...
-> 
-> You have no idea what might have happened a second ago, or a minute
-> ago, or five minutes ago.  Corrupted memory is like a
-> time-bomb--things don't always break right away.
-> 
 
-Probability this bug was caused by the nvidia module: 0.1%
-Probability this bug was caused by USB or SCSI: 99.9%
+--x+6KMIRAuhnl3hBn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-SCSI and USB device management remain quite buggy and we need all the help
-we can get in finding and fixing these problems.
+Hi,
+at the moment I try to get the current cpu frequency via=20
+using the cpufreq_get() function defined in linux/cpufreq.h.
+Can someone point me to the headers I have to include to let=20
+this work because just doing #include <linux/cpufreq.h>=20
+results in a bunch of errors:
+[...]=20
+In file included from /usr/include/linux/cpu.h:22,
+                 from cpu.c:2:
+/usr/include/linux/sysdev.h:31: error: field 'drivers' has incomplete type
+/usr/include/linux/sysdev.h:35: error: syntax error before 'pm_message_t'
+/usr/include/linux/sysdev.h:37: error: field 'kset' has incomplete type
+/usr/include/linux/sysdev.h:50: error: field 'entry' has incomplete type
+/usr/include/linux/sysdev.h:54: error: syntax error before 'pm_message_t'
+/usr/include/linux/sysdev.h:69: error: syntax error before 'u32'
+/usr/include/linux/sysdev.h:72: error: syntax error before '}' token
+/usr/include/linux/sysdev.h:79: error: field 'attr' has incomplete type
+/usr/include/linux/sysdev.h:80: error: syntax error before 'ssize_
+[...]=20
+Using 2.6.14.
+Regards Nico
+P.S. Please CC me, I am not subsribed, thanks
+
+--=20
+Nico Golde - JAB: nion@jabber.ccc.de | GPG: 0x73647CFF
+http://www.ngolde.de | http://www.muttng.org | http://grml.org
+Forget about that mouse with 3/4/5 buttons -
+gimme a keyboard with 103/104/105 keys!
+
+--x+6KMIRAuhnl3hBn
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFD7k1lHYflSXNkfP8RAq9nAKCUaSjI5HItvwD51vQPTqCxnPv55ACff7sL
+kx39EMtD5SbMgTuYTkDV110=
+=YL72
+-----END PGP SIGNATURE-----
+
+--x+6KMIRAuhnl3hBn--

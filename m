@@ -1,42 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWBKPTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWBKPZy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbWBKPTi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 10:19:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWBKPTi
+	id S932320AbWBKPZy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 10:25:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbWBKPZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 10:19:38 -0500
-Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:52232 "EHLO
-	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
-	id S932313AbWBKPTh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 10:19:37 -0500
-To: Marc Koschewski <marc@osknowledge.org>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Alexey Dobriyan <adobriyan@gmail.com>,
-       Linux-LKLM <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG GIT] Unable to handle kernel paging request at virtual
- address e1380288
-References: <20060210214122.GA13881@stiffy.osknowledge.org>
-	<20060210222515.GA4793@mipter.zuzino.mipt.ru>
-	<20060210224238.GA5713@stiffy.osknowledge.org>
-	<269F4ADB-FA82-47DD-9087-D07CA11DD681@mac.com>
-	<20060211151005.GA5721@stiffy.osknowledge.org>
-From: Doug McNaught <doug@mcnaught.org>
-Date: Sat, 11 Feb 2006 10:19:29 -0500
-In-Reply-To: <20060211151005.GA5721@stiffy.osknowledge.org> (Marc
- Koschewski's message of "Sat, 11 Feb 2006 16:10:05 +0100")
-Message-ID: <87y80hsz26.fsf@asmodeus.mcnaught.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.4 (gnu/linux)
+	Sat, 11 Feb 2006 10:25:54 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:54932 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP id S932320AbWBKPZx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 10:25:53 -0500
+Date: Sat, 11 Feb 2006 16:25:18 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Phillip Susi <psusi@cfl.rr.com>, Marc Koschewski <marc@osknowledge.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: CD-blanking leads to machine freeze with current -git
+Message-ID: <20060211152518.GB5721@stiffy.osknowledge.org>
+References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com> <20060210175848.GA5533@stiffy.osknowledge.org> <43ECE734.5010907@cfl.rr.com> <20060210210006.GA5585@stiffy.osknowledge.org> <43ED04E9.9040900@cfl.rr.com> <Pine.LNX.4.61.0602111614050.17942@yvahk01.tjqt.qr>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0602111614050.17942@yvahk01.tjqt.qr>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.16-rc2-marc-g25bf368b-dirty
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Koschewski <marc@osknowledge.org> writes:
+* Jan Engelhardt <jengelh@linux01.gwdg.de> [2006-02-11 16:16:58 +0100]:
 
-> Moreover, I don't know in what way a PCI graphics adapter is pissing off USB
-> devices. Is there a chance to?
+> >
+> > If that is what is going on, there is nothing linux can do about it; it's a
+> > limitation of the hardware.  The IDE controller can only accept one command at
+> > a time, so if that command takes a while to complete, the other drive on the
+> > same channel can not be accessed until the first command completes. 
+> 
+> CD blanking only takes "one" command for the whole operation, as 
+> e.g. compared to CD writing where you always have to push out data packets.
 
-Sure.  Drivers run in kernel mode and, if buggy, can scribble all over
-any part of kernel memory, causing problems in completely unrelated
-places.
+The cdrecord man page says this:
 
--Doug
+	Setting the -immed flag will request the command to return immediately while
+	the operation proceeds in background, making the bus usable for the other
+	devices and avoiding the system freeze.  This is an experimental feature which
+	may work or not, depending on the model of the CD/DVD writer.  A correct 
+	solution would be to set up a correct cabling but there seem to be notebooks
+	around that have been set up the wrong way by the manufacturer.  As it is
+	impossible to fix this problem in notebooks, the -immed option has been added.
+
+It how can the bus run the command sent on the device 'in the background' when
+it can only process _one_ request at a time?
+
+To me it sound like the foreground process (cdrecord) fork()s a process to blank
+the CD-RW. Clear. But you said the bus is not able to do so... I'm not getting
+this.
+
+> 
+> Why I think it's just one (note the quotes): You can interrupt/kill 
+> cdrecord in the midst of blanking a CD, and blanking will continue to the 
+> 'end' (either fast blank or full blank, whichever was sent)
+> 
+> As mentioned some time earlier, I had similar, but not the same issues. I 
+> could continue accessing the harddrive - otherwise mplayer would have 
+> stopped immediately, but it played at least until EOF.
+> 
+> > If the system doesn't come back though after sufficient time has gone by for
+> > the burn to complete, then this is probably not what is happening.  I'd suggest
+> > using magic-sysreq to force an unmount and reboot, then see if there's anything
+> > in the logs. 
+> 
+> 
+> Jan Engelhardt
+> -- 
+> 
+
+Marc

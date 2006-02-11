@@ -1,77 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWBKWRA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWBKWWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbWBKWRA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 17:17:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWBKWRA
+	id S1750760AbWBKWWr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 17:22:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWBKWWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 17:17:00 -0500
-Received: from natsmtp00.rzone.de ([81.169.145.165]:17054 "EHLO
-	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S1750759AbWBKWQ7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 17:16:59 -0500
-Date: Sat, 11 Feb 2006 23:16:48 +0100
-From: Nico Golde <nico@ngolde.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Getting cpu frequency
-Message-ID: <20060211221648.GB12602@ngolde.de>
-References: <20060211204733.GA7813@ngolde.de> <20060211213748.GD8337@redhat.com> <20060211214207.GB19045@ngolde.de> <20060211221309.GE8337@redhat.com>
+	Sat, 11 Feb 2006 17:22:47 -0500
+Received: from diomedes.noc.ntua.gr ([147.102.222.220]:36591 "EHLO
+	diomedes.noc.ntua.gr") by vger.kernel.org with ESMTP
+	id S1750760AbWBKWWq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 17:22:46 -0500
+Date: Sun, 12 Feb 2006 00:18:34 +0200 (EET)
+From: "Theodoros V. Kalamatianos" <thkala@softlab.ece.ntua.gr>
+To: Jan Merka <merka@highsphere.net>
+cc: suspend2-devel@lists.suspend2.net, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@ucw.cz>
+Subject: Re: Flames over -- Re: Which is simpler? (Was Re: [Suspend2-devel]
+ Re: [ 00/10] [Suspend2] Modules support.)
+In-Reply-To: <200602111136.56325.merka@highsphere.net>
+Message-ID: <Pine.LNX.4.64.0602120013570.13246@rhama.deepcore.ngn>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain>
+ <200602101337.22078.rjw@sisk.pl> <20060210233507.GC1952@elf.ucw.cz>
+ <200602111136.56325.merka@highsphere.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3lcZGd9BuhuYXNfi"
-Content-Disposition: inline
-In-Reply-To: <20060211221309.GE8337@redhat.com>
-X-Editor: VIM - Vi IMproved 6.4 (2005 Oct 15, compiled Jan 15 2006 19:02:40)
-X-Mailer: Mutt-ng http://www.muttng.org
-X-Operating-System: Debian GNU/Linux sid
-X-My-Homepage: http://www.ngolde.de
-User-Agent: mutt-ng/devel-r556 (Debian)
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 11 Feb 2006, Jan Merka wrote:
 
---3lcZGd9BuhuYXNfi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Friday 10 February 2006 18:35, Pavel Machek wrote:
+>> Anyway, it means that suspend is still quite a hot topic, and that is
+>> good. (Linus said that suspend-to-disk is basically for people that
+>> can't get suspend-to-RAM to work, and after I got suspend-to-RAM to
+>> work reliably here, I can see his point).
+>
+> I strongly disagree. I got suspend-to-RAM to work but its utility is seriously
+> limited by battery capacity. For example, on my laptop (Sony VGN-B100B) with
+> 1.5GB of RAM, a fully charged battery is drained in about 18 hours if the
+> laptop was suspended to RAM.
+>
+> Yes, for a few hours suspend-to-RAM is convenient but suspend-to-disk is
+> _reliable_ and _safe_.
 
-* Dave Jones <davej@redhat.com> [2006-02-11 23:15]:
-> On Sat, Feb 11, 2006 at 10:42:07PM +0100, Nico Golde wrote:
->  > Hallo Dave,
->  >=20
->  > * Dave Jones <davej@redhat.com> [2006-02-11 22:38]:
->  > > On Sat, Feb 11, 2006 at 09:47:34PM +0100, Nico Golde wrote:
->  > >  > Hi,
->  > >  > at the moment I try to get the current cpu frequency
->  > >  > P.S. Please CC me, I am not subsribed, thanks
->  > >=20
->  > > Are you trying to do this from a userspace program ?
->  > > If so, this isn't going to work.
->  >=20
->  > Yes I am.
->=20
-> Read it from sysfs or /proc/cpuinfo.
-
-Thats exactly what I dont wanted to do and thought its=20
-possible without reading a file. So it seems to be not,=20
-thank you will use sysfs to get the information.
-Regards Nico
-
---=20
-Nico Golde - JAB: nion@jabber.ccc.de | GPG: 0x73647CFF
-http://www.ngolde.de | http://www.muttng.org | http://grml.org
-Forget about that mouse with 3/4/5 buttons -
-gimme a keyboard with 103/104/105 keys!
-
---3lcZGd9BuhuYXNfi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFD7mJQHYflSXNkfP8RAn+MAJ9rQKT8rby/OuOIOr0JAMvp8oDcWgCgqxDQ
-ydstX50ugiD9rZYLhb6cS0w=
-=b9jf
------END PGP SIGNATURE-----
-
---3lcZGd9BuhuYXNfi--
+People with dual-boot systems (before someone starts screaming, I know 
+people that dual-boot Linux as well for testing/development reasons) can 
+also benefit from STD. You just put Linux to sleep, boot your testing OS,
+and when you are done just resume your normal Linux system and continue 
+working. Before I got a second PC, suspend (swsusp then) used to be a 
+savior for kernel driver testing...

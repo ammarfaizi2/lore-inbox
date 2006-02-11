@@ -1,70 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWBKSFH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWBKSra@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932142AbWBKSFH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 13:05:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWBKSFH
+	id S932344AbWBKSra (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 13:47:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWBKSr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 13:05:07 -0500
-Received: from colin.muc.de ([193.149.48.1]:28421 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S932142AbWBKSFF (ORCPT
+	Sat, 11 Feb 2006 13:47:29 -0500
+Received: from xproxy.gmail.com ([66.249.82.201]:54077 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932344AbWBKSr3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 13:05:05 -0500
-Date: 11 Feb 2006 19:04:59 +0100
-Date: Sat, 11 Feb 2006 19:04:59 +0100
-From: Andi Kleen <ak@muc.de>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Nathan Lynch <ntl@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Eric Dumazet <dada1@cosmosbay.com>, riel@redhat.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, mingo@elte.hu,
-       76306.1226@compuserve.com, wli@holomorphy.com,
-       Paul Jackson <pj@sgi.com>, jbeulich@novell.com,
-       Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
-Message-ID: <20060211180459.GA97137@muc.de>
-References: <200602051959.k15JxoHK001630@hera.kernel.org> <20060209173726.GA39278@muc.de> <20060210100521.GA9307@osiris.boeblingen.de.ibm.com> <200602101113.13632.ak@muc.de> <20060211144929.GA4334@osiris.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 11 Feb 2006 13:47:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=dZpkxZTYHnkRsR4HE4O71Rh2Jm4Wp62P/oukyOZSsfHkAJajDboAJtYmRAGOC4pDi9zmFcEr1YHKewClVJY2P2jpA+H6BmUVNrLTNvSxZ+Cd/azhQwnBbGxnd/KelOw12W+T38eiaAWXgbDIAHT5/elFozlGlSkYMUfyiJjn83Q=
+Reply-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
+To: David Chow <davidchow@shaolinmicro.com>
+Subject: Re: Linux drivers management
+Date: Sat, 11 Feb 2006 13:47:16 -0500
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org
+References: <20060207044204.8908.qmail@science.horizon.com> <m1zml3rvkg.fsf@ebiederm.dsl.xmission.com> <43E8F8EB.8010800@shaolinmicro.com>
+In-Reply-To: <43E8F8EB.8010800@shaolinmicro.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060211144929.GA4334@osiris.boeblingen.de.ibm.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200602111347.17127.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 11, 2006 at 03:49:29PM +0100, Heiko Carstens wrote:
-> > > > x86-64 had the same problem, but we now require that you 
-> > > > boot with additional_cpus=... for how many you want. Default is 0
-> > > > (used to be half available CPUs but that lead to confusion)
-> > > 
-> > > So introducing the additional_cpus kernel parameter seems to be the way
-> > > to go (for XEN probably too). Even though it seems to be a bit odd if the
-> > > user specifies both maxcpus=... and additional_cpus=...
-> > 
-> > With additional_cpus you don't need maxcpus. They are added together.
-> 
-> How does x86_64 manage to get 'additional_cpus' parsed early enough? As far
-> as I can see this is done when parse_args() in start_kernel() gets called,
-> but that's after you need the parameter in prefill_possible_map().
-> IMHO that should be an early_param and you would need to call
-> parse_early_param() from setup_arch(). But then again, maybe I got it all
-> wrong.
+On Tuesday 07 February 2006 14:45, David Chow wrote:
 
-Yes, you're right - it's added too late to the map right now.
-I will fix that. There are no earlyparams unfortunately, except for a 
-big hack in setup.c
+Speaking as a Linux enthusiast:
 
-> But the more interesting question is: what do you do if the command line
-> contains both additional_cpus and maxcpus. I was just trying to make some
-> sense of this, but the result is questionable.
-> I ended up with a cpu_possible_map that has 'present cpus' +
-> 'additional_cpus' bits set. And in smp_prepare_cpus I make sure that
-> cpu_present_map has not more than max_cpus bits set.
-> 
-> At least that doesn't break the current semantics of the maxcpus parameter.
-> But we're still wasting memory, since it would make sense that the
-> cpu_possible_map shouldn't have more than max_cpus bits set.
+> Technical End-Users:
+> - Want to compile the drivers from source
+     I want to be able to compile drivers from source. I'm not particularly
+interested in actually doing so as I'm not mucking around with driver
+source. I happen to be compiling drivers because I am interested in
+mucking around with Linux kernel source, and the drivers are in-tree. But
+if the fancy takes me to play around with driver source, I want to be able
+to do so. Or perhaps I want to try out a kernel in which a driver API is
+being developed, in which case I need to compile drivers as source, and
+having them in-tree is convenient. 
 
-Yes, maybe it should be a early parameter too. But frankly I see
-maxcpus more as a debugging hack or workarouno. I don't think it matters
-much  if it's not as efficient as it could be.
+> - Enjoy building their own kernel, apply patches (patch and make, it 
+> works! thats cool....)
+     I enjoy building my own kernel. Applying patches, not so much. I found
+applying patches to get the latest -mm drudge work and I'm never able to
+remember whether 2.6.16-rc2-mm1.bz2 applies to 2.6.16-rc2 or 2.6.16.
+Fortunately I found a little utility called ketchup that handles the
+details for me.
 
--Andi
+> - I don't mind to search for drivers and do it myself, because it was 
+> fun to make something work with my effort :) .
+     And here you go off the mark. It might be fun making that device work,
+but if I'm working away at a different puzzle it'll probably be just an
+annoyance. When it comes to parts of a system I'm not interested in at
+the moment, I want them to "just work".
+
+> - I don't mind to upgrade my OS because of a missing driver or needed 
+> for new fucntionality. Even my application breaks, down time is not 
+> important to my system because it s a sytsem for fun.
+     Some down time is ok for me: I don't need 100% up-time on my system.
+I can accept that the cost of running a beta system (-mm kernels) is that
+it occasionally crashes, and the filesystems occasionally eat data (it's
+happened to me once), but it's still a nuisance. People like me are
+volunteers, if it become too inconvenient we'll simply stop volunteering.
+     The barrier to entry for people like us also needs to be low. And here
+the situation for the kernel is fairly good (due to the stable userspace
+API). When switching to a development kernel the only other thing I
+had to change was lilo; everything else just worked. 
+
+     If the Linux development community is to benefit from volunteer
+testers, hardware has to work not just for the stable kernels, but also
+development kernels.
+
+     As an aside, there is another good reason to update drivers not just
+for stable driver APIs, but also APIs under development: quite apart
+from testing, implementing APIs is a good way to find problems in the
+design of the API. Notice the reluctance of the kernel maintainers to
+merge any API that is not both implemented and used.
+
+Andrew Wade

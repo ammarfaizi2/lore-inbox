@@ -1,79 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWBKLBJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWBKLGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbWBKLBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 06:01:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWBKLBJ
+	id S1751401AbWBKLGV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 06:06:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWBKLGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 06:01:09 -0500
-Received: from mail15.bluewin.ch ([195.186.18.63]:21238 "EHLO
-	mail15.bluewin.ch") by vger.kernel.org with ESMTP id S1751393AbWBKLBH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 06:01:07 -0500
-Cc: Arthur Othieno <apgo@patchbomb.org>, vandrove@vc.cvut.cz,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] matroxfb: simply return what i2c_add_driver() does
-In-Reply-To: 
-X-Mailer: git-send-email
-Date: Sat, 11 Feb 2006 06:00:34 -0500
-Message-Id: <11396556342192-git-send-email-apgo@patchbomb.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Arthur Othieno <apgo@patchbomb.org>
-To: akpm@osdl.org
-Content-Transfer-Encoding: 7BIT
-From: Arthur Othieno <apgo@patchbomb.org>
+	Sat, 11 Feb 2006 06:06:21 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50116 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751401AbWBKLGU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 06:06:20 -0500
+To: Kirill Korotaev <dev@sw.ru>
+Cc: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: [RFC][PATCH 04/20] pspace: Allow multiple instaces of the
+ process id namespace
+References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
+	<m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>
+	<m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1fymwmgk0.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1bqxkmgcv.fsf_-_@ebiederm.dsl.xmission.com> <43ECF803.8080404@sw.ru>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sat, 11 Feb 2006 04:03:43 -0700
+In-Reply-To: <43ECF803.8080404@sw.ru> (Kirill Korotaev's message of "Fri, 10
+ Feb 2006 23:30:59 +0300")
+Message-ID: <m1wtg2w41c.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-insmod will tell us when the module failed to load. We do no further
-processing on the return from i2c_add_driver(), so just return what
-i2c_add_driver() did, instead of storing it.
+Kirill Korotaev <dev@sw.ru> writes:
 
-Add __init/__exit annotations while we're at it.
+> Actually I can't say your patch is cleaner somehow.
+> It is very big and most of the changes are trivial, which creates an illusion
+> that it is straightforward and clean.
 
-Signed-off-by: Arthur Othieno <apgo@patchbomb.org>
+It is hard to make a comparison.  Your patch posted to the mail list
+was incomplete, and I could only find a giant patch for OpenVZ.
 
----
+Beyond that if your patch introduced a type change for internal pids
+and used that generate compile errors when someone did not use the
+appropriate type, I would be a lot happier and the code would
+be a lot more maintainable.  I.e. It would not take an audit of
+the kernel source to find the issues an allyesconfig build would find
+them for you.
 
-Andrew, originally sent 12/19/05. No notification from mm-commits of
-patch being accepted/dropped. Assuming it got lost along the way? ;-)
+I don't think my current implementation actually causes enough compile
+errors, but I need think closely about it before I go much farther.
 
+Maintainable code is a delicate balancing act between things that
+trip you up when you get it wrong, and not being so cumbersome you
+get in the programmers way.
 
- drivers/video/matrox/matroxfb_maven.c |   17 +++++------------
- 1 files changed, 5 insertions(+), 12 deletions(-)
+The advantages I see with my approach.
+- I have hierarchical pids so nesting is possible.
+- The state after migration is not suboptimal.
+- I cause compiler errors which makes maintenance easier.
+- Other kernel developers gut feel is that (container, pid) is the proper
+  representation.  
+  I actually flip flop on the issue of if I want the internal representation
+  to be (container, pid) or a magic kpid that combines the into one integer.
+  I know I don't want the kpid to be user space visible though.
 
-3d7e2f6d53ac04029f02e1ce7b966f3521617447
-diff --git a/drivers/video/matrox/matroxfb_maven.c b/drivers/video/matrox/matroxfb_maven.c
-index 6019710..531a0c3 100644
---- a/drivers/video/matrox/matroxfb_maven.c
-+++ b/drivers/video/matrox/matroxfb_maven.c
-@@ -1297,20 +1297,13 @@ static struct i2c_driver maven_driver={
- 	.detach_client	= maven_detach_client,
- };
- 
--/* ************************** */
--
--static int matroxfb_maven_init(void) {
--	int err;
--
--	err = i2c_add_driver(&maven_driver);
--	if (err) {
--		printk(KERN_ERR "maven: Maven driver failed to register (%d).\n", err);
--		return err;
--	}
--	return 0;
-+static int __init matroxfb_maven_init(void)
-+{
-+	return i2c_add_driver(&maven_driver);
- }
- 
--static void matroxfb_maven_exit(void) {
-+static void __exit matroxfb_maven_exit(void)
-+{
- 	i2c_del_driver(&maven_driver);
- }
- 
--- 
-1.1.5
+So far you have not addressed the issues of maintaining code in the
+kernel tree.  
 
-
+Eric

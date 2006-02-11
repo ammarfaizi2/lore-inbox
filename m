@@ -1,82 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWBKBNI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWBKBUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932282AbWBKBNI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Feb 2006 20:13:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWBKBNI
+	id S932294AbWBKBUX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Feb 2006 20:20:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWBKBUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Feb 2006 20:13:08 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5610 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751341AbWBKBNF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Feb 2006 20:13:05 -0500
-Date: Sat, 11 Feb 2006 02:12:22 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Sebastian =?iso-8859-1?Q?K=FCgler?= <sebas@kde.org>
-Cc: suspend2-devel@lists.suspend2.net, Nigel Cunningham <nigel@suspend2.net>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060211011222.GB2174@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602091926.38666.nigel@suspend2.net> <20060209232453.GC3389@elf.ucw.cz> <200602110116.57639.sebas@kde.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 10 Feb 2006 20:20:23 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:27836 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932294AbWBKBUW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Feb 2006 20:20:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=abaj8S7HWaOuNg//j5qvd1WKNOyS7xF8n2ulJ2cyk8bh2F+z4EytLTV8YQ0sOfUDGv1Uast6WxXuYyipt8ZOHfclKwDLq4inz94nD9HsRm2HLDbna2wZPIvwhcxUHQhN4Dy+/27iJ/lsx+EZAg71+ymVsA2IDNnl7JX4dmddZB4=
+Message-ID: <787b0d920602101720q5f70129fl327d00701d66a215@mail.gmail.com>
+Date: Fri, 10 Feb 2006 20:20:21 -0500
+From: Albert Cahalan <acahalan@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: do_notify_resume()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200602110116.57639.sebas@kde.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On So 11-02-06 01:16:51, Sebastian Kügler wrote:
-> On Saturday 11 February 2006 00:35, Pavel Machek wrote:
-> > So another flamewar is over, good. I even received one apology ;-),
-> > and probably should have sent some apologies, too...
-> [...]
-> > version. How you could help?
-> >
-> > * testing is useful at this point. Few confirmations that it works in
-> > different configurations would make us feel warm and fuzzy.
-> >
-> > * documentation improvements, and small scripts. Having script that
-> > prepares initrd would be nice, for example.
-> >
-> > * having someone to maintain suspend.sf.net web pages / release CVS
-> > snapshot as package would help, too.
-> >
-> > * userspace code improvements. Encryption, LZW and graphical progress
-> > should be reasonably easy to do. There's some tricky stuff, if you
-> > prefer -- support for swap files and normal files would help,
-> > too. Plus I guess everyone has their favourite feature...
-> 
-> That all makes sense.
-> 
-> To make uswsusp a success you need it tested [T], supporting scripts [S], 
-> someone [B] who puts work in the webpages [W] with decent documentation [D], 
-> and a bunch of spiffy features [F].
-> 
-> [T] * http://wiki.suspend2.net/FeatureUserRegister 
->     * http://www.suspend2.net/lists
-> [S] http://www.suspend2.net/downloads/all/hibernate-script-1.12.tar.gz
-> [B] Bernard Blackham, b-swweb@blackham.com.au
-> [W] http://www.suspend2.net
-> [D] * http://www.suspend2.net/links
->     * http://www.suspend2.net/HOWTO
->     * http://www.suspend2.net/FAQ
-> [F] http://www.suspend2.net/features
-> 
-> I, as a contributors to suspend2, have been working on all that stuff for 
-> about two-and-a-half years, and it makes me really sad to see that
-> someone in 
+In the function included below, which appears at the
+very end of arch/i386/kernel/signal.c, why is TIF_IRET
+being cleared? Is it for the next entry into the kernel
+(not the present one)? This could use a comment.
 
-If you think current situation makes me happy... think again.
+/*
+ * notification of userspace execution resumption
+ * - triggered by the TIF_WORK_MASK flags
+ */
+__attribute__((regparm(3)))
+void do_notify_resume(struct pt_regs *regs, void *_unused,
+                      __u32 thread_info_flags)
+{
+        /* Pending single-step? */
+        if (thread_info_flags & _TIF_SINGLESTEP) {
+                regs->eflags |= TF_MASK;
+                clear_thread_flag(TIF_SINGLESTEP);
+        }
 
-> a position to make a decision towards progress wants to start that whole 
-> process all over, rather than acknowledging the existance of a
-> technical 
+        /* deal with pending signal delivery */
+        if (thread_info_flags & (_TIF_SIGPENDING | _TIF_RESTORE_SIGMASK))
+                do_signal(regs);
 
-We don't have to start all over. It should be possible to port most of
-suspend2 into userspace...
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+        clear_thread_flag(TIF_IRET);
+}

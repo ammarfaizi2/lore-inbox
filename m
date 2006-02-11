@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWBKNuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWBKNxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbWBKNuM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 08:50:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWBKNuM
+	id S932284AbWBKNxS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 08:53:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWBKNxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 08:50:12 -0500
-Received: from soohrt.org ([85.131.246.150]:33693 "EHLO quickstop.soohrt.org")
-	by vger.kernel.org with ESMTP id S932270AbWBKNuK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 08:50:10 -0500
-Date: Sat, 11 Feb 2006 14:50:03 +0100
-From: Horst Schirmeier <horst@schirmeier.com>
-To: linux-kernel@vger.kernel.org
-Cc: Hans Reiser <reiser@namesys.com>, Vitaly Fertman <vitaly@namesys.com>,
-       Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: [BUG] reiserfs/super.c commit breaks boot process in stable and HEAD
-Message-ID: <20060211135003.GV22994@quickstop.soohrt.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Hans Reiser <reiser@namesys.com>,
-	Vitaly Fertman <vitaly@namesys.com>, Andrew Morton <akpm@osdl.org>,
-	Greg Kroah-Hartman <gregkh@suse.de>
-References: <20060207160819.GR22994@quickstop.soohrt.org>
+	Sat, 11 Feb 2006 08:53:18 -0500
+Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:22027 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S932284AbWBKNxR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 08:53:17 -0500
+Date: Sat, 11 Feb 2006 14:53:22 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Arthur Othieno <apgo@patchbomb.org>
+Cc: Andrew Morton <akpm@osdl.org>, Petr Vandrovec <vandrove@vc.cvut.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] matroxfb: simply return what i2c_add_driver() does
+Message-Id: <20060211145322.151f47d4.khali@linux-fr.org>
+In-Reply-To: <11396556342192-git-send-email-apgo@patchbomb.org>
+References: <11396556342192-git-send-email-apgo@patchbomb.org>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060207160819.GR22994@quickstop.soohrt.org>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 07, 2006, Horst Schirmeier wrote:
-> Hi,
+Hi Arthur,
+
+> insmod will tell us when the module failed to load. We do no further
+> processing on the return from i2c_add_driver(), so just return what
+> i2c_add_driver() did, instead of storing it.
 > 
-> I'm observing an instant reboot while booting current stable or HEAD
-> kernels since a recent ReiserFS commit. Details and temporary fix
-> below.
-> [...]
+> Add __init/__exit annotations while we're at it.
+> 
+> Signed-off-by: Arthur Othieno <apgo@patchbomb.org>
 
-Just for the records: I've opened a bug report on bugme.osdl.org.
-http://bugme.osdl.org/show_bug.cgi?id=6054
+Acked-by: Jean Delvare <khali@linux-fr.org>
 
-Kind regards,
- Horst Schirmeier
+Arthur, do you have such a device yourself? I have another cleanup
+patch for this driver and am looking for testers.
 
+Thanks,
 -- 
-PGP-Key 0xD40E0E7A
+Jean Delvare

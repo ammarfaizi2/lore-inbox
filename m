@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWBKQhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWBKQcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbWBKQhT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 11:37:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWBKQhT
+	id S932096AbWBKQcl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 11:32:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWBKQcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 11:37:19 -0500
-Received: from mail2.pipni.cz ([193.86.238.4]:3486 "EHLO mail2.pipni.cz")
-	by vger.kernel.org with ESMTP id S932150AbWBKQhS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 11:37:18 -0500
-From: Jan Merka <merka@highsphere.net>
-To: suspend2-devel@lists.suspend2.net
-Subject: Re: Flames over -- Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Sat, 11 Feb 2006 11:36:56 -0500
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602101337.22078.rjw@sisk.pl> <20060210233507.GC1952@elf.ucw.cz>
-In-Reply-To: <20060210233507.GC1952@elf.ucw.cz>
+	Sat, 11 Feb 2006 11:32:41 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:42507 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932096AbWBKQck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 11:32:40 -0500
+Date: Sat, 11 Feb 2006 17:32:38 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Scott_Kilau@digi.com, wendyx@us.ltcfwd.linux.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/serial/Kconfig: remove reference to non-existing Documentation/jsm.txt
+Message-ID: <20060211163238.GB30922@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602111136.56325.merka@highsphere.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 February 2006 18:35, Pavel Machek wrote:
-> Anyway, it means that suspend is still quite a hot topic, and that is
-> good. (Linus said that suspend-to-disk is basically for people that
-> can't get suspend-to-RAM to work, and after I got suspend-to-RAM to
-> work reliably here, I can see his point).
+There's no reason pointing users to non-existing documentation.
 
-I strongly disagree. I got suspend-to-RAM to work but its utility is seriously 
-limited by battery capacity. For example, on my laptop (Sony VGN-B100B) with 
-1.5GB of RAM, a fully charged battery is drained in about 18 hours if the 
-laptop was suspended to RAM. 
 
-Yes, for a few hours suspend-to-RAM is convenient but suspend-to-disk is 
-_reliable_ and _safe_.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Jan
+--- linux-2.6.16-rc2-mm1-full/drivers/serial/Kconfig.old	2006-02-11 17:29:34.000000000 +0100
++++ linux-2.6.16-rc2-mm1-full/drivers/serial/Kconfig	2006-02-11 17:29:50.000000000 +0100
+@@ -902,8 +902,6 @@
+ 	  something like this to connect more than two modems to your Linux
+ 	  box, for instance in order to become a dial-in server. This driver
+ 	  supports PCI boards only.
+-	  If you have a card like this, say Y here and read the file
+-	  <file:Documentation/jsm.txt>.
+ 
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called jsm.
+

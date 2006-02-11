@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWBKPCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbWBKPBx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbWBKPCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 10:02:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWBKPB7
+	id S932316AbWBKPBx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 10:01:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWBKPBw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 10:01:59 -0500
-Received: from wp060.webpack.hosteurope.de ([80.237.132.67]:46476 "EHLO
+	Sat, 11 Feb 2006 10:01:52 -0500
+Received: from wp060.webpack.hosteurope.de ([80.237.132.67]:38028 "EHLO
 	wp060.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S932317AbWBKPBt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 10:01:49 -0500
+	id S932304AbWBKPB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 10:01:28 -0500
 Date: Sat, 11 Feb 2006 15:52:28 +0100
 From: Hansjoerg Lipp <hjlipp@web.de>
 To: Karsten Keil <kkeil@suse.de>
 Cc: i4ldeveloper@listserv.isdn4linux.de, linux-usb-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>,
        Tilman Schmidt <tilman@imap.cc>
-Subject: [PATCH 7/9] isdn4linux: Siemens Gigaset drivers - direct USB connection
-Message-ID: <gigaset307x.2006.02.11.001.7@hjlipp.my-fqdn.de>
-References: <gigaset307x.2006.02.11.001.0@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.1@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.2@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.3@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.4@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.5@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.6@hjlipp.my-fqdn.de>
+Subject: [PATCH 8/9] isdn4linux: Siemens Gigaset drivers - isochronous data handler
+Message-ID: <gigaset307x.2006.02.11.001.8@hjlipp.my-fqdn.de>
+References: <gigaset307x.2006.02.11.001.0@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.1@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.2@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.3@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.4@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.5@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.6@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.7@hjlipp.my-fqdn.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <gigaset307x.2006.02.11.001.6@hjlipp.my-fqdn.de>
+In-Reply-To: <gigaset307x.2006.02.11.001.7@hjlipp.my-fqdn.de>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Tilman Schmidt <tilman@imap.cc>, Hansjoerg Lipp <hjlipp@web.de>
 
-This patch adds the main source file of the connection-specific module
-"bas_gigaset", the hardware driver for Gigaset base stations connected
-directly to the computer via USB. It contains the code for handling
-probe/disconnect, AT command/response transmission, and call setup and
-termination.
+This patch adds the payload data handler for the connection-specific
+module "bas_gigaset". It contains the code for handling isochronous data
+transfers, HDLC framing and flow control.
 
 Signed-off-by: Hansjoerg Lipp <hjlipp@web.de>
 Signed-off-by: Tilman Schmidt <tilman@imap.cc>
 ---
 
- drivers/isdn/gigaset/bas-gigaset.c | 2365 +++++++++++++++++++++++++++++++++++++
- 1 files changed, 2365 insertions(+)
+ drivers/isdn/gigaset/isocdata.c | 1009 ++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 1009 insertions(+)
 
---- linux-2.6.16-rc2/drivers/isdn/gigaset/bas-gigaset.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.16-rc2-gig/drivers/isdn/gigaset/bas-gigaset.c	2006-02-11 15:20:26.000000000 +0100
-@@ -0,0 +1,2365 @@
+--- linux-2.6.16-rc2/drivers/isdn/gigaset/isocdata.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.16-rc2-gig/drivers/isdn/gigaset/isocdata.c	2006-01-21 17:33:33.000000000 +0100
+@@ -0,0 +1,1009 @@
 +/*
-+ * USB driver for Gigaset 307x base via direct USB connection.
++ * Common data handling layer for bas_gigaset
 + *
-+ * Copyright (c) 2001 by Hansjoerg Lipp <hjlipp@web.de>,
-+ *                       Tilman Schmidt <tilman@imap.cc>,
-+ *                       Stefan Eilers <Eilers.Stefan@epost.de>.
-+ *
-+ * Based on usb-gigaset.c.
++ * Copyright (c) 2005 by Tilman Schmidt <tilman@imap.cc>,
++ *                       Hansjoerg Lipp <hjlipp@web.de>.
 + *
 + * =====================================================================
 + *	This program is free software; you can redistribute it and/or
@@ -61,2351 +56,998 @@ Signed-off-by: Tilman Schmidt <tilman@imap.cc>
 + * =====================================================================
 + * ToDo: ...
 + * =====================================================================
-+ * Version: $Id: bas-gigaset.c,v 1.52.4.19 2006/02/04 18:28:16 hjlipp Exp $
++ * Version: $Id: isocdata.c,v 1.2.2.5 2005/11/13 23:05:19 hjlipp Exp $
 + * =====================================================================
 + */
 +
 +#include "gigaset.h"
++#include <linux/crc-ccitt.h>
 +
-+#include <linux/errno.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/timer.h>
-+#include <linux/usb.h>
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
++/* access methods for isowbuf_t */
++/* ============================ */
 +
-+/* Version Information */
-+#define DRIVER_AUTHOR "Tilman Schmidt <tilman@imap.cc>, Hansjoerg Lipp <hjlipp@web.de>, Stefan Eilers <Eilers.Stefan@epost.de>"
-+#define DRIVER_DESC "USB Driver for Gigaset 307x"
-+
-+
-+/* Module parameters */
-+
-+static int startmode = SM_ISDN;
-+static int cidmode = 1;
-+
-+module_param(startmode, int, S_IRUGO);
-+module_param(cidmode, int, S_IRUGO);
-+MODULE_PARM_DESC(startmode, "start in isdn4linux mode");
-+MODULE_PARM_DESC(cidmode, "Call-ID mode");
-+
-+#define GIGASET_MINORS     1
-+#define GIGASET_MINOR      16
-+#define GIGASET_MODULENAME "bas_gigaset"
-+#define GIGASET_DEVFSNAME  "gig/bas/"
-+#define GIGASET_DEVNAME    "ttyGB"
-+
-+#define IF_WRITEBUF 256 //FIXME
-+
-+/* Values for the Gigaset 307x */
-+#define USB_GIGA_VENDOR_ID      0x0681
-+#define USB_GIGA_PRODUCT_ID     0x0001
-+#define USB_4175_PRODUCT_ID     0x0002
-+#define USB_SX303_PRODUCT_ID    0x0021
-+#define USB_SX353_PRODUCT_ID    0x0022
-+
-+/* table of devices that work with this driver */
-+static struct usb_device_id gigaset_table [] = {
-+	{ USB_DEVICE(USB_GIGA_VENDOR_ID, USB_GIGA_PRODUCT_ID) },
-+	{ USB_DEVICE(USB_GIGA_VENDOR_ID, USB_4175_PRODUCT_ID) },
-+	{ USB_DEVICE(USB_GIGA_VENDOR_ID, USB_SX303_PRODUCT_ID) },
-+	{ USB_DEVICE(USB_GIGA_VENDOR_ID, USB_SX353_PRODUCT_ID) },
-+	{ } /* Terminating entry */
-+};
-+
-+MODULE_DEVICE_TABLE(usb, gigaset_table);
-+
-+/* Get a minor range for your devices from the usb maintainer */
-+#define USB_SKEL_MINOR_BASE	200
-+
-+/*======================= local function prototypes =============================*/
-+
-+/* This function is called if a new device is connected to the USB port. It
-+ * checks whether this new device belongs to this driver.
++/* initialize buffer structure
 + */
-+static int gigaset_probe(struct usb_interface *interface,
-+			 const struct usb_device_id *id);
-+
-+/* Function will be called if the device is unplugged */
-+static void gigaset_disconnect(struct usb_interface *interface);
-+
-+
-+/*==============================================================================*/
-+
-+struct bas_cardstate {
-+	struct usb_device       *udev;		/* USB device pointer */
-+	struct usb_interface    *interface;	/* interface for this device */
-+	unsigned char		minor;		/* starting minor number */
-+
-+	struct urb              *urb_ctrl;	/* control pipe default URB */
-+	struct usb_ctrlrequest	dr_ctrl;
-+	struct timer_list	timer_ctrl;	/* control request timeout */
-+
-+	struct timer_list	timer_atrdy;	/* AT command ready timeout */
-+	struct urb              *urb_cmd_out;	/* for sending AT commands */
-+	struct usb_ctrlrequest	dr_cmd_out;
-+	int			retry_cmd_out;
-+
-+	struct urb              *urb_cmd_in;	/* for receiving AT replies */
-+	struct usb_ctrlrequest	dr_cmd_in;
-+	struct timer_list	timer_cmd_in;	/* receive request timeout */
-+	unsigned char           *rcvbuf;	/* AT reply receive buffer */
-+
-+	struct urb              *urb_int_in;	/* URB for interrupt pipe */
-+	unsigned char		int_in_buf[3];
-+
-+	spinlock_t		lock;		/* locks all following */
-+	atomic_t		basstate;	/* bitmap (BS_*) */
-+	int			pending;	/* uncompleted base request */
-+	int			rcvbuf_size;	/* size of AT receive buffer */
-+						/* 0: no receive in progress */
-+	int			retry_cmd_in;	/* receive req retry count */
-+};
-+
-+/* status of direct USB connection to 307x base (bits in basstate) */
-+#define BS_ATOPEN	0x001
-+#define BS_B1OPEN	0x002
-+#define BS_B2OPEN	0x004
-+#define BS_ATREADY	0x008
-+#define BS_INIT		0x010
-+#define BS_ATTIMER	0x020
-+
-+
-+static struct gigaset_driver *driver = NULL;
-+static struct cardstate *cardstate = NULL;
-+
-+/* usb specific object needed to register this driver with the usb subsystem */
-+static struct usb_driver gigaset_usb_driver = {
-+	.name =         GIGASET_MODULENAME,
-+	.probe =        gigaset_probe,
-+	.disconnect =   gigaset_disconnect,
-+	.id_table =     gigaset_table,
-+};
-+
-+/* get message text for USB status code
-+ */
-+static char *get_usb_statmsg(int status)
++void gigaset_isowbuf_init(struct isowbuf_t *iwb, unsigned char idle)
 +{
-+	static char unkmsg[28];
++	atomic_set(&iwb->read, 0);
++	atomic_set(&iwb->nextread, 0);
++	atomic_set(&iwb->write, 0);
++	atomic_set(&iwb->writesem, 1);
++	iwb->wbits = 0;
++	iwb->idle = idle;
++	memset(iwb->data + BAS_OUTBUFSIZE, idle, BAS_OUTBUFPAD);
++}
 +
-+	switch (status) {
-+	case 0:
-+		return "success";
-+	case -ENOENT:
-+		return "canceled";
-+	case -ECONNRESET:
-+		return "canceled (async)";
-+	case -EINPROGRESS:
-+		return "pending";
-+	case -EPROTO:
-+		return "bit stuffing or unknown USB error";
-+	case -EILSEQ:
-+		return "Illegal byte sequence (CRC mismatch)";
-+	case -EPIPE:
-+		return "babble detect or endpoint stalled";
-+	case -ENOSR:
-+		return "buffer error";
-+	case -ETIMEDOUT:
-+		return "timed out";
-+	case -ENODEV:
-+		return "device not present";
-+	case -EREMOTEIO:
-+		return "short packet detected";
-+	case -EXDEV:
-+		return "partial isochronous transfer";
-+	case -EINVAL:
-+		return "invalid argument";
-+	case -ENXIO:
-+		return "URB already queued";
-+	case -EAGAIN:
-+		return "isochronous start frame too early or too much scheduled";
-+	case -EFBIG:
-+		return "too many isochronous frames requested";
-+	case -EMSGSIZE:
-+		return "endpoint message size zero";
-+	case -ESHUTDOWN:
-+		return "endpoint shutdown";
-+	case -EBUSY:
-+		return "another request pending";
-+	default:
-+		snprintf(unkmsg, sizeof(unkmsg), "unknown error %d", status);
-+		return unkmsg;
++/* compute number of bytes which can be appended to buffer
++ * so that there is still room to append a maximum frame of flags
++ */
++static inline int isowbuf_freebytes(struct isowbuf_t *iwb)
++{
++	int read, write, freebytes;
++
++	read = atomic_read(&iwb->read);
++	write = atomic_read(&iwb->write);
++	if ((freebytes = read - write) > 0) {
++		/* no wraparound: need padding space within regular area */
++		return freebytes - BAS_OUTBUFPAD;
++	} else if (read < BAS_OUTBUFPAD) {
++		/* wraparound: can use space up to end of regular area */
++		return BAS_OUTBUFSIZE - write;
++	} else {
++		/* following the wraparound yields more space */
++		return freebytes + BAS_OUTBUFSIZE - BAS_OUTBUFPAD;
 +	}
 +}
 +
-+/* usb_pipetype_str
-+ * retrieve string representation of USB pipe type
++/* compare two offsets within the buffer
++ * The buffer is seen as circular, with the read position as start
++ * returns -1/0/1 if position a </=/> position b without crossing 'read'
 + */
-+static inline char *usb_pipetype_str(int pipe)
++static inline int isowbuf_poscmp(struct isowbuf_t *iwb, int a, int b)
 +{
-+	if (usb_pipeisoc(pipe))
-+		return "Isoc";
-+	if (usb_pipeint(pipe))
-+		return "Int";
-+	if (usb_pipecontrol(pipe))
-+		return "Ctrl";
-+	if (usb_pipebulk(pipe))
-+		return "Bulk";
-+	return "?";
++	int read;
++	if (a == b)
++		return 0;
++	read = atomic_read(&iwb->read);
++	if (a < b) {
++		if (a < read && read <= b)
++			return +1;
++		else
++			return -1;
++	} else {
++		if (b < read && read <= a)
++			return -1;
++		else
++			return +1;
++	}
 +}
 +
-+/* dump_urb
-+ * write content of URB to syslog for debugging
++/* start writing
++ * acquire the write semaphore
++ * return true if acquired, false if busy
 + */
-+static inline void dump_urb(enum debuglevel level, const char *tag,
-+                            struct urb *urb)
++static inline int isowbuf_startwrite(struct isowbuf_t *iwb)
++{
++	if (!atomic_dec_and_test(&iwb->writesem)) {
++		atomic_inc(&iwb->writesem);
++		dbg(DEBUG_ISO,
++		    "%s: couldn't acquire iso write semaphore", __func__);
++		return 0;
++	}
++#ifdef CONFIG_GIGASET_DEBUG
++	dbg(DEBUG_ISO,
++	    "%s: acquired iso write semaphore, data[write]=%02x, nbits=%d",
++	    __func__, iwb->data[atomic_read(&iwb->write)], iwb->wbits);
++#endif
++	return 1;
++}
++
++/* finish writing
++ * release the write semaphore and update the maximum buffer fill level
++ * returns the current write position
++ */
++static inline int isowbuf_donewrite(struct isowbuf_t *iwb)
++{
++	int write = atomic_read(&iwb->write);
++	atomic_inc(&iwb->writesem);
++	return write;
++}
++
++/* append bits to buffer without any checks
++ * - data contains bits to append, starting at LSB
++ * - nbits is number of bits to append (0..24)
++ * must be called with the write semaphore held
++ * If more than nbits bits are set in data, the extraneous bits are set in the
++ * buffer too, but the write position is only advanced by nbits.
++ */
++static inline void isowbuf_putbits(struct isowbuf_t *iwb, u32 data, int nbits)
++{
++	int write = atomic_read(&iwb->write);
++	data <<= iwb->wbits;
++	data |= iwb->data[write];
++	nbits += iwb->wbits;
++	while (nbits >= 8) {
++		iwb->data[write++] = data & 0xff;
++		write %= BAS_OUTBUFSIZE;
++		data >>= 8;
++		nbits -= 8;
++	}
++	iwb->wbits = nbits;
++	iwb->data[write] = data & 0xff;
++	atomic_set(&iwb->write, write);
++}
++
++/* put final flag on HDLC bitstream
++ * also sets the idle fill byte to the correspondingly shifted flag pattern
++ * must be called with the write semaphore held
++ */
++static inline void isowbuf_putflag(struct isowbuf_t *iwb)
++{
++	int write;
++
++	/* add two flags, thus reliably covering one byte */
++	isowbuf_putbits(iwb, 0x7e7e, 8);
++	/* recover the idle flag byte */
++	write = atomic_read(&iwb->write);
++	iwb->idle = iwb->data[write];
++	dbg(DEBUG_ISO, "idle fill byte %02x", iwb->idle);
++	/* mask extraneous bits in buffer */
++	iwb->data[write] &= (1 << iwb->wbits) - 1;
++}
++
++/* retrieve a block of bytes for sending
++ * The requested number of bytes is provided as a contiguous block.
++ * If necessary, the frame is filled to the requested number of bytes
++ * with the idle value.
++ * returns offset to frame, < 0 on busy or error
++ */
++int gigaset_isowbuf_getbytes(struct isowbuf_t *iwb, int size)
++{
++	int read, write, limit, src, dst;
++	unsigned char pbyte;
++
++	read = atomic_read(&iwb->nextread);
++	write = atomic_read(&iwb->write);
++	if (likely(read == write)) {
++		//dbg(DEBUG_STREAM, "%s: send buffer empty", __func__);
++		/* return idle frame */
++		return read < BAS_OUTBUFPAD ?
++		        BAS_OUTBUFSIZE : read - BAS_OUTBUFPAD;
++	}
++
++	limit = read + size;
++	dbg(DEBUG_STREAM,
++	    "%s: read=%d write=%d limit=%d", __func__, read, write, limit);
++#ifdef CONFIG_GIGASET_DEBUG
++	if (unlikely(size < 0 || size > BAS_OUTBUFPAD)) {
++		err("invalid size %d", size);
++		return -EINVAL;
++	}
++	src = atomic_read(&iwb->read);
++	if (unlikely(limit > BAS_OUTBUFSIZE + BAS_OUTBUFPAD ||
++		     (read < src && limit >= src))) {
++		err("isoc write buffer frame reservation violated");
++		return -EFAULT;
++	}
++#endif
++
++	if (read < write) {
++		/* no wraparound in valid data */
++		if (limit >= write) {
++			/* append idle frame */
++			if (!isowbuf_startwrite(iwb))
++				return -EBUSY;
++			/* write position could have changed */
++			if (limit >= (write = atomic_read(&iwb->write))) {
++				pbyte = iwb->data[write]; /* save partial byte */
++				limit = write + BAS_OUTBUFPAD;
++				dbg(DEBUG_STREAM,
++				    "%s: filling %d->%d with %02x",
++				    __func__, write, limit, iwb->idle);
++				if (write + BAS_OUTBUFPAD < BAS_OUTBUFSIZE)
++					memset(iwb->data + write, iwb->idle,
++					       BAS_OUTBUFPAD);
++				else {
++					/* wraparound, fill entire pad area */
++					memset(iwb->data + write, iwb->idle,
++					       BAS_OUTBUFSIZE + BAS_OUTBUFPAD
++					       - write);
++					limit = 0;
++				}
++				dbg(DEBUG_STREAM, "%s: restoring %02x at %d",
++				    __func__, pbyte, limit);
++				iwb->data[limit] = pbyte; /* restore partial byte */
++				atomic_set(&iwb->write, limit);
++			}
++			isowbuf_donewrite(iwb);
++		}
++	} else {
++		/* valid data wraparound */
++		if (limit >= BAS_OUTBUFSIZE) {
++			/* copy wrapped part into pad area */
++			src = 0;
++			dst = BAS_OUTBUFSIZE;
++			while (dst < limit && src < write)
++				iwb->data[dst++] = iwb->data[src++];
++			if (dst <= limit) {
++				/* fill pad area with idle byte */
++				memset(iwb->data + dst, iwb->idle,
++				       BAS_OUTBUFSIZE + BAS_OUTBUFPAD - dst);
++			}
++			limit = src;
++		}
++	}
++	atomic_set(&iwb->nextread, limit);
++	return read;
++}
++
++/* dump_bytes
++ * write hex bytes to syslog for debugging
++ */
++static inline void dump_bytes(enum debuglevel level, const char *tag,
++                              unsigned char *bytes, int count)
 +{
 +#ifdef CONFIG_GIGASET_DEBUG
-+	int i;
++	unsigned char c;
++	static char dbgline[3 * 32 + 1];
++	static const char hexdigit[] = "0123456789abcdef";
++	int i = 0;
 +	IFNULLRET(tag);
-+	dbg(level, "%s urb(0x%08lx)->{", tag, (unsigned long) urb);
-+	if (urb) {
-+		dbg(level,
-+		    "  dev=0x%08lx, pipe=%s:EP%d/DV%d:%s, "
-+		    "status=%d, hcpriv=0x%08lx, transfer_flags=0x%x,",
-+		    (unsigned long) urb->dev,
-+		    usb_pipetype_str(urb->pipe),
-+		    usb_pipeendpoint(urb->pipe), usb_pipedevice(urb->pipe),
-+		    usb_pipein(urb->pipe) ? "in" : "out",
-+		    urb->status, (unsigned long) urb->hcpriv,
-+		    urb->transfer_flags);
-+		dbg(level,
-+		    "  transfer_buffer=0x%08lx[%d], actual_length=%d, "
-+		    "bandwidth=%d, setup_packet=0x%08lx,",
-+		    (unsigned long) urb->transfer_buffer,
-+		    urb->transfer_buffer_length, urb->actual_length,
-+		    urb->bandwidth, (unsigned long) urb->setup_packet);
-+		dbg(level,
-+		    "  start_frame=%d, number_of_packets=%d, interval=%d, "
-+		    "error_count=%d,",
-+		    urb->start_frame, urb->number_of_packets, urb->interval,
-+		    urb->error_count);
-+		dbg(level,
-+		    "  context=0x%08lx, complete=0x%08lx, iso_frame_desc[]={",
-+		    (unsigned long) urb->context,
-+		    (unsigned long) urb->complete);
-+		for (i = 0; i < urb->number_of_packets; i++) {
-+			struct usb_iso_packet_descriptor *pifd = &urb->iso_frame_desc[i];
-+			dbg(level,
-+			    "    {offset=%u, length=%u, actual_length=%u, "
-+			    "status=%u}",
-+			    pifd->offset, pifd->length, pifd->actual_length,
-+			    pifd->status);
++	IFNULLRET(bytes);
++	while (count-- > 0) {
++		if (i > sizeof(dbgline) - 4) {
++			dbgline[i] = '\0';
++			dbg(level, "%s:%s", tag, dbgline);
++			i = 0;
 +		}
++		c = *bytes++;
++		dbgline[i] = (i && !(i % 12)) ? '-' : ' ';
++		i++;
++		dbgline[i++] = hexdigit[(c >> 4) & 0x0f];
++		dbgline[i++] = hexdigit[c & 0x0f];
 +	}
-+	dbg(level, "}}");
++	dbgline[i] = '\0';
++	dbg(level, "%s:%s", tag, dbgline);
 +#endif
 +}
 +
-+/* read/set modem control bits etc. (m10x only) */
-+static int gigaset_set_modem_ctrl(struct cardstate *cs, unsigned old_state,
-+                                  unsigned new_state)
-+{
-+	return -EINVAL;
-+}
++/*============================================================================*/
 +
-+static int gigaset_baud_rate(struct cardstate *cs, unsigned cflag)
-+{
-+	return -EINVAL;
-+}
-+
-+static int gigaset_set_line_ctrl(struct cardstate *cs, unsigned cflag)
-+{
-+	return -EINVAL;
-+}
-+
-+/* error_hangup
-+ * hang up any existing connection because of an unrecoverable error
-+ * This function may be called from any context and takes care of scheduling
-+ * the necessary actions for execution outside of interrupt context.
-+ * argument:
-+ *	B channel control structure
++/* bytewise HDLC bitstuffing via table lookup
++ * lookup table: 5 subtables for 0..4 preceding consecutive '1' bits
++ * index: 256*(number of preceding '1' bits) + (next byte to stuff)
++ * value: bit  9.. 0 = result bits
++ *        bit 12..10 = number of trailing '1' bits in result
++ *        bit 14..13 = number of bits added by stuffing
 + */
-+static inline void error_hangup(struct bc_state *bcs)
-+{
-+	struct cardstate *cs = bcs->cs;
-+
-+	dbg(DEBUG_ANY,
-+	    "%s: scheduling HUP for channel %d", __func__, bcs->channel);
-+
-+	if (!gigaset_add_event(cs, &bcs->at_state, EV_HUP, NULL, 0, NULL)) {
-+		//FIXME what should we do?
-+		return;
-+	}
-+
-+	gigaset_schedule_event(cs);
-+}
-+
-+/* error_reset
-+ * reset Gigaset device because of an unrecoverable error
-+ * This function may be called from any context and takes care of scheduling
-+ * the necessary actions for execution outside of interrupt context.
-+ * argument:
-+ *	controller state structure
-+ */
-+static inline void error_reset(struct cardstate *cs)
-+{
-+	//FIXME try to recover without bothering the user
-+	err("unrecoverable error - please disconnect the Gigaset base to reset");
-+}
-+
-+/* check_pending
-+ * check for completion of pending control request
-+ * parameter:
-+ *	urb	USB request block of completed request
-+ *		urb->context = hardware specific controller state structure
-+ */
-+static void check_pending(struct bas_cardstate *ucs)
-+{
-+	unsigned long flags;
-+
-+	IFNULLRET(ucs);
-+	IFNULLRET(cardstate);
-+
-+	spin_lock_irqsave(&ucs->lock, flags);
-+	switch (ucs->pending) {
-+	case 0:
-+		break;
-+	case HD_OPEN_ATCHANNEL:
-+		if (atomic_read(&ucs->basstate) & BS_ATOPEN)
-+			ucs->pending = 0;
-+		break;
-+	case HD_OPEN_B1CHANNEL:
-+		if (atomic_read(&ucs->basstate) & BS_B1OPEN)
-+			ucs->pending = 0;
-+		break;
-+	case HD_OPEN_B2CHANNEL:
-+		if (atomic_read(&ucs->basstate) & BS_B2OPEN)
-+			ucs->pending = 0;
-+		break;
-+	case HD_CLOSE_ATCHANNEL:
-+		if (!(atomic_read(&ucs->basstate) & BS_ATOPEN))
-+			ucs->pending = 0;
-+		//wake_up_interruptible(cs->initwait);
-+		//FIXME need own wait queue?
-+		break;
-+	case HD_CLOSE_B1CHANNEL:
-+		if (!(atomic_read(&ucs->basstate) & BS_B1OPEN))
-+			ucs->pending = 0;
-+		break;
-+	case HD_CLOSE_B2CHANNEL:
-+		if (!(atomic_read(&ucs->basstate) & BS_B2OPEN))
-+			ucs->pending = 0;
-+		break;
-+	case HD_DEVICE_INIT_ACK:		/* no reply expected */
-+		ucs->pending = 0;
-+		break;
-+	/* HD_READ_ATMESSAGE, HD_WRITE_ATMESSAGE, HD_RESET_INTERRUPTPIPE
-+	 * are handled separately and should never end up here
-+	 */
-+	default:
-+		warn("unknown pending request 0x%02x cleared", ucs->pending);
-+		ucs->pending = 0;
-+	}
-+
-+	if (!ucs->pending)
-+		del_timer(&ucs->timer_ctrl);
-+
-+	spin_unlock_irqrestore(&ucs->lock, flags);
-+}
-+
-+/* cmd_in_timeout
-+ * timeout routine for command input request
-+ * argument:
-+ *	controller state structure
-+ */
-+static void cmd_in_timeout(unsigned long data)
-+{
-+	struct cardstate *cs = (struct cardstate *) data;
-+	struct bas_cardstate *ucs;
-+	unsigned long flags;
-+
-+	IFNULLRET(cs);
-+	ucs = cs->hw.bas;
-+	IFNULLRET(ucs);
-+
-+	spin_lock_irqsave(&cs->lock, flags);
-+	if (!atomic_read(&cs->connected)) {
-+		dbg(DEBUG_USBREQ, "%s: disconnected", __func__);
-+		spin_unlock_irqrestore(&cs->lock, flags);
-+		return;
-+	}
-+	if (!ucs->rcvbuf_size) {
-+		dbg(DEBUG_USBREQ, "%s: no receive in progress", __func__);
-+		spin_unlock_irqrestore(&cs->lock, flags);
-+		return;
-+	}
-+	spin_unlock_irqrestore(&cs->lock, flags);
-+
-+	err("timeout reading AT response");
-+	error_reset(cs);	//FIXME retry?
-+}
-+
-+
-+static void read_ctrl_callback(struct urb *urb, struct pt_regs *regs);
-+
-+/* atread_submit
-+ * submit an HD_READ_ATMESSAGE command URB
-+ * parameters:
-+ *	cs	controller state structure
-+ *	timeout	timeout in 1/10 sec., 0: none
-+ * return value:
-+ *	0 on success
-+ *	-EINVAL if a NULL pointer is encountered somewhere
-+ *	-EBUSY if another request is pending
-+ *	any URB submission error code
-+ */
-+static int atread_submit(struct cardstate *cs, int timeout)
-+{
-+	struct bas_cardstate *ucs;
-+	int ret;
-+
-+	IFNULLRETVAL(cs, -EINVAL);
-+	ucs = cs->hw.bas;
-+	IFNULLRETVAL(ucs, -EINVAL);
-+	IFNULLRETVAL(ucs->urb_cmd_in, -EINVAL);
-+
-+	dbg(DEBUG_USBREQ, "-------> HD_READ_ATMESSAGE (%d)", ucs->rcvbuf_size);
-+
-+	if (ucs->urb_cmd_in->status == -EINPROGRESS) {
-+		err("could not submit HD_READ_ATMESSAGE: URB busy");
-+		return -EBUSY;
-+	}
-+
-+	ucs->dr_cmd_in.bRequestType = IN_VENDOR_REQ;
-+	ucs->dr_cmd_in.bRequest = HD_READ_ATMESSAGE;
-+	ucs->dr_cmd_in.wValue = 0;
-+	ucs->dr_cmd_in.wIndex = 0;
-+	ucs->dr_cmd_in.wLength = cpu_to_le16(ucs->rcvbuf_size);
-+	usb_fill_control_urb(ucs->urb_cmd_in, ucs->udev,
-+	                     usb_rcvctrlpipe(ucs->udev, 0),
-+	                     (unsigned char*) & ucs->dr_cmd_in,
-+	                     ucs->rcvbuf, ucs->rcvbuf_size,
-+	                     read_ctrl_callback, cs->inbuf);
-+
-+	if ((ret = usb_submit_urb(ucs->urb_cmd_in, SLAB_ATOMIC)) != 0) {
-+		err("could not submit HD_READ_ATMESSAGE: %s",
-+		    get_usb_statmsg(ret));
-+		return ret;
-+	}
-+
-+	if (timeout > 0) {
-+		dbg(DEBUG_USBREQ, "setting timeout of %d/10 secs", timeout);
-+		ucs->timer_cmd_in.expires = jiffies + timeout * HZ / 10;
-+		ucs->timer_cmd_in.data = (unsigned long) cs;
-+		ucs->timer_cmd_in.function = cmd_in_timeout;
-+		add_timer(&ucs->timer_cmd_in);
-+	}
-+	return 0;
-+}
-+
-+static void stopurbs(struct bas_bc_state *);
-+static int start_cbsend(struct cardstate *);
-+
-+/* set/clear bits in base connection state
-+ */
-+inline static void update_basstate(struct bas_cardstate *ucs,
-+				   int set, int clear)
-+{
-+	unsigned long flags;
-+	int state;
-+
-+	spin_lock_irqsave(&ucs->lock, flags);
-+	state = atomic_read(&ucs->basstate);
-+	state &= ~clear;
-+	state |= set;
-+	atomic_set(&ucs->basstate, state);
-+	spin_unlock_irqrestore(&ucs->lock, flags);
-+}
-+
-+
-+/* read_int_callback
-+ * USB completion handler for interrupt pipe input
-+ * called by the USB subsystem in interrupt context
-+ * parameter:
-+ *	urb	USB request block
-+ *		urb->context = controller state structure
-+ */
-+static void read_int_callback(struct urb *urb, struct pt_regs *regs)
-+{
-+	struct cardstate *cs;
-+	struct bas_cardstate *ucs;
-+	struct bc_state *bcs;
-+	unsigned long flags;
-+	int status;
-+	unsigned l;
-+	int channel;
-+
-+	IFNULLRET(urb);
-+	cs = (struct cardstate *) urb->context;
-+	IFNULLRET(cs);
-+	ucs = cs->hw.bas;
-+	IFNULLRET(ucs);
-+
-+	if (unlikely(!atomic_read(&cs->connected))) {
-+		warn("%s: disconnected", __func__);
-+		return;
-+	}
-+
-+	switch (urb->status) {
-+	case 0:			/* success */
-+		break;
-+	case -ENOENT:			/* canceled */
-+	case -ECONNRESET:		/* canceled (async) */
-+	case -EINPROGRESS:		/* pending */
-+		/* ignore silently */
-+		dbg(DEBUG_USBREQ,
-+		    "%s: %s", __func__, get_usb_statmsg(urb->status));
-+		return;
-+	default:		/* severe trouble */
-+		warn("interrupt read: %s", get_usb_statmsg(urb->status));
-+		//FIXME corrective action? resubmission always ok?
-+		goto resubmit;
-+	}
-+
-+	l = (unsigned) ucs->int_in_buf[1] +
-+	    (((unsigned) ucs->int_in_buf[2]) << 8);
-+
-+	dbg(DEBUG_USBREQ,
-+	    "<-------%d: 0x%02x (%u [0x%02x 0x%02x])", urb->actual_length,
-+	    (int)ucs->int_in_buf[0], l,
-+	    (int)ucs->int_in_buf[1], (int)ucs->int_in_buf[2]);
-+
-+	channel = 0;
-+
-+	switch (ucs->int_in_buf[0]) {
-+	case HD_DEVICE_INIT_OK:
-+		update_basstate(ucs, BS_INIT, 0);
-+		break;
-+
-+	case HD_READY_SEND_ATDATA:
-+		del_timer(&ucs->timer_atrdy);
-+		update_basstate(ucs, BS_ATREADY, BS_ATTIMER);
-+		start_cbsend(cs);
-+		break;
-+
-+	case HD_OPEN_B2CHANNEL_ACK:
-+		++channel;
-+	case HD_OPEN_B1CHANNEL_ACK:
-+		bcs = cs->bcs + channel;
-+		update_basstate(ucs, BS_B1OPEN << channel, 0);
-+		gigaset_bchannel_up(bcs);
-+		break;
-+
-+	case HD_OPEN_ATCHANNEL_ACK:
-+		update_basstate(ucs, BS_ATOPEN, 0);
-+		start_cbsend(cs);
-+		break;
-+
-+	case HD_CLOSE_B2CHANNEL_ACK:
-+		++channel;
-+	case HD_CLOSE_B1CHANNEL_ACK:
-+		bcs = cs->bcs + channel;
-+		update_basstate(ucs, 0, BS_B1OPEN << channel);
-+		stopurbs(bcs->hw.bas);
-+		gigaset_bchannel_down(bcs);
-+		break;
-+
-+	case HD_CLOSE_ATCHANNEL_ACK:
-+		update_basstate(ucs, 0, BS_ATOPEN);
-+		break;
-+
-+	case HD_B2_FLOW_CONTROL:
-+		++channel;
-+	case HD_B1_FLOW_CONTROL:
-+		bcs = cs->bcs + channel;
-+		atomic_add((l - BAS_NORMFRAME) * BAS_CORRFRAMES,
-+		           &bcs->hw.bas->corrbytes);
-+		dbg(DEBUG_ISO,
-+		    "Flow control (channel %d, sub %d): 0x%02x => %d",
-+		    channel, bcs->hw.bas->numsub, l,
-+		    atomic_read(&bcs->hw.bas->corrbytes));
-+		break;
-+
-+	case HD_RECEIVEATDATA_ACK:	/* AT response ready to be received */
-+		if (!l) {
-+			warn("HD_RECEIVEATDATA_ACK with length 0 ignored");
-+			break;
-+		}
-+		spin_lock_irqsave(&cs->lock, flags);
-+		if (ucs->rcvbuf_size) {
-+			spin_unlock_irqrestore(&cs->lock, flags);
-+			err("receive AT data overrun, %d bytes lost", l);
-+			error_reset(cs);	//FIXME reschedule
-+			break;
-+		}
-+		if ((ucs->rcvbuf = kmalloc(l, GFP_ATOMIC)) == NULL) {
-+			spin_unlock_irqrestore(&cs->lock, flags);
-+			err("%s: out of memory, %d bytes lost", __func__, l);
-+			error_reset(cs);	//FIXME reschedule
-+			break;
-+		}
-+		ucs->rcvbuf_size = l;
-+		ucs->retry_cmd_in = 0;
-+		if ((status = atread_submit(cs, BAS_TIMEOUT)) < 0) {
-+			kfree(ucs->rcvbuf);
-+			ucs->rcvbuf = NULL;
-+			ucs->rcvbuf_size = 0;
-+			error_reset(cs);	//FIXME reschedule
-+		}
-+		spin_unlock_irqrestore(&cs->lock, flags);
-+		break;
-+
-+	case HD_RESET_INTERRUPT_PIPE_ACK:
-+		dbg(DEBUG_USBREQ, "HD_RESET_INTERRUPT_PIPE_ACK");
-+		break;
-+
-+	case HD_SUSPEND_END:
-+		dbg(DEBUG_USBREQ, "HD_SUSPEND_END");
-+		break;
-+
-+	default:
-+		warn("unknown Gigaset signal 0x%02x (%u) ignored",
-+		     (int) ucs->int_in_buf[0], l);
-+	}
-+
-+	check_pending(ucs);
-+
-+resubmit:
-+	status = usb_submit_urb(urb, SLAB_ATOMIC);
-+	if (unlikely(status)) {
-+		err("could not resubmit interrupt URB: %s",
-+		    get_usb_statmsg(status));
-+		error_reset(cs);
-+	}
-+}
-+
-+/* read_ctrl_callback
-+ * USB completion handler for control pipe input
-+ * called by the USB subsystem in interrupt context
-+ * parameter:
-+ *	urb	USB request block
-+ *		urb->context = inbuf structure for controller state
-+ */
-+static void read_ctrl_callback(struct urb *urb, struct pt_regs *regs)
-+{
-+	struct cardstate *cs;
-+	struct bas_cardstate *ucs;
-+	unsigned numbytes;
-+	unsigned long flags;
-+	struct inbuf_t *inbuf;
-+	int have_data = 0;
-+
-+	IFNULLRET(urb);
-+	inbuf = (struct inbuf_t *) urb->context;
-+	IFNULLRET(inbuf);
-+	cs = inbuf->cs;
-+	IFNULLRET(cs);
-+	ucs = cs->hw.bas;
-+	IFNULLRET(ucs);
-+
-+	spin_lock_irqsave(&cs->lock, flags);
-+	if (!atomic_read(&cs->connected)) {
-+		warn("%s: disconnected", __func__);
-+		spin_unlock_irqrestore(&cs->lock, flags);
-+		return;
-+	}
-+
-+	if (!ucs->rcvbuf_size) {
-+		warn("%s: no receive in progress", __func__);
-+		spin_unlock_irqrestore(&cs->lock, flags);
-+		return;
-+	}
-+
-+	del_timer(&ucs->timer_cmd_in);
-+
-+	switch (urb->status) {
-+	case 0:				/* normal completion */
-+		numbytes = urb->actual_length;
-+		if (unlikely(numbytes == 0)) {
-+			warn("control read: empty block received");
-+			goto retry;
-+		}
-+		if (unlikely(numbytes != ucs->rcvbuf_size)) {
-+			warn("control read: received %d chars, expected %d",
-+			     numbytes, ucs->rcvbuf_size);
-+			if (numbytes > ucs->rcvbuf_size)
-+				numbytes = ucs->rcvbuf_size;
-+		}
-+
-+		/* copy received bytes to inbuf */
-+		have_data = gigaset_fill_inbuf(inbuf, ucs->rcvbuf, numbytes);
-+
-+		if (unlikely(numbytes < ucs->rcvbuf_size)) {
-+			/* incomplete - resubmit for remaining bytes */
-+			ucs->rcvbuf_size -= numbytes;
-+			ucs->retry_cmd_in = 0;
-+			goto retry;
-+		}
-+		break;
-+
-+	case -ENOENT:			/* canceled */
-+	case -ECONNRESET:		/* canceled (async) */
-+	case -EINPROGRESS:		/* pending */
-+		/* no action necessary */
-+		dbg(DEBUG_USBREQ,
-+		    "%s: %s", __func__, get_usb_statmsg(urb->status));
-+		break;
-+
-+	default:			/* severe trouble */
-+		warn("control read: %s", get_usb_statmsg(urb->status));
-+	retry:
-+		if (ucs->retry_cmd_in++ < BAS_RETRY) {
-+			notice("control read: retry %d", ucs->retry_cmd_in);
-+			if (atread_submit(cs, BAS_TIMEOUT) >= 0) {
-+				/* resubmitted - bypass regular exit block */
-+				spin_unlock_irqrestore(&cs->lock, flags);
-+				return;
-+			}
-+		} else {
-+			err("control read: giving up after %d tries",
-+			    ucs->retry_cmd_in);
-+		}
-+		error_reset(cs);
-+	}
-+
-+	kfree(ucs->rcvbuf);
-+	ucs->rcvbuf = NULL;
-+	ucs->rcvbuf_size = 0;
-+	spin_unlock_irqrestore(&cs->lock, flags);
-+	if (have_data) {
-+		dbg(DEBUG_INTR, "%s-->BH", __func__);
-+		gigaset_schedule_event(cs);
-+	}
-+}
-+
-+/* read_iso_callback
-+ * USB completion handler for B channel isochronous input
-+ * called by the USB subsystem in interrupt context
-+ * parameter:
-+ *	urb	USB request block of completed request
-+ *		urb->context = bc_state structure
-+ */
-+static void read_iso_callback(struct urb *urb, struct pt_regs *regs)
-+{
-+	struct bc_state *bcs;
-+	struct bas_bc_state *ubc;
-+	unsigned long flags;
-+	int i, rc;
-+
-+	IFNULLRET(urb);
-+	IFNULLRET(urb->context);
-+	IFNULLRET(cardstate);
-+
-+	/* status codes not worth bothering the tasklet with */
-+	if (unlikely(urb->status == -ENOENT || urb->status == -ECONNRESET ||
-+	             urb->status == -EINPROGRESS)) {
-+		dbg(DEBUG_ISO,
-+		    "%s: %s", __func__, get_usb_statmsg(urb->status));
-+		return;
-+	}
-+
-+	bcs = (struct bc_state *) urb->context;
-+	ubc = bcs->hw.bas;
-+	IFNULLRET(ubc);
-+
-+	spin_lock_irqsave(&ubc->isoinlock, flags);
-+	if (likely(ubc->isoindone == NULL)) {
-+		/* pass URB to tasklet */
-+		ubc->isoindone = urb;
-+		tasklet_schedule(&ubc->rcvd_tasklet);
-+	} else {
-+		/* tasklet still busy, drop data and resubmit URB */
-+		ubc->loststatus = urb->status;
-+		for (i = 0; i < BAS_NUMFRAMES; i++) {
-+			ubc->isoinlost += urb->iso_frame_desc[i].actual_length;
-+			if (unlikely(urb->iso_frame_desc[i].status != 0 &&
-+				     urb->iso_frame_desc[i].status != -EINPROGRESS)) {
-+				ubc->loststatus = urb->iso_frame_desc[i].status;
-+			}
-+			urb->iso_frame_desc[i].status = 0;
-+			urb->iso_frame_desc[i].actual_length = 0;
-+		}
-+		if (likely(atomic_read(&ubc->running))) {
-+			urb->dev = bcs->cs->hw.bas->udev;	/* clobbered by USB subsystem */
-+			urb->transfer_flags = URB_ISO_ASAP;
-+			urb->number_of_packets = BAS_NUMFRAMES;
-+			dbg(DEBUG_ISO, "%s: isoc read overrun/resubmit", __func__);
-+			rc = usb_submit_urb(urb, SLAB_ATOMIC);
-+			if (unlikely(rc != 0)) {
-+				err("could not resubmit isochronous read URB: %s",
-+				    get_usb_statmsg(rc));
-+				dump_urb(DEBUG_ISO, "isoc read", urb);
-+				error_hangup(bcs);
-+			}
-+		}
-+	}
-+	spin_unlock_irqrestore(&ubc->isoinlock, flags);
-+}
-+
-+/* write_iso_callback
-+ * USB completion handler for B channel isochronous output
-+ * called by the USB subsystem in interrupt context
-+ * parameter:
-+ *	urb	USB request block of completed request
-+ *		urb->context = isow_urbctx_t structure
-+ */
-+static void write_iso_callback(struct urb *urb, struct pt_regs *regs)
-+{
-+	struct isow_urbctx_t *ucx;
-+	struct bas_bc_state *ubc;
-+	unsigned long flags;
-+
-+	IFNULLRET(urb);
-+	IFNULLRET(urb->context);
-+	IFNULLRET(cardstate);
-+
-+	/* status codes not worth bothering the tasklet with */
-+	if (unlikely(urb->status == -ENOENT || urb->status == -ECONNRESET ||
-+	             urb->status == -EINPROGRESS)) {
-+		dbg(DEBUG_ISO,
-+		    "%s: %s", __func__, get_usb_statmsg(urb->status));
-+		return;
-+	}
-+
-+	/* pass URB context to tasklet */
-+	ucx = (struct isow_urbctx_t *) urb->context;
-+	IFNULLRET(ucx->bcs);
-+	ubc = ucx->bcs->hw.bas;
-+	IFNULLRET(ubc);
-+
-+	spin_lock_irqsave(&ubc->isooutlock, flags);
-+	ubc->isooutovfl = ubc->isooutdone;
-+	ubc->isooutdone = ucx;
-+	spin_unlock_irqrestore(&ubc->isooutlock, flags);
-+	tasklet_schedule(&ubc->sent_tasklet);
-+}
-+
-+/* starturbs
-+ * prepare and submit USB request blocks for isochronous input and output
-+ * argument:
-+ *	B channel control structure
-+ * return value:
-+ *	0 on success
-+ *	< 0 on error (no URBs submitted)
-+ */
-+static int starturbs(struct bc_state *bcs)
-+{
-+	struct urb *urb;
-+	struct bas_bc_state *ubc;
-+	int j, k;
-+	int rc;
-+
-+	IFNULLRETVAL(bcs, -EFAULT);
-+	ubc = bcs->hw.bas;
-+	IFNULLRETVAL(ubc, -EFAULT);
-+
-+	/* initialize L2 reception */
-+	if (bcs->proto2 == ISDN_PROTO_L2_HDLC)
-+		bcs->inputstate |= INS_flag_hunt;
-+
-+	/* submit all isochronous input URBs */
-+	atomic_set(&ubc->running, 1);
-+	for (k = 0; k < BAS_INURBS; k++) {
-+		urb = ubc->isoinurbs[k];
-+		if (!urb) {
-+			err("isoinurbs[%d]==NULL", k);
-+			rc = -EFAULT;
-+			goto error;
-+		}
-+
-+		urb->dev = bcs->cs->hw.bas->udev;
-+		urb->pipe = usb_rcvisocpipe(urb->dev, 3 + 2 * bcs->channel);
-+		urb->transfer_flags = URB_ISO_ASAP;
-+		urb->transfer_buffer = ubc->isoinbuf + k * BAS_INBUFSIZE;
-+		urb->transfer_buffer_length = BAS_INBUFSIZE;
-+		urb->number_of_packets = BAS_NUMFRAMES;
-+		urb->interval = BAS_FRAMETIME;
-+		urb->complete = read_iso_callback;
-+		urb->context = bcs;
-+		for (j = 0; j < BAS_NUMFRAMES; j++) {
-+			urb->iso_frame_desc[j].offset = j * BAS_MAXFRAME;
-+			urb->iso_frame_desc[j].length = BAS_MAXFRAME;
-+			urb->iso_frame_desc[j].status = 0;
-+			urb->iso_frame_desc[j].actual_length = 0;
-+		}
-+
-+		dump_urb(DEBUG_ISO, "Initial isoc read", urb);
-+		if ((rc = usb_submit_urb(urb, SLAB_ATOMIC)) != 0) {
-+			err("could not submit isochronous read URB %d: %s",
-+			    k, get_usb_statmsg(rc));
-+			goto error;
-+		}
-+	}
-+
-+	/* initialize L2 transmission */
-+	gigaset_isowbuf_init(ubc->isooutbuf, PPP_FLAG);
-+
-+	/* set up isochronous output URBs for flag idling */
-+	for (k = 0; k < BAS_OUTURBS; ++k) {
-+		urb = ubc->isoouturbs[k].urb;
-+		if (!urb) {
-+			err("isoouturbs[%d].urb==NULL", k);
-+			rc = -EFAULT;
-+			goto error;
-+		}
-+		urb->dev = bcs->cs->hw.bas->udev;
-+		urb->pipe = usb_sndisocpipe(urb->dev, 4 + 2 * bcs->channel);
-+		urb->transfer_flags = URB_ISO_ASAP;
-+		urb->transfer_buffer = ubc->isooutbuf->data;
-+		urb->transfer_buffer_length = sizeof(ubc->isooutbuf->data);
-+		urb->number_of_packets = BAS_NUMFRAMES;
-+		urb->interval = BAS_FRAMETIME;
-+		urb->complete = write_iso_callback;
-+		urb->context = &ubc->isoouturbs[k];
-+		for (j = 0; j < BAS_NUMFRAMES; ++j) {
-+			urb->iso_frame_desc[j].offset = BAS_OUTBUFSIZE;
-+			urb->iso_frame_desc[j].length = BAS_NORMFRAME;
-+			urb->iso_frame_desc[j].status = 0;
-+			urb->iso_frame_desc[j].actual_length = 0;
-+		}
-+		ubc->isoouturbs[k].limit = -1;
-+	}
-+
-+	/* submit two URBs, keep third one */
-+	for (k = 0; k < 2; ++k) {
-+		dump_urb(DEBUG_ISO, "Initial isoc write", urb);
-+		rc = usb_submit_urb(ubc->isoouturbs[k].urb, SLAB_ATOMIC);
-+		if (rc != 0) {
-+			err("could not submit isochronous write URB %d: %s",
-+			    k, get_usb_statmsg(rc));
-+			goto error;
-+		}
-+	}
-+	dump_urb(DEBUG_ISO, "Initial isoc write (free)", urb);
-+	ubc->isooutfree = &ubc->isoouturbs[2];
-+	ubc->isooutdone = ubc->isooutovfl = NULL;
-+	return 0;
-+ error:
-+	stopurbs(ubc);
-+	return rc;
-+}
-+
-+/* stopurbs
-+ * cancel the USB request blocks for isochronous input and output
-+ * errors are silently ignored
-+ * argument:
-+ *	B channel control structure
-+ */
-+static void stopurbs(struct bas_bc_state *ubc)
-+{
-+	int k, rc;
-+
-+	IFNULLRET(ubc);
-+
-+	atomic_set(&ubc->running, 0);
-+
-+	for (k = 0; k < BAS_INURBS; ++k) {
-+		rc = usb_unlink_urb(ubc->isoinurbs[k]);
-+		dbg(DEBUG_ISO, "%s: isoc input URB %d unlinked, result = %d",
-+		    __func__, k, rc);
-+	}
-+
-+	for (k = 0; k < BAS_OUTURBS; ++k) {
-+		rc = usb_unlink_urb(ubc->isoouturbs[k].urb);
-+		dbg(DEBUG_ISO, "%s: isoc output URB %d unlinked, result = %d",
-+		    __func__, k, rc);
-+	}
-+}
-+
-+/* Isochronous Write - Bottom Half */
-+/* =============================== */
-+
-+/* submit_iso_write_urb
-+ * fill and submit the next isochronous write URB
-+ * parameters:
-+ *	bcs	B channel state structure
-+ * return value:
-+ *	number of frames submitted in URB
-+ *	0 if URB not submitted because no data available (isooutbuf busy)
-+ *	error code < 0 on error
-+ */
-+static int submit_iso_write_urb(struct isow_urbctx_t *ucx)
-+{
-+	struct urb *urb;
-+	struct bas_bc_state *ubc;
-+	struct usb_iso_packet_descriptor *ifd;
-+	int corrbytes, nframe, rc;
-+
-+	IFNULLRETVAL(ucx, -EFAULT);
-+	urb = ucx->urb;
-+	IFNULLRETVAL(urb, -EFAULT);
-+	IFNULLRETVAL(ucx->bcs, -EFAULT);
-+	ubc = ucx->bcs->hw.bas;
-+	IFNULLRETVAL(ubc, -EFAULT);
-+
-+	urb->dev = ucx->bcs->cs->hw.bas->udev;	/* clobbered by USB subsystem */
-+	urb->transfer_flags = URB_ISO_ASAP;
-+	urb->transfer_buffer = ubc->isooutbuf->data;
-+	urb->transfer_buffer_length = sizeof(ubc->isooutbuf->data);
-+
-+	for (nframe = 0; nframe < BAS_NUMFRAMES; nframe++) {
-+		ifd = &urb->iso_frame_desc[nframe];
-+
-+		/* compute frame length according to flow control */
-+		ifd->length = BAS_NORMFRAME;
-+		if ((corrbytes = atomic_read(&ubc->corrbytes)) != 0) {
-+			dbg(DEBUG_ISO, "%s: corrbytes=%d", __func__, corrbytes);
-+			if (corrbytes > BAS_HIGHFRAME - BAS_NORMFRAME)
-+				corrbytes = BAS_HIGHFRAME - BAS_NORMFRAME;
-+			else if (corrbytes < BAS_LOWFRAME - BAS_NORMFRAME)
-+				corrbytes = BAS_LOWFRAME - BAS_NORMFRAME;
-+			ifd->length += corrbytes;
-+			atomic_add(-corrbytes, &ubc->corrbytes);
-+		}
-+		//dbg(DEBUG_ISO, "%s: frame %d length=%d", __func__, nframe, ifd->length);
-+
-+		/* retrieve block of data to send */
-+		ifd->offset = gigaset_isowbuf_getbytes(ubc->isooutbuf, ifd->length);
-+		if (ifd->offset < 0) {
-+			if (ifd->offset == -EBUSY) {
-+				dbg(DEBUG_ISO, "%s: buffer busy at frame %d",
-+				    __func__, nframe);
-+				/* tasklet will be restarted from gigaset_send_skb() */
-+			} else {
-+				err("%s: buffer error %d at frame %d",
-+				    __func__, ifd->offset, nframe);
-+				return ifd->offset;
-+			}
-+			break;
-+		}
-+		ucx->limit = atomic_read(&ubc->isooutbuf->nextread);
-+		ifd->status = 0;
-+		ifd->actual_length = 0;
-+	}
-+	if ((urb->number_of_packets = nframe) > 0) {
-+		if ((rc = usb_submit_urb(urb, SLAB_ATOMIC)) != 0) {
-+			err("could not submit isochronous write URB: %s",
-+			    get_usb_statmsg(rc));
-+			dump_urb(DEBUG_ISO, "isoc write", urb);
-+			return rc;
-+		}
-+		++ubc->numsub;
-+	}
-+	return nframe;
-+}
-+
-+/* write_iso_tasklet
-+ * tasklet scheduled when an isochronous output URB from the Gigaset device
-+ * has completed
-+ * parameter:
-+ *	data	B channel state structure
-+ */
-+static void write_iso_tasklet(unsigned long data)
-+{
-+	struct bc_state *bcs;
-+	struct bas_bc_state *ubc;
-+	struct cardstate *cs;
-+	struct isow_urbctx_t *done, *next, *ovfl;
-+	struct urb *urb;
-+	struct usb_iso_packet_descriptor *ifd;
-+	int offset;
-+	unsigned long flags;
-+	int i;
-+	struct sk_buff *skb;
-+	int len;
-+
-+	bcs = (struct bc_state *) data;
-+	IFNULLRET(bcs);
-+	ubc = bcs->hw.bas;
-+	IFNULLRET(ubc);
-+	cs = bcs->cs;
-+	IFNULLRET(cs);
-+
-+	/* loop while completed URBs arrive in time */
-+	for (;;) {
-+		if (unlikely(!atomic_read(&cs->connected))) {
-+			warn("%s: disconnected", __func__);
-+			return;
-+		}
-+
-+		if (unlikely(!(atomic_read(&ubc->running)))) {
-+			dbg(DEBUG_ISO, "%s: not running", __func__);
-+			return;
-+		}
-+
-+		/* retrieve completed URBs */
-+		spin_lock_irqsave(&ubc->isooutlock, flags);
-+		done = ubc->isooutdone;
-+		ubc->isooutdone = NULL;
-+		ovfl = ubc->isooutovfl;
-+		ubc->isooutovfl = NULL;
-+		spin_unlock_irqrestore(&ubc->isooutlock, flags);
-+		if (ovfl) {
-+			err("isochronous write buffer underrun - buy a faster machine :-)");
-+			error_hangup(bcs);
-+			break;
-+		}
-+		if (!done)
-+			break;
-+
-+		/* submit free URB if available */
-+		spin_lock_irqsave(&ubc->isooutlock, flags);
-+		next = ubc->isooutfree;
-+		ubc->isooutfree = NULL;
-+		spin_unlock_irqrestore(&ubc->isooutlock, flags);
-+		if (next) {
-+			if (submit_iso_write_urb(next) <= 0) {
-+				/* could not submit URB, put it back */
-+				spin_lock_irqsave(&ubc->isooutlock, flags);
-+				if (ubc->isooutfree == NULL) {
-+					ubc->isooutfree = next;
-+					next = NULL;
-+				}
-+				spin_unlock_irqrestore(&ubc->isooutlock, flags);
-+				if (next) {
-+					/* couldn't put it back */
-+					err("losing isochronous write URB");
-+					error_hangup(bcs);
-+				}
-+			}
-+		}
-+
-+		/* process completed URB */
-+		urb = done->urb;
-+		switch (urb->status) {
-+		case 0:				/* normal completion */
-+			break;
-+		case -EXDEV:			/* inspect individual frames */
-+			/* assumptions (for lack of documentation):
-+			 * - actual_length bytes of the frame in error are successfully sent
-+			 * - all following frames are not sent at all
-+			 */
-+			dbg(DEBUG_ISO, "%s: URB partially completed", __func__);
-+			offset = done->limit;	/* just in case */
-+			for (i = 0; i < BAS_NUMFRAMES; i++) {
-+				ifd = &urb->iso_frame_desc[i];
-+				if (ifd->status ||
-+				    ifd->actual_length != ifd->length) {
-+					warn("isochronous write: frame %d: %s, "
-+					     "only %d of %d bytes sent",
-+					     i, get_usb_statmsg(ifd->status),
-+					     ifd->actual_length, ifd->length);
-+					offset = (ifd->offset +
-+					          ifd->actual_length)
-+					         % BAS_OUTBUFSIZE;
-+					break;
-+				}
-+			}
-+#ifdef CONFIG_GIGASET_DEBUG
-+			/* check assumption on remaining frames */
-+			for (; i < BAS_NUMFRAMES; i++) {
-+				ifd = &urb->iso_frame_desc[i];
-+				if (ifd->status != -EINPROGRESS
-+				    || ifd->actual_length != 0) {
-+					warn("isochronous write: frame %d: %s, "
-+					     "%d of %d bytes sent",
-+					     i, get_usb_statmsg(ifd->status),
-+					     ifd->actual_length, ifd->length);
-+					offset = (ifd->offset +
-+					          ifd->actual_length)
-+					         % BAS_OUTBUFSIZE;
-+					break;
-+				}
-+			}
-+#endif
-+			break;
-+		case -EPIPE:			//FIXME is this the code for "underrun"?
-+			err("isochronous write stalled");
-+			error_hangup(bcs);
-+			break;
-+		default:			/* severe trouble */
-+			warn("isochronous write: %s",
-+			     get_usb_statmsg(urb->status));
-+		}
-+
-+		/* mark the write buffer area covered by this URB as free */
-+		if (done->limit >= 0)
-+			atomic_set(&ubc->isooutbuf->read, done->limit);
-+
-+		/* mark URB as free */
-+		spin_lock_irqsave(&ubc->isooutlock, flags);
-+		next = ubc->isooutfree;
-+		ubc->isooutfree = done;
-+		spin_unlock_irqrestore(&ubc->isooutlock, flags);
-+		if (next) {
-+			/* only one URB still active - resubmit one */
-+			if (submit_iso_write_urb(next) <= 0) {
-+				/* couldn't submit */
-+				error_hangup(bcs);
-+			}
-+		}
-+	}
-+
-+	/* process queued SKBs */
-+	while ((skb = skb_dequeue(&bcs->squeue))) {
-+		/* copy to output buffer, doing L2 encapsulation */
-+		len = skb->len;
-+		if (gigaset_isoc_buildframe(bcs, skb->data, len) == -EAGAIN) {
-+			/* insufficient buffer space, push back onto queue */
-+			skb_queue_head(&bcs->squeue, skb);
-+			dbg(DEBUG_ISO, "%s: skb requeued, qlen=%d",
-+			    __func__, skb_queue_len(&bcs->squeue));
-+			break;
-+		}
-+		skb_pull(skb, len);
-+		gigaset_skb_sent(bcs, skb);
-+		dev_kfree_skb_any(skb);
-+	}
-+}
-+
-+/* Isochronous Read - Bottom Half */
-+/* ============================== */
-+
-+/* read_iso_tasklet
-+ * tasklet scheduled when an isochronous input URB from the Gigaset device
-+ * has completed
-+ * parameter:
-+ *	data	B channel state structure
-+ */
-+static void read_iso_tasklet(unsigned long data)
-+{
-+	struct bc_state *bcs;
-+	struct bas_bc_state *ubc;
-+	struct cardstate *cs;
-+	struct urb *urb;
-+	char *rcvbuf;
-+	unsigned long flags;
-+	int totleft, numbytes, offset, frame, rc;
-+
-+	bcs = (struct bc_state *) data;
-+	IFNULLRET(bcs);
-+	ubc = bcs->hw.bas;
-+	IFNULLRET(ubc);
-+	cs = bcs->cs;
-+	IFNULLRET(cs);
-+
-+	/* loop while more completed URBs arrive in the meantime */
-+	for (;;) {
-+		if (!atomic_read(&cs->connected)) {
-+			warn("%s: disconnected", __func__);
-+			return;
-+		}
-+
-+		/* retrieve URB */
-+		spin_lock_irqsave(&ubc->isoinlock, flags);
-+		if (!(urb = ubc->isoindone)) {
-+			spin_unlock_irqrestore(&ubc->isoinlock, flags);
-+			return;
-+		}
-+		ubc->isoindone = NULL;
-+		if (unlikely(ubc->loststatus != -EINPROGRESS)) {
-+			warn("isochronous read overrun, dropped URB with status: %s, %d bytes lost",
-+			     get_usb_statmsg(ubc->loststatus), ubc->isoinlost);
-+			ubc->loststatus = -EINPROGRESS;
-+		}
-+		spin_unlock_irqrestore(&ubc->isoinlock, flags);
-+
-+		if (unlikely(!(atomic_read(&ubc->running)))) {
-+			dbg(DEBUG_ISO, "%s: channel not running, dropped URB with status: %s",
-+			    __func__, get_usb_statmsg(urb->status));
-+			return;
-+		}
-+
-+		switch (urb->status) {
-+		case 0:				/* normal completion */
-+			break;
-+		case -EXDEV:			/* inspect individual frames (we do that anyway) */
-+			dbg(DEBUG_ISO, "%s: URB partially completed", __func__);
-+			break;
-+		case -ENOENT:
-+		case -ECONNRESET:
-+			dbg(DEBUG_ISO, "%s: URB canceled", __func__);
-+			continue;		/* -> skip */
-+		case -EINPROGRESS:		/* huh? */
-+			dbg(DEBUG_ISO, "%s: URB still pending", __func__);
-+			continue;		/* -> skip */
-+		case -EPIPE:
-+			err("isochronous read stalled");
-+			error_hangup(bcs);
-+			continue;		/* -> skip */
-+		default:			/* severe trouble */
-+			warn("isochronous read: %s",
-+			     get_usb_statmsg(urb->status));
-+			goto error;
-+		}
-+
-+		rcvbuf = urb->transfer_buffer;
-+		totleft = urb->actual_length;
-+		for (frame = 0; totleft > 0 && frame < BAS_NUMFRAMES; frame++) {
-+			if (unlikely(urb->iso_frame_desc[frame].status)) {
-+				warn("isochronous read: frame %d: %s",
-+				     frame, get_usb_statmsg(urb->iso_frame_desc[frame].status));
-+				break;
-+			}
-+			numbytes = urb->iso_frame_desc[frame].actual_length;
-+			if (unlikely(numbytes > BAS_MAXFRAME)) {
-+				warn("isochronous read: frame %d: numbytes (%d) > BAS_MAXFRAME",
-+				     frame, numbytes);
-+				break;
-+			}
-+			if (unlikely(numbytes > totleft)) {
-+				warn("isochronous read: frame %d: numbytes (%d) > totleft (%d)",
-+				     frame, numbytes, totleft);
-+				break;
-+			}
-+			offset = urb->iso_frame_desc[frame].offset;
-+			if (unlikely(offset + numbytes > BAS_INBUFSIZE)) {
-+				warn("isochronous read: frame %d: offset (%d) + numbytes (%d) > BAS_INBUFSIZE",
-+				     frame, offset, numbytes);
-+				break;
-+			}
-+			gigaset_isoc_receive(rcvbuf + offset, numbytes, bcs);
-+			totleft -= numbytes;
-+		}
-+		if (unlikely(totleft > 0))
-+			warn("isochronous read: %d data bytes missing",
-+			     totleft);
-+
-+	error:
-+		/* URB processed, resubmit */
-+		for (frame = 0; frame < BAS_NUMFRAMES; frame++) {
-+			urb->iso_frame_desc[frame].status = 0;
-+			urb->iso_frame_desc[frame].actual_length = 0;
-+		}
-+		urb->dev = bcs->cs->hw.bas->udev;	/* clobbered by USB subsystem */
-+		urb->transfer_flags = URB_ISO_ASAP;
-+		urb->number_of_packets = BAS_NUMFRAMES;
-+		if ((rc = usb_submit_urb(urb, SLAB_ATOMIC)) != 0) {
-+			err("could not resubmit isochronous read URB: %s",
-+			    get_usb_statmsg(rc));
-+			dump_urb(DEBUG_ISO, "resubmit iso read", urb);
-+			error_hangup(bcs);
-+		}
-+	}
-+}
-+
-+/* Channel Operations */
-+/* ================== */
-+
-+/* req_timeout
-+ * timeout routine for control output request
-+ * argument:
-+ *	B channel control structure
-+ */
-+static void req_timeout(unsigned long data)
-+{
-+	struct bc_state *bcs = (struct bc_state *) data;
-+	struct bas_cardstate *ucs;
-+	int pending;
-+	unsigned long flags;
-+
-+	IFNULLRET(bcs);
-+	IFNULLRET(bcs->cs);
-+	ucs = bcs->cs->hw.bas;
-+	IFNULLRET(ucs);
-+
-+	check_pending(ucs);
-+
-+	spin_lock_irqsave(&ucs->lock, flags);
-+	pending = ucs->pending;
-+	ucs->pending = 0;
-+	spin_unlock_irqrestore(&ucs->lock, flags);
-+
-+	switch (pending) {
-+	case 0:					/* no pending request */
-+		dbg(DEBUG_USBREQ, "%s: no request pending", __func__);
-+		break;
-+
-+	case HD_OPEN_ATCHANNEL:
-+		err("timeout opening AT channel");
-+		error_reset(bcs->cs);
-+		break;
-+
-+	case HD_OPEN_B2CHANNEL:
-+	case HD_OPEN_B1CHANNEL:
-+		err("timeout opening channel %d", bcs->channel + 1);
-+		error_hangup(bcs);
-+		break;
-+
-+	case HD_CLOSE_ATCHANNEL:
-+		err("timeout closing AT channel");
-+		//wake_up_interruptible(cs->initwait);
-+		//FIXME need own wait queue?
-+		break;
-+
-+	case HD_CLOSE_B2CHANNEL:
-+	case HD_CLOSE_B1CHANNEL:
-+		err("timeout closing channel %d", bcs->channel + 1);
-+		break;
-+
-+	default:
-+		warn("request 0x%02x timed out, clearing", pending);
-+	}
-+}
-+
-+/* write_ctrl_callback
-+ * USB completion handler for control pipe output
-+ * called by the USB subsystem in interrupt context
-+ * parameter:
-+ *	urb	USB request block of completed request
-+ *		urb->context = hardware specific controller state structure
-+ */
-+static void write_ctrl_callback(struct urb *urb, struct pt_regs *regs)
-+{
-+	struct bas_cardstate *ucs;
-+	unsigned long flags;
-+
-+	IFNULLRET(urb);
-+	IFNULLRET(urb->context);
-+	IFNULLRET(cardstate);
-+
-+	ucs = (struct bas_cardstate *) urb->context;
-+	spin_lock_irqsave(&ucs->lock, flags);
-+	if (urb->status && ucs->pending) {
-+		err("control request 0x%02x failed: %s",
-+		    ucs->pending, get_usb_statmsg(urb->status));
-+		del_timer(&ucs->timer_ctrl);
-+		ucs->pending = 0;
-+	}
-+	/* individual handling of specific request types */
-+	switch (ucs->pending) {
-+	case HD_DEVICE_INIT_ACK:		/* no reply expected */
-+		ucs->pending = 0;
-+		break;
-+	}
-+	spin_unlock_irqrestore(&ucs->lock, flags);
-+}
-+
-+/* req_submit
-+ * submit a control output request without message buffer to the Gigaset base
-+ * and optionally start a timeout
-+ * parameters:
-+ *	bcs	B channel control structure
-+ *	req	control request code (HD_*)
-+ *	val	control request parameter value (set to 0 if unused)
-+ *	timeout	timeout in seconds (0: no timeout)
-+ * return value:
-+ *	0 on success
-+ *	-EINVAL if a NULL pointer is encountered somewhere
-+ *	-EBUSY if another request is pending
-+ *	any URB submission error code
-+ */
-+static int req_submit(struct bc_state *bcs, int req, int val, int timeout)
-+{
-+	struct bas_cardstate *ucs;
-+	int ret;
-+	unsigned long flags;
-+
-+	IFNULLRETVAL(bcs, -EINVAL);
-+	IFNULLRETVAL(bcs->cs, -EINVAL);
-+	ucs = bcs->cs->hw.bas;
-+	IFNULLRETVAL(ucs, -EINVAL);
-+	IFNULLRETVAL(ucs->urb_ctrl, -EINVAL);
-+
-+	dbg(DEBUG_USBREQ, "-------> 0x%02x (%d)", req, val);
-+
-+	spin_lock_irqsave(&ucs->lock, flags);
-+	if (ucs->pending) {
-+		spin_unlock_irqrestore(&ucs->lock, flags);
-+		err("submission of request 0x%02x failed: request 0x%02x still pending",
-+		    req, ucs->pending);
-+		return -EBUSY;
-+	}
-+	if (ucs->urb_ctrl->status == -EINPROGRESS) {
-+		spin_unlock_irqrestore(&ucs->lock, flags);
-+		err("could not submit request 0x%02x: URB busy", req);
-+		return -EBUSY;
-+	}
-+
-+	ucs->dr_ctrl.bRequestType = OUT_VENDOR_REQ;
-+	ucs->dr_ctrl.bRequest = req;
-+	ucs->dr_ctrl.wValue = cpu_to_le16(val);
-+	ucs->dr_ctrl.wIndex = 0;
-+	ucs->dr_ctrl.wLength = 0;
-+	usb_fill_control_urb(ucs->urb_ctrl, ucs->udev,
-+                             usb_sndctrlpipe(ucs->udev, 0),
-+                             (unsigned char*) &ucs->dr_ctrl, NULL, 0,
-+                             write_ctrl_callback, ucs);
-+	if ((ret = usb_submit_urb(ucs->urb_ctrl, SLAB_ATOMIC)) != 0) {
-+		err("could not submit request 0x%02x: %s",
-+		    req, get_usb_statmsg(ret));
-+		spin_unlock_irqrestore(&ucs->lock, flags);
-+		return ret;
-+	}
-+	ucs->pending = req;
-+
-+	if (timeout > 0) {
-+		dbg(DEBUG_USBREQ, "setting timeout of %d/10 secs", timeout);
-+		ucs->timer_ctrl.expires = jiffies + timeout * HZ / 10;
-+		ucs->timer_ctrl.data = (unsigned long) bcs;
-+		ucs->timer_ctrl.function = req_timeout;
-+		add_timer(&ucs->timer_ctrl);
-+	}
-+
-+	spin_unlock_irqrestore(&ucs->lock, flags);
-+	return 0;
-+}
-+
-+/* gigaset_init_bchannel
-+ * called by common.c to connect a B channel
-+ * initialize isochronous I/O and tell the Gigaset base to open the channel
-+ * argument:
-+ *	B channel control structure
-+ * return value:
-+ *	0 on success, error code < 0 on error
-+ */
-+static int gigaset_init_bchannel(struct bc_state *bcs)
-+{
-+	int req, ret;
-+
-+	IFNULLRETVAL(bcs, -EINVAL);
-+
-+	if ((ret = starturbs(bcs)) < 0) {
-+		err("could not start isochronous I/O for channel %d",
-+		    bcs->channel + 1);
-+		error_hangup(bcs);
-+		return ret;
-+	}
-+
-+	req = bcs->channel ? HD_OPEN_B2CHANNEL : HD_OPEN_B1CHANNEL;
-+	if ((ret = req_submit(bcs, req, 0, BAS_TIMEOUT)) < 0) {
-+		err("could not open channel %d: %s",
-+		    bcs->channel + 1, get_usb_statmsg(ret));
-+		stopurbs(bcs->hw.bas);
-+		error_hangup(bcs);
-+	}
-+	return ret;
-+}
-+
-+/* gigaset_close_bchannel
-+ * called by common.c to disconnect a B channel
-+ * tell the Gigaset base to close the channel
-+ * stopping isochronous I/O and LL notification will be done when the
-+ * acknowledgement for the close arrives
-+ * argument:
-+ *	B channel control structure
-+ * return value:
-+ *	0 on success, error code < 0 on error
-+ */
-+static int gigaset_close_bchannel(struct bc_state *bcs)
-+{
-+	int req, ret;
-+
-+	IFNULLRETVAL(bcs, -EINVAL);
-+
-+	if (!(atomic_read(&bcs->cs->hw.bas->basstate) &
-+	      (bcs->channel ? BS_B2OPEN : BS_B1OPEN))) {
-+		/* channel not running: just signal common.c */
-+		gigaset_bchannel_down(bcs);
-+		return 0;
-+	}
-+
-+	req = bcs->channel ? HD_CLOSE_B2CHANNEL : HD_CLOSE_B1CHANNEL;
-+	if ((ret = req_submit(bcs, req, 0, BAS_TIMEOUT)) < 0)
-+		err("could not submit HD_CLOSE_BxCHANNEL request: %s",
-+		    get_usb_statmsg(ret));
-+	return ret;
-+}
-+
-+/* Device Operations */
-+/* ================= */
-+
-+/* complete_cb
-+ * unqueue first command buffer from queue, waking any sleepers
-+ * must be called with cs->cmdlock held
-+ * parameter:
-+ *	cs	controller state structure
-+ */
-+static void complete_cb(struct cardstate *cs)
-+{
-+	struct cmdbuf_t *cb;
-+
-+	IFNULLRET(cs);
-+	cb = cs->cmdbuf;
-+	IFNULLRET(cb);
-+
-+	/* unqueue completed buffer */
-+	cs->cmdbytes -= cs->curlen;
-+	dbg(DEBUG_TRANSCMD | DEBUG_LOCKCMD,
-+	    "write_command: sent %u bytes, %u left",
-+	    cs->curlen, cs->cmdbytes);
-+	if ((cs->cmdbuf = cb->next) != NULL) {
-+		cs->cmdbuf->prev = NULL;
-+		cs->curlen = cs->cmdbuf->len;
-+	} else {
-+		cs->lastcmdbuf = NULL;
-+		cs->curlen = 0;
-+	}
-+
-+	if (cb->wake_tasklet)
-+		tasklet_schedule(cb->wake_tasklet);
-+
-+	kfree(cb);
-+}
-+
-+static int atwrite_submit(struct cardstate *cs, unsigned char *buf, int len);
-+
-+/* write_command_callback
-+ * USB completion handler for AT command transmission
-+ * called by the USB subsystem in interrupt context
-+ * parameter:
-+ *	urb	USB request block of completed request
-+ *		urb->context = controller state structure
-+ */
-+static void write_command_callback(struct urb *urb, struct pt_regs *regs)
-+{
-+	struct cardstate *cs;
-+	unsigned long flags;
-+	struct bas_cardstate *ucs;
-+
-+	IFNULLRET(urb);
-+	cs = (struct cardstate *) urb->context;
-+	IFNULLRET(cs);
-+	ucs = cs->hw.bas;
-+	IFNULLRET(ucs);
-+
-+	/* check status */
-+	switch (urb->status) {
-+	case 0:					/* normal completion */
-+		break;
-+	case -ENOENT:			/* canceled */
-+	case -ECONNRESET:		/* canceled (async) */
-+	case -EINPROGRESS:		/* pending */
-+		/* ignore silently */
-+		dbg(DEBUG_USBREQ,
-+		    "%s: %s", __func__, get_usb_statmsg(urb->status));
-+		return;
-+	default:				/* any failure */
-+		if (++ucs->retry_cmd_out > BAS_RETRY) {
-+			warn("command write: %s, giving up after %d retries",
-+			     get_usb_statmsg(urb->status), ucs->retry_cmd_out);
-+			break;
-+		}
-+		if (cs->cmdbuf == NULL) {
-+			warn("command write: %s, cannot retry - cmdbuf gone",
-+			     get_usb_statmsg(urb->status));
-+			break;
-+		}
-+		notice("command write: %s, retry %d",
-+		       get_usb_statmsg(urb->status), ucs->retry_cmd_out);
-+		if (atwrite_submit(cs, cs->cmdbuf->buf, cs->cmdbuf->len) >= 0)
-+			/* resubmitted - bypass regular exit block */
-+			return;
-+		/* command send failed, assume base still waiting */
-+		update_basstate(ucs, BS_ATREADY, 0);
-+	}
-+
-+	spin_lock_irqsave(&cs->cmdlock, flags);
-+	if (cs->cmdbuf != NULL)
-+		complete_cb(cs);
-+	spin_unlock_irqrestore(&cs->cmdlock, flags);
-+}
-+
-+/* atrdy_timeout
-+ * timeout routine for AT command transmission
-+ * argument:
-+ *	controller state structure
-+ */
-+static void atrdy_timeout(unsigned long data)
-+{
-+	struct cardstate *cs = (struct cardstate *) data;
-+	struct bas_cardstate *ucs;
-+
-+	IFNULLRET(cs);
-+	ucs = cs->hw.bas;
-+	IFNULLRET(ucs);
-+
-+	warn("timeout waiting for HD_READY_SEND_ATDATA");
-+
-+	/* fake the missing signal - what else can I do? */
-+	update_basstate(ucs, BS_ATREADY, BS_ATTIMER);
-+	start_cbsend(cs);
-+}
-+
-+/* atwrite_submit
-+ * submit an HD_WRITE_ATMESSAGE command URB
-+ * parameters:
-+ *	cs	controller state structure
-+ *	buf	buffer containing command to send
-+ *	len	length of command to send
-+ * return value:
-+ *	0 on success
-+ *	-EFAULT if a NULL pointer is encountered somewhere
-+ *	-EBUSY if another request is pending
-+ *	any URB submission error code
-+ */
-+static int atwrite_submit(struct cardstate *cs, unsigned char *buf, int len)
-+{
-+	struct bas_cardstate *ucs;
-+	int ret;
-+
-+	IFNULLRETVAL(cs, -EFAULT);
-+	ucs = cs->hw.bas;
-+	IFNULLRETVAL(ucs, -EFAULT);
-+	IFNULLRETVAL(ucs->urb_cmd_out, -EFAULT);
-+
-+	dbg(DEBUG_USBREQ, "-------> HD_WRITE_ATMESSAGE (%d)", len);
-+
-+	if (ucs->urb_cmd_out->status == -EINPROGRESS) {
-+		err("could not submit HD_WRITE_ATMESSAGE: URB busy");
-+		return -EBUSY;
-+	}
-+
-+	ucs->dr_cmd_out.bRequestType = OUT_VENDOR_REQ;
-+	ucs->dr_cmd_out.bRequest = HD_WRITE_ATMESSAGE;
-+	ucs->dr_cmd_out.wValue = 0;
-+	ucs->dr_cmd_out.wIndex = 0;
-+	ucs->dr_cmd_out.wLength = cpu_to_le16(len);
-+	usb_fill_control_urb(ucs->urb_cmd_out, ucs->udev,
-+			     usb_sndctrlpipe(ucs->udev, 0),
-+			     (unsigned char*) &ucs->dr_cmd_out, buf, len,
-+			     write_command_callback, cs);
-+
-+	if ((ret = usb_submit_urb(ucs->urb_cmd_out, SLAB_ATOMIC)) != 0) {
-+		err("could not submit HD_WRITE_ATMESSAGE: %s",
-+		    get_usb_statmsg(ret));
-+		return ret;
-+	}
-+
-+	/* submitted successfully */
-+	update_basstate(ucs, 0, BS_ATREADY);
-+
-+	/* start timeout if necessary */
-+	if (!(atomic_read(&ucs->basstate) & BS_ATTIMER)) {
-+		dbg(DEBUG_OUTPUT,
-+		    "setting ATREADY timeout of %d/10 secs", ATRDY_TIMEOUT);
-+		ucs->timer_atrdy.expires = jiffies + ATRDY_TIMEOUT * HZ / 10;
-+		ucs->timer_atrdy.data = (unsigned long) cs;
-+		ucs->timer_atrdy.function = atrdy_timeout;
-+		add_timer(&ucs->timer_atrdy);
-+		update_basstate(ucs, BS_ATTIMER, 0);
-+	}
-+	return 0;
-+}
-+
-+/* start_cbsend
-+ * start transmission of AT command queue if necessary
-+ * parameter:
-+ *	cs		controller state structure
-+ * return value:
-+ *	0 on success
-+ *	error code < 0 on error
-+ */
-+static int start_cbsend(struct cardstate *cs)
-+{
-+	struct cmdbuf_t *cb;
-+	struct bas_cardstate *ucs;
-+	unsigned long flags;
-+	int rc;
-+	int retval = 0;
-+
-+	IFNULLRETVAL(cs, -EFAULT);
-+	ucs = cs->hw.bas;
-+	IFNULLRETVAL(ucs, -EFAULT);
-+
-+	/* check if AT channel is open */
-+	if (!(atomic_read(&ucs->basstate) & BS_ATOPEN)) {
-+		dbg(DEBUG_TRANSCMD | DEBUG_LOCKCMD, "AT channel not open");
-+		rc = req_submit(cs->bcs, HD_OPEN_ATCHANNEL, 0, BAS_TIMEOUT);
-+		if (rc < 0) {
-+			err("could not open AT channel");
-+			/* flush command queue */
-+			spin_lock_irqsave(&cs->cmdlock, flags);
-+			while (cs->cmdbuf != NULL)
-+				complete_cb(cs);
-+			spin_unlock_irqrestore(&cs->cmdlock, flags);
-+		}
-+		return rc;
-+	}
-+
-+	/* try to send first command in queue */
-+	spin_lock_irqsave(&cs->cmdlock, flags);
-+
-+	while ((cb = cs->cmdbuf) != NULL &&
-+	       atomic_read(&ucs->basstate) & BS_ATREADY) {
-+		ucs->retry_cmd_out = 0;
-+		rc = atwrite_submit(cs, cb->buf, cb->len);
-+		if (unlikely(rc)) {
-+			retval = rc;
-+			complete_cb(cs);
-+		}
-+	}
-+
-+	spin_unlock_irqrestore(&cs->cmdlock, flags);
-+	return retval;
-+}
-+
-+/* gigaset_write_cmd
-+ * This function is called by the device independent part of the driver
-+ * to transmit an AT command string to the Gigaset device.
-+ * It encapsulates the device specific method for transmission over the
-+ * direct USB connection to the base.
-+ * The command string is added to the queue of commands to send, and
-+ * USB transmission is started if necessary.
-+ * parameters:
-+ *	cs		controller state structure
-+ *	buf		command string to send
-+ *	len		number of bytes to send (max. IF_WRITEBUF)
-+ *	wake_tasklet	tasklet to run when transmission is completed (NULL if none)
-+ * return value:
-+ *	number of bytes queued on success
-+ *	error code < 0 on error
-+ */
-+static int gigaset_write_cmd(struct cardstate *cs,
-+                             const unsigned char *buf, int len,
-+                             struct tasklet_struct *wake_tasklet)
-+{
-+	struct cmdbuf_t *cb;
-+	unsigned long flags;
-+	int status;
-+
-+	gigaset_dbg_buffer(atomic_read(&cs->mstate) != MS_LOCKED ?
-+	                     DEBUG_TRANSCMD : DEBUG_LOCKCMD,
-+	                   "CMD Transmit", len, buf, 0);
-+
-+	if (!atomic_read(&cs->connected)) {
-+		err("%s: not connected", __func__);
-+		return -ENODEV;
-+	}
-+
-+	if (len <= 0)
-+		return 0;			/* nothing to do */
-+
-+	if (len > IF_WRITEBUF)
-+		len = IF_WRITEBUF;
-+	if (!(cb = kmalloc(sizeof(struct cmdbuf_t) + len, GFP_ATOMIC))) {
-+		err("%s: out of memory", __func__);
-+		return -ENOMEM;
-+	}
-+
-+	memcpy(cb->buf, buf, len);
-+	cb->len = len;
-+	cb->offset = 0;
-+	cb->next = NULL;
-+	cb->wake_tasklet = wake_tasklet;
-+
-+	spin_lock_irqsave(&cs->cmdlock, flags);
-+	cb->prev = cs->lastcmdbuf;
-+	if (cs->lastcmdbuf)
-+		cs->lastcmdbuf->next = cb;
-+	else {
-+		cs->cmdbuf = cb;
-+		cs->curlen = len;
-+	}
-+	cs->cmdbytes += len;
-+	cs->lastcmdbuf = cb;
-+	spin_unlock_irqrestore(&cs->cmdlock, flags);
-+
-+	status = start_cbsend(cs);
-+
-+	return status < 0 ? status : len;
-+}
-+
-+/* gigaset_write_room
-+ * tty_driver.write_room interface routine
-+ * return number of characters the driver will accept to be written via gigaset_write_cmd
-+ * parameter:
-+ *	controller state structure
-+ * return value:
-+ *	number of characters
-+ */
-+static int gigaset_write_room(struct cardstate *cs)
-+{
-+	return IF_WRITEBUF;
-+}
-+
-+/* gigaset_chars_in_buffer
-+ * tty_driver.chars_in_buffer interface routine
-+ * return number of characters waiting to be sent
-+ * parameter:
-+ *	controller state structure
-+ * return value:
-+ *	number of characters
-+ */
-+static int gigaset_chars_in_buffer(struct cardstate *cs)
-+{
-+	unsigned long flags;
-+	unsigned bytes;
-+
-+	spin_lock_irqsave(&cs->cmdlock, flags);
-+	bytes = cs->cmdbytes;
-+	spin_unlock_irqrestore(&cs->cmdlock, flags);
-+
-+	return bytes;
-+}
-+
-+/* gigaset_brkchars
-+ * implementation of ioctl(GIGASET_BRKCHARS)
-+ * parameter:
-+ *	controller state structure
-+ * return value:
-+ *	-EINVAL (unimplemented function)
-+ */
-+static int gigaset_brkchars(struct cardstate *cs, const unsigned char buf[6])
-+{
-+	return -EINVAL;
-+}
-+
-+
-+/* Device Initialization/Shutdown */
-+/* ============================== */
-+
-+/* Free hardware dependent part of the B channel structure
-+ * parameter:
-+ *	bcs	B channel structure
-+ * return value:
-+ *	!=0 on success
-+ */
-+static int gigaset_freebcshw(struct bc_state *bcs)
-+{
-+	if (!bcs->hw.bas)
-+		return 0;
-+
-+	if (bcs->hw.bas->isooutbuf)
-+		kfree(bcs->hw.bas->isooutbuf);
-+	kfree(bcs->hw.bas);
-+	bcs->hw.bas = NULL;
-+	return 1;
-+}
-+
-+/* Initialize hardware dependent part of the B channel structure
-+ * parameter:
-+ *	bcs	B channel structure
-+ * return value:
-+ *	!=0 on success
-+ */
-+static int gigaset_initbcshw(struct bc_state *bcs)
-+{
-+	int i;
-+	struct bas_bc_state *ubc;
-+
-+	bcs->hw.bas = ubc = kmalloc(sizeof(struct bas_bc_state), GFP_KERNEL);
-+	if (!ubc) {
-+		err("could not allocate bas_bc_state");
-+		return 0;
-+	}
-+
-+	atomic_set(&ubc->running, 0);
-+	atomic_set(&ubc->corrbytes, 0);
-+	spin_lock_init(&ubc->isooutlock);
-+	for (i = 0; i < BAS_OUTURBS; ++i) {
-+		ubc->isoouturbs[i].urb = NULL;
-+		ubc->isoouturbs[i].bcs = bcs;
-+	}
-+	ubc->isooutdone = ubc->isooutfree = ubc->isooutovfl = NULL;
-+	ubc->numsub = 0;
-+	if (!(ubc->isooutbuf = kmalloc(sizeof(struct isowbuf_t), GFP_KERNEL))) {
-+		err("could not allocate isochronous output buffer");
-+		kfree(ubc);
-+		bcs->hw.bas = NULL;
-+		return 0;
-+	}
-+	tasklet_init(&ubc->sent_tasklet,
-+	             &write_iso_tasklet, (unsigned long) bcs);
-+
-+	spin_lock_init(&ubc->isoinlock);
-+	for (i = 0; i < BAS_INURBS; ++i)
-+		ubc->isoinurbs[i] = NULL;
-+	ubc->isoindone = NULL;
-+	ubc->loststatus = -EINPROGRESS;
-+	ubc->isoinlost = 0;
-+	ubc->seqlen = 0;
-+	ubc->inbyte = 0;
-+	ubc->inbits = 0;
-+	ubc->goodbytes = 0;
-+	ubc->alignerrs = 0;
-+	ubc->fcserrs = 0;
-+	ubc->frameerrs = 0;
-+	ubc->giants = 0;
-+	ubc->runts = 0;
-+	ubc->aborts = 0;
-+	ubc->shared0s = 0;
-+	ubc->stolen0s = 0;
-+	tasklet_init(&ubc->rcvd_tasklet,
-+	             &read_iso_tasklet, (unsigned long) bcs);
-+	return 1;
-+}
-+
-+static void gigaset_reinitbcshw(struct bc_state *bcs)
-+{
-+	struct bas_bc_state *ubc = bcs->hw.bas;
-+
-+	atomic_set(&bcs->hw.bas->running, 0);
-+	atomic_set(&bcs->hw.bas->corrbytes, 0);
-+	bcs->hw.bas->numsub = 0;
-+	spin_lock_init(&ubc->isooutlock);
-+	spin_lock_init(&ubc->isoinlock);
-+	ubc->loststatus = -EINPROGRESS;
-+}
-+
-+static void gigaset_freecshw(struct cardstate *cs)
-+{
-+	struct bas_cardstate *ucs = cs->hw.bas;
-+
-+	del_timer(&ucs->timer_ctrl);
-+	del_timer(&ucs->timer_atrdy);
-+	del_timer(&ucs->timer_cmd_in);
-+
-+	kfree(cs->hw.bas);
-+}
-+
-+static int gigaset_initcshw(struct cardstate *cs)
-+{
-+	struct bas_cardstate *ucs;
-+
-+	cs->hw.bas = ucs = kmalloc(sizeof *ucs, GFP_KERNEL);
-+	if (!ucs)
-+		return 0;
-+
-+	ucs->urb_cmd_in = NULL;
-+	ucs->urb_cmd_out = NULL;
-+	ucs->rcvbuf = NULL;
-+	ucs->rcvbuf_size = 0;
-+
-+	spin_lock_init(&ucs->lock);
-+	ucs->pending = 0;
-+
-+	atomic_set(&ucs->basstate, 0);
-+	init_timer(&ucs->timer_ctrl);
-+	init_timer(&ucs->timer_atrdy);
-+	init_timer(&ucs->timer_cmd_in);
-+
-+	return 1;
-+}
-+
-+/* freeurbs
-+ * unlink and deallocate all URBs unconditionally
-+ * caller must make sure that no commands are still in progress
-+ * parameter:
-+ *	cs	controller state structure
-+ */
-+static void freeurbs(struct cardstate *cs)
-+{
-+	struct bas_cardstate *ucs;
-+	struct bas_bc_state *ubc;
-+	int i, j;
-+
-+	IFNULLRET(cs);
-+	ucs = cs->hw.bas;
-+	IFNULLRET(ucs);
-+
-+	for (j = 0; j < 2; ++j) {
-+		ubc = cs->bcs[j].hw.bas;
-+		IFNULLCONT(ubc);
-+		for (i = 0; i < BAS_OUTURBS; ++i)
-+			if (ubc->isoouturbs[i].urb) {
-+				usb_kill_urb(ubc->isoouturbs[i].urb);
-+				dbg(DEBUG_INIT,
-+				    "%s: isoc output URB %d/%d unlinked",
-+				    __func__, j, i);
-+				usb_free_urb(ubc->isoouturbs[i].urb);
-+				ubc->isoouturbs[i].urb = NULL;
-+			}
-+		for (i = 0; i < BAS_INURBS; ++i)
-+			if (ubc->isoinurbs[i]) {
-+				usb_kill_urb(ubc->isoinurbs[i]);
-+				dbg(DEBUG_INIT,
-+				    "%s: isoc input URB %d/%d unlinked",
-+				    __func__, j, i);
-+				usb_free_urb(ubc->isoinurbs[i]);
-+				ubc->isoinurbs[i] = NULL;
-+			}
-+	}
-+	if (ucs->urb_int_in) {
-+		usb_kill_urb(ucs->urb_int_in);
-+		dbg(DEBUG_INIT, "%s: interrupt input URB unlinked", __func__);
-+		usb_free_urb(ucs->urb_int_in);
-+		ucs->urb_int_in = NULL;
-+	}
-+	if (ucs->urb_cmd_out) {
-+		usb_kill_urb(ucs->urb_cmd_out);
-+		dbg(DEBUG_INIT, "%s: command output URB unlinked", __func__);
-+		usb_free_urb(ucs->urb_cmd_out);
-+		ucs->urb_cmd_out = NULL;
-+	}
-+	if (ucs->urb_cmd_in) {
-+		usb_kill_urb(ucs->urb_cmd_in);
-+		dbg(DEBUG_INIT, "%s: command input URB unlinked", __func__);
-+		usb_free_urb(ucs->urb_cmd_in);
-+		ucs->urb_cmd_in = NULL;
-+	}
-+	if (ucs->urb_ctrl) {
-+		usb_kill_urb(ucs->urb_ctrl);
-+		dbg(DEBUG_INIT, "%s: control output URB unlinked", __func__);
-+		usb_free_urb(ucs->urb_ctrl);
-+		ucs->urb_ctrl = NULL;
-+	}
-+}
-+
-+/* gigaset_probe
-+ * This function is called when a new USB device is connected.
-+ * It checks whether the new device is handled by this driver.
-+ */
-+static int gigaset_probe(struct usb_interface *interface,
-+			 const struct usb_device_id *id)
-+{
-+	struct usb_host_interface *hostif;
-+	struct usb_device *udev = interface_to_usbdev(interface);
-+	struct cardstate *cs = NULL;
-+	struct bas_cardstate *ucs = NULL;
-+	struct bas_bc_state *ubc;
-+	struct usb_endpoint_descriptor *endpoint;
-+	int i, j;
-+	int ret;
-+
-+	IFNULLRETVAL(udev, -ENODEV);
-+
-+	dbg(DEBUG_ANY,
-+	    "%s: Check if device matches .. (Vendor: 0x%x, Product: 0x%x)",
-+	    __func__, le16_to_cpu(udev->descriptor.idVendor),
-+	    le16_to_cpu(udev->descriptor.idProduct));
-+
-+	/* See if the device offered us matches what we can accept */
-+	if ((le16_to_cpu(udev->descriptor.idVendor)  != USB_GIGA_VENDOR_ID) ||
-+	    (le16_to_cpu(udev->descriptor.idProduct) != USB_GIGA_PRODUCT_ID &&
-+	     le16_to_cpu(udev->descriptor.idProduct) != USB_4175_PRODUCT_ID &&
-+	     le16_to_cpu(udev->descriptor.idProduct) != USB_SX303_PRODUCT_ID &&
-+	     le16_to_cpu(udev->descriptor.idProduct) != USB_SX353_PRODUCT_ID)) {
-+		dbg(DEBUG_ANY, "%s: unmatched ID - exiting", __func__);
-+		return -ENODEV;
-+	}
-+
-+	/* set required alternate setting */
-+	hostif = interface->cur_altsetting;
-+	if (hostif->desc.bAlternateSetting != 3) {
-+		dbg(DEBUG_ANY,
-+		    "%s: wrong alternate setting %d - trying to switch",
-+		    __func__, hostif->desc.bAlternateSetting);
-+		if (usb_set_interface(udev, hostif->desc.bInterfaceNumber, 3) < 0) {
-+			warn("usb_set_interface failed, device %d interface %d altsetting %d",
-+			     udev->devnum, hostif->desc.bInterfaceNumber,
-+			     hostif->desc.bAlternateSetting);
-+			return -ENODEV;
-+		}
-+		hostif = interface->cur_altsetting;
-+	}
-+
-+	/* Reject application specific interfaces
-+	 */
-+	if (hostif->desc.bInterfaceClass != 255) {
-+		warn("%s: bInterfaceClass == %d",
-+		     __func__, hostif->desc.bInterfaceClass);
-+		return -ENODEV;
-+	}
-+
-+	info("%s: Device matched (Vendor: 0x%x, Product: 0x%x)",
-+	     __func__, le16_to_cpu(udev->descriptor.idVendor),
-+	     le16_to_cpu(udev->descriptor.idProduct));
-+
-+	cs = gigaset_getunassignedcs(driver);
-+	if (!cs) {
-+		err("%s: no free cardstate", __func__);
-+		return -ENODEV;
-+	}
-+	ucs = cs->hw.bas;
-+	ucs->udev = udev;
-+	ucs->interface = interface;
-+
-+	/* allocate URBs:
-+	 * - one for the interrupt pipe
-+	 * - three for the different uses of the default control pipe
-+	 * - three for each isochronous pipe
-+	 */
-+	ucs->urb_int_in = usb_alloc_urb(0, SLAB_KERNEL);
-+	if (!ucs->urb_int_in) {
-+		err("No free urbs available");
-+		goto error;
-+	}
-+	ucs->urb_cmd_in = usb_alloc_urb(0, SLAB_KERNEL);
-+	if (!ucs->urb_cmd_in) {
-+		err("No free urbs available");
-+		goto error;
-+	}
-+	ucs->urb_cmd_out = usb_alloc_urb(0, SLAB_KERNEL);
-+	if (!ucs->urb_cmd_out) {
-+		err("No free urbs available");
-+		goto error;
-+	}
-+	ucs->urb_ctrl = usb_alloc_urb(0, SLAB_KERNEL);
-+	if (!ucs->urb_ctrl) {
-+		err("No free urbs available");
-+		goto error;
-+	}
-+
-+	for (j = 0; j < 2; ++j) {
-+		ubc = cs->bcs[j].hw.bas;
-+		for (i = 0; i < BAS_OUTURBS; ++i) {
-+			ubc->isoouturbs[i].urb =
-+				usb_alloc_urb(BAS_NUMFRAMES, SLAB_KERNEL);
-+			if (!ubc->isoouturbs[i].urb) {
-+				err("No free urbs available");
-+				goto error;
-+			}
-+		}
-+		for (i = 0; i < BAS_INURBS; ++i) {
-+			ubc->isoinurbs[i] =
-+				usb_alloc_urb(BAS_NUMFRAMES, SLAB_KERNEL);
-+			if (!ubc->isoinurbs[i]) {
-+				err("No free urbs available");
-+				goto error;
-+			}
-+		}
-+	}
-+
-+	ucs->rcvbuf = NULL;
-+	ucs->rcvbuf_size = 0;
-+
-+	/* Fill the interrupt urb and send it to the core */
-+	endpoint = &hostif->endpoint[0].desc;
-+	usb_fill_int_urb(ucs->urb_int_in, udev,
-+	                 usb_rcvintpipe(udev,
-+	                                (endpoint->bEndpointAddress) & 0x0f),
-+	                 ucs->int_in_buf, 3, read_int_callback, cs,
-+	                 endpoint->bInterval);
-+	ret = usb_submit_urb(ucs->urb_int_in, SLAB_KERNEL);
-+	if (ret) {
-+		err("could not submit interrupt URB: %s", get_usb_statmsg(ret));
-+		goto error;
-+	}
-+
-+	/* tell the device that the driver is ready */
-+	if ((ret = req_submit(cs->bcs, HD_DEVICE_INIT_ACK, 0, 0)) != 0)
-+		goto error;
-+
-+	/* tell common part that the device is ready */
-+	if (startmode == SM_LOCKED)
-+		atomic_set(&cs->mstate, MS_LOCKED);
-+	if (!gigaset_start(cs))
-+		goto error;
-+
-+	/* save address of controller structure */
-+	usb_set_intfdata(interface, cs);
-+
-+	/* set up device sysfs */
-+	gigaset_init_dev_sysfs(interface);
-+	return 0;
-+
-+error:
-+	freeurbs(cs);
-+	gigaset_unassign(cs);
-+	return -ENODEV;
-+}
-+
-+/* gigaset_disconnect
-+ * This function is called when the Gigaset base is unplugged.
-+ */
-+static void gigaset_disconnect(struct usb_interface *interface)
-+{
-+	struct cardstate *cs;
-+	struct bas_cardstate *ucs;
-+
-+	/* clear device sysfs */
-+	gigaset_free_dev_sysfs(interface);
-+
-+	cs = usb_get_intfdata(interface);
-+	usb_set_intfdata(interface, NULL);
-+
-+	IFNULLRET(cs);
-+	ucs = cs->hw.bas;
-+	IFNULLRET(ucs);
-+
-+	info("disconnecting GigaSet base");
-+	gigaset_stop(cs);
-+	freeurbs(cs);
-+	kfree(ucs->rcvbuf);
-+	ucs->rcvbuf = NULL;
-+	ucs->rcvbuf_size = 0;
-+	atomic_set(&ucs->basstate, 0);
-+	gigaset_unassign(cs);
-+}
-+
-+static struct gigaset_ops gigops = {
-+	gigaset_write_cmd,
-+	gigaset_write_room,
-+	gigaset_chars_in_buffer,
-+	gigaset_brkchars,
-+	gigaset_init_bchannel,
-+	gigaset_close_bchannel,
-+	gigaset_initbcshw,
-+	gigaset_freebcshw,
-+	gigaset_reinitbcshw,
-+	gigaset_initcshw,
-+	gigaset_freecshw,
-+	gigaset_set_modem_ctrl,
-+	gigaset_baud_rate,
-+	gigaset_set_line_ctrl,
-+	gigaset_isoc_send_skb,
-+	gigaset_isoc_input,
++static u16 stufftab[5 * 256] = {
++// previous 1s = 0:
++ 0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007, 0x0008, 0x0009, 0x000a, 0x000b, 0x000c, 0x000d, 0x000e, 0x000f,
++ 0x0010, 0x0011, 0x0012, 0x0013, 0x0014, 0x0015, 0x0016, 0x0017, 0x0018, 0x0019, 0x001a, 0x001b, 0x001c, 0x001d, 0x001e, 0x201f,
++ 0x0020, 0x0021, 0x0022, 0x0023, 0x0024, 0x0025, 0x0026, 0x0027, 0x0028, 0x0029, 0x002a, 0x002b, 0x002c, 0x002d, 0x002e, 0x002f,
++ 0x0030, 0x0031, 0x0032, 0x0033, 0x0034, 0x0035, 0x0036, 0x0037, 0x0038, 0x0039, 0x003a, 0x003b, 0x003c, 0x003d, 0x203e, 0x205f,
++ 0x0040, 0x0041, 0x0042, 0x0043, 0x0044, 0x0045, 0x0046, 0x0047, 0x0048, 0x0049, 0x004a, 0x004b, 0x004c, 0x004d, 0x004e, 0x004f,
++ 0x0050, 0x0051, 0x0052, 0x0053, 0x0054, 0x0055, 0x0056, 0x0057, 0x0058, 0x0059, 0x005a, 0x005b, 0x005c, 0x005d, 0x005e, 0x209f,
++ 0x0060, 0x0061, 0x0062, 0x0063, 0x0064, 0x0065, 0x0066, 0x0067, 0x0068, 0x0069, 0x006a, 0x006b, 0x006c, 0x006d, 0x006e, 0x006f,
++ 0x0070, 0x0071, 0x0072, 0x0073, 0x0074, 0x0075, 0x0076, 0x0077, 0x0078, 0x0079, 0x007a, 0x007b, 0x207c, 0x207d, 0x20be, 0x20df,
++ 0x0480, 0x0481, 0x0482, 0x0483, 0x0484, 0x0485, 0x0486, 0x0487, 0x0488, 0x0489, 0x048a, 0x048b, 0x048c, 0x048d, 0x048e, 0x048f,
++ 0x0490, 0x0491, 0x0492, 0x0493, 0x0494, 0x0495, 0x0496, 0x0497, 0x0498, 0x0499, 0x049a, 0x049b, 0x049c, 0x049d, 0x049e, 0x251f,
++ 0x04a0, 0x04a1, 0x04a2, 0x04a3, 0x04a4, 0x04a5, 0x04a6, 0x04a7, 0x04a8, 0x04a9, 0x04aa, 0x04ab, 0x04ac, 0x04ad, 0x04ae, 0x04af,
++ 0x04b0, 0x04b1, 0x04b2, 0x04b3, 0x04b4, 0x04b5, 0x04b6, 0x04b7, 0x04b8, 0x04b9, 0x04ba, 0x04bb, 0x04bc, 0x04bd, 0x253e, 0x255f,
++ 0x08c0, 0x08c1, 0x08c2, 0x08c3, 0x08c4, 0x08c5, 0x08c6, 0x08c7, 0x08c8, 0x08c9, 0x08ca, 0x08cb, 0x08cc, 0x08cd, 0x08ce, 0x08cf,
++ 0x08d0, 0x08d1, 0x08d2, 0x08d3, 0x08d4, 0x08d5, 0x08d6, 0x08d7, 0x08d8, 0x08d9, 0x08da, 0x08db, 0x08dc, 0x08dd, 0x08de, 0x299f,
++ 0x0ce0, 0x0ce1, 0x0ce2, 0x0ce3, 0x0ce4, 0x0ce5, 0x0ce6, 0x0ce7, 0x0ce8, 0x0ce9, 0x0cea, 0x0ceb, 0x0cec, 0x0ced, 0x0cee, 0x0cef,
++ 0x10f0, 0x10f1, 0x10f2, 0x10f3, 0x10f4, 0x10f5, 0x10f6, 0x10f7, 0x20f8, 0x20f9, 0x20fa, 0x20fb, 0x257c, 0x257d, 0x29be, 0x2ddf,
++
++// previous 1s = 1:
++ 0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007, 0x0008, 0x0009, 0x000a, 0x000b, 0x000c, 0x000d, 0x000e, 0x200f,
++ 0x0010, 0x0011, 0x0012, 0x0013, 0x0014, 0x0015, 0x0016, 0x0017, 0x0018, 0x0019, 0x001a, 0x001b, 0x001c, 0x001d, 0x001e, 0x202f,
++ 0x0020, 0x0021, 0x0022, 0x0023, 0x0024, 0x0025, 0x0026, 0x0027, 0x0028, 0x0029, 0x002a, 0x002b, 0x002c, 0x002d, 0x002e, 0x204f,
++ 0x0030, 0x0031, 0x0032, 0x0033, 0x0034, 0x0035, 0x0036, 0x0037, 0x0038, 0x0039, 0x003a, 0x003b, 0x003c, 0x003d, 0x203e, 0x206f,
++ 0x0040, 0x0041, 0x0042, 0x0043, 0x0044, 0x0045, 0x0046, 0x0047, 0x0048, 0x0049, 0x004a, 0x004b, 0x004c, 0x004d, 0x004e, 0x208f,
++ 0x0050, 0x0051, 0x0052, 0x0053, 0x0054, 0x0055, 0x0056, 0x0057, 0x0058, 0x0059, 0x005a, 0x005b, 0x005c, 0x005d, 0x005e, 0x20af,
++ 0x0060, 0x0061, 0x0062, 0x0063, 0x0064, 0x0065, 0x0066, 0x0067, 0x0068, 0x0069, 0x006a, 0x006b, 0x006c, 0x006d, 0x006e, 0x20cf,
++ 0x0070, 0x0071, 0x0072, 0x0073, 0x0074, 0x0075, 0x0076, 0x0077, 0x0078, 0x0079, 0x007a, 0x007b, 0x207c, 0x207d, 0x20be, 0x20ef,
++ 0x0480, 0x0481, 0x0482, 0x0483, 0x0484, 0x0485, 0x0486, 0x0487, 0x0488, 0x0489, 0x048a, 0x048b, 0x048c, 0x048d, 0x048e, 0x250f,
++ 0x0490, 0x0491, 0x0492, 0x0493, 0x0494, 0x0495, 0x0496, 0x0497, 0x0498, 0x0499, 0x049a, 0x049b, 0x049c, 0x049d, 0x049e, 0x252f,
++ 0x04a0, 0x04a1, 0x04a2, 0x04a3, 0x04a4, 0x04a5, 0x04a6, 0x04a7, 0x04a8, 0x04a9, 0x04aa, 0x04ab, 0x04ac, 0x04ad, 0x04ae, 0x254f,
++ 0x04b0, 0x04b1, 0x04b2, 0x04b3, 0x04b4, 0x04b5, 0x04b6, 0x04b7, 0x04b8, 0x04b9, 0x04ba, 0x04bb, 0x04bc, 0x04bd, 0x253e, 0x256f,
++ 0x08c0, 0x08c1, 0x08c2, 0x08c3, 0x08c4, 0x08c5, 0x08c6, 0x08c7, 0x08c8, 0x08c9, 0x08ca, 0x08cb, 0x08cc, 0x08cd, 0x08ce, 0x298f,
++ 0x08d0, 0x08d1, 0x08d2, 0x08d3, 0x08d4, 0x08d5, 0x08d6, 0x08d7, 0x08d8, 0x08d9, 0x08da, 0x08db, 0x08dc, 0x08dd, 0x08de, 0x29af,
++ 0x0ce0, 0x0ce1, 0x0ce2, 0x0ce3, 0x0ce4, 0x0ce5, 0x0ce6, 0x0ce7, 0x0ce8, 0x0ce9, 0x0cea, 0x0ceb, 0x0cec, 0x0ced, 0x0cee, 0x2dcf,
++ 0x10f0, 0x10f1, 0x10f2, 0x10f3, 0x10f4, 0x10f5, 0x10f6, 0x10f7, 0x20f8, 0x20f9, 0x20fa, 0x20fb, 0x257c, 0x257d, 0x29be, 0x31ef,
++
++// previous 1s = 2:
++ 0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x2007, 0x0008, 0x0009, 0x000a, 0x000b, 0x000c, 0x000d, 0x000e, 0x2017,
++ 0x0010, 0x0011, 0x0012, 0x0013, 0x0014, 0x0015, 0x0016, 0x2027, 0x0018, 0x0019, 0x001a, 0x001b, 0x001c, 0x001d, 0x001e, 0x2037,
++ 0x0020, 0x0021, 0x0022, 0x0023, 0x0024, 0x0025, 0x0026, 0x2047, 0x0028, 0x0029, 0x002a, 0x002b, 0x002c, 0x002d, 0x002e, 0x2057,
++ 0x0030, 0x0031, 0x0032, 0x0033, 0x0034, 0x0035, 0x0036, 0x2067, 0x0038, 0x0039, 0x003a, 0x003b, 0x003c, 0x003d, 0x203e, 0x2077,
++ 0x0040, 0x0041, 0x0042, 0x0043, 0x0044, 0x0045, 0x0046, 0x2087, 0x0048, 0x0049, 0x004a, 0x004b, 0x004c, 0x004d, 0x004e, 0x2097,
++ 0x0050, 0x0051, 0x0052, 0x0053, 0x0054, 0x0055, 0x0056, 0x20a7, 0x0058, 0x0059, 0x005a, 0x005b, 0x005c, 0x005d, 0x005e, 0x20b7,
++ 0x0060, 0x0061, 0x0062, 0x0063, 0x0064, 0x0065, 0x0066, 0x20c7, 0x0068, 0x0069, 0x006a, 0x006b, 0x006c, 0x006d, 0x006e, 0x20d7,
++ 0x0070, 0x0071, 0x0072, 0x0073, 0x0074, 0x0075, 0x0076, 0x20e7, 0x0078, 0x0079, 0x007a, 0x007b, 0x207c, 0x207d, 0x20be, 0x20f7,
++ 0x0480, 0x0481, 0x0482, 0x0483, 0x0484, 0x0485, 0x0486, 0x2507, 0x0488, 0x0489, 0x048a, 0x048b, 0x048c, 0x048d, 0x048e, 0x2517,
++ 0x0490, 0x0491, 0x0492, 0x0493, 0x0494, 0x0495, 0x0496, 0x2527, 0x0498, 0x0499, 0x049a, 0x049b, 0x049c, 0x049d, 0x049e, 0x2537,
++ 0x04a0, 0x04a1, 0x04a2, 0x04a3, 0x04a4, 0x04a5, 0x04a6, 0x2547, 0x04a8, 0x04a9, 0x04aa, 0x04ab, 0x04ac, 0x04ad, 0x04ae, 0x2557,
++ 0x04b0, 0x04b1, 0x04b2, 0x04b3, 0x04b4, 0x04b5, 0x04b6, 0x2567, 0x04b8, 0x04b9, 0x04ba, 0x04bb, 0x04bc, 0x04bd, 0x253e, 0x2577,
++ 0x08c0, 0x08c1, 0x08c2, 0x08c3, 0x08c4, 0x08c5, 0x08c6, 0x2987, 0x08c8, 0x08c9, 0x08ca, 0x08cb, 0x08cc, 0x08cd, 0x08ce, 0x2997,
++ 0x08d0, 0x08d1, 0x08d2, 0x08d3, 0x08d4, 0x08d5, 0x08d6, 0x29a7, 0x08d8, 0x08d9, 0x08da, 0x08db, 0x08dc, 0x08dd, 0x08de, 0x29b7,
++ 0x0ce0, 0x0ce1, 0x0ce2, 0x0ce3, 0x0ce4, 0x0ce5, 0x0ce6, 0x2dc7, 0x0ce8, 0x0ce9, 0x0cea, 0x0ceb, 0x0cec, 0x0ced, 0x0cee, 0x2dd7,
++ 0x10f0, 0x10f1, 0x10f2, 0x10f3, 0x10f4, 0x10f5, 0x10f6, 0x31e7, 0x20f8, 0x20f9, 0x20fa, 0x20fb, 0x257c, 0x257d, 0x29be, 0x41f7,
++
++// previous 1s = 3:
++ 0x0000, 0x0001, 0x0002, 0x2003, 0x0004, 0x0005, 0x0006, 0x200b, 0x0008, 0x0009, 0x000a, 0x2013, 0x000c, 0x000d, 0x000e, 0x201b,
++ 0x0010, 0x0011, 0x0012, 0x2023, 0x0014, 0x0015, 0x0016, 0x202b, 0x0018, 0x0019, 0x001a, 0x2033, 0x001c, 0x001d, 0x001e, 0x203b,
++ 0x0020, 0x0021, 0x0022, 0x2043, 0x0024, 0x0025, 0x0026, 0x204b, 0x0028, 0x0029, 0x002a, 0x2053, 0x002c, 0x002d, 0x002e, 0x205b,
++ 0x0030, 0x0031, 0x0032, 0x2063, 0x0034, 0x0035, 0x0036, 0x206b, 0x0038, 0x0039, 0x003a, 0x2073, 0x003c, 0x003d, 0x203e, 0x207b,
++ 0x0040, 0x0041, 0x0042, 0x2083, 0x0044, 0x0045, 0x0046, 0x208b, 0x0048, 0x0049, 0x004a, 0x2093, 0x004c, 0x004d, 0x004e, 0x209b,
++ 0x0050, 0x0051, 0x0052, 0x20a3, 0x0054, 0x0055, 0x0056, 0x20ab, 0x0058, 0x0059, 0x005a, 0x20b3, 0x005c, 0x005d, 0x005e, 0x20bb,
++ 0x0060, 0x0061, 0x0062, 0x20c3, 0x0064, 0x0065, 0x0066, 0x20cb, 0x0068, 0x0069, 0x006a, 0x20d3, 0x006c, 0x006d, 0x006e, 0x20db,
++ 0x0070, 0x0071, 0x0072, 0x20e3, 0x0074, 0x0075, 0x0076, 0x20eb, 0x0078, 0x0079, 0x007a, 0x20f3, 0x207c, 0x207d, 0x20be, 0x40fb,
++ 0x0480, 0x0481, 0x0482, 0x2503, 0x0484, 0x0485, 0x0486, 0x250b, 0x0488, 0x0489, 0x048a, 0x2513, 0x048c, 0x048d, 0x048e, 0x251b,
++ 0x0490, 0x0491, 0x0492, 0x2523, 0x0494, 0x0495, 0x0496, 0x252b, 0x0498, 0x0499, 0x049a, 0x2533, 0x049c, 0x049d, 0x049e, 0x253b,
++ 0x04a0, 0x04a1, 0x04a2, 0x2543, 0x04a4, 0x04a5, 0x04a6, 0x254b, 0x04a8, 0x04a9, 0x04aa, 0x2553, 0x04ac, 0x04ad, 0x04ae, 0x255b,
++ 0x04b0, 0x04b1, 0x04b2, 0x2563, 0x04b4, 0x04b5, 0x04b6, 0x256b, 0x04b8, 0x04b9, 0x04ba, 0x2573, 0x04bc, 0x04bd, 0x253e, 0x257b,
++ 0x08c0, 0x08c1, 0x08c2, 0x2983, 0x08c4, 0x08c5, 0x08c6, 0x298b, 0x08c8, 0x08c9, 0x08ca, 0x2993, 0x08cc, 0x08cd, 0x08ce, 0x299b,
++ 0x08d0, 0x08d1, 0x08d2, 0x29a3, 0x08d4, 0x08d5, 0x08d6, 0x29ab, 0x08d8, 0x08d9, 0x08da, 0x29b3, 0x08dc, 0x08dd, 0x08de, 0x29bb,
++ 0x0ce0, 0x0ce1, 0x0ce2, 0x2dc3, 0x0ce4, 0x0ce5, 0x0ce6, 0x2dcb, 0x0ce8, 0x0ce9, 0x0cea, 0x2dd3, 0x0cec, 0x0ced, 0x0cee, 0x2ddb,
++ 0x10f0, 0x10f1, 0x10f2, 0x31e3, 0x10f4, 0x10f5, 0x10f6, 0x31eb, 0x20f8, 0x20f9, 0x20fa, 0x41f3, 0x257c, 0x257d, 0x29be, 0x46fb,
++
++// previous 1s = 4:
++ 0x0000, 0x2001, 0x0002, 0x2005, 0x0004, 0x2009, 0x0006, 0x200d, 0x0008, 0x2011, 0x000a, 0x2015, 0x000c, 0x2019, 0x000e, 0x201d,
++ 0x0010, 0x2021, 0x0012, 0x2025, 0x0014, 0x2029, 0x0016, 0x202d, 0x0018, 0x2031, 0x001a, 0x2035, 0x001c, 0x2039, 0x001e, 0x203d,
++ 0x0020, 0x2041, 0x0022, 0x2045, 0x0024, 0x2049, 0x0026, 0x204d, 0x0028, 0x2051, 0x002a, 0x2055, 0x002c, 0x2059, 0x002e, 0x205d,
++ 0x0030, 0x2061, 0x0032, 0x2065, 0x0034, 0x2069, 0x0036, 0x206d, 0x0038, 0x2071, 0x003a, 0x2075, 0x003c, 0x2079, 0x203e, 0x407d,
++ 0x0040, 0x2081, 0x0042, 0x2085, 0x0044, 0x2089, 0x0046, 0x208d, 0x0048, 0x2091, 0x004a, 0x2095, 0x004c, 0x2099, 0x004e, 0x209d,
++ 0x0050, 0x20a1, 0x0052, 0x20a5, 0x0054, 0x20a9, 0x0056, 0x20ad, 0x0058, 0x20b1, 0x005a, 0x20b5, 0x005c, 0x20b9, 0x005e, 0x20bd,
++ 0x0060, 0x20c1, 0x0062, 0x20c5, 0x0064, 0x20c9, 0x0066, 0x20cd, 0x0068, 0x20d1, 0x006a, 0x20d5, 0x006c, 0x20d9, 0x006e, 0x20dd,
++ 0x0070, 0x20e1, 0x0072, 0x20e5, 0x0074, 0x20e9, 0x0076, 0x20ed, 0x0078, 0x20f1, 0x007a, 0x20f5, 0x207c, 0x40f9, 0x20be, 0x417d,
++ 0x0480, 0x2501, 0x0482, 0x2505, 0x0484, 0x2509, 0x0486, 0x250d, 0x0488, 0x2511, 0x048a, 0x2515, 0x048c, 0x2519, 0x048e, 0x251d,
++ 0x0490, 0x2521, 0x0492, 0x2525, 0x0494, 0x2529, 0x0496, 0x252d, 0x0498, 0x2531, 0x049a, 0x2535, 0x049c, 0x2539, 0x049e, 0x253d,
++ 0x04a0, 0x2541, 0x04a2, 0x2545, 0x04a4, 0x2549, 0x04a6, 0x254d, 0x04a8, 0x2551, 0x04aa, 0x2555, 0x04ac, 0x2559, 0x04ae, 0x255d,
++ 0x04b0, 0x2561, 0x04b2, 0x2565, 0x04b4, 0x2569, 0x04b6, 0x256d, 0x04b8, 0x2571, 0x04ba, 0x2575, 0x04bc, 0x2579, 0x253e, 0x467d,
++ 0x08c0, 0x2981, 0x08c2, 0x2985, 0x08c4, 0x2989, 0x08c6, 0x298d, 0x08c8, 0x2991, 0x08ca, 0x2995, 0x08cc, 0x2999, 0x08ce, 0x299d,
++ 0x08d0, 0x29a1, 0x08d2, 0x29a5, 0x08d4, 0x29a9, 0x08d6, 0x29ad, 0x08d8, 0x29b1, 0x08da, 0x29b5, 0x08dc, 0x29b9, 0x08de, 0x29bd,
++ 0x0ce0, 0x2dc1, 0x0ce2, 0x2dc5, 0x0ce4, 0x2dc9, 0x0ce6, 0x2dcd, 0x0ce8, 0x2dd1, 0x0cea, 0x2dd5, 0x0cec, 0x2dd9, 0x0cee, 0x2ddd,
++ 0x10f0, 0x31e1, 0x10f2, 0x31e5, 0x10f4, 0x31e9, 0x10f6, 0x31ed, 0x20f8, 0x41f1, 0x20fa, 0x41f5, 0x257c, 0x46f9, 0x29be, 0x4b7d
 +};
 +
-+/* bas_gigaset_init
-+ * This function is called after the kernel module is loaded.
++/* hdlc_bitstuff_byte
++ * perform HDLC bitstuffing for one input byte (8 bits, LSB first)
++ * parameters:
++ *	cin	input byte
++ *	ones	number of trailing '1' bits in result before this step
++ *	iwb	pointer to output buffer structure (write semaphore must be held)
++ * return value:
++ *	number of trailing '1' bits in result after this step
 + */
-+static int __init bas_gigaset_init(void)
++
++static inline int hdlc_bitstuff_byte(struct isowbuf_t *iwb, unsigned char cin,
++                                     int ones)
++{
++	u16 stuff;
++	int shiftinc, newones;
++
++	/* get stuffing information for input byte
++	 * value: bit  9.. 0 = result bits
++	 *        bit 12..10 = number of trailing '1' bits in result
++	 *        bit 14..13 = number of bits added by stuffing
++	 */
++	stuff = stufftab[256 * ones + cin];
++	shiftinc = (stuff >> 13) & 3;
++	newones = (stuff >> 10) & 7;
++	stuff &= 0x3ff;
++
++	/* append stuffed byte to output stream */
++	isowbuf_putbits(iwb, stuff, 8 + shiftinc);
++	return newones;
++}
++
++/* hdlc_buildframe
++ * Perform HDLC framing with bitstuffing on a byte buffer
++ * The input buffer is regarded as a sequence of bits, starting with the least
++ * significant bit of the first byte and ending with the most significant bit
++ * of the last byte. A 16 bit FCS is appended as defined by RFC 1662.
++ * Whenever five consecutive '1' bits appear in the resulting bit sequence, a
++ * '0' bit is inserted after them.
++ * The resulting bit string and a closing flag pattern (PPP_FLAG, '01111110')
++ * are appended to the output buffer starting at the given bit position, which
++ * is assumed to already contain a leading flag.
++ * The output buffer must have sufficient length; count + count/5 + 6 bytes
++ * starting at *out are safe and are verified to be present.
++ * parameters:
++ *	in	input buffer
++ *	count	number of bytes in input buffer
++ *	iwb	pointer to output buffer structure (write semaphore must be held)
++ * return value:
++ *	position of end of packet in output buffer on success,
++ *	-EAGAIN if write semaphore busy or buffer full
++ */
++
++static inline int hdlc_buildframe(struct isowbuf_t *iwb,
++                                  unsigned char *in, int count)
++{
++	int ones;
++	u16 fcs;
++	int end;
++	unsigned char c;
++
++	if (isowbuf_freebytes(iwb) < count + count / 5 + 6 ||
++	    !isowbuf_startwrite(iwb)) {
++		dbg(DEBUG_ISO, "%s: %d bytes free -> -EAGAIN",
++		    __func__, isowbuf_freebytes(iwb));
++		return -EAGAIN;
++	}
++
++	dump_bytes(DEBUG_STREAM, "snd data", in, count);
++
++	/* bitstuff and checksum input data */
++	fcs = PPP_INITFCS;
++	ones = 0;
++	while (count-- > 0) {
++		c = *in++;
++		ones = hdlc_bitstuff_byte(iwb, c, ones);
++		fcs = crc_ccitt_byte(fcs, c);
++	}
++
++	/* bitstuff and append FCS (complemented, least significant byte first) */
++	fcs ^= 0xffff;
++	ones = hdlc_bitstuff_byte(iwb, fcs & 0x00ff, ones);
++	ones = hdlc_bitstuff_byte(iwb, (fcs >> 8) & 0x00ff, ones);
++
++	/* put closing flag and repeat byte for flag idle */
++	isowbuf_putflag(iwb);
++	end = isowbuf_donewrite(iwb);
++	dump_bytes(DEBUG_STREAM_DUMP, "isowbuf", iwb->data, end + 1);
++	return end;
++}
++
++/* trans_buildframe
++ * Append a block of 'transparent' data to the output buffer,
++ * inverting the bytes.
++ * The output buffer must have sufficient length; count bytes
++ * starting at *out are safe and are verified to be present.
++ * parameters:
++ *	in	input buffer
++ *	count	number of bytes in input buffer
++ *	iwb	pointer to output buffer structure (write semaphore must be held)
++ * return value:
++ *	position of end of packet in output buffer on success,
++ *	-EAGAIN if write semaphore busy or buffer full
++ */
++
++static inline int trans_buildframe(struct isowbuf_t *iwb,
++				   unsigned char *in, int count)
++{
++	int write;
++	unsigned char c;
++
++	if (unlikely(count <= 0))
++		return atomic_read(&iwb->write); /* better ideas? */
++
++	if (isowbuf_freebytes(iwb) < count ||
++	    !isowbuf_startwrite(iwb)) {
++		dbg(DEBUG_ISO, "can't put %d bytes", count);
++		return -EAGAIN;
++	}
++
++	dbg(DEBUG_STREAM, "put %d bytes", count);
++	write = atomic_read(&iwb->write);
++	do {
++		c = gigaset_invtab[*in++];
++		iwb->data[write++] = c;
++		write %= BAS_OUTBUFSIZE;
++	} while (--count > 0);
++	atomic_set(&iwb->write, write);
++	iwb->idle = c;
++
++	return isowbuf_donewrite(iwb);
++}
++
++int gigaset_isoc_buildframe(struct bc_state *bcs, unsigned char *in, int len)
 +{
 +	int result;
 +
-+	/* allocate memory for our driver state and intialize it */
-+	if ((driver = gigaset_initdriver(GIGASET_MINOR, GIGASET_MINORS,
-+	                               GIGASET_MODULENAME, GIGASET_DEVNAME,
-+	                               GIGASET_DEVFSNAME, &gigops,
-+	                               THIS_MODULE)) == NULL)
-+		goto error;
-+
-+	/* allocate memory for our device state and intialize it */
-+	cardstate = gigaset_initcs(driver, 2, 0, 0, cidmode, GIGASET_MODULENAME);
-+	if (!cardstate)
-+		goto error;
-+
-+	/* register this driver with the USB subsystem */
-+	result = usb_register(&gigaset_usb_driver);
-+	if (result < 0) {
-+		err("usb_register failed (error %d)", -result);
-+		goto error;
++	switch (bcs->proto2) {
++	case ISDN_PROTO_L2_HDLC:
++		result = hdlc_buildframe(bcs->hw.bas->isooutbuf, in, len);
++		dbg(DEBUG_ISO, "%s: %d bytes HDLC -> %d", __func__, len, result);
++		break;
++	default:			/* assume transparent */
++		result = trans_buildframe(bcs->hw.bas->isooutbuf, in, len);
++		dbg(DEBUG_ISO, "%s: %d bytes trans -> %d", __func__, len, result);
 +	}
-+
-+	info(DRIVER_AUTHOR);
-+	info(DRIVER_DESC);
-+	return 0;
-+
-+error:	if (cardstate)
-+		gigaset_freecs(cardstate);
-+	cardstate = NULL;
-+	if (driver)
-+		gigaset_freedriver(driver);
-+	driver = NULL;
-+	return -1;
++	return result;
 +}
 +
-+/* bas_gigaset_exit
-+ * This function is called before the kernel module is unloaded.
++/* hdlc_putbyte
++ * append byte c to current skb of B channel structure *bcs, updating fcs
 + */
-+static void __exit bas_gigaset_exit(void)
++static inline void hdlc_putbyte(unsigned char c, struct bc_state *bcs)
 +{
-+	gigaset_blockdriver(driver); /* => probe will fail
-+	                              * => no gigaset_start any more
-+	                              */
++	bcs->fcs = crc_ccitt_byte(bcs->fcs, c);
++	if (unlikely(bcs->skb == NULL)) {
++		/* skipping */
++		return;
++	}
++	if (unlikely(bcs->skb->len == SBUFSIZE)) {
++		warn("received oversized packet discarded");
++		bcs->hw.bas->giants++;
++		dev_kfree_skb_any(bcs->skb);
++		bcs->skb = NULL;
++		return;
++	}
++	*gigaset_skb_put_quick(bcs->skb, 1) = c;
++}
 +
-+	gigaset_shutdown(cardstate);
-+	/* from now on, no isdn callback should be possible */
++/* hdlc_flush
++ * drop partial HDLC data packet
++ */
++static inline void hdlc_flush(struct bc_state *bcs)
++{
++	/* clear skb or allocate new if not skipping */
++	if (likely(bcs->skb != NULL))
++		skb_trim(bcs->skb, 0);
++	else if (!bcs->ignore) {
++		if ((bcs->skb = dev_alloc_skb(SBUFSIZE + HW_HDR_LEN)) != NULL)
++			skb_reserve(bcs->skb, HW_HDR_LEN);
++		else
++			err("could not allocate skb");
++	}
 +
-+	if (atomic_read(&cardstate->hw.bas->basstate) & BS_ATOPEN) {
-+		dbg(DEBUG_ANY, "closing AT channel");
-+		if (req_submit(cardstate->bcs,
-+		               HD_CLOSE_ATCHANNEL, 0, BAS_TIMEOUT) >= 0) {
-+			/* successfully submitted - wait for completion */
-+			//wait_event_interruptible(cs->initwait, !cs->hw.bas->pending);
-+			//FIXME need own wait queue? wakeup?
++	/* reset packet state */
++	bcs->fcs = PPP_INITFCS;
++}
++
++/* hdlc_done
++ * process completed HDLC data packet
++ */
++static inline void hdlc_done(struct bc_state *bcs)
++{
++	struct sk_buff *procskb;
++
++	if (unlikely(bcs->ignore)) {
++		bcs->ignore--;
++		hdlc_flush(bcs);
++		return;
++	}
++
++	if ((procskb = bcs->skb) == NULL) {
++		/* previous error */
++		dbg(DEBUG_ISO, "%s: skb=NULL", __func__);
++		gigaset_rcv_error(NULL, bcs->cs, bcs);
++	} else if (procskb->len < 2) {
++		notice("received short frame (%d octets)", procskb->len);
++		bcs->hw.bas->runts++;
++		gigaset_rcv_error(procskb, bcs->cs, bcs);
++	} else if (bcs->fcs != PPP_GOODFCS) {
++		notice("frame check error (0x%04x)", bcs->fcs);
++		bcs->hw.bas->fcserrs++;
++		gigaset_rcv_error(procskb, bcs->cs, bcs);
++	} else {
++		procskb->len -= 2;		/* subtract FCS */
++		procskb->tail -= 2;
++		dbg(DEBUG_ISO,
++		    "%s: good frame (%d octets)", __func__, procskb->len);
++		dump_bytes(DEBUG_STREAM,
++		           "rcv data", procskb->data, procskb->len);
++		bcs->hw.bas->goodbytes += procskb->len;
++		gigaset_rcv_skb(procskb, bcs->cs, bcs);
++	}
++
++	if ((bcs->skb = dev_alloc_skb(SBUFSIZE + HW_HDR_LEN)) != NULL)
++		skb_reserve(bcs->skb, HW_HDR_LEN);
++	else
++		err("could not allocate skb");
++	bcs->fcs = PPP_INITFCS;
++}
++
++/* hdlc_frag
++ * drop HDLC data packet with non-integral last byte
++ */
++static inline void hdlc_frag(struct bc_state *bcs, unsigned inbits)
++{
++	if (unlikely(bcs->ignore)) {
++		bcs->ignore--;
++		hdlc_flush(bcs);
++		return;
++	}
++
++	notice("received partial byte (%d bits)", inbits);
++	bcs->hw.bas->alignerrs++;
++	gigaset_rcv_error(bcs->skb, bcs->cs, bcs);
++
++	if ((bcs->skb = dev_alloc_skb(SBUFSIZE + HW_HDR_LEN)) != NULL)
++		skb_reserve(bcs->skb, HW_HDR_LEN);
++	else
++		err("could not allocate skb");
++	bcs->fcs = PPP_INITFCS;
++}
++
++/* bit counts lookup table for HDLC bit unstuffing
++ * index: input byte
++ * value: bit 0..3 = number of consecutive '1' bits starting from LSB
++ *        bit 4..6 = number of consecutive '1' bits starting from MSB
++ *		     (replacing 8 by 7 to make it fit; the algorithm won't care)
++ *        bit 7 set if there are 5 or more "interior" consecutive '1' bits
++ */
++static unsigned char bitcounts[256] = {
++  0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00, 0x03, 0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00, 0x04,
++  0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00, 0x03, 0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00, 0x05,
++  0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00, 0x03, 0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00, 0x04,
++  0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00, 0x03, 0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x80, 0x06,
++  0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00, 0x03, 0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00, 0x04,
++  0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00, 0x03, 0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00, 0x05,
++  0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00, 0x03, 0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00, 0x04,
++  0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00, 0x03, 0x00, 0x01, 0x00, 0x02, 0x80, 0x81, 0x80, 0x07,
++  0x10, 0x11, 0x10, 0x12, 0x10, 0x11, 0x10, 0x13, 0x10, 0x11, 0x10, 0x12, 0x10, 0x11, 0x10, 0x14,
++  0x10, 0x11, 0x10, 0x12, 0x10, 0x11, 0x10, 0x13, 0x10, 0x11, 0x10, 0x12, 0x10, 0x11, 0x10, 0x15,
++  0x10, 0x11, 0x10, 0x12, 0x10, 0x11, 0x10, 0x13, 0x10, 0x11, 0x10, 0x12, 0x10, 0x11, 0x10, 0x14,
++  0x10, 0x11, 0x10, 0x12, 0x10, 0x11, 0x10, 0x13, 0x10, 0x11, 0x10, 0x12, 0x10, 0x11, 0x90, 0x16,
++  0x20, 0x21, 0x20, 0x22, 0x20, 0x21, 0x20, 0x23, 0x20, 0x21, 0x20, 0x22, 0x20, 0x21, 0x20, 0x24,
++  0x20, 0x21, 0x20, 0x22, 0x20, 0x21, 0x20, 0x23, 0x20, 0x21, 0x20, 0x22, 0x20, 0x21, 0x20, 0x25,
++  0x30, 0x31, 0x30, 0x32, 0x30, 0x31, 0x30, 0x33, 0x30, 0x31, 0x30, 0x32, 0x30, 0x31, 0x30, 0x34,
++  0x40, 0x41, 0x40, 0x42, 0x40, 0x41, 0x40, 0x43, 0x50, 0x51, 0x50, 0x52, 0x60, 0x61, 0x70, 0x78
++};
++
++/* hdlc_unpack
++ * perform HDLC frame processing (bit unstuffing, flag detection, FCS calculation)
++ * on a sequence of received data bytes (8 bits each, LSB first)
++ * pass on successfully received, complete frames as SKBs via gigaset_rcv_skb
++ * notify of errors via gigaset_rcv_error
++ * tally frames, errors etc. in BC structure counters
++ * parameters:
++ *	src	received data
++ *	count	number of received bytes
++ *	bcs	receiving B channel structure
++ */
++static inline void hdlc_unpack(unsigned char *src, unsigned count,
++                               struct bc_state *bcs)
++{
++	struct bas_bc_state *ubc;
++	int inputstate;
++	unsigned seqlen, inbyte, inbits;
++
++	IFNULLRET(bcs);
++	ubc = bcs->hw.bas;
++	IFNULLRET(ubc);
++
++	/* load previous state:
++	 * inputstate = set of flag bits:
++	 * - INS_flag_hunt: no complete opening flag received since connection setup or last abort
++	 * - INS_have_data: at least one complete data byte received since last flag
++	 * seqlen = number of consecutive '1' bits in last 7 input stream bits (0..7)
++	 * inbyte = accumulated partial data byte (if !INS_flag_hunt)
++	 * inbits = number of valid bits in inbyte, starting at LSB (0..6)
++	 */
++	inputstate = bcs->inputstate;
++	seqlen = ubc->seqlen;
++	inbyte = ubc->inbyte;
++	inbits = ubc->inbits;
++
++	/* bit unstuffing a byte a time
++	 * Take your time to understand this; it's straightforward but tedious.
++	 * The "bitcounts" lookup table is used to speed up the counting of
++	 * leading and trailing '1' bits.
++	 */
++	while (count--) {
++		unsigned char c = *src++;
++		unsigned char tabentry = bitcounts[c];
++		unsigned lead1 = tabentry & 0x0f;
++		unsigned trail1 = (tabentry >> 4) & 0x0f;
++
++		seqlen += lead1;
++
++		if (unlikely(inputstate & INS_flag_hunt)) {
++			if (c == PPP_FLAG) {
++				/* flag-in-one */
++				inputstate &= ~(INS_flag_hunt | INS_have_data);
++				inbyte = 0;
++				inbits = 0;
++			} else if (seqlen == 6 && trail1 != 7) {
++				/* flag completed & not followed by abort */
++				inputstate &= ~(INS_flag_hunt | INS_have_data);
++				inbyte = c >> (lead1 + 1);
++				inbits = 7 - lead1;
++				if (trail1 >= 8) {
++					/* interior stuffing: omitting the MSB handles most cases */
++					inbits--;
++					/* correct the incorrectly handled cases individually */
++					switch (c) {
++					case 0xbe:
++						inbyte = 0x3f;
++						break;
++					}
++				}
++			}
++			/* else: continue flag-hunting */
++		} else if (likely(seqlen < 5 && trail1 < 7)) {
++			/* streamlined case: 8 data bits, no stuffing */
++			inbyte |= c << inbits;
++			hdlc_putbyte(inbyte & 0xff, bcs);
++			inputstate |= INS_have_data;
++			inbyte >>= 8;
++			/* inbits unchanged */
++		} else if (likely(seqlen == 6 && inbits == 7 - lead1 &&
++				  trail1 + 1 == inbits &&
++				  !(inputstate & INS_have_data))) {
++			/* streamlined case: flag idle - state unchanged */
++		} else if (unlikely(seqlen > 6)) {
++			/* abort sequence */
++			ubc->aborts++;
++			hdlc_flush(bcs);
++			inputstate |= INS_flag_hunt;
++		} else if (seqlen == 6) {
++			/* closing flag, including (6 - lead1) '1's and one '0' from inbits */
++			if (inbits > 7 - lead1) {
++				hdlc_frag(bcs, inbits + lead1 - 7);
++				inputstate &= ~INS_have_data;
++			} else {
++				if (inbits < 7 - lead1)
++					ubc->stolen0s ++;
++				if (inputstate & INS_have_data) {
++					hdlc_done(bcs);
++					inputstate &= ~INS_have_data;
++				}
++			}
++
++			if (c == PPP_FLAG) {
++				/* complete flag, LSB overlaps preceding flag */
++				ubc->shared0s ++;
++				inbits = 0;
++				inbyte = 0;
++			} else if (trail1 != 7) {
++				/* remaining bits */
++				inbyte = c >> (lead1 + 1);
++				inbits = 7 - lead1;
++				if (trail1 >= 8) {
++					/* interior stuffing: omitting the MSB handles most cases */
++					inbits--;
++					/* correct the incorrectly handled cases individually */
++					switch (c) {
++					case 0xbe:
++						inbyte = 0x3f;
++						break;
++					}
++				}
++			} else {
++				/* abort sequence follows, skb already empty anyway */
++				ubc->aborts++;
++				inputstate |= INS_flag_hunt;
++			}
++		} else { /* (seqlen < 6) && (seqlen == 5 || trail1 >= 7) */
++
++			if (c == PPP_FLAG) {
++				/* complete flag */
++				if (seqlen == 5)
++					ubc->stolen0s++;
++				if (inbits) {
++					hdlc_frag(bcs, inbits);
++					inbits = 0;
++					inbyte = 0;
++				} else if (inputstate & INS_have_data)
++					hdlc_done(bcs);
++				inputstate &= ~INS_have_data;
++			} else if (trail1 == 7) {
++				/* abort sequence */
++				ubc->aborts++;
++				hdlc_flush(bcs);
++				inputstate |= INS_flag_hunt;
++			} else {
++				/* stuffed data */
++				if (trail1 < 7) { /* => seqlen == 5 */
++					/* stuff bit at position lead1, no interior stuffing */
++					unsigned char mask = (1 << lead1) - 1;
++					c = (c & mask) | ((c & ~mask) >> 1);
++					inbyte |= c << inbits;
++					inbits += 7;
++				} else if (seqlen < 5) { /* trail1 >= 8 */
++					/* interior stuffing: omitting the MSB handles most cases */
++					/* correct the incorrectly handled cases individually */
++					switch (c) {
++					case 0xbe:
++						c = 0x7e;
++						break;
++					}
++					inbyte |= c << inbits;
++					inbits += 7;
++				} else { /* seqlen == 5 && trail1 >= 8 */
++
++					/* stuff bit at lead1 *and* interior stuffing */
++					switch (c) {	/* unstuff individually */
++					case 0x7d:
++						c = 0x3f;
++						break;
++					case 0xbe:
++						c = 0x3f;
++						break;
++					case 0x3e:
++						c = 0x1f;
++						break;
++					case 0x7c:
++						c = 0x3e;
++						break;
++					}
++					inbyte |= c << inbits;
++					inbits += 6;
++				}
++				if (inbits >= 8) {
++					inbits -= 8;
++					hdlc_putbyte(inbyte & 0xff, bcs);
++					inputstate |= INS_have_data;
++					inbyte >>= 8;
++				}
++			}
++		}
++		seqlen = trail1 & 7;
++	}
++
++	/* save new state */
++	bcs->inputstate = inputstate;
++	ubc->seqlen = seqlen;
++	ubc->inbyte = inbyte;
++	ubc->inbits = inbits;
++}
++
++/* trans_receive
++ * pass on received USB frame transparently as SKB via gigaset_rcv_skb
++ * invert bytes
++ * tally frames, errors etc. in BC structure counters
++ * parameters:
++ *	src	received data
++ *	count	number of received bytes
++ *	bcs	receiving B channel structure
++ */
++static inline void trans_receive(unsigned char *src, unsigned count,
++                                 struct bc_state *bcs)
++{
++	struct sk_buff *skb;
++	int dobytes;
++	unsigned char *dst;
++
++	if (unlikely(bcs->ignore)) {
++		bcs->ignore--;
++		hdlc_flush(bcs);
++		return;
++	}
++	if (unlikely((skb = bcs->skb) == NULL)) {
++		bcs->skb = skb = dev_alloc_skb(SBUFSIZE + HW_HDR_LEN);
++		if (!skb) {
++			err("could not allocate skb");
++			return;
++		}
++		skb_reserve(skb, HW_HDR_LEN);
++	}
++	bcs->hw.bas->goodbytes += skb->len;
++	dobytes = TRANSBUFSIZE - skb->len;
++	while (count > 0) {
++		dst = skb_put(skb, count < dobytes ? count : dobytes);
++		while (count > 0 && dobytes > 0) {
++			*dst++ = gigaset_invtab[*src++];
++			count--;
++			dobytes--;
++		}
++		if (dobytes == 0) {
++			gigaset_rcv_skb(skb, bcs->cs, bcs);
++			bcs->skb = skb = dev_alloc_skb(SBUFSIZE + HW_HDR_LEN);
++			if (!skb) {
++				err("could not allocate skb");
++				return;
++			}
++			skb_reserve(bcs->skb, HW_HDR_LEN);
++			dobytes = TRANSBUFSIZE;
++		}
++	}
++}
++
++void gigaset_isoc_receive(unsigned char *src, unsigned count, struct bc_state *bcs)
++{
++	switch (bcs->proto2) {
++	case ISDN_PROTO_L2_HDLC:
++		hdlc_unpack(src, count, bcs);
++		break;
++	default:		/* assume transparent */
++		trans_receive(src, count, bcs);
++	}
++}
++
++/* == data input =========================================================== */
++
++static void cmd_loop(unsigned char *src, int numbytes, struct inbuf_t *inbuf)
++{
++	struct cardstate *cs = inbuf->cs;
++	unsigned cbytes      = cs->cbytes;
++
++	while (numbytes--) {
++		/* copy next character, check for end of line */
++		switch (cs->respdata[cbytes] = *src++) {
++		case '\r':
++		case '\n':
++			/* end of line */
++			dbg(DEBUG_TRANSCMD, "%s: End of Command (%d Bytes)",
++			    __func__, cbytes);
++			cs->cbytes = cbytes;
++			gigaset_handle_modem_response(cs);
++			cbytes = 0;
++			break;
++		default:
++			/* advance in line buffer, checking for overflow */
++			if (cbytes < MAX_RESP_SIZE - 1)
++				cbytes++;
++			else
++				warn("response too large");
 +		}
 +	}
 +
-+	/* deregister this driver with the USB subsystem */
-+	usb_deregister(&gigaset_usb_driver);
-+	/* this will call the disconnect-callback */
-+	/* from now on, no disconnect/probe callback should be running */
-+
-+	gigaset_freecs(cardstate);
-+	cardstate = NULL;
-+	gigaset_freedriver(driver);
-+	driver = NULL;
++	/* save state */
++	cs->cbytes = cbytes;
 +}
 +
 +
-+module_init(bas_gigaset_init);
-+module_exit(bas_gigaset_exit);
++/* process a block of data received through the control channel
++ */
++void gigaset_isoc_input(struct inbuf_t *inbuf)
++{
++	struct cardstate *cs = inbuf->cs;
++	unsigned tail, head, numbytes;
++	unsigned char *src;
 +
-+MODULE_AUTHOR(DRIVER_AUTHOR);
-+MODULE_DESCRIPTION(DRIVER_DESC);
-+MODULE_LICENSE("GPL");
++	head = atomic_read(&inbuf->head);
++	while (head != (tail = atomic_read(&inbuf->tail))) {
++		dbg(DEBUG_INTR, "buffer state: %u -> %u", head, tail);
++		if (head > tail)
++			tail = RBUFSIZE;
++		src = inbuf->data + head;
++		numbytes = tail - head;
++		dbg(DEBUG_INTR, "processing %u bytes", numbytes);
++
++		if (atomic_read(&cs->mstate) == MS_LOCKED) {
++			gigaset_dbg_buffer(DEBUG_LOCKCMD, "received response",
++			                   numbytes, src, 0);
++			gigaset_if_receive(inbuf->cs, src, numbytes);
++		} else {
++			gigaset_dbg_buffer(DEBUG_CMD, "received response",
++			                   numbytes, src, 0);
++			cmd_loop(src, numbytes, inbuf);
++		}
++
++		head += numbytes;
++		if (head == RBUFSIZE)
++			head = 0;
++		dbg(DEBUG_INTR, "setting head to %u", head);
++		atomic_set(&inbuf->head, head);
++	}
++}
++
++
++/* == data output ========================================================== */
++
++/* gigaset_send_skb
++ * called by common.c to queue an skb for sending
++ * and start transmission if necessary
++ * parameters:
++ *	B Channel control structure
++ *	skb
++ * return value:
++ *	number of bytes accepted for sending
++ *	(skb->len if ok, 0 if out of buffer space)
++ *	or error code (< 0, eg. -EINVAL)
++ */
++int gigaset_isoc_send_skb(struct bc_state *bcs, struct sk_buff *skb)
++{
++	int len;
++
++	IFNULLRETVAL(bcs, -EFAULT);
++	IFNULLRETVAL(skb, -EFAULT);
++	len = skb->len;
++
++	skb_queue_tail(&bcs->squeue, skb);
++	dbg(DEBUG_ISO,
++	    "%s: skb queued, qlen=%d", __func__, skb_queue_len(&bcs->squeue));
++
++	/* tasklet submits URB if necessary */
++	tasklet_schedule(&bcs->hw.bas->sent_tasklet);
++
++	return len;	/* ok so far */
++}

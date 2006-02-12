@@ -1,104 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWBLLLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWBLLUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbWBLLLu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 06:11:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbWBLLLu
+	id S1750710AbWBLLUU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 06:20:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWBLLUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 06:11:50 -0500
-Received: from smtpout.mac.com ([17.250.248.85]:62404 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1750702AbWBLLLu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 06:11:50 -0500
-In-Reply-To: <43EEF711.2010409@gmail.com>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602101337.22078.rjw@sisk.pl> <20060210233507.GC1952@elf.ucw.cz> <200602111136.56325.merka@highsphere.net> <B5780C33-81CE-4B8A-9583-B9B3973FCC11@mac.com> <43EEF711.2010409@gmail.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <43833C9D-40A2-42B3-83D9-3C9D3EB7C434@mac.com>
-Cc: Jan Merka <merka@highsphere.net>, Pavel Machek <pavel@ucw.cz>,
-       suspend2-devel@lists.suspend2.net, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Flames over -- Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Sun, 12 Feb 2006 06:11:38 -0500
-To: Alon Bar-Lev <alon.barlev@gmail.com>
-X-Mailer: Apple Mail (2.746.2)
+	Sun, 12 Feb 2006 06:20:19 -0500
+Received: from methan.in-berlin.de ([130.133.8.34]:12979 "EHLO
+	methan.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1750710AbWBLLUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 06:20:19 -0500
+X-Envelope-From: calle@calle.in-berlin.de
+Date: Sun, 12 Feb 2006 12:09:07 +0100
+From: Carsten Paeth <calle@calle.in-berlin.de>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Armin Schindler <armin@melware.de>, Adrian Bunk <bunk@stusta.de>,
+       kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>, kkeil@suse.de
+Subject: Re: [2.6 patch] ISDN_CAPI_CAPIFS related cleanups
+Message-ID: <20060212110903.GD17864@calle.in-berlin.de>
+References: <20060131213306.GG3986@stusta.de> <1138743844.3968.14.camel@localhost.localdomain> <20060202214059.GB14097@stusta.de> <1138924621.3788.2.camel@localhost.localdomain> <Pine.LNX.4.61.0602030941580.13271@phoenix.one.melware.de> <1138956828.3731.2.camel@localhost.localdomain> <Pine.LNX.4.61.0602031110280.15581@phoenix.one.melware.de> <1138996640.3830.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1138996640.3830.5.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 12, 2006, at 03:51, Alon Bar-Lev wrote:
-> 1. Store state on files
+Hello,
 
-This is not a "feature", it's just something that causes a lot of  
-downsides (chew up disk space, fragment files, add code complexity,  
-etc).
+I have no problems, when capifs is removed, but the pppdcapiplugin
+has to work without it.
+So if you want to remove capifs make sure pppdcapiplugin is
+working without problems together with udev ...
 
-> this allow you to resume your machine into a different OS.
+I'm too busy to check pppdcapiplugin together with udev ....
 
-This is the "feature".  On the other hand, I'm going to argue that  
-this isn't really what we want to be doing for complexity reasons.   
-We want to implement the container and userspace-freeze code  
-described in the virtualization thread, then implement software- 
-suspend-and-resume-into-different-OS as freeze-userspace-container,  
-shutdown.  Then you could trivially have different sets of working  
-data/processes, load up multiple sets at once, selectively freeze,  
-etc, with far less kernel complexity.
+regards,
 
-> 2. Encrypt state - this allow you to be sure that your data is  
-> stored encrypted. (Yes... You can encrypt the memory... but then  
-> you need a whole initramfs clone in order to allow the user to  
-> specify how he want to encrypt/decrypt).
+calle
 
-Why the hell would you even _want_ to encrypt data in RAM?  If you  
-have a secure OS install and a passworded screensaver that starts  
-before suspend, then there is _nothing_ an attacker could do to the  
-contents of RAM without hard-booting, which would just completely  
-erase it, or without extremely specialized hardware and expertise.   
-Picking up a machine suspended to RAM is just as secure as picking up  
-one that is on, no more or less.
-
-> 3. Network resume - this allow you to resume a network machine (Not  
-> implemented yet, but cannot be done if
-> suspend-to-RAM is the sole implementation).
->
-> 4. Support desktops/servers - this allow you to  suspend/resume  
-> hardware that is not designed to sleep, in  order to minimize  
-> downtime on power failure.
-
-This again is covered by the container-freeze stuff being implemented  
-as described above, and is unrelated to the suspend-to-RAM.  When I  
-want suspend-to-RAM, I want something that will work instantly with  
-no overhead, so I can close my laptop and have it asleep 2 seconds  
-later, or open it and be able to use it within 2 seconds.  That's an  
-extremely different use-case than the above two.
-
-> And another fact: Suspend-to-RAM implementation can be derived form  
-> suspend-to-disk but not the other way around.
-
-No, the two are _entirely_ independent.  Suspend-to-RAM does not need  
-to copy memory at all, whereas suspend-to-disk requires it.  That  
-very fact means that suspend-to-RAM is orders of magnitude faster  
-than suspend-to-disk could ever be, especially as RAM gets  
-exponentially larger.
-
-> So let's invert the initial "fact"...  Suspend-to-RAM is basically  
-> for people that don't need the full  functionality of suspend-to- 
-> disk, after I got suspend-to-disk to work reliably here (suspend2),  
-> I *NEVER* use suspend-to-RAM.
-
-No, suspend-to-ram is for people who need instant response times,  
-suspend-to-disk should be an extension or simplification of "Freeze a  
-process tree and all associated system status so we can completely  
-give up the hardware for a while".  IMHO, the fact that both are  
-called "suspend" is just due to historical quirk as opposed to any  
-real similarity.
-
-Cheers,
-Kyle Moffett
-
---
-There is no way to make Linux robust with unreliable memory  
-subsystems, sorry.  It would be like trying to make a human more  
-robust with an unreliable O2 supply. Memory just has to work.
-   -- Andi Kleen
-
-
+Fri, Feb 03, 2006 at 08:57:20PM +0100, Marcel Holtmann schrieb:
+> Hi Armin,
+> 
+> > > > > > > > This patch contains the following cleanups:
+> > > > > > > > - move the help text to the right option
+> > > > > > > > - replace some #ifdef's in capi.c with dummy functions in capifs.h
+> > > > > > > > - use CONFIG_ISDN_CAPI_CAPIFS_BOOL in one place in capi.c
+> > > > > > > 
+> > > > > > > I actually still like to see capifs removed completely. It is not really
+> > > > > > > needed if you gonna use udev. The only thing that it is doing, is to set
+> > > > > > > the correct permissions and make sure that the device nodes are created.
+> > > > > > > And with a 2.6 kernel this can be all done by udev.
+> > > > > > 
+> > > > > > udev is not mandatory.
+> > > > > > 
+> > > > > > Static /dev is still 100% supported and working fine.
+> > > > > 
+> > > > > and if you have static /dev then you can use mknod and chown by
+> > > > > yourself. If you use CAPI on any newer distribution with the latest 2.6
+> > > > > kernel you will have udev anyway and so no static /dev at all.
+> > > > 
+> > > > Sorry for my ignorance, but I think capifs was introduced to have own 
+> > > > dynamic 'files' like pts and not to have the restrictions of character 
+> > > > devices and the needed major/minor numbers.
+> > > 
+> > > I am under the impression that it was introduced to change the ownership
+> > > of the device node the current process. Nothing more, nothing less.
+> > > Please correct me if I am wrong here.
+> > 
+> > I really don't know. Calle should be asked, I think he did that.
+> 
+> I asked him some time ago, but never got a final feedback for it.
+>   
+> > > > So changing this to character device nodes may break applications
+> > > > out there.
+> > > 
+> > > Actually I stopped compiling in and using capifs over a year ago and I
+> > > never had any problems with it. However you must ensure that the device
+> > > has been created by udev, nut nowadays this is no problem.
+> > 
+> > I use capi-ppp connections with capifs. If you don't use capifs, how do you
+> > do ppp over CAPI?
+> > 
+> > What about the major number? Wouldn't we need a major number then?
+> 
+> It has already a major number.
+> 
+> > If udev is creating the device, it may be not existent when the application
+> > expects it. E.g. the application is doing the ioctl to retreive the 
+> > connection number (filename) and expects to be able to open it. But in case 
+> > of udev, it might be not done in that time. So the application needs to wait
+> > for some time..., but how long? I don't like this idea.
+> 
+> This is a small race condition that existed with the original udev, but
+> it was easy to work around it. Adding a simple sleep is enough and I did
+> the same with Bluetooth RFCOMM. However it should be work nowadays, but
+> I am not 100% sure. We should check this with the udev guys.
+> 
+> Regards
+> 
+> Marcel
+> 

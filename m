@@ -1,133 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWBLLfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbWBLLg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750909AbWBLLfS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 06:35:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWBLLfR
+	id S932384AbWBLLg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 06:36:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbWBLLg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 06:35:17 -0500
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:38805 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750909AbWBLLfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 06:35:16 -0500
-Date: Sun, 12 Feb 2006 12:35:03 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] s390: fstatat64 support
-Message-ID: <20060212113503.GA23520@osiris.ibm.com>
+	Sun, 12 Feb 2006 06:36:28 -0500
+Received: from coyote.holtmann.net ([217.160.111.169]:40068 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S932383AbWBLLg1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 06:36:27 -0500
+Subject: Re: [2.6 patch] ISDN_CAPI_CAPIFS related cleanups
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Carsten Paeth <calle@calle.in-berlin.de>
+Cc: Armin Schindler <armin@melware.de>, Adrian Bunk <bunk@stusta.de>,
+       kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>, kkeil@suse.de
+In-Reply-To: <20060212110903.GD17864@calle.in-berlin.de>
+References: <20060131213306.GG3986@stusta.de>
+	 <1138743844.3968.14.camel@localhost.localdomain>
+	 <20060202214059.GB14097@stusta.de>
+	 <1138924621.3788.2.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0602030941580.13271@phoenix.one.melware.de>
+	 <1138956828.3731.2.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0602031110280.15581@phoenix.one.melware.de>
+	 <1138996640.3830.5.camel@localhost.localdomain>
+	 <20060212110903.GD17864@calle.in-berlin.de>
+Content-Type: multipart/mixed; boundary="=-WddJi7imxWc95MMeG2vh"
+Date: Sun, 12 Feb 2006 12:36:15 +0100
+Message-Id: <1139744175.5070.6.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: mutt-ng/devel (Linux)
+X-Mailer: Evolution 2.5.90 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From:  Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Add fstatat64 support to s390 in order to follow changes with
-commit cff2b760096d1e6feaa31948e7af4abbefe47822 .
-Also fixes compilation for 31 bit.
+--=-WddJi7imxWc95MMeG2vh
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
+Hi Calle,
 
- arch/s390/kernel/compat_wrapper.S |    8 ++++----
- arch/s390/kernel/syscalls.S       |    2 +-
- include/asm-s390/unistd.h         |    4 +++-
- 4 files changed, 28 insertions(+), 6 deletions(-)
+> I have no problems, when capifs is removed, but the pppdcapiplugin
+> has to work without it.
+> So if you want to remove capifs make sure pppdcapiplugin is
+> working without problems together with udev ...
+> 
+> I'm too busy to check pppdcapiplugin together with udev ....
 
-diff --git a/arch/s390/kernel/compat_linux.c b/arch/s390/kernel/compat_linux.c
-index cc20f0e..2d02162 100644
---- a/arch/s390/kernel/compat_linux.c
-+++ b/arch/s390/kernel/compat_linux.c
-@@ -905,6 +905,26 @@ asmlinkage long sys32_fstat64(unsigned l
- 	return ret;
- }
- 
-+asmlinkage long sys32_fstatat(unsigned int dfd, char __user *filename,
-+			      struct stat64_emu31 __user* statbuf, int flag)
-+{
-+	struct kstat stat;
-+	int error = -EINVAL;
-+
-+	if ((flag & ~AT_SYMLINK_NOFOLLOW) != 0)
-+		goto out;
-+
-+	if (flag & AT_SYMLINK_NOFOLLOW)
-+		error = vfs_lstat_fd(dfd, filename, &stat);
-+	else
-+		error = vfs_stat_fd(dfd, filename, &stat);
-+
-+	if (!error)
-+		error = cp_stat64(statbuf, &stat);
-+out:
-+	return error;
-+}
-+
- /*
-  * Linux/i386 didn't use to be able to handle more than
-  * 4 system call parameters, so these system calls used a memory
-diff --git a/arch/s390/kernel/compat_wrapper.S b/arch/s390/kernel/compat_wrapper.S
-index 38a6ef5..dd2d6c3 100644
---- a/arch/s390/kernel/compat_wrapper.S
-+++ b/arch/s390/kernel/compat_wrapper.S
-@@ -1523,13 +1523,13 @@ compat_sys_futimesat_wrapper:
- 	llgtr	%r4,%r4			# struct timeval *
- 	jg	compat_sys_futimesat
- 
--	.globl compat_sys_newfstatat_wrapper
--compat_sys_newfstatat_wrapper:
-+	.globl sys32_fstatat_wrapper
-+sys32_fstatat_wrapper:
- 	llgfr	%r2,%r2			# unsigned int
- 	llgtr	%r3,%r3			# char *
--	llgtr	%r4,%r4			# struct stat *
-+	llgtr	%r4,%r4			# struct stat64 *
- 	lgfr	%r5,%r5			# int
--	jg	compat_sys_newfstatat
-+	jg	sys32_fstatat
- 
- 	.globl sys_unlinkat_wrapper
- sys_unlinkat_wrapper:
-diff --git a/arch/s390/kernel/syscalls.S b/arch/s390/kernel/syscalls.S
-index e86a4de..84921fe 100644
---- a/arch/s390/kernel/syscalls.S
-+++ b/arch/s390/kernel/syscalls.S
-@@ -301,7 +301,7 @@ SYSCALL(sys_mkdirat,sys_mkdirat,sys_mkdi
- SYSCALL(sys_mknodat,sys_mknodat,sys_mknodat_wrapper)	/* 290 */
- SYSCALL(sys_fchownat,sys_fchownat,sys_fchownat_wrapper)
- SYSCALL(sys_futimesat,sys_futimesat,compat_sys_futimesat_wrapper)
--SYSCALL(sys_newfstatat,sys_newfstatat,compat_sys_newfstatat_wrapper)
-+SYSCALL(sys_fstatat64,sys_newfstatat,sys32_fstatat_wrapper)
- SYSCALL(sys_unlinkat,sys_unlinkat,sys_unlinkat_wrapper)
- SYSCALL(sys_renameat,sys_renameat,sys_renameat_wrapper)	/* 295 */
- SYSCALL(sys_linkat,sys_linkat,sys_linkat_wrapper)
-diff --git a/include/asm-s390/unistd.h b/include/asm-s390/unistd.h
-index 0a2f666..657d582 100644
---- a/include/asm-s390/unistd.h
-+++ b/include/asm-s390/unistd.h
-@@ -285,7 +285,7 @@
- #define __NR_mknodat		290
- #define __NR_fchownat		291
- #define __NR_futimesat		292
--#define __NR_newfstatat		293
-+#define __NR_fstatat64		293
- #define __NR_unlinkat		294
- #define __NR_renameat		295
- #define __NR_linkat		296
-@@ -359,6 +359,7 @@
- #undef  __NR_fcntl64
- #undef  __NR_sendfile64
- #undef  __NR_fadvise64_64
-+#undef  __NR_fstatat64
- 
- #define __NR_select		142
- #define __NR_getrlimit		191	/* SuS compliant getrlimit */
-@@ -381,6 +382,7 @@
- #define __NR_setgid  		214
- #define __NR_setfsuid  		215
- #define __NR_setfsgid  		216
-+#define __NR_newfstatat		293
- 
- #endif
- 
+I posted this patch some time ago (actually April 2004) which made pppd
+wait for the device node to be created before failing. I used it since
+then and it still works fine for me.
+
+Regards
+
+Marcel
+
+
+--=-WddJi7imxWc95MMeG2vh
+Content-Disposition: attachment; filename=patch-pppdcapiplugin-wait-for-dev
+Content-Type: text/x-patch; name=patch-pppdcapiplugin-wait-for-dev; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+Index: capiplugin.c
+===================================================================
+RCS file: /i4ldev/isdn4k-utils/pppdcapiplugin/capiplugin.c,v
+retrieving revision 1.33
+diff -u -r1.33 capiplugin.c
+--- capiplugin.c	16 Jan 2004 15:27:13 -0000	1.33
++++ capiplugin.c	12 Apr 2004 13:20:50 -0000
+@@ -1413,6 +1413,11 @@
+ 	   fatal("capiplugin: failed to get tty devname - %s (%d)",
+ 			strerror(serrno), serrno);
+ 	}
++	retry = 0;
++	while (access(tty, 0) != 0 && (retry++ < 4)) {
++	   dbglog("capiplugin: capitty not available, waiting for device ...");
++	   sleep(1);
++	}
+ 	if (access(tty, 0) != 0 && errno == ENOENT) {
+ 	      fatal("capiplugin: tty %s doesn't exist - CAPI Filesystem Support not enabled in kernel or not mounted ?", tty);
+ 	}
+
+--=-WddJi7imxWc95MMeG2vh--
+

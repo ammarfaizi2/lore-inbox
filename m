@@ -1,59 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWBLQiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWBLQmY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751148AbWBLQiA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 11:38:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWBLQh7
+	id S1750708AbWBLQmY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 11:42:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWBLQmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 11:37:59 -0500
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:27991 "EHLO
-	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S1751148AbWBLQh7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 11:37:59 -0500
-Date: Sun, 12 Feb 2006 11:37:58 -0500
-From: Jeff Mahoney <jeffm@suse.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Cc: Chris Mason <mason@suse.com>, Hans Reiser <reiser@namesys.com>,
-       Vitaly Fertman <vitaly@namesys.com>
-Subject: [PATCH] reiserfs: disable automatic enabling of reiserfs inode attributes
-Message-ID: <20060212163758.GB5190@locomotive.unixthugs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux 2.6.5-7.201-smp (i686)
-X-GPG-Fingerprint: A16F A946 6C24 81CC 99BB  85AF 2CF5 B197 2B93 0FB2
-X-GPG-Key: http://www.csh.rit.edu/~jeffm/jeffm.gpg
-User-Agent: Mutt/1.5.6i
+	Sun, 12 Feb 2006 11:42:24 -0500
+Received: from smtpout05-04.prod.mesa1.secureserver.net ([64.202.165.221]:35491
+	"HELO smtpout05-04.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S1750708AbWBLQmX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 11:42:23 -0500
+From: hackmiester / Hunter Fuller <hackmiester@hackmiester.com>
+Reply-To: hackmiester@hackmiester.com
+Organization: hackmiester.com, Ltd.
+To: Alon Bar-Lev <alon.barlev@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Flames over -- Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Date: Sun, 12 Feb 2006 10:42:07 -0600
+User-Agent: KMail/1.8
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <B5780C33-81CE-4B8A-9583-B9B3973FCC11@mac.com> <43EEF711.2010409@gmail.com>
+In-Reply-To: <43EEF711.2010409@gmail.com>
+X-Face: #pm4uI.4%U/S1i<i'(UPkahbf^inZ;WOH{EKM,<n/P;R5m8#`2&`HN`hB;ht_>=?utf-8?q?oJYRGD3o=0A=09?=)AM
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart4368979.01ohDnQSnk";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200602121042.16147.hackmiester@hackmiester.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Unfortunately, the reiserfs_attrs_cleared bit in the superblock flag can lie.
- File systems have been observed with the bit set, yet still contain garbage
- in the stat data field, causing unpredictable results.
+--nextPart4368979.01ohDnQSnk
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
- This patch backs out the enable-by-default behavior.
+On Sunday 12 February 2006 02:51, Alon Bar-Lev wrote:
+>
+> Hello,
+>
+> I don't understand how a fundamental (good) debate of how
+> suspend to disk should be implemented in kernel, changed
+> into this one.
+>
+> I don't care what Linus said... Suspend-to-disk is more
+> complicated than suspend-to-RAM. It is more complicated
 
- It eliminates the changes from: d50a5cd860ce721dbeac6a4f3c6e42abcde68cd8, and
- ef5e5414e7a83eb9b4295bbaba5464410b11e030.
+And more useful in many cases... I'd just like to throw in here that when m=
+y=20
+battery has seven minutes left and I have a month's uptime... I suspend to=
+=20
+disk. I also presume that many people do this as well.
 
-  fs/reiserfs/super.c |    2 --
-  1 files changed, 2 deletions(-)
+> since it provides more features. Suspend-to-RAM only stores
+> state, where Suspend-to-disk need to store the state
+> somewhere thus changing the initial state.
+>
+> There is a long list of features available at
+> http://wiki.suspend2.net/FeatureUserRegister, which cannot
+> be provided using suspend-to-RAM, examples:
+> 1. Store state on files - this allow you to resume your
+> machine into a different OS.
+> 2. Encrypt state - this allow you to be sure that your data
+> is stored encrypted. (Yes... You can encrypt the memory...
+> but then you need a whole initramfs clone in order to allow
+> the user to specify how he want to encrypt/decrypt).
+> 3. Network resume - this allow you to resume a network
+> machine (Not implemented yet, but cannot be done if
+> suspend-to-RAM is the sole implementation).
+> 4. Support desktops/servers - this allow you to
+> suspend/resume hardware that is not designed to sleep, in
+> order to minimize downtime on power failure.
+>
+> And another fact: Suspend-to-RAM implementation can be
+> derived form suspend-to-disk but not the other way around.
+>
+> So let's invert the initial "fact"...
+> Suspend-to-RAM is basically for people that don't need the
+> full functionality of suspend-to-disk, after I got
+> suspend-to-disk to work reliably here (suspend2), I *NEVER*
+> use suspend-to-RAM.
+>
+> Best Regards,
+> Alon Bar-Lev.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+=2D-=20
+=2D-hackmiester
+If you can read this, you don't need glasses.
 
-diff -ruNpX dontdiff linux-2.6.15/fs/reiserfs/super.c linux-2.6.15-reiserfs/fs/reiserfs/super.c
---- linux-2.6.15/fs/reiserfs/super.c	2006-02-06 19:54:27.000000000 -0500
-+++ linux-2.6.15-reiserfs/fs/reiserfs/super.c	2006-02-12 11:19:15.000000000 -0500
-@@ -1121,8 +1121,6 @@ static void handle_attrs(struct super_bl
- 					 "reiserfs: cannot support attributes until flag is set in super-block");
- 			REISERFS_SB(s)->s_mount_opt &= ~(1 << REISERFS_ATTRS);
- 		}
--	} else if (le32_to_cpu(rs->s_flags) & reiserfs_attrs_cleared) {
--		REISERFS_SB(s)->s_mount_opt |= (1 << REISERFS_ATTRS);
- 	}
- }
- 
--- 
-Jeff Mahoney
-SuSE Labs
+--nextPart4368979.01ohDnQSnk
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBD72Vo3ApzN91C7BcRAs1OAKDj6CCD2+f6Jr8UlPeGlnYCHjUkKgCghn3v
+IujdY/ngoBgh0I8JtRRjCLE=
+=QxkL
+-----END PGP SIGNATURE-----
+
+--nextPart4368979.01ohDnQSnk--

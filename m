@@ -1,40 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751476AbWBLWDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751031AbWBLWOp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751476AbWBLWDn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 17:03:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWBLWDn
+	id S1751031AbWBLWOp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 17:14:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWBLWOp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 17:03:43 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:45231 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751476AbWBLWDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 17:03:42 -0500
-Subject: Re: [RFC: 2.6 patch] CONFIG_FORCEDETH updates
-From: Lee Revell <rlrevell@joe-job.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060212175202.GK30922@stusta.de>
-References: <20060212175202.GK30922@stusta.de>
-Content-Type: text/plain
-Date: Sun, 12 Feb 2006 17:03:36 -0500
-Message-Id: <1139781817.19342.300.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Feb 2006 17:14:45 -0500
+Received: from fed1rmmtao03.cox.net ([68.230.241.36]:12470 "EHLO
+	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
+	id S1751030AbWBLWOo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 17:14:44 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] GIT 1.2.0
+References: <7vzmkw8d5b.fsf@assigned-by-dhcp.cox.net>
+Date: Sun, 12 Feb 2006 14:14:43 -0800
+Message-ID: <7vaccw8bsc.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-12 at 18:52 +0100, Adrian Bunk wrote:
-> This patch contains the following possible updates:
-> - let FORCEDETH no longer depend on EXPERIMENTAL
-> - remove the "Reverse Engineered" from the option text:
->   for the user it's important which hardware the driver supports, not
->   how it was developed
+A resend.  I am suspecting vger does not want two lists hosted
+there both named on To: line...
 
-Is this driver as stable as one that was developed with proper
-documentation?  I prefer to know that something as elementary as a fast
-ethernet controller had to be reverse engineered so I can avoid
-supporting a vendor so hostile to Linux.
+-- >8 --
+The latest feature release GIT 1.2.0 is available at the
+usual places:
 
-Lee
+	http://www.kernel.org/pub/software/scm/git/
+
+	git-1.2.0.tar.{gz,bz2}			(tarball)
+	RPMS/$arch/git-*-1.2.0-1.$arch.rpm	(RPM)
+
+Right now binary RPM is available only for x86_64, because I do
+not have an access to RPM capable i386 box.
+
+
+What's new in 1.2.0
+
+The new release 1.2.0 took about one month since 1.1.0 was released.
+It has literally _tons_ of updates since the last maintenance release
+1.1.6.  While people who have been following the master branch are
+probably familiar with most of them, I expect others would be quite
+surprised by the amount of changes.  Hopefully the surprise is of a
+pleasant kind.
+
+Here is the list of all the good stuff (not counting what are
+already in the 1.1.X maintenance series).
+
+* Major features
+
+ - Checkout -m option.  This allows you to switch branches when
+   you have local changes to paths that are different in the
+   current branch and new branch.  The local changes are merged to
+   the version from the branch you are switching to and the merge
+   result is left in your working tree (you may see conflicts).
+
+ - Add -c and --cc to diff-tree and diff-files.  They give the
+   "combined diff" output that shows merges more human readably,
+   and the "git diff" wrapper uses --cc by default.  This release
+   also comes with updated gitk (Paul Mackerras) that takes advantage
+   of this feature.
+
+ - git-commit updates.
+
+   - Allow git-commit from a subdirectory.
+
+   - Aborted "git-commit -a" leaves the index as it was.
+
+   - "git commit --only paths..." checks in changes to only
+     named paths.
+
+     This will become the default, instead of the traditional
+     --include semantics, during development track towards
+     1.3.0, so if you are used to the --include semantics,
+     please start training your fingers to explicitly say
+     "git commit --include paths...".
+
+   - Add --author='A U Thor <author@example.com>' command
+     line option.
+
+   - "git commit -v" seeds the end of the commit log message editor
+     with the patch to be committed.
+
+ - git-status updates.  Now it takes the exactly same set of parameters
+   as git-commit takes, and serves as a way to preview what you would
+   be committing.  The -v option to get diff output is also available.
+
+* Portability
+
+  FreeBSD support in the main Makefile (Alecs King, Alex Riesen)
+  Run GIT-VERSION-GEN with $(SHELL), not sh (Jason Riedy)
+  compat/unsetenv.c (Jason Riedy)
+  stat() to work around nonportable EEXIST (Jason Riedy)
+  Asciidoc futureproofing (Pavel)
+  Disable USE_SYMLINK_HEAD by default (Pavel)
+  Various fixes for Cygwin around dirent and sockaddr_storage.
+
+* Foreign SCM interface
+
+  cvs-import updates (Andreas Ericsson and Martin)
+  cvs-exportcommit fixes and docs (Martin)
+  send-email various cleanups (Ryan)
+  svnimport internal arglist fix (Sasha Khapyorsky)
+  svnimport relative path fix (Christian Biesinger)
+
+* Samples and Docs
+
+  New tutorial (J. Bruce Fields)
+  Update hook example (Andreas Ericsson)
+  Topic-branch howto updates (Tony Luck)
+  Other misc. cleanups (Florian Weimer, J. Bruce Fields, Petr Baudis, Jon Loeliger)
+  Document git-diff-tree --always (Petr Baudis)
+  Basic documentation for git-show (Petr Baudis)
+
+* Cleanups
+
+  Use tree_desc tree parser in tar-tree (Daniel, Linus)
+  Use sha1_file.c's mkdir-like routine in apply.c (Jason Riedy)
+  Use adler32() from zlib instead of defining our own (Peter Eriksen)
+  Assorted cleanups (Uwe Zeisberger)
+  Make --abbrev more consistent with diff-tree
+  Omit duplicated parents from rev-list --parents output
+  Clean up rev-parse error checking (Linus)
+
+* Usability improvements
+
+  git-apply -pN (Daniel)
+  git-rev-list -n1 and -1 (Eric Wong)
+  diff-tree --always flag (Linus)
+  git-fetch -k (Tom Prince)
+  git-describe: default to HEAD (Andreas Ericsson and me)
+  git-clone --bare
+  git-show and git-whatchanged (Linus and me)
+  git-daemon user-relative paths updates (Mark Wooding and me)
+  git-rerere reuse recorded resolve.
+  git-fmt-merge-msg updates.
+  git-format-patch: always --mbox and show sane Date (Eric W. Biederman et al)
+  git-show-branch assorted updates
+  git-commit seeds the message with list of conflicted files (Linus)
+  git-clone and git-fetch shows progress information (Linus and me)
+  git-repo-config allows type specifiers, does not dump core if bool (Pasky)
+
+* Fixes
+
+  git-format-patch -s (Eric W. Biederman)
+  git-whatchanged: exit out early on errors (Linus)
+  Various http-fetch fixes (Mark Wooding, Nick Hengeveld)
+  Local push/pull env cleanup (Matt Draisey)
+  Exec git programs without using PATH (Michal Ostrowski)
+  Pass --upload-pack to fetch-pack and friends (Michal Ostrowski)
+  Allow diff and index commands to be interrupted (Petr Baudis)
+  Fix "git-push --tags".
+  Parse sha1^12 for 12th parent correctly.
+  git-diff-tree --stdin uses given parents by git-rev-list --parents.
+  Show grafted parents in rev-list --parents.
+  git-ls-files -o reads from --exclude-per-dir from upper directories.
+  do not allow empty author/committer name/email.
+  call setup_git_directory() before git_config().
+  futureproof and optimize delta unpacker (Nicolas Pitre)
+
+* Performance
+
+  merge-recursive (Fredrik)
+  git-read-tree --aggressive
+  optimize objects bookkeeping for 5x speedup (Johannes)
+
+For the full list of changes above, see:
+
+	$ git log ^v1.1.6 v1.1.0..v1.2.0
+
+
+
+
+
 

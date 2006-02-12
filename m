@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWBLWyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751058AbWBLXDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751483AbWBLWyl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 17:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbWBLWyl
+	id S1751058AbWBLXDV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 18:03:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbWBLXDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 17:54:41 -0500
-Received: from ishtar.tlinx.org ([64.81.245.74]:3975 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S1751052AbWBLWyl (ORCPT
+	Sun, 12 Feb 2006 18:03:21 -0500
+Received: from mail.gmx.net ([213.165.64.21]:61621 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751057AbWBLXDU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 17:54:41 -0500
-Message-ID: <43EFBCA9.1090501@tlinx.org>
-Date: Sun, 12 Feb 2006 14:54:33 -0800
-From: Linda Walsh <lkml@tlinx.org>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Sun, 12 Feb 2006 18:03:20 -0500
+X-Authenticated: #19095397
+From: Bernd Schubert <bernd-schubert@gmx.de>
+To: Sergey Vlasov <vsu@altlinux.ru>
+Subject: Re: 2.6.15 Bug? New security model?
+Date: Mon, 13 Feb 2006 00:03:15 +0100
+User-Agent: KMail/1.9.1
+Cc: Jeff Mahoney <jeffm@suse.com>, Chris Wright <chrisw@sous-sol.org>,
+       John M Flinchbaugh <john@hjsoft.com>, reiserfs-list@namesys.com,
+       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org
+References: <200602080212.27896.bernd-schubert@gmx.de> <20060212175740.GB8805@locomotive.unixthugs.org> <20060212192115.GB8544@procyon.home>
+In-Reply-To: <20060212192115.GB8544@procyon.home>
 MIME-Version: 1.0
-To: Al Viro <viro@ftp.linux.org.uk>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: Re: max symlink = 5? ?bug? ?feature deficit?
-References: <43ED5A7B.7040908@tlinx.org> <20060212180601.GU27946@ftp.linux.org.uk> <43EFA63B.30907@tlinx.org> <20060212212504.GX27946@ftp.linux.org.uk>
-In-Reply-To: <20060212212504.GX27946@ftp.linux.org.uk>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602130003.15698.bernd-schubert@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> Care to RTFS? I mean, really - at least to the point of seeing what's
-> involved in that recursion.
->   
-Hmmm...that's where I got the original parameter numbers, but
-I see it's not so straightforward.  I tried a limit of
-40, but I quickly get an OS hang when trying to reference a
-13th link.  Twelve works at the limit, but would take more testing
-to find out the bottleneck.
+> diff --git a/fs/reiserfs/super.c b/fs/reiserfs/super.c
+> index ef5e541..acafe32 100644
+> --- a/fs/reiserfs/super.c
+> +++ b/fs/reiserfs/super.c
+> @@ -1124,7 +1124,9 @@ static void handle_attrs(struct super_bl
+>  					 "reiserfs: cannot support attributes until flag is set in
+> super-block"); REISERFS_SB(s)->s_mount_opt &= ~(1 << REISERFS_ATTRS);
+>  		}
+> -	} else if (le32_to_cpu(rs->s_flags) & reiserfs_attrs_cleared) {
+> +	} else if ((le32_to_cpu(rs->s_flags) & reiserfs_attrs_cleared) &&
+> +		(get_inode_sd_version(s->s_root->d_inode) == STAT_DATA_V2)) {
+> +		/* Enable attrs by default on v3.6-native file systems */
+>  		REISERFS_SB(s)->s_mount_opt |= (1 << REISERFS_ATTRS);
+>  	}
+>  }
 
-As an algorithmic detail, I can see how
-file a->b->c->d... etc can easily use tail-recursion, but I'm not
-quite as clear why "prefix-recursion" couldn't be used to reduce
-the recursion complexity as in the case:
-dir0/, link0->dir0, link1->link2 ... It seems it would be the
-left hand compliment of tail recursion.  Not sure what would be
-involved, but would eliminate some stack considerations if it was
-doable.
-
-
-
+I'm afraid that still doesn't solve the problem for me, I added two printk to 
+be sure whats going on - get_inode_sd_version(s->s_root->d_inode) returns 
+STAT_DATA_V2 for all of my partitions.
 

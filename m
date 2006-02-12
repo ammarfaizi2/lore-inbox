@@ -1,67 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbWBLLsQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWBLLvh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750991AbWBLLsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 06:48:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751000AbWBLLsQ
+	id S932078AbWBLLvh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 06:51:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWBLLvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 06:48:16 -0500
-Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:36575 "EHLO
-	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S1750989AbWBLLsP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 06:48:15 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/4] pktcdvd: Don't spam the kernel log when nothing is wrong
-From: Peter Osterlund <petero2@telia.com>
-Date: 12 Feb 2006 12:48:04 +0100
-Message-ID: <m3mzgw7q8b.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sun, 12 Feb 2006 06:51:37 -0500
+Received: from lucidpixels.com ([66.45.37.187]:6846 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S932078AbWBLLvg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 06:51:36 -0500
+Date: Sun, 12 Feb 2006 06:51:20 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: linux-kernel@vger.kernel.org
+Subject: Kernel Crash Debugging Help - From Sysrq output.
+Message-ID: <Pine.LNX.4.64.0602120647030.19529@p34>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change some messages that don't indicate an error so that they are
-only printed when debugging is enabled.
+I have a dual CPU 3.06GHZ box that keeps freezing after 5-7 days, via 
+SYSRQ I get the following information under a RHEL AS3/2.4 kernel.
 
-Signed-off-by: Peter Osterlund <petero2@telia.com>
----
+Any idea what could be wrong?  Nothing useful shows up in dmesg or the 
+kernel logs.
 
- drivers/block/pktcdvd.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+wait_on_irq, CPU 1:
+irq:  0 [ 0 0 ]
+bh:   1 [ 1 0 ]
+Stack dumps:
+CPU 0: <unknown>
+CPU 1:c6a43f14 c029ec93 00000001 00000000 ffffffff 00000001 c6a43f44
+c010a622
+        c029eca8 00000000 f6fcc000 00000001 c6a43f60 c01b39bf f6fcc568
+f6fcc168
+        c02f1324 c6a43f6c c6a42594 c6a43f7c c011fc8f f6fcc000 f6fcc130
+c02f1324
+Call Trace:    [<c010a622>] [<c01b39bf>] [<c011fc8f>] [<c0128b97>]
+[<c0128a50>]
+   [<c0105000>] [<c01073f6>] [<c0128a50>]
 
-diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
-index 18d5979..7879df0 100644
---- a/drivers/block/pktcdvd.c
-+++ b/drivers/block/pktcdvd.c
-@@ -1549,7 +1549,7 @@ static int pkt_good_disc(struct pktcdvd_
- 		case 0x12: /* DVD-RAM */
- 			return 0;
- 		default:
--			printk("pktcdvd: Wrong disc profile (%x)\n", pd->mmc3_profile);
-+			VPRINTK("pktcdvd: Wrong disc profile (%x)\n", pd->mmc3_profile);
- 			return 1;
- 	}
- 
-@@ -1895,7 +1895,7 @@ static int pkt_open_write(struct pktcdvd
- 	unsigned int write_speed, media_write_speed, read_speed;
- 
- 	if ((ret = pkt_probe_settings(pd))) {
--		DPRINTK("pktcdvd: %s failed probe\n", pd->name);
-+		VPRINTK("pktcdvd: %s failed probe\n", pd->name);
- 		return -EIO;
- 	}
- 
-@@ -2441,7 +2441,7 @@ static int pkt_ioctl(struct inode *inode
- 		return blkdev_ioctl(pd->bdev->bd_inode, file, cmd, arg);
- 
- 	default:
--		printk("pktcdvd: Unknown ioctl for %s (%x)\n", pd->name, cmd);
-+		VPRINTK("pktcdvd: Unknown ioctl for %s (%x)\n", pd->name, cmd);
- 		return -ENOTTY;
- 	}
- 
+SysRq : Show Regs
 
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+Pid: 2, comm:              keventd
+EIP: 0010:[<c010a625>] CPU: 1 EFLAGS: 00000286    Not tainted
+EAX: 00000000 EBX: 00000000 ECX: 00000000 EDX: 00000000
+ESI: bc011900 EDI: 00000001 EBP: c6a43f44 DS: 0018 ES: 0018
+CR0: 8005003b CR2: 08727604 CR3: 36f8f2e0 CR4: 000006f0
+Call Trace:    [<c01b39bf>] [<c011fc8f>] [<c0128b97>] [<c0128a50>]
+[<c0105000>]
+   [<c01073f6>] [<c0128a50>]
+
+SysRq : Show Memory
+Mem-info:
+Free pages:      4975396kB (4495236kB HighMem)
+Zone:DMA freepages: 13248kB min:  4224kB low:  4352kB high:  4480
+kBZone:Normal freepages:466912kB min:  5116kB low: 18176kB high: 25216
+kBZone:HighMem freepages:4495236kB min:  1020kB low: 83960kB high:125940
+kB( Active: 85802/106289, inactive_laundry: 5363, inactive_clean: 0,
+free: 12438
+49 )
+6*4kB 3*8kB 5*16kB 2*32kB 6*64kB 3*128kB 2*256kB 1*512kB 1*1024kB
+5*2048kB = 132
+48kB)
+0*4kB 14*8kB 1*16kB 1*32kB 1*64kB 0*128kB 1*256kB 1*512kB 1*1024kB
+227*2048kB =
+466912kB)
+307*4kB 205*8kB 81*16kB 32*32kB 13*64kB 2*128kB 25*256kB 17*512kB
+5*1024kB 2182*
+2048kB = 4495236kB)
+Swap cache: add 0, delete 0, find 0/0, race 0+0
+Free swap:       2097112kB
+1572863 pages of RAM
+1277945 pages of HIGHMEM
+89384 reserved pages
+185929 pages shared
+0 pages swap cached
+

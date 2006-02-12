@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbWBLTss@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWBLTtd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751419AbWBLTss (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 14:48:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWBLTsr
+	id S1751421AbWBLTtd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 14:49:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWBLTtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 14:48:47 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:28336 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751419AbWBLTsr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 14:48:47 -0500
-Date: Sun, 12 Feb 2006 19:48:40 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Linda Walsh <lkml@tlinx.org>, Linux-Kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: max symlink = 5? ?bug? ?feature deficit?
-Message-ID: <20060212194840.GV27946@ftp.linux.org.uk>
-References: <43ED5A7B.7040908@tlinx.org> <20060212180601.GU27946@ftp.linux.org.uk> <20060212193637.GI12822@parisc-linux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060212193637.GI12822@parisc-linux.org>
-User-Agent: Mutt/1.4.1i
+	Sun, 12 Feb 2006 14:49:32 -0500
+Received: from gold.veritas.com ([143.127.12.110]:54354 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751421AbWBLTtc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 14:49:32 -0500
+Date: Sun, 12 Feb 2006 19:50:02 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: David Gibson <david@gibson.dropbear.id.au>, linux-kernel@vger.kernel.org
+Subject: [PATCH 3/3] compound page: no access_process_vm check
+In-Reply-To: <Pine.LNX.4.61.0602121943150.15774@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0602121947440.15774@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0602121943150.15774@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 12 Feb 2006 19:49:31.0786 (UTC) FILETIME=[712906A0:01C6300D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 12, 2006 at 12:36:37PM -0700, Matthew Wilcox wrote:
-> On Sun, Feb 12, 2006 at 06:06:01PM +0000, Al Viro wrote:
-> > On Fri, Feb 10, 2006 at 07:31:07PM -0800, Linda Walsh wrote:
-> > > The maximum number of followed symlinks seems to be set to 5.
-> > > 
-> > > This seems small when compared to other filesystem limits.
-> > > Is there some objection to it being raised?  Should it be
-> > > something like Glib's '20' or '255'?
-> 
-> Just a note (which Al probably considered too obvious to point out), but
-> MAX_NESTED_LINKS isn't the maximum number of followed symlinks.  It's
-> the number of recursions we're limited to.  The maximum number of
-> symlinks followed is 40 (see fs/namei.c:do_follow_link).
-> 
-> Al, would it be worth making 40 an enumerated constant in the same
-> enumeration as MAX_NESTED_LINKS?  Something like this:
+The PageCompound check before access_process_vm's set_page_dirty_lock is
+no longer necessary, so remove it.  But leave the PageCompound checks in
+bio_set_pages_dirty, dio_bio_complete and nfs_free_user_pages: at least
+some of those were introduced as a little optimization on hugetlb pages.
 
-Umm...  Maybe.  Note that this 40 is to kill very long iterations in
-symlinks that are not too deeply nested, but resolving them would
-traverse a lot (symlink can have a _lot_ of components - easily as much
-as 2048, which leads to 2^55 lookups with depth limited to 5; since
-process is unkillable during lookup and it's easy to do a setup where it
-wouldn't block on IO...)
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
 
-IOW, this limit doesn't come from stack overflow concerns - it's just an
-arbitrary cutoff point to stop a DoS.  We can easily lift it to e.g.
-256 if there's any real need.  Or make it sysctl-controlled; whatever...
+ kernel/ptrace.c |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
 
-The real hard limit is on nested symlinks.
+--- 2.6.16-rc2-git11/kernel/ptrace.c	2006-02-03 09:32:51.000000000 +0000
++++ 2.6.16-rc2-git11+/kernel/ptrace.c	2006-02-10 20:07:05.000000000 +0000
+@@ -242,8 +242,7 @@ int access_process_vm(struct task_struct
+ 		if (write) {
+ 			copy_to_user_page(vma, page, addr,
+ 					  maddr + offset, buf, bytes);
+-			if (!PageCompound(page))
+-				set_page_dirty_lock(page);
++			set_page_dirty_lock(page);
+ 		} else {
+ 			copy_from_user_page(vma, page, addr,
+ 					    buf, maddr + offset, bytes);

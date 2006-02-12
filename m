@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWBLNRm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWBLNkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbWBLNRm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 08:17:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWBLNRm
+	id S1750742AbWBLNkT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 08:40:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWBLNkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 08:17:42 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:45495 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750717AbWBLNRl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 08:17:41 -0500
-Subject: Re: Badness in sleep_on_timeout on kernel 2.6.9-1.667 ( fedora
-	core 3)
-From: Arjan van de Ven <arjan@infradead.org>
-To: anil dahiya <ak_ait@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-In-Reply-To: <20060207200013.30703.qmail@web60221.mail.yahoo.com>
-References: <20060207200013.30703.qmail@web60221.mail.yahoo.com>
-Content-Type: text/plain
-Date: Sun, 12 Feb 2006 14:17:34 +0100
-Message-Id: <1139750255.20703.7.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 12 Feb 2006 08:40:19 -0500
+Received: from 203-59-200-129.dyn.iinet.net.au ([203.59.200.129]:26074 "EHLO
+	eagle.themaw.net") by vger.kernel.org with ESMTP id S1750732AbWBLNkS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 08:40:18 -0500
+Date: Sun, 12 Feb 2006 21:40:06 +0800
+Message-Id: <200602121340.k1CDe67s019267@eagle.themaw.net>
+From: Ian Kent <raven@themaw.net>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: linux-fsdevel@vger.kernel.org, autofs@linux.kernel.org
+Subject: [RFC:PATCH 0/4] autofs4 - add direct mount functionality to autofs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-07 at 12:00 -0800, anil dahiya wrote:
-> Hello 
-> I am creating kernel thread on fedora core 4
-> (2.6.9-1.667)and my getting oops something like
-> 
->  Badness in sleep_on_timeout at kernel/sched.c:3022
->  [<02302bc3>] sleep_on_timeout+0x5d/0x23a
->  [<0211b919>] default_wake_function+0x0/0xc
+These patches are for autofs version 5.
 
+This is the second set of patches for autofs to support the user
+space daemon (automount from the autofs package) implementation of
+direct mounts and lazy mount and expire of nested mount maps, such
+as those found in mounting the NFS exports from a host, known as
+a "hosts" map.
 
-you forgot to post a URL to your code
-(and you use sleep_on_* family of APIs which is a bug in itself)
+I'd like to thank my collegue, Jeff Moyer at RedHat for his efforts
+reviewing all the autofs patches, both this set and previous patches.
+His efforts have made a big difference to the quality and accuracy
+of autofs in general for a long time now.
+
+The changes implemented in the patch set are:
+
+1) update-nameidata-on-follow_link - autofs needs the nameidata
+   struct to be up to date wrt the dentry passed to the inode
+   follow_link operation.
+2) v5-follow_link - defines the version 5 inode follow_link
+   operation used to trigger direct mounts.
+3) v5-expire - update expire to handle version 5 direct mounts.
+4) v5-packet-proto - update communication packet to support
+   version 5 extended packet information.
+
+Comments and suggstions please.
 

@@ -1,98 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWBLOyb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWBLPDf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbWBLOyb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 09:54:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWBLOyb
+	id S1751132AbWBLPDf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 10:03:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWBLPDf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 09:54:31 -0500
-Received: from zproxy.gmail.com ([64.233.162.207]:30822 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750784AbWBLOya (ORCPT
+	Sun, 12 Feb 2006 10:03:35 -0500
+Received: from nef2.ens.fr ([129.199.96.40]:9487 "EHLO nef2.ens.fr")
+	by vger.kernel.org with ESMTP id S1751132AbWBLPDf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 09:54:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type;
-        b=ZQriBcK8dBf8QWa/I+ghLB6ourdZKMS7bXLunevLSMHOZXcmnvfQXgE2lq8D3sIyVwugW9CJiR9oLNxZs5pKUeXG15EAhh/oLEbF5RShdGiWj5bRDayQM6bn1HLmpsGvJWsnVQQj51A2cM3r/g9fqlc7U2yVvtplVuwbJTzpacc=
-Message-ID: <cfb54190602120654o3ca27733r2af5d2b0e9bc61cd@mail.gmail.com>
-Date: Sun, 12 Feb 2006 16:54:29 +0200
-From: Hai Zaar <haizaar@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: setting CONFIG_HZ=2000 screws up ntpd
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_1964_31653385.1139756069738"
+	Sun, 12 Feb 2006 10:03:35 -0500
+Date: Sun, 12 Feb 2006 16:03:31 +0100
+From: Nicolas George <nicolas.george@ens.fr>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Filesystem for mobile hard drive
+Message-ID: <20060212150331.GA22442@clipper.ens.fr>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Sun, 12 Feb 2006 16:03:32 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_1964_31653385.1139756069738
-Content-Type: text/plain; charset=ISO-8859-1
+
+--azLHFNyN32YCQGCU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
+
+Hi.
+
+I am about to buy a mobile hard drive (actually, a FireWire/USB box and a
+normal hard drive), and it raises the question of which filesystem to put on
+it. I am not wondering which of ext3, reiserfs, XFS or JFS is best, but more
+basically whether I should use a Linux/Unix-style filesystem or the horrible
+FAT.
+
+The drawbacks of FAT are numerous and well-known: poor efficiency with big
+files, fragmentation, bad handling of file names, lack of robustness, and
+worst of all, the 4 Go limit. On the other hand, FAT gives the possibility
+to easyly read the drive on non-Unix systems (I know there are ext2 and
+reiserfs readers for windows, I do not know for XFS or JFS, but at the worst
+it should be possible to do something with colinux).
+
+All these elements are rather feeble, but the Unix-style filesystems have a
+big drawback as mobile filesystems: they store UIDs. UIDs make sense inside
+a given system, but not across systems. On the most annoying case, I can
+have my disk automatically mounted on a system where I am not root, and all
+my files unreadable because they belong to another user.
+
+Since big mobile mass-storage devices which require efficient filesystems
+will become more and more common, I think this problem should be addressed.
+Someone suggested to me to use some sort of network filesystem (NFS or SMB),
+and its UID mapping facility. That should work, but that is rather an ugly
+solution, and that is not something that can be done in five minutes while
+visiting a friend.
+
+I believe that we lack an option at the VFS to completely override file
+ownership of a filesystem. But maybe there are other solutions.
+
+Did someone already think in depths about this issue?
+
+
+Regards,
+
+--=20
+  Nicolas George
+
+--azLHFNyN32YCQGCU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 Content-Disposition: inline
 
-Dear list,
-I use attached patch to speed up HZ from 1000 to 2000. I use this hack
-starting from kernel  2.6.7 and I have not experienced any particular
-problems. Recently I've started to use NTP and  have noticed that ntp
-client loose synchronization, if this patch is applied, i.e. it
-connects, synchronizes, and then after a few polls,  jitter just jumps
-to 5 digit number. I've rechecked the behavior on the kernel 2.6.11
-and results are the same - applied patch just "skews up" ntpd, while
-there are no any problems with vanilla kernels.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (SunOS)
 
-Is the patch incorrect in any way?
+iD8DBQFD705DsGPZlzblTJMRAmiRAKDTCQ7sOrpHEH+wukJ1q4081FXpvQCgtHLd
++p8otjFeHHHq9eVS3CRWVbM=
+=m1Vh
+-----END PGP SIGNATURE-----
 
---
-Zaar
-
-------=_Part_1964_31653385.1139756069738
-Content-Type: text/x-patch; name=kernel-2.6.15-2000HZ-2.patch; 
-	charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Attachment-Id: f_ejlh24ya
-Content-Disposition: attachment; filename="kernel-2.6.15-2000HZ-2.patch"
-
-The patch ajusts kernel internal clock timer to 2000HZ instead of 1000HZ. This 
-is required to decrease response time of some drivers (currently rocket.ko).
-
-Author:	Igor Yanover <igor@yanover.name>
-Crafted for 2.6.15 by:	Michael Goldman <haizaar@gmail.com>
-
---- kernel-2.6.15/include/linux/jiffies.h.orig	2006-02-07 12:59:20.000000000 +0200
-+++ kernel-2.6.15/include/linux/jiffies.h	2006-02-07 13:00:50.000000000 +0200
-@@ -38,6 +38,8 @@
- # define SHIFT_HZ	9
- #elif HZ >= 768 && HZ < 1536
- # define SHIFT_HZ	10
-+#elif HZ >= 1536 && HZ < 3072
-+# define SHIFT_HZ  11
- #else
- # error You lose.
- #endif
---- kernel-2.6.15/kernel/Kconfig.hz.orig	2006-01-03 05:21:10.000000000 +0200
-+++ kernel-2.6.15/kernel/Kconfig.hz	2006-02-07 18:44:03.000000000 +0200
-@@ -36,6 +36,11 @@
- 	 1000 HZ is the preferred choice for desktop systems and other
- 	 systems requiring fast interactive responses to events.
- 
-+	config HZ_2000
-+		bool "2000 HZ"
-+	help
-+	 2000 HZ is hand crafted for software realtime. Use on your own risk.
-+
- endchoice
- 
- config HZ
-@@ -43,4 +48,5 @@
- 	default 100 if HZ_100
- 	default 250 if HZ_250
- 	default 1000 if HZ_1000
-+	default 2000 if HZ_2000
- 
-
-
-
-
-
-
-
-------=_Part_1964_31653385.1139756069738--
+--azLHFNyN32YCQGCU--

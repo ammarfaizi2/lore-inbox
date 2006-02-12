@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWBLKp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWBLKqx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750785AbWBLKp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 05:45:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWBLKp7
+	id S1750791AbWBLKqx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 05:46:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWBLKqx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 05:45:59 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:45468 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750785AbWBLKp6 (ORCPT
+	Sun, 12 Feb 2006 05:46:53 -0500
+Received: from smtp.dkm.cz ([62.24.64.34]:38149 "HELO smtp.dkm.cz")
+	by vger.kernel.org with SMTP id S1750791AbWBLKqw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 05:45:58 -0500
-Date: Sun, 12 Feb 2006 02:45:08 -0800
-From: Andrew Morton <akpm@osdl.org>
+	Sun, 12 Feb 2006 05:46:52 -0500
+Date: Sun, 12 Feb 2006 11:46:40 +0100
+From: iSteve <isteve@rulez.cz>
 To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: xose.vazquez@gmail.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: old patches in -mm
-Message-Id: <20060212024508.117d4603.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0602121134170.25363@yvahk01.tjqt.qr>
-References: <43EE415F.2000805@gmail.com>
-	<Pine.LNX.4.61.0602121134170.25363@yvahk01.tjqt.qr>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Cc: Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org,
+       Peter Osterlund <petero2@telia.com>
+Subject: Re: Packet writing issue on 2.6.15.1
+Message-ID: <20060212114640.31765c3a@silver>
+In-Reply-To: <Pine.LNX.4.61.0602121129590.25363@yvahk01.tjqt.qr>
+References: <20060211103520.455746f6@silver>
+	<m3r76a875w.fsf@telia.com>
+	<20060211124818.063074cc@silver>
+	<m3bqxd999u.fsf@telia.com>
+	<20060211170813.3fb47a03@silver>
+	<43EE446C.8010402@cfl.rr.com>
+	<20060211211440.3b9a4bf9@silver>
+	<43EE8B20.7000602@cfl.rr.com>
+	<20060212092315.10f3e0e2@silver>
+	<Pine.LNX.4.61.0602121129590.25363@yvahk01.tjqt.qr>
+X-Mailer: Sylpheed-Claws 2.0.0cvs42 (GTK+ 2.8.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 12 Feb 2006 11:32:31 +0100 (MET)
 Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
->
-> > hi,
-> >
-> > There are 35 patches(not included reiser4 and post-halloween-doc) older
-> > than 2 months that still are not in mainline. Forgotten or experimental ?
-> >
-> >
-> > 2.6-sony_acpi4.patch
-> >
-> Forgotten, I think. This one showed no problems for me until now.
+> Like...?
 > 
+>   cdrwtool -d /dev/hdb -q
+>   pktsetup 0 /dev/hdb
+> 
+> "Burning something non-udf there":
+>   mkfs.xfs /dev/pktcdvd/0
+>   mkisofs -o /dev/pktcdvd/0 somefiles
+>   tar -cf /dev/pktcdvd/0 somemorefiles
+> 
+> Anything.
 
-The ACPI guys don't like machine-specific drivers like this, apparently -
-features are supposed to be controlled via the machine's BIOS ACPI methods.
-
-But given the state of Sony ACPI documentaion (ie: none) that might not
-work out.  I'll ask about it.
+"without actually having to use UDF and packet writing on the burning
+side" ... sorry, should've been 'or'. I am trying to find a way that wouldn't
+require having packet writing support in kernel (or as module, of course) with
+the initial burning.
+-- 
+ -- iSteve

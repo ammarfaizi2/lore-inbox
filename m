@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWBLRsE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWBLRwF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbWBLRsE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 12:48:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWBLRsE
+	id S1751347AbWBLRwF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 12:52:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWBLRwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 12:48:04 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:54277 "HELO
+	Sun, 12 Feb 2006 12:52:04 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:59397 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751321AbWBLRsD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 12:48:03 -0500
-Date: Sun, 12 Feb 2006 18:48:02 +0100
+	id S1751347AbWBLRwD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 12:52:03 -0500
+Date: Sun, 12 Feb 2006 18:52:02 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: sam@ravnborg.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] remove the CONFIG_CC_ALIGN_* options
-Message-ID: <20060212174802.GJ30922@stusta.de>
+To: jgarzik@pobox.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] CONFIG_FORCEDETH updates
+Message-ID: <20060212175202.GK30922@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,85 +22,28 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't see any use case for the CONFIG_CC_ALIGN_* options:
-- they are only available if EMBEDDED
-- people using EMBEDDED will most likely also enable 
-  CC_OPTIMIZE_FOR_SIZE
-- the default for -Os is to disable alignment
+This patch contains the following possible updates:
+- let FORCEDETH no longer depend on EXPERIMENTAL
+- remove the "Reverse Engineered" from the option text:
+  for the user it's important which hardware the driver supports, not
+  how it was developed
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
----
-
- Makefile     |    7 -------
- init/Kconfig |   37 -------------------------------------
- 2 files changed, 44 deletions(-)
-
---- linux-2.6.16-rc2-mm1-full/init/Kconfig.old	2006-02-12 15:30:08.000000000 +0100
-+++ linux-2.6.16-rc2-mm1-full/init/Kconfig	2006-02-12 15:30:53.000000000 +0100
-@@ -353,45 +353,8 @@
- 	  to userspace as tmpfs if TMPFS is enabled. Disabling this
- 	  option replaces shmem and tmpfs with the much simpler ramfs code,
- 	  which may be appropriate on small systems without swap.
+--- linux-2.6.16-rc2-mm1-full/drivers/net/Kconfig.old	2006-02-12 02:23:31.000000000 +0100
++++ linux-2.6.16-rc2-mm1-full/drivers/net/Kconfig	2006-02-12 02:24:04.000000000 +0100
+@@ -1370,10 +1370,10 @@
+ 	  <file:Documentation/networking/net-modules.txt>.  The module will be
+ 	  called b44.
  
--config CC_ALIGN_FUNCTIONS
--	int "Function alignment" if EMBEDDED
--	default 0
--	help
--	  Align the start of functions to the next power-of-two greater than n,
--	  skipping up to n bytes.  For instance, 32 aligns functions
--	  to the next 32-byte boundary, but 24 would align to the next
--	  32-byte boundary only if this can be done by skipping 23 bytes or less.
--	  Zero means use compiler's default.
--
--config CC_ALIGN_LABELS
--	int "Label alignment" if EMBEDDED
--	default 0
--	help
--	  Align all branch targets to a power-of-two boundary, skipping
--	  up to n bytes like ALIGN_FUNCTIONS.  This option can easily
--	  make code slower, because it must insert dummy operations for
--	  when the branch target is reached in the usual flow of the code.
--	  Zero means use compiler's default.
--
--config CC_ALIGN_LOOPS
--	int "Loop alignment" if EMBEDDED
--	default 0
--	help
--	  Align loops to a power-of-two boundary, skipping up to n bytes.
--	  Zero means use compiler's default.
--
--config CC_ALIGN_JUMPS
--	int "Jump alignment" if EMBEDDED
--	default 0
--	help
--	  Align branch targets to a power-of-two boundary, for branch
--	  targets where the targets can only be reached by jumping,
--	  skipping up to n bytes like ALIGN_FUNCTIONS.  In this case,
--	  no dummy operations need be executed.
--	  Zero means use compiler's default.
--
- config SLAB
- 	default y
- 	bool "Use full SLAB allocator" if EMBEDDED
+ config FORCEDETH
+-	tristate "Reverse Engineered nForce Ethernet support (EXPERIMENTAL)"
+-	depends on NET_PCI && PCI && EXPERIMENTAL
++	tristate "nForce Ethernet support"
++	depends on NET_PCI && PCI
  	help
---- linux-2.6.16-rc2-mm1-full/Makefile.old	2006-02-12 15:30:59.000000000 +0100
-+++ linux-2.6.16-rc2-mm1-full/Makefile	2006-02-12 15:31:24.000000000 +0100
-@@ -473,15 +473,8 @@
- else
- CFLAGS		+= -O2
- endif
- 
--#Add align options if CONFIG_CC_* is not equal to 0
--add-align = $(if $(filter-out 0,$($(1))),$(cc-option-align)$(2)=$($(1)))
--CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_FUNCTIONS,-functions)
--CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_LABELS,-labels)
--CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_LOOPS,-loops)
--CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_JUMPS,-jumps)
--
- ifdef CONFIG_FRAME_POINTER
- CFLAGS		+= -fno-omit-frame-pointer $(call cc-option,-fno-optimize-sibling-calls,)
- else
- CFLAGS		+= -fomit-frame-pointer
+ 	  If you have a network (Ethernet) controller of this type, say Y and
+ 	  read the Ethernet-HOWTO, available from
+ 	  <http://www.tldp.org/docs.html#howto>.
 

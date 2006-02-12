@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbWBLVpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751460AbWBLVrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751019AbWBLVpc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 16:45:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751452AbWBLVpc
+	id S1751460AbWBLVrD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 16:47:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWBLVrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 16:45:32 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:2538 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1751019AbWBLVpb (ORCPT
+	Sun, 12 Feb 2006 16:47:03 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:7367 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751460AbWBLVrB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 16:45:31 -0500
-Date: Sun, 12 Feb 2006 16:40:46 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] remove the CONFIG_CC_ALIGN_* options
-Message-ID: <20060212214046.GA20477@kvack.org>
-References: <20060212174802.GJ30922@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 12 Feb 2006 16:47:01 -0500
+From: Andi Kleen <ak@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: [PATCH] ipr: don't doublefree pages from scatterlist
+Date: Sun, 12 Feb 2006 22:29:32 +0100
+User-Agent: KMail/1.8.2
+Cc: Ryan Richter <ryan@tau.solarneutrino.net>, Brian King <brking@us.ibm.com>,
+       "David S. Miller" <davem@davemloft.net>, James.Bottomley@steeleye.com,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+References: <Pine.LNX.4.61.0602040004020.5406@goblin.wat.veritas.com> <20060211223810.GA12064@tau.solarneutrino.net> <Pine.LNX.4.61.0602121838050.15101@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0602121838050.15101@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060212174802.GJ30922@stusta.de>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200602122229.33244.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 12, 2006 at 06:48:02PM +0100, Adrian Bunk wrote:
-> I don't see any use case for the CONFIG_CC_ALIGN_* options:
-> - they are only available if EMBEDDED
-> - people using EMBEDDED will most likely also enable 
->   CC_OPTIMIZE_FOR_SIZE
-> - the default for -Os is to disable alignment
+On Sunday 12 February 2006 19:57, Hugh Dickins wrote:
 
-CONFIG_EMBEDDED should actually be spell CONFIG_ADVANCED.  Not everyone 
-testing different alignments is building an embedded system targetted for 
-size.  The option is just as useful in doing performance comparisons.  
-Besides, is it really a maintenence load?
+> So I'd like to believe that your x86_64-gart-dma-merge.patch is the
+> final answer to this issue, and see it go forward into 2.6.16-rc -
+> if you feel it's ready now.  Then we can just throw away those driver
+> patches I posted a week ago (including the "ipr" one of this thread).
 
-		-ben
+Yes, it's probably ready to go. I will submit it later if Andrew doesn't
+beat me.
+
+-Andi

@@ -1,36 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbWBLVQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbWBLVU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750980AbWBLVQv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 16:16:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbWBLVQv
+	id S1750981AbWBLVU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 16:20:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWBLVU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 16:16:51 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:36587 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750883AbWBLVQv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 16:16:51 -0500
-Date: Sun, 12 Feb 2006 21:16:46 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linda Walsh <lkml@tlinx.org>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Use one constant to control MAX SYMLINKS in a name
-Message-ID: <20060212211646.GW27946@ftp.linux.org.uk>
-References: <43ED5A7B.7040908@tlinx.org> <Pine.LNX.4.61.0602121126410.25363@yvahk01.tjqt.qr> <43EF9E96.109@tlinx.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43EF9E96.109@tlinx.org>
-User-Agent: Mutt/1.4.1i
+	Sun, 12 Feb 2006 16:20:57 -0500
+Received: from ishtar.tlinx.org ([64.81.245.74]:52632 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S1750945AbWBLVU5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 16:20:57 -0500
+Message-ID: <43EFA63B.30907@tlinx.org>
+Date: Sun, 12 Feb 2006 13:18:51 -0800
+From: Linda Walsh <lkml@tlinx.org>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: Re: max symlink = 5? ?bug? ?feature deficit?
+References: <43ED5A7B.7040908@tlinx.org> <20060212180601.GU27946@ftp.linux.org.uk>
+In-Reply-To: <20060212180601.GU27946@ftp.linux.org.uk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 12, 2006 at 12:46:14PM -0800, Linda Walsh wrote:
->    I'd suggest changing the number in line 14 in namei.h to 40
-> as well, thus using the same limit in both cases and clearing up
-> such confusion.
-> 
-> The following patch (against 2.6.15.4) seems to make this change and fixes
-> up the comments:
+Al Viro wrote:
+>> Should it be something like Glib's '20' or '255'?
+>>     
+> 	20 or 255 - not feasible (we'll get stack overflow from hell).
+>   
+How much stack is used/iteration?  It appears we have a local pointer in
+__do_follow_link, and 2 passed parameters/call + call-returns ->5
+pointers/iteration.  "Forty" entries would seem to take 200 pointers or
+800 bytes of stack space?  A limit of 20 would use 400 bytes?
 
-It also creates a trivially exploitable stack overflow.
+If the algorithm was rewritten to be iterative with a stack, that would
+seem to reduce memory usage by 40%, (2 "return" addresses out of 5
+addresses).  Depends on how tight stack space is.  If push came to
+"shove" couldn't the iterative stack be allocated out of the the general
+purpose kernel-memory allocator and not live on the stack, alleviating
+the stack pressure entirely?
+
+It doesn't seem it causes an outrageous additional load on the stack as
+is, though dynamically allocating the structures out of general memory
+would seem to eliminate the problem (if there is one).
+
+

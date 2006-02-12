@@ -1,63 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbWBLSND@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWBLSRh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751117AbWBLSND (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 13:13:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbWBLSND
+	id S1751120AbWBLSRh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 13:17:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWBLSRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 13:13:03 -0500
-Received: from verein.lst.de ([213.95.11.210]:27802 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1751117AbWBLSNC (ORCPT
+	Sun, 12 Feb 2006 13:17:37 -0500
+Received: from [65.103.28.221] ([65.103.28.221]:53133 "EHLO cinder.waste.org")
+	by vger.kernel.org with ESMTP id S1751120AbWBLSRg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 13:13:02 -0500
-Date: Sun, 12 Feb 2006 19:12:55 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Christoph Hellwig <hch@lst.de>, akpm@osdl.org, schwidefsky@de.ibm.com,
-       linux390@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] dasd: cleanup dasd_ioctl
-Message-ID: <20060212181255.GA26799@lst.de>
-References: <20060212173855.GB26035@lst.de> <20060212180308.GA24896@wavehammer.waldi.eu.org>
-Mime-Version: 1.0
+	Sun, 12 Feb 2006 13:17:36 -0500
+Date: Sun, 12 Feb 2006 11:46:45 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: JaniD++ <djani22@dynamicweb.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: netconsole problem
+Message-ID: <20060212174645.GA13703@waste.org>
+References: <00af01c62e4d$8de8c6c0$9d00a8c0@dcccs>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060212180308.GA24896@wavehammer.waldi.eu.org>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+In-Reply-To: <00af01c62e4d$8de8c6c0$9d00a8c0@dcccs>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 12, 2006 at 07:03:08PM +0100, Bastian Blank wrote:
-> On Sun, Feb 12, 2006 at 06:38:55PM +0100, Christoph Hellwig wrote:
-> >  static int
-> > -dasd_ioctl_api_version(struct block_device *bdev, int no, long args)
-> > +dasd_ioctl_api_version(void __user *argp)
-> >  {
-> >  	int ver = DASD_API_VERSION;
-> > -	return put_user(ver, (int __user *) args);
-> > +	return put_user(ver, (int *)argp);
-> >  }
+On Fri, Feb 10, 2006 at 03:23:23PM +0100, JaniD++ wrote:
+> Hello, list,
 > 
-> Doesn't this need to be "int __user *"?
-
-Yes.
-
-> > +long
-> > +dasd_compat_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
-> >  {
-> > -	int i;
-> > +	int rval;
-> >  
-> > -	for (i = 0; dasd_ioctls[i].no != -1; i++)
-> > -		dasd_ioctl_no_unregister(NULL, dasd_ioctls[i].no,
-> > -					 dasd_ioctls[i].fn);
-> > +	lock_kernel();
-> > +	rval = dasd_ioctl(filp->f_dentry->d_inode, filp, cmd, arg);
-> > +	unlock_kernel();
+> I have a little problem, with netconsole.
+> It does not work for me.
 > 
-> The lock_kernel looks spurious.
+> On the "client":
+> 
+> modprobe netconsole netconsole=@/,514@192.168.2.100/
+> dmesg:
+> netconsole: local port 6665
+> netconsole: interface eth0
+> netconsole: remote port 514
+> netconsole: remote IP 192.168.2.100
+> netconsole: remote ethernet address ff:ff:ff:ff:ff:ff
+> netconsole: local IP 192.168.2.50
+> netconsole: network logging started
+> 
+> (kernel: 2.6.15-rc5, and 2.6.16-rc1,2)
+> 
+> On the server:
+> ]# netcat -u -l -v -s 192.168.2.100 -p 514
+> 192.168.2.100: inverse host lookup failed: Unknown host
+> listening on [192.168.2.100] 514 ...
+> 
+> And nothing comes.
+> 
+> The firewall is off on both system.
+> The ping comes from any direction.
+> 
+> If i try the remote and local syslog, it works well, two.
+> And in this case, the netlog only displays what the syslog is sends.
+> 
+> What can be the problem?
 
-dasd_compat_ioctl just moved down unchanged to the end of the file so it
-can call dasd_ioctl without a forward-prototype.  When I introduced this
-function a while ago I added the lock_kernel because that the BKL is
-held when dasd_ioctl is called directly and I wanted to avoid different
-locks from different codepathes.  Once we can switch dasd to
-->unlocked_ioctl it could probably go away.
+Perhaps your console log level is set too low. Fedora for instance is
+very quiet by default.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

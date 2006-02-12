@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbWBLTql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbWBLTss@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751072AbWBLTql (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 14:46:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWBLTqk
+	id S1751419AbWBLTss (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 14:48:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWBLTsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 14:46:40 -0500
-Received: from hera.kernel.org ([140.211.167.34]:24465 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751064AbWBLTqj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 14:46:39 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: netboot broken ?
-Date: Sun, 12 Feb 2006 11:03:44 -0800 (PST)
-Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <dso0qg$25j$1@terminus.zytor.com>
-References: <43D9C8C5.3020902@t-online.de> <1138378138.4801.9.camel@obsidian>
+	Sun, 12 Feb 2006 14:48:47 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:28336 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751419AbWBLTsr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 14:48:47 -0500
+Date: Sun, 12 Feb 2006 19:48:40 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Linda Walsh <lkml@tlinx.org>, Linux-Kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: max symlink = 5? ?bug? ?feature deficit?
+Message-ID: <20060212194840.GV27946@ftp.linux.org.uk>
+References: <43ED5A7B.7040908@tlinx.org> <20060212180601.GU27946@ftp.linux.org.uk> <20060212193637.GI12822@parisc-linux.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1139771024 2228 127.0.0.1 (12 Feb 2006 19:03:44 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Sun, 12 Feb 2006 19:03:44 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060212193637.GI12822@parisc-linux.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <1138378138.4801.9.camel@obsidian>
-By author:    "Bryan O'Sullivan" <bos@serpentine.com>
-In newsgroup: linux.dev.kernel
->
-> On Fri, 2006-01-27 at 08:16 +0100, Knut Petersen wrote:
+On Sun, Feb 12, 2006 at 12:36:37PM -0700, Matthew Wilcox wrote:
+> On Sun, Feb 12, 2006 at 06:06:01PM +0000, Al Viro wrote:
+> > On Fri, Feb 10, 2006 at 07:31:07PM -0800, Linda Walsh wrote:
+> > > The maximum number of followed symlinks seems to be set to 5.
+> > > 
+> > > This seems small when compared to other filesystem limits.
+> > > Is there some objection to it being raised?  Should it be
+> > > something like Glib's '20' or '255'?
 > 
-> > Any ideas? Can anybody please
-> >  - confirm that network booting does still work
-> >  - confirm that it is broken.
+> Just a note (which Al probably considered too obvious to point out), but
+> MAX_NESTED_LINKS isn't the maximum number of followed symlinks.  It's
+> the number of recursions we're limited to.  The maximum number of
+> symlinks followed is 40 (see fs/namei.c:do_follow_link).
 > 
-> Network booting has been in limbo for years, and hasn't had a lick of
-> maintenance in approximately forever.  The way forward is supposed to be
-> via initramfs, but nobody is testing the nfsroot code in there, so it
-> has a fair probability of not working.
-> 
+> Al, would it be worth making 40 an enumerated constant in the same
+> enumeration as MAX_NESTED_LINKS?  Something like this:
 
-Feel free to pull the unified git repository and help test:
+Umm...  Maybe.  Note that this 40 is to kill very long iterations in
+symlinks that are not too deeply nested, but resolving them would
+traverse a lot (symlink can have a _lot_ of components - easily as much
+as 2048, which leads to 2^55 lookups with depth limited to 5; since
+process is unkillable during lookup and it's easy to do a setup where it
+wouldn't block on IO...)
 
-git://git.kernel.org/pub/scm/linux/kernel/git/hpa/linux-2.6-klibc.git
+IOW, this limit doesn't come from stack overflow concerns - it's just an
+arbitrary cutoff point to stop a DoS.  We can easily lift it to e.g.
+256 if there's any real need.  Or make it sysctl-controlled; whatever...
 
-I really would appreciate both positive and negative bug reports.
-
-	-hpa
+The real hard limit is on nested symlinks.

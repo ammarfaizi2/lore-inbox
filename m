@@ -1,85 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbWBLLg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWBLLtd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932384AbWBLLg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 06:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbWBLLg2
+	id S1751000AbWBLLtd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 06:49:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWBLLtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 06:36:28 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:40068 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S932383AbWBLLg1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 06:36:27 -0500
-Subject: Re: [2.6 patch] ISDN_CAPI_CAPIFS related cleanups
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Carsten Paeth <calle@calle.in-berlin.de>
-Cc: Armin Schindler <armin@melware.de>, Adrian Bunk <bunk@stusta.de>,
-       kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>, kkeil@suse.de
-In-Reply-To: <20060212110903.GD17864@calle.in-berlin.de>
-References: <20060131213306.GG3986@stusta.de>
-	 <1138743844.3968.14.camel@localhost.localdomain>
-	 <20060202214059.GB14097@stusta.de>
-	 <1138924621.3788.2.camel@localhost.localdomain>
-	 <Pine.LNX.4.61.0602030941580.13271@phoenix.one.melware.de>
-	 <1138956828.3731.2.camel@localhost.localdomain>
-	 <Pine.LNX.4.61.0602031110280.15581@phoenix.one.melware.de>
-	 <1138996640.3830.5.camel@localhost.localdomain>
-	 <20060212110903.GD17864@calle.in-berlin.de>
-Content-Type: multipart/mixed; boundary="=-WddJi7imxWc95MMeG2vh"
-Date: Sun, 12 Feb 2006 12:36:15 +0100
-Message-Id: <1139744175.5070.6.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 
+	Sun, 12 Feb 2006 06:49:33 -0500
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:5035 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S1751000AbWBLLtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 06:49:33 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2/4] pktcdvd: Allow non-writable media to be mounted
+References: <m3mzgw7q8b.fsf@telia.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 12 Feb 2006 12:49:23 +0100
+In-Reply-To: <m3mzgw7q8b.fsf@telia.com>
+Message-ID: <m3irrk7q64.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If opening for write fails, the open method should return -EROFS.
+This makes "mount" try again with a read-only mount, instead of just
+giving up.
 
---=-WddJi7imxWc95MMeG2vh
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Signed-off-by: Peter Osterlund <petero2@telia.com>
+---
 
-Hi Calle,
+ drivers/block/pktcdvd.c |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
 
-> I have no problems, when capifs is removed, but the pppdcapiplugin
-> has to work without it.
-> So if you want to remove capifs make sure pppdcapiplugin is
-> working without problems together with udev ...
-> 
-> I'm too busy to check pppdcapiplugin together with udev ....
-
-I posted this patch some time ago (actually April 2004) which made pppd
-wait for the device node to be created before failing. I used it since
-then and it still works fine for me.
-
-Regards
-
-Marcel
-
-
---=-WddJi7imxWc95MMeG2vh
-Content-Disposition: attachment; filename=patch-pppdcapiplugin-wait-for-dev
-Content-Type: text/x-patch; name=patch-pppdcapiplugin-wait-for-dev; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-Index: capiplugin.c
-===================================================================
-RCS file: /i4ldev/isdn4k-utils/pppdcapiplugin/capiplugin.c,v
-retrieving revision 1.33
-diff -u -r1.33 capiplugin.c
---- capiplugin.c	16 Jan 2004 15:27:13 -0000	1.33
-+++ capiplugin.c	12 Apr 2004 13:20:50 -0000
-@@ -1413,6 +1413,11 @@
- 	   fatal("capiplugin: failed to get tty devname - %s (%d)",
- 			strerror(serrno), serrno);
+diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
+index 7879df0..d747f28 100644
+--- a/drivers/block/pktcdvd.c
++++ b/drivers/block/pktcdvd.c
+@@ -1896,7 +1896,7 @@ static int pkt_open_write(struct pktcdvd
+ 
+ 	if ((ret = pkt_probe_settings(pd))) {
+ 		VPRINTK("pktcdvd: %s failed probe\n", pd->name);
+-		return -EIO;
++		return -EROFS;
  	}
-+	retry = 0;
-+	while (access(tty, 0) != 0 && (retry++ < 4)) {
-+	   dbglog("capiplugin: capitty not available, waiting for device ...");
-+	   sleep(1);
-+	}
- 	if (access(tty, 0) != 0 && errno == ENOENT) {
- 	      fatal("capiplugin: tty %s doesn't exist - CAPI Filesystem Support not enabled in kernel or not mounted ?", tty);
- 	}
+ 
+ 	if ((ret = pkt_set_write_settings(pd))) {
+@@ -2054,10 +2054,9 @@ static int pkt_open(struct inode *inode,
+ 			goto out_dec;
+ 		}
+ 	} else {
+-		if (pkt_open_dev(pd, file->f_mode & FMODE_WRITE)) {
+-			ret = -EIO;
++		ret = pkt_open_dev(pd, file->f_mode & FMODE_WRITE);
++		if (ret)
+ 			goto out_dec;
+-		}
+ 		/*
+ 		 * needed here as well, since ext2 (among others) may change
+ 		 * the blocksize at mount time
 
---=-WddJi7imxWc95MMeG2vh--
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

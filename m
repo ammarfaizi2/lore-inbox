@@ -1,54 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbWBLVzr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751474AbWBLWAE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751472AbWBLVzr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 16:55:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbWBLVzr
+	id S1751474AbWBLWAE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 17:00:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWBLWAE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 16:55:47 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:26535 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751472AbWBLVzq (ORCPT
+	Sun, 12 Feb 2006 17:00:04 -0500
+Received: from fsmlabs.com ([168.103.115.128]:6857 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1751474AbWBLWAC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 16:55:46 -0500
-Date: Sun, 12 Feb 2006 13:54:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: wli@holomorphy.com, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] compound page: use page[1].lru
-Message-Id: <20060212135457.2a3d3b37.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0602121943150.15774@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0602121943150.15774@goblin.wat.veritas.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Feb 2006 17:00:02 -0500
+X-ASG-Debug-ID: 1139781598-21235-137-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Sun, 12 Feb 2006 14:04:36 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Andrew Morton <akpm@osdl.org>, Nathan Lynch <nathanl@austin.ibm.com>,
+       John Stultz <johnstul@us.ibm.com>
+X-ASG-Orig-Subj: [PATCH] Fix CPU hotplug with new time infrastructure
+Subject: [PATCH] Fix CPU hotplug with new time infrastructure
+Message-ID: <Pine.LNX.4.64.0602121351400.1579@montezuma.fsmlabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.8637
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
->
-> If a compound page has its own put_page_testzero destructor (the only
->  current example is free_huge_page), that is noted in page[1].mapping of
->  the compound page.  But that's rather a poor place to keep it: functions
->  which call set_page_dirty_lock after get_user_pages (e.g. Infiniband's
->  __ib_umem_release) ought to be checking first, otherwise set_page_dirty
->  is liable to crash on what's not the address of a struct address_space.
-> 
->  And now I'm about to make that worse: it turns out that every compound
->  page needs a destructor, so we can no longer rely on hugetlb pages going
->  their own special way, to avoid further problems of page->mapping reuse.
->  For example, not many people know that: on 50% of i386 -Os builds, the
->  first tail page of a compound page purports to be PageAnon (when its
->  destructor has an odd address), which surprises page_add_file_rmap.
-> 
->  Keep the compound page destructor in page[1].lru.next instead.  And to
->  free up the common pairing of mapping and index, also move compound page
->  order from index to lru.prev.  Slab reuses page->lru too: but if we ever
->  need slab to use compound pages, it can easily stack its use above this.
+tsc_disable was marked __initdata so we were accessing random data (which 
+happened to have a set bit) so upon warm cpu online we would disable the 
+TSC, resulting in the following. Nathan does this fix your triple fault?
 
-I'm scratching my head over flush_dcache_page() on, say, sparc64.  For
-example, the one in fs/direct-io.c.  With this patch, we'll call
-flush_dcache_page_impl(), which at least won't crash.  Before the patch I
-think we'd just do random stuff.
+root@arusha cpu1 {0:0} echo 1 > online
+Booting processor 1/1 eip 3000
+Disabling TSC...
+Calibrating delay using timer specific routine.. 797.62 BogoMIPS 
+(lpj=3988115)
+CPU1: Intel Pentium II (Deschutes) stepping 02
+migration_cost=2595
+root@arusha cpu1 {0:0} ps
+  PID TTY          TIME CMD
+ 2432 ttyS0    00:00:00 tcsh
+ 2490 ttyS0    00:00:00 ps
+root@arusha cpu1 {0:0} ps
+Segmentation fault
+root@arusha cpu1 {0:139}
 
-But I'm not sure that flush_dcache_page(hugetlb tail page) will do the
-right thing in aither case?
+<signed-off-by> Zwane Mwaikambo <zwane@arm.linux.org.uk>
+
+Index: linux-2.6.16-rc2-mm1/arch/i386/kernel/tsc.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.16-rc2-mm1/arch/i386/kernel/tsc.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 tsc.c
+--- linux-2.6.16-rc2-mm1/arch/i386/kernel/tsc.c	11 Feb 2006 16:55:15 -0000	1.1.1.1
++++ linux-2.6.16-rc2-mm1/arch/i386/kernel/tsc.c	12 Feb 2006 22:00:12 -0000
+@@ -25,7 +25,7 @@
+  */
+ unsigned int tsc_khz;
+ 
+-int tsc_disable __initdata = 0;
++int tsc_disable __cpuinitdata = 0;
+ 
+ #ifdef CONFIG_X86_TSC
+ static int __init tsc_setup(char *str)

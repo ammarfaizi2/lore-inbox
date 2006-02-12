@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWBLTtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbWBLTzX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751421AbWBLTtd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 14:49:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWBLTtc
+	id S1750933AbWBLTzX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 14:55:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbWBLTzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 14:49:32 -0500
-Received: from gold.veritas.com ([143.127.12.110]:54354 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1751421AbWBLTtc (ORCPT
+	Sun, 12 Feb 2006 14:55:23 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:12990 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750765AbWBLTzW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 14:49:32 -0500
-Date: Sun, 12 Feb 2006 19:50:02 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: David Gibson <david@gibson.dropbear.id.au>, linux-kernel@vger.kernel.org
-Subject: [PATCH 3/3] compound page: no access_process_vm check
-In-Reply-To: <Pine.LNX.4.61.0602121943150.15774@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0602121947440.15774@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0602121943150.15774@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 12 Feb 2006 19:49:31.0786 (UTC) FILETIME=[712906A0:01C6300D]
+	Sun, 12 Feb 2006 14:55:22 -0500
+Date: Sun, 12 Feb 2006 20:55:15 +0100
+From: Olaf Hering <olh@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Roger Leigh <rleigh@whinlatter.ukfsn.org>,
+       debian-powerpc@lists.debian.org
+Subject: Re: 2.6.16-rc2 powerpc timestamp skew
+Message-ID: <20060212195514.GA18521@suse.de>
+References: <87pslspkj5.fsf@hardknott.home.whinlatter.ukfsn.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <87pslspkj5.fsf@hardknott.home.whinlatter.ukfsn.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The PageCompound check before access_process_vm's set_page_dirty_lock is
-no longer necessary, so remove it.  But leave the PageCompound checks in
-bio_set_pages_dirty, dio_bio_complete and nfs_free_user_pages: at least
-some of those were introduced as a little optimization on hugetlb pages.
+ On Sun, Feb 12, Roger Leigh wrote:
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
+> In both these cases, the chrony NTP daemon is running, if that might
+> be a problem.
 
- kernel/ptrace.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
+I dont run Debian, but:
 
---- 2.6.16-rc2-git11/kernel/ptrace.c	2006-02-03 09:32:51.000000000 +0000
-+++ 2.6.16-rc2-git11+/kernel/ptrace.c	2006-02-10 20:07:05.000000000 +0000
-@@ -242,8 +242,7 @@ int access_process_vm(struct task_struct
- 		if (write) {
- 			copy_to_user_page(vma, page, addr,
- 					  maddr + offset, buf, bytes);
--			if (!PageCompound(page))
--				set_page_dirty_lock(page);
-+			set_page_dirty_lock(page);
- 		} else {
- 			copy_from_user_page(vma, page, addr,
- 					    buf, maddr + offset, bytes);
+My G4/466 has the hwclock at 1970 for some reason. The early bootscripts
+call klogd, which calls nanosleep. This syscall takes 3 hours to complete.
+
+A bit userland debugging shows that hwclock is 1970, system time is also
+1970 when nanosleep starts. But when it returns, the time is correct.
+Its already at the end of the /etc/init.d/boot.d/S* scripts, nothing
+else runs there. Bug exists since at least 2.6.15-git12, 2.6.15 was ok.
+Fatfingerd kernel debug patch and lost remote access...

@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWBLKqx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbWBLKtZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbWBLKqx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 05:46:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWBLKqx
+	id S1750829AbWBLKtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 05:49:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWBLKtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 05:46:53 -0500
-Received: from smtp.dkm.cz ([62.24.64.34]:38149 "HELO smtp.dkm.cz")
-	by vger.kernel.org with SMTP id S1750791AbWBLKqw (ORCPT
+	Sun, 12 Feb 2006 05:49:24 -0500
+Received: from mail.charite.de ([160.45.207.131]:53213 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S1750829AbWBLKtY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 05:46:52 -0500
-Date: Sun, 12 Feb 2006 11:46:40 +0100
-From: iSteve <isteve@rulez.cz>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org,
-       Peter Osterlund <petero2@telia.com>
-Subject: Re: Packet writing issue on 2.6.15.1
-Message-ID: <20060212114640.31765c3a@silver>
-In-Reply-To: <Pine.LNX.4.61.0602121129590.25363@yvahk01.tjqt.qr>
-References: <20060211103520.455746f6@silver>
-	<m3r76a875w.fsf@telia.com>
-	<20060211124818.063074cc@silver>
-	<m3bqxd999u.fsf@telia.com>
-	<20060211170813.3fb47a03@silver>
-	<43EE446C.8010402@cfl.rr.com>
-	<20060211211440.3b9a4bf9@silver>
-	<43EE8B20.7000602@cfl.rr.com>
-	<20060212092315.10f3e0e2@silver>
-	<Pine.LNX.4.61.0602121129590.25363@yvahk01.tjqt.qr>
-X-Mailer: Sylpheed-Claws 2.0.0cvs42 (GTK+ 2.8.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Feb 2006 05:49:24 -0500
+Date: Sun, 12 Feb 2006 11:49:20 +0100
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc2-git8: ieee80211 does not compile
+Message-ID: <20060212104920.GU2690@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060210123817.GQ6668@charite.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060210123817.GQ6668@charite.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Feb 2006 11:32:31 +0100 (MET)
-Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
-> Like...?
-> 
->   cdrwtool -d /dev/hdb -q
->   pktsetup 0 /dev/hdb
-> 
-> "Burning something non-udf there":
->   mkfs.xfs /dev/pktcdvd/0
->   mkisofs -o /dev/pktcdvd/0 somefiles
->   tar -cf /dev/pktcdvd/0 somemorefiles
-> 
-> Anything.
+* Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>:
+> I get:
+>   ...
+>   LD [M]  sound/pci/ac97/snd-ac97-codec.o
+>   CC [M]  net/ieee80211/ieee80211_module.o
+>   CC [M]  net/ieee80211/ieee80211_tx.o
+> net/ieee80211/ieee80211_tx.c: In function ieee80211_xmit':
+> net/ieee80211/ieee80211_tx.c:473: error: too few arguments to function
+> make[3]: *** [net/ieee80211/ieee80211_tx.o] Error 1
+> make[2]: *** [net/ieee80211] Error 2
+> make[1]: *** [net] Error 2
+> make[1]: Leaving directory /usr/src/linux-2.6.16-rc2-git8'
+> make: *** [debian/stamp-build-kernel] Error 2
 
-"without actually having to use UDF and packet writing on the burning
-side" ... sorry, should've been 'or'. I am trying to find a way that wouldn't
-require having packet writing support in kernel (or as module, of course) with
-the initial burning.
+Same with linux-2.6.16-rc2-git11:
+  LD [M]  sound/pci/ac97/snd-ac97-bus.o
+  LD [M]  sound/pci/ac97/snd-ac97-codec.o
+  CC [M]  net/ieee80211/ieee80211_module.o
+  CC [M]  net/ieee80211/ieee80211_tx.o
+net/ieee80211/ieee80211_tx.c: In function ieee80211_xmit':
+net/ieee80211/ieee80211_tx.c:473: error: too few arguments to function
+make[3]: *** [net/ieee	80211/ieee80211_tx.o] Error 1
+make[2]: *** [net/ieee80211] Error 2
+make[1]: *** [net] Error 2
+make[1]: Leaving directory /usr/src/linux-2.6.16-rc2-git11'
+make: *** [debian/stamp-build-kernel] Error 2
+	
 -- 
- -- iSteve
+Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

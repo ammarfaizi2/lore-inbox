@@ -1,76 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbWBLC2L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbWBLCe6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932192AbWBLC2L (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 21:28:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWBLC2L
+	id S1750928AbWBLCe6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 21:34:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWBLCe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 21:28:11 -0500
-Received: from xenotime.net ([66.160.160.81]:55776 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932192AbWBLC2K (ORCPT
-	<rfc822;Linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 21:28:10 -0500
-Date: Sat, 11 Feb 2006 18:28:53 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: David Mansfield <lkml@dm.cobite.com>
-Cc: Linux-kernel@vger.kernel.org
-Subject: Re: question about values in /sys/block/???/device/type
-Message-Id: <20060211182853.070d5ed4.rdunlap@xenotime.net>
-In-Reply-To: <1139677626.18414.26.camel@gandalf.cobite.com>
-References: <1139677626.18414.26.camel@gandalf.cobite.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 11 Feb 2006 21:34:57 -0500
+Received: from rtr.ca ([64.26.128.89]:36279 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1750928AbWBLCe5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 21:34:57 -0500
+Message-ID: <43EE9EC0.2030403@rtr.ca>
+Date: Sat, 11 Feb 2006 21:34:40 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] EXPORT_SYMBOL_GPL_FUTURE()
+References: <20060208062007.GA7936@kroah.com>
+In-Reply-To: <20060208062007.GA7936@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Feb 2006 12:07:06 -0500 David Mansfield wrote:
+Greg KH wrote:
+>
+> So, here's a patch that implements EXPORT_SYMBOL_GPL_FUTURE().  It
+> basically says that some time in the future, this symbol is going to
+> change and not be allowed to be called from non-GPL licensed kernel
+> modules.
 
-> Hi, 
-> 
-> I'm trying to debug why my firewire harddrive is no longer handled by
-> 'hald', and it seems that the value in /sys/block/sdb/device/type is 14
-> (0x0e) and this is not a value handled by the program.  It is expecting
-> 0x00 for disk and 0x05 for cdrom. 
-> 
-> In the hald source (blockdev.c), there is a comment:
-> 
->     /* These magic values are documented in the kernel source */
-> 
-> and for the life of me I cannot find out where.  You can't exactly grep
-> for 0x0e and get anything meaningful! 
-> 
-> Does anyone know?
-> 
-> BTW, I'm running the FC4 kernel: 2.6.15-1.1830_FC4 on ia32, if that
-> matters.
-> 
-> David Mansfieldq
+The wording and intent here are incorrect.
 
-include/scsi/scsi.h (hint: grepping in include/scsi for /type/ -i,
-this took about 5 seconds to find)
+All kernel modules are already *GPL licensed*,
+whether the authors think so or not.
 
-/*
- *  DEVICE TYPES
- */
+So this patch (if it goes through), should be reworded
+so as not to muddy those waters (as the above excerpt does).
 
-#define TYPE_DISK           0x00
-#define TYPE_TAPE           0x01
-#define TYPE_PRINTER        0x02
-#define TYPE_PROCESSOR      0x03    /* HP scanners use this */
-#define TYPE_WORM           0x04    /* Treated as ROM by our system */
-#define TYPE_ROM            0x05
-#define TYPE_SCANNER        0x06
-#define TYPE_MOD            0x07    /* Magneto-optical disk - 
-				     * - treated as TYPE_DISK */
-#define TYPE_MEDIUM_CHANGER 0x08
-#define TYPE_COMM           0x09    /* Communications device */
-#define TYPE_RAID           0x0c
-#define TYPE_ENCLOSURE      0x0d    /* Enclosure Services Device */
-#define TYPE_RBC	    0x0e
-#define TYPE_NO_LUN         0x7f
-
-
----
-~Randy
+Cheers

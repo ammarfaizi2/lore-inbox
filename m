@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWBLMud@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWBLNJI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbWBLMud (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 07:50:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWBLMud
+	id S1750722AbWBLNJI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 08:09:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWBLNJH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 07:50:33 -0500
-Received: from baldrick.bootc.net ([83.142.228.48]:23463 "EHLO
-	baldrick.bootc.net") by vger.kernel.org with ESMTP id S1750716AbWBLMuc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 07:50:32 -0500
-In-Reply-To: <1139419590.27721.9.camel@localhost.localdomain>
-References: <33D367D1-870E-46AE-A7EC-C938B51E816F@bootc.net> <1139400278.26270.10.camel@localhost.localdomain> <43E9F41C.30204@bootc.net>  <43EA11F5.4000205@bootc.net> <1139419590.27721.9.camel@localhost.localdomain>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <7858A067-3711-456A-B601-1F2CB484E4F8@bootc.net>
-Cc: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Chris Boot <bootc@bootc.net>
-Subject: Re: libata PATA status report on 2.6.16-rc1-mm5
-Date: Sun, 12 Feb 2006 12:50:29 +0000
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-X-Mailer: Apple Mail (2.746.2)
+	Sun, 12 Feb 2006 08:09:07 -0500
+Received: from cantor.suse.de ([195.135.220.2]:58502 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750722AbWBLNJG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 08:09:06 -0500
+Date: Sun, 12 Feb 2006 14:09:03 +0100
+From: Olaf Hering <olh@suse.de>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Ulrich Drepper <drepper@redhat.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] updated fstatat64 support
+Message-ID: <20060212130903.GA20732@suse.de>
+References: <200602101528.k1AFSFIg011658@devserv.devel.redhat.com> <20060211112157.GA9371@osiris.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060211112157.GA9371@osiris.boeblingen.de.ibm.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 8 Feb 2006, at 17:26, Alan Cox wrote:
+s390 doesnt compile because sys_newfstatat() is not defined.
+__ARCH_WANT_STAT64 is defined for 32bit build in
+include/asm-s390/unistd.h. This change fixes compilation, but its likely
+not correct to do it that way:
 
-> On Mer, 2006-02-08 at 15:44 +0000, Chris Boot wrote:
->> My next step will be to play with the CD drive. Any hints on
->> stress-testing the drive? Obviously writing a CD then comparing to  
->> the
->> ISO will be one step, but any others?
->
-> The PATA specific code is almost entirely in the setup stages. Once  
-> the
-> setup is done then (with the exception of early PIIX devices, radisys,
-> triflex and a couple of other oddities) there is no "new" code  
-> actually
-> being run.
->
-> Alan
->
+Index: linux-2.6.15/fs/stat.c
+===================================================================
+--- linux-2.6.15.orig/fs/stat.c
++++ linux-2.6.15/fs/stat.c
+@@ -261,7 +261,7 @@ asmlinkage long sys_newlstat(char __user
+        return error;
+ }
+ 
+-#ifndef __ARCH_WANT_STAT64
++#ifdef __ARCH_WANT_STAT64
+ asmlinkage long sys_newfstatat(int dfd, char __user *filename,
+                                struct stat __user *statbuf, int flag)
+ {
 
-Well, I've just tried 2.6.16-rc2-ide2 on another VIA-based machine  
-and it seems to work just fine, allowing me to say CONFIG_IDE=n :-)  
-The CD drives work just fine including writing CDs, so I'm going to  
-try writing a DVD soon, which should stress it a little more.  
-However, I keep getting the following messages in dmesg:
 
-[4294985.285000] Assertion failed! qc->n_elem > 0,drivers/scsi/libata- 
-core.c,ata_fill_sg,line=2635
-[4294985.377000] Assertion failed! qc->n_elem > 0,drivers/scsi/libata- 
-core.c,ata_fill_sg,line=2635
-
-This seems mostly harmless as everything seems to just work, but  
-curious nonetheless.
-
-HTH,
-Chris
 
 -- 
-Chris Boot
-bootc@bootc.net
-http://www.bootc.net/
-
+short story of a lazy sysadmin:
+ alias appserv=wotan

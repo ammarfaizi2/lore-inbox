@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbWBLKtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbWBLKxK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750829AbWBLKtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 05:49:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWBLKtY
+	id S1750839AbWBLKxK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 05:53:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750903AbWBLKxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 05:49:24 -0500
-Received: from mail.charite.de ([160.45.207.131]:53213 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S1750829AbWBLKtY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 05:49:24 -0500
-Date: Sun, 12 Feb 2006 11:49:20 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc2-git8: ieee80211 does not compile
-Message-ID: <20060212104920.GU2690@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20060210123817.GQ6668@charite.de>
+	Sun, 12 Feb 2006 05:53:10 -0500
+Received: from smtp6.wanadoo.fr ([193.252.22.25]:43441 "EHLO smtp6.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S1750839AbWBLKxJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 05:53:09 -0500
+X-ME-UUID: 20060212105302469.0B6F71C00142@mwinf0612.wanadoo.fr
+From: Vincent ETIENNE <ve@vetienne.net>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Subject: Re: BUG at drivers/net/dl2k.c
+Date: Sun, 12 Feb 2006 11:52:55 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <200602092101.41970.ve@vetienne.net> <20060211195718.GA24012@electric-eye.fr.zoreil.com>
+In-Reply-To: <20060211195718.GA24012@electric-eye.fr.zoreil.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060210123817.GQ6668@charite.de>
-User-Agent: Mutt/1.5.11
+Message-Id: <200602121152.55537.ve@vetienne.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>:
-> I get:
->   ...
->   LD [M]  sound/pci/ac97/snd-ac97-codec.o
->   CC [M]  net/ieee80211/ieee80211_module.o
->   CC [M]  net/ieee80211/ieee80211_tx.o
-> net/ieee80211/ieee80211_tx.c: In function ieee80211_xmit':
-> net/ieee80211/ieee80211_tx.c:473: error: too few arguments to function
-> make[3]: *** [net/ieee80211/ieee80211_tx.o] Error 1
-> make[2]: *** [net/ieee80211] Error 2
-> make[1]: *** [net] Error 2
-> make[1]: Leaving directory /usr/src/linux-2.6.16-rc2-git8'
-> make: *** [debian/stamp-build-kernel] Error 2
+Le Samedi 11 Février 2006 20:57, Francois Romieu a écrit :
+> Vincent ETIENNE <ve@vetienne.net> :
+> > I'm using 2.6.14-mm2 kernel (x86_64) on a Bi-Opteron 246 board with a  
+> > PCI-64 card ( DLINK 550 GT ) plug  on PCI-X interface. This card use the
+> > DL2000 driver which seems to cause this problem logged during boot time 
+> > :
+> >
+> > BUG: warning at drivers/net/dl2k.c:1481/mii_wait_link()
+>
+> [...]
+>
+> Try the bandaid below. If it is not enough, please open a PR at
+> http://bugzilla.kernel.org and add me to the Cc: list.
+>
+> 1ms delay in irq context always hurt. This stuff should be done in
+> an user-context.
+>
+>
 
-Same with linux-2.6.16-rc2-git11:
-  LD [M]  sound/pci/ac97/snd-ac97-bus.o
-  LD [M]  sound/pci/ac97/snd-ac97-codec.o
-  CC [M]  net/ieee80211/ieee80211_module.o
-  CC [M]  net/ieee80211/ieee80211_tx.o
-net/ieee80211/ieee80211_tx.c: In function ieee80211_xmit':
-net/ieee80211/ieee80211_tx.c:473: error: too few arguments to function
-make[3]: *** [net/ieee	80211/ieee80211_tx.o] Error 1
-make[2]: *** [net/ieee80211] Error 2
-make[1]: *** [net] Error 2
-make[1]: Leaving directory /usr/src/linux-2.6.16-rc2-git11'
-make: *** [debian/stamp-build-kernel] Error 2
-	
--- 
-Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+With your change, everything is ok now. No more BUG in dmesg :).
+
+Many thanks for your help. 
+
+	Vincent
+

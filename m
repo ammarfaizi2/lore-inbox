@@ -1,78 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWBLR6O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbWBLSDO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbWBLR6O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 12:58:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWBLR6O
+	id S1750792AbWBLSDO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 13:03:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWBLSDO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 12:58:14 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:42920 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S1750786AbWBLR6N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 12:58:13 -0500
-From: Roger Leigh <rleigh@whinlatter.ukfsn.org>
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       debian-powerpc@lists.debian.org
-Subject: Re: 2.6.16-rc2 powerpc timestamp skew
-References: <87pslspkj5.fsf@hardknott.home.whinlatter.ukfsn.org>
-Date: Sun, 12 Feb 2006 17:58:09 +0000
-In-Reply-To: <87pslspkj5.fsf@hardknott.home.whinlatter.ukfsn.org> (Roger
-	Leigh's message of "Sun, 12 Feb 2006 17:13:50 +0000")
-Message-ID: <87lkwgpiha.fsf@hardknott.home.whinlatter.ukfsn.org>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Sun, 12 Feb 2006 13:03:14 -0500
+Received: from wavehammer.waldi.eu.org ([82.139.196.55]:48348 "EHLO
+	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
+	id S1750792AbWBLSDO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 13:03:14 -0500
+Date: Sun, 12 Feb 2006 19:03:08 +0100
+From: Bastian Blank <bastian@waldi.eu.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: akpm@osdl.org, schwidefsky@de.ibm.com, linux390@de.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] dasd: cleanup dasd_ioctl
+Message-ID: <20060212180308.GA24896@wavehammer.waldi.eu.org>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
+	schwidefsky@de.ibm.com, linux390@de.ibm.com,
+	linux-kernel@vger.kernel.org
+References: <20060212173855.GB26035@lst.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
+Content-Disposition: inline
+In-Reply-To: <20060212173855.GB26035@lst.de>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+
+--UugvWAfsgieZRqgk
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Roger Leigh <rleigh@whinlatter.ukfsn.org> writes:
+On Sun, Feb 12, 2006 at 06:38:55PM +0100, Christoph Hellwig wrote:
+>  static int
+> -dasd_ioctl_api_version(struct block_device *bdev, int no, long args)
+> +dasd_ioctl_api_version(void __user *argp)
+>  {
+>  	int ver =3D DASD_API_VERSION;
+> -	return put_user(ver, (int __user *) args);
+> +	return put_user(ver, (int *)argp);
+>  }
 
-> When running a 2.6.16-rc2 kernel on a powerpc system (Mac Mini;
-> Freescale 7447A):
->
-> $ date && touch f && ls -l f && rm -f f && date
-> Sun Feb 12 12:20:14 GMT 2006
-> -rw-r--r-- 1 rleigh rleigh 0 2006-02-12 12:23
-> Sun Feb 12 12:20:14 GMT 2006
->
-> Notice the timestamp is 3 minutes in the future compared with the
-> system time.  "make" is not a very happy bunny running on this kernel
-> due to every touched file being 3 minutes in the future.
+Doesn't this need to be "int __user *"?
 
-> In both these cases, the chrony NTP daemon is running, if that might
-> be a problem.
+> +long
+> +dasd_compat_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+>  {
+> -	int i;
+> +	int rval;
+> =20
+> -	for (i =3D 0; dasd_ioctls[i].no !=3D -1; i++)
+> -		dasd_ioctl_no_unregister(NULL, dasd_ioctls[i].no,
+> -					 dasd_ioctls[i].fn);
+> +	lock_kernel();
+> +	rval =3D dasd_ioctl(filp->f_dentry->d_inode, filp, cmd, arg);
+> +	unlock_kernel();
 
-Some further information:
-=2D this does not appear to affect i386 kernels
-=2D I have
-    CONFIG_HZ_250=3Dy
-    CONFIG_HZ=3D250
-  in my .config; the full config is at
-  http://people.debian.org/~rleigh/config-2.6.16-rc2
+The lock_kernel looks spurious.
 
+Bastian
 
-Regards,
-Roger
+--=20
+Conquest is easy. Control is not.
+		-- Kirk, "Mirror, Mirror", stardate unknown
 
-=2D-=20
-Roger Leigh
-                Printing on GNU/Linux?  http://gutenprint.sourceforge.net/
-                Debian GNU/Linux        http://www.debian.org/
-                GPG Public Key: 0x25BFB848.  Please sign and encrypt your m=
-ail.
-
---=-=-=
-Content-Type: application/pgp-signature
+--UugvWAfsgieZRqgk
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.2 (GNU/Linux)
 
-iD8DBQBD73czVcFcaSW/uEgRAvoRAJ9RmU6fcWVF4LpRYhBcJ/U+kYcohACeNHdH
-/vxe5ytJlifLF6AAKyp2qj0=
-=A504
+iEYEARECAAYFAkPveFwACgkQnw66O/MvCNEb8QCgn9v5QFAhPaeNS7T8Abv7Ahc8
+O58An32gaHhwLaynKn1wbeC4CFEJV3St
+=vS5L
 -----END PGP SIGNATURE-----
---=-=-=--
+
+--UugvWAfsgieZRqgk--

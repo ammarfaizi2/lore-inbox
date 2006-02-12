@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWBLFqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbWBLHME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbWBLFqh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 00:46:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWBLFqh
+	id S932305AbWBLHME (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 02:12:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbWBLHME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 00:46:37 -0500
-Received: from gate.crashing.org ([63.228.1.57]:60383 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932214AbWBLFqg (ORCPT
+	Sun, 12 Feb 2006 02:12:04 -0500
+Received: from [71.39.78.203] ([71.39.78.203]:29710 "EHLO qwest.net")
+	by vger.kernel.org with ESMTP id S932305AbWBLHMC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 00:46:36 -0500
-Subject: Re: 2.6.16-rc1
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Roger Leigh <rleigh@whinlatter.ukfsn.org>
-Cc: Rene Engelhard <rene@debian.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       debian-powerpc@lists.debian.org
-In-Reply-To: <87k6c2f1x3.fsf@hardknott.home.whinlatter.ukfsn.org>
-References: <87hd7x8uxc.fsf@hardknott.home.whinlatter.ukfsn.org>
-	 <43D4129C.1090205@tee.gr> <20060123225956.GD4307@rene-engelhard.de>
-	 <87k6c2f1x3.fsf@hardknott.home.whinlatter.ukfsn.org>
-Content-Type: text/plain
-Date: Sun, 12 Feb 2006 16:45:11 +1100
-Message-Id: <1139723111.5247.23.camel@localhost.localdomain>
+	Sun, 12 Feb 2006 02:12:02 -0500
+Date: Sun, 12 Feb 2006 00:17:05 -0700
+From: Jesse Allen <jesse@qwest.net>
+To: proski@gnu.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] orinoco: support smc2532w
+Message-ID: <20060212071705.GA25751@sm>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Jesse Allen <the3dfxdude@gmail.com>
 
-> Further investigation (using netconsole) shows the breakage (in
-> 2.6.16-rc1 and -rc2) is due to discovering an additional IDE
-> controller (KeyLargo) before the normal (UniNorth) controller:
+The orinoco wireless driver can support the SMC 2532W-B PC Card, so add the id
+for it.
 
-Some patch that went in -rc1 screwed up the existing .config's, you
-probably lost CONFIG_BLK_DEV_IDE_PMAC_ATA100FIRST
+Signed-off-by: Jesse Allen <the3dfxdude@gmail.com>
+---
 
-Ben.
-
-
+--- linux/drivers/net/wireless/orinoco_cs.c	2006-02-11 18:28:26.000000000 -0700
++++ linux-mod/drivers/net/wireless/orinoco_cs.c	2006-02-11 18:30:24.000000000 -0700
+@@ -590,6 +590,7 @@
+ 	PCMCIA_DEVICE_PROD_ID12("PROXIM", "LAN PC CARD HARMONY 80211B", 0xc6536a5e, 0x090c3cd9),
+ 	PCMCIA_DEVICE_PROD_ID12("PROXIM", "LAN PCI CARD HARMONY 80211B", 0xc6536a5e, 0x9f494e26),
+ 	PCMCIA_DEVICE_PROD_ID12("SAMSUNG", "11Mbps WLAN Card", 0x43d74cb4, 0x579bd91b),
++	PCMCIA_DEVICE_PROD_ID12("SMC", "SMC2532W-B EliteConnect Wireless Adapter", 0xc4f8b18b, 0x196bd757),
+ 	PCMCIA_DEVICE_PROD_ID12("SMC", "SMC2632W", 0xc4f8b18b, 0x474a1f2a),
+ 	PCMCIA_DEVICE_PROD_ID12("Symbol Technologies", "LA4111 Spectrum24 Wireless LAN PC Card", 0x3f02b4d6, 0x3663cb0e),
+ 	PCMCIA_DEVICE_PROD_ID123("The Linksys Group, Inc.", "Instant Wireless Network PC Card", "ISL37300P", 0xa5f472c2, 0x590eb502, 0xc9049a39),

@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751409AbWBLTDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWBLTRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751409AbWBLTDl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 14:03:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbWBLTDl
+	id S1750873AbWBLTRP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 14:17:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWBLTRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 14:03:41 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:23777 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751409AbWBLTDl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 14:03:41 -0500
-Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
-From: Lee Revell <rlrevell@joe-job.com>
-To: MIke Galbraith <efault@gmx.de>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Con Kolivas <kernel@kolivas.org>,
-       gcoady@gmail.com, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1139752033.27408.20.camel@homer>
-References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
-	 <200602081335.18256.kernel@kolivas.org>
-	 <Pine.LNX.4.61.0602091806100.30108@yvahk01.tjqt.qr>
-	 <1139515605.30058.94.camel@mindpipe>  <1139553319.8850.79.camel@homer>
-	 <1139752033.27408.20.camel@homer>
-Content-Type: text/plain
-Date: Sun, 12 Feb 2006 14:03:35 -0500
-Message-Id: <1139771016.19342.253.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Feb 2006 14:17:15 -0500
+Received: from twin.uoregon.edu ([128.223.214.27]:18408 "EHLO twin.uoregon.edu")
+	by vger.kernel.org with ESMTP id S1750873AbWBLTRO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 14:17:14 -0500
+Date: Sun, 12 Feb 2006 11:17:00 -0800 (PST)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: quick 3ware 8006-2LP question under 2.6 kernel
+In-Reply-To: <Pine.LNX.4.64.0602120847470.19529@p34>
+Message-ID: <Pine.LNX.4.64.0602121116070.5754@twin.uoregon.edu>
+References: <Pine.LNX.4.64.0602120847470.19529@p34>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-12 at 14:47 +0100, MIke Galbraith wrote:
-> If you think it's the scheduler, how about try the patch below.  It's
-> against 2.6.16-rc2-mm1, and should tell you if it is the interactivity
-> logic in the scheduler or not.  I don't see other candidates in there,
-> not that that means there aren't any of course. 
+If the card is phyiscally compatible with a a 5volt 32bit pci slot then 
+chances are it was designed to work at 32bit 33mhz...
 
-I'll try, but it's a serious pain for me to build an -mm kernel.  A
-patch against 2.6.16-rc1 would be much easier.
+joelja
 
-Lee
+On Sun, 12 Feb 2006, Justin Piszcz wrote:
+
+> This card is (64bit PCI) and many people run these cards in 32 bit slots if 
+> their motherboards do not have the 64bit PCI slots, is there any risk of 
+> corruption or problems running it this way, or will it just run slower?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+-- 
+--------------------------------------------------------------------------
+Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu
+GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
 

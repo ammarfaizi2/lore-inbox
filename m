@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWBLSRh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWBLSSM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751120AbWBLSRh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 13:17:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWBLSRh
+	id S1751130AbWBLSSM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 13:18:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWBLSSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 13:17:37 -0500
-Received: from [65.103.28.221] ([65.103.28.221]:53133 "EHLO cinder.waste.org")
-	by vger.kernel.org with ESMTP id S1751120AbWBLSRg (ORCPT
+	Sun, 12 Feb 2006 13:18:12 -0500
+Received: from [65.103.28.221] ([65.103.28.221]:54669 "EHLO cinder.waste.org")
+	by vger.kernel.org with ESMTP id S1751130AbWBLSSL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 13:17:36 -0500
-Date: Sun, 12 Feb 2006 11:46:45 -0600
+	Sun, 12 Feb 2006 13:18:11 -0500
+Date: Sun, 12 Feb 2006 11:13:37 -0600
 From: Matt Mackall <mpm@selenic.com>
-To: JaniD++ <djani22@dynamicweb.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: netconsole problem
-Message-ID: <20060212174645.GA13703@waste.org>
-References: <00af01c62e4d$8de8c6c0$9d00a8c0@dcccs>
+To: Stelian Pop <stelian@popies.net>
+Cc: Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: HG kernel repo (was: Re: 2.6.16-rc2-mm1 patches don't apply)
+Message-ID: <20060212171337.GA10467@waste.org>
+References: <20060208194359.bd1c1a4b.pj@sgi.com> <20060208201644.568379d6.akpm@osdl.org> <20060208213025.ef61a679.pj@sgi.com> <20060209055638.GV13729@waste.org> <1139690253.1801.15.camel@deep-space-9.dsnet>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <00af01c62e4d$8de8c6c0$9d00a8c0@dcccs>
+In-Reply-To: <1139690253.1801.15.camel@deep-space-9.dsnet>
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 10, 2006 at 03:23:23PM +0100, JaniD++ wrote:
-> Hello, list,
+On Sat, Feb 11, 2006 at 09:37:33PM +0100, Stelian Pop wrote:
+> Hi Matt,
 > 
-> I have a little problem, with netconsole.
-> It does not work for me.
+> > The git->hg conversion script may be borked right now. The upgrade of
+> > master.kernel.org to AMD64 happened to coincide with a new Mercurial
+> > release with a new convert-repo script which may have introduced a
+> > bug. I'll try to sort it out tomorrow.
 > 
-> On the "client":
-> 
-> modprobe netconsole netconsole=@/,514@192.168.2.100/
-> dmesg:
-> netconsole: local port 6665
-> netconsole: interface eth0
-> netconsole: remote port 514
-> netconsole: remote IP 192.168.2.100
-> netconsole: remote ethernet address ff:ff:ff:ff:ff:ff
-> netconsole: local IP 192.168.2.50
-> netconsole: network logging started
-> 
-> (kernel: 2.6.15-rc5, and 2.6.16-rc1,2)
-> 
-> On the server:
-> ]# netcat -u -l -v -s 192.168.2.100 -p 514
-> 192.168.2.100: inverse host lookup failed: Unknown host
-> listening on [192.168.2.100] 514 ...
-> 
-> And nothing comes.
-> 
-> The firewall is off on both system.
-> The ping comes from any direction.
-> 
-> If i try the remote and local syslog, it works well, two.
-> And in this case, the netlog only displays what the syslog is sends.
-> 
-> What can be the problem?
+> Any news or ETA on this ?
 
-Perhaps your console log level is set too low. Fedora for instance is
-very quiet by default.
+Sorry folks, I've been in meetings all weekend.
 
 -- 
 Mathematics is the supreme nostalgia of our time.

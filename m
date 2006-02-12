@@ -1,56 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWBLX3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750926AbWBLXfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751079AbWBLX3a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 18:29:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbWBLX3a
+	id S1750926AbWBLXfU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 18:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbWBLXfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 18:29:30 -0500
-Received: from watts.utsl.gen.nz ([202.78.240.73]:13983 "EHLO mail.utsl.gen.nz")
-	by vger.kernel.org with ESMTP id S1751073AbWBLX33 (ORCPT
+	Sun, 12 Feb 2006 18:35:19 -0500
+Received: from smtp.enternet.hu ([62.112.192.21]:6416 "EHLO smtp.enternet.hu")
+	by vger.kernel.org with ESMTP id S1750926AbWBLXfS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 18:29:29 -0500
-Message-ID: <43EFC4CE.3040008@vilain.net>
-Date: Mon, 13 Feb 2006 12:29:18 +1300
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Sun, 12 Feb 2006 18:35:18 -0500
+Message-ID: <018701c6302d$ebf2fe70$9d00a8c0@dcccs>
+From: "JaniD++" <djani22@dynamicweb.hu>
+To: "Matt Mackall" <mpm@selenic.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <00af01c62e4d$8de8c6c0$9d00a8c0@dcccs> <20060212174645.GA13703@waste.org> <017f01c63026$187a8150$9d00a8c0@dcccs> <20060212224340.GF10467@waste.org>
+Subject: Re: netconsole problem
+Date: Mon, 13 Feb 2006 00:42:00 +0100
 MIME-Version: 1.0
-To: Vasily Averin <vvs@sw.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Devel] Re: swsusp done by migration (was Re: [RFC][PATCH 1/5]
- Virtualization/containers: startup)
-References: <43E38BD1.4070707@openvz.org>	 <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org>	<43E3915A.2080000@sw.ru>	 <Pine.LNX.4.64.0602030939250.4630@g5.osdl.org>	 <m1lkwoubiw.fsf@ebiederm.dsl.xmission.com> <43E71018.8010104@sw.ru>	 <m1hd7condi.fsf@ebiederm.dsl.xmission.com>	 <1139243874.6189.71.camel@localhost.localdomain>	 <m13biwnxkc.fsf@ebiederm.dsl.xmission.com>	<20060208215412.GD2353@ucw.cz>	 <m1mzh02y3m.fsf@ebiederm.dsl.xmission.com>	 <7CCC1159-BF55-4961-BC24-A759F893D43F@mac.com>	 <43EC170C.6090807@vilain.net>  <43EC317C.9090101@sw.ru> <1139625499.12123.41.camel@localhost.localdomain> <43EE1EDE.6040809@sw.ru>
-In-Reply-To: <43EE1EDE.6040809@sw.ru>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vasily Averin wrote:
->>When checkpointing it is important to preserve all state.  If you are
->>doing transparent highly available computing, you need to make sure all
->>system calls get the same answers in the clones.  So you would need to
->>virtualise the entropy pool.
-> From my point of view it is important to preserve only all the determinated state.
-> Ok, lets we've checkpointed and saved current entropy pool. But we have not any
-> guarantee that pool will be in the same state at the moment of first access to
-> it after wakeuping. Because a new entropy can change it unpredictable.
-> Am I right?
 
-Good point.
+----- Original Message ----- 
+From: "Matt Mackall" <mpm@selenic.com>
+To: "JaniD++" <djani22@dynamicweb.hu>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Sunday, February 12, 2006 11:43 PM
+Subject: Re: netconsole problem
 
-In general this comes under the heading of "when doing highly available
-computing, ensure each of your computing replicas get exactly the same
-inputs and always double-check their outputs".
 
-There are lots of 'inputs' that affect the state of the system; when I
-referred to "/dev/random and the system clock", I was figuratively
-referring to these.  Others might include timing of disk IO events, for
-instance.
+> On Sun, Feb 12, 2006 at 11:45:52PM +0100, JaniD++ wrote:
+> > > On Fri, Feb 10, 2006 at 03:23:23PM +0100, JaniD++ wrote:
+> > > > Hello, list,
+> > > >
+> > > > I have a little problem, with netconsole.
+> > > > It does not work for me.
+> > > >
+> > > > On the "client":
+> > > >
+> > > > modprobe netconsole netconsole=@/,514@192.168.2.100/
+> > > > dmesg:
+> > > > netconsole: local port 6665
+> > > > netconsole: interface eth0
+> > > > netconsole: remote port 514
+> > > > netconsole: remote IP 192.168.2.100
+> > > > netconsole: remote ethernet address ff:ff:ff:ff:ff:ff
+> > > > netconsole: local IP 192.168.2.50
+> > > > netconsole: network logging started
+> > > >
+> > > > (kernel: 2.6.15-rc5, and 2.6.16-rc1,2)
+> > > >
+> > > > On the server:
+> > > > ]# netcat -u -l -v -s 192.168.2.100 -p 514
+> > > > 192.168.2.100: inverse host lookup failed: Unknown host
+> > > > listening on [192.168.2.100] 514 ...
+> > > >
+> > > > And nothing comes.
+> > > >
+> > > > The firewall is off on both system.
+> > > > The ping comes from any direction.
+> > > >
+> > > > If i try the remote and local syslog, it works well, two.
+> > > > And in this case, the netlog only displays what the syslog is sends.
+> > > >
+> > > > What can be the problem?
+> > >
+> > > Perhaps your console log level is set too low. Fedora for instance is
+> > > very quiet by default.
+> >
+> > Sorry, i was not clear enough....
+> > The system, what i want to debug is RedHat 9.0, with kernel 2.6.15,
+2.6.16-*
+> > The syslog server is Fedora, and the syslog to syslog messages is works,
+but
+> > netconsole to syslog (and netconsole to netcat) is the problem,
+including
+> > the init-message!
+> >
+> > At this time i try to receive with another redhat 9, but it looks like
+the
+> > netconsole did not working properly for me. :(
+>
+> Netconsole logging level is based off the _console log level_, which
+> defaults to quiet on recent Redhat releases. If it doesn't show up on
+> the console, netconsole doesn't see it either.
 
-I'd rather not discuss this too much; it was intended to be a flippant
-"wishful thinking" thought, and is certainly not something I have spent
-the necessary time investigating to discuss well :).
+The netconsole had worked for me some months ago, but i have made some
+changes on the system... (some software, more hardware)
+OK, i will see it.
+Where can i get/set this loglevel?
 
-Sam.
+Thanks,
+Janos
+
+>
+> -- 
+> Mathematics is the supreme nostalgia of our time.
+

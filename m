@@ -1,128 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751426AbWBLTV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751427AbWBLTXb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751426AbWBLTV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 14:21:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWBLTV2
+	id S1751427AbWBLTXb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 14:23:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751428AbWBLTXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 14:21:28 -0500
-Received: from master.altlinux.org ([62.118.250.235]:60428 "EHLO
-	master.altlinux.org") by vger.kernel.org with ESMTP
-	id S1751426AbWBLTV1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 14:21:27 -0500
-Date: Sun, 12 Feb 2006 22:21:15 +0300
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Jeff Mahoney <jeffm@suse.com>
-Cc: Bernd Schubert <bernd-schubert@gmx.de>, Chris Wright <chrisw@sous-sol.org>,
-       John M Flinchbaugh <john@hjsoft.com>, reiserfs-list@namesys.com,
-       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15 Bug? New security model?
-Message-ID: <20060212192115.GB8544@procyon.home>
-References: <200602080212.27896.bernd-schubert@gmx.de> <200602081314.59639.bernd-schubert@gmx.de> <20060208205033.GB22771@shell0.pdx.osdl.net> <200602082246.15613.bernd-schubert@gmx.de> <20060208221124.GN30803@sorel.sous-sol.org> <20060212005541.107f7011.vsu@altlinux.ru> <20060212175740.GB8805@locomotive.unixthugs.org>
+	Sun, 12 Feb 2006 14:23:31 -0500
+Received: from mail.kroah.org ([69.55.234.183]:50383 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751427AbWBLTXb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 14:23:31 -0500
+Date: Sun, 12 Feb 2006 08:46:33 -0800
+From: Greg KH <greg@kroah.com>
+To: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060212164633.GA2941@kroah.com>
+References: <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner> <20060125181847.b8ca4ceb.grundig@teleline.es> <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com> <20060210235654.GA22512@kroah.com> <20060212120450.GA93069@dspnet.fr.eu.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WhfpMioaduB5tiZL"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060212175740.GB8805@locomotive.unixthugs.org>
+In-Reply-To: <20060212120450.GA93069@dspnet.fr.eu.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Feb 12, 2006 at 01:04:51PM +0100, Olivier Galibert wrote:
+> On Fri, Feb 10, 2006 at 03:56:54PM -0800, Greg KH wrote:
+> > On Fri, Feb 10, 2006 at 04:06:39PM -0500, Bill Davidsen wrote:
+> > > 
+> > > The kernel could provide a list of devices by category. It doesn't have 
+> > > to name them, run scripts, give descriptions, or paint them blue. Just a 
+> > > list of all block devices, tapes, by major/minor and category (ie. 
+> > > block, optical, floppy) would give the application layer a chance to do 
+> > > it's own interpretation.
+> > 
+> > It does so today in sysfs, that is what it is there for.
+> 
+> Except it does not provide the path to the device nodes themselves.
 
---WhfpMioaduB5tiZL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+That is not what Bill asked for.  So there is no "except" here :)
 
-On Sun, Feb 12, 2006 at 12:57:40PM -0500, Jeff Mahoney wrote:
-> diff -ruNpX dontdiff linux-2.6.15/fs/reiserfs/inode.c linux-2.6.15-reiserfs/fs/reiserfs/inode.c
-> --- linux-2.6.15/fs/reiserfs/inode.c	2006-02-06 19:54:10.000000000 -0500
-> +++ linux-2.6.15-reiserfs/fs/reiserfs/inode.c	2006-02-12 12:43:00.000000000 -0500
-> @@ -1195,6 +1195,7 @@ static void init_inode(struct inode *ino
->  		/* nopack is initially zero for v1 objects. For v2 objects,
->  		   nopack is initialised from sd_attrs */
->  		REISERFS_I(inode)->i_flags &= ~i_nopack_mask;
-> +		REISERFS_I(inode)->i_attrs = 0;
+> You need to call udevinfo for that, or parse /dev/.udev/*.  Do you
+> think it would be possible to have hotplug/udev/whatever exists in the
+> future to give that information back in the kernel and have it appear
+> in sysfs?
 
-This part of the patch works fine for my test case - no more bogus
-attributes, even when mounting with the "attrs" option.
+No.  Why would it when it is very simple to query udevinfo for that?
 
->  	} else {
->  		// new stat data found, but object may have old items
->  		// (directories and symlinks)
-> diff -ruNpX dontdiff linux-2.6.15/fs/reiserfs/super.c linux-2.6.15-reiserfs/fs/reiserfs/super.c
-> --- linux-2.6.15/fs/reiserfs/super.c	2006-02-06 19:54:27.000000000 -0500
-> +++ linux-2.6.15-reiserfs/fs/reiserfs/super.c	2006-02-12 12:48:41.000000000 -0500
-> @@ -1121,7 +1121,9 @@ static void handle_attrs(struct super_bl
->  					 "reiserfs: cannot support attributes until flag is set in super-block");
->  			REISERFS_SB(s)->s_mount_opt &= ~(1 << REISERFS_ATTRS);
->  		}
-> -	} else if (le32_to_cpu(rs->s_flags) & reiserfs_attrs_cleared) {
-> +	} else if (le32_to_cpu(rs->s_flags) & reiserfs_attrs_cleared &&
-> +	           get_inode_item_key_version(s->s_root->d_inode) == KEY_FORMAT_3_6) {
-> +		/* Enable attrs by default on v3.6-native file systems */
->  		REISERFS_SB(s)->s_mount_opt |= (1 << REISERFS_ATTRS);
->  	}
->  }
+thanks,
 
-This part, however, does not work - apparently the condition is never
-true, even on a freshly created 3.6-format filesystem:
-
-# mkreiserfs --format 3.6 -f tmp2.img
-# mount -t reiserfs -o loop tmp2.img /mnt/disk/
-# lsattr -d /mnt/disk/
-lsattr: Inappropriate ioctl for device While reading flags on /mnt/disk/
-
-
-Apparently directories always have old key format, even on new
-filesystems:
-
-	if (old_format_only(sb) || S_ISDIR(mode) || S_ISLNK(mode))
-		set_inode_item_key_version(inode, KEY_FORMAT_3_5);
-	else
-		set_inode_item_key_version(inode, KEY_FORMAT_3_6);
-
-However, checking the stat data format works:
-
-diff --git a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
-index b33d67b..a2ea7ed 100644
---- a/fs/reiserfs/inode.c
-+++ b/fs/reiserfs/inode.c
-@@ -1195,6 +1195,7 @@ static void init_inode(struct inode *ino
- 		/* nopack is initially zero for v1 objects. For v2 objects,
- 		   nopack is initialised from sd_attrs */
- 		REISERFS_I(inode)->i_flags &= ~i_nopack_mask;
-+		REISERFS_I(inode)->i_attrs = 0;
- 	} else {
- 		// new stat data found, but object may have old items
- 		// (directories and symlinks)
-diff --git a/fs/reiserfs/super.c b/fs/reiserfs/super.c
-index ef5e541..acafe32 100644
---- a/fs/reiserfs/super.c
-+++ b/fs/reiserfs/super.c
-@@ -1124,7 +1124,9 @@ static void handle_attrs(struct super_bl
- 					 "reiserfs: cannot support attributes until flag is set in super-block");
- 			REISERFS_SB(s)->s_mount_opt &= ~(1 << REISERFS_ATTRS);
- 		}
--	} else if (le32_to_cpu(rs->s_flags) & reiserfs_attrs_cleared) {
-+	} else if ((le32_to_cpu(rs->s_flags) & reiserfs_attrs_cleared) &&
-+		(get_inode_sd_version(s->s_root->d_inode) == STAT_DATA_V2)) {
-+		/* Enable attrs by default on v3.6-native file systems */
- 		REISERFS_SB(s)->s_mount_opt |= (1 << REISERFS_ATTRS);
- 	}
- }
-
-But this patch has another problem - it forces the "attrs" option on
-for such filesystems, leaving no way to turn it off - the "noattrs"
-option is ignored.  This does not look good.
-
---WhfpMioaduB5tiZL
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFD74qrW82GfkQfsqIRAp0GAJ0eZzPd1Wu0AvZ9KepWkMHcT3RtUACfRHXD
-WJLT1w8F2wMIoJ8CjA0k7Gw=
-=SZhq
------END PGP SIGNATURE-----
-
---WhfpMioaduB5tiZL--
+greg k-h

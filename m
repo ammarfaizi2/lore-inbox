@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWBLDe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWBLEP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932182AbWBLDe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 22:34:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750875AbWBLDe3
+	id S932119AbWBLEP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 23:15:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWBLEP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 22:34:29 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:36547 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750828AbWBLDe2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 22:34:28 -0500
-Message-ID: <43EEACA7.5020109@zytor.com>
-Date: Sat, 11 Feb 2006 19:33:59 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       "'austin-group-l@opengroup.org'" <austin-group-l@opengroup.org>,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: The naming of at()s is a difficult matter
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 11 Feb 2006 23:15:59 -0500
+Received: from mail.kroah.org ([69.55.234.183]:6026 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932119AbWBLEP6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 23:15:58 -0500
+Date: Sat, 11 Feb 2006 20:15:22 -0800
+From: Greg KH <gregkh@suse.de>
+To: Mark Lord <lkml@rtr.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] EXPORT_SYMBOL_GPL_FUTURE()
+Message-ID: <20060212041522.GA29935@suse.de>
+References: <20060208062007.GA7936@kroah.com> <43EE9EC0.2030403@rtr.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43EE9EC0.2030403@rtr.ca>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have noticed that the new ...at() system calls are named in what
-appears to be a completely haphazard fashion.  In Unix system calls,
-an f- prefix means it operates on a file descriptor; the -at suffix (a
-prefix would have been more consistent, but oh well) similarly
-indicates it operates on a (directory fd, pathname) pair.
+On Sat, Feb 11, 2006 at 09:34:40PM -0500, Mark Lord wrote:
+> Greg KH wrote:
+> >
+> >So, here's a patch that implements EXPORT_SYMBOL_GPL_FUTURE().  It
+> >basically says that some time in the future, this symbol is going to
+> >change and not be allowed to be called from non-GPL licensed kernel
+> >modules.
+> 
+> The wording and intent here are incorrect.
+> 
+> All kernel modules are already *GPL licensed*,
+> whether the authors think so or not.
+> 
+> So this patch (if it goes through), should be reworded
+> so as not to muddy those waters (as the above excerpt does).
 
-However, some system calls, in particular fchownat, futimesat,
-fchmodat and faccessat add the f- prefix for what appears to be
-absolutely no good reason.  Logically, these system calls should be
-named chownat, utimesat, chmodat, and accessat.
+Care to provide some text that you feel will be better?
 
-I understand some of this braindamage comes from Solaris, but some of
-these calls do not.  We should avoid it if at all possible, and I
-would recommend at least introducing aliases with the sane names.
+thanks,
 
-         -hpa
+greg k-h

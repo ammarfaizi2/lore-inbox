@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWBLTRP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbWBLTUm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750873AbWBLTRP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 14:17:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWBLTRP
+	id S1751417AbWBLTUm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 14:20:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751425AbWBLTUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 14:17:15 -0500
-Received: from twin.uoregon.edu ([128.223.214.27]:18408 "EHLO twin.uoregon.edu")
-	by vger.kernel.org with ESMTP id S1750873AbWBLTRO (ORCPT
+	Sun, 12 Feb 2006 14:20:42 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:64486 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750876AbWBLTUl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 14:17:14 -0500
-Date: Sun, 12 Feb 2006 11:17:00 -0800 (PST)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: quick 3ware 8006-2LP question under 2.6 kernel
-In-Reply-To: <Pine.LNX.4.64.0602120847470.19529@p34>
-Message-ID: <Pine.LNX.4.64.0602121116070.5754@twin.uoregon.edu>
-References: <Pine.LNX.4.64.0602120847470.19529@p34>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 12 Feb 2006 14:20:41 -0500
+Date: Sun, 12 Feb 2006 14:19:34 -0500
+From: Dave Jones <davej@redhat.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Linda Walsh <lkml@tlinx.org>, Linux-Kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: max symlink = 5? ?bug? ?feature deficit?
+Message-ID: <20060212191934.GD21596@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Al Viro <viro@ftp.linux.org.uk>, Linda Walsh <lkml@tlinx.org>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>,
+	linux-fsdevel@vger.kernel.org
+References: <43ED5A7B.7040908@tlinx.org> <20060212180601.GU27946@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060212180601.GU27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If the card is phyiscally compatible with a a 5volt 32bit pci slot then 
-chances are it was designed to work at 32bit 33mhz...
+On Sun, Feb 12, 2006 at 06:06:01PM +0000, Al Viro wrote:
+ > On Fri, Feb 10, 2006 at 07:31:07PM -0800, Linda Walsh wrote:
+ > > The maximum number of followed symlinks seems to be set to 5.
+ > > 
+ > > This seems small when compared to other filesystem limits.
+ > > Is there some objection to it being raised?  Should it be
+ > > something like Glib's '20' or '255'?
+ > 
+ > 	20 or 255 - not feasible (we'll get stack overflow from hell).
+ > 8 - probably can be switched already; anybody who hadn't converted their
+ > fs ->follow_link() to new model will just lose; in-tree instances are
+ > already OK with that and out-of-tree folks had at least half a year
+ > of warning.
+ > 
+ > 	Unless anybody yells right now, I'm switching it to 8 in post-2.6.16.
 
-joelja
+FWIW, Fedora/RHEL4 has done this for a long time.
+I don't think I've ever seen any problems arise, but then symlink
+mazes are thankfully somewhat rare.
 
-On Sun, 12 Feb 2006, Justin Piszcz wrote:
-
-> This card is (64bit PCI) and many people run these cards in 32 bit slots if 
-> their motherboards do not have the 64bit PCI slots, is there any risk of 
-> corruption or problems running it this way, or will it just run slower?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
--- 
---------------------------------------------------------------------------
-Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu
-GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
+		Dave
 

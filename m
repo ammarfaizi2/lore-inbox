@@ -1,64 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWBLVeO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbWBLVpc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751005AbWBLVeO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 16:34:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751458AbWBLVeO
+	id S1751019AbWBLVpc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 16:45:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751452AbWBLVpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 16:34:14 -0500
-Received: from gate.crashing.org ([63.228.1.57]:37862 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751005AbWBLVeO (ORCPT
+	Sun, 12 Feb 2006 16:45:32 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:2538 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1751019AbWBLVpb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 16:34:14 -0500
-Subject: Re: 2.6.16-rc2 powerpc timestamp skew
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Roger Leigh <rleigh@whinlatter.ukfsn.org>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       debian-powerpc@lists.debian.org
-In-Reply-To: <87pslspkj5.fsf@hardknott.home.whinlatter.ukfsn.org>
-References: <87pslspkj5.fsf@hardknott.home.whinlatter.ukfsn.org>
-Content-Type: text/plain
-Date: Mon, 13 Feb 2006 08:33:03 +1100
-Message-Id: <1139779983.5247.39.camel@localhost.localdomain>
+	Sun, 12 Feb 2006 16:45:31 -0500
+Date: Sun, 12 Feb 2006 16:40:46 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] remove the CONFIG_CC_ALIGN_* options
+Message-ID: <20060212214046.GA20477@kvack.org>
+References: <20060212174802.GJ30922@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060212174802.GJ30922@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-12 at 17:13 +0000, Roger Leigh wrote:
-> Hi folks,
-> 
-> When running a 2.6.16-rc2 kernel on a powerpc system (Mac Mini;
-> Freescale 7447A):
-> 
-> $ date && touch f && ls -l f && rm -f f && date
-> Sun Feb 12 12:20:14 GMT 2006
-> -rw-r--r-- 1 rleigh rleigh 0 2006-02-12 12:23
-> Sun Feb 12 12:20:14 GMT 2006
-> 
-> Notice the timestamp is 3 minutes in the future compared with the
-> system time.  "make" is not a very happy bunny running on this kernel
-> due to every touched file being 3 minutes in the future.
-> 
-> When the same command is run on 2.6.15.3:
-> 
-> $ date && touch f && ls -l f && rm -f f && date
-> Sun Feb 12 14:27:27 GMT 2006
-> -rw-r--r-- 1 rleigh rleigh 0 2006-02-12 14:27
-> Sun Feb 12 14:27:27 GMT 2006
-> 
-> In this case the times are identical, as you would expect.
-> 
-> In both these cases, the chrony NTP daemon is running, if that might
-> be a problem.
+On Sun, Feb 12, 2006 at 06:48:02PM +0100, Adrian Bunk wrote:
+> I don't see any use case for the CONFIG_CC_ALIGN_* options:
+> - they are only available if EMBEDDED
+> - people using EMBEDDED will most likely also enable 
+>   CC_OPTIMIZE_FOR_SIZE
+> - the default for -Os is to disable alignment
 
-Can you strace vs. ltrace and see if the gettimeofday or clock_gettime
-syscalls are ever called ? I wonder if you have a glibc new enough to
-use the vDSO to obtain the time or if it's using the syscall... The vDSO
-on ppc32 is very new.
+CONFIG_EMBEDDED should actually be spell CONFIG_ADVANCED.  Not everyone 
+testing different alignments is building an embedded system targetted for 
+size.  The option is just as useful in doing performance comparisons.  
+Besides, is it really a maintenence load?
 
-Also, are your kernels built with ARCH=ppc or ARCH=powerpc ?
-
-Ben.
-
-
+		-ben

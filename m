@@ -1,84 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbWBLSDO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWBLSGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750792AbWBLSDO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 13:03:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWBLSDO
+	id S1750826AbWBLSGE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 13:06:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbWBLSGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 13:03:14 -0500
-Received: from wavehammer.waldi.eu.org ([82.139.196.55]:48348 "EHLO
-	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
-	id S1750792AbWBLSDO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 13:03:14 -0500
-Date: Sun, 12 Feb 2006 19:03:08 +0100
-From: Bastian Blank <bastian@waldi.eu.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: akpm@osdl.org, schwidefsky@de.ibm.com, linux390@de.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] dasd: cleanup dasd_ioctl
-Message-ID: <20060212180308.GA24896@wavehammer.waldi.eu.org>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
-	schwidefsky@de.ibm.com, linux390@de.ibm.com,
-	linux-kernel@vger.kernel.org
-References: <20060212173855.GB26035@lst.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
+	Sun, 12 Feb 2006 13:06:04 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:59319 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750826AbWBLSGD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 13:06:03 -0500
+Date: Sun, 12 Feb 2006 18:06:01 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linda Walsh <lkml@tlinx.org>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: Re: max symlink = 5? ?bug? ?feature deficit?
+Message-ID: <20060212180601.GU27946@ftp.linux.org.uk>
+References: <43ED5A7B.7040908@tlinx.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060212173855.GB26035@lst.de>
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <43ED5A7B.7040908@tlinx.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 10, 2006 at 07:31:07PM -0800, Linda Walsh wrote:
+> The maximum number of followed symlinks seems to be set to 5.
+> 
+> This seems small when compared to other filesystem limits.
+> Is there some objection to it being raised?  Should it be
+> something like Glib's '20' or '255'?
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+	20 or 255 - not feasible (we'll get stack overflow from hell).
+8 - probably can be switched already; anybody who hadn't converted their
+fs ->follow_link() to new model will just lose; in-tree instances are
+already OK with that and out-of-tree folks had at least half a year
+of warning.
 
-On Sun, Feb 12, 2006 at 06:38:55PM +0100, Christoph Hellwig wrote:
->  static int
-> -dasd_ioctl_api_version(struct block_device *bdev, int no, long args)
-> +dasd_ioctl_api_version(void __user *argp)
->  {
->  	int ver =3D DASD_API_VERSION;
-> -	return put_user(ver, (int __user *) args);
-> +	return put_user(ver, (int *)argp);
->  }
-
-Doesn't this need to be "int __user *"?
-
-> +long
-> +dasd_compat_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
->  {
-> -	int i;
-> +	int rval;
-> =20
-> -	for (i =3D 0; dasd_ioctls[i].no !=3D -1; i++)
-> -		dasd_ioctl_no_unregister(NULL, dasd_ioctls[i].no,
-> -					 dasd_ioctls[i].fn);
-> +	lock_kernel();
-> +	rval =3D dasd_ioctl(filp->f_dentry->d_inode, filp, cmd, arg);
-> +	unlock_kernel();
-
-The lock_kernel looks spurious.
-
-Bastian
-
---=20
-Conquest is easy. Control is not.
-		-- Kirk, "Mirror, Mirror", stardate unknown
-
---UugvWAfsgieZRqgk
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iEYEARECAAYFAkPveFwACgkQnw66O/MvCNEb8QCgn9v5QFAhPaeNS7T8Abv7Ahc8
-O58An32gaHhwLaynKn1wbeC4CFEJV3St
-=vS5L
------END PGP SIGNATURE-----
-
---UugvWAfsgieZRqgk--
+	Unless anybody yells right now, I'm switching it to 8 in post-2.6.16.

@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751487AbWBLWq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWBLWyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751487AbWBLWq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 17:46:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWBLWq7
+	id S1751483AbWBLWyl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 17:54:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbWBLWyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 17:46:59 -0500
-Received: from mcr-smtp-001.bulldogdsl.com ([212.158.248.7]:41998 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1751485AbWBLWq6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 17:46:58 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [RFC: 2.6 patch] CONFIG_FORCEDETH updates
-Date: Sun, 12 Feb 2006 22:47:01 +0000
-User-Agent: KMail/1.9.1
-Cc: Adrian Bunk <bunk@stusta.de>, jgarzik@pobox.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-References: <20060212175202.GK30922@stusta.de> <1139781817.19342.300.camel@mindpipe>
-In-Reply-To: <1139781817.19342.300.camel@mindpipe>
+	Sun, 12 Feb 2006 17:54:41 -0500
+Received: from ishtar.tlinx.org ([64.81.245.74]:3975 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S1751052AbWBLWyl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 17:54:41 -0500
+Message-ID: <43EFBCA9.1090501@tlinx.org>
+Date: Sun, 12 Feb 2006 14:54:33 -0800
+From: Linda Walsh <lkml@tlinx.org>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: Re: max symlink = 5? ?bug? ?feature deficit?
+References: <43ED5A7B.7040908@tlinx.org> <20060212180601.GU27946@ftp.linux.org.uk> <43EFA63B.30907@tlinx.org> <20060212212504.GX27946@ftp.linux.org.uk>
+In-Reply-To: <20060212212504.GX27946@ftp.linux.org.uk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602122247.01478.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 12 February 2006 22:03, Lee Revell wrote:
-> On Sun, 2006-02-12 at 18:52 +0100, Adrian Bunk wrote:
-> > This patch contains the following possible updates:
-> > - let FORCEDETH no longer depend on EXPERIMENTAL
-> > - remove the "Reverse Engineered" from the option text:
-> >   for the user it's important which hardware the driver supports, not
-> >   how it was developed
->
-> Is this driver as stable as one that was developed with proper
-> documentation?  I prefer to know that something as elementary as a fast
-> ethernet controller had to be reverse engineered so I can avoid
-> supporting a vendor so hostile to Linux.
+Al Viro wrote:
+> Care to RTFS? I mean, really - at least to the point of seeing what's
+> involved in that recursion.
+>   
+Hmmm...that's where I got the original parameter numbers, but
+I see it's not so straightforward.  I tried a limit of
+40, but I quickly get an OS hang when trying to reference a
+13th link.  Twelve works at the limit, but would take more testing
+to find out the bottleneck.
 
-Although NVIDIA continue to maintain their own driver, I know forcedeth has 
-had contributions from at least a couple of NVIDIA employees. Also, I've 
-personally used the driver on nForce2, nForce3 and now nForce4 SLI boards and 
-it's rock solid.
+As an algorithmic detail, I can see how
+file a->b->c->d... etc can easily use tail-recursion, but I'm not
+quite as clear why "prefix-recursion" couldn't be used to reduce
+the recursion complexity as in the case:
+dir0/, link0->dir0, link1->link2 ... It seems it would be the
+left hand compliment of tail recursion.  Not sure what would be
+involved, but would eliminate some stack considerations if it was
+doable.
 
-Adrian's change is a good one, IMO.
 
--- 
-Cheers,
-Alistair.
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+

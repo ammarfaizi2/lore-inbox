@@ -1,62 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWBLCDX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWBLCEL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbWBLCDX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Feb 2006 21:03:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWBLCDX
+	id S932189AbWBLCEL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Feb 2006 21:04:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWBLCEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Feb 2006 21:03:23 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:25108 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S932185AbWBLCDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Feb 2006 21:03:22 -0500
-X-IronPort-AV: i="4.02,105,1139212800"; 
-   d="scan'208"; a="403881716:sNHT32994490"
-To: Andrew Morton <akpm@osdl.org>, mst@mellanox.co.il
-Cc: Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [git patch review 1/4] IPoIB: Don't start send-only joins while
- multicast thread is stopped
-X-Message-Flag: Warning: May contain useful information
-References: <1139689341370-68b63fa9b8e76d91@cisco.com>
-	<20060211140209.57af1b16.akpm@osdl.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Sat, 11 Feb 2006 18:03:18 -0800
-In-Reply-To: <20060211140209.57af1b16.akpm@osdl.org> (Andrew Morton's
- message of "Sat, 11 Feb 2006 14:02:09 -0800")
-Message-ID: <ada8xsh49ll.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 12 Feb 2006 02:03:21.0496 (UTC) FILETIME=[7FE56980:01C62F78]
+	Sat, 11 Feb 2006 21:04:11 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:12766 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932189AbWBLCEJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Feb 2006 21:04:09 -0500
+Subject: Re: [2.6 patch] update OBSOLETE_OSS_DRIVER schedule and
+	dependencies
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060211145050.GA30922@stusta.de>
+References: <20060211145050.GA30922@stusta.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sun, 12 Feb 2006 02:04:50 +0000
+Message-Id: <1139709891.23823.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Roland Dreier <rolandd@cisco.com> wrote:
- > >
- > >  +	spin_lock_irq(&priv->lock);
- > >  +	set_bit(IPOIB_MCAST_STARTED, &priv->flags);
- > >  +	spin_unlock_irq(&priv->lock);
- > 
- > Strange to put a lock around an atomic op like that.
- > 
- > Sometimes it's valid.   If another cpu was doing:
- > 
- > 	spin_lock(lock);
- > 
- > 	if (test_bit(IPOIB_MCAST_STARTED))
- > 		something();
- > 	...
- > 	if (test_bit(IPOIB_MCAST_STARTED))
- > 		something_else();
- > 
- > 	spin_unlock(lock);
- > 
- > then the locked set_bit() makes sense.
- > 
- > But often it doesn't ;)
+On Sad, 2006-02-11 at 15:50 +0100, Adrian Bunk wrote:
+> This patch updates the schedule for the removal of drivers depending on 
+> OBSOLETE_OSS_DRIVER as follows:
+> - adjust OBSOLETE_OSS_DRIVER dependencie
+> - from the release of 2.6.16 till the release of 2.6.17:
+>   approx. two months for users to report problems with the ALSA
+>   drivers for the same hardware
 
-Good point.  Michael, any reason why the lock is there around the
-set_bit()?  (And similarly for the corresponding clear_bit())
+Why are you obsessed with doing everything on what are (to end users)
+stupidly short time scales. It doesn't matter if OSS takes another year
+to finally go away so stop setting silly deadlines.
 
-Thanks,
- Roland

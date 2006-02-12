@@ -1,66 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbWBLXQ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751042AbWBLXRj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751061AbWBLXQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 18:16:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWBLXQ0
+	id S1751042AbWBLXRj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 18:17:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbWBLXRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 18:16:26 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:34824 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751061AbWBLXQZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 18:16:25 -0500
-Date: Mon, 13 Feb 2006 00:16:21 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] remove the CONFIG_CC_ALIGN_* options
-Message-ID: <20060212231618.GM30922@stusta.de>
-References: <20060212174802.GJ30922@stusta.de> <20060212214046.GA20477@kvack.org>
+	Sun, 12 Feb 2006 18:17:39 -0500
+Received: from watts.utsl.gen.nz ([202.78.240.73]:12959 "EHLO mail.utsl.gen.nz")
+	by vger.kernel.org with ESMTP id S1751042AbWBLXRi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 18:17:38 -0500
+Message-ID: <43EFC1FF.7030103@vilain.net>
+Date: Mon, 13 Feb 2006 12:17:19 +1300
+From: Sam Vilain <sam@vilain.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060212214046.GA20477@kvack.org>
-User-Agent: Mutt/1.5.11
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: lkml@dervishd.net, peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       jengelh@linux01.gwdg.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <20060208162828.GA17534@voodoo> <43EA1D26.nail40E11SL53@burner> <20060208165330.GB17534@voodoo> <43EB0DEB.nail52A1LVGUO@burner> <Pine.LNX.4.61.0602091729560.30108@yvahk01.tjqt.qr> <43EB7210.nailIDH2JUBZE@burner> <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr> <43EB7BBA.nailIFG412CGY@burner> <mj+md-20060209.173519.1949.atrey@ucw.cz> <43EC71FB.nailISD31LRCB@burner> <20060210114930.GC2750@DervishD> <43EC88B8.nailISDH1Q8XR@burner>
+In-Reply-To: <43EC88B8.nailISDH1Q8XR@burner>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 12, 2006 at 04:40:46PM -0500, Benjamin LaHaise wrote:
-> On Sun, Feb 12, 2006 at 06:48:02PM +0100, Adrian Bunk wrote:
-> > I don't see any use case for the CONFIG_CC_ALIGN_* options:
-> > - they are only available if EMBEDDED
-> > - people using EMBEDDED will most likely also enable 
-> >   CC_OPTIMIZE_FOR_SIZE
-> > - the default for -Os is to disable alignment
-> 
-> CONFIG_EMBEDDED should actually be spell CONFIG_ADVANCED.  Not everyone 
+Joerg Schilling wrote:
+>>    My system is clueless, too! If I write a CD before plugging my
+>>USB storage device, my CD writer is on 0,0,0. If I plug my USB
+>>storage device *before* doing any access, my cdwriter is on 1,0,0.
+>>Pretty stable.
+> You are referring to a conceptional problem in the Linux kernel.
+> If you are unhappy with this, send a bug report to the related
+> people.
+> This does not belong to libscg.
 
-We need both with CONFIG_EMBEDDED depending on CONFIG_ADVANCED (see my 
-other email).
+Jörg,
 
-> testing different alignments is building an embedded system targetted for 
-> size.  The option is just as useful in doing performance comparisons.  
-> Besides, is it really a maintenence load?
+Technically, you may have a point[*1*].
 
-It is not a maintenence load, but does it make sense to offer this in 
-any way to _users_?
+However, no matter how correct someone is, if they act like a complete
+dork, they're not going to be listened to.
 
-gcc already sets this options with -Os/-O2.
+This is a shame, because you appear to have some good experience to
+relate.  If only you could keep your social interaction problems in
+check, you might be able to harbour and attract less hate, and perhaps
+even get some of your suggestions implemented.
 
-We do already override the choice of gcc in some cpu specific cases.
+Until you do that, you will continue to find yourself getting caught out
+on the details in the discussions while insulted people simply pick out
+your mistakes; you cannot possibly fight the community and win.
 
-If someone is doing performance comparisons and discovers that the 
-default settings gcc chooses aren't good, the only sane thing is to 
-discuss whether it makes sense to change this.
+Dave S. Miller gave an excellent talk on this subject at Linux.conf.au;
+when the video is available I'll send you a link to it.
 
-> 		-ben
+Sam.
 
-cu
-Adrian
+*1*  Linux doesn't use the Solaris style of a connection-oriented /sys
+that /dev is all symlinks to, that scandevices et al update.  This leads
+to a more stable /dev filesystem, such that even adding controllers in
+lower numbered slots will not reorder the devices, as the /dev
+filesystem state remembers them.
 
--- 
+This was a no-brainer design decision, as the hardware platform was
+under strict control, and the builds more regulated.  Linux has never
+really seen this type of integration fascism available that this kind of
+approach requires, and so this kind of solution is inappropriate.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+However, Solaris is not immune to the root problem being discussed, for
+connection types that give dynamically assigned IDs (like USB) rather
+than statically defined (like SCSI).  You simply might not be able to
+recognise the device after a system change.

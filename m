@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWBLNJI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWBLNRm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750722AbWBLNJI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 08:09:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWBLNJH
+	id S1750717AbWBLNRm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 08:17:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWBLNRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 08:09:07 -0500
-Received: from cantor.suse.de ([195.135.220.2]:58502 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750722AbWBLNJG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 08:09:06 -0500
-Date: Sun, 12 Feb 2006 14:09:03 +0100
-From: Olaf Hering <olh@suse.de>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Ulrich Drepper <drepper@redhat.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] updated fstatat64 support
-Message-ID: <20060212130903.GA20732@suse.de>
-References: <200602101528.k1AFSFIg011658@devserv.devel.redhat.com> <20060211112157.GA9371@osiris.boeblingen.de.ibm.com>
+	Sun, 12 Feb 2006 08:17:42 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:45495 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750717AbWBLNRl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 08:17:41 -0500
+Subject: Re: Badness in sleep_on_timeout on kernel 2.6.9-1.667 ( fedora
+	core 3)
+From: Arjan van de Ven <arjan@infradead.org>
+To: anil dahiya <ak_ait@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+In-Reply-To: <20060207200013.30703.qmail@web60221.mail.yahoo.com>
+References: <20060207200013.30703.qmail@web60221.mail.yahoo.com>
+Content-Type: text/plain
+Date: Sun, 12 Feb 2006 14:17:34 +0100
+Message-Id: <1139750255.20703.7.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20060211112157.GA9371@osiris.boeblingen.de.ibm.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-s390 doesnt compile because sys_newfstatat() is not defined.
-__ARCH_WANT_STAT64 is defined for 32bit build in
-include/asm-s390/unistd.h. This change fixes compilation, but its likely
-not correct to do it that way:
-
-Index: linux-2.6.15/fs/stat.c
-===================================================================
---- linux-2.6.15.orig/fs/stat.c
-+++ linux-2.6.15/fs/stat.c
-@@ -261,7 +261,7 @@ asmlinkage long sys_newlstat(char __user
-        return error;
- }
- 
--#ifndef __ARCH_WANT_STAT64
-+#ifdef __ARCH_WANT_STAT64
- asmlinkage long sys_newfstatat(int dfd, char __user *filename,
-                                struct stat __user *statbuf, int flag)
- {
+On Tue, 2006-02-07 at 12:00 -0800, anil dahiya wrote:
+> Hello 
+> I am creating kernel thread on fedora core 4
+> (2.6.9-1.667)and my getting oops something like
+> 
+>  Badness in sleep_on_timeout at kernel/sched.c:3022
+>  [<02302bc3>] sleep_on_timeout+0x5d/0x23a
+>  [<0211b919>] default_wake_function+0x0/0xc
 
 
+you forgot to post a URL to your code
+(and you use sleep_on_* family of APIs which is a bug in itself)
 
--- 
-short story of a lazy sysadmin:
- alias appserv=wotan

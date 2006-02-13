@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWBMVWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbWBMVXL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030190AbWBMVWq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 16:22:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030188AbWBMVWq
+	id S1030188AbWBMVXL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 16:23:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030191AbWBMVXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 16:22:46 -0500
-Received: from solarneutrino.net ([66.199.224.43]:54280 "EHLO
-	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S1030190AbWBMVWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 16:22:45 -0500
-Date: Mon, 13 Feb 2006 16:22:44 -0500
-To: anders@latitude.mynet.no-ip.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Random reboots
-Message-ID: <20060213212243.GE16566@tau.solarneutrino.net>
-References: <20060213210435.GC16566@tau.solarneutrino.net> <20060213211044.066CE5E401E@latitude.mynet.no-ip.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20060213211044.066CE5E401E@latitude.mynet.no-ip.org>
-User-Agent: Mutt/1.5.9i
-From: Ryan Richter <ryan@tau.solarneutrino.net>
+	Mon, 13 Feb 2006 16:23:11 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:48611 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030188AbWBMVXK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 16:23:10 -0500
+Date: Mon, 13 Feb 2006 22:22:57 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 08/13] hrtimer: remove data field
+In-Reply-To: <20060213135456.GC12923@elte.hu>
+Message-ID: <Pine.LNX.4.61.0602132213270.30994@scrub.home>
+References: <Pine.LNX.4.61.0602130211060.23839@scrub.home> <20060213135456.GC12923@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 13, 2006 at 10:10:43PM +0100, anders@latitude.mynet.no-ip.org wrote:
-> 
-> ryan@tau.solarneutrino.net said:
-> > Ever since upgrading our file server from 2.6.11.3 to 2.6.14+, it
-> > has been experiencing random reboots about every 2-3 weeks.  I'm
-> > pretty certain it's a kernel issue: it shares a UPS with a few other
-> > machines, so it's not the power.  We had uptimes of ~6 months with
-> > 2.6.11.3, and I've run memtest86 overnight since adding some memory
-> > a few months ago, so I don't suspect hardware trouble.  We've had 5
-> > of these reboots now, so it's a repeatable problem, albeit on an
-> > agonizing timescale for testing. 
-> 
-> Any chance you're running spamassassin on that box? I've seen similar
-> issues lately and, comparing /var/log/messages with crontab, have
-> concluded that sa-learn sometimes kills the box when run by cron. It
-> seems so odd that I haven't found the guts to ask about it figuring
-> that I should do some more test myself, but I don't have much else to
-> go on...
+Hi,
 
-Nope, no spamassassin.  It doesn't seem to happen at any particular time
-of day/week/month or in conjunction with any particular load.
+On Mon, 13 Feb 2006, Ingo Molnar wrote:
 
--ryan
+> > The nanosleep cleanup allows to remove the data field of hrtimer. The 
+> > callback function can use container_of() to get it's own data. Since 
+> > the hrtimer structure is usually embedded in other structures, the 
+> > code also becomes a bit simpler.
+> 
+> i addressed this when you first raised this issue (back in the ktimers 
+> flamewars), and generally the feeling of people i asked was that doing 
+> the container_of() approach is less readable than an explicit 'data' 
+> field. It also deviates from struct timer_list, which we wanted to stay 
+> close to. Furthermore, for standalone hrtimers this creates the need to 
+> generate a wrapper structure. So i dont really like this change - but no 
+> strong feelings either way.
+
+With the complete size reduction struct hrtimer becomes 32 bytes on 32 
+bits archs and so we can fit the basic hrtimer into one or two cache 
+lines.
+container_of() is becoming more and more common in the kernel, so I don't 
+know who asked, it's not that difficult to use. I agree it makes simple 
+test modules a bit more difficult, but so far the more common case is that 
+this structure is embedded in other structures and container_of() creates 
+simpler code. Additionally you get type checking for free, which you don't 
+get with a void pointer.
+
+bye, Roman

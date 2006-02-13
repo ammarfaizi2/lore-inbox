@@ -1,76 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030276AbWBMXbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030287AbWBMXc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030276AbWBMXbc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 18:31:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030282AbWBMXbc
+	id S1030287AbWBMXc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 18:32:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030283AbWBMXc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 18:31:32 -0500
-Received: from allen.werkleitz.de ([80.190.251.108]:22495 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S1030276AbWBMXbb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 18:31:31 -0500
-Date: Tue, 14 Feb 2006 00:31:14 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml@rtr.ca, dgc@sgi.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Message-ID: <20060213233114.GA21971@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Andrew Morton <akpm@osdl.org>, lkml@rtr.ca, dgc@sgi.com,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-References: <20060206040027.GI43335175@melbourne.sgi.com> <20060205202733.48a02dbe.akpm@osdl.org> <43E75ED4.809@rtr.ca> <43E75FB6.2040203@rtr.ca> <20060206121133.4ef589af.akpm@osdl.org> <20060213135925.GA6173@linuxtv.org> <20060213120847.79215432.akpm@osdl.org> <20060213224835.GC5565@linuxtv.org> <20060213150457.547ddfb4.akpm@osdl.org>
+	Mon, 13 Feb 2006 18:32:57 -0500
+Received: from smtp.enter.net ([216.193.128.24]:36367 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S1030287AbWBMXcz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 18:32:55 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Date: Mon, 13 Feb 2006 18:42:01 -0500
+User-Agent: KMail/1.8.1
+Cc: mj@ucw.cz, seanlkml@sympatico.ca, sam@vilain.net, peter.read@gmail.com,
+       matthias.andree@gmx.de, lkml@dervishd.net, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
+References: <43EB7BBA.nailIFG412CGY@burner> <mj+md-20060213.160108.13290.atrey@ucw.cz> <43F0B32D.nailKUS1E3S8I3@burner>
+In-Reply-To: <43F0B32D.nailKUS1E3S8I3@burner>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060213150457.547ddfb4.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-SA-Exim-Connect-IP: 84.189.220.130
-Subject: Re: dirty pages (Was: Re: [PATCH] Prevent large file writeback starvation)
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+Message-Id: <200602131842.02377.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 13, 2006 at 03:04:57PM -0800, Andrew Morton wrote:
-> Johannes Stezenbach <js@linuxtv.org> wrote:
+On Monday 13 February 2006 11:26, Joerg Schilling wrote:
+> Martin Mares <mj@ucw.cz> wrote:
+> > Hello!
 > >
-> > On Mon, Feb 13, 2006, Andrew Morton wrote:
-> >  > Johannes Stezenbach <js@linuxtv.org> wrote:
-> >  > > Now copying a 700MB file makes "Dirty" go up to 350MB. It then
-> >  > > slowly decreases to 325MB and stays there.
-> >  > 
-> >  > It shouldn't.  Did you really leave it for long enough?
-> >  > 
-> >  > If you did, then why does it happen there and not here?
-> > 
-> >  Good question. I just repeated the execise, rebooted and
-> >  copied a 700MB file. After ~30min "Dirty" is down to ~130MB, and
-> >  continues to decrease very slowly.
-> > 
-> >  On my Desktop machine (P4 HT, 1G RAM) "Dirty" goes down near
-> >  zero after ~30sec, as expected.
-> 
-> Are you using any unusual mount options?
-> 
-> Which filesystem types are online (not that this should affect it...)
-
-$ cat /proc/mounts
-rootfs / rootfs rw 0 0
-/dev/root / ext3 rw,data=ordered 0 0
-proc /proc proc rw,nodiratime 0 0
-sysfs /sys sysfs rw 0 0
-usbfs /proc/bus/usb usbfs rw 0 0
-/dev/root /dev/.static/dev ext3 rw,data=ordered 0 0
-tmpfs /dev tmpfs rw 0 0
-tmpfs /dev/shm tmpfs rw 0 0
-devpts /dev/pts devpts rw 0 0
-/dev/hda6 /home ext3 rw,data=ordered 0 0
-nfsd /proc/fs/nfsd nfsd rw 0 0
-$
-
-I found that if I copy a large number of small files (e.g. the linux
-source tree), "Dirty" drops back near zero after ~30sec. Only if
-I copy large files it won't.
+> > > If there is no interest to fox well known bugs in Linux, I would need
+> > > to warn people from using Linux.
+> >
+> > Except for mentioning some DMA related problems at the beginning of this
+> > monstrous thread, you haven't shown anything which even remotely
+> > qualifies as a bug.
+>
+> If you forget these things, then please forget about this thread.
+>
+> I mentioned:
+>
+> -	ide-scsi does not do DMA correctly
 
 
-Johannes
+ide-scsi is deprecated and will be removed at a later date. Any program 
+relying on ide-scsi will have to be rewritten.
+
+> -	SCSI commands are bastardized on ATAPI
+
+identify the problem - provide a test case or two and I'll get off my lazy ass 
+and see if I can't figure out what's causing the problem.
+
+> If you like, I can give you many other Linux related bugs but it does
+> not make sense unless the two bugs above are fixed.
+
+Only one bug needs fixed. ide-scsi is not going to be in the kernel much 
+longer. Although someone might find the time to fix the bugs for those people 
+dependant on older kernels.
+
+DRH

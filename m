@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751619AbWBMEkm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751615AbWBMEyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751619AbWBMEkm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 23:40:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751615AbWBMEkk
+	id S1751615AbWBMEyP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 23:54:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751616AbWBMEyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 23:40:40 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:25526 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751610AbWBMEki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 23:40:38 -0500
-Subject: Re: Linux 2.6.16-rc3
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>, "Brown, Len" <len.brown@intel.com>,
-       "David S. Miller" <davem@davemloft.net>, Greg KH <greg@kroah.com>,
-       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       "Yu, Luming" <luming.yu@intel.com>, Ben Castricum <lk@bencastricum.nl>,
-       sanjoy@mrao.cam.ac.uk, Helge Hafting <helgehaf@aitel.hist.no>,
-       "Carlo E. Prelz" <fluido@fluido.as>,
-       Gerrit =?ISO-8859-1?Q?Bruchh=E4user?= <gbruchhaeuser@gmx.de>,
-       Nicolas.Mailhot@LaPoste.net, Jaroslav Kysela <perex@suse.cz>,
-       Takashi Iwai <tiwai@suse.de>, Patrizio Bassi <patrizio.bassi@gmail.com>,
-       =?ISO-8859-1?Q?Bj=F6rn?= Nilsson <bni.swe@gmail.com>,
-       Andrey Borzenkov <arvidjaar@mail.ru>, "P. Christeas" <p_christ@hol.gr>,
-       ghrt <ghrt@dial.kappa.ro>, jinhong hu <jinhong.hu@gmail.com>,
-       Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-scsi@vger.kernel.org,
-       Benjamin LaHaise <bcrl@kvack.org>
-In-Reply-To: <20060212190520.244fcaec.akpm@osdl.org>
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org>
-	 <20060212190520.244fcaec.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sun, 12 Feb 2006 22:40:29 -0600
-Message-Id: <1139805630.5153.0.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 12 Feb 2006 23:54:15 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:169 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751615AbWBMEyO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 23:54:14 -0500
+Message-ID: <43F010F3.5030305@zytor.com>
+Date: Sun, 12 Feb 2006 20:54:11 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: klibc list <klibc@zytor.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: klibc tree status
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-12 at 19:05 -0800, Andrew Morton wrote:
-> - The scsi_cmd leak, which I don't think is fixed.
+I have just pushed out a git tree which actually has the root-mounting 
+code removed from the kernel.  Since there are any number of strange 
+boot configurations out there, I would really appreciate any help in 
+testing this stuff out.
 
-Erm, you mean the leak caused by flush barriers?  That was verified as
-fixed (albeit accidentally) in 2.6.16-rc1.
+I have *NOT* implemented support for the following, which I'm hoping has 
+fallen out of use by now:
 
-James
+	-> Setting boot flags via rdev, as opposed to on the command
+  	   line
+	-> When loading the ramdisk from a block device, stop and
+	   ask the user for a second disk.  This one could probably
+	   be implemented without too much trouble if people actually
+  	   care.
 
+git://git.kernel.org/pub/scm/linux/kernel/git/hpa/linux-2.6-klibc.git
 
+	-hpa

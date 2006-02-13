@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWBMAv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751509AbWBMAy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751077AbWBMAv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 19:51:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWBMAv0
+	id S1751509AbWBMAy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 19:54:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbWBMAy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 19:51:26 -0500
-Received: from ms-smtp-02-smtplb.tampabay.rr.com ([65.32.5.132]:27287 "EHLO
-	ms-smtp-02.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S1751077AbWBMAvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 19:51:25 -0500
-Message-ID: <43EFD806.3000904@cfl.rr.com>
-Date: Sun, 12 Feb 2006 19:51:18 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Mail/News 1.5 (X11/20060119)
+	Sun, 12 Feb 2006 19:54:29 -0500
+Received: from ishtar.tlinx.org ([64.81.245.74]:23777 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S1751105AbWBMAy2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 19:54:28 -0500
+Message-ID: <43EFD8BF.1040205@tlinx.org>
+Date: Sun, 12 Feb 2006 16:54:23 -0800
+From: Linda Walsh <lkml@tlinx.org>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: Alan Stern <stern@rowland.harvard.edu>
-CC: Kyle Moffett <mrmacman_g4@mac.com>, Alon Bar-Lev <alon.barlev@gmail.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Flames over -- Re: Which is simpler?
-References: <Pine.LNX.4.44L0.0602121147040.9971-100000@netrider.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0602121147040.9971-100000@netrider.rowland.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: Re: max symlink = 5? ?bug? ?feature deficit?
+References: <43ED5A7B.7040908@tlinx.org> <20060212180601.GU27946@ftp.linux.org.uk> <43EFA63B.30907@tlinx.org> <20060212212504.GX27946@ftp.linux.org.uk> <43EFBCA9.1090501@tlinx.org> <20060213000803.GY27946@ftp.linux.org.uk>
+In-Reply-To: <20060213000803.GY27946@ftp.linux.org.uk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern wrote:
-> Both of you are missing an important difference between Suspend-to-RAM and 
-> Suspend-to-Disk.
-> 
-> Suspend-to-RAM is a true suspend operation, in that the hardware's state
-> is maintained _in the hardware_.  External buses like USB will retain
-> suspend power, for instance (assuming the motherboard supports it; some
-> don't).
-> 
-> Suspend-to-Disk, by contrast, is _not_ a true suspend.  It can more 
-> accurately be described as checkpoint-and-turn-off.  Hardware state is not 
-> maintained.  (Some systems may support a special ACPI state that does 
-> maintain suspend power to external buses during shutdown, I forget what 
-> it's called.  And I down't know whether swsusp uses this state.)
-> 
+Al Viro wrote:
+> On Sun, Feb 12, 2006 at 02:54:33PM -0800, Linda Walsh wrote:
+>   
+>> Al Viro wrote:
+>>     
+>>> Care to RTFS? I mean, really - at least to the point of seeing what's
+>>> involved in that recursion.
+>>>  
+>>>       
+>> Hmmm...that's where I got the original parameter numbers, but
+>> I see it's not so straightforward.  I tried a limit of
+>> 40, but I quickly get an OS hang when trying to reference a
+>> 13th link.  Twelve works at the limit, but would take more testing
+>> to find out the bottleneck.
+>>     
+>
+> Sigh...  12 works at the limit on your particular config, filesystems
+> being used and syscall being issued (hint: amount of stuff on stack
+> before we enter mutual recursion varies; so does the amount of stuff
+> on stack we get from function that are not part of mutual recursion,
+> but are called from the damn thing).
+>   
+---
+    Yeah, I sorta figured that.  Is there any easier way to
+remove the recursion?  I dunno about you, but I was always taught
+that recursion, while elegant, was not always the most efficient in
+terms of time and space requirements and one could get similar
+functionality using iteration and a stack.
 
-I would disagree.  The only difference between the two is WHERE the 
-state is maintained - ram vs. disk.  I won't really argue it though, 
-because it's just semantics -- call it whatever you want.
+    The GNU libraries _seem_ to indicate a max of 20 links supported
+there.  Googling around, I see I'm not the first person to be surprised
+by the low limit.  I don't recall running into such a limit on any
+other Unixes, though I'm sure they had some limit.
 
-> So for example, let's say you have a filesystem mounted on a USB flash or
-> disk drive.  With Suspend-to-RAM, there's a very good chance that the
-> connection and filesystem will still be intact when you resume.  With
-> Suspend-to-Disk, the USB connection will terminate when the computer shuts
-> down.  When you resume, the device will be gone and your filesystem will
-> be screwed.
-> 
+    It can be useful for creating a shadow file-system where only
+root needs to point to a "target source", and the "symlink" overlay
+lies over the top of any real, underlying file.
 
-This is not true.  The USB bus is shut down either way, and provided 
-that you have not unplugged the disk, nothing will be screwed when you 
-resume from disk or ram.
-
-
+    Why can't things just be easy sometimes...:-/
+Linda

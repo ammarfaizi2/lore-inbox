@@ -1,66 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751558AbWBMDD4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWBMDIB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751558AbWBMDD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 22:03:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751556AbWBMDD4
+	id S1750815AbWBMDIB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 22:08:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWBMDIB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 22:03:56 -0500
-Received: from mail.gmx.net ([213.165.64.21]:22757 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751098AbWBMDDz (ORCPT
+	Sun, 12 Feb 2006 22:08:01 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:26336 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750815AbWBMDH7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 22:03:55 -0500
-X-Authenticated: #14349625
-Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
-From: MIke Galbraith <efault@gmx.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Con Kolivas <kernel@kolivas.org>,
-       gcoady@gmail.com, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1139787578.2739.13.camel@mindpipe>
-References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
-	 <200602081335.18256.kernel@kolivas.org>
-	 <Pine.LNX.4.61.0602091806100.30108@yvahk01.tjqt.qr>
-	 <1139515605.30058.94.camel@mindpipe>  <1139553319.8850.79.camel@homer>
-	 <1139752033.27408.20.camel@homer>  <1139771016.19342.253.camel@mindpipe>
-	 <1139780193.7837.7.camel@homer>  <1139787578.2739.13.camel@mindpipe>
-Content-Type: text/plain
-Date: Mon, 13 Feb 2006 04:09:29 +0100
-Message-Id: <1139800169.7595.24.camel@homer>
+	Sun, 12 Feb 2006 22:07:59 -0500
+Date: Sun, 12 Feb 2006 19:05:20 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       "Brown, Len" <len.brown@intel.com>,
+       "David S. Miller" <davem@davemloft.net>, Greg KH <greg@kroah.com>,
+       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       "Yu, Luming" <luming.yu@intel.com>,
+       "Ben Castricum" <lk@bencastricum.nl>, sanjoy@mrao.cam.ac.uk,
+       Helge Hafting <helgehaf@aitel.hist.no>,
+       "Carlo E. Prelz" <fluido@fluido.as>,
+       linux-usb-devel@lists.sourceforge.net,
+       Gerrit =?ISO-8859-1?B?QnJ1Y2ho5HVzZXI=?= <gbruchhaeuser@gmx.de>,
+       Nicolas.Mailhot@LaPoste.net, Jaroslav Kysela <perex@suse.cz>,
+       Takashi Iwai <tiwai@suse.de>, Patrizio Bassi <patrizio.bassi@gmail.com>,
+       =?ISO-8859-1?B?Qmr2cm4=?= Nilsson <bni.swe@gmail.com>,
+       Andrey Borzenkov <arvidjaar@mail.ru>, "P. Christeas" <p_christ@hol.gr>,
+       ghrt <ghrt@dial.kappa.ro>, jinhong hu <jinhong.hu@gmail.com>,
+       Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-scsi@vger.kernel.org,
+       Benjamin LaHaise <bcrl@kvack.org>
+Subject: Re: Linux 2.6.16-rc3
+Message-Id: <20060212190520.244fcaec.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org>
+References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-12 at 18:39 -0500, Lee Revell wrote:
-> On Sun, 2006-02-12 at 22:36 +0100, MIke Galbraith wrote:
-> > On Sun, 2006-02-12 at 14:03 -0500, Lee Revell wrote:
-> > > On Sun, 2006-02-12 at 14:47 +0100, MIke Galbraith wrote:
-> > > > If you think it's the scheduler, how about try the patch below.  It's
-> > > > against 2.6.16-rc2-mm1, and should tell you if it is the interactivity
-> > > > logic in the scheduler or not.  I don't see other candidates in there,
-> > > > not that that means there aren't any of course. 
-> > > 
-> > > I'll try, but it's a serious pain for me to build an -mm kernel.  A
-> > > patch against 2.6.16-rc1 would be much easier.
-> > 
-> > Ok, here she comes.  It's a bit too reluctant to release a task so it
-> > can reach interactive status at the moment, but for this test, that's a
-> > feature. In fact, for this test, it's probably best to jump straight to
-> > setting both g1 and g2 to zero.
-> 
-> Not only does this fix my "time ls" test case, it seems to drastically
-> improve interactivity for my desktop apps.  I was really being plagued
-> by weird stalls, it's much smoother now.
 
-Yeah, but under load, that reluctance to release is fairly annoying...
+We still have some serious bugs, several of which are in 2.6.15 as well:
 
-> 
-> Now to regression test it...
+- The scsi_cmd leak, which I don't think is fixed.
 
-...and may cause test applications to not reach their proper priority
-before measurement begins.
+- The some-x86_64-boxes-use-GFP_DMA-from-bio-layer bug, which causes
+  oom-killings.
 
-	-Mike
+- The skbuff_head_cache leak, which has been around since at least
+  2.6.11.  Another box-killer, but is seems very hard to hit. 
+  (mki@mozone.net, "the dreaded oom-killer (reproducable in 2.6.11 -
+  2.6.16-rc1) :(")
 
+- http://bugzilla.kernel.org/show_bug.cgi?id=6060: an apparent ACPI
+  regression.
+
+- Nathan's "sysfs-related oops during module unload", which Greg seems to
+  have under control.
+
+- http://bugzilla.kernel.org/show_bug.cgi?id=6049 - another acpi
+  regression.  We have the actual offending commit here.
+
+- A couple of random tty-related oopses reported by Jesper Juhl.  We
+  don't know why these happened - they appear to not be related to the tty
+  buffering changes.
+
+- http://bugzilla.kernel.org/show_bug.cgi?id=6038, another box-killing
+  acpi regression.
+
+- Various reports similar to
+  http://bugzilla.kernel.org/show_bug.cgi?id=6011, seemingly related to USB
+  PCI quirk handling.
+
+- "Ben Castricum" <lk@bencastricum.nl> reports that ppp has started
+  exhibiting mysterious failures (again).
+
+- Nasty warnings from scsi about kobject-layer things being called from
+  irq context.  James has a push-it-to-process-context patch which sadly
+  assumes kmalloc() is immortal, but no other fix seems to have offered
+  itself.
+
+- In http://bugzilla.kernel.org/show_bug.cgi?id=5989, Sanjoy Mahajan has
+  another regression, but he's off collecting more info.
+
+- Helge Hafting reports a usb printer regression - I don't know if that's
+  still live?
+
+- "Carlo E.  Prelz" <fluido@fluido.as> has another USB/ehci regression
+  ("ATI RS480-based motherboard: stuck while booting with kernel >= 2.6.15
+  rc1").
+
+- Gerrit Bruchhuser <gbruchhaeuser@gmx.de> seems to have an aic7xxx
+  regression ("AHA-7850 doesn't detect scanner anymore") but he doesn't say
+  which kernel got it right.
+
+- http://bugzilla.kernel.org/show_bug.cgi?id=5914 - a sata bug (which is
+  quite unremarkable :(), but this one is reported to eat filesystems.
+
+- Patrizio Bassi <patrizio.bassi@gmail.com> has an alsa suspend
+  regression ("alsa suspend/resume continues to fail for ens1370")
+
+- Bjorn Nilsson <bni.swe@gmail.com> has an sk99lin regression ("3COM
+  3C940, does not work anymore after upgrade to 2.6.15")
+
+- Andrey Borzenkov <arvidjaar@mail.ru> has an acpi-cpufreq regression
+  ("cannot unload acpi-cpufreq")
+
+- "P.  Christeas" <p_christ@hol.gr> had an autofs regression ("Regression
+  in Autofs, 2.6.15-git"), whic might be fixed now?
+
+- ghrt <ghrt@dial.kappa.ro> reports an alsa regression ("PROBLEM: SB
+  Live!  5.1 (emu10k1, rev.  0a) doesn't work with 2.6.15")
+
+- jinhong hu <jinhong.hu@gmail.com> reports what appears to be a qlogic
+  regression ("kernel 2.6.15 scsi problem")
+
+- Benjamin LaHaise <bcrl@kvack.org> had an NFS problem ("NFS processes
+  gettting stuck in D with currrent git").
+
+
+
+These are clear regressions, reported in the last month by people who are
+willing to test patches.  They're almost all in subsystems which have
+active and professional maintainers.

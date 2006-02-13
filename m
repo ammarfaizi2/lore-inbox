@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbWBMR1Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbWBMR31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932363AbWBMR1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 12:27:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWBMR1Z
+	id S932285AbWBMR31 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 12:29:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbWBMR31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 12:27:25 -0500
-Received: from user-0c93tin.cable.mindspring.com ([24.145.246.87]:11746 "EHLO
-	tsurukikun.utopios.org") by vger.kernel.org with ESMTP
-	id S932363AbWBMR1Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 12:27:24 -0500
-From: Luke-Jr <luke@dashjr.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+	Mon, 13 Feb 2006 12:29:27 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:24497 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S932285AbWBMR30 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 12:29:26 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Mon, 13 Feb 2006 18:27:56 +0100
+To: schilling@fokus.fraunhofer.de, mj@ucw.cz
+Cc: seanlkml@sympatico.ca, sam@vilain.net, peter.read@gmail.com,
+       matthias.andree@gmx.de, lkml@dervishd.net, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Mon, 13 Feb 2006 17:27:25 +0000
-User-Agent: KMail/1.9
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, davidsen@tmr.com,
-       chris@gnome-de.org, nix@esperi.org.uk, linux-kernel@vger.kernel.org,
-       axboe@suse.de
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <43F088AB.nailKUSB18RM0@burner> <Pine.LNX.4.61.0602131742460.24297@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0602131742460.24297@yvahk01.tjqt.qr>
-Public-GPG-Key: 0xD53E9583
-Public-GPG-Key-URI: http://dashjr.org/~luke-jr/myself/Luke-Jr.pgp
-IM-Address: luke-jr@jabber.org
+Message-ID: <43F0C19C.nailMDR1O1BOX@burner>
+References: <43EC88B8.nailISDH1Q8XR@burner>
+ <43EFC1FF.7030103@vilain.net> <43F097AE.nailKUSK1MJ9O@burner>
+ <BAYC1-PASMTP10B5F649DEDADD145E56BDAE070@CEZ.ICE>
+ <20060213095038.03247484.seanlkml@sympatico.ca>
+ <43F0A771.nailKUS131LLIA@burner>
+ <mj+md-20060213.160108.13290.atrey@ucw.cz>
+ <43F0B32D.nailKUS1E3S8I3@burner>
+ <mj+md-20060213.164948.25807.atrey@ucw.cz>
+ <43F0BA53.nailMDD11T4U8@burner>
+ <mj+md-20060213.171329.3029.atrey@ucw.cz>
+In-Reply-To: <mj+md-20060213.171329.3029.atrey@ucw.cz>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602131727.26945.luke@dashjr.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 February 2006 16:43, Jan Engelhardt wrote:
-> >> Well, "any user" just opens his Windows Explorer and takes a look at the
-> >> icon of his drive D:\\ to see whether it's a CD-ROM or DVD. It is
-> >> interesting to see professional programmers often argue that a
-> >
-> >This is not true: a drive letter mapping does not need to exist on MS-WIN
-> >in order to be able to access it via ASPI or SPTI.
->
-> I have to support this view. Linux filesystems do not show up in Windows
-> Explorer (because there's obviously an fs driver lacking), but there's
-> always a way to damage your Linux from within Windows.
+Martin Mares <mj@ucw.cz> wrote:
 
-Really? My Windows-using friend has all his Linux partitions fully visible and 
-usable in Windows Explorer...
+> Hello!
+>
+> > Let me write a final remark:
+> > 
+> > cdrecord currently has no known Linux specific bug.
+> > 
+> > Let us comtinue to talk after the Linux kernel bugs that
+> > prevent cdrecord from working have been fixed.
+>
+> OK. And in the meantime you can remove the silly warnings about
+> device names being unsupported.
+
+The warnings are not silly. They could have been removed long ago
+if the icd-scsi DMA bug was fixed.
+
+So take it as it is: Linux first fixes the icd-scsi DMA bug and
+then it makes sense to remove the related warning.
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

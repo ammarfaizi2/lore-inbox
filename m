@@ -1,104 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030209AbWBMWNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbWBMWPb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030209AbWBMWNF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 17:13:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030208AbWBMWNF
+	id S1030210AbWBMWPb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 17:15:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030213AbWBMWPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 17:13:05 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:1100 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1030207AbWBMWND (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 17:13:03 -0500
-In-Reply-To: <58cb370e0602131221k60e23cffo480fbec812b6560e@mail.gmail.com>
-References: <58cb370e0602130235h3ab521cep47584ee634e8fc7f@mail.gmail.com> <Pine.LNX.4.44.0602131020370.30316-100000@gate.crashing.org> <58cb370e0602130853s4ce767c6j57337a9587cc2963@mail.gmail.com> <9E02DAB4-8DCE-42AA-8F47-080636F78E4C@kernel.crashing.org> <58cb370e0602131221k60e23cffo480fbec812b6560e@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <4EAA9C9B-947B-493D-B3D9-CFA1EC0A71CA@kernel.crashing.org>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: RFC: Compact Flash True IDE Mode Driver
-Date: Mon, 13 Feb 2006 16:13:18 -0600
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-X-Mailer: Apple Mail (2.746.2)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Mon, 13 Feb 2006 17:15:30 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:35332 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1030212AbWBMWPa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 17:15:30 -0500
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: greg@kroah.com, davidsen@tmr.com, linux-kernel@vger.kernel.org,
+       axboe@suse.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
+	<20060125144543.GY4212@suse.de>
+	<Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
+	<20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
+	<20060125181847.b8ca4ceb.grundig@teleline.es>
+	<20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de>
+	<878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com>
+	<20060210235654.GA22512@kroah.com> <43F0891E.nailKUSCGC52G@burner>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: or perhaps you'd prefer Russian Roulette, after all?
+Date: Mon, 13 Feb 2006 22:14:25 +0000
+In-Reply-To: <43F0891E.nailKUSCGC52G@burner> (Joerg Schilling's message of
+ "Mon, 13 Feb 2006 14:26:54 +0100")
+Message-ID: <871wy6sy7y.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Feb 13, 2006, at 2:21 PM, Bartlomiej Zolnierkiewicz wrote:
-
-> On 2/13/06, Kumar Gala <galak@kernel.crashing.org> wrote:
+On Mon, 13 Feb 2006, Joerg Schilling stated:
+> Greg KH <greg@kroah.com> wrote:
+> 
+>> On Fri, Feb 10, 2006 at 04:06:39PM -0500, Bill Davidsen wrote:
+>> > 
+>> > The kernel could provide a list of devices by category. It doesn't have 
+>> > to name them, run scripts, give descriptions, or paint them blue. Just a 
+>> > list of all block devices, tapes, by major/minor and category (ie. 
+>> > block, optical, floppy) would give the application layer a chance to do 
+>> > it's own interpretation.
 >>
->> On Feb 13, 2006, at 10:53 AM, Bartlomiej Zolnierkiewicz wrote:
->>
->>> On 2/13/06, Kumar Gala <galak@kernel.crashing.org> wrote:
->>>
->>>>>> +static void cfide_outsl(unsigned long port, void *addr, u32  
->>>>>> count)
->>>>>> +{
->>>>>> +       panic("outsl unsupported");
->>>>>> +}
->>>>>
->>>>> This will panic as soon as somebody tries to enable 32-bit I/O
->>>>> using hdparm.  Please add ide_hwif_t.no_io_32bit flag and teach
->>>>> ide-disk.c:ide_disk_setup() about it (separate patch).
->>>>
->>>> I'm not sure I follow this, can you expand.
->>>
->>> Do "hdparm -c 2 /dev/hdx" first and then read/write to the device
->>> and you should see it. :)
->>>
->>> We need to make "hdparm -c 2" (and "hdparm -c 3") unsupported
->>> (see how "io_32bit" setting is handled in ide_add_generic_settings()
->>> and how it can be read-only or read-write setting depending on the
->>> value of drive->no_io_32bit).
->>>
->>> To do this we need to set drive->no_io_32bit to 1 (see how
->>> ide_disk_setup() handles it).  Unfortunately 32-bit I/O capability
->>> is based on capabilities of both host and device so we have to
->>> add new flag hwif->no_io_32bit to indicate that host doesn't
->>> support 32-bit I/O.
->>
->> This all make sense, should I check for hwif->no_io_32bit in
->> idedisk_setup() and set drive->no_io_32bit to 1 if hwif->no_io_32bit
->> is 1 or do this the test in ide_add_generic_settings()?
->
-> Good question.  idedisk_setup() seems more logical but in the current
-> model "io_32bit" setting is still accessible without ide-disk  
-> driver through
-> /proc/ide/ interface so...
->
-> Moreover the current drive->no_io_32bit code in ide-disk is wrong:
-> * it shouldn't be overriding drive->no_io_32bit flag if it is 1
-> * doing this in ide-disk may be too late w.r.t.  
-> ide_add_generic_settings()
->
-> Therefore your previous suggestion is the right one - the best place
-> to deal with ->no_io_32bit is ide-probe.c - doing this for all  
-> drives at
-> the end of probe_hwif() should fix all above issues.
+>> It does so today in sysfs, that is what it is there for.
+> 
+> Do you really whant libscg to open _every_ non-directory file under /sys?
 
-Now I'm confused.  If I understand the code, what I want is for the  
-"io_32bit" setting to have its RW field set to SETTING_READ, such  
-that drive->no_io_32bit can NOT be changed.  Additionally, I want it  
-set to 1 if hwif->no_io_32bit is 1.
+Well, that would be overkill, but iterating across, say,
+/sys/class/scsi_device seems like it would be a good idea.
 
-Are you saying that at the end of probe_hwif() I should iterate over  
-the drives for that hwif and set drive->no_io_32bit to 1 if hwif- 
- >no_io_32bit is 1?  If so, can I do this in the last loop that  
-already exists that iterates over the drives?
+(I doubt libscg would ever be interested in the stuff in most of the
+other directories: things like /dev/mem are not SCSI devices and never
+will be, and /sys/class/scsi_device contains *everything* Linux
+considers a SCSI device, no matter what transport it is on, SATA and
+all. However, I don't know if it handles IDE devices that you can SG_IO
+to because I don't have any such here. Anyone know?)
 
-Will I not also want to test hwif->no_io_32bit in idedisk_setup() to  
-ensure that it can only set driver->no_io_32bit to 0 if hwif- 
- >no_io32bit is 0?
-
-- kumar
-
+-- 
+`... follow the bouncing internment camps.' --- Peter da Silva

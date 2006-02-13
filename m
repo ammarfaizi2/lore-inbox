@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWBMPOB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbWBMPON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932424AbWBMPOB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 10:14:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWBMPOA
+	id S932431AbWBMPON (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 10:14:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWBMPON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 10:14:00 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:25994 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S932424AbWBMPOA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 10:14:00 -0500
-Date: Mon, 13 Feb 2006 10:09:11 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.16-rc3
-Message-ID: <20060213150911.GA22152@kvack.org>
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org> <20060212190520.244fcaec.akpm@osdl.org> <1139800975.7916.7.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1139800975.7916.7.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 13 Feb 2006 10:14:13 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:58024 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S932431AbWBMPOL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 10:14:11 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Mon, 13 Feb 2006 16:12:51 +0100
+To: trudheim@gmail.com, schilling@fokus.fraunhofer.de
+Cc: nix@esperi.org.uk, linux-kernel@vger.kernel.org, davidsen@tmr.com,
+       axboe@suse.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43F0A1F3.nailKUSV1V88J@burner>
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
+ <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
+ <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
+ <20060125181847.b8ca4ceb.grundig@teleline.es>
+ <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de>
+ <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com>
+ <43F0776F.nailKUS94FU3M@burner>
+ <515e525f0602130446s1091f09ande10910f65a0f5f0@mail.gmail.com>
+In-Reply-To: <515e525f0602130446s1091f09ande10910f65a0f5f0@mail.gmail.com>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 12, 2006 at 10:22:55PM -0500, Trond Myklebust wrote:
-> > - Benjamin LaHaise <bcrl@kvack.org> had an NFS problem ("NFS processes
-> >   gettting stuck in D with currrent git").
-> 
-> ...but which was apparently not repeatable:
-> 
->         As of this afternoon's tree
->         (6150c32589d1976ca8a5c987df951088c05a7542)  after the more
->         recent set of nfs patches, it seems to be behaving itself.  Will
->         keep sysrq enabled to see if it hits again, though.
-> 
-> I've had no news from Ben since then...
+Anders Karlsson <trudheim@gmail.com> wrote:
 
-Confirmed: I've had no problems with NFS since that update, and my test 
-box uses NFS regularly.
+> On 2/13/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
+> [snip]
+> > -       Older CD-writers identified as WORM although a CD-R is not a WORM.
+>
+> Nitpicking I know, but technically, CD-R is WORM in the case of single
+> session write. And as long as the writer works, who cares if it is
+> labled WORM, CD-R or Earthworm..
 
-			-ben
+If you did know what a worm is, you would know that you are not correct:
+
+A WORM allows you to randomly write any sector once.
+
+A CD-R does not allows you to do this.
+
+Jörg
+
 -- 
-"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
-and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

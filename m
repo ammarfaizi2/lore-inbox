@@ -1,47 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbWBMXUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbWBMXVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964875AbWBMXUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 18:20:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbWBMXUJ
+	id S964883AbWBMXVX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 18:21:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbWBMXVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 18:20:09 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:48084 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S964879AbWBMXUI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 18:20:08 -0500
-Subject: [PATCH] fix x86 topology export in sysfs for subarchitectures.
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, yanmin.zhang@intel.com
-Content-Type: text/plain
-Date: Mon, 13 Feb 2006 17:20:03 -0600
-Message-Id: <1139872803.5120.31.camel@mulgrave.il.steeleye.com>
+	Mon, 13 Feb 2006 18:21:23 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:27048 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964883AbWBMXVW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 18:21:22 -0500
+Date: Mon, 13 Feb 2006 15:20:21 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Trond Myklebust <Trond.Myklebust@netapp.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NLM: Fix the NLM_GRANTED callback checks
+Message-Id: <20060213152021.6e25e40b.akpm@osdl.org>
+In-Reply-To: <1139801149.7916.11.camel@lade.trondhjem.org>
+References: <1139801149.7916.11.camel@lade.trondhjem.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The correct way to export hyperthreading based functions is to predicate
-them on CONFIG_X86_HT.  Without this, the topology exporting patch
-breaks the build on all non-PC x86 subarchitectures.
+Trond Myklebust <Trond.Myklebust@netapp.com> wrote:
+>
+> Currently when the NLM_GRANTED callback comes in, lockd walks the list of
+> blocked locks in search of a match to the lock that the NLM server has
+> granted. Although it checks the lock pid, start and end, it fails to check
+> the filehandle and the server address.
+> 
 
-Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
-
----
-
-diff --git a/include/asm-i386/topology.h b/include/asm-i386/topology.h
-index af503a1..aa958c6 100644
---- a/include/asm-i386/topology.h
-+++ b/include/asm-i386/topology.h
-@@ -27,7 +27,7 @@
- #ifndef _ASM_I386_TOPOLOGY_H
- #define _ASM_I386_TOPOLOGY_H
- 
--#ifdef CONFIG_SMP
-+#ifdef CONFIG_X86_HT
- #define topology_physical_package_id(cpu)				\
- 	(phys_proc_id[cpu] == BAD_APICID ? -1 : phys_proc_id[cpu])
- #define topology_core_id(cpu)						\
-
-
+What are the consequences of this bug?

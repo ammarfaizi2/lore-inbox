@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWBMBsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWBMCOO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751126AbWBMBsd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 20:48:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWBMBsd
+	id S1751151AbWBMCOO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 21:14:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWBMCOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 20:48:33 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:18315 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751126AbWBMBsc (ORCPT
+	Sun, 12 Feb 2006 21:14:14 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:49621 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751151AbWBMCOO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 20:48:32 -0500
-Date: Sun, 12 Feb 2006 20:48:26 -0500
-From: Dave Jones <davej@redhat.com>
-To: Diego Calleja <diegocg@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AGP serverworks chipset not being initializated properly?
-Message-ID: <20060213014826.GA32329@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Diego Calleja <diegocg@gmail.com>, linux-kernel@vger.kernel.org
-References: <20060213022757.bfc2af7f.diegocg@gmail.com>
+	Sun, 12 Feb 2006 21:14:14 -0500
+Date: Sun, 12 Feb 2006 18:13:12 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: wli@holomorphy.com, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 1/3] compound page: use page[1].lru
+Message-Id: <20060212181312.11392d12.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0602130043480.17715@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0602121943150.15774@goblin.wat.veritas.com>
+	<20060212135457.2a3d3b37.akpm@osdl.org>
+	<Pine.LNX.4.61.0602130043480.17715@goblin.wat.veritas.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060213022757.bfc2af7f.diegocg@gmail.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 13, 2006 at 02:27:57AM +0100, Diego Calleja wrote:
- > For a while, I've been having this on my dmesg:
- > 
- > agpgart: Xorg tried to set rate=x12. Setting to AGP3 x8 mode.
- > agpgart: Putting AGP V2 device at 0000:00:00.1 into 2x mode
- > agpgart: Putting AGP V2 device at 0000:01:00.0 into 2x mode
- > [drm] Loading R200 Microcode
- > 
- > This is really weird since my motherboard (CNB20HE chipset)
- > only supports 2x AGP cards and my xorg.conf file has this: 
+Hugh Dickins <hugh@veritas.com> wrote:
+>
+> On Sun, 12 Feb 2006, Andrew Morton wrote:
+> > 
+> > I'm scratching my head over flush_dcache_page() on, say, sparc64.  For
+> > example, the one in fs/direct-io.c.  With this patch, we'll call
+> > flush_dcache_page_impl(), which at least won't crash.  Before the patch I
+> > think we'd just do random stuff.
+> 
+> A head-scratching business indeed.  I think your description is right.
+> 
+> I haven't looked up the intersection of the set of arches which have
+> hugetlb with the set of arches which do something in flush_dcache_page,
+> but maybe you have, and found sparc64 the only or most significant.
 
-CNB20HE is unsupported (The failure message should actually
-be a little better, I'll go fix that).
+We have a page which has no ->mapping, but lo, it's mmapped by userspace
+and can be MAP_SHARED between different CPUs and processes.
 
-Docs on this chipset aren't publically available, so it's
-unlikely to happen any time soon.
+Yes, I suspect it'll do the wrong thing in unpleasantly subtle ways.
 
-		Dave
+(cc's davem and runs away).
 

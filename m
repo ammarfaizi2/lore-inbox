@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbWBMTYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbWBMT0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932438AbWBMTYc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 14:24:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbWBMTYc
+	id S932418AbWBMT0E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 14:26:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbWBMT0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 14:24:32 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:49037 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932438AbWBMTYb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 14:24:31 -0500
-Date: Mon, 13 Feb 2006 11:21:02 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mauro Tassinari <mtassinari@cmanet.it>, airlied@linux.ie,
-       dri-devel@lists.sourceforge.net
-Subject: Re: 2.6.16-rc3: more regressions
-In-Reply-To: <Pine.LNX.4.64.0602131115010.3691@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0602131117400.3691@g5.osdl.org>
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org>
- <20060213170945.GB6137@stusta.de> <Pine.LNX.4.64.0602130931221.3691@g5.osdl.org>
- <20060213174658.GC23048@redhat.com> <Pine.LNX.4.64.0602130952210.3691@g5.osdl.org>
- <Pine.LNX.4.64.0602131007500.3691@g5.osdl.org> <20060213183445.GA3588@stusta.de>
- <Pine.LNX.4.64.0602131043250.3691@g5.osdl.org> <20060213190907.GD3588@stusta.de>
- <Pine.LNX.4.64.0602131115010.3691@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 13 Feb 2006 14:26:04 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:15759 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932418AbWBMT0B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 14:26:01 -0500
+Subject: Re: [PATCH 04/13] hrtimer: remove nsec_t
+From: john stultz <johnstul@us.ibm.com>
+To: tglx@linutronix.de
+Cc: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1139837090.2480.475.camel@localhost.localdomain>
+References: <Pine.LNX.4.61.0602130209590.23812@scrub.home>
+	 <1139837090.2480.475.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 13 Feb 2006 11:25:58 -0800
+Message-Id: <1139858758.28536.52.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 13 Feb 2006, Linus Torvalds wrote:
+On Mon, 2006-02-13 at 14:24 +0100, Thomas Gleixner wrote:
+> On Mon, 2006-02-13 at 02:10 +0100, Roman Zippel wrote:
+> > nsec_t predates ktime_t and has mostly been superseded by it. In the few
+> > places that are left it's better to make it explicit that we're dealing
+> > with 64 bit values here.
+> > 
+> > Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 > 
-> So I decided to just remove it. Even if there is some other bug that could 
-> make it work again, we can always just re-add it at that time. In the 
-> meantime, this should fix both DaveJs and Mauros problems, and is clearly 
-> no worse than 2.6.15 (which also didn't recognize the card), so...
+> Acked-by: Thomas Gleixner <tglx@linutronix.de>
 
-Btw, on a totally unrelated tangent, I just wanted to say how much I 
-appreciate people looking for regressions like this, and trying to track 
-them. Andrew does it, but this is absolutely something that should be 
-possible to get more people to do, and it would be a huge boon for kernel 
-development if we had a more aggressive regression tracking system.
 
-Right now it all very easily gets lost in the noise - either on the 
-mailing list or even on bugzilla (where following up on regressions and 
-trying to get details and prodding people to perhaps try to narrow things 
-down a bit more often ends up falling on the floor, because it's a big 
-job).
+Sounds like a fair enough argument for me.
 
-			Linus
+Acked-by: John Stultz <johnstul@us.ibm.com>
+
+
+Andrew: From the mm-commits it looks like you've already merged the TOD
+bits for this patch. I'll merge those changes in my tree as well. Please
+let me know if any issues crop up and I can send updated patches. 
+
+thanks
+-john
+
+

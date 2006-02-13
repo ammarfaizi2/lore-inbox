@@ -1,76 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWBMCqs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWBMCxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbWBMCqs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 21:46:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWBMCqs
+	id S1751166AbWBMCxP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 21:53:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWBMCxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 21:46:48 -0500
-Received: from thorn.pobox.com ([208.210.124.75]:18640 "EHLO thorn.pobox.com")
-	by vger.kernel.org with ESMTP id S1751161AbWBMCqs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 21:46:48 -0500
-Date: Sun, 12 Feb 2006 20:46:40 -0600
-From: Nathan Lynch <ntl@pobox.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       John Stultz <johnstul@us.ibm.com>
-Subject: Re: [PATCH] Fix CPU hotplug with new time infrastructure
-Message-ID: <20060213024640.GC3293@localhost.localdomain>
-References: <Pine.LNX.4.64.0602121351400.1579@montezuma.fsmlabs.com>
+	Sun, 12 Feb 2006 21:53:15 -0500
+Received: from node-4024215a.mdw.onnet.us.uu.net ([64.36.33.90]:62711 "EHLO
+	found.lostlogicx.com") by vger.kernel.org with ESMTP
+	id S1751166AbWBMCxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 21:53:14 -0500
+Date: Sun, 12 Feb 2006 20:53:22 -0600
+From: Brandon Low <lostlogic@lostlogicx.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Athlon 64 X2 cpuinfo oddities
+Message-ID: <20060213025322.GW4394@lostlogicx.com>
+References: <9a8748490601091218m1ff0607h79207cfafe630864@mail.gmail.com> <p73r77gx36u.fsf@verdi.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0602121351400.1579@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <p73r77gx36u.fsf@verdi.suse.de>
+X-Operating-System: Linux found 2.6.11.12
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-> tsc_disable was marked __initdata so we were accessing random data (which 
-> happened to have a set bit) so upon warm cpu online we would disable the 
-> TSC, resulting in the following. Nathan does this fix your triple fault?
+Did the patch that fixes the out of sync cpufreq messages make it into
+2.6.15 stable series?  I just acquired an athlon 64 x2 system, and was
+having this:
 
-Doesn't apply to latest -linus, which is where I've been seeing that.
-I found tsc_disable in arch/i386/kernel/timers/timer_tsc.c, but it's
-marked __devinitdata.
+Feb 12 15:33:33 [kernel] powernow-k8: error - out of sync, fix 0xa 0x2,
+vid 0xa 0xa
+Feb 12 15:33:59 [kernel] init_special_inode: bogus i_mode (300)
+Feb 12 15:33:59 [kernel] ReiserFS: hda8: warning: vs-13075:
+reiserfs_read_locked_inode: dead inode read from disk [283239 150550 0x0
+SD]. This is likely to be race with knfsd. Ignore
 
-So my problem would appear to be something different; I'll try to get
-more information, thanks.
+Some filesystem corruptions have occurred as a result.  I'm testing
+2.6.16-rc2 under the exact same conditions currently, and so far, no
+errors.
+
+Thanks,
+
+Brandon Low
 
 
-> root@arusha cpu1 {0:0} echo 1 > online
-> Booting processor 1/1 eip 3000
-> Disabling TSC...
-> Calibrating delay using timer specific routine.. 797.62 BogoMIPS 
-> (lpj=3988115)
-> CPU1: Intel Pentium II (Deschutes) stepping 02
-> migration_cost=2595
-> root@arusha cpu1 {0:0} ps
->   PID TTY          TIME CMD
->  2432 ttyS0    00:00:00 tcsh
->  2490 ttyS0    00:00:00 ps
-> root@arusha cpu1 {0:0} ps
-> Segmentation fault
-> root@arusha cpu1 {0:139}
+On Tue, 01/10/06 at 02:49:13 +0100, Andi Kleen wrote:
+> Jesper Juhl <jesper.juhl@gmail.com> writes:
+> > 
+> > Well, first of all you'll notice that the second core shows a
+> > "physical id" of 127 while the first core shows an id of 0.  Shouldn't
+> > the second core be id 1, just like the "core id" fields are 0 & 1?
 > 
-> <signed-off-by> Zwane Mwaikambo <zwane@arm.linux.org.uk>
+> In theory it could be an uninitialized phys_proc_id (0xff >> 1), 
+> but it could be also the BIOS just setting the local APIC of CPU 1
+> to 0xff for some reason.
 > 
-> Index: linux-2.6.16-rc2-mm1/arch/i386/kernel/tsc.c
-> ===================================================================
-> RCS file: /home/cvsroot/linux-2.6.16-rc2-mm1/arch/i386/kernel/tsc.c,v
-> retrieving revision 1.1.1.1
-> diff -u -p -B -r1.1.1.1 tsc.c
-> --- linux-2.6.16-rc2-mm1/arch/i386/kernel/tsc.c	11 Feb 2006 16:55:15 -0000	1.1.1.1
-> +++ linux-2.6.16-rc2-mm1/arch/i386/kernel/tsc.c	12 Feb 2006 22:00:12 -0000
-> @@ -25,7 +25,7 @@
->   */
->  unsigned int tsc_khz;
->  
-> -int tsc_disable __initdata = 0;
-> +int tsc_disable __cpuinitdata = 0;
->  
->  #ifdef CONFIG_X86_TSC
->  static int __init tsc_setup(char *str)
+> If you add a printk("PHYSCPU %d %x\n", smp_processor_id(), phys_proc_id[smp_processor_id()])
+> at the end of arch/x86_64/kernel/setup.c:early_identify_cpu() what does
+> dmesg | grep PHYSCPU output?
+> 
+> > 
+> > Second thing I find slightly odd is the lack of "sse3" in the "flags" list.
+> > I was under the impression that all AMD Athlon 64 X2 CPU's featured SSE3?
+> > Is it a case of:
+> >  a) Me being wrong, not all Athlon 64 X2's feature SSE3?
+> >  b) The CPU actually featuring SSE3 but Linux not taking advantage of it?
+> >  c) The CPU features SSE3 and it's being utilized, but /proc/cpuinfo
+> > doesn't show that fact?
+> >  d) Something else?
+> 
+> It's called pni (prescott new instructions) for historical reasons. We added
+> the bit too early before Intel's marketing department could make up its
+> mind fully, so Linux is stuck with the old codename.
+> 
+> -Andi
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

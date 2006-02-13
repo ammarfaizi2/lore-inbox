@@ -1,75 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932444AbWBMTcn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbWBMTe6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932444AbWBMTcn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 14:32:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbWBMTcm
+	id S932441AbWBMTe6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 14:34:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbWBMTe6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 14:32:42 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:65152 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932376AbWBMTcl (ORCPT
+	Mon, 13 Feb 2006 14:34:58 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:43410 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932441AbWBMTe5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 14:32:41 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Takashi Iwai <tiwai@suse.de>
-Subject: Re: Linux 2.6.16-rc3
-Date: Mon, 13 Feb 2006 20:33:24 +0100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       "Brown, Len" <len.brown@intel.com>,
-       "David S. Miller" <davem@davemloft.net>, Greg KH <greg@kroah.com>,
-       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       "Yu, Luming" <luming.yu@intel.com>,
-       "Ben Castricum" <lk@bencastricum.nl>, sanjoy@mrao.cam.ac.uk,
-       Helge Hafting <helgehaf@aitel.hist.no>,
-       "Carlo E. Prelz" <fluido@fluido.as>,
-       Gerrit =?iso-8859-1?q?Bruchh=E4user?= <gbruchhaeuser@gmx.de>,
-       Nicolas.Mailhot@laposte.net, Jaroslav Kysela <perex@suse.cz>,
-       Patrizio Bassi <patrizio.bassi@gmail.com>,
-       =?iso-8859-1?q?Bj=F6rn_Nilsson?= <bni.swe@gmail.com>,
-       Andrey Borzenkov <arvidjaar@mail.ru>, "P. Christeas" <p_christ@hol.gr>,
-       ghrt <ghrt@dial.kappa.ro>, jinhong hu <jinhong.hu@gmail.com>,
-       Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-scsi@vger.kernel.org,
-       Benjamin LaHaise <bcrl@kvack.org>
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org> <200602131409.54300.rjw@sisk.pl> <s5hfymn4bav.wl%tiwai@suse.de>
-In-Reply-To: <s5hfymn4bav.wl%tiwai@suse.de>
+	Mon, 13 Feb 2006 14:34:57 -0500
+Date: Mon, 13 Feb 2006 11:34:43 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Roland Dreier <rdreier@cisco.com>
+cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Gleb Natapov <gleb@minantech.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       openib-general@openib.org, Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Badari Pulavarty <pbadari@us.ibm.com>, Hugh Dickins <hugh@veritas.com>
+Subject: Re: [openib-general] Re: madvise MADV_DONTFORK/MADV_DOFORK
+In-Reply-To: <adar767133j.fsf@cisco.com>
+Message-ID: <Pine.LNX.4.64.0602131125180.3691@g5.osdl.org>
+References: <20060213154114.GO32041@mellanox.co.il> <Pine.LNX.4.64.0602131104460.3691@g5.osdl.org>
+ <adar767133j.fsf@cisco.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602132033.26881.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 February 2006 14:51, Takashi Iwai wrote:
-> At Mon, 13 Feb 2006 14:09:51 +0100,
-> Rafael J. Wysocki wrote:
-> > 
-> > On Monday 13 February 2006 13:02, Takashi Iwai wrote:
-> > > At Sun, 12 Feb 2006 19:05:20 -0800,
-> > > Andrew Morton wrote:
-> > > > 
-> > > > - Patrizio Bassi <patrizio.bassi@gmail.com> has an alsa suspend
-> > > >   regression ("alsa suspend/resume continues to fail for ens1370")
-> > > 
-> > > It's not a "regression".  PM didn't work with ens1370 at all in the
-> > > eralier version.
-> > > 
-> > > About the problem there, I have no idea now what's wrong.  The
-> > > suspend-to-disk works fine if the driver is built as module but not as
-> > > built-in kernel.
-> > 
-> > That may be related to the fact that modular drivers are not present in
-> > memory during resume (just a thought).
+
+
+On Mon, 13 Feb 2006, Roland Dreier wrote:
 > 
-> I think the modular drivers are on memory but the order of
-> re-initialization is different.
+> VM_DONTCOPY is hardly used in the kernel, so the semantics aren't very
+> precisely defined.
 
-No, they are not (this is the part I'm sure of).  software_resume() is called
-before any modules have a chance to be loaded unless you boot with
-noresume, load them from an initrd and start the resume manually.
+Now, I agree - it's a strange bit, and was initially just done "because we 
+can and it seems to be a conceptually valid notion", so it's not used a 
+lot.
 
-Greetings,
-Rafael
+That said, the semantics shouldn't be all that unexpected:
+
+	#define VM_DONTCOPY  0x00020000		/* Do not copy this vma on fork */
+
+and the usage ends up matching that (except for some really strange issue 
+with hugepage counting, which just looks wrong, but never mind).
+
+>		But the idea is that a driver setting VM_DONTCOPY
+> probably has a good reason for doing it, and we don't want userspace
+> to be able to erase that flag through madvise().
+
+Well, I can't actually see any case where a driver could validly do 
+something that confuses the VM enough that clearing that bit could cause 
+new problems. 
+
+Put another way: if that is true, then we have bigger issues, and should 
+fix those problems instead.
+
+So at most we might have _applications_ that depend on the fork not 
+causing a copy-on-write thing (due to the old and broken private mapping 
+of ioremapped areas behaviour), but if that's true, then it would have to 
+be the driver itself that does the MADV_DOFORK thing, so..
+
+> As Hugh said in his suggestion for a better changelog entry:
+> 
+>     > Explain that MADV_DONTFORK should be reversible, hence
+>     > MADV_DOFORK; but should not be reversible on areas a driver has
+>     > so marked, hence VM_DONTFORK distinct from VM_DONTCOPY.
+> 
+> Perhaps we don't care for now, and we should wait and add
+> VM_KERNEL_DONTCOPY later if we really need it.  I honestly don't know.
+
+I can see where Hugh is coming from, but I think it's adding cruft very 
+much for a "be very careful" reason.
+
+I would suggest that if you wanted to be very careful, you'd simply 
+disallow changing - or perhaps just clearing - that DONTCOPY flag on 
+special regions (ie ones that have been marked with VM_IO or VM_RESERVED).
+
+			Linus

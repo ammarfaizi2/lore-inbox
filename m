@@ -1,84 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWBMSym@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWBMSyr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964780AbWBMSym (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 13:54:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWBMSyl
+	id S964797AbWBMSyr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 13:54:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWBMSyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 13:54:41 -0500
-Received: from gold.veritas.com ([143.127.12.110]:47774 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S964780AbWBMSyk (ORCPT
+	Mon, 13 Feb 2006 13:54:47 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:748 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964797AbWBMSyq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 13:54:40 -0500
-Date: Mon, 13 Feb 2006 18:23:36 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-cc: William Irwin <wli@holomorphy.com>, Gleb Natapov <gleb@minantech.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
+	Mon, 13 Feb 2006 13:54:46 -0500
+Date: Mon, 13 Feb 2006 10:50:52 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       openib-general@openib.org
-Subject: Re: madvise MADV_DONTFORK/MADV_DOFORK
-In-Reply-To: <20060213154114.GO32041@mellanox.co.il>
-Message-ID: <Pine.LNX.4.61.0602131754430.8653@goblin.wat.veritas.com>
-References: <20060213154114.GO32041@mellanox.co.il>
+       Mauro Tassinari <mtassinari@cmanet.it>, airlied@linux.ie,
+       dri-devel@lists.sourceforge.net
+Subject: Re: 2.6.16-rc3: more regressions
+In-Reply-To: <20060213183445.GA3588@stusta.de>
+Message-ID: <Pine.LNX.4.64.0602131043250.3691@g5.osdl.org>
+References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org>
+ <20060213170945.GB6137@stusta.de> <Pine.LNX.4.64.0602130931221.3691@g5.osdl.org>
+ <20060213174658.GC23048@redhat.com> <Pine.LNX.4.64.0602130952210.3691@g5.osdl.org>
+ <Pine.LNX.4.64.0602131007500.3691@g5.osdl.org> <20060213183445.GA3588@stusta.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 13 Feb 2006 18:54:40.0081 (UTC) FILETIME=[F1907410:01C630CE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Feb 2006, Michael S. Tsirkin wrote:
 
-> OK, I guess its time to start the push for merging this patch.
-> Probably not 2.6.16 material, but it would be nice to get this say into -mm to
-> make it easier to test this. Tested on x86_64 only.
+
+On Mon, 13 Feb 2006, Adrian Bunk wrote:
 > 
-> Please Cc me directly with comments, I'm not on the list.
+> Dave's patch removes the entry for the card with the 0x5b60.
 > 
-> ---
-> 
-> Add madvise options to control whether memory range is inherited across fork.
-> Useful e.g. for when hardware is doing DMA from/into these pages.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+> According to his bug report, Mauro has a Radeon X300SE that should 
+> have the 0x5b70 according to pci.ids from pciutils
 
-Looks good to me, Michael (but Gleb's eye has always proved better than
-mine).  Just a couple of adjustments I'd ask before you send to Andrew: 
+No. Look closer:
 
-1. Please just drop your mm/mmap.c vm_stat_account() mod:
+  04:00.0 VGA compatible controller: ATI Technologies Inc RV370 5B60 [Radeon X300 (PCIE)] (prog-if 00 [VGA])
+	Subsystem: ASUSTeK Computer Inc. Extreme AX300SE-X
 
->  	if (flags & VM_HUGETLB) {
-> -		if (!(flags & VM_DONTCOPY))
-> +		if (!(flags & (VM_DONTCOPY|VM_DONTFORK)))
->  			mm->shared_vm += pages;
+That's the 5b60 chip too (yeah, the lspci doesn't show numbers when it has 
+an ascii string, but in this case the ascii string happily has at least 
+that part of the number in it: ".. RV370 5B60 ..", where the 5B60 is just 
+the PCI ID number).
 
-Conscientious of you to include that, but (a) if it's right, then you'd
-need to be fiddling shared_vm up and down whenever madvise changes
-VM_DONTFORK, and none us much want to get into that; and (b) I cannot
-for the life of me work out what that VM_HUGETLB VM_DONTCOPY block is
-about in the first place - I can't even find any instance of VM_HUGETLB
-with VM_DONTCOPY to judge it by.  Luckily, wli CC'ed is the expert on
-both hugetlb and vm_stat_account - I hope he'll just tell us that block
-is wrong and should be deleted (which he or I could do as an unrelated
-patch).  Perhaps it was an inappropriate hack to prevent some count
-going negative, from the days when we forgot to correct total_vm in
-the VM_DONTCOPY case in dup_mmap.
+So it _is_ the same chip.
 
-2. Your two-line changeset comment should be expanded: mention Infiniband,
-mention get_user_pages, explain how frustrating it is for the carefully
-pinned page to be orphaned from its user address space by a stray Copy-
-On-Write, if the process happens to fork meanwhile; and how VM_DONTFORK
-can be used to secure areas against that possibility.  Mention how it
-could also be useful to an application, wanting to speed up its forks
-by cutting large areas out of consideration.  Some of that information
-will be useful to Michael Kerrisk when he updates the madvise man page.
+I just worry whether (a) the other added PCI ID's are any good for that 
+core and (b) whether the bug was really introduced with some of the other 
+changes. I admit that (b) is pretty unlikely, but it would be good to 
+test.
 
-Explain that MADV_DONTFORK should be reversible, hence MADV_DOFORK;
-but should not be reversible on areas a driver has so marked, hence
-VM_DONTFORK distinct from VM_DONTCOPY.
+> and that doesn't seem to be claimed by the DRM driver (and the dmesg 
+> from the bug report confirms that the radeon DRM driver didn't claim to 
+> be responsible for this card).
 
-Thanks,
-Hugh
+Sadly, that module loading is done by X. So the bootup dmesg stuff 
+wouldn't have had the message.
+
+It might be interesting to see if the hang can be reproduced without 
+starting X at all, by just going a "modprobe radeon" or something. 
+Unlikely, though - while loading the drm modules does _some_ things to the 
+card, it's usually only when X actually starts sending commands to them 
+that things really go downhill..
+
+			Linus

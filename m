@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751705AbWBMO7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751771AbWBMPAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751705AbWBMO7I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 09:59:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWBMO7I
+	id S1751771AbWBMPAn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 10:00:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751773AbWBMPAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 09:59:08 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:47255 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932112AbWBMO7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 09:59:07 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 13 Feb 2006 15:57:43 +0100
-To: schilling@fokus.fraunhofer.de, mj@ucw.cz
-Cc: peter.read@gmail.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jerome.lacoste@gmail.com,
-       jengelh@linux01.gwdg.de, dhazelton@enter.net
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F09E67.nailKUSQCAD6I@burner>
-References: <20060208162828.GA17534@voodoo>
- <20060210114721.GB20093@merlin.emma.line.org>
- <43EC887B.nailISDGC9CP5@burner>
- <200602090757.13767.dhazelton@enter.net>
- <43EC8F22.nailISDL17DJF@burner>
- <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com>
- <43F06220.nailKUS5D8SL2@burner>
- <mj+md-20060213.104344.18941.atrey@ucw.cz>
-In-Reply-To: <mj+md-20060213.104344.18941.atrey@ucw.cz>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 13 Feb 2006 10:00:43 -0500
+Received: from smtp.dkm.cz ([62.24.64.34]:43528 "HELO smtp.dkm.cz")
+	by vger.kernel.org with SMTP id S1751771AbWBMPAm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 10:00:42 -0500
+Date: Mon, 13 Feb 2006 16:00:24 +0100
+From: iSteve <isteve@rulez.cz>
+To: Phillip Susi <psusi@cfl.rr.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       Peter Osterlund <petero2@telia.com>
+Subject: Re: Packet writing issue on 2.6.15.1
+Message-ID: <20060213160024.5e01fa46@silver>
+In-Reply-To: <43EFD42D.6040102@cfl.rr.com>
+References: <20060211103520.455746f6@silver>
+	<m3r76a875w.fsf@telia.com>
+	<20060211124818.063074cc@silver>
+	<m3bqxd999u.fsf@telia.com>
+	<20060211170813.3fb47a03@silver>
+	<43EE446C.8010402@cfl.rr.com>
+	<20060211211440.3b9a4bf9@silver>
+	<43EE8B20.7000602@cfl.rr.com>
+	<2006021 <20060212114640.31765c3a@silver>
+	<43EFD42D.6040102@cfl.rr.com>
+X-Mailer: Sylpheed-Claws 2.0.0cvs42 (GTK+ 2.8.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares <mj@ucw.cz> wrote:
+On Sun, 12 Feb 2006 19:34:53 -0500
+Phillip Susi <psusi@cfl.rr.com> wrote:
+> So you want to write data to the disc without using pktcdvd?  cdrwtool 
+> -f allows you to write an image file to the disc, though I don't see why 
+> you don't want to use pktcdvd.  If you want to be able to read/write the 
+> disc on the fly, you must either use pktcdvd or format the disc in MRW 
+> mode.
+> 
 
-> Hello!
->
-> > This was true until ~ 2001, when Linux introduced unstable USB handling.
->
-> Even before that point it wasn't true, adding a new controller card
-> could always result in renumbering the previously existing controllers.
+I tried that. Mostly, writing failed. At cdrwtool's end, it looked like this:
+using device /dev/cdrw
+fixed packets
+setting speed to 10
+write file /root/udftest.img
+4690KB internal buffer
+setting write speed to 10x
+writing at lba = 0, blocks = 32
+wait_cmd: Input/output error
+Command failed: 2a 00 00 00 00 00 00 00 20 00 00 00 - sense 05.24.00
 
-Even in this case, this was a deficit from Linux.
+At kernel's end:
+cdrom: This disc doesn't have any tracks I recognize!
 
-On Solaris, adding a new controler always asigns this new controler a new
-higher ID (except for the case when the sysadmin explicitly requests different 
-behavior). On Linux a sysadmin needs to know how the evaluation works....
+Once I, somehow, managed to write it. However, writing ISO9660 (yes, I know
+that iso9660 doesn't support read/write; I use it for test though and I need
+it working), attempt to read it returned this:
 
-And BTW: if a sysadmin does not know how things work on Linux and thus
-causes a remapping, all /etc/vfstab entries would be void. So you are talking 
-about a major fault that should be avoided under all circumstances.
-
-
-Jörg
-
+attempt to access beyond end of device
+hdc: rw=0, want=68, limit=4
+isofs_fill_super: bread failed, dev=hdc, iso_blknum=16, block=16
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+ -- iSteve

@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751509AbWBMAy3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751496AbWBMA5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751509AbWBMAy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 19:54:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbWBMAy3
+	id S1751496AbWBMA5p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 19:57:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbWBMA5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 19:54:29 -0500
-Received: from ishtar.tlinx.org ([64.81.245.74]:23777 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S1751105AbWBMAy2 (ORCPT
+	Sun, 12 Feb 2006 19:57:45 -0500
+Received: from ns.suse.de ([195.135.220.2]:54743 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751496AbWBMA5o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 19:54:28 -0500
-Message-ID: <43EFD8BF.1040205@tlinx.org>
-Date: Sun, 12 Feb 2006 16:54:23 -0800
-From: Linda Walsh <lkml@tlinx.org>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Sun, 12 Feb 2006 19:57:44 -0500
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] trap int3 problem while porting a user space application and small cleanup patch
+Date: Mon, 13 Feb 2006 01:57:35 +0100
+User-Agent: KMail/1.8.2
+Cc: Roberto Nibali <ratz@drugphish.ch>, linux-kernel@vger.kernel.org
+References: <43EF6B7D.5080607@drugphish.ch>
+In-Reply-To: <43EF6B7D.5080607@drugphish.ch>
 MIME-Version: 1.0
-To: Al Viro <viro@ftp.linux.org.uk>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: Re: max symlink = 5? ?bug? ?feature deficit?
-References: <43ED5A7B.7040908@tlinx.org> <20060212180601.GU27946@ftp.linux.org.uk> <43EFA63B.30907@tlinx.org> <20060212212504.GX27946@ftp.linux.org.uk> <43EFBCA9.1090501@tlinx.org> <20060213000803.GY27946@ftp.linux.org.uk>
-In-Reply-To: <20060213000803.GY27946@ftp.linux.org.uk>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602130157.36084.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> On Sun, Feb 12, 2006 at 02:54:33PM -0800, Linda Walsh wrote:
->   
->> Al Viro wrote:
->>     
->>> Care to RTFS? I mean, really - at least to the point of seeing what's
->>> involved in that recursion.
->>>  
->>>       
->> Hmmm...that's where I got the original parameter numbers, but
->> I see it's not so straightforward.  I tried a limit of
->> 40, but I quickly get an OS hang when trying to reference a
->> 13th link.  Twelve works at the limit, but would take more testing
->> to find out the bottleneck.
->>     
->
-> Sigh...  12 works at the limit on your particular config, filesystems
-> being used and syscall being issued (hint: amount of stuff on stack
-> before we enter mutual recursion varies; so does the amount of stuff
-> on stack we get from function that are not part of mutual recursion,
-> but are called from the damn thing).
->   
----
-    Yeah, I sorta figured that.  Is there any easier way to
-remove the recursion?  I dunno about you, but I was always taught
-that recursion, while elegant, was not always the most efficient in
-terms of time and space requirements and one could get similar
-functionality using iteration and a stack.
+On Sunday 12 February 2006 18:08, Roberto Nibali wrote:
+> Hello,
+> 
+> For a while I've been working on a little tool called mpt-status to be 
+> able to monitor LSI based controllers. The source can be found here:
+> 
+>      http://www.drugphish.ch/~ratz/mpt-status/
+> 
+> The issue I'm trying to track down now is why I cannot get it to work on 
+> a x86_64 kernel (Sun Fire V20z with AMD Opteron(tm) Processor 252 on 
+> SLES 9 PL3). I suspect 32/64 bit issues between in my ioctl message 
+> passing between user space and kernel space.
 
-    The GNU libraries _seem_ to indicate a max of 20 links supported
-there.  Googling around, I see I'm not the first person to be surprised
-by the low limit.  I don't recall running into such a limit on any
-other Unixes, though I'm sure they had some limit.
+Quite possible. The mpt ioctls would need a ioctl conversion handler
+to allow a 32bit program to use the 64bit ioctls. Or just use a 64bit
+executable.
 
-    It can be useful for creating a shadow file-system where only
-root needs to point to a "target source", and the "symlink" overlay
-lies over the top of any real, underlying file.
+> Unfortunately when I strace  
+> the kernel spits out tons of following entries:
 
-    Why can't things just be easy sometimes...:-/
-Linda
+Some kernel versions printed that with strace. I think I fixed it in
+mainline, but I can't remember if it was fixed in SLES9 too (apparently not)
+It's fairly harmless, just ignore it. If it really bothers you you can
+turn it off with echo 0 > /proc/sys/debug/exception-trace
+
+
+> 
+> Attached is a small code style cleanup patch that resulted from my 
+> skimming through the arch/x86_64/kernel/traps.c code to figure out what 
+> went haywire. If Andi is ok with it, please consider applying.
+
+Hmm, ok applied.
+-Andi

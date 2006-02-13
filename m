@@ -1,68 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWBMOfM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbWBMOjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932314AbWBMOfM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 09:35:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWBMOfL
+	id S932118AbWBMOjS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 09:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWBMOjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 09:35:11 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:2689 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932118AbWBMOfJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 09:35:09 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 13 Feb 2006 15:33:06 +0100
-To: schilling@fokus.fraunhofer.de, peter.read@gmail.com, mj@ucw.cz,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de, alex@samad.com.au
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F098A2.nailKUSL1W9PE@burner>
-References: <43EA1D26.nail40E11SL53@burner>
- <20060208165330.GB17534@voodoo> <43EB0DEB.nail52A1LVGUO@burner>
- <Pine.LNX.4.61.0602091729560.30108@yvahk01.tjqt.qr>
- <43EB7210.nailIDH2JUBZE@burner>
- <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr>
- <43EB7BBA.nailIFG412CGY@burner>
- <mj+md-20060209.173519.1949.atrey@ucw.cz>
- <43EC71FB.nailISD31LRCB@burner> <20060210114930.GC2750@DervishD>
- <20060213005002.GK26235@samad.com.au>
-In-Reply-To: <20060213005002.GK26235@samad.com.au>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 13 Feb 2006 09:39:18 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:30100 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932118AbWBMOjR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 09:39:17 -0500
+Date: Mon, 13 Feb 2006 20:09:22 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+Cc: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net,
+       Balbir Singh <balbir@in.ibm.com>
+Subject: Re: [ckrm-tech] [PATCH 2/2] connect the CPU resource controller to CKRM
+Message-ID: <20060213143922.GB12279@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20060209061142.2164.35994.sendpatchset@debian> <20060209061152.2164.64958.sendpatchset@debian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060209061152.2164.64958.sendpatchset@debian>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Samad <alex@samad.com.au> wrote:
+On Thu, Feb 09, 2006 at 03:11:52PM +0900, KUROSAWA Takahiro wrote:
+> This patch provides a resource controller for controlling the CPU ratio 
+> per class in CKRM. It is just an interface to kernel/cpu_rc.c
 
-> On Fri, Feb 10, 2006 at 12:49:30PM +0100, DervishD wrote:
-> >     Hi Joerg :)
-> > 
-> >  * Joerg Schilling <schilling@fokus.fraunhofer.de> dixit:
-> > > Martin Mares <mj@ucw.cz> wrote:
-> > > > > This is why the mapping engine is in the Linux adoption part of
-> > > > > libscg. It maps the non-stable device <-> /dev/sg* relation to a
-> > > > > stable b,t,l address.
-> > > >
-> > > > Nonsense. The b,t,l addresses are NOT stable (at least for transports
-> > > 
-> > > Dou you like to verify that you have no clue on SCSI?
-> > 
-> >     My system is clueless, too! If I write a CD before plugging my
-> > USB storage device, my CD writer is on 0,0,0. If I plug my USB
-> > storage device *before* doing any access, my cdwriter is on 1,0,0.
-> > Pretty stable.
->
-> Had exactly the same problem with firewire and usb devices, depending on
-> the order of the loading of the kernel modules it all changes!
+[snip]
 
-This is a deficite of the Linux kernel model. You don't have similar
-problems on Solaris.
+> +static int __devinit ckrm_cpu_notify(struct notifier_block *self,
+> +				unsigned long action, void *hcpu)
+> +{
+> +	struct ckrm_class *cls = &ckrm_default_class;
+> +	struct ckrm_class *child = NULL;
+> +	struct ckrm_cpu *res;
+> +	int	cpu = (long) hcpu;
+> +
+> +	switch (action)	{
+> +
 
-Jörg
+[snip]
+
+> +		/* FALL THROUGH */
+> +	case CPU_UP_PREPARE:
+	     ^^^^^^^^^^^^^^
+		This should be done at CPU_ONLINE time (since the new CPU won't
+be in the cpu_online_map yet)?
+
+> +		grcd.cpus = cpu_online_map;
+> +		grcd.numcpus = cpus_weight(cpu_online_map);
+> +		break;
+
+
+
+--- kernel/ckrm/ckrm_cpu.c.org	2006-01-31 11:37:46.000000000 +0530
++++ kernel/ckrm/ckrm_cpu.c	2006-01-31 11:39:30.000000000 +0530
+@@ -295,7 +295,7 @@ static int __devinit ckrm_cpu_notify(str
+ 		}
+ 		ckrm_unlock_hier(cls);
+ 		/* FALL THROUGH */
+-	case CPU_UP_PREPARE:
++	case CPU_ONLINE:
+ 		grcd.cpus = cpu_online_map;
+ 		grcd.numcpus = cpus_weight(cpu_online_map);
+ 		break;
+
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Regards,
+vatsa

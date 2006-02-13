@@ -1,77 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030291AbWBMXgE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030293AbWBMXhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030291AbWBMXgE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 18:36:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030294AbWBMXgE
+	id S1030293AbWBMXhF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 18:37:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030294AbWBMXhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 18:36:04 -0500
-Received: from mail.gmx.net ([213.165.64.21]:57055 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030291AbWBMXgC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 18:36:02 -0500
-X-Authenticated: #7318305
-Subject: Re: 2.6.16-rc3: more regressions
-From: Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>
-To: Jesse Allen <the3dfxdude@gmail.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mauro Tassinari <mtassinari@cmanet.it>, airlied@linux.ie,
-       dri-devel@lists.sourceforge.net
-In-Reply-To: <530468570602131527nbd17ddn262b92304adf4f86@mail.gmail.com>
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org>
-	 <20060213170945.GB6137@stusta.de>
-	 <Pine.LNX.4.64.0602130931221.3691@g5.osdl.org>
-	 <20060213174658.GC23048@redhat.com>
-	 <Pine.LNX.4.64.0602130952210.3691@g5.osdl.org>
-	 <Pine.LNX.4.64.0602131007500.3691@g5.osdl.org>
-	 <20060213183445.GA3588@stusta.de>
-	 <Pine.LNX.4.64.0602131043250.3691@g5.osdl.org>
-	 <20060213190907.GD3588@stusta.de>
-	 <Pine.LNX.4.64.0602131115010.3691@g5.osdl.org>
-	 <530468570602131527nbd17ddn262b92304adf4f86@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Date: Mon, 13 Feb 2006 18:35:57 -0500
-Message-Id: <1139873757.17357.32.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 8BIT
-X-Y-GMX-Trusted: 0
+	Mon, 13 Feb 2006 18:37:05 -0500
+Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:31108 "EHLO
+	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1030293AbWBMXhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 18:37:03 -0500
+Message-ID: <43F1181D.1080202@bigpond.net.au>
+Date: Tue, 14 Feb 2006 10:37:01 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [ANNOUNCE] quilt 0.43
+References: <7Ks06MZm.1139822040.2403500.khali@localhost>
+In-Reply-To: <7Ks06MZm.1139822040.2403500.khali@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 13 Feb 2006 23:37:01 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, den 13.02.2006, 16:27 -0700 schrieb Jesse Allen:
-> On 2/13/06, Linus Torvalds <torvalds@osdl.org> wrote:
-> >
-> >
-> > On Mon, 13 Feb 2006, Adrian Bunk wrote:
-> > >
-> > > The one thing I have not yet been proven wrong for is that this PCI id
-> > > is the only one we have in this driver for an RV370.
-> >
-> > It definitely is an RV370, you're right in that. I'm too lazy to actually
-> > see if the other entries that claim to be RV350's really are RV350's.
-> >
+Jean Delvare wrote:
+> Hi all,
 > 
-> Well a while back, I hacked in the pci id for my Xpress 200M (5955),
-> which is basically an RV370 with no dedicated vram.  I did the same
-> thing and claimed an RV350, which is the closest model.  This allowed
-> the radeon module to load.  When I startx'ed and DRI was allowed to
-> load on it, it locked up.  So I never sent in the patch.  I believe
-> the person who sent this one in originally seemed to indicate that it
-> worked, and I believed it if he had an X300 and my problem was having
-> the IGP version.  But now having this reported, I'm pretty sure it is
-> the same problem.  RV370 doesn't seem to work as an RV350.
+> Quilt 0.43 has been released ten days ago (sorry for being slow). A
+> number of improvements may be of interest to kernel developers so I am
+> announcing it here on LKML.
+> 
+> Quilt 0.43 can be downloaded from here:
+>   http://savannah.nongnu.org/download/quilt/quilt-0.43.tar.gz
+> 
+> Bug fixes:
+>   Deleting the top patch works again,
+>   patch delimiter ("---") is no more eaten on refresh.
+> 
+> Compatibility:
+>   Huge efforts have been put into improving compatibility with many
+>   platforms. The git specific patch format extensions are better
+>   supported too.
+> 
+> New features:
+>   The mail command has been completely reworked,
+>   delete -r physically removes the deleted patch,
+>   delete --backup makes a backup copy of the deleted patch,
+>   annotate -P annotates a previous version of the file,
+>   import can preserve or merge comments when updating a patch,
+>   push detects reversed patches,
+>   diffstat options can be specified,
+>   patch delimiter ("---") is automatically inserted before diffstat.
+> 
 
-The Xpress200 chips have a completely different GART implementation.
-Thus the driver can't even send commands to the command processor and
-that's why X locked up on you when DRI was enabled. This has nothing to
-do with the Xpress200 being (almost) an RV370 or not.
+Changes to the interface in this version of quilt broke gquilt (a GUI 
+wrapper for quilt) and if you use gquilt and upgrade to this version of 
+quilt you will also need to upgrade to version 0.17 of gquilt.  It is 
+available in source form at:
 
-Regards,
-  Felix
+<http://users.bigpond.net.au/Peter-Williams/gquilt-0.17.tar.gz>
 
+and rpm form at:
+
+<http://users.bigpond.net.au/Peter-Williams/gquilt-0.17-1.noarch.rpm>
+
+Enjoy,
+Peter
 -- 
-| Felix Kühling <fxkuehl@gmx.de>                     http://fxk.de.vu |
-| PGP Fingerprint: 6A3C 9566 5B30 DDED 73C3  B152 151C 5CC1 D888 E595 |
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

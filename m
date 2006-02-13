@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751570AbWBMD2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751561AbWBMDgg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751570AbWBMD2r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 22:28:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751563AbWBMD2r
+	id S1751561AbWBMDgg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 22:36:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWBMDgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 22:28:47 -0500
-Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:10883 "EHLO
-	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751096AbWBMD2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 22:28:45 -0500
+	Sun, 12 Feb 2006 22:36:35 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:56286 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751170AbWBMDge (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 22:36:34 -0500
+Message-ID: <43EFFEA4.8030102@pobox.com>
+Date: Sun, 12 Feb 2006 22:36:04 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
        Jens Axboe <axboe@suse.de>,
        James Bottomley <James.Bottomley@steeleye.com>,
        "Brown, Len" <len.brown@intel.com>,
        "David S. Miller" <davem@davemloft.net>, Greg KH <greg@kroah.com>,
        linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       "Yu, Luming" <luming.yu@intel.com>,
-       "Ben Castricum" <lk@bencastricum.nl>,
-       Helge Hafting <helgehaf@aitel.hist.no>,
+       "Yu, Luming" <luming.yu@intel.com>, Ben Castricum <lk@bencastricum.nl>,
+       sanjoy@mrao.cam.ac.uk, Helge Hafting <helgehaf@aitel.hist.no>,
        "Carlo E. Prelz" <fluido@fluido.as>,
-       Gerrit =?ISO-8859-1?B?QnJ1Y2ho5HVzZXI=?= <gbruchhaeuser@gmx.de>,
+       =?ISO-8859-1?Q?Gerrit_Bruchh=E4us?= =?ISO-8859-1?Q?er?= 
+	<gbruchhaeuser@gmx.de>,
        Nicolas.Mailhot@LaPoste.net, Jaroslav Kysela <perex@suse.cz>,
        Takashi Iwai <tiwai@suse.de>, Patrizio Bassi <patrizio.bassi@gmail.com>,
-       =?ISO-8859-1?B?Qmr2cm4=?= Nilsson <bni.swe@gmail.com>,
+       =?ISO-8859-1?Q?Bj=F6rn_Nilsson?= <bni.swe@gmail.com>,
        Andrey Borzenkov <arvidjaar@mail.ru>, "P. Christeas" <p_christ@hol.gr>,
        ghrt <ghrt@dial.kappa.ro>, jinhong hu <jinhong.hu@gmail.com>,
        Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-scsi@vger.kernel.org,
        Benjamin LaHaise <bcrl@kvack.org>
-Subject: Re: Linux 2.6.16-rc3 
-In-Reply-To: Your message of "Sun, 12 Feb 2006 19:05:20 PST."
-             <20060212190520.244fcaec.akpm@osdl.org> 
-Date: Mon, 13 Feb 2006 03:28:34 +0000
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E1F8UOA-00085s-00@skye.ra.phy.cam.ac.uk>
+Subject: Re: Linux 2.6.16-rc3
+References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org> <20060212190520.244fcaec.akpm@osdl.org>
+In-Reply-To: <20060212190520.244fcaec.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Andrew Morton wrote: > -
+	http://bugzilla.kernel.org/show_bug.cgi?id=5914 - a sata bug (which is
+	> quite unremarkable :(), but this one is reported to eat filesystems.
+	Issue closed, as the bug notes... [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In http://bugzilla.kernel.org/show_bug.cgi?id=5989, Sanjoy Mahajan has
-> another regression, but he's off collecting more info.
+Andrew Morton wrote:
+> - http://bugzilla.kernel.org/show_bug.cgi?id=5914 - a sata bug (which is
+>   quite unremarkable :(), but this one is reported to eat filesystems.
 
-I'm nearly done with bisecting (spent a day on a wild bisect goose
-chase due to being careless) and I'm 95% sure the problem is
-introduced by:
+Issue closed, as the bug notes...
 
-commit b8e4d89357fc434618a59c1047cac72641191805
-Author: Bob Moore <robert.moore@intel.com>
-Date:   Fri Jan 27 16:43:00 2006 -0500
+	Jeff
 
-    [ACPI] ACPICA 20060127
 
-But I will know for sure shortly.
 
--Sanjoy
 
-`Never underestimate the evil of which men of power are capable.'
-         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.

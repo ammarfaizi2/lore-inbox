@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWBMTFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbWBMTFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964806AbWBMTFz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 14:05:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbWBMTFy
+	id S964804AbWBMTFf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 14:05:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWBMTFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 14:05:54 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:4485 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964806AbWBMTFx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 14:05:53 -0500
-Date: Mon, 13 Feb 2006 11:05:37 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-cc: Hugh Dickins <hugh@veritas.com>, Gleb Natapov <gleb@minantech.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       openib-general@openib.org
-Subject: Re: madvise MADV_DONTFORK/MADV_DOFORK
-In-Reply-To: <20060213154114.GO32041@mellanox.co.il>
-Message-ID: <Pine.LNX.4.64.0602131104460.3691@g5.osdl.org>
-References: <20060213154114.GO32041@mellanox.co.il>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 13 Feb 2006 14:05:35 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:12757 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964804AbWBMTFe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 14:05:34 -0500
+Subject: Re: kernel BUG at arch/i386/mm/pageattr.c:137!
+From: Lee Revell <rlrevell@joe-job.com>
+To: Zeno Davatz <zdavatz@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <40a4ed590602130924h2fa305dbye4e1c58e27c089ba@mail.gmail.com>
+References: <40a4ed590602130924h2fa305dbye4e1c58e27c089ba@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 13 Feb 2006 14:05:31 -0500
+Message-Id: <1139857532.3202.40.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.90 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 13 Feb 2006, Michael S. Tsirkin wrote:
+On Mon, 2006-02-13 at 17:24 +0000, Zeno Davatz wrote:
+> Hi
 > 
-> Add madvise options to control whether memory range is inherited across fork.
-> Useful e.g. for when hardware is doing DMA from/into these pages.
+> I'm running Kernel. 2.6.15.4 and I compiled the newest sources for the
+> Kernel with the Nvidia driver. When I start Xorg dmesg gives me the
+> following:
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
->
-> -		if (mpnt->vm_flags & VM_DONTCOPY) {
-> +		if (mpnt->vm_flags & (VM_DONTCOPY | VM_DONTFORK)) {
+> kernel BUG at arch/i386/mm/pageattr.c:137!
+> invalid operand: 0000 [#1]
+> PREEMPT
+> Modules linked in: nvidia wlan_scan_ap wlan_scan_sta ath_pci
+> ath_rate_sample wlan ath_hal
+> CPU:    0
+> EIP:    0060:[<c0112dfa>]    Tainted: P      VLI
 
-Why?
+Why in the hell are you posting an Oops here that not only has the
+nvidia driver loaded, but is clearly caused by it?!?
 
-That VM_DONTCOPY _is_ DONTFORK. 
+Please look up what "Tainted" means in the context of a kernel Oops.
 
-Don't add a new useless DONTFORK that doesn't have any value.
+Lee
 
-		Linus

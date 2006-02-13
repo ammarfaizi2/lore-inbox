@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030278AbWBMX1n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030279AbWBMXaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030278AbWBMX1n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 18:27:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030279AbWBMX1n
+	id S1030279AbWBMXaI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 18:30:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030281AbWBMXaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 18:27:43 -0500
-Received: from nproxy.gmail.com ([64.233.182.195]:23577 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030278AbWBMX1m convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 18:27:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ecEuhQF026Pv1Y3eWRRgKoZGCxIcgPmhaXs4guZrAnaNNpc+N5pqXmWiQB2WughzL/XPrvMFi+Y5Eez22XrzJxxlD8+cgcerrxEOyiD98mV1zkOdCOu9PAZfHoeP5OYiNsIqHg4FPDz0oj1YvzWhkrRwkAuyONrJxlodA8xjvNI=
-Message-ID: <530468570602131527nbd17ddn262b92304adf4f86@mail.gmail.com>
-Date: Mon, 13 Feb 2006 16:27:40 -0700
-From: Jesse Allen <the3dfxdude@gmail.com>
+	Mon, 13 Feb 2006 18:30:07 -0500
+Received: from ns.suse.de ([195.135.220.2]:6314 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030279AbWBMXaG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 18:30:06 -0500
+Date: Tue, 14 Feb 2006 00:30:03 +0100
+From: Karsten Keil <kkeil@suse.de>
 To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2.6.16-rc3: more regressions
-Cc: Adrian Bunk <bunk@stusta.de>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mauro Tassinari <mtassinari@cmanet.it>, airlied@linux.ie,
-       dri-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.64.0602131115010.3691@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix NULL pointer dereference in isdn_tty_at_cout
+Message-ID: <20060213233003.GA17663@pingi.kke.suse.de>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org>
-	 <20060213170945.GB6137@stusta.de>
-	 <Pine.LNX.4.64.0602130931221.3691@g5.osdl.org>
-	 <20060213174658.GC23048@redhat.com>
-	 <Pine.LNX.4.64.0602130952210.3691@g5.osdl.org>
-	 <Pine.LNX.4.64.0602131007500.3691@g5.osdl.org>
-	 <20060213183445.GA3588@stusta.de>
-	 <Pine.LNX.4.64.0602131043250.3691@g5.osdl.org>
-	 <20060213190907.GD3588@stusta.de>
-	 <Pine.LNX.4.64.0602131115010.3691@g5.osdl.org>
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.6.13-15.7-smp x86_64
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/13/06, Linus Torvalds <torvalds@osdl.org> wrote:
->
->
-> On Mon, 13 Feb 2006, Adrian Bunk wrote:
-> >
-> > The one thing I have not yet been proven wrong for is that this PCI id
-> > is the only one we have in this driver for an RV370.
->
-> It definitely is an RV370, you're right in that. I'm too lazy to actually
-> see if the other entries that claim to be RV350's really are RV350's.
->
+The changes in the tty related code introduced wrong parenthesis in a
+if condition in the isdn_tty_at_cout function.
+This caused access to index -1 in the dev->drv[] array.
+This patch change it back to the correct condition from the previous
+versions.
 
-Well a while back, I hacked in the pci id for my Xpress 200M (5955),
-which is basically an RV370 with no dedicated vram.  I did the same
-thing and claimed an RV350, which is the closest model.  This allowed
-the radeon module to load.  When I startx'ed and DRI was allowed to
-load on it, it locked up.  So I never sent in the patch.  I believe
-the person who sent this one in originally seemed to indicate that it
-worked, and I believed it if he had an X300 and my problem was having
-the IGP version.  But now having this reported, I'm pretty sure it is
-the same problem.  RV370 doesn't seem to work as an RV350.
+Signed-off-by: Karsten Keil <kkeil@suse.de>
 
-Jesse
+---
+
+ drivers/isdn/i4l/isdn_tty.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+f472fc1267e4975379b7566b1236b9235aaeeda0
+diff --git a/drivers/isdn/i4l/isdn_tty.c b/drivers/isdn/i4l/isdn_tty.c
+index f190a99..3936336 100644
+--- a/drivers/isdn/i4l/isdn_tty.c
++++ b/drivers/isdn/i4l/isdn_tty.c
+@@ -2359,8 +2359,8 @@ isdn_tty_at_cout(char *msg, modem_info *
+ 
+ 	/* use queue instead of direct, if online and */
+ 	/* data is in queue or buffer is full */
+-	if ((info->online && tty_buffer_request_room(tty, l) < l) ||
+-	    (!skb_queue_empty(&dev->drv[info->isdn_driver]->rpqueue[info->isdn_channel]))) {
++	if (info->online && ((tty_buffer_request_room(tty, l) < l) ||
++	    !skb_queue_empty(&dev->drv[info->isdn_driver]->rpqueue[info->isdn_channel]))) {
+ 		skb = alloc_skb(l, GFP_ATOMIC);
+ 		if (!skb) {
+ 			spin_unlock_irqrestore(&info->readlock, flags);
+
+-- 
+Karsten Keil
+SuSE Labs
+ISDN development

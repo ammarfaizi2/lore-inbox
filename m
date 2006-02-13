@@ -1,83 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbWBMG6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWBMHBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750998AbWBMG6P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 01:58:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbWBMG6P
+	id S1750997AbWBMHBg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 02:01:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWBMHBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 01:58:15 -0500
-Received: from zproxy.gmail.com ([64.233.162.207]:3152 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750997AbWBMG6O convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 01:58:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=P3DCncnWSy9skijeXgMZoqtGTnzfedvwBnakUJr6Ir9vlQVXPrCnTj00HoDJiAnZk5uyisnxYC7i7nuS6PT7nEGIXtGHnXHcSEwHhMplm/KCN+A+DZ6Vkw8Wo6pvd9+7rrtcK/2JjXEt8NhT8mHy9Q5miv9uwZN+jjrdE638Rps=
-Message-ID: <cfb54190602122258j147d77e8ndbe40f4db57bf23a@mail.gmail.com>
-Date: Mon, 13 Feb 2006 08:58:14 +0200
-From: Hai Zaar <haizaar@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: setting CONFIG_HZ=2000 makes ntpd go crazy
-Cc: "Yanover, Igor" <igor.yanover@intel.com>
+	Mon, 13 Feb 2006 02:01:36 -0500
+Received: from fsmlabs.com ([168.103.115.128]:28368 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1750997AbWBMHBg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 02:01:36 -0500
+X-ASG-Debug-ID: 1139814082-17577-18-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Sun, 12 Feb 2006 23:05:59 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+cc: Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+X-ASG-Orig-Subj: Re: 2.6.16-rc2, x86-64, CPU hotplug failure
+Subject: Re: 2.6.16-rc2, x86-64, CPU hotplug failure
+In-Reply-To: <200602130230.41120.s0348365@sms.ed.ac.uk>
+Message-ID: <Pine.LNX.4.64.0602122223290.10777@montezuma.fsmlabs.com>
+References: <200602130230.41120.s0348365@sms.ed.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.8651
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear list,
-I use the patch below to speed up HZ from 1000 to 2000. I use this hack
-starting from kernel  2.6.7 and I have not experienced any particular
-problems. Recently I've started to use NTP and  have noticed that ntp
-client loose synchronization, if this patch is applied, i.e. it
-connects, synchronizes, and then after a few polls,  jitter just jumps
-to 5 digit number. I've rechecked the behavior on the kernel 2.6.11
-and results are the same - applied patch just "skews up" ntpd, while
-there are no any problems with vanilla kernels.
+On Mon, 13 Feb 2006, Alistair John Strachan wrote:
 
-Is the patch incorrect in any way?
+> In an attempt to play with ACPI S3 on my Athlon 64 X2 3800+, I recompiled 
+> 2.6.16-rc2 with CPU hotplug and ACPI sleep state support. I experienced 
+> multiple crashes and oopsen, which I quickly discovered were the result of 
+> bringing at least one CPU back online.
+> 
+> echo 0 >> /sys/devices/system/cpu/cpu1/online
+> 
+> Works, but then if I try to do:
+> 
+> echo 1 >> /sys/devices/system/cpu/cpu1/online
+> 
+> I get an oops. Unfortunately this board has no serial ports so I've taken a 
+> digital camera shot of the oops. From dmesg, I'm using the PM timer.
+> 
+> [alistair] 02:13 [~] dmesg | egrep time\.c
+> time.c: Using 3.579545 MHz PM timer.
+> time.c: Detected 2500.768 MHz processor.
+> time.c: Using PM based timekeeping.
+> 
+> http://devzero.co.uk/~alistair/oops-20060213/
 
-P.S. I'm not on the list, so please CC me. Thanks.
--------------------------------------------------------------------------------------------------------------------
-The patch ajusts kernel internal clock timer to 2000HZ instead of 1000HZ. This
-is required to decrease response time of some drivers (currently rocket.ko).
-
-Author:	Igor Yanover <igor@yanover.name>
-Crafted for 2.6.15 by:	Michael Goldman <haizaar@gmail.com>
-
---- kernel-2.6.15/include/linux/jiffies.h.orig	2006-02-07
-12:59:20.000000000 +0200
-+++ kernel-2.6.15/include/linux/jiffies.h	2006-02-07 13:00:50.000000000 +0200
-@@ -38,6 +38,8 @@
- # define SHIFT_HZ	9
-  #elif HZ >= 768 && HZ < 1536
- # define SHIFT_HZ	10
-+#elif HZ >= 1536 && HZ < 3072
-+# define SHIFT_HZ  11
- #else
- # error You lose.
- #endif
---- kernel-2.6.15/kernel/Kconfig.hz.orig	2006-01-03 05:21:10.000000000 +0200
-+++ kernel-2.6.15/kernel/Kconfig.hz	2006-02-07 18:44:03.000000000 +0200
-@@ -36,6 +36,11 @@
- 	 1000 HZ is the preferred choice for desktop systems and other
- 	 systems requiring fast interactive responses to events.
-
-+	config HZ_2000
-+		bool "2000 HZ"
-+	help
-+	 2000 HZ is hand crafted for software realtime. Use on your own risk.
-+
- endchoice
-
- config HZ
-@@ -43,4 +48,5 @@
- 	default 100 if HZ_100
- 	default 250 if HZ_250
- 	default 1000 if HZ_1000
-+	default 2000 if HZ_2000
-
-
---
-Zaar
+Nice snapshot, that bug was fixed around 2.6.16-rc3, unsynchronized_tsc 
+was marked __init instead of __cpuinit

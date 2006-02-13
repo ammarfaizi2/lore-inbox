@@ -1,53 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030282AbWBMXcf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030276AbWBMXbc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030282AbWBMXcf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 18:32:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030293AbWBMXcf
+	id S1030276AbWBMXbc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 18:31:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030282AbWBMXbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 18:32:35 -0500
-Received: from mx2.netapp.com ([216.240.18.37]:41611 "EHLO mx2.netapp.com")
-	by vger.kernel.org with ESMTP id S1030283AbWBMXce (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 18:32:34 -0500
-X-IronPort-AV: i="4.02,109,1139212800"; 
-   d="scan'208"; a="358434366:sNHT18439440"
-Subject: Re: [PATCH] NLM: Fix the NLM_GRANTED callback checks
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
+	Mon, 13 Feb 2006 18:31:32 -0500
+Received: from allen.werkleitz.de ([80.190.251.108]:22495 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S1030276AbWBMXbb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 18:31:31 -0500
+Date: Tue, 14 Feb 2006 00:31:14 +0100
+From: Johannes Stezenbach <js@linuxtv.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060213152021.6e25e40b.akpm@osdl.org>
-References: <1139801149.7916.11.camel@lade.trondhjem.org>
-	 <20060213152021.6e25e40b.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Network Appliance, Inc
-Date: Mon, 13 Feb 2006 18:32:30 -0500
-Message-Id: <1139873550.7870.51.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-X-OriginalArrivalTime: 13 Feb 2006 23:32:31.0137 (UTC) FILETIME=[C249B910:01C630F5]
+Cc: lkml@rtr.ca, dgc@sgi.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Message-ID: <20060213233114.GA21971@linuxtv.org>
+Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
+	Andrew Morton <akpm@osdl.org>, lkml@rtr.ca, dgc@sgi.com,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+References: <20060206040027.GI43335175@melbourne.sgi.com> <20060205202733.48a02dbe.akpm@osdl.org> <43E75ED4.809@rtr.ca> <43E75FB6.2040203@rtr.ca> <20060206121133.4ef589af.akpm@osdl.org> <20060213135925.GA6173@linuxtv.org> <20060213120847.79215432.akpm@osdl.org> <20060213224835.GC5565@linuxtv.org> <20060213150457.547ddfb4.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060213150457.547ddfb4.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
+X-SA-Exim-Connect-IP: 84.189.220.130
+Subject: Re: dirty pages (Was: Re: [PATCH] Prevent large file writeback starvation)
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-13 at 15:20 -0800, Andrew Morton wrote:
-> Trond Myklebust <Trond.Myklebust@netapp.com> wrote:
+On Mon, Feb 13, 2006 at 03:04:57PM -0800, Andrew Morton wrote:
+> Johannes Stezenbach <js@linuxtv.org> wrote:
 > >
-> > Currently when the NLM_GRANTED callback comes in, lockd walks the list of
-> > blocked locks in search of a match to the lock that the NLM server has
-> > granted. Although it checks the lock pid, start and end, it fails to check
-> > the filehandle and the server address.
+> > On Mon, Feb 13, 2006, Andrew Morton wrote:
+> >  > Johannes Stezenbach <js@linuxtv.org> wrote:
+> >  > > Now copying a 700MB file makes "Dirty" go up to 350MB. It then
+> >  > > slowly decreases to 325MB and stays there.
+> >  > 
+> >  > It shouldn't.  Did you really leave it for long enough?
+> >  > 
+> >  > If you did, then why does it happen there and not here?
 > > 
+> >  Good question. I just repeated the execise, rebooted and
+> >  copied a 700MB file. After ~30min "Dirty" is down to ~130MB, and
+> >  continues to decrease very slowly.
+> > 
+> >  On my Desktop machine (P4 HT, 1G RAM) "Dirty" goes down near
+> >  zero after ~30sec, as expected.
 > 
-> What are the consequences of this bug?
+> Are you using any unusual mount options?
+> 
+> Which filesystem types are online (not that this should affect it...)
 
-If 2 threads attached to the same process are blocking on different
-locks on different files (maybe even on different servers) but have the
-same lock arguments (i.e. same offset+length - actually quite common,
-since most processes try to lock the entire file) then the first GRANTED
-call that wakes one up will also wake the other.
+$ cat /proc/mounts
+rootfs / rootfs rw 0 0
+/dev/root / ext3 rw,data=ordered 0 0
+proc /proc proc rw,nodiratime 0 0
+sysfs /sys sysfs rw 0 0
+usbfs /proc/bus/usb usbfs rw 0 0
+/dev/root /dev/.static/dev ext3 rw,data=ordered 0 0
+tmpfs /dev tmpfs rw 0 0
+tmpfs /dev/shm tmpfs rw 0 0
+devpts /dev/pts devpts rw 0 0
+/dev/hda6 /home ext3 rw,data=ordered 0 0
+nfsd /proc/fs/nfsd nfsd rw 0 0
+$
 
-By checking the filehandle and server IP address, we ensure that this
-only happens if the locks truly are referencing the same file.
+I found that if I copy a large number of small files (e.g. the linux
+source tree), "Dirty" drops back near zero after ~30sec. Only if
+I copy large files it won't.
 
-Cheers,
-  Trond
+
+Johannes

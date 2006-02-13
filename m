@@ -1,37 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbWBMT3f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932444AbWBMTcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932429AbWBMT3f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 14:29:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWBMT3f
+	id S932444AbWBMTcn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 14:32:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbWBMTcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 14:29:35 -0500
-Received: from dup-200-64-43-24.prodigy.net.mx ([200.64.43.24]:43271 "EHLO
-	dup-200-64-43-24.prodigy.net.mx") by vger.kernel.org with ESMTP
-	id S932429AbWBMT3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 14:29:34 -0500
-Message-ID: <007801c630d3$c0f2ad00$1c0c000a@hPnwMHi>
-From: "Galya" <info@71.ru>
-To: "linux-kernel-owner" <linux-kernel-owner@vger.kernel.org>
-Subject: Re[1]: hi from Galinochka
-Date: Mon, 13 Feb 2006 21:29:21 +0200
+	Mon, 13 Feb 2006 14:32:42 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:65152 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932376AbWBMTcl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 14:32:41 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Takashi Iwai <tiwai@suse.de>
+Subject: Re: Linux 2.6.16-rc3
+Date: Mon, 13 Feb 2006 20:33:24 +0100
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       "Brown, Len" <len.brown@intel.com>,
+       "David S. Miller" <davem@davemloft.net>, Greg KH <greg@kroah.com>,
+       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       "Yu, Luming" <luming.yu@intel.com>,
+       "Ben Castricum" <lk@bencastricum.nl>, sanjoy@mrao.cam.ac.uk,
+       Helge Hafting <helgehaf@aitel.hist.no>,
+       "Carlo E. Prelz" <fluido@fluido.as>,
+       Gerrit =?iso-8859-1?q?Bruchh=E4user?= <gbruchhaeuser@gmx.de>,
+       Nicolas.Mailhot@laposte.net, Jaroslav Kysela <perex@suse.cz>,
+       Patrizio Bassi <patrizio.bassi@gmail.com>,
+       =?iso-8859-1?q?Bj=F6rn_Nilsson?= <bni.swe@gmail.com>,
+       Andrey Borzenkov <arvidjaar@mail.ru>, "P. Christeas" <p_christ@hol.gr>,
+       ghrt <ghrt@dial.kappa.ro>, jinhong hu <jinhong.hu@gmail.com>,
+       Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-scsi@vger.kernel.org,
+       Benjamin LaHaise <bcrl@kvack.org>
+References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org> <200602131409.54300.rjw@sisk.pl> <s5hfymn4bav.wl%tiwai@suse.de>
+In-Reply-To: <s5hfymn4bav.wl%tiwai@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="windows-1251"
-Content-Transfer-Encoding: 8bit
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602132033.26881.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greeting!	
+On Monday 13 February 2006 14:51, Takashi Iwai wrote:
+> At Mon, 13 Feb 2006 14:09:51 +0100,
+> Rafael J. Wysocki wrote:
+> > 
+> > On Monday 13 February 2006 13:02, Takashi Iwai wrote:
+> > > At Sun, 12 Feb 2006 19:05:20 -0800,
+> > > Andrew Morton wrote:
+> > > > 
+> > > > - Patrizio Bassi <patrizio.bassi@gmail.com> has an alsa suspend
+> > > >   regression ("alsa suspend/resume continues to fail for ens1370")
+> > > 
+> > > It's not a "regression".  PM didn't work with ens1370 at all in the
+> > > eralier version.
+> > > 
+> > > About the problem there, I have no idea now what's wrong.  The
+> > > suspend-to-disk works fine if the driver is built as module but not as
+> > > built-in kernel.
+> > 
+> > That may be related to the fact that modular drivers are not present in
+> > memory during resume (just a thought).
+> 
+> I think the modular drivers are on memory but the order of
+> re-initialization is different.
 
-I'm a very young and energetic lady! I have very positive attitude to life and people. I do enjoy new experience life can offer me: to see new interesting places, to meet new people.
-I do try to enjoy every moment of life and accept everything the way it comes without complaining.
-Though my life seems to be quite enjoyable there's one important thing missing. It's LOVE!
-Without my beloved one, my soul mate, my King my life is not completed.
-I wish i coud find him very soon so that we could share together every momement of the life-time romance! 
-What about you? Could you be my King? If answer is "yes" - you can find more about me 
-http://6OIrJX0zgaI8Tne195qm.waiting-for-you.org/
+No, they are not (this is the part I'm sure of).  software_resume() is called
+before any modules have a chance to be loaded unless you boot with
+noresume, load them from an initrd and start the resume manually.
 
-good-bye,
-Galya
-
-
+Greetings,
+Rafael

@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751654AbWBMI57@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751655AbWBMI7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751654AbWBMI57 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 03:57:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbWBMI57
+	id S1751655AbWBMI7t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 03:59:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751656AbWBMI7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 03:57:59 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:36310 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751095AbWBMI56 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 03:57:58 -0500
-Subject: Re: Linux 2.6.16-rc3
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Brown, Len" <len.brown@intel.com>, davem@davemloft.net, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, axboe@suse.de,
-       James.Bottomley@steeleye.com, greg@kroah.com,
-       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       luming.yu@intel.com, lk@bencastricum.nl, sanjoy@mrao.cam.ac.uk,
-       helgehaf@aitel.hist.no, fluido@fluido.as, gbruchhaeuser@gmx.de,
-       Nicolas.Mailhot@LaPoste.net, perex@suse.cz, tiwai@suse.de,
-       patrizio.bassi@gmail.com, bni.swe@gmail.com, arvidjaar@mail.ru,
-       p_christ@hol.gr, ghrt@dial.kappa.ro, jinhong.hu@gmail.com,
-       andrew.vasquez@qlogic.com, linux-scsi@vger.kernel.org, bcrl@kvack.org
-In-Reply-To: <20060213001240.05e57d42.akpm@osdl.org>
-References: <F7DC2337C7631D4386A2DF6E8FB22B30060BD1D9@hdsmsx401.amr.corp.intel.com>
-	 <20060213001240.05e57d42.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 13 Feb 2006 09:57:48 +0100
-Message-Id: <1139821068.2997.22.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 13 Feb 2006 03:59:49 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:44176 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751625AbWBMI7t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 03:59:49 -0500
+Date: Mon, 13 Feb 2006 09:59:28 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Phillip Susi <psusi@cfl.rr.com>
+cc: Nicolas George <nicolas.george@ens.fr>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Filesystem for mobile hard drive
+In-Reply-To: <43EFEE57.7070009@cfl.rr.com>
+Message-ID: <Pine.LNX.4.61.0602130959050.2682@yvahk01.tjqt.qr>
+References: <20060212150331.GA22442@clipper.ens.fr> <43EFD6E4.60601@cfl.rr.com>
+ <20060213010701.GA8430@clipper.ens.fr> <43EFEE57.7070009@cfl.rr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-13 at 00:12 -0800, Andrew Morton wrote:
-> "Brown, Len" <len.brown@intel.com> wrote:
-> >
-> > My point is that it that on the grand scale of bugs serious enough
-> >  to have an effect on the course of 2.6.16, this one doesn't qualify
-> >  unless the same issue is seen on other systems.
-> 
-> I think we can assume that it will be seen there.  2.6.16 is going into
-> distros and will have more exposure than 2.6.15, 
-
-2.6.15 went into distros as well, such as Fedora Core 4 ;)
+>> According to Wikipedia, and what I knew besides, FAT32 has a limit of 2 To
+>> for the whole filesystem. But the limit I was talking of is the file size
+>> limit: 4 Go perfile. Which is, nowadays, a bit short: an ISO image for a
+>> DVD-R does not fit, for example.
+>
+> Ahh yes, the per file limit.  BTW, why are you saying "To" and "Go" when you
+> apparently mean "TB" and "GB"?
+>
+French wording...
 
 
+
+Jan Engelhardt
+-- 

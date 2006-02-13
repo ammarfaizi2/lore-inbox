@@ -1,161 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbWBMUER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWBMUJG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964840AbWBMUER (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 15:04:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWBMUEQ
+	id S964818AbWBMUJG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 15:09:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbWBMUJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 15:04:16 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:42370 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S964840AbWBMUEP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 15:04:15 -0500
-Date: Mon, 13 Feb 2006 15:04:11 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Phillip Susi <psusi@cfl.rr.com>
-cc: Kyle Moffett <mrmacman_g4@mac.com>, Alon Bar-Lev <alon.barlev@gmail.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Flames over -- Re: Which is simpler?
-In-Reply-To: <43F0BE8F.6030609@cfl.rr.com>
-Message-ID: <Pine.LNX.4.44L0.0602131425140.4632-100000@iolanthe.rowland.org>
+	Mon, 13 Feb 2006 15:09:06 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:34357 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S964818AbWBMUJF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 15:09:05 -0500
+Message-ID: <43F0E724.6000807@cfl.rr.com>
+Date: Mon, 13 Feb 2006 15:08:04 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Brownell <david-b@pacbell.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Flames over -- Re: Which is simpler?
+References: <200602131116.41964.david-b@pacbell.net>
+In-Reply-To: <200602131116.41964.david-b@pacbell.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Feb 2006 20:09:57.0167 (UTC) FILETIME=[75F513F0:01C630D9]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14266.000
+X-TM-AS-Result: No--16.900000-5.000000-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Feb 2006, Phillip Susi wrote:
+David Brownell wrote:
+> What ide drive?  Oh, you're talking about PC-ish systems, not
+> embedded ones that don't _have_ rotating media to power off.
+>   
 
-> If you believe I am wrong, then please offer proof.  Specifically, refer 
-> to the kernel code that handles verifying that the hardware is still 
-> there after a resume.  I very well may be wrong, but you can not simply 
-> surmise this to be so without any proof.  It is currently my belief that 
-> the kernel probes the hardware the same way after a cold boot, resume 
-> from s-t-r, and resume from s-t-d.  Specifically it looks to see if a 
-> device is located in the same bus location with the same serial number, 
-> etc, and if so, access to it continues exactly where it left off prior 
-> to the suspend. 
+Yes, that's exactly what the discussion is about; disk drives with 
+mounted filesystems and what happens to them when you suspend/resume. 
+> Your experience is very different from mine; I've observed that
+> most PC hardware keeps USB powered in suspend-to-ram states, so
+> a keyboard or mouse action may wake the system up, just as it can
+> with many PS2 style keyboards and mice.  Same thing for Ethernet,
+> using various types of wakeup event including "magic packet".
+> See /proc/acpi/wakeup, and the related parts of the ACPI specs.
+> (And USB specs, and lots more ... this info is widespread.)
+>   
 
-Okay.  Take a look at drivers/usb/core/hub.c.  The usb_resume_device()  
-routine is called when resuming either from STR or STD.  If
-CONFIG_USB_SUSPEND has been set, it calls hub_port_resume(), which in turn
-calls finish_device_resume().  Inside finish_device_resume() is a call to
-usb_get_status(), which will fail if the device has not been connected and
-powered-up throughout the entire suspend.  That failure will cause 
-hub_port_resume() to call hub_port_logical_disconnect(), which has the 
-effect of doing a logical disconnect on the device.
+As I have said before, some systems can keep the USB bus in a low power 
+mode where it can wake the system, but AFAIK, waking the system is all 
+they can do in this state; they can not tell the kernel that device x 
+has been connected and device y has been disconnected, the kernel must 
+figure that out by probing the hardware and comparing the list with what 
+it knew to be connected prior to suspending.  Even if some hardware can 
+provide that information, kernel can not rely on it. 
 
-There are other, redundant code paths that perform this check even when 
-CONFIG_USB_SUSPEND isn't set, but they are more difficult to describe.  
-For example, look at uhci_check_and_reset_hc() in 
-drivers/usb/host/pci-quirks.c.
+<snip>
 
-You'll find that nowhere in the resume pathway does the kernel check
-serial numbers or anything else of that nature.  If the power session has
-not been interrupted, that's sufficient proof that the device hasn't been
-unplugged.
+> You should also remember a useful point from the ACPI spec:
+> if you're taking the system apart with a screwdriver, then
+> you've gone out-of-spec.  So swapping IDE drives is strongly
+> in the "user error" category ... unlike swapping USB drives,
+> which is equally strongly in the "normal operation" category.
+> (So it would be an error if Linux didn't properly detect when
+> users unplug all usb devices after putting their laptops into
+> STR and before carrying them someplace else...)
+>
+>   
+Yes, it would be an error if the kernel did not notice that you actually 
+did unplug a usb disk while it was suspended.  It is just as much an 
+error however, if the kernel erroneously decides that you disconnected 
+the drive, and thus breaks the mount on it, when you in fact, did no 
+such thing. 
+>
+> Read about the #PME signal status in the PCI PM capabilities.
+>
+> And the USB remote wakeup reporting done by USB hubs; you can
+> even look at the drivers/usb/core/hub.c code and see how usb
+> wakeup events (of various types) are handled.
+>
+> You don't seem to know what you're talking about here.
+>
+>   
 
-> This is why you can suspend to disk, and when you resume, your open 
-> files are still valid; the disk is found to be still there, so it 
-> continues to be accessible.  Nothing gets clobbered as a result of the 
-> disk seeming to be disconnected and reconnected.  If that does happen, 
-> it is a bug. 
+Which is why I qualified my statements with "AFAIK".  Maybe you could 
+enlighten me.  Does the #PME signal carry enough information to inform 
+the kernel that the reason the system is being woken up is because you 
+unplugged the mouse from the usb hub?  I was under the impression that 
+this was not the case, instead the kernel at best knows it is being 
+woken up because the USB host controller generated a wake event.  
+Because of this and the fact that SCSI busses that I have seen do no 
+such thing, I assumed the kernel would handle USB in the same way, 
+specifically, that it would reenumerate and provided the same hardware 
+is still there that it expects to be there, then it would continue 
+operation as normal rather than deciding the drive was unplugged. 
+> You were wrong then too... both about probing "all hardware" and about not
+> being able to distinguish wakeup event sources.  
+>   
 
-It may work that way with SCSI disks or IDE disks, which are not
-hotpluggable.  But it does happen with USB disks, and it's not a bug;
-it's by design.
-
-
-> > Second, with USB at any rate, in addition to checking that hardware is 
-> > still there, the kernel queries the USB controller to see if a disconnect 
-> > occurred while the system was asleep.  (If the controller wasn't powered 
-> > during that time then it will report that every USB device was 
-> > disconnected.)
-> >   
-> 
-> AFAIK, there is no interface by which the kernel can query that 
-> information from the controller, maybe you could show me?
-
-Again, in hub.c look at hub_events().  It's a rather long routine, but at 
-some point you can see where it checks (portchange & 
-USB_PORT_STAT_C_CONNECTION).  The constant stands for "Port Status Changed 
-Connection", meaning there has been a plug/unplug event.  If the test 
-succeeds then connect_change is set to 1, causing 
-hub_port_connect_change() to be called.  One of the first things that 
-routine does is call usb_disconnect() on the port's child device.
-
->  If that is 
-> the case however, then I consider that to be a bug with the USB bus and 
-> the kernel's handling of it.  The kernel needs to be able to assume that 
-> nothing was disconnected while it was shutdown, provided that the same 
-> devices are there now as when it went to sleep.
-
-You've got it exactly backwards.  The kernel doesn't need to make that 
-assumption because the hardware will _tell_ it whether anything was 
-disconnected.  Rather, the kernel needs to _avoid_ making the assumption 
-that the device there now is the same as the device that was there before, 
-merely because a serial number (or something equivalent) happens to match.  
-Note: many USB mass storage devices don't have serial numbers.
-
->  This is how it behaves 
-> for say, SCSI disks in desktops/servers, where the controller certainly 
-> is completely powered off.  It should work the same for USB. 
-
-No it shouldn't.  USB is a different kind of bus from SCSI; it has
-different specifications and standards, and it should behave differently.
-
-
-> > Third, there is indeed something special that monitors USB device 
-> > insertion/removal while suspended to RAM -- the USB host controller does 
-> > so if it has suspend power.
-> >
-> >   
-> 
-> Could you site references to that?  AFAIK, the host controller is only 
-> capable of generating a wake event when the bus state changes; it does 
-> not have a means of informing the OS what has changed, aside from the OS 
-> enumerating the devices on the bus again. 
-
-Take a look, for example, at the UHCI specification (available from 
-<http://developer.intel.com/technology/usb/uhci11d.htm>).  Section 2.1.7 
-describes the Port Status and Control register, which indicates (for each 
-port) whether a connect-change event has taken place, as well as many 
-other things.
-
-
-> If the mounted filesystem becomes corrupted over a hibernation because 
-> the kernel thinks the drive was unplugged, then plugged back in, that 
-> clearly is a bug. It does not do this for disks connected via other bus 
-> types, and it clearly is undesirable to corrupt data in this way. 
-
-I agree that it's annoying and undesirable, but it's not a bug.  Other 
-buses would work this way too if they were hotpluggable, like USB.
-
-
-> > It's not a bug if the device _has_ been unplugged and reconnected.  When 
-> > that happens, there's no way for the kernel to tell whether the device 
-> > there now is the same as the device that used to be there.
-> >
-> >   
-> 
-> Again, we're not talking about it actually being unplugged, though since 
-> the kernel has no way of knowing it, you can unplug a scsi disk while 
-> hibernated, then plug it back in before you resume, and it will work 
-> just fine since the same type of hardware with the same serial number et 
-> al is found in the same place on the bus. 
-
-As I said above, SCSI isn't the same as USB.
-
-By the way, usb-storage in 2.4 used to work (still does, in fact) more 
-along the lines you're describing.  You could unplug a drive and the 
-kernel's disk data structures would be kept intact.  Later on, when you 
-replugged the drive it would be re-associated with those data structures, 
-using some not-go-great heuristics for trying to find a match, and you 
-could pick up where you left off.
-
-Then at some point during the 2.5 development sequence, Linus put his foot
-down.  He said that when a device goes away, it's _gone_!  That was the
-end of it.  Ever since, unplugging a USB drive (or any other kind of USB
-device) causes all its device structures to be released.
-
-Alan Stern
+Are you quite certain about that?  This is not the case for SCSI disks, 
+but for USB, maybe it can provide sufficient information to the kernel 
+about state changes without having to do a full rescan.  If that is the 
+case, and the hardware is erroneously reporting that all devices were 
+disconnected and reconnected after an ACPI suspend to disk, then such 
+hardware is broken and the kernel should be patched to work around it. 
 

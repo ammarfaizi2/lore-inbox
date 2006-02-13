@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751711AbWBMKRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751718AbWBMKVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751711AbWBMKRE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 05:17:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751713AbWBMKRE
+	id S1751718AbWBMKVO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 05:21:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751719AbWBMKVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 05:17:04 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:399 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1751711AbWBMKRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 05:17:02 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 13 Feb 2006 11:14:35 +0100
-To: schilling@fokus.fraunhofer.de, jengelh@linux01.gwdg.de
-Cc: peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F05C0B.nailKUS2493B9@burner>
-References: <20060208165330.GB17534@voodoo>
- <43EB0DEB.nail52A1LVGUO@burner>
- <Pine.LNX.4.61.0602091729560.30108@yvahk01.tjqt.qr>
- <43EB7210.nailIDH2JUBZE@burner>
- <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr>
- <43EB7BBA.nailIFG412CGY@burner>
- <mj+md-20060209.173519.1949.atrey@ucw.cz>
- <43EC71FB.nailISD31LRCB@burner>
- <20060210114721.GB20093@merlin.emma.line.org>
- <43EC887B.nailISDGC9CP5@burner>
- <mj+md-20060210.123726.23341.atrey@ucw.cz>
- <43EC8E18.nailISDJTQDBG@burner>
- <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr>
- <43EC93A2.nailJEB1AMIE6@burner>
-In-Reply-To: <43EC93A2.nailJEB1AMIE6@burner>
-User-Agent: nail 11.2 8/15/04
+	Mon, 13 Feb 2006 05:21:14 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.7]:62481 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1751717AbWBMKVN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 05:21:13 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: 2.6.16-rc3, sata_nv PM resume, x86-64
+Date: Mon, 13 Feb 2006 10:21:20 +0000
+User-Agent: KMail/1.9.1
+Cc: Andrew Chew <achew@nvidia.com>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602131021.20507.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
+Hi,
 
-> Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
->
-> > >> > Well, this is a deficit of the Linux kernel - not libscg.
-> > >>
-> > >> This is exactly what I have written -- extra effort is needed to get
-> > >> a stable numbering (which Solaris does), but you can use a very similar
-> > >> extra care to get stable names (which Linux with udev does).
-> > >
-> > >As this conceptional deficite in Linux causes Linux to break POSIX
-> > >compliance e.g. for stat(2) with hot plugged devices, people with 
-> >
-> > The struct stat->st_rdev field need to be stable too to comply to POSIX?
->
-> Correct.
+I've recently been experimenting with S3 suspend on my Athlon 64 X2 3800+ 
+system, on an nForce4 SLI CK804 mainboard. My machine will suspend-to-mem 
+with the command:
 
-Mmmm, it looks like I did oversee that you did change the subject.....
+echo mem >> /sys/power/state
 
-I did say that stat->st_dev needs to be stable
+And when I press the pwr button, it resumes correctly, even back into X11. 
+However, things freeze shortly after.
 
-Jörg
+I tracked down the problem to my SATA controller not being reinitialised 
+properly on resume. I get an ata timeout message (which I apologise for not 
+having handy, but the machine has no serial ports and vesafb is garbled by 
+the suspend. If you really need this message I can probably find a way to get 
+it).
+
+I'm reporting this because I notice on the Jeff's Linux SATA status page, 
+sata_nv is listed as having "full PM". Find my config and dmesg from a 
+successful boot at:
+
+http://devzero.co.uk/~alistair/oops-20060213/config
+http://devzero.co.uk/~alistair/oops-20060213/dmesg
+
+Ignore the directory title, I'm recycling these files from reporting a cpu 
+hotplug oops last night.
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

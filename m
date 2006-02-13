@@ -1,153 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWBMHlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbWBMHnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbWBMHlF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 02:41:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWBMHlF
+	id S1751203AbWBMHnu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 02:43:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWBMHnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 02:41:05 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:6675 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751194AbWBMHlE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 02:41:04 -0500
-Date: Mon, 13 Feb 2006 08:37:46 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Linda Walsh <lkml@tlinx.org>
-Cc: Al Viro <viro@ftp.linux.org.uk>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: max symlink = 5? ?bug? ?feature deficit?
-Message-ID: <20060213073746.GG11380@w.ods.org>
-References: <43ED5A7B.7040908@tlinx.org> <20060212180601.GU27946@ftp.linux.org.uk> <43EFA63B.30907@tlinx.org> <20060212212504.GX27946@ftp.linux.org.uk> <43EFBCA9.1090501@tlinx.org> <20060213000803.GY27946@ftp.linux.org.uk> <43EFD8BF.1040205@tlinx.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43EFD8BF.1040205@tlinx.org>
-User-Agent: Mutt/1.5.10i
+	Mon, 13 Feb 2006 02:43:49 -0500
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:46232 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751195AbWBMHns (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 02:43:48 -0500
+To: "Brown, Len" <len.brown@intel.com>
+cc: "Andrew Morton" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, "Jens Axboe" <axboe@suse.de>,
+       "James Bottomley" <James.Bottomley@steeleye.com>,
+       "David S. Miller" <davem@davemloft.net>, "Greg KH" <greg@kroah.com>,
+       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       "Yu, Luming" <luming.yu@intel.com>,
+       "Ben Castricum" <lk@bencastricum.nl>,
+       "Helge Hafting" <helgehaf@aitel.hist.no>,
+       "Carlo E. Prelz" <fluido@fluido.as>,
+       =?iso-8859-1?Q?Gerrit_Bruchh=E4user?= <gbruchhaeuser@gmx.de>,
+       Nicolas.Mailhot@LaPoste.net, "Jaroslav Kysela" <perex@suse.cz>,
+       "Takashi Iwai" <tiwai@suse.de>,
+       "Patrizio Bassi" <patrizio.bassi@gmail.com>,
+       =?iso-8859-1?Q?Bj=F6rn_Nilsson?= <bni.swe@gmail.com>,
+       "Andrey Borzenkov" <arvidjaar@mail.ru>,
+       "P. Christeas" <p_christ@hol.gr>, "ghrt" <ghrt@dial.kappa.ro>,
+       "jinhong hu" <jinhong.hu@gmail.com>,
+       "Andrew Vasquez" <andrew.vasquez@qlogic.com>,
+       linux-scsi@vger.kernel.org, "Benjamin LaHaise" <bcrl@kvack.org>
+Subject: Re: Linux 2.6.16-rc3 
+In-Reply-To: Your message of "Mon, 13 Feb 2006 02:07:50 EST."
+             <F7DC2337C7631D4386A2DF6E8FB22B30060BD1D1@hdsmsx401.amr.corp.intel.com> 
+Date: Mon, 13 Feb 2006 07:43:31 +0000
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1F8YMt-0002WU-00@skye.ra.phy.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 12, 2006 at 04:54:23PM -0800, Linda Walsh wrote:
-> Al Viro wrote:
-> >On Sun, Feb 12, 2006 at 02:54:33PM -0800, Linda Walsh wrote:
-> >  
-> >>Al Viro wrote:
-> >>    
-> >>>Care to RTFS? I mean, really - at least to the point of seeing what's
-> >>>involved in that recursion.
-> >>> 
-> >>>      
-> >>Hmmm...that's where I got the original parameter numbers, but
-> >>I see it's not so straightforward.  I tried a limit of
-> >>40, but I quickly get an OS hang when trying to reference a
-> >>13th link.  Twelve works at the limit, but would take more testing
-> >>to find out the bottleneck.
-> >>    
-> >
-> >Sigh...  12 works at the limit on your particular config, filesystems
-> >being used and syscall being issued (hint: amount of stuff on stack
-> >before we enter mutual recursion varies; so does the amount of stuff
-> >on stack we get from function that are not part of mutual recursion,
-> >but are called from the damn thing).
-> >  
-> ---
->    Yeah, I sorta figured that.  Is there any easier way to
-> remove the recursion?  I dunno about you, but I was always taught
-> that recursion, while elegant, was not always the most efficient in
-> terms of time and space requirements and one could get similar
-> functionality using iteration and a stack.
+> systems newer than 6 years old.
 
-I don't know exactly why recursion is used to follow symlinks,
-which at first thought seems like it could be iterated, but
-I've not checked the code, there certainly are specific reasons
-for this. However, there's often an alternative to recursion, it
-consists in implementing a local stack onto the stack. I mean,
-when you need recursion, it is because you want to be able to
-get back to where you were previously (eg: try another branch
-in a tree). Recursing through functions has a high cost in
-terms of memory because many things get saved multiple times,
-while you will often only need a few pointers and a recursion
-level.
+According to the sticker on the bottom, this model was made in
+04/2000, so the 6 years is right.
 
-I have already implemented this in a few programs and it's very
-easy, although I don't know how it would be with the symlink code :
+> We're talking here about a system from 1999 where Windows 98 refuses
+> to run in ACPI mode and instead runs in APM mode.
 
-foobar() {
-  void *stack[MAXDEPTH];
-  void *ptr;
-  int  level;
+I haven't tried Windows 98 on this machine, but Windows 98SE would run
+in ACPI mode if it weren't for a cheap hack by IBM.  The latest BIOS
+(1.11), which I'm using, claims to be from 1999.  However, that date
+is almost surely wrong.  The readme/changelog with the BIOS update
+diskette is dated Sept 20, 2001 and contains this note about the 1.01
+update:
 
-  level = 0;
-  ...
-recurse:
-  if (level >= MAXDEPTH)
-    return -ELOOP;
+ - (Fix) If Windows 98 Second Edition is installed as APM mode and
+         an updated BIOS is installed with a BIOS date 12/02/99 or 
+         later, Windows 98SE will change the mode from APM to ACPI 
+         whenever a New hardware profile is created.  So this BIOS 
+         set the date to 11-30-99. 
 
-  /* this level's work before the recursive call */
-  ...
-  ptr = some_useful_pointer();
-  printf("before: ptr=%p, level=%d\n", ptr, level);
-  ...
-  if (need_to_recurse) {
-    stack[level++] = ptr;
-    goto recurse;
-  }
-after_return:
-  /* this level's work after the return */
-  ...
-  printf("after: ptr=%p, level=%d\n", ptr, level);
-  ...
-  /* return to outer level */
-  if (level > 0) {
-    ptr = stack[--level];
-    goto after_return;
-  }
-  ...
-  /* end of the work for level 0 */
-}
+Probably IBM marked all the BIOS dates as 11-30-99 in order to work
+around this W98SE misfeature.  My guess is that BIOS 1.11 is really
+from Sept 2001, or 4.5 years ago.  Old, but not octagenerian!
 
-Saving paths components this way is easy too, with the full name copied
-only once in memory, and with one byte per recursion level :
+> I consider that it works in ACPI mode at all as "miraculous":-)
 
-  char path[MAXPATHLEN];   /* <= 255 */
-  __uint8_t pathlen[MAXDEPTH];
-  char *path_end;
+Amen to that.  I was very pleased when the combination of newer ACPI
+releases plus my modifying the DSDT made S3 work.
 
-  path_end = path;
-  ...
-  snprintf(path_end, path+MAXPATHLEN-path_end, "foobar/");
-  ...
-  if (need_to_recurse) {
-    pathlen[level++] = path_end - path;
-    goto recurse;
-  }
-  ...
-  /* return to outer level */
-  if (level > 0) {
-    path_end = path + pathlen[--level];
-    *path_end = '\0';
-    goto after_return;
-  }
- 
->    The GNU libraries _seem_ to indicate a max of 20 links supported
-> there.  Googling around, I see I'm not the first person to be surprised
-> by the low limit.  I don't recall running into such a limit on any
-> other Unixes, though I'm sure they had some limit.
-> 
->    It can be useful for creating a shadow file-system where only
-> root needs to point to a "target source", and the "symlink" overlay
-> lies over the top of any real, underlying file.
+> I do think the issue merits investigation ...
 
-I've already encountered such setups in which I was worried that they
-might break under some 2.6 kernels.
+Although I have little idea of what sections of code to modify,
+especially since the commit in question merges two well travelled
+branches, I'm happy to test patches.
 
->    Why can't things just be easy sometimes...:-/
+-Sanjoy
 
-Probably because having both performance and maintainability often
-implies a tradeoff between easy and ugly, and the maintainer's job
-is to find the best tradeoff.
-
-> Linda
-
-Regards,
-Willy
-
+`Never underestimate the evil of which men of power are capable.'
+         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.

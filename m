@@ -1,79 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWBMOqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWBMOtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751106AbWBMOqE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 09:46:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWBMOqE
+	id S1751267AbWBMOtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 09:49:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751705AbWBMOtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 09:46:04 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:5010 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751106AbWBMOqD (ORCPT
+	Mon, 13 Feb 2006 09:49:16 -0500
+Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:21176 "EHLO
+	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S1751267AbWBMOtQ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 09:46:03 -0500
-Date: Mon, 13 Feb 2006 15:44:03 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, John Stultz <johnstul@us.ibm.com>
-Subject: Re: [PATCH 01/13] hrtimer: round up relative start time
-Message-ID: <20060213144403.GA21317@elte.hu>
-References: <Pine.LNX.4.61.0602130207560.23745@scrub.home> <1139827927.4932.17.camel@localhost.localdomain> <Pine.LNX.4.61.0602131208050.30994@scrub.home> <20060213130143.GA10771@elte.hu> <Pine.LNX.4.61.0602131441110.9696@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0602131441110.9696@scrub.home>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Mon, 13 Feb 2006 09:49:16 -0500
+From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: Andi Kleen <ak@suse.de>
+Date: Mon, 13 Feb 2006 15:49:07 +0100
+MIME-Version: 1.0
+Subject: Re: 2.6.15:kernel/time.c: The Nanosecond and code duplication
+Cc: linux-kernel@vger.kernel.org
+Message-ID: <43F0AA74.15190.1B9A30E@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+In-reply-to: <p73ek274lf3.fsf@verdi.suse.de>
+References: <43F05143.29965.5D3E74@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+X-mailer: Pegasus Mail for Windows (4.31)
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.25/Sophos-P=4.02.0+V=4.02+U=2.07.127+R=06 February 2006+T=118652@20060213.143907Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 13 Feb 2006 at 11:12, Andi Kleen wrote:
 
-* Roman Zippel <zippel@linux-m68k.org> wrote:
-
-> Hi,
+> "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de> writes:
 > 
-> On Mon, 13 Feb 2006, Ingo Molnar wrote:
+> > but there's no POSIX like syscall interface 
+> > (clock_getres, clock_gettime, clock_settime) yet.
 > 
-> > but there is no 'old behavior' to restore to. The +1 to itimer intervals 
-> > caused artifacts that were hitting users and caused 2.4 -> 2.6 itimer 
-> > regressions, which hrtimers fixed. E.g.:
-> > 
-> >   http://bugzilla.kernel.org/show_bug.cgi?id=3289
+> % grep clock include/asm-x86_64/unistd.h 
+> #define __NR_clock_settime      227
+> __SYSCALL(__NR_clock_settime, sys_clock_settime)
+> #define __NR_clock_gettime      228
+> __SYSCALL(__NR_clock_gettime, sys_clock_gettime)
+> #define __NR_clock_getres       229
+> __SYSCALL(__NR_clock_getres, sys_clock_getres)
+> #define __NR_clock_nanosleep    230
+> __SYSCALL(__NR_clock_nanosleep, sys_clock_nanosleep)
 > 
-> Ingo, please read correctly, this is mainly about interval timers, 
-> which my patch doesn't change. My patch only fixes the initial start 
-> time.
+> Has been available for quite some time.
+> 
+> However the calls are currently slower than gettimeofday and also
+> don't use nanoseconds internally in all cases (depends on the architecture), 
+> but still microseconds.  But I'm not sure it matters that much
+> because the underlying timers are often not better than microseconds
+> anyways and with nanoseconds you start to time even the inherent system
+> call latency.
 
-Yeah, i know it's about the start time - what else could it possibly be 
-about? As i wrote:
+Andi,
 
-> > so i dont think restoring the first timeout of an interval timer to 
-> > be increased by resolution [which your patch does] has any meaning.  
-> > It 'restores' to half of what 2.6 did prior hrtimers. Doing that 
-> > would be inconsistent and would push the 'sum-up' errors observed 
-> > for interval timers above to be again observable in user-space (if 
-> > user-space does a series of timeouts). What's the point?
+thanks! I must have been overlooking the implementation of those. Actually when 
+you want to have nanoseconds even if the get_offset() just returns microsecond 
+granularity?: If you mathematically correct the clock with nanosecond accuracy (or 
+even less). With one model you'll see gradual time change, in the other case 
+you'll see jumps of 1000ns. OK, the clock might jump by 100ns for other reasons, 
+but currently the clock is so amazingly stable that I hardly believe the results 
+I've measured (but that's quite another topic).
 
-Your change changes the initial start time to be longer by +1 jiffy. My 
-"restores to half of what 2.6 did" observation was in reference to the 
-start time. The other half is the interval time between timeouts. If you 
-add a +1 jiffy to the start time, you ought to do it for the interval 
-time too. Or do it for neither - which is what we chose to do.
+I'm fully aware that nanosecond resolution will give us peace for the next years. 
+However my 700 MHz Pentium III is already as low as 1µs of jitter, so in theory 
+the nanosecond may be worth it (e.g. getting a better estimate of the actual 
+jitter).
 
-Yes, the 2.6 regression in the bugzilla was _mainly_ about the intervals 
-adding a comulative +1, but obviously the behavior should be symmetric: 
-if we use our higher resolution for intervals, we should use it for the 
-start time too.
+Regards,
+Ulrich
 
-In other words: your patch re-introduces half of the bug on low-res 
-platforms. Users doing a series of one-shot itimer calls would be 
-exposed to the same kind of (incorrect and unnecessary) summing-up 
-errors. What's the point?
-
-	Ingo

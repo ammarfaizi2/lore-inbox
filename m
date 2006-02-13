@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWBMIKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWBMIMD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751226AbWBMIKk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 03:10:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWBMIKj
+	id S1751232AbWBMIMD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 03:12:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWBMIMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 03:10:39 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:51228 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751210AbWBMIKi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 03:10:38 -0500
-Date: Mon, 13 Feb 2006 09:11:43 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       "Brown, Len" <len.brown@intel.com>,
-       "David S. Miller" <davem@davemloft.net>, Greg KH <greg@kroah.com>,
-       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       "Yu, Luming" <luming.yu@intel.com>, Ben Castricum <lk@bencastricum.nl>,
-       sanjoy@mrao.cam.ac.uk, Helge Hafting <helgehaf@aitel.hist.no>,
-       "Carlo E. Prelz" <fluido@fluido.as>,
-       Gerrit =?iso-8859-1?Q?Bruchh=E4user?= <gbruchhaeuser@gmx.de>,
-       Nicolas.Mailhot@LaPoste.net, Jaroslav Kysela <perex@suse.cz>,
-       Takashi Iwai <tiwai@suse.de>, Patrizio Bassi <patrizio.bassi@gmail.com>,
-       =?iso-8859-1?Q?Bj=F6rn?= Nilsson <bni.swe@gmail.com>,
-       Andrey Borzenkov <arvidjaar@mail.ru>, "P. Christeas" <p_christ@hol.gr>,
-       ghrt <ghrt@dial.kappa.ro>, jinhong hu <jinhong.hu@gmail.com>,
-       Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-scsi@vger.kernel.org,
-       Benjamin LaHaise <bcrl@kvack.org>
-Subject: Re: Linux 2.6.16-rc3
-Message-ID: <20060213081142.GA4203@suse.de>
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org> <20060212190520.244fcaec.akpm@osdl.org>
+	Mon, 13 Feb 2006 03:12:03 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:57809 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751228AbWBMIMB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 03:12:01 -0500
+Date: Mon, 13 Feb 2006 08:11:51 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, Linda Walsh <lkml@tlinx.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: max symlink = 5? ?bug? ?feature deficit?
+Message-ID: <20060213081151.GZ27946@ftp.linux.org.uk>
+References: <43ED5A7B.7040908@tlinx.org> <20060212180601.GU27946@ftp.linux.org.uk> <43EFA63B.30907@tlinx.org> <20060212212504.GX27946@ftp.linux.org.uk> <43EFBCA9.1090501@tlinx.org> <20060213000803.GY27946@ftp.linux.org.uk> <43EFD8BF.1040205@tlinx.org> <20060213073746.GG11380@w.ods.org> <1139816896.2997.19.camel@laptopd505.fenrus.org> <20060213080331.GH11380@w.ods.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060212190520.244fcaec.akpm@osdl.org>
+In-Reply-To: <20060213080331.GH11380@w.ods.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 12 2006, Andrew Morton wrote:
+On Mon, Feb 13, 2006 at 09:03:31AM +0100, Willy Tarreau wrote:
+> Hi Arjan,
 > 
-> We still have some serious bugs, several of which are in 2.6.15 as well:
+> On Mon, Feb 13, 2006 at 08:48:15AM +0100, Arjan van de Ven wrote:
+> > 
+> > > I don't know exactly why recursion is used to follow symlinks,
+> > > which at first thought seems like it could be iterated, but
+> > > I've not checked the code, there certainly are specific reasons
+> > > for this.
+> > 
+> > the problem is not following symlinks. the problem is symlinks to
+> > symlink to symlink to ...
 > 
-> - The scsi_cmd leak, which I don't think is fixed.
+> That's how I understood it, but I only thought about easy cases. Now,
+> I can imagine cross-FS links and I don't see an easy way to resolve
+> them :-/
 
-It is fixed in 2.6.16-rcX.
-
-> - The some-x86_64-boxes-use-GFP_DMA-from-bio-layer bug, which causes
->   oom-killings.
-
-Still pending.
-
--- 
-Jens Axboe
-
+The real problem is that there is no promise that resolution of a symlink
+consists of following some path.  It's a very common case, all right,
+but not the only one.  And trying to take that into account makes iterative
+schemes very ugly.

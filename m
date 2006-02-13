@@ -1,77 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWBMSer@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWBMSgc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932397AbWBMSer (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 13:34:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWBMSer
+	id S932398AbWBMSgc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 13:36:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWBMSgb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 13:34:47 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:21511 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932397AbWBMSeq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 13:34:46 -0500
-Date: Mon, 13 Feb 2006 19:34:45 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mauro Tassinari <mtassinari@cmanet.it>, airlied@linux.ie,
-       dri-devel@lists.sourceforge.net
-Subject: Re: 2.6.16-rc3: more regressions
-Message-ID: <20060213183445.GA3588@stusta.de>
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org> <20060213170945.GB6137@stusta.de> <Pine.LNX.4.64.0602130931221.3691@g5.osdl.org> <20060213174658.GC23048@redhat.com> <Pine.LNX.4.64.0602130952210.3691@g5.osdl.org> <Pine.LNX.4.64.0602131007500.3691@g5.osdl.org>
+	Mon, 13 Feb 2006 13:36:31 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:643 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S932398AbWBMSgb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 13:36:31 -0500
+From: Roger Leigh <rleigh@whinlatter.ukfsn.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       debian-powerpc@lists.debian.org
+Subject: Re: 2.6.16-rc2 powerpc timestamp skew
+References: <87pslspkj5.fsf@hardknott.home.whinlatter.ukfsn.org>
+	<1139779983.5247.39.camel@localhost.localdomain>
+Date: Mon, 13 Feb 2006 18:34:34 +0000
+In-Reply-To: <1139779983.5247.39.camel@localhost.localdomain> (Benjamin
+	Herrenschmidt's message of "Mon, 13 Feb 2006 08:33:03 +1100")
+Message-ID: <87irrj85vp.fsf@hardknott.home.whinlatter.ukfsn.org>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0602131007500.3691@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 13, 2006 at 10:16:59AM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Mon, 13 Feb 2006, Linus Torvalds wrote:
-> > 
-> > DaveA, I'll apply this for now. Comments?
-> 
-> Btw, the fact that Mauro has the same exact PCI ID (well, lspci stupidly 
-> suppresses the ID entirely, but the string seems to match the one that 
-> Dave Jones reports) may be unrelated.
+--=-=-=
+Content-Transfer-Encoding: quoted-printable
 
-Dave's patch removes the entry for the card with the 0x5b60.
+Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-According to his bug report, Mauro has a Radeon X300SE that should 
-have the 0x5b70 according to pci.ids from pciutils and that doesn't seem 
-to be claimed by the DRM driver (and the dmesg from the bug report 
-confirms that the radeon DRM driver didn't claim to be responsible for 
-this card).
+> On Sun, 2006-02-12 at 17:13 +0000, Roger Leigh wrote:
+>> Hi folks,
+>>=20
+>> When running a 2.6.16-rc2 kernel on a powerpc system (Mac Mini;
+>> Freescale 7447A):
+>>=20
+>> $ date && touch f && ls -l f && rm -f f && date
+>> Sun Feb 12 12:20:14 GMT 2006
+>> -rw-r--r-- 1 rleigh rleigh 0 2006-02-12 12:23
+>> Sun Feb 12 12:20:14 GMT 2006
+>>=20
+>> Notice the timestamp is 3 minutes in the future compared with the
+>> system time.  "make" is not a very happy bunny running on this kernel
+>> due to every touched file being 3 minutes in the future.
+>>=20
+>> When the same command is run on 2.6.15.3:
+>>=20
+>> $ date && touch f && ls -l f && rm -f f && date
+>> Sun Feb 12 14:27:27 GMT 2006
+>> -rw-r--r-- 1 rleigh rleigh 0 2006-02-12 14:27
+>> Sun Feb 12 14:27:27 GMT 2006
+>>=20
+>> In this case the times are identical, as you would expect.
+>>=20
+>> In both these cases, the chrony NTP daemon is running, if that might
+>> be a problem.
+>
+> Can you strace vs. ltrace and see if the gettimeofday or clock_gettime
+> syscalls are ever called ?
 
-> DaveJ (or Mauro): since you can test this, can you test having that ID 
-> there but _without_ the other changes to drm in -rc1?
-> 
-> Ie was it the addition of that particular ID, or are the other radeon
-> driver changes (which haven't had as much testing) perhaps the culprit?
-> 
-> I realize that without the ID, that card would never have been tested 
-> anyway, but the point being that plain 2.6.15 with _just_ that ID added 
-> has at least gotten more testing on other (similar) chips. So before I 
-> revert that particular ID, it would be nice to know that it was broken 
-> even with the previous radeon driver state.
+           | strace        | ltrace
+=2D----------+---------------+------------------------------------
+2.6.15     |               |
+date       | clock_gettime | clock_gettime -> SYS_clock_gettime,
+           |               |   localtime, strftime
+touch      | utimes        | futimes -> SYS_utimes
+           |               |
+2.6.16-rc2 |               |
+date       | clock_gettime | clock_gettime -> SYS_clock_gettime,
+           |               |   localtime, strftime
+touch      | utimes        | futimes -> SYS_utimes
 
-The ID removed by Dave's patch is the only ID listed for an RV370 chips 
-(the other RV370's aren't listed in the radeon DRM driver).
+[clock_gettime(CLOCK_REALTIME, {1139826613, 157402000}) =3D 0]
 
-I suspect Dave and Mauro having unrelated problems.
+> I wonder if you have a glibc new enough to
+> use the vDSO to obtain the time or if it's using the syscall... The vDSO
+> on ppc32 is very new.
 
-> 		Linus
+It's glibc 2.3.5 (Debian libc6 2.3.5-13).
 
-cu
-Adrian
+> Also, are your kernels built with ARCH=3Dppc or ARCH=3Dpowerpc ?
 
--- 
+ppc.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 
+Thanks,
+Roger
+
+=2D-=20
+Roger Leigh
+                Printing on GNU/Linux?  http://gutenprint.sourceforge.net/
+                Debian GNU/Linux        http://www.debian.org/
+                GPG Public Key: 0x25BFB848.  Please sign and encrypt your m=
+ail.
+
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBD8NE+VcFcaSW/uEgRApJ6AKCrULxZ4Dfj2gnQa9XhGV771G+vuQCg7Cey
+Oht5Yrn1JVipoyW//EocXE0=
+=+uiJ
+-----END PGP SIGNATURE-----
+--=-=-=--

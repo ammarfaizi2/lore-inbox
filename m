@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWBMKzJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWBMKzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932161AbWBMKzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 05:55:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWBMKzJ
+	id S932277AbWBMKzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 05:55:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWBMKzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 05:55:09 -0500
-Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:36584 "EHLO
-	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932161AbWBMKzH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 05:55:07 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Linux 2.6.16-rc3
-Date: Mon, 13 Feb 2006 21:54:13 +1100
-User-Agent: KMail/1.9.1
-Cc: Avuton Olrich <avuton@gmail.com>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, Dave Jones <davej@codemonkey.org.uk>
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org> <3aa654a40602130231p1c476e99paa986fa198951839@mail.gmail.com> <20060213023925.2b950eea.akpm@osdl.org>
-In-Reply-To: <20060213023925.2b950eea.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Feb 2006 05:55:24 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:13790 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S932277AbWBMKzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 05:55:19 -0500
+Date: Mon, 13 Feb 2006 11:55:18 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: cfriesen@nortel.com, tytso@mit.edu, peter.read@gmail.com,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <mj+md-20060213.105324.23178.atrey@ucw.cz>
+References: <mj+md-20060210.123726.23341.atrey@ucw.cz> <43EC8E18.nailISDJTQDBG@burner> <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr> <43EC93A2.nailJEB1AMIE6@burner> <20060210141651.GB18707@thunk.org> <43ECA3FC.nailJGC110XNX@burner> <43ECA70C.8050906@nortel.com> <43ECA8BC.nailJHD157VRM@burner> <43ECADA8.9030609@nortel.com> <43F05FB2.nailKUS3MR1N9@burner>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602132154.15187.kernel@kolivas.org>
+In-Reply-To: <43F05FB2.nailKUS3MR1N9@burner>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 February 2006 21:39, Andrew Morton wrote:
-> That looks like a different cpufreq bug.  Unfortunately the critical first
-> few lines have scrolled away.  Please boot with `vga=extended' so we get to
-> see them.
+Hello!
 
-Just as a suggestion, why don't we print oopsen out in the opposite direction 
-so the critical information is in the last few lines and the stacktrace in 
-reverse, or have that as a bootparam option oops=reverse .
+> Just think about a program that checks a file that is on a removable media.
+> 
+> This media is mounted via a vold service and someone removes the USB cable
+> and reinserts it a second later. The filesystem on the device will be mounted
+> on the same mount point but the device ID inside the system did change.
+> 
+> As a result, the file unique identification st_ino/st_dev is not retained 
+> and the program is confused.
 
-Cheers,
-Con
+And it would be equally confused if I inserted a different media instead.
+
+Relying on stability of anything across mounts/umounts does not make any
+sense.
+
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+The number of UNIX installations has grown to 10, with more expected.  (6/72)

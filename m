@@ -1,129 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbWBMOep@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWBMOfM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751272AbWBMOep (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 09:34:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWBMOeo
+	id S932314AbWBMOfM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 09:35:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWBMOfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 09:34:44 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:26774 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751272AbWBMOen (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 09:34:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=BCwkO7LbRT2MyEjUISOZ9Jh/tbvOAVAHbKV59NZ3ryxaowJz4+fc3i/u9FbvYACnCnR40rGaQSAfaeGX03KD4Hs/pcGL+t27D0CnZGz9wuo47TGOcEaNGI2CqsqNpJTZvwY83EqLWs125+0/ImhVIZVqP6XcqrVxy+A3JP1Zk9U=
-Message-ID: <43F098F4.8030906@gmail.com>
-Date: Mon, 13 Feb 2006 15:34:28 +0100
-From: Patrizio Bassi <patrizio.bassi@gmail.com>
-Reply-To: patrizio.bassi@gmail.com
-Organization: patrizio.bassi@gmail.com
-User-Agent: Mozilla Thunderbird 1.5 (X11/20060112)
+	Mon, 13 Feb 2006 09:35:11 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:2689 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S932118AbWBMOfJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 09:35:09 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Mon, 13 Feb 2006 15:33:06 +0100
+To: schilling@fokus.fraunhofer.de, peter.read@gmail.com, mj@ucw.cz,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de, alex@samad.com.au
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43F098A2.nailKUSL1W9PE@burner>
+References: <43EA1D26.nail40E11SL53@burner>
+ <20060208165330.GB17534@voodoo> <43EB0DEB.nail52A1LVGUO@burner>
+ <Pine.LNX.4.61.0602091729560.30108@yvahk01.tjqt.qr>
+ <43EB7210.nailIDH2JUBZE@burner>
+ <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr>
+ <43EB7BBA.nailIFG412CGY@burner>
+ <mj+md-20060209.173519.1949.atrey@ucw.cz>
+ <43EC71FB.nailISD31LRCB@burner> <20060210114930.GC2750@DervishD>
+ <20060213005002.GK26235@samad.com.au>
+In-Reply-To: <20060213005002.GK26235@samad.com.au>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       "Brown, Len" <len.brown@intel.com>,
-       "David S. Miller" <davem@davemloft.net>, Greg KH <greg@kroah.com>,
-       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       "Yu, Luming" <luming.yu@intel.com>, Ben Castricum <lk@bencastricum.nl>,
-       sanjoy@mrao.cam.ac.uk, Helge Hafting <helgehaf@aitel.hist.no>,
-       "Carlo E. Prelz" <fluido@fluido.as>,
-       =?ISO-8859-1?Q?Gerrit_Bruchh=E4us?= =?ISO-8859-1?Q?er?= 
-	<gbruchhaeuser@gmx.de>,
-       Nicolas.Mailhot@LaPoste.net, Jaroslav Kysela <perex@suse.cz>,
-       =?ISO-8859-1?Q?Bj=F6rn_Nilsson?= <bni.swe@gmail.com>,
-       Andrey Borzenkov <arvidjaar@mail.ru>, "P. Christeas" <p_christ@hol.gr>,
-       ghrt <ghrt@dial.kappa.ro>, jinhong hu <jinhong.hu@gmail.com>,
-       Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-scsi@vger.kernel.org,
-       Benjamin LaHaise <bcrl@kvack.org>
-Subject: Re: Linux 2.6.16-rc3
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org>	<20060212190520.244fcaec.akpm@osdl.org>	<s5hk6bz4gca.wl%tiwai@suse.de>	<43F07DA3.6080702@gmail.com>	<s5hirrj4d11.wl%tiwai@suse.de>	<43F08A2B.2030607@gmail.com> <s5hd5hr4a6w.wl%tiwai@suse.de>
-In-Reply-To: <s5hd5hr4a6w.wl%tiwai@suse.de>
-X-Enigmail-Version: 0.93.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai ha scritto:
-> At Mon, 13 Feb 2006 14:31:23 +0100,
-> Patrizio Bassi wrote:
->   
->> Takashi Iwai ha scritto:
->>     
->>> At Mon, 13 Feb 2006 13:37:55 +0100,
->>> Patrizio Bassi wrote:
->>>   
->>>       
->>>> Takashi Iwai ha scritto:
->>>>     
->>>>         
->>>>> At Sun, 12 Feb 2006 19:05:20 -0800,
->>>>> Andrew Morton wrote:
->>>>>   
->>>>>       
->>>>>           
->>>>>> - Patrizio Bassi <patrizio.bassi@gmail.com> has an alsa suspend
->>>>>>   regression ("alsa suspend/resume continues to fail for ens1370")
->>>>>>     
->>>>>>         
->>>>>>             
->>>>> It's not a "regression".  PM didn't work with ens1370 at all in the
->>>>> eralier version.
->>>>>
->>>>> About the problem there, I have no idea now what's wrong.  The
->>>>> suspend-to-disk works fine if the driver is built as module but not as
->>>>> built-in kernel.
->>>>>
->>>>>
->>>>>   
->>>>>       
->>>>>           
->>>> i wrote "regression" because before (ehm...exactly don't know...about
->>>> 2.6.14 time)
->>>> after suspend i had to restart my distro's mixer values service or i
->>>> couldn't hear anything.
->>>> and...ok..it was boring but worked.
->>>>     
->>>>         
->>> You abused the function which wasn't officially supported :)
->>>
->>>
->>> Takashi
->>>
->>>   
->>>       
->> nice i'm an abuser! :)
->>
->> ok, seriously..that's bad, because before it was not implemented, so ok...
->> but now it fails with errors (and make apps not working properly) which
->> is worse.
->>     
->
-> My rough guess is the initialization order, the resume was called too
-> early.
->
-> What about to put sleep between snd_ensoniq_chip_init() and
-> snd_ak4531_resume()?  Or put more delay in snd_ak4531_resume()?
->
->
-> Takashi
->
->   
-i'm almost sure the problem is not there (or, at least not only)
-infact i get 0x660 errors (or better a long flood...) while suspending too.
+Alexander Samad <alex@samad.com.au> wrote:
 
-there may be a bug or problem during suspending, and these problems
-affect the normal resume.
+> On Fri, Feb 10, 2006 at 12:49:30PM +0100, DervishD wrote:
+> >     Hi Joerg :)
+> > 
+> >  * Joerg Schilling <schilling@fokus.fraunhofer.de> dixit:
+> > > Martin Mares <mj@ucw.cz> wrote:
+> > > > > This is why the mapping engine is in the Linux adoption part of
+> > > > > libscg. It maps the non-stable device <-> /dev/sg* relation to a
+> > > > > stable b,t,l address.
+> > > >
+> > > > Nonsense. The b,t,l addresses are NOT stable (at least for transports
+> > > 
+> > > Dou you like to verify that you have no clue on SCSI?
+> > 
+> >     My system is clueless, too! If I write a CD before plugging my
+> > USB storage device, my CD writer is on 0,0,0. If I plug my USB
+> > storage device *before* doing any access, my cdwriter is on 1,0,0.
+> > Pretty stable.
+>
+> Had exactly the same problem with firewire and usb devices, depending on
+> the order of the loading of the kernel modules it all changes!
 
-however sleep is not always trustable...soif you think that's an init
-problem you may add a
-boolean value to check if init is completed or not and poll for TRUE
-value in the resume function.
+This is a deficite of the Linux kernel model. You don't have similar
+problems on Solaris.
 
-but, as i wrote before, i'm not sure the problem is **only** there.
+Jörg
 
-Patrizio
-
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

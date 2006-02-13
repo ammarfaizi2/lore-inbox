@@ -1,92 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbWBMUNz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbWBMUQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbWBMUNz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 15:13:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbWBMUNz
+	id S964853AbWBMUQd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 15:16:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964854AbWBMUQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 15:13:55 -0500
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:63148
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S964851AbWBMUNy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 15:13:54 -0500
-Subject: [PATCH] tty reference count fix
-From: Paul Fulghum <paulkf@microgate.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "jesper.juhl@gmail.com" <jesper.juhl@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Content-Type: text/plain
-Date: Mon, 13 Feb 2006 14:13:30 -0600
-Message-Id: <1139861610.3573.24.camel@amdx2.microgate.com>
+	Mon, 13 Feb 2006 15:16:33 -0500
+Received: from mail.gmx.net ([213.165.64.21]:28122 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964853AbWBMUQd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 15:16:33 -0500
+X-Authenticated: #5082238
+Date: Mon, 13 Feb 2006 21:16:44 +0100
+From: Carsten Otto <c-otto@gmx.de>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: Kernel BUG at include/linux/gfp.h:80
+Message-ID: <20060213201644.GA8961@carsten-otto.halifax.rwth-aachen.de>
+Reply-To: c-otto@gmx.de
+Mail-Followup-To: Pekka J Enberg <penberg@cs.Helsinki.FI>,
+	linux-kernel@vger.kernel.org, ak@suse.de
+References: <Pine.LNX.4.58.0601201214060.13564@sbz-30.cs.Helsinki.FI>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0601201214060.13564@sbz-30.cs.Helsinki.FI>
+X-GnuGP-Key: http://c-otto.de/pubkey.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix hole where tty structure can be released when reference
-count is non zero. Existing code can sleep without tty_sem
-protection between deciding to release the tty structure
-(setting local variables tty_closing and otty_closing)
-and setting TTY_CLOSING to prevent further opens.
-An open can occur during this interval causing release_dev()
-to free the tty structure while it is still referenced.
 
-This should fix bugzilla.kernel.org
-[Bug 6041] New: Unable to handle kernel paging request
+--n8g4imXOkfNTN/H1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-In Bug 6041, tty_open() oopes on accessing the tty structure
-it has successfully claimed. Bug was on SMP machine
-with the same tty being opened and closed by
-multiple processes, and DEBUG_PAGEALLOC enabled.
+On Fri, Jan 20, 2006 at 12:16:22PM +0200, Pekka J Enberg wrote:
+> Does the following patch fix your problem?
 
-Signed-off-by: Paul Fulghum <paulkf@microgate.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>
+Yes, it does (I moved to 2.6.15.4 in the same step, though).
 
---- linux/drivers/char/tty_io.c	2006-02-10 15:54:00.000000000 -0600
-+++ b/drivers/char/tty_io.c	2006-02-13 13:14:33.000000000 -0600
-@@ -1841,7 +1841,6 @@ static void release_dev(struct file * fi
- 		tty_closing = tty->count <= 1;
- 		o_tty_closing = o_tty &&
- 			(o_tty->count <= (pty_master ? 1 : 0));
--		up(&tty_sem);
- 		do_sleep = 0;
- 
- 		if (tty_closing) {
-@@ -1869,6 +1868,7 @@ static void release_dev(struct file * fi
- 
- 		printk(KERN_WARNING "release_dev: %s: read/write wait queue "
- 				    "active!\n", tty_name(tty, buf));
-+		up(&tty_sem);
- 		schedule();
- 	}	
- 
-@@ -1877,8 +1877,6 @@ static void release_dev(struct file * fi
- 	 * both sides, and we've completed the last operation that could 
- 	 * block, so it's safe to proceed with closing.
- 	 */
--	 
--	down(&tty_sem);
- 	if (pty_master) {
- 		if (--o_tty->count < 0) {
- 			printk(KERN_WARNING "release_dev: bad pty slave count "
-@@ -1892,7 +1890,6 @@ static void release_dev(struct file * fi
- 		       tty->count, tty_name(tty, buf));
- 		tty->count = 0;
- 	}
--	up(&tty_sem);
- 	
- 	/*
- 	 * We've decremented tty->count, so we need to remove this file
-@@ -1937,6 +1934,8 @@ static void release_dev(struct file * fi
- 		read_unlock(&tasklist_lock);
- 	}
- 
-+	up(&tty_sem);
-+
- 	/* check whether both sides are closing ... */
- 	if (!tty_closing || (o_tty && !o_tty_closing))
- 		return;
+Unfortunately my PC freezes as soon as I start a 3D game (Enemy
+Territory True Combat Elite) when I see the first few 3D ingame frames.
+Running glxgears is fine, as is running multiple instances of VLC to
+output several audio streams through one device.
+Switching off the sound in ET:TCE does not help at all.
 
+Bye,
+--=20
+Carsten Otto
+c-otto@gmx.de
+www.c-otto.de
 
+--n8g4imXOkfNTN/H1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFD8OksjUF4jpCSQBQRAs4SAJwJhJspTNDY0o9J8kow/1P9ZdtStACgllue
+V6OI+kUm4Q94n2FG55ybwAI=
+=Pwcu
+-----END PGP SIGNATURE-----
+
+--n8g4imXOkfNTN/H1--

@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750902AbWBMGDa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWBMGIz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750902AbWBMGDa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 01:03:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751635AbWBMGDa
+	id S1750789AbWBMGIz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 01:08:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751635AbWBMGIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 01:03:30 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:46787 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S1750902AbWBMGD3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 01:03:29 -0500
-Message-ID: <43F0216F.1000006@t-online.de>
-Date: Mon, 13 Feb 2006 07:04:31 +0100
-From: Knut Petersen <Knut_Petersen@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.10) Gecko/20050726
-X-Accept-Language: de, en
+	Mon, 13 Feb 2006 01:08:55 -0500
+Received: from fsmlabs.com ([168.103.115.128]:42447 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1750789AbWBMGIz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 01:08:55 -0500
+X-ASG-Debug-ID: 1139810932-16286-22-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Sun, 12 Feb 2006 22:13:27 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Marko <letterdrop@gmx.de>
+cc: linux-kernel@vger.kernel.org
+X-ASG-Orig-Subj: Re: How getting a pointer on the per-cpu struct tss_struct??
+Subject: Re: How getting a pointer on the per-cpu struct tss_struct??
+In-Reply-To: <20060213011412.0779d337.letterdrop@gmx.de>
+Message-ID: <Pine.LNX.4.64.0602121712450.10777@montezuma.fsmlabs.com>
+References: <20060213002706.50e5289c.letterdrop@gmx.de>
+ <Pine.LNX.4.64.0602121552520.10777@montezuma.fsmlabs.com>
+ <20060213011412.0779d337.letterdrop@gmx.de>
 MIME-Version: 1.0
-To: hpa@zytor.com
-CC: Carlos Carvalho <carlos@fisica.ufpr.br>, linux-kernel@vger.kernel.org
-Subject: netboot / nfsroot problems
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ID: STLdz+ZVoevD5621YwW5eo6OlawzKpP0RDsz3PpAmkFqDkhHEr9KED@t-dialin.net
-X-TOI-MSGID: fb200260-a73f-4f7e-84b1-1f7636d0499e
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.8651
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Hans Peter,
+On Mon, 13 Feb 2006, Marko wrote:
 
-You asked Carlos Carvalho and me if we care to try
+> Thanks for answering.
+> 
+> So when I don't want to change the kernel, the only way to get
+> a pointer on the IO Permission Bitmap is using the TSS entry in
+> the GDT??
+> 
+> Or is there another way to access the current structure tss_struct??
 
-    git://git.kernel.org/pub/scm/linux/kernel/git/hpa/linux-2.6-klibc.git
-
-Netbooting does work for me now without any problems, please see
-
-    http://www.uwsg.indiana.edu/hypermail/linux/kernel/0601.3/2128.html and
-    http://www.uwsg.indiana.edu/hypermail/linux/kernel/0601.3/2322.html
-
-Some time after the last msg netboot stoped to work again, reenabling pio
-for the 8139 solved that problem again.
-
-At that time I thought I found an 8139too bug, but the report of Carlos 
-shows
-that I might have been wrong. Two possibilities remain:
-
--   Both the 8139 and the Intel NIC drivers are broken in a way that 
-allows them
-    to work reliably in normal operation, but that prevents them to receive
-    ip packets during ip autoconfig.
-
--   Some code that both these cards use during ip autoconfig is broken.
-
-Netbooting a VIA rhine system worked without any problems, it worked
-with _exactly_ the same setups that failed for 8139too.
-
-Do you still believe that our problems could be solved by the code in 
-your git
-tree? I would have to install git here first, but I will do it if necessary.
-
-I asked Carlos to try to boot with the netconsole code enabled as this 
-changes
-the nic init and thus _could_ help, unfortunately I received no answer 
-up to now.
-
-cu,
- Knut
+How about saving the GDT and then fetching the TSS from there?

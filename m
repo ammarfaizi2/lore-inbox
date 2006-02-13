@@ -1,61 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751662AbWBMJQp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751659AbWBMJUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751662AbWBMJQp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 04:16:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751659AbWBMJQp
+	id S1751659AbWBMJUy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 04:20:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751658AbWBMJUy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 04:16:45 -0500
-Received: from zone4.gcu-squad.org ([213.91.10.50]:16108 "EHLO
-	zone4.gcu-squad.org") by vger.kernel.org with ESMTP
-	id S1751249AbWBMJQo convert rfc822-to-8bit (ORCPT
+	Mon, 13 Feb 2006 04:20:54 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:9785 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751186AbWBMJUx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 04:16:44 -0500
-Date: Mon, 13 Feb 2006 10:14:00 +0100 (CET)
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] quilt 0.43
-X-IlohaMail-Blah: khali@localhost
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
-Message-ID: <7Ks06MZm.1139822040.2403500.khali@localhost>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+	Mon, 13 Feb 2006 04:20:53 -0500
+Message-ID: <43F04FD6.5090603@sw.ru>
+Date: Mon, 13 Feb 2006 12:22:30 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Greylist: Sender is SPF-compliant, not delayed by milter-greylist-2.1.2 (zone4.gcu-squad.org [127.0.0.1]); Mon, 13 Feb 2006 10:14:00 +0100 (CET)
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: [RFC][PATCH 04/20] pspace: Allow multiple instaces of the process
+ id namespace
+References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>	<m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>	<m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com>	<m1fymwmgk0.fsf_-_@ebiederm.dsl.xmission.com>	<m1bqxkmgcv.fsf_-_@ebiederm.dsl.xmission.com> <43ECF803.8080404@sw.ru> <m1psluw1jj.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1psluw1jj.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>1.
+>>flags are neither atomic nor protected with any lock.
+> 
+> 
+> flags are atomic as they are a machine word.  So they do not
+> require a read/modify write so they will either be written
+> or not written.  Plus this allows write-sharing of the appropriate
+> cache line which is very polite (assuming the line is not shared with
+> something else)
+Eric I'm familiar with SMP, thanks :)
+Why do you write all this if you agreed below that have problems with it?
 
-Hi all,
+>>2. due to 1) you code is buggy. in this respect do_exit() is not serialized with
+>>copy_process().
+> Yes. I may need a memory barrier in there.  I need to think
+> about that a little more.
+memory barrier doesn't help. you really need to think about.
 
-Quilt 0.43 has been released ten days ago (sorry for being slow). A
-number of improvements may be of interest to kernel developers so I am
-announcing it here on LKML.
+>>3. due to the same 1) reason
+>> > +		kill_pspace_info(SIGKILL, (void *)1, tsk->pspace);
+>>can miss a task being forked. Bang!!!
+>
+> Well the only bad thing that can happen is that I get a process that
+> can run and observe pid == 1 has exited.  So Bang!! is not too
+> painful.
+And what about references to pspace->child_reaper which was freed already?
 
-Quilt 0.43 can be downloaded from here:
-  http://savannah.nongnu.org/download/quilt/quilt-0.43.tar.gz
+[skipped the flood]
 
-Bug fixes:
-  Deleting the top patch works again,
-  patch delimiter ("---") is no more eaten on refresh.
+Kirill
 
-Compatibility:
-  Huge efforts have been put into improving compatibility with many
-  platforms. The git specific patch format extensions are better
-  supported too.
-
-New features:
-  The mail command has been completely reworked,
-  delete -r physically removes the deleted patch,
-  delete --backup makes a backup copy of the deleted patch,
-  annotate -P annotates a previous version of the file,
-  import can preserve or merge comments when updating a patch,
-  push detects reversed patches,
-  diffstat options can be specified,
-  patch delimiter ("---") is automatically inserted before diffstat.
-
-Thanks,
---
-Jean Delvare

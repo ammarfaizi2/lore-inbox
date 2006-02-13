@@ -1,48 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbWBMHf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWBMHlF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751087AbWBMHf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 02:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWBMHf0
+	id S1751198AbWBMHlF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 02:41:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWBMHlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 02:35:26 -0500
-Received: from mail.gmx.net ([213.165.64.21]:49849 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751087AbWBMHf0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 02:35:26 -0500
-X-Authenticated: #14349625
-Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
-From: MIke Galbraith <efault@gmx.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, gcoady@gmail.com,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <200602131815.34874.kernel@kolivas.org>
-References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
-	 <200602131708.52342.kernel@kolivas.org> <1139812538.7744.8.camel@homer>
-	 <200602131815.34874.kernel@kolivas.org>
-Content-Type: text/plain
-Date: Mon, 13 Feb 2006 08:41:04 +0100
-Message-Id: <1139816464.8425.8.camel@homer>
+	Mon, 13 Feb 2006 02:41:05 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:6675 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751194AbWBMHlE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 02:41:04 -0500
+Date: Mon, 13 Feb 2006 08:37:46 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Linda Walsh <lkml@tlinx.org>
+Cc: Al Viro <viro@ftp.linux.org.uk>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: max symlink = 5? ?bug? ?feature deficit?
+Message-ID: <20060213073746.GG11380@w.ods.org>
+References: <43ED5A7B.7040908@tlinx.org> <20060212180601.GU27946@ftp.linux.org.uk> <43EFA63B.30907@tlinx.org> <20060212212504.GX27946@ftp.linux.org.uk> <43EFBCA9.1090501@tlinx.org> <20060213000803.GY27946@ftp.linux.org.uk> <43EFD8BF.1040205@tlinx.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43EFD8BF.1040205@tlinx.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-13 at 18:15 +1100, Con Kolivas wrote:
-> On Monday 13 February 2006 17:35, MIke Galbraith wrote:
+On Sun, Feb 12, 2006 at 04:54:23PM -0800, Linda Walsh wrote:
+> Al Viro wrote:
+> >On Sun, Feb 12, 2006 at 02:54:33PM -0800, Linda Walsh wrote:
+> >  
+> >>Al Viro wrote:
+> >>    
+> >>>Care to RTFS? I mean, really - at least to the point of seeing what's
+> >>>involved in that recursion.
+> >>> 
+> >>>      
+> >>Hmmm...that's where I got the original parameter numbers, but
+> >>I see it's not so straightforward.  I tried a limit of
+> >>40, but I quickly get an OS hang when trying to reference a
+> >>13th link.  Twelve works at the limit, but would take more testing
+> >>to find out the bottleneck.
+> >>    
 > >
-> > Ok, we're basically in agreement on these changes, it's just a matter of
-> > when.  As maintainer, Ingo has to weigh the benefit, danger, etc etc.
+> >Sigh...  12 works at the limit on your particular config, filesystems
+> >being used and syscall being issued (hint: amount of stuff on stack
+> >before we enter mutual recursion varies; so does the amount of stuff
+> >on stack we get from function that are not part of mutual recursion,
+> >but are called from the damn thing).
+> >  
+> ---
+>    Yeah, I sorta figured that.  Is there any easier way to
+> remove the recursion?  I dunno about you, but I was always taught
+> that recursion, while elegant, was not always the most efficient in
+> terms of time and space requirements and one could get similar
+> functionality using iteration and a stack.
+
+I don't know exactly why recursion is used to follow symlinks,
+which at first thought seems like it could be iterated, but
+I've not checked the code, there certainly are specific reasons
+for this. However, there's often an alternative to recursion, it
+consists in implementing a local stack onto the stack. I mean,
+when you need recursion, it is because you want to be able to
+get back to where you were previously (eg: try another branch
+in a tree). Recursing through functions has a high cost in
+terms of memory because many things get saved multiple times,
+while you will often only need a few pointers and a recursion
+level.
+
+I have already implemented this in a few programs and it's very
+easy, although I don't know how it would be with the symlink code :
+
+foobar() {
+  void *stack[MAXDEPTH];
+  void *ptr;
+  int  level;
+
+  level = 0;
+  ...
+recurse:
+  if (level >= MAXDEPTH)
+    return -ELOOP;
+
+  /* this level's work before the recursive call */
+  ...
+  ptr = some_useful_pointer();
+  printf("before: ptr=%p, level=%d\n", ptr, level);
+  ...
+  if (need_to_recurse) {
+    stack[level++] = ptr;
+    goto recurse;
+  }
+after_return:
+  /* this level's work after the return */
+  ...
+  printf("after: ptr=%p, level=%d\n", ptr, level);
+  ...
+  /* return to outer level */
+  if (level > 0) {
+    ptr = stack[--level];
+    goto after_return;
+  }
+  ...
+  /* end of the work for level 0 */
+}
+
+Saving paths components this way is easy too, with the full name copied
+only once in memory, and with one byte per recursion level :
+
+  char path[MAXPATHLEN];   /* <= 255 */
+  __uint8_t pathlen[MAXDEPTH];
+  char *path_end;
+
+  path_end = path;
+  ...
+  snprintf(path_end, path+MAXPATHLEN-path_end, "foobar/");
+  ...
+  if (need_to_recurse) {
+    pathlen[level++] = path_end - path;
+    goto recurse;
+  }
+  ...
+  /* return to outer level */
+  if (level > 0) {
+    path_end = path + pathlen[--level];
+    *path_end = '\0';
+    goto after_return;
+  }
+ 
+>    The GNU libraries _seem_ to indicate a max of 20 links supported
+> there.  Googling around, I see I'm not the first person to be surprised
+> by the low limit.  I don't recall running into such a limit on any
+> other Unixes, though I'm sure they had some limit.
 > 
-> Aye and do note the change to the idle detection code currently in -mm will 
-> already make substantial difference there, possibly related to fluctuating 
-> behaviour.
+>    It can be useful for creating a shadow file-system where only
+> root needs to point to a "target source", and the "symlink" overlay
+> lies over the top of any real, underlying file.
 
-Possibly...  but there also lies a two edged sword.  Previously, some
-bad boys were being truncated back to user_prio 17.  In mm, that's no
-longer true.
+I've already encountered such setups in which I was worried that they
+might break under some 2.6 kernels.
 
-	-Mike
+>    Why can't things just be easy sometimes...:-/
+
+Probably because having both performance and maintainability often
+implies a tradeoff between easy and ugly, and the maintainer's job
+is to find the best tradeoff.
+
+> Linda
+
+Regards,
+Willy
 

@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751675AbWBMJZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751678AbWBMJ2q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751675AbWBMJZv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 04:25:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751677AbWBMJZu
+	id S1751678AbWBMJ2q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 04:28:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751681AbWBMJ2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 04:25:50 -0500
-Received: from mx2.suse.de ([195.135.220.15]:27280 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751675AbWBMJZu (ORCPT
+	Mon, 13 Feb 2006 04:28:46 -0500
+Received: from soohrt.org ([85.131.246.150]:24216 "EHLO quickstop.soohrt.org")
+	by vger.kernel.org with ESMTP id S1751672AbWBMJ2p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 04:25:50 -0500
-From: Andi Kleen <ak@suse.de>
-To: Roberto Nibali <ratz@drugphish.ch>
-Subject: Re: [discuss] trap int3 problem while porting a user space application and small cleanup patch
-Date: Mon, 13 Feb 2006 10:25:43 +0100
-User-Agent: KMail/1.8.2
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
-References: <43EF6B7D.5080607@drugphish.ch> <200602130157.36084.ak@suse.de> <43F03B7F.2030701@drugphish.ch>
-In-Reply-To: <43F03B7F.2030701@drugphish.ch>
-MIME-Version: 1.0
+	Mon, 13 Feb 2006 04:28:45 -0500
+Date: Mon, 13 Feb 2006 10:28:44 +0100
+From: Horst Schirmeier <horst@schirmeier.com>
+To: linux-kernel@vger.kernel.org
+Cc: Hans Reiser <reiser@namesys.com>, Vitaly Fertman <vitaly@namesys.com>,
+       Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [BUG] reiserfs/super.c commit breaks boot process in stable and HEAD
+Message-ID: <20060213092844.GY22994@quickstop.soohrt.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Hans Reiser <reiser@namesys.com>,
+	Vitaly Fertman <vitaly@namesys.com>, Andrew Morton <akpm@osdl.org>,
+	Greg Kroah-Hartman <gregkh@suse.de>
+References: <20060207160819.GR22994@quickstop.soohrt.org> <20060211135003.GV22994@quickstop.soohrt.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602131025.43826.ak@suse.de>
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20060211135003.GV22994@quickstop.soohrt.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 February 2006 08:55, Roberto Nibali wrote:
-> Hello Andi,
-> 
-> Thanks for your comments.
-> 
-> >> The issue I'm trying to track down now is why I cannot get it to work on 
-> >> a x86_64 kernel (Sun Fire V20z with AMD Opteron(tm) Processor 252 on 
-> >> SLES 9 PL3). I suspect 32/64 bit issues between in my ioctl message 
-> >> passing between user space and kernel space.
+Horst Schirmeier schrieb am Samstag, den 11. Februar 2006:
+> On Tue, Feb 07, 2006, Horst Schirmeier wrote:
+> > Hi,
 > > 
-> > Quite possible. The mpt ioctls would need a ioctl conversion handler
-> > to allow a 32bit program to use the 64bit ioctls. Or just use a 64bit
-> > executable.
+> > I'm observing an instant reboot while booting current stable or HEAD
+> > kernels since a recent ReiserFS commit. Details and temporary fix
+> > below.
+> > [...]
 > 
-> It is a 64bit executable:
+> Just for the records: I've opened a bug report on bugme.osdl.org.
+> http://bugme.osdl.org/show_bug.cgi?id=6054
 
-Then whatever problem the program has is not enabled to 32bit ioctl emulation.
-Maybe it has some generic 64bit issues.
+Fixed by Jeff Mahoney's patch, commit
+89edc3d2b429136a0e25f40275fd82dc58f147fd ("[PATCH] reiserfs: disable
+automatic enabling of reiserfs inode attributes"), so 2.6.16-rc3 works
+for me again.
 
-Thanks for looking into it.
+I suggest to backport this to 2.6.15.y.
 
--Andi
+Kind regards,
+ Horst Schirmeier
+
+-- 
+PGP-Key 0xD40E0E7A

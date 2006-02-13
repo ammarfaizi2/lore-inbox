@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWBMPBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWBMPDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932112AbWBMPBP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 10:01:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWBMPBP
+	id S932114AbWBMPDq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 10:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWBMPDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 10:01:15 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:48524 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S932112AbWBMPBO (ORCPT
+	Mon, 13 Feb 2006 10:03:46 -0500
+Received: from mail.gmx.de ([213.165.64.21]:12206 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932114AbWBMPDp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 10:01:14 -0500
-Date: Mon, 13 Feb 2006 16:01:13 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove duplicate #includes
-Message-ID: <20060213150113.GA13324@MAIL.13thfloor.at>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Linux Kernel ML <linux-kernel@vger.kernel.org>
-References: <20060213093959.GA10496@MAIL.13thfloor.at> <20060213102656.GC26627@wavehammer.waldi.eu.org>
-Mime-Version: 1.0
+	Mon, 13 Feb 2006 10:03:45 -0500
+X-Authenticated: #428038
+Date: Mon, 13 Feb 2006 16:03:41 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060213150341.GD14544@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20060208162828.GA17534@voodoo> <20060210114721.GB20093@merlin.emma.line.org> <43EC887B.nailISDGC9CP5@burner> <200602090757.13767.dhazelton@enter.net> <43EC8F22.nailISDL17DJF@burner> <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com> <43F06220.nailKUS5D8SL2@burner> <mj+md-20060213.104344.18941.atrey@ucw.cz> <43F09E67.nailKUSQCAD6I@burner>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060213102656.GC26627@wavehammer.waldi.eu.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <43F09E67.nailKUSQCAD6I@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 13, 2006 at 11:26:56AM +0100, Bastian Blank wrote:
-> On Mon, Feb 13, 2006 at 10:39:59AM +0100, Herbert Poetzl wrote:
-> > diff -NurpP --minimal linux-2.6.16-rc2/drivers/char/drm/drm.h linux-2.6.16-rc2-mpf/drivers/char/drm/drm.h
-> > --- linux-2.6.16-rc2/drivers/char/drm/drm.h	2006-02-07 11:52:24 +0100
-> > +++ linux-2.6.16-rc2-mpf/drivers/char/drm/drm.h	2006-02-13 01:48:55 +0100
-> > @@ -51,11 +51,9 @@
-> >  #if defined(__FreeBSD__) && defined(IN_MODULE)
-> >  /* Prevent name collision when including sys/ioccom.h */
-> >  #undef ioctl
-> > -#include <sys/ioccom.h>
-> >  #define ioctl(a,b,c)		xf86ioctl(a,b,c)
-> > -#else
-> > -#include <sys/ioccom.h>
-> >  #endif				/* __FreeBSD__ && xf86ioctl */
-> > +#include <sys/ioccom.h>
-> >  #define DRM_IOCTL_NR(n)		((n) & 0xff)
-> >  #define DRM_IOC_VOID		IOC_VOID
-> >  #define DRM_IOC_READ		IOC_OUT
-> 
-> This one changes the behaviour. 
+Joerg Schilling schrieb am 2006-02-13:
 
-hmm, yes, doesn't make much sense to remove that 
-dumplicate entry anyway, so I'll simply drop that
-one from the patch ... 
+> And BTW: if a sysadmin does not know how things work on Linux and thus
+> causes a remapping, all /etc/vfstab entries would be void. So you are talking 
+> about a major fault that should be avoided under all circumstances.
 
-thanks a lot for the feedback!
+Talk about people who "do[...] not know how things work on Linux" and
+name /etc/vfstab in the same breath.
 
-> But do we want to have this non-linux hacks in the tree?
+Brilliant!
 
-good question
+Oh, and in case you didn't know, Linux isn't using b,t,l in its mount
+table. No, I'm not naming the file, find out for yourself, you need it.
 
-best,
-Herbert
-
-> Bastian
-> 
-> -- 
-> It would be illogical to assume that all conditions remain stable.
-> 		-- Spock, "The Enterprise Incident", stardate 5027.3
-
-
+-- 
+Matthias Andree

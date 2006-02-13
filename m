@@ -1,84 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbWBMMNb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWBMMOn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932394AbWBMMNb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 07:13:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWBMMNb
+	id S932388AbWBMMOn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 07:14:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWBMMOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 07:13:31 -0500
-Received: from sipsolutions.net ([66.160.135.76]:2057 "EHLO sipsolutions.net")
-	by vger.kernel.org with ESMTP id S932104AbWBMMNa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 07:13:30 -0500
-Subject: Re: Flames over -- Re: Which is simpler? (Was Re: [Suspend2-devel]
-	Re: [ 00/10] [Suspend2] Modules support.)
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Valdis.Kletnieks@vt.edu, suspend2-devel@lists.suspend2.net,
-       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <451E960D-8FA5-474E-8C72-B8F834D03AF7@mac.com>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain>
-	 <200602101337.22078.rjw@sisk.pl> <20060210233507.GC1952@elf.ucw.cz>
-	 <200602111136.56325.merka@highsphere.net>
-	 <B5780C33-81CE-4B8A-9583-B9B3973FCC11@mac.com> <43EEF711.2010409@gmail.com>
-	 <43833C9D-40A2-42B3-83D9-3C9D3EB7C434@mac.com> <43EF24C0.2040902@gmail.com>
-	 <47B33C16-AEC3-4036-BA05-AE235014684E@mac.com>
-	 <200602121656.k1CGurd7019092@turing-police.cc.vt.edu>
-	 <451E960D-8FA5-474E-8C72-B8F834D03AF7@mac.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-09RExCjTrvfINdYOJi14"
-Date: Mon, 13 Feb 2006 13:12:56 +0100
-Message-Id: <1139832776.6388.36.camel@localhost>
+	Mon, 13 Feb 2006 07:14:43 -0500
+Received: from smtp10.wanadoo.fr ([193.252.22.21]:54227 "EHLO
+	smtp10.wanadoo.fr") by vger.kernel.org with ESMTP id S932388AbWBMMOm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 07:14:42 -0500
+X-ME-UUID: 20060213121441466.71EE62400153@mwinf1004.wanadoo.fr
+Subject: vold for linux ? [was: Re: CD writing in future Linux (stirring up
+	a hornets' nest)]
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: cfriesen@nortel.com, tytso@mit.edu, peter.read@gmail.com, mj@ucw.cz,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
+In-Reply-To: <43F05FB2.nailKUS3MR1N9@burner>
+References: <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr>
+	 <43EB7BBA.nailIFG412CGY@burner> <mj+md-20060209.173519.1949.atrey@ucw.cz>
+	 <43EC71FB.nailISD31LRCB@burner>
+	 <20060210114721.GB20093@merlin.emma.line.org>
+	 <43EC887B.nailISDGC9CP5@burner> <mj+md-20060210.123726.23341.atrey@ucw.cz>
+	 <43EC8E18.nailISDJTQDBG@burner>
+	 <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr>
+	 <43EC93A2.nailJEB1AMIE6@burner> <20060210141651.GB18707@thunk.org>
+	 <43ECA3FC.nailJGC110XNX@burner> <43ECA70C.8050906@nortel.com>
+	 <43ECA8BC.nailJHD157VRM@burner> <43ECADA8.9030609@nortel.com>
+	 <43F05FB2.nailKUS3MR1N9@burner>
+Content-Type: text/plain
+Message-Id: <1139832867.3527.140.camel@capoeira>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Mon, 13 Feb 2006 13:14:27 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-02-13 at 11:30, Joerg Schilling wrote:
 
---=-09RExCjTrvfINdYOJi14
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> This media is mounted via a vold service and someone removes the USB cable
+> and reinserts it a second later. The filesystem on the device will be mounted
+> on the same mount point but the device ID inside the system did change.
 
-On Sun, 2006-02-12 at 13:28 -0500, Kyle Moffett wrote:
+BTW, is there a vold-like implementation for linux somewhere ?
 
-> /me reads spec. *sigh*  Whatever idiocy-committee wrote that spec was =20
-> clearly either smoking crack or living in a fantasy-world (or both).  =20
-> An arbitrary unrestricted DMA bus is a massive and painfully obvious =20
-> security hole.  Can somebody _please_ shoot the guy that came up with =20
-> that brilliant idea?  At least it looks like it's not available if =20
-> the firewire modules aren't loaded, which means that you can prevent =20
-> that sort of attack, and my laptop luckily doesn't load those modules =20
-> at boot just to save a bit of memory. =20
+Thanks,
+	Xav
 
-might not help since your firmware turns on the firewire port to enable
-booting from firewire disks.
-
-> Even still, that's just a =20
-> terrible idea.  Is there any practical way to restrict DMA and make =20
-> FireWire secure?
-
-load the modules with phys_dma=3D0
-
-johannes
-
---=-09RExCjTrvfINdYOJi14
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIVAwUAQ/B3xqVg1VMiehFYAQI+gRAAu7TrBewbQs26TyEVEl1TuAIufv0uSpgS
-JCOyUGDhZ4fzYsj7ArD6CXyVjWpDCCGMVRPqMxUvoRZyAgT5SL/oDW4vuzuF9xZH
-U7CL/gxooxYFzMH8wMNG6cUUh4Ag6Oi/x9VQHYkoZ/jTTOx1z+fjqv31RylYjgrl
-2mTmGmPvILRWcI2ESmcpNZ+mYbZYcreJFjuFKsVqV5504HBqRuSVt2U21An5ZW+U
-SmJORufn5tCyt/m2veCMPphHidKjAcYSci/MG2AmCQpP7VoOIsemzXkhAxX5TN5b
-Z9TaNd3+E7moiZRvb6mdjG0TtkegF+jyRp089TVnm3D9LnayYupkizAdszBlV12L
-cMVTAwgJ4fI9VCuA1PNe1pVeOUqF5LKaRl3n2IWB0niMkeXdSQEIG++fv5hZh6YG
-8X7dMVHxVzoxb5flzO91TnEhWzQJfJA1Mw+W1E38c4Dc+6Zj4kty7ncwodqUSd6L
-oJ5YMhpe4mee3S/ynuaoh+4QBE9g12v5jcJ7oeDYa/AB8phC35UL8vplvAfUHEHo
-ul00otgrICRzKaJlM+VcaC8ic59brUoRsYN0sRJea+xLwdFL7GgCtFeWov3P8DmV
-2LvgKZpbMIP5COzIbDlqlS1pTiEGlo/ru6NEDa9DzCkTfHAOR9RCxN9wd3kv/AYG
-sHzCUav3XFg=
-=1hlF
------END PGP SIGNATURE-----
-
---=-09RExCjTrvfINdYOJi14--
 

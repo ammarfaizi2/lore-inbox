@@ -1,44 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWBMDAH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751558AbWBMDD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751155AbWBMDAH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 22:00:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWBMDAH
+	id S1751558AbWBMDD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 22:03:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751556AbWBMDD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 22:00:07 -0500
-Received: from smtp.bulldogdsl.com ([212.158.248.8]:1546 "EHLO
-	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1751155AbWBMDAG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 22:00:06 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Brandon Low <lostlogic@lostlogicx.com>
-Subject: Re: Athlon 64 X2 cpuinfo oddities
-Date: Mon, 13 Feb 2006 03:00:10 +0000
-User-Agent: KMail/1.9.1
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-References: <9a8748490601091218m1ff0607h79207cfafe630864@mail.gmail.com> <p73r77gx36u.fsf@verdi.suse.de> <20060213025322.GW4394@lostlogicx.com>
-In-Reply-To: <20060213025322.GW4394@lostlogicx.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 12 Feb 2006 22:03:56 -0500
+Received: from mail.gmx.net ([213.165.64.21]:22757 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751098AbWBMDDz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 22:03:55 -0500
+X-Authenticated: #14349625
+Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
+From: MIke Galbraith <efault@gmx.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Con Kolivas <kernel@kolivas.org>,
+       gcoady@gmail.com, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1139787578.2739.13.camel@mindpipe>
+References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
+	 <200602081335.18256.kernel@kolivas.org>
+	 <Pine.LNX.4.61.0602091806100.30108@yvahk01.tjqt.qr>
+	 <1139515605.30058.94.camel@mindpipe>  <1139553319.8850.79.camel@homer>
+	 <1139752033.27408.20.camel@homer>  <1139771016.19342.253.camel@mindpipe>
+	 <1139780193.7837.7.camel@homer>  <1139787578.2739.13.camel@mindpipe>
+Content-Type: text/plain
+Date: Mon, 13 Feb 2006 04:09:29 +0100
+Message-Id: <1139800169.7595.24.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602130300.10473.s0348365@sms.ed.ac.uk>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 February 2006 02:53, Brandon Low wrote:
-> Did the patch that fixes the out of sync cpufreq messages make it into
-> 2.6.15 stable series?  I just acquired an athlon 64 x2 system, and was
-> having this:
+On Sun, 2006-02-12 at 18:39 -0500, Lee Revell wrote:
+> On Sun, 2006-02-12 at 22:36 +0100, MIke Galbraith wrote:
+> > On Sun, 2006-02-12 at 14:03 -0500, Lee Revell wrote:
+> > > On Sun, 2006-02-12 at 14:47 +0100, MIke Galbraith wrote:
+> > > > If you think it's the scheduler, how about try the patch below.  It's
+> > > > against 2.6.16-rc2-mm1, and should tell you if it is the interactivity
+> > > > logic in the scheduler or not.  I don't see other candidates in there,
+> > > > not that that means there aren't any of course. 
+> > > 
+> > > I'll try, but it's a serious pain for me to build an -mm kernel.  A
+> > > patch against 2.6.16-rc1 would be much easier.
+> > 
+> > Ok, here she comes.  It's a bit too reluctant to release a task so it
+> > can reach interactive status at the moment, but for this test, that's a
+> > feature. In fact, for this test, it's probably best to jump straight to
+> > setting both g1 and g2 to zero.
+> 
+> Not only does this fix my "time ls" test case, it seems to drastically
+> improve interactivity for my desktop apps.  I was really being plagued
+> by weird stalls, it's much smoother now.
 
-My issues with cpufreq were resolved in 2.6.16-rc2, I highly recommend that 
-you try it, or Linus's recently pushed -rc3.
+Yeah, but under load, that reluctance to release is fairly annoying...
 
--- 
-Cheers,
-Alistair.
+> 
+> Now to regression test it...
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+...and may cause test applications to not reach their proper priority
+before measurement begins.
+
+	-Mike
+

@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWBMLK3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751749AbWBML2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbWBMLK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 06:10:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751747AbWBMLK3
+	id S1751749AbWBML2M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 06:28:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751745AbWBML2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 06:10:29 -0500
-Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:15886 "EHLO
-	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1751253AbWBMLK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 06:10:28 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Subject: Re: 2.6.16, sk98lin out of date
-Date: Mon, 13 Feb 2006 11:10:34 +0000
-User-Agent: KMail/1.9.1
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <200602131058.03419.s0348365@sms.ed.ac.uk> <20060213110542.GZ3927@mea-ext.zmailer.org>
-In-Reply-To: <20060213110542.GZ3927@mea-ext.zmailer.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 13 Feb 2006 06:28:12 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:6279
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751565AbWBML2L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 06:28:11 -0500
+Subject: Re: [PATCH 02/13] hrtimer: remove useless const
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <Pine.LNX.4.61.0602130209340.23804@scrub.home>
+References: <Pine.LNX.4.61.0602130209340.23804@scrub.home>
+Content-Type: text/plain
+Date: Mon, 13 Feb 2006 12:28:36 +0100
+Message-Id: <1139830116.2480.464.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.5 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602131110.34212.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 February 2006 11:05, Matti Aarnio wrote:
-> On Mon, Feb 13, 2006 at 10:58:03AM +0000, Alistair John Strachan wrote:
-> > Hi,
-> >
-> > As I'm sure the drivers/net maintainers are well aware, SysKonnect
-> > constantly update their sk98lin/sky2 driver without bothering to sync
-> > their changes with the official linux kernel.
->
-> My understanding is, that  skge  driver has superceded the  sk98lin  in
-> most uses.
->
-> There could, of course, be a change to insert vendor driver _as_is_ into
-> baseline kernel with its own name.
+On Mon, 2006-02-13 at 02:09 +0100, Roman Zippel wrote:
+> A const for arguments which are passed by value is completely ignored by
+> gcc. It has only an effect on local variables and even here gcc doesn't
+> need it either to produce better code.
+> 
+> Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
-Thanks Matti, I wasn't even aware of this driver. Might I suggest the "old" 
-driver be marked as such in Linux 2.6.16. I guess I must've skipped over it 
-because it begins with "New", and does not contain the word "Marvell", which 
-is indicated exclusively by lspci.
+NACK - gcc3 produces smaller code with the const - only gcc4 fixed that,
+so we want to keep these consts until gcc4 is the only compiler
+supported. 		
 
--- 
-Cheers,
-Alistair.
+Also this is neither a regression nor a bug and therefor not required
+for 2.6.16.
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+	tglx
+
+

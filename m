@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751555AbWBMDXS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751570AbWBMD2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751555AbWBMDXS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 22:23:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751534AbWBMDXS
+	id S1751570AbWBMD2r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 22:28:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751563AbWBMD2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 22:23:18 -0500
-Received: from pat.uio.no ([129.240.130.16]:40379 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1750942AbWBMDXR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 22:23:17 -0500
-Subject: Re: Linux 2.6.16-rc3
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+	Sun, 12 Feb 2006 22:28:47 -0500
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:10883 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751096AbWBMD2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 22:28:45 -0500
 To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
        Jens Axboe <axboe@suse.de>,
        James Bottomley <James.Bottomley@steeleye.com>,
        "Brown, Len" <len.brown@intel.com>,
        "David S. Miller" <davem@davemloft.net>, Greg KH <greg@kroah.com>,
        linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       "Yu, Luming" <luming.yu@intel.com>, Ben Castricum <lk@bencastricum.nl>,
-       sanjoy@mrao.cam.ac.uk, Helge Hafting <helgehaf@aitel.hist.no>,
+       "Yu, Luming" <luming.yu@intel.com>,
+       "Ben Castricum" <lk@bencastricum.nl>,
+       Helge Hafting <helgehaf@aitel.hist.no>,
        "Carlo E. Prelz" <fluido@fluido.as>,
-       Gerrit =?ISO-8859-1?Q?Bruchh=E4user?= <gbruchhaeuser@gmx.de>,
+       Gerrit =?ISO-8859-1?B?QnJ1Y2ho5HVzZXI=?= <gbruchhaeuser@gmx.de>,
        Nicolas.Mailhot@LaPoste.net, Jaroslav Kysela <perex@suse.cz>,
        Takashi Iwai <tiwai@suse.de>, Patrizio Bassi <patrizio.bassi@gmail.com>,
-       =?ISO-8859-1?Q?Bj=F6rn?= Nilsson <bni.swe@gmail.com>,
+       =?ISO-8859-1?B?Qmr2cm4=?= Nilsson <bni.swe@gmail.com>,
        Andrey Borzenkov <arvidjaar@mail.ru>, "P. Christeas" <p_christ@hol.gr>,
        ghrt <ghrt@dial.kappa.ro>, jinhong hu <jinhong.hu@gmail.com>,
        Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-scsi@vger.kernel.org,
        Benjamin LaHaise <bcrl@kvack.org>
-In-Reply-To: <20060212190520.244fcaec.akpm@osdl.org>
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org>
-	 <20060212190520.244fcaec.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sun, 12 Feb 2006 22:22:55 -0500
-Message-Id: <1139800975.7916.7.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.084, required 12,
-	autolearn=disabled, AWL 1.73, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+Subject: Re: Linux 2.6.16-rc3 
+In-Reply-To: Your message of "Sun, 12 Feb 2006 19:05:20 PST."
+             <20060212190520.244fcaec.akpm@osdl.org> 
+Date: Mon, 13 Feb 2006 03:28:34 +0000
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1F8UOA-00085s-00@skye.ra.phy.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-12 at 19:05 -0800, Andrew Morton wrote:
-> We still have some serious bugs, several of which are in 2.6.15 as well:
+> In http://bugzilla.kernel.org/show_bug.cgi?id=5989, Sanjoy Mahajan has
+> another regression, but he's off collecting more info.
 
-> - Benjamin LaHaise <bcrl@kvack.org> had an NFS problem ("NFS processes
->   gettting stuck in D with currrent git").
+I'm nearly done with bisecting (spent a day on a wild bisect goose
+chase due to being careless) and I'm 95% sure the problem is
+introduced by:
 
-...but which was apparently not repeatable:
+commit b8e4d89357fc434618a59c1047cac72641191805
+Author: Bob Moore <robert.moore@intel.com>
+Date:   Fri Jan 27 16:43:00 2006 -0500
 
-        As of this afternoon's tree
-        (6150c32589d1976ca8a5c987df951088c05a7542)  after the more
-        recent set of nfs patches, it seems to be behaving itself.  Will
-        keep sysrq enabled to see if it hits again, though.
+    [ACPI] ACPICA 20060127
 
-I've had no news from Ben since then...
+But I will know for sure shortly.
 
-Cheers,
-  Trond
+-Sanjoy
 
+`Never underestimate the evil of which men of power are capable.'
+         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.

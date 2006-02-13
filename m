@@ -1,87 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWBMP5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWBMQFn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbWBMP5n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 10:57:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWBMP5n
+	id S1750798AbWBMQFn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 11:05:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWBMQFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 10:57:43 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:9235 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1750782AbWBMP5m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 10:57:42 -0500
-Message-ID: <43F0AC38.9090409@cfl.rr.com>
-Date: Mon, 13 Feb 2006 10:56:40 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Mon, 13 Feb 2006 11:05:43 -0500
+Received: from zproxy.gmail.com ([64.233.162.199]:37350 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750798AbWBMQFm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 11:05:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VBV8y5VgpZann+C+ZKTXT+797ZBynyNpEWt1fEAV7lKVOwA5IpIsL5iW6IVaKwS/qut1ja65npHJiUoheLXm7FyrvxbESeByF8rngg2WeKZ38kGW8WckN5mIlXlefm4WZ865k03jYP7aR4OAkFTxnNiPlMZIHRv1oU7ggRYUpGU=
+Message-ID: <5a2cf1f60602130805u537de206k22fa418ee214cf02@mail.gmail.com>
+Date: Mon, 13 Feb 2006 17:05:41 +0100
+From: jerome lacoste <jerome.lacoste@gmail.com>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Cc: peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       jengelh@linux01.gwdg.de, dhazelton@enter.net
+In-Reply-To: <43F0AA83.nailKUS171HI4B@burner>
 MIME-Version: 1.0
-To: Nicolas George <nicolas.george@ens.fr>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Filesystem for mobile hard drive
-References: <20060212150331.GA22442@clipper.ens.fr> <43EFD6E4.60601@cfl.rr.com> <20060213010701.GA8430@clipper.ens.fr> <43EFEE57.7070009@cfl.rr.com> <20060213103512.GA5157@clipper.ens.fr>
-In-Reply-To: <20060213103512.GA5157@clipper.ens.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Feb 2006 15:58:29.0532 (UTC) FILETIME=[5506ADC0:01C630B6]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14265.000
-X-TM-AS-Result: No--20.600000-5.000000-31
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060208162828.GA17534@voodoo> <43EC887B.nailISDGC9CP5@burner>
+	 <200602090757.13767.dhazelton@enter.net>
+	 <43EC8F22.nailISDL17DJF@burner>
+	 <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com>
+	 <43F06220.nailKUS5D8SL2@burner>
+	 <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com>
+	 <43F0A010.nailKUSR1CGG5@burner>
+	 <5a2cf1f60602130724n7b060e29r57411260b04d5972@mail.gmail.com>
+	 <43F0AA83.nailKUS171HI4B@burner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas George wrote:
-> I use the french word octet instead of byte, because it is less error prone
-> (when you read "mb", does-it really mean megabit, or does it mean that the
-> author is lazy about capitalization?) and a little bit more precise. Tough I
-> actually am French, I did not start using a French word in English by
-> myself. I copy a practice of the IETF: the RFCs use octet more than byte.
->   
-
-Ahh, I see.  I've never seen anyone use it in conjunction with an si 
-prefix.  I also think that they use it in RFCs because at the time they 
-started writing them, bytes were not always 8 bits on all machines.  
-Today it is a pretty safe assumption that a byte is 8 bits, so most 
-people use the two terms interchangeably ;)
-
-As for 1000 vs 1024 powers, I personally use the general rule that B = 
-bytes and is in powers of 1024, and b = bits, and is in powers of 1000.  
-For some reason the telecom industry likes to talk in terms of 1000 bits 
-per second, but the rest of the sane world uses bytes in even powers of 
-two.  Generally it's people trying to sell you something that use powers 
-of 1000 so they can make it sound bigger.  I really hate that. 
-
-> That is a very good point. If windows can read UDF on hard drives and not
-> only DVD, UDF could probably supersede FAT completely.
+On 2/13/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
+> jerome lacoste <jerome.lacoste@gmail.com> wrote:
 >
-> Thank you for pointing me that direction.
+> > > Sformat already includes such a mapping if you are on Solaris.
+> > > Unfortunately this does cleanly work on Linux and for this
+> > > reason is did not make it into cdrecord.
+> >
+> > Jorg,
+> >
+> > thanks for your answer.
+> >
+> > I fail to understand how it is connected to my proposal. Maybe we
+> > misunderstood each other.
+> >
+> > I assume that you refer to the sformat/fmt.c implementation (sformat
+> > 3.5) being reproduced in cdrecord/scsi_scan.c (latest cdrtools).
+> >
+> > Could you please elaborate on:
+> > - what does the sformat scanbus code has to do with my proposal, whose
+> > changes would mostly be located in the libscg modules, not in the
+> > cdrecord module
 >
->   
+> What has your proposal to do with libscg
 
-I had that same thought a few weeks ago so I gave it a try.  I formatted 
-a partition with UDF, put some files on it, then booted windows to see 
-if it would take it.  It didn't :(
+The mapping I am talking about is currently done inside libscg (inside
+the scsi-*.c files). Hence libscg is the one capable of exposing this
+information to higher levels.
 
-> I have a Solaris 9 near at hand, and I see a /lib/fs/udfs/fsck, and in the
-> source tarball of OpenSolaris, I find a directory
-> usr/src/cmd/fs.d/udfs/fsck/. It does not compile out of the box, but it may
-> be possible to port it with limited effort.
+> and how would you like to implement it OS independent?
+
+The information printed will be printed in a format such as:
+
+b,t,l <= os_specific_name
+
+This information is obviously not completely OS dependent (the
+os_specifc_name is OS specific). But it is exactly this information
+that would make your program integrable with OS specific user
+interfaces. And this information would only be outputted.
+
+Think about it in term of high level interface:
+
+struct mapping {
+  btl btl;
+  char* name;
+}
+
+mapping* get_drives();
+void burn(btl, ....)
+
+To use your b,t,l naming effectively, we need to have a way to
+identify it correctly. and no scanbus is not sufficient because what
+is needed is the btl to os specific name.
+
+
+> > - why 'it' doesn't clearly work on Linux. cdrecord clearly creates
+> > this os specific to b,t,l mapping (e.g. in scsi-linux-ata.c,
+> > scsi-wnt.c etc..). Why this mapping cannot be publicised in a
+> > parseable format?
 >
->   
+> Name a method that would work for anhy type of devices and any of the
+> supported 21 OS.
 
-Hrm... interesting, I wonder how complete it is and what it's license 
-is?  The fsck in the udftools package was never actually implemented 
-unfortunately.
+I don't want to change anything cdrecord does. wrapper programs will
+still use your dev=b,t,l on all platforms. The publicised mapping
+would allow program to identify the correct b,t,l value.
 
->> I agree.  I think the VFS layer should process the uid/gid options.  By 
->> default it should replace nobody with the specified id, and fat and ntfs 
->> should just report all files as owned by nobody.  Then a new option 
->> should be added to force the translation for all ids, not just nobody.
->>     
->
-> I agree with that (except maybe for the NTFS part, which I do not know; let
-> us just say "UID-less filesystems"). Maybe a full UID translation system
-> similar th the one in NFS could be useful, or a generic hook for modules,
-> but having basic UID overriding would be great.
->
-> Unfortunately, the VFS subsystem is something too complex for me at this
-> time.
->   
+How does that sound?
 
+Jerome

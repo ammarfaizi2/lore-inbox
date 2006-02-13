@@ -1,75 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751659AbWBMJUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751667AbWBMJWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751659AbWBMJUy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 04:20:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751658AbWBMJUy
+	id S1751667AbWBMJWf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 04:22:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751668AbWBMJWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 04:20:54 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:9785 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751186AbWBMJUx (ORCPT
+	Mon, 13 Feb 2006 04:22:35 -0500
+Received: from zproxy.gmail.com ([64.233.162.195]:40484 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751666AbWBMJWe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 04:20:53 -0500
-Message-ID: <43F04FD6.5090603@sw.ru>
-Date: Mon, 13 Feb 2006 12:22:30 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Mon, 13 Feb 2006 04:22:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=ueSf+viclyE7OEoZCFCilLsqaowHE5uFRmHgHTsKgkigAxVCXVp5a2ZuwA4GLbyopjQEGv+6rA1QbOH4JSIQtqAD6xTiLzTIRPZFTOqINjP8wCBmp7OYdZ3HTd0C/PfRv6ccpJZdL5CZ3YwCrwDbP5AgdUVYdMGV12XcrMw8Sjc=
+Message-ID: <43F04FCE.9030309@gmail.com>
+Date: Mon, 13 Feb 2006 10:22:22 +0100
+From: Patrizio Bassi <patrizio.bassi@gmail.com>
+Reply-To: patrizio.bassi@gmail.com
+Organization: patrizio.bassi@gmail.com
+User-Agent: Mozilla Thunderbird 1.5 (X11/20060112)
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: [RFC][PATCH 04/20] pspace: Allow multiple instaces of the process
- id namespace
-References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>	<m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>	<m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com>	<m1fymwmgk0.fsf_-_@ebiederm.dsl.xmission.com>	<m1bqxkmgcv.fsf_-_@ebiederm.dsl.xmission.com> <43ECF803.8080404@sw.ru> <m1psluw1jj.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1psluw1jj.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       "Brown, Len" <len.brown@intel.com>,
+       "David S. Miller" <davem@davemloft.net>, Greg KH <greg@kroah.com>,
+       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       "Yu, Luming" <luming.yu@intel.com>, Ben Castricum <lk@bencastricum.nl>,
+       sanjoy@mrao.cam.ac.uk, Helge Hafting <helgehaf@aitel.hist.no>,
+       "Carlo E. Prelz" <fluido@fluido.as>,
+       =?ISO-8859-1?Q?Gerrit_Bruchh=E4us?= =?ISO-8859-1?Q?er?= 
+	<gbruchhaeuser@gmx.de>,
+       Nicolas.Mailhot@LaPoste.net, Jaroslav Kysela <perex@suse.cz>,
+       Takashi Iwai <tiwai@suse.de>,
+       =?ISO-8859-1?Q?Bj=F6rn_Nilsson?= <bni.swe@gmail.com>,
+       Andrey Borzenkov <arvidjaar@mail.ru>, "P. Christeas" <p_christ@hol.gr>,
+       ghrt <ghrt@dial.kappa.ro>, jinhong hu <jinhong.hu@gmail.com>,
+       Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-scsi@vger.kernel.org,
+       Benjamin LaHaise <bcrl@kvack.org>
+Subject: Re: Linux 2.6.16-rc3
+References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org> <20060212190520.244fcaec.akpm@osdl.org>
+In-Reply-To: <20060212190520.244fcaec.akpm@osdl.org>
+X-Enigmail-Version: 0.93.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>1.
->>flags are neither atomic nor protected with any lock.
-> 
-> 
-> flags are atomic as they are a machine word.  So they do not
-> require a read/modify write so they will either be written
-> or not written.  Plus this allows write-sharing of the appropriate
-> cache line which is very polite (assuming the line is not shared with
-> something else)
-Eric I'm familiar with SMP, thanks :)
-Why do you write all this if you agreed below that have problems with it?
-
->>2. due to 1) you code is buggy. in this respect do_exit() is not serialized with
->>copy_process().
-> Yes. I may need a memory barrier in there.  I need to think
-> about that a little more.
-memory barrier doesn't help. you really need to think about.
-
->>3. due to the same 1) reason
->> > +		kill_pspace_info(SIGKILL, (void *)1, tsk->pspace);
->>can miss a task being forked. Bang!!!
+Andrew Morton ha scritto:
+> We still have some serious bugs, several of which are in 2.6.15 as well:
 >
-> Well the only bad thing that can happen is that I get a process that
-> can run and observe pid == 1 has exited.  So Bang!! is not too
-> painful.
-And what about references to pspace->child_reaper which was freed already?
+> - The scsi_cmd leak, which I don't think is fixed.
+>
+> - The some-x86_64-boxes-use-GFP_DMA-from-bio-layer bug, which causes
+>   oom-killings.
+>
+> - The skbuff_head_cache leak, which has been around since at least
+>   2.6.11.  Another box-killer, but is seems very hard to hit. 
+>   (mki@mozone.net, "the dreaded oom-killer (reproducable in 2.6.11 -
+>   2.6.16-rc1) :(")
+>
+> - http://bugzilla.kernel.org/show_bug.cgi?id=6060: an apparent ACPI
+>   regression.
+>
+> - Nathan's "sysfs-related oops during module unload", which Greg seems to
+>   have under control.
+>
+> - http://bugzilla.kernel.org/show_bug.cgi?id=6049 - another acpi
+>   regression.  We have the actual offending commit here.
+>
+> - A couple of random tty-related oopses reported by Jesper Juhl.  We
+>   don't know why these happened - they appear to not be related to the tty
+>   buffering changes.
+>
+> - http://bugzilla.kernel.org/show_bug.cgi?id=6038, another box-killing
+>   acpi regression.
+>
+> - Various reports similar to
+>   http://bugzilla.kernel.org/show_bug.cgi?id=6011, seemingly related to USB
+>   PCI quirk handling.
+>
+> - "Ben Castricum" <lk@bencastricum.nl> reports that ppp has started
+>   exhibiting mysterious failures (again).
+>
+> - Nasty warnings from scsi about kobject-layer things being called from
+>   irq context.  James has a push-it-to-process-context patch which sadly
+>   assumes kmalloc() is immortal, but no other fix seems to have offered
+>   itself.
+>
+> - In http://bugzilla.kernel.org/show_bug.cgi?id=5989, Sanjoy Mahajan has
+>   another regression, but he's off collecting more info.
+>
+> - Helge Hafting reports a usb printer regression - I don't know if that's
+>   still live?
+>
+> - "Carlo E.  Prelz" <fluido@fluido.as> has another USB/ehci regression
+>   ("ATI RS480-based motherboard: stuck while booting with kernel >= 2.6.15
+>   rc1").
+>
+> - Gerrit Bruchhuser <gbruchhaeuser@gmx.de> seems to have an aic7xxx
+>   regression ("AHA-7850 doesn't detect scanner anymore") but he doesn't say
+>   which kernel got it right.
+>
+> - http://bugzilla.kernel.org/show_bug.cgi?id=5914 - a sata bug (which is
+>   quite unremarkable :(), but this one is reported to eat filesystems.
+>
+> - Patrizio Bassi <patrizio.bassi@gmail.com> has an alsa suspend
+>   regression ("alsa suspend/resume continues to fail for ens1370")
+>
+> - Bjorn Nilsson <bni.swe@gmail.com> has an sk99lin regression ("3COM
+>   3C940, does not work anymore after upgrade to 2.6.15")
+>
+> - Andrey Borzenkov <arvidjaar@mail.ru> has an acpi-cpufreq regression
+>   ("cannot unload acpi-cpufreq")
+>
+> - "P.  Christeas" <p_christ@hol.gr> had an autofs regression ("Regression
+>   in Autofs, 2.6.15-git"), whic might be fixed now?
+>
+> - ghrt <ghrt@dial.kappa.ro> reports an alsa regression ("PROBLEM: SB
+>   Live!  5.1 (emu10k1, rev.  0a) doesn't work with 2.6.15")
+>
+> - jinhong hu <jinhong.hu@gmail.com> reports what appears to be a qlogic
+>   regression ("kernel 2.6.15 scsi problem")
+>
+> - Benjamin LaHaise <bcrl@kvack.org> had an NFS problem ("NFS processes
+>   gettting stuck in D with currrent git").
+>
+>
+>
+> These are clear regressions, reported in the last month by people who are
+> willing to test patches.  They're almost all in subsystems which have
+> active and professional maintainers.
+>
+>   
+Really sad to say, but my Alsa ens1370 regression due to suspend problem
+is still there.
+Only fix is reboot actually. Ready to patch :)
 
-[skipped the flood]
+PS.
 
-Kirill
+i have a bug similar to:
+http://bugzilla.kernel.org/show_bug.cgi?id=6038 (marked as blocking by
+Andrew)
+on my laptop.
 
+but my dma expiry problem only happens during suspend.
+I have a Sis 630 chipset with a 2.5" hitachi drive.
+Been there...for ages..i can say: always...never got a working 2.6 kernel.
+However in my poor opinion it's not blocking on my system, just boring.
+
+
+Patrizio

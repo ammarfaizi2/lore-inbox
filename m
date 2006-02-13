@@ -1,88 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWBMObB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWBMOdm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932124AbWBMObB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 09:31:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWBMObB
+	id S932232AbWBMOdm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 09:33:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWBMOdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 09:31:01 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:21246 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932124AbWBMObA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 09:31:00 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 13 Feb 2006 15:29:02 +0100
-To: schilling@fokus.fraunhofer.de, sam@vilain.net
-Cc: peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de, lkml@dervishd.net,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-       jengelh@linux01.gwdg.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F097AE.nailKUSK1MJ9O@burner>
-References: <20060208162828.GA17534@voodoo>
- <43EA1D26.nail40E11SL53@burner> <20060208165330.GB17534@voodoo>
- <43EB0DEB.nail52A1LVGUO@burner>
- <Pine.LNX.4.61.0602091729560.30108@yvahk01.tjqt.qr>
- <43EB7210.nailIDH2JUBZE@burner>
- <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr>
- <43EB7BBA.nailIFG412CGY@burner>
- <mj+md-20060209.173519.1949.atrey@ucw.cz>
- <43EC71FB.nailISD31LRCB@burner> <20060210114930.GC2750@DervishD>
- <43EC88B8.nailISDH1Q8XR@burner> <43EFC1FF.7030103@vilain.net>
-In-Reply-To: <43EFC1FF.7030103@vilain.net>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 13 Feb 2006 09:33:42 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:32390 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932232AbWBMOdl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 09:33:41 -0500
+Date: Mon, 13 Feb 2006 20:03:45 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+Cc: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net,
+       Balbir Singh <balbir.singh@in.ibm.com>
+Subject: Re: [ckrm-tech] [PATCH 1/2] add a CPU resource controller
+Message-ID: <20060213143345.GA12279@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20060209061142.2164.35994.sendpatchset@debian> <20060209061147.2164.4528.sendpatchset@debian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060209061147.2164.4528.sendpatchset@debian>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Vilain <sam@vilain.net> wrote:
+On Thu, Feb 09, 2006 at 03:11:47PM +0900, KUROSAWA Takahiro wrote:
+> This patch adds CPU resource controller.  It enables us to control
+> CPU time percentage of tasks grouped by the cpu_rc structure.
+> It controls time_slice of tasks based on the feedback of difference
+> between the target value and the current usage in order to control
+> the percentage of the CPU usage to the target value.
 
-> Joerg Schilling wrote:
-> >>    My system is clueless, too! If I write a CD before plugging my
-> >>USB storage device, my CD writer is on 0,0,0. If I plug my USB
-> >>storage device *before* doing any access, my cdwriter is on 1,0,0.
-> >>Pretty stable.
-> > You are referring to a conceptional problem in the Linux kernel.
-> > If you are unhappy with this, send a bug report to the related
-> > people.
-> > This does not belong to libscg.
->
-> Jörg,
->
-> Technically, you may have a point[*1*].
->
-> However, no matter how correct someone is, if they act like a complete
-> dork, they're not going to be listened to.
+I noticed some anomalies in guarantees that were provided to different classes.
+Basically I had created two classes CA (10% guarantee) and CB (90% guarantee) 
+and run few tasks on a 4-cpu system as below:
 
-This is why I have less and less intrest in listening to most of the
-people who are around here.
+Case 1:
 
-They are either technically uninformed, personal offensive or obviously
-not interested in a solution.
+	CPU0	CPU1	CPU2	CPU3
+	============================
+
+	TA1	TA2	TA3	TA4
+	TB1	TB2	TB3	TB4
+
+Case 2:
+	
+	CPU0	CPU1	CPU2	CPU3
+	============================
+
+	TA1	TA2	TA3	TA4
+	               		TB4
+
+TA* tasks belong to CA and TB* belong to CB. All are CPU hungry tasks. Also 
+each task is bound to the respective CPU indicated.
+
+In both above cases, I found that CPU time was *equally* shared between the two 
+classes (whereas I expected them to be shared in 1:9 ratio).
+
+> +void cpu_rc_collect_hunger(task_t *tsk)
+> +{
+
+[snip]
+
+> +	if (CPU_RC_GUAR_SCALE * tsk->last_slice	/ (wait + tsk->last_slice)
+> +			< cr->guarantee / cr->rcd->numcpus)
+					^^^^^^^^^^^^^^^^^^
+					
+Debugging it a bit indicated that the division of cr->guarantee by 
+cr->rcd->numcpus in cpu_rc_collect_hunger doesn't seem to be required (since 
+LHS is not on global scale and also the class's tasks may not be running
+on other CPUs as in case 2). Removing the division rectified CPU sharing 
+anomaly I had found.
+
+Let me know what you think of this fix!
+
+
+--- kernel/cpu_rc.c.org	2006-02-11 08:44:38.000000000 +0530
++++ kernel/cpu_rc.c	2006-02-13 18:34:30.000000000 +0530
+@@ -204,7 +204,7 @@ void cpu_rc_collect_hunger(task_t *tsk)
  
-
-> This is a shame, because you appear to have some good experience to
-> relate.  If only you could keep your social interaction problems in
-> check, you might be able to harbour and attract less hate, and perhaps
-> even get some of your suggestions implemented.
-
-Well, once the people here express real interest, things may change.
-
-As for now, it looks like I may make the following conclusions:
-
--	Linux was helpful and interesting between 1996 and ~ 2001
-
--	Since ~ 2001, Linux seems to be bejond it's climax as I cannot
-	see any intrest in even fixing obvious bugs known for a long time.
-
-When looking at the current discussion, it seems to me that most people
-here are still not interested in a fix.
+ 	wait = jiffies - tsk->last_activated;
+ 	if (CPU_RC_GUAR_SCALE * tsk->last_slice	/ (wait + tsk->last_slice)
+-			< cr->guarantee / cr->rcd->numcpus)
++			< cr->guarantee)
+ 		cr->stat[cpu].maybe_hungry++;
+ 
+ 	tsk->last_activated = 0;
 
 
-Jörg
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Regards,
+vatsa

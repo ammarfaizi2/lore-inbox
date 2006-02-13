@@ -1,91 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964846AbWBMWnI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964877AbWBMWpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964846AbWBMWnI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 17:43:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbWBMWnI
+	id S964877AbWBMWpF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 17:45:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbWBMWpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 17:43:08 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43156 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964846AbWBMWnH (ORCPT
+	Mon, 13 Feb 2006 17:45:05 -0500
+Received: from smtp.enter.net ([216.193.128.24]:65030 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S964877AbWBMWpD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 17:43:07 -0500
-Date: Mon, 13 Feb 2006 17:51:41 -0500 (EST)
-From: Jason Baron <jbaron@redhat.com>
-X-X-Sender: jbaron@dhcp83-105.boston.redhat.com
-To: Paul Fulghum <paulkf@microgate.com>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "jesper.juhl@gmail.com" <jesper.juhl@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] tty reference count fix
-In-Reply-To: <1139861610.3573.24.camel@amdx2.microgate.com>
-Message-ID: <Pine.LNX.4.61.0602131747570.19384@dhcp83-105.boston.redhat.com>
-References: <1139861610.3573.24.camel@amdx2.microgate.com>
+	Mon, 13 Feb 2006 17:45:03 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Date: Mon, 13 Feb 2006 17:54:05 -0500
+User-Agent: KMail/1.8.1
+Cc: mj@ucw.cz, peter.read@gmail.com, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       jengelh@linux01.gwdg.de
+References: <20060208162828.GA17534@voodoo> <mj+md-20060213.140141.31817.atrey@ucw.cz> <43F0A5E1.nailKUS106KMUQ@burner>
+In-Reply-To: <43F0A5E1.nailKUS106KMUQ@burner>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602131754.06474.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 13 February 2006 10:29, Joerg Schilling wrote:
+> Martin Mares <mj@ucw.cz> wrote:
+> > Hello!
+> >
+> > > libscg abstracts from a kernel specific transport and allows to write
+> > > OS independent applications that rely in generic SCSI transport.
+> > >
+> > > For this reason, it is bejond the scope of the Linux kernel team to
+> > > decide on this abstraction layer. The Linux kernel team just need to
+> > > take the current libscg interface as given as _this_  _is_ the way to
+> > > do best abstraction.
+> >
+> > Do you really believe that libscg is the only way in the world how to
+> > access SCSI devices?
+> >
+> > How can you be so sure that the abstraction you have chosen is the only
+> > possible one?
+> >
+> > If an answer to either of this questions is NO, why do you insist on
+> > everybody bending their rules to suit your model?
+>
+> Name me any other lib that is as OS independent and as clean/stable as
+> libscg is. Note that the interface from libscg did not really change
+> since August 1986.
 
-On Mon, 13 Feb 2006, Paul Fulghum wrote:
+OS Independant? Almost every userspace library that a linux system uses is OS 
+independant. Stable interface? That's much harder since _most_ libraries 
+change their interfaces incrementally as new technology or techniques become 
+available to support them.
 
-> Fix hole where tty structure can be released when reference
-> count is non zero. Existing code can sleep without tty_sem
-> protection between deciding to release the tty structure
-> (setting local variables tty_closing and otty_closing)
-> and setting TTY_CLOSING to prevent further opens.
-> An open can occur during this interval causing release_dev()
-> to free the tty structure while it is still referenced.
-> 
-> This should fix bugzilla.kernel.org
-> [Bug 6041] New: Unable to handle kernel paging request
-> 
-> In Bug 6041, tty_open() oopes on accessing the tty structure
-> it has successfully claimed. Bug was on SMP machine
-> with the same tty being opened and closed by
-> multiple processes, and DEBUG_PAGEALLOC enabled.
-> 
+I did have an idea the other day and was wondering - why can't you, Joerg, add 
+the capacity to CDRECORD to silently take a given /dev entry and turn it into 
+your "needed" btl mapping?
 
-patch looks good to me. Or you could even drop the tty_sem completely from 
-the release_dev path (patch below) since lock_kernel() is held in both 
-tty_open() and the release_dev paths() (and there is no sleeping b/w 
-setting the tty_closing flag and setting the TTY_CLOSING bit).
+> > > The Linux kernel team has the freedom to boycott portable user space
+> > > SCSI applications or to support them.
+> >
+> > That's really an interesting view ... if anybody is boycotting anybody,
+> > then it's clearly you, because you refuse to extend libscg to support
+> > the Linux model, although it's clearly possible.
+>
+> Looks like you did not follow the discussion :-(
+>
+> I am constantly working on better support for Linux while the Linux kernel
+> folks do not even fix obvious bugs.
+>
 
--Jason
+Yes, you are, but you have made a very large mistake in your thinking. As an 
+application and library developer you are supposed to build an application 
+that works properly inside the framework provided by the OS. If your 
+application does not work within the OS, then there is either a large bug in 
+the OS (Not unheard of for M$ products, but in an Open Source product like 
+Linux bugs that large do not survive long) or a bug in your program.
 
+Since there is obviously no bug in the OS, and obviously no bug in cdrecord (I 
+use it about once a week to make multi-cd backups) then your complaints about 
+the "badly designed /dev/hd*" interface are just complaints from a programmer 
+that thinks he's smarter than a hundred other people.
 
-Signed-off-by: Jason Baron <jbaron@redhat.com>
+Since you appear to be a proponent of Solaris and use that on a regular basis 
+it's my guess that you either 1) don't have the skill to create an OS and 
+release it or 2) you are so mired in history and the "beauty" of your code 
+that you refuse to change it at all. In this case I think the second option 
+is the truth.
 
---- linux-2.6-working/drivers/char/tty_io.c.bak
-+++ linux-2.6-working/drivers/char/tty_io.c
-@@ -1829,14 +1829,9 @@ static void release_dev(struct file * fi
- 	 * each iteration we avoid any problems.
- 	 */
- 	while (1) {
--		/* Guard against races with tty->count changes elsewhere and
--		   opens on /dev/tty */
--		   
--		down(&tty_sem);
- 		tty_closing = tty->count <= 1;
- 		o_tty_closing = o_tty &&
- 			(o_tty->count <= (pty_master ? 1 : 0));
--		up(&tty_sem);
- 		do_sleep = 0;
- 
- 		if (tty_closing) {
-@@ -1873,7 +1868,6 @@ static void release_dev(struct file * fi
- 	 * block, so it's safe to proceed with closing.
- 	 */
- 	 
--	down(&tty_sem);
- 	if (pty_master) {
- 		if (--o_tty->count < 0) {
- 			printk(KERN_WARNING "release_dev: bad pty slave count "
-@@ -1887,7 +1881,6 @@ static void release_dev(struct file * fi
- 		       tty->count, tty_name(tty, buf));
- 		tty->count = 0;
- 	}
--	up(&tty_sem);
- 	
- 	/*
- 	 * We've decremented tty->count, so we need to remove this file
+DRH

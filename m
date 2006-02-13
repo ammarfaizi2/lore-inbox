@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030182AbWBMVpe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWBMVq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030182AbWBMVpe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 16:45:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbWBMVpe
+	id S932443AbWBMVq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 16:46:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWBMVq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 16:45:34 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:56547 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1030182AbWBMVpd (ORCPT
+	Mon, 13 Feb 2006 16:46:56 -0500
+Received: from host-a-002.milc.com.pl ([213.17.132.2]:36252 "EHLO milc.com.pl")
+	by vger.kernel.org with ESMTP id S932443AbWBMVqz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 16:45:33 -0500
-Date: Mon, 13 Feb 2006 22:45:27 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 05/13] hrtimer: optimize hrtimer_run_queues
-In-Reply-To: <20060213195052.GA30679@elte.hu>
-Message-ID: <Pine.LNX.4.61.0602132233440.30994@scrub.home>
-References: <Pine.LNX.4.61.0602130210120.23827@scrub.home> <20060213133944.GA12923@elte.hu>
- <Pine.LNX.4.61.0602131654470.30994@scrub.home> <20060213195052.GA30679@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 13 Feb 2006 16:46:55 -0500
+Date: Mon, 13 Feb 2006 22:46:51 +0100
+From: Yoss <bartek@milc.com.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Memory leak in 2.4.33-pre1?
+Message-ID: <20060213214651.GA27844@milc.com.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.4 (milc.com.pl [127.0.0.1]); Mon, 13 Feb 2006 22:46:51 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello.
+My server have lost about ~300MB of RAM. Details:
 
-On Mon, 13 Feb 2006, Ingo Molnar wrote:
+webcache:~# uname -a
+Linux webcache 2.4.33-pre1 #2 Wed Feb 8 18:26:44 CET 2006 i686 GNU/Linux
 
-> > I could also call this perfomance regressions to 2.6.15, unless there 
-> > is a good reason not to include them, I'd prefer to see it in 2.6.16.
-> 
-> can you measure it? This is tricky code, we definitely dont want to 
-> change it this late in the v2.6.16 cycles, execpt if it's some 
-> measurable performance issue that users will see. (or if it's some 
-> regression, which it isnt.)
+No other patches. Only basic elements needed to work in network
+enviroment.
+	
+webcache:~# dmesg | grep MEM
+127MB HIGHMEM available.
+896MB LOWMEM available.
 
-Why is not a regression?
-I'm busy enough with m68k as is just to catch up and you're not making it 
-easier. Such repetitive task have a tendency to show up pretty high when I 
-occasionally run an profile test run, e.g. a much simpler vertical blank 
-interrupt at 50Hz is noticable. The new hrtimer code is much heavier and 
-runs twice as much.
+When I count memmory used by processes (column SIZE from ps or RES from
+top) there is about 650MB used. (There is only squid, named and basic
+system deamons running on that host). But:
 
-bye, Roman
+webcache:~# free -m
+            total       used       free     shared  buffers    cached
+Mem:         1009        996         13          0       18        32
+-/+ buffers/cache:       945         64
+Swap:        1953          0       1952
+
+
+So there is missing about ~300MB.
+If anyone wants to have more detailed info feel free to ask.
+
+-- 
+Bart³omiej Butyn aka Yoss
+Nie ma tego z³ego co by na gorsze nie wysz³o.

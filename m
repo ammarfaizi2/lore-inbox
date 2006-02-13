@@ -1,47 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWBMGbz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWBMGis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750993AbWBMGbz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 01:31:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbWBMGbz
+	id S1750995AbWBMGis (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 01:38:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750998AbWBMGis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 01:31:55 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:47753 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750937AbWBMGby convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 01:31:54 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Compaq X1050 multiple suspend problems (ACPI, PS2)
-Date: Mon, 13 Feb 2006 14:31:49 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F840AE8102B@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Compaq X1050 multiple suspend problems (ACPI, PS2)
-thread-index: AcYwXnxcdr9/kl4EQna/k4UruBVc+gACGXrA
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Robert Hancock" <hancockr@shaw.ca>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 13 Feb 2006 06:31:51.0719 (UTC) FILETIME=[2CC01B70:01C63067]
+	Mon, 13 Feb 2006 01:38:48 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:21155 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750995AbWBMGir (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 01:38:47 -0500
+Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
+From: Lee Revell <rlrevell@joe-job.com>
+To: MIke Galbraith <efault@gmx.de>
+Cc: Con Kolivas <kernel@kolivas.org>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       gcoady@gmail.com, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1139812538.7744.8.camel@homer>
+References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
+	 <200602131637.43335.kernel@kolivas.org> <1139810224.7935.9.camel@homer>
+	 <200602131708.52342.kernel@kolivas.org>  <1139812538.7744.8.camel@homer>
+Content-Type: text/plain
+Date: Mon, 13 Feb 2006 01:38:45 -0500
+Message-Id: <1139812725.2739.94.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.90 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Subject: Compaq X1050 multiple suspend problems (ACPI, PS2)
->
->The following is with a Compaq Presario X1050, Fedora Core 4 
->and Fedora 
->kernel version 2.6.15-1.1831_FC4.
-Feb 12 23:15:24 localhost kernel:     ACPI-0412: *** Error: Handler for
-[EmbeddedControl] returned AE_TIME
-Feb 12 23:15:24 localhost kernel:     ACPI-0508: *** Error: Method
-execution failed [\_SB_.C046.C059.C0EA.C132] (Node dfea11e0), AE_TIME
-Feb 12 23:15:24 localhost kernel:     ACPI-0508: *** Error: Method
-execution failed [\_SB_.C132] (Node c14dee20), AE_TIME
-Feb 12 23:15:24 localhost kernel:     ACPI-0508: *** Error: Method
-execution failed [\_SB_.C11F._BST] (Node c14ded60), AE_TIME
+On Mon, 2006-02-13 at 07:35 +0100, MIke Galbraith wrote:
+> On Mon, 2006-02-13 at 17:08 +1100, Con Kolivas wrote:
+> > On Monday 13 February 2006 16:57, MIke Galbraith wrote:
+> > > On Mon, 2006-02-13 at 16:37 +1100, Con Kolivas wrote:
+> > > > On Monday 13 February 2006 16:32, MIke Galbraith wrote:
+> > > > > On Mon, 2006-02-13 at 16:05 +1100, Con Kolivas wrote:
+> > > > > > On Monday 13 February 2006 15:59, MIke Galbraith wrote:
+> > > > > > > Now, let's see if we can get your problem fixed with something that
+> > > > > > > can possibly go into 2.6.16 as a bugfix.  Can you please try the
+> > > > > > > below?
+> > > > > >
+> > > > > > These sorts of changes definitely need to pass through -mm first...
+> > > > > > and don't forget -mm looks quite different to mainline.
+> > > > >
+> > > > > I'll leave that up to Ingo of course, and certainly have no problem
+> > > > > with them burning in mm.  However, I must say that I personally
+> > > > > classify these two changes as being trivial and obviously correct
+> > > > > enough to be included in 2.6.16.
+> > > >
+> > > > This part I agree with:
+> > > > -               } else
+> > > > -                       requeue_task(next, array);
+> > > > +               }
+> > > >
+> > > > The rest changes behaviour; it's not a "bug" so needs testing, should be
+> > > > a separate patch from this part, and modified to suit -mm.
+> > >
+> > > Well, both change behavior, and I heartily disagree.  
+> > 
+> > The first change was the previous behaviour for some time. Your latter change 
+> > while it makes sense has never been in the kernel. Either way I don't 
+> > disagree with your reasoning but most things that change behaviour should go 
+> > through -mm. The first as I said was the behaviour in mainline for some time 
+> > till my silly requeue change.
+> 
+> Ok, we're basically in agreement on these changes, it's just a matter of
+> when.  As maintainer, Ingo has to weigh the benefit, danger, etc etc.
 
-Please try latest base kernel.
+Do you know which of those changes fixes the "ls" problem?
+
+Lee
+

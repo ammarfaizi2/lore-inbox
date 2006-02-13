@@ -1,77 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751722AbWBMK1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751728AbWBMK3f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751722AbWBMK1F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 05:27:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751731AbWBMK1F
+	id S1751728AbWBMK3f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 05:29:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751729AbWBMK3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 05:27:05 -0500
-Received: from wavehammer.waldi.eu.org ([82.139.196.55]:23441 "EHLO
-	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
-	id S1751722AbWBMK1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 05:27:04 -0500
-Date: Mon, 13 Feb 2006 11:26:56 +0100
-From: Bastian Blank <bastian@waldi.eu.org>
-To: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove duplicate #includes
-Message-ID: <20060213102656.GC26627@wavehammer.waldi.eu.org>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Linux Kernel ML <linux-kernel@vger.kernel.org>
-References: <20060213093959.GA10496@MAIL.13thfloor.at>
+	Mon, 13 Feb 2006 05:29:35 -0500
+Received: from lucidpixels.com ([66.45.37.187]:947 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1751728AbWBMK3e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 05:29:34 -0500
+Date: Mon, 13 Feb 2006 05:29:33 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: smartmontools-support@lists.sourceforge.net
+cc: linux-kernel@vger.kernel.org
+Subject: WD 400GB SATA Drive In Constant Smart Testing?
+Message-ID: <Pine.LNX.4.64.0602130524350.13160@p34>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="hHWLQfXTYDoKhP50"
-Content-Disposition: inline
-In-Reply-To: <20060213093959.GA10496@MAIL.13thfloor.at>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When I write to this disk for a while, I see this in dmesg (only once so 
+far):
 
---hHWLQfXTYDoKhP50
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[31230.223504] ata6: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[31230.223511] ata6: status=0x51 { DriveReady SeekComplete Error }
+[31230.223515] ata6: error=0x04 { DriveStatusError }
 
-On Mon, Feb 13, 2006 at 10:39:59AM +0100, Herbert Poetzl wrote:
-> diff -NurpP --minimal linux-2.6.16-rc2/drivers/char/drm/drm.h linux-2.6.1=
-6-rc2-mpf/drivers/char/drm/drm.h
-> --- linux-2.6.16-rc2/drivers/char/drm/drm.h	2006-02-07 11:52:24 +0100
-> +++ linux-2.6.16-rc2-mpf/drivers/char/drm/drm.h	2006-02-13 01:48:55 +0100
-> @@ -51,11 +51,9 @@
->  #if defined(__FreeBSD__) && defined(IN_MODULE)
->  /* Prevent name collision when including sys/ioccom.h */
->  #undef ioctl
-> -#include <sys/ioccom.h>
->  #define ioctl(a,b,c)		xf86ioctl(a,b,c)
-> -#else
-> -#include <sys/ioccom.h>
->  #endif				/* __FreeBSD__ && xf86ioctl */
-> +#include <sys/ioccom.h>
->  #define DRM_IOCTL_NR(n)		((n) & 0xff)
->  #define DRM_IOC_VOID		IOC_VOID
->  #define DRM_IOC_READ		IOC_OUT
 
-This one changes the behaviour. But do we want to have this non-linux
-hacks in the tree?
+Is there some sort of smart testing going on constantly?  I only get 
+26-27MB/s on this 400GB/SATA/16MB/7200RPM drive.  I use smartmontools to 
+do a daily test.  However, even with smart disabled, I get:
 
-Bastian
+# hdparm -t /dev/sde
+/dev/sde:
+  Timing buffered disk reads:   78 MB in  3.06 seconds =  25.46 MB/sec
 
---=20
-It would be illogical to assume that all conditions remain stable.
-		-- Spock, "The Enterprise Incident", stardate 5027.3
+Does anyone know if this drive has problems in Linux or something?
 
---hHWLQfXTYDoKhP50
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+[    6.895914]   Vendor: ATA       Model: WDC WD4000KD-00N  Rev: 01.0
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
 
-iEYEARECAAYFAkPwXvAACgkQnw66O/MvCNH53gCdF3XV1FySZLfsVwJxD70OgLrG
-yfEAnR/EEs0TtsFfV6ercg11WdW6oNf4
-=PZUv
------END PGP SIGNATURE-----
+It just seems to be that drive that has issues.
 
---hHWLQfXTYDoKhP50--
+Here is a 400GB seagate ata/100:
+/dev/hde:
+  Timing buffered disk reads:  172 MB in  3.02 seconds =  56.91 MB/sec
+
+Here is a 74GB raptor SATA/150:
+/dev/sda:
+  Timing buffered disk reads:  204 MB in  3.03 seconds =  67.38 MB/sec
+
+Both drives above are on the same system, so my question is what exactly 
+is wrong with the WD drive?  Is it a Linux issue, a drive issue, or?
+
+Does anyone else use this drive, what rates do they get?
+
+What is up with the error in dmesg?
+
+
+# smartctl -d ata -l selftest /dev/sde
+smartctl version 5.34 [i686-pc-linux-gnu] Copyright (C) 2002-5 Bruce Allen
+Home page is http://smartmontools.sourceforge.net/
+
+=== START OF READ SMART DATA SECTION ===
+SMART Self-test log structure revision number 1
+Num  Test_Description    Status                  Remaining 
+LifeTime(hours)  LBA
+_of_first_error
+# 1  Short offline       Completed without error       00%      1094 
+-
+# 2  Offline             Completed without error       00%         0 
+-
+# 3  Offline             Completed without error       00%         0 
+-
+# 4  Offline             Completed without error       00%         0 
+-
+# 5  Offline             Completed without error       00%         0 
+-
+# 6  Offline             Completed without error       00%         0 
+-
+# 7  Offline             Completed without error       00%         0 
+-
+# 8  Offline             Completed without error       00%         1 
+-
+# 9  Short offline       Completed without error       00%       810 
+-
+#10  Vendor offline      Completed without error       30%     65280 
+-
+#11  Offline             Self-test routine in progress 150%     65535 
+-
+#12  Vendor offline      Self-test routine in progress 150%       255 
+-
+#13  Vendor offline      Completed without error       00%         0 
+-
+#14  Offline             Completed without error       00%         0 
+-
+#15  Offline             Completed without error       00%         0 
+-
+#16  Offline             Completed without error       00%         0 
+-
+#17  Offline             Completed without error       00%         0 
+-
+#18  Offline             Completed without error       00%         0 
+-
+#19  Offline             Completed without error       00%         0 
+-
+#20  Offline             Completed without error       00%         0 
+-
+#21  Offline             Completed without error       00%         1 
+-
+
+

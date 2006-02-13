@@ -1,35 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbWBMXVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbWBMXV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964883AbWBMXVX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 18:21:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbWBMXVX
+	id S1030226AbWBMXV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 18:21:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030275AbWBMXV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 18:21:23 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:27048 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964883AbWBMXVW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 18:21:22 -0500
-Date: Mon, 13 Feb 2006 15:20:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Trond Myklebust <Trond.Myklebust@netapp.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NLM: Fix the NLM_GRANTED callback checks
-Message-Id: <20060213152021.6e25e40b.akpm@osdl.org>
-In-Reply-To: <1139801149.7916.11.camel@lade.trondhjem.org>
-References: <1139801149.7916.11.camel@lade.trondhjem.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 13 Feb 2006 18:21:27 -0500
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:51376
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1030233AbWBMXV1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 18:21:27 -0500
+Message-ID: <43F11471.5070207@microgate.com>
+Date: Mon, 13 Feb 2006 17:21:21 -0600
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] tty reference count fix
+References: <1139861610.3573.24.camel@amdx2.microgate.com> <9a8748490602131415r5c6cd7by3a3d0bc03e27bd83@mail.gmail.com>
+In-Reply-To: <9a8748490602131415r5c6cd7by3a3d0bc03e27bd83@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <Trond.Myklebust@netapp.com> wrote:
->
-> Currently when the NLM_GRANTED callback comes in, lockd walks the list of
-> blocked locks in search of a match to the lock that the NLM server has
-> granted. Although it checks the lock pid, start and end, it fails to check
-> the filehandle and the server address.
+Jesper Juhl wrote:
+> I just applied the patch to 2.6.16-rc3 and booted the patched kernel.
+> Unfortunately I can't tell you if it fixes the bug since I never
+> successfully reproduced it, it just happened once out of the blue.
+> What I can tell you though is that the patched kernel seems to behave
+> just fine and doesn't seem to introduce any regressions on my system -
+> but my testing has been quite limited so far.
 > 
+> Not the best feedback, I know, but it's the best I can give you at the moment.
 
-What are the consequences of this bug?
+Any feedback is good feedback. I'm not suprised it has not
+happened again. The necessary conditions are not common and
+the timing window is small. As Andrew pointed out,
+DEBUG_PAGEALLOC likely helped uncover this.
+
+Decoding the 2 oops to specific lines of code strongly
+suggests this is what happened to you. The decoding showed
+the tty open and close (release) paths from different
+processes going after the same tty structure at the same time.
+
+Thanks,
+Paul
+
+--
+Paul Fulghum
+Microgate Systems, Ltd
+
+
+
+

@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWBMHNW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWBMHQV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751109AbWBMHNW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 02:13:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWBMHNW
+	id S1751189AbWBMHQV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 02:16:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWBMHQT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 02:13:22 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:36004 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751109AbWBMHNV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 02:13:21 -0500
-Date: Sun, 12 Feb 2006 23:12:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: hugh@veritas.com, wli@holomorphy.com, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] compound page: use page[1].lru
-Message-Id: <20060212231223.773d76ea.akpm@osdl.org>
-In-Reply-To: <20060212.230516.86740481.davem@davemloft.net>
-References: <20060212135457.2a3d3b37.akpm@osdl.org>
-	<Pine.LNX.4.61.0602130043480.17715@goblin.wat.veritas.com>
-	<20060212181312.11392d12.akpm@osdl.org>
-	<20060212.230516.86740481.davem@davemloft.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 13 Feb 2006 02:16:19 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:42979
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751185AbWBMHQR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 02:16:17 -0500
+Date: Sun, 12 Feb 2006 23:13:05 -0800 (PST)
+Message-Id: <20060212.231305.38639889.davem@davemloft.net>
+To: len.brown@intel.com
+Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       axboe@suse.de, James.Bottomley@steeleye.com, greg@kroah.com,
+       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       luming.yu@intel.com, lk@bencastricum.nl, sanjoy@mrao.cam.ac.uk,
+       helgehaf@aitel.hist.no, fluido@fluido.as, gbruchhaeuser@gmx.de,
+       Nicolas.Mailhot@LaPoste.net, perex@suse.cz, tiwai@suse.de,
+       patrizio.bassi@gmail.com, bni.swe@gmail.com, arvidjaar@mail.ru,
+       p_christ@hol.gr, ghrt@dial.kappa.ro, jinhong.hu@gmail.com,
+       andrew.vasquez@qlogic.com, linux-scsi@vger.kernel.org, bcrl@kvack.org
+Subject: Re: Linux 2.6.16-rc3
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B30060BD1D1@hdsmsx401.amr.corp.intel.com>
+References: <F7DC2337C7631D4386A2DF6E8FB22B30060BD1D1@hdsmsx401.amr.corp.intel.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@davemloft.net> wrote:
->
-> From: Andrew Morton <akpm@osdl.org>
-> Date: Sun, 12 Feb 2006 18:13:12 -0800
+From: "Brown, Len" <len.brown@intel.com>
+Date: Mon, 13 Feb 2006 02:07:50 -0500
+
+> >- In http://bugzilla.kernel.org/show_bug.cgi?id=5989, Sanjoy 
+> >Mahajan has  another regression, but he's off collecting more info.
 > 
-> > We have a page which has no ->mapping, but lo, it's mmapped by userspace
-> > and can be MAP_SHARED between different CPUs and processes.
-> > 
-> > Yes, I suspect it'll do the wrong thing in unpleasantly subtle ways.
-> > 
-> > (cc's davem and runs away).
-> 
-> The ->mapping check is there essentially to hit user mapped pages that
-> would be modified by the kernel using kernel space memory accesses
-> other than those done by copy_user_page() and clear_user_page() (and
-> their brothers copy_user_highpage() and clear_user_highpage() which
-> just call the former directly on a non-HIGHPAGE platform like
-> sparc64).
+> We're talking here about a system from 1999 where Windows 98
+> refuses to run in ACPI mode and instead runs in APM mode.
 
-The direct-io.c code just does memset.  (That's very common - maybe
-clear_user_highpage_partial() is needed?)
-
-> Hugepages actually have no D-cache aliasing issues by definition on
-> sparc64 because the smallest possible hugepage size is 64K which is
-> larger than the D-cache aliasing factor (which is 16K).
-
-OK..  So it would be a bug, except for this hardware quirk.  I'll check the
-other architectures.
+If it worked before a change which was installed, it's a regression
+regardless of whether another OS tries to use ACPI on that system or
+not.  I don't understand how one can use that fact to label this as
+not a regression from Linux's perspective.

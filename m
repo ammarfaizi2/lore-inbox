@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWBMPhE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWBMPiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbWBMPhE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 10:37:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWBMPhE
+	id S1750741AbWBMPiz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 10:38:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbWBMPiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 10:37:04 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:41151 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750726AbWBMPhC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 10:37:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=DmthJWPsxOlzzYuc5WTYhZfI1h+iQQBT+zaolWcHNYdVoKq8LNly/oaSopwOl6HO4K3BYFNb0l/LY4azb9f/JBo9ZcZQaWJc1HITgI5Kw/RYPoubTFOdA44e7RQPScNkMULWRuXR0hnMb9kP0zmS3NYn0kUpTnhYSBA9Yj5+37I=
-Message-ID: <43F0A760.90405@gmail.com>
-Date: Mon, 13 Feb 2006 10:36:00 -0500
-From: Florin Malita <fmalita@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-CC: diegocg@gmail.com, tytso@mit.edu, peter.read@gmail.com, mj@ucw.cz,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
+	Mon, 13 Feb 2006 10:38:55 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:26053 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1750741AbWBMPiy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 10:38:54 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Mon, 13 Feb 2006 16:36:17 +0100
+To: seanlkml@sympatico.ca, schilling@fokus.fraunhofer.de
+Cc: schilling@fokus.fraunhofer.de, sam@vilain.net, peter.read@gmail.com,
+       mj@ucw.cz, matthias.andree@gmx.de, lkml@dervishd.net,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       jengelh@linux01.gwdg.de
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <mj+md-20060209.173519.1949.atrey@ucw.cz> <43EC71FB.nailISD31LRCB@burner> <20060210114721.GB20093@merlin.emma.line.org> <43EC887B.nailISDGC9CP5@burner> <mj+md-20060210.123726.23341.atrey@ucw.cz> <43EC8E18.nailISDJTQDBG@burner> <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr> <43EC93A2.nailJEB1AMIE6@burner> <20060210141651.GB18707@thunk.org> <43ECA3FC.nailJGC110XNX@burner> <20060210145238.GC18707@thunk.org> <43ECA934.nailJHD2NPUCH@burner> <20060210172428.6c857254.diegocg@gmail.com> <43F063A8.nailKUS7174MV@burner>
-In-Reply-To: <43F063A8.nailKUS7174MV@burner>
-Content-Type: text/plain; charset=ISO-8859-1
+Message-ID: <43F0A771.nailKUS131LLIA@burner>
+References: <20060208162828.GA17534@voodoo>
+ <43EA1D26.nail40E11SL53@burner> <20060208165330.GB17534@voodoo>
+ <43EB0DEB.nail52A1LVGUO@burner>
+ <Pine.LNX.4.61.0602091729560.30108@yvahk01.tjqt.qr>
+ <43EB7210.nailIDH2JUBZE@burner>
+ <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr>
+ <43EB7BBA.nailIFG412CGY@burner>
+ <mj+md-20060209.173519.1949.atrey@ucw.cz>
+ <43EC71FB.nailISD31LRCB@burner> <20060210114930.GC2750@DervishD>
+ <43EC88B8.nailISDH1Q8XR@burner> <43EFC1FF.7030103@vilain.net>
+ <43F097AE.nailKUSK1MJ9O@burner>
+ <BAYC1-PASMTP10B5F649DEDADD145E56BDAE070@CEZ.ICE>
+ <20060213095038.03247484.seanlkml@sympatico.ca>
+In-Reply-To: <20060213095038.03247484.seanlkml@sympatico.ca>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling wrote:
+sean <seanlkml@sympatico.ca> wrote:
 
->>Could you explain why stat->st_dev / stat->st_ino POSIX semantics forces
->>POSIX implementations to have a stable stat->st_rdev number? 
->>    
->>
+> On Mon, 13 Feb 2006 15:29:02 +0100
+> Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
 >
->I was never talking about stat->st_rdev 
->  
+> > When looking at the current discussion, it seems to me that most people
+> > here are still not interested in a fix.
 >
-This is blatantly incorrect. You *were* talking about stat->st_rdev:
-http://lkml.org/lkml/2006/2/10/143
+> Most people don't see a problem to fix.   Your arguments have been roundly
+> refuted.   On top of which, cdrecord works on Linux just fine already when
+> you pass the device node on the command line.   There just isn't much 
+> motivation to pursue a fix for some theoretical problem that doesn't affect
+> real users in practice.  Since you are the only one who sees this as a huge
+> problem you should invest in providing a patch that can be reviewed for 
+> inclusion.
 
-On 2/10/06, *Joerg Schilling* <schilling@fokus.fraunhofer.de> wrote:
+So you like to prove that it makes not sense to talk to LKML people?
 
-    Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
-    > The struct stat->st_rdev field need to be stable too to comply to
-    POSIX?
-
-    Correct.
-
-    Jörg
+If there is no interest to fox well known bugs in Linux, I would need to warn
+people from using Linux.
 
 
-You may claim you *never meant to* or you *never realized* you were
-talking about, but you can't say you never talked about it - that's an
-outright lie.
+Jörg
 
---
-fm
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

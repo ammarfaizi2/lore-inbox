@@ -1,161 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWBMMNG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWBMMMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932099AbWBMMNG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 07:13:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWBMMNF
+	id S932103AbWBMMMs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 07:12:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWBMMMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 07:13:05 -0500
-Received: from mail7.hitachi.co.jp ([133.145.228.42]:28045 "EHLO
-	mail7.hitachi.co.jp") by vger.kernel.org with ESMTP id S932099AbWBMMNE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 07:13:04 -0500
-Message-ID: <43F077C7.8060706@sdl.hitachi.co.jp>
-Date: Mon, 13 Feb 2006 21:12:55 +0900
-From: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Mon, 13 Feb 2006 07:12:48 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:48893 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S932103AbWBMMMr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 07:12:47 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Mon, 13 Feb 2006 13:11:27 +0100
+To: nix@esperi.org.uk, davidsen@tmr.com
+Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43F0776F.nailKUS94FU3M@burner>
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
+ <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
+ <20060125144543.GY4212@suse.de>
+ <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
+ <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
+ <20060125181847.b8ca4ceb.grundig@teleline.es>
+ <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de>
+ <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com>
+In-Reply-To: <43ED005F.5060804@tmr.com>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, ananth@in.ibm.com, prasanna@in.ibm.com,
-       anil.s.keshavamurthy@intel.com
-CC: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>,
-       systemtap@sources.redhat.com, jkenisto@us.ibm.com,
-       linux-kernel@vger.kernel.org, sugita@sdl.hitachi.co.jp,
-       soshima@redhat.com, haoki@redhat.com
-Subject: [PATCH][take 2] kretprobe: kretprobe-booster against 2.6.16-rc2 for
- i386
-References: <43DE0A53.3060801@sdl.hitachi.co.jp>	<43DEC13E.8020200@sdl.hitachi.co.jp> <20060131145540.3e9a78be.akpm@osdl.org> <43E0B177.9020607@sdl.hitachi.co.jp>
-In-Reply-To: <43E0B177.9020607@sdl.hitachi.co.jp>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Andrew
+Bill Davidsen <davidsen@tmr.com> wrote:
 
-Here is a patch of kretprobe-booster for i386 against linux-2.6.16-rc2.
-In the previous kretprobe-booster patch, I had a mistake about stack
-register. In this patch, the bug is fixed.
 
-This bug was pointed by Chuck Ebbert, and there were two different
-patches(Chuck's and mine) to fix it. But both patches were dropped
-from -mm tree. So, I merged my patch into kretprobe-booster patch
-and attached it to this mail.
+> I notice that the first thing people suggest is to make things like 
+> udev, hal and sysfs required instead of optional to do something as 
+> simple as burn a CD. As I mentioned before, if the kernel provided a 
+> list of devices then applications wouldn't break every time a new kernel 
+> came out which needs a new this, and new that, and a few new other 
+> support things.
 
-Could you replace the previous kretprobe-booster patch with this
-patch?
+This would make sense in case that a useful definition with a granted lifetime 
+of at least 10 years would be implemented.
 
-The description of kretprobe-booster:
-====================================
-In the normal operation, kretprobe make a target function return
-to trampoline code. A kprobe (called trampoline_probe) has
-been inserted at the trampoline code. When the kernel hits this
-kprobe, it calls kretprobe's handler and it returns to original
-return address.
 
-Kretprobe-booster patch removes the trampoline_probe. It allows
-the tranpoline code to call kretprobe's handler directly instead
-of invoking kprobe. The trampoline code returns to original return
-address.
+> The kernel could provide a list of devices by category. It doesn't have 
 
-This new tranpoline code stores and restores registers, so the
-kretprobe handler is still able to access those registers.
+What if the kernel does not understand the cetegory?
+
+Common oddities:
+
+-	Mac OS X tries to distinct between CD/DVD writers and CD/DVD-ROM
+	although there is only one device class.
+
+-	Older CD-writers identified as WORM although a CD-R is not a WORM.
+
+> to name them, run scripts, give descriptions, or paint them blue. Just a 
+> list of all block devices, tapes, by major/minor and category (ie. 
+> block, optical, floppy) would give the application layer a chance to do 
+> it's own interpretation. HAL is great, but because it's not part of the 
+> kernel it's also going to suffer from "tracking error" for some changes. 
+> I find it easier to teach someone to use -scanbus than to explain how to 
+> make rules for udev.
+
+As this categorisation does not work, we need a way to find all devices 
+that talk SCSI and let the application decicde what device is supported.
+
+
+> Worth repeating: I find it easier to teach someone to use -scanbus than 
+> to explain how to make rules for udev. HAL is the right answer, but *in* 
+> the kernel, where it will track changes. Since -scanbus tells you a 
+> device is a CDrecorder, or something else, *any user* is likely to be 
+> able to tell it from DCD, CD-ROM, etc. Nice like of text for most devices...
+
+So you seem to agree with me.
+
+Jörg
 
 -- 
-Masami HIRAMATSU
-2nd Research Dept.
-Hitachi, Ltd., Systems Development Laboratory
-E-mail: hiramatu@sdl.hitachi.co.jp
-
-Signed-off-by: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
-
- kprobes.c |   56 +++++++++++++++++++++++++++++++++++---------------------
- 1 files changed, 35 insertions(+), 21 deletions(-)
-diff -Narup a/arch/i386/kernel/kprobes.c b/arch/i386/kernel/kprobes.c
---- a/arch/i386/kernel/kprobes.c	2006-02-13 15:01:31.000000000 +0900
-+++ b/arch/i386/kernel/kprobes.c	2006-02-13 15:06:37.000000000 +0900
-@@ -255,17 +255,44 @@ no_kprobe:
-  * here. When a retprobed function returns, this probe is hit and
-  * trampoline_probe_handler() runs, calling the kretprobe's handler.
-  */
-- void kretprobe_trampoline_holder(void)
-+ void __kprobes kretprobe_trampoline_holder(void)
-  {
-- 	asm volatile (  ".global kretprobe_trampoline\n"
-+	 asm volatile ( ".global kretprobe_trampoline\n"
-  			"kretprobe_trampoline: \n"
-- 			"nop\n");
-- }
-+			"	pushf\n"
-+			/* skip cs, eip, orig_eax, es, ds */
-+			"	subl $20, %esp\n"
-+			"	pushl %eax\n"
-+			"	pushl %ebp\n"
-+			"	pushl %edi\n"
-+			"	pushl %esi\n"
-+			"	pushl %edx\n"
-+			"	pushl %ecx\n"
-+			"	pushl %ebx\n"
-+			"	movl %esp, %eax\n"
-+			"	call trampoline_handler\n"
-+			/* move eflags to cs */
-+			"	movl 48(%esp), %edx\n"
-+			"	movl %edx, 44(%esp)\n"
-+			/* save true return address on eflags */
-+			"	movl %eax, 48(%esp)\n"
-+			"	popl %ebx\n"
-+			"	popl %ecx\n"
-+			"	popl %edx\n"
-+			"	popl %esi\n"
-+			"	popl %edi\n"
-+			"	popl %ebp\n"
-+			"	popl %eax\n"
-+			/* skip eip, orig_eax, es, ds */
-+			"	addl $16, %esp\n"
-+			"	popf\n"
-+			"	ret\n");
-+}
-
- /*
-- * Called when we hit the probe point at kretprobe_trampoline
-+ * Called from kretprobe_trampoline
-  */
--int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
-+fastcall void *__kprobes trampoline_handler(struct pt_regs *regs)
- {
-         struct kretprobe_instance *ri = NULL;
-         struct hlist_head *head;
-@@ -310,18 +337,10 @@ int __kprobes trampoline_probe_handler(s
- 	}
-
- 	BUG_ON(!orig_ret_address || (orig_ret_address == trampoline_address));
--	regs->eip = orig_ret_address;
-
--	reset_current_kprobe();
- 	spin_unlock_irqrestore(&kretprobe_lock, flags);
--	preempt_enable_no_resched();
-
--	/*
--	 * By returning a non-zero value, we are telling
--	 * kprobe_handler() that we don't want the post_handler
--	 * to run (and have re-enabled preemption)
--	 */
--        return 1;
-+	return (void*)orig_ret_address;
- }
-
- /*
-@@ -552,12 +571,7 @@ int __kprobes longjmp_break_handler(stru
- 	return 0;
- }
-
--static struct kprobe trampoline_p = {
--	.addr = (kprobe_opcode_t *) &kretprobe_trampoline,
--	.pre_handler = trampoline_probe_handler
--};
--
- int __init arch_init_kprobes(void)
- {
--	return register_kprobe(&trampoline_p);
-+	return 0;
- }
-
-
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

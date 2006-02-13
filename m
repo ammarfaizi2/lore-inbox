@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbWBMXPK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030267AbWBMXQ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030268AbWBMXPK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 18:15:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030267AbWBMXPJ
+	id S1030267AbWBMXQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 18:16:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030269AbWBMXQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 18:15:09 -0500
-Received: from smtp.bulldogdsl.com ([212.158.248.7]:7441 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1030207AbWBMXPH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 18:15:07 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Daniel Drake <dsd@gentoo.org>
-Subject: Re: 2.6.16, sk98lin out of date
-Date: Mon, 13 Feb 2006 23:15:08 +0000
-User-Agent: KMail/1.9.1
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-References: <200602131058.03419.s0348365@sms.ed.ac.uk> <200602131110.34212.s0348365@sms.ed.ac.uk> <43F0E284.2040805@gentoo.org>
-In-Reply-To: <43F0E284.2040805@gentoo.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Feb 2006 18:16:56 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:44672 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030267AbWBMXQz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 18:16:55 -0500
+Date: Tue, 14 Feb 2006 10:16:45 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Chris Stromsoe <cbs@cts.ucla.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: any FS with tree-based quota system?
+Message-ID: <20060214101645.H9257106@wobbly.melbourne.sgi.com>
+References: <Pine.LNX.4.64.0602130959270.28894@potato.cts.ucla.edu> <20060214083353.A9257106@wobbly.melbourne.sgi.com> <Pine.LNX.4.64.0602131505080.330@potato.cts.ucla.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602132315.08494.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.64.0602131505080.330@potato.cts.ucla.edu>; from cbs@cts.ucla.edu on Mon, Feb 13, 2006 at 03:11:12PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 February 2006 19:48, Daniel Drake wrote:
-> Alistair John Strachan wrote:
-> > Thanks Matti, I wasn't even aware of this driver. Might I suggest the
-> > "old" driver be marked as such in Linux 2.6.16. I guess I must've
-> > skipped over it because it begins with "New", and does not contain
-> > the word "Marvell", which is indicated exclusively by lspci.
->
-> I changed the help text of all 3 drivers (sk98lin/skge/sky2) to
-> point out which ones are/aren't interchangable in 2.6.16. The situation
-> is a little confusing.
+On Mon, Feb 13, 2006 at 03:11:12PM -0800, Chris Stromsoe wrote:
+> On Tue, 14 Feb 2006, Nathan Scott wrote:
+> > On Mon, Feb 13, 2006 at 11:03:35AM -0800, Chris Stromsoe wrote:
+> >> I'm looking for a file system with a tree-based quota system.  XFS on 
+> >> IRIX has projects, but that functionality didn't get ported over to 
+> >> Linux that I can see.
+> >
+> > You didn't look very closely then. ;)
+> 
+> This is from a Debian stable machine,
 
-Thanks, this would have prevented my mistake.
+Well, yeah - thats ye olde worlde code.
 
-> The reason that the sk98lin diff is so huge is because SysKonnect
-> effectively added support for a substantially different range of cards
-> (Yukon-2) into the existing driver. This is far from the driver quality
-> required for the kernel today, so Stephen Hemminger (skge author) wrote
-> a new driver (sky2) for the Yukon-2 range.
->
-> The long term plan is to obsolete and remove sk98lin, but we aren't
-> ready yet: skge issues pop up every month or two, and sky2 is young.
->
-> Stephen's own words:
-> > I applaud the initiative, but this it is too premature to obsolete
-> > the existing driver. There may be lots of chip versions and other
-> > variables that make the existing driver a better choice.
+> with xfsprogs 2.6.20. :)  I'm more 
+> than happy to be proven wrong.
+> 
+> cbs:/usr/share/doc/xfsprogs > zcat README.quota.gz | tail -13
 
-Well, Stephen's driver works great for me and sk98lin frankly didn't.
+Things have moved on since then - a more recent xfsprogs has an
+xfs_quota(8) man page which will be of use to you here.
+
+cheers.
 
 -- 
-Cheers,
-Alistair.
-
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+Nathan

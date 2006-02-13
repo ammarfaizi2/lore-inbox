@@ -1,73 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWBMQlH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWBMQkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932155AbWBMQlH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 11:41:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWBMQlG
+	id S932141AbWBMQkc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 11:40:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWBMQkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 11:41:06 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:49587 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932151AbWBMQlD (ORCPT
+	Mon, 13 Feb 2006 11:40:31 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:49619 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932148AbWBMQk3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 11:41:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=gX1ySHHqGfnQAESGmUzrpxss/7cVp613neTxS8dHNB7Ta5wBMV/VUVgj5duoLM3B0ky5cHmH65zJeB1kLbfhR75rFw8pnuRXTR7HgkjshtG0LTboXb+Olm7cASLS09sKxPnTI/HUxqblhKjUxblDSemFfnd5j/dGiNQMpBmf070=
-Message-ID: <43F0B663.9040001@gmail.com>
-Date: Mon, 13 Feb 2006 11:40:03 -0500
-From: Florin Malita <fmalita@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Mon, 13 Feb 2006 11:40:29 -0500
+Date: Mon, 13 Feb 2006 17:40:21 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
 To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-CC: tytso@mit.edu, peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-       jengelh@linux01.gwdg.de, diegocg@gmail.com
+cc: trudheim@gmail.com, nix@esperi.org.uk, linux-kernel@vger.kernel.org,
+       davidsen@tmr.com, axboe@suse.de
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <mj+md-20060209.173519.1949.atrey@ucw.cz> <43EC71FB.nailISD31LRCB@burner> <20060210114721.GB20093@merlin.emma.line.org> <43EC887B.nailISDGC9CP5@burner> <mj+md-20060210.123726.23341.atrey@ucw.cz> <43EC8E18.nailISDJTQDBG@burner> <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr> <43EC93A2.nailJEB1AMIE6@burner> <20060210141651.GB18707@thunk.org> <43ECA3FC.nailJGC110XNX@burner> <20060210145238.GC18707@thunk.org> <43ECA934.nailJHD2NPUCH@burner> <20060210172428.6c857254.diegocg@gmail.com> <43F063A8.nailKUS7174MV@burner> <43F0A760.90405@gmail.com> <43F0AC22.nailKUS1AW83M9@burner>
-In-Reply-To: <43F0AC22.nailKUS1AW83M9@burner>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <43F0A1F3.nailKUSV1V88J@burner>
+Message-ID: <Pine.LNX.4.61.0602131739440.24297@yvahk01.tjqt.qr>
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
+ <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de>
+ <43D7AF56.nailDFJ882IWI@burner> <20060125181847.b8ca4ceb.grundig@teleline.es>
+ <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de>
+ <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com>
+ <43F0776F.nailKUS94FU3M@burner> <515e525f0602130446s1091f09ande10910f65a0f5f0@mail.gmail.com>
+ <43F0A1F3.nailKUSV1V88J@burner>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling wrote:
-
->Florin Malita <fmalita@gmail.com> wrote:
+>> Nitpicking I know, but technically, CD-R is WORM in the case of single
+>> session write. And as long as the writer works, who cares if it is
+>> labled WORM, CD-R or Earthworm..
 >
->>On 2/10/06, *Joerg Schilling* <schilling@fokus.fraunhofer.de> wrote:
->>
->>    Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
->>    > The struct stat->st_rdev field need to be stable too to comply to
->>    POSIX?
->>
->>    Correct.
->>
->>    Jörg
->>
->>
->>You may claim you *never meant to* or you *never realized* you were
->>talking about, but you can't say you never talked about it - that's an
->>outright lie.
->>    
->>
->I did not write st_rdev and from my previous mail it was obvioys that 
->I was referring to st_dev.
->  
+>If you did know what a worm is, you would know that you are not correct:
 >
-I never said you *wrote* st_rdev, did I?
-
-You confirmed a statement about st_rdev - that's called "talking about
-it". The fact that you didn't intend to or how obvious that is is
-irrelevant in this context: you *did talk* about st_rdev and there's no
-way you can deny or erase that.
-
-But here comes the classic twist: instead of acknowledging your mistake,
-you place the blame on everybody else for not guessing you were talking
-about something else. This is not a rational behavior, please stop.
-
---
-fm
+>A WORM allows you to randomly write any sector once.
+>A CD-R does not allows you to do this.
+>
+Nitpicking2, the CD-R case is a limitation of the cd writer ;)
+Sadly there is no packet mode for CDRs. It would outbeat multisession.
 
 
 
+Jan Engelhardt
+-- 

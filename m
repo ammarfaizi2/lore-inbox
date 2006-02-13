@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWBMUfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbWBMUgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964865AbWBMUfE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 15:35:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbWBMUfE
+	id S964860AbWBMUgr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 15:36:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbWBMUgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 15:35:04 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:28947 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S964861AbWBMUfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 15:35:01 -0500
-Date: Mon, 13 Feb 2006 21:34:34 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Mws <mws@twisted-brains.org>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.16, sk98lin out of date
-Message-ID: <20060213203434.GI11380@w.ods.org>
-References: <200602131058.03419.s0348365@sms.ed.ac.uk> <200602131206.26285.mws@twisted-brains.org> <1139857394.3202.38.camel@mindpipe>
+	Mon, 13 Feb 2006 15:36:47 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:62384 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964860AbWBMUgq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 15:36:46 -0500
+Date: Mon, 13 Feb 2006 12:35:47 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: mingo@elte.hu, tglx@linutronix.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 02/13] hrtimer: remove useless const
+Message-Id: <20060213123547.41af78c4.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0602131649560.30994@scrub.home>
+References: <Pine.LNX.4.61.0602130209340.23804@scrub.home>
+	<1139830116.2480.464.camel@localhost.localdomain>
+	<Pine.LNX.4.61.0602131235180.30994@scrub.home>
+	<20060213114612.GA30500@elte.hu>
+	<Pine.LNX.4.61.0602131649560.30994@scrub.home>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1139857394.3202.38.camel@mindpipe>
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 13, 2006 at 02:03:14PM -0500, Lee Revell wrote:
-> On Mon, 2006-02-13 at 12:06 +0100, Mws wrote:
-> > hi,
-> > as i do have the same problem i may help you out.
-> > 
-> > at first, syskonnect did send their kernel diffs/patches but they
-> > we're rejected caused
-> > by coding style, indention and some people thinking that things can be
-> > done better. 
+Roman Zippel <zippel@linux-m68k.org> wrote:
+>
+> Hi,
 > 
-> Haha, they didn't like the LKML code review so they just stopped sending
-> patches?  Classic.  Remind me not to buy their gear.
+> On Mon, 13 Feb 2006, Ingo Molnar wrote:
+> 
+> > your patch makes code larger on gcc3. Please investigate why.
+> 
+> Ok, I checked with 3.3.6 and 3.4.5 and adding const to ktime_divns/ 
+> posix_cpu_nsleep fixes the problem (actually the kernel becomes even 
+> smaller because posix_cpu_clock_getres is better off without const), both 
+> are complex and noncritical functions.
+> Andrew, I'd really prefer to keep the patch and I'll send a patch to add 
+> the const where it's actually an improvement.
+> 
 
-Lee, it's not always that simple. When you submit one driver, sometimes
-reviewers tell you that for whatever reason your driver's structure is
-wrong and it has to be changed a lot (and sometimes they're right of
-course). But when you don't have enough ressource to do the job twice,
-the best you can do is to maintain it out of tree, which is already a
-pain. I'm not saying that it is what happened with their driver, I don't
-know the history. However, I found your reaction somewhat hasty. I
-personally would prefer to offer time and help before deciding that
-I don't want anyone's products on this basis. It's not as if they
-did not release their driver's source !
+There's been enough churn here that it'll be counterproductive for me to
+continue to munge on your patches.  I'll drop the lot and will await rev
+#2.
 
-Cheers,
-Willy
+I don't think any of this was critical for 2.6.16.  If there's something
+which you really do think needs to be in 2.6.16 then please carefully
+describe the reasons for that, and make sure that the most critical
+patches are staged at the head of the series.
 

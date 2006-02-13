@@ -1,69 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbWBMSvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWBMSyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964784AbWBMSvy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 13:51:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964782AbWBMSvy
+	id S964803AbWBMSyY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 13:54:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbWBMSyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 13:51:54 -0500
-Received: from nproxy.gmail.com ([64.233.182.193]:42936 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964784AbWBMSvy convert rfc822-to-8bit
+	Mon, 13 Feb 2006 13:54:24 -0500
+Received: from zproxy.gmail.com ([64.233.162.204]:53092 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964803AbWBMSyX convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 13:51:54 -0500
+	Mon, 13 Feb 2006 13:54:23 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KInkry6I8oS3koOf0aODQbtPSz+klMgENju7oZPHvnyapS30eqbY93ad1I9EM9CV++LuDzQZY7MgMyEZ2ectf+HnEtbjf7Epzehbqor1tAFxfZzyVPN575yBwAoUipQSiy8j6ArJn4klIS/KDrKqTmLsL0M/oRQXo86qIDdF59Q=
-Message-ID: <a728f9f90602131051y3fc87256w3225c32b1ae27648@mail.gmail.com>
-Date: Mon, 13 Feb 2006 13:51:50 -0500
-From: Alex Deucher <alexdeucher@gmail.com>
-To: Dave Jones <davej@redhat.com>, Adrian Bunk <bunk@stusta.de>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mauro Tassinari <mtassinari@cmanet.it>, airlied@linux.ie,
-       dri-devel@lists.sourceforge.net
-Subject: Re: 2.6.16-rc3: more regressions
-In-Reply-To: <20060213184209.GC32350@redhat.com>
+        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=CT6q6cN/RarPQ0wYAbWYaHCooBbDsxziSB3UgNLCvNl1W9DpNQmvJ1zi56YcyEEIeveCNchixuD/q2F6teBMVXck8Vb3o/vnIc13xn59EFlJKnTC8fxvQjczAY/hsfVtk7Ac/Ze5rtjDNVuT1Bv3gDlHBbc7JK7TaEyvKZD+Go0=
+Message-ID: <7c3341450602131054k71e3a8c4o@mail.gmail.com>
+Date: Mon, 13 Feb 2006 18:54:22 +0000
+From: Nick Warne <nick@linicks.net>
+Reply-To: Nick Warne <nick@linicks.net>
+To: ghrt <ghrt@dial.kappa.ro>
+Subject: Re: Fw: PROBLEM: SB Live! 5.1 (emu10k1, rev. 0a) doesn't work with 2.6.15
+Cc: Takashi Iwai <tiwai@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Jaroslav Kysela <perex@suse.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <s5h7j7z47q4.wl%tiwai@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org>
-	 <20060213170945.GB6137@stusta.de>
-	 <Pine.LNX.4.64.0602130931221.3691@g5.osdl.org>
-	 <20060213174658.GC23048@redhat.com>
-	 <Pine.LNX.4.64.0602130952210.3691@g5.osdl.org>
-	 <Pine.LNX.4.64.0602131007500.3691@g5.osdl.org>
-	 <20060213183445.GA3588@stusta.de> <20060213184209.GC32350@redhat.com>
+References: <20060213040900.1e360292.akpm@osdl.org>
+	 <s5h7j7z47q4.wl%tiwai@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/13/06, Dave Jones <davej@redhat.com> wrote:
-> On Mon, Feb 13, 2006 at 07:34:45PM +0100, Adrian Bunk wrote:
->  > On Mon, Feb 13, 2006 at 10:16:59AM -0800, Linus Torvalds wrote:
->  > >
->  > >
->  > > On Mon, 13 Feb 2006, Linus Torvalds wrote:
->  > > >
->  > > > DaveA, I'll apply this for now. Comments?
->  > >
->  > > Btw, the fact that Mauro has the same exact PCI ID (well, lspci stupidly
->  > > suppresses the ID entirely, but the string seems to match the one that
->  > > Dave Jones reports) may be unrelated.
->  >
->  > Dave's patch removes the entry for the card with the 0x5b60.
->  > According to his bug report, Mauro has a Radeon X300SE that should
->  > have the 0x5b70 according to pci.ids from pciutils and that doesn't seem
->  > to be claimed by the DRM driver (and the dmesg from the bug report
->  > confirms that the radeon DRM driver didn't claim to be responsible for
->  > this card).
+> > i've compiled vanilla 2.6.15 and my sound card doesn't work anymore.
+> > i can see it in kmix (and adjust the volumes, too), it appears in
+> > dmesg (at ALSA devices), xmms & mplayer doesn't say anything about
+> > errors, but it doesn't make any sound.
+> > the onboard soundcard, via8233, works well with the same 2.6.15.
+> > sb live! works well with 2.6.14.2 and previous.
+> > i'm using an updated Slackware.
+> >
+> > if you have any questions i'll answer.
 >
-> The X300SE (mine at least) is a dual head card, with a 0x5b60 _and_ a 0x5b70
+> First check /proc/asound/cards to see whether the emu10k1 model is
+> detected properly.  If '[Unknown]' is shown, your model is not
+> listed in the whitelist.
 >
->                 Dave
->
+> There was a bug that the front control conflicts with ac97 and emu10k1
+> dsp which was already fixed in the latest version (at least on
+> 2.6.16-rc3).
 
-The secondary id is just a place holder for the windows driver so
-dualhead will work on windows 2000.  Neither the drm nor the xorg DDX
-uses the secondary id.
+For what it is worth, I had issues with my SB Live! but as this all
+(appeared) to start when my CPU died and I had to reset BIOS or if I
+did indeed move up to 2.6.15 at around the same time I can't remember
+(2.6.15 release and CPU died all around same date) - refer to the
+following:
 
-Alex
+http://lkml.org/lkml/2006/2/11/4
+
+As stated the solution for me was to update alsa-utils and alsa-libs
+which fixed the issues I was getting - I found that if one of the
+'controls' (15, I think?) was invalid at boot, all the volume settings
+in alsamixer got set to '0' (i.e. mute/turned off) - no sound.
+
+Nick

@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751702AbWBMKMg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751711AbWBMKRE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751702AbWBMKMg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 05:12:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751707AbWBMKMg
+	id S1751711AbWBMKRE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 05:17:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751713AbWBMKRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 05:12:36 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:3221 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751702AbWBMKMf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 05:12:35 -0500
-To: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15:kernel/time.c: The Nanosecond and code duplication
-References: <43F05143.29965.5D3E74@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
-From: Andi Kleen <ak@suse.de>
-Date: 13 Feb 2006 11:12:32 +0100
-In-Reply-To: <43F05143.29965.5D3E74@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
-Message-ID: <p73ek274lf3.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Mon, 13 Feb 2006 05:17:04 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:399 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1751711AbWBMKRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 05:17:02 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Mon, 13 Feb 2006 11:14:35 +0100
+To: schilling@fokus.fraunhofer.de, jengelh@linux01.gwdg.de
+Cc: peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43F05C0B.nailKUS2493B9@burner>
+References: <20060208165330.GB17534@voodoo>
+ <43EB0DEB.nail52A1LVGUO@burner>
+ <Pine.LNX.4.61.0602091729560.30108@yvahk01.tjqt.qr>
+ <43EB7210.nailIDH2JUBZE@burner>
+ <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr>
+ <43EB7BBA.nailIFG412CGY@burner>
+ <mj+md-20060209.173519.1949.atrey@ucw.cz>
+ <43EC71FB.nailISD31LRCB@burner>
+ <20060210114721.GB20093@merlin.emma.line.org>
+ <43EC887B.nailISDGC9CP5@burner>
+ <mj+md-20060210.123726.23341.atrey@ucw.cz>
+ <43EC8E18.nailISDJTQDBG@burner>
+ <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr>
+ <43EC93A2.nailJEB1AMIE6@burner>
+In-Reply-To: <43EC93A2.nailJEB1AMIE6@burner>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de> writes:
+Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
 
-> but there's no POSIX like syscall interface 
-> (clock_getres, clock_gettime, clock_settime) yet.
+> Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+>
+> > >> > Well, this is a deficit of the Linux kernel - not libscg.
+> > >>
+> > >> This is exactly what I have written -- extra effort is needed to get
+> > >> a stable numbering (which Solaris does), but you can use a very similar
+> > >> extra care to get stable names (which Linux with udev does).
+> > >
+> > >As this conceptional deficite in Linux causes Linux to break POSIX
+> > >compliance e.g. for stat(2) with hot plugged devices, people with 
+> >
+> > The struct stat->st_rdev field need to be stable too to comply to POSIX?
+>
+> Correct.
 
-% grep clock include/asm-x86_64/unistd.h 
-#define __NR_clock_settime      227
-__SYSCALL(__NR_clock_settime, sys_clock_settime)
-#define __NR_clock_gettime      228
-__SYSCALL(__NR_clock_gettime, sys_clock_gettime)
-#define __NR_clock_getres       229
-__SYSCALL(__NR_clock_getres, sys_clock_getres)
-#define __NR_clock_nanosleep    230
-__SYSCALL(__NR_clock_nanosleep, sys_clock_nanosleep)
+Mmmm, it looks like I did oversee that you did change the subject.....
 
-Has been available for quite some time.
+I did say that stat->st_dev needs to be stable
 
-However the calls are currently slower than gettimeofday and also
-don't use nanoseconds internally in all cases (depends on the architecture), 
-but still microseconds.  But I'm not sure it matters that much
-because the underlying timers are often not better than microseconds
-anyways and with nanoseconds you start to time even the inherent system
-call latency.
+Jörg
 
-
-
--Andi
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

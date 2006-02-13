@@ -1,56 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751687AbWBMJt1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751689AbWBMJxY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751687AbWBMJt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 04:49:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751688AbWBMJt1
+	id S1751689AbWBMJxY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 04:53:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751685AbWBMJxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 04:49:27 -0500
-Received: from nproxy.gmail.com ([64.233.182.199]:53885 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751686AbWBMJt0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 04:49:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=d/07N4BnVxurrXQiXZmEQHZaLExCf0S31VnXcNKD5ooFKEORkHiABWdnkvrd6Nhvov+u0QMiHdctFY9+x4AFKZ2jc/qoNydkCKmiy33TM+6DlkkU2p4J6Hjd9uh8NXNTCx+5u+LfI1AZfZZ3J1nLyUC/Jsrt/qriAfMwlAilzls=
-Message-ID: <84144f020602130149k72b8ebned89ff5719cdd0c2@mail.gmail.com>
-Date: Mon, 13 Feb 2006 11:49:24 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Peter Osterlund <petero2@telia.com>
-Subject: Re: [RFC][PATCH] UDF filesystem uid fix
-Cc: linux-kernel@vger.kernel.org, Phillip Susi <psusi@cfl.rr.com>,
-       bfennema@falcon.csc.calpoly.edu, Christoph Hellwig <hch@lst.de>,
-       Al Viro <viro@ftp.linux.org.uk>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <m3lkwg4f25.fsf@telia.com>
+	Mon, 13 Feb 2006 04:53:23 -0500
+Received: from wavehammer.waldi.eu.org ([82.139.196.55]:37839 "EHLO
+	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
+	id S1751200AbWBMJxX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 04:53:23 -0500
+Date: Mon, 13 Feb 2006 10:53:20 +0100
+From: Bastian Blank <bastian@waldi.eu.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: akpm@osdl.org, schwidefsky@de.ibm.com, linux390@de.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] dasd: cleanup dasd_ioctl
+Message-ID: <20060213095319.GA26627@wavehammer.waldi.eu.org>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
+	schwidefsky@de.ibm.com, linux390@de.ibm.com,
+	linux-kernel@vger.kernel.org
+References: <20060212173855.GB26035@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="MGYHOYXEY6WxJCY8"
 Content-Disposition: inline
-References: <m3lkwg4f25.fsf@telia.com>
+In-Reply-To: <20060212173855.GB26035@lst.de>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On 12 Feb 2006 19:17:38 +0100, Peter Osterlund <petero2@telia.com> wrote:
-> The UDF filesystem refused to update the file's uid and gid on the
-> disk if the in memory inode's id matched the values in the uid= and
-> gid= mount options.  This was causing the owner to change from the
-> desktop user to root when the volume was ejected and remounted.  I
-> changed this so that if the inode's id matches the mount option, it
-> writes a -1 to disk, because when the filesystem reads a -1 from disk,
-> it uses the mount option for the in memory inode.  This allows you to
-> use the uid/gid mount options in the way you would expect.
+--MGYHOYXEY6WxJCY8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The UDF code really seems broken. It fails for new inodes and some
-chown cases, when the mount options are being used. Phillip's patch
-does not look like a complete fix, though, as it will store invalid
-uid/gid (-1) for some cases where we probably should be storing the
-real uid/gid. For example, doing chown <user> when the same user is
-passed as mount option, we'll get -1 on disk, instead of user's uid.
+On Sun, Feb 12, 2006 at 06:38:55PM +0100, Christoph Hellwig wrote:
+> @@ -480,68 +389,90 @@
+>   * Set read only
+>   */
+>  static int
+> -dasd_ioctl_set_ro(struct block_device *bdev, int no, long args)
+> +dasd_ioctl_set_ro(struct block_device *bdev, void __user *argp)
+>  {
+> -	struct dasd_device *device;
+> -	int intval, rc;
+> +	struct dasd_device *device =3D  bdev->bd_disk->private_data;
+> +	int intval;
+> =20
+>  	if (!capable(CAP_SYS_ADMIN))
+>  		return -EACCES;
+>  	if (bdev !=3D bdev->bd_contains)
+>  		// ro setting is not allowed for partitions
+>  		return -EINVAL;
+> -	if (get_user(intval, (int __user *) args))
+> +	if (get_user(intval, (int *)argp))
+>  		return -EFAULT;
 
-I think the semantics you want is: "if uid/gid is invalid on disk,
-leave it that way unless we explicitly change it via chown; otherwise
-we can always overwrite it." Hmm?
+I think this is another candidate for "int __user *".
 
-                                  Pekka
+Bastian
+
+--MGYHOYXEY6WxJCY8
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iEYEARECAAYFAkPwVw8ACgkQnw66O/MvCNH1hgCgoi4ERUGgof471zOtNKiHXMbt
+ENMAn38D20RWHyVedr+xfz32U7NAB27F
+=Mg1J
+-----END PGP SIGNATURE-----
+
+--MGYHOYXEY6WxJCY8--

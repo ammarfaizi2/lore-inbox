@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWBMT5w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWBMUBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964827AbWBMT5w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 14:57:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbWBMT5w
+	id S964841AbWBMUBE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 15:01:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWBMUBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 14:57:52 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:17095 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964827AbWBMT5v (ORCPT
+	Mon, 13 Feb 2006 15:01:04 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:63692 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964841AbWBMUBD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 14:57:51 -0500
-Date: Mon, 13 Feb 2006 20:55:50 +0100
+	Mon, 13 Feb 2006 15:01:03 -0500
+Date: Mon, 13 Feb 2006 20:59:20 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, John Stultz <johnstul@us.ibm.com>
-Subject: Re: [PATCH 01/13] hrtimer: round up relative start time
-Message-ID: <20060213195550.GB30679@elte.hu>
-References: <Pine.LNX.4.61.0602130207560.23745@scrub.home> <1139827927.4932.17.camel@localhost.localdomain> <Pine.LNX.4.61.0602131208050.30994@scrub.home> <20060213130143.GA10771@elte.hu> <Pine.LNX.4.61.0602131441110.9696@scrub.home> <20060213144403.GA21317@elte.hu> <Pine.LNX.4.61.0602131643290.30994@scrub.home>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Roman Zippel <zippel@linux-m68k.org>, tglx@linutronix.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 02/13] hrtimer: remove useless const
+Message-ID: <20060213195920.GC30679@elte.hu>
+References: <Pine.LNX.4.61.0602130209340.23804@scrub.home> <1139830116.2480.464.camel@localhost.localdomain> <Pine.LNX.4.61.0602131235180.30994@scrub.home> <20060213114612.GA30500@elte.hu> <20060213035354.65b04c15.akpm@osdl.org> <Pine.LNX.4.61.0602131315150.30994@scrub.home> <20060213043038.25a49dd0.akpm@osdl.org> <Pine.LNX.4.61.0602131339330.30994@scrub.home> <20060213115248.2f6445f4.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0602131643290.30994@scrub.home>
+In-Reply-To: <20060213115248.2f6445f4.akpm@osdl.org>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
+X-ELTE-SpamScore: -2.2
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Roman Zippel <zippel@linux-m68k.org> wrote:
+* Andrew Morton <akpm@osdl.org> wrote:
 
-> Hi,
+> Roman Zippel <zippel@linux-m68k.org> wrote:
+> >
+> > On Mon, 13 Feb 2006, Andrew Morton wrote:
+> > 
+> >  > const arguments to functions are pretty useful for code readability and
+> >  > maintainability too, if you use them consistently.
+> > 
+> >  I could understand that argument, if gcc would warn about it in any way.
 > 
-> On Mon, 13 Feb 2006, Ingo Molnar wrote:
+> It does.  If a function tries to modify a formal argument which was 
+> marked const you'll get a warning.
 > 
-> > In other words: your patch re-introduces half of the bug on low-res 
-> > platforms. Users doing a series of one-shot itimer calls would be 
-> > exposed to the same kind of (incorrect and unnecessary) summing-up 
-> > errors. What's the point?
-> 
-> I don't fully agree with the interval behaviour either, [...]
+> We're talking about different things here.  My point is that it is 
+> perverted and evil for a function to modify its own args (unless it's 
+> very small and simple), and a const declaration is a useful way for a 
+> maintenance programmer to be assured that nobody has done perverted 
+> and evil things to a function.
 
-i.e. you'd want to reintroduce the comulative interval rounding bug that 
-users noticed? Or do you have some other way to change it? I really dont 
-see your point.
-
-> [...] but here one could at least say it's correct on average. [...]
-
-i'm not sure i understand. Are you implying by this that some current 
-code is not "correct on average"?
-
-> Since hrtimer is also used for nanosleep(), which I consider more 
-> important (as e.g. posix timer), this one should at least be correct 
-> and consistent with previous 2.6 releases. [...]
-
-for me it's simple: i dont think we should reintroduce the same type of 
-concept that was clearly causing regressions in previous 2.6 releases.  
-Thomas, what do you think?
+good point. I dont think it's "evil" (or as Roman has put it, "bogus") 
+in any way, and it should be up to the authors of the code to decide one 
+way or another. [An added bonus for me is that in my editor the 'const' 
+keyword is color highlighted, so const args are visually separate from 
+non-const arguments]
 
 	Ingo

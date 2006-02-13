@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWBMQj5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWBMQlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbWBMQj5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 11:39:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWBMQj4
+	id S932155AbWBMQlH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 11:41:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWBMQlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 11:39:56 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:31104 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932151AbWBMQjz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 11:39:55 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 13 Feb 2006 17:38:15 +0100
-To: trudheim@gmail.com, schilling@fokus.fraunhofer.de
-Cc: seanlkml@sympatico.ca, sam@vilain.net, peter.read@gmail.com, mj@ucw.cz,
-       matthias.andree@gmx.de, lkml@dervishd.net, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F0B5F7.nailMBX3WQSB5@burner>
-References: <43EB7BBA.nailIFG412CGY@burner>
- <20060210114930.GC2750@DervishD> <43EC88B8.nailISDH1Q8XR@burner>
- <43EFC1FF.7030103@vilain.net> <43F097AE.nailKUSK1MJ9O@burner>
- <BAYC1-PASMTP10B5F649DEDADD145E56BDAE070@CEZ.ICE>
- <20060213095038.03247484.seanlkml@sympatico.ca>
- <43F0A771.nailKUS131LLIA@burner>
- <mj+md-20060213.160108.13290.atrey@ucw.cz>
- <43F0B32D.nailKUS1E3S8I3@burner>
- <515e525f0602130834h1fd23146laf9daf354b1b8c75@mail.gmail.com>
-In-Reply-To: <515e525f0602130834h1fd23146laf9daf354b1b8c75@mail.gmail.com>
-User-Agent: nail 11.2 8/15/04
+	Mon, 13 Feb 2006 11:41:06 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:49587 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932151AbWBMQlD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 11:41:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=gX1ySHHqGfnQAESGmUzrpxss/7cVp613neTxS8dHNB7Ta5wBMV/VUVgj5duoLM3B0ky5cHmH65zJeB1kLbfhR75rFw8pnuRXTR7HgkjshtG0LTboXb+Olm7cASLS09sKxPnTI/HUxqblhKjUxblDSemFfnd5j/dGiNQMpBmf070=
+Message-ID: <43F0B663.9040001@gmail.com>
+Date: Mon, 13 Feb 2006 11:40:03 -0500
+From: Florin Malita <fmalita@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+CC: tytso@mit.edu, peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       jengelh@linux01.gwdg.de, diegocg@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <mj+md-20060209.173519.1949.atrey@ucw.cz> <43EC71FB.nailISD31LRCB@burner> <20060210114721.GB20093@merlin.emma.line.org> <43EC887B.nailISDGC9CP5@burner> <mj+md-20060210.123726.23341.atrey@ucw.cz> <43EC8E18.nailISDJTQDBG@burner> <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr> <43EC93A2.nailJEB1AMIE6@burner> <20060210141651.GB18707@thunk.org> <43ECA3FC.nailJGC110XNX@burner> <20060210145238.GC18707@thunk.org> <43ECA934.nailJHD2NPUCH@burner> <20060210172428.6c857254.diegocg@gmail.com> <43F063A8.nailKUS7174MV@burner> <43F0A760.90405@gmail.com> <43F0AC22.nailKUS1AW83M9@burner>
+In-Reply-To: <43F0AC22.nailKUS1AW83M9@burner>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anders Karlsson <trudheim@gmail.com> wrote:
+Joerg Schilling wrote:
 
-> On 2/13/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
-> [snip]
-> > If you forget these things, then please forget about this thread.
-> >
-> > I mentioned:
-> >
-> > -       ide-scsi does not do DMA correctly
-> >
-> > -       SCSI commands are bastardized on ATAPI
-> >
-> > If you like, I can give you many other Linux related bugs but it does
-> > not make sense unless the two bugs above are fixed.
+>Florin Malita <fmalita@gmail.com> wrote:
 >
-> Perhaps libata is more to your liking and that seems to be the
-> direction things are heading in. Perhaps that can make this flamefest
-> go away?
+>>On 2/10/06, *Joerg Schilling* <schilling@fokus.fraunhofer.de> wrote:
+>>
+>>    Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+>>    > The struct stat->st_rdev field need to be stable too to comply to
+>>    POSIX?
+>>
+>>    Correct.
+>>
+>>    Jörg
+>>
+>>
+>>You may claim you *never meant to* or you *never realized* you were
+>>talking about, but you can't say you never talked about it - that's an
+>>outright lie.
+>>    
+>>
+>I did not write st_rdev and from my previous mail it was obvioys that 
+>I was referring to st_dev.
+>  
+>
+I never said you *wrote* st_rdev, did I?
 
-???
+You confirmed a statement about st_rdev - that's called "talking about
+it". The fact that you didn't intend to or how obvious that is is
+irrelevant in this context: you *did talk* about st_rdev and there's no
+way you can deny or erase that.
 
-Jörg
+But here comes the classic twist: instead of acknowledging your mistake,
+you place the blame on everybody else for not guessing you were talking
+about something else. This is not a rational behavior, please stop.
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+--
+fm
+
+
+

@@ -1,87 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030247AbWBMX0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030278AbWBMX1n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030247AbWBMX0J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 18:26:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030278AbWBMX0J
+	id S1030278AbWBMX1n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 18:27:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030279AbWBMX1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 18:26:09 -0500
-Received: from smtp.enter.net ([216.193.128.24]:13324 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S1030247AbWBMX0I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 18:26:08 -0500
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Mon, 13 Feb 2006 18:35:06 -0500
-User-Agent: KMail/1.8.1
-Cc: cfriesen@nortel.com, tytso@mit.edu, peter.read@gmail.com, mj@ucw.cz,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
-References: <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr> <43ECADA8.9030609@nortel.com> <43F05FB2.nailKUS3MR1N9@burner>
-In-Reply-To: <43F05FB2.nailKUS3MR1N9@burner>
+	Mon, 13 Feb 2006 18:27:43 -0500
+Received: from nproxy.gmail.com ([64.233.182.195]:23577 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030278AbWBMX1m convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 18:27:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ecEuhQF026Pv1Y3eWRRgKoZGCxIcgPmhaXs4guZrAnaNNpc+N5pqXmWiQB2WughzL/XPrvMFi+Y5Eez22XrzJxxlD8+cgcerrxEOyiD98mV1zkOdCOu9PAZfHoeP5OYiNsIqHg4FPDz0oj1YvzWhkrRwkAuyONrJxlodA8xjvNI=
+Message-ID: <530468570602131527nbd17ddn262b92304adf4f86@mail.gmail.com>
+Date: Mon, 13 Feb 2006 16:27:40 -0700
+From: Jesse Allen <the3dfxdude@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2.6.16-rc3: more regressions
+Cc: Adrian Bunk <bunk@stusta.de>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mauro Tassinari <mtassinari@cmanet.it>, airlied@linux.ie,
+       dri-devel@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.4.64.0602131115010.3691@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200602131835.07477.dhazelton@enter.net>
+References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org>
+	 <20060213170945.GB6137@stusta.de>
+	 <Pine.LNX.4.64.0602130931221.3691@g5.osdl.org>
+	 <20060213174658.GC23048@redhat.com>
+	 <Pine.LNX.4.64.0602130952210.3691@g5.osdl.org>
+	 <Pine.LNX.4.64.0602131007500.3691@g5.osdl.org>
+	 <20060213183445.GA3588@stusta.de>
+	 <Pine.LNX.4.64.0602131043250.3691@g5.osdl.org>
+	 <20060213190907.GD3588@stusta.de>
+	 <Pine.LNX.4.64.0602131115010.3691@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 February 2006 05:30, Joerg Schilling wrote:
-> "Christopher Friesen" <cfriesen@nortel.com> wrote:
-> > Joerg Schilling wrote:
-> > > "Christopher Friesen" <cfriesen@nortel.com> wrote:
-> > >>There's nothing there that says the mapping cannot change with
-> > >>time...just that it has to be unique.
-> > >
-> > > If it changes over the runtime of a program, it is not unique from the
-> > > view of that program.
+On 2/13/06, Linus Torvalds <torvalds@osdl.org> wrote:
+>
+>
+> On Mon, 13 Feb 2006, Adrian Bunk wrote:
 > >
-> > That depends on what "uniquely identified" actually means.
-> >
-> > One possible definition is that at any time, a particular path maps to a
-> > single unique st_ino/st_dev tuple.
-> >
-> > The other possibility (and this is what you seem to be advocating) is
-> > that a st_ino/st_dev tuple always maps to the same file over the entire
-> > runtime of the system.
+> > The one thing I have not yet been proven wrong for is that this PCI id
+> > is the only one we have in this driver for an RV370.
 >
-> Well it is obvious that this is a requirement.
+> It definitely is an RV370, you're right in that. I'm too lazy to actually
+> see if the other entries that claim to be RV350's really are RV350's.
 >
-> If Linux does device name mapping at high level but leaves the low level
-> part unstable, then the following coul happen:
->
-> Just think about a program that checks a file that is on a removable media.
->
-> This media is mounted via a vold service and someone removes the USB cable
-> and reinserts it a second later. The filesystem on the device will be
-> mounted on the same mount point but the device ID inside the system did
-> change.
 
-Joerg, I think you've got your OS's mixed up here. AFAIK, Linux does not have 
-a "vold" system.
+Well a while back, I hacked in the pci id for my Xpress 200M (5955),
+which is basically an RV370 with no dedicated vram.  I did the same
+thing and claimed an RV350, which is the closest model.  This allowed
+the radeon module to load.  When I startx'ed and DRI was allowed to
+load on it, it locked up.  So I never sent in the patch.  I believe
+the person who sent this one in originally seemed to indicate that it
+worked, and I believed it if he had an X300 and my problem was having
+the IGP version.  But now having this reported, I'm pretty sure it is
+the same problem.  RV370 doesn't seem to work as an RV350.
 
-> As a result, the file unique identification st_ino/st_dev is not retained
-> and the program is confused.
-
-I have to agree that you are correct, but then, most removable media in the 
-Linux world do not actually have physical inodes. AFAIK, DVD's use the UDF 
-filesystem, a lot of CDRW's are formatted the same, CD's/CDR's generally use 
-the ISO9660 filesystem and other removable media, such as any floppy disc and 
-the now ubiquitous "zip disk's" use FAT16. I'm not current on UDF, but from 
-prior experience, I'd be willing to bet it doesn't have indoes, and the 
-ISO9660 filesystem doesn't have them, even if you use the RR extensions. What 
-is referred to in the Linux kernel as inodes for those systems are generally 
-block indexes, and for the FAT filesystem what it calls an "inode" is just 
-the name and a few other bits - and in the case of an LFN being used on said 
-volume, the name is spread across several "special blocks"... invalidating 
-the concept of an INODE for said filesystems.
-
-
-In any case, the hypothetical case you present here seems more in tune with 
-Solaris as you present it, since with UDEV the device node created for said 
-removable media would stay the same, and hence st_dev would also (IIRC) 
-remain the same.
-
-DRH
+Jesse

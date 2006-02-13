@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751776AbWBMOKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751783AbWBMOMW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751776AbWBMOKK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 09:10:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751781AbWBMOKJ
+	id S1751783AbWBMOMW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 09:12:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbWBMOMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 09:10:09 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:45034 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1751776AbWBMOKI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 09:10:08 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 13 Feb 2006 15:07:55 +0100
-To: schilling@fokus.fraunhofer.de, jengelh@linux01.gwdg.de
-Cc: tytso@mit.edu, peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net
+	Mon, 13 Feb 2006 09:12:22 -0500
+Received: from zproxy.gmail.com ([64.233.162.203]:25321 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751783AbWBMOMV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 09:12:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TajMBcxR8Oanf82aQSyQq6S6AsJDhXw+1Cwtfy9jJswbFWgcA6iXcZjYdcfz1nA6nrMr+FrNBm4lNH8qzuUIbjXedlFggB1NwaAlczz+YMBN360jTCPYLb83vW58DTnHovGpbO9udPrExo4hE0PRqETwwhO2fbZyiGfThBYmiK8=
+Message-ID: <5a2cf1f60602130612w1452f21jf41a3aa10ceedc05@mail.gmail.com>
+Date: Mon, 13 Feb 2006 15:12:21 +0100
+From: jerome lacoste <jerome.lacoste@gmail.com>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F092BB.nailKUSH1YIP1@burner>
-References: <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr>
- <43EB7BBA.nailIFG412CGY@burner>
- <mj+md-20060209.173519.1949.atrey@ucw.cz>
- <43EC71FB.nailISD31LRCB@burner>
- <20060210114721.GB20093@merlin.emma.line.org>
- <43EC887B.nailISDGC9CP5@burner>
- <mj+md-20060210.123726.23341.atrey@ucw.cz>
- <43EC8E18.nailISDJTQDBG@burner>
- <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr>
- <43EC93A2.nailJEB1AMIE6@burner> <20060210141651.GB18707@thunk.org>
- <43ECA3FC.nailJGC110XNX@burner>
- <Pine.LNX.4.61.0602121101070.25363@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0602121101070.25363@yvahk01.tjqt.qr>
-User-Agent: nail 11.2 8/15/04
+Cc: dhazelton@enter.net, peter.read@gmail.com, mj@ucw.cz,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
+In-Reply-To: <43EC8F22.nailISDL17DJF@burner>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060208162828.GA17534@voodoo>
+	 <20060210114721.GB20093@merlin.emma.line.org>
+	 <43EC887B.nailISDGC9CP5@burner>
+	 <200602090757.13767.dhazelton@enter.net>
+	 <43EC8F22.nailISDL17DJF@burner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
-
-> >> > > The struct stat->st_rdev field need to be stable too to comply to POSIX?
-> >> > Correct.
-> >A particular file on the system must not change st_dev while the system
-> >is running.
-> >
+On 2/10/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
+> "D. Hazelton" <dhazelton@enter.net> wrote:
 >
-> Attention, I asked for st_rdev (=major/minor as presented in ls -l),
-> not st_dev (major/minor of the disk /dev is on).
+> > And does cdrecord even need libscg anymore? From having actually gone through
+> > your code, Joerg, I can tell you that it does serve a larger purpose. But at
+> > this point I have to ask - besides cdrecord and a few other _COMPACT_ _DISC_
+> > writing programs, does _ANYONE_ use libscg? Is it ever used to access any
+> > other devices that are either SCSI or use a SCSI command protocol (like
+> > ATAPI)?  My point there is that you have a wonderful library, but despite
+> > your wishes, there is no proof that it is ever used for anything except
+> > writing/ripping CD's.
+>
+> Name a single program (not using libscg) that implements user space SCSI and runs
+> on as many platforms as cdrecord/libscg does.
 
-I was of course talking about st_dev
+As an application developer, I would focus on the following questions:
 
-But as a note: st_rdev from the device carrying the FS becomes st_dev
-for all files inside a particular FS.
+* what is the percentage of Windows users using a CD burning/ripping
+program based on libscg?
 
-Jörg
+* what is the percentage of cdrecord Linux users out of the total
+number of cdrecord users?
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+* what are your expectations with regard to those numbers in the future?
+
+Jerome

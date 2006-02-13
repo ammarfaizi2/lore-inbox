@@ -1,74 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbWBMQwL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWBMQxQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932227AbWBMQwL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 11:52:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWBMQwL
+	id S932225AbWBMQxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 11:53:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWBMQxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 11:52:11 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:5147 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S932227AbWBMQwK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 11:52:10 -0500
-Message-ID: <43F0B8FC.6020605@cfl.rr.com>
-Date: Mon, 13 Feb 2006 11:51:08 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Mon, 13 Feb 2006 11:53:16 -0500
+Received: from nproxy.gmail.com ([64.233.182.197]:57670 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932225AbWBMQxP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 11:53:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=g9hJhb36Cyv5t23qjvOYKkr6USeZI5bG4RJ5Z3mwCuZSEuxoGkqIwAF/dFpXf9QtB/AVYvr6H9CtKVcsQ0RDqwMjpeWBVcpAxIcLiBGEoUpEu/CuTpd887i5I2RHSCbp3dKFjHvT58CMFunMTdcQm3d+ZkSy/zs3uobO14/LoGo=
+Message-ID: <58cb370e0602130853s4ce767c6j57337a9587cc2963@mail.gmail.com>
+Date: Mon, 13 Feb 2006 17:53:11 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: RFC: Compact Flash True IDE Mode Driver
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0602131020370.30316-100000@gate.crashing.org>
 MIME-Version: 1.0
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-CC: Peter Osterlund <petero2@telia.com>, linux-kernel@vger.kernel.org,
-       bfennema@falcon.csc.calpoly.edu, Christoph Hellwig <hch@lst.de>,
-       Al Viro <viro@ftp.linux.org.uk>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] UDF filesystem uid fix
-References: <m3lkwg4f25.fsf@telia.com> <84144f020602130149k72b8ebned89ff5719cdd0c2@mail.gmail.com>
-In-Reply-To: <84144f020602130149k72b8ebned89ff5719cdd0c2@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Feb 2006 16:52:58.0543 (UTC) FILETIME=[F1822BF0:01C630BD]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14265.000
-X-TM-AS-Result: No--17.350000-5.000000-31
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <58cb370e0602130235h3ab521cep47584ee634e8fc7f@mail.gmail.com>
+	 <Pine.LNX.4.44.0602131020370.30316-100000@gate.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg wrote:
-> The UDF code really seems broken. It fails for new inodes and some
-> chown cases, when the mount options are being used. Phillip's patch
-> does not look like a complete fix, though, as it will store invalid
-> uid/gid (-1) for some cases where we probably should be storing the
-> real uid/gid. For example, doing chown <user> when the same user is
-> passed as mount option, we'll get -1 on disk, instead of user's uid.
->   
+On 2/13/06, Kumar Gala <galak@kernel.crashing.org> wrote:
 
-Could you be more specific about what test cases fail?  It worked fine 
-for me so far.
+> > > +static void cfide_outsl(unsigned long port, void *addr, u32 count)
+> > > +{
+> > > +       panic("outsl unsupported");
+> > > +}
+> >
+> > This will panic as soon as somebody tries to enable 32-bit I/O
+> > using hdparm.  Please add ide_hwif_t.no_io_32bit flag and teach
+> > ide-disk.c:ide_disk_setup() about it (separate patch).
+>
+> I'm not sure I follow this, can you expand.
 
-Also the storage of -1 id is very much intentional.  Prior to this 
-patch, if you mount with uid=yourid then you create a file, it would 
-appear to be owned by you.  If you unmounted and remounted the volume 
-however, it would suddenly be owned by root.  Clearly that is not 
-acceptable. With this patch applied, the file appears to be owned by you 
-both before and after the remount.  The actual value written to disk is 
--1, which on a read is translated to the value from the mount option, 
-giving the appearance that the file is owned by the user specified in 
-the mount, which is the expected behavior. 
+Do "hdparm -c 2 /dev/hdx" first and then read/write to the device
+and you should see it. :)
 
-Should the desktop user insert this media in another machine where they 
-have a different uid ( that is specified in the mount options ) then 
-they would still have access to their files, as the -1 will be 
-translated to the correct uid on that system. 
+We need to make "hdparm -c 2" (and "hdparm -c 3") unsupported
+(see how "io_32bit" setting is handled in ide_add_generic_settings()
+and how it can be read-only or read-write setting depending on the
+value of drive->no_io_32bit).
 
-Should you chown files to a user other than the one given in the mount 
-option, then that actual uid is stored on the disk.  Also if you do not 
-specify a uid/gid when you mount, then the actual uid is stored. 
-> I think the semantics you want is: "if uid/gid is invalid on disk,
-> leave it that way unless we explicitly change it via chown; otherwise
-> we can always overwrite it." Hmm?
->   
+To do this we need to set drive->no_io_32bit to 1 (see how
+ide_disk_setup() handles it).  Unfortunately 32-bit I/O capability
+is based on capabilities of both host and device so we have to
+add new flag hwif->no_io_32bit to indicate that host doesn't
+support 32-bit I/O.
 
-No, the semantics is if the uid/gid on disk is invalid, then use the id 
-specified in the mount options.  That was the case before, however when 
-you created new files or chowned files to you ( and you gave your id in 
-the mount options ), an id of 0 was written to disk instead.  Now -1 is 
-written, which when read, is mapped back to your id specified in the 
-mount options. 
+> > > +static ide_hwif_t *cfide_locate_hwif(void __iomem * base, void __iomem * ctrl,
+> > > +                                    unsigned int sz, int irq)
+> >
+> > __devinit
+> >
+> > > +{
+> > > +       unsigned long port = (unsigned long)base;
+> > > +       ide_hwif_t *hwif;
+> > > +       int index, i;
+> > > +
+> > > +       for (index = 0; index < MAX_HWIFS; ++index) {
+> > > +               hwif = ide_hwifs + index;
+> > > +               if (hwif->io_ports[IDE_DATA_OFFSET] == port)
+> > > +                       goto found;
+> > > +       }
+> > > +
+> > > +       for (index = 0; index < MAX_HWIFS; ++index) {
+> > > +               hwif = ide_hwifs + index;
+> > > +               if (hwif->io_ports[IDE_DATA_OFFSET] == 0)
+> > > +                       goto found;
+> > > +       }
+> > > +
+> > > +       return NULL;
+> >
+> > This is the same as in icside.c/rapide.c,
+> > it really should be generic helper (separate patch)
+>
+> Suggesitions, on where that should live, ide-probe.c?
 
+ide.c, no rush for this one as I have patch ready
+(only needs to find it... sigh...)
 
+> > Otherwise driver looks pretty decent and with the above changes
+> > it gets my ACK.  Additional enhancements as suggested by Ben
+> > would be nice but obviously they are not needed for a start
+>
+> Everything else makes sense and I'll make those changes, plus some based
+> on Ben's comments.  If you can let me know about the two questions
+> (expanding on ide_hwif_t.no_io_32bit and where to but a generic version of
+> cfide_locate_hwif).
+
+Thanks,
+Bartlomiej

@@ -1,74 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbWBMWbm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWBMWec@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030218AbWBMWbm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 17:31:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030219AbWBMWbm
+	id S964870AbWBMWec (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 17:34:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbWBMWeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 17:31:42 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:44681 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030218AbWBMWbl (ORCPT
+	Mon, 13 Feb 2006 17:34:31 -0500
+Received: from gate.crashing.org ([63.228.1.57]:19593 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964870AbWBMWeb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 17:31:41 -0500
-From: Jeff Moyer <jmoyer@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 13 Feb 2006 17:34:31 -0500
+Subject: Re: 2.6.16-rc2 powerpc timestamp skew
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Roger Leigh <rleigh@whinlatter.ukfsn.org>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       debian-powerpc@lists.debian.org
+In-Reply-To: <87irrj85vp.fsf@hardknott.home.whinlatter.ukfsn.org>
+References: <87pslspkj5.fsf@hardknott.home.whinlatter.ukfsn.org>
+	 <1139779983.5247.39.camel@localhost.localdomain>
+	 <87irrj85vp.fsf@hardknott.home.whinlatter.ukfsn.org>
+Content-Type: text/plain
+Date: Tue, 14 Feb 2006 09:34:24 +1100
+Message-Id: <1139870065.5237.26.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17393.2242.720631.636489@segfault.boston.redhat.com>
-Date: Mon, 13 Feb 2006 17:31:30 -0500
-To: linux-kernel@vger.kernel.org
-CC: greg@kroah.com, akpm@osdl.org
-Subject: [patch] fix BUG: in fw_realloc_buffer
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-The fw_realloc_buffer routine does not handle an increase in buffer size of
-more than 4k.  It's not clear to me why it expects that it will only get an
-extra 4k of data.  The attached patch modifies fw_realloc_buffer to vmalloc
-as much memory as is requested, instead of what we previously had + 4k.
+> > Can you strace vs. ltrace and see if the gettimeofday or clock_gettime
+> > syscalls are ever called ?
+> 
+>            | strace        | ltrace
+> -----------+---------------+------------------------------------
+> 2.6.15     |               |
+> date       | clock_gettime | clock_gettime -> SYS_clock_gettime,
+>            |               |   localtime, strftime
+> touch      | utimes        | futimes -> SYS_utimes
+>            |               |
+> 2.6.16-rc2 |               |
+> date       | clock_gettime | clock_gettime -> SYS_clock_gettime,
+>            |               |   localtime, strftime
+> touch      | utimes        | futimes -> SYS_utimes
+> 
+> [clock_gettime(CLOCK_REALTIME, {1139826613, 157402000}) = 0]
+> 
+> > I wonder if you have a glibc new enough to
+> > use the vDSO to obtain the time or if it's using the syscall... The vDSO
+> > on ppc32 is very new.
+> 
+> It's glibc 2.3.5 (Debian libc6 2.3.5-13).
 
-I've tested this on my laptop, which would crash occaisionally on boot
-without the patch.  With the patch, it hasn't crashed, but I can't be
-certain that this code path is exercised.
+Ok, does not using NTP fixes it ?
 
-Comments are very welcome.
+Ben.
 
-Thanks,
 
-Jeff
-
-Signed-off-by: Jeff Moyer <jmoyer@redhat.com>
-
---- vanilla/drivers/base/firmware_class.c.orig	2006-02-13 15:46:15.000000000 -0500
-+++ vanilla/drivers/base/firmware_class.c	2006-02-13 15:46:04.000000000 -0500
-@@ -211,18 +211,22 @@ static int
- fw_realloc_buffer(struct firmware_priv *fw_priv, int min_size)
- {
- 	u8 *new_data;
-+	int new_size = fw_priv->alloc_size;
- 
- 	if (min_size <= fw_priv->alloc_size)
- 		return 0;
- 
--	new_data = vmalloc(fw_priv->alloc_size + PAGE_SIZE);
-+	while (new_size < min_size)
-+		new_size += PAGE_SIZE;
-+
-+	new_data = vmalloc(new_size);
- 	if (!new_data) {
- 		printk(KERN_ERR "%s: unable to alloc buffer\n", __FUNCTION__);
- 		/* Make sure that we don't keep incomplete data */
- 		fw_load_abort(fw_priv);
- 		return -ENOMEM;
- 	}
--	fw_priv->alloc_size += PAGE_SIZE;
-+	fw_priv->alloc_size = new_size;
- 	if (fw_priv->fw->data) {
- 		memcpy(new_data, fw_priv->fw->data, fw_priv->fw->size);
- 		vfree(fw_priv->fw->data);

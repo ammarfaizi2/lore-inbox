@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWBMTAG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWBMTCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbWBMTAG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 14:00:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbWBMTAG
+	id S964782AbWBMTCh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 14:02:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWBMTCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 14:00:06 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:65096 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932429AbWBMTAC convert rfc822-to-8bit
+	Mon, 13 Feb 2006 14:02:37 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:64447 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964782AbWBMTCg convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 14:00:02 -0500
+	Mon, 13 Feb 2006 14:02:36 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pL1mWrTOEXMqRLsZ3L1uimmPjEf7QZwXEoDGtrHRMqy/77KWIDcJzMgoL2pjkFU2aRWw4knUK7j+XbuI7R/p0YPpXHi8mBJmaXQLyhg5O7+LgklAmDHATdIqYMwd0p51hYS6OFCZABVrXjlWWUSK7Acbnn18xmXCjY/AuA1wh7w=
-Message-ID: <7c3341450602131059g62204286o@mail.gmail.com>
-Date: Mon, 13 Feb 2006 18:59:59 +0000
+        b=ZpDdYjSCrDsn8lXV6Xu2e0AQEU/qrAfwbnFBDma2/igWB79H43nMs1hhbGP0EASitPAdySu5KpY0VFJinen7OeYpT/hB7TaSz6Cfq0JE5wLt/pILPow2QNvLJmwQpUhrUQXsyD9TSNUyrzoD1QiOgExyeFjkatZq+65BdR6YD58=
+Message-ID: <7c3341450602131102j712a0a17y@mail.gmail.com>
+Date: Mon, 13 Feb 2006 19:02:34 +0000
 From: Nick Warne <nick@linicks.net>
 Reply-To: Nick Warne <nick@linicks.net>
 To: Takashi Iwai <tiwai@suse.de>
@@ -33,10 +33,17 @@ References: <20060213040900.1e360292.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > http://lkml.org/lkml/2006/2/11/4
+> > As stated the solution for me was to update alsa-utils and alsa-libs
+> > which fixed the issues I was getting - I found that if one of the
+> > 'controls' (15, I think?) was invalid at boot, all the volume settings
+> > in alsamixer got set to '0' (i.e. mute/turned off) - no sound.
+>
+> Such a problem is usually because of init script rather alsa-lib
+> version.  It should call alsactl with -F option.
 
-Sorry, my bad cut 'n' paste - link should be:
+I would agree - but I only have one asound.state file, and also doing
+the upgrade to said alsa utils and libs *fixed* it...
 
-http://lkml.org/lkml/2006/2/11/43
+On my system at least something was going awry.
 
 Nick

@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbWBMSSm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWBMSU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932383AbWBMSSm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 13:18:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWBMSSl
+	id S932390AbWBMSU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 13:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbWBMSU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 13:18:41 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:37027 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932383AbWBMSSl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 13:18:41 -0500
-Date: Mon, 13 Feb 2006 18:18:39 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Jody McIntyre <scjody@modernduck.com>, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net
-Subject: Re: [PATCH 7/8] don't mangle INQUIRY if cmddt or evpd bits are set
-Message-ID: <20060213181839.GA27946@ftp.linux.org.uk>
-References: <E1F6vyJ-00009k-3Z@ZenIV.linux.org.uk> <43EA7226.60306@s5r6.in-berlin.de> <20060208230559.GK27946@ftp.linux.org.uk> <43F0B1AB.6010708@s5r6.in-berlin.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43F0B1AB.6010708@s5r6.in-berlin.de>
-User-Agent: Mutt/1.4.1i
+	Mon, 13 Feb 2006 13:20:56 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:45015 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932390AbWBMSUz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 13:20:55 -0500
+Date: Mon, 13 Feb 2006 10:16:59 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dave Jones <davej@redhat.com>
+cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mauro Tassinari <mtassinari@cmanet.it>, airlied@linux.ie
+Subject: Re: 2.6.16-rc3: more regressions
+In-Reply-To: <Pine.LNX.4.64.0602130952210.3691@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0602131007500.3691@g5.osdl.org>
+References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org>
+ <20060213170945.GB6137@stusta.de> <Pine.LNX.4.64.0602130931221.3691@g5.osdl.org>
+ <20060213174658.GC23048@redhat.com> <Pine.LNX.4.64.0602130952210.3691@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 13, 2006 at 05:19:55PM +0100, Stefan Richter wrote:
-> OK, tested scsiinfo now with 9 bridges (8 or 7 different chips).
-> The patch obviously works as expected.
-> 
-> Jody, are you going to channel the patch through your tree?
-> 
-> BTW, a Prolific based enclosure indeed seems to be unable to handle
-> CD-ROMs after scsiinfo treatment. An enclosure based on an old
-> revision of TI StorageLynx apparently causes mode_sense -> check
-> condition/ unit attention loops when scsiinfo tries to access some
-> mode page.
 
-The former is best treated by using the hardware in question as a pissuary,
-to make sure that its contents matches the quality of design.  The latter
-might be more interesting - RBC devices are only required to implement
-MODE SENSE/SELECT page 6; they shouldn't get messed by the rest, but at
-least some of them blindly respond with page 6 to _every_ MODE SENSE.
-So that might be a good reason to blacklist.
+
+On Mon, 13 Feb 2006, Linus Torvalds wrote:
+> 
+> DaveA, I'll apply this for now. Comments?
+
+Btw, the fact that Mauro has the same exact PCI ID (well, lspci stupidly 
+suppresses the ID entirely, but the string seems to match the one that 
+Dave Jones reports) may be unrelated.
+
+DaveJ (or Mauro): since you can test this, can you test having that ID 
+there but _without_ the other changes to drm in -rc1?
+
+Ie was it the addition of that particular ID, or are the other radeon
+driver changes (which haven't had as much testing) perhaps the culprit?
+
+I realize that without the ID, that card would never have been tested 
+anyway, but the point being that plain 2.6.15 with _just_ that ID added 
+has at least gotten more testing on other (similar) chips. So before I 
+revert that particular ID, it would be nice to know that it was broken 
+even with the previous radeon driver state.
+
+		Linus

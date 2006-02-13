@@ -1,130 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWBMSeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWBMSer@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbWBMSeM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 13:34:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWBMSeM
+	id S932397AbWBMSer (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 13:34:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWBMSer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 13:34:12 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:16288 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932299AbWBMSeL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 13:34:11 -0500
-From: hawkes@sgi.com
-To: Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Jack Steiner <steiner@sgi.com>, hawkes@sgi.com, Robin Holt <holt@sgi.com>,
-       Dimitri Sivanich <sivanich@sgi.com>, Jes Sorensen <jes@sgi.com>
-Date: Mon, 13 Feb 2006 10:33:44 -0800
-Message-Id: <20060213183344.21339.33094.sendpatchset@tomahawk.engr.sgi.com>
-Subject: [PATCH] ia64: simplify and fix udelay()
+	Mon, 13 Feb 2006 13:34:47 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:21511 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932397AbWBMSeq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 13:34:46 -0500
+Date: Mon, 13 Feb 2006 19:34:45 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mauro Tassinari <mtassinari@cmanet.it>, airlied@linux.ie,
+       dri-devel@lists.sourceforge.net
+Subject: Re: 2.6.16-rc3: more regressions
+Message-ID: <20060213183445.GA3588@stusta.de>
+References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org> <20060213170945.GB6137@stusta.de> <Pine.LNX.4.64.0602130931221.3691@g5.osdl.org> <20060213174658.GC23048@redhat.com> <Pine.LNX.4.64.0602130952210.3691@g5.osdl.org> <Pine.LNX.4.64.0602131007500.3691@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0602131007500.3691@g5.osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The original ia64 udelay() was simple, but flawed for platforms without
-synchronized ITCs:  a preemption and migration to another CPU during the
-while-loop likely resulted in too-early termination or very, very
-lengthy looping.
+On Mon, Feb 13, 2006 at 10:16:59AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Mon, 13 Feb 2006, Linus Torvalds wrote:
+> > 
+> > DaveA, I'll apply this for now. Comments?
+> 
+> Btw, the fact that Mauro has the same exact PCI ID (well, lspci stupidly 
+> suppresses the ID entirely, but the string seems to match the one that 
+> Dave Jones reports) may be unrelated.
 
-The first fix (now in 2.6.15) broke the delay loop into smaller,
-non-preemptible chunks, reenabling preemption between the chunks.  This
-fix is flawed in that the total udelay is computed to be the sum of just
-the non-premptible while-loop pieces, i.e., not counting the time spent
-in the interim preemptible periods.  If an interrupt or a migration
-occurs during one of these interim periods, then that time is invisible
-and only serves to lengthen the effective udelay().
+Dave's patch removes the entry for the card with the 0x5b60.
 
-This new fix backs out the current flawed fix and returns to a simple
-udelay(), fully preemptible and interruptible.  It implements two simple
-alternative udelay() routines:  one a default generic version that uses
-ia64_get_itc(), and the other an sn-specific version that uses that
-platform's RTC.
+According to his bug report, Mauro has a Radeon X300SE that should 
+have the 0x5b70 according to pci.ids from pciutils and that doesn't seem 
+to be claimed by the DRM driver (and the dmesg from the bug report 
+confirms that the radeon DRM driver didn't claim to be responsible for 
+this card).
 
-Signed-off-by: John Hawkes <hawkes@sgi.com>
+> DaveJ (or Mauro): since you can test this, can you test having that ID 
+> there but _without_ the other changes to drm in -rc1?
+> 
+> Ie was it the addition of that particular ID, or are the other radeon
+> driver changes (which haven't had as much testing) perhaps the culprit?
+> 
+> I realize that without the ID, that card would never have been tested 
+> anyway, but the point being that plain 2.6.15 with _just_ that ID added 
+> has at least gotten more testing on other (similar) chips. So before I 
+> revert that particular ID, it would be nice to know that it was broken 
+> even with the previous radeon driver state.
 
-Index: linux/arch/ia64/kernel/time.c
-===================================================================
---- linux.orig/arch/ia64/kernel/time.c	2006-02-08 17:59:42.000000000 -0800
-+++ linux/arch/ia64/kernel/time.c	2006-02-13 10:03:59.000000000 -0800
-@@ -250,31 +250,26 @@ time_init (void)
- 	set_normalized_timespec(&wall_to_monotonic, -xtime.tv_sec, -xtime.tv_nsec);
- }
- 
--#define SMALLUSECS 100
--
--void
--udelay (unsigned long usecs)
-+/*
-+ * Generic udelay assumes that if preemption is allowed and the thread
-+ * migrates to another CPU, that the ITC values are synchronized across
-+ * all CPUs.
-+ */
-+static void
-+ia64_itc_udelay (unsigned long usecs)
- {
--	unsigned long start;
--	unsigned long cycles;
--	unsigned long smallusecs;
-+	unsigned long start = ia64_get_itc();
-+	unsigned long end = start + usecs*local_cpu_data->cyc_per_usec;
- 
--	/*
--	 * Execute the non-preemptible delay loop (because the ITC might
--	 * not be synchronized between CPUS) in relatively short time
--	 * chunks, allowing preemption between the chunks.
--	 */
--	while (usecs > 0) {
--		smallusecs = (usecs > SMALLUSECS) ? SMALLUSECS : usecs;
--		preempt_disable();
--		cycles = smallusecs*local_cpu_data->cyc_per_usec;
--		start = ia64_get_itc();
-+	while (time_before(ia64_get_itc(), end))
-+		cpu_relax();
-+}
- 
--		while (ia64_get_itc() - start < cycles)
--			cpu_relax();
-+void (*ia64_udelay)(unsigned long usecs) = &ia64_itc_udelay;
- 
--		preempt_enable();
--		usecs -= smallusecs;
--	}
-+void
-+udelay (unsigned long usecs)
-+{
-+	(*ia64_udelay)(usecs);
- }
- EXPORT_SYMBOL(udelay);
-Index: linux/arch/ia64/sn/kernel/sn2/timer.c
-===================================================================
---- linux.orig/arch/ia64/sn/kernel/sn2/timer.c	2006-02-08 17:59:42.000000000 -0800
-+++ linux/arch/ia64/sn/kernel/sn2/timer.c	2006-02-09 09:02:31.000000000 -0800
-@@ -28,9 +28,29 @@ static struct time_interpolator sn2_inte
- 	.source = TIME_SOURCE_MMIO64
- };
- 
-+extern void (*ia64_udelay)(unsigned long usecs);
-+
-+/*
-+ * sn udelay uses the RTC instead of the ITC because the ITC is not
-+ * synchronized across all CPUs, and the thread may migrate to another CPU
-+ * if preemption is enabled.
-+ */
-+static void
-+ia64_sn_udelay (unsigned long usecs)
-+{
-+	unsigned long start = rtc_time();
-+	unsigned long end = start +
-+			usecs * sn_rtc_cycles_per_second / 1000000;
-+
-+	while (time_before((unsigned long)rtc_time(), end))
-+		cpu_relax();
-+}
-+
- void __init sn_timer_init(void)
- {
- 	sn2_interpolator.frequency = sn_rtc_cycles_per_second;
- 	sn2_interpolator.addr = RTC_COUNTER_ADDR;
- 	register_time_interpolator(&sn2_interpolator);
-+
-+	ia64_udelay = &ia64_sn_udelay;
- }
+The ID removed by Dave's patch is the only ID listed for an RV370 chips 
+(the other RV370's aren't listed in the radeon DRM driver).
+
+I suspect Dave and Mauro having unrelated problems.
+
+> 		Linus
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

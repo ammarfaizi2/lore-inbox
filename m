@@ -1,103 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWBMQk5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWBMQlc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbWBMQk5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 11:40:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWBMQk4
+	id S932210AbWBMQlc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 11:41:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWBMQlb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 11:40:56 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:35245 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932148AbWBMQky
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 11:40:54 -0500
-Subject: Re: [RFC][PATCH 04/20] pspace: Allow multiple instaces of the
-	process id namespace
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Kirill Korotaev <dev@sw.ru>, linux-kernel@vger.kernel.org,
-       vserver@list.linux-vserver.org, Herbert Poetzl <herbert@13thfloor.at>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-In-Reply-To: <m13biqxjj5.fsf@ebiederm.dsl.xmission.com>
-References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
-	 <m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>
-	 <m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com>
-	 <m1fymwmgk0.fsf_-_@ebiederm.dsl.xmission.com>
-	 <m1bqxkmgcv.fsf_-_@ebiederm.dsl.xmission.com> <43ECF803.8080404@sw.ru>
-	 <m13biqxjj5.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Date: Mon, 13 Feb 2006 08:40:21 -0800
-Message-Id: <1139848821.9209.111.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Mon, 13 Feb 2006 11:41:31 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:31769 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S932147AbWBMQlL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 11:41:11 -0500
+Message-ID: <43F0B66A.2080602@cfl.rr.com>
+Date: Mon, 13 Feb 2006 11:40:10 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Kyle Moffett <mrmacman_g4@mac.com>
+CC: Alan Stern <stern@rowland.harvard.edu>,
+       Alon Bar-Lev <alon.barlev@gmail.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Flames over -- Re: Which is simpler?
+References: <Pine.LNX.4.44L0.0602122104330.20351-100000@netrider.rowland.org> <43F0027E.2070207@cfl.rr.com> <9B9A94E5-F23E-4FCD-83DA-7C2AA9AE86E3@mac.com>
+In-Reply-To: <9B9A94E5-F23E-4FCD-83DA-7C2AA9AE86E3@mac.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Feb 2006 16:42:00.0306 (UTC) FILETIME=[692B2D20:01C630BC]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14265.000
+X-TM-AS-Result: No--21.399000-5.000000-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-02-11 at 03:43 -0700, Eric W. Biederman wrote:
-> Kirill Korotaev <dev@sw.ru> writes:
-> >> +static inline int pspace_task_visible(struct pspace *pspace, struct
-> > task_struct *tsk)
-> >> +{
-> >> +	return (tsk->pspace == pspace) ||
-> >> +		((tsk->pspace->child_reaper.pspace == pspace) &&
-> >> +		 (tsk->pspace->child_reaper.task == tsk));
-> > <<< the logic with child_reaper which can be somehow partly inside pspace... and
-> > this check is not that abvious.
-> 
-> This is the check for what shows up in /proc.
-> 
-> Given that is how I have explicitly documented things to work, (the
-> init process straddles the boundary) I fail to see how it is not obvious.  
+Kyle Moffett wrote:
+> This is true for software suspend, but not for hardware suspend (see 
+> the differences now?)  This is why the two are independent and should 
+> not be
 
-I'd claim that the (tsk->pspace == pspace) test is pretty obvious.
+No, that is not necessarily correct.  Sometimes the ACPI bios can leave 
+certain devices in a standby mode so they can wake the machine, but it 
+does not have to, and often does not.  Thus when suspended to ram, 
+typically your usb hard drive and almost allways your ide/sata/scsi 
+drive will be completely powered off. 
 
-However, the child_reaper one takes a little deduction.  Sometimes, I
-think separating out even trivial functions into even trivialler :)
-functions really does make sense for these.  They can be really
-confusing.  BTW, I _still_ don't understand exactly what this is doing,
-but I haven't had any coffee.
+> mashed together into one "Generic Suspend".  Let me bring up the 
+> example of my PowerBook again.  It's RAM is fully powered right now, 
+> running from battery, and it has another couple days of sleep-charge 
+> left before I have to worry about plugging it in again.  When I open 
+> it, the firmware automatically powers up the CPU and other hardware 
+> and returns control to the OS.  I can _also_ trigger it to wake by 
+> leaving it closed and connecting an external VGA and USB (it wakes 
+> every time I connect a USB, but my suspend script puts it to sleep 
+> again if it's closed and has no external VGA).
+>
 
-Is something like this more clear?
+Then your motherboard keeps the bus in a lower power state such that it 
+is capable of causing a wake event when state changes.  I'm also fairly 
+sure that when such a wake event happens, there is no indication to the 
+kernel about why it was woken up.  Because of that, and the fact that 
+not all systems even support such wake modes, the kernel must reprobe 
+all hardware when it wakes up, and hopefully finds the same devices that 
+were there when it went to sleep.  It does this for both types of suspend. 
 
-static inline int pspace_task_visible(struct pspace *pspace, struct
-task_struct *tsk)
-{
-	if (tsk->pspace == pspace)
-		return 1;
+>> and in either case, there is nothing running on the CPU to monitor 
+>> device insertion/removal.
+>
+> You don't need the CPU, just a good USB controller and hubs with 
+> low-power modes and such.  The fact that plugging in a USB 
+> keyboard/mouse and a VGA monitor is enough to wake the system when 
+> properly configured should be proof enough.
+>
 
-	/*
-	 * Init tasks straggle namespaces.  They have the explicit
-	 * pspace of their parent, but are visible from thier
-	 * children.
-	 */
-	if (pspace_child_reaper_is_task(pspace, tsk)
-		return 1;
+That is not proof of anything other than the bus controller has the 
+capability of generating a wake event.  As I said before, once woken up, 
+the kernel must probe all hardware and if there is a new device, it will 
+find it.  The hardware only detected that something changed and thus, 
+generated a wake even, it did not notice exactly what that change was 
+and inform the kernel. 
 
-	return 0;
-}
+>> When the system is resumed the kernel decides if the hardware has 
+>> changed the same way for either system: it probes the hardware to see 
+>> if it is still there.  There isn't anything special that monitors 
+>> device insertion/removal while suspended to ram.
+>
+> Sometimes not, but again, it depends on the hardware.
 
-int pspace_child_reaper_is_task(struct pspace *pspace,
-				struct task_struct *tsk)
-{
-	if ((tsk->pspace->child_reaper.pspace == pspace) &&
-	    (tsk->pspace->child_reaper.task == tsk))
-		return 1;
+Again, always not since the hardware doesn't actually tell the kernel 
+what happend, it just wakes it up. 
 
-	return 0;
-}
-
--- Dave
-
+>
+> Cheers,
+> Kyle Moffett
+>
+> -- 
+> I have yet to see any problem, however complicated, which, when you 
+> looked at it in the right way, did not become still more complicated.
+>   -- Poul Anderson
+>
+>

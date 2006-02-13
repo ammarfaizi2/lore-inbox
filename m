@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWBMQdI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWBMQeV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbWBMQdI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 11:33:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbWBMQdI
+	id S932125AbWBMQeV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 11:34:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWBMQeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 11:33:08 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:30744 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S932076AbWBMQdH (ORCPT
+	Mon, 13 Feb 2006 11:34:21 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:58516 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932125AbWBMQeU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 11:33:07 -0500
-Message-ID: <43F0B484.3060603@cfl.rr.com>
-Date: Mon, 13 Feb 2006 11:32:04 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Mon, 13 Feb 2006 11:34:20 -0500
+Date: Mon, 13 Feb 2006 17:34:14 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+cc: jerome.lacoste@gmail.com, peter.read@gmail.com, mj@ucw.cz,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net, dhazelton@enter.net
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+In-Reply-To: <43F0B2BA.nailKUS1DNTEHA@burner>
+Message-ID: <Pine.LNX.4.61.0602131732190.24297@yvahk01.tjqt.qr>
+References: <20060208162828.GA17534@voodoo> <43EC887B.nailISDGC9CP5@burner>
+ <200602090757.13767.dhazelton@enter.net> <43EC8F22.nailISDL17DJF@burner>
+ <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com>
+ <43F06220.nailKUS5D8SL2@burner> <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com>
+ <43F0A010.nailKUSR1CGG5@burner> <5a2cf1f60602130724n7b060e29r57411260b04d5972@mail.gmail.com>
+ <43F0AA83.nailKUS171HI4B@burner> <5a2cf1f60602130805u537de206k22fa418ee214cf02@mail.gmail.com>
+ <43F0B2BA.nailKUS1DNTEHA@burner>
 MIME-Version: 1.0
-To: Seewer Philippe <philippe.seewer@bfh.ch>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: RFC: disk geometry via sysfs
-References: <43EC8FBA.1080307@bfh.ch>
-In-Reply-To: <43EC8FBA.1080307@bfh.ch>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Feb 2006 16:33:53.0636 (UTC) FILETIME=[47173A40:01C630BB]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14265.000
-X-TM-AS-Result: No--6.900000-5.000000-31
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.61.0602131734051.24297@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seewer Philippe wrote:
-> Hello all!
+>> The information printed will be printed in a format such as:
+>>
+>> b,t,l <= os_specific_name
 >
-> I don't want to start another geometry war, but with the introduction of
-> the general getgeo function by Christoph Hellwig for all disks this
-> simply would become a matter of extending the basic gendisk block driver.
+>Why do you believe that this kind of mapping is needed?
 >
-> There are people out there (like me) who need to know about disk
-> geometry. But since this is clearly post 2.6.16 I prefer to ask here
-> before writing a patch...
->   
 
-Why do you need to know about geometry?  Geometry is a useless fiction 
-that only still exists in PC system BIOS for the sake of backward 
-compatibility with software that was originally designed to operate with 
-MFM and RLL disks that actually used geometric addressing.  These days 
-there is no such thing; it's just made up by the bios. 
-> Q1: Yes or No?
-> If no, the other questions do not apply
->
-> Q2: Where under sysfs?
-> Either do /sys/block/hdx/heads, /sys/block/hdx/sectors, etc. or should
-> there be a new sub-object like /sys/block/hdx/geometry/heads?
->   
+Assume the user has a /dev/white_dvd and a /dev/black_dvd, both of being 
+the same brand. `cdrecord -scanbus` would return sth like
 
-This is not suitable because block devices may not be bios accessible, 
-and thus, nowhere to get any bogus geometry information from.  Even if 
-it is, do we really want to be calling the bios to get this information 
-and keep it around?
+scsibus0:
+        0,0,0     0) *
+        0,1,0     1) 'HL-DT-ST' 'DVDRAM GSA-4160B' 'A301' Removable CD-ROM
+        0,2,0     2) *
+        0,3,0     3) *
+        0,4,0     4) *
+        0,5,0     5) *
+        0,6,0     6) *
+        0,7,0     7) *
+scsibus1:
+        1,0,0     0) *
+        1,1,0     1) 'HL-DT-ST' 'DVDRAM GSA-4160B' 'A301' Removable CD-ROM
+        1,2,0     2) *
+        1,3,0     3) *
+        1,4,0     4) *
+        1,5,0     5) *
+        1,6,0     6) *
+        1,7,0     7) *
 
-> Q3: Writable?
-> Under some (weird) circumstances it would actually be quite nice to
-> overwrite the kernels idea of a disks geometry. This would require a
-> general function like setgeo. Acceptable?
->
->   
-
-What for?  The only purpose to geometry is bios compatibility.  Changing 
-the kernel's copy of the values won't do any good because the bios won't 
-be changed. 
+probably. But how to find out from the btl which one is the black and which 
+one is the white one?
 
 
+Jan Engelhardt
+-- 

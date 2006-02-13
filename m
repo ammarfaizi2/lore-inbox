@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbWBMT0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbWBMT1Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932418AbWBMT0E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 14:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbWBMT0E
+	id S964812AbWBMT1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 14:27:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbWBMT1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 14:26:04 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:15759 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932418AbWBMT0B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 14:26:01 -0500
-Subject: Re: [PATCH 04/13] hrtimer: remove nsec_t
-From: john stultz <johnstul@us.ibm.com>
-To: tglx@linutronix.de
-Cc: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1139837090.2480.475.camel@localhost.localdomain>
-References: <Pine.LNX.4.61.0602130209590.23812@scrub.home>
-	 <1139837090.2480.475.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 13 Feb 2006 11:25:58 -0800
-Message-Id: <1139858758.28536.52.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 13 Feb 2006 14:27:24 -0500
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:48495 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S964812AbWBMT1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 14:27:23 -0500
+Message-ID: <43F0DE97.802@gentoo.org>
+Date: Mon, 13 Feb 2006 19:31:35 +0000
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mail/News 1.5 (X11/20060207)
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+       linux-usb-devel@lists.sourceforge.net, dbrownell@users.sourceforge.net
+Subject: Re: Linux 2.6.16-rc3
+References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org> <20060212190520.244fcaec.akpm@osdl.org> <20060213161048.GA6137@stusta.de>
+In-Reply-To: <20060213161048.GA6137@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-13 at 14:24 +0100, Thomas Gleixner wrote:
-> On Mon, 2006-02-13 at 02:10 +0100, Roman Zippel wrote:
-> > nsec_t predates ktime_t and has mostly been superseded by it. In the few
-> > places that are left it's better to make it explicit that we're dealing
-> > with 64 bit values here.
-> > 
-> > Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
+Adrian Bunk wrote:
+> On Sun, Feb 12, 2006 at 07:05:20PM -0800, Andrew Morton wrote:
+>> ...
+>> - Various reports similar to
+>>   http://bugzilla.kernel.org/show_bug.cgi?id=6011, seemingly related to USB
+>>   PCI quirk handling.
+>> ...
 > 
-> Acked-by: Thomas Gleixner <tglx@linutronix.de>
+> This bug contains a patch.
+> 
+> What is the status of this patch?
 
+The patch is in Greg's tree so should see its way to Linus soon. 
+However, it's not the complete fix for the general issue.
 
-Sounds like a fair enough argument for me.
+Gentoo have had two reports of it. One is fixed by David's patch, the 
+other is not (http://bugs.gentoo.org/122277 - will be re-filed on kernel 
+bugzilla once I have investigated more).
 
-Acked-by: John Stultz <johnstul@us.ibm.com>
-
-
-Andrew: From the mm-commits it looks like you've already merged the TOD
-bits for this patch. I'll merge those changes in my tree as well. Please
-let me know if any issues crop up and I can send updated patches. 
-
-thanks
--john
-
+Daniel
 

@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWBMRtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWBMRu4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932378AbWBMRtu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 12:49:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbWBMRtu
+	id S932369AbWBMRu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 12:50:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWBMRu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 12:49:50 -0500
-Received: from user-0c93tin.cable.mindspring.com ([24.145.246.87]:54961 "EHLO
-	tsurukikun.utopios.org") by vger.kernel.org with ESMTP
-	id S932378AbWBMRtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 12:49:49 -0500
-From: Luke-Jr <luke@dashjr.org>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+	Mon, 13 Feb 2006 12:50:56 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:20645
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S932369AbWBMRuz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 12:50:55 -0500
+Date: Mon, 13 Feb 2006 09:50:46 -0800
+From: Greg KH <greg@kroah.com>
+To: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Mon, 13 Feb 2006 17:49:43 +0000
-User-Agent: KMail/1.9
-Cc: seanlkml@sympatico.ca, sam@vilain.net, peter.read@gmail.com, mj@ucw.cz,
-       matthias.andree@gmx.de, lkml@dervishd.net, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
-References: <43EB7BBA.nailIFG412CGY@burner> <200602131722.29633.luke@dashjr.org> <43F0C4A3.nailMEM11MHR7@burner>
-In-Reply-To: <43F0C4A3.nailMEM11MHR7@burner>
-Public-GPG-Key: 0xD53E9583
-Public-GPG-Key-URI: http://dashjr.org/~luke-jr/myself/Luke-Jr.pgp
-IM-Address: luke-jr@jabber.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Message-ID: <20060213175046.GA20952@kroah.com>
+References: <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com> <20060210235654.GA22512@kroah.com> <20060212120450.GA93069@dspnet.fr.eu.org> <20060212164633.GA2941@kroah.com> <20060212211406.GA48606@dspnet.fr.eu.org> <20060213062412.GB2335@kroah.com> <20060213164911.GB75835@dspnet.fr.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602131749.46880.luke@dashjr.org>
+In-Reply-To: <20060213164911.GB75835@dspnet.fr.eu.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 February 2006 17:40, Joerg Schilling wrote:
-> Luke-Jr <luke@dashjr.org> wrote:
-> > > I mentioned:
-> > >
-> > > -	ide-scsi does not do DMA correctly
-> >
-> > IIRC, ide-scsi is deprecated and would be removed as a fix for this bug.
-> > Note that ide-scsi is known to be broken in more ways than just this--
-> > for example, unloading the module causes a kernel panic.
->
-> A last word on that:
->
-> -	this bug is known for more than 2 years.
->
-> -	time to fix: less than 3 hours for the right person
->
-> -	I therefore expect a fix in less than a month or
-> 	I must asume that Linux is not longer actively maintained.
+On Mon, Feb 13, 2006 at 05:49:11PM +0100, Olivier Galibert wrote:
+> On Sun, Feb 12, 2006 at 10:24:12PM -0800, Greg KH wrote:
+> > On Sun, Feb 12, 2006 at 10:14:06PM +0100, Olivier Galibert wrote:
+> > > On Sun, Feb 12, 2006 at 08:46:33AM -0800, Greg KH wrote:
+> > > > On Sun, Feb 12, 2006 at 01:04:51PM +0100, Olivier Galibert wrote:
+> > > > > You need to call udevinfo for that, or parse /dev/.udev/*.  Do you
+> > > > > think it would be possible to have hotplug/udev/whatever exists in the
+> > > > > future to give that information back in the kernel and have it appear
+> > > > > in sysfs?
+> > > > 
+> > > > No.  Why would it when it is very simple to query udevinfo for that?
+> > > 
+> > > In order not to depend on a userland package for the kernel service of
+> > > device enumeration?  It's udevinfo now, what will it be in two years?
+> > 
+> > WTF?  You are depending on that same program to create your device
+> > nodes.  If you don't want to use that program to do it, then use
+> > something else, or use a static device tree, which works like always.
+> 
+> Funnily enough, my, say, mp3 usb key sync system would like to run as
+> non-root and does not want to know or care about what program creates
+> the device nodes.  Too bad this otherwise beautiful and useful sysfs
+> is crippled by design.
 
-What does it do "wrong" anyway? IIRC, DMA in general works...
-Also note that since SCSI does not support DMA, I wouldn't consider lack of 
-DMA for ide-scsi a bug. Just because the underlying device is IDE and has DMA 
-support doesn't mean that the SCSI layer (which has no reason for DMA) should 
-use it.
+Huh?  What sysfs design flaw is that?
+
+You can run your mp3 usb ksy sync system as non-root just fine, I do
+just that.  When my device is plugged in, a udev rule runs a script that
+changes users and resyncs my device.
+
+But that has nothing to do with sysfs at all.
+
+> > sysfs exports everything that userspace needs to know, if it wants to
+> > create a device node to talk to that specific device.  udev used it to
+> > create your /dev tree, while other programs use it to create temporary
+> > device nodes to do other things to your devices.  Either way, the kernel
+> > doesn't know, or care what you call those device nodes.
+> 
+> You mean root is mandatory to talk with devices, whatever they are?
+
+Not at all.  You only have to be root to create a device node, nothing
+new there.
+
+thanks,
+
+greg k-h

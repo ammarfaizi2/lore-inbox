@@ -1,65 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWBMTJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWBMTQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964799AbWBMTJk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 14:09:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWBMTJk
+	id S964810AbWBMTQz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 14:16:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbWBMTQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 14:09:40 -0500
-Received: from iabervon.org ([66.92.72.58]:26886 "EHLO iabervon.org")
-	by vger.kernel.org with ESMTP id S964799AbWBMTJj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 14:09:39 -0500
-Date: Mon, 13 Feb 2006 14:09:55 -0500 (EST)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: dtor_core@ameritech.net
-cc: Greg KH <greg@kroah.com>, Bill Davidsen <davidsen@tmr.com>,
-       Nix <nix@esperi.org.uk>, Jens Axboe <axboe@suse.de>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-In-Reply-To: <d120d5000602131003l7bd1451bs64076475fdd6079c@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0602131339140.6773@iabervon.org>
-References: <43D7AF56.nailDFJ882IWI@burner> <20060125173127.GR4212@suse.de>
-  <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix> 
- <43ED005F.5060804@tmr.com> <20060210235654.GA22512@kroah.com> 
- <Pine.LNX.4.64.0602122256130.6773@iabervon.org>  <20060213062158.GA2335@kroah.com>
-  <Pine.LNX.4.64.0602130244500.6773@iabervon.org>  <20060213175142.GB20952@kroah.com>
- <d120d5000602131003l7bd1451bs64076475fdd6079c@mail.gmail.com>
+	Mon, 13 Feb 2006 14:16:55 -0500
+Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:33391 "HELO
+	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964810AbWBMTQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 14:16:53 -0500
+From: David Brownell <david-b@pacbell.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Flames over -- Re: Which is simpler?
+Date: Mon, 13 Feb 2006 11:16:41 -0800
+User-Agent: KMail/1.7.1
+Cc: psusi@cfl.rr.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602131116.41964.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Feb 2006, Dmitry Torokhov wrote:
+I think "simpler" isn't the issue; "swsusp" is a kind of checkpoint
+even in its ACPI versions, while standby/str modes are substantially
+different beasts.
 
-> On 2/13/06, Greg KH <greg@kroah.com> wrote:
-> > On Mon, Feb 13, 2006 at 03:05:49AM -0500, Daniel Barkalow wrote:
-> > > Are there guidelines on having a generic cdrom export information from its
-> > > block interface, rather than through its bus? I'm not finding any
-> > > documentation of sys/block/, aside from that it exists.
-> >
-> > That information should go into the device directory, not the sys/block
-> > directory (as it referrs to the device attributes, not the block gendev
-> > attributes.)
-> >
-> 
-> Not necessarily - it would be easier for userspace programs if we had
-> a separate class in sysfs - /sys/class/cdrom. The problem with this
-> approach is that we do not allow a device belong o several classes
-> without introducing intermediate class devices (I mean a DVD+RW shoudl
-> probably belong to classes cdrom, dvdrom, cdwriter and dvdwriter).
+True standby/suspend modes are classic "power management" things:
+part of the system stay in low power modes (not necessarily "off")
+to reduce power consumption, while other parts are in active use.
+The more deeply they're suspended, the less the system looks like
+"idle" and the more it looks like "suspend-to-ram".
 
-I don't think it needs to be a class, but I think that there should be a 
-single place with a directory for each device that could be what you want, 
-with a file that tells you if it is. That's why I was looking at block/; 
-these things must be block devices, and there aren't an huge number of 
-block devices.
 
-I suppose "grep 1 /sys/block/*/device/dvdwriter" is just as good; I hadn't 
-dug far enough in to realize that the reason I wasn't seeing anything 
-informative in /sys/block/*/device/ was that I didn't have any devices 
-with informative drivers, not that it was actually supposed to only have 
-links to other things.
+Phillip Susi wrote:
+> 	Thus when suspended to ram, 
+> typically your usb hard drive and almost allways your ide/sata/scsi 
+> drive will be completely powered off. 
 
-	-Daniel
-*This .sig left intentionally blank*
+What ide drive?  Oh, you're talking about PC-ish systems, not
+embedded ones that don't _have_ rotating media to power off.
+
+Your experience is very different from mine; I've observed that
+most PC hardware keeps USB powered in suspend-to-ram states, so
+a keyboard or mouse action may wake the system up, just as it can
+with many PS2 style keyboards and mice.  Same thing for Ethernet,
+using various types of wakeup event including "magic packet".
+See /proc/acpi/wakeup, and the related parts of the ACPI specs.
+(And USB specs, and lots more ... this info is widespread.)
+
+At the PCI hardware level, that basically means staying in
+what's called a D3hot state:  controller maintains power, and
+might be a wakeup event source.  If you read the EHCI spec
+you'll notice careful specification of how to maintain USB
+connections by providing only minimal VBUS current using the
+Vaux supply ... not all boards go that extra distance for
+power savings, maintaining USB state (and allowing wakeup)
+using a lower power D3cold state (with ACPI S3) not D3hot.
+
+(And there's gobs of "legacy" PCI PM hardware still being
+manufactured, using out-of-band signaling rather than the
+standardized PCI PM stuff.  For that, see the relevant USB
+controller specs ... e.g. OHCI, Intel UHCI, VIA UHCI.)
+
+For non-PCI hardware, that's actually a system option.  Most
+systems have many low power modes, including ones where it'd
+make sense to support wakeup from USB and ones where it would
+not; external transceivers seem to give the most flexibility.
+
+You should also remember a useful point from the ACPI spec:
+if you're taking the system apart with a screwdriver, then
+you've gone out-of-spec.  So swapping IDE drives is strongly
+in the "user error" category ... unlike swapping USB drives,
+which is equally strongly in the "normal operation" category.
+(So it would be an error if Linux didn't properly detect when
+users unplug all usb devices after putting their laptops into
+STR and before carrying them someplace else...)
+
+
+> Then your motherboard keeps the bus in a lower power state such that it 
+> is capable of causing a wake event when state changes.  I'm also fairly 
+> sure that when such a wake event happens, there is no indication to the 
+> kernel about why it was woken up. 
+
+Read about the #PME signal status in the PCI PM capabilities.
+
+And the USB remote wakeup reporting done by USB hubs; you can
+even look at the drivers/usb/core/hub.c code and see how usb
+wakeup events (of various types) are handled.
+
+You don't seem to know what you're talking about here.
+
+
+> 	 As I said before, once woken up, 
+> the kernel must probe all hardware and if there is a new device, it will 
+> find it.  The hardware only detected that something changed and thus, 
+> generated a wake even, it did not notice exactly what that change was 
+> and inform the kernel. 
+
+You were wrong then too... both about probing "all hardware" and about not
+being able to distinguish wakeup event sources.  
+
+- Dave

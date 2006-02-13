@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWBMQgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWBMQgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbWBMQgF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 11:36:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWBMQgE
+	id S932139AbWBMQgh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 11:36:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWBMQgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 11:36:04 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:62356 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932129AbWBMQgE (ORCPT
+	Mon, 13 Feb 2006 11:36:37 -0500
+Received: from smtp4.wanadoo.fr ([193.252.22.27]:61105 "EHLO smtp4.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S932139AbWBMQgg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 11:36:04 -0500
-Date: Mon, 13 Feb 2006 17:35:56 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-cc: tytso@mit.edu, peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net
+	Mon, 13 Feb 2006 11:36:36 -0500
+X-ME-UUID: 20060213163634800.C37DA1C002B1@mwinf0401.wanadoo.fr
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-In-Reply-To: <43F0A0A4.nailKUSSSCJAI@burner>
-Message-ID: <Pine.LNX.4.61.0602131735160.24297@yvahk01.tjqt.qr>
-References: <mj+md-20060210.123726.23341.atrey@ucw.cz> <43EC8E18.nailISDJTQDBG@burner>
- <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr> <43EC93A2.nailJEB1AMIE6@burner>
- <20060210141651.GB18707@thunk.org> <43ECA3FC.nailJGC110XNX@burner>
- <20060210145238.GC18707@thunk.org> <43ECA934.nailJHD2NPUCH@burner>
- <20060210155711.GA11566@thunk.org> <43F0634C.nailKUS6JSGJH@burner>
- <20060213121503.GA31745@thunk.org> <43F0A0A4.nailKUSSSCJAI@burner>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: jerome.lacoste@gmail.com, peter.read@gmail.com, mj@ucw.cz,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de, dhazelton@enter.net
+In-Reply-To: <43F0B2BA.nailKUS1DNTEHA@burner>
+References: <20060208162828.GA17534@voodoo> <43EC887B.nailISDGC9CP5@burner>
+	 <200602090757.13767.dhazelton@enter.net> <43EC8F22.nailISDL17DJF@burner>
+	 <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com>
+	 <43F06220.nailKUS5D8SL2@burner>
+	 <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com>
+	 <43F0A010.nailKUSR1CGG5@burner>
+	 <5a2cf1f60602130724n7b060e29r57411260b04d5972@mail.gmail.com>
+	 <43F0AA83.nailKUS171HI4B@burner>
+	 <5a2cf1f60602130805u537de206k22fa418ee214cf02@mail.gmail.com>
+	 <43F0B2BA.nailKUS1DNTEHA@burner>
+Content-Type: text/plain
+Message-Id: <1139848584.3527.150.camel@capoeira>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Mon, 13 Feb 2006 17:36:24 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> It is _not_ a POSIX rule, as I and others have shown.  You claimed it
->> was required by POSIX, but you are quite clearly incorrect.  It has
->> never worked that way with Unix systems, and POSIX was always designed
->> to codify existing practice.  On Unix systems fixed disks would and
->> did have their devices numbering schemes move around under a number of
->> conditions.
->
->If you believe this, pleace give evidence.
->
->I was quoting POSIX documents which prove my claims......
->
+On Mon, 2006-02-13 at 17:24, Joerg Schilling wrote:
+> jerome lacoste <jerome.lacoste@gmail.com> wrote:
+> > b,t,l <= os_specific_name
+> 
+> Why do you believe that this kind of mapping is needed?
 
-I suppose the world needs a POSIX subcommitte solely devoted for clarifying 
-all the claims of all sides :->
+Eh .. because b,t,l mapping isn't stable under linux !
+
+	Xav
 
 
-Jan Engelhardt
--- 

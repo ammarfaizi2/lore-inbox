@@ -1,69 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbWBMUQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbWBMUVf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964853AbWBMUQd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 15:16:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964854AbWBMUQd
+	id S964856AbWBMUVf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 15:21:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbWBMUVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 15:16:33 -0500
-Received: from mail.gmx.net ([213.165.64.21]:28122 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964853AbWBMUQd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 15:16:33 -0500
-X-Authenticated: #5082238
-Date: Mon, 13 Feb 2006 21:16:44 +0100
-From: Carsten Otto <c-otto@gmx.de>
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: Kernel BUG at include/linux/gfp.h:80
-Message-ID: <20060213201644.GA8961@carsten-otto.halifax.rwth-aachen.de>
-Reply-To: c-otto@gmx.de
-Mail-Followup-To: Pekka J Enberg <penberg@cs.Helsinki.FI>,
-	linux-kernel@vger.kernel.org, ak@suse.de
-References: <Pine.LNX.4.58.0601201214060.13564@sbz-30.cs.Helsinki.FI>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
+	Mon, 13 Feb 2006 15:21:35 -0500
+Received: from nproxy.gmail.com ([64.233.182.196]:3721 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964856AbWBMUVe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 15:21:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fQawskplKFKDpMTwAHsHOi6WIDbVT/zxWqzz8GE2L3a3eaYJn4ildVJcW9Aqgbj5ySGo3OdKEOwQxFYYtLpCD84gtEn8hjttfDnZrUdrfneq2/jMYI1b9teUL+d0Au6dViLPVqbOJxqmleHglEvn7R48KvnGCSVKDHkSnwUvH6I=
+Message-ID: <58cb370e0602131221k60e23cffo480fbec812b6560e@mail.gmail.com>
+Date: Mon, 13 Feb 2006 21:21:31 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: RFC: Compact Flash True IDE Mode Driver
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <9E02DAB4-8DCE-42AA-8F47-080636F78E4C@kernel.crashing.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0601201214060.13564@sbz-30.cs.Helsinki.FI>
-X-GnuGP-Key: http://c-otto.de/pubkey.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+References: <58cb370e0602130235h3ab521cep47584ee634e8fc7f@mail.gmail.com>
+	 <Pine.LNX.4.44.0602131020370.30316-100000@gate.crashing.org>
+	 <58cb370e0602130853s4ce767c6j57337a9587cc2963@mail.gmail.com>
+	 <9E02DAB4-8DCE-42AA-8F47-080636F78E4C@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2/13/06, Kumar Gala <galak@kernel.crashing.org> wrote:
+>
+> On Feb 13, 2006, at 10:53 AM, Bartlomiej Zolnierkiewicz wrote:
+>
+> > On 2/13/06, Kumar Gala <galak@kernel.crashing.org> wrote:
+> >
+> >>>> +static void cfide_outsl(unsigned long port, void *addr, u32 count)
+> >>>> +{
+> >>>> +       panic("outsl unsupported");
+> >>>> +}
+> >>>
+> >>> This will panic as soon as somebody tries to enable 32-bit I/O
+> >>> using hdparm.  Please add ide_hwif_t.no_io_32bit flag and teach
+> >>> ide-disk.c:ide_disk_setup() about it (separate patch).
+> >>
+> >> I'm not sure I follow this, can you expand.
+> >
+> > Do "hdparm -c 2 /dev/hdx" first and then read/write to the device
+> > and you should see it. :)
+> >
+> > We need to make "hdparm -c 2" (and "hdparm -c 3") unsupported
+> > (see how "io_32bit" setting is handled in ide_add_generic_settings()
+> > and how it can be read-only or read-write setting depending on the
+> > value of drive->no_io_32bit).
+> >
+> > To do this we need to set drive->no_io_32bit to 1 (see how
+> > ide_disk_setup() handles it).  Unfortunately 32-bit I/O capability
+> > is based on capabilities of both host and device so we have to
+> > add new flag hwif->no_io_32bit to indicate that host doesn't
+> > support 32-bit I/O.
+>
+> This all make sense, should I check for hwif->no_io_32bit in
+> idedisk_setup() and set drive->no_io_32bit to 1 if hwif->no_io_32bit
+> is 1 or do this the test in ide_add_generic_settings()?
 
---n8g4imXOkfNTN/H1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Good question.  idedisk_setup() seems more logical but in the current
+model "io_32bit" setting is still accessible without ide-disk driver through
+/proc/ide/ interface so...
 
-On Fri, Jan 20, 2006 at 12:16:22PM +0200, Pekka J Enberg wrote:
-> Does the following patch fix your problem?
+Moreover the current drive->no_io_32bit code in ide-disk is wrong:
+* it shouldn't be overriding drive->no_io_32bit flag if it is 1
+* doing this in ide-disk may be too late w.r.t. ide_add_generic_settings()
 
-Yes, it does (I moved to 2.6.15.4 in the same step, though).
+Therefore your previous suggestion is the right one - the best place
+to deal with ->no_io_32bit is ide-probe.c - doing this for all drives at
+the end of probe_hwif() should fix all above issues.
 
-Unfortunately my PC freezes as soon as I start a 3D game (Enemy
-Territory True Combat Elite) when I see the first few 3D ingame frames.
-Running glxgears is fine, as is running multiple instances of VLC to
-output several audio streams through one device.
-Switching off the sound in ET:TCE does not help at all.
-
-Bye,
---=20
-Carsten Otto
-c-otto@gmx.de
-www.c-otto.de
-
---n8g4imXOkfNTN/H1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFD8OksjUF4jpCSQBQRAs4SAJwJhJspTNDY0o9J8kow/1P9ZdtStACgllue
-V6OI+kUm4Q94n2FG55ybwAI=
-=Pwcu
------END PGP SIGNATURE-----
-
---n8g4imXOkfNTN/H1--
+Thanks,
+Bartlomiej

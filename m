@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWBMTuB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWBMTwi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964817AbWBMTuB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 14:50:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964825AbWBMTuB
+	id S964825AbWBMTwi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 14:52:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWBMTwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 14:50:01 -0500
-Received: from gold.veritas.com ([143.127.12.110]:22635 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S964817AbWBMTuA (ORCPT
+	Mon, 13 Feb 2006 14:52:38 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:11401 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964825AbWBMTwh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 14:50:00 -0500
-Date: Mon, 13 Feb 2006 19:50:41 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: William Irwin <wli@holomorphy.com>, Roland Dreier <rdreier@cisco.com>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Gleb Natapov <gleb@minantech.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       openib-general@openib.org, Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Badari Pulavarty <pbadari@us.ibm.com>
-Subject: Re: [openib-general] Re: madvise MADV_DONTFORK/MADV_DOFORK
-In-Reply-To: <Pine.LNX.4.64.0602131125180.3691@g5.osdl.org>
-Message-ID: <Pine.LNX.4.61.0602131943050.9573@goblin.wat.veritas.com>
-References: <20060213154114.GO32041@mellanox.co.il> <Pine.LNX.4.64.0602131104460.3691@g5.osdl.org>
- <adar767133j.fsf@cisco.com> <Pine.LNX.4.64.0602131125180.3691@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 13 Feb 2006 19:49:59.0986 (UTC) FILETIME=[AC61C120:01C630D6]
+	Mon, 13 Feb 2006 14:52:37 -0500
+Date: Mon, 13 Feb 2006 20:50:52 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 05/13] hrtimer: optimize hrtimer_run_queues
+Message-ID: <20060213195052.GA30679@elte.hu>
+References: <Pine.LNX.4.61.0602130210120.23827@scrub.home> <20060213133944.GA12923@elte.hu> <Pine.LNX.4.61.0602131654470.30994@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0602131654470.30994@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.2
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Feb 2006, Linus Torvalds wrote:
+
+* Roman Zippel <zippel@linux-m68k.org> wrote:
+
+> > hm, we can do this - although the open-coded loop looks ugly. In any 
+> > case, this is an optimization, and not necessary for v2.6.16. It is 
+> > certainly ok for -mm.
 > 
-> and the usage ends up matching that (except for some really strange issue 
-> with hugepage counting, which just looks wrong, but never mind).
+> I could also call this perfomance regressions to 2.6.15, unless there 
+> is a good reason not to include them, I'd prefer to see it in 2.6.16.
 
-Yes, I cc'ed wli on my reply to Michael,
-we're hoping he'll just say delete that block.
+can you measure it? This is tricky code, we definitely dont want to 
+change it this late in the v2.6.16 cycles, execpt if it's some 
+measurable performance issue that users will see. (or if it's some 
+regression, which it isnt.)
 
-> I can see where Hugh is coming from, but I think it's adding cruft very 
-> much for a "be very careful" reason.
-> 
-> I would suggest that if you wanted to be very careful, you'd simply 
-> disallow changing - or perhaps just clearing - that DONTCOPY flag on 
-> special regions (ie ones that have been marked with VM_IO or VM_RESERVED).
-
-Fair enough, disallow clearing on VM_IO (VM_RESERVED is on its way out,
-does little more than perpetuate a few accounting anomalies I think).
-So no new VM_DONTFORK flag, stick with VM_DONTCOPY: that's fine with me.
-
-Hugh
+	Ingo

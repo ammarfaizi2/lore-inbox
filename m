@@ -1,45 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWBMGIz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751650AbWBMGJW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750789AbWBMGIz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 01:08:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751635AbWBMGIz
+	id S1751650AbWBMGJW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 01:09:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751653AbWBMGJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 01:08:55 -0500
-Received: from fsmlabs.com ([168.103.115.128]:42447 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1750789AbWBMGIz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 01:08:55 -0500
-X-ASG-Debug-ID: 1139810932-16286-22-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Sun, 12 Feb 2006 22:13:27 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Marko <letterdrop@gmx.de>
-cc: linux-kernel@vger.kernel.org
-X-ASG-Orig-Subj: Re: How getting a pointer on the per-cpu struct tss_struct??
-Subject: Re: How getting a pointer on the per-cpu struct tss_struct??
-In-Reply-To: <20060213011412.0779d337.letterdrop@gmx.de>
-Message-ID: <Pine.LNX.4.64.0602121712450.10777@montezuma.fsmlabs.com>
-References: <20060213002706.50e5289c.letterdrop@gmx.de>
- <Pine.LNX.4.64.0602121552520.10777@montezuma.fsmlabs.com>
- <20060213011412.0779d337.letterdrop@gmx.de>
+	Mon, 13 Feb 2006 01:09:21 -0500
+Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:54408 "EHLO
+	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751650AbWBMGJV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 01:09:21 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: MIke Galbraith <efault@gmx.de>
+Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
+Date: Mon, 13 Feb 2006 17:08:51 +1100
+User-Agent: KMail/1.9.1
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, gcoady@gmail.com,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com> <200602131637.43335.kernel@kolivas.org> <1139810224.7935.9.camel@homer>
+In-Reply-To: <1139810224.7935.9.camel@homer>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.8651
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602131708.52342.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Feb 2006, Marko wrote:
+On Monday 13 February 2006 16:57, MIke Galbraith wrote:
+> On Mon, 2006-02-13 at 16:37 +1100, Con Kolivas wrote:
+> > On Monday 13 February 2006 16:32, MIke Galbraith wrote:
+> > > On Mon, 2006-02-13 at 16:05 +1100, Con Kolivas wrote:
+> > > > On Monday 13 February 2006 15:59, MIke Galbraith wrote:
+> > > > > Now, let's see if we can get your problem fixed with something that
+> > > > > can possibly go into 2.6.16 as a bugfix.  Can you please try the
+> > > > > below?
+> > > >
+> > > > These sorts of changes definitely need to pass through -mm first...
+> > > > and don't forget -mm looks quite different to mainline.
+> > >
+> > > I'll leave that up to Ingo of course, and certainly have no problem
+> > > with them burning in mm.  However, I must say that I personally
+> > > classify these two changes as being trivial and obviously correct
+> > > enough to be included in 2.6.16.
+> >
+> > This part I agree with:
+> > -               } else
+> > -                       requeue_task(next, array);
+> > +               }
+> >
+> > The rest changes behaviour; it's not a "bug" so needs testing, should be
+> > a separate patch from this part, and modified to suit -mm.
+>
+> Well, both change behavior, and I heartily disagree.  
 
-> Thanks for answering.
-> 
-> So when I don't want to change the kernel, the only way to get
-> a pointer on the IO Permission Bitmap is using the TSS entry in
-> the GDT??
-> 
-> Or is there another way to access the current structure tss_struct??
+The first change was the previous behaviour for some time. Your latter change 
+while it makes sense has never been in the kernel. Either way I don't 
+disagree with your reasoning but most things that change behaviour should go 
+through -mm. The first as I said was the behaviour in mainline for some time 
+till my silly requeue change.
 
-How about saving the GDT and then fetching the TSS from there?
+Cheers,
+Con
+
+> Blocking a 700ms 
+> sleep while allowing a 100ms sleep to bypass the same checkpoint only to
+> then be multiplied by 10 is a bug.
+>
+> Actually, the point at which a task becomes interactive is the point at
+> which scheduler semantics change.  Ergo, as far as I'm concerned, this
+> should be a boundary which must be crossed before proceeding further.
+> That, I agree, would be a behavioral change which should be baked in mm.

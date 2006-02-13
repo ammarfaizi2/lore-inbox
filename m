@@ -1,29 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWBMKmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWBMKrH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932082AbWBMKmI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 05:42:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbWBMKmI
+	id S932077AbWBMKrH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 05:47:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbWBMKrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 05:42:08 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:34471 "EHLO
+	Mon, 13 Feb 2006 05:47:07 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:29615 "EHLO
 	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932082AbWBMKmH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 05:42:07 -0500
+	id S932077AbWBMKrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 05:47:06 -0500
 From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 13 Feb 2006 11:40:32 +0100
-To: schilling@fokus.fraunhofer.de, jerome.lacoste@gmail.com
+Date: Mon, 13 Feb 2006 11:45:32 +0100
+To: tytso@mit.edu, schilling@fokus.fraunhofer.de
 Cc: peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
        linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-       jengelh@linux01.gwdg.de, dhazelton@enter.net
+       jengelh@linux01.gwdg.de
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F06220.nailKUS5D8SL2@burner>
-References: <20060208162828.GA17534@voodoo>
- <20060210114721.GB20093@merlin.emma.line.org>
+Message-ID: <43F0634C.nailKUS6JSGJH@burner>
+References: <20060210114721.GB20093@merlin.emma.line.org>
  <43EC887B.nailISDGC9CP5@burner>
- <200602090757.13767.dhazelton@enter.net>
- <43EC8F22.nailISDL17DJF@burner>
- <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com>
-In-Reply-To: <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com>
+ <mj+md-20060210.123726.23341.atrey@ucw.cz>
+ <43EC8E18.nailISDJTQDBG@burner>
+ <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr>
+ <43EC93A2.nailJEB1AMIE6@burner> <20060210141651.GB18707@thunk.org>
+ <43ECA3FC.nailJGC110XNX@burner> <20060210145238.GC18707@thunk.org>
+ <43ECA934.nailJHD2NPUCH@burner> <20060210155711.GA11566@thunk.org>
+In-Reply-To: <20060210155711.GA11566@thunk.org>
 User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
@@ -31,59 +33,35 @@ Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jerome lacoste <jerome.lacoste@gmail.com> wrote:
+"Theodore Ts'o" <tytso@mit.edu> wrote:
 
-> On 2/10/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
-> > "D. Hazelton" <dhazelton@enter.net> wrote:
-> >
-> > > And does cdrecord even need libscg anymore? From having actually gone through
-> > > your code, Joerg, I can tell you that it does serve a larger purpose. But at
-> > > this point I have to ask - besides cdrecord and a few other _COMPACT_ _DISC_
-> > > writing programs, does _ANYONE_ use libscg? Is it ever used to access any
-> > > other devices that are either SCSI or use a SCSI command protocol (like
-> > > ATAPI)?  My point there is that you have a wonderful library, but despite
-> > > your wishes, there is no proof that it is ever used for anything except
-> > > writing/ripping CD's.
-> >
-> > Name a single program (not using libscg) that implements user space SCSI and runs
-> > on as many platforms as cdrecord/libscg does.
+> On Fri, Feb 10, 2006 at 03:54:44PM +0100, Joerg Schilling wrote:
+> > >
+> > > 1)  File != device.
+> > 
+> > I am sorry, but it turns out that you did not understand the problem.
+> > 
+> > Try to inform yourself about the relevence (and content) of st_dev before
+> > replying again.
 >
->
-> I have 2 technical questions, and I hope that you will take the time
-> to answer them.
->
-> 1) extract from the README of the latest stable cdrtools package:
->
->         Linux driver design oddities ******************************************
->         Although cdrecord supports to use dev=/dev/sgc, it is not recommended
->         and it is unsupported.
->
->         The /dev/sg* device mapping in Linux is not stable! Using dev=/dev/sgc
->         in a shell script may fail after a reboot because the device you want
->         to talk to has moved to /dev/sgd. For the proper and OS independent
->         dev=<bus>,<tgt>,<lun> syntax read the man page of cdrecord.
->
-> My understanding of that is you say to not use dev=/dev/sgc because it
-> isn't stable. Now that you've said that bus,tgt,lun is not stable on
-> Linux (because of a "Linux bug") why is the b,t,l scheme preferred
-> over the /dev/sg* one ?
+> st_dev is irrelevant in the context of CD burning.
 
-b,t,l _is_ stable as long as the OS does a reasonable and orthogonal work.
-
-This was true until ~ 2001, when Linux introduced unstable USB handling.
-Note that this fact is not a failure from libscg but from Linux.
+If you did try to understand the reason why I did introduce the POSIX
+claim, you would know that if Linux did try to follow the POSIX rule,
+a side effect would be that removable devices need to have a stable 
+mapping in the kernel
 
 
-> 2) design question:
->
-> - cdrecord scans then maps the device to the b,t,l scheme.
-> - the libsg uses the b,t,l ids in its interface to perform the operations
->
-> So now, if cdrecord could have a new option called -scanbusmap that
-> displays the mapping it performs in a way that people can parse the
-> output, I think that will solve most issues.
+> In the context of mounted files, the only guarantee given by POSIX is
+> that st_dev and st_ino for a particular file is unique.  But that
+> clearly is true while the containing filesystem is mounted.  Even with
+> Solaris, if a particular removable filesystem is unmounted and removed
+> from one device (say one Jazz/Zip drive) and inserted into another
+> device (say another Jazz/Zip drive), st_dev will change --- while the
+> system is running.
 
-The output of cdrecord -scanbus is already parsable, so what is your point?
+Please don't confuse the fact that you will _always_ be able to find
+ways to confuse a system with the fact that this needs to happen in all cases.
 
 Jörg
 

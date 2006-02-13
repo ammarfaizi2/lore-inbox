@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWBMIFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbWBMIFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbWBMIFi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 03:05:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWBMIFh
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 03:05:37 -0500
-Received: from iabervon.org ([66.92.72.58]:18447 "EHLO iabervon.org")
-	by vger.kernel.org with ESMTP id S1751217AbWBMIFf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S1751220AbWBMIFf (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 13 Feb 2006 03:05:35 -0500
-Date: Mon, 13 Feb 2006 03:05:49 -0500 (EST)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: Greg KH <greg@kroah.com>
-cc: Bill Davidsen <davidsen@tmr.com>, Nix <nix@esperi.org.uk>,
-       Jens Axboe <axboe@suse.de>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-In-Reply-To: <20060213062158.GA2335@kroah.com>
-Message-ID: <Pine.LNX.4.64.0602130244500.6773@iabervon.org>
-References: <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
- <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
- <20060125181847.b8ca4ceb.grundig@teleline.es> <20060125173127.GR4212@suse.de>
- <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix>
- <43ED005F.5060804@tmr.com> <20060210235654.GA22512@kroah.com>
- <Pine.LNX.4.64.0602122256130.6773@iabervon.org> <20060213062158.GA2335@kroah.com>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWBMIFf
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 13 Feb 2006 03:05:35 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:28820 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751196AbWBMIFd convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 03:05:33 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: Linux 2.6.16-rc3
+Date: Mon, 13 Feb 2006 03:02:46 -0500
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30060BD1D9@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Linux 2.6.16-rc3
+Thread-Index: AcYwbXiRFU740E2oSpy5EoK2eFFRjAABMNOg
+From: "Brown, Len" <len.brown@intel.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: <akpm@osdl.org>, <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <axboe@suse.de>, <James.Bottomley@steeleye.com>, <greg@kroah.com>,
+       <linux-acpi@vger.kernel.org>, <linux-usb-devel@lists.sourceforge.net>,
+       "Yu, Luming" <luming.yu@intel.com>, <lk@bencastricum.nl>,
+       <sanjoy@mrao.cam.ac.uk>, <helgehaf@aitel.hist.no>, <fluido@fluido.as>,
+       <gbruchhaeuser@gmx.de>, <Nicolas.Mailhot@LaPoste.net>, <perex@suse.cz>,
+       <tiwai@suse.de>, <patrizio.bassi@gmail.com>, <bni.swe@gmail.com>,
+       <arvidjaar@mail.ru>, <p_christ@hol.gr>, <ghrt@dial.kappa.ro>,
+       <jinhong.hu@gmail.com>, <andrew.vasquez@qlogic.com>,
+       <linux-scsi@vger.kernel.org>, <bcrl@kvack.org>
+X-OriginalArrivalTime: 13 Feb 2006 08:02:50.0559 (UTC) FILETIME=[E278FCF0:01C63073]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Feb 2006, Greg KH wrote:
+>> >- In http://bugzilla.kernel.org/show_bug.cgi?id=5989, Sanjoy 
+>> >Mahajan has  another regression, but he's off collecting more info.
+>> 
+>> We're talking here about a system from 1999 where Windows 98
+>> refuses to run in ACPI mode and instead runs in APM mode.
+>
+>If it worked before a change which was installed, it's a regression
+>regardless of whether another OS tries to use ACPI on that system or
+>not.  I don't understand how one can use that fact to label this as
+>not a regression from Linux's perspective.
 
-> On Mon, Feb 13, 2006 at 12:01:48AM -0500, Daniel Barkalow wrote:
-> > sysfs doesn't do quite that level of categorization; if it did, cdrom_id 
-> > would be unnecessary.
-> 
-> What?  cdrom_id queries the device directly to get some specific
-> information about the device, much like any other type of device query
-> (lspci, lsusb, etc.)
-> 
-> And yes, it would be nice if some of that information was also exported
-> through sysfs, and as always, patches are gladly accpeted.
+I don't think anybody claimed this isn't a regression for the 600X.
+Sanjoy has done a wonderful job documenting that.
 
-Are there guidelines on having a generic cdrom export information from its 
-block interface, rather than through its bus? I'm not finding any 
-documentation of sys/block/, aside from that it exists.
+My point is that it that on the grand scale of bugs serious enough
+to have an effect on the course of 2.6.16, this one doesn't qualify
+unless the same issue is seen on other systems.
 
-> > It would be nice if you could do 
-> > "grep 1 /sys/block/*/burns_cds" and get a list of all the block devices in 
-> > your system that burn cds. (You can currently get a list of all of the 
-> > removable block devices in your system, but not much else.)
-> 
-> Well, I can see if they are disks or cdroms through sysfs quite easily,
-> removable or not, so you do get more information than you expect.
-
-Ah, okay, this is in the current -rcs. I was only looking at 2.6.15 (and 
-before), which is too old.
-
-	-Daniel
-*This .sig left intentionally blank*
+-Len

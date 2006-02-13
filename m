@@ -1,123 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbWBMTTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWBMTTy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964805AbWBMTTL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 14:19:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbWBMTTK
+	id S964814AbWBMTTy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 14:19:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWBMTTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 14:19:10 -0500
-Received: from pcpool00.mathematik.uni-freiburg.de ([132.230.30.150]:50314
-	"EHLO pcpool00.mathematik.uni-freiburg.de") by vger.kernel.org
-	with ESMTP id S964805AbWBMTTJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 14:19:09 -0500
-Date: Mon, 13 Feb 2006 20:19:10 +0100
-From: "Bernhard R. Link" <brlink@debian.org>
-To: linux-kernel@vger.kernel.org
-Cc: Christoph Hellwig <hch@lst.de>, Antonino Daplas <adaplas@pol.net>,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: [PATCH] adapt drivers/video/sbuslib.c to new fb_compat_iotcl
-Message-ID: <20060213191910.GA27589@pcpool00.mathematik.uni-freiburg.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Christoph Hellwig <hch@lst.de>, Antonino Daplas <adaplas@pol.net>,
-	linux-fbdev-devel@lists.sourceforge.net
+	Mon, 13 Feb 2006 14:19:54 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:21208 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S964816AbWBMTTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 14:19:53 -0500
+Message-Id: <200602131919.k1DJJF5G025923@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: jengelh@linux01.gwdg.de, peter.read@gmail.com, mj@ucw.cz,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net, jerome.lacoste@gmail.com,
+       dhazelton@enter.net
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest) 
+In-Reply-To: Your message of "Mon, 13 Feb 2006 17:37:18 +0100."
+             <43F0B5BE.nailMBX2SZNBE@burner> 
+From: Valdis.Kletnieks@vt.edu
+References: <20060208162828.GA17534@voodoo> <43EC887B.nailISDGC9CP5@burner> <200602090757.13767.dhazelton@enter.net> <43EC8F22.nailISDL17DJF@burner> <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com> <43F06220.nailKUS5D8SL2@burner> <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com> <43F0A010.nailKUSR1CGG5@burner> <5a2cf1f60602130724n7b060e29r57411260b04d5972@mail.gmail.com> <43F0AA83.nailKUS171HI4B@burner> <5a2cf1f60602130805u537de206k22fa418ee214cf02@mail.gmail.com> <43F0B2BA.nailKUS1DNTEHA@burner> <Pine.LNX.4.61.0602131732190.24297@yvahk01.tjqt.qr>
+            <43F0B5BE.nailMBX2SZNBE@burner>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Content-Type: multipart/signed; boundary="==_Exmh_1139858355_21607P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 13 Feb 2006 14:19:15 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch "sanitize ->fb_ioctl prototype" changed prototypes but did
-not adopt the code within CONFIG_COMPAT, which this patch does.
+--==_Exmh_1139858355_21607P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Bernhard R Link <brlink@debian.org>
+On Mon, 13 Feb 2006 17:37:18 +0100, Joerg Schilling said:
 
----
-Only test-compiled, but looks obvious and at least it compiles again.
+> And if you have a working vold on Solaris, libscg accepts the vold alia=
+ses.
 
-Index: mlinux-2.6.15-git12/drivers/video/sbuslib.c
-===================================================================
---- mlinux-2.6.15-git12.orig/drivers/video/sbuslib.c	2006-02-13 14:28:09.000000000 +0100
-+++ mlinux-2.6.15-git12/drivers/video/sbuslib.c	2006-02-13 19:59:37.000000000 +0100
-@@ -199,7 +199,7 @@
- #define FBIOPUTCMAP32	_IOW('F', 3, struct fbcmap32)
- #define FBIOGETCMAP32	_IOW('F', 4, struct fbcmap32)
- 
--static int fbiogetputcmap(struct file *file, struct fb_info *info,
-+static int fbiogetputcmap(struct fb_info *info,
- 		unsigned int cmd, unsigned long arg)
- {
- 	struct fbcmap32 __user *argp = (void __user *)arg;
-@@ -216,10 +216,10 @@
- 	ret |= put_user(compat_ptr(addr), &p->blue);
- 	if (ret)
- 		return -EFAULT;
--	return info->fbops->fb_ioctl(file->f_dentry->d_inode, file,
-+	return info->fbops->fb_ioctl(info,
- 			(cmd == FBIOPUTCMAP32) ?
- 			FBIOPUTCMAP_SPARC : FBIOGETCMAP_SPARC,
--			(unsigned long)p, info);
-+			(unsigned long)p);
- }
- 
- struct fbcursor32 {
-@@ -236,8 +236,7 @@
- #define FBIOSCURSOR32	_IOW('F', 24, struct fbcursor32)
- #define FBIOGCURSOR32	_IOW('F', 25, struct fbcursor32)
- 
--static int fbiogscursor(struct file *file, struct fb_info *info,
--		unsigned long arg)
-+static int fbiogscursor(struct fb_info *info, unsigned long arg)
- {
- 	struct fbcursor __user *p = compat_alloc_user_space(sizeof(*p));
- 	struct fbcursor32 __user *argp =  (void __user *)arg;
-@@ -260,12 +259,12 @@
- 	ret |= put_user(compat_ptr(addr), &p->image);
- 	if (ret)
- 		return -EFAULT;
--	return info->fbops->fb_ioctl(file->f_dentry->d_inode, file,
--			FBIOSCURSOR, (unsigned long)p, info);
-+	return info->fbops->fb_ioctl(info,
-+			FBIOSCURSOR, (unsigned long)p);
- }
- 
--long sbusfb_compat_ioctl(struct file *file, unsigned int cmd,
--		unsigned long arg, struct fb_info *info)
-+int sbusfb_compat_ioctl(struct fb_info *info, unsigned int cmd,
-+		unsigned long arg)
- {
- 	switch (cmd) {
- 	case FBIOGTYPE:
-@@ -278,14 +277,13 @@
- 	case FBIOSCURPOS:
- 	case FBIOGCURPOS:
- 	case FBIOGCURMAX:
--		return info->fbops->fb_ioctl(file->f_dentry->d_inode,
--				file, cmd, arg, info);
-+		return info->fbops->fb_ioctl(info, cmd, arg);
- 	case FBIOPUTCMAP32:
--		return fbiogetputcmap(file, info, cmd, arg);
-+		return fbiogetputcmap(info, cmd, arg);
- 	case FBIOGETCMAP32:
--		return fbiogetputcmap(file, info, cmd, arg);
-+		return fbiogetputcmap(info, cmd, arg);
- 	case FBIOSCURSOR32:
--		return fbiogscursor(file, info, arg);
-+		return fbiogscursor(info, arg);
- 	default:
- 		return -ENOIOCTLCMD;
- 	}
-Index: mlinux-2.6.15-git12/drivers/video/sbuslib.h
-===================================================================
---- mlinux-2.6.15-git12.orig/drivers/video/sbuslib.h	2006-02-13 14:28:09.000000000 +0100
-+++ mlinux-2.6.15-git12/drivers/video/sbuslib.h	2006-02-13 19:59:18.000000000 +0100
-@@ -20,7 +20,7 @@
- int sbusfb_ioctl_helper(unsigned long cmd, unsigned long arg,
- 			struct fb_info *info,
- 			int type, int fb_depth, unsigned long fb_size);
--long sbusfb_compat_ioctl(struct file *file, unsigned int cmd,
--		unsigned long arg, struct fb_info *info);
-+int sbusfb_compat_ioctl(struct fb_info *info, unsigned int cmd,
-+		unsigned long arg);
- 
- #endif /* _SBUSLIB_H */
+And if you have a working hald on Linux, libscg should therefor accept ha=
+ld aliases.
+
+--==_Exmh_1139858355_21607P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFD8NuzcC3lWbTT17ARAptWAJ9g7FIwQ/Nma+3fEy6RqvTwpgXNMgCeOclr
+6xFcBWIBBVnAwT8MOJS9C+k=
+=s/23
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1139858355_21607P--

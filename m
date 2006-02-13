@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWBMDjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWBMDwd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751171AbWBMDjk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 22:39:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751577AbWBMDjk
+	id S1750731AbWBMDwd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 22:52:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751575AbWBMDwd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 22:39:40 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:20372 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751171AbWBMDjj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 22:39:39 -0500
-Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
-From: Lee Revell <rlrevell@joe-job.com>
-To: MIke Galbraith <efault@gmx.de>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Con Kolivas <kernel@kolivas.org>,
-       gcoady@gmail.com, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1139800169.7595.24.camel@homer>
-References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
-	 <200602081335.18256.kernel@kolivas.org>
-	 <Pine.LNX.4.61.0602091806100.30108@yvahk01.tjqt.qr>
-	 <1139515605.30058.94.camel@mindpipe>  <1139553319.8850.79.camel@homer>
-	 <1139752033.27408.20.camel@homer>  <1139771016.19342.253.camel@mindpipe>
-	 <1139780193.7837.7.camel@homer>  <1139787578.2739.13.camel@mindpipe>
-	 <1139800169.7595.24.camel@homer>
-Content-Type: text/plain
-Date: Sun, 12 Feb 2006 22:39:34 -0500
-Message-Id: <1139801975.2739.72.camel@mindpipe>
+	Sun, 12 Feb 2006 22:52:33 -0500
+Received: from hera.kernel.org ([140.211.167.34]:57814 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750731AbWBMDwc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 22:52:32 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: nfsroot doesn't work with intel card since 2.6.12.2/2.6.11
+Date: Sun, 12 Feb 2006 19:52:04 -0800 (PST)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <dsovp4$bqt$1@terminus.zytor.com>
+References: <20060205215455.7622B1C8E46@fisica.ufpr.br>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1139802724 12126 127.0.0.1 (13 Feb 2006 03:52:04 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Mon, 13 Feb 2006 03:52:04 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-13 at 04:09 +0100, MIke Galbraith wrote:
-> On Sun, 2006-02-12 at 18:39 -0500, Lee Revell wrote:
-> > On Sun, 2006-02-12 at 22:36 +0100, MIke Galbraith wrote:
-> > > On Sun, 2006-02-12 at 14:03 -0500, Lee Revell wrote:
-> > > > On Sun, 2006-02-12 at 14:47 +0100, MIke Galbraith wrote:
-> > > > > If you think it's the scheduler, how about try the patch below.  It's
-> > > > > against 2.6.16-rc2-mm1, and should tell you if it is the interactivity
-> > > > > logic in the scheduler or not.  I don't see other candidates in there,
-> > > > > not that that means there aren't any of course. 
-> > > > 
-> > > > I'll try, but it's a serious pain for me to build an -mm kernel.  A
-> > > > patch against 2.6.16-rc1 would be much easier.
-> > > 
-> > > Ok, here she comes.  It's a bit too reluctant to release a task so it
-> > > can reach interactive status at the moment, but for this test, that's a
-> > > feature. In fact, for this test, it's probably best to jump straight to
-> > > setting both g1 and g2 to zero.
-> > 
-> > Not only does this fix my "time ls" test case, it seems to drastically
-> > improve interactivity for my desktop apps.  I was really being plagued
-> > by weird stalls, it's much smoother now.
+Followup to:  <20060205215455.7622B1C8E46@fisica.ufpr.br>
+By author:    carlos@fisica.ufpr.br (Carlos Carvalho)
+In newsgroup: linux.dev.kernel
+>
+> We have several machines with Intel Corp. 82544EI Gigabit Ethernet
+> Controller (Copper) (rev 02), as reported by lspci. They don't manage
+> to mount the rootfs via nfs anymore. I've tried several combinations
+> and the last one that works is 2.6.12.2 using the 2.6.11 version of
+> the driver (simply replacing the files in the tree). 2.6.12.2 with its
+> own driver doesn't work.
 > 
-> Yeah, but under load, that reluctance to release is fairly annoying...
+> There seems to be a pattern: at each version the machine has more
+> difficulty mounting the rootfs. Other machines using other ethercards
+> but with the same server and filesystem work normally.
+> 
 
-This seems to manifest on my system as the mouse getting jerky under
-load.  Still, I don't mind - the overall feel is still smoother - as if
-the X server was getting too much CPU before.
+Care to try out the klibc tree?
 
-Lee
+git://git.kernel.org/pub/scm/linux/kernel/git/hpa/linux-2.6-klibc.git
 
+	-hpa

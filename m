@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbWBMIkz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWBMImb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751353AbWBMIkz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 03:40:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbWBMIky
+	id S1751351AbWBMImb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 03:42:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWBMImb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 03:40:54 -0500
-Received: from mail20.bluewin.ch ([195.186.19.65]:52666 "EHLO
-	mail20.bluewin.ch") by vger.kernel.org with ESMTP id S1751092AbWBMIky
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 03:40:54 -0500
-Date: Mon, 13 Feb 2006 03:36:35 -0500
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Adrian Bunk <bunk@stusta.de>, jgarzik@pobox.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] CONFIG_FORCEDETH updates
-Message-ID: <20060213083635.GD14516@krypton>
-References: <20060212175202.GK30922@stusta.de> <1139781817.19342.300.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1139781817.19342.300.camel@mindpipe>
-User-Agent: Mutt/1.5.11
-From: apgo@patchbomb.org (Arthur Othieno)
+	Mon, 13 Feb 2006 03:42:31 -0500
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:13215 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751080AbWBMIma (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 03:42:30 -0500
+To: Andrew Morton <akpm@osdl.org>
+cc: "Brown, Len" <len.brown@intel.com>, davem@davemloft.net, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, axboe@suse.de,
+       James.Bottomley@steeleye.com, greg@kroah.com,
+       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       luming.yu@intel.com, lk@bencastricum.nl, helgehaf@aitel.hist.no,
+       fluido@fluido.as, gbruchhaeuser@gmx.de, Nicolas.Mailhot@LaPoste.net,
+       perex@suse.cz, tiwai@suse.de, patrizio.bassi@gmail.com,
+       bni.swe@gmail.com, arvidjaar@mail.ru, p_christ@hol.gr,
+       ghrt@dial.kappa.ro, jinhong.hu@gmail.com, andrew.vasquez@qlogic.com,
+       linux-scsi@vger.kernel.org, bcrl@kvack.org
+Subject: Re: Linux 2.6.16-rc3 
+In-Reply-To: Your message of "Mon, 13 Feb 2006 00:12:40 PST."
+             <20060213001240.05e57d42.akpm@osdl.org> 
+Date: Mon, 13 Feb 2006 08:42:17 +0000
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1F8ZHl-0002zK-00@skye.ra.phy.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 12, 2006 at 05:03:36PM -0500, Lee Revell wrote:
-> On Sun, 2006-02-12 at 18:52 +0100, Adrian Bunk wrote:
-> > This patch contains the following possible updates:
-> > - let FORCEDETH no longer depend on EXPERIMENTAL
-> > - remove the "Reverse Engineered" from the option text:
-> >   for the user it's important which hardware the driver supports, not
-> >   how it was developed
-> 
-> Is this driver as stable as one that was developed with proper
-> documentation?
+> I think we can assume that it will be seen there.  2.6.16 is going into
+> distros and will have more exposure than 2.6.15, let alone
+> 2.6.16-rcX.
 
-Been using it on nForce since v0.19 (circa 2003) with no problems.
-I doubt there are that many (significant) users of the binary driver
-left..
+A related point is that S3 sleep/wake problems are very difficult to
+debug.  The bug is often not reproducible (I've had a few of those).
+Or it happens early in the wakeup, when the serial console hasn't been
+restored to a working state (at least on some machines, see bugzilla
+#4270).  Or the system has bugs that prevents its going to sleep,
+which also prevents any wakeup problems from being investigated.  
 
-And like Alistair pointed out:
+Or they happen to regular users, who give up and say 'my laptop cannot
+go to sleep in Linux, oh well'.  Besides being inconvenient, it gives
+Linux a bad name, especially when people nearby have iBooks and
+PowerBooks running MacOS that sleep and wake in 2-3 seconds, including
+restoring networking and wireless.
 
-  drivers/net/forcedeth:17: * Copyright (c) 2004 NVIDIA Corporation
+So there's value in chasing any S3 bugs that can be reproduced,
+especially those affecting sleeping.
 
-> I prefer to know that something as elementary as a fast ethernet
-> controller had to be reverse engineered so I can avoid supporting
-> a vendor so hostile to Linux.
+The TP 600X is indeed old, and perhaps the bug is caused by an
+otherwise fine change uncovering a 600X hardware or firmware bug
+(perhaps the point that comment #8 at bugzilla 5989 is getting at).
+However, one of the beauties of Linux, and a nightmare for developers,
+is that Linux works on all sorts of hardware.  I don't know whether
+this bug should affect the 2.6.16 schedule.  But I think its worth
+solving eventually, if only to point where it's clear that it's unique
+to this model.
 
-Then how about moving the "Reverse Engineered" to the help text instead?
+-Sanjoy
+
+`Never underestimate the evil of which men of power are capable.'
+         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.

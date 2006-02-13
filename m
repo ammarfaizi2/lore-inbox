@@ -1,57 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030317AbWBMXyF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030315AbWBMXxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030317AbWBMXyF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 18:54:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030313AbWBMXyE
+	id S1030315AbWBMXxg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 18:53:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030310AbWBMXxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 18:54:04 -0500
-Received: from smtp.enter.net ([216.193.128.24]:47112 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S1030317AbWBMXyB (ORCPT
+	Mon, 13 Feb 2006 18:53:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:1740 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030306AbWBMXxe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 18:54:01 -0500
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Nix <nix@esperi.org.uk>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Mon, 13 Feb 2006 19:03:07 -0500
-User-Agent: KMail/1.8.1
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, greg@kroah.com,
-       davidsen@tmr.com, linux-kernel@vger.kernel.org, axboe@suse.de
-References: <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr> <43F0891E.nailKUSCGC52G@burner> <871wy6sy7y.fsf@hades.wkstn.nix>
-In-Reply-To: <871wy6sy7y.fsf@hades.wkstn.nix>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Feb 2006 18:53:34 -0500
+Date: Mon, 13 Feb 2006 18:52:44 -0500
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: davi.arnaut@gmail.com, len.brown@intel.com, pavel@ucw.cz,
+       mm-commits@vger.kernel.org
+Subject: Re: + acpi_os_acquire_object-gfp_kernel-called-with-irqs.patch added to -mm tree
+Message-ID: <20060213235244.GA11200@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org, davi.arnaut@gmail.com,
+	len.brown@intel.com, pavel@ucw.cz, mm-commits@vger.kernel.org
+References: <200602132314.k1DNElaA011901@shell0.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602131903.08327.dhazelton@enter.net>
+In-Reply-To: <200602132314.k1DNElaA011901@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 February 2006 17:14, Nix wrote:
-> On Mon, 13 Feb 2006, Joerg Schilling stated:
-> > Greg KH <greg@kroah.com> wrote:
-> >> On Fri, Feb 10, 2006 at 04:06:39PM -0500, Bill Davidsen wrote:
-> >> > The kernel could provide a list of devices by category. It doesn't
-> >> > have to name them, run scripts, give descriptions, or paint them blue.
-> >> > Just a list of all block devices, tapes, by major/minor and category
-> >> > (ie. block, optical, floppy) would give the application layer a chance
-> >> > to do it's own interpretation.
-> >>
-> >> It does so today in sysfs, that is what it is there for.
-> >
-> > Do you really whant libscg to open _every_ non-directory file under /sys?
->
-> Well, that would be overkill, but iterating across, say,
-> /sys/class/scsi_device seems like it would be a good idea.
->
-> (I doubt libscg would ever be interested in the stuff in most of the
-> other directories: things like /dev/mem are not SCSI devices and never
-> will be, and /sys/class/scsi_device contains *everything* Linux
-> considers a SCSI device, no matter what transport it is on, SATA and
-> all. However, I don't know if it handles IDE devices that you can SG_IO
-> to because I don't have any such here. Anyone know?)
+On Mon, Feb 13, 2006 at 03:13:55PM -0800, Andrew Morton wrote:
 
-Not on my system, and I have a DVD-ROM and a CDRW drive attached, both of 
-which are capable of SG_IO.
+ > The patch titled
+ > 
+ >      acpi_os_acquire_object (GFP_KERNEL) called with IRQs disabled through suspend-resume
+ > 
+ > has been added to the -mm tree.  Its filename is
+ > 
+ >      acpi_os_acquire_object-gfp_kernel-called-with-irqs.patch
+ > 
+ > From: Davi Arnaut <davi.arnaut@gmail.com>
+ > 
+ > acpi_os_acquire_object() gets called, with IRQs disabled, from:
+ > 
+ > Debug: sleeping function called from invalid context at mm/slab.c:2499
+ > in_atomic():0, irqs_disabled():1
+ >  [<c01462f3>] kmem_cache_alloc+0x40/0x4f     [<c0202c85>] acpi_os_acquire_object+0xb/0x3c
+ >  [<c02171b1>] acpi_ut_allocate_object_desc_dbg+0x13/0x49     [<c021704b>] acpi_ut_create_internal_object_dbg+0xf/0x5e
+ >  [<c02136d4>] acpi_rs_set_srs_method_data+0x3d/0xb9     [<c021aa3d>] acpi_pci_link_set+0x102/0x17b
+ >  [<c021aecb>] irqrouter_resume+0x1e/0x3c     [<c024d921>] __sysdev_resume+0x11/0x6b
+ >  [<c024dbde>] sysdev_resume+0x34/0x52     [<c0251cb7>] device_power_up+0x5/0xa
+ >  [<c0138787>] suspend_enter+0x44/0x46     [<c01386e5>] suspend_prepare+0x63/0xc1
+ >  [<c0138813>] enter_state+0x5e/0x7c     [<c013894c>] state_store+0x81/0x8f
+ >  [<c01388cb>] state_store+0x0/0x8f     [<c0196a0a>] subsys_attr_store+0x1e/0x22
+ >  [<c0196c12>] flush_write_buffer+0x22/0x28     [<c0196c64>] sysfs_write_file+0x4c/0x71
+ >  [<c0196c18>] sysfs_write_file+0x0/0x71     [<c015b2c9>] vfs_write+0xa2/0x15a
+ >  [<c015b42c>] sys_write+0x41/0x6a     [<c0102e75>] syscall_call+0x7/0xb
+ > 
+ > The patch also fixes a missing check for NULL return from
+ > acpi_os_acquire_object().
+ > 
+ > Signed-off-by: Davi Arnaut <davi.arnaut@gmail.com>
+ > Cc: "Brown, Len" <len.brown@intel.com>
+ > Cc: Pavel Machek <pavel@ucw.cz>
+ > Signed-off-by: Andrew Morton <akpm@osdl.org>
+ > ---
+ > 
+ >  drivers/acpi/osl.c            |    2 +-
+ >  drivers/acpi/parser/psutils.c |    8 ++++++--
+ >  2 files changed, 7 insertions(+), 3 deletions(-)
+ > 
+ > diff -puN drivers/acpi/osl.c~acpi_os_acquire_object-gfp_kernel-called-with-irqs drivers/acpi/osl.c
+ > --- devel/drivers/acpi/osl.c~acpi_os_acquire_object-gfp_kernel-called-with-irqs	2006-02-13 15:13:26.000000000 -0800
+ > +++ devel-akpm/drivers/acpi/osl.c	2006-02-13 15:13:26.000000000 -0800
+ > @@ -1175,7 +1175,7 @@ acpi_status acpi_os_release_object(acpi_
+ >  
+ >  void *acpi_os_acquire_object(acpi_cache_t * cache)
+ >  {
+ > -	void *object = kmem_cache_alloc(cache, GFP_KERNEL);
+ > +	void *object = kmem_cache_alloc(cache, GFP_ATOMIC);
+ >  	WARN_ON(!object);
+ >  	return object;
+ >  }
 
-DRH
+This is potentially a lot of atomic allocations.
+
+acpi_os_acquire_object is called by..
+
+drivers/acpi/parser/psutils.c  acpi_ps_alloc_op()
+drivers/acpi/utilities/utobject.c:      acpi_ut_allocate_object_desc_dbg()
+drivers/acpi/utilities/utstate.c:       acpi_ut_create_generic_state()
+
+Those three functions are called all over the place in acpi.
+
+drivers/acpi/dispatcher/dsmethod.c:     op = acpi_ps_alloc_op(AML_METHOD_OP);
+drivers/acpi/dispatcher/dsopcode.c:     op = acpi_ps_alloc_op(AML_INT_EVAL_SUBTREE_OP);
+drivers/acpi/dispatcher/dsopcode.c:     op = acpi_ps_alloc_op(AML_INT_EVAL_SUBTREE_OP);
+drivers/acpi/dispatcher/dswload.c:              op = acpi_ps_alloc_op(walk_state->opcode);
+drivers/acpi/dispatcher/dswload.c:              op = acpi_ps_alloc_op(walk_state->opcode);
+drivers/acpi/parser/psargs.c:           name_op = acpi_ps_alloc_op(AML_INT_NAMEPATH_OP);
+drivers/acpi/parser/psargs.c:   field = acpi_ps_alloc_op(opcode);
+drivers/acpi/parser/psargs.c:           arg = acpi_ps_alloc_op(AML_BYTE_OP);
+drivers/acpi/parser/psargs.c:                   arg = acpi_ps_alloc_op(AML_INT_BYTELIST_OP);
+drivers/acpi/parser/psargs.c:                   arg = acpi_ps_alloc_op(AML_INT_NAMEPATH_OP);
+drivers/acpi/parser/psloop.c:                                       acpi_ps_alloc_op(walk_state->
+drivers/acpi/parser/psloop.c:                           op = acpi_ps_alloc_op(walk_state->opcode);
+drivers/acpi/parser/psparse.c:                      acpi_ps_alloc_op(AML_INT_RETURN_VALUE_OP);
+drivers/acpi/parser/psparse.c:                              acpi_ps_alloc_op(AML_INT_RETURN_VALUE_OP);
+drivers/acpi/parser/psparse.c:                                      acpi_ps_alloc_op(op->common.
+drivers/acpi/parser/psparse.c:                      acpi_ps_alloc_op(AML_INT_RETURN_VALUE_OP);
+drivers/acpi/parser/psutils.c:  scope_op = acpi_ps_alloc_op(AML_SCOPE_OP);
+drivers/acpi/utilities/utobject.c:          acpi_ut_allocate_object_desc_dbg(module_name, line_number,
+drivers/acpi/utilities/utobject.c:              second_object = acpi_ut_allocate_object_desc_dbg(module_name,
+drivers/acpi/dispatcher/dswscope.c:     scope_info = acpi_ut_create_generic_state();
+drivers/acpi/dispatcher/dswstate.c:     state = acpi_ut_create_generic_state();
+drivers/acpi/events/evmisc.c:           notify_info = acpi_ut_create_generic_state();
+drivers/acpi/namespace/nseval.c:        scope_info = acpi_ut_create_generic_state();
+drivers/acpi/parser/psscope.c:  scope = acpi_ut_create_generic_state();
+drivers/acpi/parser/psscope.c:  scope = acpi_ut_create_generic_state();
+drivers/acpi/utilities/utstate.c:       state = acpi_ut_create_generic_state();
+drivers/acpi/utilities/utstate.c:       state = acpi_ut_create_generic_state();
+drivers/acpi/utilities/utstate.c:       state = acpi_ut_create_generic_state();
+drivers/acpi/utilities/utstate.c:       state = acpi_ut_create_generic_state();
+
+I'll bet these callsites are all also called from multiple locations.
+
+		Dave
+

@@ -1,85 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWBMMMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbWBMMNb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932103AbWBMMMs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 07:12:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWBMMMs
+	id S932394AbWBMMNb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 07:13:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWBMMNb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 07:12:48 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:48893 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932103AbWBMMMr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 07:12:47 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 13 Feb 2006 13:11:27 +0100
-To: nix@esperi.org.uk, davidsen@tmr.com
-Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F0776F.nailKUS94FU3M@burner>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
- <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
- <20060125144543.GY4212@suse.de>
- <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
- <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
- <20060125181847.b8ca4ceb.grundig@teleline.es>
- <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de>
- <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com>
-In-Reply-To: <43ED005F.5060804@tmr.com>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 13 Feb 2006 07:13:31 -0500
+Received: from sipsolutions.net ([66.160.135.76]:2057 "EHLO sipsolutions.net")
+	by vger.kernel.org with ESMTP id S932104AbWBMMNa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 07:13:30 -0500
+Subject: Re: Flames over -- Re: Which is simpler? (Was Re: [Suspend2-devel]
+	Re: [ 00/10] [Suspend2] Modules support.)
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Valdis.Kletnieks@vt.edu, suspend2-devel@lists.suspend2.net,
+       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <451E960D-8FA5-474E-8C72-B8F834D03AF7@mac.com>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain>
+	 <200602101337.22078.rjw@sisk.pl> <20060210233507.GC1952@elf.ucw.cz>
+	 <200602111136.56325.merka@highsphere.net>
+	 <B5780C33-81CE-4B8A-9583-B9B3973FCC11@mac.com> <43EEF711.2010409@gmail.com>
+	 <43833C9D-40A2-42B3-83D9-3C9D3EB7C434@mac.com> <43EF24C0.2040902@gmail.com>
+	 <47B33C16-AEC3-4036-BA05-AE235014684E@mac.com>
+	 <200602121656.k1CGurd7019092@turing-police.cc.vt.edu>
+	 <451E960D-8FA5-474E-8C72-B8F834D03AF7@mac.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-09RExCjTrvfINdYOJi14"
+Date: Mon, 13 Feb 2006 13:12:56 +0100
+Message-Id: <1139832776.6388.36.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen <davidsen@tmr.com> wrote:
 
+--=-09RExCjTrvfINdYOJi14
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> I notice that the first thing people suggest is to make things like 
-> udev, hal and sysfs required instead of optional to do something as 
-> simple as burn a CD. As I mentioned before, if the kernel provided a 
-> list of devices then applications wouldn't break every time a new kernel 
-> came out which needs a new this, and new that, and a few new other 
-> support things.
+On Sun, 2006-02-12 at 13:28 -0500, Kyle Moffett wrote:
 
-This would make sense in case that a useful definition with a granted lifetime 
-of at least 10 years would be implemented.
+> /me reads spec. *sigh*  Whatever idiocy-committee wrote that spec was =20
+> clearly either smoking crack or living in a fantasy-world (or both).  =20
+> An arbitrary unrestricted DMA bus is a massive and painfully obvious =20
+> security hole.  Can somebody _please_ shoot the guy that came up with =20
+> that brilliant idea?  At least it looks like it's not available if =20
+> the firewire modules aren't loaded, which means that you can prevent =20
+> that sort of attack, and my laptop luckily doesn't load those modules =20
+> at boot just to save a bit of memory. =20
 
+might not help since your firmware turns on the firewire port to enable
+booting from firewire disks.
 
-> The kernel could provide a list of devices by category. It doesn't have 
+> Even still, that's just a =20
+> terrible idea.  Is there any practical way to restrict DMA and make =20
+> FireWire secure?
 
-What if the kernel does not understand the cetegory?
+load the modules with phys_dma=3D0
 
-Common oddities:
+johannes
 
--	Mac OS X tries to distinct between CD/DVD writers and CD/DVD-ROM
-	although there is only one device class.
+--=-09RExCjTrvfINdYOJi14
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
--	Older CD-writers identified as WORM although a CD-R is not a WORM.
+-----BEGIN PGP SIGNATURE-----
 
-> to name them, run scripts, give descriptions, or paint them blue. Just a 
-> list of all block devices, tapes, by major/minor and category (ie. 
-> block, optical, floppy) would give the application layer a chance to do 
-> it's own interpretation. HAL is great, but because it's not part of the 
-> kernel it's also going to suffer from "tracking error" for some changes. 
-> I find it easier to teach someone to use -scanbus than to explain how to 
-> make rules for udev.
+iQIVAwUAQ/B3xqVg1VMiehFYAQI+gRAAu7TrBewbQs26TyEVEl1TuAIufv0uSpgS
+JCOyUGDhZ4fzYsj7ArD6CXyVjWpDCCGMVRPqMxUvoRZyAgT5SL/oDW4vuzuF9xZH
+U7CL/gxooxYFzMH8wMNG6cUUh4Ag6Oi/x9VQHYkoZ/jTTOx1z+fjqv31RylYjgrl
+2mTmGmPvILRWcI2ESmcpNZ+mYbZYcreJFjuFKsVqV5504HBqRuSVt2U21An5ZW+U
+SmJORufn5tCyt/m2veCMPphHidKjAcYSci/MG2AmCQpP7VoOIsemzXkhAxX5TN5b
+Z9TaNd3+E7moiZRvb6mdjG0TtkegF+jyRp089TVnm3D9LnayYupkizAdszBlV12L
+cMVTAwgJ4fI9VCuA1PNe1pVeOUqF5LKaRl3n2IWB0niMkeXdSQEIG++fv5hZh6YG
+8X7dMVHxVzoxb5flzO91TnEhWzQJfJA1Mw+W1E38c4Dc+6Zj4kty7ncwodqUSd6L
+oJ5YMhpe4mee3S/ynuaoh+4QBE9g12v5jcJ7oeDYa/AB8phC35UL8vplvAfUHEHo
+ul00otgrICRzKaJlM+VcaC8ic59brUoRsYN0sRJea+xLwdFL7GgCtFeWov3P8DmV
+2LvgKZpbMIP5COzIbDlqlS1pTiEGlo/ru6NEDa9DzCkTfHAOR9RCxN9wd3kv/AYG
+sHzCUav3XFg=
+=1hlF
+-----END PGP SIGNATURE-----
 
-As this categorisation does not work, we need a way to find all devices 
-that talk SCSI and let the application decicde what device is supported.
+--=-09RExCjTrvfINdYOJi14--
 
-
-> Worth repeating: I find it easier to teach someone to use -scanbus than 
-> to explain how to make rules for udev. HAL is the right answer, but *in* 
-> the kernel, where it will track changes. Since -scanbus tells you a 
-> device is a CDrecorder, or something else, *any user* is likely to be 
-> able to tell it from DCD, CD-ROM, etc. Nice like of text for most devices...
-
-So you seem to agree with me.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

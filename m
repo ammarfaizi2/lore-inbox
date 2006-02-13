@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbWBMToK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWBMTpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964776AbWBMToK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 14:44:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbWBMToK
+	id S964832AbWBMTpU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 14:45:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWBMTpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 14:44:10 -0500
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:45298 "EHLO
-	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S964776AbWBMToJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 14:44:09 -0500
-Message-ID: <43F0E284.2040805@gentoo.org>
-Date: Mon, 13 Feb 2006 19:48:20 +0000
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mail/News 1.5 (X11/20060207)
-MIME-Version: 1.0
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-CC: Matti Aarnio <matti.aarnio@zmailer.org>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16, sk98lin out of date
-References: <200602131058.03419.s0348365@sms.ed.ac.uk> <20060213110542.GZ3927@mea-ext.zmailer.org> <200602131110.34212.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200602131110.34212.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 13 Feb 2006 14:45:20 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:16701 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S964818AbWBMTpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 14:45:18 -0500
+In-Reply-To: <58cb370e0602130853s4ce767c6j57337a9587cc2963@mail.gmail.com>
+References: <58cb370e0602130235h3ab521cep47584ee634e8fc7f@mail.gmail.com> <Pine.LNX.4.44.0602131020370.30316-100000@gate.crashing.org> <58cb370e0602130853s4ce767c6j57337a9587cc2963@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <9E02DAB4-8DCE-42AA-8F47-080636F78E4C@kernel.crashing.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: RFC: Compact Flash True IDE Mode Driver
+Date: Mon, 13 Feb 2006 13:45:32 -0600
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+X-Mailer: Apple Mail (2.746.2)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan wrote:
-> Thanks Matti, I wasn't even aware of this driver. Might I suggest the
-> "old" driver be marked as such in Linux 2.6.16. I guess I must've
-> skipped over it because it begins with "New", and does not contain
-> the word "Marvell", which is indicated exclusively by lspci.
 
-I changed the help text of all 3 drivers (sk98lin/skge/sky2) to
-point out which ones are/aren't interchangable in 2.6.16. The situation 
-is a little confusing.
+On Feb 13, 2006, at 10:53 AM, Bartlomiej Zolnierkiewicz wrote:
 
-The reason that the sk98lin diff is so huge is because SysKonnect
-effectively added support for a substantially different range of cards
-(Yukon-2) into the existing driver. This is far from the driver quality
-required for the kernel today, so Stephen Hemminger (skge author) wrote 
-a new driver (sky2) for the Yukon-2 range.
+> On 2/13/06, Kumar Gala <galak@kernel.crashing.org> wrote:
+>
+>>>> +static void cfide_outsl(unsigned long port, void *addr, u32 count)
+>>>> +{
+>>>> +       panic("outsl unsupported");
+>>>> +}
+>>>
+>>> This will panic as soon as somebody tries to enable 32-bit I/O
+>>> using hdparm.  Please add ide_hwif_t.no_io_32bit flag and teach
+>>> ide-disk.c:ide_disk_setup() about it (separate patch).
+>>
+>> I'm not sure I follow this, can you expand.
+>
+> Do "hdparm -c 2 /dev/hdx" first and then read/write to the device
+> and you should see it. :)
+>
+> We need to make "hdparm -c 2" (and "hdparm -c 3") unsupported
+> (see how "io_32bit" setting is handled in ide_add_generic_settings()
+> and how it can be read-only or read-write setting depending on the
+> value of drive->no_io_32bit).
+>
+> To do this we need to set drive->no_io_32bit to 1 (see how
+> ide_disk_setup() handles it).  Unfortunately 32-bit I/O capability
+> is based on capabilities of both host and device so we have to
+> add new flag hwif->no_io_32bit to indicate that host doesn't
+> support 32-bit I/O.
 
-The long term plan is to obsolete and remove sk98lin, but we aren't 
-ready yet: skge issues pop up every month or two, and sky2 is young. 
-Stephen's own words:
+This all make sense, should I check for hwif->no_io_32bit in  
+idedisk_setup() and set drive->no_io_32bit to 1 if hwif->no_io_32bit  
+is 1 or do this the test in ide_add_generic_settings()?
 
-> I applaud the initiative, but this it is too premature to obsolete
-> the existing driver. There may be lots of chip versions and other
-> variables that make the existing driver a better choice.
-
-Daniel
+- kumar

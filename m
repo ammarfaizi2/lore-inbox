@@ -1,91 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751505AbWBMAqf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbWBMAuP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751505AbWBMAqf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 19:46:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbWBMAqf
+	id S1751002AbWBMAuP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 19:50:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751077AbWBMAuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 19:46:35 -0500
-Received: from ms-smtp-03-smtplb.tampabay.rr.com ([65.32.5.133]:48025 "EHLO
-	ms-smtp-03.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S1751505AbWBMAqe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 19:46:34 -0500
-Message-ID: <43EFD6E4.60601@cfl.rr.com>
-Date: Sun, 12 Feb 2006 19:46:28 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Mail/News 1.5 (X11/20060119)
+	Sun, 12 Feb 2006 19:50:14 -0500
+Received: from 63.15.233.220.exetel.com.au ([220.233.15.63]:46225 "EHLO
+	sydlxfw01.samad.com.au") by vger.kernel.org with ESMTP
+	id S1751002AbWBMAuN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 19:50:13 -0500
+Date: Mon, 13 Feb 2006 11:50:02 +1100
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>, mj@ucw.cz,
+       peter.read@gmail.com, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       jengelh@linux01.gwdg.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060213005002.GK26235@samad.com.au>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	mj@ucw.cz, peter.read@gmail.com, matthias.andree@gmx.de,
+	linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+	jengelh@linux01.gwdg.de
+References: <43EA1D26.nail40E11SL53@burner> <20060208165330.GB17534@voodoo> <43EB0DEB.nail52A1LVGUO@burner> <Pine.LNX.4.61.0602091729560.30108@yvahk01.tjqt.qr> <43EB7210.nailIDH2JUBZE@burner> <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr> <43EB7BBA.nailIFG412CGY@burner> <mj+md-20060209.173519.1949.atrey@ucw.cz> <43EC71FB.nailISD31LRCB@burner> <20060210114930.GC2750@DervishD>
 MIME-Version: 1.0
-To: Nicolas George <nicolas.george@ens.fr>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Filesystem for mobile hard drive
-References: <20060212150331.GA22442@clipper.ens.fr>
-In-Reply-To: <20060212150331.GA22442@clipper.ens.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HcXnUX77nabWBLF4"
+Content-Disposition: inline
+In-Reply-To: <20060210114930.GC2750@DervishD>
+User-Agent: Mutt/1.5.11
+From: Alexander Samad <alex@samad.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas George wrote:
-> Hi.
-> 
-> I am about to buy a mobile hard drive (actually, a FireWire/USB box and a
-> normal hard drive), and it raises the question of which filesystem to put on
-> it. I am not wondering which of ext3, reiserfs, XFS or JFS is best, but more
-> basically whether I should use a Linux/Unix-style filesystem or the horrible
-> FAT.
-> 
-> The drawbacks of FAT are numerous and well-known: poor efficiency with big
-> files, fragmentation, bad handling of file names, lack of robustness, and
-> worst of all, the 4 Go limit. On the other hand, FAT gives the possibility
-> to easyly read the drive on non-Unix systems (I know there are ext2 and
-> reiserfs readers for windows, I do not know for XFS or JFS, but at the worst
-> it should be possible to do something with colinux).
-> 
 
-If by FAT you mean FAT16, then yes, you have an 8 GB limit for the 
-entire filesystem.  Fat32 on the other hand, can handle much more and so 
-should be suitable in this aspect.  Fragmentation is also a property not 
-of the filesystem, but of Microsoft's filesystem drivers.  I'm fairly 
-sure that the linux fat implementations do not use absurdly stupid 
-allocation algorithms that lead to lots of fragmentation.
+--HcXnUX77nabWBLF4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> All these elements are rather feeble, but the Unix-style filesystems have a
-> big drawback as mobile filesystems: they store UIDs. UIDs make sense inside
-> a given system, but not across systems. On the most annoying case, I can
-> have my disk automatically mounted on a system where I am not root, and all
-> my files unreadable because they belong to another user.
+On Fri, Feb 10, 2006 at 12:49:30PM +0100, DervishD wrote:
+>     Hi Joerg :)
+>=20
+>  * Joerg Schilling <schilling@fokus.fraunhofer.de> dixit:
+> > Martin Mares <mj@ucw.cz> wrote:
+> > > > This is why the mapping engine is in the Linux adoption part of
+> > > > libscg. It maps the non-stable device <-> /dev/sg* relation to a
+> > > > stable b,t,l address.
+> > >
+> > > Nonsense. The b,t,l addresses are NOT stable (at least for transports
+> >=20
+> > Dou you like to verify that you have no clue on SCSI?
+>=20
+>     My system is clueless, too! If I write a CD before plugging my
+> USB storage device, my CD writer is on 0,0,0. If I plug my USB
+> storage device *before* doing any access, my cdwriter is on 1,0,0.
+> Pretty stable.
 
-This can be overcome with the UDF filesystem by using the uid and gid 
-mount options, allowing the files to appear to be owned by the correct 
-local user.  It would be nice if the other filesystems were patched to 
-allow such options as well.
+Had exactly the same problem with firewire and usb devices, depending on
+the order of the loading of the kernel modules it all changes!
 
+>=20
+>     But of course, I could made all of the above stable by using
+> udev. But then the /dev/sg mapping will be stable, too. I can't see
+> why the three random numbers are more stable than /dev/sg. By the
+> way, I don't have any SCSI host adapter in my system.
+>=20
+>     And please, Joerg, be more respectful when answering. It doesn't
+> cost money and people will likely respect you, too.
+>=20
+>     Ra?l N??ez de Arenas Coronado
+>=20
+> --=20
+> Linux Registered User 88736 | http://www.dervishd.net
+> http://www.pleyades.net & http://www.gotesdelluna.net
+> It's my PC and I'll cry if I want to... RAmen!
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>=20
 
-> 
-> Since big mobile mass-storage devices which require efficient filesystems
-> will become more and more common, I think this problem should be addressed.
-> Someone suggested to me to use some sort of network filesystem (NFS or SMB),
-> and its UID mapping facility. That should work, but that is rather an ugly
-> solution, and that is not something that can be done in five minutes while
-> visiting a friend.
-> 
+--HcXnUX77nabWBLF4
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Network filesystems are not on disk filesystems, so they have nothing to 
-do with this discussion; you can't format a disk as "nfs" or "smb".
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-> I believe that we lack an option at the VFS to completely override file
-> ownership of a filesystem. But maybe there are other solutions.
+iD8DBQFD79e6kZz88chpJ2MRArR8AKDYYp32r4eYDEK+hL1XCzq75jqoPACgsihD
+Q1jvSChHldF8cuYgzDkuJPc=
+=Xbn/
+-----END PGP SIGNATURE-----
 
-I agree.  I recently submitted a patch fixing a bug in the udf 
-filesystem so it correctly uses the uid and gid mount options to 
-translate the ownership of files owned on disc by id -1 to the values 
-you specify.  It would be nice if you could also specify that should be 
-done for all files, not just those owned by nobody, and if all 
-filesystems allowed you to do this.
-
-> 
-> Did someone already think in depths about this issue?
-> 
-> 
-> Regards,
-> 
-
+--HcXnUX77nabWBLF4--

@@ -1,81 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751738AbWBMKdA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWBMKfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751738AbWBMKdA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 05:33:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751739AbWBMKdA
+	id S932068AbWBMKfl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 05:35:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932066AbWBMKfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 05:33:00 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:26783 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1751737AbWBMKc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 05:32:59 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 13 Feb 2006 11:30:10 +0100
-To: schilling@fokus.fraunhofer.de, cfriesen@nortel.com
-Cc: tytso@mit.edu, peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-       jengelh@linux01.gwdg.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F05FB2.nailKUS3MR1N9@burner>
-References: <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr>
- <43EB7BBA.nailIFG412CGY@burner>
- <mj+md-20060209.173519.1949.atrey@ucw.cz>
- <43EC71FB.nailISD31LRCB@burner>
- <20060210114721.GB20093@merlin.emma.line.org>
- <43EC887B.nailISDGC9CP5@burner>
- <mj+md-20060210.123726.23341.atrey@ucw.cz>
- <43EC8E18.nailISDJTQDBG@burner>
- <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr>
- <43EC93A2.nailJEB1AMIE6@burner> <20060210141651.GB18707@thunk.org>
- <43ECA3FC.nailJGC110XNX@burner> <43ECA70C.8050906@nortel.com>
- <43ECA8BC.nailJHD157VRM@burner> <43ECADA8.9030609@nortel.com>
-In-Reply-To: <43ECADA8.9030609@nortel.com>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 13 Feb 2006 05:35:40 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:22238
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751745AbWBMKfR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 05:35:17 -0500
+Date: Mon, 13 Feb 2006 02:34:30 -0800 (PST)
+Message-Id: <20060213.023430.126649129.davem@davemloft.net>
+To: heiko.carstens@de.ibm.com
+Cc: mingo@elte.hu, hare@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: calibrate_migration_costs takes ages on s390
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060213102634.GA4677@osiris.boeblingen.de.ibm.com>
+References: <20060213102634.GA4677@osiris.boeblingen.de.ibm.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Christopher Friesen" <cfriesen@nortel.com> wrote:
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Date: Mon, 13 Feb 2006 11:26:34 +0100
 
-> Joerg Schilling wrote:
-> > "Christopher Friesen" <cfriesen@nortel.com> wrote:
->
-> >>There's nothing there that says the mapping cannot change with 
-> >>time...just that it has to be unique.
-> > 
-> > 
-> > If it changes over the runtime of a program, it is not unique from the
-> > view of that program.
->
-> That depends on what "uniquely identified" actually means.
->
-> One possible definition is that at any time, a particular path maps to a 
-> single unique st_ino/st_dev tuple.
->
-> The other possibility (and this is what you seem to be advocating) is 
-> that a st_ino/st_dev tuple always maps to the same file over the entire 
-> runtime of the system.
+> The boot sequence on s390 sometimes takes ages and we spend a very long time
+> (up to one or two minutes) in calibrate_migration_costs. The time spent there
+> differs from boot to boot. Also the calculated costs differ a lot. I've seen
+> differences by up to a factor of 15 (yes, factor not percent).
+> Also I doubt that making these measurements make much sense on a completely
+> virtualized architecture where you cannot tell how much cpu time you will
+> get anyway.
+> Is there any workaround or fix available so we can avoid seeing this?
 
-Well it is obvious that this is a requirement.
+Things are not as slow, but definitely slow on sparc64 too, and it's
+also due to the migration cost calculations.
 
-If Linux does device name mapping at high level but leaves the low level part
-unstable, then the following coul happen:
+It's also really bad that it's using vmalloc(), for one thing, because
+this thrashes the TLB (some of us have 64-entry software replaced
+TLBs) and also because you can make no guarentees about how well the
+backing physical pages will distribute into the L2 cache.
 
-Just think about a program that checks a file that is on a removable media.
+As a result, wildly different run-to-run results can be expected
+particularly for systems with 1-way or 2-way set assosciative L2
+caches, which are common on sparc64.  I don't know about s390.
 
-This media is mounted via a vold service and someone removes the USB cable
-and reinserts it a second later. The filesystem on the device will be mounted
-on the same mount point but the device ID inside the system did change.
-
-As a result, the file unique identification st_ino/st_dev is not retained 
-and the program is confused.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+I think the migration cost calculator is way overboard and needs to be
+toned down a little bit.

@@ -1,82 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbWBMTe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWBMTfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932441AbWBMTe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 14:34:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbWBMTe6
+	id S932435AbWBMTfN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 14:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbWBMTfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 14:34:58 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:43410 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932441AbWBMTe5 (ORCPT
+	Mon, 13 Feb 2006 14:35:13 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:13361 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S932435AbWBMTfL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 14:34:57 -0500
-Date: Mon, 13 Feb 2006 11:34:43 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Roland Dreier <rdreier@cisco.com>
-cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Gleb Natapov <gleb@minantech.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       openib-general@openib.org, Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Badari Pulavarty <pbadari@us.ibm.com>, Hugh Dickins <hugh@veritas.com>
-Subject: Re: [openib-general] Re: madvise MADV_DONTFORK/MADV_DOFORK
-In-Reply-To: <adar767133j.fsf@cisco.com>
-Message-ID: <Pine.LNX.4.64.0602131125180.3691@g5.osdl.org>
-References: <20060213154114.GO32041@mellanox.co.il> <Pine.LNX.4.64.0602131104460.3691@g5.osdl.org>
- <adar767133j.fsf@cisco.com>
+	Mon, 13 Feb 2006 14:35:11 -0500
+Message-ID: <43F0DF32.8060709@cfl.rr.com>
+Date: Mon, 13 Feb 2006 14:34:10 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Seewer Philippe <philippe.seewer@bfh.ch>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RFC: disk geometry via sysfs
+References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com> <43F0D7AD.8050909@bfh.ch>
+In-Reply-To: <43F0D7AD.8050909@bfh.ch>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Feb 2006 19:36:02.0892 (UTC) FILETIME=[B96F58C0:01C630D4]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14265.000
+X-TM-AS-Result: No--19.900000-5.000000-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Seewer Philippe wrote:
+> ...Thats why I said i didn't want to start another geometry war. But
+> then again, I did write RFC too, yes?
+>
+> Yes, geometry is a fiction. And a bad one at that. To be honest I'd
+> rather get rid of it completely. But you said it: The geometry still
+> exists for the sake of backward compatibility. If it is still there, why
+> not export it? That's what sysfs is for...
+>   
+
+Because AFAIK, the kernel does not know the geometry.  To find out you 
+have to ask the bios, and calling the bios is a no-no.  That's assuming 
+the disk is even visible to the bios. 
+> Additionally have a look at libata-scsi.c which is part of the SATA
+> implementation. Theres CHS code in there...
+>
+> Personally I want the geometry information in sysfs because debugging
+> partition tables not written by linux tools becomes just that tad more
+> easier...
+>
+>   
+The geometry expressed in the partition table by whatever utility 
+created it will be the geometry that the bios reported the disk had at 
+the time the tool created the MBR, which can change if you plug the disk 
+into another machine with different bios.  If there is already geometry 
+in the MBR, then you should use those values and take them at face value.
+
+> I did not say I'd implement it for _all_ devices. In fact I indent to
+> make geometry available only for devices whose drivers provide the
+> getgeo function.
+>
+>   
+AFAIK, most drivers do provide a getgeo function... but do they get the 
+information from the bios at boot time, or do they make it up?  If it is 
+just made up anyhow, then why bother?  I am not sure how it could even 
+be possible to get the information from the bios at boot time, and 
+figure out the correct mapping between bios devices and the real 
+hardware, which the driver is talking to.  Since the geometry is 
+entirely made up anyhow why bother asking the driver to make it up when 
+that can be done in user space just as easily?
+> Exactly. I don't want the kernel to fix BIOS problems. But i want to
+> give userland the opportunity to overwrite what the kernel thinks (as in
+> /proc/ide/hdx/settings).
+> One example where this might be usable is connecting a PATA drive using
+> an Adapter to SATA. PATA returns the drive's geometry. SATA defaults to
+> x/255/63...
+But neither one is any more correct than the other.  Both are bogus 
+values, so what does it matter which is used?  What good would having 
+this value stored in the kernel do?  The kernel itself does not use it.  
+User mode tools that for some reason need to talk about it can just use 
+the values stored in the MBR. 
 
 
-On Mon, 13 Feb 2006, Roland Dreier wrote:
-> 
-> VM_DONTCOPY is hardly used in the kernel, so the semantics aren't very
-> precisely defined.
 
-Now, I agree - it's a strange bit, and was initially just done "because we 
-can and it seems to be a conceptually valid notion", so it's not used a 
-lot.
-
-That said, the semantics shouldn't be all that unexpected:
-
-	#define VM_DONTCOPY  0x00020000		/* Do not copy this vma on fork */
-
-and the usage ends up matching that (except for some really strange issue 
-with hugepage counting, which just looks wrong, but never mind).
-
->		But the idea is that a driver setting VM_DONTCOPY
-> probably has a good reason for doing it, and we don't want userspace
-> to be able to erase that flag through madvise().
-
-Well, I can't actually see any case where a driver could validly do 
-something that confuses the VM enough that clearing that bit could cause 
-new problems. 
-
-Put another way: if that is true, then we have bigger issues, and should 
-fix those problems instead.
-
-So at most we might have _applications_ that depend on the fork not 
-causing a copy-on-write thing (due to the old and broken private mapping 
-of ioremapped areas behaviour), but if that's true, then it would have to 
-be the driver itself that does the MADV_DOFORK thing, so..
-
-> As Hugh said in his suggestion for a better changelog entry:
-> 
->     > Explain that MADV_DONTFORK should be reversible, hence
->     > MADV_DOFORK; but should not be reversible on areas a driver has
->     > so marked, hence VM_DONTFORK distinct from VM_DONTCOPY.
-> 
-> Perhaps we don't care for now, and we should wait and add
-> VM_KERNEL_DONTCOPY later if we really need it.  I honestly don't know.
-
-I can see where Hugh is coming from, but I think it's adding cruft very 
-much for a "be very careful" reason.
-
-I would suggest that if you wanted to be very careful, you'd simply 
-disallow changing - or perhaps just clearing - that DONTCOPY flag on 
-special regions (ie ones that have been marked with VM_IO or VM_RESERVED).
-
-			Linus

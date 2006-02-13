@@ -1,49 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbWBMWMO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030209AbWBMWNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030205AbWBMWMO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 17:12:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbWBMWMO
+	id S1030209AbWBMWNF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 17:13:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030208AbWBMWNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 17:12:14 -0500
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:17607 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1030205AbWBMWMN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 17:12:13 -0500
-Date: Mon, 13 Feb 2006 17:12:11 -0500
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-       jengelh@linux01.gwdg.de, alex@samad.com.au
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060213221211.GB29940@csclub.uwaterloo.ca>
-References: <43EB0DEB.nail52A1LVGUO@burner> <Pine.LNX.4.61.0602091729560.30108@yvahk01.tjqt.qr> <43EB7210.nailIDH2JUBZE@burner> <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr> <43EB7BBA.nailIFG412CGY@burner> <mj+md-20060209.173519.1949.atrey@ucw.cz> <43EC71FB.nailISD31LRCB@burner> <20060210114930.GC2750@DervishD> <20060213005002.GK26235@samad.com.au> <43F098A2.nailKUSL1W9PE@burner>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43F098A2.nailKUSL1W9PE@burner>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+	Mon, 13 Feb 2006 17:13:05 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:1100 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S1030207AbWBMWND (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 17:13:03 -0500
+In-Reply-To: <58cb370e0602131221k60e23cffo480fbec812b6560e@mail.gmail.com>
+References: <58cb370e0602130235h3ab521cep47584ee634e8fc7f@mail.gmail.com> <Pine.LNX.4.44.0602131020370.30316-100000@gate.crashing.org> <58cb370e0602130853s4ce767c6j57337a9587cc2963@mail.gmail.com> <9E02DAB4-8DCE-42AA-8F47-080636F78E4C@kernel.crashing.org> <58cb370e0602131221k60e23cffo480fbec812b6560e@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <4EAA9C9B-947B-493D-B3D9-CFA1EC0A71CA@kernel.crashing.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: RFC: Compact Flash True IDE Mode Driver
+Date: Mon, 13 Feb 2006 16:13:18 -0600
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+X-Mailer: Apple Mail (2.746.2)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 13, 2006 at 03:33:06PM +0100, Joerg Schilling wrote:
-> This is a deficite of the Linux kernel model. You don't have similar
-> problems on Solaris.
 
-Here is something I have wondered about:
+On Feb 13, 2006, at 2:21 PM, Bartlomiej Zolnierkiewicz wrote:
 
-If solaris assigns consistent device entries to a device that is
-hotplugged each time it is connected, which is certainly something that
-can be implemented, then how many such devices can it handle before it
-runs out of room for new devices?
+> On 2/13/06, Kumar Gala <galak@kernel.crashing.org> wrote:
+>>
+>> On Feb 13, 2006, at 10:53 AM, Bartlomiej Zolnierkiewicz wrote:
+>>
+>>> On 2/13/06, Kumar Gala <galak@kernel.crashing.org> wrote:
+>>>
+>>>>>> +static void cfide_outsl(unsigned long port, void *addr, u32  
+>>>>>> count)
+>>>>>> +{
+>>>>>> +       panic("outsl unsupported");
+>>>>>> +}
+>>>>>
+>>>>> This will panic as soon as somebody tries to enable 32-bit I/O
+>>>>> using hdparm.  Please add ide_hwif_t.no_io_32bit flag and teach
+>>>>> ide-disk.c:ide_disk_setup() about it (separate patch).
+>>>>
+>>>> I'm not sure I follow this, can you expand.
+>>>
+>>> Do "hdparm -c 2 /dev/hdx" first and then read/write to the device
+>>> and you should see it. :)
+>>>
+>>> We need to make "hdparm -c 2" (and "hdparm -c 3") unsupported
+>>> (see how "io_32bit" setting is handled in ide_add_generic_settings()
+>>> and how it can be read-only or read-write setting depending on the
+>>> value of drive->no_io_32bit).
+>>>
+>>> To do this we need to set drive->no_io_32bit to 1 (see how
+>>> ide_disk_setup() handles it).  Unfortunately 32-bit I/O capability
+>>> is based on capabilities of both host and device so we have to
+>>> add new flag hwif->no_io_32bit to indicate that host doesn't
+>>> support 32-bit I/O.
+>>
+>> This all make sense, should I check for hwif->no_io_32bit in
+>> idedisk_setup() and set drive->no_io_32bit to 1 if hwif->no_io_32bit
+>> is 1 or do this the test in ide_add_generic_settings()?
+>
+> Good question.  idedisk_setup() seems more logical but in the current
+> model "io_32bit" setting is still accessible without ide-disk  
+> driver through
+> /proc/ide/ interface so...
+>
+> Moreover the current drive->no_io_32bit code in ide-disk is wrong:
+> * it shouldn't be overriding drive->no_io_32bit flag if it is 1
+> * doing this in ide-disk may be too late w.r.t.  
+> ide_add_generic_settings()
+>
+> Therefore your previous suggestion is the right one - the best place
+> to deal with ->no_io_32bit is ide-probe.c - doing this for all  
+> drives at
+> the end of probe_hwif() should fix all above issues.
 
-After all I could theoretically have 100000 usb and firewire cd-rw
-drives.  What if I was to plug each one in one at a time in turn.  Would
-it deal with that?  What kind of references would I end up with for them
-by the time I hit number 99999?  Do I end up with device 99999,0,0 in
-cdrecord/libscg?
+Now I'm confused.  If I understand the code, what I want is for the  
+"io_32bit" setting to have its RW field set to SETTING_READ, such  
+that drive->no_io_32bit can NOT be changed.  Additionally, I want it  
+set to 1 if hwif->no_io_32bit is 1.
 
-At some point you have to give up on old devices or you could end up
-having to keep an index the whole universe.
+Are you saying that at the end of probe_hwif() I should iterate over  
+the drives for that hwif and set drive->no_io_32bit to 1 if hwif- 
+ >no_io_32bit is 1?  If so, can I do this in the last loop that  
+already exists that iterates over the drives?
 
-Len Sorensen
+Will I not also want to test hwif->no_io_32bit in idedisk_setup() to  
+ensure that it can only set driver->no_io_32bit to 0 if hwif- 
+ >no_io32bit is 0?
+
+- kumar
+

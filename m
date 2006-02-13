@@ -1,76 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWBMPbE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWBMPhE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbWBMPbE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 10:31:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWBMPbE
+	id S1750726AbWBMPhE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 10:37:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWBMPhE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 10:31:04 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:36025 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1750738AbWBMPbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 10:31:03 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 13 Feb 2006 16:29:37 +0100
-To: schilling@fokus.fraunhofer.de, mj@ucw.cz
-Cc: peter.read@gmail.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de, dhazelton@enter.net
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F0A5E1.nailKUS106KMUQ@burner>
-References: <20060208162828.GA17534@voodoo>
- <200602090757.13767.dhazelton@enter.net>
- <43EC8F22.nailISDL17DJF@burner>
- <200602092221.56942.dhazelton@enter.net>
- <43F08C5F.nailKUSDKZUAZ@burner>
- <mj+md-20060213.140141.31817.atrey@ucw.cz>
-In-Reply-To: <mj+md-20060213.140141.31817.atrey@ucw.cz>
-User-Agent: nail 11.2 8/15/04
+	Mon, 13 Feb 2006 10:37:04 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:41151 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750726AbWBMPhC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 10:37:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=DmthJWPsxOlzzYuc5WTYhZfI1h+iQQBT+zaolWcHNYdVoKq8LNly/oaSopwOl6HO4K3BYFNb0l/LY4azb9f/JBo9ZcZQaWJc1HITgI5Kw/RYPoubTFOdA44e7RQPScNkMULWRuXR0hnMb9kP0zmS3NYn0kUpTnhYSBA9Yj5+37I=
+Message-ID: <43F0A760.90405@gmail.com>
+Date: Mon, 13 Feb 2006 10:36:00 -0500
+From: Florin Malita <fmalita@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+CC: diegocg@gmail.com, tytso@mit.edu, peter.read@gmail.com, mj@ucw.cz,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <mj+md-20060209.173519.1949.atrey@ucw.cz> <43EC71FB.nailISD31LRCB@burner> <20060210114721.GB20093@merlin.emma.line.org> <43EC887B.nailISDGC9CP5@burner> <mj+md-20060210.123726.23341.atrey@ucw.cz> <43EC8E18.nailISDJTQDBG@burner> <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr> <43EC93A2.nailJEB1AMIE6@burner> <20060210141651.GB18707@thunk.org> <43ECA3FC.nailJGC110XNX@burner> <20060210145238.GC18707@thunk.org> <43ECA934.nailJHD2NPUCH@burner> <20060210172428.6c857254.diegocg@gmail.com> <43F063A8.nailKUS7174MV@burner>
+In-Reply-To: <43F063A8.nailKUS7174MV@burner>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares <mj@ucw.cz> wrote:
+Joerg Schilling wrote:
 
-> Hello!
+>>Could you explain why stat->st_dev / stat->st_ino POSIX semantics forces
+>>POSIX implementations to have a stable stat->st_rdev number? 
+>>    
+>>
 >
-> > libscg abstracts from a kernel specific transport and allows to write OS 
-> > independent applications that rely in generic SCSI transport.
-> > 
-> > For this reason, it is bejond the scope of the Linux kernel team to decide on 
-> > this abstraction layer. The Linux kernel team just need to take the current
-> > libscg interface as given as _this_  _is_ the way to do best abstraction.
+>I was never talking about stat->st_rdev 
+>  
 >
-> Do you really believe that libscg is the only way in the world how to
-> access SCSI devices?
->
-> How can you be so sure that the abstraction you have chosen is the only
-> possible one?
->
-> If an answer to either of this questions is NO, why do you insist on
-> everybody bending their rules to suit your model?
+This is blatantly incorrect. You *were* talking about stat->st_rdev:
+http://lkml.org/lkml/2006/2/10/143
 
-Name me any other lib that is as OS independent and as clean/stable as
-libscg is. Note that the interface from libscg did not really change 
-since August 1986. 
+On 2/10/06, *Joerg Schilling* <schilling@fokus.fraunhofer.de> wrote:
+
+    Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+    > The struct stat->st_rdev field need to be stable too to comply to
+    POSIX?
+
+    Correct.
+
+    Jörg
 
 
-> > The Linux kernel team has the freedom to boycott portable user space SCSI 
-> > applications or to support them.
->
-> That's really an interesting view ... if anybody is boycotting anybody,
-> then it's clearly you, because you refuse to extend libscg to support
-> the Linux model, although it's clearly possible.
+You may claim you *never meant to* or you *never realized* you were
+talking about, but you can't say you never talked about it - that's an
+outright lie.
 
-Looks like you did not follow the discussion :-(
-
-I am constantly working on better support for Linux while the Linux kernel
-folks do not even fix obvious bugs.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+--
+fm

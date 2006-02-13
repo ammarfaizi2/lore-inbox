@@ -1,38 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751744AbWBMLnv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWBMLrl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751744AbWBMLnv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 06:43:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751743AbWBMLnu
+	id S1751090AbWBMLrl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 06:47:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWBMLrk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 06:43:50 -0500
-Received: from sorrow.cyrius.com ([65.19.161.204]:12305 "EHLO
-	sorrow.cyrius.com") by vger.kernel.org with ESMTP id S1751238AbWBMLnu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 06:43:50 -0500
-Date: Mon, 13 Feb 2006 11:43:40 +0000
-From: Martin Michlmayr <tbm@cyrius.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: klibc list <klibc@zytor.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [klibc] klibc tree status
-Message-ID: <20060213114340.GC32626@deprecation.cyrius.com>
-References: <43F010F3.5030305@zytor.com>
+	Mon, 13 Feb 2006 06:47:40 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:34270 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751090AbWBMLrk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 06:47:40 -0500
+Date: Mon, 13 Feb 2006 12:47:32 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15:kernel/time.c: The Nanosecond and code duplication
+In-Reply-To: <43F05143.29965.5D3E74@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+Message-ID: <Pine.LNX.4.61.0602131239170.9696@scrub.home>
+References: <43F05143.29965.5D3E74@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43F010F3.5030305@zytor.com>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* H. Peter Anvin <hpa@zytor.com> [2006-02-12 20:54]:
-> I have *NOT* implemented support for the following, which I'm hoping
-> has fallen out of use by now:
-> 
-> 	-> When loading the ramdisk from a block device, stop and
-> 	   ask the user for a second disk.
+Hi,
 
-This is most certainly still being used, e.g. in Debian to allow
-starting the installer from floppy disks.
--- 
-Martin Michlmayr
-http://www.cyrius.com/
+On Mon, 13 Feb 2006, Ulrich Windl wrote:
+
+> I'm working on an integration of current NTP kernel algorithms for Linux 2.6. 
+
+Ulrich, do you know of my patches at http://www.xs4all.nl/~zippel/ntp/patches-2.6.15-rc6-git2/ ?
+I posted them already to lkml. They do this already (at least for the non 
+pps parts).
+
+bye, Roman

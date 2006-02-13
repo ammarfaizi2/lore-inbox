@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751694AbWBMJ4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751698AbWBMKAj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751694AbWBMJ4a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 04:56:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751695AbWBMJ4a
+	id S1751698AbWBMKAj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 05:00:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751699AbWBMKAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 04:56:30 -0500
-Received: from nproxy.gmail.com ([64.233.182.192]:53885 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751691AbWBMJ43 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 04:56:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WAteIFj9wzK63mam22DKKI26oR/8CGEDgG9QK09j0081rLtMUS6PDEJ8ErUVUyEPmmvpRZgd2JVDlJqStNhKU30Tj387Y9Id4xUHwyB7kayMQBImfrjZEgDbl88fAtHuuMybWCgwpaBByrb+FQFguXoAKUrivNn5uPTrpeM/kGQ=
-Message-ID: <58cb370e0602130156k10dff232o46b46e7030a504ee@mail.gmail.com>
-Date: Mon, 13 Feb 2006 10:56:26 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Seewer Philippe <philippe.seewer@bfh.ch>
-Subject: Re: RFC: disk geometry via sysfs
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43EC8FBA.1080307@bfh.ch>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43EC8FBA.1080307@bfh.ch>
+	Mon, 13 Feb 2006 05:00:39 -0500
+Received: from mail.gmx.net ([213.165.64.21]:30405 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751697AbWBMKAi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 05:00:38 -0500
+X-Authenticated: #14349625
+Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
+From: MIke Galbraith <efault@gmx.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Con Kolivas <kernel@kolivas.org>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       gcoady@gmail.com, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1139820181.3202.2.camel@mindpipe>
+References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
+	 <200602131637.43335.kernel@kolivas.org> <1139810224.7935.9.camel@homer>
+	 <200602131708.52342.kernel@kolivas.org>  <1139812538.7744.8.camel@homer>
+	 <1139812725.2739.94.camel@mindpipe>  <1139814504.8124.6.camel@homer>
+	 <1139820181.3202.2.camel@mindpipe>
+Content-Type: text/plain
+Date: Mon, 13 Feb 2006 11:06:16 +0100
+Message-Id: <1139825176.7499.11.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/10/06, Seewer Philippe <philippe.seewer@bfh.ch> wrote:
-> Hello all!
+On Mon, 2006-02-13 at 03:43 -0500, Lee Revell wrote:
+> On Mon, 2006-02-13 at 08:08 +0100, MIke Galbraith wrote:
+> > On Mon, 2006-02-13 at 01:38 -0500, Lee Revell wrote:
+> > > Do you know which of those changes fixes the "ls" problem?
+> > 
+> > No, it could be either, both, or neither.  Heck, it _could_ be a
+> > combination of all of the things in my experimental tree for that
+> > matter.  I put this patch out there because I know they're both bugs,
+> > and strongly suspect it'll cure the worst of the interactivity related
+> > delays.
+> > 
+> > I'm hoping you'll test it and confirm that it fixes yours.
+> 
+> Nope, this does not fix it.  "time ls" ping-pongs back and forth between
+> ~0.1s and ~0.9s.  Must have been something else in the first patch.
 
-Hi!
+Oh well. Thanks for testing Lee.  I was hoping this would be a case of
+instant gratification, 2.6.16 being near, but it's not to be.
 
-> I don't want to start another geometry war, but with the introduction of
-> the general getgeo function by Christoph Hellwig for all disks this
-> simply would become a matter of extending the basic gendisk block driver.
->
-> There are people out there (like me) who need to know about disk
-> geometry. But since this is clearly post 2.6.16 I prefer to ask here
-> before writing a patch...
->
-> Q1: Yes or No?
-> If no, the other questions do not apply
+	-Mike
 
-Yes?
-
-> Q2: Where under sysfs?
-> Either do /sys/block/hdx/heads, /sys/block/hdx/sectors, etc. or should
-> there be a new sub-object like /sys/block/hdx/geometry/heads?
-
-IMO /sys/block/hdx/sectors could be misleading
-therefore /sys/block/hdx/geometry/ would be better
-
-> Q3: Writable?
-> Under some (weird) circumstances it would actually be quite nice to
-> overwrite the kernels idea of a disks geometry. This would require a
-> general function like setgeo. Acceptable?
-
-Don't know.  Maybe you should make it into separate patch
-(incremental to basic functionality) so it can be decided later.
-
-Cheers,
-Bartlomiej

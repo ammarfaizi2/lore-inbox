@@ -1,52 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWBMMOn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWBMMPS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbWBMMOn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 07:14:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWBMMOn
+	id S932298AbWBMMPS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 07:15:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWBMMPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 07:14:43 -0500
-Received: from smtp10.wanadoo.fr ([193.252.22.21]:54227 "EHLO
-	smtp10.wanadoo.fr") by vger.kernel.org with ESMTP id S932388AbWBMMOm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 07:14:42 -0500
-X-ME-UUID: 20060213121441466.71EE62400153@mwinf1004.wanadoo.fr
-Subject: vold for linux ? [was: Re: CD writing in future Linux (stirring up
-	a hornets' nest)]
-From: Xavier Bestel <xavier.bestel@free.fr>
+	Mon, 13 Feb 2006 07:15:18 -0500
+Received: from THUNK.ORG ([69.25.196.29]:53188 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932298AbWBMMPQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 07:15:16 -0500
+Date: Mon, 13 Feb 2006 07:15:04 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
 To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: cfriesen@nortel.com, tytso@mit.edu, peter.read@gmail.com, mj@ucw.cz,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
-In-Reply-To: <43F05FB2.nailKUS3MR1N9@burner>
-References: <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr>
-	 <43EB7BBA.nailIFG412CGY@burner> <mj+md-20060209.173519.1949.atrey@ucw.cz>
-	 <43EC71FB.nailISD31LRCB@burner>
-	 <20060210114721.GB20093@merlin.emma.line.org>
-	 <43EC887B.nailISDGC9CP5@burner> <mj+md-20060210.123726.23341.atrey@ucw.cz>
-	 <43EC8E18.nailISDJTQDBG@burner>
-	 <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr>
-	 <43EC93A2.nailJEB1AMIE6@burner> <20060210141651.GB18707@thunk.org>
-	 <43ECA3FC.nailJGC110XNX@burner> <43ECA70C.8050906@nortel.com>
-	 <43ECA8BC.nailJHD157VRM@burner> <43ECADA8.9030609@nortel.com>
-	 <43F05FB2.nailKUS3MR1N9@burner>
-Content-Type: text/plain
-Message-Id: <1139832867.3527.140.camel@capoeira>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Mon, 13 Feb 2006 13:14:27 +0100
-Content-Transfer-Encoding: 7bit
+Cc: peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       jengelh@linux01.gwdg.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060213121503.GA31745@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
+	linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+	jengelh@linux01.gwdg.de
+References: <mj+md-20060210.123726.23341.atrey@ucw.cz> <43EC8E18.nailISDJTQDBG@burner> <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr> <43EC93A2.nailJEB1AMIE6@burner> <20060210141651.GB18707@thunk.org> <43ECA3FC.nailJGC110XNX@burner> <20060210145238.GC18707@thunk.org> <43ECA934.nailJHD2NPUCH@burner> <20060210155711.GA11566@thunk.org> <43F0634C.nailKUS6JSGJH@burner>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F0634C.nailKUS6JSGJH@burner>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-13 at 11:30, Joerg Schilling wrote:
+On Mon, Feb 13, 2006 at 11:45:32AM +0100, Joerg Schilling wrote:
+> If you did try to understand the reason why I did introduce the POSIX
+> claim, you would know that if Linux did try to follow the POSIX rule,
+> a side effect would be that removable devices need to have a stable 
+> mapping in the kernel
 
-> This media is mounted via a vold service and someone removes the USB cable
-> and reinserts it a second later. The filesystem on the device will be mounted
-> on the same mount point but the device ID inside the system did change.
+It is _not_ a POSIX rule, as I and others have shown.  You claimed it
+was required by POSIX, but you are quite clearly incorrect.  It has
+never worked that way with Unix systems, and POSIX was always designed
+to codify existing practice.  On Unix systems fixed disks would and
+did have their devices numbering schemes move around under a number of
+conditions.
 
-BTW, is there a vold-like implementation for linux somewhere ?
+> > In the context of mounted files, the only guarantee given by POSIX is
+> > that st_dev and st_ino for a particular file is unique.  But that
+> > clearly is true while the containing filesystem is mounted.  Even with
+> > Solaris, if a particular removable filesystem is unmounted and removed
+> > from one device (say one Jazz/Zip drive) and inserted into another
+> > device (say another Jazz/Zip drive), st_dev will change --- while the
+> > system is running.
+> 
+> Please don't confuse the fact that you will _always_ be able to find
+> ways to confuse a system with the fact that this needs to happen in 
+> all cases.
 
-Thanks,
-	Xav
+_Needs to happen_?  According to whom?
 
+And by your definition, if it _needs_ to happen "in all cases", then
+clearly since Solaris can be confused in this particular way, your
+favorite operating system is also "broken", yes?  And if you still
+claim that it is a "Posix rule", then by your reasoning Solaris must
+not be Posix compliant either.  Go ahead and tell your OpenSolaris
+friends that, and see what they say.  :-)
 
+						- Ted

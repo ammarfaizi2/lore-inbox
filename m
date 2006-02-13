@@ -1,78 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWBMRMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbWBMRMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932247AbWBMRMV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 12:12:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWBMRMU
+	id S932258AbWBMRMh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 12:12:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWBMRMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 12:12:20 -0500
-Received: from zproxy.gmail.com ([64.233.162.194]:48007 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932247AbWBMRMT convert rfc822-to-8bit
+	Mon, 13 Feb 2006 12:12:37 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:10780 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932258AbWBMRMg convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 12:12:19 -0500
+	Mon, 13 Feb 2006 12:12:36 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=uEoJouIb6/iLTF104kVifYGmDqiGYubpwnhbGTMfdblMY/1yJHuaeTtcdjM1D+D4qhkELWTpbIhnEqL8c+DUExO71Vi9kqB7LKd/jwopkqmBhCp2G3HU3rkLLM9DqDLKG++tQCFpfWiRgs6ykzr1wSVCjlV2faM24UIYau/CFwA=
-Message-ID: <5a2cf1f60602130912u7e8d28c4w4ef1749ff6c73142@mail.gmail.com>
-Date: Mon, 13 Feb 2006 18:12:17 +0100
-From: jerome lacoste <jerome.lacoste@gmail.com>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Cc: peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-       jengelh@linux01.gwdg.de, dhazelton@enter.net
-In-Reply-To: <43F0B2BA.nailKUS1DNTEHA@burner>
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Zy7hWFHrTTnW3uiXrNHFlUZo/cKH6viox3bj2rD2UhvZID2JKkmi6vVcWgLntHqv0SinQT8lvM8n9Zqn4TbAOyKz0DX7aUgHPDmF30S35Hp/OTyELboyEDemSLlNZ+sg698KPHh47eXZHIvv9BeVNWzhN7XKm7ovL7JuomCDgyI=
+Message-ID: <d120d5000602130912n6bae7f81p41be075fe5804e51@mail.gmail.com>
+Date: Mon, 13 Feb 2006 12:12:33 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Meelis Roos <mroos@linux.ee>
+Subject: Re: [PATCH] Add logitech mouse type 99
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Dmitry Torokhov <dtor@mail.ru>
+In-Reply-To: <Pine.SOC.4.61.0602051459260.17326@math.ut.ee>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <20060208162828.GA17534@voodoo> <43EC8F22.nailISDL17DJF@burner>
-	 <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com>
-	 <43F06220.nailKUS5D8SL2@burner>
-	 <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com>
-	 <43F0A010.nailKUSR1CGG5@burner>
-	 <5a2cf1f60602130724n7b060e29r57411260b04d5972@mail.gmail.com>
-	 <43F0AA83.nailKUS171HI4B@burner>
-	 <5a2cf1f60602130805u537de206k22fa418ee214cf02@mail.gmail.com>
-	 <43F0B2BA.nailKUS1DNTEHA@burner>
+References: <Pine.SOC.4.61.0602051459260.17326@math.ut.ee>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/13/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
-> jerome lacoste <jerome.lacoste@gmail.com> wrote:
+On 2/5/06, Meelis Roos <mroos@linux.ee> wrote:
+> Add Logitech mouse type 99 (Premium Optical Wheel Mouse, model M-BT58,
+> plain 3 buttons + wheel) to cure the following message:
+> logips2pp: Detected unknown logitech mouse model 99
 >
-> > The mapping I am talking about is currently done inside libscg (inside
-> > the scsi-*.c files). Hence libscg is the one capable of exposing this
-> > information to higher levels.
-> >
-> > > and how would you like to implement it OS independent?
-> >
-> > The information printed will be printed in a format such as:
-> >
-> > b,t,l <= os_specific_name
->
-> Why do you believe that this kind of mapping is needed?
+> Signed-off-by: Meelis Roos <mroos@linux.ee>
 
-To make it so that:
+Applied to my tree, thank you Meelis.
 
-- cdrecord keeps its dev=b,t,l command line interface
-
-- a cdrecord wrapper program lets a user specify the os specific name
-to access the drive. The wrapper program would identify the b,t,l name
-and feed it correctly to cdrecord. This can also be used to correctly
-identify 2 identical drives using their OS specific names.
-
--scanbus displays:
-1,0,0: DRIVE MODEL XYZ
-2,0,0: DRIVE MODEL XYZ
-
-but thank to that proposal, one would also have:
-
-1,0,0 <= /dev/hdc
-2,0,0 <= /dev/hdd
-
-I think it's a good compromise between what the users want and what you want.
-
-So, WDYT?
-
-Jerome
+--
+Dmitry

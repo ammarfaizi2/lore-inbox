@@ -1,71 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWBMPQM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbWBMPRJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbWBMPQM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 10:16:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbWBMPQM
+	id S932437AbWBMPRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 10:17:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932439AbWBMPRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 10:16:12 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:17067 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S932133AbWBMPQL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 10:16:11 -0500
-Message-ID: <43F0A2BC.1040806@dgreaves.com>
-Date: Mon, 13 Feb 2006 15:16:12 +0000
-From: David Greaves <david@dgreaves.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kalin KOZHUHAROV <kalin@thinrope.net>
+	Mon, 13 Feb 2006 10:17:09 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:35499 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S932437AbWBMPRI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 10:17:08 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Mon, 13 Feb 2006 16:15:36 +0100
+To: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Is my SATA/400GB drive dying?
-References: <Pine.LNX.4.64.0602130658110.21652@p34> <Pine.LNX.4.64.0602130659420.21772@p34> <dsq0qp$egf$1@sea.gmane.org>
-In-Reply-To: <dsq0qp$egf$1@sea.gmane.org>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43F0A298.nailKUSW190PU@burner>
+References: <20060208162828.GA17534@voodoo>
+ <200602090757.13767.dhazelton@enter.net>
+ <43EC8F22.nailISDL17DJF@burner>
+ <200602092221.56942.dhazelton@enter.net>
+ <43F08C5F.nailKUSDKZUAZ@burner>
+ <20060213135240.GD10566@merlin.emma.line.org>
+In-Reply-To: <20060213135240.GD10566@merlin.emma.line.org>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matthias Andree <matthias.andree@gmx.de> wrote:
 
->I know you are feeling uneasy at best, but I have more or less the same
->problems with two Raptors (WD740GD) on two Asus P5GCD-V Deluxe (ICH6) MBs. I
->had to pull them out of the box to use the boxes, because they were
->constantly freezing...
+> > For this reason, it is bejond the scope of the Linux kernel team to decide on 
+> > this abstraction layer. The Linux kernel team just need to take the current
+> > libscg interface as given as _this_  _is_ the way to do best abstraction.
 >
->Report is here:
->http://linux.tar.bz/reports/oopses/char/2.6.15.1-K01_P4_server.3.dmesg
->	(and the dirs above)
->
->So far I got one or two "me too" responses, but that was all. I think the
->last working kernel was 2.6.11, but that is a bit too old to test now and
->then I was not using libata, AFAIR.
->
->Now one of the boxes uses Seagate ST3250823AS (25d uptime) and the other an
->old PATA WDC WD102BB (yes that is only 10GB!).
->
->How reproducible is yours?
->
->We might file to bugzilla? (So far I always had the attention on LKML quick
->enough)
->  
->
-Me too... :)
+> This is ridiculous. The abstraction (SG_IO on an open special file) is
+> in the kernel. Feel free to stack as many layers on top as you wish, but
+> the kernel isn't going to bend just to support a random abstraction
+> library that cannot achieve its goals in its current form anyways.
 
-I've written to ide-linux and lkml (subject usually contains SMART
-and/or ATA for easy searching.
-http://marc.theaimsgroup.com/?l=linux-kernel&m=113769509617034&w=2
-http://marc.theaimsgroup.com/?l=linux-ide&m=113828551519727&w=2
-http://marc.theaimsgroup.com/?l=linux-ide&m=113829573105369&w=2
-http://marc.theaimsgroup.com/?l=linux-ide&m=113933732903205&w=2
+Try to inform yourself on the difference between an IOCTL and a /dev/ entry.
 
-No useful responses but I did gather a few email addresses of people who
-had *possibly* related problems.
-(I'm just waiting for enough people to complain and raise the profile).
-
-NB: It's my wifes machine so I need to pick my times to get access to
-experiment ;)
-
-David
+Jörg
 
 -- 
-
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

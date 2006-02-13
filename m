@@ -1,59 +1,71 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751651AbWBMIt5 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 13 Feb 2006 03:49:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751621AbWBMIt5
+	id S1751260AbWBMNFr (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 13 Feb 2006 08:05:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbWBMNFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 03:49:57 -0500
-Received: from [61.141.229.3] ([61.141.229.3]:25359 "HELO 202.96.154.15")
-	by vger.kernel.org with SMTP id S1751408AbWBMIt4 (ORCPT
+	Mon, 13 Feb 2006 08:05:47 -0500
+Received: from [61.135.151.188] ([61.135.151.188]:55323 "HELO zwallet.com")
+	by vger.kernel.org with SMTP id S1751260AbWBMNFr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 03:49:56 -0500
-Message-ID: <GrOTNA8NYrZAktY@iris.seed.net.tw>
-From: SSVVPPga3Jg@saturn.seed.net.tw
-To: TiWw17QDpP@microsoft.com
-Subject: =?ISO-8859-1?Q?=20=C1=A6=CC=EC=C8=ED=BC=FE5=D5=DB=B4=D9=CF=FA,?= =?ISO-8859-1?Q?=CC=E1?=
-	=?ISO-8859-1?Q?=B9=A9=D4=B4=C2=EB?=
+	Mon, 13 Feb 2006 08:05:47 -0500
+Message-ID: <FDE217F4.7E41DA8@zwallet.com>
+Date: Mon, 13 Feb 2006 20:58:36 +0700
+Reply-To: <jenswilson@zwallet.com>
+From: <jenswilson@zwallet.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
+MIME-Version: 1.0
+To: <linux-kernel@vger.kernel.org>
+Subject: ACCEPT IT!!!
 Content-Type: text/plain;
-Content-Transfer-Encoding: Quoted-Printable
-X-Priority: 3
-X-MSMail-Priority: Normal
-Date: Mon, 13 Feb 2006 03:49:56 -0500
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751651AbWBMIt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751260AbWBMNFr@vger.kernel.org>
 
-    
-    =C1=A6=CC=EC=C8=ED=BC=FE=CD=F8=D6=B7:  http://ltsoft.88ip.cn/  =BB=F2=D5=DF http://litiansoft.oicp.net
- 
-    =D7=EE=D0=C2=CC=D8=BC=DB=B9=AB=B8=E6:
- 
-    =CE=AA=B4=F0=D0=BB=B9=E3=B4=F3=BF=CD=BB=A7=B6=D4=D3=DA=C1=A6=CC=EC=C8=ED=BC=FE=B5=C4=D6=A7=B3=D6=A3=AC=C1=A6=CC=EC=C8=ED=BC=FE=CB=F9=D3=D0=B2=FA=C6=B7=C8=AB=CF=DF=BD=B5=BC=DB=A3=A1
 
-    E-office=CD=F8=C2=E7=B0=EC=B9=AB=C8=ED=BC=FE=D4=AD=BC=DB=A3=BA800=D4=AA  (=C9=EE=DB=DA=B5=E7=D7=D3=C9=CC=CE=F1=BB=F1=BD=B1=B2=FA=C6=B7) =D7=EE=D0=C2=BC=DB=B8=F1:400
+Greetings, 
 
-    SuperCRM V2.0=BF=CD=BB=A7=B9=D8=CF=B5=B9=DC=C0=ED=CF=B5=CD=B3=D4=AD=BC=DB =A3=BA800=D4=AA [=D7=EE=D0=C2=C9=FD=BC=B6] =D7=EE=D0=C2=BC=DB=B8=F1:400
+My name is Mrs. Jennifer Wilson. I am a dying woman who has decided to
+donate what I have to you/church. I am 59 years old and I was diagnosed 
+for cancer for about 2 years ago. Immediately after the death of my 
+husband, who has left me with everything he worked for? I have been 
+touched by God to donate from what I had inherited from my late husband  to
+you for the good work of God, rather than allow my relatives to use 
+my husband hard earned funds ungodly. Please pray that the good Lord
+forgive me my sins. 
 
-    =C1=A6=CC=EC=CD=A8=D3=C3=BD=A8=B5=EA=C9=CC=B5=EA=CF=B5=CD=B3=A3=AC=D4=AD=BC=DB=A3=BA500=D4=AA (=C8=FD=CC=D7=C4=A3=B0=E6) =D7=EE=D0=C2=BC=DB=B8=F1:250
-    
-    =C1=A6=CC=EC=D7=EE=D0=C2=CD=F8=C9=CF=C9=CC=B3=C7=CF=B5=CD=B33.0,=D6=A7=B3=D6=B6=E0=D3=C3=BB=A7=BD=A8=C1=A2=CF=FA=CA=DB=C6=BD=CC=A8,=D4=AD=BC=DB800=D4=AA =D7=EE=D0=C2=BC=DB=B8=F1:400
+I will be going in for an operation in less than Two weeks.  I decided to
+WILL/donate the sum of $5,500,000 (Five, million five  hundred thousand
+dollars) to you for the good work of the lord, and also  
+to help the motherless and less privilege and also for the assistance of
+the widows. 
 
-    =C1=A6=CC=ECWeb=BD=F8=CF=FA=B4=E6=D4=AD=BC=DB:1000=D4=AA =D7=EE=D0=C2=BC=DB=B8=F1:500
+At the moment, I cannot take any telephone calls right  now due to the fact
+that my relatives are around me and my health status. I have adjusted my
+WILL and my lawyer is aware I have changed my WILL. 
+You and he will arrange the transfer of the funds from my account to you. 
 
-    =C1=A6=CC=EC=D7=D4=D6=FA=C9=CC=B3=C7=CF=B5=CD=B32.0=A3=AC=D4=AD=BC=DB=A3=BA600=D4=AA=A1=A3  =D7=EE=D0=C2=BC=DB=B8=F1:300
+I wish you all the best and may the good Lord bless you abundantly, and 
+please use the funds well and always extend the good work to others. 
+Contact my lawyer Barr. Mark Van Weeren, via his email address
+:advocatemark@mail.lawguru.com 
+and tell him that I have WILLED ($5,500,000.00) to you by quoting my
+personal reference number law/chamber/solicitors/je/ws/WILL/9834520012 and I
+have also notified 
+him that I am WILLING that amount to you for a specific and good work. I 
+do know that I am not used to you but I have been directed to do this. 
+Thanks and God bless. 
 
-    =C1=A6=CC=EC=D7=D4=D6=FA=BD=A8=D5=BE=CF=B5=CD=B3,257=B8=F6=C4=A3=B0=E6,=D4=AD=BC=DB:1000 =D4=AA =D7=EE=D0=C2=BC=DB=B8=F1:500
+NB: I will appreciate your utmost confidentiality in this matter until the
+task is accomplished, as I don't want anything that will jeopardize 
+my last wish. And Also I will be contacting with you by email as I don't
+want my  relation or anybody to know because they are always around me
+Please 
+contact me via this email: wilsonjenn2006@netscape.net
 
-    =C1=A6=CC=EC=B7=C2=B0=A2=C0=EF=B0=CD=B0=CD=C9=CC=C3=B3=CF=B5=CD=B3,=D4=AD=BC=DB800=D4=AA. =D7=EE=D0=C2=BC=DB=B8=F1:400
-    
-    =C1=A6=CC=ECerp V5.0,=B9=A6=C4=DC=C7=BF=B4=F3,=CA=CA=D3=C3=B7=B6=CE=A7=B9=E3,=CA=B5=CA=A9=C8=DD=D2=D7,=CA=C7=D6=D0=D0=A1=C6=F3=D2=B5=D7=EE=BC=D1=D1=A1=D4=F1,=D3=A6=D3=C3=B0=E6=B1=BE,
-    
-    =BD=F6=CA=DB1000 =D4=AA/=CC=D7,=BE=F8=B6=D4=B3=AC=D6=B5!   
+Regards, 
+Jennifer Wilson 
 
-    =BB=FA=BB=E1=C4=D1=B5=C3=A3=A1  
- 
-    =D7=C9=D1=AF=C8=C8=CF=DF=B5=E7=BB=B0=A3=BA0755-61282515  =C0=EE=CC=CE
-
----------------------------------------------------------------
-=C8=E7=B9=FB=C4=FA=B2=BB=D0=E8=D2=AA,=C7=EB=D7=AA=B7=A2=B8=F8=D0=E8=D2=AA=B5=C4=CD=F8=D3=D1=BB=F2=D5=DF=CB=E6=CA=D6=C9=BE=B3=FD,=D0=BB=D0=BB!
 
 

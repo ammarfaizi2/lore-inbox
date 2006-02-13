@@ -1,214 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751533AbWBMBMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751529AbWBMBLh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751533AbWBMBMF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 20:12:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751521AbWBMBLl
+	id S1751529AbWBMBLh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 20:11:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751532AbWBMBLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 20:11:41 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:34777 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751520AbWBMBLR (ORCPT
+	Sun, 12 Feb 2006 20:11:37 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:36057 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751525AbWBMBLZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 20:11:17 -0500
-Date: Mon, 13 Feb 2006 02:11:12 +0100 (CET)
+	Sun, 12 Feb 2006 20:11:25 -0500
+Date: Mon, 13 Feb 2006 02:11:21 +0100 (CET)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
 To: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de,
        linux-kernel@vger.kernel.org
-Subject: [PATCH 08/13] hrtimer: remove data field
-Message-ID: <Pine.LNX.4.61.0602130211060.23839@scrub.home>
+Subject: [PATCH 09/13] hrtimer: remove data field
+Message-ID: <Pine.LNX.4.61.0602130211150.23843@scrub.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The nanosleep cleanup allows to remove the data field of hrtimer. The
-callback function can use container_of() to get it's own data. Since the
-hrtimer structure is usually embedded in other structures, the code also
-becomes a bit simpler.
+Remove the it_real_value from /proc/*/stat, during 1.2.x was the last
+time it returned useful data (as it was directly maintained by the
+scheduler), now it's only a waste of time to calculate it.
 
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
 ---
 
- fs/exec.c               |    2 +-
- include/linux/hrtimer.h |    3 +--
- include/linux/sched.h   |    1 +
- include/linux/timer.h   |    3 ++-
- kernel/fork.c           |    2 +-
- kernel/hrtimer.c        |   11 ++++-------
- kernel/itimer.c         |   11 +++++------
- kernel/posix-timers.c   |    7 +++----
- 8 files changed, 18 insertions(+), 22 deletions(-)
+ fs/proc/array.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-Index: linux-2.6-git/fs/exec.c
+Index: linux-2.6-git/fs/proc/array.c
 ===================================================================
---- linux-2.6-git.orig/fs/exec.c	2006-02-12 19:52:50.000000000 +0100
-+++ linux-2.6-git/fs/exec.c	2006-02-12 20:08:49.000000000 +0100
-@@ -632,7 +632,7 @@ static int de_thread(struct task_struct 
- 		 * synchronize with any firing (by calling del_timer_sync)
- 		 * before we can safely let the old group leader die.
- 		 */
--		sig->real_timer.data = current;
-+		sig->tsk = current;
- 		spin_unlock_irq(lock);
- 		if (hrtimer_cancel(&sig->real_timer))
- 			hrtimer_restart(&sig->real_timer);
-Index: linux-2.6-git/include/linux/hrtimer.h
-===================================================================
---- linux-2.6-git.orig/include/linux/hrtimer.h	2006-02-12 20:05:36.000000000 +0100
-+++ linux-2.6-git/include/linux/hrtimer.h	2006-02-12 20:08:49.000000000 +0100
-@@ -55,8 +55,7 @@ struct hrtimer_base;
- struct hrtimer {
- 	struct rb_node		node;
- 	ktime_t			expires;
--	int			(*function)(void *);
--	void			*data;
-+	int			(*function)(struct hrtimer *);
- 	struct hrtimer_base	*base;
- };
+--- linux-2.6-git.orig/fs/proc/array.c	2006-02-12 18:32:46.000000000 +0100
++++ linux-2.6-git/fs/proc/array.c	2006-02-12 18:33:38.000000000 +0100
+@@ -330,7 +330,6 @@ static int do_task_stat(struct task_stru
+ 	unsigned long  min_flt = 0,  maj_flt = 0;
+ 	cputime_t cutime, cstime, utime, stime;
+ 	unsigned long rsslim = 0;
+-	DEFINE_KTIME(it_real_value);
+ 	struct task_struct *t;
+ 	char tcomm[sizeof(task->comm)];
  
-Index: linux-2.6-git/include/linux/sched.h
-===================================================================
---- linux-2.6-git.orig/include/linux/sched.h	2006-02-12 19:52:50.000000000 +0100
-+++ linux-2.6-git/include/linux/sched.h	2006-02-12 20:08:49.000000000 +0100
-@@ -401,6 +401,7 @@ struct signal_struct {
- 
- 	/* ITIMER_REAL timer for the process */
- 	struct hrtimer real_timer;
-+	struct task_struct *tsk;
- 	ktime_t it_real_incr;
- 
- 	/* ITIMER_PROF and ITIMER_VIRTUAL timers for the process */
-Index: linux-2.6-git/include/linux/timer.h
-===================================================================
---- linux-2.6-git.orig/include/linux/timer.h	2006-02-12 19:52:50.000000000 +0100
-+++ linux-2.6-git/include/linux/timer.h	2006-02-12 20:08:49.000000000 +0100
-@@ -96,6 +96,7 @@ static inline void add_timer(struct time
- 
- extern void init_timers(void);
- extern void run_local_timers(void);
--extern int it_real_fn(void *);
-+struct hrtimer;
-+extern int it_real_fn(struct hrtimer *);
- 
- #endif
-Index: linux-2.6-git/kernel/fork.c
-===================================================================
---- linux-2.6-git.orig/kernel/fork.c	2006-02-12 19:52:50.000000000 +0100
-+++ linux-2.6-git/kernel/fork.c	2006-02-12 20:08:49.000000000 +0100
-@@ -845,7 +845,7 @@ static inline int copy_signal(unsigned l
- 	hrtimer_init(&sig->real_timer, CLOCK_MONOTONIC, HRTIMER_REL);
- 	sig->it_real_incr.tv64 = 0;
- 	sig->real_timer.function = it_real_fn;
--	sig->real_timer.data = tsk;
-+	sig->tsk = tsk;
- 
- 	sig->it_virt_expires = cputime_zero;
- 	sig->it_virt_incr = cputime_zero;
-Index: linux-2.6-git/kernel/hrtimer.c
-===================================================================
---- linux-2.6-git.orig/kernel/hrtimer.c	2006-02-12 20:05:36.000000000 +0100
-+++ linux-2.6-git/kernel/hrtimer.c	2006-02-12 20:08:49.000000000 +0100
-@@ -547,21 +547,19 @@ static inline void run_hrtimer_queue(str
- 
- 	while ((node = base->first)) {
- 		struct hrtimer *timer;
--		int (*fn)(void *);
-+		int (*fn)(struct hrtimer *);
- 		int restart;
--		void *data;
- 
- 		timer = rb_entry(node, struct hrtimer, node);
- 		if (now.tv64 <= timer->expires.tv64)
- 			break;
- 
- 		fn = timer->function;
--		data = timer->data;
- 		set_curr_timer(base, timer);
- 		__remove_hrtimer(timer, base);
- 		spin_unlock_irq(&base->lock);
- 
--		restart = fn(data);
-+		restart = fn(timer);
- 
- 		spin_lock_irq(&base->lock);
- 
-@@ -604,9 +602,9 @@ struct sleep_hrtimer {
- 	int done;
- };
- 
--static int nanosleep_wakeup(void *data)
-+static int nanosleep_wakeup(struct hrtimer *timer)
- {
--	struct sleep_hrtimer *t = data;
-+	struct sleep_hrtimer *t = container_of(timer, struct sleep_hrtimer, timer);
- 
- 	t->done = 1;
- 	wake_up_process(t->task);
-@@ -617,7 +615,6 @@ static int nanosleep_wakeup(void *data)
- static int __sched do_nanosleep(struct sleep_hrtimer *t, enum hrtimer_mode mode)
- {
- 	t->timer.function = nanosleep_wakeup;
--	t->timer.data = t;
- 	t->task = current;
- 	t->done = 0;
- 
-Index: linux-2.6-git/kernel/itimer.c
-===================================================================
---- linux-2.6-git.orig/kernel/itimer.c	2006-02-12 19:52:50.000000000 +0100
-+++ linux-2.6-git/kernel/itimer.c	2006-02-12 20:08:49.000000000 +0100
-@@ -128,15 +128,14 @@ asmlinkage long sys_getitimer(int which,
- /*
-  * The timer is automagically restarted, when interval != 0
-  */
--int it_real_fn(void *data)
-+int it_real_fn(struct hrtimer *timer)
- {
--	struct task_struct *tsk = (struct task_struct *) data;
-+	struct signal_struct *sig = container_of(timer, struct signal_struct, real_timer);
- 
--	send_group_sig_info(SIGALRM, SEND_SIG_PRIV, tsk);
-+	send_group_sig_info(SIGALRM, SEND_SIG_PRIV, sig->tsk);
- 
--	if (tsk->signal->it_real_incr.tv64 != 0) {
--		hrtimer_forward(&tsk->signal->real_timer,
--			       tsk->signal->it_real_incr);
-+	if (sig->it_real_incr.tv64 != 0) {
-+		hrtimer_forward(&sig->real_timer, sig->it_real_incr);
- 
- 		return HRTIMER_RESTART;
+@@ -386,7 +385,6 @@ static int do_task_stat(struct task_stru
+ 			utime = cputime_add(utime, task->signal->utime);
+ 			stime = cputime_add(stime, task->signal->stime);
+ 		}
+-		it_real_value = task->signal->real_timer.expires;
  	}
-Index: linux-2.6-git/kernel/posix-timers.c
-===================================================================
---- linux-2.6-git.orig/kernel/posix-timers.c	2006-02-12 19:52:50.000000000 +0100
-+++ linux-2.6-git/kernel/posix-timers.c	2006-02-12 20:08:49.000000000 +0100
-@@ -144,7 +144,7 @@ static int common_timer_set(struct k_iti
- 			    struct itimerspec *, struct itimerspec *);
- static int common_timer_del(struct k_itimer *timer);
+ 	ppid = pid_alive(task) ? task->group_leader->real_parent->tgid : 0;
+ 	read_unlock(&tasklist_lock);
+@@ -413,7 +411,7 @@ static int do_task_stat(struct task_stru
+ 	start_time = nsec_to_clock_t(start_time);
  
--static int posix_timer_fn(void *data);
-+static int posix_timer_fn(struct hrtimer *data);
- 
- static struct k_itimer *lock_timer(timer_t timer_id, unsigned long *flags);
- 
-@@ -330,9 +330,9 @@ EXPORT_SYMBOL_GPL(posix_timer_event);
- 
-  * This code is for CLOCK_REALTIME* and CLOCK_MONOTONIC* timers.
-  */
--static int posix_timer_fn(void *data)
-+static int posix_timer_fn(struct hrtimer *data)
- {
--	struct k_itimer *timr = data;
-+	struct k_itimer *timr = container_of(data, struct k_itimer, it.real.timer);
- 	unsigned long flags;
- 	int si_private = 0;
- 	int ret = HRTIMER_NORESTART;
-@@ -715,7 +715,6 @@ common_timer_set(struct k_itimer *timr, 
- 
- 	mode = flags & TIMER_ABSTIME ? HRTIMER_ABS : HRTIMER_REL;
- 	hrtimer_init(&timr->it.real.timer, timr->it_clock, mode);
--	timr->it.real.timer.data = timr;
- 	timr->it.real.timer.function = posix_timer_fn;
- 
- 	timer->expires = timespec_to_ktime(new_setting->it_value);
+ 	res = sprintf(buffer,"%d (%s) %c %d %d %d %d %d %lu %lu \
+-%lu %lu %lu %lu %lu %ld %ld %ld %ld %d %ld %llu %lu %ld %lu %lu %lu %lu %lu \
++%lu %lu %lu %lu %lu %ld %ld %ld %ld %d 0 %llu %lu %ld %lu %lu %lu %lu %lu \
+ %lu %lu %lu %lu %lu %lu %lu %lu %d %d %lu %lu\n",
+ 		task->pid,
+ 		tcomm,
+@@ -435,7 +433,6 @@ static int do_task_stat(struct task_stru
+ 		priority,
+ 		nice,
+ 		num_threads,
+-		(long) ktime_to_clock_t(it_real_value),
+ 		start_time,
+ 		vsize,
+ 		mm ? get_mm_rss(mm) : 0,

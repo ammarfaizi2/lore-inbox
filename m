@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751791AbWBMOQj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbWBMOY1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751791AbWBMOQj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 09:16:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751794AbWBMOQj
+	id S1751265AbWBMOY1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 09:24:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751272AbWBMOY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 09:16:39 -0500
-Received: from mo00.iij4u.or.jp ([210.130.0.19]:32486 "EHLO mo00.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S1751791AbWBMOQi (ORCPT
+	Mon, 13 Feb 2006 09:24:27 -0500
+Received: from mail.gmx.de ([213.165.64.21]:2776 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751265AbWBMOY0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 09:16:38 -0500
-Date: Mon, 13 Feb 2006 23:16:36 +0900 (JST)
-Message-Id: <20060213.231636.103125334.toriatama@inter7.jp>
-To: linux-kernel@vger.kernel.org
-Subject: PPP with PCMCIA modem stalls on 2.6.10 or later
-From: Kouji Toriatama <toriatama@inter7.jp>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Feb 2006 09:24:26 -0500
+X-Authenticated: #428038
+Date: Mon, 13 Feb 2006 15:24:23 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060213142423.GF10566@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20060210114721.GB20093@merlin.emma.line.org> <43EC887B.nailISDGC9CP5@burner> <mj+md-20060210.123726.23341.atrey@ucw.cz> <43EC8E18.nailISDJTQDBG@burner> <Pine.LNX.4.61.0602101409320.31246@yvahk01.tjqt.qr> <43EC93A2.nailJEB1AMIE6@burner> <20060210141651.GB18707@thunk.org> <43ECA3FC.nailJGC110XNX@burner> <Pine.LNX.4.61.0602121101070.25363@yvahk01.tjqt.qr> <43F092BB.nailKUSH1YIP1@burner>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F092BB.nailKUSH1YIP1@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Joerg Schilling schrieb am 2006-02-13:
 
-I am trying to run pppd with high speed PCMCIA modem on an
-IBM Thinkpad T41 laptop.  My Linux system is Debian (sarge)
-with vanilla kernel such as 2.6.15.4.
+> But as a note: st_rdev from the device carrying the FS becomes st_dev
+> for all files inside a particular FS.
 
-The problem is PPP connection through the modem stalls at
-frequent intervals.  (To be exact, the PPP connection means
-TCP traffic such as SSH, HTTP.)
+This doesn't yield any further guarantees, and beyond that is utterly
+irrelevant as the device in question is not mounted at all, so this
+connection remains invisible.
 
-I have tested some of older kernels.  Followings are the
-results of the test.
+This is just the usual Schily Distraction Maneuvre.
 
-   Work fine: 2.6.8, 2.6.8.1, 2.6.9
-   Stall:     2.6.10, 2.6.11, 2.6.15.2, 2.6.15.3, 2.6.15.4
-                   (2.6.11.1 ~ 2.6.15.1 have not been tested)
-
-I guess kernel 2.6.10 or later have the problem.  So, I have
-checked ChangeLog-2.6.10, but I could not find out any couse
-of the issue.  I have also checkd patch-2.6.10. But there are
-may fixes related to PPP, PCMCIA, and serial.  Now, I have
-lost where to search.
-
-Does anyone have any idea to fix the problem or ideas for
-more tests that I can run to pin down the problem?
-Any sugestions are welcome.
-
-Thanks for your attention,
-Kouji Toriatama
+-- 
+Matthias Andree

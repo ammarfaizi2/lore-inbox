@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751611AbWBMEke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751619AbWBMEkm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751611AbWBMEke (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 23:40:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751612AbWBMEke
+	id S1751619AbWBMEkm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 23:40:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751615AbWBMEkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 23:40:34 -0500
-Received: from pop-7.dnv.wideopenwest.com ([64.233.207.25]:28893 "EHLO
-	pop-7.dnv.wideopenwest.com") by vger.kernel.org with ESMTP
-	id S1751610AbWBMEkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 23:40:33 -0500
-Date: Sun, 12 Feb 2006 23:40:29 -0500
-From: Paul <set@pobox.com>
-To: linux-kernel@vger.kernel.org
-Cc: Phillip Susi <psusi@cfl.rr.com>
-Subject: Re: Packet writing issue on 2.6.15.1
-Message-ID: <20060213044029.GF7450@squish.home.loc>
-Mail-Followup-To: Paul <set@pobox.com>, linux-kernel@vger.kernel.org,
-	Phillip Susi <psusi@cfl.rr.com>
-References: <20060211103520.455746f6@silver> <m3r76a875w.fsf@telia.com> <20060211124818.063074cc@silver> <m3bqxd999u.fsf@telia.com> <20060211170813.3fb47a03@silver> <43EE446C.8010402@cfl.rr.com> <20060211211440.3b9a4bf9@silver> <43EE8B20.7000602@cfl.rr.com> <20060212080727.GE7450@squish.home.loc> <43EFD38F.30600@cfl.rr.com>
+	Sun, 12 Feb 2006 23:40:40 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:25526 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751610AbWBMEki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 23:40:38 -0500
+Subject: Re: Linux 2.6.16-rc3
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>, "Brown, Len" <len.brown@intel.com>,
+       "David S. Miller" <davem@davemloft.net>, Greg KH <greg@kroah.com>,
+       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       "Yu, Luming" <luming.yu@intel.com>, Ben Castricum <lk@bencastricum.nl>,
+       sanjoy@mrao.cam.ac.uk, Helge Hafting <helgehaf@aitel.hist.no>,
+       "Carlo E. Prelz" <fluido@fluido.as>,
+       Gerrit =?ISO-8859-1?Q?Bruchh=E4user?= <gbruchhaeuser@gmx.de>,
+       Nicolas.Mailhot@LaPoste.net, Jaroslav Kysela <perex@suse.cz>,
+       Takashi Iwai <tiwai@suse.de>, Patrizio Bassi <patrizio.bassi@gmail.com>,
+       =?ISO-8859-1?Q?Bj=F6rn?= Nilsson <bni.swe@gmail.com>,
+       Andrey Borzenkov <arvidjaar@mail.ru>, "P. Christeas" <p_christ@hol.gr>,
+       ghrt <ghrt@dial.kappa.ro>, jinhong hu <jinhong.hu@gmail.com>,
+       Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-scsi@vger.kernel.org,
+       Benjamin LaHaise <bcrl@kvack.org>
+In-Reply-To: <20060212190520.244fcaec.akpm@osdl.org>
+References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org>
+	 <20060212190520.244fcaec.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sun, 12 Feb 2006 22:40:29 -0600
+Message-Id: <1139805630.5153.0.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43EFD38F.30600@cfl.rr.com>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Susi <psusi@cfl.rr.com>, on Sun Feb 12, 2006 [07:32:15 PM] said:
-> Paul wrote:
-> >
-> >	This is not technically true; once the pktcdvd mapping is made,
-> >the device can be accessed like a r/w block device. For example, after
-> >I associate the dvd with the pktcdvd device, I then can associate it
-> >with a cryptographic loop device, and mke2fs on that, then mount it
-> >and use it like any other filesystem. Something like:
-> 
-> You must first format the cd-rw in packet mode with cdrwtool before 
-> pktcdvd can write to it.
-> 
+On Sun, 2006-02-12 at 19:05 -0800, Andrew Morton wrote:
+> - The scsi_cmd leak, which I don't think is fixed.
 
-	Hi;
+Erm, you mean the leak caused by flush barriers?  That was verified as
+fixed (albeit accidentally) in 2.6.16-rc1.
 
-	Ah, I havent used a cd-rw in quite some time; I recall now
-that I had to do an initial format on the dvd-rw with dvd+rw-format,
-but had never used cdrwtool in the process. Thanks for the correction.
+James
 
-Paul
-set@pobox.com
+

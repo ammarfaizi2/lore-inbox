@@ -1,71 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWBMRu4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbWBMRvQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbWBMRu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 12:50:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWBMRu4
+	id S932372AbWBMRvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 12:51:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWBMRvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 12:50:56 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:20645
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932369AbWBMRuz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 12:50:55 -0500
-Date: Mon, 13 Feb 2006 09:50:46 -0800
-From: Greg KH <greg@kroah.com>
-To: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060213175046.GA20952@kroah.com>
-References: <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com> <20060210235654.GA22512@kroah.com> <20060212120450.GA93069@dspnet.fr.eu.org> <20060212164633.GA2941@kroah.com> <20060212211406.GA48606@dspnet.fr.eu.org> <20060213062412.GB2335@kroah.com> <20060213164911.GB75835@dspnet.fr.eu.org>
+	Mon, 13 Feb 2006 12:51:15 -0500
+Received: from smtp.dkm.cz ([62.24.64.34]:56068 "HELO smtp.dkm.cz")
+	by vger.kernel.org with SMTP id S932376AbWBMRvO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 12:51:14 -0500
+Date: Mon, 13 Feb 2006 18:51:12 +0100
+From: iSteve <isteve@rulez.cz>
+To: Phillip Susi <psusi@cfl.rr.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       Peter Osterlund <petero2@telia.com>
+Subject: Re: Packet writing issue on 2.6.15.1
+Message-ID: <20060213185112.79da8ecc@silver>
+In-Reply-To: <43F0AA61.1000607@cfl.rr.com>
+References: <20060211103520.455746f6@silver>
+	<m3r76a875w.fsf@telia.com>
+	<20060211124818.063074cc@silver>
+	<m3bqxd999u.fsf@telia.com>
+	<20060211170813.3fb47a03@silver>
+	<43EE446C.8010402@cfl.rr.com>
+	<20060211211440.3b9a4bf9@silver>
+	<43EE8B20.7000602@cfl.rr.com>
+	<2006021 <20060213160024.5e01fa46@silver>
+	<43F0AA61.1000607@cfl.rr.com>
+X-Mailer: Sylpheed-Claws 2.0.0cvs42 (GTK+ 2.8.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060213164911.GB75835@dspnet.fr.eu.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 13, 2006 at 05:49:11PM +0100, Olivier Galibert wrote:
-> On Sun, Feb 12, 2006 at 10:24:12PM -0800, Greg KH wrote:
-> > On Sun, Feb 12, 2006 at 10:14:06PM +0100, Olivier Galibert wrote:
-> > > On Sun, Feb 12, 2006 at 08:46:33AM -0800, Greg KH wrote:
-> > > > On Sun, Feb 12, 2006 at 01:04:51PM +0100, Olivier Galibert wrote:
-> > > > > You need to call udevinfo for that, or parse /dev/.udev/*.  Do you
-> > > > > think it would be possible to have hotplug/udev/whatever exists in the
-> > > > > future to give that information back in the kernel and have it appear
-> > > > > in sysfs?
-> > > > 
-> > > > No.  Why would it when it is very simple to query udevinfo for that?
-> > > 
-> > > In order not to depend on a userland package for the kernel service of
-> > > device enumeration?  It's udevinfo now, what will it be in two years?
-> > 
-> > WTF?  You are depending on that same program to create your device
-> > nodes.  If you don't want to use that program to do it, then use
-> > something else, or use a static device tree, which works like always.
+On Mon, 13 Feb 2006 10:48:49 -0500
+Phillip Susi <psusi@cfl.rr.com> wrote:
+> The media must be formatted first before you can write to it.  It looks 
+> like you just tried to write to an unformatted disc.  Use cdrwtool -q 
+> first to format it, then cdrwtool -f foo.img to write out your image. 
 > 
-> Funnily enough, my, say, mp3 usb key sync system would like to run as
-> non-root and does not want to know or care about what program creates
-> the device nodes.  Too bad this otherwise beautiful and useful sysfs
-> is crippled by design.
-
-Huh?  What sysfs design flaw is that?
-
-You can run your mp3 usb ksy sync system as non-root just fine, I do
-just that.  When my device is plugged in, a udev rule runs a script that
-changes users and resyncs my device.
-
-But that has nothing to do with sysfs at all.
-
-> > sysfs exports everything that userspace needs to know, if it wants to
-> > create a device node to talk to that specific device.  udev used it to
-> > create your /dev tree, while other programs use it to create temporary
-> > device nodes to do other things to your devices.  Either way, the kernel
-> > doesn't know, or care what you call those device nodes.
 > 
-> You mean root is mandatory to talk with devices, whatever they are?
+Tried. Tried also with setting -t 10 (the medium is 10x), without -p 1 (still
+trying fixed packet size, same size). Out of four attempts, all failed.
+ ----[snipet]----
+# cdrwtool -d /dev/cdrw -q -p 1
+using device /dev/cdrw
+fixed packets
+4690KB internal buffer
+setting write speed to 12x
+Settings for /dev/cdrw:
+        Fixed packets, size 32
+        Mode-2 disc
 
-Not at all.  You only have to be root to create a device node, nothing
-new there.
+I'm going to do a quick setup of /dev/cdrw. The disc is going to be blanked and
+formatted with one big track. All data on the device will be lost!! Press
+CTRL-C to cancel now. ENTER to continue.
 
-thanks,
+Initiating quick disc blank
+Disc capacity is 295264 blocks (590528KB/576MB)
+Formatting track
+wait_cmd: Input/output error
+Command failed: 04 17 00 00 00 00 00 00 00 00 00 00 - sense 05.64.00
+format disc: Illegal seek
+---[/snipet]----
 
-greg k-h
+DMESG:
+cdrom: This disc doesn't have any tracks I recognize!
+
+Please note that although I've been testing packet writing on 2.6.15.1, I'm
+performing the initial burning on 2.6.12.1(+ squashfs), I apologize for not
+mentioning this.
+
+The udftools are from Debian, in version 1.0.0b3-11.
+-- 
+ -- iSteve

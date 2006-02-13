@@ -1,65 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWBMSyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWBMSym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964803AbWBMSyY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 13:54:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbWBMSyY
+	id S964780AbWBMSym (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 13:54:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWBMSyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 13:54:24 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:53092 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964803AbWBMSyX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 13:54:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CT6q6cN/RarPQ0wYAbWYaHCooBbDsxziSB3UgNLCvNl1W9DpNQmvJ1zi56YcyEEIeveCNchixuD/q2F6teBMVXck8Vb3o/vnIc13xn59EFlJKnTC8fxvQjczAY/hsfVtk7Ac/Ze5rtjDNVuT1Bv3gDlHBbc7JK7TaEyvKZD+Go0=
-Message-ID: <7c3341450602131054k71e3a8c4o@mail.gmail.com>
-Date: Mon, 13 Feb 2006 18:54:22 +0000
-From: Nick Warne <nick@linicks.net>
-Reply-To: Nick Warne <nick@linicks.net>
-To: ghrt <ghrt@dial.kappa.ro>
-Subject: Re: Fw: PROBLEM: SB Live! 5.1 (emu10k1, rev. 0a) doesn't work with 2.6.15
-Cc: Takashi Iwai <tiwai@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Jaroslav Kysela <perex@suse.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <s5h7j7z47q4.wl%tiwai@suse.de>
+	Mon, 13 Feb 2006 13:54:41 -0500
+Received: from gold.veritas.com ([143.127.12.110]:47774 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S964780AbWBMSyk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 13:54:40 -0500
+Date: Mon, 13 Feb 2006 18:23:36 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+cc: William Irwin <wli@holomorphy.com>, Gleb Natapov <gleb@minantech.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       openib-general@openib.org
+Subject: Re: madvise MADV_DONTFORK/MADV_DOFORK
+In-Reply-To: <20060213154114.GO32041@mellanox.co.il>
+Message-ID: <Pine.LNX.4.61.0602131754430.8653@goblin.wat.veritas.com>
+References: <20060213154114.GO32041@mellanox.co.il>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060213040900.1e360292.akpm@osdl.org>
-	 <s5h7j7z47q4.wl%tiwai@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 13 Feb 2006 18:54:40.0081 (UTC) FILETIME=[F1907410:01C630CE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > i've compiled vanilla 2.6.15 and my sound card doesn't work anymore.
-> > i can see it in kmix (and adjust the volumes, too), it appears in
-> > dmesg (at ALSA devices), xmms & mplayer doesn't say anything about
-> > errors, but it doesn't make any sound.
-> > the onboard soundcard, via8233, works well with the same 2.6.15.
-> > sb live! works well with 2.6.14.2 and previous.
-> > i'm using an updated Slackware.
-> >
-> > if you have any questions i'll answer.
->
-> First check /proc/asound/cards to see whether the emu10k1 model is
-> detected properly.  If '[Unknown]' is shown, your model is not
-> listed in the whitelist.
->
-> There was a bug that the front control conflicts with ac97 and emu10k1
-> dsp which was already fixed in the latest version (at least on
-> 2.6.16-rc3).
+On Mon, 13 Feb 2006, Michael S. Tsirkin wrote:
 
-For what it is worth, I had issues with my SB Live! but as this all
-(appeared) to start when my CPU died and I had to reset BIOS or if I
-did indeed move up to 2.6.15 at around the same time I can't remember
-(2.6.15 release and CPU died all around same date) - refer to the
-following:
+> OK, I guess its time to start the push for merging this patch.
+> Probably not 2.6.16 material, but it would be nice to get this say into -mm to
+> make it easier to test this. Tested on x86_64 only.
+> 
+> Please Cc me directly with comments, I'm not on the list.
+> 
+> ---
+> 
+> Add madvise options to control whether memory range is inherited across fork.
+> Useful e.g. for when hardware is doing DMA from/into these pages.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
 
-http://lkml.org/lkml/2006/2/11/4
+Looks good to me, Michael (but Gleb's eye has always proved better than
+mine).  Just a couple of adjustments I'd ask before you send to Andrew: 
 
-As stated the solution for me was to update alsa-utils and alsa-libs
-which fixed the issues I was getting - I found that if one of the
-'controls' (15, I think?) was invalid at boot, all the volume settings
-in alsamixer got set to '0' (i.e. mute/turned off) - no sound.
+1. Please just drop your mm/mmap.c vm_stat_account() mod:
 
-Nick
+>  	if (flags & VM_HUGETLB) {
+> -		if (!(flags & VM_DONTCOPY))
+> +		if (!(flags & (VM_DONTCOPY|VM_DONTFORK)))
+>  			mm->shared_vm += pages;
+
+Conscientious of you to include that, but (a) if it's right, then you'd
+need to be fiddling shared_vm up and down whenever madvise changes
+VM_DONTFORK, and none us much want to get into that; and (b) I cannot
+for the life of me work out what that VM_HUGETLB VM_DONTCOPY block is
+about in the first place - I can't even find any instance of VM_HUGETLB
+with VM_DONTCOPY to judge it by.  Luckily, wli CC'ed is the expert on
+both hugetlb and vm_stat_account - I hope he'll just tell us that block
+is wrong and should be deleted (which he or I could do as an unrelated
+patch).  Perhaps it was an inappropriate hack to prevent some count
+going negative, from the days when we forgot to correct total_vm in
+the VM_DONTCOPY case in dup_mmap.
+
+2. Your two-line changeset comment should be expanded: mention Infiniband,
+mention get_user_pages, explain how frustrating it is for the carefully
+pinned page to be orphaned from its user address space by a stray Copy-
+On-Write, if the process happens to fork meanwhile; and how VM_DONTFORK
+can be used to secure areas against that possibility.  Mention how it
+could also be useful to an application, wanting to speed up its forks
+by cutting large areas out of consideration.  Some of that information
+will be useful to Michael Kerrisk when he updates the madvise man page.
+
+Explain that MADV_DONTFORK should be reversible, hence MADV_DOFORK;
+but should not be reversible on areas a driver has so marked, hence
+VM_DONTFORK distinct from VM_DONTCOPY.
+
+Thanks,
+Hugh

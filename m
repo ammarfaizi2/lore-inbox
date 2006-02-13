@@ -1,65 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbWBMQ1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWBMQ2H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750852AbWBMQ1y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 11:27:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbWBMQ1y
+	id S1750808AbWBMQ2H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 11:28:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbWBMQ2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 11:27:54 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:45300 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1750808AbWBMQ1x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 11:27:53 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 13 Feb 2006 17:26:21 +0100
-To: schilling@fokus.fraunhofer.de, mj@ucw.cz
-Cc: seanlkml@sympatico.ca, sam@vilain.net, peter.read@gmail.com,
-       matthias.andree@gmx.de, lkml@dervishd.net, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F0B32D.nailKUS1E3S8I3@burner>
-References: <43EB7BBA.nailIFG412CGY@burner>
- <mj+md-20060209.173519.1949.atrey@ucw.cz>
- <43EC71FB.nailISD31LRCB@burner> <20060210114930.GC2750@DervishD>
- <43EC88B8.nailISDH1Q8XR@burner> <43EFC1FF.7030103@vilain.net>
- <43F097AE.nailKUSK1MJ9O@burner>
- <BAYC1-PASMTP10B5F649DEDADD145E56BDAE070@CEZ.ICE>
- <20060213095038.03247484.seanlkml@sympatico.ca>
- <43F0A771.nailKUS131LLIA@burner>
- <mj+md-20060213.160108.13290.atrey@ucw.cz>
-In-Reply-To: <mj+md-20060213.160108.13290.atrey@ucw.cz>
-User-Agent: nail 11.2 8/15/04
+	Mon, 13 Feb 2006 11:28:06 -0500
+Received: from mail.gmx.de ([213.165.64.21]:9605 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750808AbWBMQ2F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 11:28:05 -0500
+X-Authenticated: #428038
+Date: Mon, 13 Feb 2006 17:28:01 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: "logical unit communication failure" c2scan NEC ND-4550A 1.07
+Message-ID: <20060213162801.GC15889@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <m3bqxhtmkq.fsf@merlin.emma.line.org> <43EB1F64.nail7GZ11H1SY@burner> <m3psltbumj.fsf@merlin.emma.line.org> <43EE6FF6.nailKBD11GI1Z@burner> <43F00EEA.6070509@tmr.com> <43F09AB1.nailKUSM1KY4M@burner> <20060213150112.GC14544@merlin.emma.line.org> <43F0A8CE.nailKUS1410VN7@burner>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F0A8CE.nailKUS1410VN7@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares <mj@ucw.cz> wrote:
+Joerg Schilling schrieb am 2006-02-13:
 
-> Hello!
->
-> > If there is no interest to fox well known bugs in Linux, I would need to warn
-> > people from using Linux.
->
-> Except for mentioning some DMA related problems at the beginning of this
-> monstrous thread, you haven't shown anything which even remotely qualifies
-> as a bug.
+> Matthias Andree <matthias.andree@gmx.de> wrote:
+> 
+> > Joerg Schilling schrieb am 2006-02-13:
+> >
+> > > Filtering SCSI commands was an unannounced change of the interface
+> > > that needs to be called a bug. I still do not see any fix for this.
 
-If you forget these things, then please forget about this thread.
+You don't need a fix for the status quo, as shown before and below.
 
-I mentioned:
+> > SCSI commands are not filtered for processes with RAWIO capability,
+> > which root processes have by default.
+> 
+> It seems that you did loose contact to reality :-(
 
--	ide-scsi does not do DMA correctly
+Have you ever read /usr/src/linux/block/scsi_ioctl.c?
 
--	SCSI commands are bastardized on ATAPI 
+You should pay particular attention to the verify_command() function.
 
-If you like, I can give you many other Linux related bugs but it does
-not make sense unless the two bugs above are fixed.
+Quoting Linux 2.6.15.4 (you won't understand this, but that doesn't
+matter, the rest of the world knows I can prove my point, unlike you):
 
-Jörg
+        /* And root can do any command.. */
+        if (capable(CAP_SYS_RAWIO))
+                return 0;
+
+        if (!type) {
+                cmd_type[cmd[0]] = CMD_WARNED;
+                printk(KERN_WARNING "scsi: unknown opcode 0x%02x\n", cmd[0]);
+        }
+
+        /* Otherwise fail it with an "Operation not permitted" */
+        return -EPERM;
+
+This is taken from block/scsi_ioctl.c's verify_command(), ll. 204ff.
+
+> Try to inform yourself about the problems or stay quiet.
+
+Yeah right, I'll shut up because some guy with scruffy manners comes
+along and tells everybody they were stupid. Dream on.
+
+> > The recommended installation on Linux is still setuid, so any claims
+> > cdrecord were affected are hypocritical.
+> 
+> Wrong again, check the recent workarounds in libscg/cdrecord to
+> understand that the problem was not fixed in the Linux kernel but
+> I introduced a workaround.
+
+Which function should I look at?
+
+> > Plus, you have been offered by Linux developers to send a list of
+> > commands that need to be allowed, you have not accepted that offer.
+> 
+> Are you really so ignorant?
+> 
+> I did tell people how to extract such a list _and_ I told them
+> that such a list is subject to daily changes in case a new drive needs 
+> new SCSI commands.
+
+You want them to do you a favor, so you get to show them the list they
+asked for. If you don't, you aren't getting anything. You can stomp your
+foot on the ground, cry out loud, shout your frustration from the
+rooftops, it isn't going to change the kernel, you know.
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Matthias Andree

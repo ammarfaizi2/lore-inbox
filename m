@@ -1,60 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWBMM03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWBMM30@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932406AbWBMM03 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 07:26:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWBMM02
+	id S932415AbWBMM30 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 07:29:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932416AbWBMM30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 07:26:28 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:60382 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932406AbWBMM02 (ORCPT
+	Mon, 13 Feb 2006 07:29:26 -0500
+Received: from mail.gmx.net ([213.165.64.21]:20888 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932415AbWBMM3Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 07:26:28 -0500
-Date: Mon, 13 Feb 2006 13:26:22 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Ingo Molnar <mingo@elte.hu>
-cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 02/13] hrtimer: remove useless const
-In-Reply-To: <20060213114612.GA30500@elte.hu>
-Message-ID: <Pine.LNX.4.61.0602131323520.30994@scrub.home>
-References: <Pine.LNX.4.61.0602130209340.23804@scrub.home>
- <1139830116.2480.464.camel@localhost.localdomain> <Pine.LNX.4.61.0602131235180.30994@scrub.home>
- <20060213114612.GA30500@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 13 Feb 2006 07:29:25 -0500
+X-Authenticated: #14349625
+Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
+From: MIke Galbraith <efault@gmx.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Con Kolivas <kernel@kolivas.org>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       gcoady@gmail.com, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1139820181.3202.2.camel@mindpipe>
+References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
+	 <200602131637.43335.kernel@kolivas.org> <1139810224.7935.9.camel@homer>
+	 <200602131708.52342.kernel@kolivas.org>  <1139812538.7744.8.camel@homer>
+	 <1139812725.2739.94.camel@mindpipe>  <1139814504.8124.6.camel@homer>
+	 <1139820181.3202.2.camel@mindpipe>
+Content-Type: text/plain
+Date: Mon, 13 Feb 2006 13:35:06 +0100
+Message-Id: <1139834106.7831.115.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, 13 Feb 2006, Ingo Molnar wrote:
-
-> > [...] and this patch doesn't break anything either.
+On Mon, 2006-02-13 at 03:43 -0500, Lee Revell wrote:
+> On Mon, 2006-02-13 at 08:08 +0100, MIke Galbraith wrote:
+> > On Mon, 2006-02-13 at 01:38 -0500, Lee Revell wrote:
+> > > Do you know which of those changes fixes the "ls" problem?
+> > 
+> > No, it could be either, both, or neither.  Heck, it _could_ be a
+> > combination of all of the things in my experimental tree for that
+> > matter.  I put this patch out there because I know they're both bugs,
+> > and strongly suspect it'll cure the worst of the interactivity related
+> > delays.
+> > 
+> > I'm hoping you'll test it and confirm that it fixes yours.
 > 
-> your patch makes code larger on gcc3. Please investigate why.
+> Nope, this does not fix it.  "time ls" ping-pongs back and forth between
+> ~0.1s and ~0.9s.  Must have been something else in the first patch.
 
-The size change can actually go either way:
+Hmm.  Thinking about it some more, it's probably more than this alone,
+but it could well be the boost qualifier I'm using...
 
-@@ -1826,7 +1826,7 @@
- 00000000  w    F .text 00000006 sys_mq_timedsend
- 00000000         *UND* 00000000 __per_cpu_offset
- 00000000         *UND* 00000000 cpu_gdt_descr
--00000000 g     F .text 0000004f posix_cpu_clock_getres
-+00000000 g     F .text 00000049 posix_cpu_clock_getres
- 00000000 g     F .text 00000006 do_posix_clock_nonanosleep
- 00000000 g     F .text 00000020 idle_cpu
- 00000000 g     F .text 00000030 sys_chown16
-@@ -2081,7 +2081,7 @@
- 00000000  w    F .text 00000006 sys_epoll_ctl
- 00000000 g     F .text 00000005 sys_syslog
- 00000000         *UND* 00000000 cap_capset_check
--00000000 g     F .text 00000246 posix_cpu_nsleep
-+00000000 g     F .text 00000251 posix_cpu_nsleep
- 00000000 g     F .text 000000c6 sysctl_jiffies
- 00000000 g     F .text 0000002e __wake_up_locked
- 00000000         *UND* 00000000 module_arch_cleanup
+Instead of declaring a task to be deserving of large quantities of boost
+based upon their present shortage of sleep_avg, I based it upon their
+not using their full slice.  He who uses the least gets the most.  This
+made a large contribution to mitigating the parallel compile over NFS
+problem the current scheduler has.  The fact that (current) heuristics
+which mandate that any task which sleeps for 5% of it's slice may use
+95% cpu practically forever can not only work, but work quite well in
+the general case, tells me that the vast majority of all tasks are, and
+will forever remain, cpu hogs.
 
-The const _is_ bogus.
+The present qualifier creates positive feedback for cpu hogs by giving
+them the most reward for being the biggest hog by our own definition.
+If you'll pardon the pun, we gives pigs wings, and hope that they don't
+actually use them and fly directly over head.  This is the root problem
+as I see it, that and the fact that even if sleep_avg acquisition and
+consumption were purely 1:1 as the original O(1) scheduler was, if you
+sleep 1 ns longer than you run, you'll eventually be up to you neck in
+sleep_avg. (a darn good reason to use something like slice_avg to help
+determine when to drain off the excess)
 
-bye, Roman
+Changing that qualifier would also mean that he who is _getting_ the
+least cpu would get the most boost as well, so it should help with
+fairness, and things like the test case mentioned in comments in the
+patch where one task can end up starving it's own partner.
+
+Is there any reason that "he who uses the least gets the most" would be
+inferior to "he who has the least for whatever reason gets the most"?
+
+If I were to put a patch together that did only that (IMHO sensible)
+thing, would anyone be interested in trying it?
+
+	-Mike
+

@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWBMNzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751778AbWBMN4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751089AbWBMNzx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 08:55:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751769AbWBMNzx
+	id S1751778AbWBMN4l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 08:56:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751779AbWBMN4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 08:55:53 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:65176 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751089AbWBMNzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 08:55:53 -0500
-Date: Mon, 13 Feb 2006 14:55:52 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: davidsen@tmr.com, chris@gnome-de.org, nix@esperi.org.uk,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <mj+md-20060213.135336.28566.atrey@ucw.cz>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr> <20060125144543.GY4212@suse.de> <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <43ED005F.5060804@tmr.com> <1139615496.10395.36.camel@localhost.localdomain> <43F088AB.nailKUSB18RM0@burner>
+	Mon, 13 Feb 2006 08:56:41 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:12933 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751778AbWBMN4k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 08:56:40 -0500
+Date: Mon, 13 Feb 2006 14:54:56 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 08/13] hrtimer: remove data field
+Message-ID: <20060213135456.GC12923@elte.hu>
+References: <Pine.LNX.4.61.0602130211060.23839@scrub.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43F088AB.nailKUSB18RM0@burner>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.61.0602130211060.23839@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.2
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> The main problem is that there is no grant that a new model will survive
-> a time frame that makes sense to implement support.
+* Roman Zippel <zippel@linux-m68k.org> wrote:
 
-I bet that it would take less time to implement this support than what
-you spend here by arguing and trying to prove you are the only sane
-person in the world. Unsuccessfully, of course.
+> The nanosleep cleanup allows to remove the data field of hrtimer. The 
+> callback function can use container_of() to get it's own data. Since 
+> the hrtimer structure is usually embedded in other structures, the 
+> code also becomes a bit simpler.
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-"#define QUESTION ((bb) || !(bb))"  -- Shakespeare
+i addressed this when you first raised this issue (back in the ktimers 
+flamewars), and generally the feeling of people i asked was that doing 
+the container_of() approach is less readable than an explicit 'data' 
+field. It also deviates from struct timer_list, which we wanted to stay 
+close to. Furthermore, for standalone hrtimers this creates the need to 
+generate a wrapper structure. So i dont really like this change - but no 
+strong feelings either way.
+
+	Ingo

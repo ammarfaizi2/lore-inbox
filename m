@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751767AbWBMNwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWBMNzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751767AbWBMNwo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 08:52:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWBMNwo
+	id S1751089AbWBMNzx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 08:55:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751769AbWBMNzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 08:52:44 -0500
-Received: from mail.gmx.de ([213.165.64.21]:52677 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751767AbWBMNwn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 08:52:43 -0500
-X-Authenticated: #428038
-Date: Mon, 13 Feb 2006 14:52:40 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
+	Mon, 13 Feb 2006 08:55:53 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:65176 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1751089AbWBMNzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 08:55:53 -0500
+Date: Mon, 13 Feb 2006 14:55:52 +0100
+From: Martin Mares <mj@ucw.cz>
 To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: davidsen@tmr.com, chris@gnome-de.org, nix@esperi.org.uk,
+       linux-kernel@vger.kernel.org, axboe@suse.de
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060213135240.GD10566@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20060208162828.GA17534@voodoo> <200602090757.13767.dhazelton@enter.net> <43EC8F22.nailISDL17DJF@burner> <200602092221.56942.dhazelton@enter.net> <43F08C5F.nailKUSDKZUAZ@burner>
-MIME-Version: 1.0
+Message-ID: <mj+md-20060213.135336.28566.atrey@ucw.cz>
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr> <20060125144543.GY4212@suse.de> <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <43ED005F.5060804@tmr.com> <1139615496.10395.36.camel@localhost.localdomain> <43F088AB.nailKUSB18RM0@burner>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43F08C5F.nailKUSDKZUAZ@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+In-Reply-To: <43F088AB.nailKUSB18RM0@burner>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-02-13:
+Hello!
 
+> The main problem is that there is no grant that a new model will survive
+> a time frame that makes sense to implement support.
 
-> Then please try to inform yourself in order to understand that you are wrong.
+I bet that it would take less time to implement this support than what
+you spend here by arguing and trying to prove you are the only sane
+person in the world. Unsuccessfully, of course.
 
-No, it is _you_ and nobody else who refuses information.
-
-> For this reason, it is bejond the scope of the Linux kernel team to decide on 
-> this abstraction layer. The Linux kernel team just need to take the current
-> libscg interface as given as _this_  _is_ the way to do best abstraction.
-
-This is ridiculous. The abstraction (SG_IO on an open special file) is
-in the kernel. Feel free to stack as many layers on top as you wish, but
-the kernel isn't going to bend just to support a random abstraction
-library that cannot achieve its goals in its current form anyways.
-
+				Have a nice fortnight
 -- 
-Matthias Andree
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+"#define QUESTION ((bb) || !(bb))"  -- Shakespeare

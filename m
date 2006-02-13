@@ -1,47 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWBMHQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWBMHQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751189AbWBMHQV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 02:16:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWBMHQT
+	id S1751133AbWBMHQG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 02:16:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWBMHQG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 02:16:19 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:42979
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751185AbWBMHQR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 02:16:17 -0500
-Date: Sun, 12 Feb 2006 23:13:05 -0800 (PST)
-Message-Id: <20060212.231305.38639889.davem@davemloft.net>
-To: len.brown@intel.com
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       axboe@suse.de, James.Bottomley@steeleye.com, greg@kroah.com,
-       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       luming.yu@intel.com, lk@bencastricum.nl, sanjoy@mrao.cam.ac.uk,
-       helgehaf@aitel.hist.no, fluido@fluido.as, gbruchhaeuser@gmx.de,
-       Nicolas.Mailhot@LaPoste.net, perex@suse.cz, tiwai@suse.de,
-       patrizio.bassi@gmail.com, bni.swe@gmail.com, arvidjaar@mail.ru,
-       p_christ@hol.gr, ghrt@dial.kappa.ro, jinhong.hu@gmail.com,
-       andrew.vasquez@qlogic.com, linux-scsi@vger.kernel.org, bcrl@kvack.org
-Subject: Re: Linux 2.6.16-rc3
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B30060BD1D1@hdsmsx401.amr.corp.intel.com>
-References: <F7DC2337C7631D4386A2DF6E8FB22B30060BD1D1@hdsmsx401.amr.corp.intel.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Mon, 13 Feb 2006 02:16:06 -0500
+Received: from mail11.syd.optusnet.com.au ([211.29.132.192]:17093 "EHLO
+	mail11.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751133AbWBMHQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 02:16:05 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: MIke Galbraith <efault@gmx.de>
+Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
+Date: Mon, 13 Feb 2006 18:15:34 +1100
+User-Agent: KMail/1.9.1
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, gcoady@gmail.com,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com> <200602131708.52342.kernel@kolivas.org> <1139812538.7744.8.camel@homer>
+In-Reply-To: <1139812538.7744.8.camel@homer>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602131815.34874.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Brown, Len" <len.brown@intel.com>
-Date: Mon, 13 Feb 2006 02:07:50 -0500
+On Monday 13 February 2006 17:35, MIke Galbraith wrote:
+> On Mon, 2006-02-13 at 17:08 +1100, Con Kolivas wrote:
+> > On Monday 13 February 2006 16:57, MIke Galbraith wrote:
+> > > On Mon, 2006-02-13 at 16:37 +1100, Con Kolivas wrote:
+> > > > On Monday 13 February 2006 16:32, MIke Galbraith wrote:
+> > > > > On Mon, 2006-02-13 at 16:05 +1100, Con Kolivas wrote:
+> > > > > > On Monday 13 February 2006 15:59, MIke Galbraith wrote:
+> > > > > > > Now, let's see if we can get your problem fixed with something
+> > > > > > > that can possibly go into 2.6.16 as a bugfix.  Can you please
+> > > > > > > try the below?
+> > > > > >
+> > > > > > These sorts of changes definitely need to pass through -mm
+> > > > > > first... and don't forget -mm looks quite different to mainline.
+> > > > >
+> > > > > I'll leave that up to Ingo of course, and certainly have no problem
+> > > > > with them burning in mm.  However, I must say that I personally
+> > > > > classify these two changes as being trivial and obviously correct
+> > > > > enough to be included in 2.6.16.
+> > > >
+> > > > This part I agree with:
+> > > > -               } else
+> > > > -                       requeue_task(next, array);
+> > > > +               }
+> > > >
+> > > > The rest changes behaviour; it's not a "bug" so needs testing, should
+> > > > be a separate patch from this part, and modified to suit -mm.
+> > >
+> > > Well, both change behavior, and I heartily disagree.
+> >
+> > The first change was the previous behaviour for some time. Your latter
+> > change while it makes sense has never been in the kernel. Either way I
+> > don't disagree with your reasoning but most things that change behaviour
+> > should go through -mm. The first as I said was the behaviour in mainline
+> > for some time till my silly requeue change.
+>
+> Ok, we're basically in agreement on these changes, it's just a matter of
+> when.  As maintainer, Ingo has to weigh the benefit, danger, etc etc.
 
-> >- In http://bugzilla.kernel.org/show_bug.cgi?id=5989, Sanjoy 
-> >Mahajan has  another regression, but he's off collecting more info.
-> 
-> We're talking here about a system from 1999 where Windows 98
-> refuses to run in ACPI mode and instead runs in APM mode.
+Aye and do note the change to the idle detection code currently in -mm will 
+already make substantial difference there, possibly related to fluctuating 
+behaviour.
 
-If it worked before a change which was installed, it's a regression
-regardless of whether another OS tries to use ACPI on that system or
-not.  I don't understand how one can use that fact to label this as
-not a regression from Linux's perspective.
+Cheers,
+Con

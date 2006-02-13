@@ -1,140 +1,214 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751518AbWBMBKe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751533AbWBMBMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751518AbWBMBKe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 20:10:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751520AbWBMBKd
+	id S1751533AbWBMBMF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 20:12:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751521AbWBMBLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 20:10:33 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:32217 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751517AbWBMBKL (ORCPT
+	Sun, 12 Feb 2006 20:11:41 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:34777 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751520AbWBMBLR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 20:10:11 -0500
-Date: Mon, 13 Feb 2006 02:10:07 +0100 (CET)
+	Sun, 12 Feb 2006 20:11:17 -0500
+Date: Mon, 13 Feb 2006 02:11:12 +0100 (CET)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
 To: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de,
        linux-kernel@vger.kernel.org
-Subject: [PATCH 04/13] hrtimer: remove nsec_t
-Message-ID: <Pine.LNX.4.61.0602130209590.23812@scrub.home>
+Subject: [PATCH 08/13] hrtimer: remove data field
+Message-ID: <Pine.LNX.4.61.0602130211060.23839@scrub.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-nsec_t predates ktime_t and has mostly been superseded by it. In the few
-places that are left it's better to make it explicit that we're dealing
-with 64 bit values here.
+The nanosleep cleanup allows to remove the data field of hrtimer. The
+callback function can use container_of() to get it's own data. Since the
+hrtimer structure is usually embedded in other structures, the code also
+becomes a bit simpler.
 
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
 ---
 
- include/linux/time.h |   18 ++++++------------
- kernel/hrtimer.c     |    4 ++--
- kernel/time.c        |    4 ++--
- 3 files changed, 10 insertions(+), 16 deletions(-)
+ fs/exec.c               |    2 +-
+ include/linux/hrtimer.h |    3 +--
+ include/linux/sched.h   |    1 +
+ include/linux/timer.h   |    3 ++-
+ kernel/fork.c           |    2 +-
+ kernel/hrtimer.c        |   11 ++++-------
+ kernel/itimer.c         |   11 +++++------
+ kernel/posix-timers.c   |    7 +++----
+ 8 files changed, 18 insertions(+), 22 deletions(-)
 
-Index: linux-2.6-git/include/linux/time.h
+Index: linux-2.6-git/fs/exec.c
 ===================================================================
---- linux-2.6-git.orig/include/linux/time.h	2006-02-12 18:33:12.000000000 +0100
-+++ linux-2.6-git/include/linux/time.h	2006-02-12 18:33:16.000000000 +0100
-@@ -73,12 +73,6 @@ extern void set_normalized_timespec(stru
- #define timespec_valid(ts) \
- 	(((ts)->tv_sec >= 0) && (((unsigned long) (ts)->tv_nsec) < NSEC_PER_SEC))
+--- linux-2.6-git.orig/fs/exec.c	2006-02-12 19:52:50.000000000 +0100
++++ linux-2.6-git/fs/exec.c	2006-02-12 20:08:49.000000000 +0100
+@@ -632,7 +632,7 @@ static int de_thread(struct task_struct 
+ 		 * synchronize with any firing (by calling del_timer_sync)
+ 		 * before we can safely let the old group leader die.
+ 		 */
+-		sig->real_timer.data = current;
++		sig->tsk = current;
+ 		spin_unlock_irq(lock);
+ 		if (hrtimer_cancel(&sig->real_timer))
+ 			hrtimer_restart(&sig->real_timer);
+Index: linux-2.6-git/include/linux/hrtimer.h
+===================================================================
+--- linux-2.6-git.orig/include/linux/hrtimer.h	2006-02-12 20:05:36.000000000 +0100
++++ linux-2.6-git/include/linux/hrtimer.h	2006-02-12 20:08:49.000000000 +0100
+@@ -55,8 +55,7 @@ struct hrtimer_base;
+ struct hrtimer {
+ 	struct rb_node		node;
+ 	ktime_t			expires;
+-	int			(*function)(void *);
+-	void			*data;
++	int			(*function)(struct hrtimer *);
+ 	struct hrtimer_base	*base;
+ };
  
--/*
-- * 64-bit nanosec type. Large enough to span 292+ years in nanosecond
-- * resolution. Ought to be enough for a while.
-- */
--typedef s64 nsec_t;
--
- extern struct timespec xtime;
- extern struct timespec wall_to_monotonic;
- extern seqlock_t xtime_lock;
-@@ -113,9 +107,9 @@ extern struct timespec timespec_trunc(st
-  * Returns the scalar nanosecond representation of the timespec
-  * parameter.
-  */
--static inline nsec_t timespec_to_nsec(const struct timespec *ts)
-+static inline s64 timespec_to_nsec(const struct timespec *ts)
- {
--	return ((nsec_t) ts->tv_sec * NSEC_PER_SEC) + ts->tv_nsec;
-+	return ((s64) ts->tv_sec * NSEC_PER_SEC) + ts->tv_nsec;
- }
+Index: linux-2.6-git/include/linux/sched.h
+===================================================================
+--- linux-2.6-git.orig/include/linux/sched.h	2006-02-12 19:52:50.000000000 +0100
++++ linux-2.6-git/include/linux/sched.h	2006-02-12 20:08:49.000000000 +0100
+@@ -401,6 +401,7 @@ struct signal_struct {
  
- /**
-@@ -125,9 +119,9 @@ static inline nsec_t timespec_to_nsec(co
-  * Returns the scalar nanosecond representation of the timeval
-  * parameter.
-  */
--static inline nsec_t timeval_to_nsec(const struct timeval *tv)
-+static inline s64 timeval_to_nsec(const struct timeval *tv)
- {
--	return ((nsec_t) tv->tv_sec * NSEC_PER_SEC) +
-+	return ((s64) tv->tv_sec * NSEC_PER_SEC) +
- 		tv->tv_usec * NSEC_PER_USEC;
- }
+ 	/* ITIMER_REAL timer for the process */
+ 	struct hrtimer real_timer;
++	struct task_struct *tsk;
+ 	ktime_t it_real_incr;
  
-@@ -137,7 +131,7 @@ static inline nsec_t timeval_to_nsec(con
-  *
-  * Returns the timespec representation of the nsec parameter.
-  */
--extern struct timespec nsec_to_timespec(nsec_t nsec);
-+extern struct timespec nsec_to_timespec(s64 nsec);
+ 	/* ITIMER_PROF and ITIMER_VIRTUAL timers for the process */
+Index: linux-2.6-git/include/linux/timer.h
+===================================================================
+--- linux-2.6-git.orig/include/linux/timer.h	2006-02-12 19:52:50.000000000 +0100
++++ linux-2.6-git/include/linux/timer.h	2006-02-12 20:08:49.000000000 +0100
+@@ -96,6 +96,7 @@ static inline void add_timer(struct time
  
- /**
-  * nsec_to_timeval - Convert nanoseconds to timeval
-@@ -145,7 +139,7 @@ extern struct timespec nsec_to_timespec(
-  *
-  * Returns the timeval representation of the nsec parameter.
-  */
--extern struct timeval nsec_to_timeval(nsec_t nsec);
-+extern struct timeval nsec_to_timeval(s64 nsec);
+ extern void init_timers(void);
+ extern void run_local_timers(void);
+-extern int it_real_fn(void *);
++struct hrtimer;
++extern int it_real_fn(struct hrtimer *);
  
- #endif /* __KERNEL__ */
+ #endif
+Index: linux-2.6-git/kernel/fork.c
+===================================================================
+--- linux-2.6-git.orig/kernel/fork.c	2006-02-12 19:52:50.000000000 +0100
++++ linux-2.6-git/kernel/fork.c	2006-02-12 20:08:49.000000000 +0100
+@@ -845,7 +845,7 @@ static inline int copy_signal(unsigned l
+ 	hrtimer_init(&sig->real_timer, CLOCK_MONOTONIC, HRTIMER_REL);
+ 	sig->it_real_incr.tv64 = 0;
+ 	sig->real_timer.function = it_real_fn;
+-	sig->real_timer.data = tsk;
++	sig->tsk = tsk;
  
+ 	sig->it_virt_expires = cputime_zero;
+ 	sig->it_virt_incr = cputime_zero;
 Index: linux-2.6-git/kernel/hrtimer.c
 ===================================================================
---- linux-2.6-git.orig/kernel/hrtimer.c	2006-02-12 18:33:12.000000000 +0100
-+++ linux-2.6-git/kernel/hrtimer.c	2006-02-12 18:33:16.000000000 +0100
-@@ -246,7 +246,7 @@ ktime_t ktime_add_nsec(ktime_t kt, u64 n
- /*
-  * Divide a ktime value by a nanosecond value
-  */
--static unsigned long ktime_div_nsec(ktime_t kt, nsec_t div)
-+static unsigned long ktime_div_nsec(ktime_t kt, s64 div)
+--- linux-2.6-git.orig/kernel/hrtimer.c	2006-02-12 20:05:36.000000000 +0100
++++ linux-2.6-git/kernel/hrtimer.c	2006-02-12 20:08:49.000000000 +0100
+@@ -547,21 +547,19 @@ static inline void run_hrtimer_queue(str
+ 
+ 	while ((node = base->first)) {
+ 		struct hrtimer *timer;
+-		int (*fn)(void *);
++		int (*fn)(struct hrtimer *);
+ 		int restart;
+-		void *data;
+ 
+ 		timer = rb_entry(node, struct hrtimer, node);
+ 		if (now.tv64 <= timer->expires.tv64)
+ 			break;
+ 
+ 		fn = timer->function;
+-		data = timer->data;
+ 		set_curr_timer(base, timer);
+ 		__remove_hrtimer(timer, base);
+ 		spin_unlock_irq(&base->lock);
+ 
+-		restart = fn(data);
++		restart = fn(timer);
+ 
+ 		spin_lock_irq(&base->lock);
+ 
+@@ -604,9 +602,9 @@ struct sleep_hrtimer {
+ 	int done;
+ };
+ 
+-static int nanosleep_wakeup(void *data)
++static int nanosleep_wakeup(struct hrtimer *timer)
  {
- 	u64 dclc, inc, dns;
- 	int sft = 0;
-@@ -303,7 +303,7 @@ hrtimer_forward(struct hrtimer *timer, k
- 		interval.tv64 = timer->base->resolution.tv64;
+-	struct sleep_hrtimer *t = data;
++	struct sleep_hrtimer *t = container_of(timer, struct sleep_hrtimer, timer);
  
- 	if (unlikely(delta.tv64 >= interval.tv64)) {
--		nsec_t incr = ktime_to_nsec(interval);
-+		s64 incr = ktime_to_nsec(interval);
+ 	t->done = 1;
+ 	wake_up_process(t->task);
+@@ -617,7 +615,6 @@ static int nanosleep_wakeup(void *data)
+ static int __sched do_nanosleep(struct sleep_hrtimer *t, enum hrtimer_mode mode)
+ {
+ 	t->timer.function = nanosleep_wakeup;
+-	t->timer.data = t;
+ 	t->task = current;
+ 	t->done = 0;
  
- 		orun = ktime_div_nsec(delta, incr);
- 		timer->expires = ktime_add_nsec(timer->expires, incr * orun);
-Index: linux-2.6-git/kernel/time.c
+Index: linux-2.6-git/kernel/itimer.c
 ===================================================================
---- linux-2.6-git.orig/kernel/time.c	2006-02-12 18:33:12.000000000 +0100
-+++ linux-2.6-git/kernel/time.c	2006-02-12 18:33:16.000000000 +0100
-@@ -637,7 +637,7 @@ void set_normalized_timespec(struct time
-  *
-  * Returns the timespec representation of the nsec parameter.
+--- linux-2.6-git.orig/kernel/itimer.c	2006-02-12 19:52:50.000000000 +0100
++++ linux-2.6-git/kernel/itimer.c	2006-02-12 20:08:49.000000000 +0100
+@@ -128,15 +128,14 @@ asmlinkage long sys_getitimer(int which,
+ /*
+  * The timer is automagically restarted, when interval != 0
   */
--struct timespec nsec_to_timespec(nsec_t nsec)
-+struct timespec nsec_to_timespec(s64 nsec)
+-int it_real_fn(void *data)
++int it_real_fn(struct hrtimer *timer)
  {
- 	struct timespec ts;
+-	struct task_struct *tsk = (struct task_struct *) data;
++	struct signal_struct *sig = container_of(timer, struct signal_struct, real_timer);
  
-@@ -657,7 +657,7 @@ struct timespec nsec_to_timespec(nsec_t 
-  *
-  * Returns the timeval representation of the nsec parameter.
+-	send_group_sig_info(SIGALRM, SEND_SIG_PRIV, tsk);
++	send_group_sig_info(SIGALRM, SEND_SIG_PRIV, sig->tsk);
+ 
+-	if (tsk->signal->it_real_incr.tv64 != 0) {
+-		hrtimer_forward(&tsk->signal->real_timer,
+-			       tsk->signal->it_real_incr);
++	if (sig->it_real_incr.tv64 != 0) {
++		hrtimer_forward(&sig->real_timer, sig->it_real_incr);
+ 
+ 		return HRTIMER_RESTART;
+ 	}
+Index: linux-2.6-git/kernel/posix-timers.c
+===================================================================
+--- linux-2.6-git.orig/kernel/posix-timers.c	2006-02-12 19:52:50.000000000 +0100
++++ linux-2.6-git/kernel/posix-timers.c	2006-02-12 20:08:49.000000000 +0100
+@@ -144,7 +144,7 @@ static int common_timer_set(struct k_iti
+ 			    struct itimerspec *, struct itimerspec *);
+ static int common_timer_del(struct k_itimer *timer);
+ 
+-static int posix_timer_fn(void *data);
++static int posix_timer_fn(struct hrtimer *data);
+ 
+ static struct k_itimer *lock_timer(timer_t timer_id, unsigned long *flags);
+ 
+@@ -330,9 +330,9 @@ EXPORT_SYMBOL_GPL(posix_timer_event);
+ 
+  * This code is for CLOCK_REALTIME* and CLOCK_MONOTONIC* timers.
   */
--struct timeval nsec_to_timeval(nsec_t nsec)
-+struct timeval nsec_to_timeval(s64 nsec)
+-static int posix_timer_fn(void *data)
++static int posix_timer_fn(struct hrtimer *data)
  {
- 	struct timespec ts = nsec_to_timespec(nsec);
- 	struct timeval tv;
+-	struct k_itimer *timr = data;
++	struct k_itimer *timr = container_of(data, struct k_itimer, it.real.timer);
+ 	unsigned long flags;
+ 	int si_private = 0;
+ 	int ret = HRTIMER_NORESTART;
+@@ -715,7 +715,6 @@ common_timer_set(struct k_itimer *timr, 
+ 
+ 	mode = flags & TIMER_ABSTIME ? HRTIMER_ABS : HRTIMER_REL;
+ 	hrtimer_init(&timr->it.real.timer, timr->it_clock, mode);
+-	timr->it.real.timer.data = timr;
+ 	timr->it.real.timer.function = posix_timer_fn;
+ 
+ 	timer->expires = timespec_to_ktime(new_setting->it_value);

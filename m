@@ -1,36 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbWBMWC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030194AbWBMWI1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030203AbWBMWC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 17:02:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbWBMWC4
+	id S1030194AbWBMWI1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 17:08:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbWBMWI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 17:02:56 -0500
-Received: from main.gmane.org ([80.91.229.2]:19122 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S964870AbWBMWCz (ORCPT
+	Mon, 13 Feb 2006 17:08:27 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:54749 "EHLO mtlexch01.mtl.com")
+	by vger.kernel.org with ESMTP id S964870AbWBMWI0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 17:02:55 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Carlo J. Calica" <ccalica@gmail.com>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Mon, 13 Feb 2006 14:01:58 -0800
-Message-ID: <dsqvkc$e4k$1@sea.gmane.org>
-References: <20060208162828.GA17534@voodoo> <43EC887B.nailISDGC9CP5@burner> <200602090757.13767.dhazelton@enter.net> <43EC8F22.nailISDL17DJF@burner> <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com> <43F06220.nailKUS5D8SL2@burner> <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com> <43F0A010.nailKUSR1CGG5@burner> <5a2cf1f60602130724n7b060e29r57411260b04d5972@mail.gmail.com> <43F0AA83.nailKUS171HI4B@burner> <5a2cf1f60602130805u537de206k22fa418ee214cf02@mail.gmail.com> <43F0B2BA.nailKUS1DNTEHA@burner> <Pine.LNX.4.61.0602131732190.24297@yvahk01.tjqt.qr> <43F0B5BE.nailMBX2SZNBE@burner>
+	Mon, 13 Feb 2006 17:08:26 -0500
+Date: Tue, 14 Feb 2006 00:09:47 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, William Irwin <wli@holomorphy.com>,
+       Roland Dreier <rdreier@cisco.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Gleb Natapov <gleb@minantech.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       openib-general@openib.org, Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Badari Pulavarty <pbadari@us.ibm.com>
+Subject: Re: [openib-general] Re: madvise MADV_DONTFORK/MADV_DOFORK
+Message-ID: <20060213220947.GD13603@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20060213154114.GO32041@mellanox.co.il> <Pine.LNX.4.64.0602131104460.3691@g5.osdl.org> <adar767133j.fsf@cisco.com> <Pine.LNX.4.64.0602131125180.3691@g5.osdl.org> <Pine.LNX.4.61.0602131943050.9573@goblin.wat.veritas.com> <20060213210906.GC13603@mellanox.co.il> <Pine.LNX.4.61.0602132157110.3761@goblin.wat.veritas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 70-58-195-25.ptld.qwest.net
-User-Agent: KNode/0.9.2
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0602132157110.3761@goblin.wat.veritas.com>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 13 Feb 2006 22:10:15.0984 (UTC) FILETIME=[44B52300:01C630EA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling wrote:
+Quoting r. Hugh Dickins <hugh@veritas.com>:
+> Subject: Re: [openib-general] Re: madvise MADV_DONTFORK/MADV_DOFORK
 > 
-> And if you have a working vold on Solaris, libscg accepts the vold
-> aliases.
+> On Mon, 13 Feb 2006, Michael S. Tsirkin wrote:
+> > 
+> > Like this then?
 > 
+> Almost.  I would still prefer madvise_vma to allow MADV_DONTFORK
+> on a VM_IO vma, even though it must prohibit MADV_DOFORK there.
+> But if Linus disagrees, of course ignore me.
 
-But vold isn't supported on all cdrecord platforms?  Why do you support that
-but not Linux equivalents?
+I'm not sure about this point. Linus?
 
+> Comments much better, thanks.  I didn't get your point about mlock'd
+> memory, but I'm content to believe you're thinking of an issue that
+> hasn't occurred to me.
+
+I'm referring to the follwing, from man mlock(2):
+
+"Cryptographic  security  software often handles critical bytes like passwords
+or secret keys as data structures. As a result of paging, these secrets could
+be  transfered  onto  a persistent swap store medium, where they might be
+accessible to the enemy long after the security  software  has erased the
+secrets in RAM and terminated."
+
+
+
+-- 
+Michael S. Tsirkin
+Staff Engineer, Mellanox Technologies

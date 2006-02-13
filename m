@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030293AbWBMXhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbWBMXm5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030293AbWBMXhF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 18:37:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030294AbWBMXhF
+	id S964855AbWBMXm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 18:42:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWBMXm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 18:37:05 -0500
-Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:31108 "EHLO
-	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1030293AbWBMXhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 18:37:03 -0500
-Message-ID: <43F1181D.1080202@bigpond.net.au>
-Date: Tue, 14 Feb 2006 10:37:01 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [ANNOUNCE] quilt 0.43
-References: <7Ks06MZm.1139822040.2403500.khali@localhost>
-In-Reply-To: <7Ks06MZm.1139822040.2403500.khali@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 13 Feb 2006 23:37:01 +0000
+	Mon, 13 Feb 2006 18:42:57 -0500
+Received: from ns1.suse.de ([195.135.220.2]:27820 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964855AbWBMXm4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 18:42:56 -0500
+Date: Tue, 14 Feb 2006 00:42:54 +0100
+From: Olaf Hering <olh@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Hannes Reinecke <hare@suse.de>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: calibrate_migration_costs takes ages on s390
+Message-ID: <20060213234254.GA5368@suse.de>
+References: <20060213102634.GA4677@osiris.boeblingen.de.ibm.com> <20060213104645.GA17173@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060213104645.GA17173@elte.hu>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Delvare wrote:
-> Hi all,
-> 
-> Quilt 0.43 has been released ten days ago (sorry for being slow). A
-> number of improvements may be of interest to kernel developers so I am
-> announcing it here on LKML.
-> 
-> Quilt 0.43 can be downloaded from here:
->   http://savannah.nongnu.org/download/quilt/quilt-0.43.tar.gz
-> 
-> Bug fixes:
->   Deleting the top patch works again,
->   patch delimiter ("---") is no more eaten on refresh.
-> 
-> Compatibility:
->   Huge efforts have been put into improving compatibility with many
->   platforms. The git specific patch format extensions are better
->   supported too.
-> 
-> New features:
->   The mail command has been completely reworked,
->   delete -r physically removes the deleted patch,
->   delete --backup makes a backup copy of the deleted patch,
->   annotate -P annotates a previous version of the file,
->   import can preserve or merge comments when updating a patch,
->   push detects reversed patches,
->   diffstat options can be specified,
->   patch delimiter ("---") is automatically inserted before diffstat.
-> 
+ On Mon, Feb 13, Ingo Molnar wrote:
 
-Changes to the interface in this version of quilt broke gquilt (a GUI 
-wrapper for quilt) and if you use gquilt and upgrade to this version of 
-quilt you will also need to upgrade to version 0.17 of gquilt.  It is 
-available in source form at:
+> 
+> * Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+> 
+> > The boot sequence on s390 sometimes takes ages and we spend a very 
+> > long time (up to one or two minutes) in calibrate_migration_costs. The 
+> > time spent there differs from boot to boot. Also the calculated costs 
+> > differ a lot. I've seen differences by up to a factor of 15 (yes, 
+> > factor not percent). Also I doubt that making these measurements make 
+> > much sense on a completely virtualized architecture where you cannot 
+> > tell how much cpu time you will get anyway. Is there any workaround or 
+> > fix available so we can avoid seeing this?
+> 
+> which is the precise kernel version used? We toned down calibration a 
+> bit recently.
 
-<http://users.bigpond.net.au/Peter-Williams/gquilt-0.17.tar.gz>
+We did a bit of testing, -rc2-git3 + the patch below was still ok.
 
-and rpm form at:
+ [PATCH] s390: earlier initialization of cpu_possible_map
+ 9733e2407ad2237867cb13c04e7d619397fa3090
 
-<http://users.bigpond.net.au/Peter-Williams/gquilt-0.17-1.noarch.rpm>
-
-Enjoy,
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

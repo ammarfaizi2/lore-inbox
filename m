@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWBMTQh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWBMTTY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964809AbWBMTQh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 14:16:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWBMTQh
+	id S964811AbWBMTTY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 14:19:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWBMTTY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 14:16:37 -0500
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:2448 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S964809AbWBMTQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 14:16:36 -0500
-X-IronPort-AV: i="4.02,109,1139212800"; 
-   d="scan'208"; a="255214349:sNHT33563904"
+	Mon, 13 Feb 2006 14:19:24 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:9134 "EHLO mtlexch01.mtl.com")
+	by vger.kernel.org with ESMTP id S964811AbWBMTTW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 14:19:22 -0500
+Date: Mon, 13 Feb 2006 21:20:46 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Gleb Natapov <gleb@minantech.com>,
+Cc: Hugh Dickins <hugh@veritas.com>, Gleb Natapov <gleb@minantech.com>,
        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       openib-general@openib.org, Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Badari Pulavarty <pbadari@us.ibm.com>, Hugh Dickins <hugh@veritas.com>
-Subject: Re: [openib-general] Re: madvise MADV_DONTFORK/MADV_DOFORK
-X-Message-Flag: Warning: May contain useful information
-References: <20060213154114.GO32041@mellanox.co.il>
-	<Pine.LNX.4.64.0602131104460.3691@g5.osdl.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 13 Feb 2006 11:16:32 -0800
-In-Reply-To: <Pine.LNX.4.64.0602131104460.3691@g5.osdl.org> (Linus
- Torvalds's message of "Mon, 13 Feb 2006 11:05:37 -0800 (PST)")
-Message-ID: <adar767133j.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 13 Feb 2006 19:16:33.0574 (UTC) FILETIME=[00779460:01C630D2]
+       openib-general@openib.org
+Subject: Re: madvise MADV_DONTFORK/MADV_DOFORK
+Message-ID: <20060213192046.GD12458@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20060213154114.GO32041@mellanox.co.il> <Pine.LNX.4.64.0602131104460.3691@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0602131104460.3691@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 13 Feb 2006 19:21:14.0531 (UTC) FILETIME=[A7EE3730:01C630D2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Linus> Why?
+Quoting Linus Torvalds <torvalds@osdl.org>:
+> > 
+> > Add madvise options to control whether memory range is inherited across fork.
+> > Useful e.g. for when hardware is doing DMA from/into these pages.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+> >
+> > -		if (mpnt->vm_flags & VM_DONTCOPY) {
+> > +		if (mpnt->vm_flags & (VM_DONTCOPY | VM_DONTFORK)) {
+> 
+> Why?
+> 
+> That VM_DONTCOPY _is_ DONTFORK. 
+> 
+> Don't add a new useless DONTFORK that doesn't have any value.
 
-    Linus> That VM_DONTCOPY _is_ DONTFORK.
+When this was last discussed, Hugh Dickins said:
+> If a driver sets VM_DONTCOPY, it's likely to be because the driver knows it'll
+> cause some nastiness (memory corruption, memory leak, lockup...) if it were
+> copied. The memory belongs to the driver, it's letting the process have a
+> window on it. I don't think we should now let the process overrule it.
 
-    Linus> Don't add a new useless DONTFORK that doesn't have any
-    Linus> value.
+Here's a pointer to the relevant discussion:
+http://lkml.org/lkml/2005/11/3/112
 
-VM_DONTCOPY is hardly used in the kernel, so the semantics aren't very
-precisely defined.  But the idea is that a driver setting VM_DONTCOPY
-probably has a good reason for doing it, and we don't want userspace
-to be able to erase that flag through madvise().
-
-As Hugh said in his suggestion for a better changelog entry:
-
-    > Explain that MADV_DONTFORK should be reversible, hence
-    > MADV_DOFORK; but should not be reversible on areas a driver has
-    > so marked, hence VM_DONTFORK distinct from VM_DONTCOPY.
-
-Perhaps we don't care for now, and we should wait and add
-VM_KERNEL_DONTCOPY later if we really need it.  I honestly don't know.
-
- - Roland
+-- 
+Michael S. Tsirkin
+Staff Engineer, Mellanox Technologies

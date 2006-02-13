@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWBMTDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWBMTEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWBMTDj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 14:03:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWBMTDj
+	id S964787AbWBMTEN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 14:04:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbWBMTEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 14:03:39 -0500
-Received: from smtp-1.smtp.ucla.edu ([169.232.46.136]:14013 "EHLO
-	smtp-1.smtp.ucla.edu") by vger.kernel.org with ESMTP
-	id S964791AbWBMTDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 14:03:38 -0500
-Date: Mon, 13 Feb 2006 11:03:35 -0800 (PST)
-From: Chris Stromsoe <cbs@cts.ucla.edu>
-To: linux-kernel@vger.kernel.org
-Subject: any FS with tree-based quota system?
-Message-ID: <Pine.LNX.4.64.0602130959270.28894@potato.cts.ucla.edu>
+	Mon, 13 Feb 2006 14:04:12 -0500
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:36655 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S964787AbWBMTEK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 14:04:10 -0500
+X-IronPort-AV: i="4.02,109,1139212800"; 
+   d="scan'208"; a="1775963970:sNHT40118448"
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Gleb Natapov <gleb@minantech.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       openib-general@openib.org, Badari Pulavarty <pbadari@us.ibm.com>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>
+Subject: Re: [openib-general] madvise MADV_DONTFORK/MADV_DOFORK
+X-Message-Flag: Warning: May contain useful information
+References: <20060213154114.GO32041@mellanox.co.il>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 13 Feb 2006 11:04:02 -0800
+In-Reply-To: <20060213154114.GO32041@mellanox.co.il> (Michael S. Tsirkin's
+ message of "Mon, 13 Feb 2006 17:41:14 +0200")
+Message-ID: <adazmkv13od.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Probable-Spam: no
-X-Spam-Report: none
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 13 Feb 2006 19:04:07.0418 (UTC) FILETIME=[43B935A0:01C630D0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm looking for a file system with a tree-based quota system.  XFS on IRIX 
-has projects, but that functionality didn't get ported over to Linux that 
-I can see.
+One question, which I'm too lazy to read the source to answer: what
+does an old (pre-MADV_DONTFORK) kernel do with an application that
+tries to set MADV_DONTFORK?
 
-I'm building a closed-box system to serve web pages.  I expect to have 20k 
-to 30k different user trees.  User's will not have direct access to the 
-box and will not be assigned a uid/gid.  Every tree will be owned by the 
-same uid/gid.
+I'm wondering what portable applications will have to do to handle the
+case of a new application running on an old kernel.
 
-I would like to be able to apply a quota to a particular tree, and have 
-every file and directory in the path of that tree count toward that tree's 
-quota usage.  I can prevent hard links across trees.
-
-I noticed that Neil Brown wrote some patches fairly early on in the 2.4 
-cycle to do tree-based quota by UID.  The last patch-set I found was 
-against 2.4.14 (http://cgi.cse.unsw.edu.au/~neilb/patches/linux/2.4.14/) 
-from late 2001, and did not come with patches to quota-tools.
-
-How much change has the quota system undergone between 2.4.14 and 2.4.32? 
-Between 2.4 and 2.6?  What can I read to get a decent understanding of FS 
-basics and how the quota system interacts?  Any pointers at all would be 
-appreciated.  (I'm equally open to "that's the stupidest idea I've ever 
-heard" as well, or pointers to reasons why it wouldn't be workable.)
-
-Thanks.
-
-
--Chris
+Thanks,
+  Roland

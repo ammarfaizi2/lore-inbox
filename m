@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbWBMWLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbWBMWMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030206AbWBMWLI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 17:11:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030205AbWBMWLI
+	id S1030205AbWBMWMO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 17:12:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbWBMWMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 17:11:08 -0500
-Received: from 10.121.9.213.dsl.getacom.de ([213.9.121.10]:2707 "EHLO
-	ds666.l4x.org") by vger.kernel.org with ESMTP id S1030206AbWBMWLH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 17:11:07 -0500
-Message-ID: <43F103F5.7010401@l4x.org>
-Date: Mon, 13 Feb 2006 23:11:01 +0100
-From: Jan Dittmer <jdi@l4x.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051017 Thunderbird/1.0.7 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org> <43F04780.7020605@l4x.org> <Pine.LNX.4.64.0602130747300.3691@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0602130747300.3691@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 192.168.2.134
-X-SA-Exim-Mail-From: jdi@l4x.org
-Subject: Re: Linux 2.6.16-rc3
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on ds666.starfleet)
+	Mon, 13 Feb 2006 17:12:14 -0500
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:17607 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1030205AbWBMWMN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 17:12:13 -0500
+Date: Mon, 13 Feb 2006 17:12:11 -0500
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       jengelh@linux01.gwdg.de, alex@samad.com.au
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060213221211.GB29940@csclub.uwaterloo.ca>
+References: <43EB0DEB.nail52A1LVGUO@burner> <Pine.LNX.4.61.0602091729560.30108@yvahk01.tjqt.qr> <43EB7210.nailIDH2JUBZE@burner> <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr> <43EB7BBA.nailIFG412CGY@burner> <mj+md-20060209.173519.1949.atrey@ucw.cz> <43EC71FB.nailISD31LRCB@burner> <20060210114930.GC2750@DervishD> <20060213005002.GK26235@samad.com.au> <43F098A2.nailKUSL1W9PE@burner>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F098A2.nailKUSL1W9PE@burner>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Mon, 13 Feb 2006, Jan Dittmer wrote:
-> 
->>This breaks compilation on 3 archs compared to -rc2:
->>
->>- mips: broke
->>- sparc: broke
->>- sparc64: broke
-> 
-> 
-> Should be ok in -git now, pls verify.
-> 
+On Mon, Feb 13, 2006 at 03:33:06PM +0100, Joerg Schilling wrote:
+> This is a deficite of the Linux kernel model. You don't have similar
+> problems on Solaris.
 
-- mips: fixed
-  Details: http://l4x.org/k/?d=10915
+Here is something I have wondered about:
 
-- sparc: fixed
-  Details: http://l4x.org/k/?d=10932
+If solaris assigns consistent device entries to a device that is
+hotplugged each time it is connected, which is certainly something that
+can be implemented, then how many such devices can it handle before it
+runs out of room for new devices?
 
-- sparc64: fixed
-  Details: http://l4x.org/k/?d=10933
+After all I could theoretically have 100000 usb and firewire cd-rw
+drives.  What if I was to plug each one in one at a time in turn.  Would
+it deal with that?  What kind of references would I end up with for them
+by the time I hit number 99999?  Do I end up with device 99999,0,0 in
+cdrecord/libscg?
 
-Good work,
+At some point you have to give up on old devices or you could end up
+having to keep an index the whole universe.
 
-Jan
+Len Sorensen

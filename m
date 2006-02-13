@@ -1,103 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWBMUJG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbWBMUJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964818AbWBMUJG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 15:09:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbWBMUJG
+	id S964850AbWBMUJu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 15:09:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWBMUJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 15:09:06 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:34357 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S964818AbWBMUJF (ORCPT
+	Mon, 13 Feb 2006 15:09:50 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:4773 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964846AbWBMUJt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 15:09:05 -0500
-Message-ID: <43F0E724.6000807@cfl.rr.com>
-Date: Mon, 13 Feb 2006 15:08:04 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Flames over -- Re: Which is simpler?
-References: <200602131116.41964.david-b@pacbell.net>
-In-Reply-To: <200602131116.41964.david-b@pacbell.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 13 Feb 2006 15:09:49 -0500
+Date: Mon, 13 Feb 2006 12:08:47 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Johannes Stezenbach <js@linuxtv.org>
+Cc: lkml@rtr.ca, dgc@sgi.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: dirty pages (Was: Re: [PATCH] Prevent large file writeback
+ starvation)
+Message-Id: <20060213120847.79215432.akpm@osdl.org>
+In-Reply-To: <20060213135925.GA6173@linuxtv.org>
+References: <20060206040027.GI43335175@melbourne.sgi.com>
+	<20060205202733.48a02dbe.akpm@osdl.org>
+	<43E75ED4.809@rtr.ca>
+	<43E75FB6.2040203@rtr.ca>
+	<20060206121133.4ef589af.akpm@osdl.org>
+	<20060213135925.GA6173@linuxtv.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Feb 2006 20:09:57.0167 (UTC) FILETIME=[75F513F0:01C630D9]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14266.000
-X-TM-AS-Result: No--16.900000-5.000000-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell wrote:
-> What ide drive?  Oh, you're talking about PC-ish systems, not
-> embedded ones that don't _have_ rotating media to power off.
->   
-
-Yes, that's exactly what the discussion is about; disk drives with 
-mounted filesystems and what happens to them when you suspend/resume. 
-> Your experience is very different from mine; I've observed that
-> most PC hardware keeps USB powered in suspend-to-ram states, so
-> a keyboard or mouse action may wake the system up, just as it can
-> with many PS2 style keyboards and mice.  Same thing for Ethernet,
-> using various types of wakeup event including "magic packet".
-> See /proc/acpi/wakeup, and the related parts of the ACPI specs.
-> (And USB specs, and lots more ... this info is widespread.)
->   
-
-As I have said before, some systems can keep the USB bus in a low power 
-mode where it can wake the system, but AFAIK, waking the system is all 
-they can do in this state; they can not tell the kernel that device x 
-has been connected and device y has been disconnected, the kernel must 
-figure that out by probing the hardware and comparing the list with what 
-it knew to be connected prior to suspending.  Even if some hardware can 
-provide that information, kernel can not rely on it. 
-
-<snip>
-
-> You should also remember a useful point from the ACPI spec:
-> if you're taking the system apart with a screwdriver, then
-> you've gone out-of-spec.  So swapping IDE drives is strongly
-> in the "user error" category ... unlike swapping USB drives,
-> which is equally strongly in the "normal operation" category.
-> (So it would be an error if Linux didn't properly detect when
-> users unplug all usb devices after putting their laptops into
-> STR and before carrying them someplace else...)
+Johannes Stezenbach <js@linuxtv.org> wrote:
 >
->   
-Yes, it would be an error if the kernel did not notice that you actually 
-did unplug a usb disk while it was suspended.  It is just as much an 
-error however, if the kernel erroneously decides that you disconnected 
-the drive, and thus breaks the mount on it, when you in fact, did no 
-such thing. 
->
-> Read about the #PME signal status in the PCI PM capabilities.
->
-> And the USB remote wakeup reporting done by USB hubs; you can
-> even look at the drivers/usb/core/hub.c code and see how usb
-> wakeup events (of various types) are handled.
->
-> You don't seem to know what you're talking about here.
->
->   
+> On Mon, Feb 06, 2006, Andrew Morton wrote:
+> > Mark Lord <lkml@rtr.ca> wrote:
+> > >
+> > > A simple test I do for this:
+> > > 
+> > >  $ mkdir t
+> > >  $ cp /usr/src/*.bz2  t    (about 400-500MB worth of kernel tar files)
+> > > 
+> > >  In another window, I do this:
+> > > 
+> > >  $ while (sleep 1); do echo -n "`date`: "; grep Dirty /proc/meminfo; done
+> > > 
+> > >  And then watch the count get large, but take virtually forever
+> > >  to count back down to a "safe" value.
+> > > 
+> > >  Typing "sync" causes all the Dirty pages to immediately be flushed to disk,
+> > >  as expected.
+> > 
+> > I've never seen that happen and I don't recall seeing any other reports of
+> > it, so your machine must be doing something peculiar.  I think it can
+> > happen if, say, an inode gets itself onto the wrong inode list, or
+> > incorrectly gets its dirty flag cleared.
+> > 
+> > Are you using any unusual mount options, or unusual combinations of
+> > filesystems, or anything like that?
+> 
+> I've been seeing something like this for some time, but kept
+> silent as I'm forced to use vmware on my Thinkpad T42p (1G RAM,
+> but CONFIG_NOHIGHMEM=y).
+> Sometimes 'sync' takes serveral seconds, even when the machine
+> had been idle for >15mins. I don't have laptop mode enabled.
+> so far I've not found a deterinistic way to reproduce this behaviour.
+> 
+> Anyway, I temporarily deinstalled vmware (deleted the kernel
+> modules and rebooted; kernel is still tainted because of madwifi
+> if that matters).
+> The behaviour I see with vmware (long 'sync' time) doesn't seem
+> to happen without it so far, but:
 
-Which is why I qualified my statements with "AFAIK".  Maybe you could 
-enlighten me.  Does the #PME signal carry enough information to inform 
-the kernel that the reason the system is being woken up is because you 
-unplugged the mouse from the usb hub?  I was under the impression that 
-this was not the case, instead the kernel at best knows it is being 
-woken up because the USB host controller generated a wake event.  
-Because of this and the fact that SCSI busses that I have seen do no 
-such thing, I assumed the kernel would handle USB in the same way, 
-specifically, that it would reenumerate and provided the same hardware 
-is still there that it expects to be there, then it would continue 
-operation as normal rather than deciding the drive was unplugged. 
-> You were wrong then too... both about probing "all hardware" and about not
-> being able to distinguish wakeup event sources.  
->   
+vmware uses mmap a lot.  Perhaps it's doing regular msyncs as well.
 
-Are you quite certain about that?  This is not the case for SCSI disks, 
-but for USB, maybe it can provide sufficient information to the kernel 
-about state changes without having to do a full rescan.  If that is the 
-case, and the hardware is erroneously reporting that all devices were 
-disconnected and reconnected after an ACPI suspend to disk, then such 
-hardware is broken and the kernel should be patched to work around it. 
+> Now copying a 700MB file makes "Dirty" go up to 350MB. It then
+> slowly decreases to 325MB and stays there.
 
+It shouldn't.  Did you really leave it for long enough?
+
+If you did, then why does it happen there and not here?
+
+> However:
+> 
+> $ time sync
+> 
+> real	0m0.326s
+> user	0m0.000s
+> sys	0m0.280s
+> 
+> and output from the dirty monitor one-liner:
+> 
+> Mon Feb 13 14:31:43 CET 2006: Dirty:          325916 kB
+> Mon Feb 13 14:31:44 CET 2006: Dirty:          325916 kB
+> Mon Feb 13 14:31:45 CET 2006: Dirty:               4 kB
+> Mon Feb 13 14:31:46 CET 2006: Dirty:               8 kB
+> 
+> 
+> Clearly my notebook's hdd isn't that fast. ;-/
+> What does "Dirty" in /proc/meminfo really mean?
+
+The number of pages which are marked dirty, roughly.
+
+In this case, all those pages' buffers had been written out by kjournald
+behind the VM's back, so when the VM tried to write these "dirty" pages it
+found that no I/O needed to be performed.
+
+It would be nice if ext3 could clean the parent pages as it goes, but I
+seem to recall deciding that this is not trivial.  I guess we could get a
+99.9% solution by trylocking the page.

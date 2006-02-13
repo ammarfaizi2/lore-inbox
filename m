@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbWBMPTa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbWBMPVd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932439AbWBMPTa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 10:19:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbWBMPTa
+	id S932135AbWBMPVd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 10:21:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWBMPVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 10:19:30 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:52141 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932439AbWBMPT3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 10:19:29 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 13 Feb 2006 16:17:45 +0100
-To: schilling@fokus.fraunhofer.de, mj@ucw.cz
-Cc: nix@esperi.org.uk, linux-kernel@vger.kernel.org, davidsen@tmr.com,
-       chris@gnome-de.org, axboe@suse.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F0A319.nailKUSXT33MZ@burner>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
- <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
- <20060125144543.GY4212@suse.de>
- <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
- <20060125153057.GG4212@suse.de> <43ED005F.5060804@tmr.com>
- <1139615496.10395.36.camel@localhost.localdomain>
- <43F088AB.nailKUSB18RM0@burner>
- <mj+md-20060213.135336.28566.atrey@ucw.cz>
-In-Reply-To: <mj+md-20060213.135336.28566.atrey@ucw.cz>
-User-Agent: nail 11.2 8/15/04
+	Mon, 13 Feb 2006 10:21:33 -0500
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:43621 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S932135AbWBMPVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 10:21:32 -0500
+Message-ID: <43F0A4BA.20401@suse.com>
+Date: Mon, 13 Feb 2006 10:24:42 -0500
+From: Jeff Mahoney <jeffm@suse.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Hans Reiser <reiser@namesys.com>
+Cc: Sergey Vlasov <vsu@altlinux.ru>, Bernd Schubert <bernd-schubert@gmx.de>,
+       Chris Wright <chrisw@sous-sol.org>,
+       John M Flinchbaugh <john@hjsoft.com>, reiserfs-list@namesys.com,
+       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15 Bug? New security model?
+References: <200602080212.27896.bernd-schubert@gmx.de>	<200602081314.59639.bernd-schubert@gmx.de>	<20060208205033.GB22771@shell0.pdx.osdl.net>	<200602082246.15613.bernd-schubert@gmx.de>	<20060208221124.GN30803@sorel.sous-sol.org> <20060212005541.107f7011.vsu@altlinux.ru> <43F01D70.70600@namesys.com>
+In-Reply-To: <43F01D70.70600@namesys.com>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares <mj@ucw.cz> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Hello!
->
-> > The main problem is that there is no grant that a new model will survive
-> > a time frame that makes sense to implement support.
->
-> I bet that it would take less time to implement this support than what
-> you spend here by arguing and trying to prove you are the only sane
-> person in the world. Unsuccessfully, of course.
+Hans Reiser wrote:
+> This is an xattr bug, and I'll let jeff answer it.
 
-If memory serves me correctly, the current model is the 3rd incompatible one
-offerend within less than 5 years.
+Hans -
 
-If you did ever try to write reliable code that has to deal with this kind of
-oddities, you would understand that it is sometimes better to wait and to inform
-related people about the problems they caused.
+This bug is about inode attributes (the chattr type), not extended
+attributes (the setfacl/setfattr type). Regardless, it's the root cause
+of the random attributes we were seeing when the REISERFS_ATTRS
+enable-by-default problem was corrected. Thanks to some other people on
+the list, I was able to post some patches to address it yesterday evening.
 
-Jörg
+- -Jeff
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+- --
+Jeff Mahoney
+SUSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFD8KS5LPWxlyuTD7IRApKRAJ0SdbS+/KzO8Kn7RMfVQ2KfwNSg/gCfXIdE
+KlxigEBlCZixvy7PObKebE0=
+=3wk5
+-----END PGP SIGNATURE-----

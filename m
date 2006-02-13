@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbWBMXV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbWBMXWb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030226AbWBMXV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 18:21:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030275AbWBMXV1
+	id S1030275AbWBMXWb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 18:22:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030277AbWBMXWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 18:21:27 -0500
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:51376
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1030233AbWBMXV1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 18:21:27 -0500
-Message-ID: <43F11471.5070207@microgate.com>
-Date: Mon, 13 Feb 2006 17:21:21 -0600
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] tty reference count fix
-References: <1139861610.3573.24.camel@amdx2.microgate.com> <9a8748490602131415r5c6cd7by3a3d0bc03e27bd83@mail.gmail.com>
-In-Reply-To: <9a8748490602131415r5c6cd7by3a3d0bc03e27bd83@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 13 Feb 2006 18:22:31 -0500
+Received: from sv1.valinux.co.jp ([210.128.90.2]:42691 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S1030275AbWBMXWa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 18:22:30 -0500
+Date: Tue, 14 Feb 2006 08:22:29 +0900
+From: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+To: vatsa@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net,
+       balbir@in.ibm.com
+Subject: Re: [ckrm-tech] [PATCH 2/2] connect the CPU resource controller to
+ CKRM
+In-Reply-To: <20060213143922.GB12279@in.ibm.com>
+References: <20060209061142.2164.35994.sendpatchset@debian>
+	<20060209061152.2164.64958.sendpatchset@debian>
+	<20060213143922.GB12279@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.0beta8 (GTK+ 2.8.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Message-Id: <20060213232229.EAAB274005@sv1.valinux.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> I just applied the patch to 2.6.16-rc3 and booted the patched kernel.
-> Unfortunately I can't tell you if it fixes the bug since I never
-> successfully reproduced it, it just happened once out of the blue.
-> What I can tell you though is that the patched kernel seems to behave
-> just fine and doesn't seem to introduce any regressions on my system -
-> but my testing has been quite limited so far.
-> 
-> Not the best feedback, I know, but it's the best I can give you at the moment.
+On Mon, 13 Feb 2006 20:09:22 +0530
+Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
 
-Any feedback is good feedback. I'm not suprised it has not
-happened again. The necessary conditions are not common and
-the timing window is small. As Andrew pointed out,
-DEBUG_PAGEALLOC likely helped uncover this.
+> > +		/* FALL THROUGH */
+> > +	case CPU_UP_PREPARE:
+> 	     ^^^^^^^^^^^^^^
+> 		This should be done at CPU_ONLINE time (since the new CPU won't
+> be in the cpu_online_map yet)?
 
-Decoding the 2 oops to specific lines of code strongly
-suggests this is what happened to you. The decoding showed
-the tty open and close (release) paths from different
-processes going after the same tty structure at the same time.
+> --- kernel/ckrm/ckrm_cpu.c.org	2006-01-31 11:37:46.000000000 +0530
+> +++ kernel/ckrm/ckrm_cpu.c	2006-01-31 11:39:30.000000000 +0530
+> @@ -295,7 +295,7 @@ static int __devinit ckrm_cpu_notify(str
+>  		}
+>  		ckrm_unlock_hier(cls);
+>  		/* FALL THROUGH */
+> -	case CPU_UP_PREPARE:
+> +	case CPU_ONLINE:
+>  		grcd.cpus = cpu_online_map;
+>  		grcd.numcpus = cpus_weight(cpu_online_map);
+>  		break;
 
-Thanks,
-Paul
+Your fix seems correct.
+I'll apply your patch, thanks for the fix!
 
---
-Paul Fulghum
-Microgate Systems, Ltd
-
-
-
-
+-- 
+KUROSAWA, Takahiro

@@ -1,64 +1,368 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030287AbWBMXc5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030288AbWBMXd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030287AbWBMXc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 18:32:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030283AbWBMXc5
+	id S1030288AbWBMXd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 18:33:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030290AbWBMXd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 18:32:57 -0500
-Received: from smtp.enter.net ([216.193.128.24]:36367 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S1030287AbWBMXcz (ORCPT
+	Mon, 13 Feb 2006 18:33:56 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:18730 "EHLO mtlexch01.mtl.com")
+	by vger.kernel.org with ESMTP id S1030288AbWBMXdz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 18:32:55 -0500
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Mon, 13 Feb 2006 18:42:01 -0500
-User-Agent: KMail/1.8.1
-Cc: mj@ucw.cz, seanlkml@sympatico.ca, sam@vilain.net, peter.read@gmail.com,
-       matthias.andree@gmx.de, lkml@dervishd.net, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
-References: <43EB7BBA.nailIFG412CGY@burner> <mj+md-20060213.160108.13290.atrey@ucw.cz> <43F0B32D.nailKUS1E3S8I3@burner>
-In-Reply-To: <43F0B32D.nailKUS1E3S8I3@burner>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Feb 2006 18:33:55 -0500
+Date: Tue, 14 Feb 2006 01:35:17 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Hugh Dickins <hugh@veritas.com>, William Irwin <wli@holomorphy.com>,
+       Roland Dreier <rdreier@cisco.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Gleb Natapov <gleb@minantech.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       openib-general@openib.org, Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Badari Pulavarty <pbadari@us.ibm.com>
+Subject: [PATCH] madvise MADV_DONTFORK/MADV_DOFORK
+Message-ID: <20060213233517.GG13603@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20060213154114.GO32041@mellanox.co.il> <Pine.LNX.4.64.0602131104460.3691@g5.osdl.org> <adar767133j.fsf@cisco.com> <Pine.LNX.4.64.0602131125180.3691@g5.osdl.org> <Pine.LNX.4.61.0602131943050.9573@goblin.wat.veritas.com> <20060213210906.GC13603@mellanox.co.il> <Pine.LNX.4.61.0602132157110.3761@goblin.wat.veritas.com> <Pine.LNX.4.64.0602131426470.3691@g5.osdl.org> <20060213225538.GE13603@mellanox.co.il> <Pine.LNX.4.61.0602132259450.4627@goblin.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602131842.02377.dhazelton@enter.net>
+In-Reply-To: <Pine.LNX.4.61.0602132259450.4627@goblin.wat.veritas.com>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 13 Feb 2006 23:35:45.0328 (UTC) FILETIME=[3608EB00:01C630F6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 February 2006 11:26, Joerg Schilling wrote:
-> Martin Mares <mj@ucw.cz> wrote:
-> > Hello!
-> >
-> > > If there is no interest to fox well known bugs in Linux, I would need
-> > > to warn people from using Linux.
-> >
-> > Except for mentioning some DMA related problems at the beginning of this
-> > monstrous thread, you haven't shown anything which even remotely
-> > qualifies as a bug.
->
-> If you forget these things, then please forget about this thread.
->
-> I mentioned:
->
-> -	ide-scsi does not do DMA correctly
+Hello, Andrew!
+Please consider the following for inclusion in -mm (and hopefully mainline
+in 2.6.17). The patch below is against 2.6.16-rc2. Tested on x86_64.
 
+--- 
 
-ide-scsi is deprecated and will be removed at a later date. Any program 
-relying on ide-scsi will have to be rewritten.
+Currently, copy-on-write may change the physical address of a page even if the
+user requested that the page is pinned in memory (either by mlock or by
+get_user_pages). This happens if the process forks meanwhile, and the parent
+writes to that page.  As a result, the page is orphaned: in case of
+get_user_pages, the application will never see any data hardware DMA's into this
+page after the COW.  In case of mlock'd memory, the parent is not getting the
+realtime/security benefits of mlock.
 
-> -	SCSI commands are bastardized on ATAPI
+In particular, this affects the Infiniband modules which do DMA from and into
+user pages all the time.
 
-identify the problem - provide a test case or two and I'll get off my lazy ass 
-and see if I can't figure out what's causing the problem.
+This patch adds madvise options to control whether memory range is inherited
+across fork. Useful e.g. for when hardware is doing DMA from/into these pages.
+Could also be useful to an application wanting to speed up its forks by cutting
+large areas out of consideration.
 
-> If you like, I can give you many other Linux related bugs but it does
-> not make sense unless the two bugs above are fixed.
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+Acked-by: Hugh Dickins <hugh@veritas.com>
 
-Only one bug needs fixed. ide-scsi is not going to be in the kernel much 
-longer. Although someone might find the time to fix the bugs for those people 
-dependant on older kernels.
-
-DRH
+Index: linux-2.6.16-rc2/mm/madvise.c
+===================================================================
+--- linux-2.6.16-rc2.orig/mm/madvise.c	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/mm/madvise.c	2006-02-14 03:40:22.000000000 +0200
+@@ -22,16 +22,23 @@ static long madvise_behavior(struct vm_a
+ 	struct mm_struct * mm = vma->vm_mm;
+ 	int error = 0;
+ 	pgoff_t pgoff;
+-	int new_flags = vma->vm_flags & ~VM_READHINTMASK;
++	int new_flags = vma->vm_flags;
+ 
+ 	switch (behavior) {
++	case MADV_NORMAL:
++		new_flags = new_flags & ~VM_RAND_READ & ~VM_SEQ_READ;
++		break;
+ 	case MADV_SEQUENTIAL:
+-		new_flags |= VM_SEQ_READ;
++		new_flags = (new_flags & ~VM_RAND_READ) | VM_SEQ_READ;
+ 		break;
+ 	case MADV_RANDOM:
+-		new_flags |= VM_RAND_READ;
++		new_flags = (new_flags & ~VM_SEQ_READ) | VM_RAND_READ;
+ 		break;
+-	default:
++	case MADV_DONTFORK:
++		new_flags |= VM_DONTCOPY;
++		break;
++	case MADV_DOFORK:
++		new_flags &= ~VM_DONTCOPY;
+ 		break;
+ 	}
+ 
+@@ -177,6 +184,12 @@ madvise_vma(struct vm_area_struct *vma, 
+ 	long error;
+ 
+ 	switch (behavior) {
++	case MADV_DOFORK:
++		if (vma->vm_flags & VM_IO) {
++			error = -EINVAL;
++			break;
++		}
++	case MADV_DONTFORK:
+ 	case MADV_NORMAL:
+ 	case MADV_SEQUENTIAL:
+ 	case MADV_RANDOM:
+Index: linux-2.6.16-rc2/include/asm-x86_64/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-x86_64/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-x86_64/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -37,6 +37,8 @@
+ #define MADV_WILLNEED	0x3		/* pre-fault pages */
+ #define MADV_DONTNEED	0x4		/* discard these pages */
+ #define MADV_REMOVE	0x5		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON	MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-powerpc/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-powerpc/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-powerpc/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -45,6 +45,8 @@
+ #define MADV_WILLNEED	0x3		/* pre-fault pages */
+ #define MADV_DONTNEED	0x4		/* discard these pages */
+ #define MADV_REMOVE	0x5		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON	MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-cris/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-cris/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-cris/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -38,6 +38,8 @@
+ #define MADV_WILLNEED	0x3		/* pre-fault pages */
+ #define MADV_DONTNEED	0x4		/* discard these pages */
+ #define MADV_REMOVE	0x5		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON	MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-arm26/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-arm26/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-arm26/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -36,6 +36,8 @@
+ #define MADV_WILLNEED	0x3		/* pre-fault pages */
+ #define MADV_DONTNEED	0x4		/* discard these pages */
+ #define MADV_REMOVE	0x5		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON	MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-alpha/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-alpha/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-alpha/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -43,6 +43,8 @@
+ #define	MADV_SPACEAVAIL	5		/* ensure resources are available */
+ #define MADV_DONTNEED	6		/* don't need these pages */
+ #define MADV_REMOVE	7		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON	MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-m68k/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-m68k/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-m68k/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -36,6 +36,8 @@
+ #define MADV_WILLNEED	0x3		/* pre-fault pages */
+ #define MADV_DONTNEED	0x4		/* discard these pages */
+ #define MADV_REMOVE	0x5		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON	MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-xtensa/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-xtensa/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-xtensa/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -73,6 +73,8 @@
+ #define MADV_WILLNEED	0x3		/* pre-fault pages */
+ #define MADV_DONTNEED	0x4		/* discard these pages */
+ #define MADV_REMOVE	0x5		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON       MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-mips/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-mips/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-mips/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -66,6 +66,8 @@
+ #define MADV_WILLNEED	0x3		/* pre-fault pages */
+ #define MADV_DONTNEED	0x4		/* discard these pages */
+ #define MADV_REMOVE	0x5		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON       MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-sparc64/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-sparc64/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-sparc64/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -55,6 +55,8 @@
+ #define MADV_DONTNEED	0x4		/* discard these pages */
+ #define MADV_FREE	0x5		/* (Solaris) contents can be freed */
+ #define MADV_REMOVE	0x6		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON	MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-v850/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-v850/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-v850/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -33,6 +33,8 @@
+ #define MADV_WILLNEED	0x3		/* pre-fault pages */
+ #define MADV_DONTNEED	0x4		/* discard these pages */
+ #define MADV_REMOVE	0x5		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON	MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-s390/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-s390/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-s390/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -44,6 +44,8 @@
+ #define MADV_WILLNEED  0x3              /* pre-fault pages */
+ #define MADV_DONTNEED  0x4              /* discard these pages */
+ #define MADV_REMOVE    0x5		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON	MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-parisc/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-parisc/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-parisc/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -49,6 +49,8 @@
+ #define MADV_4M_PAGES   22              /* Use 4 Megabyte pages */
+ #define MADV_16M_PAGES  24              /* Use 16 Megabyte pages */
+ #define MADV_64M_PAGES  26              /* Use 64 Megabyte pages */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON	MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-i386/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-i386/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-i386/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -36,6 +36,8 @@
+ #define MADV_WILLNEED	0x3		/* pre-fault pages */
+ #define MADV_DONTNEED	0x4		/* discard these pages */
+ #define MADV_REMOVE	0x5		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON	MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-sh/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-sh/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-sh/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -36,6 +36,8 @@
+ #define MADV_WILLNEED	0x3		/* pre-fault pages */
+ #define MADV_DONTNEED	0x4		/* discard these pages */
+ #define MADV_REMOVE	0x5		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON	MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-ia64/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-ia64/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-ia64/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -44,6 +44,8 @@
+ #define MADV_WILLNEED	0x3		/* pre-fault pages */
+ #define MADV_DONTNEED	0x4		/* discard these pages */
+ #define MADV_REMOVE	0x5		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON	MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-sparc/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-sparc/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-sparc/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -55,6 +55,8 @@
+ #define MADV_DONTNEED	0x4		/* discard these pages */
+ #define MADV_FREE	0x5		/* (Solaris) contents can be freed */
+ #define MADV_REMOVE	0x6		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON	MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-m32r/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-m32r/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-m32r/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -38,6 +38,8 @@
+ #define MADV_WILLNEED	0x3		/* pre-fault pages */
+ #define MADV_DONTNEED	0x4		/* discard these pages */
+ #define MADV_REMOVE	0x5		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON	MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-frv/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-frv/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-frv/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -36,6 +36,8 @@
+ #define MADV_WILLNEED	0x3		/* pre-fault pages */
+ #define MADV_DONTNEED	0x4		/* discard these pages */
+ #define MADV_REMOVE	0x5		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON	MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-h8300/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-h8300/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-h8300/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -36,6 +36,8 @@
+ #define MADV_WILLNEED	0x3		/* pre-fault pages */
+ #define MADV_DONTNEED	0x4		/* discard these pages */
+ #define MADV_REMOVE	0x5		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON	MAP_ANONYMOUS
+Index: linux-2.6.16-rc2/include/asm-arm/mman.h
+===================================================================
+--- linux-2.6.16-rc2.orig/include/asm-arm/mman.h	2006-02-14 01:22:27.000000000 +0200
++++ linux-2.6.16-rc2/include/asm-arm/mman.h	2006-02-14 01:24:57.000000000 +0200
+@@ -36,6 +36,8 @@
+ #define MADV_WILLNEED	0x3		/* pre-fault pages */
+ #define MADV_DONTNEED	0x4		/* discard these pages */
+ #define MADV_REMOVE	0x5		/* remove these pages & resources */
++#define MADV_DONTFORK	0x30		/* dont inherit across fork */
++#define MADV_DOFORK	0x31		/* do inherit across fork */
+ 
+ /* compatibility flags */
+ #define MAP_ANON	MAP_ANONYMOUS
+-- 
+Michael S. Tsirkin
+Staff Engineer, Mellanox Technologies

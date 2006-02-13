@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbWBMADs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbWBMAIH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751081AbWBMADs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Feb 2006 19:03:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWBMADs
+	id S1751074AbWBMAIH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Feb 2006 19:08:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWBMAIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Feb 2006 19:03:48 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:48042 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S1751081AbWBMADr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Feb 2006 19:03:47 -0500
-Message-ID: <43EFCCE0.3090004@hp.com>
-Date: Sun, 12 Feb 2006 16:03:44 -0800
-From: Eric Gouriou <eric.gouriou@hp.com>
-Organization: Hewlett Packard Company
-User-Agent: Thunderbird 1.5 (Macintosh/20051201)
-MIME-Version: 1.0
-To: David Gibson <david@gibson.dropbear.id.au>,
-       Stephane Eranian <eranian@hpl.hp.com>, Philip Mucci <mucci@cs.utk.edu>,
-       "Bryan O'Sullivan" <bos@serpentine.com>, perfmon@napali.hpl.hp.com,
-       perfctr-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Perfctr-devel] Re: [perfmon] perfmon2 code review: 32-bit ABI
- on	64-bit OS
-References: <1138221212.15295.35.camel@serpentine.pathscale.com>	<20060125222844.GB10451@frankl.hpl.hp.com>	<1138649612.4077.50.camel@localhost.localdomain>	<1138651545.4487.13.camel@camp4.serpentine.com>	<1139155731.4279.0.camel@localhost.localdomain>	<1139245253.27739.8.camel@camp4.serpentine.com>	<20060210153608.GC28311@frankl.hpl.hp.com>	<1139596023.9646.111.camel@serpentine.pathscale.com>	<1139681785.4316.33.camel@localhost.localdomain>	<20060211223354.GA30327@frankl.hpl.hp.com> <20060212234606.GC24291@localhost.localdomain>
-In-Reply-To: <20060212234606.GC24291@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Feb 2006 19:08:07 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:53440 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751003AbWBMAIE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Feb 2006 19:08:04 -0500
+Date: Mon, 13 Feb 2006 00:08:03 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linda Walsh <lkml@tlinx.org>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: Re: max symlink = 5? ?bug? ?feature deficit?
+Message-ID: <20060213000803.GY27946@ftp.linux.org.uk>
+References: <43ED5A7B.7040908@tlinx.org> <20060212180601.GU27946@ftp.linux.org.uk> <43EFA63B.30907@tlinx.org> <20060212212504.GX27946@ftp.linux.org.uk> <43EFBCA9.1090501@tlinx.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43EFBCA9.1090501@tlinx.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson wrote:
-> On Sat, Feb 11, 2006 at 02:33:54PM -0800, Stephane Eranian wrote:
-[...]
->> The most challenging piece is the IP (program pointer) that is in every
->> sample. Today it is defined as unsigned long because this is fairly
->> natural for a code address. The 64bit OS captures addresses as 64-bit,
->> the 32-bit monitoring tool running on top has to consume them as 64-bit
->> addresses, so u64 would be fine. 
->>
->> But not on a 32-bit kernel with a 32-bit tool, addresses exported as u64
->> would certainly work but consume double to buffer space, and that is a
->> more serious issue in my mind.
-> 
-> Hmm.. does the sampling buffer collect on userspace PC values, or
-> kernel ones as well?
+On Sun, Feb 12, 2006 at 02:54:33PM -0800, Linda Walsh wrote:
+> Al Viro wrote:
+> >Care to RTFS? I mean, really - at least to the point of seeing what's
+> >involved in that recursion.
+> >  
+> Hmmm...that's where I got the original parameter numbers, but
+> I see it's not so straightforward.  I tried a limit of
+> 40, but I quickly get an OS hang when trying to reference a
+> 13th link.  Twelve works at the limit, but would take more testing
+> to find out the bottleneck.
 
-  Either, or both, depending on the measurement settings.
-
-  I live in a 64-bit world, so my take on this issue would be to expose
-the PC as a uint64_t, always. There is already so much overhead in the
-default per-sample header that I wouldn't worry about it.
-
-  Now 64 bit might not always be enough. E.g., on PA-RISC. But _I_ do
-not care much about Linux on PA.
-
-   Eric
-
--- 
-Eric Gouriou                                         eric.gouriou@hp.com
+Sigh...  12 works at the limit on your particular config, filesystems
+being used and syscall being issued (hint: amount of stuff on stack
+before we enter mutual recursion varies; so does the amount of stuff
+on stack we get from function that are not part of mutual recursion,
+but are called from the damn thing).

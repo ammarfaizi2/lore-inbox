@@ -1,88 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWBMQbe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWBMQdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbWBMQbe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 11:31:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbWBMQbd
+	id S932076AbWBMQdI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 11:33:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbWBMQdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 11:31:33 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:57274 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932116AbWBMQbc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 11:31:32 -0500
-Date: Mon, 13 Feb 2006 11:31:27 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Phillip Susi <psusi@cfl.rr.com>
-cc: Kyle Moffett <mrmacman_g4@mac.com>, Alon Bar-Lev <alon.barlev@gmail.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Flames over -- Re: Which is simpler?
-In-Reply-To: <43F0027E.2070207@cfl.rr.com>
-Message-ID: <Pine.LNX.4.44L0.0602131113310.7035-100000@iolanthe.rowland.org>
+	Mon, 13 Feb 2006 11:33:08 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:30744 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S932076AbWBMQdH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 11:33:07 -0500
+Message-ID: <43F0B484.3060603@cfl.rr.com>
+Date: Mon, 13 Feb 2006 11:32:04 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Seewer Philippe <philippe.seewer@bfh.ch>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RFC: disk geometry via sysfs
+References: <43EC8FBA.1080307@bfh.ch>
+In-Reply-To: <43EC8FBA.1080307@bfh.ch>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Feb 2006 16:33:53.0636 (UTC) FILETIME=[47173A40:01C630BB]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14265.000
+X-TM-AS-Result: No--6.900000-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Feb 2006, Phillip Susi wrote:
+Seewer Philippe wrote:
+> Hello all!
+>
+> I don't want to start another geometry war, but with the introduction of
+> the general getgeo function by Christoph Hellwig for all disks this
+> simply would become a matter of extending the basic gendisk block driver.
+>
+> There are people out there (like me) who need to know about disk
+> geometry. But since this is clearly post 2.6.16 I prefer to ask here
+> before writing a patch...
+>   
 
-> During suspend the hardware is usually completely powered off, and in 
-> either case, there is nothing running on the CPU to monitor device 
-> insertion/removal.
+Why do you need to know about geometry?  Geometry is a useless fiction 
+that only still exists in PC system BIOS for the sake of backward 
+compatibility with software that was originally designed to operate with 
+MFM and RLL disks that actually used geometric addressing.  These days 
+there is no such thing; it's just made up by the bios. 
+> Q1: Yes or No?
+> If no, the other questions do not apply
+>
+> Q2: Where under sysfs?
+> Either do /sys/block/hdx/heads, /sys/block/hdx/sectors, etc. or should
+> there be a new sub-object like /sys/block/hdx/geometry/heads?
+>   
 
-Like Kyle said, this depends to some extent on the system.  However, 
-during Suspend-to-RAM it is definitely true that the RAM at least is 
-powered on.  Other components may be powered as well.  Otherwise you 
-wouldn't be able to awaken the system by pressing a button/opening the 
-case/whatever.
+This is not suitable because block devices may not be bios accessible, 
+and thus, nowhere to get any bogus geometry information from.  Even if 
+it is, do we really want to be calling the bios to get this information 
+and keep it around?
 
->  When the system is resumed the kernel decides if the 
-> hardware has changed the same way for either system: it probes the 
-> hardware to see if it is still there.  There isn't anything special that 
-> monitors device insertion/removal while suspended to ram.
+> Q3: Writable?
+> Under some (weird) circumstances it would actually be quite nice to
+> overwrite the kernels idea of a disks geometry. This would require a
+> general function like setgeo. Acceptable?
+>
+>   
 
-Sorry, but you're wrong.  First of all, testing if hardware is there is
-different from testing whether it has changed -- it could have changed 
-while the system was asleep, with the result that hardware is indeed there 
-but it's not the _same_ hardware.
+What for?  The only purpose to geometry is bios compatibility.  Changing 
+the kernel's copy of the values won't do any good because the bios won't 
+be changed. 
 
-Second, with USB at any rate, in addition to checking that hardware is 
-still there, the kernel queries the USB controller to see if a disconnect 
-occurred while the system was asleep.  (If the controller wasn't powered 
-during that time then it will report that every USB device was 
-disconnected.)
-
-Third, there is indeed something special that monitors USB device 
-insertion/removal while suspended to RAM -- the USB host controller does 
-so if it has suspend power.
-
-> >> This is not true.  The USB bus is shut down either way, and provided 
-> >> that you have not unplugged the disk, nothing will be screwed when you 
-> >> resume from disk or ram.
-> > 
-> > Have you actually tried it?  I have.  
-> 
-> If it doesn't work then you have found a bug and should file a report. 
-
-No.  It does work exactly as designed and it's not buggy.  You just don't
-understand it.
-
-> The state of the kernel after resuming from either suspend to disk, or 
-> suspend to ram is the same.  The filesystem is still mounted, and any 
-> dirty pages in ram will be flushed just like normal.  Whether the disk 
-> is connected via SCSI, SATA, USB, or whatever does not matter.
-
-Don't be silly.  Dirty pages can't be flushed to disks that are no longer
-attached!  And if a USB disk was unplugged while the system was asleep,
-the kernel will know that it is no longer attached.  I don't know which
-other bus drivers check for this sort of thing.
-
-> The kernel knows that the same device is still there on the bus, and so 
-> it picks up right where it left off.  If it thinks the device has been 
-> unplugged and reconnected, that is a bug.
-
-It's not a bug if the device _has_ been unplugged and reconnected.  When 
-that happens, there's no way for the kernel to tell whether the device 
-there now is the same as the device that used to be there.
-
-Alan Stern
 

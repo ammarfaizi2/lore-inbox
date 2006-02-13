@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751779AbWBMOHo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751780AbWBMOH4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751779AbWBMOHo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 09:07:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751780AbWBMOHo
+	id S1751780AbWBMOH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 09:07:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751781AbWBMOH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 09:07:44 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:410 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751779AbWBMOHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 09:07:43 -0500
-Date: Mon, 13 Feb 2006 15:07:42 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: dhazelton@enter.net, peter.read@gmail.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-       jengelh@linux01.gwdg.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <mj+md-20060213.140141.31817.atrey@ucw.cz>
-References: <20060208162828.GA17534@voodoo> <200602090757.13767.dhazelton@enter.net> <43EC8F22.nailISDL17DJF@burner> <200602092221.56942.dhazelton@enter.net> <43F08C5F.nailKUSDKZUAZ@burner>
+	Mon, 13 Feb 2006 09:07:56 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:53191 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751780AbWBMOHz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 09:07:55 -0500
+Date: Mon, 13 Feb 2006 15:06:12 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 11/13] hrtimer: fix multiple macro argument expansion
+Message-ID: <20060213140612.GG12923@elte.hu>
+References: <Pine.LNX.4.61.0602130211340.23851@scrub.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43F08C5F.nailKUSDKZUAZ@burner>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.61.0602130211340.23851@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.2
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> libscg abstracts from a kernel specific transport and allows to write OS 
-> independent applications that rely in generic SCSI transport.
+* Roman Zippel <zippel@linux-m68k.org> wrote:
+
+> For two macros the arguments were expanded twice, change them to 
+> inline functions to avoid it.
 > 
-> For this reason, it is bejond the scope of the Linux kernel team to decide on 
-> this abstraction layer. The Linux kernel team just need to take the current
-> libscg interface as given as _this_  _is_ the way to do best abstraction.
+> Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
-Do you really believe that libscg is the only way in the world how to
-access SCSI devices?
+yep. We checked that there are no current users of that macro which 
+could expose this double expansion, but still it's better to have this 
+fixed in v2.6.16 too.
 
-How can you be so sure that the abstraction you have chosen is the only
-possible one?
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-If an answer to either of this questions is NO, why do you insist on
-everybody bending their rules to suit your model?
-
-> The Linux kernel team has the freedom to boycott portable user space SCSI 
-> applications or to support them.
-
-That's really an interesting view ... if anybody is boycotting anybody,
-then it's clearly you, because you refuse to extend libscg to support
-the Linux model, although it's clearly possible.
-
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-Ctrl and Alt keys stuck -- press Del to continue.
+	Ingo

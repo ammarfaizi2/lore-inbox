@@ -1,70 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751669AbWBMMLv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWBMMNG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751669AbWBMMLv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 07:11:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751760AbWBMMLv
+	id S932099AbWBMMNG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 07:13:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWBMMNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 07:11:51 -0500
-Received: from sipsolutions.net ([66.160.135.76]:65032 "EHLO sipsolutions.net")
-	by vger.kernel.org with ESMTP id S1751669AbWBMMLu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 07:11:50 -0500
-Subject: Re: Flames over -- Re: Which is simpler? (Was Re: [Suspend2-devel]
-	Re: [ 00/10] [Suspend2] Modules support.)
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Alon Bar-Lev <alon.barlev@gmail.com>, suspend2-devel@lists.suspend2.net,
-       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <47B33C16-AEC3-4036-BA05-AE235014684E@mac.com>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain>
-	 <200602101337.22078.rjw@sisk.pl> <20060210233507.GC1952@elf.ucw.cz>
-	 <200602111136.56325.merka@highsphere.net>
-	 <B5780C33-81CE-4B8A-9583-B9B3973FCC11@mac.com> <43EEF711.2010409@gmail.com>
-	 <43833C9D-40A2-42B3-83D9-3C9D3EB7C434@mac.com> <43EF24C0.2040902@gmail.com>
-	 <47B33C16-AEC3-4036-BA05-AE235014684E@mac.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-KTu2X8XvC95nMjj+URhp"
-Date: Mon, 13 Feb 2006 13:11:19 +0100
-Message-Id: <1139832679.6388.33.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Mon, 13 Feb 2006 07:13:05 -0500
+Received: from mail7.hitachi.co.jp ([133.145.228.42]:28045 "EHLO
+	mail7.hitachi.co.jp") by vger.kernel.org with ESMTP id S932099AbWBMMNE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 07:13:04 -0500
+Message-ID: <43F077C7.8060706@sdl.hitachi.co.jp>
+Date: Mon, 13 Feb 2006 21:12:55 +0900
+From: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, ananth@in.ibm.com, prasanna@in.ibm.com,
+       anil.s.keshavamurthy@intel.com
+CC: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>,
+       systemtap@sources.redhat.com, jkenisto@us.ibm.com,
+       linux-kernel@vger.kernel.org, sugita@sdl.hitachi.co.jp,
+       soshima@redhat.com, haoki@redhat.com
+Subject: [PATCH][take 2] kretprobe: kretprobe-booster against 2.6.16-rc2 for
+ i386
+References: <43DE0A53.3060801@sdl.hitachi.co.jp>	<43DEC13E.8020200@sdl.hitachi.co.jp> <20060131145540.3e9a78be.akpm@osdl.org> <43E0B177.9020607@sdl.hitachi.co.jp>
+In-Reply-To: <43E0B177.9020607@sdl.hitachi.co.jp>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, Andrew
 
---=-KTu2X8XvC95nMjj+URhp
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Here is a patch of kretprobe-booster for i386 against linux-2.6.16-rc2.
+In the previous kretprobe-booster patch, I had a mistake about stack
+register. In this patch, the bug is fixed.
 
-On Sun, 2006-02-12 at 11:32 -0500, Kyle Moffett wrote:
+This bug was pointed by Chuck Ebbert, and there were two different
+patches(Chuck's and mine) to fix it. But both patches were dropped
+from -mm tree. So, I merged my patch into kretprobe-booster patch
+and attached it to this mail.
 
-> Don't you *dare* say "somebody could attach a =20
-> hardware debugger and read your data out of RAM", because I just =20
-> don't see that happening in any reasonable situation,
+Could you replace the previous kretprobe-booster patch with this
+patch?
 
-takes me all of about two minutes with your firewire port.
+The description of kretprobe-booster:
+====================================
+In the normal operation, kretprobe make a target function return
+to trampoline code. A kprobe (called trampoline_probe) has
+been inserted at the trampoline code. When the kernel hits this
+kprobe, it calls kretprobe's handler and it returns to original
+return address.
 
-johannes
+Kretprobe-booster patch removes the trampoline_probe. It allows
+the tranpoline code to call kretprobe's handler directly instead
+of invoking kprobe. The trampoline code returns to original return
+address.
 
---=-KTu2X8XvC95nMjj+URhp
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+This new tranpoline code stores and restores registers, so the
+kretprobe handler is still able to access those registers.
 
------BEGIN PGP SIGNATURE-----
+-- 
+Masami HIRAMATSU
+2nd Research Dept.
+Hitachi, Ltd., Systems Development Laboratory
+E-mail: hiramatu@sdl.hitachi.co.jp
 
-iQIVAwUAQ/B3ZaVg1VMiehFYAQLK6A//WDnCNDk7nDK5NMixFG290BLc0tbIKQHu
-WBGRMqTR2K/b/u3vHFhPHoCapVSuDRhuaYsxaS9b1Nf+cA9DqKWDoCJgJzHluseG
-cLLAHaIG8CGbfzjKOxqnybub8SYp37IYwYd2keiB24eFOzj2Q50/2fmTwyIbj61R
-e5gGc70QclEInWpa2y5TtNcJBNgS5BUApOqva0FHK35ldyevms7+Hj+JYRS3Rn36
-g5sxuvVGsj0wxoXjgCsjo8gPvBPvoJW71f5+jVHoEB7n9nm7fzJllHqgKh4sWgud
-gWk9BOeuenCi7PTphqq67+gJARMi3nJgyQ7bwiLiznburMPMSSkTb/RmH7BF2zIv
-jLsx/KPtYkZX4u/ft0CWKZQ4XpeZj9coSj5E5ak/6ck8eflaOox7lF9D8tCQuExu
-lRiTsMoRFJkLEn64kq+BHWsNZRRUGuCBzOFRwrDh8PAcWDCBpkfqUm611WggbEZz
-mSMmNLNYfsxVEllCXonXkYDFHistKj2+pnuAZ1OcYp322W44fLZuyQrJKgsiIF7f
-Mgijo3gPZ6VyI+5Fhzw89Gx9PJKBL2mhoDRmH547JcRRwn6GKD04pNwxuTUrGd5n
-isLNDMOvruryqyrlqw35rEcSf0UeED6gBCViTQYcoahosIAZ1w5xnZWsLl7b++/P
-6V3Oq4fyRlc=
-=f59L
------END PGP SIGNATURE-----
+Signed-off-by: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
 
---=-KTu2X8XvC95nMjj+URhp--
+ kprobes.c |   56 +++++++++++++++++++++++++++++++++++---------------------
+ 1 files changed, 35 insertions(+), 21 deletions(-)
+diff -Narup a/arch/i386/kernel/kprobes.c b/arch/i386/kernel/kprobes.c
+--- a/arch/i386/kernel/kprobes.c	2006-02-13 15:01:31.000000000 +0900
++++ b/arch/i386/kernel/kprobes.c	2006-02-13 15:06:37.000000000 +0900
+@@ -255,17 +255,44 @@ no_kprobe:
+  * here. When a retprobed function returns, this probe is hit and
+  * trampoline_probe_handler() runs, calling the kretprobe's handler.
+  */
+- void kretprobe_trampoline_holder(void)
++ void __kprobes kretprobe_trampoline_holder(void)
+  {
+- 	asm volatile (  ".global kretprobe_trampoline\n"
++	 asm volatile ( ".global kretprobe_trampoline\n"
+  			"kretprobe_trampoline: \n"
+- 			"nop\n");
+- }
++			"	pushf\n"
++			/* skip cs, eip, orig_eax, es, ds */
++			"	subl $20, %esp\n"
++			"	pushl %eax\n"
++			"	pushl %ebp\n"
++			"	pushl %edi\n"
++			"	pushl %esi\n"
++			"	pushl %edx\n"
++			"	pushl %ecx\n"
++			"	pushl %ebx\n"
++			"	movl %esp, %eax\n"
++			"	call trampoline_handler\n"
++			/* move eflags to cs */
++			"	movl 48(%esp), %edx\n"
++			"	movl %edx, 44(%esp)\n"
++			/* save true return address on eflags */
++			"	movl %eax, 48(%esp)\n"
++			"	popl %ebx\n"
++			"	popl %ecx\n"
++			"	popl %edx\n"
++			"	popl %esi\n"
++			"	popl %edi\n"
++			"	popl %ebp\n"
++			"	popl %eax\n"
++			/* skip eip, orig_eax, es, ds */
++			"	addl $16, %esp\n"
++			"	popf\n"
++			"	ret\n");
++}
+
+ /*
+- * Called when we hit the probe point at kretprobe_trampoline
++ * Called from kretprobe_trampoline
+  */
+-int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
++fastcall void *__kprobes trampoline_handler(struct pt_regs *regs)
+ {
+         struct kretprobe_instance *ri = NULL;
+         struct hlist_head *head;
+@@ -310,18 +337,10 @@ int __kprobes trampoline_probe_handler(s
+ 	}
+
+ 	BUG_ON(!orig_ret_address || (orig_ret_address == trampoline_address));
+-	regs->eip = orig_ret_address;
+
+-	reset_current_kprobe();
+ 	spin_unlock_irqrestore(&kretprobe_lock, flags);
+-	preempt_enable_no_resched();
+
+-	/*
+-	 * By returning a non-zero value, we are telling
+-	 * kprobe_handler() that we don't want the post_handler
+-	 * to run (and have re-enabled preemption)
+-	 */
+-        return 1;
++	return (void*)orig_ret_address;
+ }
+
+ /*
+@@ -552,12 +571,7 @@ int __kprobes longjmp_break_handler(stru
+ 	return 0;
+ }
+
+-static struct kprobe trampoline_p = {
+-	.addr = (kprobe_opcode_t *) &kretprobe_trampoline,
+-	.pre_handler = trampoline_probe_handler
+-};
+-
+ int __init arch_init_kprobes(void)
+ {
+-	return register_kprobe(&trampoline_p);
++	return 0;
+ }
+
 

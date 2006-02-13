@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWBMQul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWBMQuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbWBMQul (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 11:50:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWBMQuk
+	id S932162AbWBMQuY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 11:50:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbWBMQuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 11:50:40 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:56470 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S932220AbWBMQuj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 11:50:39 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <43F0B887.5080308@s5r6.in-berlin.de>
-Date: Mon, 13 Feb 2006 17:49:11 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Johannes Berg <johannes@sipsolutions.net>
-CC: Arjan van de Ven <arjan@infradead.org>,
-       Jody McIntyre <scjody@modernduck.com>, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net
-Subject: Re: [RFC 2/4] firewire: dynamic cdev allocation below firewire	major
-References: <1138919238.3621.12.camel@localhost>	 <1138920012.3621.19.camel@localhost>	 <20060213035150.GE3072@conscoop.ottawa.on.ca>	 <1139815941.2997.9.camel@laptopd505.fenrus.org> <1139832174.6388.31.camel@localhost>
-In-Reply-To: <1139832174.6388.31.camel@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: (0.544) AWL,BAYES_50
+	Mon, 13 Feb 2006 11:50:24 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:55974 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S932162AbWBMQuX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 11:50:23 -0500
+Date: Mon, 13 Feb 2006 17:50:22 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: seanlkml@sympatico.ca, sam@vilain.net, peter.read@gmail.com,
+       matthias.andree@gmx.de, lkml@dervishd.net, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <mj+md-20060213.164948.25807.atrey@ucw.cz>
+References: <43EC71FB.nailISD31LRCB@burner> <20060210114930.GC2750@DervishD> <43EC88B8.nailISDH1Q8XR@burner> <43EFC1FF.7030103@vilain.net> <43F097AE.nailKUSK1MJ9O@burner> <BAYC1-PASMTP10B5F649DEDADD145E56BDAE070@CEZ.ICE> <20060213095038.03247484.seanlkml@sympatico.ca> <43F0A771.nailKUS131LLIA@burner> <mj+md-20060213.160108.13290.atrey@ucw.cz> <43F0B32D.nailKUS1E3S8I3@burner>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F0B32D.nailKUS1E3S8I3@burner>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johannes Berg wrote:
-> Seems pretty weird to effectively allocate 256 device numbers
-> for just a single device, but ok :)
-> I'll drop the patch and make it allocate a new major for every device
-> plugged in.
+Hello!
 
-Your driver could internally dispatch 256 minor device numbers after
-it got itself its own dynamic major number. This should even be
-acceptable as a hard limit of mem1394 devices. One would need quite a
-lot of 1394 cards (or 1394.1 bridges) to get access to 256 FireWire
-nodes at once.
+> -	SCSI commands are bastardized on ATAPI 
+
+One more question before this thread hopefully dies out:
+
+What do you mean by "bastardized"?
+
+				Have a nice fortnight
 -- 
-Stefan Richter
--=====-=-==- --=- -==-=
-http://arcgraph.de/sr/
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Don't take life too seriously -- you'll never get out of it alive.

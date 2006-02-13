@@ -1,54 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWBMRwG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWBMRxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbWBMRwG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 12:52:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWBMRwG
+	id S932136AbWBMRxP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 12:53:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWBMRxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 12:52:06 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:22181
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932136AbWBMRwE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 12:52:04 -0500
-Date: Mon, 13 Feb 2006 09:51:42 -0800
-From: Greg KH <greg@kroah.com>
-To: Daniel Barkalow <barkalow@iabervon.org>
-Cc: Bill Davidsen <davidsen@tmr.com>, Nix <nix@esperi.org.uk>,
-       Jens Axboe <axboe@suse.de>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060213175142.GB20952@kroah.com>
-References: <43D7AF56.nailDFJ882IWI@burner> <20060125181847.b8ca4ceb.grundig@teleline.es> <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com> <20060210235654.GA22512@kroah.com> <Pine.LNX.4.64.0602122256130.6773@iabervon.org> <20060213062158.GA2335@kroah.com> <Pine.LNX.4.64.0602130244500.6773@iabervon.org>
+	Mon, 13 Feb 2006 12:53:14 -0500
+Received: from master.altlinux.org ([62.118.250.235]:55050 "EHLO
+	master.altlinux.org") by vger.kernel.org with ESMTP id S932136AbWBMRxN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 12:53:13 -0500
+Date: Mon, 13 Feb 2006 20:52:55 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Bernd Schubert <bernd-schubert@gmx.de>
+Cc: Jeff Mahoney <jeffm@suse.com>, Chris Wright <chrisw@sous-sol.org>,
+       John M Flinchbaugh <john@hjsoft.com>, reiserfs-list@namesys.com,
+       Sam Vilain <sam@vilain.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15 Bug? New security model?
+Message-ID: <20060213175255.GA8639@procyon.home>
+References: <200602080212.27896.bernd-schubert@gmx.de> <20060212175740.GB8805@locomotive.unixthugs.org> <20060212192115.GB8544@procyon.home> <200602130003.15698.bernd-schubert@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0602130244500.6773@iabervon.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200602130003.15698.bernd-schubert@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 13, 2006 at 03:05:49AM -0500, Daniel Barkalow wrote:
-> On Sun, 12 Feb 2006, Greg KH wrote:
-> 
-> > On Mon, Feb 13, 2006 at 12:01:48AM -0500, Daniel Barkalow wrote:
-> > > sysfs doesn't do quite that level of categorization; if it did, cdrom_id 
-> > > would be unnecessary.
-> > 
-> > What?  cdrom_id queries the device directly to get some specific
-> > information about the device, much like any other type of device query
-> > (lspci, lsusb, etc.)
-> > 
-> > And yes, it would be nice if some of that information was also exported
-> > through sysfs, and as always, patches are gladly accpeted.
-> 
-> Are there guidelines on having a generic cdrom export information from its 
-> block interface, rather than through its bus? I'm not finding any 
-> documentation of sys/block/, aside from that it exists.
 
-That information should go into the device directory, not the sys/block
-directory (as it referrs to the device attributes, not the block gendev
-attributes.)
+--xHFwDpU9dbj6ez1V
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
+On Mon, Feb 13, 2006 at 12:03:15AM +0100, Bernd Schubert wrote:
+> > diff --git a/fs/reiserfs/super.c b/fs/reiserfs/super.c
+> > index ef5e541..acafe32 100644
+> > --- a/fs/reiserfs/super.c
+> > +++ b/fs/reiserfs/super.c
+> > @@ -1124,7 +1124,9 @@ static void handle_attrs(struct super_bl
+> >  					 "reiserfs: cannot support attributes until flag is set in
+> > super-block"); REISERFS_SB(s)->s_mount_opt &=3D ~(1 << REISERFS_ATTRS);
+> >  		}
+> > -	} else if (le32_to_cpu(rs->s_flags) & reiserfs_attrs_cleared) {
+> > +	} else if ((le32_to_cpu(rs->s_flags) & reiserfs_attrs_cleared) &&
+> > +		(get_inode_sd_version(s->s_root->d_inode) =3D=3D STAT_DATA_V2)) {
+> > +		/* Enable attrs by default on v3.6-native file systems */
+> >  		REISERFS_SB(s)->s_mount_opt |=3D (1 << REISERFS_ATTRS);
+> >  	}
+> >  }
+>=20
+> I'm afraid that still doesn't solve the problem for me, I added two print=
+k to=20
+> be sure whats going on - get_inode_sd_version(s->s_root->d_inode) returns=
+=20
+> STAT_DATA_V2 for all of my partitions.
 
-greg k-h
+Too bad.  Looks like autoenabling of the "attrs" options won't fly,
+and the only safe solution is to revert those patches and require
+explicit "attrs" option.
+
+--xHFwDpU9dbj6ez1V
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFD8Md3W82GfkQfsqIRAg6LAKCFrYygHMVe7DA6bZof+IMMH9x4QACaAzUr
++F8wzAczvACbr7J93AXySQU=
+=kk1X
+-----END PGP SIGNATURE-----
+
+--xHFwDpU9dbj6ez1V--

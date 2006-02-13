@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWBMMv3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWBMMum@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932425AbWBMMv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 07:51:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWBMMv3
+	id S932405AbWBMMum (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 07:50:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbWBMMum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 07:51:29 -0500
-Received: from mx1.suse.de ([195.135.220.2]:49585 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932425AbWBMMv3 (ORCPT
+	Mon, 13 Feb 2006 07:50:42 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:64478 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932405AbWBMMul (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 07:51:29 -0500
-Date: Mon, 13 Feb 2006 13:51:17 +0100
-From: Olaf Hering <olh@suse.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Roger Leigh <rleigh@whinlatter.ukfsn.org>,
-       debian-powerpc@lists.debian.org
-Subject: Re: 2.6.16-rc2 powerpc timestamp skew
-Message-ID: <20060213125117.GA18119@suse.de>
-References: <87pslspkj5.fsf@hardknott.home.whinlatter.ukfsn.org> <20060212195514.GA18521@suse.de> <20060213105701.GA15476@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20060213105701.GA15476@suse.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Mon, 13 Feb 2006 07:50:41 -0500
+Date: Mon, 13 Feb 2006 13:50:32 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andrew Morton <akpm@osdl.org>
+cc: mingo@elte.hu, tglx@linutronix.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 02/13] hrtimer: remove useless const
+In-Reply-To: <20060213043038.25a49dd0.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0602131339330.30994@scrub.home>
+References: <Pine.LNX.4.61.0602130209340.23804@scrub.home>
+ <1139830116.2480.464.camel@localhost.localdomain> <Pine.LNX.4.61.0602131235180.30994@scrub.home>
+ <20060213114612.GA30500@elte.hu> <20060213035354.65b04c15.akpm@osdl.org>
+ <Pine.LNX.4.61.0602131315150.30994@scrub.home> <20060213043038.25a49dd0.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Feb 13, Olaf Hering wrote:
+Hi,
 
->  On Sun, Feb 12, Olaf Hering wrote:
-> 
-> >  On Sun, Feb 12, Roger Leigh wrote:
-> > 
-> > > In both these cases, the chrony NTP daemon is running, if that might
-> > > be a problem.
-> > 
-> > I dont run Debian, but:
-> > 
-> > My G4/466 has the hwclock at 1970 for some reason. The early bootscripts
-> > call klogd, which calls nanosleep. This syscall takes 3 hours to complete.
+On Mon, 13 Feb 2006, Andrew Morton wrote:
 
-nanosleep is usually called with *rqtp <something>, *rmtp NULL.
-Only in the klogd case both pointers are equal.
+> const arguments to functions are pretty useful for code readability and
+> maintainability too, if you use them consistently.
+
+I could understand that argument, if gcc would warn about it in any way.
+The const in function prototypes are completely useless and have no effect 
+on the compiler output. Only for the local variables it seems to make a 
+small difference with gcc3, but even here AFAICT only for already complex 
+functions.
+
+bye, Roman

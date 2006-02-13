@@ -1,44 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbWBMXBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030254AbWBMXDc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030243AbWBMXBI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 18:01:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030256AbWBMXBH
+	id S1030254AbWBMXDc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 18:03:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030256AbWBMXDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 18:01:07 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:33722 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030243AbWBMXAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 18:00:55 -0500
-Date: Mon, 13 Feb 2006 17:00:51 -0600
-From: Cliff Wickman <cpw@sgi.com>
+	Mon, 13 Feb 2006 18:03:32 -0500
+Received: from pproxy.gmail.com ([64.233.166.183]:64379 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030254AbWBMXDb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 18:03:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=QwspeUEg5Z/fELOMzaeehazIwf2W/0RHoqvZQnx2hQxQ5uR9yQA/zPgfiVjXISoqGb5QVlV8Bi4UxjU3si7Do7MM5uTExXfhaW6xlGB3iAJM2nRa8zJ6KoY18OYet1ayQtMj3Ixsu8z8mVjiolHexoPZM293RQWN+MA5qohzLnw=
+Message-ID: <bda6d13a0602131503n14650120gaa39eda9a38aefbf@mail.gmail.com>
+Date: Mon, 13 Feb 2006 15:03:26 -0800
+From: Joshua Hudson <joshudson@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Question: possible bug in setrlimit
-Message-ID: <20060213230051.GA29417@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: sb_bread & bforget
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+New filesystem is using BTrees for directories. An update will touch
+multiple blocks, loaded into buffer_head structures with sb_bread.
 
-A test suite uncovered a possible bug in setrlimit(2).
-
-A code that does
-        mylimits.rlim_cur = 0;
-        setrlimit(RLIMIT_CPU, &mylimits);
-does not set a cpu time limit.
-No signal is sent to this code when its "limit" of 0 seconds expires.
-
-Under the 2.6.5 kernel (SuSE SLESS9) a signal was sent.
-
-I don't see any obvious difference in sys_setrlimit() or
-set_process_cpu_timer() between 2.6.5 and 2.6.16.
-
-Is a cpu time limit of 0 supposed to limit to 0 seconds, or be unlimited?
-
--- 
-Cliff Wickman
-Silicon Graphics, Inc.
-cpw@sgi.com
-(651) 683-3824
+If update fails (only possible causes are read error & disk full), is it
+kosher to call bforget on all modified buffer_head structures, or
+does that have some unintended consequences?

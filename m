@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbWBMWPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030211AbWBMWPi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030210AbWBMWPb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 17:15:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030213AbWBMWPa
+	id S1030211AbWBMWPi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 17:15:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbWBMWPi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 17:15:30 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:35332 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1030212AbWBMWPa
+	Mon, 13 Feb 2006 17:15:38 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:32984 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030211AbWBMWPh convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 17:15:30 -0500
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: greg@kroah.com, davidsen@tmr.com, linux-kernel@vger.kernel.org,
-       axboe@suse.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
-	<20060125144543.GY4212@suse.de>
-	<Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
-	<20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
-	<20060125181847.b8ca4ceb.grundig@teleline.es>
-	<20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de>
-	<878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com>
-	<20060210235654.GA22512@kroah.com> <43F0891E.nailKUSCGC52G@burner>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: or perhaps you'd prefer Russian Roulette, after all?
-Date: Mon, 13 Feb 2006 22:14:25 +0000
-In-Reply-To: <43F0891E.nailKUSCGC52G@burner> (Joerg Schilling's message of
- "Mon, 13 Feb 2006 14:26:54 +0100")
-Message-ID: <871wy6sy7y.fsf@hades.wkstn.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Mon, 13 Feb 2006 17:15:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KlBRXKItStqVHRD/CTKOxXWjVEVlGIGu8ZMNeNEW83F5zaAPkbt4IKxD54WQFdk7by7gQBk2muCHr11Kb5qMwuRG2HGfQdsdx55RLGkw2xnZ8JWe7T3D8U3WSvUz696QkyJ1nXMqF2EGADe3/uQhfv+q9cd9+XVDVxhEF6z0tqA=
+Message-ID: <9a8748490602131415r5c6cd7by3a3d0bc03e27bd83@mail.gmail.com>
+Date: Mon, 13 Feb 2006 23:15:36 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Paul Fulghum <paulkf@microgate.com>
+Subject: Re: [PATCH] tty reference count fix
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <1139861610.3573.24.camel@amdx2.microgate.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1139861610.3573.24.camel@amdx2.microgate.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Feb 2006, Joerg Schilling stated:
-> Greg KH <greg@kroah.com> wrote:
-> 
->> On Fri, Feb 10, 2006 at 04:06:39PM -0500, Bill Davidsen wrote:
->> > 
->> > The kernel could provide a list of devices by category. It doesn't have 
->> > to name them, run scripts, give descriptions, or paint them blue. Just a 
->> > list of all block devices, tapes, by major/minor and category (ie. 
->> > block, optical, floppy) would give the application layer a chance to do 
->> > it's own interpretation.
->>
->> It does so today in sysfs, that is what it is there for.
-> 
-> Do you really whant libscg to open _every_ non-directory file under /sys?
+On 2/13/06, Paul Fulghum <paulkf@microgate.com> wrote:
+> Fix hole where tty structure can be released when reference
+> count is non zero. Existing code can sleep without tty_sem
+> protection between deciding to release the tty structure
+> (setting local variables tty_closing and otty_closing)
+> and setting TTY_CLOSING to prevent further opens.
+> An open can occur during this interval causing release_dev()
+> to free the tty structure while it is still referenced.
+>
+> This should fix bugzilla.kernel.org
+> [Bug 6041] New: Unable to handle kernel paging request
+>
+> In Bug 6041, tty_open() oopes on accessing the tty structure
+> it has successfully claimed. Bug was on SMP machine
+> with the same tty being opened and closed by
+> multiple processes, and DEBUG_PAGEALLOC enabled.
+>
+> Signed-off-by: Paul Fulghum <paulkf@microgate.com>
+> Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> Cc: Jesper Juhl <jesper.juhl@gmail.com>
+>
 
-Well, that would be overkill, but iterating across, say,
-/sys/class/scsi_device seems like it would be a good idea.
+I just applied the patch to 2.6.16-rc3 and booted the patched kernel.
+Unfortunately I can't tell you if it fixes the bug since I never
+successfully reproduced it, it just happened once out of the blue.
+What I can tell you though is that the patched kernel seems to behave
+just fine and doesn't seem to introduce any regressions on my system -
+but my testing has been quite limited so far.
 
-(I doubt libscg would ever be interested in the stuff in most of the
-other directories: things like /dev/mem are not SCSI devices and never
-will be, and /sys/class/scsi_device contains *everything* Linux
-considers a SCSI device, no matter what transport it is on, SATA and
-all. However, I don't know if it handles IDE devices that you can SG_IO
-to because I don't have any such here. Anyone know?)
+Not the best feedback, I know, but it's the best I can give you at the moment.
 
--- 
-`... follow the bouncing internment camps.' --- Peter da Silva
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

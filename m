@@ -1,57 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422704AbWBNRny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422706AbWBNRod@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422704AbWBNRny (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 12:43:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422706AbWBNRnx
+	id S1422706AbWBNRod (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 12:44:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422707AbWBNRod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 12:43:53 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:61913 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1422704AbWBNRnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 12:43:52 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Tue, 14 Feb 2006 18:42:23 +0100
-To: schilling@fokus.fraunhofer.de, grundig@teleline.es
-Cc: Valdis.Kletnieks@vt.edu, peter.read@gmail.com, mj@ucw.cz,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jerome.lacoste@gmail.com,
-       jengelh@linux01.gwdg.de, dhazelton@enter.net
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F2167F.nailMWZ1011F4I@burner>
-References: <20060208162828.GA17534@voodoo>
- <200602131919.k1DJJF5G025923@turing-police.cc.vt.edu>
- <43F1C385.nailMWZ599SQ5@burner>
- <200602140721.25066.dhazelton@enter.net>
- <43F20873.nailMWZM17DCF@burner>
- <20060214175754.a9d4d252.grundig@teleline.es>
-In-Reply-To: <20060214175754.a9d4d252.grundig@teleline.es>
-User-Agent: nail 11.2 8/15/04
+	Tue, 14 Feb 2006 12:44:33 -0500
+Received: from mx1.suse.de ([195.135.220.2]:14041 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1422702AbWBNRoc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 12:44:32 -0500
+Message-ID: <43F216FE.7050101@suse.de>
+Date: Tue, 14 Feb 2006 18:44:30 +0100
+From: Thomas Renninger <trenn@suse.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: Pavel Machek <pavel@suse.cz>
+Cc: Stefan Seyfried <seife@suse.de>, Matthew Garrett <mjg59@srcf.ucam.org>,
+       linux-pm@lists.osdl.org, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH, RFC] [1/3] Generic in-kernel AC status
+References: <20060208125753.GA25562@srcf.ucam.org> <20060210080643.GA14763@suse.de> <20060210121913.GA4974@elf.ucw.cz>
+In-Reply-To: <20060210121913.GA4974@elf.ucw.cz>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<grundig@teleline.es> wrote:
+Pavel Machek wrote:
+> On Pá 10-02-06 09:06:43, Stefan Seyfried wrote:
+>> On Wed, Feb 08, 2006 at 12:57:53PM +0000, Matthew Garrett wrote:
+>>> The included patch adds support for power management methods to register 
+>>> callbacks in order to allow drivers to check if the system is on AC or 
+>>> not. Following patches add support to ACPI and APM. Feedback welcome.
+>> Ok. Maybe i am not seeing the point. But why do we need this in the kernel?
+>> Can't we handles this easily in userspace?
+> 
+> Some kernel parts need to now: for example powernow-k8: some
+> frequencies are not allowed when you are running off battery. [Just
+> now it is solved by not allowing those frequencies at all unless ACPI
+> is available; quite an ugly solution.]
+> 
+Allowed CPUfreqs are exported via _PPC.
+This is why a lot hardware sends an ac_adapter and a processor event
+when (un)plugging ac adapter.
+Limiting cpufreq already works nice that way.
 
-> El Tue, 14 Feb 2006 17:42:27 +0100,
-> Joerg Schilling <schilling@fokus.fraunhofer.de> escribió:
->
->
-> > I like to see a whitepaper first that allows me to get an overview in less than 
-> > 10 minutes. If this is not available, I suspect you just try another attempt to 
-> > waste my time.
->
-> A "overview"? And "I'll only waste 10 minutes of my life to look at this"? Strange
-> way to handle design decisions for a software developer - there're people who
-> will not just read that paper, but read aswell the code to take such decisions.
+AMD64 laptops are booting with lower freqs per default until they are
+pushed up, so there shouldn't be anything critical?
 
-If _you_ did not watste so much from my time, there was a chance.....
+For the brightness part, I don't see any "laptop is going to explode"
+issue.
+I always hated the brightness going down when I unplugged ac on M$
+and had to push ten times the brightness "up button" before I could
+go on working...
 
-Jörg
+Shouldn't it be:
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+               
+ac Event   ---> userspace <--- user config
+                   |
+                   | 
+brightness <-------|
+
+Whether the ac brightness will be set when going to ac, or
+whatever brightness, should be configurable in userspace IMO.
+This is a one liner in the acpid config?
+
+However, I also like the general /sys/../brightness file very much!
+
+
+     Thomas

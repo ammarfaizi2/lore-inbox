@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030589AbWBNS71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030583AbWBNTAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030589AbWBNS71 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 13:59:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030587AbWBNS71
+	id S1030583AbWBNTAq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 14:00:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030587AbWBNTAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 13:59:27 -0500
-Received: from nproxy.gmail.com ([64.233.182.207]:40006 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030556AbWBNS7Y convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 13:59:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YRi5qOcA0f8zx10iqiGKYHgVsZjV0V+iTsc02ays13/sSkWcxonVWwy+3QGlVm4DwVXx2oNUZieyQxocjAiorH642G8BtiH6eVGN8RmE4NfKyz1bJXIh687PZZqqmWelHTt4xCOvPfIHI2vbQhr8BPOMCi6DoxASv9bXmid3tOQ=
-Message-ID: <58cb370e0602141059i690f665bs39601ba4766585c5@mail.gmail.com>
-Date: Tue, 14 Feb 2006 19:59:21 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] ide: Allow IDE interface to specify its not capable of 32-bit operations
-Cc: Kumar Gala <galak@kernel.crashing.org>, Andrew Morton <akpm@osdl.org>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1139939605.11979.2.camel@localhost.localdomain>
+	Tue, 14 Feb 2006 14:00:45 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:37262 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1030583AbWBNTAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 14:00:45 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Tue, 14 Feb 2006 19:59:19 +0100
+To: schilling@fokus.fraunhofer.de, greg@kroah.com
+Cc: nix@esperi.org.uk, linux-kernel@vger.kernel.org, davidsen@tmr.com,
+       axboe@suse.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43F22887.nailCA4XYHC4@burner>
+References: <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
+ <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
+ <20060125181847.b8ca4ceb.grundig@teleline.es>
+ <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de>
+ <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com>
+ <20060210235654.GA22512@kroah.com> <43F0891E.nailKUSCGC52G@burner>
+ <20060213154921.GA22597@kroah.com>
+In-Reply-To: <20060213154921.GA22597@kroah.com>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.44.0602141022000.27351-100000@gate.crashing.org>
-	 <1139935828.10394.44.camel@localhost.localdomain>
-	 <58cb370e0602140900n4558d608p36e73a58c132b8ac@mail.gmail.com>
-	 <1139939605.11979.2.camel@localhost.localdomain>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/14/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Maw, 2006-02-14 at 18:00 +0100, Bartlomiej Zolnierkiewicz wrote:
-> > > Do a grep over the code for no_io_32bit and you will see its essentially
-> > > a private variable in the CMD640 driver.
-> >
-> > Please grep ide.c for "no_io_32bit".  Thank you.
+Greg KH <greg@kroah.com> wrote:
+
+> On Mon, Feb 13, 2006 at 02:26:54PM +0100, Joerg Schilling wrote:
+> > Greg KH <greg@kroah.com> wrote:
+> > 
+> > > On Fri, Feb 10, 2006 at 04:06:39PM -0500, Bill Davidsen wrote:
+> > > > 
+> > > > The kernel could provide a list of devices by category. It doesn't have 
+> > > > to name them, run scripts, give descriptions, or paint them blue. Just a 
+> > > > list of all block devices, tapes, by major/minor and category (ie. 
+> > > > block, optical, floppy) would give the application layer a chance to do 
+> > > > it's own interpretation.
+> > >
+> > > It does so today in sysfs, that is what it is there for.
+> > 
+> > Do you really whant libscg to open _every_ non-directory file under /sys?
 >
-> Ok I take it back its merely broken and pointless code rather than do
-> nothing.
+> Of course not.  Here's one line of bash that gets you the major:minor
+> file of every block device in the system:
+> 	block_devices="$(echo /sys/block/*/dev /sys/block/*/*/dev)"
+>
+> The block devices are all in a specific location.
 
-You are welcomed to fix what you think is broken/pointless.
+Are you sure you understand the problem?
 
-OTOH Kumar's patch is perfectly fine.
+It isd most unlikely that all SCSI devices are there.
 
-Thank you,
-Bartlomiej
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

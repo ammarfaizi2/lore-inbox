@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030550AbWBNKZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030554AbWBNK1P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030550AbWBNKZL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 05:25:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030553AbWBNKZL
+	id S1030554AbWBNK1P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 05:27:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030555AbWBNK1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 05:25:11 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:17639 "EHLO
+	Tue, 14 Feb 2006 05:27:15 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:48361 "EHLO
 	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030550AbWBNKZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 05:25:09 -0500
-Message-ID: <43F1B028.9020604@jp.fujitsu.com>
-Date: Tue, 14 Feb 2006 19:25:44 +0900
+	id S1030554AbWBNK1O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 05:27:14 -0500
+Message-ID: <43F1B0D6.2010905@jp.fujitsu.com>
+Date: Tue, 14 Feb 2006 19:28:38 +0900
 From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Andrew Morton <akpm@osdl.org>, dhowells@redhat.com
-Subject: [PATCH] unify pfn_to_page take3 [9/23]  frv pfn_tp_page
+CC: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] unify pfn_to_page take3 [10/23] h8300 pfn_to_page
 References: <43F1A753.2020003@jp.fujitsu.com>
 In-Reply-To: <43F1A753.2020003@jp.fujitsu.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
@@ -24,35 +24,30 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FRV can use generic funcs.
+H8300 can use generic funcs.
 
 Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-Index: testtree/include/asm-frv/page.h
+Index: testtree/include/asm-h8300/page.h
 ===================================================================
---- testtree.orig/include/asm-frv/page.h
-+++ testtree/include/asm-frv/page.h
-@@ -57,13 +57,9 @@ extern unsigned long min_low_pfn;
-  extern unsigned long max_pfn;
+--- testtree.orig/include/asm-h8300/page.h
++++ testtree/include/asm-h8300/page.h
+@@ -71,8 +71,7 @@ extern unsigned long memory_end;
+  #define page_to_virt(page)	((((page) - mem_map) << PAGE_SHIFT) + PAGE_OFFSET)
+  #define pfn_valid(page)	        (page < max_mapnr)
 
-  #ifdef CONFIG_MMU
--#define pfn_to_page(pfn)	(mem_map + (pfn))
--#define page_to_pfn(page)	((unsigned long) ((page) - mem_map))
-  #define pfn_valid(pfn)		((pfn) < max_mapnr)
--
-  #else
--#define pfn_to_page(pfn)	(&mem_map[(pfn) - (PAGE_OFFSET >> PAGE_SHIFT)])
--#define page_to_pfn(page)	((PAGE_OFFSET >> PAGE_SHIFT) + (unsigned long) ((page) - mem_map))
-+#define ARCH_PFN_OFFSET		(PAGE_OFFSET >> PAGE_SHIFT)
-  #define pfn_valid(pfn)		((pfn) >= min_low_pfn && (pfn) < max_low_pfn)
+-#define pfn_to_page(pfn)	virt_to_page(pfn_to_virt(pfn))
+-#define page_to_pfn(page)	virt_to_pfn(page_to_virt(page))
++#define ARCH_PFH_OFFSET		(PAGE_OFFSET >> PAGE_SHIFT)
 
-  #endif
-@@ -87,6 +83,7 @@ extern unsigned long max_pfn;
-  #define WANT_PAGE_VIRTUAL	1
-  #endif
+  #define	virt_addr_valid(kaddr)	(((void *)(kaddr) >= (void *)PAGE_OFFSET) && \
+  				((void *)(kaddr) < (void *)memory_end))
+@@ -81,6 +80,7 @@ extern unsigned long memory_end;
+
+  #endif /* __KERNEL__ */
 
 +#include <asm-generic/memory_model.h>
   #include <asm-generic/page.h>
 
-  #endif /* _ASM_PAGE_H */
+  #endif /* _H8300_PAGE_H */
 

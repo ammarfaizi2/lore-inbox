@@ -1,187 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422711AbWBNRrn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422712AbWBNRrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422711AbWBNRrn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 12:47:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422713AbWBNRrn
+	id S1422712AbWBNRrw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 12:47:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422714AbWBNRrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 12:47:43 -0500
-Received: from verein.lst.de ([213.95.11.210]:42956 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1422711AbWBNRrm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 12:47:42 -0500
-Date: Tue, 14 Feb 2006 18:47:30 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: norsk5@xmission.com, dsp@llnl.gov
-Cc: bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] edac: switch to kthread_ API
-Message-ID: <20060214174730.GC18919@lst.de>
+	Tue, 14 Feb 2006 12:47:52 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:39094 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1422712AbWBNRrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 12:47:51 -0500
+Subject: PATCH: locking error in esp
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 14 Feb 2006 17:50:54 +0000
+Message-Id: <1139939454.11979.0.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use the kthread_ API instead of opencoding lots of hairy code for kernel
-thread creation and teardown, including tasklist_lock abuse.
+Noted by Al Viro.
 
+Also remove unused tmp_buf
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-Index: linux-2.6/drivers/edac/edac_mc.c
-===================================================================
---- linux-2.6.orig/drivers/edac/edac_mc.c	2006-02-04 13:35:00.000000000 +0100
-+++ linux-2.6/drivers/edac/edac_mc.c	2006-02-14 17:47:34.000000000 +0100
-@@ -29,6 +29,7 @@
- #include <linux/list.h>
- #include <linux/sysdev.h>
- #include <linux/ctype.h>
-+#include <linux/kthread.h>
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.16-rc3/drivers/char/esp.c linux-2.6.16-rc3/drivers/char/esp.c
+--- linux.vanilla-2.6.16-rc3/drivers/char/esp.c	2006-02-14 17:08:55.054477872 +0000
++++ linux-2.6.16-rc3/drivers/char/esp.c	2006-02-14 17:16:24.851098392 +0000
+@@ -150,17 +150,6 @@
+ /* Standard COM flags (except for COM4, because of the 8514 problem) */
+ #define STD_COM_FLAGS (ASYNC_BOOT_AUTOCONF | ASYNC_SKIP_TEST)
  
- #include <asm/uaccess.h>
- #include <asm/page.h>
-@@ -58,6 +59,8 @@
- static DECLARE_MUTEX(mem_ctls_mutex);
- static struct list_head mc_devices = LIST_HEAD_INIT(mc_devices);
- 
-+static struct task_struct *edac_thread;
-+
- /* Structure of the whitelist and blacklist arrays */
- struct edac_pci_device_list {
- 	unsigned int  vendor;		/* Vendor ID */
-@@ -2027,7 +2030,6 @@
-  */
- static void do_edac_check(void)
- {
--
- 	debugf3("MC: " __FILE__ ": %s()\n", __func__);
- 
- 	check_mc_devices();
-@@ -2035,50 +2037,10 @@
- 	do_pci_parity_check();
- }
- 
--
 -/*
-- * EDAC thread state information
+- * tmp_buf is used as a temporary buffer by serial_write.  We need to
+- * lock it in case the memcpy_fromfs blocks while swapping in a page,
+- * and some other program tries to do a serial write at the same time.
+- * Since the lock will only come under contention when the system is
+- * swapping and available memory is low, it makes sense to share one
+- * buffer across all the serial ports, since it significantly saves
+- * memory if large numbers of serial ports are open.
 - */
--struct bs_thread_info
--{
--	struct task_struct *task;
--	struct completion *event;
--	char *name;
--	void (*run)(void);
--};
+-static unsigned char *tmp_buf;
 -
--static struct bs_thread_info bs_thread;
--
--/*
-- *  edac_kernel_thread
-- *      This the kernel thread that processes edac operations
-- *      in a normal thread environment
-- */
- static int edac_kernel_thread(void *arg)
+ static inline int serial_paranoia_check(struct esp_struct *info,
+ 					char *name, const char *routine)
  {
--	struct bs_thread_info *thread = (struct bs_thread_info *) arg;
--
--	/* detach thread */
--	daemonize(thread->name);
--
--	current->exit_signal = SIGCHLD;
--	allow_signal(SIGKILL);
--	thread->task = current;
--
--	/* indicate to starting task we have started */
--	complete(thread->event);
--
--	/* loop forever, until we are told to stop */
--	while(thread->run != NULL) {
--		void (*run)(void);
--
--		/* call the function to check the memory controllers */
--		run = thread->run;
--		if (run)
--			run();
--
--		if (signal_pending(current))
--			flush_signals(current);
-+	while (!kthread_should_stop()) {
-+		do_edac_check();
+@@ -1267,7 +1256,7 @@
+ 	if (serial_paranoia_check(info, tty->name, "rs_write"))
+ 		return 0;
  
- 		/* ensure we are interruptable */
- 		set_current_state(TASK_INTERRUPTIBLE);
-@@ -2086,11 +2048,9 @@
- 		/* goto sleep for the interval */
- 		schedule_timeout((HZ * poll_msec) / 1000);
- 		try_to_freeze();
-+		__set_current_state(TASK_RUNNING);
- 	}
+-	if (!tty || !info->xmit_buf || !tmp_buf)
++	if (!tty || !info->xmit_buf)
+ 		return 0;
+ 	    
+ 	while (1) {
+@@ -2291,11 +2280,7 @@
+ 	tty->driver_data = info;
+ 	info->tty = tty;
  
--	/* notify waiter that we are exiting */
--	complete(thread->event);
--
- 	return 0;
- }
- 
-@@ -2100,9 +2060,6 @@
-  */
- static int __init edac_mc_init(void)
- {
--	int ret;
--	struct completion event;
--
- 	printk(KERN_INFO "MC: " __FILE__ " version " EDAC_MC_VERSION "\n");
- 
+-	if (!tmp_buf) {
+-		tmp_buf = (unsigned char *) get_zeroed_page(GFP_KERNEL);
+-		if (!tmp_buf)
+-			return -ENOMEM;
+-	}
++	spin_unlock_irqrestore(&info->lock, flags);
+ 	
  	/*
-@@ -2130,24 +2087,15 @@
- 		return -ENODEV;
- 	}
+ 	 * Start up serial port
+@@ -2602,9 +2587,6 @@
+ 		free_pages((unsigned long)dma_buffer,
+ 			get_order(DMA_BUFFER_SZ));
  
--	/* Create our kernel thread */
--	init_completion(&event);
--	bs_thread.event = &event;
--	bs_thread.name = "kedac";
--	bs_thread.run = do_edac_check;
+-	if (tmp_buf)
+-		free_page((unsigned long)tmp_buf);
 -
- 	/* create our kernel thread */
--	ret = kernel_thread(edac_kernel_thread, &bs_thread, CLONE_KERNEL);
--	if (ret < 0) {
-+	edac_thread = kthread_run(edac_kernel_thread, NULL, "kedac");
-+	if (IS_ERR(edac_thread)) {
- 		/* remove the sysfs entries */
- 		edac_sysfs_memctrl_teardown();
- 		edac_sysfs_pci_teardown();
--		return -ENOMEM;
-+		return PTR_ERR(edac_thread);
- 	}
- 
--	/* wait for our kernel theard ack that it is up and running */
--	wait_for_completion(&event);
--
- 	return 0;
- }
- 
-@@ -2158,21 +2106,9 @@
-  */
- static void __exit edac_mc_exit(void)
- {
--	struct completion event;
--
- 	debugf0("MC: " __FILE__ ": %s()\n", __func__);
- 
--	init_completion(&event);
--	bs_thread.event = &event;
--
--	/* As soon as ->run is set to NULL, the task could disappear,
--	 * so we need to hold tasklist_lock until we have sent the signal
--	 */
--	read_lock(&tasklist_lock);
--	bs_thread.run = NULL;
--	send_sig(SIGKILL, bs_thread.task, 1);
--	read_unlock(&tasklist_lock);
--	wait_for_completion(&event);
-+	kthread_stop(edac_thread);
- 
-         /* tear down the sysfs device */
- 	edac_sysfs_memctrl_teardown();
+ 	while (free_pio_buf) {
+ 		pio_buf = free_pio_buf->next;
+ 		kfree(free_pio_buf);
+

@@ -1,39 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbWBNBmw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbWBNByA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750903AbWBNBmw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 20:42:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbWBNBmw
+	id S1750876AbWBNByA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 20:54:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbWBNByA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 20:42:52 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:6372 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750890AbWBNBmv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 20:42:51 -0500
-Date: Tue, 14 Feb 2006 07:15:22 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
-Cc: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net,
-       Balbir Singh <balbir@in.ibm.com>
-Subject: Re: [ckrm-tech] [PATCH 1/2] add a CPU resource controller
-Message-ID: <20060214014522.GB28942@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20060209061142.2164.35994.sendpatchset@debian> <20060209061147.2164.4528.sendpatchset@debian> <20060213143345.GA12279@in.ibm.com> <20060213235529.CB13674035@sv1.valinux.co.jp>
+	Mon, 13 Feb 2006 20:54:00 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:55944 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750876AbWBNBx7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 20:53:59 -0500
+Subject: Re: [BUG -rt] -rt16 hang w/ realtime thread test
+From: john stultz <johnstul@us.ibm.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <Pine.LNX.4.58.0602111033400.13041@gandalf.stny.rr.com>
+References: <1139626674.28536.30.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0602111033400.13041@gandalf.stny.rr.com>
+Content-Type: text/plain
+Date: Mon, 13 Feb 2006 17:53:46 -0800
+Message-Id: <1139882031.28536.135.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060213235529.CB13674035@sv1.valinux.co.jp>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 14, 2006 at 08:55:29AM +0900, KUROSAWA Takahiro wrote:
-> Ah, you are right.  LHS is on per-cpu scale.
-> I'll apply your patch.
+On Sat, 2006-02-11 at 10:34 -0500, Steven Rostedt wrote:
+> On Fri, 10 Feb 2006, john stultz wrote:
+> 
+> > Hey Ingo,
+> > 	I've been hunting a report that lower priority realtime threads are not
+> > preempting higher priority realtime threads. However, in generating test
+> > cases, I found I was locking the system quite frequently.
+> >
+> > The attached test runs to completion on 2.6.15, but with 2.6.15-rt16, it
+> > hangs the box. It could very well be a test issue, but I'm not sure I
+> > see where the problem is.
+> >
+> 
+> Hi John,
+> 
+> Have you turned on nmi_watchdog and softlockup detect?  Just so we can see
+> where it is hung.
 
-Great! I also feel that "guarantee" can be explained better (in your first 
-documentation patch), especially in the context of multi-cpu systems. Initially 
-I was confused what guarantee means in SMP.
+Ugh. Ok, I think I've found the issue.
 
--- 
-Regards,
-vatsa
+The systems I'm testing w/ all use the ACPI PM timer for the
+clocksource. On a whim I forced the TSC to be used and the hang went
+away.
+
+It appears the issue is that the ACPI PM wraps every ~5 seconds.  Since
+the test takes longer the 5 seconds to run, the
+timeofday_periodic_hook() function gets starved and we never accumulate
+time. Then as the counter wraps, time starts wrapping thus timers do not
+expire and the test never completes, effectively hanging the box.
+
+I believe this issue was hit before back when cycle_t was 32bits long,
+thus causing the TSC to wrap every ~4seconds on a 1Ghz box.
+
+So whats the solution here? Do we need to do something to
+timeofday_periodic_hook is guaranteed to run with some frequency? Or is
+the test just bunk because realtime threads must give up the cpu in
+order for the kernel to function?
+
+Thoughts?
+-john
+
+
+

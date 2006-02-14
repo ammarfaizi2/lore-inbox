@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422780AbWBNUDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422777AbWBNUEY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422780AbWBNUDn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 15:03:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422779AbWBNUDn
+	id S1422777AbWBNUEY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 15:04:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422779AbWBNUEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 15:03:43 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:2226 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1422777AbWBNUDm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 15:03:42 -0500
-Date: Tue, 14 Feb 2006 13:03:40 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Roland Dreier <rolandd@cisco.com>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: AMD 8131 and MSI quirk
-Message-ID: <20060214200340.GN12822@parisc-linux.org>
-References: <524q799p2t.fsf@cisco.com> <20060214165222.GC12974@mellanox.co.il> <adaslqlu76f.fsf@cisco.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <adaslqlu76f.fsf@cisco.com>
-User-Agent: Mutt/1.5.9i
+	Tue, 14 Feb 2006 15:04:24 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:16073 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422777AbWBNUEX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 15:04:23 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060214195130.GA21442@lst.de> 
+References: <20060214195130.GA21442@lst.de>  <20060214175240.GC19080@lst.de> <6199.1139941212@warthog.cambridge.redhat.com> 
+To: Christoph Hellwig <hch@lst.de>
+Cc: David Howells <dhowells@redhat.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rxrpc: use kthread_ API 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Tue, 14 Feb 2006 20:04:04 +0000
+Message-ID: <8623.1139947444@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 14, 2006 at 10:27:52AM -0800, Roland Dreier wrote:
-> Michael, now I'm not sure whether this will work for devices like the
-> Mellanox PCI-X HCA, where the HCA device sits below a virtual PCI
-> bridge.  In that case we need to propagate the NO_MSI flag from the
-> 8131 bridge to the Tavor bridge, right?  And it has to work for
-> systems like Sun V40Z where the PCI-X slots are hot-swappable (so the
-> HCA and its bridge could be added later).
+Christoph Hellwig <hch@lst.de> wrote:
 
-Michael's patch does this:
+> > > +	krxiod_thread = kthread_run(rxrpc_krxiod, NULL, "krxiod");
+> > > +	if (IS_ERR(krxiod_thread))
+> > > +		return PTR_ERR(krxiod_thread);
+> > > +	return 0;
+> > 
+> > Don't assign an error to (rxrpc_)krxiod_thread.
+> 
+> Well, kthread_run can returns errors.  If you want to avoid that for
+> some reasons we'd need a local varibale
 
-@@ -347,6 +347,7 @@ pci_alloc_child_bus(struct pci_bus *pare
-        child->parent = parent;
-        child->ops = parent->ops;
-        child->sysdata = parent->sysdata;
-+       child->bus_flags = parent->bus_flags;
-        child->bridge = get_device(&bridge->dev);
+So what? There's an implicit local variable anyway. The compiler doesn't pass
+the address of rxrpc_krxiod_thread to kthread_run() so that the latter can
+fill it in; the result is returned in a register. Sticking a local variable in
+the source would just attach a label to that register. Moving the assignment
+to the global variable to after the error checking if-statement would then
+mean the store instruction is emitted after the branch rather than before it.
 
-        child->class_dev.class = &pcibus_class;
+> , which would be rather silly.
 
+No. It'd probably be faster in the error case (no write to the memory).
+
+> Note that there's nothing it could pollute, once one of these fails
+> rxrpc_initialise goes to the error path, unwinds and returns a failure,
+> so the rxrpc module never goes live.
+
+At the moment, there's nothing it can pollute, you mean. Although you're
+probably correct, it costs very little to program defensively in this case,
+and in fact it's probably cheaper in execution time, even if it's a little
+more expensive in terms of source code and work for you.
+
+David

@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422656AbWBNQyb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422649AbWBNQzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422656AbWBNQyb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 11:54:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422655AbWBNQyb
+	id S1422649AbWBNQzH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 11:55:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422652AbWBNQzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 11:54:31 -0500
-Received: from webmail.terra.es ([213.4.149.12]:56654 "EHLO
-	csmtpout2.frontal.correo") by vger.kernel.org with ESMTP
-	id S1422656AbWBNQya convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 11:54:30 -0500
-Date: Tue, 14 Feb 2006 17:45:49 +0100 (added by postmaster@terra.es)
-From: <grundig@teleline.es>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: dhazelton@enter.net, seanlkml@sympatico.ca, sam@vilain.net,
-       peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
-       luke@dashjr.org, lkml@dervishd.net, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-Id: <20060214175336.ab842ffd.grundig@teleline.es>
-In-Reply-To: <43F206D4.nailMWZJIUTRR@burner>
-References: <43EB7BBA.nailIFG412CGY@burner>
-	<200602131749.46880.luke@dashjr.org>
-	<43F1BB4C.nailMWZ118O17@burner>
-	<200602140708.07746.dhazelton@enter.net>
-	<43F206D4.nailMWZJIUTRR@burner>
-X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.10; i486-pc-linux-gnu)
+	Tue, 14 Feb 2006 11:55:06 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:3217 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1422649AbWBNQzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 11:55:04 -0500
+Subject: Re: RFC: Compact Flash True IDE Mode Driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Kumar Gala <galak@kernel.crashing.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <58cb370e0602130235h3ab521cep47584ee634e8fc7f@mail.gmail.com>
+References: <Pine.LNX.4.44.0602010113210.5670-100000@gate.crashing.org>
+	 <58cb370e0602130235h3ab521cep47584ee634e8fc7f@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 14 Feb 2006 16:58:11 +0000
+Message-Id: <1139936291.10394.47.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Tue, 14 Feb 2006 17:35:32 +0100,
-Joerg Schilling <schilling@fokus.fraunhofer.de> escribió:
+On Llu, 2006-02-13 at 11:35 +0100, Bartlomiej Zolnierkiewicz wrote:
+> > +static void cfide_outsl(unsigned long port, void *addr, u32 count)
+> > +{
+> > +       panic("outsl unsupported");
+> > +}
+> 
+> This will panic as soon as somebody tries to enable 32-bit I/O
+> using hdparm.  Please add ide_hwif_t.no_io_32bit flag and teach
+> ide-disk.c:ide_disk_setup() about it (separate patch).
 
-> I did send a fix for an important bug in 1997 and it was NOT integraded by
-> the Linux kernel people.
+Seems a lot of effort for little reward. Just make cfide_outsl generate
+word sized I/O instead. Ditto insl. Or even leave the panic. Only
+superusers can hack around with that value and they can equally crash
+the box a thousand other ways.
 
-Many patches are rejected. Looking at the way you handle cross-platform design
-for libscg is not something that surprises me....
+Alan
+

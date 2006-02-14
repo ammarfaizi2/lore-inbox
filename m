@@ -1,40 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWBNKBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbWBNKBP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbWBNKBK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 05:01:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbWBNKBK
+	id S1750865AbWBNKBP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 05:01:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbWBNKBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 05:01:10 -0500
-Received: from mail.suse.de ([195.135.220.2]:55531 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750837AbWBNKBJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 05:01:09 -0500
-From: Andi Kleen <ak@suse.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.6.16-rc3: another issue: x86_64 with ATI chipsets
-Date: Tue, 14 Feb 2006 11:01:01 +0100
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-References: <200602140458_MC3-1-B85E-D2B9@compuserve.com>
-In-Reply-To: <200602140458_MC3-1-B85E-D2B9@compuserve.com>
+	Tue, 14 Feb 2006 05:01:15 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:29346 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750865AbWBNKBO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 05:01:14 -0500
+Message-ID: <43F1AAB5.8050202@jp.fujitsu.com>
+Date: Tue, 14 Feb 2006 19:02:29 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: linuxppc-dev@ozlabs.org, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] unify pfn_to_page take3 [4/23] powerpc pfn_to_page
+References: <43F1A753.2020003@jp.fujitsu.com>
+In-Reply-To: <43F1A753.2020003@jp.fujitsu.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602141101.01556.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 February 2006 10:54, Chuck Ebbert wrote:
-> I'm just reporting this so it can be tracked.
+PowerPC can use generic ones.
 
-It's already tracked in bugzilla.
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-> Andi has just reopened Kernel Bugzilla bug #3927 concerning time running
-> too fast on ATI chipsets because of a confirmed problem on -rc3.
+Index: testtree/include/asm-powerpc/page.h
+===================================================================
+--- testtree.orig/include/asm-powerpc/page.h
++++ testtree/include/asm-powerpc/page.h
+@@ -69,8 +69,6 @@
+  #endif
 
-It's pretty unlikely it can be all fixed up for 2.6.16 anyways.  It's not
-a single problem, but a wide range.
+  #ifdef CONFIG_FLATMEM
+-#define pfn_to_page(pfn)	(mem_map + (pfn))
+-#define page_to_pfn(page)	((unsigned long)((page) - mem_map))
+  #define pfn_valid(pfn)		((pfn) < max_mapnr)
+  #endif
 
--Andi
+@@ -200,6 +198,7 @@ extern void copy_user_page(void *to, voi
+  		struct page *p);
+  extern int page_is_ram(unsigned long pfn);
+
++#include <asm-generic/memory_model.h>
+  #endif /* __ASSEMBLY__ */
+
+  #endif /* __KERNEL__ */
+

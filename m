@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161100AbWBNVDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161108AbWBNVDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161100AbWBNVDE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 16:03:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161108AbWBNVDE
+	id S1161108AbWBNVDL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 16:03:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161110AbWBNVDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 16:03:04 -0500
-Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:35602 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1161100AbWBNVDD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 16:03:03 -0500
-Date: Tue, 14 Feb 2006 22:03:13 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove duplicate #includes
-Message-Id: <20060214220313.1158be5b.khali@linux-fr.org>
-In-Reply-To: <20060213093959.GA10496@MAIL.13thfloor.at>
-References: <20060213093959.GA10496@MAIL.13thfloor.at>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Feb 2006 16:03:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:6064 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161108AbWBNVDK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 16:03:10 -0500
+Date: Tue, 14 Feb 2006 13:02:58 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: PATCH: rio driver, boot code (1 of 3)
+In-Reply-To: <1139947720.11979.15.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0602141302320.3691@g5.osdl.org>
+References: <1139944938.11979.5.camel@localhost.localdomain> 
+ <200602141938.12041.s0348365@sms.ed.ac.uk> <1139947720.11979.15.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Herbert,
 
-> recently I stumbled over a few files which #include the 
-> same .h file twice -- sometimes even in the immediately
-> following line. so I thought I'd look into that to reduce 
-> the amount of duplicate includes in the kernel ...
-> (...)
-> diff -NurpP --minimal linux-2.6.16-rc2/drivers/macintosh/therm_pm72.c linux-2.6.16-rc2-mpf/drivers/macintosh/therm_pm72.c
-> --- linux-2.6.16-rc2/drivers/macintosh/therm_pm72.c	2006-02-07 11:52:31 +0100
-> +++ linux-2.6.16-rc2-mpf/drivers/macintosh/therm_pm72.c	2006-02-13 02:07:58 +0100
-> @@ -104,7 +104,6 @@
->  #include <linux/kernel.h>
->  #include <linux/delay.h>
->  #include <linux/sched.h>
-> -#include <linux/i2c.h>
->  #include <linux/slab.h>
->  #include <linux/init.h>
->  #include <linux/spinlock.h>
 
-This one was already taken care of in a different patch:
+On Tue, 14 Feb 2006, Alan Cox wrote:
+> 
+> Harmless but yes I'll send a diff to clean them up once the other three
+> are applied.
 
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc3/2.6.16-rc3-mm1/broken-out/macintosh-cleanup-the-use-of-i2c-headers.patch
+Not harmless. The other patches seem to assume that the first one was 
+_not_ done. IOW, patch #2 contains:
 
-So please exclude this part from your patch so as to avoid collisions.
+	-
+	-#define        HOST_DISABLE \
+	-               HostP->Flags &= ~RUN_STATE; \
+	-               HostP->Flags |= RC_STUFFED; \
+	-               RIOHostReset( HostP->Type, (struct DpRam *)HostP->CardP, HostP->Slot );\
+	-               continue
+	-
+	-                       HOST_DISABLE;
 
-Thanks,
--- 
-Jean Delvare
+and will thus obviously not apply at all if patch #1 was applied.
+
+It looks like the indent was done _after_ patch #1 was applied, but then 
+the result was diffed against the state _before_ patch #1 was applied.
+
+So I'll flush the series, hoping for a corrected one that actually applies 
+in order..
+
+		Linus

@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030531AbWBNJf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030538AbWBNJnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030531AbWBNJf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 04:35:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030533AbWBNJf5
+	id S1030538AbWBNJnV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 04:43:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030533AbWBNJnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 04:35:57 -0500
-Received: from mail.charite.de ([160.45.207.131]:18922 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S1030531AbWBNJf4 (ORCPT
+	Tue, 14 Feb 2006 04:43:21 -0500
+Received: from lucidpixels.com ([66.45.37.187]:38810 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1030538AbWBNJnT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 04:35:56 -0500
-Date: Tue, 14 Feb 2006 10:35:53 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: Zhu Yi <yi.zhu@intel.com>
-Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc2-git8: ieee80211 does not compile
-Message-ID: <20060214093553.GO29236@charite.de>
-Mail-Followup-To: Zhu Yi <yi.zhu@intel.com>, linux-kernel@vger.kernel.org
-References: <20060210123817.GQ6668@charite.de> <20060212104920.GU2690@charite.de> <1139897189.8403.71.camel@debian.sh.intel.com>
+	Tue, 14 Feb 2006 04:43:19 -0500
+Date: Mon, 13 Feb 2006 20:18:47 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: linux-kernel@vger.kernel.org
+Subject: Re: Is my SATA/400GB drive dying?
+In-Reply-To: <Pine.LNX.4.64.0602132016350.2607@p34>
+Message-ID: <Pine.LNX.4.64.0602132018290.2607@p34>
+References: <Pine.LNX.4.64.0602130658110.21652@p34> <Pine.LNX.4.64.0602132016350.2607@p34>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1139897189.8403.71.camel@debian.sh.intel.com>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Zhu Yi <yi.zhu@intel.com>:
-> On Sun, 2006-02-12 at 11:49 +0100, Ralf Hildebrandt wrote:
-> >   CC [M]  net/ieee80211/ieee80211_module.o
-> >   CC [M]  net/ieee80211/ieee80211_tx.o
-> > net/ieee80211/ieee80211_tx.c: In function ieee80211_xmit':
-> > net/ieee80211/ieee80211_tx.c:473: error: too few arguments to function
-> 
-> What's your build_iv() prototype (in ieee80211_crypt.h) looks like? You
-> might be using some late ieee80211 updates which has not been merged to
-> mainline yet.
+I spoke too fast.
 
-I found it. You were right. I suck.
+Still get the errors:
 
--- 
-_________________________________________________
+[ 2311.980127] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[ 2311.980134] ata3: status=0x51 { DriveReady SeekComplete Error }
+[ 2311.980138] ata3: error=0x04 { DriveStatusError }
 
-  Charité - Universitätsmedizin Berlin
-_________________________________________________
 
-  Ralf Hildebrandt
-   i.A. Geschäftsbereich Informationsmanagement
-   Campus Benjamin Franklin
-   Hindenburgdamm 30 | Berlin
-   Tel. +49 30 450 570155 | Fax +49 30 450 570962
-   Ralf.Hildebrandt@charite.de
-   http://www.charite.de
+But the drive speed is back to normal!
+
+# hdparm -t /dev/sdc
+
+/dev/sdc:
+  Timing buffered disk reads:  154 MB in  3.01 seconds =  51.12 MB/sec
+#
+
+On Mon, 13 Feb 2006, Justin Piszcz wrote:
+
+> The problem was I had too many SATA devices in my system, I removed two 
+> drives and a Promise SATA/150 and then everything went back to normal, no 
+> more errors and back to 50MB/s+.
+>
+>
+> On Mon, 13 Feb 2006, Justin Piszcz wrote:
+>
+>> I turned off smartd and when I cat /dev/zero > /mnt/disk/file, I get the 
+>> following errors:
+>> 
+>> [37978.030178] ata6: no sense translation for status: 0x51
+>> [37978.030185] ata6: translated ATA stat/err 0x51/00 to SCSI SK/ASC/ASCQ 
+>> 0x3/11/04
+>> [37978.030188] ata6: status=0x51 { DriveReady SeekComplete Error }
+>> 
+>> 
+>

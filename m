@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422649AbWBNQzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422652AbWBNQ4E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422649AbWBNQzH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 11:55:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422652AbWBNQzG
+	id S1422652AbWBNQ4E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 11:56:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422655AbWBNQ4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 11:55:06 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:3217 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1422649AbWBNQzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 11:55:04 -0500
-Subject: Re: RFC: Compact Flash True IDE Mode Driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Kumar Gala <galak@kernel.crashing.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <58cb370e0602130235h3ab521cep47584ee634e8fc7f@mail.gmail.com>
-References: <Pine.LNX.4.44.0602010113210.5670-100000@gate.crashing.org>
-	 <58cb370e0602130235h3ab521cep47584ee634e8fc7f@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 14 Feb 2006 16:58:11 +0000
-Message-Id: <1139936291.10394.47.camel@localhost.localdomain>
+	Tue, 14 Feb 2006 11:56:04 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:28102 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S1422652AbWBNQ4D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 11:56:03 -0500
+Date: Tue, 14 Feb 2006 09:56:01 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Roland Dreier <rolandd@cisco.com>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: AMD 8131 and MSI quirk
+Message-ID: <20060214165601.GM12822@parisc-linux.org>
+References: <524q799p2t.fsf@cisco.com> <20060214165222.GC12974@mellanox.co.il>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060214165222.GC12974@mellanox.co.il>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-02-13 at 11:35 +0100, Bartlomiej Zolnierkiewicz wrote:
-> > +static void cfide_outsl(unsigned long port, void *addr, u32 count)
-> > +{
-> > +       panic("outsl unsupported");
-> > +}
-> 
-> This will panic as soon as somebody tries to enable 32-bit I/O
-> using hdparm.  Please add ide_hwif_t.no_io_32bit flag and teach
-> ide-disk.c:ide_disk_setup() about it (separate patch).
+On Tue, Feb 14, 2006 at 06:52:22PM +0200, Michael S. Tsirkin wrote:
+> The following should do this IMO. Roland, could you test this patch please?
 
-Seems a lot of effort for little reward. Just make cfide_outsl generate
-word sized I/O instead. Ditto insl. Or even leave the panic. Only
-superusers can hack around with that value and they can equally crash
-the box a thousand other ways.
+Going a bit overboard on the type safety.  Please, leave bus_flags as an
+unsigned short so as not to bloat the pci_bus structure unnecessarily.
 
-Alan
-
+> +typedef unsigned short __bitwise pci_bus_flags_t;
+> +enum pci_bus_flags {
+> +	PCI_BUS_FLAGS_NO_MSI = (pci_bus_flags_t) 1,
+> +};
+> +
+>  /*
+>   * The pci_dev structure is used to describe PCI devices.
+>   */
+> @@ -203,7 +208,7 @@ struct pci_bus {
+>  	char		name[48];
+>  
+>  	unsigned short  bridge_ctl;	/* manage NO_ISA/FBB/et al behaviors */
+> -	unsigned short  pad2;
+> +	pci_bus_flags_t bus_flags;	/* Inherited by child busses */
+>  	struct device		*bridge;

@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161024AbWBNMO4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161028AbWBNMQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161024AbWBNMO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 07:14:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161027AbWBNMO4
+	id S1161028AbWBNMQk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 07:16:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161029AbWBNMQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 07:14:56 -0500
-Received: from smtp.enter.net ([216.193.128.24]:16649 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S1161024AbWBNMO4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 07:14:56 -0500
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Tue, 14 Feb 2006 07:21:24 -0500
-User-Agent: KMail/1.8.1
-Cc: Valdis.Kletnieks@vt.edu, peter.read@gmail.com, mj@ucw.cz,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jerome.lacoste@gmail.com,
-       jengelh@linux01.gwdg.de
-References: <20060208162828.GA17534@voodoo> <200602131919.k1DJJF5G025923@turing-police.cc.vt.edu> <43F1C385.nailMWZ599SQ5@burner>
-In-Reply-To: <43F1C385.nailMWZ599SQ5@burner>
+	Tue, 14 Feb 2006 07:16:40 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:44605 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S1161028AbWBNMQj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 07:16:39 -0500
+Date: Tue, 14 Feb 2006 13:16:42 +0100
+From: Sander <sander@humilis.net>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       sam@ravnborg.org
+Subject: Re: 2.6.16-rc3-mm1
+Message-ID: <20060214121642.GA23915@favonius>
+Reply-To: sander@humilis.net
+References: <20060214014157.59af972f.akpm@osdl.org> <6bffcb0e0602140316sae62b9an@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602140721.25066.dhazelton@enter.net>
+In-Reply-To: <6bffcb0e0602140316sae62b9an@mail.gmail.com>
+X-Uptime: 12:53:22 up 14 days,  4:04, 24 users,  load average: 3.02, 2.81, 2.65
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 February 2006 06:48, Joerg Schilling wrote:
-> Valdis.Kletnieks@vt.edu wrote:
-> > On Mon, 13 Feb 2006 17:37:18 +0100, Joerg Schilling said:
-> > > And if you have a working vold on Solaris, libscg accepts the vold
-> > > aliases.
-> >
-> > And if you have a working hald on Linux, libscg should therefor accept
-> > hald aliases.
->
-> How about pointing to _useful_ documentation:
->
-> -	How to find _any_ device that talks SCSI?
->
-> -	How does HAL allow one cdrecord instance to work
-> 	without being interrupted by HAL?
->
-> -	How to send non disturbing SCSI commands from another
-> 	cdrecord process in case one or more are already running?
->
-> Jörg
+Michal Piotrowski wrote (ao):
+> It's strange... rc3-mm1 vs. rc2-mm1
+> 
+> :/usr/src/linux-mm$ uname -a
+> Linux ltg01-sid 2.6.16-rc2-mm1 #15 SMP PREEMPT Thu Feb 9 18:12:08 CET
+> 2006 i686 GNU/Linux
+> 
+> 
+> :/usr/src/linux-mm$ head Makefile
+> VERSION = 2
+> PATCHLEVEL = 6
+> SUBLEVEL = 16
+> EXTRAVERSION =-rc3-mm1
+> 
+> there is something wrong with build system.
 
-Documentation?
+You just booted an old kernel (see the date in your uname output).
 
-Didn't even take me two minutes to find the entire specification for hald on 
-the net.
+	Kind regards, Sander
 
-http://cvs.freedesktop.org/*checkout*/hal/hal/doc/spec/hal-spec.html?only_with_tag=HEAD
-
-theres a link. if I wasn't half asleep I'd actually dig through it and find 
-the information you're asking about.
-
-DRH
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

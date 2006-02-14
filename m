@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422816AbWBNVuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422819AbWBNVvV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422816AbWBNVuM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 16:50:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422819AbWBNVuL
+	id S1422819AbWBNVvV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 16:51:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422820AbWBNVvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 16:50:11 -0500
-Received: from smtp.enter.net ([216.193.128.24]:7181 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S1422816AbWBNVuK convert rfc822-to-8bit
+	Tue, 14 Feb 2006 16:51:21 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:44192
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1422819AbWBNVvU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 16:50:10 -0500
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Tue, 14 Feb 2006 16:59:20 -0500
-User-Agent: KMail/1.8.1
-Cc: trudheim@gmail.com, nix@esperi.org.uk, linux-kernel@vger.kernel.org,
-       davidsen@tmr.com, axboe@suse.de
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <200602131824.15810.dhazelton@enter.net> <43F1E15B.nailMWZ92B3KZ@burner>
-In-Reply-To: <43F1E15B.nailMWZ92B3KZ@burner>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200602141659.21193.dhazelton@enter.net>
+	Tue, 14 Feb 2006 16:51:20 -0500
+Subject: Re: [patch] hrtimer: round up relative start time on low-res arches
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060214122031.GA30983@elte.hu>
+References: <Pine.LNX.4.61.0602130207560.23745@scrub.home>
+	 <1139827927.4932.17.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0602131208050.30994@scrub.home>
+	 <20060214074151.GA29426@elte.hu>
+	 <Pine.LNX.4.61.0602141113060.30994@scrub.home>
+	 <20060214122031.GA30983@elte.hu>
+Content-Type: text/plain
+Date: Tue, 14 Feb 2006 22:51:51 +0100
+Message-Id: <1139953911.2480.532.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.5 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 February 2006 08:55, Joerg Schilling wrote:
-> "D. Hazelton" <dhazelton@enter.net> wrote:
-> > > If you did know what a worm is, you would know that you are not
-> > > correct:
-> > >
-> > > A WORM allows you to randomly write any sector once.
-> > >
-> > > A CD-R does not allows you to do this.
-> >
-> > Joerg, the practical definition of WORM is "Write Once, Read Many" -
-> > whether or not it supports writes to random sectors is a moot point, a
-> > CDR does seem to fit the bill of a "write once, read many" medium.
->
-> What you believe is irrelevent as long as it does not match the WORM device
-> definition.
->
-> See www.t10.org
->
-> Jörg
+On Tue, 2006-02-14 at 13:20 +0100, Ingo Molnar wrote:
+> CONFIG_TIME_LOW_RES is a temporary way for architectures to signal that 
+> they simply return xtime in do_gettimeoffset(). In this corner-case we 
+> want to round up by resolution when starting a relative timer, to avoid 
+> short timeouts. This will go away with the GTOD framework.
+> 
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-Joerg, I didn't say it was what _I_ believed. What I said was "WORM" means 
-"Wrint One, Read Many" - since a CDR can be described in that fashion, it 
-does match the description. Since it matches the description, most people 
-lump the CDR medium in with all "WORM" medium. Is that clear enough?
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
 
-DRH
+

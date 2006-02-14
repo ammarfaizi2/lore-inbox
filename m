@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161069AbWBNPdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161071AbWBNPiD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161069AbWBNPdM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 10:33:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161087AbWBNPdL
+	id S1161071AbWBNPiD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 10:38:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161087AbWBNPiD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 10:33:11 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:59526 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1161069AbWBNPdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 10:33:11 -0500
-Date: Tue, 14 Feb 2006 10:33:10 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: Phillip Susi <psusi@cfl.rr.com>, Alon Bar-Lev <alon.barlev@gmail.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Flames over -- Re: Which is simpler?
-In-Reply-To: <9F9173CE-E059-433B-98AD-91084823AFDD@mac.com>
-Message-ID: <Pine.LNX.4.44L0.0602141025480.5104-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Feb 2006 10:38:03 -0500
+Received: from 213-140-2-71.ip.fastwebnet.it ([213.140.2.71]:6116 "EHLO
+	aa004msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1161071AbWBNPiB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 10:38:01 -0500
+Date: Tue, 14 Feb 2006 16:33:12 +0100
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: trivial@kernel.org
+Subject: [trivial PATCH] "drivers/usb/media/stv680.h": fix jiffies timeout
+Message-ID: <20060214163312.22960006@localhost>
+X-Mailer: Sylpheed-Claws 2.0.0-rc4 (GTK+ 2.8.8; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Feb 2006, Kyle Moffett wrote:
+From: Paolo Ornati <ornati@fastwebnet.it>
 
-> For the software-suspend/no-low-power-mode case, I see a couple of  
-> practical and spec-conforming options:
-> 
-> 1)  The kernel should notice that it has a filesystem mounted from a  
-> hotpluggable block device and abort the suspend process.  This isn't  
-> terribly user friendly, but is guaranteed to prevent data loss, and a  
-> good set of suspend scripts could notice the reason for failure and  
-> report it to the user (optionally unmounting the filesystems  
-> automatically and retrying).
-...
+stv680.c driver calls "usb_control_msg" passing PENCAM_TIMEOUT as
+jiffies timout. However PENCAM_TIMEOUT is defined to the fixed value of
+1000, this leads to different timeouts with different HZ settings.
 
-There are some difficulties connected with these suggestions.  They're
-maybe not impossible, but it would be tricky.
+Since stv680.c is there since 2.4.18 I don't know if 1000 means 10s or
+1s... I've picked the bigger.
 
-For one thing, how does one go about telling at the USB level whether one
-of the devices contains a mounted filesystem?  Or any open file references
-at all, for that matter?  No doubt there's a way to do it, but I don't
-know what it is.
+---
 
-For another, hardware behavior is very idiosyncratic.  It's sometimes 
-possible to tell that a particular system doesn't supply suspend power to 
-a USB controller (because, for instance, the controller doesn't support 
-PCI PM or doesn't support D3hot), but this is far from reliable -- I've 
-seen mistakes both ways.  It's not as simple as "power available during 
-STR, not available during STD".
+diff --git a/drivers/usb/media/stv680.h b/drivers/usb/media/stv680.h
+index b0551cd..b1a4bf5 100644
+--- a/drivers/usb/media/stv680.h
++++ b/drivers/usb/media/stv680.h
+@@ -45,7 +45,7 @@
+ #define USB_CREATIVEGOMINI_VENDOR_ID	0x041e
+ #define USB_CREATIVEGOMINI_PRODUCT_ID	0x4007
+ 
+-#define PENCAM_TIMEOUT          1000
++#define PENCAM_TIMEOUT		(10*HZ)
+ /* fmt 4 */
+ #define STV_VIDEO_PALETTE       VIDEO_PALETTE_RGB24
+ 
 
-Alan Stern
-
+-- 
+	Paolo Ornati
+	Linux 2.6.15.4-suspend2 on x86_64

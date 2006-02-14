@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030571AbWBNL2o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030575AbWBNLeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030571AbWBNL2o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 06:28:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030572AbWBNL2o
+	id S1030575AbWBNLeM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 06:34:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030576AbWBNLeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 06:28:44 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:47821 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1030571AbWBNL2o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 06:28:44 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Tue, 14 Feb 2006 12:27:18 +0100
-To: schilling@fokus.fraunhofer.de, nix@esperi.org.uk
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, davidsen@tmr.com,
-       axboe@suse.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F1BE96.nailMY212M61V@burner>
-References: <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
- <20060125144543.GY4212@suse.de>
- <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
- <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
- <20060125181847.b8ca4ceb.grundig@teleline.es>
- <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de>
- <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com>
- <20060210235654.GA22512@kroah.com> <43F0891E.nailKUSCGC52G@burner>
- <871wy6sy7y.fsf@hades.wkstn.nix>
-In-Reply-To: <871wy6sy7y.fsf@hades.wkstn.nix>
-User-Agent: nail 11.2 8/15/04
+	Tue, 14 Feb 2006 06:34:12 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:13547 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030575AbWBNLeL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 06:34:11 -0500
+Date: Tue, 14 Feb 2006 12:34:04 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de
+Subject: Re: [PATCH 00/12] hrtimer patches
+In-Reply-To: <20060214110947.GA25341@elte.hu>
+Message-ID: <Pine.LNX.4.61.0602141228120.30994@scrub.home>
+References: <Pine.LNX.4.61.0602141057320.30994@scrub.home> <20060214110947.GA25341@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nix <nix@esperi.org.uk> wrote:
+Hi,
 
-> > Do you really whant libscg to open _every_ non-directory file under /sys?
->
-> Well, that would be overkill, but iterating across, say,
-> /sys/class/scsi_device seems like it would be a good idea.
->
-> (I doubt libscg would ever be interested in the stuff in most of the
-> other directories: things like /dev/mem are not SCSI devices and never
-> will be, and /sys/class/scsi_device contains *everything* Linux
-> considers a SCSI device, no matter what transport it is on, SATA and
-> all. However, I don't know if it handles IDE devices that you can SG_IO
-> to because I don't have any such here. Anyone know?)
+On Tue, 14 Feb 2006, Ingo Molnar wrote:
 
-This statement is obviously not true :-(
+> > Here is new version of the hrtimer patches sorted by priority. I 
+> > dropped the remaining time patch, the const patch doesn't produce a 
+> > larger kernel with gcc3 and I also added the acks so far. I consider 
+> > the first four patches the most important and the remaining patches 
+> > simple enough, that I think they're still 2.6.16 material.
+> 
+> i only consider the first two patches to be 2.6.16 material. The other 
+> patches avoid a ->get_time() call per timer interrupt - that's noise at 
+> most ...
 
-Let us start in a way that makes sense:
+It's two get_time() calls and I don't consider it noise, they are wasting 
+time with unnecessary hardware accesses.
 
-Please send me the whitepaper that was used to define the interfaces
-and functionality of the /sys device
-
-Please send me the other documentation (e.g. man pages) on the /sys
-device
-
-Please send me a statement on how long this interface will be maintained
-inside Linux without breaking interfaces.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+bye, Roman

@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422637AbWBNQfR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422634AbWBNQgF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422637AbWBNQfR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 11:35:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422635AbWBNQfQ
+	id S1422634AbWBNQgF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 11:36:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422636AbWBNQgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 11:35:16 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:48513 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1422633AbWBNQfO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 11:35:14 -0500
-Subject: Re: Linux 2.6.16-rc3
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
-       "Brown, Len" <len.brown@intel.com>,
-       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net,
-       "Yu, Luming" <luming.yu@intel.com>, Ben Castricum <lk@bencastricum.nl>,
-       sanjoy@mrao.cam.ac.uk, Helge Hafting <helgehaf@aitel.hist.no>,
-       "Carlo E. Prelz" <fluido@fluido.as>,
-       Gerrit Bruchh?user <gbruchhaeuser@gmx.de>, Nicolas.Mailhot@LaPoste.net,
-       Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>,
-       Patrizio Bassi <patrizio.bassi@gmail.com>,
-       Bj?rn Nilsson <bni.swe@gmail.com>, Andrey Borzenkov <arvidjaar@mail.ru>,
-       "P. Christeas" <p_christ@hol.gr>, ghrt <ghrt@dial.kappa.ro>,
-       jinhong hu <jinhong.hu@gmail.com>,
-       Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-scsi@vger.kernel.org,
-       Benjamin LaHaise <bcrl@kvack.org>
-In-Reply-To: <20060213203800.GC22441@kroah.com>
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org>
-	 <20060212190520.244fcaec.akpm@osdl.org>  <20060213203800.GC22441@kroah.com>
-Content-Type: text/plain
-Date: Tue, 14 Feb 2006 10:34:43 -0600
-Message-Id: <1139934883.14115.4.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 14 Feb 2006 11:36:05 -0500
+Received: from mr1.bfh.ch ([147.87.250.50]:23008 "EHLO mr1.bfh.ch")
+	by vger.kernel.org with ESMTP id S1422634AbWBNQgE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 11:36:04 -0500
+thread-index: AcYxhLpvuPDoZVDaSD2R04/Ey2bBkw==
+X-PMWin-Version: 2.5.0e, Antispam-Engine: 2.2.0.0, Antivirus-Engine: 2.32.10
+Content-Class: urn:content-classes:message
+Importance: normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
+Message-ID: <43F206EC.2050906@bfh.ch>
+Date: Tue, 14 Feb 2006 17:35:56 +0100
+From: "Seewer Philippe" <philippe.seewer@bfh.ch>
+Organization: BFH
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050811)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Phillip Susi" <psusi@cfl.rr.com>
+Cc: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: disk geometry via sysfs
+References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com> <43F0D7AD.8050909@bfh.ch> <Pine.LNX.4.61.0602131410400.17242@chaos.analogic.com> <43F0DFCC.5020404@cfl.rr.com>
+In-Reply-To: <43F0DFCC.5020404@cfl.rr.com>
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Feb 2006 16:35:55.0692 (UTC) FILETIME=[BA413EC0:01C63184]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-13 at 12:38 -0800, Greg KH wrote:
-> > - Nasty warnings from scsi about kobject-layer things being called
-> from
-> >   irq context.  James has a push-it-to-process-context patch which
-> sadly
-> >   assumes kmalloc() is immortal, but no other fix seems to have
-> offered
-> >   itself.
+
+Phillip Susi wrote:
+> linux-os (Dick Johnson) wrote:
 > 
-> This has been the case for a long time.  I don't really think there is
-> a
-> rush to get this fixed, but I really like James's proposed patch.
-> It's
-> up to him if he feels it is ready for 2.6.16 or not.
+>> You can make your own:
+>>
+>> Pretend a sector is 512 bytes.
+>> Use the maximum number of cylinders of either 65535 or 1024
+>> Use the maximum number of sectors up to 255
+>> Use the maxumum number of heads up to 255
+>>
+>>
+>> Try the above with 1024 cylinders first. If it doesn't fit, use
+>> 65535. That's all the BIOS does. It's just used to fit the
+>> stuff into registers for 16-bit BIOS calls (see int 0x13).
+>>
+>>   
+> 
+> 
+> Actually, different bioses do it in different ways, that is just one way
+> ( and possibly the most popular ).  The same bios can even do it
+> differently depending on what options are selected in the bios setup. 
+> Of course, this only effects Microsoft operating systems because
+> everyone else is sane and supports LBA.
 
-Well, I can't solve the problem that it requires memory allocation from
-IRQ context to operate.  Based on that, it's an unsafe interface.  I'm
-going to put it inside SCSI for 2.6.16, since it's better than what we
-have now, but I don't think we can export it globally.
-
-James
-
-
+With emphasis on _sane_

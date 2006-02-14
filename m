@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030490AbWBNTEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422643AbWBNTGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030490AbWBNTEg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 14:04:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030592AbWBNTEg
+	id S1422643AbWBNTGK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 14:06:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422660AbWBNTGK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 14:04:36 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:17887 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1030490AbWBNTEf (ORCPT
+	Tue, 14 Feb 2006 14:06:10 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:34052 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1422643AbWBNTGJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 14:04:35 -0500
-Message-ID: <43F22985.4020800@cfl.rr.com>
-Date: Tue, 14 Feb 2006 14:03:33 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: jzb@aexorsyst.com
-CC: Al Viro <viro@ftp.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: root=/dev/sda1 fails but root=0x0801 works...
-References: <200602132316.15992.jzb@aexorsyst.com> <43F1FA74.80607@cfl.rr.com> <20060214162458.GD27946@ftp.linux.org.uk> <200602140920.20685.jzb@aexorsyst.com>
-In-Reply-To: <200602140920.20685.jzb@aexorsyst.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Feb 2006 19:05:48.0800 (UTC) FILETIME=[AA90A000:01C63199]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14267.000
-X-TM-AS-Result: No--8.700000-5.000000-4
+	Tue, 14 Feb 2006 14:06:09 -0500
+Date: Tue, 14 Feb 2006 20:06:08 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060214190607.GC51709@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	linux-kernel@vger.kernel.org
+References: <20060208162828.GA17534@voodoo> <200602092241.29294.dhazelton@enter.net> <43F08D45.nailKUSE1SA4H@burner> <200602131801.47050.dhazelton@enter.net> <43F1DD0A.nailMWZ718HUV@burner> <20060214184324.GC4749@voodoo>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060214184324.GC4749@voodoo>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Z. Bohach wrote:
-> Thanks for the info...Philip, you are correct, but for the wrong reason.  Al,
-> you hit it right on the head...
->
-> It is intentional behavior, but the reason is that
-> for name_to_dev_t() to work, CONFIG_SYSFS must be enabled...so there's
-> my connection to the CONFIG_* option that I suspected...
->
-> Thanks again...
->   
+On Tue, Feb 14, 2006 at 01:43:25PM -0500, Jim Crilly wrote:
+> You're allowed to yell RTFM to him, but when you were pointed to the HAL
+> documentation you cried that you didn't want to spend time reading it? How
+> does that work?
 
-I see, I wonder when that got added.  Does there happen to be a way to 
-turn that off, but keep sysfs?  Since I use an initramfs ( ubuntu ) 
-there is no need for the kernel to contain such code.  I wonder what 
-other bits of code could be removed when you use an initramfs?
+Dbus hasn't reached 1.0 yet (bindings are finishing being cleaned up
+if I followed the list correctly), and Hal is very much still in beta.
+It's way too early to base any long-term code on it if you don't have
+the level of political pressure for stability kde or gnome has.
 
+  OG.
 

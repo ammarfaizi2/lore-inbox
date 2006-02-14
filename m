@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161009AbWBNLPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWBNLQV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161009AbWBNLPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 06:15:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161011AbWBNLPJ
+	id S1161008AbWBNLQV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 06:16:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbWBNLQV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 06:15:09 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:38592 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1161009AbWBNLPH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 06:15:07 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Tue, 14 Feb 2006 12:13:16 +0100
-To: schilling@fokus.fraunhofer.de, luke@dashjr.org
-Cc: seanlkml@sympatico.ca, sam@vilain.net, peter.read@gmail.com, mj@ucw.cz,
-       matthias.andree@gmx.de, lkml@dervishd.net, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F1BB4C.nailMWZ118O17@burner>
-References: <43EB7BBA.nailIFG412CGY@burner>
- <200602131722.29633.luke@dashjr.org> <43F0C4A3.nailMEM11MHR7@burner>
- <200602131749.46880.luke@dashjr.org>
-In-Reply-To: <200602131749.46880.luke@dashjr.org>
-User-Agent: nail 11.2 8/15/04
+	Tue, 14 Feb 2006 06:16:21 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:29769 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161008AbWBNLQU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 06:16:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Nwjc8N1b6ZIjLgnryyRK3Hy8oKYbiFqnwE/0IygNP/pCKQDWCgNJPCMbQ1EoVOgeiLWcGvyokMDhBtskiWyX30HzMwVjn2zYyg5PJNOHFLM88x6lYvZryr4A93JmpHkDVUqLM79Iq1etKfQC4zZxZ76fBXuiOsUmEfP/4+7FEV8=
+Message-ID: <6bffcb0e0602140316sae62b9an@mail.gmail.com>
+Date: Tue, 14 Feb 2006 12:16:19 +0100
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.16-rc3-mm1
+Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
+In-Reply-To: <20060214014157.59af972f.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060214014157.59af972f.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luke-Jr <luke@dashjr.org> wrote:
+Hi,
 
-> What does it do "wrong" anyway? IIRC, DMA in general works...
+On 14/02/06, Andrew Morton <akpm@osdl.org> wrote:
+>
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc3/2.6.16-rc3-mm1/
+>
+> - Various fixes, updates and cleanups.  Nothing very exciting, unless you
+>   spend a lot of your time waiting for msync() to complete.
+>
+> - Again, please cast an eye across this patch series for things which should
+>   go into 2.6.16.
 
-If you really believe that it is good practice to implement DMA in
-a way so it works at some places as expected but on others not....
+It's strange... rc3-mm1 vs. rc2-mm1
 
-... then you like the Linux kernel be a junk yard :-(
-
-Good practice is to fix _all_ related code in a project in case a bug
-is identified and fixed at some place. Unfortunately this is not true
-for Linux and for this reason, Linux cannot yet be called mature.
+:/usr/src/linux-mm$ uname -a
+Linux ltg01-sid 2.6.16-rc2-mm1 #15 SMP PREEMPT Thu Feb 9 18:12:08 CET
+2006 i686 GNU/Linux
 
 
-Jörg
+:/usr/src/linux-mm$ head Makefile
+VERSION = 2
+PATCHLEVEL = 6
+SUBLEVEL = 16
+EXTRAVERSION =-rc3-mm1
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+there is something wrong with build system.
+
+I had a lot of "modprobe: FATAL: Could not load
+/lib/modules/2.6.16-rc2-mm1/ modules.dep: No such file or directory"
+messages while boot.
+Workaround: copy files from /lib/modules/2.6.16-rc3-mm1 to
+/lib/modules/2.6.16-rc2-mm1
+
+Regards,
+Michal Piotrowski

@@ -1,55 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422887AbWBNXfs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422799AbWBNXjF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422887AbWBNXfs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 18:35:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422892AbWBNXfr
+	id S1422799AbWBNXjF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 18:39:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422806AbWBNXjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 18:35:47 -0500
-Received: from zproxy.gmail.com ([64.233.162.194]:62931 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1422887AbWBNXfr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 18:35:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FvQerV7ARLkYx3rqfgoAsVO+QdzV6uWHcj7nRHDdl9gTSSte+ql3YjIemsIb/Jaz63NT05eOX3mOJxpuC4peXjc8pPg1SKf6H6cWOFbEh9xIl8SGnWyo5kOYmft57UX16ozFoaPtoipGvJSUUTwJs8oPwDifyeBYoB6ENgz7dPY=
-Message-ID: <6bffcb0e0602141535x673a2caay@mail.gmail.com>
-Date: Wed, 15 Feb 2006 00:35:46 +0100
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: Norbert Preining <preining@logic.at>
-Subject: Re: 2.6.16-rc3-mm1 build failure
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060214232516.GI4850@gamma.logic.tuwien.ac.at>
+	Tue, 14 Feb 2006 18:39:04 -0500
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:3049 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S1422799AbWBNXjD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 18:39:03 -0500
+Message-ID: <43F26A04.7000801@ens-lyon.org>
+Date: Tue, 14 Feb 2006 18:38:44 -0500
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060214232516.GI4850@gamma.logic.tuwien.ac.at>
+To: Con Kolivas <kernel@kolivas.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc3-mm1
+References: <20060214014157.59af972f.akpm@osdl.org> <43F1EA2B.4090203@ens-lyon.org> <20060214122825.5b8de370.akpm@osdl.org> <200602151026.40852.kernel@kolivas.org>
+In-Reply-To: <200602151026.40852.kernel@kolivas.org>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Con Kolivas wrote:
 
-On 15/02/06, Norbert Preining <preining@logic.at> wrote:
-> HI Andrew!
+>On Wednesday 15 February 2006 07:28, Andrew Morton wrote:
+>  
 >
->   LD      .tmp_vmlinux1
-> arch/i386/kernel/built-in.o: In function `show_type':intel_cacheinfo.c:(.text+0x72c7): undefined reference to `strcpy'
-> :intel_cacheinfo.c:(.text+0x72d9): undefined reference to `strcpy'
-> :intel_cacheinfo.c:(.text+0x72eb): undefined reference to `strcpy'
-> :intel_cacheinfo.c:(.text+0x72fd): undefined reference to `strcpy'
-> kernel/built-in.o: In function `prof_cpu_mask_read_proc':profile.c:(.text+0x4a2e): undefined reference to `strcpy'
-> kernel/built-in.o:clocksource.c:(.text+0x19b32): more undefined references to `strcpy' follow
-> make: *** [.tmp_vmlinux1] Error 1
+>>Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
+>>    
+>>
+>>>WARNING: speedstep-centrino.ko needs unknown symbol cpu_online_map
+>>>
+>>>This symbol is in include/linux/cpumask.h but actually only defined and
+>>>exported in smpboot.c which is not compiled on UP.
+>>>      
+>>>
+>>diff -puN
+>>arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c~git-acpi-up-fix-2
+>>arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c ---
+>>devel/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c~git-acpi-up-fix-2	2
+>>006-02-14 12:27:41.000000000 -0800 +++
+>>devel-akpm/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c	2006-02-14
+>>12:27:41.000000000 -0800 @@ -654,8 +654,10 @@ static int centrino_target
+>>(struct cpufr
+>> 		return -EINVAL;
+>> 	}
+>>
+>>+#ifdef CONFIG_SMP
+>> 	/* cpufreq holds the hotplug lock, so we are safe from here on */
+>> 	cpus_and(online_policy_cpus, cpu_online_map, policy->cpus);
+>>+#endif
+>>    
+>>
 >
-> config is attached
+>Shouldn't the cpu_online_map be hardcoded to the first/only cpu on UP instead?
 >
-> Best wishes
+>Cheers,
+>Con
+>  
 >
-> Norbert
+It's actually defined on UP in kernel/sched.c:
 
-Here is patch:
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc3/2.6.16-rc3-mm1/hot-fixes/x86_64-fix-string-fix.patch
+#ifndef CONFIG_SMP
+cpumask_t cpu_online_map __read_mostly = CPU_MASK_ALL;
+cpumask_t cpu_possible_map __read_mostly = CPU_MASK_ALL;
+#endif
 
-Regards,
-Michal Piotrowski
+What about adding an EXPORT_SYMBOL_GPL there ?
+
+Brice
+

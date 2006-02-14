@@ -1,72 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161030AbWBNNBQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161043AbWBNNRS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161030AbWBNNBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 08:01:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161043AbWBNNBQ
+	id S1161043AbWBNNRS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 08:17:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161044AbWBNNRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 08:01:16 -0500
-Received: from main.gmane.org ([80.91.229.2]:18570 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1161030AbWBNNBP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 08:01:15 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "news.gmane.org" <kubisuro@att.net>
-Subject: Re: [PATCH] mm: Implement Swap Prefetching v25
-Date: Tue, 14 Feb 2006 21:45:45 +0900
-Message-ID: <43F1D0F9.1040502@att.net>
-References: <200602120141.46084.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-Cc: ck@vds.kolivas.org
-X-Gmane-NNTP-Posting-Host: 210.120.111.10
-User-Agent: Thunderbird 1.5 (X11/20051201)
-In-Reply-To: <200602120141.46084.kernel@kolivas.org>
+	Tue, 14 Feb 2006 08:17:17 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:41489 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161043AbWBNNRR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 08:17:17 -0500
+Date: Tue, 14 Feb 2006 14:17:15 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
 Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.16-rc3-mm1: i386 compilation broken
+Message-ID: <20060214131715.GA10701@stusta.de>
+References: <20060214014157.59af972f.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060214014157.59af972f.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Feb 14, 2006 at 01:41:57AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.16-rc2-mm1:
+>...
+> +x86_64-fix-string.patch
+>...
+>  x86_64 tree updates.
+>...
 
-Con Kolivas wrote:
-> Everything is working nicely now, surviving a serious thrashing.
-> Overall the behaviour I would say has improved as a result of all the
-> modifications.
-> 
-> Many thanks go to Nick and Andrew for suggestions.
-> 
-> Andrew please consider this version for -mm.
-> 
-> Cheers,
-> Con
+This patch breaks the compilation on i386:
 
-I'm what one would call a typical desktop user.  I also very much a 
-layman with kernels.  The layman is very interested in believing, if not 
-knowing, that the kernel is doing everything within its power to provide 
-application responsiveness, especially during heavy application loads.
+<--  snip  -->
 
-Swap Prefetch has quantifiable and visible results when an application 
-is swapped out and then swapped back in after a idle period (a very 
-logical time to do things).  That /is/ an obvious interaction benefit.
+...
+  LD      .tmp_vmlinux1
+arch/i386/kernel/built-in.o: In function 
+`show_type':intel_cacheinfo.c:(.text+0x768b): undefined reference to `strcpy'
+:intel_cacheinfo.c:(.text+0x769d): undefined reference to `strcpy'
+:intel_cacheinfo.c:(.text+0x76af): undefined reference to `strcpy'
+:intel_cacheinfo.c:(.text+0x76c1): undefined reference to `strcpy'
+kernel/built-in.o: In function `prof_cpu_mask_read_proc':profile.c:(.text+0x4a84): undefined reference to `strcpy'
+kernel/built-in.o:clocksource.c:(.text+0x17bc1): more undefined references to `strcpy' follow
+drivers/built-in.o: In function `zoran_write':zoran_procfs.c:(.text+0x41edd6): undefined reference to `strchr'
+drivers/built-in.o: In function `cpia_read_proc':cpia.c:(.text+0x42d175): undefined reference to `strcpy'
+:cpia.c:(.text+0x42d34c): undefined reference to `strcpy'
+:cpia.c:(.text+0x42d35c): undefined reference to `strcpy'
+:cpia.c:(.text+0x42d4d7): undefined reference to `strcpy'
+:cpia.c:(.text+0x42d5df): undefined reference to `strcpy'
+drivers/built-in.o:cpia.c:(.text+0x42d8b9): more undefined references to `strcpy' follow
+make: *** [.tmp_vmlinux1] Error 1
 
-I play World of Warcraft daily and it forces many applications into 
-swap.  That said, I now regularly experience desktop conditions that are 
-_very_ favorable with the Swap Prefetch patch soon as WoW is cleared out 
-and resources are regained for productive desktop use (browser, email, 
-chat, media, etc).  Hard disk activity, after an idle period, almost 
-never get in the way of interactivity (likely due to swapping out) -- 
-because they're back in physical memory.  That is _very_ good use of 
-time and resources.
+<--  snip  -->
 
-I'm very interested in seeing this patch applied to MM for major 
-testing, so that others with typical desktop demands can get an idea of 
-how this patch is beneficial.
 
-Thanks for your attention,
+Andi, you should have known that your patch could breaks i386 now that 
+we are no longer using no-unit-at-a-time:
+  http://lkml.org/lkml/2004/11/8/284
 
-Best of regards,
-Ryan M.
 
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

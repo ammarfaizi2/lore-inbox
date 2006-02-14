@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422844AbWBNWeo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422846AbWBNWgD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422844AbWBNWeo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 17:34:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422846AbWBNWeo
+	id S1422846AbWBNWgD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 17:36:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422849AbWBNWgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 17:34:44 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:44554 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1422844AbWBNWen
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 17:34:43 -0500
-To: davidsen@tmr.com
-Cc: Greg KH <greg@kroah.com>, Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       <linux-kernel@vger.kernel.org>, <axboe@suse.de>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <Pine.LNX.4.44.0602141356550.7951-100000@firewall2.tmr.com>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: a Lisp interpreter masquerading as ... a Lisp interpreter!
-Date: Tue, 14 Feb 2006 22:33:40 +0000
-In-Reply-To: <Pine.LNX.4.44.0602141356550.7951-100000@firewall2.tmr.com> (Bill
- Davidsen's message of "Tue, 14 Feb 2006 14:01:15 -0500 (EST)")
-Message-ID: <87hd71r2nv.fsf@hades.wkstn.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Tue, 14 Feb 2006 17:36:01 -0500
+Received: from wsip-68-14-232-151.ph.ph.cox.net ([68.14.232.151]:22657 "EHLO
+	cantor.snitselaar.org") by vger.kernel.org with ESMTP
+	id S1422846AbWBNWgA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 17:36:00 -0500
+Message-ID: <48822.198.115.32.5.1139956559.squirrel@cantor.snitselaar.org>
+Date: Tue, 14 Feb 2006 15:35:59 -0700 (MST)
+Subject: Problem: Possible deadlock for 2.4 SMP systems
+From: "Gerard Snitselaar" <snits@snitselaar.org>
+To: linux-kernel@vger.kernel.org
+Reply-To: snits@snitselaar.org
+User-Agent: SquirrelMail/1.4.6 [CVS]-0.cvs20050812.1.fc4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Feb 2006, Bill Davidsen stated:
-> Just determined that at least in FC4 the udev stuff doesn't seem to create 
-> the sg devices,
+Problem: Possible deadlock for 2.4 SMP systems
+Arch: i386
 
-It has done so for as long as I've been using udev (since 058).
+Full Description: I ran into this with the serial driver,
+but it might affect other drivers and possibly other
+architectures. On an smp system one cpu (cpu0) was in the
+process of shutting down the serial port, while another cpu
+(cpu1) was in the process of trying to service the interrupt
+for that port. What appears to happen is cpu0 calls cli() in
+shutdown() (drivers/char/serial.c), grabbing global_irq_lock.
+Meanwhile cpu1 sets IRQ_INPROGRESS, and eventually calls
+handle_IRQ_event() and spins on global_irq_lock in irq_enter().
+CPU0 calls free_irq() and eventually gets to the point where
+it spins while IRQ_INPROGRESS is set. Since cpu0 is holding
+global_irq_lock, cpu1 can't do its work and clear IRQ_INPROGRESS.
 
-What kernel are you using?
+I read somewhere that global_irq_lock is deprecated, so is there
+something that the serial driver should be doing instead of cli()
+and restore_flags() in shutdown()?
 
--- 
-`... follow the bouncing internment camps.' --- Peter da Silva

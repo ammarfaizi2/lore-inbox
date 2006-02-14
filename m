@@ -1,102 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030285AbWBNBE7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbWBNBOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030285AbWBNBE7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 20:04:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030328AbWBNBE7
+	id S1750828AbWBNBOL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 20:14:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbWBNBOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 20:04:59 -0500
-Received: from host.atlantavirtual.com ([209.239.35.47]:18622 "EHLO
-	host.atlantavirtual.com") by vger.kernel.org with ESMTP
-	id S1030285AbWBNBE6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 20:04:58 -0500
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-From: kernel <kernel@crazytrain.com>
-Reply-To: kernel@crazytrain.com
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: jerome.lacoste@gmail.com, dhazelton@enter.net, peter.read@gmail.com,
-       mj@ucw.cz, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
-In-Reply-To: <43F08D45.nailKUSE1SA4H@burner>
-References: <20060208162828.GA17534@voodoo> <43EC8F22.nailISDL17DJF@burner>
-	 <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com>
-	 <200602092241.29294.dhazelton@enter.net>  <43F08D45.nailKUSE1SA4H@burner>
+	Mon, 13 Feb 2006 20:14:11 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:47030 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750828AbWBNBOJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 20:14:09 -0500
+Subject: Re: [BUG -rt] -rt16 hang w/ realtime thread test
+From: john stultz <johnstul@us.ibm.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <Pine.LNX.4.58.0602111033400.13041@gandalf.stny.rr.com>
+References: <1139626674.28536.30.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0602111033400.13041@gandalf.stny.rr.com>
 Content-Type: text/plain
-Message-Id: <1139879123.3697.16.camel@crazytrain>
+Date: Mon, 13 Feb 2006 17:14:06 -0800
+Message-Id: <1139879647.28536.127.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 13 Feb 2006 20:05:23 -0500
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-13 at 08:44, Joerg Schilling wrote:
-> Any patch that
+On Sat, 2006-02-11 at 10:34 -0500, Steven Rostedt wrote:
+> On Fri, 10 Feb 2006, john stultz wrote:
 > 
-> -	does not break things
+> > Hey Ingo,
+> > 	I've been hunting a report that lower priority realtime threads are not
+> > preempting higher priority realtime threads. However, in generating test
+> > cases, I found I was locking the system quite frequently.
+> >
+> > The attached test runs to completion on 2.6.15, but with 2.6.15-rt16, it
+> > hangs the box. It could very well be a test issue, but I'm not sure I
+> > see where the problem is.
 > 
-Good. Makes sense.  Acceptable.
+> Have you turned on nmi_watchdog and softlockup detect?  Just so we can see
+> where it is hung.
+
+With both of those enabled, I get nothing.
+
+The only thing I could trigger was with Ingo's lock debugging, I got the
+following at bootup, although I doubt its the problem.
 
 
-> -	fits into the spirit of the currnt implementation
-> 
-Bad.  Subject to the gate keeper's ideas, whims, and personal agenda.
+sleeping function called from invalid context modprobe(2917) at
+mm/slab.c:2134
+in_atomic():1 [00000002], irqs_disabled():0
+ [<c011af7a>] __might_sleep+0xcf/0xda (8)  
+ [<c015da2e>] kmem_cache_alloc+0x1c/0xaf (40)
+ [<c02b8b5b>] __alloc_skb+0x29/0x11f (20)    
+ [<f8a7d6d8>] inet6_rt_notify+0x52/0x105 [ipv6] (28)
+ [<f8a7decb>] fib6_add_rt2node+0x11d/0x145 [ipv6] (24)
+ [<f8a7df52>] fib6_add+0x3f/0xb0 [ipv6] (36)          
+ [<f8a7b380>] ip6_ins_rt+0x26/0x3a [ipv6] (24)
+ [<f8a79cdd>] __ipv6_ifa_notify+0x3f/0x11e [ipv6] (24)
+ [<f8a79de4>] ipv6_ifa_notify+0x28/0x34 [ipv6] (16)   
+ [<f8a77d49>] init_loopback+0x93/0xaa [ipv6] (12)  
+ [<f8a78027>] addrconf_notify+0xb1/0x196 [ipv6] (12)
+ [<c02bd3da>] register_netdevice_notifier+0x42/0x52 (20)
+ [<f881a2ed>] addrconf_init+0x60/0xb2 [ipv6] (16)       
+ [<f881a197>] inet6_init+0x131/0x1d3 [ipv6] (8)  
+ [<c013cb1c>] sys_init_module+0xa9/0x1d7 (8)   
+ [<c01029ef>] sysenter_past_esp+0x54/0x75 (12)
+---------------------------                   
+| preempt count: 00000002 ]
+| 2-level deep critical section nesting:
+----------------------------------------
+.. [<c03166d5>] .... _raw_read_lock+0xd/0x1c
+.....[<00000000>] ..   ( <= _stext+0x3feffd68/0x3e)
+.. [<c0316838>] .... _raw_write_lock+0xd/0x1f      
+.....[<00000000>] ..   ( <= _stext+0x3feffd68/0x3e)
+                                                   
+------------------------------
+| showing all locks held by: |  (modprobe/2917 [f798f7d0, 117]):
+------------------------------                                  
+                              
+#001:             [c03bba44] {rtnl_sem.lock}
+... acquired at:               register_netdevice_notifier+0xa/0x52
 
 
-> -	offers useful new features
-> 
-Good.  Makes sense.  Acceptable.
-
-
-> -	conforms to coding style standards
-> 
-Good.  Makes sense.  Acceptable.
-
-
-> -	does not need more time to integrate than I would need to
-> 	write this from scratch
-Good.  Makes sense.  Acceptable.
-
-
-To sum, all technical and acceptable points *except* for one.  And of
-course, this one is the one that has kept this thread (in various forms)
-going for what seems like *years*.
-
-Do you know what's really scary?  The normal users, the managers, the
-technical users, etc. who've read LKML and have read this thread (either
-in its entirety or partial) (such as myself and my colleagues) who
-suddenly pucker when they feel that the fate of writing to CD media in
-Linux is in the hands of *one* person.  And this one person projects the
-identity of the angry child in the schoolyard who would grab his toys
-and walk away to play by himself if everyone else playing the same game
-didn't do what he said, when he said, how he said.  People looking into
-Linux, perhaps considering investing in it, read this thread and think
-"Wow, they can't even get together on CD burning!" (Simplified, I know.)
-
-This is one impression given in this most recent thread pertaining to
-this topic.  I cannot believe that somewhere on this planet other
-developers don't band together to write something equally as good or
-better to end this current nonsense *and* to prevent future hassles with
-this current implementation of this program and the developer.  (No, I
-don't code, but in instances like this I wish I did.)  I see this thread
-and I just keep thinking "Couldn't have it all been solved by now?  How
-many lines in this thread versus how many lines of code would it take?"
-
-Please, talented developers, look into writing a similar program that
-does fit with the current and planned Linux way and remove reliance on
-this unbending individual.  It's a big world.  I've seen other projects
-start small and gain momentum and grow.  Y'all are no stranger to this
-same phenomenon.  Certainly there are other coders and testers willing
-to assist in this project.
-
-And BTW, wouldn't the ultimate salute to Jorg be to never have to endure
-another LKML thread like this one because Linux users are using another
-bit of code?
-
-regards,
--fd
-
-
-
-
-
+thanks
+-john
 

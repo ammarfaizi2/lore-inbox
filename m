@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422700AbWBNVJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422701AbWBNVJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422700AbWBNVJL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 16:09:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422701AbWBNVJK
+	id S1422701AbWBNVJv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 16:09:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422707AbWBNVJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 16:09:10 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:24210 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1422700AbWBNVJI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 16:09:08 -0500
-Subject: Re: Flames over -- Re: Which is simpler?
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-In-Reply-To: <200602142141.10545.rjw@sisk.pl>
-References: <Pine.LNX.4.44L0.0602141417350.1419-100000@iolanthe.rowland.org>
-	 <200602142141.10545.rjw@sisk.pl>
-Content-Type: text/plain
-Date: Tue, 14 Feb 2006 16:08:58 -0500
-Message-Id: <1139951339.11659.157.camel@mindpipe>
+	Tue, 14 Feb 2006 16:09:51 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:18581 "EHLO mtlexch01.mtl.com")
+	by vger.kernel.org with ESMTP id S1422701AbWBNVJu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 16:09:50 -0500
+Date: Tue, 14 Feb 2006 23:11:11 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: AMD 8131 and MSI quirk
+Message-ID: <20060214211111.GB14113@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <524q799p2t.fsf@cisco.com> <20060214165222.GC12974@mellanox.co.il> <adaslqlu76f.fsf@cisco.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <adaslqlu76f.fsf@cisco.com>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 14 Feb 2006 21:11:38.0640 (UTC) FILETIME=[3E9EC900:01C631AB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-14 at 21:41 +0100, Rafael J. Wysocki wrote:
-> [BTW, I wonder if it's USB-only, or some other subsystems behave
-> in a similar way, like ieee1394 or external SATA.  And how about
-> NFS/CIFS/whatever network filesystems mounted on the suspending box?]
+Quoting r. Roland Dreier <rdreier@cisco.com>:
+> Subject: Re: AMD 8131 and MSI quirk
 > 
+> Michael, now I'm not sure whether this will work for devices like the
+> Mellanox PCI-X HCA, where the HCA device sits below a virtual PCI
+> bridge.  In that case we need to propagate the NO_MSI flag from the
+> 8131 bridge to the Tavor bridge, right?
 
-NFS is stateless, it does not care about stuff like this.  There's no
-concept of an open file.  write() does not return until the data is
-committed to stable storage.
+Yes, I tested on that system.
 
-Lee
+> And it has to work for
+> systems like Sun V40Z where the PCI-X slots are hot-swappable (so the
+> HCA and its bridge could be added later).
 
+I expect it will work on hot swappable systems too: bus_flags are inherited
+from parent to child bus.
+
+-- 
+Michael S. Tsirkin
+Staff Engineer, Mellanox Technologies

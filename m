@@ -1,88 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030512AbWBNIFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWBNIGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030512AbWBNIFq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 03:05:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWBNIFq
+	id S932256AbWBNIGb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 03:06:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWBNIGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 03:05:46 -0500
-Received: from ganesha.gnumonks.org ([213.95.27.120]:64974 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S932256AbWBNIFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 03:05:44 -0500
-Date: Tue, 14 Feb 2006 09:05:42 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mail@joachim-breitner.de, linux-kernel@vger.kernel.org,
-       Dominik Brodowski <linux@dominikbrodowski.net>
-Subject: Re: [PATCH] [CM4000,CM4040] Add device class bits to enable udev device creation
-Message-ID: <20060214080542.GB4605@sunbeam.de.gnumonks.org>
-References: <1138536696.6509.9.camel@otto.ehbuehl.net> <1138541796.6395.8.camel@otto.ehbuehl.net> <20060131101046.GS4603@sunbeam.de.gnumonks.org> <20060131180927.6843c775.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="A6N2fC+uXW/VQSAv"
-Content-Disposition: inline
-In-Reply-To: <20060131180927.6843c775.akpm@osdl.org>
-User-Agent: mutt-ng devel-20050619 (Debian)
-X-Spam-Score: 0.0 (/)
+	Tue, 14 Feb 2006 03:06:30 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:61867 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932256AbWBNIG3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 03:06:29 -0500
+Date: Tue, 14 Feb 2006 09:06:08 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+cc: peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       alex@samad.com.au
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+In-Reply-To: <43F098A2.nailKUSL1W9PE@burner>
+Message-ID: <Pine.LNX.4.61.0602140905490.7198@yvahk01.tjqt.qr>
+References: <43EA1D26.nail40E11SL53@burner> <20060208165330.GB17534@voodoo>
+ <43EB0DEB.nail52A1LVGUO@burner> <Pine.LNX.4.61.0602091729560.30108@yvahk01.tjqt.qr>
+ <43EB7210.nailIDH2JUBZE@burner> <Pine.LNX.4.61.0602091813260.30108@yvahk01.tjqt.qr>
+ <43EB7BBA.nailIFG412CGY@burner> <mj+md-20060209.173519.1949.atrey@ucw.cz>
+ <43EC71FB.nailISD31LRCB@burner> <20060210114930.GC2750@DervishD>
+ <20060213005002.GK26235@samad.com.au> <43F098A2.nailKUSL1W9PE@burner>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> >     My system is clueless, too! If I write a CD before plugging my
+>> > USB storage device, my CD writer is on 0,0,0. If I plug my USB
+>> > storage device *before* doing any access, my cdwriter is on 1,0,0.
+>> > Pretty stable.
+>>
+>> Had exactly the same problem with firewire and usb devices, depending on
+>> the order of the loading of the kernel modules it all changes!
+>
+>This is a deficite of the Linux kernel model. You don't have similar
+>problems on Solaris.
+>
+Hm, did not you just outline that on Solaris, new devices always get a new 
+ID?
 
---A6N2fC+uXW/VQSAv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 31, 2006 at 06:09:27PM -0800, Andrew Morton wrote:
-> Harald Welte <laforge@gnumonks.org> wrote:
-> >
-> > Please apply this fix to the cm4000/4040 drivers, thanks!
-> >=20
-> >  [CM4000,CM4040] Add device class bits to enable udev device creation
-> >=20
-> >  Using this patch, Omnikey CardMan 4000 and 4040 devices automatically
-> >  get their device nodes created by udev.
->=20
-> Dominik has made quite widespread changes to these drivers - enough that
-> I'm not confident to fix the rejects, make it compile and hope that it
-> still works.
-
-sorry for that.  I honestly don't have the time to track two trees, and
-I do all my development work against Linus' main tree, therefore my
-patches are against that tree, too.
-
-> So can you please sort things out with Dominik?  I guess a tested patch
-> against -mm4 would be ideal.
-
-The question is: Why wouldn't my patch directly go mainline but rather
-via -mm?  It is a very special-purpose device, the number of users are
-small, it clearly fixes the bug that no device nodes are created, and
-the fix came from the original maintainer.
-
-> I note that these drivers forget to check for pcmcia_register_driver()
-> failure.  That's a fairly good way of getting an oops in rmmod.
-
-Thanks, I'll cook up a fix.
-
---=20
-- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-"Privacy in residential applications is a desirable marketing option."
-                                                  (ETSI EN 300 175-7 Ch. A6)
-
---A6N2fC+uXW/VQSAv
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFD8Y9WXaXGVTD0i/8RAnNGAJ414UoBOfwb3XUypKEidcmc/fUADACcCQj/
-KB0SMdFRq5e06caPyPhNncg=
-=GY5Q
------END PGP SIGNATURE-----
-
---A6N2fC+uXW/VQSAv--
+Jan Engelhardt
+-- 

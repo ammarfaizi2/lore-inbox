@@ -1,307 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030415AbWBNFKN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030399AbWBNFJt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030415AbWBNFKN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 00:10:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030400AbWBNFIi
+	id S1030399AbWBNFJt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 00:09:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030415AbWBNFJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 00:08:38 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:51407 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1030399AbWBNFFK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 00:05:10 -0500
-Message-Id: <20060214050447.315051000@localhost.localdomain>
-References: <20060214050351.252615000@localhost.localdomain>
-Date: Tue, 14 Feb 2006 14:04:20 +0900
-From: Akinobu Mita <mita@miraclelinux.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, Greg Ungerer <gerg@uclinux.org>,
-       Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 29/47] m68knommu: use generic bitops
-Content-Disposition: inline; filename=m68knommu.patch
+	Tue, 14 Feb 2006 00:09:42 -0500
+Received: from 63.15.233.220.exetel.com.au ([220.233.15.63]:13264 "EHLO
+	sydlxfw01.samad.com.au") by vger.kernel.org with ESMTP
+	id S1030416AbWBNFJi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 00:09:38 -0500
+Date: Tue, 14 Feb 2006 16:09:36 +1100
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060214050936.GM26235@samad.com.au>
+References: <20060208162828.GA17534@voodoo> <200602090757.13767.dhazelton@enter.net> <43EC8F22.nailISDL17DJF@burner> <200602092221.56942.dhazelton@enter.net> <43F08C5F.nailKUSDKZUAZ@burner> <mj+md-20060213.140141.31817.atrey@ucw.cz> <43F0A5E1.nailKUS106KMUQ@burner>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="iKKZt69u2Wx/rspf"
+Content-Disposition: inline
+In-Reply-To: <43F0A5E1.nailKUS106KMUQ@burner>
+User-Agent: Mutt/1.5.11
+From: Alexander Samad <alex@samad.com.au>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- remove ffs()
-- remove __ffs()
-- remove sched_find_first_bit()
-- remove ffz()
-- remove find_{next,first}{,_zero}_bit()
-- remove generic_hweight()
-- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
-- remove generic_fls()
-- remove generic_fls64()
 
-Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
- arch/m68knommu/Kconfig         |    8 +
- include/asm-m68knommu/bitops.h |  221 +----------------------------------------
- 2 files changed, 17 insertions(+), 212 deletions(-)
+--iKKZt69u2Wx/rspf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Index: 2.6-rc/include/asm-m68knommu/bitops.h
-===================================================================
---- 2.6-rc.orig/include/asm-m68knommu/bitops.h
-+++ 2.6-rc/include/asm-m68knommu/bitops.h
-@@ -12,104 +12,10 @@
- 
- #ifdef __KERNEL__
- 
--/*
-- *	Generic ffs().
-- */
--static inline int ffs(int x)
--{
--	int r = 1;
--
--	if (!x)
--		return 0;
--	if (!(x & 0xffff)) {
--		x >>= 16;
--		r += 16;
--	}
--	if (!(x & 0xff)) {
--		x >>= 8;
--		r += 8;
--	}
--	if (!(x & 0xf)) {
--		x >>= 4;
--		r += 4;
--	}
--	if (!(x & 3)) {
--		x >>= 2;
--		r += 2;
--	}
--	if (!(x & 1)) {
--		x >>= 1;
--		r += 1;
--	}
--	return r;
--}
--
--/*
-- *	Generic __ffs().
-- */
--static inline int __ffs(int x)
--{
--	int r = 0;
--
--	if (!x)
--		return 0;
--	if (!(x & 0xffff)) {
--		x >>= 16;
--		r += 16;
--	}
--	if (!(x & 0xff)) {
--		x >>= 8;
--		r += 8;
--	}
--	if (!(x & 0xf)) {
--		x >>= 4;
--		r += 4;
--	}
--	if (!(x & 3)) {
--		x >>= 2;
--		r += 2;
--	}
--	if (!(x & 1)) {
--		x >>= 1;
--		r += 1;
--	}
--	return r;
--}
--
--/*
-- * Every architecture must define this function. It's the fastest
-- * way of searching a 140-bit bitmap where the first 100 bits are
-- * unlikely to be set. It's guaranteed that at least one of the 140
-- * bits is cleared.
-- */
--static inline int sched_find_first_bit(unsigned long *b)
--{
--	if (unlikely(b[0]))
--		return __ffs(b[0]);
--	if (unlikely(b[1]))
--		return __ffs(b[1]) + 32;
--	if (unlikely(b[2]))
--		return __ffs(b[2]) + 64;
--	if (b[3])
--		return __ffs(b[3]) + 96;
--	return __ffs(b[4]) + 128;
--}
--
--/*
-- * ffz = Find First Zero in word. Undefined if no zero exists,
-- * so code should check against ~0UL first..
-- */
--static __inline__ unsigned long ffz(unsigned long word)
--{
--	unsigned long result = 0;
--
--	while(word & 1) {
--		result++;
--		word >>= 1;
--	}
--	return result;
--}
--
-+#include <asm-generic/bitops/ffs.h>
-+#include <asm-generic/bitops/__ffs.h>
-+#include <asm-generic/bitops/sched.h>
-+#include <asm-generic/bitops/ffz.h>
- 
- static __inline__ void set_bit(int nr, volatile unsigned long * addr)
- {
-@@ -254,98 +160,8 @@ static __inline__ int __test_bit(int nr,
-  __constant_test_bit((nr),(addr)) : \
-  __test_bit((nr),(addr)))
- 
--#define find_first_zero_bit(addr, size) \
--        find_next_zero_bit((addr), (size), 0)
--#define find_first_bit(addr, size) \
--        find_next_bit((addr), (size), 0)
--
--static __inline__ int find_next_zero_bit (const void * addr, int size, int offset)
--{
--	unsigned long *p = ((unsigned long *) addr) + (offset >> 5);
--	unsigned long result = offset & ~31UL;
--	unsigned long tmp;
--
--	if (offset >= size)
--		return size;
--	size -= result;
--	offset &= 31UL;
--	if (offset) {
--		tmp = *(p++);
--		tmp |= ~0UL >> (32-offset);
--		if (size < 32)
--			goto found_first;
--		if (~tmp)
--			goto found_middle;
--		size -= 32;
--		result += 32;
--	}
--	while (size & ~31UL) {
--		if (~(tmp = *(p++)))
--			goto found_middle;
--		result += 32;
--		size -= 32;
--	}
--	if (!size)
--		return result;
--	tmp = *p;
--
--found_first:
--	tmp |= ~0UL << size;
--found_middle:
--	return result + ffz(tmp);
--}
--
--/*
-- * Find next one bit in a bitmap reasonably efficiently.
-- */
--static __inline__ unsigned long find_next_bit(const unsigned long *addr,
--	unsigned long size, unsigned long offset)
--{
--	unsigned int *p = ((unsigned int *) addr) + (offset >> 5);
--	unsigned int result = offset & ~31UL;
--	unsigned int tmp;
--
--	if (offset >= size)
--		return size;
--	size -= result;
--	offset &= 31UL;
--	if (offset) {
--		tmp = *p++;
--		tmp &= ~0UL << offset;
--		if (size < 32)
--			goto found_first;
--		if (tmp)
--			goto found_middle;
--		size -= 32;
--		result += 32;
--	}
--	while (size >= 32) {
--		if ((tmp = *p++) != 0)
--			goto found_middle;
--		result += 32;
--		size -= 32;
--	}
--	if (!size)
--		return result;
--	tmp = *p;
--
--found_first:
--	tmp &= ~0UL >> (32 - size);
--	if (tmp == 0UL)        /* Are any bits set? */
--		return result + size; /* Nope. */
--found_middle:
--	return result + __ffs(tmp);
--}
--
--/*
-- * hweightN: returns the hamming weight (i.e. the number
-- * of bits set) of a N-bit word
-- */
--
--#define hweight32(x) generic_hweight32(x)
--#define hweight16(x) generic_hweight16(x)
--#define hweight8(x) generic_hweight8(x)
--
-+#include <asm-generic/bitops/find.h>
-+#include <asm-generic/bitops/hweight.h>
- 
- static __inline__ int ext2_set_bit(int nr, volatile void * addr)
- {
-@@ -475,30 +291,11 @@ found_middle:
- 	return result + ffz(__swab32(tmp));
- }
- 
--/* Bitmap functions for the minix filesystem.  */
--#define minix_test_and_set_bit(nr,addr) __test_and_set_bit(nr,addr)
--#define minix_set_bit(nr,addr) __set_bit(nr,addr)
--#define minix_test_and_clear_bit(nr,addr) __test_and_clear_bit(nr,addr)
--#define minix_test_bit(nr,addr) test_bit(nr,addr)
--#define minix_find_first_zero_bit(addr,size) find_first_zero_bit(addr,size)
--
--/**
-- * hweightN - returns the hamming weight of a N-bit word
-- * @x: the word to weigh
-- *
-- * The Hamming Weight of a number is the total number of bits set in it.
-- */
--
--#define hweight32(x) generic_hweight32(x)
--#define hweight16(x) generic_hweight16(x)
--#define hweight8(x) generic_hweight8(x)
-+#include <asm-generic/bitops/minix.h>
- 
- #endif /* __KERNEL__ */
- 
--/*
-- * fls: find last bit set.
-- */
--#define fls(x) generic_fls(x)
--#define fls64(x)   generic_fls64(x)
-+#include <asm-generic/bitops/fls.h>
-+#include <asm-generic/bitops/fls64.h>
- 
- #endif /* _M68KNOMMU_BITOPS_H */
-Index: 2.6-rc/arch/m68knommu/Kconfig
-===================================================================
---- 2.6-rc.orig/arch/m68knommu/Kconfig
-+++ 2.6-rc/arch/m68knommu/Kconfig
-@@ -25,6 +25,14 @@ config RWSEM_XCHGADD_ALGORITHM
- 	bool
- 	default n
- 
-+config GENERIC_FIND_NEXT_BIT
-+	bool
-+	default y
-+
-+config GENERIC_HWEIGHT
-+	bool
-+	default y
-+
- config GENERIC_CALIBRATE_DELAY
- 	bool
- 	default y
+On Mon, Feb 13, 2006 at 04:29:37PM +0100, Joerg Schilling wrote:
+> Martin Mares <mj@ucw.cz> wrote:
+>=20
+> > Hello!
+> >
+> > > libscg abstracts from a kernel specific transport and allows to write=
+ OS=20
+> > > independent applications that rely in generic SCSI transport.
+> > >=20
+> > > For this reason, it is bejond the scope of the Linux kernel team to d=
+ecide on=20
+> > > this abstraction layer. The Linux kernel team just need to take the c=
+urrent
+> > > libscg interface as given as _this_  _is_ the way to do best abstract=
+ion.
+> >
+> > Do you really believe that libscg is the only way in the world how to
+> > access SCSI devices?
+> >
+> > How can you be so sure that the abstraction you have chosen is the only
+> > possible one?
+> >
+> > If an answer to either of this questions is NO, why do you insist on
+> > everybody bending their rules to suit your model?
+>=20
+> Name me any other lib that is as OS independent and as clean/stable as
+> libscg is. Note that the interface from libscg did not really change=20
+> since August 1986.=20
 
---
+off the top of my head the standard C library been fairly stable
+
+>=20
+>=20
+> > > The Linux kernel team has the freedom to boycott portable user space =
+SCSI=20
+> > > applications or to support them.
+> >
+> > That's really an interesting view ... if anybody is boycotting anybody,
+> > then it's clearly you, because you refuse to extend libscg to support
+> > the Linux model, although it's clearly possible.
+>=20
+> Looks like you did not follow the discussion :-(
+>=20
+> I am constantly working on better support for Linux while the Linux kernel
+> folks do not even fix obvious bugs.
+>=20
+> J?rg
+>=20
+> --=20
+>  EMail:joerg@schily.isdn.cs.tu-berlin.de (home) J?rg Schilling D-13353 Be=
+rlin
+>        js@cs.tu-berlin.de                (uni) =20
+>        schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogs=
+pot.com/
+>  URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/s=
+chily
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>=20
+
+--iKKZt69u2Wx/rspf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFD8WYQkZz88chpJ2MRAqvIAKDuJA4i6XPU3jX9dXkxN5lCWl9yAwCgy/5n
+p95H1LH+hF4/Y8ZtKm+2CtQ=
+=5fpy
+-----END PGP SIGNATURE-----
+
+--iKKZt69u2Wx/rspf--

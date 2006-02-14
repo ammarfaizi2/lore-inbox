@@ -1,67 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030582AbWBNOZ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030586AbWBNOd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030582AbWBNOZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 09:25:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030583AbWBNOZ1
+	id S1030586AbWBNOd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 09:33:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030587AbWBNOd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 09:25:27 -0500
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:32676 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1030582AbWBNOZ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 09:25:26 -0500
-Date: Tue, 14 Feb 2006 09:25:24 -0500
-To: Martin Mares <mj@ucw.cz>
-Cc: Marcin Dalecki <dalecki.marcin@neostrada.pl>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       jerome.lacoste@gmail.com, peter.read@gmail.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-       jengelh@linux01.gwdg.de, dhazelton@enter.net
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060214142524.GC29940@csclub.uwaterloo.ca>
-References: <20060208162828.GA17534@voodoo> <20060210114721.GB20093@merlin.emma.line.org> <43EC887B.nailISDGC9CP5@burner> <200602090757.13767.dhazelton@enter.net> <43EC8F22.nailISDL17DJF@burner> <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com> <43F06220.nailKUS5D8SL2@burner> <mj+md-20060213.104344.18941.atrey@ucw.cz> <2D9D57EA-1197-4965-82ED-61DEAF73D9F9@neostrada.pl> <mj+md-20060214.091056.25971.atrey@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <mj+md-20060214.091056.25971.atrey@ucw.cz>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+	Tue, 14 Feb 2006 09:33:27 -0500
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:37807 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S1030586AbWBNOd0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 09:33:26 -0500
+Message-ID: <43F1EA2B.4090203@ens-lyon.org>
+Date: Tue, 14 Feb 2006 09:33:15 -0500
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc3-mm1
+References: <20060214014157.59af972f.akpm@osdl.org>
+In-Reply-To: <20060214014157.59af972f.akpm@osdl.org>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 14, 2006 at 10:20:30AM +0100, Martin Mares wrote:
-> That's unfortunately not true -- many USB devices don't have a usable
-> serial number.
-> 
-> Also, if I have a single device of its kind, let's say a USB mouse,
-> I really want to call it "The Mouse" and I don't want to reconfigure
-> anything if I plug it to a different port or replace it with a slightly
-> different mouse. All mice are considered equivalent by the user
-> as there is no reason to distinguish between them.
+Andrew Morton wrote:
 
-Unless you are trying to setup two mice, two keyboards and two screens
-on one machine at the same time.  Some people do that.  Then which mouse
-is which is relevant.
+>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc3/2.6.16-rc3-mm1/
+>
+>  
+>
 
-> The same applies to CD burners -- as long as I have only one (which is
-> still the most common situation), I shouldn't have to think about how
-> to call it. Let it be just /dev/cdrw.
+Hi Andrew,
 
-Many people have a cd writer and then add a dvd writer.  Not that
-unusual really.
+WARNING: speedstep-centrino.ko needs unknown symbol cpu_online_map
 
-> When I get multiple such devices, things start getting interesting, but
-> there is no single naming strategy which fits all uses. For example,
-> if I have two USB ports into which I connect USB disks various people
-> bring to me, it's convenient to call them "left" and "right", because
-> the serial number doesn't mean anything to me if I haven't seen the
-> device before. On the other hand, if I connect my own drives, it makes
-> sense to call them by their serial numbers or something like that.
-> 
-> I think that it's clear from all this, that device naming is a matter
-> of policy and that the best the OS can do is to give the users a way
-> how to specify their policy, which is what udev does.
+This symbol is in include/linux/cpumask.h but actually only defined and
+exported in smpboot.c which is not compiled on UP.
 
-Well udev is starting to look useful.  It no longer causes lots of
-breakage when I install it on my system. :)
+Regards,
+Brice
 
-Len Sorensen

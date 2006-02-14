@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030329AbWBNAUg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030332AbWBNAWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030329AbWBNAUg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 19:20:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030331AbWBNAUg
+	id S1030332AbWBNAWG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 19:22:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030333AbWBNAWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 19:20:36 -0500
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:19634
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1030329AbWBNAUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 19:20:35 -0500
-Message-ID: <43F12248.7070608@microgate.com>
-Date: Mon, 13 Feb 2006 18:20:24 -0600
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Mon, 13 Feb 2006 19:22:06 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:4619 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030332AbWBNAWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 19:22:05 -0500
+Date: Tue, 14 Feb 2006 01:22:04 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: lethal@linux-sh.org, kkojima@rr.iij4u.or.jp
+Cc: linuxsh-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Jean-Luc Leger <reiga@dspnet.fr.eu.org>
+Subject: [2.6 patch] arch/sh/Kconfig: fix the ISA_DMA_API dependencies
+Message-ID: <20060214002203.GC17604@stusta.de>
 MIME-Version: 1.0
-To: Paul Fulghum <paulkf@microgate.com>
-CC: Jason Baron <jbaron@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "jesper.juhl@gmail.com" <jesper.juhl@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] tty reference count fix
-References: <1139861610.3573.24.camel@amdx2.microgate.com> <Pine.LNX.4.61.0602131747570.19384@dhcp83-105.boston.redhat.com> <43F119FC.10900@microgate.com>
-In-Reply-To: <43F119FC.10900@microgate.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Fulghum wrote:
-> Your patch leaves the schedule() call at the bottom of
-> the while loop between setting tty_closing and
-> setting TTY_CLOSING flag.
+Jean-Luc Leger <reiga@dspnet.fr.eu.org> found this obvious typo.
 
-Nevermind. After schedule() the count is reread,
-so you are right. Dropping tty_sem altogether
-would work.
 
-It is a matter of where you ultimately wish to
-push the locking to BKL or tty_sem.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- 
-Paul Fulghum
-Microgate Systems, Ltd
+--- linux-2.6.16-rc2-mm1-full/arch/sh/Kconfig.old	2006-02-14 01:18:22.000000000 +0100
++++ linux-2.6.16-rc2-mm1-full/arch/sh/Kconfig	2006-02-14 01:19:43.000000000 +0100
+@@ -446,7 +446,7 @@
+ 
+ config ISA_DMA_API
+ 	bool
+-	depends on MPC1211
++	depends on SH_MPC1211
+ 	default y
+ 
+ menu "Kernel features"
+

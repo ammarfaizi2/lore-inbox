@@ -1,29 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422791AbWBNUXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422792AbWBNUZh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422791AbWBNUXI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 15:23:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422792AbWBNUXI
+	id S1422792AbWBNUZh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 15:25:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422793AbWBNUZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 15:23:08 -0500
-Received: from mail.gmx.net ([213.165.64.21]:5832 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1422791AbWBNUXH (ORCPT
+	Tue, 14 Feb 2006 15:25:37 -0500
+Received: from mail.gmx.net ([213.165.64.21]:236 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1422792AbWBNUZg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 15:23:07 -0500
+	Tue, 14 Feb 2006 15:25:36 -0500
 X-Authenticated: #428038
-Date: Tue, 14 Feb 2006 21:23:03 +0100
+Date: Tue, 14 Feb 2006 21:25:30 +0100
 From: Matthias Andree <matthias.andree@gmx.de>
 To: Joerg Schilling <schilling@fokus.fraunhofer.de>
 Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060214202303.GA14371@merlin.emma.line.org>
+Message-ID: <20060214202530.GB14371@merlin.emma.line.org>
 Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
 	linux-kernel@vger.kernel.org
-References: <43EB7BBA.nailIFG412CGY@burner> <mj+md-20060213.160108.13290.atrey@ucw.cz> <43F0B32D.nailKUS1E3S8I3@burner> <200602131842.02377.dhazelton@enter.net> <Pine.LNX.4.61.0602140903400.7198@yvahk01.tjqt.qr> <43F1F196.nailMWZE1HZK5@burner> <20060214165318.GB7860@merlin.emma.line.org> <43F21643.nailMWZZ188CM@burner> <20060214194939.GB11594@merlin.emma.line.org> <43F235E9.nailGN250VV8@burner>
+References: <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com> <20060210235654.GA22512@kroah.com> <43F0891E.nailKUSCGC52G@burner> <20060213154921.GA22597@kroah.com> <43F22887.nailCA4XYHC4@burner> <20060214195337.GC11594@merlin.emma.line.org> <43F2364C.nailGN3SVGJ9@burner>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43F235E9.nailGN250VV8@burner>
+In-Reply-To: <43F2364C.nailGN3SVGJ9@burner>
 X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
 User-Agent: Mutt/1.5.11
 X-Y-GMX-Trusted: 0
@@ -32,27 +31,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Joerg Schilling schrieb am 2006-02-14:
 
-> Matthias Andree <matthias.andree@gmx.de> wrote:
+> You don't need to repoeat this  again, I already know that you are unteachable.
 
-> > "If you are unwilling to remove a non cdrecord related bug from the list
-> > or if you unable to understand the background, you should ask for help
-> > or leave the cdrecord project."
-> > http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=186099;msg=84
-> 
-> If you don't know the background, stay quiet!
+Yet another insult.
 
-Right, hello everyone, jump at Jörg's command. One, two, ...
+> For the others: the topic is the device and OS independent libscg.
 
-> This bug has been moved away from Linux kernel bugs several times.
+Check the subject line, and check the destination address.
 
-False. It had never been assigned to the kernel.
-
-> I was requesting to put the bug where it belongs....
-
-I can read, thank you, and the bugreport lacks any evidence as to the
-nature of the bug. "where it belongs" are typical fallacies, unless
-someone invokes "in dubio pro reo", concludes it's a firmware bug and
-closes it.
+This is CD writing on Linux, and it you who is still failing to provide
+information about non-CD-related bugs.
 
 -- 
 Matthias Andree

@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422674AbWBNT0d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422702AbWBNT1Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422674AbWBNT0d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 14:26:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422676AbWBNT0d
+	id S1422702AbWBNT1Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 14:27:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422680AbWBNT1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 14:26:33 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:63129 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1422674AbWBNT0c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 14:26:32 -0500
-Date: Tue, 14 Feb 2006 14:26:31 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-cc: Kernel development list <linux-kernel@vger.kernel.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-Subject: Re: Flames over -- Re: Which is simpler?
-In-Reply-To: <200602132327.10475.rjw@sisk.pl>
-Message-ID: <Pine.LNX.4.44L0.0602141417350.1419-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Feb 2006 14:27:24 -0500
+Received: from verein.lst.de ([213.95.11.210]:51409 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S1422635AbWBNT1X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 14:27:23 -0500
+Date: Tue, 14 Feb 2006 20:27:14 +0100
+From: christoph <hch@lst.de>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: christoph <hch@lst.de>, akpm@osdl.org, mcao@us.ibm.com,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] map multiple blocks at a time in mpage_readpages()
+Message-ID: <20060214192714.GA20956@lst.de>
+References: <1139939347.4762.18.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1139939347.4762.18.camel@dyn9047017100.beaverton.ibm.com>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Feb 2006, Rafael J. Wysocki wrote:
-
+On Tue, Feb 14, 2006 at 09:49:07AM -0800, Badari Pulavarty wrote:
 > Hi,
 > 
-> On Monday 13 February 2006 22:24, Alan Stern wrote:
-> > On Mon, 13 Feb 2006, Phillip Susi wrote:
-> }-- snip --{
-> > You are complaining because you don't like the way USB was designed.  
-> > That's fine, but it leaves you advocating a non-standardized position.
-> > 
-> > Can you suggest a _reliable_ way to tell if the USB device present at a 
-> > port after resuming is the same device as was there before suspending?
+> I re-did the support for mpage_readpages() to map multiple blocks
+> at a time (basically, get_blocks()). Instead of adding new
+> get_blocks() and pass it around, I use "bh->b_size" to indicate
+> how much of disk mapping we are interested in to get_block().
 > 
-> It seems to follow from your discussion that if I have a mounted filesystem
-> on a USB device and I suspend to disk, I can lose data unless the filesystem
-> has been mounted with "sync".
+> This way no changes existing interfaces and no new routines need.
+> Filesystem can choose to ignore the passed in "bh->b_size" value
+> and map one block at a time (ext2, reiser3, etc..)
 
-That's right.  It depends on your hardware, and it could be true even for
-suspend-to-RAM.  In fact, even with "-o sync" you can lose data if your
-programs have information in buffers they haven't written out to disk.
+Hmm.  Given that we only use buffer_heads for page-cache backed I/O
+bh->b_size should always be set properly and this would be fine.
 
-If you're lucky, your hardware will support low-power modes for USB
-controllers while the system is asleep.  Lots of hardware doesn't,
-however.  Shutting off the power to a USB controller is equivalent to 
-unplugging all the attached devices.
-
-Remember that it's always a bad idea to unplug a disk drive containing a
-mounted filesystem.  With USB that's true even when your system is asleep!
-The safest thing is to unmount all USB-based filesystems before suspending 
-and remount them after resuming.
-
-> If this is the case, there should be a big fat warning in the swsusp
-> documentation, but there's nothing like that in there (at lease I can't find
-> it easily).
-> 
-> [If this is not the case, I've missed something and sorry for the noise.]
-
-I'm not aware of any warnings about this in the documentation.  If you 
-would like to add something, please go ahead.
-
-Alan Stern
-
+If we could completely get rid of ->get_blocks that be a nice cleanup
+in all the fs drivers.  OTOH I still wonder whether ->get_block should
+use a small structure that just contains the information needed with
+easy to decipher names..

@@ -1,76 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030523AbWBNJHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030526AbWBNJUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030523AbWBNJHn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 04:07:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030524AbWBNJHm
+	id S1030526AbWBNJUc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 04:20:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030527AbWBNJUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 04:07:42 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:63641 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030523AbWBNJHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 04:07:42 -0500
-Date: Tue, 14 Feb 2006 01:07:12 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>, kernel@kolivas.org,
-       npiggin@suse.de, mingo@elte.hu, rostedt@goodmis.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [rfc][patch] sched: remove smpnice
-Message-ID: <20060214010712.B20191@unix-os.sc.intel.com>
-References: <43ED3D6A.8010300@bigpond.net.au>
+	Tue, 14 Feb 2006 04:20:32 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:18917 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1030526AbWBNJUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 04:20:31 -0500
+Date: Tue, 14 Feb 2006 10:20:30 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Marcin Dalecki <dalecki.marcin@neostrada.pl>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, jerome.lacoste@gmail.com,
+       peter.read@gmail.com, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       jengelh@linux01.gwdg.de, dhazelton@enter.net
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <mj+md-20060214.091056.25971.atrey@ucw.cz>
+References: <20060208162828.GA17534@voodoo> <20060210114721.GB20093@merlin.emma.line.org> <43EC887B.nailISDGC9CP5@burner> <200602090757.13767.dhazelton@enter.net> <43EC8F22.nailISDL17DJF@burner> <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com> <43F06220.nailKUS5D8SL2@burner> <mj+md-20060213.104344.18941.atrey@ucw.cz> <2D9D57EA-1197-4965-82ED-61DEAF73D9F9@neostrada.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <43ED3D6A.8010300@bigpond.net.au>; from pwil3058@bigpond.net.au on Fri, Feb 10, 2006 at 05:27:06PM -0800
+In-Reply-To: <2D9D57EA-1197-4965-82ED-61DEAF73D9F9@neostrada.pl>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 10, 2006 at 05:27:06PM -0800, Peter Williams wrote:
->> "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
->>>My testing showed that 178.galgel in SPECfp2000 is down by 
->~10% when run with 
->>>nice -20 on a 4P(8-way with HT) system compared to a nice-0 run.
->
->Is it normal to run enough -20 tasks to cause this problem to manifest?
+Hello!
 
-On a 4P(8-way with HT), if you run a -20 task(a simple infinite loop)
-it hops from one processor to another processor... you can observe it
-using top.
+> This claim is a bit surprising since only, but the most irrelevant
+> stuff from the dust bin of history, doesn't define a world global
+> unique id those days.
 
-find_busiest_group() thinks there is an imbalance and ultimately the
-idle cpu kicks active load balance on busy cpu, resulting in the hopping.
+That's unfortunately not true -- many USB devices don't have a usable
+serial number.
 
->>>
->>>b) On a lightly loaded system, this can result in HT 
->scheduler optimizations
->>>being disabled in presence of low priority tasks... in this 
->case, they(low
->>>priority ones) can end up running on the same package, even 
->in the presence 
->>>of other idle packages.. Though this is not as serious as 
->"a" above...
->>>
->
->I think that this issue comes under the heading of "Result of better 
->nice enforcement" which is the purpose of the patch :-).  I wouldn't 
->call this HT disablement or do I misunderstand the issue.
->
->The only way that I can see load balancing subverting the HT 
->scheduling 
->mechanisms is if (say) there are 2 CPUs with 2 HT channels 
->each and all 
->of the high priority tasks end up sharing the 2 channels of one CPU 
->while all of the low priority tasks share the 2 channels of the other 
->one.  This scenario is far more likely to happen without the smpnice 
->patches than with them.
+Also, if I have a single device of its kind, let's say a USB mouse,
+I really want to call it "The Mouse" and I don't want to reconfigure
+anything if I plug it to a different port or replace it with a slightly
+different mouse. All mice are considered equivalent by the user
+as there is no reason to distinguish between them.
 
-I agree with you.. But lets take a DP system with HT, now if there are
-only two low priority tasks running, ideally we should be running them
-on two different packages. With this patch, we may end up running on the
-same logical processor.. leave alone running on the same package..
-As these are low priority tasks, it might be ok.. But...
+The same applies to CD burners -- as long as I have only one (which is
+still the most common situation), I shouldn't have to think about how
+to call it. Let it be just /dev/cdrw.
 
-thanks,
-suresh
+When I get multiple such devices, things start getting interesting, but
+there is no single naming strategy which fits all uses. For example,
+if I have two USB ports into which I connect USB disks various people
+bring to me, it's convenient to call them "left" and "right", because
+the serial number doesn't mean anything to me if I haven't seen the
+device before. On the other hand, if I connect my own drives, it makes
+sense to call them by their serial numbers or something like that.
+
+I think that it's clear from all this, that device naming is a matter
+of policy and that the best the OS can do is to give the users a way
+how to specify their policy, which is what udev does.
+
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+P.C.M.C.I.A. stands for `People Can't Memorize Computer Industry Acronyms'

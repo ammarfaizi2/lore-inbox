@@ -1,104 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030357AbWBNFFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030411AbWBNFGY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030357AbWBNFFh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 00:05:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030412AbWBNFFf
+	id S1030411AbWBNFGY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 00:06:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030403AbWBNFGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 00:05:35 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:10192 "EHLO
+	Tue, 14 Feb 2006 00:06:00 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:60623 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1030409AbWBNFFM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 00:05:12 -0500
-Message-Id: <20060214050450.022611000@localhost.localdomain>
+	id S1030402AbWBNFFK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 00:05:10 -0500
+Message-Id: <20060214050443.852246000@localhost.localdomain>
 References: <20060214050351.252615000@localhost.localdomain>
-Date: Tue, 14 Feb 2006 14:04:35 +0900
+Date: Tue, 14 Feb 2006 14:04:02 +0900
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, Anton Altaparmakov <aia21@cantab.net>,
-       linux-ntfs-dev@lists.sourceforge.net,
+Cc: akpm@osdl.org, Richard Henderson <rth@twiddle.net>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
+       dev-etrax@axis.com, David Howells <dhowells@redhat.com>,
+       Yoshinori Sato <ysato@users.sourceforge.jp>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
+       Hirokazu Takata <takata@linux-m32r.org>, linux-m68k@vger.kernel.org,
+       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Andi Kleen <ak@suse.de>, Chris Zankel <chris@zankel.net>,
        Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 44/47] ntfs: remove generic_ffs()
-Content-Disposition: inline; filename=ntfs-fix.patch
+Subject: [patch 11/47] generic fls64()
+Content-Disposition: inline; filename=fls64.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now the only user who are using generic_ffs() is ntfs filesystem.
-This patch isolates generic_ffs() as ntfs_ffs() for ntfs.
+This patch introduces the C-language equivalent of the function:
+int fls64(__u64 x);
+
+In include/asm-generic/bitops/fls64.h
+
+This code largely copied from:
+include/linux/bitops.h
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
+ include/asm-generic/bitops/fls64.h |   12 ++++++++++++
+ 1 files changed, 12 insertions(+)
 
- fs/ntfs/logfile.c |    4 ++--
- fs/ntfs/mft.c     |    2 +-
- fs/ntfs/ntfs.h    |   29 +++++++++++++++++++++++++++++
- 3 files changed, 32 insertions(+), 3 deletions(-)
-
-Index: 2.6-rc/fs/ntfs/logfile.c
+Index: 2.6-rc/include/asm-generic/bitops/fls64.h
 ===================================================================
---- 2.6-rc.orig/fs/ntfs/logfile.c
-+++ 2.6-rc/fs/ntfs/logfile.c
-@@ -515,10 +515,10 @@ BOOL ntfs_check_logfile(struct inode *lo
- 		log_page_size = PAGE_CACHE_SIZE;
- 	log_page_mask = log_page_size - 1;
- 	/*
--	 * Use generic_ffs() instead of ffs() to enable the compiler to
-+	 * Use ntfs_ffs() instead of ffs() to enable the compiler to
- 	 * optimize log_page_size and log_page_bits into constants.
- 	 */
--	log_page_bits = generic_ffs(log_page_size) - 1;
-+	log_page_bits = ntfs_ffs(log_page_size) - 1;
- 	size &= ~(s64)(log_page_size - 1);
- 	/*
- 	 * Ensure the log file is big enough to store at least the two restart
-Index: 2.6-rc/fs/ntfs/mft.c
-===================================================================
---- 2.6-rc.orig/fs/ntfs/mft.c
-+++ 2.6-rc/fs/ntfs/mft.c
-@@ -2672,7 +2672,7 @@ mft_rec_already_initialized:
- 			ni->name_len = 4;
- 
- 			ni->itype.index.block_size = 4096;
--			ni->itype.index.block_size_bits = generic_ffs(4096) - 1;
-+			ni->itype.index.block_size_bits = ntfs_ffs(4096) - 1;
- 			ni->itype.index.collation_rule = COLLATION_FILE_NAME;
- 			if (vol->cluster_size <= ni->itype.index.block_size) {
- 				ni->itype.index.vcn_size = vol->cluster_size;
-Index: 2.6-rc/fs/ntfs/ntfs.h
-===================================================================
---- 2.6-rc.orig/fs/ntfs/ntfs.h
-+++ 2.6-rc/fs/ntfs/ntfs.h
-@@ -132,4 +132,33 @@ extern int ntfs_ucstonls(const ntfs_volu
- /* From fs/ntfs/upcase.c */
- extern ntfschar *generate_default_upcase(void);
- 
-+static inline int ntfs_ffs(int x)
-+{
-+	int r = 1;
+--- /dev/null
++++ 2.6-rc/include/asm-generic/bitops/fls64.h
+@@ -0,0 +1,12 @@
++#ifndef _ASM_GENERIC_BITOPS_FLS64_H_
++#define _ASM_GENERIC_BITOPS_FLS64_H_
 +
-+	if (!x)
-+		return 0;
-+	if (!(x & 0xffff)) {
-+		x >>= 16;
-+		r += 16;
-+	}
-+	if (!(x & 0xff)) {
-+		x >>= 8;
-+		r += 8;
-+	}
-+	if (!(x & 0xf)) {
-+		x >>= 4;
-+		r += 4;
-+	}
-+	if (!(x & 3)) {
-+		x >>= 2;
-+		r += 2;
-+	}
-+	if (!(x & 1)) {
-+		x >>= 1;
-+		r += 1;
-+	}
-+	return r;
++static inline int fls64(__u64 x)
++{
++	__u32 h = x >> 32;
++	if (h)
++		return fls(h) + 32;
++	return fls(x);
 +}
 +
- #endif /* _LINUX_NTFS_H */
++#endif /* _ASM_GENERIC_BITOPS_FLS64_H_ */
 
 --

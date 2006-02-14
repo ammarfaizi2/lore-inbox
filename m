@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422640AbWBNQoP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422641AbWBNQpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422640AbWBNQoP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 11:44:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422641AbWBNQoP
+	id S1422641AbWBNQpA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 11:45:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422642AbWBNQpA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 11:44:15 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:32930 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1422640AbWBNQoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 11:44:14 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Tue, 14 Feb 2006 17:42:27 +0100
-To: schilling@fokus.fraunhofer.de, dhazelton@enter.net
-Cc: Valdis.Kletnieks@vt.edu, peter.read@gmail.com, mj@ucw.cz,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jerome.lacoste@gmail.com,
-       jengelh@linux01.gwdg.de
+	Tue, 14 Feb 2006 11:45:00 -0500
+Received: from mail.gmx.de ([213.165.64.21]:3220 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1422641AbWBNQo7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 11:44:59 -0500
+X-Authenticated: #428038
+Date: Tue, 14 Feb 2006 17:44:55 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F20873.nailMWZM17DCF@burner>
-References: <20060208162828.GA17534@voodoo>
- <200602131919.k1DJJF5G025923@turing-police.cc.vt.edu>
- <43F1C385.nailMWZ599SQ5@burner>
- <200602140721.25066.dhazelton@enter.net>
-In-Reply-To: <200602140721.25066.dhazelton@enter.net>
-User-Agent: nail 11.2 8/15/04
+Message-ID: <20060214164455.GA7860@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <43EB7BBA.nailIFG412CGY@burner> <200602131749.46880.luke@dashjr.org> <43F1BB4C.nailMWZ118O17@burner> <200602140708.07746.dhazelton@enter.net> <43F206D4.nailMWZJIUTRR@burner>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F206D4.nailMWZJIUTRR@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"D. Hazelton" <dhazelton@enter.net> wrote:
+Joerg Schilling schrieb am 2006-02-14:
 
-> > How about pointing to _useful_ documentation:
-> >
-> > -	How to find _any_ device that talks SCSI?
-> >
-> > -	How does HAL allow one cdrecord instance to work
-> > 	without being interrupted by HAL?
-> >
-> > -	How to send non disturbing SCSI commands from another
-> > 	cdrecord process in case one or more are already running?
-> >
-> > Jörg
->
-> Documentation?
->
-> Didn't even take me two minutes to find the entire specification for hald on 
-> the net.
->
-> http://cvs.freedesktop.org/*checkout*/hal/hal/doc/spec/hal-spec.html?only_with_tag=HEAD
->
+> "D. Hazelton" <dhazelton@enter.net> wrote:
+> 
+> 
+> > As I'm sure you know, Linux is an Open Source operating system. If you need it 
+> > to support DMA in the ide-scsi system, then you are free to add said support. 
+> 
+> It seems that you did missunderstand Linux:
+> 
+> I did send a fix for an important bug in 1997 and it was NOT integraded by
+> the Linux kernel people.
 
-????
-Did yoiu try to read this?
+Wow, 9 years ago. Was it for 2.0 already or still 1.2?
 
-I like to see a whitepaper first that allows me to get an overview in less than 
-10 minutes. If this is not available, I suspect you just try another attempt to 
-waste my time.
+Does the bug persist in 2.6.16-rc3? If so, resend your fix.
 
-Jörg
+> As long as the Linux project proves that Linux is not yet mature enough for 
+> being able to _really_ do what you propose, it makes no sense to waste time
+> on LKML.
+
+An action speaks louder than 1000 words. When are you leaving?
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Matthias Andree

@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbWBNGwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030502AbWBNGzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030420AbWBNGwp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 01:52:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030501AbWBNGwp
+	id S1030502AbWBNGzT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 01:55:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030503AbWBNGzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 01:52:45 -0500
-Received: from taurus.voltaire.com ([193.47.165.240]:7801 "EHLO
-	taurus.voltaire.com") by vger.kernel.org with ESMTP
-	id S1030420AbWBNGwo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 01:52:44 -0500
-Date: Tue, 14 Feb 2006 08:51:45 +0200
-From: Gleb Natapov <gleb@minantech.com>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Hugh Dickins <hugh@veritas.com>, William Irwin <wli@holomorphy.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       openib-general@openib.org
-Subject: Re: madvise MADV_DONTFORK/MADV_DOFORK
-Message-ID: <20060214065145.GE24524@minantech.com>
-References: <20060213154114.GO32041@mellanox.co.il> <Pine.LNX.4.61.0602131754430.8653@goblin.wat.veritas.com> <20060213190206.GC12458@mellanox.co.il>
+	Tue, 14 Feb 2006 01:55:19 -0500
+Received: from nproxy.gmail.com ([64.233.182.198]:58936 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030502AbWBNGzS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 01:55:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qf0IOoif5gO8gFpWKG16ArdR48UZT/MZ9QpuWZgk/2jGm/GGz6iSg2lkY9lOpOcrLuaSWrgjHjj/GLCkF5m5suTEjeNUZC0vqgRTsRviNGTA/nwkp2H+qUPjKFmV3Ch/3LbO9VnUUvPKv7xM9OBPKnEQbZJq6ctjEFwXUmBXorc=
+Message-ID: <21d7e9970602132255l5a7ff5feqa82ccad2c90ac4d8@mail.gmail.com>
+Date: Tue, 14 Feb 2006 17:55:16 +1100
+From: Dave Airlie <airlied@gmail.com>
+To: Dominik Brodowski <linux@dominikbrodowski.net>,
+       linux-kernel@vger.kernel.org, davej@redhat.com,
+       dri-devel@lists.sourceforge.net
+Subject: Re: IRQ disabled (i915?) when switchig between gnome themes (gnome-theme-manager)
+In-Reply-To: <20060130203809.GA8098@dominikbrodowski.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060213190206.GC12458@mellanox.co.il>
-X-OriginalArrivalTime: 14 Feb 2006 06:52:43.0123 (UTC) FILETIME=[410EF430:01C63133]
+References: <20060130203809.GA8098@dominikbrodowski.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 13, 2006 at 09:02:06PM +0200, Michael S. Tsirkin wrote:
-> Quoting r. Hugh Dickins <hugh@veritas.com>:
-> > > Add madvise options to control whether memory range is inherited across fork.
-> > > Useful e.g. for when hardware is doing DMA from/into these pages.
-> > > 
-> > > Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-> > 
-> > Looks good to me, Michael (but Gleb's eye has always proved better than
-> > mine).  Just a couple of adjustments I'd ask before you send to Andrew: 
-> 
-> Gleb has acked this to me in a private mail.
-> Right, Gleb?
-> 
-Sory to be late :)
+On 1/31/06, Dominik Brodowski <linux@dominikbrodowski.net> wrote:
+> Hi,
+>
+> Something strange goes on when I try to switch more than two times between
+> gnome themes using gnome-theme-manager: the X server is killed -- that also
+> happens with 2.6.15, and that is surely an userspace bug, and the login
+> manager restarts. With current git and also with 2.6.16-rc1-mm3 and -mm4
+> sometimes the screen, and _only_ the screen is "frozen", and all the time
+> IRQ 10 is disabled:
+>
+>  10:      34430          XT-PIC  Intel 82801DB-ICH4, Intel 82801DB-ICH4
+> Modem, yenta, yenta, ehci_hcd:usb1, uhci_hcd:usb2, i915@pci:0000:00:02.0
+>
+> What's a bit strange about this is that the IRQ handler for i915 seems to be
+> gone right at the moment the "nobody cared" check triggers -- maybe the IRQ
+> handler is unregistered (a bit) too early?
+>
+> CONFIG_AGP_INTEL=y
+> CONFIG_DRM_I915=y
+>
+> 00:00.0 Host bridge: Intel Corporation 82852/82855 GM/GME/PM/GMV Processor to I/O Controller (rev 02)
+> 00:00.1 System peripheral: Intel Corporation 82852/82855 GM/GME/PM/GMV Processor to I/O Controller (rev 02)
+> 00:00.3 System peripheral: Intel Corporation 82852/82855 GM/GME/PM/GMV Processor to I/O Controller (rev 02)
+> 00:02.0 VGA compatible controller: Intel Corporation 82852/855GM Integrated Graphics Device (rev 02)
+> 00:02.1 Display controller: Intel Corporation 82852/855GM Integrated Graphics Device (rev 02)
+>
 
-Yes the patch is looking good.
+Can you try the patch at
+http://www.skynet.ie/~airlied/patches/dri/i915_irq_stop.diff
 
-Acked-by: Gleb Natapov <glebn@voltaire.com>
+I think it might fix it, it cleans up any pending interrupts on disable..
 
---
-			Gleb.
+Dave.

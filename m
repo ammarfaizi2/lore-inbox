@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161003AbWBNLI4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161007AbWBNLLc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161003AbWBNLI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 06:08:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161008AbWBNLI4
+	id S1161007AbWBNLLc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 06:11:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161008AbWBNLLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 06:08:56 -0500
-Received: from webbox4.loswebos.de ([213.187.93.205]:60084 "EHLO
-	webbox4.loswebos.de") by vger.kernel.org with ESMTP
-	id S1161003AbWBNLIz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 06:08:55 -0500
-Date: Tue, 14 Feb 2006 12:07:35 +0100
-From: Marc Koschewski <marc@osknowledge.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc3-mm1
-Message-ID: <20060214110734.GA5905@stiffy.osknowledge.org>
-References: <20060214014157.59af972f.akpm@osdl.org>
-MIME-Version: 1.0
+	Tue, 14 Feb 2006 06:11:31 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:2950 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1161007AbWBNLLb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 06:11:31 -0500
+Date: Tue, 14 Feb 2006 12:09:47 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de
+Subject: Re: [PATCH 00/12] hrtimer patches
+Message-ID: <20060214110947.GA25341@elte.hu>
+References: <Pine.LNX.4.61.0602141057320.30994@scrub.home>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060214014157.59af972f.akpm@osdl.org>
-X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
-X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
-X-Operating-System: Linux stiffy 2.6.16-rc3-marc-g108dff7d-dirty
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <Pine.LNX.4.61.0602141057320.30994@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.2
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Morton <akpm@osdl.org> [2006-02-14 01:41:57 -0800]:
 
-> - To fetch this -mm trees using git, use (for example)
-> 
->   git fetch git://git.kernel.org/pub/scm/linux/kernel/git/smurf/linux-trees.git v2.6.16-rc2-mm1
-> 
+* Roman Zippel <zippel@linux-m68k.org> wrote:
 
-Andrew,
+> Here is new version of the hrtimer patches sorted by priority. I 
+> dropped the remaining time patch, the const patch doesn't produce a 
+> larger kernel with gcc3 and I also added the acks so far. I consider 
+> the first four patches the most important and the remaining patches 
+> simple enough, that I think they're still 2.6.16 material.
 
-	the git link has the wrong release. It should be v2.6.16-rc3-mm1,
-shouldn't it?
+i only consider the first two patches to be 2.6.16 material. The other 
+patches avoid a ->get_time() call per timer interrupt - that's noise at 
+most ...
 
-Marc
+	Ingo

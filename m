@@ -1,98 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422766AbWBNTv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422769AbWBNTvt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422766AbWBNTv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 14:51:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422768AbWBNTv1
+	id S1422769AbWBNTvt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 14:51:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422770AbWBNTvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 14:51:27 -0500
-Received: from nproxy.gmail.com ([64.233.182.195]:28612 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1422766AbWBNTv0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 14:51:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:subject:from:organization:cc:content-type:mime-version:references:content-transfer-encoding:message-id:in-reply-to:user-agent;
-        b=rY8+1YowYbB25Ubp9YLvE/t8ZCI/n7DJA59RfsBQoido9o0wp66MdGE15rvexv23xkov4aNev7J/mxC9Npv4MugTxJ1VWn1TUMl0Tdz7+MPyT1gnhSRSX6VpVSXfIarscJFoeYv8GvFiOze+xEUO1V56DTZkzli4lPmBewoZuhc=
-Date: Tue, 14 Feb 2006 19:51:16 -0000
-To: "Joerg Schilling" <schilling@fokus.fraunhofer.de>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-From: "Anders Karlsson" <trudheim@gmail.com>
-Organization: Trudheim Technology Limited
-Cc: Valdis.Kletnieks@vt.edu, peter.read@gmail.com, mj@ucw.cz,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jerome.lacoste@gmail.com,
-       jengelh@linux01.gwdg.de, dhazelton@enter.net
-Content-Type: text/plain; format=flowed; delsp=yes; charset=utf-8
+	Tue, 14 Feb 2006 14:51:48 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.8]:46859 "EHLO
+	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1422769AbWBNTvi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 14:51:38 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PATCH: rio driver, boot code (1 of 3)
+Date: Tue, 14 Feb 2006 19:38:12 +0000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, apkm@osdl.org
+References: <1139944938.11979.5.camel@localhost.localdomain>
+In-Reply-To: <1139944938.11979.5.camel@localhost.localdomain>
 MIME-Version: 1.0
-References: <515e525f0602141110r7a96568av4705c2a353407e6@mail.gmail.com> <43F22BCF.nailEW11NC25@burner>
-Content-Transfer-Encoding: 8bit
-Message-ID: <op.s4zarqjkiv906l@lenin>
-In-Reply-To: <43F22BCF.nailEW11NC25@burner>
-User-Agent: Opera Mail/9.00 (Linux)
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602141938.12041.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Feb 2006 19:13:19 -0000, Joerg Schilling  
-<schilling@fokus.fraunhofer.de> wrote:
-
-> Anders Karlsson <trudheim@gmail.com> wrote:
+On Tuesday 14 February 2006 19:22, Alan Cox wrote:
+> This patch expands the HOST_DISABLE macro in rioboot.c. This is good
+> anyway to remove obfuscation but also neccessary so that indent will
+> process the file correctly.
 >
->> It would appear that every time someone pose a question, you are
->> deliberately rude and avoid answering the question, yet when you ask a
->> question, the entire list is supposed to stand to attention and follow
->> you every little whim. My mother taught me a very good thing, when
->> everyone else appear to be wrong - they probably are right. Remember
->> where you are debating the issue JÃ¶rg. You are not on a Solaris
->> mailing list now.
+> Signed-off-by: Alan Cox <alan@redhat.com>
 >
-> What would you do if you write things and a few minutes later someone
-> replies with something that either does not aply at all or is wrong?
+> --- linux.vanilla-2.6.16-rc3/drivers/char/rio/rioboot.c	2006-02-14
+> 17:08:55.000000000 +0000 +++
+> linux-2.6.16-rc3/drivers/char/rio/rioboot.c	2006-02-14 19:07:26.551366016
+> +0000 @@ -493,14 +493,10 @@
+>  		if ( RWORD(HostP->__ParmMapR) == OldParmMap ) {
+>  			rio_dprintk (RIO_DEBUG_BOOT, "parmmap 0x%x\n",
+> RWORD(HostP->__ParmMapR)); rio_dprintk (RIO_DEBUG_BOOT, "RIO Mesg Run
+> Fail\n");
+> -
+> -#define	HOST_DISABLE \
+> -		HostP->Flags &= ~RUN_STATE; \
+> -		HostP->Flags |= RC_STUFFED; \
+> -		RIOHostReset( HostP->Type, (struct DpRam *)HostP->CardP, HostP->Slot );\
+> -		continue
+> -
+> -			HOST_DISABLE;
+> +			HostP->Flags &= ~RUN_STATE; \
+> +			HostP->Flags |= RC_STUFFED; \
+> +			RIOHostReset( HostP->Type, (struct DpRam *)HostP->CardP, HostP->Slot);\ 
+> +			continue
 
-The code I have written has mainly been Perl or shell script,
-and while it is not used by tens of thousands of people around
-the globe I have a few users that ask why I do things this way
-or that way. I explain why, I encourage them to look at the
-code and I *want* them to come with suggestions - because
-*I will learn things if they do*.
+Missing semicolon, maybe lose the \ .
 
-cdrecord is a very useful tool, I have used it before, I will
-probably use it again. However, people are pointing out quirks
-in the user interface, they have offered patches, they have
-offered to work on problems in the Linux kernel and yet you
-insist that cdrecord/libscg is right and Linux users are wrong.
-What people have asked here is no more and no less than that
-you consider altering the user interface of cdrecord to take
-the device-name of a writer instead of the BTL address. They
-have even offered to do the work.
+>  		}
+>
+>  		rio_dprintk (RIO_DEBUG_BOOT, "Running 0x%x\n",
+> RWORD(HostP->__ParmMapR)); @@ -528,7 +524,10 @@
+>  		if ( (RWORD(ParmMapP->links) & 0xFFFF) != 0xFFFF ) {
+>  			rio_dprintk (RIO_DEBUG_BOOT, "RIO Mesg Run Fail %s\n", HostP->Name);
+>  			rio_dprintk (RIO_DEBUG_BOOT, "Links = 0x%x\n",RWORD(ParmMapP->links));
+> -			HOST_DISABLE;
+> +			HostP->Flags &= ~RUN_STATE; \
+> +			HostP->Flags |= RC_STUFFED; \
+> +			RIOHostReset( HostP->Type, (struct DpRam *)HostP->CardP, HostP->Slot);\ 
+> +			continue
 
-I am sure you are as sick of this debate as everyone else is.
-If you were to just consider the proposals that has been made,
-for a minute ignoring the past two weeks aggravation, I am sure
-that you can see the merits of them. No-one is asking you to
-accept anything and everything patch-like thrown your way. What
-we are saying is that in modern Linux distributions, users access
-devices through /dev/devicename - that limits confusion. So far,
-the _only_ programs I have encountered that does not use devices
-in /dev is SANE - and cdrecord.
+Ditto.
 
-> This happens since 2 weeks now and I cannot see any progress.
+>  		}
+>
+>  		WWORD(ParmMapP->links , RIO_LINK_ENABLE);
+> @@ -550,7 +549,10 @@
+>  							!RWORD(ParmMapP->init_done) ) {
+>  			rio_dprintk (RIO_DEBUG_BOOT, "RIO Mesg Run Fail %s\n", HostP->Name);
+>  			rio_dprintk (RIO_DEBUG_BOOT, "Timedout waiting for init_done\n");
+> -			HOST_DISABLE;
+> +			HostP->Flags &= ~RUN_STATE; \
+> +			HostP->Flags |= RC_STUFFED; \
+> +			RIOHostReset( HostP->Type, (struct DpRam *)HostP->CardP, HostP->Slot
+> );\ +			continue
 
-To be fair, I have been more than a little sarcastic in this
-discussion. I apologise if that has offended you or anyone else.
-If you are fair to yourself, you will look back over the
-discussion, see how you have responded to people and you may
-understand their reactions as well. There has been far to much
-pride and hot-headedness in this discussion. Are we not all
-supposed to be on the same side? F/OSS vs Big Bad Corporations?
-
-How about we all calm down, admit our own failings and look at
-how we all can compromise and get a solution that all can agree
-on - without letting our own pride and egos get in the way?
-
-Kind regards,
-
-PS, sorry about the essay.
+Aaand the same.. another reason why macros like these are evil.
 
 -- 
-Anders Karlsson <anders@trudheim.com>
-QA Engineer | GnuPG Key ID - 0x4B20601A
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

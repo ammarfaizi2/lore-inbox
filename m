@@ -1,165 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030356AbWBNFE7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbWBNFW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030356AbWBNFE7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 00:04:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbWBNFE6
+	id S1030362AbWBNFW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 00:22:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030367AbWBNFWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 00:04:58 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:974 "EHLO
+	Tue, 14 Feb 2006 00:22:25 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:9167 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1030355AbWBNFEy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 00:04:54 -0500
-Message-Id: <20060214050441.708881000@localhost.localdomain>
+	id S1030362AbWBNFFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 00:05:03 -0500
+Message-Id: <20060214050443.068971000@localhost.localdomain>
 References: <20060214050351.252615000@localhost.localdomain>
-Date: Tue, 14 Feb 2006 14:03:52 +0900
+Date: Tue, 14 Feb 2006 14:03:58 +0900
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, Richard Henderson <rth@twiddle.net>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+Cc: akpm@osdl.org, Russell King <rmk@arm.linux.org.uk>,
+       Ian Molton <spyro@f2s.com>, dev-etrax@axis.com,
+       Hirokazu Takata <takata@linux-m32r.org>, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Chris Zankel <chris@zankel.net>,
        Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 01/47] alpha: use config options instead of __alpha_fix__ and __alpha_cix__
-Content-Disposition: inline; filename=alpha-config-cpu-cleanup.patch
+Subject: [patch 07/47] generic __{,test_and_}{set,clear,change}_bit() and test_bit()
+Content-Disposition: inline; filename=non-atomic-bitops.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use config options instead of gcc builtin definition
-to tell the use of instruction set extensions (CIX and FIX).
+This patch introduces the C-language equivalents of the functions below:
 
-This is introduced to tell the kbuild system the use of opmized hweight*()
-routines on alpha architecture.
+void __set_bit(int nr, volatile unsigned long *addr);
+void __clear_bit(int nr, volatile unsigned long *addr);
+void __change_bit(int nr, volatile unsigned long *addr);
+int __test_and_set_bit(int nr, volatile unsigned long *addr);
+int __test_and_clear_bit(int nr, volatile unsigned long *addr);
+int __test_and_change_bit(int nr, volatile unsigned long *addr);
+int test_bit(int nr, const volatile unsigned long *addr);
+
+In include/asm-generic/bitops/non-atomic.h
+
+This code largely copied from:
+asm-powerpc/bitops.h
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
+ include/asm-generic/bitops/non-atomic.h |  111 ++++++++++++++++++++++++++++++++
+ 1 files changed, 111 insertions(+)
 
-
- arch/alpha/lib/ev6-memchr.S |    2 +-
- arch/alpha/lib/fpreg.c      |    8 ++++----
- include/asm-alpha/bitops.h  |   10 +++++-----
- include/asm-alpha/fpu.h     |    4 ++--
- 4 files changed, 12 insertions(+), 12 deletions(-)
-
-Index: 2.6-rc/arch/alpha/lib/ev6-memchr.S
+Index: 2.6-rc/include/asm-generic/bitops/non-atomic.h
 ===================================================================
---- 2.6-rc.orig/arch/alpha/lib/ev6-memchr.S
-+++ 2.6-rc/arch/alpha/lib/ev6-memchr.S
-@@ -84,7 +84,7 @@ $last_quad:
-         beq     $2, $not_found	# U : U L U L
- 
- $found_it:
--#if defined(__alpha_fix__) && defined(__alpha_cix__)
-+#ifdef CONFIG_ALPHA_EV67
- 	/*
- 	 * Since we are guaranteed to have set one of the bits, we don't
- 	 * have to worry about coming back with a 0x40 out of cttz...
-Index: 2.6-rc/arch/alpha/lib/fpreg.c
-===================================================================
---- 2.6-rc.orig/arch/alpha/lib/fpreg.c
-+++ 2.6-rc/arch/alpha/lib/fpreg.c
-@@ -4,7 +4,7 @@
-  * (C) Copyright 1998 Linus Torvalds
-  */
- 
--#if defined(__alpha_cix__) || defined(__alpha_fix__)
-+#if defined(CONFIG_ALPHA_EV6) || defined(CONFIG_ALPHA_EV67)
- #define STT(reg,val)  asm volatile ("ftoit $f"#reg",%0" : "=r"(val));
- #else
- #define STT(reg,val)  asm volatile ("stt $f"#reg",%0" : "=m"(val));
-@@ -53,7 +53,7 @@ alpha_read_fp_reg (unsigned long reg)
- 	return val;
- }
- 
--#if defined(__alpha_cix__) || defined(__alpha_fix__)
-+#if defined(CONFIG_ALPHA_EV6) || defined(CONFIG_ALPHA_EV67)
- #define LDT(reg,val)  asm volatile ("itoft %0,$f"#reg : : "r"(val));
- #else
- #define LDT(reg,val)  asm volatile ("ldt $f"#reg",%0" : : "m"(val));
-@@ -98,7 +98,7 @@ alpha_write_fp_reg (unsigned long reg, u
- 	}
- }
- 
--#if defined(__alpha_cix__) || defined(__alpha_fix__)
-+#if defined(CONFIG_ALPHA_EV6) || defined(CONFIG_ALPHA_EV67)
- #define STS(reg,val)  asm volatile ("ftois $f"#reg",%0" : "=r"(val));
- #else
- #define STS(reg,val)  asm volatile ("sts $f"#reg",%0" : "=m"(val));
-@@ -147,7 +147,7 @@ alpha_read_fp_reg_s (unsigned long reg)
- 	return val;
- }
- 
--#if defined(__alpha_cix__) || defined(__alpha_fix__)
-+#if defined(CONFIG_ALPHA_EV6) || defined(CONFIG_ALPHA_EV67)
- #define LDS(reg,val)  asm volatile ("itofs %0,$f"#reg : : "r"(val));
- #else
- #define LDS(reg,val)  asm volatile ("lds $f"#reg",%0" : : "m"(val));
-Index: 2.6-rc/include/asm-alpha/bitops.h
-===================================================================
---- 2.6-rc.orig/include/asm-alpha/bitops.h
-+++ 2.6-rc/include/asm-alpha/bitops.h
-@@ -261,7 +261,7 @@ static inline unsigned long ffz_b(unsign
- 
- static inline unsigned long ffz(unsigned long word)
- {
--#if defined(__alpha_cix__) && defined(__alpha_fix__)
-+#if defined(CONFIG_ALPHA_EV6) && defined(CONFIG_ALPHA_EV67)
- 	/* Whee.  EV67 can calculate it directly.  */
- 	return __kernel_cttz(~word);
- #else
-@@ -281,7 +281,7 @@ static inline unsigned long ffz(unsigned
-  */
- static inline unsigned long __ffs(unsigned long word)
- {
--#if defined(__alpha_cix__) && defined(__alpha_fix__)
-+#if defined(CONFIG_ALPHA_EV6) && defined(CONFIG_ALPHA_EV67)
- 	/* Whee.  EV67 can calculate it directly.  */
- 	return __kernel_cttz(word);
- #else
-@@ -313,7 +313,7 @@ static inline int ffs(int word)
- /*
-  * fls: find last bit set.
-  */
--#if defined(__alpha_cix__) && defined(__alpha_fix__)
-+#if defined(CONFIG_ALPHA_EV6) && defined(CONFIG_ALPHA_EV67)
- static inline int fls(int word)
- {
- 	return 64 - __kernel_ctlz(word & 0xffffffff);
-@@ -326,7 +326,7 @@ static inline int fls(int word)
- /* Compute powers of two for the given integer.  */
- static inline long floor_log2(unsigned long word)
- {
--#if defined(__alpha_cix__) && defined(__alpha_fix__)
-+#if defined(CONFIG_ALPHA_EV6) && defined(CONFIG_ALPHA_EV67)
- 	return 63 - __kernel_ctlz(word);
- #else
- 	long bit;
-@@ -347,7 +347,7 @@ static inline long ceil_log2(unsigned lo
-  * of bits set) of a N-bit word
-  */
- 
--#if defined(__alpha_cix__) && defined(__alpha_fix__)
-+#if defined(CONFIG_ALPHA_EV6) && defined(CONFIG_ALPHA_EV67)
- /* Whee.  EV67 can calculate it directly.  */
- static inline unsigned long hweight64(unsigned long w)
- {
-Index: 2.6-rc/include/asm-alpha/fpu.h
-===================================================================
---- 2.6-rc.orig/include/asm-alpha/fpu.h
-+++ 2.6-rc/include/asm-alpha/fpu.h
-@@ -130,7 +130,7 @@ rdfpcr(void)
- {
- 	unsigned long tmp, ret;
- 
--#if defined(__alpha_cix__) || defined(__alpha_fix__)
-+#if defined(CONFIG_ALPHA_EV6) || defined(CONFIG_ALPHA_EV67)
- 	__asm__ __volatile__ (
- 		"ftoit $f0,%0\n\t"
- 		"mf_fpcr $f0\n\t"
-@@ -154,7 +154,7 @@ wrfpcr(unsigned long val)
- {
- 	unsigned long tmp;
- 
--#if defined(__alpha_cix__) || defined(__alpha_fix__)
-+#if defined(CONFIG_ALPHA_EV6) || defined(CONFIG_ALPHA_EV67)
- 	__asm__ __volatile__ (
- 		"ftoit $f0,%0\n\t"
- 		"itoft %1,$f0\n\t"
+--- /dev/null
++++ 2.6-rc/include/asm-generic/bitops/non-atomic.h
+@@ -0,0 +1,111 @@
++#ifndef _ASM_GENERIC_BITOPS_NON_ATOMIC_H_
++#define _ASM_GENERIC_BITOPS_NON_ATOMIC_H_
++
++#include <asm/types.h>
++
++#define BITOP_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
++#define BITOP_WORD(nr)		((nr) / BITS_PER_LONG)
++
++/**
++ * __set_bit - Set a bit in memory
++ * @nr: the bit to set
++ * @addr: the address to start counting from
++ *
++ * Unlike set_bit(), this function is non-atomic and may be reordered.
++ * If it's called on the same region of memory simultaneously, the effect
++ * may be that only one operation succeeds.
++ */
++static inline void __set_bit(int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BITOP_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
++
++	*p  |= mask;
++}
++
++static inline void __clear_bit(int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BITOP_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
++
++	*p &= ~mask;
++}
++
++/**
++ * __change_bit - Toggle a bit in memory
++ * @nr: the bit to change
++ * @addr: the address to start counting from
++ *
++ * Unlike change_bit(), this function is non-atomic and may be reordered.
++ * If it's called on the same region of memory simultaneously, the effect
++ * may be that only one operation succeeds.
++ */
++static inline void __change_bit(int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BITOP_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
++
++	*p ^= mask;
++}
++
++/**
++ * __test_and_set_bit - Set a bit and return its old value
++ * @nr: Bit to set
++ * @addr: Address to count from
++ *
++ * This operation is non-atomic and can be reordered.  
++ * If two examples of this operation race, one can appear to succeed
++ * but actually fail.  You must protect multiple accesses with a lock.
++ */
++static inline int __test_and_set_bit(int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BITOP_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
++	unsigned long old = *p;
++
++	*p = old | mask;
++	return (old & mask) != 0;
++}
++
++/**
++ * __test_and_clear_bit - Clear a bit and return its old value
++ * @nr: Bit to clear
++ * @addr: Address to count from
++ *
++ * This operation is non-atomic and can be reordered.  
++ * If two examples of this operation race, one can appear to succeed
++ * but actually fail.  You must protect multiple accesses with a lock.
++ */
++static inline int __test_and_clear_bit(int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BITOP_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
++	unsigned long old = *p;
++
++	*p = old & ~mask;
++	return (old & mask) != 0;
++}
++
++/* WARNING: non atomic and it can be reordered! */
++static inline int __test_and_change_bit(int nr,
++					    volatile unsigned long *addr)
++{
++	unsigned long mask = BITOP_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
++	unsigned long old = *p;
++
++	*p = old ^ mask;
++	return (old & mask) != 0;
++}
++
++/**
++ * test_bit - Determine whether a bit is set
++ * @nr: bit number to test
++ * @addr: Address to start counting from
++ */
++static inline int test_bit(int nr, const volatile unsigned long *addr)
++{
++	return 1UL & (addr[BITOP_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
++}
++
++#endif /* _ASM_GENERIC_BITOPS_NON_ATOMIC_H_ */
 
 --

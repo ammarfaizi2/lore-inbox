@@ -1,87 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161112AbWBNQYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161113AbWBNQYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161112AbWBNQYx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 11:24:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161118AbWBNQYx
+	id S1161113AbWBNQYv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 11:24:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161116AbWBNQYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 11:24:53 -0500
-Received: from nproxy.gmail.com ([64.233.182.207]:55487 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161117AbWBNQYw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 11:24:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Uq9C9x+yWlRm0ALzBRvh/ohYOpANYAya/8KBCqYIJfOsiMJL2pFRy4qseUTQlG5Vuf+j6WfS076aUVJBo8XIui0W2lra0P2619J4ZAwcJ/j6ZdfMrwCaGZxBEQ9jv+M7YNxKPCG46kiupN54+JytnNyBtsGwu8YXjGLGQZyK3Xc=
-Message-ID: <58cb370e0602140824p32991ba3sa5e731a1394c3fbe@mail.gmail.com>
-Date: Tue, 14 Feb 2006 17:24:50 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: RFC: Compact Flash True IDE Mode Driver
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0602141007090.27351-100000@gate.crashing.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <58cb370e0602140757r5b265f25wc9f1f2e44d5f075c@mail.gmail.com>
-	 <Pine.LNX.4.44.0602141007090.27351-100000@gate.crashing.org>
+	Tue, 14 Feb 2006 11:24:51 -0500
+Received: from smtpout.mac.com ([17.250.248.44]:1746 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1161113AbWBNQYu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 11:24:50 -0500
+In-Reply-To: <43F17850.8080600@cfl.rr.com>
+References: <Pine.LNX.4.44L0.0602131601220.4754-100000@iolanthe.rowland.org> <43F11A9D.5010301@cfl.rr.com> <BCC8C7FA-25A2-4460-A667-5AA88BF5BC6D@mac.com> <43F13BDF.3060208@cfl.rr.com> <DD0B9449-14AF-47D1-8372-DDC7E896DBC2@mac.com> <43F17850.8080600@cfl.rr.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <F157E3C4-0D62-413C-B08B-91A567B8C09B@mac.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       Alon Bar-Lev <alon.barlev@gmail.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Flames over -- Re: Which is simpler?
+Date: Tue, 14 Feb 2006 11:23:53 -0500
+To: Phillip Susi <psusi@cfl.rr.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/14/06, Kumar Gala <galak@kernel.crashing.org> wrote:
-> If this looks good, I'll send a more official patch with an signed-off-by.
-
-Looks good but please add some description and Signed-off-by.
-
-Acked-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-
-You can send final patch to akpm for inclusion into -mm.
-
-> - k
+On Feb 14, 2006, at 01:27, Phillip Susi wrote:
+> Kyle Moffett wrote:
+>> No, that's _exactly_ what the spec says (well, not verbatim but  
+>> close enough).  When you disconnect, both the master and slave  
+>> devices are perfectly free to assume that the connection is  
+>> completely broken and no state is maintained.  Anything that  
+>> breaks that assumption is against the spec and likely to break in  
+>> odd scenarios.
 >
-> diff --git a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
-> index 09086b8..359f659 100644
-> --- a/drivers/ide/ide-disk.c
-> +++ b/drivers/ide/ide-disk.c
-> @@ -977,8 +977,6 @@ static void idedisk_setup (ide_drive_t *
->                 ide_dma_verbose(drive);
->         printk("\n");
+> Perfectly free to != required to.
+
+In this case they _are_ equivalent due to symmetry.  If the other  
+device _may_ assume that the connection is broken, then you _must_  
+assume that the connection is broken.  Since either device _may_  
+assume that, both devices therefore _must_ according to spec.
+
+>> Which causes worse data-loss, writing out cached pages and  
+>> filesystem metadata to a filesystem that has changed in the mean- 
+>> time (possibly allocating those for metadata, etc) or forcibly  
+>> unmounting it as though the user pulled the cable?  Most  
+>> filesystems are designed to handle the latter (it's the same as a  
+>> hard-shutdown), whereas _none_ are designed to handle the former.
 >
-> -       drive->no_io_32bit = id->dword_io ? 1 : 0;
-> -
->         /* write cache enabled? */
->         if ((id->csfo & 1) || (id->cfs_enable_1 & (1 << 5)))
->                 drive->wcache = 1;
-> diff --git a/drivers/ide/ide-probe.c b/drivers/ide/ide-probe.c
-> index 427d1c2..1b7b4c5 100644
-> --- a/drivers/ide/ide-probe.c
-> +++ b/drivers/ide/ide-probe.c
-> @@ -858,6 +858,15 @@ static void probe_hwif(ide_hwif_t *hwif)
->                         }
->                 }
->         }
-> +
-> +       for (unit = 0; unit < MAX_DRIVES; ++unit) {
-> +               ide_drive_t *drive = &hwif->drives[unit];
-> +
-> +               if (hwif->no_io_32bit)
-> +                       drive->no_io_32bit = 1;
-> +               else
-> +                       drive->no_io_32bit = drive->id->dword_io ? 1 : 0;
-> +       }
->  }
->
->  static int hwif_init(ide_hwif_t *hwif);
-> diff --git a/include/linux/ide.h b/include/linux/ide.h
-> index a7fc4cc..8d2db41 100644
-> --- a/include/linux/ide.h
-> +++ b/include/linux/ide.h
-> @@ -792,6 +792,7 @@ typedef struct hwif_s {
->         unsigned        no_dsc     : 1; /* 0 default, 1 dsc_overlap disabled */
->         unsigned        auto_poll  : 1; /* supports nop auto-poll */
->         unsigned        sg_mapped  : 1; /* sg_table and sg_nents are ready */
-> +       unsigned        no_io_32bit : 1; /* 1 = can not do 32-bit IO ops */
->
->         struct device   gendev;
->         struct completion gendev_rel_comp; /* To deal with device release() */
+> So you condemn the common correct use case to always suffer data  
+> loss to give _slightly_ better protection to the uncommon and  
+> incorrect use case?
+
+No, as I said before, a good set of USB suspend scripts can solve  
+this problem.  All of the ones I am aware of *now* already sync all  
+data, which is good enough to prevent data-loss in _every_ case where  
+the device is spontaneously unplugged.  On the other hand, this is  
+_never_ good enough if the device is accidentally switched underneath  
+us while suspended (and that's not so terribly uncommon, I know a lot  
+of people who would do that accidentally, myself included).
+
+> I think most users prefer a system that works right when you use it  
+> right to one that doesn't break quite as badly when you do  
+> something stupid.
+
+I think you just proved my point.  Running the "sync" command a  
+couple times then unplugging the USB stick basically never results in  
+data loss even if the filesystem is mounted.  Spontaneously switching  
+block devices under a mounted filesystem is guaranteed to either  
+panic the machine or cause massive data corruption or both.
+
+> Also why is this argument more valid for USB than SCSI?  I am just  
+> as free to unplug a scsi disk and replace it with a different one  
+> while hibernated, yet I don't suffer data loss when I don't do such  
+> foolishness.
+
+SCSI != USB.  Users generally don't expect to hotplug SCSI devices  
+while booted and running (with the exception of some _really_  
+expensive hotplug-bays where we expect the admin to know what the  
+hell they're doing).  On the other hand, users _do_ expect to hotplug  
+random USB devices whenever they feel like it.
+
+Cheers,
+Kyle Moffett
+
+--
+Q: Why do programmers confuse Halloween and Christmas?
+A: Because OCT 31 == DEC 25.
+
+
+

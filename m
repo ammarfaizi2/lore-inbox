@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030530AbWBNNyz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030231AbWBNN5y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030530AbWBNNyz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 08:54:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbWBNNyz
+	id S1030231AbWBNN5y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 08:57:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030563AbWBNN5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 08:54:55 -0500
-Received: from zproxy.gmail.com ([64.233.162.203]:43422 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030530AbWBNNyy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 08:54:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EV9k0b/XBZ9wGPYAoQnE9TUvGH856AECo1w7BbSKlb2dTijiF5MPAKXMi/QycYmN7/c20ZBtfPBFDbO6L50GMUEcZjnunh+oqgpruLxGz/4fzw/Dyt7EBZa/FcfhodehfJWLtAPj5UJ6TlFCNWZG7WdKy4u0wwrHlnZo4LRvSc4=
-Message-ID: <6bffcb0e0602140554j56d5a95bi@mail.gmail.com>
-Date: Tue, 14 Feb 2006 14:54:53 +0100
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: 2.6.16-rc3-mm1: i386 compilation broken
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200602141427.49763.ak@suse.de>
+	Tue, 14 Feb 2006 08:57:54 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:31104 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1030231AbWBNN5y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 08:57:54 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Tue, 14 Feb 2006 14:55:39 +0100
+To: schilling@fokus.fraunhofer.de, dhazelton@enter.net
+Cc: trudheim@gmail.com, nix@esperi.org.uk, linux-kernel@vger.kernel.org,
+       davidsen@tmr.com, axboe@suse.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43F1E15B.nailMWZ92B3KZ@burner>
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
+ <515e525f0602130446s1091f09ande10910f65a0f5f0@mail.gmail.com>
+ <43F0A1F3.nailKUSV1V88J@burner>
+ <200602131824.15810.dhazelton@enter.net>
+In-Reply-To: <200602131824.15810.dhazelton@enter.net>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060214014157.59af972f.akpm@osdl.org>
-	 <20060214131715.GA10701@stusta.de> <200602141427.49763.ak@suse.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"D. Hazelton" <dhazelton@enter.net> wrote:
 
-On 14/02/06, Andi Kleen <ak@suse.de> wrote:
-> On Tuesday 14 February 2006 14:17, Adrian Bunk wrote:
-> > On Tue, Feb 14, 2006 at 01:41:57AM -0800, Andrew Morton wrote:
-> > >...
-> > > Changes since 2.6.16-rc2-mm1:
-> > >...
-> > > +x86_64-fix-string.patch
-> > >...
-> > >  x86_64 tree updates.
-> > >...
+> > If you did know what a worm is, you would know that you are not correct:
 > >
-> > This patch breaks the compilation on i386:
+> > A WORM allows you to randomly write any sector once.
+> >
+> > A CD-R does not allows you to do this.
 >
-> Ok then the -ffreestanding was apparently still needed on other architectures too.
-> I guess that part of the patch can be just dropped.
->
-> Andrew can you drop that please?
->
-> -Andi
+> Joerg, the practical definition of WORM is "Write Once, Read Many" - whether 
+> or not it supports writes to random sectors is a moot point, a CDR does seem 
+> to fit the bill of a "write once, read many" medium.
 
-Thanks, problem solved!
+What you believe is irrelevent as long as it does not match the WORM device
+definition.
 
-Andrew can you add this to hot-fixes?
+See www.t10.org
 
-Regards,
-Michal Piotrowski
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

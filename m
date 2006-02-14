@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030284AbWBNDbE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbWBNDgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030284AbWBNDbE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 22:31:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030289AbWBNDbE
+	id S1030299AbWBNDgN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 22:36:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWBNDgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 22:31:04 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:37267 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030284AbWBNDbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 22:31:03 -0500
-Subject: Re: Linux 2.6.16-rc3
-From: Lee Revell <rlrevell@joe-job.com>
-To: Michal Jaegermann <michal@harddata.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       "Brown, Len" <len.brown@intel.com>, davem@davemloft.net,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org, axboe@suse.de,
-       James.Bottomley@steeleye.com, greg@kroah.com,
-       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       luming.yu@intel.com, lk@bencastricum.nl, sanjoy@mrao.cam.ac.uk,
-       helgehaf@aitel.hist.no, fluido@fluido.as, gbruchhaeuser@gmx.de,
-       Nicolas.Mailhot@LaPoste.net, perex@suse.cz, tiwai@suse.de,
-       patrizio.bassi@gmail.com, bni.swe@gmail.com, arvidjaar@mail.ru,
-       p_christ@hol.gr, ghrt@dial.kappa.ro, jinhong.hu@gmail.com,
-       andrew.vasquez@qlogic.com, linux-scsi@vger.kernel.org, bcrl@kvack.org
-In-Reply-To: <20060214030821.GA23031@mail.harddata.com>
-References: <F7DC2337C7631D4386A2DF6E8FB22B30060BD1D9@hdsmsx401.amr.corp.intel.com>
-	 <20060213001240.05e57d42.akpm@osdl.org>
-	 <1139821068.2997.22.camel@laptopd505.fenrus.org>
-	 <20060214030821.GA23031@mail.harddata.com>
-Content-Type: text/plain
-Date: Mon, 13 Feb 2006 22:30:56 -0500
-Message-Id: <1139887857.11659.28.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 
+	Mon, 13 Feb 2006 22:36:13 -0500
+Received: from rtr.ca ([64.26.128.89]:3779 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1030299AbWBNDgM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 22:36:12 -0500
+Message-ID: <43F15027.2090304@rtr.ca>
+Date: Mon, 13 Feb 2006 22:36:07 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+MIME-Version: 1.0
+To: Linda Walsh <lkml@tlinx.org>
+Cc: Justin Piszcz <jpiszcz@lucidpixels.com>,
+       smartmontools-support@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: default hdparms? readahead=256? Re: WD 400GB xATA Drives
+References: <Pine.LNX.4.64.0602130524350.13160@p34> <43F1393D.9050801@tlinx.org>
+In-Reply-To: <43F1393D.9050801@tlinx.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-13 at 20:08 -0700, Michal Jaegermann wrote:
-> On Mon, Feb 13, 2006 at 09:57:48AM +0100, Arjan van de Ven wrote:
-> > On Mon, 2006-02-13 at 00:12 -0800, Andrew Morton wrote:
-> > > 
-> > > I think we can assume that it will be seen there.  2.6.16 is going into
-> > > distros and will have more exposure than 2.6.15, 
-> > 
-> > 2.6.15 went into distros as well, such as Fedora Core 4 ;)
+Linda Walsh wrote:
+>..
+> set to known values may not contain "great values".  My "readahead"
+> value seems to boot with a value of "256" for all of my drives.
 > 
-> And promptly broke laptop suspension.  See, for example:
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=180998
+> Is this not a bit "excessive"?
 
-It broke suspension on YOUR laptop - the bug report does not give a make
-and model.  2.6.15 would not have shipped if it broke suspend on the
-developers' laptops.
+Wow.. that does look a bit HUGE.  Thanks for pointing it out,
+I'm resetting mine back to 128 for now.
 
-Lee
+> Justin Piszcz wrote:
+>> When I write to this disk for a while, I see this in dmesg (only once 
+>> so far):
+>>
+>> [31230.223504] ata6: translated ATA stat/err 0x51/04 to SCSI 
+>> SK/ASC/ASCQ 0xb/00/00
+>> [31230.223511] ata6: status=0x51 { DriveReady SeekComplete Error }
+>> [31230.223515] ata6: error=0x04 { DriveStatusError }
+>>
+>> Is there some sort of smart testing going on constantly?  I only get 
+>> 26-27MB/s on this 400GB/SATA/16MB/7200RPM drive.  I use smartmontools 
+>> to do a daily test.  However, even with smart disabled, I get:
+>>
+>> # hdparm -t /dev/sde
+>> /dev/sde:
+>>  Timing buffered disk reads:   78 MB in  3.06 seconds =  25.46 MB/sec
+>>
+>> Does anyone know if this drive has problems in Linux or something?
+>>
+>> [    6.895914]   Vendor: ATA       Model: WDC WD4000KD-00N  Rev: 01.0
+...
 
+Some drives suck at sequential reads, in favour of doing random seeks
+very very well.  Basically, the on-drive seek algorithm may not favour
+doing much read-ahead.  Try "hdparm -A1" and see if that helps.

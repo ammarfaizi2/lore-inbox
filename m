@@ -1,63 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030542AbWBNJyV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030543AbWBNJzc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030542AbWBNJyV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 04:54:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030543AbWBNJyV
+	id S1030543AbWBNJzc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 04:55:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030545AbWBNJzc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 04:54:21 -0500
-Received: from smtp.enter.net ([216.193.128.24]:1286 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S1030542AbWBNJyU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 04:54:20 -0500
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Martin Mares <mj@ucw.cz>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Tue, 14 Feb 2006 05:03:26 -0500
-User-Agent: KMail/1.8.1
-Cc: Marcin Dalecki <dalecki.marcin@neostrada.pl>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       jerome.lacoste@gmail.com, peter.read@gmail.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-       jengelh@linux01.gwdg.de
-References: <20060208162828.GA17534@voodoo> <2D9D57EA-1197-4965-82ED-61DEAF73D9F9@neostrada.pl> <mj+md-20060214.091056.25971.atrey@ucw.cz>
-In-Reply-To: <mj+md-20060214.091056.25971.atrey@ucw.cz>
+	Tue, 14 Feb 2006 04:55:32 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:59603 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1030543AbWBNJzb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 04:55:31 -0500
+Message-ID: <43F1A94F.1060809@jp.fujitsu.com>
+Date: Tue, 14 Feb 2006 18:56:31 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] unify pfn_to_page take3 [2/23] i386 pfn_to_page
+References: <43F1A753.2020003@jp.fujitsu.com>
+In-Reply-To: <43F1A753.2020003@jp.fujitsu.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602140503.27668.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 February 2006 04:20, Martin Mares wrote:
-<snip>
-> I think that it's clear from all this, that device naming is a matter
-> of policy and that the best the OS can do is to give the users a way
-> how to specify their policy, which is what udev does.
->
-> 				Have a nice fortnight
+i386 can use generic funcs.
 
-True, and the point I was trying to make. Joerg has a policy that works well 
-on some systems and doesn't on others. Rather than giving people a clear 
-option to use the other system he has. In Linux udev provides a user 
-configurable policy that works extremely well. Rather than change the 
-software to accomodate udev/hald as he accomodates vold on Solaris Joerg 
-insists on having *nearly* pointless warnings and insisting that his method 
-is the only valid one.
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-That's the reason I asked him if he'd accept a patch that removed said warning 
-and converted the device the user passed in (be it /dev/sr0 or /dev/cdrw) and 
-internally converts it into his naming scheme. I have yet to see a response 
-to this.
+Index: testtree/include/asm-i386/mmzone.h
+===================================================================
+--- testtree.orig/include/asm-i386/mmzone.h
++++ testtree/include/asm-i386/mmzone.h
+@@ -70,8 +70,6 @@ static inline int pfn_to_nid(unsigned lo
+  #endif
+  }
 
-DRH
+-#define node_localnr(pfn, nid)		((pfn) - node_data[nid]->node_start_pfn)
+-
+  /*
+   * Following are macros that each numa implmentation must define.
+   */
+@@ -86,21 +84,6 @@ static inline int pfn_to_nid(unsigned lo
+  /* XXX: FIXME -- wli */
+  #define kern_addr_valid(kaddr)	(0)
 
-PS: Joerg my offer for that still stands, as does my offer to _attempt_ to fix 
-the bugs you've reported in the ATAPI layer. Sadly I cannot offer to repair 
-ide-scsi, as that is deprecated and scheduled for removal. However, with that 
-being the case my offer to attempt to repair the noted problems with the 
-mangling of commands by the ATAPI system remains. All I ask for is a detailed 
-report including which model drives have the problem and debugging output so 
-that I can attempt to repair the problem since I do not have the access to 
-hardware that you do.
+-#define pfn_to_page(pfn)						\
+-({									\
+-	unsigned long __pfn = pfn;					\
+-	int __node  = pfn_to_nid(__pfn);				\
+-	&NODE_DATA(__node)->node_mem_map[node_localnr(__pfn,__node)];	\
+-})
+-
+-#define page_to_pfn(pg)							\
+-({									\
+-	struct page *__page = pg;					\
+-	struct zone *__zone = page_zone(__page);			\
+-	(unsigned long)(__page - __zone->zone_mem_map)			\
+-		+ __zone->zone_start_pfn;				\
+-})
+-
+  #ifdef CONFIG_X86_NUMAQ            /* we have contiguous memory on NUMA-Q */
+  #define pfn_valid(pfn)          ((pfn) < num_physpages)
+  #else
+Index: testtree/include/asm-i386/page.h
+===================================================================
+--- testtree.orig/include/asm-i386/page.h
++++ testtree/include/asm-i386/page.h
+@@ -126,8 +126,6 @@ extern int page_is_ram(unsigned long pag
+  #define __va(x)			((void *)((unsigned long)(x)+PAGE_OFFSET))
+  #define pfn_to_kaddr(pfn)      __va((pfn) << PAGE_SHIFT)
+  #ifdef CONFIG_FLATMEM
+-#define pfn_to_page(pfn)	(mem_map + (pfn))
+-#define page_to_pfn(page)	((unsigned long)((page) - mem_map))
+  #define pfn_valid(pfn)		((pfn) < max_mapnr)
+  #endif /* CONFIG_FLATMEM */
+  #define virt_to_page(kaddr)	pfn_to_page(__pa(kaddr) >> PAGE_SHIFT)
+@@ -141,6 +139,7 @@ extern int page_is_ram(unsigned long pag
+
+  #endif /* __KERNEL__ */
+
++#include <asm-generic/memory_model.h>
+  #include <asm-generic/page.h>
+
+  #endif /* _I386_PAGE_H */
+

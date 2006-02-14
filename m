@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030326AbWBNATX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030329AbWBNAUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030326AbWBNATX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 19:19:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030329AbWBNATW
+	id S1030329AbWBNAUg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 19:20:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030331AbWBNAUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 19:19:22 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:8680 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030326AbWBNATW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 19:19:22 -0500
-Message-ID: <43F12207.9010507@watson.ibm.com>
-Date: Mon, 13 Feb 2006 19:19:19 -0500
-From: Hubertus Franke <frankeh@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+	Mon, 13 Feb 2006 19:20:36 -0500
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:19634
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1030329AbWBNAUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 19:20:35 -0500
+Message-ID: <43F12248.7070608@microgate.com>
+Date: Mon, 13 Feb 2006 18:20:24 -0600
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: SMP BUG
+To: Paul Fulghum <paulkf@microgate.com>
+CC: Jason Baron <jbaron@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "jesper.juhl@gmail.com" <jesper.juhl@gmail.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] tty reference count fix
+References: <1139861610.3573.24.camel@amdx2.microgate.com> <Pine.LNX.4.61.0602131747570.19384@dhcp83-105.boston.redhat.com> <43F119FC.10900@microgate.com>
+In-Reply-To: <43F119FC.10900@microgate.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks the change introduced in 2.6.16-rc2   over 2.6.15
-wrt to the SMP initialization are wrong.
-Please apply to unroll the change..
+Paul Fulghum wrote:
+> Your patch leaves the schedule() call at the bottom of
+> the while loop between setting tty_closing and
+> setting TTY_CLOSING flag.
 
-Here is the logic ...
-sched_init is called from start_kernel before the
-architecture specific function cpu_check_smp() is called
-which is done as part of rest_init().
+Nevermind. After schedule() the count is reread,
+so you are right. Dropping tty_sem altogether
+would work.
 
-On s390 this actually sets the cpu_possible_map, which
-is now used in sched_init through the for_each_cpu without
-properly being initialized.
-As a result bringing 2nd and subsequent cpu online
-breaks.
+It is a matter of where you ultimately wish to
+push the locking to BKL or tty_sem.
 
-This should be a quick fix, until this chicken and egg
-problem is solved otherwise.
-
--- Hubertus
-
---- kernel/sched.c.orig 2006-02-13 19:08:28.000000000 -0500
-+++ kernel/sched.c      2006-02-13 19:09:08.000000000 -0500
-@@ -6111,7 +6111,7 @@ void __init sched_init(void)
-         runqueue_t *rq;
-         int i, j, k;
-
--       for_each_cpu(i) {
-+       for (i = 0; i < NR_CPUS; i++ ) {
-                 prio_array_t *array;
-
-                 rq = cpu_rq(i);
-
+-- 
+Paul Fulghum
+Microgate Systems, Ltd

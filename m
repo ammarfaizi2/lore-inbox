@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161019AbWBNLtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161021AbWBNLxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161019AbWBNLtx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 06:49:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161021AbWBNLtx
+	id S1161021AbWBNLxN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 06:53:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161023AbWBNLxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 06:49:53 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:33767 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1161019AbWBNLtw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 06:49:52 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Tue, 14 Feb 2006 12:48:21 +0100
-To: Valdis.Kletnieks@vt.edu, schilling@fokus.fraunhofer.de
-Cc: peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-       jerome.lacoste@gmail.com, jengelh@linux01.gwdg.de, dhazelton@enter.net
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F1C385.nailMWZ599SQ5@burner>
-References: <20060208162828.GA17534@voodoo>
- <43EC887B.nailISDGC9CP5@burner>
- <200602090757.13767.dhazelton@enter.net>
- <43EC8F22.nailISDL17DJF@burner>
- <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com>
- <43F06220.nailKUS5D8SL2@burner>
- <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com>
- <43F0A010.nailKUSR1CGG5@burner>
- <5a2cf1f60602130724n7b060e29r57411260b04d5972@mail.gmail.com>
- <43F0AA83.nailKUS171HI4B@burner>
- <5a2cf1f60602130805u537de206k22fa418ee214cf02@mail.gmail.com>
- <43F0B2BA.nailKUS1DNTEHA@burner>
- <Pine.LNX.4.61.0602131732190.24297@yvahk01.tjqt.qr>
- <43F0B5BE.nailMBX2SZNBE@burner>
- <200602131919.k1DJJF5G025923@turing-police.cc.vt.edu>
-In-Reply-To: <200602131919.k1DJJF5G025923@turing-police.cc.vt.edu>
-User-Agent: nail 11.2 8/15/04
+	Tue, 14 Feb 2006 06:53:13 -0500
+Received: from hobbit.corpit.ru ([81.13.94.6]:50256 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1161021AbWBNLxM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 06:53:12 -0500
+Message-ID: <43F1C4A8.1050202@tls.msk.ru>
+Date: Tue, 14 Feb 2006 14:53:12 +0300
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Olivier Galibert <galibert@pobox.com>
+CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: Device enumeration (was Re: CD writing in future Linux (stirring
+ up a hornets' nest))
+References: <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com> <20060210235654.GA22512@kroah.com> <20060212120450.GA93069@dspnet.fr.eu.org> <20060212164633.GA2941@kroah.com> <20060212211406.GA48606@dspnet.fr.eu.org> <20060213062412.GB2335@kroah.com> <20060213164911.GB75835@dspnet.fr.eu.org> <20060213175046.GA20952@kroah.com> <20060213195322.GB89006@dspnet.fr.eu.org>
+In-Reply-To: <20060213195322.GB89006@dspnet.fr.eu.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
+Olivier Galibert wrote:
+[]
+> 4- sysfs has all the information you need, just read it
+[]
+> Answer 4 would be very nice if it was correct.  sysfs is pretty much
+> mandatory at that point, and modulo some fixable incompleteness
+> provides all the capability information and model names and everything
+> needed to find the useful devices.  What it does not provide is the
+> mapping between a device as found in sysfs, and a device node you can
+> open to talk to the device.  You get the major/minor, which allows you
+> to create a temporary device node iff you're root.  Or you can scan
+> all the nodes in /dev to find the one to open, which is kinda
+> ridiculous and inefficient.  Or you have to go back to udev/hal to ask
+> for the sysfs node/device node path mapping, and then why use sysfs in
+> the first place.
 
-> On Mon, 13 Feb 2006 17:37:18 +0100, Joerg Schilling said:
->
-> > And if you have a working vold on Solaris, libscg accepts the vold aliases.
->
-> And if you have a working hald on Linux, libscg should therefor accept hald aliases.
+That's exactly the point why I always wanted to have automatic minimal-devfs-
+alike in kernel, similar to ndevfs but complete: so that kernel names of
+defices are *always* present in /dev, regardless of the presense of udev or
+something else.  All the rest - udev, device permissions, "alternative"
+names (like /dev/cdrom etc) can be built on top of that "kernel naming scheme",
+but the key point is that we *always* have a device in /dev/ named exactly
+the same as kernel "thinks" of it - so eg, /proc/partitions, dmesg output,
+sysfs scanning etc etc will produce real and useful results.
 
-How about pointing to _useful_ documentation:
+But oh.. Am I starting new [n]devfs flamewar?
 
--	How to find _any_ device that talks SCSI?
-
--	How does HAL allow one cdrecord instance to work
-	without being interrupted by HAL?
-
--	How to send non disturbing SCSI commands from another
-	cdrecord process in case one or more are already running?
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+/mjt

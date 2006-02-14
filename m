@@ -1,152 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbWBNSk1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030352AbWBNSkq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964859AbWBNSk1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 13:40:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWBNSk1
+	id S1030352AbWBNSkq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 13:40:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030353AbWBNSkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 13:40:27 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:24526 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964859AbWBNSk0 (ORCPT
+	Tue, 14 Feb 2006 13:40:45 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:13020 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1030352AbWBNSko (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 13:40:26 -0500
-From: hawkes@sgi.com
-To: Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Jack Steiner <steiner@sgi.com>, hawkes@sgi.com, Robin Holt <holt@sgi.com>,
-       Dimitri Sivanich <sivanich@sgi.com>, Jes Sorensen <jes@sgi.com>
-Date: Tue, 14 Feb 2006 10:40:17 -0800
-Message-Id: <20060214184017.20492.48141.sendpatchset@tomahawk.engr.sgi.com>
-Subject: Re: [PATCH] ia64: simplify and fix udelay()
+	Tue, 14 Feb 2006 13:40:44 -0500
+Message-ID: <43F223EF.1000309@cfl.rr.com>
+Date: Tue, 14 Feb 2006 13:39:43 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Kyle Moffett <mrmacman_g4@mac.com>
+CC: Alan Stern <stern@rowland.harvard.edu>,
+       Alon Bar-Lev <alon.barlev@gmail.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Flames over -- Re: Which is simpler?
+References: <Pine.LNX.4.44L0.0602131601220.4754-100000@iolanthe.rowland.org> <43F11A9D.5010301@cfl.rr.com> <BCC8C7FA-25A2-4460-A667-5AA88BF5BC6D@mac.com> <43F13BDF.3060208@cfl.rr.com> <DD0B9449-14AF-47D1-8372-DDC7E896DBC2@mac.com> <43F17850.8080600@cfl.rr.com> <F157E3C4-0D62-413C-B08B-91A567B8C09B@mac.com>
+In-Reply-To: <F157E3C4-0D62-413C-B08B-91A567B8C09B@mac.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Feb 2006 18:41:57.0672 (UTC) FILETIME=[558BD280:01C63196]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14267.000
+X-TM-AS-Result: No--16.499000-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version #2, merging Andreas Schwab's suggestion:
+Kyle Moffett wrote:
+> In this case they _are_ equivalent due to symmetry.  If the other 
+> device _may_ assume that the connection is broken, then you _must_ 
+> assume that the connection is broken.  Since either device _may_ 
+> assume that, both devices therefore _must_ according to spec.
+>
+Only insofar as the kernel can not assume the device is still 
+connected.  If the kernel sees that it is immediately reconnected and 
+has every reason to believe that the 'disconnect' was only a result of 
+momentary power loss, and it can probably continue to access the device 
+with no consequences, then it should do so. 
+>
+> No, as I said before, a good set of USB suspend scripts can solve this 
+> problem.  All of the ones I am aware of *now* already sync all data, 
+> which is good enough to prevent data-loss in _every_ case where the 
+> device is spontaneously unplugged.  On the other hand, this is _never_ 
+> good enough if the device is accidentally switched underneath us while 
+> suspended (and that's not so terribly uncommon, I know a lot of people 
+> who would do that accidentally, myself included).
+>
 
-The original ia64 udelay() was simple, but flawed for platforms without
-synchronized ITCs:  a preemption and migration to another CPU during the
-while-loop likely resulted in too-early termination or very, very
-lengthy looping.
+I suppose this is true.  Syncing before suspend will (mostly) keep the 
+kernel from shooting the user in the foot. 
 
-The first fix (now in 2.6.15) broke the delay loop into smaller,
-non-preemptible chunks, reenabling preemption between the chunks.  This
-fix is flawed in that the total udelay is computed to be the sum of just
-the non-premptible while-loop pieces, i.e., not counting the time spent
-in the interim preemptible periods.  If an interrupt or a migration
-occurs during one of these interim periods, then that time is invisible
-and only serves to lengthen the effective udelay().
+>> I think most users prefer a system that works right when you use it 
+>> right to one that doesn't break quite as badly when you do something 
+>> stupid.
+>
+> I think you just proved my point.  Running the "sync" command a couple 
+> times then unplugging the USB stick basically never results in data 
+> loss even if the filesystem is mounted.  Spontaneously switching block 
+> devices under a mounted filesystem is guaranteed to either panic the 
+> machine or cause massive data corruption or both.
+>
 
-This new fix backs out the current flawed fix and returns to a simple
-udelay(), fully preemptible and interruptible.  It implements two simple
-alternative udelay() routines:  one a default generic version that uses
-ia64_get_itc(), and the other an sn-specific version that uses that
-platform's RTC.
+But who cares?  There are plenty of really stupid things users can do to 
+hose their system, it isn't right to prevent them from doing something 
+perfectly reasonable just because it reduces the damage done when they 
+do something completely unreasonable. 
 
-Signed-off-by: John Hawkes <hawkes@sgi.com>
+>> Also why is this argument more valid for USB than SCSI?  I am just as 
+>> free to unplug a scsi disk and replace it with a different one while 
+>> hibernated, yet I don't suffer data loss when I don't do such 
+>> foolishness.
+>
+> SCSI != USB.  Users generally don't expect to hotplug SCSI devices 
+> while booted and running (with the exception of some _really_ 
+> expensive hotplug-bays where we expect the admin to know what the hell 
+> they're doing).  On the other hand, users _do_ expect to hotplug 
+> random USB devices whenever they feel like it.
+>
 
-Index: linux/arch/ia64/kernel/time.c
-===================================================================
---- linux.orig/arch/ia64/kernel/time.c	2006-02-14 10:09:25.000000000 -0800
-+++ linux/arch/ia64/kernel/time.c	2006-02-14 10:22:56.000000000 -0800
-@@ -250,32 +250,27 @@ time_init (void)
- 	set_normalized_timespec(&wall_to_monotonic, -xtime.tv_sec, -xtime.tv_nsec);
- }
- 
--#define SMALLUSECS 100
-+/*
-+ * Generic udelay assumes that if preemption is allowed and the thread
-+ * migrates to another CPU, that the ITC values are synchronized across
-+ * all CPUs.
-+ */
-+static void
-+ia64_itc_udelay (unsigned long usecs)
-+{
-+	unsigned long start = ia64_get_itc();
-+	unsigned long end = start + usecs*local_cpu_data->cyc_per_usec;
-+
-+	while (time_before(ia64_get_itc(), end))
-+		cpu_relax();
-+}
-+
-+void (*ia64_udelay)(unsigned long usecs) = &ia64_itc_udelay;
- 
- void
- udelay (unsigned long usecs)
- {
--	unsigned long start;
--	unsigned long cycles;
--	unsigned long smallusecs;
--
--	/*
--	 * Execute the non-preemptible delay loop (because the ITC might
--	 * not be synchronized between CPUS) in relatively short time
--	 * chunks, allowing preemption between the chunks.
--	 */
--	while (usecs > 0) {
--		smallusecs = (usecs > SMALLUSECS) ? SMALLUSECS : usecs;
--		preempt_disable();
--		cycles = smallusecs*local_cpu_data->cyc_per_usec;
--		start = ia64_get_itc();
--
--		while (ia64_get_itc() - start < cycles)
--			cpu_relax();
--
--		preempt_enable();
--		usecs -= smallusecs;
--	}
-+	(*ia64_udelay)(usecs);
- }
- EXPORT_SYMBOL(udelay);
- 
-Index: linux/arch/ia64/sn/kernel/sn2/timer.c
-===================================================================
---- linux.orig/arch/ia64/sn/kernel/sn2/timer.c	2006-01-02 19:21:10.000000000 -0800
-+++ linux/arch/ia64/sn/kernel/sn2/timer.c	2006-02-14 10:27:26.000000000 -0800
-@@ -14,6 +14,7 @@
- 
- #include <asm/hw_irq.h>
- #include <asm/system.h>
-+#include <asm/timex.h>
- 
- #include <asm/sn/leds.h>
- #include <asm/sn/shub_mmr.h>
-@@ -28,9 +29,27 @@ static struct time_interpolator sn2_inte
- 	.source = TIME_SOURCE_MMIO64
- };
- 
-+/*
-+ * sn udelay uses the RTC instead of the ITC because the ITC is not
-+ * synchronized across all CPUs, and the thread may migrate to another CPU
-+ * if preemption is enabled.
-+ */
-+static void
-+ia64_sn_udelay (unsigned long usecs)
-+{
-+	unsigned long start = rtc_time();
-+	unsigned long end = start +
-+			usecs * sn_rtc_cycles_per_second / 1000000;
-+
-+	while (time_before((unsigned long)rtc_time(), end))
-+		cpu_relax();
-+}
-+
- void __init sn_timer_init(void)
- {
- 	sn2_interpolator.frequency = sn_rtc_cycles_per_second;
- 	sn2_interpolator.addr = RTC_COUNTER_ADDR;
- 	register_time_interpolator(&sn2_interpolator);
-+
-+	ia64_udelay = &ia64_sn_udelay;
- }
-Index: linux/include/asm-ia64/timex.h
-===================================================================
---- linux.orig/include/asm-ia64/timex.h	2006-01-02 19:21:10.000000000 -0800
-+++ linux/include/asm-ia64/timex.h	2006-02-14 10:27:46.000000000 -0800
-@@ -15,6 +15,8 @@
- 
- typedef unsigned long cycles_t;
- 
-+extern void (*ia64_udelay)(unsigned long usecs);
-+
- /*
-  * For performance reasons, we don't want to define CLOCK_TICK_TRATE as
-  * local_cpu_data->itc_rate.  Fortunately, we don't have to, either: according to George
+So because SCSI is more expensive than USB, it is ok to assume it will 
+only be used by people who know what they are doing?  And since USB will 
+be used by people who don't know what they are doing, we must assume 
+they will always do silly things ( swap or modify the drive while 
+suspended ), at the expense of those who don't?
+
+

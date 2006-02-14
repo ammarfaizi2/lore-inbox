@@ -1,23 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030333AbWBNEFg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030335AbWBNEGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030333AbWBNEFg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 23:05:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030335AbWBNEFg
+	id S1030335AbWBNEGR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 23:06:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbWBNEGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 23:05:36 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:48799 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030333AbWBNEFf (ORCPT
+	Mon, 13 Feb 2006 23:06:17 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:54943 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030335AbWBNEGQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 23:05:35 -0500
-Date: Mon, 13 Feb 2006 20:04:29 -0800
+	Mon, 13 Feb 2006 23:06:16 -0500
+Date: Mon, 13 Feb 2006 20:05:17 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: c-otto@gmx.de
-Cc: penberg@cs.Helsinki.FI, linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: Kernel BUG at include/linux/gfp.h:80
-Message-Id: <20060213200429.0521880d.akpm@osdl.org>
-In-Reply-To: <20060213201644.GA8961@carsten-otto.halifax.rwth-aachen.de>
-References: <Pine.LNX.4.58.0601201214060.13564@sbz-30.cs.Helsinki.FI>
-	<20060213201644.GA8961@carsten-otto.halifax.rwth-aachen.de>
+To: "Nikolay N. Ivanov" <nn@nndl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15.x - very slow disk-writing
+Message-Id: <20060213200517.20f7a291.akpm@osdl.org>
+In-Reply-To: <43F0F67A.8080001@nndl.org>
+References: <43F0F67A.8080001@nndl.org>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,18 +24,15 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carsten Otto <c-otto@gmx.de> wrote:
+"Nikolay N. Ivanov" <nn@nndl.org> wrote:
 >
-> Unfortunately my PC freezes as soon as I start a 3D game (Enemy
->  Territory True Combat Elite) when I see the first few 3D ingame frames.
->  Running glxgears is fine, as is running multiple instances of VLC to
->  output several audio streams through one device.
->  Switching off the sound in ET:TCE does not help at all.
+> Disk-writing in 2.6.15.[1, 2, 3, 4] is very slowly on my computer. There 
+>  is no such problem in 2.6.[10, 11, 12, 13, 14] with even configuration.
+> 
+>  PC PIII, IDE HDD, 512RAM, Fs-type: ext3, swap partition: 512MB, 
+>  Slackware 10.1
+> 
+>  I tryed to install 2.6.15.x on other computer with other 
+>  Linux-distribution (Mandriva) and the error stays.
 
-Is that new behaviour?  If so, which was the most recent kernel which
-worked OK?
-
-What sort of video card are you using?
-
-Thanks.
-
+Please send the output of `dmesg -s 1000000'.

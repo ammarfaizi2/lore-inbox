@@ -1,42 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbWBNDWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbWBNDZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030221AbWBNDWS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 22:22:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbWBNDWS
+	id S1750966AbWBNDZd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 22:25:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbWBNDZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 22:22:18 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:16019 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750962AbWBNDWR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 22:22:17 -0500
-Date: Mon, 13 Feb 2006 19:21:05 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Jones <davej@redhat.com>
-Cc: avuton@gmail.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.16-rc3
-Message-Id: <20060213192105.7e6da072.akpm@osdl.org>
-In-Reply-To: <20060214025443.GB8405@redhat.com>
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org>
-	<3aa654a40602130231p1c476e99paa986fa198951839@mail.gmail.com>
-	<20060213023925.2b950eea.akpm@osdl.org>
-	<3aa654a40602130251t174a5e4bg28a52a147cc9b2cf@mail.gmail.com>
-	<20060213025603.2014f9bd.akpm@osdl.org>
-	<20060213184442.464f0fc6.akpm@osdl.org>
-	<20060214025443.GB8405@redhat.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 13 Feb 2006 22:25:33 -0500
+Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:61292 "EHLO
+	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750783AbWBNDZd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 22:25:33 -0500
+Message-ID: <43F14DAA.6000703@bigpond.net.au>
+Date: Tue, 14 Feb 2006 14:25:30 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: quilt-dev@nongnu.org
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Quilt-dev] Quilt 0.43 has been released! [SERIOUS BUG]
+References: <20060202230210.05a6ad4a.khali@linux-fr.org>
+In-Reply-To: <20060202230210.05a6ad4a.khali@linux-fr.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 14 Feb 2006 03:25:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> wrote:
->
->   > argh.   The fix for this oops is still languishing in David's tree.
+Jean Delvare wrote:
+> Hi all,
 > 
->  I was waiting for it to turn up in an -mm release first to be
->  sure everything was ok.
+> Quilt 0.43 is now available for download from Savannah:
+> http://download.savannah.gnu.org/releases/quilt/
+> 
+> Enjoy!
+> 
 
-If we're at -rc<late> and we have a fix in hand and we know we will want
-that fix in 2.6.x, I don't think there's a lot of point in hanging around -
-slam it in asap, give it the most exposure possible.
+I've experienced a serious problem with this version of quilt that is 
+rather hard to explain but definitely arrived with this version as 
+reverting to 0.42 makes the problem go away.
+
+Now to try to explain the problem :-(
+
+The problem arises when pushing a patch that has errors in it (due to 
+changes in the previous patches in the series) and needs the -f flag to 
+force the push.  What's happening is that the reverse of the errors is 
+being applied to the "pre patch" file in the .pc directory.  Then when 
+you pop this patch it returns the file to a state with the reverse of 
+the errors applied to it.
+
+I'm having trouble understanding how quilt could be dumb enough to do 
+this as surely the "pre patch" file in the .pc directory should be just 
+a copy of the file before the patch is applied.
+
+This bug can completely hose a set of patches if the user doesn't notice 
+it very early and do something about it.  The work around is to revert 
+to version 0.42 of quilt.
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

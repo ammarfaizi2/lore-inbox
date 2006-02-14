@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWBNLQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbWBNLSd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161008AbWBNLQV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 06:16:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbWBNLQV
+	id S1030233AbWBNLSd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 06:18:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030570AbWBNLSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 06:16:21 -0500
-Received: from zproxy.gmail.com ([64.233.162.194]:29769 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161008AbWBNLQU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 06:16:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Nwjc8N1b6ZIjLgnryyRK3Hy8oKYbiFqnwE/0IygNP/pCKQDWCgNJPCMbQ1EoVOgeiLWcGvyokMDhBtskiWyX30HzMwVjn2zYyg5PJNOHFLM88x6lYvZryr4A93JmpHkDVUqLM79Iq1etKfQC4zZxZ76fBXuiOsUmEfP/4+7FEV8=
-Message-ID: <6bffcb0e0602140316sae62b9an@mail.gmail.com>
-Date: Tue, 14 Feb 2006 12:16:19 +0100
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.16-rc3-mm1
-Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
-In-Reply-To: <20060214014157.59af972f.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 14 Feb 2006 06:18:33 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:64949 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030233AbWBNLSd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 06:18:33 -0500
+Date: Tue, 14 Feb 2006 12:16:48 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de
+Subject: Re: [PATCH 10/12] hrtimer: remove useless const
+Message-ID: <20060214111648.GA26311@elte.hu>
+References: <Pine.LNX.4.61.0602141111380.3741@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060214014157.59af972f.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0602141111380.3741@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.2
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On 14/02/06, Andrew Morton <akpm@osdl.org> wrote:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc3/2.6.16-rc3-mm1/
->
-> - Various fixes, updates and cleanups.  Nothing very exciting, unless you
->   spend a lot of your time waiting for msync() to complete.
->
-> - Again, please cast an eye across this patch series for things which should
->   go into 2.6.16.
+* Roman Zippel <zippel@linux-m68k.org> wrote:
 
-It's strange... rc3-mm1 vs. rc2-mm1
+> A const for arguments which are passed by value is completely ignored 
+> by gcc. It has only an effect on local variables and even here a 
+> recent gcc doesn't need it either to produce better code. I left a few 
+> const which help gcc-3.x to produce slightly smaller code.
 
-:/usr/src/linux-mm$ uname -a
-Linux ltg01-sid 2.6.16-rc2-mm1 #15 SMP PREEMPT Thu Feb 9 18:12:08 CET
-2006 i686 GNU/Linux
+still nack... Using const is _not a bug_, and in fact there are some 
+good reasons to make use of it - so it should be left up to the authors 
+of the code how much they make use of const. This patch also creates 
+quite some churn in the -hrt queue, for no good reason.
 
-
-:/usr/src/linux-mm$ head Makefile
-VERSION = 2
-PATCHLEVEL = 6
-SUBLEVEL = 16
-EXTRAVERSION =-rc3-mm1
-
-there is something wrong with build system.
-
-I had a lot of "modprobe: FATAL: Could not load
-/lib/modules/2.6.16-rc2-mm1/ modules.dep: No such file or directory"
-messages while boot.
-Workaround: copy files from /lib/modules/2.6.16-rc3-mm1 to
-/lib/modules/2.6.16-rc2-mm1
-
-Regards,
-Michal Piotrowski
+	Ingo

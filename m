@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161007AbWBNLLc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161009AbWBNLPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161007AbWBNLLc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 06:11:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161008AbWBNLLb
+	id S1161009AbWBNLPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 06:15:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161011AbWBNLPJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 06:11:31 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:2950 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1161007AbWBNLLb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 06:11:31 -0500
-Date: Tue, 14 Feb 2006 12:09:47 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de
-Subject: Re: [PATCH 00/12] hrtimer patches
-Message-ID: <20060214110947.GA25341@elte.hu>
-References: <Pine.LNX.4.61.0602141057320.30994@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0602141057320.30994@scrub.home>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 14 Feb 2006 06:15:09 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:38592 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1161009AbWBNLPH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 06:15:07 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Tue, 14 Feb 2006 12:13:16 +0100
+To: schilling@fokus.fraunhofer.de, luke@dashjr.org
+Cc: seanlkml@sympatico.ca, sam@vilain.net, peter.read@gmail.com, mj@ucw.cz,
+       matthias.andree@gmx.de, lkml@dervishd.net, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43F1BB4C.nailMWZ118O17@burner>
+References: <43EB7BBA.nailIFG412CGY@burner>
+ <200602131722.29633.luke@dashjr.org> <43F0C4A3.nailMEM11MHR7@burner>
+ <200602131749.46880.luke@dashjr.org>
+In-Reply-To: <200602131749.46880.luke@dashjr.org>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Luke-Jr <luke@dashjr.org> wrote:
 
-* Roman Zippel <zippel@linux-m68k.org> wrote:
+> What does it do "wrong" anyway? IIRC, DMA in general works...
 
-> Here is new version of the hrtimer patches sorted by priority. I 
-> dropped the remaining time patch, the const patch doesn't produce a 
-> larger kernel with gcc3 and I also added the acks so far. I consider 
-> the first four patches the most important and the remaining patches 
-> simple enough, that I think they're still 2.6.16 material.
+If you really believe that it is good practice to implement DMA in
+a way so it works at some places as expected but on others not....
 
-i only consider the first two patches to be 2.6.16 material. The other 
-patches avoid a ->get_time() call per timer interrupt - that's noise at 
-most ...
+... then you like the Linux kernel be a junk yard :-(
 
-	Ingo
+Good practice is to fix _all_ related code in a project in case a bug
+is identified and fixed at some place. Unfortunately this is not true
+for Linux and for this reason, Linux cannot yet be called mature.
+
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

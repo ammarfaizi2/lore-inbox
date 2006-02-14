@@ -1,35 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422648AbWBNVFw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422642AbWBNVFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422648AbWBNVFw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 16:05:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422672AbWBNVFv
+	id S1422642AbWBNVFc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 16:05:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422648AbWBNVFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 16:05:51 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:28899 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1422648AbWBNVFo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 16:05:44 -0500
-Date: Tue, 14 Feb 2006 21:05:38 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Mark Lord <lkml@rtr.ca>, "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add cast to __iomem pointer in scsi drivers
-Message-ID: <20060214210538.GF27946@ftp.linux.org.uk>
-References: <s5hzmktaecj.wl%tiwai@suse.de> <Pine.LNX.4.61.0602141530420.32364@chaos.analogic.com> <s5hu0b1ad2o.wl%tiwai@suse.de> <43F2419E.9060308@rtr.ca> <s5hslqlac86.wl%tiwai@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 14 Feb 2006 16:05:32 -0500
+Received: from mx2.suse.de ([195.135.220.15]:38325 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1422642AbWBNVFb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 16:05:31 -0500
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.16-rc3-mm1: i386 compilation broken
+Date: Tue, 14 Feb 2006 22:05:07 +0100
+User-Agent: KMail/1.8.2
+Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>, bunk@stusta.de,
+       linux-kernel@vger.kernel.org
+References: <20060214014157.59af972f.akpm@osdl.org> <6bffcb0e0602140554j56d5a95bi@mail.gmail.com> <20060214122320.21b4459b.akpm@osdl.org>
+In-Reply-To: <20060214122320.21b4459b.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <s5hslqlac86.wl%tiwai@suse.de>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200602142205.08307.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 14, 2006 at 09:59:05PM +0100, Takashi Iwai wrote:
-> Yes, that'll be the best solution.  But, in these drivers, the same
-> struct fields are used for both inl() and writel() depending on the
-> flag, so you cannot change the type.
-> 
-> Hm, looks like I hit a dreadful case without a good solution.
+On Tuesday 14 February 2006 21:23, Andrew Morton wrote:
 
-ioread*/iowrite*
+> 
+> Andi like to break x86 - I think it's a market-share thing.
+
+:)  I'll try to do 32bit builds more often.
+ 
+> I wonder why I didn't hit that problem.
+
+It only hits with allyesconfig or obscure configurations I think
+
+> 
+> > Andrew can you add this to hot-fixes?
+> 
+> Done.  I backed out the whole patch.
+
+It would have been enough to just back out that hunk. Or if you do a resync
+you'll get a fixed patch.
+
+-Andi
+
+
+ 

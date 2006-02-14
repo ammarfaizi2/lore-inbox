@@ -1,47 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbWBNDKX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030213AbWBNDMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030212AbWBNDKX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 22:10:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbWBNDKX
+	id S1030213AbWBNDMn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 22:12:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030220AbWBNDMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 22:10:23 -0500
-Received: from mail.harddata.com ([216.123.194.198]:61880 "EHLO
-	mail.harddata.com") by vger.kernel.org with ESMTP id S1030208AbWBNDKV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 22:10:21 -0500
-Date: Mon, 13 Feb 2006 20:08:21 -0700
-From: Michal Jaegermann <michal@harddata.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, "Brown, Len" <len.brown@intel.com>,
-       davem@davemloft.net, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       axboe@suse.de, James.Bottomley@steeleye.com, greg@kroah.com,
-       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       luming.yu@intel.com, lk@bencastricum.nl, sanjoy@mrao.cam.ac.uk,
-       helgehaf@aitel.hist.no, fluido@fluido.as, gbruchhaeuser@gmx.de,
-       Nicolas.Mailhot@LaPoste.net, perex@suse.cz, tiwai@suse.de,
-       patrizio.bassi@gmail.com, bni.swe@gmail.com, arvidjaar@mail.ru,
-       p_christ@hol.gr, ghrt@dial.kappa.ro, jinhong.hu@gmail.com,
-       andrew.vasquez@qlogic.com, linux-scsi@vger.kernel.org, bcrl@kvack.org
-Subject: Re: Linux 2.6.16-rc3
-Message-ID: <20060214030821.GA23031@mail.harddata.com>
-References: <F7DC2337C7631D4386A2DF6E8FB22B30060BD1D9@hdsmsx401.amr.corp.intel.com> <20060213001240.05e57d42.akpm@osdl.org> <1139821068.2997.22.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1139821068.2997.22.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 13 Feb 2006 22:12:43 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:27278 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1030213AbWBNDMm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 22:12:42 -0500
+Message-Id: <200602140312.k1E3CWg17620@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>, "'Ingo Molnar'" <mingo@elte.hu>,
+       "'Andrew Morton'" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [patch 1/2] fix perf. bug in wake-up load balancing for aim7 and db workload
+Date: Mon, 13 Feb 2006 19:12:32 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcYxFAK2pbwTbFOMQ5WU5455NIBdvQAAB8LQ
+In-Reply-To: 
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 13, 2006 at 09:57:48AM +0100, Arjan van de Ven wrote:
-> On Mon, 2006-02-13 at 00:12 -0800, Andrew Morton wrote:
-> > 
-> > I think we can assume that it will be seen there.  2.6.16 is going into
-> > distros and will have more exposure than 2.6.15, 
-> 
-> 2.6.15 went into distros as well, such as Fedora Core 4 ;)
+Revert commit d7102e95b7b9c00277562c29aad421d2d521c5f6,
+which causes more than 10% performance regression with aim7.
 
-And promptly broke laptop suspension.  See, for example:
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=180998
 
-   Michal
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+
+--- linux-2.6.16-rc2/include/linux/sched.h.orig	2006-02-13 18:15:09.660276655 -0800
++++ linux-2.6.16-rc2/include/linux/sched.h	2006-02-13 18:15:36.234495079 -0800
+@@ -697,12 +697,9 @@ struct task_struct {
+ 
+ 	int lock_depth;		/* BKL lock depth */
+ 
+-#if defined(CONFIG_SMP)
+-	int last_waker_cpu;	/* CPU that last woke this task up */
+-#if defined(__ARCH_WANT_UNLOCKED_CTXSW)
++#if defined(CONFIG_SMP) && defined(__ARCH_WANT_UNLOCKED_CTXSW)
+ 	int oncpu;
+ #endif
+-#endif
+ 	int prio, static_prio;
+ 	struct list_head run_list;
+ 	prio_array_t *array;
+--- linux-2.6.16-rc2/kernel/sched.c.orig	2006-02-13 18:11:28.946412171 -0800
++++ linux-2.6.16-rc2/kernel/sched.c	2006-02-13 18:14:29.595824020 -0800
+@@ -1294,9 +1294,6 @@ static int try_to_wake_up(task_t *p, uns
+ 		}
+ 	}
+ 
+-	if (p->last_waker_cpu != this_cpu)
+-		goto out_set_cpu;
+-
+ 	if (unlikely(!cpu_isset(this_cpu, p->cpus_allowed)))
+ 		goto out_set_cpu;
+ 
+@@ -1367,8 +1364,6 @@ out_set_cpu:
+ 		cpu = task_cpu(p);
+ 	}
+ 
+-	p->last_waker_cpu = this_cpu;
+-
+ out_activate:
+ #endif /* CONFIG_SMP */
+ 	if (old_state == TASK_UNINTERRUPTIBLE) {
+@@ -1450,12 +1445,9 @@ void fastcall sched_fork(task_t *p, int 
+ #ifdef CONFIG_SCHEDSTATS
+ 	memset(&p->sched_info, 0, sizeof(p->sched_info));
+ #endif
+-#if defined(CONFIG_SMP)
+-	p->last_waker_cpu = cpu;
+-#if defined(__ARCH_WANT_UNLOCKED_CTXSW)
++#if defined(CONFIG_SMP) && defined(__ARCH_WANT_UNLOCKED_CTXSW)
+ 	p->oncpu = 0;
+ #endif
+-#endif
+ #ifdef CONFIG_PREEMPT
+ 	/* Want to start with kernel preemption disabled. */
+ 	task_thread_info(p)->preempt_count = 1;
+

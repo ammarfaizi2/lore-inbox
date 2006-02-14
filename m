@@ -1,43 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422683AbWBNRIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422688AbWBNRM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422683AbWBNRIG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 12:08:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422684AbWBNRIG
+	id S1422688AbWBNRM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 12:12:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422687AbWBNRM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 12:08:06 -0500
-Received: from mail.gmx.net ([213.165.64.21]:43154 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1422683AbWBNRIE (ORCPT
+	Tue, 14 Feb 2006 12:12:26 -0500
+Received: from lucidpixels.com ([66.45.37.187]:21978 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1422685AbWBNRMZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 12:08:04 -0500
-X-Authenticated: #428038
-Date: Tue, 14 Feb 2006 18:08:00 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060214170800.GA8948@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <5a2cf1f60602130724n7b060e29r57411260b04d5972@mail.gmail.com> <43F0AA83.nailKUS171HI4B@burner> <5a2cf1f60602130805u537de206k22fa418ee214cf02@mail.gmail.com> <43F0B2BA.nailKUS1DNTEHA@burner> <Pine.LNX.4.61.0602131732190.24297@yvahk01.tjqt.qr> <43F0B5BE.nailMBX2SZNBE@burner> <200602131919.k1DJJF5G025923@turing-police.cc.vt.edu> <43F1C385.nailMWZ599SQ5@burner> <515e525f0602140501j1f9fbe14x8a3eef0bbf179035@mail.gmail.com> <43F209BB.nailMWZP1XY5P@burner>
+	Tue, 14 Feb 2006 12:12:25 -0500
+Date: Tue, 14 Feb 2006 12:12:09 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: David Greaves <david@dgreaves.com>
+cc: Mark Lord <lkml@rtr.ca>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>
+Subject: Re: LibPATA code issues / 2.6.15.4
+In-Reply-To: <43F2050B.8020006@dgreaves.com>
+Message-ID: <Pine.LNX.4.64.0602141211350.10793@p34>
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F1EE4A.3050107@rtr.ca>
+ <43F2050B.8020006@dgreaves.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43F209BB.nailMWZP1XY5P@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-02-14:
+I would like to try the patch too, if available.
 
-> Try to get hand on the deleted bug entries on Debian and you will see how
-> cdrecord is interrupted.
+I got these errors when nothing (apparent) was going on.
 
-How about you offer a few "deleted bug" numbers?
+[25158.676998] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[25158.677005] ata3: status=0x51 { DriveReady SeekComplete Error }
+[25158.677009] ata3: error=0x04 { DriveStatusError }
+[27306.663556] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[27306.663563] ata3: status=0x51 { DriveReady SeekComplete Error }
+[27306.663567] ata3: error=0x04 { DriveStatusError }
 
-Or have you been so sloppy not to record the bugs of interest in
-external packages?
 
--- 
-Matthias Andree
+On Tue, 14 Feb 2006, David Greaves wrote:
+
+> Mark Lord wrote:
+>
+>> Justin Piszcz wrote:
+>> ..
+>>
+>>>  ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
+>>>  ata3: status=0x51 { DriveReady SeekComplete Error }
+>>>  ata3: error=0x04 { DriveStatusError }
+>>
+>>
+>> I wonder if the FUA logic is inserting cache-flush commands
+>> and perhaps the drive is rejecting those?
+>>
+>> Jeff, we really ought to be including the failed ATA opcode
+>> in those error messages!!
+>>
+> If such a thing were available as a patch then I too would apply it and
+> hopefully could provide useful feedback.
+>
+> David
+> PS My problems:
+>
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=113769509617034&w=2
+> http://marc.theaimsgroup.com/?l=linux-ide&m=113828551519727&w=2
+> http://marc.theaimsgroup.com/?l=linux-ide&m=113829573105369&w=2
+> http://marc.theaimsgroup.com/?l=linux-ide&m=113933732903205&w=2
+>
+>

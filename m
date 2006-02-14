@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030231AbWBNN5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030572AbWBNN7B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030231AbWBNN5y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 08:57:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030563AbWBNN5y
+	id S1030572AbWBNN7B (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 08:59:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030576AbWBNN7B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 08:57:54 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:31104 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1030231AbWBNN5y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 08:57:54 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Tue, 14 Feb 2006 14:55:39 +0100
-To: schilling@fokus.fraunhofer.de, dhazelton@enter.net
-Cc: trudheim@gmail.com, nix@esperi.org.uk, linux-kernel@vger.kernel.org,
-       davidsen@tmr.com, axboe@suse.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F1E15B.nailMWZ92B3KZ@burner>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
- <515e525f0602130446s1091f09ande10910f65a0f5f0@mail.gmail.com>
- <43F0A1F3.nailKUSV1V88J@burner>
- <200602131824.15810.dhazelton@enter.net>
-In-Reply-To: <200602131824.15810.dhazelton@enter.net>
-User-Agent: nail 11.2 8/15/04
+	Tue, 14 Feb 2006 08:59:01 -0500
+Received: from nproxy.gmail.com ([64.233.182.199]:50408 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030572AbWBNN7A convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 08:59:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=pfgk0pOnOD3v4b2Qkpe3i9gOd1Hp0oLL629YJ1wDl///33/7oKIURQBTgJj46DEq4o7cKZwABCSBulzMcMTJS9vaDN/eTtYDFv9HDpRAl0d5/nHLcV5aXuiyYsBruRzB0iTPDf/itYDCmirw8POM50FkbO+726lUWtszxT1AJtk=
+Message-ID: <cde01ae70602140558g6440af40mf59e3e1992088d3b@mail.gmail.com>
+Date: Tue, 14 Feb 2006 14:58:58 +0100
+From: Lz <elezeta@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Problems with sound on latest kernels.
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"D. Hazelton" <dhazelton@enter.net> wrote:
+Hello,
 
-> > If you did know what a worm is, you would know that you are not correct:
-> >
-> > A WORM allows you to randomly write any sector once.
-> >
-> > A CD-R does not allows you to do this.
->
-> Joerg, the practical definition of WORM is "Write Once, Read Many" - whether 
-> or not it supports writes to random sectors is a moot point, a CDR does seem 
-> to fit the bill of a "write once, read many" medium.
+I can't manage to get my sound cards (SB VIBRA and SB AWE 32) working
+on the latest kernels (> 2.6.14 approximately).
 
-What you believe is irrelevent as long as it does not match the WORM device
-definition.
+They doesn't even work if i use an older .config from a 2.6.12 kernel
+in which they worked. That's the weird thing.
 
-See www.t10.org
+These are the relevant lines on dmesg:
 
-Jörg
+Activating ISA DMA hang workarounds.
+isapnp: Scanning for PnP cards...
+pnp: SB audio device quirk - increasing port range
+pnp: AWE32 quirk - adding two ports
+pnp: SB audio device quirk - increasing port range
+isapnp: Card 'Creative SB AWE32 PnP'
+isapnp: Card 'Creative ViBRA16C PnP'
+isapnp: 2 Plug & Play cards detected total
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+sb: Init: Starting Probe...
+sb: PnP: Found Card Named = "Creative SB AWE32 PnP", Card PnP id = CTL0042, Devi
+ce PnP id = CTL0031
+sb: PnP:      Detected at: io=0x0, irq=-1, dma=-1, dma16=-1
+sb: ports busy.
+sb: PnP: Found Card Named = "Creative ViBRA16C PnP", Card PnP id = CTL0070, Devi
+ce PnP id = CTL0001
+sb: PnP:      Detected at: io=0x0, irq=-1, dma=-1, dma16=-1
+sb: ports busy.
+sb: Init: Done
+
+(Note that when they worked, the irq and dma were not -1).
+
+Is there any fix around? :?
+
+Thanks.
+
+--
+Lz (elezeta@gmail.com).
+http://elezeta.bounceme.net

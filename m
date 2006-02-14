@@ -1,76 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030475AbWBNGGU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030404AbWBNGF4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030475AbWBNGGU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 01:06:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030477AbWBNGGU
+	id S1030404AbWBNGF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 01:05:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030476AbWBNGF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 01:06:20 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:53163 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030475AbWBNGGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 01:06:19 -0500
-Message-ID: <43F172BA.1020405@jp.fujitsu.com>
-Date: Tue, 14 Feb 2006 15:03:38 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
+	Tue, 14 Feb 2006 01:05:56 -0500
+Received: from ms-smtp-05-smtplb.tampabay.rr.com ([65.32.5.135]:7676 "EHLO
+	ms-smtp-05.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S1030404AbWBNGFz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 01:05:55 -0500
+Message-ID: <43F1733E.8010300@cfl.rr.com>
+Date: Tue, 14 Feb 2006 01:05:50 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Mail/News 1.5 (X11/20060119)
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>
-Subject: [RFC][PATCH 0/4] PCI legacy I/O port free driver
-Content-Type: text/plain; charset=ISO-2022-JP
+To: David Brownell <david-b@pacbell.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Flames over -- Re: Which is simpler?
+References: <200602131116.41964.david-b@pacbell.net> <43F0E724.6000807@cfl.rr.com> <200602131910.50304.david-b@pacbell.net>
+In-Reply-To: <200602131910.50304.david-b@pacbell.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+David Brownell wrote:
+> No, not "AFAIK" ... since when I told you explicitly that was untrue,
+> you then ignored that statement.  And didn't look at the specs that
+> I pointed you towards, which provide the details.  (USB 2.0 spec re
+> hubs; and of course the Linux-USB hub driver ... www.usb.org)
 
-I encountered a problem that some PCI devices don't work on my system
-which have huge number of PCI devices.
+I ignored nothing.  I fully accepted your explanation as true and 
+pointed out that it changes nothing; data loss in this perfectly valid 
+use case just because the kernel can not be absolutely certain the user 
+did not do something stupid while suspended is unacceptable.
 
-It is mandatory for all PCI device drivers to enable the device by
-calling pci_enable_device() which enables all regions probed from the
-device's BARs. If pci_enable_device() failes to enable any regions
-probed from BARs, it returns as error. On the large servers, I/O port
-resource could not be assigned to all PCI devices because it is
-limited (64KB on Intel Architecture[1]) and it would be fragmented
-(I/O base register of PCI-to-PCI bridge will usually be aligned to a
-4KB boundary[2]). In this case, the devices which have no I/O port
-resource assigned don't work because pci_enable_device() for those
-devices failes. This is what happened on my machine.
----
-[1]: Some machines support 64KB I/O port space per PCI segment.
-[2]: Some P2P bridges support optional 1KB aligned I/O base.
+> 
+> The events that a hub receives say pretty exactly what happened.
+> You should know that already, since USB behaves that way even
+> when the system is _not_ suspended ... 
+> 
 
-Here, there are many PCI devices that provide both I/O port and MMIO
-interface, and some of those devices can be handled without using I/O
-port interface. The reason why such devices provide I/O port interface
-is for compatibility to legacy OSs. So this kind of devices should
-work even if enough I/O port resources are not assigned. The "PCI
-Local Bus Specification Revision 3.0" also mentions about this topic
-(Please see p.44, "IMPLEMENTATION NOTE"). On the current linux,
-unfortunately, this kind of devices don't work if I/O port resources
-are not assigned, because pci_enable_device() for those devices fails.
+How it behaves while running and how it behaves while suspended are 
+usually two very different things.
 
-To solve this problem, this series of patches introduces a new
-interface pci_set_bar_mask() and pci_set_bar_mask_by_resource() for
-PCI device drivers to tell the kernel what regions they really want to
-use. Once the driver call pci_set_bar_mask*(), following
-pci_enable_device() and pci_request_regions() call handles only the
-specific regions. If the driver doesn't use pci_set_bar_mask*(),
-pci_enable_device() and pci_request_regions() handle all regions as
-they currently are. By using pci_set_bar_mask*(), we can make PCI
-drivers legacy I/O port free with very small change.
+> The full mechanism for USB is more like wakeup signaling on USB triggering
+> hub wakeup (possibly cascading through a few layers of external hub), at
+> some point triggering root hub wakeup, which maps to a PME# signal.  That
+> relies on no more than VBUS being powered at a fraction of a milliAmpere,
+> and the equivalent of a pair of voltage comparators triggering wakeup when
+> USB signaling changes from J to K states for something like 10 msec.
+> 
+> 
+> 
+> Did you read about the PME# signal in the PCI PM spec?  www.pci-sig.com
+> Maybe you could try that. 
+> 
 
-I'm attaching the following four patches:
+No, I took your word for it without protest as it doesn't change my main 
+argument: data loss in the face of normal usage is not acceptable. 
+Claiming that it has to be this way because the alternative _might_ 
+result in data loss in the worst (mis)use case is an untenable position.
 
-    [patch 1/4] Inntroduce pci_set_bar_mask*()
-    [patch 2/4] Update Documantion/pci.txt
-    [patch 3/4] Make Intel e1000 driver legacy I/O port free
-    [patch 4/4] Make Emulex lpfc driver legacy I/O port free
 
-I would very much appreciate giving me any comments and suggestions.
+> Also the ACPI spec ... the early chapters give a decent overview of the
+> different components of that model.  (ISTR two chapters try that, with
+> the second being more to-the-point despite some duplicated graphics.)
+> 
+> - Dave
+> 
+>  
+> 
 
-Thanks,
-Kenji Kaneshige

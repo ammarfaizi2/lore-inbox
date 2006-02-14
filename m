@@ -1,93 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422707AbWBNVOS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422725AbWBNVRs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422707AbWBNVOS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 16:14:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422725AbWBNVOS
+	id S1422725AbWBNVRs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 16:17:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422733AbWBNVRs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 16:14:18 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:21258 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1422707AbWBNVOS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 16:14:18 -0500
-Message-ID: <43F247EC.3070503@cfl.rr.com>
-Date: Tue, 14 Feb 2006 16:13:16 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Kyle Moffett <mrmacman_g4@mac.com>
-CC: Alan Stern <stern@rowland.harvard.edu>,
-       Alon Bar-Lev <alon.barlev@gmail.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Flames over -- Re: Which is simpler?
-References: <Pine.LNX.4.44L0.0602131601220.4754-100000@iolanthe.rowland.org> <43F11A9D.5010301@cfl.rr.com> <BCC8C7FA-25A2-4460-A667-5AA88BF5BC6D@mac.com> <43F13BDF.3060208@cfl.rr.com> <DD0B9449-14AF-47D1-8372-DDC7E896DBC2@mac.com> <43F17850.8080600@cfl.rr.com> <F157 <D2DF8AE9-51A0-42DF-8346-0EF4C264627D@mac.com>
-In-Reply-To: <D2DF8AE9-51A0-42DF-8346-0EF4C264627D@mac.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Feb 2006 21:15:33.0214 (UTC) FILETIME=[CA6FEFE0:01C631AB]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14268.000
-X-TM-AS-Result: No--21.099000-5.000000-31
+	Tue, 14 Feb 2006 16:17:48 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:33690 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1422725AbWBNVRr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 16:17:47 -0500
+Date: Tue, 14 Feb 2006 21:17:45 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Mark Lord <lkml@rtr.ca>, "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add cast to __iomem pointer in scsi drivers
+Message-ID: <20060214211745.GG27946@ftp.linux.org.uk>
+References: <s5hzmktaecj.wl%tiwai@suse.de> <Pine.LNX.4.61.0602141530420.32364@chaos.analogic.com> <s5hu0b1ad2o.wl%tiwai@suse.de> <43F2419E.9060308@rtr.ca> <s5hslqlac86.wl%tiwai@suse.de> <20060214210538.GF27946@ftp.linux.org.uk> <s5hr765abik.wl%tiwai@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hr765abik.wl%tiwai@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett wrote:
-> How is swapping USB devices while suspended unreasonable?  Come to 
-> think of it, I did it inadvertently about 15 minutes ago with my PowerBook
+On Tue, Feb 14, 2006 at 10:14:27PM +0100, Takashi Iwai wrote:
+> At Tue, 14 Feb 2006 21:05:38 +0000,
+> Al Viro wrote:
+> > 
+> > On Tue, Feb 14, 2006 at 09:59:05PM +0100, Takashi Iwai wrote:
+> > > Yes, that'll be the best solution.  But, in these drivers, the same
+> > > struct fields are used for both inl() and writel() depending on the
+> > > flag, so you cannot change the type.
+> > > 
+> > > Hm, looks like I hit a dreadful case without a good solution.
+> > 
+> > ioread*/iowrite*
+> 
+> Ah, that's it.  Thanks.
+> 
+> So, the right fix is to rewrite struct ata_ioport to use iomem
+> pointers and all accessses to ioread*/iowrite*() ?
+> OK, it's a longer way to go :)
 
-Because you can not go yanking devices out from under the kernel without 
-it's knowledge or consent.  This is no more acceptable than ejecting a 
-floppy without first unmounting it; the only difference is that the 
-floppy drive doesn't erroneously inform the kernel that you have done 
-this simply because you suspend. 
-
-> (while booted into Mac OS).  I had a USB key that I was copying a file 
-> to for someone.  After shutting the lid, I unplugged mouse, USB key, 
-> and power block.  About 30 minutes later I had somebody else with a 
-> key who wanted to give me a file.  I had the key plugged in before the 
-> laptop was finished waking up from sleep.  Now, I don't know for 
-> certain that neither key had a serial number, but the two I have here 
-> in my hand certainly don't, and I could _easily_ see somebody swapping 
-> USB keys not knowing that they're "not supposed to do that" and 
-> getting massive data corruption when the filesystem reads and writes 
-> pages from a completely different block device.
->
-
-Then they shot themselves in the foot.  That is no different than 
-switching mounted floppies while suspended, or removing a mounted IDE 
-hard drive while suspended, so they get what they deserve. 
-
-> Did you read what I wrote?  People don't generally expect to randomly 
-> plug and unplug SCSI drives whenever they feel like it.  They _do_ 
-> expect to randomly plug and unplug USB drives, mice, keyboards, 
-> tablets, network adapters, etc, because _everything_ supports such 
-> random plugging.
->
-
-No, they don't.  Users do not expect ( or should not and are told not to 
-by admins ) to be able to yank out their usb memory stick while it is 
-mounted.  They are told to always unmount first.  If they fail to do so, 
-then they get what they asked for.  It doesn't matter if the disk is 
-SCSI or USB; you don't go yanking it out without unmounting it first, or 
-you will loose data. 
-
-> Creating an extremely odd and hard to predict failure mode (when you 
-> reconnect USB devices while suspended on hardware that doesn't support 
-> proper USB suspend) with a high probability of causing data corruption 
-> or crashes is wrong.  Especially since you could easily teach users 
-> that "You need to eject USB things before you sleep the computer _or_ 
-> just fix the kernel to do it for you.  That's probably something we 
-> should be doing for all network filesystems anyways.
->
-
-Users are already told to eject/unmount the media before removing it.  
-If they fail to do that, it doesn't matter if the system is suspended or 
-not; they broke the drive when they yanked it out while mounted.  As for 
-fixing the kernel to unmount it for you, that is not always possible; 
-take the root on usb case. 
-
-Maybe it does make sense to have hibernation scripts unmount removable 
-media for the common silly user who can't remember to unmount disks 
-before ejecting/unplugging them, but you should be able to suspend a 
-system with its root on a usb disk and not have the kernel panic for no 
-good reason when it resumes. 
-
-
+Jeff has that partially done...

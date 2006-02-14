@@ -1,142 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030546AbWBNKN5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030280AbWBNKOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030546AbWBNKN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 05:13:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030466AbWBNKNJ
+	id S1030280AbWBNKOi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 05:14:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030313AbWBNKLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 05:13:09 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:42730 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1030316AbWBNKND (ORCPT
+	Tue, 14 Feb 2006 05:11:20 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:34538 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030300AbWBNKLN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 05:13:03 -0500
-Date: Tue, 14 Feb 2006 11:12:59 +0100 (CET)
+	Tue, 14 Feb 2006 05:11:13 -0500
+Date: Tue, 14 Feb 2006 11:11:09 +0100 (CET)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        tglx@linutronix.de, mingo@elte.hu
-Subject: [PATCH 12/12] hrtimer: remove nsec_t
-Message-ID: <Pine.LNX.4.61.0602141112530.3751@scrub.home>
+Subject: [PATCH 04/12] hrtimer: avoid get_time() call in hrtimer_forward()
+Message-ID: <Pine.LNX.4.61.0602141111001.3711@scrub.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-nsec_t predates ktime_t and has mostly been superseded by it. In the few
-places that are left it's better to make it explicit that we're dealing
-with 64 bit values here.
+hrtimer_forward() calls needlessly get_time(), where the callers already
+know how far the timer has to be forwarded. Also cleanup
+common_timer_get() a little.
 
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: John Stultz <johnstul@us.ibm.com>
 
 ---
 
- include/linux/time.h |   18 ++++++------------
- kernel/hrtimer.c     |    4 ++--
- kernel/time.c        |    4 ++--
- 3 files changed, 10 insertions(+), 16 deletions(-)
+ include/linux/hrtimer.h |    2 +-
+ kernel/hrtimer.c        |    7 +++----
+ kernel/itimer.c         |    1 +
+ kernel/posix-timers.c   |   26 +++++++++++++-------------
+ 4 files changed, 18 insertions(+), 18 deletions(-)
 
-Index: linux-2.6-git/include/linux/time.h
+Index: linux-2.6-git/include/linux/hrtimer.h
 ===================================================================
---- linux-2.6-git.orig/include/linux/time.h	2006-02-13 22:30:21.000000000 +0100
-+++ linux-2.6-git/include/linux/time.h	2006-02-13 22:30:23.000000000 +0100
-@@ -73,12 +73,6 @@ extern void set_normalized_timespec(stru
- #define timespec_valid(ts) \
- 	(((ts)->tv_sec >= 0) && (((unsigned long) (ts)->tv_nsec) < NSEC_PER_SEC))
- 
--/*
-- * 64-bit nanosec type. Large enough to span 292+ years in nanosecond
-- * resolution. Ought to be enough for a while.
-- */
--typedef s64 nsec_t;
--
- extern struct timespec xtime;
- extern struct timespec wall_to_monotonic;
- extern seqlock_t xtime_lock;
-@@ -113,9 +107,9 @@ extern struct timespec timespec_trunc(st
-  * Returns the scalar nanosecond representation of the timespec
-  * parameter.
-  */
--static inline nsec_t timespec_to_nsec(const struct timespec *ts)
-+static inline s64 timespec_to_nsec(const struct timespec *ts)
- {
--	return ((nsec_t) ts->tv_sec * NSEC_PER_SEC) + ts->tv_nsec;
-+	return ((s64) ts->tv_sec * NSEC_PER_SEC) + ts->tv_nsec;
+--- linux-2.6-git.orig/include/linux/hrtimer.h	2006-02-14 01:42:22.000000000 +0100
++++ linux-2.6-git/include/linux/hrtimer.h	2006-02-14 04:51:45.000000000 +0100
+@@ -123,7 +123,7 @@ static inline int hrtimer_active(const s
  }
  
- /**
-@@ -125,9 +119,9 @@ static inline nsec_t timespec_to_nsec(co
-  * Returns the scalar nanosecond representation of the timeval
-  * parameter.
-  */
--static inline nsec_t timeval_to_nsec(const struct timeval *tv)
-+static inline s64 timeval_to_nsec(const struct timeval *tv)
- {
--	return ((nsec_t) tv->tv_sec * NSEC_PER_SEC) +
-+	return ((s64) tv->tv_sec * NSEC_PER_SEC) +
- 		tv->tv_usec * NSEC_PER_USEC;
- }
+ /* Forward a hrtimer so it expires after now: */
+-extern unsigned long hrtimer_forward(struct hrtimer *timer, ktime_t interval);
++extern unsigned long hrtimer_forward(struct hrtimer *timer, ktime_t now, ktime_t interval);
  
-@@ -137,7 +131,7 @@ static inline nsec_t timeval_to_nsec(con
-  *
-  * Returns the timespec representation of the nsec parameter.
-  */
--extern struct timespec nsec_to_timespec(nsec_t nsec);
-+extern struct timespec nsec_to_timespec(s64 nsec);
- 
- /**
-  * nsec_to_timeval - Convert nanoseconds to timeval
-@@ -145,7 +139,7 @@ extern struct timespec nsec_to_timespec(
-  *
-  * Returns the timeval representation of the nsec parameter.
-  */
--extern struct timeval nsec_to_timeval(nsec_t nsec);
-+extern struct timeval nsec_to_timeval(s64 nsec);
- 
- #endif /* __KERNEL__ */
- 
+ /* Precise sleep: */
+ extern long hrtimer_nanosleep(struct timespec *rqtp,
 Index: linux-2.6-git/kernel/hrtimer.c
 ===================================================================
---- linux-2.6-git.orig/kernel/hrtimer.c	2006-02-13 22:30:21.000000000 +0100
-+++ linux-2.6-git/kernel/hrtimer.c	2006-02-13 22:30:23.000000000 +0100
-@@ -246,7 +246,7 @@ ktime_t ktime_add_nsec(ktime_t kt, u64 n
- /*
-  * Divide a ktime value by a nanosecond value
+--- linux-2.6-git.orig/kernel/hrtimer.c	2006-02-14 01:42:22.000000000 +0100
++++ linux-2.6-git/kernel/hrtimer.c	2006-02-14 04:51:45.000000000 +0100
+@@ -281,18 +281,17 @@ void unlock_hrtimer_base(const struct hr
+  * hrtimer_forward - forward the timer expiry
+  *
+  * @timer:	hrtimer to forward
++ * @now:	forward past this time
+  * @interval:	the interval to forward
+  *
+  * Forward the timer expiry so it will expire in the future.
+  * Returns the number of overruns.
   */
--static unsigned long ktime_div_nsec(const ktime_t kt, nsec_t div)
-+static unsigned long ktime_div_nsec(const ktime_t kt, s64 div)
+ unsigned long
+-hrtimer_forward(struct hrtimer *timer, ktime_t interval)
++hrtimer_forward(struct hrtimer *timer, ktime_t now, ktime_t interval)
  {
- 	u64 dclc, inc, dns;
- 	int sft = 0;
-@@ -302,7 +302,7 @@ hrtimer_forward(struct hrtimer *timer, k
- 		interval.tv64 = timer->base->resolution.tv64;
+ 	unsigned long orun = 1;
+-	ktime_t delta, now;
+-
+-	now = timer->base->get_time();
++	ktime_t delta;
  
- 	if (unlikely(delta.tv64 >= interval.tv64)) {
--		nsec_t incr = ktime_to_nsec(interval);
-+		s64 incr = ktime_to_nsec(interval);
+ 	delta = ktime_sub(now, timer->expires);
  
- 		orun = ktime_div_nsec(delta, incr);
- 		timer->expires = ktime_add_nsec(timer->expires, incr * orun);
-Index: linux-2.6-git/kernel/time.c
+Index: linux-2.6-git/kernel/itimer.c
 ===================================================================
---- linux-2.6-git.orig/kernel/time.c	2006-02-13 22:30:21.000000000 +0100
-+++ linux-2.6-git/kernel/time.c	2006-02-13 22:30:23.000000000 +0100
-@@ -637,7 +637,7 @@ void set_normalized_timespec(struct time
-  *
-  * Returns the timespec representation of the nsec parameter.
-  */
--struct timespec nsec_to_timespec(nsec_t nsec)
-+struct timespec nsec_to_timespec(s64 nsec)
- {
- 	struct timespec ts;
+--- linux-2.6-git.orig/kernel/itimer.c	2006-02-14 01:39:42.000000000 +0100
++++ linux-2.6-git/kernel/itimer.c	2006-02-14 04:51:44.000000000 +0100
+@@ -136,6 +136,7 @@ int it_real_fn(void *data)
  
-@@ -657,7 +657,7 @@ struct timespec nsec_to_timespec(nsec_t 
-  *
-  * Returns the timeval representation of the nsec parameter.
-  */
--struct timeval nsec_to_timeval(nsec_t nsec)
-+struct timeval nsec_to_timeval(s64 nsec)
+ 	if (tsk->signal->it_real_incr.tv64 != 0) {
+ 		hrtimer_forward(&tsk->signal->real_timer,
++			       tsk->signal->real_timer.base->last_expired,
+ 			       tsk->signal->it_real_incr);
+ 
+ 		return HRTIMER_RESTART;
+Index: linux-2.6-git/kernel/posix-timers.c
+===================================================================
+--- linux-2.6-git.orig/kernel/posix-timers.c	2006-02-14 01:39:42.000000000 +0100
++++ linux-2.6-git/kernel/posix-timers.c	2006-02-14 04:51:44.000000000 +0100
+@@ -254,6 +254,7 @@ static void schedule_next_timer(struct k
+ 		return;
+ 
+ 	timr->it_overrun += hrtimer_forward(&timr->it.real.timer,
++					    timr->it.real.timer.base->last_expired,
+ 					    timr->it.real.interval);
+ 	timr->it_overrun_last = timr->it_overrun;
+ 	timr->it_overrun = -1;
+@@ -351,6 +352,7 @@ static int posix_timer_fn(void *data)
+ 		if (timr->it.real.interval.tv64 != 0) {
+ 			timr->it_overrun +=
+ 				hrtimer_forward(&timr->it.real.timer,
++						timr->it.real.timer.base->last_expired,
+ 						timr->it.real.interval);
+ 			ret = HRTIMER_RESTART;
+ 		}
+@@ -601,18 +603,20 @@ static struct k_itimer * lock_timer(time
+ static void
+ common_timer_get(struct k_itimer *timr, struct itimerspec *cur_setting)
  {
- 	struct timespec ts = nsec_to_timespec(nsec);
- 	struct timeval tv;
+-	ktime_t remaining;
++	ktime_t remaining, now;
+ 	struct hrtimer *timer = &timr->it.real.timer;
+ 
+ 	memset(cur_setting, 0, sizeof(struct itimerspec));
+-	remaining = hrtimer_get_remaining(timer);
+ 
+-	/* Time left ? or timer pending */
+-	if (remaining.tv64 > 0 || hrtimer_active(timer))
+-		goto calci;
+ 	/* interval timer ? */
+-	if (timr->it.real.interval.tv64 == 0)
++	if (timr->it.real.interval.tv64) {
++		cur_setting->it_interval =
++			ktime_to_timespec(timr->it.real.interval);
++	} else if (!hrtimer_active(timer))
+ 		return;
++
++	now = timer->base->get_time();
++
+ 	/*
+ 	 * When a requeue is pending or this is a SIGEV_NONE timer
+ 	 * move the expiry time forward by intervals, so expiry is >
+@@ -621,15 +625,11 @@ common_timer_get(struct k_itimer *timr, 
+ 	if (timr->it_requeue_pending & REQUEUE_PENDING ||
+ 	    (timr->it_sigev_notify & ~SIGEV_THREAD_ID) == SIGEV_NONE) {
+ 		timr->it_overrun +=
+-			hrtimer_forward(timer, timr->it.real.interval);
+-		remaining = hrtimer_get_remaining(timer);
++			hrtimer_forward(timer, now, timr->it.real.interval);
+ 	}
+- calci:
+-	/* interval timer ? */
+-	if (timr->it.real.interval.tv64 != 0)
+-		cur_setting->it_interval =
+-			ktime_to_timespec(timr->it.real.interval);
++
+ 	/* Return 0 only, when the timer is expired and not pending */
++	remaining = ktime_sub(timer->expires, now);
+ 	if (remaining.tv64 <= 0)
+ 		cur_setting->it_value.tv_nsec = 1;
+ 	else

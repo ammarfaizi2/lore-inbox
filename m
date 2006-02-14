@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422655AbWBNQ5X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422670AbWBNQ6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422655AbWBNQ5X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 11:57:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422661AbWBNQ5X
+	id S1422670AbWBNQ6K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 11:58:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422669AbWBNQ6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 11:57:23 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:33968 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1422655AbWBNQ5W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 11:57:22 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Tue, 14 Feb 2006 17:55:14 +0100
-To: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de
-Cc: linux-kernel@vger.kernel.org, jerome.lacoste@gmail.com
+	Tue, 14 Feb 2006 11:58:10 -0500
+Received: from webmail.terra.es ([213.4.149.12]:39768 "EHLO
+	csmtpout4.frontal.correo") by vger.kernel.org with ESMTP
+	id S1422666AbWBNQ6I convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 11:58:08 -0500
+Date: Tue, 14 Feb 2006 17:57:56 +0100 (added by postmaster@terra.es)
+From: <grundig@teleline.es>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: dhazelton@enter.net, Valdis.Kletnieks@vt.edu, peter.read@gmail.com,
+       mj@ucw.cz, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net, jerome.lacoste@gmail.com,
+       jengelh@linux01.gwdg.de
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F20B72.nailMWZS18EX0@burner>
+Message-Id: <20060214175754.a9d4d252.grundig@teleline.es>
+In-Reply-To: <43F20873.nailMWZM17DCF@burner>
 References: <20060208162828.GA17534@voodoo>
- <200602092241.29294.dhazelton@enter.net>
- <43F08D45.nailKUSE1SA4H@burner>
- <200602131801.47050.dhazelton@enter.net>
- <43F1DD0A.nailMWZ718HUV@burner>
- <20060214142412.GA3936@merlin.emma.line.org>
-In-Reply-To: <20060214142412.GA3936@merlin.emma.line.org>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	<200602131919.k1DJJF5G025923@turing-police.cc.vt.edu>
+	<43F1C385.nailMWZ599SQ5@burner>
+	<200602140721.25066.dhazelton@enter.net>
+	<43F20873.nailMWZM17DCF@burner>
+X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree <matthias.andree@gmx.de> wrote:
+El Tue, 14 Feb 2006 17:42:27 +0100,
+Joerg Schilling <schilling@fokus.fraunhofer.de> escribió:
 
-> Joerg Schilling schrieb am 2006-02-14:
->
-> > If you do not follow the spirit of the interface design
->
-> This is not a technical restriction, but a soaking sponge you can
-> throw in anyone's face.
 
-Well, it is a _lot_ more open than what Linux requieres. 
-On Linux you need to meet the current feeling of a potentially unknown
-lord of the manor.
+> I like to see a whitepaper first that allows me to get an overview in less than 
+> 10 minutes. If this is not available, I suspect you just try another attempt to 
+> waste my time.
 
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+A "overview"? And "I'll only waste 10 minutes of my life to look at this"? Strange
+way to handle design decisions for a software developer - there're people who
+will not just read that paper, but read aswell the code to take such decisions.

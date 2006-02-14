@@ -1,83 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422880AbWBNXu1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422870AbWBNXxr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422880AbWBNXu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 18:50:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422870AbWBNXu1
+	id S1422870AbWBNXxr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 18:53:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422890AbWBNXxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 18:50:27 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:59140 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1422880AbWBNXuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 18:50:25 -0500
-Date: Wed, 15 Feb 2006 00:49:54 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Heiko Gerstung <heiko@am-anger-1.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bonding mode 1 works as designed. Or not?
-Message-ID: <20060214234954.GA13843@w.ods.org>
-References: <43F24DBA.7090602@am-anger-1.de> <20060214214746.GK11380@w.ods.org> <43F25138.9090503@am-anger-1.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43F25138.9090503@am-anger-1.de>
-User-Agent: Mutt/1.5.10i
+	Tue, 14 Feb 2006 18:53:47 -0500
+Received: from lucidpixels.com ([66.45.37.187]:27316 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1422870AbWBNXxq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 18:53:46 -0500
+Date: Tue, 14 Feb 2006 18:53:45 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+cc: Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org
+Subject: Re: Is my SATA/400GB drive dying?
+In-Reply-To: <200602141930.45368.s0348365@sms.ed.ac.uk>
+Message-ID: <Pine.LNX.4.64.0602141853160.5959@p34>
+References: <Pine.LNX.4.64.0602130658110.21652@p34> <Pine.LNX.4.64.0602132018290.2607@p34>
+ <20060214104345.GM3209@harddisk-recovery.com> <200602141930.45368.s0348365@sms.ed.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 14, 2006 at 10:52:56PM +0100, Heiko Gerstung wrote:
-> Hi Willy,
-> 
-> Willy Tarreau wrote:
-> >>[...]eth0 and eth1 are in a bonding group, mode=1, miimon=100 ... eth0 
-> >>is the
-> >>active slave and used as long as the physical link is available (checked
-> >>by using MII monitoring), at the same time eth1 is totally passive,
-> >>neither passing any received packets to the kernel nor sending packets,
-> >>if the kernel wants it to do so. As soon as the eth0 link status changes
-> >>to "down", eth1 is activated and used, and now eth0 remains silent and
-> >>deaf until it becomes the active slave again.
-> >>
-> >>Any comments on that? Is the documentation wrong OR is there a bug in
-> >>the implementation of the bonding module?
-> >>    
-> >
-> >Neither, it's your understanding described above :-)
-> >In fact, the bonding is used to select an OUTPUT device. If some trafic
-> >manages to enter through the backup interface, it will reach the kernel.
-> >It can be useful to implement some link health-checks for instance. 
-> >However,
-> >the only packets that you should receive are multicast and broadcast 
-> >packets,
-> >so this should be very limited anyway by design. After several years 
-> >using
-> >it, it has not caused me any trouble, including in environments involving
-> >multicast for VRRP.
-> >
-> >  
-> Unfortunately the ping replies come in on both interfaces, as well as 
-> any other traffic (like ssh or web traffic). Everything works but the 
-> load of the system caused by network traffic is nearly doubled this way 
-> and may cause confusion in a number of applications. 
+Not using anything extravagant and using a 500W aspire PSU, good thought 
+though.
 
-So you are using a hub instead of a switch, otherwise, your switch is
-duplicating the traffic. You agree that it's not expected to find an
-unicast packet on two different ports of the same switch when mirroring
-is disabled and mac-learning has not been disabled ?
+On Tue, 14 Feb 2006, Alistair John Strachan wrote:
 
-> Would there be a way to stop the non-active slave(s) from "listening", 
-> i.e. drop all traffic received by them? If yes, where could I do that?
-
-I don't see how. It would be fairly simpler IMHO to fix the switch's
-configuration.
-
-> >Regards,
-> >willy
-> >
-> >  
-> Thank you for your reply,
-> kind regards,
-> Heiko
-
-Regards,
-Willy
-
+> On Tuesday 14 February 2006 10:43, Erik Mouw wrote:
+>> On Mon, Feb 13, 2006 at 08:18:47PM -0500, Justin Piszcz wrote:
+>>> Still get the errors:
+>>>
+>>> [ 2311.980127] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ
+>>> 0xb/00/00
+>>> [ 2311.980134] ata3: status=0x51 { DriveReady SeekComplete Error }
+>>> [ 2311.980138] ata3: error=0x04 { DriveStatusError }
+>>
+>> FWIW, this could be related to smartctl trying to monitor the disk.
+>> Try this:
+>>
+>>   smartctl -d ata -a /dev/sdX
+>>
+>> If that complains about SMART being disabled, enable it with:
+>>
+>>   smartctl -d ata -e /dev/sdX
+>
+> Are you sure this isn't something obvious like an insufficiently large power
+> supply in the system? I've had strange SATA errors before because I was
+> running 4 HDs and a 6600GT on a 360W PSU.
+>
+> -- 
+> Cheers,
+> Alistair.
+>
+> 'No sense being pessimistic, it probably wouldn't work anyway.'
+> Third year Computer Science undergraduate.
+> 1F2 55 South Clerk Street, Edinburgh, UK.
+>

@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422736AbWBNSDV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422737AbWBNSFO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422736AbWBNSDV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 13:03:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422737AbWBNSDV
+	id S1422737AbWBNSFO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 13:05:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422739AbWBNSFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 13:03:21 -0500
-Received: from verein.lst.de ([213.95.11.210]:58061 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1422736AbWBNSDU (ORCPT
+	Tue, 14 Feb 2006 13:05:14 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:35010 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1422737AbWBNSFM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 13:03:20 -0500
-Date: Tue, 14 Feb 2006 19:03:15 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] deprecate the kernel_thread export
-Message-ID: <20060214180315.GA19369@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Tue, 14 Feb 2006 13:05:12 -0500
+Date: Tue, 14 Feb 2006 19:05:09 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Matthias Andree <matthias.andree@gmx.de>
+cc: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+In-Reply-To: <20060214170800.GA8948@merlin.emma.line.org>
+Message-ID: <Pine.LNX.4.61.0602141904230.32490@yvahk01.tjqt.qr>
+References: <5a2cf1f60602130724n7b060e29r57411260b04d5972@mail.gmail.com>
+ <43F0AA83.nailKUS171HI4B@burner> <5a2cf1f60602130805u537de206k22fa418ee214cf02@mail.gmail.com>
+ <43F0B2BA.nailKUS1DNTEHA@burner> <Pine.LNX.4.61.0602131732190.24297@yvahk01.tjqt.qr>
+ <43F0B5BE.nailMBX2SZNBE@burner> <200602131919.k1DJJF5G025923@turing-police.cc.vt.edu>
+ <43F1C385.nailMWZ599SQ5@burner> <515e525f0602140501j1f9fbe14x8a3eef0bbf179035@mail.gmail.com>
+ <43F209BB.nailMWZP1XY5P@burner> <20060214170800.GA8948@merlin.emma.line.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Announce that the kernel_thread export will be removed in half a year,
-after all it's users have been converted to the kthread_ API, which I
-plan to do over the next month.
+>
+>> Try to get hand on the deleted bug entries on Debian and you will see how
+>> cdrecord is interrupted.
+>
+>How about you offer a few "deleted bug" numbers?
+>
+why does debian delete bugs after all? this sounds like aggregativing 
+searches for it.
 
-(and no, Adrian, please no __deprecate_as_module yet, there's still
- too many users left)
 
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-
-Index: linux-2.6/Documentation/feature-removal-schedule.txt
-===================================================================
---- linux-2.6.orig/Documentation/feature-removal-schedule.txt	2006-02-10 19:45:40.000000000 +0100
-+++ linux-2.6/Documentation/feature-removal-schedule.txt	2006-02-12 18:44:40.000000000 +0100
-@@ -171,3 +171,14 @@
- 	probing is also known to cause trouble in at least one case (see
- 	bug #5889.)
- Who:	Jean Delvare <khali@linux-fr.org>
-+
-+---------------------------
-+
-+What:	remove EXPORT_SYMBOL(kernel_thread)
-+When:	August 2006
-+Files:	arch/*/kernel/*_ksyms.c
-+Why:	kernel_thread is a low-level implementation detail.  Drivers should
-+        use the <linux/kthread.h> API instead which shields them from
-+	implementation details and provides a higherlevel interface that
-+	prevents bugs and code duplication
-+Who:	Christoph Hellwig <hch@lst.de>
+Jan Engelhardt
+-- 

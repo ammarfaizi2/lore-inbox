@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161000AbWBNLAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161001AbWBNLAZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161000AbWBNLAw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 06:00:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161003AbWBNLAw
+	id S1161001AbWBNLAZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 06:00:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161004AbWBNLAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 06:00:52 -0500
-Received: from mx0.towertech.it ([213.215.222.73]:40142 "HELO mx0.towertech.it")
-	by vger.kernel.org with SMTP id S1161000AbWBNLAv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 06:00:51 -0500
-Date: Tue, 14 Feb 2006 12:00:44 +0100
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-To: Ben Dooks <ben-linux@fluff.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/11] RTC subsystem
-Message-ID: <20060214120044.405e763a@inspiron>
-In-Reply-To: <20060214103003.GA14880@home.fluff.org>
-References: <20060213225416.865078000@towertech.it>
-	<20060214103003.GA14880@home.fluff.org>
-Organization: Tower Technologies
-X-Mailer: Sylpheed
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 14 Feb 2006 06:00:25 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:50108 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1161001AbWBNLAY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 06:00:24 -0500
+Message-ID: <43F1B894.2090808@jp.fujitsu.com>
+Date: Tue, 14 Feb 2006 20:01:40 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] unify pfn_to_page take3 [22/23] xtensa pfn_to_page
+References: <43F1A753.2020003@jp.fujitsu.com>
+In-Reply-To: <43F1A753.2020003@jp.fujitsu.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Feb 2006 10:30:03 +0000
-Ben Dooks <ben-linux@fluff.org> wrote:
+xtensa can use generic funcs.
 
-> >  As usual, your feedback is highly appreciated.
-> 
-> are you planning on doing the updates for the
-> s3c2410-rtc.c driver?
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
- Hi Ben,
+Index: testtree/include/asm-xtensa/page.h
+===================================================================
+--- testtree.orig/include/asm-xtensa/page.h
++++ testtree/include/asm-xtensa/page.h
+@@ -109,10 +109,7 @@ void copy_user_page(void *to,void* from,
+  #define __pa(x)			((unsigned long) (x) - PAGE_OFFSET)
+  #define __va(x)			((void *)((unsigned long) (x) + PAGE_OFFSET))
+  #define pfn_valid(pfn)		((unsigned long)pfn < max_mapnr)
+-#ifndef CONFIG_DISCONTIGMEM
+-# define pfn_to_page(pfn)	(mem_map + (pfn))
+-# define page_to_pfn(page)	((unsigned long)((page) - mem_map))
+-#else
++#ifdef CONFIG_DISCONTIGMEM
+  # error CONFIG_DISCONTIGMEM not supported
+  #endif
 
-  I examined that driver some days ago and was going
- to ask you if you can port it to the new subsystem.
+@@ -130,4 +127,5 @@ void copy_user_page(void *to,void* from,
+  				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
 
- The driver is well structured and and should be easy
- to port. I will have no means to test it, but I'd
- be happy to provide any support you'll need for
- the conversion.
-
--- 
-
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Turin, Italy
-
-  http://www.towertech.it
+  #endif /* __KERNEL__ */
++#include <asm-generic/memory_model.h>
+  #endif /* _XTENSA_PAGE_H */
 

@@ -1,227 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422884AbWBNXt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422880AbWBNXu1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422884AbWBNXt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 18:49:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422880AbWBNXt1
+	id S1422880AbWBNXu1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 18:50:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422870AbWBNXu1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 18:49:27 -0500
-Received: from xproxy.gmail.com ([66.249.82.199]:59357 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1422891AbWBNXtK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 18:49:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=W7KsAWo6GX5fNS0LIeAneIw6VhKtST4NvranxayU5tKuhXJtQ5v+HxjySdOAfBp+fMTh2e4g9AxMOO3amz0KhEvKv7pKELf95gz8Z4H54v/9wn67lRNgIIw7foGzjmcJmGXvJmunoVP5oa4H1XM8BPV5f4nvBGeUrqgFnXGXR8I=
-Date: Tue, 14 Feb 2006 21:48:59 -0300
-From: Davi Arnaut <davi.arnaut@gmail.com>
-To: akpm@osdl.org
-Cc: davi.arnaut@gmail.com, linux-kernel@vger.kernel.org
-Subject: [PATH 2/2] strndup_user, convert (keyctl)
-Message-Id: <20060214214859.a4ab6fce.davi.arnaut@gmail.com>
-X-Mailer: Sylpheed
+	Tue, 14 Feb 2006 18:50:27 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:59140 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1422880AbWBNXuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 18:50:25 -0500
+Date: Wed, 15 Feb 2006 00:49:54 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Heiko Gerstung <heiko@am-anger-1.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bonding mode 1 works as designed. Or not?
+Message-ID: <20060214234954.GA13843@w.ods.org>
+References: <43F24DBA.7090602@am-anger-1.de> <20060214214746.GK11380@w.ods.org> <43F25138.9090503@am-anger-1.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F25138.9090503@am-anger-1.de>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Convert security/keys/keyctl.c string duplication to strdup_user()
+On Tue, Feb 14, 2006 at 10:52:56PM +0100, Heiko Gerstung wrote:
+> Hi Willy,
+> 
+> Willy Tarreau wrote:
+> >>[...]eth0 and eth1 are in a bonding group, mode=1, miimon=100 ... eth0 
+> >>is the
+> >>active slave and used as long as the physical link is available (checked
+> >>by using MII monitoring), at the same time eth1 is totally passive,
+> >>neither passing any received packets to the kernel nor sending packets,
+> >>if the kernel wants it to do so. As soon as the eth0 link status changes
+> >>to "down", eth1 is activated and used, and now eth0 remains silent and
+> >>deaf until it becomes the active slave again.
+> >>
+> >>Any comments on that? Is the documentation wrong OR is there a bug in
+> >>the implementation of the bonding module?
+> >>    
+> >
+> >Neither, it's your understanding described above :-)
+> >In fact, the bonding is used to select an OUTPUT device. If some trafic
+> >manages to enter through the backup interface, it will reach the kernel.
+> >It can be useful to implement some link health-checks for instance. 
+> >However,
+> >the only packets that you should receive are multicast and broadcast 
+> >packets,
+> >so this should be very limited anyway by design. After several years 
+> >using
+> >it, it has not caused me any trouble, including in environments involving
+> >multicast for VRRP.
+> >
+> >  
+> Unfortunately the ping replies come in on both interfaces, as well as 
+> any other traffic (like ssh or web traffic). Everything works but the 
+> load of the system caused by network traffic is nearly doubled this way 
+> and may cause confusion in a number of applications. 
 
-Signed-off-by: Davi Arnaut <davi.arnaut@gmail.com>
---
+So you are using a hub instead of a switch, otherwise, your switch is
+duplicating the traffic. You agree that it's not expected to find an
+unicast packet on two different ports of the same switch when mirroring
+is disabled and mac-learning has not been disabled ?
 
-diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
-index 0c62798..09e53ac 100644
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -17,6 +17,7 @@
- #include <linux/keyctl.h>
- #include <linux/fs.h>
- #include <linux/capability.h>
-+#include <linux/string.h>
- #include <linux/err.h>
- #include <asm/uaccess.h>
- #include "internal.h"
-@@ -38,7 +39,7 @@ asmlinkage long sys_add_key(const char _
- 	key_ref_t keyring_ref, key_ref;
- 	char type[32], *description;
- 	void *payload;
--	long dlen, ret;
-+	long ret;
- 
- 	ret = -EINVAL;
- 	if (plen > 32767)
-@@ -54,24 +55,11 @@ asmlinkage long sys_add_key(const char _
- 	if (type[0] == '.')
- 		goto error;
- 
--	ret = -EFAULT;
--	dlen = strnlen_user(_description, PAGE_SIZE - 1);
--	if (dlen <= 0)
--		goto error;
--
--	ret = -EINVAL;
--	if (dlen > PAGE_SIZE - 1)
--		goto error;
--
--	ret = -ENOMEM;
--	description = kmalloc(dlen + 1, GFP_KERNEL);
--	if (!description)
-+	description = strdup_user(_description, GFP_KERNEL);
-+	if (IS_ERR(description)) {
-+		ret = PTR_ERR(description);
- 		goto error;
--	description[dlen] = '\0';
--
--	ret = -EFAULT;
--	if (copy_from_user(description, _description, dlen) != 0)
--		goto error2;
-+	}
- 
- 	/* pull the payload in if one was supplied */
- 	payload = NULL;
-@@ -136,7 +124,7 @@ asmlinkage long sys_request_key(const ch
- 	struct key *key;
- 	key_ref_t dest_ref;
- 	char type[32], *description, *callout_info;
--	long dlen, ret;
-+	long ret;
- 
- 	/* pull the type into kernel space */
- 	ret = strncpy_from_user(type, _type, sizeof(type) - 1);
-@@ -149,46 +137,20 @@ asmlinkage long sys_request_key(const ch
- 		goto error;
- 
- 	/* pull the description into kernel space */
--	ret = -EFAULT;
--	dlen = strnlen_user(_description, PAGE_SIZE - 1);
--	if (dlen <= 0)
--		goto error;
--
--	ret = -EINVAL;
--	if (dlen > PAGE_SIZE - 1)
--		goto error;
--
--	ret = -ENOMEM;
--	description = kmalloc(dlen + 1, GFP_KERNEL);
--	if (!description)
-+	description = strdup_user(_description, GFP_KERNEL);
-+	if (IS_ERR(description)) {
-+		ret = PTR_ERR(description);
- 		goto error;
--	description[dlen] = '\0';
--
--	ret = -EFAULT;
--	if (copy_from_user(description, _description, dlen) != 0)
--		goto error2;
-+	}
- 
- 	/* pull the callout info into kernel space */
- 	callout_info = NULL;
- 	if (_callout_info) {
--		ret = -EFAULT;
--		dlen = strnlen_user(_callout_info, PAGE_SIZE - 1);
--		if (dlen <= 0)
--			goto error2;
--
--		ret = -EINVAL;
--		if (dlen > PAGE_SIZE - 1)
--			goto error2;
--
--		ret = -ENOMEM;
--		callout_info = kmalloc(dlen + 1, GFP_KERNEL);
--		if (!callout_info)
-+		callout_info = strdup_user(_callout_info, GFP_KERNEL);
-+		if (IS_ERR(callout_info)) {
-+			ret = PTR_ERR(callout_info);
- 			goto error2;
--		callout_info[dlen] = '\0';
--
--		ret = -EFAULT;
--		if (copy_from_user(callout_info, _callout_info, dlen) != 0)
--			goto error3;
-+		}
- 	}
- 
- 	/* get the destination keyring if specified */
-@@ -264,36 +226,21 @@ long keyctl_get_keyring_ID(key_serial_t 
- long keyctl_join_session_keyring(const char __user *_name)
- {
- 	char *name;
--	long nlen, ret;
-+	long ret;
- 
- 	/* fetch the name from userspace */
- 	name = NULL;
- 	if (_name) {
--		ret = -EFAULT;
--		nlen = strnlen_user(_name, PAGE_SIZE - 1);
--		if (nlen <= 0)
-+		name = strdup_user(_name, GFP_KERNEL);
-+		if (IS_ERR(name)) {
-+			ret = PTR_ERR(name);
- 			goto error;
--
--		ret = -EINVAL;
--		if (nlen > PAGE_SIZE - 1)
--			goto error;
--
--		ret = -ENOMEM;
--		name = kmalloc(nlen + 1, GFP_KERNEL);
--		if (!name)
--			goto error;
--		name[nlen] = '\0';
--
--		ret = -EFAULT;
--		if (copy_from_user(name, _name, nlen) != 0)
--			goto error2;
-+		}
- 	}
- 
- 	/* join the session */
- 	ret = join_session_keyring(name);
- 
-- error2:
--	kfree(name);
-  error:
- 	return ret;
- 
-@@ -566,7 +513,7 @@ long keyctl_keyring_search(key_serial_t 
- 	struct key_type *ktype;
- 	key_ref_t keyring_ref, key_ref, dest_ref;
- 	char type[32], *description;
--	long dlen, ret;
-+	long ret;
- 
- 	/* pull the type and description into kernel space */
- 	ret = strncpy_from_user(type, _type, sizeof(type) - 1);
-@@ -574,24 +521,11 @@ long keyctl_keyring_search(key_serial_t 
- 		goto error;
- 	type[31] = '\0';
- 
--	ret = -EFAULT;
--	dlen = strnlen_user(_description, PAGE_SIZE - 1);
--	if (dlen <= 0)
--		goto error;
--
--	ret = -EINVAL;
--	if (dlen > PAGE_SIZE - 1)
-+	description = strdup_user(_description, GFP_KERNEL);
-+	if (IS_ERR(description)) {
-+		ret = PTR_ERR(description);
- 		goto error;
--
--	ret = -ENOMEM;
--	description = kmalloc(dlen + 1, GFP_KERNEL);
--	if (!description)
--		goto error;
--	description[dlen] = '\0';
--
--	ret = -EFAULT;
--	if (copy_from_user(description, _description, dlen) != 0)
--		goto error2;
-+	}
- 
- 	/* get the keyring at which to begin the search */
- 	keyring_ref = lookup_user_key(NULL, ringid, 0, 0, KEY_SEARCH);
+> Would there be a way to stop the non-active slave(s) from "listening", 
+> i.e. drop all traffic received by them? If yes, where could I do that?
+
+I don't see how. It would be fairly simpler IMHO to fix the switch's
+configuration.
+
+> >Regards,
+> >willy
+> >
+> >  
+> Thank you for your reply,
+> kind regards,
+> Heiko
+
+Regards,
+Willy
+

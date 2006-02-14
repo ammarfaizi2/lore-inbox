@@ -1,136 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422645AbWBNQvA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422653AbWBNQx0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422645AbWBNQvA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 11:51:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422647AbWBNQu7
+	id S1422653AbWBNQx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 11:53:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422649AbWBNQx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 11:50:59 -0500
-Received: from [194.90.237.34] ([194.90.237.34]:38712 "EHLO mtlexch01.mtl.com")
-	by vger.kernel.org with ESMTP id S1422645AbWBNQu7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 11:50:59 -0500
-Date: Tue, 14 Feb 2006 18:52:22 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Roland Dreier <rolandd@cisco.com>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: AMD 8131 and MSI quirk
-Message-ID: <20060214165222.GC12974@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <524q799p2t.fsf@cisco.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <524q799p2t.fsf@cisco.com>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 14 Feb 2006 16:52:49.0703 (UTC) FILETIME=[16A70B70:01C63187]
+	Tue, 14 Feb 2006 11:53:26 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:56235 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1422653AbWBNQxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 11:53:24 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Tue, 14 Feb 2006 17:47:55 +0100
+To: trudheim@gmail.com, schilling@fokus.fraunhofer.de
+Cc: Valdis.Kletnieks@vt.edu, peter.read@gmail.com, mj@ucw.cz,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net, jerome.lacoste@gmail.com,
+       jengelh@linux01.gwdg.de, dhazelton@enter.net
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43F209BB.nailMWZP1XY5P@burner>
+References: <20060208162828.GA17534@voodoo>
+ <43F0A010.nailKUSR1CGG5@burner>
+ <5a2cf1f60602130724n7b060e29r57411260b04d5972@mail.gmail.com>
+ <43F0AA83.nailKUS171HI4B@burner>
+ <5a2cf1f60602130805u537de206k22fa418ee214cf02@mail.gmail.com>
+ <43F0B2BA.nailKUS1DNTEHA@burner>
+ <Pine.LNX.4.61.0602131732190.24297@yvahk01.tjqt.qr>
+ <43F0B5BE.nailMBX2SZNBE@burner>
+ <200602131919.k1DJJF5G025923@turing-police.cc.vt.edu>
+ <43F1C385.nailMWZ599SQ5@burner>
+ <515e525f0602140501j1f9fbe14x8a3eef0bbf179035@mail.gmail.com>
+In-Reply-To: <515e525f0602140501j1f9fbe14x8a3eef0bbf179035@mail.gmail.com>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Roland Dreier <rolandd@cisco.com>:
-> Subject: AMD 8131 and MSI quirk
-> 
-> The current quirk_amd_8131_ioapic() function sets a global
-> pci_msi_quirk flag, which disables MSI/MSI-X for all devices in the
-> system.  This is safe but suboptimal, because there may be devices on
-> other buses not related to the AMD 8131 bridge, for which MSI would
-> work fine.  As an example, see the end of this email for a lspci -t
-> from a real Opteron system that has PCI-X buses coming from an AMD
-> 8131 and PCI Express buses coming from an Nforce4 bridge -- MSI works
-> fine for the Mellanox InfiniBand adapter on the PCIe bus, if we allow
-> it to be enabled.
+Anders Karlsson <trudheim@gmail.com> wrote:
 
-The following should do this IMO. Roland, could you test this patch please?
+> On 2/14/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
+> [snip]
+> > -       How does HAL allow one cdrecord instance to work
+> >         without being interrupted by HAL?
+>
+> Uuh, if the writer unit is plugged in via USB and HAL detects it going
+> away, as in getting disconnected from the system, don't you think it
+> would be a smart move for cdrecord to pay attention to such an alert?
+>
+> I am sure you can explain to me if there are overwhelming technical
+> reason to continue dumping data to a non-existant device.
 
----
+It seems that you did not loisten to this discussion before, why doyou come in 
+now not knowing the topcis?
 
-It turns out AMD 8131 quirk only affects MSI for devices behind the 8131 bridge.
-Handle this by adding a flags field in pci_bus, inherited from parent to child.
+Try to get hand on the deleted bug entries on Debian and you will see how
+cdrecord is interrupted.
 
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-
-Index: linux-2.6.16-rc2/drivers/pci/msi.c
-===================================================================
---- linux-2.6.16-rc2.orig/drivers/pci/msi.c	2006-02-14 17:09:23.000000000 +0200
-+++ linux-2.6.16-rc2/drivers/pci/msi.c	2006-02-14 18:14:00.000000000 +0200
-@@ -699,6 +699,9 @@ int pci_enable_msi(struct pci_dev* dev)
- 	if (dev->no_msi)
- 		return status;
- 
-+	if (dev->bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
-+		return -EINVAL;
-+
- 	temp = dev->irq;
- 
- 	if ((status = msi_init()) < 0)
-@@ -924,6 +927,9 @@ int pci_enable_msix(struct pci_dev* dev,
- 	if (!pci_msi_enable || !dev || !entries)
-  		return -EINVAL;
- 
-+	if (dev->bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
-+		return -EINVAL;
-+
- 	if ((status = msi_init()) < 0)
- 		return status;
- 
-Index: linux-2.6.16-rc2/drivers/pci/probe.c
-===================================================================
---- linux-2.6.16-rc2.orig/drivers/pci/probe.c	2006-02-14 17:09:23.000000000 +0200
-+++ linux-2.6.16-rc2/drivers/pci/probe.c	2006-02-14 17:58:17.000000000 +0200
-@@ -347,6 +347,7 @@ pci_alloc_child_bus(struct pci_bus *pare
- 	child->parent = parent;
- 	child->ops = parent->ops;
- 	child->sysdata = parent->sysdata;
-+	child->bus_flags = parent->bus_flags;
- 	child->bridge = get_device(&bridge->dev);
- 
- 	child->class_dev.class = &pcibus_class;
-Index: linux-2.6.16-rc2/drivers/pci/quirks.c
-===================================================================
---- linux-2.6.16-rc2.orig/drivers/pci/quirks.c	2006-02-14 17:09:23.000000000 +0200
-+++ linux-2.6.16-rc2/drivers/pci/quirks.c	2006-02-14 17:58:17.000000000 +0200
-@@ -575,8 +575,11 @@ static void __init quirk_amd_8131_ioapic
- { 
-         unsigned char revid, tmp;
-         
--	pci_msi_quirk = 1;
--	printk(KERN_WARNING "PCI: MSI quirk detected. pci_msi_quirk set.\n");
-+	if (dev->subordinate) {
-+		printk(KERN_WARNING "PCI: MSI quirk detected. "
-+		       "PCI_BUS_FLAGS_NO_MSI set for subordinate bus.\n");
-+		dev->subordinate->bus_flags |= PCI_BUS_FLAGS_NO_MSI;
-+	}
- 
-         if (nr_ioapics == 0) 
-                 return;
-Index: linux-2.6.16-rc2/include/linux/pci.h
-===================================================================
---- linux-2.6.16-rc2.orig/include/linux/pci.h	2006-02-14 17:09:24.000000000 +0200
-+++ linux-2.6.16-rc2/include/linux/pci.h	2006-02-14 17:58:17.000000000 +0200
-@@ -95,6 +95,11 @@ enum pci_channel_state {
- 	pci_channel_io_perm_failure = (__force pci_channel_state_t) 3,
- };
- 
-+typedef unsigned short __bitwise pci_bus_flags_t;
-+enum pci_bus_flags {
-+	PCI_BUS_FLAGS_NO_MSI = (pci_bus_flags_t) 1,
-+};
-+
- /*
-  * The pci_dev structure is used to describe PCI devices.
-  */
-@@ -203,7 +208,7 @@ struct pci_bus {
- 	char		name[48];
- 
- 	unsigned short  bridge_ctl;	/* manage NO_ISA/FBB/et al behaviors */
--	unsigned short  pad2;
-+	pci_bus_flags_t bus_flags;	/* Inherited by child busses */
- 	struct device		*bridge;
- 	struct class_device	class_dev;
- 	struct bin_attribute	*legacy_io; /* legacy I/O for this bus */
-
-
+Jörg
 
 -- 
-Michael S. Tsirkin
-Staff Engineer, Mellanox Technologies
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

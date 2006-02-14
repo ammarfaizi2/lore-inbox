@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161028AbWBNMQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161031AbWBNMRE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161028AbWBNMQk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 07:16:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161029AbWBNMQk
+	id S1161031AbWBNMRE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 07:17:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161029AbWBNMRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 07:16:40 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:44605 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S1161028AbWBNMQj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 07:16:39 -0500
-Date: Tue, 14 Feb 2006 13:16:42 +0100
-From: Sander <sander@humilis.net>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       sam@ravnborg.org
-Subject: Re: 2.6.16-rc3-mm1
-Message-ID: <20060214121642.GA23915@favonius>
-Reply-To: sander@humilis.net
-References: <20060214014157.59af972f.akpm@osdl.org> <6bffcb0e0602140316sae62b9an@mail.gmail.com>
-MIME-Version: 1.0
+	Tue, 14 Feb 2006 07:17:04 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:2950 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1161030AbWBNMRB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 07:17:01 -0500
+Date: Tue, 14 Feb 2006 13:17:00 +0100
+From: Jan Kara <jack@suse.cz>
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Cc: Claudio Martins <ctpm@rnl.ist.utl.pt>, linux-kernel@vger.kernel.org,
+       ocfs2-devel@oss.oracle.com, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: OCFS2 Filesystem inconsistency across nodes
+Message-ID: <20060214121700.GA28462@atrey.karlin.mff.cuni.cz>
+References: <200602100536.02893.ctpm@rnl.ist.utl.pt> <20060210064612.GE12046@ca-server1.us.oracle.com> <200602110540.57573.ctpm@rnl.ist.utl.pt> <20060213222606.GC20175@ca-server1.us.oracle.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <6bffcb0e0602140316sae62b9an@mail.gmail.com>
-X-Uptime: 12:53:22 up 14 days,  4:04, 24 users,  load average: 3.02, 2.81, 2.65
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20060213222606.GC20175@ca-server1.us.oracle.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Piotrowski wrote (ao):
-> It's strange... rc3-mm1 vs. rc2-mm1
+> On Sat, Feb 11, 2006 at 05:40:57AM +0000, Claudio Martins wrote:
+> > This is my /etc/ocfs2/cluster.conf on every node:
 > 
-> :/usr/src/linux-mm$ uname -a
-> Linux ltg01-sid 2.6.16-rc2-mm1 #15 SMP PREEMPT Thu Feb 9 18:12:08 CET
-> 2006 i686 GNU/Linux
+> Hi Claudio,
+> 	Thanks for sending me your config files. Everything seems in order.
+> I was easily able to reproduce your problem on my cluster and was able to
+> git-bisect my way to some JBD changes which seem to be causing the issue.
+> Reverting those patches fixes things. Can you apply the attached patch and
+> confirm that it also fixes this particular problem for you? You'll have to
+> apply to all kernels in your cluster and either run fsck.ocfs2 or create a
+> new file system before testing again.
 > 
+> Linus, Andrew, Jan,
+> 	OCFS2 uses journal_flush() to sync metadata out to disk when another
+> node wants to obtain a lock on an inode which has pending journaled changes.
+> Something in Jan Kara's patch titled "jbd: split checkpoint lists" broke
+> this for OCFS2 (and I suspect for other users of JBD as well). As a result
+> metadata is not always completely flushed to disk by the end of the
+> journal_flush() call.
 > 
-> :/usr/src/linux-mm$ head Makefile
-> VERSION = 2
-> PATCHLEVEL = 6
-> SUBLEVEL = 16
-> EXTRAVERSION =-rc3-mm1
-> 
-> there is something wrong with build system.
+> One easy way to reproduce is to create files from one node and list the
+> directory from another. Switching the listing and creating nodes around
+> makes things reproduce more quickly -- eventually the listing node will
+> start missing new files.
+  Ok, I'll have a look at the problem. Probably something in
+log_do_checkpoint() is not waiting for all the data or something like
+that. I'll try to reproduce with ext3 - it uses journal_flush() in
+ext3_bmap() so if journal_flush() is not flushing all the data we should
+be able to see that... Thanks for spotting the problem.
 
-You just booted an old kernel (see the date in your uname output).
+							Bye
+								Honza
 
-	Kind regards, Sander
-
+			
 -- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

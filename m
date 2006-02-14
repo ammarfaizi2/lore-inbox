@@ -1,69 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422829AbWBNWUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422835AbWBNWWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422829AbWBNWUT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 17:20:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422834AbWBNWUT
+	id S1422835AbWBNWWH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 17:22:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422834AbWBNWWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 17:20:19 -0500
-Received: from gate.crashing.org ([63.228.1.57]:46237 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1422829AbWBNWUS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 17:20:18 -0500
-Subject: Re: HELP: Problem with radeonfb setting wrong resolution
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Timothy Miller <theosib@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9871ee5f0602141233t3cf11775lcb6351f31d4f377e@mail.gmail.com>
-References: <9871ee5f0602141233t3cf11775lcb6351f31d4f377e@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 15 Feb 2006 09:20:12 +1100
-Message-Id: <1139955612.7903.46.camel@localhost.localdomain>
+	Tue, 14 Feb 2006 17:22:07 -0500
+Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:18182 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1422836AbWBNWWG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 17:22:06 -0500
+Date: Tue, 14 Feb 2006 23:22:22 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Ryan Richter <ryan@tau.solarneutrino.net>
+Cc: Erik Mouw <erik@harddisk-recovery.com>, Nick Warne <nick@linicks.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Random reboots
+Message-Id: <20060214232222.5d4384a8.khali@linux-fr.org>
+In-Reply-To: <20060214132904.GI16566@tau.solarneutrino.net>
+References: <20060213210435.GC16566@tau.solarneutrino.net>
+	<20060213211044.066CE5E401E@latitude.mynet.no-ip.org>
+	<20060213212243.GE16566@tau.solarneutrino.net>
+	<7c3341450602131332x2fcd7d8co@mail.gmail.com>
+	<20060213213929.GG16566@tau.solarneutrino.net>
+	<20060214132904.GI16566@tau.solarneutrino.net>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-14 at 15:33 -0500, Timothy Miller wrote:
-> I humbly apologize if it is inappropriate for me to post this question
-> here.  I'm not subscribed, and I haven't been in a while.  I've
-> googled around for answers to this, but I don't find anything that
-> directly addresses the issue I'm seeing.  Please cc me.
-> 
-> I'm installing a new Gentoo box, and I have configured the
-> 2.6.12-gentoo-r6 kernel.
-> 
-> Here's what I have enabled:
-> 
-> + Support for framebuffer devices
-> + ATI Radeon display support
-> + DDC/I2C for ATI Radeon support
-> + Lots of debug output from Radeon drive
-> + VGA text console
-> + Framebuffer Console support
-> 
-> In the grub.conf file, I have this at the end of the kernel line:
-> 
-> video=radeonfb:1024x768
-> 
-> When booting up, radeonfb finds the device (A Radeon 7000 PCI card),
-> the monitor flickers for a second, and then what I get is a 640x480
-> screen, but the kernel seems to think it's 1024x768, because text goes
-> off the screen.
-> 
-> I've googled for this, but what I find is old stuff where people are
-> complaining about seeing a higher resolution than the one they asked
-> for.  I'm getting a LOWER resolution.
-> 
-> I can't figure out what I'm doing wrong, but there are no kernel error
-> messages that tell me anything has gone wrong.
-> 
-> Can anyone help me figure out what I'm doing wrong here?  BTW, the
-> monitor is a 19" NEC.  No chance that the monitor reports via DDC that
-> it can't do 1024x768.
+Hi Ryan,
 
-Can you send me the debug output ? (dmesg)
+> > We recently had such an issue with a dual AMD64 machine rebooting at
+> > mke2fs. It turned out it was a faulty power supply. After we changed
+> > the power supply, everything ran smooth again.
+> > 
+> > You could start to test by powering your drives from an old AT-style
+> > power supply leaving more "juice" for the main board and CPUs.
+> 
+> It's possible, but I doubt it.  More often than not, the reboot happens
+> when the machine is completely idle - in fact I can't remember a single
+> time when it wasn't idle.  I just spent a couple months debugging a
+> SCSI-tape crash, and I ran the backups a lot and had lots of RAID
+> resyncs and it *never* rebooted during either of these events.  Anyway
+> it has quite a large 2+1 redundant power supply, and, like I said, we
+> routinely had 3+ months of uptime with older kernels.
 
-Ben.
+You seem to have hardware monitoring drivers loaded on the system, so
+I'd suggest that you watch the returned values over time. If the
+hardware is going wrong it might show there. Your system could be
+overheating for some reason (stuck fan...)
 
+The fact that older kernels were seemingly working better doesn't prove
+much. You were running these kernels before, not now, and hardware
+*does* age, contrary to what people seem to think. If you want to make
+certain that older kernels were indeed working better for purely
+software reasons, you should switch back to such an old kernel and see
+if things actually improve or not.
 
+A wild guess while I'm at it... Is the machine behind a KVM switch by
+any chance? I have a fun (old) motherboard here which reboots when I
+unplug the keyboard and plug it again. Never seen that before...
+
+> During the years I've had this machine, I've experienced at least 10-15
+> strange kernel bugs that only happened on this machine.  Each and every
+> time I was *convinced* that the hardware was at fault (and people on the
+> mailing list suggested it) until either a kernel came out that fixed the
+> problem or a kernel developer positively identified it as a kernel
+> problem and eventually fixed it.  This machine just seems to be a magnet
+> for kernel bugs.
+
+Note that the first case ("a kernel came out that fixed the problem")
+doesn't mean that the hardware was not at fault. There are quite a few
+quirks in the Linux kernel code which are just there to workaround
+known hardware or BIOS bugs.
+
+-- 
+Jean Delvare

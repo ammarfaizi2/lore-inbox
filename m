@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030467AbWBNHQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750982AbWBNH2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030467AbWBNHQR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 02:16:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030486AbWBNHQR
+	id S1750982AbWBNH2v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 02:28:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbWBNH2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 02:16:17 -0500
-Received: from adsl-71-140-189-62.dsl.pltn13.pacbell.net ([71.140.189.62]:1160
-	"EHLO aexorsyst.com") by vger.kernel.org with ESMTP
-	id S1030467AbWBNHQR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 02:16:17 -0500
-From: "John Z. Bohach" <jzb@aexorsyst.com>
-Reply-To: jzb@aexorsyst.com
-To: linux-kernel@vger.kernel.org
-Subject: root=/dev/sda1 fails but root=0x0801 works...
-Date: Mon, 13 Feb 2006 23:16:15 -0800
-User-Agent: KMail/1.5.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 14 Feb 2006 02:28:51 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:31968 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1750962AbWBNH2u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 02:28:50 -0500
+Date: Tue, 14 Feb 2006 09:28:30 +0200 (EET)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Phillip Susi <psusi@cfl.rr.com>
+cc: Peter Osterlund <petero2@telia.com>, linux-kernel@vger.kernel.org,
+       bfennema@falcon.csc.calpoly.edu, Christoph Hellwig <hch@lst.de>,
+       Al Viro <viro@ftp.linux.org.uk>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH] UDF filesystem uid fix
+In-Reply-To: <43F0B8FC.6020605@cfl.rr.com>
+Message-ID: <Pine.LNX.4.58.0602140916230.15339@sbz-30.cs.Helsinki.FI>
+References: <m3lkwg4f25.fsf@telia.com> <84144f020602130149k72b8ebned89ff5719cdd0c2@mail.gmail.com>
+ <43F0B8FC.6020605@cfl.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602132316.15992.jzb@aexorsyst.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is probably a question with an obvious answer, but I haven't found it
-elsewhere, so I hope its okay if I ask here...
+On Mon, 13 Feb 2006, Phillip Susi wrote:
+> Could you be more specific about what test cases fail?  It worked fine for me
+> so far.
 
-As the subject says, if I have my kernel command line with
-'...root=/dev/sda1...' then I get
+I don't haven an UDF partition to test on so I am only reading the code. 
+With your patch, every time an in-memory inode has the same uid/gid as the 
+one you passed as mount option, the id on disk will become -1, no? So for 
+example, doing chown 100 for a file writes -1 to disk if you passed 100 
+as uid mount option. Am I missing something here?
 
-VFS: Cannot open root device "sda1" or unknown-block(0,0)
+On Mon, 13 Feb 2006, Phillip Susi wrote:
+> > I think the semantics you want is: "if uid/gid is invalid on disk,
+> > leave it that way unless we explicitly change it via chown; otherwise
+> > we can always overwrite it." Hmm?
+> 
+> No, the semantics is if the uid/gid on disk is invalid, then use the id
+> specified in the mount options.  That was the case before, however when you
+> created new files or chowned files to you ( and you gave your id in the mount
+> options ), an id of 0 was written to disk instead.  Now -1 is written, which
+> when read, is mapped back to your id specified in the mount options. 
 
-however, everything else being the same, if I have
-'...root=0x0801...', then it works fine.  Note that 
+Yes, I agree that the current code is broken. I was talking about what the 
+semantics should be and that your patch doesn't quite get us there. Do you 
+disagree with that? The UDF specification I am looking at [1] says that -1 
+is used by operating systems that do not support uid/gid to denote an 
+invalid id (although ECMA-167 doesn't seem to have such rule), which is  
+why I think it's an bad idea for Linux to ever write it on disk. Instead, 
+we should always write the proper id on disk unless it was invalid in the 
+first place and we did not explicity change it (via chown, for example).
 
-SCSI device sda: 2001888 512-byte hdwr sectors (1025 MB)
-sda: Write Protect is off
-sda: assuming drive cache: write through
- sda: sda1
-Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
+  1. http://www.osta.org/specs/pdf/udf260.pdf
 
-preceeds this in the console both for the failed case and the succeeding case
-(as I already have the rootdelay=10 param. on the command line as well).
-
-I've narrowed this down to another CONFIG_* option, but I can't find which
-one in tractable time...
-
-Does anybody know which CONFIG_* option might contribute to text string
-root=/dev/sda1 failing while its root=0x0801 cousin works?  I've already tried the
-CONFIG_KALLSYMS one, but no luck.  Would this possibly have to do with
-CONFIG_NLS=m (et al),  as I have those as modules, and if so, is this intentional?
-
-Thanks,
-John
-
-
--- 
-     ###  Any similarity between my views and the truth is completely ###
-     ###  coincidental, except that they are endorsed by NO ONE       ###
-
+				Pekka

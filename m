@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030465AbWBNFsA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030294AbWBNFrh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030465AbWBNFsA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 00:48:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030460AbWBNFr7
+	id S1030294AbWBNFrh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 00:47:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030296AbWBNFrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 00:47:59 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:35475 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1030296AbWBNFr5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 00:47:57 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 14 Feb 2006 00:47:37 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:49602 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1030294AbWBNFrg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 00:47:36 -0500
+Message-Id: <200602140547.k1E5lNg19060@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>
+Cc: <nickpiggin@yahoo.com.au>, <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
+Subject: RE: [patch 0/2] fix perf. bug in wake-up load balancing for aim7 and db workload
+Date: Mon, 13 Feb 2006 21:47:22 -0800
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Compaq X1050 multiple suspend problems (ACPI, PS2)
-Date: Tue, 14 Feb 2006 13:47:26 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F840AEE20B9@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Compaq X1050 multiple suspend problems (ACPI, PS2)
-thread-index: AcYxHCl2dO3yGVLRTgaGzZb4AqUYoAADGxBA
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Robert Hancock" <hancockr@shaw.ca>
-Cc: "Andrew Morton" <akpm@osdl.org>, <linux-acpi@vger.kernel.org>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 14 Feb 2006 05:47:29.0277 (UTC) FILETIME=[243972D0:01C6312A]
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcYxGJFIQSeLxpczTkiETdGkKh6yfgADluWQ
+In-Reply-To: <20060213193856.696bf1f0.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->I have not seen any ACPI errors other than during suspend/resume.
->
->Tried ec_intr=0 option on the command line, same problem.
->
->ACPI_EC_DELAY=100 patch did not help either, same or at least similar 
->problem. Output attached.
->
+Andrew Morton wrote on Monday, February 13, 2006 7:39 PM
+> Post-mortem time.   Why was it merged?
+> 
+> This patch was added to -mm on 8 November 2006.  Was merged into mainline
+> 12 January 2006.  That's two months in -mm and one month in mainline.
+> 
+> I don't think it's reasonable to stretch the latency of scheduler patches
+> to even longer than three months and I doubt if that'll solve the problem.
+> 
+> Oh well, at least we found it.
 
-Please try boot with lapic. I'm NOT sure if it is irq related resume
-issue.
-After resume, please try cat /proc/acpi/embedded_controller/*/info.
-Please test if it do the trick.
-
-If still not, please file a bug in ACPI category on bugzilla.kernel.org.
+I guess I'm the one to blame :-(  Our kernel performance project needs to
+be more active in testing pending performance patches that sits in -mm.
 
 
-Thanks,
-Luming
+> > We should back out the above commit and add a sysctl variable to control the
+> > behavior of load balancing in wake up path, so user can dynamically select
+> > a mode that best fit for the workload environment.  And kernel can achieve
+> > best performance in two extreme ends of incompatible workload environments.
+> 
+> Well I don't see any benchmark numbers in the original patch.  Just an
+> assertion that it "should" help something.
+> 
+> I'm more inclined to revert it and not add the sysctl (ugh) until we have a
+> good reason to do so.
+
+The discussion on wake-up load balancing started July 28 last year [1].
+In that post, it was outlined that the performance patch gave 2.3% gain
+for db transaction processing workload.  It was then followed up by a
+couple of iterations, including one from Ingo[2] and one from Nick[3].
+
+I think we just demonstrated that there are two workloads exist today
+which has completely opposite requirement on load balancing in the
+wake up path.  People has tried to make kernel smart and detect work-
+load environment, but so far it hasn't worked.  And hence the sysctl
+that I'm proposing right now.
+
+
+[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=112259224917701&w=2
+[2] http://marc.theaimsgroup.com/?l=linux-kernel&m=112265450426975&w=2
+[3] http://marc.theaimsgroup.com/?l=linux-kernel&m=113051195601837&w=2
+

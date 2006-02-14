@@ -1,84 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030456AbWBNFYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030463AbWBNFaD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030456AbWBNFYa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 00:24:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbWBNFWR
+	id S1030463AbWBNFaD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 00:30:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030466AbWBNFaB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 00:22:17 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:10447 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1030367AbWBNFFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 00:05:03 -0500
-Message-Id: <20060214050444.425684000@localhost.localdomain>
-References: <20060214050351.252615000@localhost.localdomain>
-Date: Tue, 14 Feb 2006 14:04:05 +0900
-From: Akinobu Mita <mita@miraclelinux.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
-       sparclinux@vger.kernel.org, ultralinux@vger.kernel.org,
-       Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 14/47] generic ffs()
-Content-Disposition: inline; filename=ffs-bitops.patch
+	Tue, 14 Feb 2006 00:30:01 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:35521 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030449AbWBNF36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 00:29:58 -0500
+Subject: Re: Linux 2.6.16-rc3
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Michal Jaegermann <michal@harddata.com>,
+       Dave Jones <davej@codemonkey.org.uk>, len.brown@intel.com,
+       davem@davemloft.net, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       axboe@suse.de, James.Bottomley@steeleye.com, greg@kroah.com,
+       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       luming.yu@intel.com, lk@bencastricum.nl, sanjoy@mrao.cam.ac.uk,
+       helgehaf@aitel.hist.no, fluido@fluido.as, gbruchhaeuser@gmx.de,
+       Nicolas.Mailhot@LaPoste.net, perex@suse.cz, tiwai@suse.de,
+       patrizio.bassi@gmail.com, bni.swe@gmail.com, arvidjaar@mail.ru,
+       p_christ@hol.gr, ghrt@dial.kappa.ro, jinhong.hu@gmail.com,
+       andrew.vasquez@qlogic.com, linux-scsi@vger.kernel.org, bcrl@kvack.org
+In-Reply-To: <20060213192838.64013c6c.akpm@osdl.org>
+References: <F7DC2337C7631D4386A2DF6E8FB22B30060BD1D9@hdsmsx401.amr.corp.intel.com>
+	 <20060213001240.05e57d42.akpm@osdl.org>
+	 <1139821068.2997.22.camel@laptopd505.fenrus.org>
+	 <20060214030821.GA23031@mail.harddata.com>
+	 <20060213192838.64013c6c.akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 14 Feb 2006 06:29:42 +0100
+Message-Id: <1139894982.4117.5.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch introduces the C-language equivalent of the function:
-int ffs(int x);
 
-In include/asm-generic/bitops/ffs.h
+> <I have this vaguely unsettled feeling that distros must get more bug
+> reports than the usptream developers, yet we hear so little about it>
 
-This code largely copied from:
-include/linux/bitops.h
+the number of quality reports (eg enough information to do anything)
+isn't that high; Dave is pretty good in sending the good ones on, it
+often takes time though to get all the basic info..
 
-Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
- include/asm-generic/bitops/ffs.h |   41 +++++++++++++++++++++++++++++++++++++++
- 1 files changed, 41 insertions(+)
 
-Index: 2.6-rc/include/asm-generic/bitops/ffs.h
-===================================================================
---- /dev/null
-+++ 2.6-rc/include/asm-generic/bitops/ffs.h
-@@ -0,0 +1,41 @@
-+#ifndef _ASM_GENERIC_BITOPS_FFS_H_
-+#define _ASM_GENERIC_BITOPS_FFS_H_
-+
-+/**
-+ * ffs - find first bit set
-+ * @x: the word to search
-+ *
-+ * This is defined the same way as
-+ * the libc and compiler builtin ffs routines, therefore
-+ * differs in spirit from the above ffz (man ffs).
-+ */
-+static inline int ffs(int x)
-+{
-+	int r = 1;
-+
-+	if (!x)
-+		return 0;
-+	if (!(x & 0xffff)) {
-+		x >>= 16;
-+		r += 16;
-+	}
-+	if (!(x & 0xff)) {
-+		x >>= 8;
-+		r += 8;
-+	}
-+	if (!(x & 0xf)) {
-+		x >>= 4;
-+		r += 4;
-+	}
-+	if (!(x & 3)) {
-+		x >>= 2;
-+		r += 2;
-+	}
-+	if (!(x & 1)) {
-+		x >>= 1;
-+		r += 1;
-+	}
-+	return r;
-+}
-+
-+#endif /* _ASM_GENERIC_BITOPS_FFS_H_ */
-
---

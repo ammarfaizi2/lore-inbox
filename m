@@ -1,55 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030304AbWBNDoV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030308AbWBNDrV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030304AbWBNDoV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 22:44:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030305AbWBNDoV
+	id S1030308AbWBNDrV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 22:47:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030314AbWBNDrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 22:44:21 -0500
-Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:15699 "HELO
-	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030304AbWBNDoU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 22:44:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=jWYfpYmvO7q7mIyHd7hDJIYiT5EAq0nns8wBnsRnPnWQTzW6Q2bY2+Uj1ON3h/5SO8Lzb6FRo1OQpWc/TyyNdq4fcf4Phr3UpOtW6LioJWBRkS/qlvB2RLdZgqh3fUKTdM9Zbvscx0nUq5uApXzZ3WxzI1N6Azh+QKxIGBf1zRg=  ;
-Message-ID: <43F15211.2090206@yahoo.com.au>
-Date: Tue, 14 Feb 2006 14:44:17 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Mon, 13 Feb 2006 22:47:21 -0500
+Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:55455 "HELO
+	smtp111.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030308AbWBNDrU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 22:47:20 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Alessandro Zummo <azummo-vger@towertech.it>
+Subject: Re: [PATCH 04/11] RTC subsystem, sysfs interface
+Date: Mon, 13 Feb 2006 22:47:17 -0500
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <20060213225416.865078000@towertech.it> <20060213225417.706366000@towertech.it>
+In-Reply-To: <20060213225417.706366000@towertech.it>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/2] fix perf. bug in wake-up load balancing for aim7
- and db workload
-References: <200602140309.k1E394g17590@unix-os.sc.intel.com> <20060213193856.696bf1f0.akpm@osdl.org>
-In-Reply-To: <20060213193856.696bf1f0.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602132247.17653.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Hi Alessandro,
 
-> 
-> 
-> Well I don't see any benchmark numbers in the original patch.  Just an
-> assertion that it "should" help something.
-> 
+On Monday 13 February 2006 17:54, Alessandro Zummo wrote:
+> +static ssize_t rtc_sysfs_show_date(struct class_device *dev, char *buf)
+> +{
+> +	ssize_t retval = -ENODEV;
+> +	struct rtc_time tm;
+> +
+> +	if ((retval = rtc_read_time(dev, &tm)) == 0) {
 
-The regression was in a Ken's commercial database benchmark. I couldn't
-reproduce it but presumably it did fix it otherwise Ken would would have
-piped up?
+Retval is set unconditionally here so there is no point in initializing
+it to -ENODEV above.
 
-> I'm more inclined to revert it and not add the sysctl (ugh) until we have a
-> good reason to do so.
-> 
+> +		retval = sprintf(buf, "%04d-%02d-%02d\n",
+> +			tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+> +	}
+> +
+> +	return retval;
+> +}
+> +static CLASS_DEVICE_ATTR(date, S_IRUGO, rtc_sysfs_show_date, NULL);
+> +
+> +static ssize_t rtc_sysfs_show_time(struct class_device *dev, char *buf)
+> +{
+> +	ssize_t retval = -ENODEV;
+> +	struct rtc_time tm;
+> +
+> +	if ((retval = rtc_read_time(dev, &tm)) == 0) {
 
-If you revert this then Ken's database benchmark gets worse. Hence the
-sysctl.
+Same here.
+
+> +		retval = sprintf(buf, "%02d:%02d:%02d\n",
+> +			tm.tm_hour, tm.tm_min, tm.tm_sec);
+> +	}
+> +
+> +	return retval;
+> +}
+> +static CLASS_DEVICE_ATTR(time, S_IRUGO, rtc_sysfs_show_time, NULL);
+> +
+> +static ssize_t rtc_sysfs_show_since_epoch(struct class_device *dev, char *buf)
+> +{
+> +	ssize_t retval = -ENODEV;
+> +	struct rtc_time tm;
+> +
+> +	if ((retval = rtc_read_time(dev, &tm)) == 0) {
+
+And here.
+
+> +		unsigned long time;
+> +		rtc_tm_to_time(&tm, &time);
+> +		retval = sprintf(buf, "%lu\n", time);
+> +	}
+> +
+> +	return retval;
+> +}
+> +static CLASS_DEVICE_ATTR(since_epoch, S_IRUGO, rtc_sysfs_show_since_epoch, NULL);
+> +
+> +/* insertion/removal hooks */
+> +
+> +static int __devinit rtc_sysfs_add_device(struct class_device *class_dev,
+> +					   struct class_interface *class_intf)
+> +{
+> +	class_device_create_file(class_dev, &class_device_attr_name);
+> +	class_device_create_file(class_dev, &class_device_attr_date);
+> +	class_device_create_file(class_dev, &class_device_attr_time);
+> +	class_device_create_file(class_dev, &class_device_attr_since_epoch);
+
+Maybe using attribute group here will help and also allow easier error
+hanling?
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Dmitry

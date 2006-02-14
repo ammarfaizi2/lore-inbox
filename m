@@ -1,82 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422842AbWBNWEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422851AbWBNWF6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422842AbWBNWEK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 17:04:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422854AbWBNWEK
+	id S1422851AbWBNWF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 17:05:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422853AbWBNWF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 17:04:10 -0500
-Received: from hera.kernel.org ([140.211.167.34]:40148 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1422842AbWBNWEH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 17:04:07 -0500
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: bonding mode 1 works as designed. Or not?
-Date: Tue, 14 Feb 2006 14:04:01 -0800
-Organization: OSDL
-Message-ID: <20060214140401.0f0a7e83@localhost.localdomain>
-References: <43F24DBA.7090602@am-anger-1.de>
-	<20060214214746.GK11380@w.ods.org>
-	<43F25138.9090503@am-anger-1.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1139954641 15450 10.8.0.54 (14 Feb 2006 22:04:01 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Tue, 14 Feb 2006 22:04:01 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
+	Tue, 14 Feb 2006 17:05:58 -0500
+Received: from smtp.enter.net ([216.193.128.24]:47890 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S1422851AbWBNWF5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 17:05:57 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Date: Tue, 14 Feb 2006 17:15:09 -0500
+User-Agent: KMail/1.8.1
+Cc: peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       jerome.lacoste@gmail.com, jengelh@linux01.gwdg.de
+References: <20060208162828.GA17534@voodoo> <200602131801.47050.dhazelton@enter.net> <43F1DD0A.nailMWZ718HUV@burner>
+In-Reply-To: <43F1DD0A.nailMWZ718HUV@burner>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200602141715.09828.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Feb 2006 22:52:56 +0100
-Heiko Gerstung <heiko@am-anger-1.de> wrote:
-
-> Hi Willy,
-> 
-> Willy Tarreau wrote:
-> >> [...]eth0 and eth1 are in a bonding group, mode=1, miimon=100 ... eth0 is the
-> >> active slave and used as long as the physical link is available (checked
-> >> by using MII monitoring), at the same time eth1 is totally passive,
-> >> neither passing any received packets to the kernel nor sending packets,
-> >> if the kernel wants it to do so. As soon as the eth0 link status changes
-> >> to "down", eth1 is activated and used, and now eth0 remains silent and
-> >> deaf until it becomes the active slave again.
-> >>
-> >> Any comments on that? Is the documentation wrong OR is there a bug in
-> >> the implementation of the bonding module?
-> >>     
+On Tuesday 14 February 2006 08:37, Joerg Schilling wrote:
+> "D. Hazelton" <dhazelton@enter.net> wrote:
+> > > -	does not need more time to integrate than I would need to
+> > > 	write this from scratch
+> > >
+> > > Unfortunately, many people who send patches to me do not follow
+> > > these simple rules.
 > >
-> > Neither, it's your understanding described above :-)
-> > In fact, the bonding is used to select an OUTPUT device. If some trafic
-> > manages to enter through the backup interface, it will reach the kernel.
-> > It can be useful to implement some link health-checks for instance. However,
-> > the only packets that you should receive are multicast and broadcast packets,
-> > so this should be very limited anyway by design. After several years using
-> > it, it has not caused me any trouble, including in environments involving
-> > multicast for VRRP.
-> >
-> >   
-> Unfortunately the ping replies come in on both interfaces, as well as 
-> any other traffic (like ssh or web traffic). Everything works but the 
-> load of the system caused by network traffic is nearly doubled this way 
-> and may cause confusion in a number of applications. 
-> 
-> Would there be a way to stop the non-active slave(s) from "listening", 
-> i.e. drop all traffic received by them? If yes, where could I do that?
-> > Regards,
-> > willy
-> >
-> >   
+> > Okay - show me your standards document and I'll get to work on a patch to
+> > do what I earlier proposed. It won't be "adding new functionality" but it
+> > will be making the interface a tiny bit simpler for the novice user.
+>
+> ?????
+>
+> 1)	RTFM
+> 2)	ftp://ftp.berlios.de/pub/cdrecord/PORTING
+> 3)	http://cdrecord.berlios.de/old/private/port.ps
+> 4)	http://cvs.opensolaris.org/source/xref/on/usr/src/tools/scripts/cstyle.p
+>l
+>
+>
+> If you do not follow the spirit of the interface design or of you break
+> things on other OS, your patch will not be accepted.
+>
+> Jörg
 
-You will probably get a better answer if you ask the developers
-directly.
+I shall and thank you. Given current constraints on my time I should have the 
+patch I mentioned available in no more than two weeks.
 
-BONDING DRIVER
-P:   Chad Tindel
-M:   ctindel@users.sourceforge.net
-P:   Jay Vosburgh
-M:   fubar@us.ibm.com
-L:   bonding-devel@lists.sourceforge.net
-W:   http://sourceforge.net/projects/bonding
+If my patch breaks something on another OS, then please inform me so that I 
+can modify the code and send you a fixed patch. After all, as I've said 
+before, I don't have the access to the resources you do for testing.
 
-
+DRH

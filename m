@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422727AbWBNSJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422730AbWBNSMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422727AbWBNSJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 13:09:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422750AbWBNSJ1
+	id S1422730AbWBNSMz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 13:12:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422741AbWBNSMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 13:09:27 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:40620 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1422727AbWBNSJ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 13:09:26 -0500
-Date: Tue, 14 Feb 2006 19:09:19 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Matthias Andree <matthias.andree@gmx.de>
-cc: Nix <nix@esperi.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-In-Reply-To: <20060214092207.GA32405@merlin.emma.line.org>
-Message-ID: <Pine.LNX.4.61.0602141908360.32490@yvahk01.tjqt.qr>
-References: <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
- <20060125181847.b8ca4ceb.grundig@teleline.es> <20060125173127.GR4212@suse.de>
- <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix>
- <43ED005F.5060804@tmr.com> <20060210235654.GA22512@kroah.com>
- <43F0891E.nailKUSCGC52G@burner> <871wy6sy7y.fsf@hades.wkstn.nix>
- <20060214092207.GA32405@merlin.emma.line.org>
+	Tue, 14 Feb 2006 13:12:55 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:21225 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1422730AbWBNSMy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 13:12:54 -0500
+Message-ID: <43F21D84.8010907@zytor.com>
+Date: Tue, 14 Feb 2006 10:12:20 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       linux-kernel@vger.kernel.org, drepper@redhat.com,
+       austin-group-l@opengroup.org
+Subject: Re: The naming of at()s is a difficult matter
+References: <43EEACA7.5020109@zytor.com> <Pine.LNX.4.61.0602121137090.25363@yvahk01.tjqt.qr> <43F09320.nailKUSI1GXEI@burner> <Pine.LNX.4.61.0602140916440.7198@yvahk01.tjqt.qr> <43F1F2C2.nailMWZGOQDYR@burner> <Pine.LNX.4.61.0602141907030.32490@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0602141907030.32490@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->> (I doubt libscg would ever be interested in the stuff in most of the
->> other directories: things like /dev/mem are not SCSI devices and never
->> will be, and /sys/class/scsi_device contains *everything* Linux
->> considers a SCSI device, no matter what transport it is on, SATA and
->> all. However, I don't know if it handles IDE devices that you can SG_IO
->> to because I don't have any such here. Anyone know?)
->
->My ATAPI DVD and CD writers are not listed in /sys/class/scsi_device.
->
-My IDE one is neither nowhere in /sys/class. (Maybe I did not try looking 
-hard enough, though.)
+Jan Engelhardt wrote:
+>>>>Do you have a better proposal for naming the interfaces?
+>>>
+>>>chownfn maybe. (fd + name)
+>>
+>>I am not shure if this would match the rules from the Opengroup.
+>>Solaris has these interfaces since at least 5 years.
+> 
+> This is not the cdrecord thread so Solaris is a no-go in this very one.
+> 
 
+FWIW, I think the -at() suffix is just fine, and well established by now 
+(yes, there is shmat, but the SysV shared memory interfaces are bizarre 
+to begin with -- hence POSIX shared memory which has real names.)
 
+What I object to is the random, meaningless and misleading application 
+of the f- suffix.
 
-Jan Engelhardt
--- 
+	-hpa

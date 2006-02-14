@@ -1,36 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422818AbWBNV54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422733AbWBNWBe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422818AbWBNV54 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 16:57:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422823AbWBNV54
+	id S1422733AbWBNWBe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 17:01:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422823AbWBNWBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 16:57:56 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:59537
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1422818AbWBNV5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 16:57:55 -0500
-Date: Tue, 14 Feb 2006 13:58:01 -0800 (PST)
-Message-Id: <20060214.135801.04801858.davem@davemloft.net>
-To: ralf@linux-mips.org
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, mark.e.mason@broadcom.com
-Subject: Re: PCI probe leaves master abort disabled in PCI_BRIDGE_CONTROL
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060214162357.GB21016@linux-mips.org>
-References: <20060213.171321.126221906.davem@davemloft.net>
-	<20060214051700.GA28721@suse.de>
-	<20060214162357.GB21016@linux-mips.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 14 Feb 2006 17:01:34 -0500
+Received: from smtp.enter.net ([216.193.128.24]:24081 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S1422733AbWBNWBd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 17:01:33 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Date: Tue, 14 Feb 2006 17:10:37 -0500
+User-Agent: KMail/1.8.1
+Cc: jengelh@linux01.gwdg.de, seanlkml@sympatico.ca, sam@vilain.net,
+       peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
+       lkml@dervishd.net, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net
+References: <43EB7BBA.nailIFG412CGY@burner> <Pine.LNX.4.61.0602140903400.7198@yvahk01.tjqt.qr> <43F1F196.nailMWZE1HZK5@burner>
+In-Reply-To: <43F1F196.nailMWZE1HZK5@burner>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602141710.37869.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ralf Baechle <ralf@linux-mips.org>
-Date: Tue, 14 Feb 2006 16:23:57 +0000
+On Tuesday 14 February 2006 10:04, Joerg Schilling wrote:
+> Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+> > >> -	SCSI commands are bastardized on ATAPI
+> > >
+> > >identify the problem - provide a test case or two and I'll get off my
+> > > lazy ass and see if I can't figure out what's causing the problem.
+> >
+> > Maybe we can put a testsuite together that sends all sorts of commands to
+> > a cd drive and then see with 1. which Linuxes 2. which models it happens.
+>
+> You need to ask around for people with problems....
+> Debian had some relevent data but removed it the day I was referring to it
+> :-(
 
-> I don't have an affected system at hand, so can't really test but I
-> propose something like the below patch.
+As the maintainer of the cdrtools package and the author of both libscg and 
+cdrecord I find it hard to believe that you do not have a log of these 
+somewhere. If Debian had relevant data and removed it, then it is quite 
+probable that they fixed the problem already. If that is the case, then all 
+it should take to find out is making an enquiry or searching among their 
+distribution specific kernel patches.
 
-Looks good to me.
+However, in the spirit of making this discussion bear useful fruit, I will 
+take it upon myself to search the Debian archived bugs and see if I can find 
+out the relevant data myself.
+
+DRH

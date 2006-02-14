@@ -1,37 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422820AbWBNVxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422818AbWBNV54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422820AbWBNVxt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 16:53:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422823AbWBNVxt
+	id S1422818AbWBNV54 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 16:57:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422823AbWBNV54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 16:53:49 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:49056
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1422820AbWBNVxs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 16:53:48 -0500
-Subject: Re: [PATCH 02/12] hrtimer: fix multiple macro argument expansion
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu
-In-Reply-To: <Pine.LNX.4.61.0602141110450.3700@scrub.home>
-References: <Pine.LNX.4.61.0602141110450.3700@scrub.home>
-Content-Type: text/plain
-Date: Tue, 14 Feb 2006 22:54:20 +0100
-Message-Id: <1139954060.2480.533.camel@localhost.localdomain>
+	Tue, 14 Feb 2006 16:57:56 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:59537
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1422818AbWBNV5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 16:57:55 -0500
+Date: Tue, 14 Feb 2006 13:58:01 -0800 (PST)
+Message-Id: <20060214.135801.04801858.davem@davemloft.net>
+To: ralf@linux-mips.org
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, mark.e.mason@broadcom.com
+Subject: Re: PCI probe leaves master abort disabled in PCI_BRIDGE_CONTROL
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060214162357.GB21016@linux-mips.org>
+References: <20060213.171321.126221906.davem@davemloft.net>
+	<20060214051700.GA28721@suse.de>
+	<20060214162357.GB21016@linux-mips.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.5 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-14 at 11:10 +0100, Roman Zippel wrote:
-> For two macros the arguments were expanded twice, change them to inline
-> functions to avoid it.
-> 
-> Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
-> Acked-by: Ingo Molnar <mingo@elte.hu>
+From: Ralf Baechle <ralf@linux-mips.org>
+Date: Tue, 14 Feb 2006 16:23:57 +0000
 
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
+> I don't have an affected system at hand, so can't really test but I
+> propose something like the below patch.
 
-
+Looks good to me.

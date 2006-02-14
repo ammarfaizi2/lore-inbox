@@ -1,51 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030463AbWBNFaD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030364AbWBNFZS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030463AbWBNFaD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 00:30:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030466AbWBNFaB
+	id S1030364AbWBNFZS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 00:25:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030370AbWBNFWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 00:30:01 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:35521 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030449AbWBNF36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 00:29:58 -0500
-Subject: Re: Linux 2.6.16-rc3
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Michal Jaegermann <michal@harddata.com>,
-       Dave Jones <davej@codemonkey.org.uk>, len.brown@intel.com,
-       davem@davemloft.net, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       axboe@suse.de, James.Bottomley@steeleye.com, greg@kroah.com,
-       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       luming.yu@intel.com, lk@bencastricum.nl, sanjoy@mrao.cam.ac.uk,
-       helgehaf@aitel.hist.no, fluido@fluido.as, gbruchhaeuser@gmx.de,
-       Nicolas.Mailhot@LaPoste.net, perex@suse.cz, tiwai@suse.de,
-       patrizio.bassi@gmail.com, bni.swe@gmail.com, arvidjaar@mail.ru,
-       p_christ@hol.gr, ghrt@dial.kappa.ro, jinhong.hu@gmail.com,
-       andrew.vasquez@qlogic.com, linux-scsi@vger.kernel.org, bcrl@kvack.org
-In-Reply-To: <20060213192838.64013c6c.akpm@osdl.org>
-References: <F7DC2337C7631D4386A2DF6E8FB22B30060BD1D9@hdsmsx401.amr.corp.intel.com>
-	 <20060213001240.05e57d42.akpm@osdl.org>
-	 <1139821068.2997.22.camel@laptopd505.fenrus.org>
-	 <20060214030821.GA23031@mail.harddata.com>
-	 <20060213192838.64013c6c.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 14 Feb 2006 06:29:42 +0100
-Message-Id: <1139894982.4117.5.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 14 Feb 2006 00:22:14 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:10191 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1030366AbWBNFFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 00:05:03 -0500
+Message-Id: <20060214050443.261426000@localhost.localdomain>
+References: <20060214050351.252615000@localhost.localdomain>
+Date: Tue, 14 Feb 2006 14:03:59 +0900
+From: Akinobu Mita <mita@miraclelinux.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, Russell King <rmk@arm.linux.org.uk>,
+       Ian Molton <spyro@f2s.com>, David Howells <dhowells@redhat.com>,
+       Hirokazu Takata <takata@linux-m32r.org>,
+       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
+       linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Akinobu Mita <mita@miraclelinux.com>
+Subject: [patch 08/47] generic __ffs()
+Content-Disposition: inline; filename=__ffs-bitops.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch introduces the C-language equivalent of the function:
+unsigned long __ffs(unsigned long word);
 
-> <I have this vaguely unsettled feeling that distros must get more bug
-> reports than the usptream developers, yet we hear so little about it>
+In include/asm-generic/bitops/__ffs.h
 
-the number of quality reports (eg enough information to do anything)
-isn't that high; Dave is pretty good in sending the good ones on, it
-often takes time though to get all the basic info..
+This code largely copied from:
+include/asm-sparc/bitops.h
 
+Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
+ include/asm-generic/bitops/__ffs.h |   43 +++++++++++++++++++++++++++++++++++++
+ 1 files changed, 43 insertions(+)
 
+Index: 2.6-rc/include/asm-generic/bitops/__ffs.h
+===================================================================
+--- /dev/null
++++ 2.6-rc/include/asm-generic/bitops/__ffs.h
+@@ -0,0 +1,43 @@
++#ifndef _ASM_GENERIC_BITOPS___FFS_H_
++#define _ASM_GENERIC_BITOPS___FFS_H_
++
++#include <asm/types.h>
++
++/**
++ * __ffs - find first bit in word.
++ * @word: The word to search
++ *
++ * Undefined if no bit exists, so code should check against 0 first.
++ */
++static inline unsigned long __ffs(unsigned long word)
++{
++	int num = 0;
++
++#if BITS_PER_LONG == 64
++	if ((word & 0xffffffff) == 0) {
++		num += 32;
++		word >>= 32;
++	}
++#endif
++	if ((word & 0xffff) == 0) {
++		num += 16;
++		word >>= 16;
++	}
++	if ((word & 0xff) == 0) {
++		num += 8;
++		word >>= 8;
++	}
++	if ((word & 0xf) == 0) {
++		num += 4;
++		word >>= 4;
++	}
++	if ((word & 0x3) == 0) {
++		num += 2;
++		word >>= 2;
++	}
++	if ((word & 0x1) == 0)
++		num += 1;
++	return num;
++}
++
++#endif /* _ASM_GENERIC_BITOPS___FFS_H_ */
+
+--

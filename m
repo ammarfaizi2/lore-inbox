@@ -1,88 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030320AbWBNEgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030340AbWBNEuf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030320AbWBNEgz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 23:36:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbWBNEgz
+	id S1030340AbWBNEuf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 23:50:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030346AbWBNEuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 23:36:55 -0500
-Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:61520 "EHLO
-	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1030320AbWBNEgz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 23:36:55 -0500
-Message-ID: <43F15E65.4090102@bigpond.net.au>
-Date: Tue, 14 Feb 2006 15:36:53 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andreas Gruenbacher <agruen@suse.de>
-CC: quilt-dev@nongnu.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Quilt-dev] Quilt 0.43 has been released! [SERIOUS BUG]
-References: <20060202230210.05a6ad4a.khali@linux-fr.org> <43F14DAA.6000703@bigpond.net.au> <200602140510.54960.agruen@suse.de>
-In-Reply-To: <200602140510.54960.agruen@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 14 Feb 2006 04:36:53 +0000
+	Mon, 13 Feb 2006 23:50:35 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:14340 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1030340AbWBNEuf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 23:50:35 -0500
+Date: Tue, 14 Feb 2006 05:50:22 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Roberto Nibali <ratz@drugphish.ch>
+Cc: Yoss <bartek@milc.com.pl>, linux-kernel@vger.kernel.org
+Subject: Re: Memory leak in 2.4.33-pre1?
+Message-ID: <20060214045022.GA10045@w.ods.org>
+References: <20060213214651.GA27844@milc.com.pl> <20060214000529.GJ11380@w.ods.org> <43F12597.2000006@drugphish.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F12597.2000006@drugphish.ch>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Gruenbacher wrote:
-> On Tuesday 14 February 2006 04:25, Peter Williams wrote:
+On Tue, Feb 14, 2006 at 01:34:31AM +0100, Roberto Nibali wrote:
+> >>So there is missing about ~300MB.
+> >>If anyone wants to have more detailed info feel free to ask.
+> > 
+> >You don't have to worry. Simply check /proc/slabinfo, you'll see plenty
+> >of memory used by dentry_cache and inode_cache and that's expected. This
 > 
->>The problem arises when pushing a patch that has errors in it (due to
->>changes in the previous patches in the series) and needs the -f flag to
->>force the push.  What's happening is that the reverse of the errors is
->>being applied to the "pre patch" file in the .pc directory.  Then when
->>you pop this patch it returns the file to a state with the reverse of
->>the errors applied to it.
-> 
-> 
-> Found and fixed. It's a missed rollback_patch on one of the two branches of 
-> the code that checks if a patch can be reverse applied.
+> Well, 300M dentry and inode is quite a lot for a system that has been up 
+> at most for 6 days.
 
-That was quick.
+my notebood eats more than the double of this when doing its slocate
+3 min after boot, so that depends on what it does ;-)
 
-> This case apparently 
-> doesn't trigger as easily as it seems, or else we would have found it sooner. 
-> Still quite bad.
+> >memory will be reclaimed when needed (for instance by calls to malloc()).
 > 
-> Shall we wait until the translations are up-to-date again, or release 0.44 
-> immediately?
+> slabtop -s c -o | head -20
 > 
-> 
->>I'm having trouble understanding how quilt could be dumb enough to do
->>this as surely the "pre patch" file in the .pc directory should be just
->>a copy of the file before the patch is applied.
-> 
-> 
-> Hey, it's just a bug.
+> would be interesting to see, otherwise I agree with Willy, as always ;).
 
 :-)
 
-> 
-> 
->>This bug can completely hose a set of patches if the user doesn't notice
->>it very early and do something about it.  The work around is to revert
->>to version 0.42 of quilt.
-> 
-> 
-> You should have sent your gquilt announcement to the quilt-dev list as well. 
-> Thank you for summarizing the changes.
+> Cheers,
+> Roberto Nibali, ratz
 
-Sorry.  They were mainly due to your change from "-p <patch>" to "-P 
-<patch>" for some commands.  The other issue was a change to the return 
-value and error message when "quilt top" was used in a directory without 
-any quilt data.  So no real changes to gquilt as seen by the user just 
-implementation changes.
+cheers,
+Willy
 
-BTW the --version function made it possible to make gquilt still work 
-with versions earlier than 0.43.
-
-Thanks
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

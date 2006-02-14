@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbWBNPzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161072AbWBNP5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964823AbWBNPzg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 10:55:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964854AbWBNPzg
+	id S1161072AbWBNP5l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 10:57:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161101AbWBNP5k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 10:55:36 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:40902 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S964823AbWBNPzf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 10:55:35 -0500
-Message-ID: <43F1FD39.1040900@cfl.rr.com>
-Date: Tue, 14 Feb 2006 10:54:33 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 14 Feb 2006 10:57:40 -0500
+Received: from nproxy.gmail.com ([64.233.182.197]:21099 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161072AbWBNP5j convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 10:57:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=q5u1+b7Mb5hk+uvyCiCUHnCKukGUF2pTeNeZ18kXCFbULGrx67kKNYH32JT8pm194/fxspNthHotrWc39/ZCiyxNe8huH6eD1tvsjwuV1+DB+MAvq0Fwtg5duiJgtqsitrkU2CuWOlUnGwzijoh9oUoQu0/k4SM3LortJJVBSd4=
+Message-ID: <58cb370e0602140757r5b265f25wc9f1f2e44d5f075c@mail.gmail.com>
+Date: Tue, 14 Feb 2006 16:57:37 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: RFC: Compact Flash True IDE Mode Driver
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <A9DB3731-BF2F-4C52-BFBB-7E247E646FA6@kernel.crashing.org>
 MIME-Version: 1.0
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-CC: Peter Osterlund <petero2@telia.com>, linux-kernel@vger.kernel.org,
-       bfennema@falcon.csc.calpoly.edu, Christoph Hellwig <hch@lst.de>,
-       Al Viro <viro@ftp.linux.org.uk>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] UDF filesystem uid fix
-References: <m3lkwg4f25.fsf@telia.com> <84144f020602130149k72b8ebned89ff5719cdd0c2@mail.gmail.com> <43F0B8FC.6020605@cfl.rr.com> <Pine.LNX.4.58.0602140916230.15339@sbz-30.cs.Helsinki.FI>
-In-Reply-To: <Pine.LNX.4.58.0602140916230.15339@sbz-30.cs.Helsinki.FI>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Feb 2006 15:56:45.0710 (UTC) FILETIME=[418E72E0:01C6317F]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14267.000
-X-TM-AS-Result: No--11.800000-5.000000-31
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <58cb370e0602130235h3ab521cep47584ee634e8fc7f@mail.gmail.com>
+	 <Pine.LNX.4.44.0602131020370.30316-100000@gate.crashing.org>
+	 <58cb370e0602130853s4ce767c6j57337a9587cc2963@mail.gmail.com>
+	 <9E02DAB4-8DCE-42AA-8F47-080636F78E4C@kernel.crashing.org>
+	 <58cb370e0602131221k60e23cffo480fbec812b6560e@mail.gmail.com>
+	 <4EAA9C9B-947B-493D-B3D9-CFA1EC0A71CA@kernel.crashing.org>
+	 <58cb370e0602131435u317d1f2fxec9f156328807e9e@mail.gmail.com>
+	 <A9DB3731-BF2F-4C52-BFBB-7E247E646FA6@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka J Enberg wrote:
-> I don't haven an UDF partition to test on so I am only reading the code. 
-> With your patch, every time an in-memory inode has the same uid/gid as the 
-> one you passed as mount option, the id on disk will become -1, no? So for 
-> example, doing chown 100 for a file writes -1 to disk if you passed 100 
-> as uid mount option. Am I missing something here?
+On 2/14/06, Kumar Gala <galak@kernel.crashing.org> wrote:
+> >> Now I'm confused.  If I understand the code, what I want is for the
+> >> "io_32bit" setting to have its RW field set to SETTING_READ, such
+> >> that drive->no_io_32bit can NOT be changed.  Additionally, I want it
+> >> set to 1 if hwif->no_io_32bit is 1.
+> >
+> > Yes.
+> >
+> >> Are you saying that at the end of probe_hwif() I should iterate over
+> >> the drives for that hwif and set drive->no_io_32bit to 1 if hwif-
+> >>> no_io_32bit is 1?  If so, can I do this in the last loop that
+> >> already exists that iterates over the drives?
+> >
+> > Well, no - this loop is for tuning and is already over-complicated.
+> >
+> >> Will I not also want to test hwif->no_io_32bit in idedisk_setup() to
+> >> ensure that it can only set driver->no_io_32bit to 0 if hwif-
+> >>> no_io32bit is 0?
+> >
+> > No, you want to move this code to ide-probe.c because of the
+> > reason given in my last mail: setting drive->no_io_32bit in ide-disk
+> > is too late w.r.t. ide_add_generic_settings():
+> >
+> > init_gendisk()->hwif_init()->ide_add_generic_settings()
+> >
+> > so drive->no_io_32bit flag needs to be set earlier
+> > (probe_hwif() is OK).
 >
->   
-That is exactly correct. 
+> Will drive->id->dword_io be valid by the end of probe_hwif()?
 
-> Yes, I agree that the current code is broken. I was talking about what the 
-> semantics should be and that your patch doesn't quite get us there. Do you 
-> disagree with that? The UDF specification I am looking at [1] says that -1 
-> is used by operating systems that do not support uid/gid to denote an 
-> invalid id (although ECMA-167 doesn't seem to have such rule), which is  
-> why I think it's an bad idea for Linux to ever write it on disk. Instead, 
-> we should always write the proper id on disk unless it was invalid in the 
-> first place and we did not explicity change it (via chown, for example).
-Sometimes you DON'T want a valid UID written to the disk.  In the case 
-of a typical desktop user, there is only one uid that is ever going to 
-access the disk, but that uid may be different on each computer, even 
-though it's the same person.  Thus they want to be able to take the disc 
-from computer to computer, and have access to their files.  Since the 
-existing uid/gid override mount options only apply if the on disk id is 
--1, it seemed a simple and appropriate thing to store -1 in the case 
-where the id matches the mount option.  The only use case that this 
-patch changes is where the id matches the mount option.  In that case, 
-the user expected behavior is for the files on the disc to appear to be 
-owned by the specified uid, with the added benefit that this will hold 
-true if you remount with another uid specified, possibly even on another 
-machine.  This seems to meet user expectations much better than the 
-previous behavior of changing ownership to root when unmounted. 
+Yes.
 
-If you want real IDs to be stored, then do nothing.  Simply continue to 
-use the system just like before, where you did not specify a uid as a 
-mount option. 
-
-
+> > And yes, this IDE stuff is complicated... :)
+>
+> That it is ;)
+>
+> - kumar

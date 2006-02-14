@@ -1,93 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422775AbWBNT4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422774AbWBNT5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422775AbWBNT4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 14:56:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422776AbWBNT4Z
+	id S1422774AbWBNT5n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 14:57:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422777AbWBNT5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 14:56:25 -0500
-Received: from smtpout.mac.com ([17.250.248.85]:55776 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1422775AbWBNT4Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 14:56:24 -0500
-In-Reply-To: <43F223EF.1000309@cfl.rr.com>
-References: <Pine.LNX.4.44L0.0602131601220.4754-100000@iolanthe.rowland.org> <43F11A9D.5010301@cfl.rr.com> <BCC8C7FA-25A2-4460-A667-5AA88BF5BC6D@mac.com> <43F13BDF.3060208@cfl.rr.com> <DD0B9449-14AF-47D1-8372-DDC7E896DBC2@mac.com> <43F17850.8080600@cfl.rr.com> <F157E3C4-0D62-413C-B08B-91A567B8C09B@mac.com> <43F223EF.1000309@cfl.rr.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <D2DF8AE9-51A0-42DF-8346-0EF4C264627D@mac.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       Alon Bar-Lev <alon.barlev@gmail.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Flames over -- Re: Which is simpler?
-Date: Tue, 14 Feb 2006 14:55:56 -0500
-To: Phillip Susi <psusi@cfl.rr.com>
-X-Mailer: Apple Mail (2.746.2)
+	Tue, 14 Feb 2006 14:57:43 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:59814 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1422774AbWBNT5m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 14:57:42 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Tue, 14 Feb 2006 20:56:25 +0100
+To: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43F235E9.nailGN250VV8@burner>
+References: <43EB7BBA.nailIFG412CGY@burner>
+ <mj+md-20060213.160108.13290.atrey@ucw.cz>
+ <43F0B32D.nailKUS1E3S8I3@burner>
+ <200602131842.02377.dhazelton@enter.net>
+ <Pine.LNX.4.61.0602140903400.7198@yvahk01.tjqt.qr>
+ <43F1F196.nailMWZE1HZK5@burner>
+ <20060214165318.GB7860@merlin.emma.line.org>
+ <43F21643.nailMWZZ188CM@burner>
+ <20060214194939.GB11594@merlin.emma.line.org>
+In-Reply-To: <20060214194939.GB11594@merlin.emma.line.org>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 14, 2006, at 13:39, Phillip Susi wrote:
->>> I think most users prefer a system that works right when you use  
->>> it right to one that doesn't break quite as badly when you do  
->>> something stupid.
->>
->> I think you just proved my point.  Running the "sync" command a  
->> couple times then unplugging the USB stick basically never results  
->> in data loss even if the filesystem is mounted.  Spontaneously  
->> switching block devices under a mounted filesystem is guaranteed  
->> to either panic the machine or cause massive data corruption or both.
+Matthias Andree <matthias.andree@gmx.de> wrote:
+
+> Joerg Schilling schrieb am 2006-02-14:
 >
-> But who cares?  There are plenty of really stupid things users can  
-> do to hose their system, it isn't right to prevent them from doing  
-> something perfectly reasonable just because it reduces the damage  
-> done when they do something completely unreasonable.
-
-How is swapping USB devices while suspended unreasonable?  Come to  
-think of it, I did it inadvertently about 15 minutes ago with my  
-PowerBook (while booted into Mac OS).  I had a USB key that I was  
-copying a file to for someone.  After shutting the lid, I unplugged  
-mouse, USB key, and power block.  About 30 minutes later I had  
-somebody else with a key who wanted to give me a file.  I had the key  
-plugged in before the laptop was finished waking up from sleep.  Now,  
-I don't know for certain that neither key had a serial number, but  
-the two I have here in my hand certainly don't, and I could _easily_  
-see somebody swapping USB keys not knowing that they're "not supposed  
-to do that" and getting massive data corruption when the filesystem  
-reads and writes pages from a completely different block device.
-
->> SCSI != USB.  Users generally don't expect to hotplug SCSI devices  
->> while booted and running (with the exception of some _really_  
->> expensive hotplug-bays where we expect the admin to know what the  
->> hell they're doing).  On the other hand, users _do_ expect to  
->> hotplug random USB devices whenever they feel like it.
+> > Matthias Andree <matthias.andree@gmx.de> wrote:
+> > 
+> > In other words, you are still only trying to create voilence but 
+> > unable/unwilling to cooperate?
 >
-> So because SCSI is more expensive than USB, it is ok to assume it  
-> will only be used by people who know what they are doing?  And  
-> since USB will be used by people who don't know what they are  
-> doing, we must assume they will always do silly things ( swap or  
-> modify the drive while suspended ), at the expense of those who don't?
+> Amusing question, isn't it you who dropped the patch (= quit
+> cooperation) without looking at it?
+>
+> > http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=186099
+>
+> So Debian didn't delete your bugs? Hm... and tomorrow you'll tell us you
+> never insinuated Debian deleted bugs.
+>
+> Quote "This seems to be a general problem with QSI-drives, see e.g.
+> http://lists.debian.org/debian-user-german/2004/debian-user-german-200402/msg05143.html
+> which shows testimonials about failed blanking of cd-rws for QSI
+> CD-RW/DVD-ROM SBW-241, cdrdao succeeds."
+>
+> "If you are unwilling to remove a non cdrecord related bug from the list
+> or if you unable to understand the background, you should ask for help
+> or leave the cdrecord project."
+> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=186099;msg=84
 
-Did you read what I wrote?  People don't generally expect to randomly  
-plug and unplug SCSI drives whenever they feel like it.  They _do_  
-expect to randomly plug and unplug USB drives, mice, keyboards,  
-tablets, network adapters, etc, because _everything_ supports such  
-random plugging.
+If you don't know the background, stay quiet!
 
-Creating an extremely odd and hard to predict failure mode (when you  
-reconnect USB devices while suspended on hardware that doesn't  
-support proper USB suspend) with a high probability of causing data  
-corruption or crashes is wrong.  Especially since you could easily  
-teach users that "You need to eject USB things before you sleep the  
-computer _or_ just fix the kernel to do it for you.  That's probably  
-something we should be doing for all network filesystems anyways.
+This bug has been moved away from Linux kernel bugs several times.
+I was requesting to put the bug where it belongs....
 
-Cheers,
-Kyle Moffett
+Jörg
 
---
-I didn't say it would work as a defense, just that they can spin that  
-out for years in court if it came to it.
-   -- Rob Landley
-
-
-
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

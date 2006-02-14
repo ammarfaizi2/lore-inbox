@@ -1,76 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422849AbWBNWkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422859AbWBNWsY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422849AbWBNWkf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 17:40:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422856AbWBNWkf
+	id S1422859AbWBNWsY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 17:48:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422860AbWBNWsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 17:40:35 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:262 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1422849AbWBNWke
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 17:40:34 -0500
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, davidsen@tmr.com,
-       axboe@suse.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
-	<20060125144543.GY4212@suse.de>
-	<Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
-	<20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
-	<20060125181847.b8ca4ceb.grundig@teleline.es>
-	<20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de>
-	<878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com>
-	<20060210235654.GA22512@kroah.com> <43F0891E.nailKUSCGC52G@burner>
-	<871wy6sy7y.fsf@hades.wkstn.nix> <43F1BE96.nailMY212M61V@burner>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: an inspiring example of form following function... to Hell.
-Date: Tue, 14 Feb 2006 22:40:18 +0000
-In-Reply-To: <43F1BE96.nailMY212M61V@burner> (Joerg Schilling's message of
- "Tue, 14 Feb 2006 12:27:18 +0100")
-Message-ID: <87d5hpr2ct.fsf@hades.wkstn.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 14 Feb 2006 17:48:24 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:18100 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1422859AbWBNWsY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 17:48:24 -0500
+Subject: Re: AMD 8131 and MSI quirk
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Roland Dreier <rolandd@cisco.com>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+In-Reply-To: <20060214221025.GB14329@mellanox.co.il>
+References: <524q799p2t.fsf@cisco.com>
+	 <20060214165222.GC12974@mellanox.co.il> <1139940226.18044.3.camel@whizzy>
+	 <20060214212145.GC14113@mellanox.co.il> <1139954779.26803.3.camel@whizzy>
+	 <20060214221025.GB14329@mellanox.co.il>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 14 Feb 2006 14:52:54 -0800
+Message-Id: <1139957574.26803.7.camel@whizzy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-OriginalArrivalTime: 14 Feb 2006 22:48:10.0990 (UTC) FILETIME=[BB2140E0:01C631B8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Feb 2006, Joerg Schilling wrote:
-> Please send me the whitepaper that was used to define the interfaces
-> and functionality of the /sys device
+On Wed, 2006-02-15 at 00:10 +0200, Michael S. Tsirkin wrote:
+> Quoting r. Kristen Accardi <kristen.c.accardi@intel.com>:
+> > I guess the assumption I made was that if msi is
+> > turned off for a bridge, then all devices under the bridge may not use
+> > msi.   
+> 
+> Well, all this is just quirks, so no real rules apply, thats why I thought
+> having 2 bits gives us maximum flexibility.
+> 
+> Specifically for PCXH I see this in code:
+> /*
+>  * It's possible for the MSI to get corrupted if shpc and acpi
+>  * are used together on certain PXH-based systems.
+>  * */
+> 
+> So it seems the issue is device-specific - only affects the bridge itself.
+> 
+> What the code currently does is disable msi for bridge itself but not for
+> the devices behind it. I cant inherit dev->no_msi from parent to child
+> without changing this, and I just assumed this is by design.
+> 
+> Are you saying this is a bug and should be changed?
+> 
 
-If you seriously think that development of *anything* in the free
-software world happens by means of whitepapers preceding definition, or
-indeed that anything major in the Unix world has ever worked that way,
-you're seriously deluded.
+Ok, I went back and read the errata that this patch was attempting to
+solve, and you are right, it would not be correct to have children
+inherit the no_msi flag from the parent in this case.  I can clearly see
+why we need to have a flag associated with the bus rather than the
+device for your case.
 
-> Please send me the other documentation (e.g. man pages) on the /sys
-> device
+Kristen
 
-Oh, I thought you had *access* to the kernel source. A trivial grep
-under the Documentation directory would find it (hint:
-Documentation/filesystems/ is a good place to start.)
 
-If you actually wanted to *fix* your program --- if you cared more about
-users than being proved right no matter what --- then you'd have been
-able to determine that for yourself in seconds.
-
-(But then we all know that's not what you're actually after.)
-
-> Please send me a statement on how long this interface will be maintained
-> inside Linux without breaking interfaces.
-
-What a ridiculous request. If people use it, it won't be broken. If it
-proves unusable due to flaws, it will change. Sheesh.
-
-(It is not as robust as the syscall interface, but it is still subject
-to some degree of change. A trivial google would have made this clear.)
-
-You appear not to understand the difference between development
-roadmapped for years in advance by a sclerotic corporation and free
-software development. Or perhaps you do understand, and are just being
-pointlessly contrary. (I expect the latter is true. You're not stupid.
-Just nasty.)
-
--- 
-`... follow the bouncing internment camps.' --- Peter da Silva

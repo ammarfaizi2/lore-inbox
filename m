@@ -1,223 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030385AbWBNFRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbWBNFQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030385AbWBNFRH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 00:17:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030383AbWBNFNc
+	id S1030372AbWBNFQd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 00:16:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbWBNFNh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 00:13:32 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:30927 "EHLO
+	Tue, 14 Feb 2006 00:13:37 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:29647 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1030385AbWBNFFH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 00:05:07 -0500
-Message-Id: <20060214050445.411720000@localhost.localdomain>
+	id S1030382AbWBNFFG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 00:05:06 -0500
+Message-Id: <20060214050447.121029000@localhost.localdomain>
 References: <20060214050351.252615000@localhost.localdomain>
-Date: Tue, 14 Feb 2006 14:04:10 +0900
+Date: Tue, 14 Feb 2006 14:04:19 +0900
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, Richard Henderson <rth@twiddle.net>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+Cc: akpm@osdl.org, linux-m68k@vger.kernel.org,
        Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 19/47] alpha: use generic bitops
-Content-Disposition: inline; filename=alpha-2.patch
+Subject: [patch 28/47] m68k: use generic bitops
+Content-Disposition: inline; filename=m68k.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- unless defined(__alpha_cix__) and defined(__alpha_fix__)
-
-  - remove generic_fls()
-  - remove generic_hweight{64,32,16,8}()
-
 - remove generic_fls64()
-- remove find_{next,first}{,_zero}_bit()
+- remove sched_find_first_bit()
+- remove generic_hweight()
 - remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
-- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
- arch/alpha/Kconfig         |    8 ++
- include/asm-alpha/bitops.h |  123 ++-------------------------------------------
- 2 files changed, 15 insertions(+), 116 deletions(-)
+ arch/m68k/Kconfig         |    4 ++
+ include/asm-m68k/bitops.h |   86 ++--------------------------------------------
+ 2 files changed, 9 insertions(+), 81 deletions(-)
 
-Index: 2.6-rc/include/asm-alpha/bitops.h
+Index: 2.6-rc/include/asm-m68k/bitops.h
 ===================================================================
---- 2.6-rc.orig/include/asm-alpha/bitops.h
-+++ 2.6-rc/include/asm-alpha/bitops.h
-@@ -319,9 +319,9 @@ static inline int fls(int word)
- 	return 64 - __kernel_ctlz(word & 0xffffffff);
- }
- #else
--#define fls	generic_fls
-+#include <asm-generic/bitops/fls.h>
- #endif
--#define fls64   generic_fls64
-+#include <asm-generic/bitops/fls64.h>
+--- 2.6-rc.orig/include/asm-m68k/bitops.h
++++ 2.6-rc/include/asm-m68k/bitops.h
+@@ -310,36 +310,10 @@ static inline int fls(int x)
  
- /* Compute powers of two for the given integer.  */
- static inline long floor_log2(unsigned long word)
-@@ -358,112 +358,12 @@ static inline unsigned long hweight64(un
- #define hweight16(x)	(unsigned int) hweight64((x) & 0xfffful)
- #define hweight8(x)	(unsigned int) hweight64((x) & 0xfful)
- #else
--static inline unsigned long hweight64(unsigned long w)
+ 	return 32 - cnt;
+ }
+-#define fls64(x)   generic_fls64(x)
+-
+-/*
+- * Every architecture must define this function. It's the fastest
+- * way of searching a 140-bit bitmap where the first 100 bits are
+- * unlikely to be set. It's guaranteed that at least one of the 140
+- * bits is cleared.
+- */
+-static inline int sched_find_first_bit(const unsigned long *b)
 -{
--	unsigned long result;
--	for (result = 0; w ; w >>= 1)
--		result += (w & 1);
--	return result;
+-	if (unlikely(b[0]))
+-		return __ffs(b[0]);
+-	if (unlikely(b[1]))
+-		return __ffs(b[1]) + 32;
+-	if (unlikely(b[2]))
+-		return __ffs(b[2]) + 64;
+-	if (b[3])
+-		return __ffs(b[3]) + 96;
+-	return __ffs(b[4]) + 128;
 -}
+ 
+-
+-/*
+- * hweightN: returns the hamming weight (i.e. the number
+- * of bits set) of a N-bit word
+- */
 -
 -#define hweight32(x) generic_hweight32(x)
 -#define hweight16(x) generic_hweight16(x)
--#define hweight8(x)  generic_hweight8(x)
+-#define hweight8(x) generic_hweight8(x)
++#include <asm-generic/bitops/fls64.h>
++#include <asm-generic/bitops/sched.h>
 +#include <asm-generic/bitops/hweight.h>
- #endif
  
- #endif /* __KERNEL__ */
+ /* Bitmap functions for the minix filesystem */
  
--/*
-- * Find next zero bit in a bitmap reasonably efficiently..
-- */
--static inline unsigned long
--find_next_zero_bit(const void *addr, unsigned long size, unsigned long offset)
--{
--	const unsigned long *p = addr;
--	unsigned long result = offset & ~63UL;
--	unsigned long tmp;
--
--	p += offset >> 6;
--	if (offset >= size)
--		return size;
--	size -= result;
--	offset &= 63UL;
--	if (offset) {
--		tmp = *(p++);
--		tmp |= ~0UL >> (64-offset);
--		if (size < 64)
--			goto found_first;
--		if (~tmp)
--			goto found_middle;
--		size -= 64;
--		result += 64;
--	}
--	while (size & ~63UL) {
--		if (~(tmp = *(p++)))
--			goto found_middle;
--		result += 64;
--		size -= 64;
--	}
--	if (!size)
--		return result;
--	tmp = *p;
-- found_first:
--	tmp |= ~0UL << size;
--	if (tmp == ~0UL)        /* Are any bits zero? */
--		return result + size; /* Nope. */
-- found_middle:
--	return result + ffz(tmp);
--}
--
--/*
-- * Find next one bit in a bitmap reasonably efficiently.
-- */
--static inline unsigned long
--find_next_bit(const void * addr, unsigned long size, unsigned long offset)
--{
--	const unsigned long *p = addr;
--	unsigned long result = offset & ~63UL;
--	unsigned long tmp;
--
--	p += offset >> 6;
--	if (offset >= size)
--		return size;
--	size -= result;
--	offset &= 63UL;
--	if (offset) {
--		tmp = *(p++);
--		tmp &= ~0UL << offset;
--		if (size < 64)
--			goto found_first;
--		if (tmp)
--			goto found_middle;
--		size -= 64;
--		result += 64;
--	}
--	while (size & ~63UL) {
--		if ((tmp = *(p++)))
--			goto found_middle;
--		result += 64;
--		size -= 64;
--	}
--	if (!size)
--		return result;
--	tmp = *p;
-- found_first:
--	tmp &= ~0UL >> (64 - size);
--	if (!tmp)
--		return result + size;
-- found_middle:
--	return result + __ffs(tmp);
--}
--
--/*
-- * The optimizer actually does good code for this case.
-- */
--#define find_first_zero_bit(addr, size) \
--	find_next_zero_bit((addr), (size), 0)
--#define find_first_bit(addr, size) \
--	find_next_bit((addr), (size), 0)
-+#include <asm-generic/bitops/find.h>
+@@ -377,61 +351,11 @@ static inline int minix_test_bit(int nr,
  
- #ifdef __KERNEL__
+ /* Bitmap functions for the ext2 filesystem. */
  
-@@ -487,21 +387,12 @@ sched_find_first_bit(unsigned long b[3])
- 	return __ffs(b0) + ofs;
- }
- 
+-#define ext2_set_bit(nr, addr)			__test_and_set_bit((nr) ^ 24, (unsigned long *)(addr))
 +#include <asm-generic/bitops/ext2-non-atomic.h>
- 
--#define ext2_set_bit                 __test_and_set_bit
- #define ext2_set_bit_atomic(l,n,a)   test_and_set_bit(n,a)
--#define ext2_clear_bit               __test_and_clear_bit
- #define ext2_clear_bit_atomic(l,n,a) test_and_clear_bit(n,a)
--#define ext2_test_bit                test_bit
--#define ext2_find_first_zero_bit     find_first_zero_bit
--#define ext2_find_next_zero_bit      find_next_zero_bit
--
--/* Bitmap functions for the minix filesystem.  */
--#define minix_test_and_set_bit(nr,addr) __test_and_set_bit(nr,addr)
--#define minix_set_bit(nr,addr) __set_bit(nr,addr)
--#define minix_test_and_clear_bit(nr,addr) __test_and_clear_bit(nr,addr)
--#define minix_test_bit(nr,addr) test_bit(nr,addr)
--#define minix_find_first_zero_bit(addr,size) find_first_zero_bit(addr,size)
 +
-+#include <asm-generic/bitops/minix.h>
+ #define ext2_set_bit_atomic(lock, nr, addr)	test_and_set_bit((nr) ^ 24, (unsigned long *)(addr))
+-#define ext2_clear_bit(nr, addr)		__test_and_clear_bit((nr) ^ 24, (unsigned long *)(addr))
+ #define ext2_clear_bit_atomic(lock, nr, addr)	test_and_clear_bit((nr) ^ 24, (unsigned long *)(addr))
  
+-static inline int ext2_test_bit(int nr, const void *vaddr)
+-{
+-	const unsigned char *p = vaddr;
+-	return (p[nr >> 3] & (1U << (nr & 7))) != 0;
+-}
+-
+-static inline int ext2_find_first_zero_bit(const void *vaddr, unsigned size)
+-{
+-	const unsigned long *p = vaddr, *addr = vaddr;
+-	int res;
+-
+-	if (!size)
+-		return 0;
+-
+-	size = (size >> 5) + ((size & 31) > 0);
+-	while (*p++ == ~0UL)
+-	{
+-		if (--size == 0)
+-			return (p - addr) << 5;
+-	}
+-
+-	--p;
+-	for (res = 0; res < 32; res++)
+-		if (!ext2_test_bit (res, p))
+-			break;
+-	return (p - addr) * 32 + res;
+-}
+-
+-static inline int ext2_find_next_zero_bit(const void *vaddr, unsigned size,
+-					  unsigned offset)
+-{
+-	const unsigned long *addr = vaddr;
+-	const unsigned long *p = addr + (offset >> 5);
+-	int bit = offset & 31UL, res;
+-
+-	if (offset >= size)
+-		return size;
+-
+-	if (bit) {
+-		/* Look for zero in first longword */
+-		for (res = bit; res < 32; res++)
+-			if (!ext2_test_bit (res, p))
+-				return (p - addr) * 32 + res;
+-		p++;
+-	}
+-	/* No zero yet, search remaining full bytes for a zero */
+-	res = ext2_find_first_zero_bit (p, size - 32 * (p - addr));
+-	return (p - addr) * 32 + res;
+-}
+-
  #endif /* __KERNEL__ */
  
-Index: 2.6-rc/arch/alpha/Kconfig
+ #endif /* _M68K_BITOPS_H */
+Index: 2.6-rc/arch/m68k/Kconfig
 ===================================================================
---- 2.6-rc.orig/arch/alpha/Kconfig
-+++ 2.6-rc/arch/alpha/Kconfig
-@@ -25,6 +25,10 @@ config RWSEM_XCHGADD_ALGORITHM
+--- 2.6-rc.orig/arch/m68k/Kconfig
++++ 2.6-rc/arch/m68k/Kconfig
+@@ -17,6 +17,10 @@ config RWSEM_GENERIC_SPINLOCK
+ config RWSEM_XCHGADD_ALGORITHM
  	bool
- 	default y
  
-+config GENERIC_FIND_NEXT_BIT
++config GENERIC_HWEIGHT
 +	bool
 +	default y
 +
  config GENERIC_CALIBRATE_DELAY
  	bool
  	default y
-@@ -447,6 +451,10 @@ config ALPHA_IRONGATE
- 	depends on ALPHA_NAUTILUS
- 	default y
- 
-+config GENERIC_HWEIGHT
-+	bool
-+	default y if !ALPHA_EV6 && !ALPHA_EV67
-+
- config ALPHA_AVANTI
- 	bool
- 	depends on ALPHA_XL || ALPHA_AVANTI_CH
 
 --

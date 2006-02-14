@@ -1,47 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161042AbWBNM7X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161030AbWBNNBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161042AbWBNM7X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 07:59:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161043AbWBNM7X
+	id S1161030AbWBNNBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 08:01:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161043AbWBNNBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 07:59:23 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:38123 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1161042AbWBNM7W (ORCPT
+	Tue, 14 Feb 2006 08:01:16 -0500
+Received: from main.gmane.org ([80.91.229.2]:18570 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1161030AbWBNNBP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 07:59:22 -0500
-Date: Tue, 14 Feb 2006 13:59:17 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de
-Subject: Re: [PATCH 00/12] hrtimer patches
-In-Reply-To: <20060214123226.GA3138@elte.hu>
-Message-ID: <Pine.LNX.4.61.0602141342390.30994@scrub.home>
-References: <Pine.LNX.4.61.0602141057320.30994@scrub.home> <20060214110947.GA25341@elte.hu>
- <Pine.LNX.4.61.0602141228120.30994@scrub.home> <20060214123226.GA3138@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Feb 2006 08:01:15 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "news.gmane.org" <kubisuro@att.net>
+Subject: Re: [PATCH] mm: Implement Swap Prefetching v25
+Date: Tue, 14 Feb 2006 21:45:45 +0900
+Message-ID: <43F1D0F9.1040502@att.net>
+References: <200602120141.46084.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+Cc: ck@vds.kolivas.org
+X-Gmane-NNTP-Posting-Host: 210.120.111.10
+User-Agent: Thunderbird 1.5 (X11/20051201)
+In-Reply-To: <200602120141.46084.kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-On Tue, 14 Feb 2006, Ingo Molnar wrote:
-
-> > It's two get_time() calls and I don't consider it noise, they are 
-> > wasting time with unnecessary hardware accesses.
+Con Kolivas wrote:
+> Everything is working nicely now, surviving a serious thrashing.
+> Overall the behaviour I would say has improved as a result of all the
+> modifications.
 > 
-> Nobody complained about it so far (other than you) or has measured it, 
-> so IMO there's no pressing need and it's simply too late in the cycle to 
-> touch core timer code like that. 2.6.16 is really cooling down now.
+> Many thanks go to Nick and Andrew for suggestions.
+> 
+> Andrew please consider this version for -mm.
+> 
+> Cheers,
+> Con
 
-Well, most developer don't care about older hardware anymore, on recent 
-hardware it's indeed a nonissue, so I'm not really suprised nobody 
-complained.
-For me the patch is important enough that it should be seriously 
-considered for 2.6.16 and not just rejected like this. Sorry, that I'm a 
-bit late, but the hrtimer was merged without warning and I can't just drop 
-everything to fix other people's code.
+I'm what one would call a typical desktop user.  I also very much a 
+layman with kernels.  The layman is very interested in believing, if not 
+knowing, that the kernel is doing everything within its power to provide 
+application responsiveness, especially during heavy application loads.
 
-bye, Roman
+Swap Prefetch has quantifiable and visible results when an application 
+is swapped out and then swapped back in after a idle period (a very 
+logical time to do things).  That /is/ an obvious interaction benefit.
+
+I play World of Warcraft daily and it forces many applications into 
+swap.  That said, I now regularly experience desktop conditions that are 
+_very_ favorable with the Swap Prefetch patch soon as WoW is cleared out 
+and resources are regained for productive desktop use (browser, email, 
+chat, media, etc).  Hard disk activity, after an idle period, almost 
+never get in the way of interactivity (likely due to swapping out) -- 
+because they're back in physical memory.  That is _very_ good use of 
+time and resources.
+
+I'm very interested in seeing this patch applied to MM for major 
+testing, so that others with typical desktop demands can get an idea of 
+how this patch is beneficial.
+
+Thanks for your attention,
+
+Best of regards,
+Ryan M.
+
+

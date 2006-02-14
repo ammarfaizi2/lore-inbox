@@ -1,83 +1,343 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422712AbWBNRrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422717AbWBNRsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422712AbWBNRrw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 12:47:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422714AbWBNRrw
+	id S1422717AbWBNRsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 12:48:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422716AbWBNRsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 12:47:52 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:39094 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1422712AbWBNRrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 12:47:51 -0500
-Subject: PATCH: locking error in esp
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 14 Feb 2006 17:50:54 +0000
-Message-Id: <1139939454.11979.0.camel@localhost.localdomain>
+	Tue, 14 Feb 2006 12:48:14 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:58264 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422714AbWBNRsB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 12:48:01 -0500
+Subject: [RFC][PATCH] map multiple blocks at a time in mpage_readpages()
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: christoph <hch@lst.de>, akpm@osdl.org, mcao@us.ibm.com
+Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-rNdXQsrSL6lS6KbeGhoi"
+Date: Tue, 14 Feb 2006 09:49:07 -0800
+Message-Id: <1139939347.4762.18.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Noted by Al Viro.
 
-Also remove unused tmp_buf
+--=-rNdXQsrSL6lS6KbeGhoi
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+Hi,
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.16-rc3/drivers/char/esp.c linux-2.6.16-rc3/drivers/char/esp.c
---- linux.vanilla-2.6.16-rc3/drivers/char/esp.c	2006-02-14 17:08:55.054477872 +0000
-+++ linux-2.6.16-rc3/drivers/char/esp.c	2006-02-14 17:16:24.851098392 +0000
-@@ -150,17 +150,6 @@
- /* Standard COM flags (except for COM4, because of the 8514 problem) */
- #define STD_COM_FLAGS (ASYNC_BOOT_AUTOCONF | ASYNC_SKIP_TEST)
+I re-did the support for mpage_readpages() to map multiple blocks
+at a time (basically, get_blocks()). Instead of adding new
+get_blocks() and pass it around, I use "bh->b_size" to indicate
+how much of disk mapping we are interested in to get_block().
+
+This way no changes existing interfaces and no new routines need.
+Filesystem can choose to ignore the passed in "bh->b_size" value
+and map one block at a time (ext2, reiser3, etc..)
+
+Currently, I modified JFS & XFS to make use of it and support
+multiple blocks and planning to integrate with Mingming's ext3
+multiblock work (which is in -mm). 
+
+Todo:
+
+1) Integrate with Mingming's multiblock get_block() support for ext3.
+
+2) kill .*_get_blocks() added for DIO ?
+
+
+Comments ?
+
+Thanks,
+Badari
+
+
+
+--=-rNdXQsrSL6lS6KbeGhoi
+Content-Disposition: attachment; filename=getblocks-readpages.patch
+Content-Type: text/x-patch; name=getblocks-readpages.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+This patch changes mpage_readpages() and get_block() to
+get the disk mapping information for multiple blocks at the 
+same time. 
+
+Instead of adding new get_blocks() and pass it around every
+where, I overload b_size of bufferhead to pass in how much
+disk mapping we are requesting. Only the filesystems who
+care to use this information and provide multiple disk
+blocks at a time can choose to do so. 
+
+No changes are needed for the filesystems who wants to ignore this.
+
+Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
+
+ fs/buffer.c                 |    6 ++
+ fs/jfs/inode.c              |    3 -
+ fs/mpage.c                  |   91 +++++++++++++++++++++++++++++++++++---------
+ fs/xfs/linux-2.6/xfs_aops.c |    4 -
+ 4 files changed, 84 insertions(+), 20 deletions(-)
+
+Index: linux-2.6.16-rc3/fs/mpage.c
+===================================================================
+--- linux-2.6.16-rc3.orig/fs/mpage.c	2006-02-12 16:27:25.000000000 -0800
++++ linux-2.6.16-rc3/fs/mpage.c	2006-02-14 08:39:02.000000000 -0800
+@@ -165,7 +165,9 @@ map_buffer_to_page(struct page *page, st
  
--/*
-- * tmp_buf is used as a temporary buffer by serial_write.  We need to
-- * lock it in case the memcpy_fromfs blocks while swapping in a page,
-- * and some other program tries to do a serial write at the same time.
-- * Since the lock will only come under contention when the system is
-- * swapping and available memory is low, it makes sense to share one
-- * buffer across all the serial ports, since it significantly saves
-- * memory if large numbers of serial ports are open.
-- */
--static unsigned char *tmp_buf;
--
- static inline int serial_paranoia_check(struct esp_struct *info,
- 					char *name, const char *routine)
+ static struct bio *
+ do_mpage_readpage(struct bio *bio, struct page *page, unsigned nr_pages,
+-			sector_t *last_block_in_bio, get_block_t get_block)
++			sector_t *last_block_in_bio, struct buffer_head *map_bh,
++			unsigned long *first_logical_block, int *map_valid,
++			get_block_t get_block)
  {
-@@ -1267,7 +1256,7 @@
- 	if (serial_paranoia_check(info, tty->name, "rs_write"))
- 		return 0;
+ 	struct inode *inode = page->mapping->host;
+ 	const unsigned blkbits = inode->i_blkbits;
+@@ -177,29 +179,63 @@ do_mpage_readpage(struct bio *bio, struc
+ 	unsigned page_block;
+ 	unsigned first_hole = blocks_per_page;
+ 	struct block_device *bdev = NULL;
+-	struct buffer_head bh;
+ 	int length;
+ 	int fully_mapped = 1;
++	unsigned nblocks, i;
  
--	if (!tty || !info->xmit_buf || !tmp_buf)
-+	if (!tty || !info->xmit_buf)
- 		return 0;
- 	    
- 	while (1) {
-@@ -2291,11 +2280,7 @@
- 	tty->driver_data = info;
- 	info->tty = tty;
+ 	if (page_has_buffers(page))
+ 		goto confused;
  
--	if (!tmp_buf) {
--		tmp_buf = (unsigned char *) get_zeroed_page(GFP_KERNEL);
--		if (!tmp_buf)
--			return -ENOMEM;
--	}
-+	spin_unlock_irqrestore(&info->lock, flags);
+ 	block_in_file = (sector_t)page->index << (PAGE_CACHE_SHIFT - blkbits);
+ 	last_block = (i_size_read(inode) + blocksize - 1) >> blkbits;
++	page_block = 0;
++
++	/*
++	 * Map blocks using the result from the last get_blocks call first.
++	 */
++	nblocks = map_bh->b_size >> blkbits;
++	if (*map_valid &&
++	    block_in_file > *first_logical_block &&
++	    block_in_file < (*first_logical_block + nblocks)) {
++		unsigned map_offset = block_in_file - *first_logical_block;
++		unsigned last = nblocks - map_offset;
++
++		for (i = 0; ; i++) {
++			if (i == last) {
++				*map_valid = 0;
++				break;
++			} else if (page_block == blocks_per_page)
++				break;
++			blocks[page_block] = map_bh->b_blocknr + map_offset + i;
++			page_block++;
++			block_in_file++;
++		}
++		bdev = map_bh->b_bdev;
++	}
++
++	/*
++	 * Then do more get_blocks calls until we are done with this page.
++	 */
++	map_bh->b_page = page;
++	while (page_block < blocks_per_page) {
++		map_bh->b_state = 0;
++		map_bh->b_size = 0;
+ 
+-	bh.b_page = page;
+-	for (page_block = 0; page_block < blocks_per_page;
+-				page_block++, block_in_file++) {
+-		bh.b_state = 0;
+ 		if (block_in_file < last_block) {
+-			if (get_block(inode, block_in_file, &bh, 0))
++			map_bh->b_size = (last_block - block_in_file) << blkbits;
++			if (get_block(inode, block_in_file, map_bh, 0))
+ 				goto confused;
++			*first_logical_block = block_in_file;
++			*map_valid  = 1;
+ 		}
+ 
+-		if (!buffer_mapped(&bh)) {
++		if (!buffer_mapped(map_bh)) {
+ 			fully_mapped = 0;
+ 			if (first_hole == blocks_per_page)
+ 				first_hole = page_block;
++			page_block++;
++			block_in_file++;
++			*map_valid = 0;
+ 			continue;
+ 		}
+ 
+@@ -209,8 +245,8 @@ do_mpage_readpage(struct bio *bio, struc
+ 		 * we just collected from get_block into the page's buffers
+ 		 * so readpage doesn't have to repeat the get_block call
+ 		 */
+-		if (buffer_uptodate(&bh)) {
+-			map_buffer_to_page(page, &bh, page_block);
++		if (buffer_uptodate(map_bh)) {
++			map_buffer_to_page(page, map_bh, page_block);
+ 			goto confused;
+ 		}
  	
- 	/*
- 	 * Start up serial port
-@@ -2602,9 +2587,6 @@
- 		free_pages((unsigned long)dma_buffer,
- 			get_order(DMA_BUFFER_SZ));
+@@ -218,10 +254,20 @@ do_mpage_readpage(struct bio *bio, struc
+ 			goto confused;		/* hole -> non-hole */
  
--	if (tmp_buf)
--		free_page((unsigned long)tmp_buf);
--
- 	while (free_pio_buf) {
- 		pio_buf = free_pio_buf->next;
- 		kfree(free_pio_buf);
+ 		/* Contiguous blocks? */
+-		if (page_block && blocks[page_block-1] != bh.b_blocknr-1)
++		if (page_block && blocks[page_block-1] != map_bh->b_blocknr-1)
+ 			goto confused;
+-		blocks[page_block] = bh.b_blocknr;
+-		bdev = bh.b_bdev;
++		nblocks = map_bh->b_size >> blkbits;
++		for (i = 0; ; i++) {
++			if (i == nblocks) {
++				*map_valid = 0;
++				break;
++			} else if (page_block == blocks_per_page)
++				break;
++			blocks[page_block] = map_bh->b_blocknr + i;
++			page_block++;
++			block_in_file++;
++		}
++		bdev = map_bh->b_bdev;
+ 	}
+ 
+ 	if (first_hole != blocks_per_page) {
+@@ -260,7 +306,7 @@ alloc_new:
+ 		goto alloc_new;
+ 	}
+ 
+-	if (buffer_boundary(&bh) || (first_hole != blocks_per_page))
++	if (buffer_boundary(map_bh) || (first_hole != blocks_per_page))
+ 		bio = mpage_bio_submit(READ, bio);
+ 	else
+ 		*last_block_in_bio = blocks[blocks_per_page - 1];
+@@ -331,6 +377,9 @@ mpage_readpages(struct address_space *ma
+ 	unsigned page_idx;
+ 	sector_t last_block_in_bio = 0;
+ 	struct pagevec lru_pvec;
++	struct buffer_head map_bh;
++	unsigned long first_logical_block = 0;
++	int map_valid = 0;
+ 
+ 	pagevec_init(&lru_pvec, 0);
+ 	for (page_idx = 0; page_idx < nr_pages; page_idx++) {
+@@ -342,7 +391,9 @@ mpage_readpages(struct address_space *ma
+ 					page->index, GFP_KERNEL)) {
+ 			bio = do_mpage_readpage(bio, page,
+ 					nr_pages - page_idx,
+-					&last_block_in_bio, get_block);
++					&last_block_in_bio, &map_bh,
++					&first_logical_block,
++					&map_valid, get_block);
+ 			if (!pagevec_add(&lru_pvec, page))
+ 				__pagevec_lru_add(&lru_pvec);
+ 		} else {
+@@ -364,9 +415,14 @@ int mpage_readpage(struct page *page, ge
+ {
+ 	struct bio *bio = NULL;
+ 	sector_t last_block_in_bio = 0;
++	struct buffer_head map_bh;
++	unsigned long first_logical_block = 0;
++	int map_valid = 0;
++
+ 
+-	bio = do_mpage_readpage(bio, page, 1,
+-			&last_block_in_bio, get_block);
++	bio = do_mpage_readpage(bio, page, 1, &last_block_in_bio,
++			&map_bh, &first_logical_block, &map_valid,
++			get_block);
+ 	if (bio)
+ 		mpage_bio_submit(READ, bio);
+ 	return 0;
+@@ -472,6 +528,7 @@ __mpage_writepage(struct bio *bio, struc
+ 	for (page_block = 0; page_block < blocks_per_page; ) {
+ 
+ 		map_bh.b_state = 0;
++		map_bh.b_size = 1 << blkbits;
+ 		if (get_block(inode, block_in_file, &map_bh, 1))
+ 			goto confused;
+ 		if (buffer_new(&map_bh))
+Index: linux-2.6.16-rc3/fs/buffer.c
+===================================================================
+--- linux-2.6.16-rc3.orig/fs/buffer.c	2006-02-12 16:27:25.000000000 -0800
++++ linux-2.6.16-rc3/fs/buffer.c	2006-02-14 08:40:21.000000000 -0800
+@@ -1785,6 +1785,7 @@ static int __block_write_full_page(struc
+ 			clear_buffer_dirty(bh);
+ 			set_buffer_uptodate(bh);
+ 		} else if (!buffer_mapped(bh) && buffer_dirty(bh)) {
++			bh->b_size = 1 << inode->i_blkbits;
+ 			err = get_block(inode, block, bh, 1);
+ 			if (err)
+ 				goto recover;
+@@ -1938,6 +1939,7 @@ static int __block_prepare_write(struct 
+ 		if (buffer_new(bh))
+ 			clear_buffer_new(bh);
+ 		if (!buffer_mapped(bh)) {
++			bh->b_size = 1 << inode->i_blkbits;
+ 			err = get_block(inode, block, bh, 1);
+ 			if (err)
+ 				break;
+@@ -2093,6 +2095,7 @@ int block_read_full_page(struct page *pa
+ 
+ 			fully_mapped = 0;
+ 			if (iblock < lblock) {
++				bh->b_size = 1 << inode->i_blkbits;
+ 				err = get_block(inode, iblock, bh, 0);
+ 				if (err)
+ 					SetPageError(page);
+@@ -2414,6 +2417,7 @@ int nobh_prepare_write(struct page *page
+ 		create = 1;
+ 		if (block_start >= to)
+ 			create = 0;
++		map_bh.b_size = 1 << blkbits;
+ 		ret = get_block(inode, block_in_file + block_in_page,
+ 					&map_bh, create);
+ 		if (ret)
+@@ -2674,6 +2678,7 @@ int block_truncate_page(struct address_s
+ 
+ 	err = 0;
+ 	if (!buffer_mapped(bh)) {
++		bh->b_size = 1 << inode->i_blkbits;
+ 		err = get_block(inode, iblock, bh, 0);
+ 		if (err)
+ 			goto unlock;
+@@ -2760,6 +2765,7 @@ sector_t generic_block_bmap(struct addre
+ 	struct inode *inode = mapping->host;
+ 	tmp.b_state = 0;
+ 	tmp.b_blocknr = 0;
++	tmp.b_size = 1 << inode->i_blkbits;
+ 	get_block(inode, block, &tmp, 0);
+ 	return tmp.b_blocknr;
+ }
+Index: linux-2.6.16-rc3/fs/jfs/inode.c
+===================================================================
+--- linux-2.6.16-rc3.orig/fs/jfs/inode.c	2006-02-14 09:43:06.000000000 -0800
++++ linux-2.6.16-rc3/fs/jfs/inode.c	2006-02-14 09:43:51.000000000 -0800
+@@ -257,7 +257,8 @@ jfs_get_blocks(struct inode *ip, sector_
+ static int jfs_get_block(struct inode *ip, sector_t lblock,
+ 			 struct buffer_head *bh_result, int create)
+ {
+-	return jfs_get_blocks(ip, lblock, 1, bh_result, create);
++	return jfs_get_blocks(ip, lblock, bh_result->b_size >> ip->i_blkbits,
++			bh_result, create);
+ }
+ 
+ static int jfs_writepage(struct page *page, struct writeback_control *wbc)
+Index: linux-2.6.16-rc3/fs/xfs/linux-2.6/xfs_aops.c
+===================================================================
+--- linux-2.6.16-rc3.orig/fs/xfs/linux-2.6/xfs_aops.c	2006-02-14 09:43:06.000000000 -0800
++++ linux-2.6.16-rc3/fs/xfs/linux-2.6/xfs_aops.c	2006-02-14 09:43:33.000000000 -0800
+@@ -1136,8 +1136,8 @@ linvfs_get_block(
+ 	struct buffer_head	*bh_result,
+ 	int			create)
+ {
+-	return __linvfs_get_block(inode, iblock, 0, bh_result,
+-					create, 0, BMAPI_WRITE);
++	return __linvfs_get_block(inode, iblock, bh_result->b_size >> inode->i_blkbits,
++				bh_result, create, 0, BMAPI_WRITE);
+ }
+ 
+ STATIC int
+
+--=-rNdXQsrSL6lS6KbeGhoi--
 

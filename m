@@ -1,87 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422858AbWBNWuK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422860AbWBNWvL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422858AbWBNWuK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 17:50:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422860AbWBNWuK
+	id S1422860AbWBNWvL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 17:51:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422861AbWBNWvL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 17:50:10 -0500
-Received: from omta01sl.mx.bigpond.com ([144.140.92.153]:34696 "EHLO
-	omta01sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1422858AbWBNWuI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 17:50:08 -0500
-Message-ID: <43F25E9D.6090702@bigpond.net.au>
-Date: Wed, 15 Feb 2006 09:50:05 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Tue, 14 Feb 2006 17:51:11 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:54677
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1422860AbWBNWvJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 17:51:09 -0500
+From: Rob Landley <rob@landley.net>
+To: Matthias Andree <matthias.andree@gmx.de>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Date: Tue, 14 Feb 2006 17:51:01 -0500
+User-Agent: KMail/1.8.3
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com> <43F1C385.nailMWZ599SQ5@burner> <20060214122333.GA32743@merlin.emma.line.org>
+In-Reply-To: <20060214122333.GA32743@merlin.emma.line.org>
 MIME-Version: 1.0
-To: Jean Delvare <khali@linux-fr.org>
-CC: quilt-dev@nongnu.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Yasushi SHOJI <yashi@atmark-techno.com>
-Subject: Re: [Quilt-dev] Quilt 0.43 has been released! [SERIOUS BUG]
-References: <RyUOlVAg.1139905119.2584600.khali@localhost>
-In-Reply-To: <RyUOlVAg.1139905119.2584600.khali@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 14 Feb 2006 22:50:05 +0000
+Content-Disposition: inline
+Message-Id: <200602141751.02153.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Delvare wrote:
-> Hi all,
-> 
-> On 2006-02-14, Andreas Gruenbacher wrote:
-> 
->>On Tuesday 14 February 2006 04:25, Peter Williams wrote:
->>
->>>The problem arises when pushing a patch that has errors in it (due to
->>>changes in the previous patches in the series) and needs the -f flag to
->>>force the push.  What's happening is that the reverse of the errors is
->>>being applied to the "pre patch" file in the .pc directory.  Then when
->>>you pop this patch it returns the file to a state with the reverse of
->>>the errors applied to it.
->>
->>Found and fixed. It's a missed rollback_patch on one of the two branches of
->>the code that checks if a patch can be reverse applied. This case
->>apparently doesn't trigger as easily as it seems, or else we would have
->>found it sooner. Still quite bad.
-> 
-> 
-> I probably encountered it the other day, but as I couldn't explain what
-> was happening,  I mistakenly concluded to a user error and started again
-> from a fresh tree. Or maybe it was really a user error after all.
+On Tuesday 14 February 2006 7:23 am, Matthias Andree wrote:
+> > -	How to send non disturbing SCSI commands from another
+> > 	cdrecord process in case one or more are already running?
+>
+> Open the device node you obtained and
+> send non-disturbing commands through it.
+>
+> No special treatment required.
 
-I went through much the same process (several times) before it finally 
-dawned on me that it might be a problem with the newly updated quilt and 
-replaced it with 0.42 :-(.  I was worried that the symptoms were so 
-bizarre and hard to describe properly that the problem would be hard to 
-fix so I was impressed by the speed with which the problem was solved.
+On a mostly unrelated note, I've pondered adding quick and dirty versions of 
+mkisofs and cdrecord to busybox for a while.  (Low priority, back burner 
+thing.)  I actually poked at the cdrecord source once or twice, but it's 
+unintellgible and disgusting.*
 
-> 
-> I was about to suggest that we add a test in the quilt test suite, but I
-> see you did already - good!
-> 
-> 
->>Shall we wait until the translations are up-to-date again, or release
->>0.44 immediately?
-> 
-> 
-> I'd say:
-> * Fix the temporary file leak in the mail command I have been reporting a
-> few days ago - unless it's there on purpose.
-> * Update the translations. I'll take care of French this evening
-> (GMT+01).
-> * Let people (including me) do a little testing. If nothing else, running
-> the test suite on a few different systems can't hurt.
-> * Release.
-> 
-> We can be done by tomorrow if Yashi can handle the Japanese translation
-> fast. If Yashi is too busy I guess we'll have to release anyway...
+With mkisofs I can just start from the spec, reverse engineer a few existing 
+ISOs, or grab the really old code from before Joerg got ahold of it (back 
+when it was still readable).  That's no problem.  But for cdrecord, I can't 
+find documentation on what the kernel expects.
 
-Peter
+I'm only interested in supporting ATA cd burners under a 2.6 or newer kernel, 
+using the DMA method.  (SCSI is dead, I honestly don't care.)  I was hoping I 
+could just open the /dev/cdrom and call the appropriate ioctls on it, but 
+reading the cdrecord source proved enough of an exercise in masochism that I 
+always give up after the first hour and put it back on the todo list.
+
+I suppose I should say "screw the source code" and just run the cdrecord 
+binary under strace to see what it's doing, but I thought I'd ask: is there a 
+good starting place, somewhere?  (Or is there already a simple "cdrecord 
+file.iso /dev/cdrom" someplace?)  I expect I'll wind up buying a 50-pack of 
+coasters anyway, and I doubt I'll damage my laptop's burner too badly...
+
+Rob
+
+* How bad?  Random example of ignoring how the rest of the world works is that 
+it runs autoconf from within make, meaning there's no obvious way to specify 
+"./configure --prefix=/mypath", so the last time I played with it (which was 
+a while ago), I wound up doing this:
+
+cd /sources &&
+tar xvjf buildtools/cdrtools-2.00.3.tar.bz2 &&
+cd cdrtools-2.00.3 &&
+make &&
+cp mkisofs/OBJ/*/mkisofs cdrecord/OBJ/*/cdrecord \ 
+cdda2wav/OBJ/*/cdda2wav /usr/bin &&
+cp mkisofs/mkisofs.8 /usr/man/man8 &&
+cp cdrecord/cdrecord.1 cdda2wav/cdda2wav.1 /usr/man/man1 &&
+cd .. &&
+rm -rf cdrtools-2.00.3
+
+if [ $? -ne 0 ]; then exit 1; fi
+
+I could understand if it didn't use autoconf at all, but having autoconf but 
+_not_ a configure step is deeply into control freak territory...
+
+Rob
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Never bet against the cheap plastic solution.

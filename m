@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422723AbWBNRyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422716AbWBNRzw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422723AbWBNRyl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 12:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422724AbWBNRyl
+	id S1422716AbWBNRzw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 12:55:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422726AbWBNRzv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 12:54:41 -0500
-Received: from verein.lst.de ([213.95.11.210]:11981 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1422723AbWBNRyk (ORCPT
+	Tue, 14 Feb 2006 12:55:51 -0500
+Received: from verein.lst.de ([213.95.11.210]:15053 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S1422716AbWBNRzu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 12:54:40 -0500
-Date: Tue, 14 Feb 2006 18:54:15 +0100
+	Tue, 14 Feb 2006 12:55:50 -0500
+Date: Tue, 14 Feb 2006 18:55:45 +0100
 From: Christoph Hellwig <hch@lst.de>
-To: sfrench@samba.org
+To: shaggy@austin.ibm.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] cifs: use kthread_ API
-Message-ID: <20060214175415.GE19080@lst.de>
+Subject: [PATCH] jfs: use kthread_ API
+Message-ID: <20060214175545.GA19225@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,304 +26,300 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Use the kthread_ API instead of opencoding lots of hairy code for kernel
 thread creation and teardown.
 
-Also cleanup cifs_init to properly unwind when thread creation fails.
-
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Index: linux-2.6/fs/cifs/connect.c
+Index: linux-2.6/fs/jfs/jfs_logmgr.c
 ===================================================================
---- linux-2.6.orig/fs/cifs/connect.c	2006-02-04 13:35:01.000000000 +0100
-+++ linux-2.6/fs/cifs/connect.c	2006-02-10 14:41:38.000000000 +0100
-@@ -31,6 +31,7 @@
- #include <linux/delay.h>
+--- linux-2.6.orig/fs/jfs/jfs_logmgr.c	2005-12-27 18:30:32.000000000 +0100
++++ linux-2.6/fs/jfs/jfs_logmgr.c	2006-02-14 16:24:18.000000000 +0100
+@@ -64,6 +64,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/smp_lock.h>
  #include <linux/completion.h>
- #include <linux/pagevec.h>
 +#include <linux/kthread.h>
- #include <asm/uaccess.h>
- #include <asm/processor.h>
- #include "cifspdu.h"
-@@ -47,8 +48,6 @@
- #define CIFS_PORT 445
- #define RFC1001_PORT 139
+ #include <linux/buffer_head.h>		/* for sync_blockdev() */
+ #include <linux/bio.h>
+ #include <linux/suspend.h>
+@@ -81,7 +82,6 @@
+  */
+ static struct lbuf *log_redrive_list;
+ static DEFINE_SPINLOCK(log_redrive_lock);
+-DECLARE_WAIT_QUEUE_HEAD(jfs_IO_thread_wait);
  
--static DECLARE_COMPLETION(cifsd_complete);
--
- extern void SMBencrypt(unsigned char *passwd, unsigned char *c8,
- 		       unsigned char *p24);
- extern void SMBNTencrypt(unsigned char *passwd, unsigned char *c8,
-@@ -329,8 +328,9 @@
+ 
+ /*
+@@ -1980,7 +1980,7 @@
+ 	log_redrive_list = bp;
+ 	spin_unlock_irqrestore(&log_redrive_lock, flags);
+ 
+-	wake_up(&jfs_IO_thread_wait);
++	wake_up_process(jfsIOthread);
  }
  
- static int
--cifs_demultiplex_thread(struct TCP_Server_Info *server)
-+cifs_demultiplex_thread(void *data)
+ 
+@@ -2347,13 +2347,7 @@
  {
-+	struct TCP_Server_Info *server = data;
- 	int length;
- 	unsigned int pdu_length, total_read;
- 	struct smb_hdr *smb_buffer = NULL;
-@@ -348,23 +348,20 @@
- 	int isMultiRsp;
- 	int reconnect;
+ 	struct lbuf *bp;
  
--	daemonize("cifsd");
--	allow_signal(SIGKILL);
- 	current->flags |= PF_MEMALLOC;
--	server->tsk = current;	/* save process info to wake at shutdown */
- 	cFYI(1, ("Demultiplex PID: %d", current->pid));
- 	write_lock(&GlobalSMBSeslock); 
- 	atomic_inc(&tcpSesAllocCount);
- 	length = tcpSesAllocCount.counter;
- 	write_unlock(&GlobalSMBSeslock);
--	complete(&cifsd_complete);
-+
- 	if(length  > 1) {
- 		mempool_resize(cifs_req_poolp,
- 			length + cifs_min_rcv,
- 			GFP_KERNEL);
- 	}
- 
--	while (server->tcpStatus != CifsExiting) {
-+	while (server->tcpStatus != CifsExiting && !kthread_should_stop()) {
- 		if (try_to_freeze())
- 			continue;
- 		if (bigbuf == NULL) {
-@@ -403,7 +400,7 @@
- 		    kernel_recvmsg(csocket, &smb_msg,
- 				 &iov, 1, 4, 0 /* BB see socket.h flags */);
- 
--		if(server->tcpStatus == CifsExiting) {
-+		if(server->tcpStatus == CifsExiting || kthread_should_stop()) {
- 			break;
- 		} else if (server->tcpStatus == CifsNeedReconnect) {
- 			cFYI(1,("Reconnect after server stopped responding"));
-@@ -749,7 +746,6 @@
- 			GFP_KERNEL);
- 	}
- 	
--	complete_and_exit(&cifsd_complete, 0);
- 	return 0;
- }
- 
-@@ -1713,17 +1709,17 @@
- 			so no need to spinlock this init of tcpStatus */
- 			srvTcp->tcpStatus = CifsNew;
- 			init_MUTEX(&srvTcp->tcpSem);
--			rc = (int)kernel_thread((void *)(void *)cifs_demultiplex_thread, srvTcp,
--				      CLONE_FS | CLONE_FILES | CLONE_VM);
--			if(rc < 0) {
--				rc = -ENOMEM;
-+
-+			srvTcp->tsk = kthread_create(cifs_demultiplex_thread, srvTcp, "cifsd");
-+			if (IS_ERR(srvTcp->tsk)) {
-+				rc = PTR_ERR(srvTcp->tsk);
- 				sock_release(csocket);
- 				kfree(volume_info.UNC);
- 				kfree(volume_info.password);
- 				FreeXid(xid);
- 				return rc;
- 			}
--			wait_for_completion(&cifsd_complete);
-+
- 			rc = 0;
- 			memcpy(srvTcp->workstation_RFC1001_name, volume_info.source_rfc1001_name,16);
- 			memcpy(srvTcp->server_RFC1001_name, volume_info.target_rfc1001_name,16);
-@@ -1889,10 +1885,7 @@
- 			spin_lock(&GlobalMid_Lock);
- 			srvTcp->tcpStatus = CifsExiting;
- 			spin_unlock(&GlobalMid_Lock);
--			if(srvTcp->tsk) {
--				send_sig(SIGKILL,srvTcp->tsk,1);
--				wait_for_completion(&cifsd_complete);
--			}
-+			kthread_stop(srvTcp->tsk);
- 		}
- 		 /* If find_unc succeeded then rc == 0 so we can not end */
- 		if (tcon)  /* up accidently freeing someone elses tcon struct */
-@@ -1905,10 +1898,8 @@
- 					temp_rc = CIFSSMBLogoff(xid, pSesInfo);
- 					/* if the socketUseCount is now zero */
- 					if((temp_rc == -ESHUTDOWN) &&
--					   (pSesInfo->server->tsk)) {
--						send_sig(SIGKILL,pSesInfo->server->tsk,1);
--						wait_for_completion(&cifsd_complete);
--					}
-+					   (pSesInfo->server->tsk))
-+						kthread_stop(srvTcp->tsk);
- 				} else
- 					cFYI(1, ("No session or bad tcon"));
- 				sesInfoFree(pSesInfo);
-@@ -3387,10 +3378,8 @@
- 				return 0;
- 			} else if (rc == -ESHUTDOWN) {
- 				cFYI(1,("Waking up socket by sending it signal"));
--				if(cifsd_task) {
--					send_sig(SIGKILL,cifsd_task,1);
--					wait_for_completion(&cifsd_complete);
--				}
-+				if(cifsd_task)
-+					kthread_stop(cifsd_task);
- 				rc = 0;
- 			} /* else - we have an smb session
- 				left on this socket do not kill cifsd */
-Index: linux-2.6/fs/cifs/cifsfs.c
-===================================================================
---- linux-2.6.orig/fs/cifs/cifsfs.c	2006-01-26 13:52:05.000000000 +0100
-+++ linux-2.6/fs/cifs/cifsfs.c	2006-02-10 14:52:23.000000000 +0100
-@@ -33,6 +33,7 @@
- #include <linux/vfs.h>
- #include <linux/mempool.h>
- #include <linux/delay.h>
-+#include <linux/kthread.h>
- #include "cifsfs.h"
- #include "cifspdu.h"
- #define DECLARE_GLOBALS_HERE
-@@ -75,9 +76,6 @@
- module_param(cifs_max_pending, int, 0);
- MODULE_PARM_DESC(cifs_max_pending,"Simultaneous requests to server. Default: 50 Range: 2 to 256");
- 
--static DECLARE_COMPLETION(cifs_oplock_exited);
--static DECLARE_COMPLETION(cifs_dnotify_exited);
+-	daemonize("jfsIO");
 -
- extern mempool_t *cifs_sm_req_poolp;
- extern mempool_t *cifs_req_poolp;
- extern mempool_t *cifs_mid_poolp;
-@@ -849,10 +847,6 @@
- 	__u16  netfid;
- 	int rc;
- 
--	daemonize("cifsoplockd");
--	allow_signal(SIGTERM);
+-	complete(&jfsIOwait);
 -
--	oplockThread = current;
  	do {
- 		if (try_to_freeze()) 
- 			continue;
-@@ -908,9 +902,9 @@
+-		DECLARE_WAITQUEUE(wq, current);
+-
+ 		spin_lock_irq(&log_redrive_lock);
+ 		while ((bp = log_redrive_list) != 0) {
+ 			log_redrive_list = bp->l_redrive_next;
+@@ -2362,21 +2356,19 @@
+ 			lbmStartIO(bp);
+ 			spin_lock_irq(&log_redrive_lock);
+ 		}
++		spin_unlock_irq(&log_redrive_lock);
++
+ 		if (freezing(current)) {
+-			spin_unlock_irq(&log_redrive_lock);
+ 			refrigerator();
+ 		} else {
+-			add_wait_queue(&jfs_IO_thread_wait, &wq);
  			set_current_state(TASK_INTERRUPTIBLE);
- 			schedule_timeout(1);  /* yield in case q were corrupt */
+-			spin_unlock_irq(&log_redrive_lock);
+ 			schedule();
+ 			current->state = TASK_RUNNING;
+-			remove_wait_queue(&jfs_IO_thread_wait, &wq);
  		}
--	} while(!signal_pending(current));
--	oplockThread = NULL;
--	complete_and_exit (&cifs_oplock_exited, 0);
+-	} while (!jfs_stop_threads);
 +	} while (!kthread_should_stop());
-+
+ 
+ 	jfs_info("jfsIOWait being killed!");
+-	complete_and_exit(&jfsIOwait, 0);
 +	return 0;
  }
  
- static int cifs_dnotify_thread(void * dummyarg)
-@@ -918,10 +912,6 @@
- 	struct list_head *tmp;
- 	struct cifsSesInfo *ses;
- 
--	daemonize("cifsdnotifyd");
--	allow_signal(SIGTERM);
+ /*
+Index: linux-2.6/fs/jfs/jfs_superblock.h
+===================================================================
+--- linux-2.6.orig/fs/jfs/jfs_superblock.h	2005-12-27 18:30:32.000000000 +0100
++++ linux-2.6/fs/jfs/jfs_superblock.h	2006-02-14 16:24:18.000000000 +0100
+@@ -113,12 +113,9 @@
+ extern int jfs_mount_rw(struct super_block *, int);
+ extern int jfs_umount(struct super_block *);
+ extern int jfs_umount_rw(struct super_block *);
 -
--	dnotifyThread = current;
+-extern int jfs_stop_threads;
+-extern struct completion jfsIOwait;
+-extern wait_queue_head_t jfs_IO_thread_wait;
+-extern wait_queue_head_t jfs_commit_thread_wait;
+-extern wait_queue_head_t jfs_sync_thread_wait;
+ extern int jfs_extendfs(struct super_block *, s64, int);
+ 
++extern struct task_struct *jfsIOthread;
++extern struct task_struct *jfsSyncThread;
++
+ #endif /*_H_JFS_SUPERBLOCK */
+Index: linux-2.6/fs/jfs/jfs_txnmgr.c
+===================================================================
+--- linux-2.6.orig/fs/jfs/jfs_txnmgr.c	2006-01-10 13:46:05.000000000 +0100
++++ linux-2.6/fs/jfs/jfs_txnmgr.c	2006-02-14 16:24:18.000000000 +0100
+@@ -49,6 +49,7 @@
+ #include <linux/suspend.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
++#include <linux/kthread.h>
+ #include "jfs_incore.h"
+ #include "jfs_inode.h"
+ #include "jfs_filsys.h"
+@@ -121,8 +122,7 @@
+ #define LAZY_LOCK(flags)	spin_lock_irqsave(&TxAnchor.LazyLock, flags)
+ #define LAZY_UNLOCK(flags) spin_unlock_irqrestore(&TxAnchor.LazyLock, flags)
+ 
+-DECLARE_WAIT_QUEUE_HEAD(jfs_sync_thread_wait);
+-DECLARE_WAIT_QUEUE_HEAD(jfs_commit_thread_wait);
++static DECLARE_WAIT_QUEUE_HEAD(jfs_commit_thread_wait);
+ static int jfs_commit_thread_waking;
+ 
+ /*
+@@ -207,7 +207,7 @@
+ 	if ((++TxAnchor.tlocksInUse > TxLockHWM) && (jfs_tlocks_low == 0)) {
+ 		jfs_info("txLockAlloc tlocks low");
+ 		jfs_tlocks_low = 1;
+-		wake_up(&jfs_sync_thread_wait);
++		wake_up_process(jfsSyncThread);
+ 	}
+ 
+ 	return lid;
+@@ -2743,10 +2743,6 @@
+ 	unsigned long flags;
+ 	struct jfs_sb_info *sbi;
+ 
+-	daemonize("jfsCommit");
+-
+-	complete(&jfsIOwait);
+-
  	do {
- 		if(try_to_freeze())
- 			continue;
-@@ -939,8 +929,9 @@
- 				wake_up_all(&ses->server->response_q);
+ 		LAZY_LOCK(flags);
+ 		jfs_commit_thread_waking = 0;	/* OK to wake another thread */
+@@ -2806,13 +2802,13 @@
+ 			current->state = TASK_RUNNING;
+ 			remove_wait_queue(&jfs_commit_thread_wait, &wq);
  		}
- 		read_unlock(&GlobalSMBSeslock);
--	} while(!signal_pending(current));
--	complete_and_exit (&cifs_dnotify_exited, 0);
+-	} while (!jfs_stop_threads);
 +	} while (!kthread_should_stop());
-+
+ 
+ 	if (!list_empty(&TxAnchor.unlock_queue))
+ 		jfs_err("jfs_lazycommit being killed w/pending transactions!");
+ 	else
+ 		jfs_info("jfs_lazycommit being killed\n");
+-	complete_and_exit(&jfsIOwait, 0);
 +	return 0;
  }
  
- static int __init
-@@ -990,32 +981,48 @@
+ void txLazyUnlock(struct tblock * tblk)
+@@ -2932,10 +2928,6 @@
+ 	int rc;
+ 	tid_t tid;
+ 
+-	daemonize("jfsSync");
+-
+-	complete(&jfsIOwait);
+-
+ 	do {
+ 		/*
+ 		 * write each inode on the anonymous inode list
+@@ -2996,19 +2988,15 @@
+ 			TXN_UNLOCK();
+ 			refrigerator();
+ 		} else {
+-			DECLARE_WAITQUEUE(wq, current);
+-
+-			add_wait_queue(&jfs_sync_thread_wait, &wq);
+ 			set_current_state(TASK_INTERRUPTIBLE);
+ 			TXN_UNLOCK();
+ 			schedule();
+ 			current->state = TASK_RUNNING;
+-			remove_wait_queue(&jfs_sync_thread_wait, &wq);
+ 		}
+-	} while (!jfs_stop_threads);
++	} while (!kthread_should_stop());
+ 
+ 	jfs_info("jfs_sync being killed");
+-	complete_and_exit(&jfsIOwait, 0);
++	return 0;
+ }
+ 
+ #if defined(CONFIG_PROC_FS) && defined(CONFIG_JFS_DEBUG)
+Index: linux-2.6/fs/jfs/super.c
+===================================================================
+--- linux-2.6.orig/fs/jfs/super.c	2006-01-10 13:46:05.000000000 +0100
++++ linux-2.6/fs/jfs/super.c	2006-02-14 16:24:18.000000000 +0100
+@@ -25,6 +25,7 @@
+ #include <linux/vfs.h>
+ #include <linux/mount.h>
+ #include <linux/moduleparam.h>
++#include <linux/kthread.h>
+ #include <linux/posix_acl.h>
+ #include <asm/uaccess.h>
+ #include <linux/seq_file.h>
+@@ -54,11 +55,9 @@
+ module_param(commit_threads, int, 0);
+ MODULE_PARM_DESC(commit_threads, "Number of commit threads");
+ 
+-int jfs_stop_threads;
+-static pid_t jfsIOthread;
+-static pid_t jfsCommitThread[MAX_COMMIT_THREADS];
+-static pid_t jfsSyncThread;
+-DECLARE_COMPLETION(jfsIOwait);
++static struct task_struct *jfsCommitThread[MAX_COMMIT_THREADS];
++struct task_struct *jfsIOthread;
++struct task_struct *jfsSyncThread;
+ 
+ #ifdef CONFIG_JFS_DEBUG
+ int jfsloglevel = JFS_LOGLEVEL_WARN;
+@@ -661,12 +660,12 @@
+ 	/*
+ 	 * I/O completion thread (endio)
+ 	 */
+-	jfsIOthread = kernel_thread(jfsIOWait, NULL, CLONE_KERNEL);
+-	if (jfsIOthread < 0) {
+-		jfs_err("init_jfs_fs: fork failed w/rc = %d", jfsIOthread);
++	jfsIOthread = kthread_run(jfsIOWait, NULL, "jfsIO");
++	if (IS_ERR(jfsIOthread)) {
++		rc = PTR_ERR(jfsIOthread);
++		jfs_err("init_jfs_fs: fork failed w/rc = %d", rc);
+ 		goto end_txmngr;
+ 	}
+-	wait_for_completion(&jfsIOwait);	/* Wait until thread starts */
+ 
+ 	if (commit_threads < 1)
+ 		commit_threads = num_online_cpus();
+@@ -674,24 +673,21 @@
+ 		commit_threads = MAX_COMMIT_THREADS;
+ 
+ 	for (i = 0; i < commit_threads; i++) {
+-		jfsCommitThread[i] = kernel_thread(jfs_lazycommit, NULL,
+-						   CLONE_KERNEL);
+-		if (jfsCommitThread[i] < 0) {
+-			jfs_err("init_jfs_fs: fork failed w/rc = %d",
+-				jfsCommitThread[i]);
++		jfsCommitThread[i] = kthread_run(jfs_lazycommit, NULL, "jfsCommit");
++		if (IS_ERR(jfsCommitThread[i])) {
++			rc = PTR_ERR(jfsCommitThread[i]);
++			jfs_err("init_jfs_fs: fork failed w/rc = %d", rc);
+ 			commit_threads = i;
+ 			goto kill_committask;
+ 		}
+-		/* Wait until thread starts */
+-		wait_for_completion(&jfsIOwait);
  	}
  
- 	rc = cifs_init_inodecache();
--	if (!rc) {
--		rc = cifs_init_mids();
--		if (!rc) {
--			rc = cifs_init_request_bufs();
--			if (!rc) {
--				rc = register_filesystem(&cifs_fs_type);
--				if (!rc) {                
--					rc = (int)kernel_thread(cifs_oplock_thread, NULL, 
--						CLONE_FS | CLONE_FILES | CLONE_VM);
--					if(rc > 0) {
--						rc = (int)kernel_thread(cifs_dnotify_thread, NULL,
--							CLONE_FS | CLONE_FILES | CLONE_VM);
--						if(rc > 0)
--							return 0;
--						else
--							cERROR(1,("error %d create dnotify thread", rc));
--					} else {
--						cERROR(1,("error %d create oplock thread",rc));
--					}
--				}
--				cifs_destroy_request_bufs();
--			}
--			cifs_destroy_mids();
--		}
--		cifs_destroy_inodecache();
-+	if (rc)
-+		goto out_clean_proc;
-+
-+	rc = cifs_init_mids();
-+	if (rc)
-+		goto out_destroy_inodecache;
-+
-+	rc = cifs_init_request_bufs();
-+	if (rc)
-+		goto out_destroy_mids;
-+
-+	rc = register_filesystem(&cifs_fs_type);
-+	if (rc)
-+		goto out_destroy_request_bufs;
-+
-+	oplockThread = kthread_run(cifs_oplock_thread, NULL, "cifsoplockd");
-+	if (IS_ERR(oplockThread)) {
-+		rc = PTR_ERR(oplockThread);
-+		cERROR(1,("error %d create oplock thread", rc));
-+		goto out_unregister_filesystem;
-+	}
-+
-+	dnotifyThread = kthread_run(cifs_dnotify_thread, NULL, "cifsdnotifyd");
-+	if (IS_ERR(dnotifyThread)) {
-+		rc = PTR_ERR(dnotifyThread);
-+		cERROR(1,("error %d create dnotify thread", rc));
-+		goto out_stop_oplock_thread;
+-	jfsSyncThread = kernel_thread(jfs_sync, NULL, CLONE_KERNEL);
+-	if (jfsSyncThread < 0) {
+-		jfs_err("init_jfs_fs: fork failed w/rc = %d", jfsSyncThread);
++	jfsSyncThread = kthread_run(jfs_sync, NULL, "jfsSync");
++	if (IS_ERR(jfsSyncThread)) {
++		rc = PTR_ERR(jfsSyncThread);
++		jfs_err("init_jfs_fs: fork failed w/rc = %d", rc);
+ 		goto kill_committask;
  	}
+-	wait_for_completion(&jfsIOwait);	/* Wait until thread starts */
+ 
+ #ifdef PROC_FS_JFS
+ 	jfs_proc_init();
+@@ -700,13 +696,9 @@
+ 	return register_filesystem(&jfs_fs_type);
+ 
+ kill_committask:
+-	jfs_stop_threads = 1;
+-	wake_up_all(&jfs_commit_thread_wait);
+ 	for (i = 0; i < commit_threads; i++)
+-		wait_for_completion(&jfsIOwait);
+-
+-	wake_up(&jfs_IO_thread_wait);
+-	wait_for_completion(&jfsIOwait);	/* Wait for thread exit */
++		kthread_stop(jfsCommitThread[i]);
++	kthread_stop(jfsIOthread);
+ end_txmngr:
+ 	txExit();
+ free_metapage:
+@@ -722,16 +714,13 @@
+ 
+ 	jfs_info("exit_jfs_fs called");
+ 
+-	jfs_stop_threads = 1;
+ 	txExit();
+ 	metapage_exit();
+-	wake_up(&jfs_IO_thread_wait);
+-	wait_for_completion(&jfsIOwait);	/* Wait until IO thread exits */
+-	wake_up_all(&jfs_commit_thread_wait);
 +
-+	return 0;
-+
-+ out_stop_oplock_thread:
-+	kthread_stop(oplockThread);
-+ out_unregister_filesystem:
-+	unregister_filesystem(&cifs_fs_type);
-+ out_destroy_request_bufs:
-+	cifs_destroy_request_bufs();
-+ out_destroy_mids:
-+	cifs_destroy_mids();
-+ out_destroy_inodecache:
-+	cifs_destroy_inodecache();
-+ out_clean_proc:
- #ifdef CONFIG_PROC_FS
- 	cifs_proc_clean();
++	kthread_stop(jfsIOthread);
+ 	for (i = 0; i < commit_threads; i++)
+-		wait_for_completion(&jfsIOwait);
+-	wake_up(&jfs_sync_thread_wait);
+-	wait_for_completion(&jfsIOwait);	/* Wait until Sync thread exits */
++		kthread_stop(jfsCommitThread[i]);
++	kthread_stop(jfsSyncThread);
+ #ifdef PROC_FS_JFS
+ 	jfs_proc_clean();
  #endif
-@@ -1033,14 +1040,8 @@
- 	cifs_destroy_inodecache();
- 	cifs_destroy_mids();
- 	cifs_destroy_request_bufs();
--	if(oplockThread) {
--		send_sig(SIGTERM, oplockThread, 1);
--		wait_for_completion(&cifs_oplock_exited);
--	}
--	if(dnotifyThread) {
--		send_sig(SIGTERM, dnotifyThread, 1);
--		wait_for_completion(&cifs_dnotify_exited);
--	}
-+	kthread_stop(oplockThread);
-+	kthread_stop(dnotifyThread);
- }
- 
- MODULE_AUTHOR("Steve French <sfrench@us.ibm.com>");

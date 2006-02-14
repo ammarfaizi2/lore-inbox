@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030526AbWBNJUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030527AbWBNJWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030526AbWBNJUc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 04:20:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030527AbWBNJUc
+	id S1030527AbWBNJWN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 04:22:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030530AbWBNJWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 04:20:32 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:18917 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1030526AbWBNJUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 04:20:31 -0500
-Date: Tue, 14 Feb 2006 10:20:30 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Marcin Dalecki <dalecki.marcin@neostrada.pl>
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, jerome.lacoste@gmail.com,
-       peter.read@gmail.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-       jengelh@linux01.gwdg.de, dhazelton@enter.net
+	Tue, 14 Feb 2006 04:22:13 -0500
+Received: from mail.gmx.de ([213.165.64.21]:46045 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030527AbWBNJWL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 04:22:11 -0500
+X-Authenticated: #428038
+Date: Tue, 14 Feb 2006 10:22:07 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Nix <nix@esperi.org.uk>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <mj+md-20060214.091056.25971.atrey@ucw.cz>
-References: <20060208162828.GA17534@voodoo> <20060210114721.GB20093@merlin.emma.line.org> <43EC887B.nailISDGC9CP5@burner> <200602090757.13767.dhazelton@enter.net> <43EC8F22.nailISDL17DJF@burner> <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com> <43F06220.nailKUS5D8SL2@burner> <mj+md-20060213.104344.18941.atrey@ucw.cz> <2D9D57EA-1197-4965-82ED-61DEAF73D9F9@neostrada.pl>
-Mime-Version: 1.0
+Message-ID: <20060214092207.GA32405@merlin.emma.line.org>
+Mail-Followup-To: Nix <nix@esperi.org.uk>, linux-kernel@vger.kernel.org
+References: <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner> <20060125181847.b8ca4ceb.grundig@teleline.es> <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com> <20060210235654.GA22512@kroah.com> <43F0891E.nailKUSCGC52G@burner> <871wy6sy7y.fsf@hades.wkstn.nix>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2D9D57EA-1197-4965-82ED-61DEAF73D9F9@neostrada.pl>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <871wy6sy7y.fsf@hades.wkstn.nix>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, 13 Feb 2006, Nix wrote:
 
-> This claim is a bit surprising since only, but the most irrelevant
-> stuff from the dust bin of history, doesn't define a world global
-> unique id those days.
+> (I doubt libscg would ever be interested in the stuff in most of the
+> other directories: things like /dev/mem are not SCSI devices and never
+> will be, and /sys/class/scsi_device contains *everything* Linux
+> considers a SCSI device, no matter what transport it is on, SATA and
+> all. However, I don't know if it handles IDE devices that you can SG_IO
+> to because I don't have any such here. Anyone know?)
 
-That's unfortunately not true -- many USB devices don't have a usable
-serial number.
+My ATAPI DVD and CD writers are not listed in /sys/class/scsi_device.
 
-Also, if I have a single device of its kind, let's say a USB mouse,
-I really want to call it "The Mouse" and I don't want to reconfigure
-anything if I plug it to a different port or replace it with a slightly
-different mouse. All mice are considered equivalent by the user
-as there is no reason to distinguish between them.
-
-The same applies to CD burners -- as long as I have only one (which is
-still the most common situation), I shouldn't have to think about how
-to call it. Let it be just /dev/cdrw.
-
-When I get multiple such devices, things start getting interesting, but
-there is no single naming strategy which fits all uses. For example,
-if I have two USB ports into which I connect USB disks various people
-bring to me, it's convenient to call them "left" and "right", because
-the serial number doesn't mean anything to me if I haven't seen the
-device before. On the other hand, if I connect my own drives, it makes
-sense to call them by their serial numbers or something like that.
-
-I think that it's clear from all this, that device naming is a matter
-of policy and that the best the OS can do is to give the users a way
-how to specify their policy, which is what udev does.
-
-				Have a nice fortnight
 -- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-P.C.M.C.I.A. stands for `People Can't Memorize Computer Industry Acronyms'
+Matthias Andree

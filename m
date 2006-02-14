@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422861AbWBNXAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422869AbWBNXNn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422861AbWBNXAc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 18:00:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422863AbWBNXAc
+	id S1422869AbWBNXNn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 18:13:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422872AbWBNXNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 18:00:32 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:27404 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1422861AbWBNXAb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 18:00:31 -0500
-Date: Wed, 15 Feb 2006 00:00:23 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Greg KH <greg@kroah.com>
-Cc: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Device enumeration (was Re: CD writing in future Linux (stirring up a hornets' nest))
-Message-ID: <20060214230023.GA66586@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Greg KH <greg@kroah.com>,
-	ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-	linux-kernel@vger.kernel.org
-References: <43D7C1DF.1070606@gmx.de> <20060213175046.GA20952@kroah.com> <20060213195322.GB89006@dspnet.fr.eu.org> <200602140023.15771.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060214104003.GA97714@dspnet.fr.eu.org> <20060214222428.GA357@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060214222428.GA357@kroah.com>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 14 Feb 2006 18:13:43 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:42712 "EHLO
+	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1422869AbWBNXNm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 18:13:42 -0500
+Date: Tue, 14 Feb 2006 17:13:40 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Compaq X1050 multiple suspend problems (ACPI, PS2)
+In-reply-to: <3ACA40606221794F80A5670F0AF15F840AEE20B9@pdsmsx403>
+To: "Yu, Luming" <luming.yu@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-acpi@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <43F26424.8040708@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <3ACA40606221794F80A5670F0AF15F840AEE20B9@pdsmsx403>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 14, 2006 at 02:24:28PM -0800, Greg KH wrote:
-> Because if you have to have udev push the names back into the kernel,
-> why not just ask udev in the first place what they were?
+No difference there either.. The contents of 
+/proc/acpi/embedded_controller/C0EA/info both before and after suspend are:
 
-Because there is no reason to think udev of 2008 will be compatible
-with today's udev given udev's history.  And that's provided udev is
-still in use at that time.
+gpe bit:                 0x1c
+ports:                   0x66, 0x62
+use global lock:         no
 
+I'll open a Bugzilla report.
 
-> Again, use HAL, not udev for this stuff.  FC3 is also out of date for
-> lots of things becides udev, so why refer to it?
-
-Because it proves you don't give a shit about backwards compatibility.
-There are a lot of fc3 installations out there still.  And I'm sure
-there are other distributions besides that one that made the mistake
-to trust the udev developers to respect the compatibility implicit
-contract.
-
-At that point Hal is *not* considered stable interface-wise by its own
-developpers, so using it for anything that's supposed to stay working
-for a while is *stupid*.  When they decide it's 1.0 time, we'll talk.
-Even *dbus* is not 1.0 yet in large part for interface stabilization
-reasons.
-
-  OG.
+Yu, Luming wrote:
+>> I have not seen any ACPI errors other than during suspend/resume.
+>>
+>> Tried ec_intr=0 option on the command line, same problem.
+>>
+>> ACPI_EC_DELAY=100 patch did not help either, same or at least similar 
+>> problem. Output attached.
+>>
+> 
+> Please try boot with lapic. I'm NOT sure if it is irq related resume
+> issue.
+> After resume, please try cat /proc/acpi/embedded_controller/*/info.
+> Please test if it do the trick.
+> 
+> If still not, please file a bug in ACPI category on bugzilla.kernel.org.
+> 
+> 
+> Thanks,
+> Luming
+> 

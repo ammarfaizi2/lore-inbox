@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030560AbWBNKnr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030561AbWBNKoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030560AbWBNKnr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 05:43:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030562AbWBNKnr
+	id S1030561AbWBNKoO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 05:44:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030562AbWBNKoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 05:43:47 -0500
-Received: from dtp.xs4all.nl ([80.126.206.180]:44621 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1030560AbWBNKnq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 05:43:46 -0500
-Date: Tue, 14 Feb 2006 11:43:45 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Is my SATA/400GB drive dying?
-Message-ID: <20060214104345.GM3209@harddisk-recovery.com>
-References: <Pine.LNX.4.64.0602130658110.21652@p34> <Pine.LNX.4.64.0602132016350.2607@p34> <Pine.LNX.4.64.0602132018290.2607@p34>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0602132018290.2607@p34>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+	Tue, 14 Feb 2006 05:44:14 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:30166 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1030561AbWBNKoN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 05:44:13 -0500
+Message-ID: <43F1B4AC.4070109@jp.fujitsu.com>
+Date: Tue, 14 Feb 2006 19:45:00 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] unify pfn_to_page take3 [15/23] s390 pfn_to_page
+References: <43F1A753.2020003@jp.fujitsu.com>
+In-Reply-To: <43F1A753.2020003@jp.fujitsu.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 13, 2006 at 08:18:47PM -0500, Justin Piszcz wrote:
-> Still get the errors:
-> 
-> [ 2311.980127] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
-> 0xb/00/00
-> [ 2311.980134] ata3: status=0x51 { DriveReady SeekComplete Error }
-> [ 2311.980138] ata3: error=0x04 { DriveStatusError }
+s390 can use generic funcs.
 
-FWIW, this could be related to smartctl trying to monitor the disk.
-Try this:
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-  smartctl -d ata -a /dev/sdX
+Index: testtree/include/asm-s390/page.h
+===================================================================
+--- testtree.orig/include/asm-s390/page.h
++++ testtree/include/asm-s390/page.h
+@@ -181,8 +181,6 @@ page_get_storage_key(unsigned long addr)
+  #define PAGE_OFFSET             0x0UL
+  #define __pa(x)                 (unsigned long)(x)
+  #define __va(x)                 (void *)(unsigned long)(x)
+-#define pfn_to_page(pfn)	(mem_map + (pfn))
+-#define page_to_pfn(page)	((unsigned long)((page) - mem_map))
+  #define virt_to_page(kaddr)	pfn_to_page(__pa(kaddr) >> PAGE_SHIFT)
 
-If that complains about SMART being disabled, enable it with:
+  #define pfn_valid(pfn)		((pfn) < max_mapnr)
+@@ -193,6 +191,7 @@ page_get_storage_key(unsigned long addr)
 
-  smartctl -d ata -e /dev/sdX
+  #endif /* __KERNEL__ */
 
++#include <asm-generic/memory_model.h>
+  #include <asm-generic/page.h>
 
-Erik
+  #endif /* _S390_PAGE_H */
 
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

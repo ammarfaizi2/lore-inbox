@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422789AbWBNVWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422795AbWBNVYo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422789AbWBNVWt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 16:22:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422795AbWBNVWt
+	id S1422795AbWBNVYo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 16:24:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422685AbWBNVYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 16:22:49 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:29369 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422789AbWBNVWs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 16:22:48 -0500
-Date: Tue, 14 Feb 2006 13:21:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: herbert@13thfloor.at, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove duplicate #includes
-Message-Id: <20060214132133.0c48f874.akpm@osdl.org>
-In-Reply-To: <20060214220313.1158be5b.khali@linux-fr.org>
-References: <20060213093959.GA10496@MAIL.13thfloor.at>
-	<20060214220313.1158be5b.khali@linux-fr.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Feb 2006 16:24:44 -0500
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:51830 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1422795AbWBNVYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 16:24:43 -0500
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       Roland Dreier <rolandd@cisco.com>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: AMD 8131 and MSI quirk
+X-Message-Flag: Warning: May contain useful information
+References: <524q799p2t.fsf@cisco.com> <20060214165222.GC12974@mellanox.co.il>
+	<adaslqlu76f.fsf@cisco.com> <20060214200340.GN12822@parisc-linux.org>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 14 Feb 2006 13:24:41 -0800
+In-Reply-To: <20060214200340.GN12822@parisc-linux.org> (Matthew Wilcox's
+ message of "Tue, 14 Feb 2006 13:03:40 -0700")
+Message-ID: <adahd71tyzq.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 14 Feb 2006 21:24:41.0624 (UTC) FILETIME=[1150A980:01C631AD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Delvare <khali@linux-fr.org> wrote:
->
-> Hi Herbert,
-> 
-> > recently I stumbled over a few files which #include the 
-> > same .h file twice -- sometimes even in the immediately
-> > following line. so I thought I'd look into that to reduce 
-> > the amount of duplicate includes in the kernel ...
-> > (...)
-> > diff -NurpP --minimal linux-2.6.16-rc2/drivers/macintosh/therm_pm72.c linux-2.6.16-rc2-mpf/drivers/macintosh/therm_pm72.c
-> > --- linux-2.6.16-rc2/drivers/macintosh/therm_pm72.c	2006-02-07 11:52:31 +0100
-> > +++ linux-2.6.16-rc2-mpf/drivers/macintosh/therm_pm72.c	2006-02-13 02:07:58 +0100
-> > @@ -104,7 +104,6 @@
-> >  #include <linux/kernel.h>
-> >  #include <linux/delay.h>
-> >  #include <linux/sched.h>
-> > -#include <linux/i2c.h>
-> >  #include <linux/slab.h>
-> >  #include <linux/init.h>
-> >  #include <linux/spinlock.h>
-> 
-> This one was already taken care of in a different patch:
-> 
-> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc3/2.6.16-rc3-mm1/broken-out/macintosh-cleanup-the-use-of-i2c-headers.patch
-> 
-> So please exclude this part from your patch so as to avoid collisions.
-> 
+ > Michael's patch does this:
+ > 
+ > @@ -347,6 +347,7 @@ pci_alloc_child_bus(struct pci_bus *pare
+ >         child->parent = parent;
+ >         child->ops = parent->ops;
+ >         child->sysdata = parent->sysdata;
+ > +       child->bus_flags = parent->bus_flags;
+ >         child->bridge = get_device(&bridge->dev);
+ > 
+ >         child->class_dev.class = &pcibus_class;
 
-Is OK.  I'll stage the big cleanup patches like this after everyone else's
-patches, so all that is left in this patch is stuff which doesn't intersect
-with anyone else's work.
+Sorry, I missed that.  Yes, that should work.
 
-That's one of the advantages of having everyone's development trees all in
-one place.  (And people who run development trees which aren't in -mm lose).
+ - R.

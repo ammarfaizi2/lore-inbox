@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030518AbWBNIim@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030519AbWBNIyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030518AbWBNIim (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 03:38:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030520AbWBNIim
+	id S1030519AbWBNIyv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 03:54:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030522AbWBNIyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 03:38:42 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:39369 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1030518AbWBNIil (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 03:38:41 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <43F196CF.9060608@s5r6.in-berlin.de>
-Date: Tue, 14 Feb 2006 09:37:35 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Al Viro <viro@ftp.linux.org.uk>
-CC: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-Subject: Re: [PATCH 7/8] don't mangle INQUIRY if cmddt or evpd bits are set
-References: <E1F6vyJ-00009k-3Z@ZenIV.linux.org.uk> <43EA7226.60306@s5r6.in-berlin.de> <20060208230559.GK27946@ftp.linux.org.uk> <43F0B1AB.6010708@s5r6.in-berlin.de> <20060213181839.GA27946@ftp.linux.org.uk> <43F0EBE1.8000001@s5r6.in-berlin.de> <20060214024049.GB27946@ftp.linux.org.uk>
-In-Reply-To: <20060214024049.GB27946@ftp.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: (0.562) AWL,BAYES_50
+	Tue, 14 Feb 2006 03:54:51 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:45616 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1030519AbWBNIyu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 03:54:50 -0500
+Date: Tue, 14 Feb 2006 09:54:47 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Ryan Richter <ryan@tau.solarneutrino.net>
+Cc: Nick Warne <nick@linicks.net>, linux-kernel@vger.kernel.org
+Subject: Re: Random reboots
+Message-ID: <20060214085446.GH3209@harddisk-recovery.com>
+References: <20060213210435.GC16566@tau.solarneutrino.net> <20060213211044.066CE5E401E@latitude.mynet.no-ip.org> <20060213212243.GE16566@tau.solarneutrino.net> <7c3341450602131332x2fcd7d8co@mail.gmail.com> <20060213213929.GG16566@tau.solarneutrino.net> <20060213214956.GH16566@tau.solarneutrino.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060213214956.GH16566@tau.solarneutrino.net>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> On Mon, Feb 13, 2006 at 09:28:17PM +0100, Stefan Richter wrote:
-...
->> - The TI StorageLynx based bridge reports device type 0 (TYPE_DISK).
->>   The problem occurs apparently with page 4 and page 8. Sbp2 has a
->>   fix since yesterday which sets the skip_ms_page_8 flag.
+On Mon, Feb 13, 2006 at 04:49:57PM -0500, Ryan Richter wrote:
+> On Mon, Feb 13, 2006 at 04:39:29PM -0500, ryan wrote:
+> > It runs Debian Sarge for AMD64.  I have lots of other machines, but only
+> > this one gets the reboots.  None of the others have SCSI, and none are
+> > dual-CPU with memory on both nodes, just to name two obvious things
+> > different on this machine.
 > 
-> That's going to cause fun problems on reboot if it actually has write-behind
-> cache...
+> Thinking about this some more...  My home desktop also is a dual opteron
+> with memory on both nodes and SCSI, but it hasn't had any reboots.  The
+> machine with the reboot trouble uses RAID5+LVM, unlike my desktop.  Also
+> it's an NFS server, but I have another machine (single-cpu pentium 4, no
+> SCSI etc.) that's an NFS server without reboots.  But none of the other
+> machines have RAID or LVM.
 
-Not only on reboot but always when sd is told to shut down. I did not 
-notice an actual problem so far but I will keep an eye on it.
+We recently had such an issue with a dual AMD64 machine rebooting at
+mke2fs. It turned out it was a faulty power supply. After we changed
+the power supply, everything ran smooth again.
 
-But AFAIU, sd's cache syncing (of devices with WCE set) is ineffective 
-anyway if devices are unplugged without manually shutting the driver 
-down beforehand.
+You could start to test by powering your drives from an old AT-style
+power supply leaving more "juice" for the main board and CPUs.
 
->>   http://marc.theaimsgroup.com/?l=linux1394-devel&m=113969287630893
->> - Another bridge made by the same manufacturer but based on TI
->>   StorageLynx revision A features the same MODE SENSE bug. This bridge
->>   reports type 14 (TYPE_RBC).
-> 
-> Pardon?  If it's type 14, we won't issue MODE SENSE for page 8 and will
-> go for page 6 instead...
 
-Correct. Which is why I did not notice the bug until testing with scsiinfo.
+Erik
 
-...
->>Of course sg does not care for any black list flags (like sd_mod and 
->>sr_mod do), but considering the nature of the bugs and anticipated usage 
->>of affected devices, there is hardly a reason for further safeguards in 
->>sbp2, let alone sg.
-> 
-> Maybe, maybe not.  Note that e.g. aforementioned INQUIRY bug in pl3507 is
-> triggered by dmraid, which works via SG_IO, just as scsiinfo.  And unlike
-> scsiinfo it's run from /etc/rc.sysinit on current FC4...
-
-Are they probing all devices or only those which are part of a RAID set?
 -- 
-Stefan Richter
--=====-=-==- --=- -===-
-http://arcgraph.de/sr/
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

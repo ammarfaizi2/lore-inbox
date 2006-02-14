@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030349AbWBNEOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbWBNE2a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030349AbWBNEOO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 23:14:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030347AbWBNEOO
+	id S1750977AbWBNE2a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 23:28:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWBNE23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 23:14:14 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:17314 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030349AbWBNEOO (ORCPT
+	Mon, 13 Feb 2006 23:28:29 -0500
+Received: from mx1.rowland.org ([192.131.102.7]:11536 "HELO mx1.rowland.org")
+	by vger.kernel.org with SMTP id S1750962AbWBNE23 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 23:14:14 -0500
-Date: Mon, 13 Feb 2006 20:13:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: kenneth.w.chen@intel.com, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/2] fix perf. bug in wake-up load balancing for aim7
- and db workload
-Message-Id: <20060213201313.1856af42.akpm@osdl.org>
-In-Reply-To: <43F15531.3060809@yahoo.com.au>
-References: <200602140309.k1E394g17590@unix-os.sc.intel.com>
-	<20060213193856.696bf1f0.akpm@osdl.org>
-	<43F15211.2090206@yahoo.com.au>
-	<43F15531.3060809@yahoo.com.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Feb 2006 23:28:29 -0500
+Date: Mon, 13 Feb 2006 23:28:27 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Kyle Moffett <mrmacman_g4@mac.com>
+cc: Phillip Susi <psusi@cfl.rr.com>, Alon Bar-Lev <alon.barlev@gmail.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Flames over -- Re: Which is simpler?
+In-Reply-To: <DD0B9449-14AF-47D1-8372-DDC7E896DBC2@mac.com>
+Message-ID: <Pine.LNX.4.44L0.0602132317530.20628-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> Nick Piggin wrote:
-> > Andrew Morton wrote:
-> > 
-> >>
-> >>
-> >> Well I don't see any benchmark numbers in the original patch.  Just an
-> >> assertion that it "should" help something.
-> >>
-> > 
-> > The regression was in a Ken's commercial database benchmark. I couldn't
-> > reproduce it but presumably it did fix it otherwise Ken would would have
-> > piped up?
-> > 
-> 
-> BTW, I did actually ask that you hold off merging it until Ken came
-> back with some numbers.
-> 
+On Mon, 13 Feb 2006, Kyle Moffett wrote:
 
-So you did.
+> Which causes worse data-loss, writing out cached pages and filesystem  
+> metadata to a filesystem that has changed in the mean-time (possibly  
+> allocating those for metadata, etc) or forcibly unmounting it as  
+> though the user pulled the cable?  Most filesystems are designed to  
+> handle the latter (it's the same as a hard-shutdown), whereas _none_  
+> are designed to handle the former.
+
+That's a good point.  Furthermore, any decent suspend script will flush
+all dirty buffers to disk before suspending anything.
+
+> A good set of suspend scripts should handle the hardware-suspend with  
+> no extra work because hardware supporting hardware-suspend basically  
+> inevitably supports USB low-power-mode,
+
+Unfortunately a lot of hardware doesn't support USB low-power mode.  I 
+guess you'd say therefore it doesn't really support hardware-suspend.  
+This may be so, but it's small comfort to the owners of those systems.
+
+I have to admit, although technically Phillip's argument is wrong, from a
+useability standpoint it is right.  Windows allows users to disconnect and
+reconnect USB storage devices while the system is hibernating, with no
+apparent ill effects -- although I've never tried to unplug one device and
+then plug in a different one on the same port while the computer was
+asleep.  I don't know to what extent Windows checks descriptors/serial 
+numbers/disk labels/whatever when it wakes up.
+
+Alan Stern
+

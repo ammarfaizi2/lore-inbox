@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbWBNDgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030302AbWBNDj5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030299AbWBNDgN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 22:36:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWBNDgN
+	id S1030302AbWBNDj5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 22:39:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWBNDj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 22:36:13 -0500
-Received: from rtr.ca ([64.26.128.89]:3779 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1030299AbWBNDgM (ORCPT
+	Mon, 13 Feb 2006 22:39:57 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:33944 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030302AbWBNDj4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 22:36:12 -0500
-Message-ID: <43F15027.2090304@rtr.ca>
-Date: Mon, 13 Feb 2006 22:36:07 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
-MIME-Version: 1.0
-To: Linda Walsh <lkml@tlinx.org>
-Cc: Justin Piszcz <jpiszcz@lucidpixels.com>,
-       smartmontools-support@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: default hdparms? readahead=256? Re: WD 400GB xATA Drives
-References: <Pine.LNX.4.64.0602130524350.13160@p34> <43F1393D.9050801@tlinx.org>
-In-Reply-To: <43F1393D.9050801@tlinx.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Mon, 13 Feb 2006 22:39:56 -0500
+Date: Mon, 13 Feb 2006 19:38:56 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: nickpiggin@yahoo.com.au, mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/2] fix perf. bug in wake-up load balancing for aim7
+ and db workload
+Message-Id: <20060213193856.696bf1f0.akpm@osdl.org>
+In-Reply-To: <200602140309.k1E394g17590@unix-os.sc.intel.com>
+References: <200602140309.k1E394g17590@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linda Walsh wrote:
->..
-> set to known values may not contain "great values".  My "readahead"
-> value seems to boot with a value of "256" for all of my drives.
+"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+>
+> Commit d7102e95b7b9c00277562c29aad421d2d521c5f6 in linus's git tree
 > 
-> Is this not a bit "excessive"?
+> [PATCH] sched: filter affine wakeups
+> From: Nick Piggin <nickpiggin@yahoo.com.au>
+> Track the last waker CPU, and only consider wakeup-balancing if there's a
+> match between current waker CPU and the previous waker CPU.  This ensures
+> that there is some correlation between two subsequent wakeup events before
+> we move the task.  Should help random-wakeup workloads on large SMP
+> systems, by reducing the migration attempts by a factor of nr_cpus.
+> 
+> 
+> Apparently caused more than 10% performance regression for aim7 benchmark.
 
-Wow.. that does look a bit HUGE.  Thanks for pointing it out,
-I'm resetting mine back to 128 for now.
+Post-mortem time.   Why was it merged?
 
-> Justin Piszcz wrote:
->> When I write to this disk for a while, I see this in dmesg (only once 
->> so far):
->>
->> [31230.223504] ata6: translated ATA stat/err 0x51/04 to SCSI 
->> SK/ASC/ASCQ 0xb/00/00
->> [31230.223511] ata6: status=0x51 { DriveReady SeekComplete Error }
->> [31230.223515] ata6: error=0x04 { DriveStatusError }
->>
->> Is there some sort of smart testing going on constantly?  I only get 
->> 26-27MB/s on this 400GB/SATA/16MB/7200RPM drive.  I use smartmontools 
->> to do a daily test.  However, even with smart disabled, I get:
->>
->> # hdparm -t /dev/sde
->> /dev/sde:
->>  Timing buffered disk reads:   78 MB in  3.06 seconds =  25.46 MB/sec
->>
->> Does anyone know if this drive has problems in Linux or something?
->>
->> [    6.895914]   Vendor: ATA       Model: WDC WD4000KD-00N  Rev: 01.0
-...
+This patch was added to -mm on 8 November 2006.  Was merged into mainline
+12 January 2006.  That's two months in -mm and one month in mainline.
 
-Some drives suck at sequential reads, in favour of doing random seeks
-very very well.  Basically, the on-drive seek algorithm may not favour
-doing much read-ahead.  Try "hdparm -A1" and see if that helps.
+I don't think it's reasonable to stretch the latency of scheduler patches
+to even longer than three months and I doubt if that'll solve the problem.
+
+Oh well, at least we found it.
+
+> 
+> We should back out the above commit and add a sysctl variable to control the
+> behavior of load balancing in wake up path, so user can dynamically select
+> a mode that best fit for the workload environment.  And kernel can achieve
+> best performance in two extreme ends of incompatible workload environments.
+
+Well I don't see any benchmark numbers in the original patch.  Just an
+assertion that it "should" help something.
+
+I'm more inclined to revert it and not add the sysctl (ugh) until we have a
+good reason to do so.

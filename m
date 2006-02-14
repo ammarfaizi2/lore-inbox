@@ -1,166 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbWBNFW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030455AbWBNFXl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030362AbWBNFW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 00:22:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030367AbWBNFWZ
+	id S1030455AbWBNFXl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 00:23:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030463AbWBNFXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 00:22:25 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:9167 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1030362AbWBNFFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 00:05:03 -0500
-Message-Id: <20060214050443.068971000@localhost.localdomain>
-References: <20060214050351.252615000@localhost.localdomain>
-Date: Tue, 14 Feb 2006 14:03:58 +0900
-From: Akinobu Mita <mita@miraclelinux.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, Russell King <rmk@arm.linux.org.uk>,
-       Ian Molton <spyro@f2s.com>, dev-etrax@axis.com,
-       Hirokazu Takata <takata@linux-m32r.org>, linux-mips@linux-mips.org,
-       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
-       linuxsh-dev@lists.sourceforge.net,
-       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
-       ultralinux@vger.kernel.org, Chris Zankel <chris@zankel.net>,
-       Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 07/47] generic __{,test_and_}{set,clear,change}_bit() and test_bit()
-Content-Disposition: inline; filename=non-atomic-bitops.patch
+	Tue, 14 Feb 2006 00:23:40 -0500
+Received: from xproxy.gmail.com ([66.249.82.198]:10508 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030461AbWBNFXh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 00:23:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=E66FTru50kRJehDhXsBjVDziayw92Pb9lpo71GTJrwrmg4abNjE6sd86X7mkeWO/E8BicUK43/HguwdVDXNPPCKSR21oWTcChLrK5iw11H/nzegAO/m/Q+8tlGL2huKCPITlkpGulpWA+yswCDG7rR1G2DeuJBwm34vTtFfXybs=
+Reply-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
+To: Olivier Galibert <galibert@pobox.com>
+Subject: Re: Device enumeration (was Re: CD writing in future Linux (stirring up a hornets' nest))
+Date: Tue, 14 Feb 2006 00:23:15 -0500
+User-Agent: KMail/1.8.3
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <43D7C1DF.1070606@gmx.de> <20060213175046.GA20952@kroah.com> <20060213195322.GB89006@dspnet.fr.eu.org>
+In-Reply-To: <20060213195322.GB89006@dspnet.fr.eu.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602140023.15771.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch introduces the C-language equivalents of the functions below:
+On Monday 13 February 2006 14:53, Olivier Galibert wrote:
+> Problem: finding and talking to all the devices which have capability
+> <x>, as long as the system administrator allows.
+... 
+> At that point, we get several answers:
+...
+> 4- sysfs has all the information you need, just read it
+...
+> Answer 4 would be very nice if it was correct.  sysfs is pretty much
+> mandatory at that point, and modulo some fixable incompleteness
+> provides all the capability information and model names and everything
+> needed to find the useful devices.  What it does not provide is the
+> mapping between a device as found in sysfs, and a device node you can
+> open to talk to the device. You get the major/minor, which allows you 
+> to create a temporary device node iff you're root.  Or you can scan
+> all the nodes in /dev to find the one to open, which is kinda
+> ridiculous and inefficient.  Or you have to go back to udev/hal to ask
+> for the sysfs node/device node path mapping, and then why use sysfs in
+> the first place.
+     They're providing different things. Enumerating devices (as the kernel
+sees them) is sysfs's business. Providing device nodes is not the kernel's
+business, and should not be. (The kernel doesn't know the appropriate
+permissions). And while it can be used to enumerate devices, that's not
+really the function of /dev. It's providing the device nodes with the
+appropriate permissions, and hopefully with names that are meaningful
+to the users. So you really need both sysfs and /dev. The difficulty is
+the mapping between sysfs and /dev. That mapping should not live in sysfs,
+/dev is none of the kernel's business and sysfs is the kernel's playground.
 
-void __set_bit(int nr, volatile unsigned long *addr);
-void __clear_bit(int nr, volatile unsigned long *addr);
-void __change_bit(int nr, volatile unsigned long *addr);
-int __test_and_set_bit(int nr, volatile unsigned long *addr);
-int __test_and_clear_bit(int nr, volatile unsigned long *addr);
-int __test_and_change_bit(int nr, volatile unsigned long *addr);
-int test_bit(int nr, const volatile unsigned long *addr);
+     The mapping could be provided via symlinks, like so:
 
-In include/asm-generic/bitops/non-atomic.h
+/dev/rdev/block/hdb/hdb1 -> /dev/hdb1
+/dev/rdev/block/hdb -> /dev/hdb
+/dev/rdev/block/hda/hda2 -> /dev/hda2
+/dev/rdev/block/hda/hda1 -> /dev/hda1
+/dev/rdev/block/hda -> /dev/hda
+...
 
-This code largely copied from:
-asm-powerpc/bitops.h
+But I don't know if there is much point in doing so as udev already
+provides that information.
 
-Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
- include/asm-generic/bitops/non-atomic.h |  111 ++++++++++++++++++++++++++++++++
- 1 files changed, 111 insertions(+)
-
-Index: 2.6-rc/include/asm-generic/bitops/non-atomic.h
-===================================================================
---- /dev/null
-+++ 2.6-rc/include/asm-generic/bitops/non-atomic.h
-@@ -0,0 +1,111 @@
-+#ifndef _ASM_GENERIC_BITOPS_NON_ATOMIC_H_
-+#define _ASM_GENERIC_BITOPS_NON_ATOMIC_H_
-+
-+#include <asm/types.h>
-+
-+#define BITOP_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
-+#define BITOP_WORD(nr)		((nr) / BITS_PER_LONG)
-+
-+/**
-+ * __set_bit - Set a bit in memory
-+ * @nr: the bit to set
-+ * @addr: the address to start counting from
-+ *
-+ * Unlike set_bit(), this function is non-atomic and may be reordered.
-+ * If it's called on the same region of memory simultaneously, the effect
-+ * may be that only one operation succeeds.
-+ */
-+static inline void __set_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BITOP_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
-+
-+	*p  |= mask;
-+}
-+
-+static inline void __clear_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BITOP_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
-+
-+	*p &= ~mask;
-+}
-+
-+/**
-+ * __change_bit - Toggle a bit in memory
-+ * @nr: the bit to change
-+ * @addr: the address to start counting from
-+ *
-+ * Unlike change_bit(), this function is non-atomic and may be reordered.
-+ * If it's called on the same region of memory simultaneously, the effect
-+ * may be that only one operation succeeds.
-+ */
-+static inline void __change_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BITOP_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
-+
-+	*p ^= mask;
-+}
-+
-+/**
-+ * __test_and_set_bit - Set a bit and return its old value
-+ * @nr: Bit to set
-+ * @addr: Address to count from
-+ *
-+ * This operation is non-atomic and can be reordered.  
-+ * If two examples of this operation race, one can appear to succeed
-+ * but actually fail.  You must protect multiple accesses with a lock.
-+ */
-+static inline int __test_and_set_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BITOP_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
-+	unsigned long old = *p;
-+
-+	*p = old | mask;
-+	return (old & mask) != 0;
-+}
-+
-+/**
-+ * __test_and_clear_bit - Clear a bit and return its old value
-+ * @nr: Bit to clear
-+ * @addr: Address to count from
-+ *
-+ * This operation is non-atomic and can be reordered.  
-+ * If two examples of this operation race, one can appear to succeed
-+ * but actually fail.  You must protect multiple accesses with a lock.
-+ */
-+static inline int __test_and_clear_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BITOP_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
-+	unsigned long old = *p;
-+
-+	*p = old & ~mask;
-+	return (old & mask) != 0;
-+}
-+
-+/* WARNING: non atomic and it can be reordered! */
-+static inline int __test_and_change_bit(int nr,
-+					    volatile unsigned long *addr)
-+{
-+	unsigned long mask = BITOP_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
-+	unsigned long old = *p;
-+
-+	*p = old ^ mask;
-+	return (old & mask) != 0;
-+}
-+
-+/**
-+ * test_bit - Determine whether a bit is set
-+ * @nr: bit number to test
-+ * @addr: Address to start counting from
-+ */
-+static inline int test_bit(int nr, const volatile unsigned long *addr)
-+{
-+	return 1UL & (addr[BITOP_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
-+}
-+
-+#endif /* _ASM_GENERIC_BITOPS_NON_ATOMIC_H_ */
-
---
+Andrew Wade

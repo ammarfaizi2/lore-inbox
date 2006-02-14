@@ -1,88 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030489AbWBNGQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030377AbWBNGXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030489AbWBNGQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 01:16:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030488AbWBNGQZ
+	id S1030377AbWBNGXr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 01:23:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030488AbWBNGXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 01:16:25 -0500
-Received: from smtp2.ist.utl.pt ([193.136.128.22]:694 "EHLO smtp2.ist.utl.pt")
-	by vger.kernel.org with ESMTP id S1030485AbWBNGQY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 01:16:24 -0500
-From: Claudio Martins <ctpm@rnl.ist.utl.pt>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-Subject: Re: OCFS2 Filesystem inconsistency across nodes
-Date: Tue, 14 Feb 2006 06:16:11 +0000
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Jan Kara <jack@suse.cz>, Nohez <nohez@cmie.com>
-References: <200602100536.02893.ctpm@rnl.ist.utl.pt> <200602110540.57573.ctpm@rnl.ist.utl.pt> <20060213222606.GC20175@ca-server1.us.oracle.com>
-In-Reply-To: <20060213222606.GC20175@ca-server1.us.oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Feb 2006 01:23:47 -0500
+Received: from mail.harddata.com ([216.123.194.198]:48058 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP id S1030353AbWBNGXp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 01:23:45 -0500
+Date: Mon, 13 Feb 2006 23:22:25 -0700
+From: Michal Jaegermann <michal@harddata.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dave Jones <davej@codemonkey.org.uk>, arjan@infradead.org,
+       len.brown@intel.com, davem@davemloft.net, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, axboe@suse.de,
+       James.Bottomley@steeleye.com, greg@kroah.com,
+       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       luming.yu@intel.com, lk@bencastricum.nl, sanjoy@mrao.cam.ac.uk,
+       helgehaf@aitel.hist.no, fluido@fluido.as, gbruchhaeuser@gmx.de,
+       Nicolas.Mailhot@LaPoste.net, perex@suse.cz, tiwai@suse.de,
+       patrizio.bassi@gmail.com, bni.swe@gmail.com, arvidjaar@mail.ru,
+       p_christ@hol.gr, ghrt@dial.kappa.ro, jinhong.hu@gmail.com,
+       andrew.vasquez@qlogic.com, linux-scsi@vger.kernel.org, bcrl@kvack.org
+Subject: Re: Linux 2.6.16-rc3
+Message-ID: <20060214062225.GA26827@mail.harddata.com>
+References: <F7DC2337C7631D4386A2DF6E8FB22B30060BD1D9@hdsmsx401.amr.corp.intel.com> <20060213001240.05e57d42.akpm@osdl.org> <1139821068.2997.22.camel@laptopd505.fenrus.org> <20060214030821.GA23031@mail.harddata.com> <20060213192838.64013c6c.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602140616.11856.ctpm@rnl.ist.utl.pt>
+In-Reply-To: <20060213192838.64013c6c.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 13, 2006 at 07:28:38PM -0800, Andrew Morton wrote:
+> Michal Jaegermann <michal@harddata.com> wrote:
+> >
+> > On Mon, Feb 13, 2006 at 09:57:48AM +0100, Arjan van de Ven wrote:
+> > > On Mon, 2006-02-13 at 00:12 -0800, Andrew Morton wrote:
+> > > > 
+> > > > I think we can assume that it will be seen there.  2.6.16 is going into
+> > > > distros and will have more exposure than 2.6.15, 
+> > > 
+> > > 2.6.15 went into distros as well, such as Fedora Core 4 ;)
+> > 
+> > And promptly broke laptop suspension.  See, for example:
+> > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=180998
+> > 
+> 
+> That's suspend-to-disk, yes?
 
-On Monday 13 February 2006 22:26, Mark Fasheh wrote:
-> I was easily able to reproduce your problem on my cluster and was able to
-> git-bisect my way to some JBD changes which seem to be causing the issue.
-> Reverting those patches fixes things. Can you apply the attached patch and
-> confirm that it also fixes this particular problem for you? You'll have to
-> apply to all kernels in your cluster and either run fsck.ocfs2 or create a
-> new file system before testing again.
->
+No.  That is an S3 suspension to RAM.  On the box in question it
+generally worked for quite a long while now provided
+'acpi_sleep=s3_bios' was passed to a kernel or video would be
+unrestorable.  It is Acer Travelmate 230 with i845G video.
 
- Hi Mark,
+I did not try on that laptop suspend-to-disk so far (and in this
+moment the damn thing is just plain broken).
 
- This patch does indeed seem to fix this particular problem. Now creating and 
-deleting files/directories gives expected results across nodes.
-
- The bad news is that it didn't last long. While doing some more tests I found 
-another problem, but judging from kernel messages I think this one is related 
-to the DLM code.
-
- The test was simple: 
-
- On node 1 untar a kernel tree and wait for tar to finish.
-
- After tar finished I ran tar on nodes 0 and 2, each one *concurrently* 
-creating a separate archive from *the same* kernel tree untarred on node 1.
-
- Again, since the files are big, I've put them online:
-
-Node0:
-http://coyote.ist.utl.pt/ocfs2/Feb14/kern-iscsi-teste.log
-
-Node1:
-http://coyote.ist.utl.pt/ocfs2/Feb14/kern-orateste1.log
- (this node's clock was 10 minutes off, sorry about that)
-
-Node2:
-http://coyote.ist.utl.pt/ocfs2/Feb14/kern-orateste2.log
-
-
- On node 0, tar exited with:
-tar: 
-build-AMD-linux-2.6.16-rc2-git3-jbdfix1/drivers/media/video/cx25840/cx25840-core.c: 
-Cannot stat: Invalid argument
-
-On node 2, tar exited with a segmentation fault.
-
-Anyway, after that I am still able to read and write files on all three nodes 
-with consistency.
-
-
-Any ideas?
-
-Thanks
-Best regards
-
-Claudio
- 
-
+   Michal

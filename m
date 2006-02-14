@@ -1,120 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422852AbWBNWkg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422849AbWBNWkf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422852AbWBNWkg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 17:40:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422856AbWBNWkg
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 17:40:36 -0500
-Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:42824 "EHLO
-	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1422852AbWBNWkf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1422849AbWBNWkf (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 14 Feb 2006 17:40:35 -0500
-Message-ID: <43F25C60.4080603@bigpond.net.au>
-Date: Wed, 15 Feb 2006 09:40:32 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422856AbWBNWkf
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 14 Feb 2006 17:40:35 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:262 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1422849AbWBNWke
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 17:40:34 -0500
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, davidsen@tmr.com,
+       axboe@suse.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
+	<20060125144543.GY4212@suse.de>
+	<Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
+	<20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
+	<20060125181847.b8ca4ceb.grundig@teleline.es>
+	<20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de>
+	<878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com>
+	<20060210235654.GA22512@kroah.com> <43F0891E.nailKUSCGC52G@burner>
+	<871wy6sy7y.fsf@hades.wkstn.nix> <43F1BE96.nailMY212M61V@burner>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: an inspiring example of form following function... to Hell.
+Date: Tue, 14 Feb 2006 22:40:18 +0000
+In-Reply-To: <43F1BE96.nailMY212M61V@burner> (Joerg Schilling's message of
+ "Tue, 14 Feb 2006 12:27:18 +0100")
+Message-ID: <87d5hpr2ct.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-CC: Andrew Morton <akpm@osdl.org>, kernel@kolivas.org, npiggin@suse.de,
-       mingo@elte.hu, rostedt@goodmis.org, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [rfc][patch] sched: remove smpnice
-References: <43ED3D6A.8010300@bigpond.net.au> <20060214010712.B20191@unix-os.sc.intel.com>
-In-Reply-To: <20060214010712.B20191@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 14 Feb 2006 22:40:33 +0000
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Siddha, Suresh B wrote:
-> On Fri, Feb 10, 2006 at 05:27:06PM -0800, Peter Williams wrote:
-> 
->>>"Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
->>>
->>>>My testing showed that 178.galgel in SPECfp2000 is down by 
->>
->>~10% when run with 
->>
->>>>nice -20 on a 4P(8-way with HT) system compared to a nice-0 run.
->>
->>Is it normal to run enough -20 tasks to cause this problem to manifest?
-> 
-> 
-> On a 4P(8-way with HT), if you run a -20 task(a simple infinite loop)
-> it hops from one processor to another processor... you can observe it
-> using top.
+On Tue, 14 Feb 2006, Joerg Schilling wrote:
+> Please send me the whitepaper that was used to define the interfaces
+> and functionality of the /sys device
 
-How do you get top to display which CPU tasks are running on?
+If you seriously think that development of *anything* in the free
+software world happens by means of whitepapers preceding definition, or
+indeed that anything major in the Unix world has ever worked that way,
+you're seriously deluded.
 
-> 
-> find_busiest_group() thinks there is an imbalance and ultimately the
-> idle cpu kicks active load balance on busy cpu, resulting in the hopping.
+> Please send me the other documentation (e.g. man pages) on the /sys
+> device
 
-I'm still having trouble getting my head around this.  A task shouldn't 
-be moved unless there's at least one other task on its current CPU, it 
-(the task to be moved) is cache cold and it (the task to be moved) is 
-not the currently active task.  In these circumstances, moving the task 
-to an idle CPU should be a "good thing" unless the time taken for the 
-move is longer than the time that will pass before the task becomes the 
-running task on its current CPU.
+Oh, I thought you had *access* to the kernel source. A trivial grep
+under the Documentation directory would find it (hint:
+Documentation/filesystems/ is a good place to start.)
 
-For a nice==-20 task to be hopping from CPU to CPU there must be higher 
-(or equal) priority tasks running on each of the CPUs that it gets 
-booted off at the time it gets booted off.
+If you actually wanted to *fix* your program --- if you cared more about
+users than being proved right no matter what --- then you'd have been
+able to determine that for yourself in seconds.
 
-> 
-> 
->>>>b) On a lightly loaded system, this can result in HT 
->>
->>scheduler optimizations
->>
->>>>being disabled in presence of low priority tasks... in this 
->>
->>case, they(low
->>
->>>>priority ones) can end up running on the same package, even 
->>
->>in the presence 
->>
->>>>of other idle packages.. Though this is not as serious as 
->>
->>"a" above...
->>
->>I think that this issue comes under the heading of "Result of better 
->>nice enforcement" which is the purpose of the patch :-).  I wouldn't 
->>call this HT disablement or do I misunderstand the issue.
->>
->>The only way that I can see load balancing subverting the HT 
->>scheduling 
->>mechanisms is if (say) there are 2 CPUs with 2 HT channels 
->>each and all 
->>of the high priority tasks end up sharing the 2 channels of one CPU 
->>while all of the low priority tasks share the 2 channels of the other 
->>one.  This scenario is far more likely to happen without the smpnice 
->>patches than with them.
-> 
-> 
-> I agree with you.. But lets take a DP system with HT, now if there are
-> only two low priority tasks running, ideally we should be running them
-> on two different packages. With this patch, we may end up running on the
-> same logical processor.. leave alone running on the same package..
-> As these are low priority tasks, it might be ok.. But...
+(But then we all know that's not what you're actually after.)
 
-Yes, this is an issue but it's not restricted to HT systems (except for 
-the same package part).  The latest patch that I've posted addresses 
-(part of) this problem by replacing SCHED_LOAD_SCALE with the average 
-load per runnable task in the code at the end of find_busiest_group() 
-which handles the case where imbalance is small.  This should enable 
-load balancing to occur even if all runnable tasks are low priority.
+> Please send me a statement on how long this interface will be maintained
+> inside Linux without breaking interfaces.
 
-The issue of the two tasks ending up on the same package isn't (as far 
-as I can see) caused by the smpnice load balancing changes.
+What a ridiculous request. If people use it, it won't be broken. If it
+proves unusable due to flaws, it will change. Sheesh.
 
-Peter
+(It is not as robust as the syscall interface, but it is still subject
+to some degree of change. A trivial google would have made this clear.)
+
+You appear not to understand the difference between development
+roadmapped for years in advance by a sclerotic corporation and free
+software development. Or perhaps you do understand, and are just being
+pointlessly contrary. (I expect the latter is true. You're not stupid.
+Just nasty.)
+
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+`... follow the bouncing internment camps.' --- Peter da Silva

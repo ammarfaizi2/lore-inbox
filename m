@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030370AbWBNF0I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030436AbWBNFYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030370AbWBNF0I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 00:26:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030460AbWBNF0H
+	id S1030436AbWBNFYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 00:24:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030457AbWBNFWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 00:26:07 -0500
-Received: from sv1.valinux.co.jp ([210.128.90.2]:8913 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S1030370AbWBNF0F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 00:26:05 -0500
-Date: Tue, 14 Feb 2006 14:26:04 +0900
-From: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
-To: "Suryanarayanan, Rajaram" <Rajaram.Suryanarayanan@in.unisys.com>
-Cc: vatsa@in.ibm.com, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net, balbir.singh@in.ibm.com
-Subject: Re: [ckrm-tech] [PATCH 1/2] add a CPU resource controller
-In-Reply-To: <88299102B8C1F54BB5C8E47F30B2FBE201E95CD2@inblr-exch1.eu.uis.unisys.com>
-References: <88299102B8C1F54BB5C8E47F30B2FBE201E95CD2@inblr-exch1.eu.uis.unisys.com>
-X-Mailer: Sylpheed version 2.2.0beta8 (GTK+ 2.8.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20060214052604.7EA9174031@sv1.valinux.co.jp>
+	Tue, 14 Feb 2006 00:22:20 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:9935 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1030365AbWBNFFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 00:05:03 -0500
+Message-Id: <20060214050443.468528000@localhost.localdomain>
+References: <20060214050351.252615000@localhost.localdomain>
+Date: Tue, 14 Feb 2006 14:04:00 +0900
+From: Akinobu Mita <mita@miraclelinux.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, Russell King <rmk@arm.linux.org.uk>,
+       Ian Molton <spyro@f2s.com>, David Howells <dhowells@redhat.com>,
+       Hirokazu Takata <takata@linux-m32r.org>,
+       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Akinobu Mita <mita@miraclelinux.com>
+Subject: [patch 09/47] generic ffz()
+Content-Disposition: inline; filename=ffz-bitops.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This patch introduces the C-language equivalent of the function:
+unsigned long ffz(unsigned long word);
 
-On Tue, 14 Feb 2006 10:30:13 +0530
-"Suryanarayanan, Rajaram" <Rajaram.Suryanarayanan@in.unisys.com> wrote:
+In include/asm-generic/bitops/ffz.h
 
-> Is this patch under discussion a new CPU resource controller for 2.6.15
-> ?
-> Or is it the modified version of the already existing resource
-> controller for CKRM ?
+This code largely copied from:
+include/asm-parisc/bitops.h
 
-It's not a forward port of the existing CPU resource controller 
-but a new CPU resource controller for CKRM.  Its resource control
-mechanism is different from that of the existing one.
+Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
+ include/asm-generic/bitops/ffz.h |   12 ++++++++++++
+ 1 files changed, 12 insertions(+)
 
-> I just want to know if you are coming up with a different idea for CPU
-> resource controller and whether we have choice between the existing
-> resource controller and this new one ? 
+Index: 2.6-rc/include/asm-generic/bitops/ffz.h
+===================================================================
+--- /dev/null
++++ 2.6-rc/include/asm-generic/bitops/ffz.h
+@@ -0,0 +1,12 @@
++#ifndef _ASM_GENERIC_BITOPS_FFZ_H_
++#define _ASM_GENERIC_BITOPS_FFZ_H_
++
++/*
++ * ffz - find first zero in word.
++ * @word: The word to search
++ *
++ * Undefined if no zero exists, so code should check against ~0UL first.
++ */
++#define ffz(x)  __ffs(~(x))
++
++#endif /* _ASM_GENERIC_BITOPS_FFZ_H_ */
 
-If someone forward-ports the existing controller for CKRM f- version,
-we will have a choice.
-
-Regards,
--- 
-KUROSAWA, Takahiro
+--

@@ -1,65 +1,221 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161038AbWBNUdU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161037AbWBNUfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161038AbWBNUdU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 15:33:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161046AbWBNUdU
+	id S1161037AbWBNUfi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 15:35:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWBNUfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 15:33:20 -0500
-Received: from nproxy.gmail.com ([64.233.182.203]:41529 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161038AbWBNUdT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 15:33:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=iJnhMEE0BfBuHHlzWM0qKovB6pFzq1C6IPF8TBMx85Pgb3Hhvi1gLSPhXgH6/xRw/cY9uPjgEK9HJELN1tY5ssyBwJ+jbQJF2wG7ZfRoWw5JRj3zlD7W5sRLZQZ7Su3aDJ6ntqP4aLWjRD3p/Ld8DRjlsWoo1ucZIme63WljcDo=
-Message-ID: <9871ee5f0602141233t3cf11775lcb6351f31d4f377e@mail.gmail.com>
-Date: Tue, 14 Feb 2006 15:33:17 -0500
-From: Timothy Miller <theosib@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: HELP: Problem with radeonfb setting wrong resolution
+	Tue, 14 Feb 2006 15:35:38 -0500
+Received: from odyssey.analogic.com ([204.178.40.5]:23312 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S932376AbWBNUfh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 15:35:37 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <s5hzmktaecj.wl%tiwai@suse.de>
+X-OriginalArrivalTime: 14 Feb 2006 20:35:29.0781 (UTC) FILETIME=[31E12A50:01C631A6]
+Content-class: urn:content-classes:message
+Subject: Re: [PATCH] Add cast to __iomem pointer in scsi drivers
+Date: Tue, 14 Feb 2006 15:35:29 -0500
+Message-ID: <Pine.LNX.4.61.0602141530420.32364@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] Add cast to __iomem pointer in scsi drivers
+thread-index: AcYxpjHoGZxYhPneTcCm135B006uxw==
+References: <s5hzmktaecj.wl%tiwai@suse.de>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Takashi Iwai" <tiwai@suse.de>
+Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I humbly apologize if it is inappropriate for me to post this question
-here.  I'm not subscribed, and I haven't been in a while.  I've
-googled around for answers to this, but I don't find anything that
-directly addresses the issue I'm seeing.  Please cc me.
 
-I'm installing a new Gentoo box, and I have configured the
-2.6.12-gentoo-r6 kernel.
+On Tue, 14 Feb 2006, Takashi Iwai wrote:
 
-Here's what I have enabled:
+> Add the missing cast to __iomem pointer in some scsi drivers.
+>
+> Signed-off-by: Takashi Iwai <tiwai@suse.de>
+>
+> ---
+> drivers/scsi/megaraid.c |    8 ++++----
+> drivers/scsi/sata_svw.c |   41 +++++++++++++++++++++++------------------
+> drivers/scsi/sata_vsc.c |   43 ++++++++++++++++++++++++-------------------
+> 3 files changed, 51 insertions(+), 41 deletions(-)
+>
+> diff --git a/drivers/scsi/megaraid.c b/drivers/scsi/megaraid.c
+> index d101a8a..13c9395 100644
+> --- a/drivers/scsi/megaraid.c
+> +++ b/drivers/scsi/megaraid.c
+> @@ -72,10 +72,10 @@ static unsigned short int max_mbox_busy_
+> module_param(max_mbox_busy_wait, ushort, 0);
+> MODULE_PARM_DESC(max_mbox_busy_wait, "Maximum wait for mailbox in microseconds if busy (default=MBOX_BUSY_WAIT=10)");
+>
+> -#define RDINDOOR(adapter)		readl((adapter)->base + 0x20)
+> -#define RDOUTDOOR(adapter)		readl((adapter)->base + 0x2C)
+> -#define WRINDOOR(adapter,value)		writel(value, (adapter)->base + 0x20)
+> -#define WROUTDOOR(adapter,value)	writel(value, (adapter)->base + 0x2C)
+> +#define RDINDOOR(adapter)		readl((void __iomem *)((adapter)->base + 0x20))
+> +#define RDOUTDOOR(adapter)		readl((void __iomem *)((adapter)->base + 0x2C))
+> +#define WRINDOOR(adapter,value)		writel(value, (void __iomem *)((adapter)->base + 0x20))
+> +#define WROUTDOOR(adapter,value)	writel(value, (void __iomem *)((adapter)->base + 0x2C))
+>
+> /*
+>  * Global variables
+> diff --git a/drivers/scsi/sata_svw.c b/drivers/scsi/sata_svw.c
+> index d847256..862a3ba 100644
+> --- a/drivers/scsi/sata_svw.c
+> +++ b/drivers/scsi/sata_svw.c
+> @@ -110,26 +110,31 @@ static void k2_sata_tf_load(struct ata_p
+> 	unsigned int is_addr = tf->flags & ATA_TFLAG_ISADDR;
+>
+> 	if (tf->ctl != ap->last_ctl) {
+> -		writeb(tf->ctl, ioaddr->ctl_addr);
+> +		writeb(tf->ctl, (void __iomem *) ioaddr->ctl_addr);
+> 		ap->last_ctl = tf->ctl;
+> 		ata_wait_idle(ap);
+> 	}
+> 	if (is_addr && (tf->flags & ATA_TFLAG_LBA48)) {
+> -		writew(tf->feature | (((u16)tf->hob_feature) << 8), ioaddr->feature_addr);
+> -		writew(tf->nsect | (((u16)tf->hob_nsect) << 8), ioaddr->nsect_addr);
+> -		writew(tf->lbal | (((u16)tf->hob_lbal) << 8), ioaddr->lbal_addr);
+> -		writew(tf->lbam | (((u16)tf->hob_lbam) << 8), ioaddr->lbam_addr);
+> -		writew(tf->lbah | (((u16)tf->hob_lbah) << 8), ioaddr->lbah_addr);
+> +		writew(tf->feature | (((u16)tf->hob_feature) << 8),
+> +		       (void __iomem *) ioaddr->feature_addr);
+> +		writew(tf->nsect | (((u16)tf->hob_nsect) << 8),
+> +		       (void __iomem *) ioaddr->nsect_addr);
+> +		writew(tf->lbal | (((u16)tf->hob_lbal) << 8),
+> +		       (void __iomem *) ioaddr->lbal_addr);
+> +		writew(tf->lbam | (((u16)tf->hob_lbam) << 8),
+> +		       (void __iomem *) ioaddr->lbam_addr);
+> +		writew(tf->lbah | (((u16)tf->hob_lbah) << 8),
+> +		       (void __iomem *) ioaddr->lbah_addr);
+> 	} else if (is_addr) {
+> -		writew(tf->feature, ioaddr->feature_addr);
+> -		writew(tf->nsect, ioaddr->nsect_addr);
+> -		writew(tf->lbal, ioaddr->lbal_addr);
+> -		writew(tf->lbam, ioaddr->lbam_addr);
+> -		writew(tf->lbah, ioaddr->lbah_addr);
+> +		writew(tf->feature, (void __iomem *) ioaddr->feature_addr);
+> +		writew(tf->nsect, (void __iomem *) ioaddr->nsect_addr);
+> +		writew(tf->lbal, (void __iomem *) ioaddr->lbal_addr);
+> +		writew(tf->lbam, (void __iomem *) ioaddr->lbam_addr);
+> +		writew(tf->lbah, (void __iomem *) ioaddr->lbah_addr);
+> 	}
+>
+> 	if (tf->flags & ATA_TFLAG_DEVICE)
+> -		writeb(tf->device, ioaddr->device_addr);
+> +		writeb(tf->device, (void __iomem *) ioaddr->device_addr);
+>
+> 	ata_wait_idle(ap);
+> }
+> @@ -141,12 +146,12 @@ static void k2_sata_tf_read(struct ata_p
+> 	u16 nsect, lbal, lbam, lbah, feature;
+>
+> 	tf->command = k2_stat_check_status(ap);
+> -	tf->device = readw(ioaddr->device_addr);
+> -	feature = readw(ioaddr->error_addr);
+> -	nsect = readw(ioaddr->nsect_addr);
+> -	lbal = readw(ioaddr->lbal_addr);
+> -	lbam = readw(ioaddr->lbam_addr);
+> -	lbah = readw(ioaddr->lbah_addr);
+> +	tf->device = readw((void __iomem *) ioaddr->device_addr);
+> +	feature = readw((void __iomem *) ioaddr->error_addr);
+> +	nsect = readw((void __iomem *) ioaddr->nsect_addr);
+> +	lbal = readw((void __iomem *) ioaddr->lbal_addr);
+> +	lbam = readw((void __iomem *) ioaddr->lbam_addr);
+> +	lbah = readw((void __iomem *) ioaddr->lbah_addr);
+>
+> 	tf->feature = feature;
+> 	tf->nsect = nsect;
+> diff --git a/drivers/scsi/sata_vsc.c b/drivers/scsi/sata_vsc.c
+> index 2e2c3b7..cacacc5 100644
+> --- a/drivers/scsi/sata_vsc.c
+> +++ b/drivers/scsi/sata_vsc.c
+> @@ -130,21 +130,26 @@ static void vsc_sata_tf_load(struct ata_
+> 		vsc_intr_mask_update(ap, tf->ctl & ATA_NIEN);
+> 	}
+> 	if (is_addr && (tf->flags & ATA_TFLAG_LBA48)) {
+> -		writew(tf->feature | (((u16)tf->hob_feature) << 8), ioaddr->feature_addr);
+> -		writew(tf->nsect | (((u16)tf->hob_nsect) << 8), ioaddr->nsect_addr);
+> -		writew(tf->lbal | (((u16)tf->hob_lbal) << 8), ioaddr->lbal_addr);
+> -		writew(tf->lbam | (((u16)tf->hob_lbam) << 8), ioaddr->lbam_addr);
+> -		writew(tf->lbah | (((u16)tf->hob_lbah) << 8), ioaddr->lbah_addr);
+> +		writew(tf->feature | (((u16)tf->hob_feature) << 8),
+> +		       (void __iomem *) ioaddr->feature_addr);
+> +		writew(tf->nsect | (((u16)tf->hob_nsect) << 8),
+> +		       (void __iomem *) ioaddr->nsect_addr);
+> +		writew(tf->lbal | (((u16)tf->hob_lbal) << 8),
+> +		       (void __iomem *) ioaddr->lbal_addr);
+> +		writew(tf->lbam | (((u16)tf->hob_lbam) << 8),
+> +		       (void __iomem *) ioaddr->lbam_addr);
+> +		writew(tf->lbah | (((u16)tf->hob_lbah) << 8),
+> +		       (void __iomem *) ioaddr->lbah_addr);
+> 	} else if (is_addr) {
+> -		writew(tf->feature, ioaddr->feature_addr);
+> -		writew(tf->nsect, ioaddr->nsect_addr);
+> -		writew(tf->lbal, ioaddr->lbal_addr);
+> -		writew(tf->lbam, ioaddr->lbam_addr);
+> -		writew(tf->lbah, ioaddr->lbah_addr);
+> +		writew(tf->feature, (void __iomem *) ioaddr->feature_addr);
+> +		writew(tf->nsect, (void __iomem *) ioaddr->nsect_addr);
+> +		writew(tf->lbal, (void __iomem *) ioaddr->lbal_addr);
+> +		writew(tf->lbam, (void __iomem *) ioaddr->lbam_addr);
+> +		writew(tf->lbah, (void __iomem *) ioaddr->lbah_addr);
+> 	}
+>
+> 	if (tf->flags & ATA_TFLAG_DEVICE)
+> -		writeb(tf->device, ioaddr->device_addr);
+> +		writeb(tf->device, (void __iomem *) ioaddr->device_addr);
+>
+> 	ata_wait_idle(ap);
+> }
+> @@ -156,12 +161,12 @@ static void vsc_sata_tf_read(struct ata_
+> 	u16 nsect, lbal, lbam, lbah, feature;
+>
+> 	tf->command = ata_check_status(ap);
+> -	tf->device = readw(ioaddr->device_addr);
+> -	feature = readw(ioaddr->error_addr);
+> -	nsect = readw(ioaddr->nsect_addr);
+> -	lbal = readw(ioaddr->lbal_addr);
+> -	lbam = readw(ioaddr->lbam_addr);
+> -	lbah = readw(ioaddr->lbah_addr);
+> +	tf->device = readw((void __iomem *) ioaddr->device_addr);
+> +	feature = readw((void __iomem *) ioaddr->error_addr);
+> +	nsect = readw((void __iomem *) ioaddr->nsect_addr);
+> +	lbal = readw((void __iomem *) ioaddr->lbal_addr);
+> +	lbam = readw((void __iomem *) ioaddr->lbam_addr);
+> +	lbah = readw((void __iomem *) ioaddr->lbah_addr);
+>
+> 	tf->feature = feature;
+> 	tf->nsect = nsect;
+> @@ -279,8 +284,8 @@ static void __devinit vsc_sata_setup_por
+> 	port->ctl_addr		= base + VSC_SATA_TF_CTL_OFFSET;
+> 	port->bmdma_addr	= base + VSC_SATA_DMA_CMD_OFFSET;
+> 	port->scr_addr		= base + VSC_SATA_SCR_STATUS_OFFSET;
+> -	writel(0, base + VSC_SATA_UP_DESCRIPTOR_OFFSET);
+> -	writel(0, base + VSC_SATA_UP_DATA_BUFFER_OFFSET);
+> +	writel(0, (void __iomem *) (base + VSC_SATA_UP_DESCRIPTOR_OFFSET));
+> +	writel(0, (void __iomem *) (base + VSC_SATA_UP_DATA_BUFFER_OFFSET));
+> }
 
-+ Support for framebuffer devices
-+ ATI Radeon display support
-+ DDC/I2C for ATI Radeon support
-+ Lots of debug output from Radeon drive
-+ VGA text console
-+ Framebuffer Console support
 
-In the grub.conf file, I have this at the end of the kernel line:
+With all these casts, doesn't it point out that something is wrong
+with writel(), writew(), readl(), and readw() ??? The cast's to
+volatile types should be within the macros, not scattered
+throughout everyone's driver code!
 
-video=radeonfb:1024x768
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.66 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+_
+
 
-When booting up, radeonfb finds the device (A Radeon 7000 PCI card),
-the monitor flickers for a second, and then what I get is a 640x480
-screen, but the kernel seems to think it's 1024x768, because text goes
-off the screen.
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-I've googled for this, but what I find is old stuff where people are
-complaining about seeing a higher resolution than the one they asked
-for.  I'm getting a LOWER resolution.
-
-I can't figure out what I'm doing wrong, but there are no kernel error
-messages that tell me anything has gone wrong.
-
-Can anyone help me figure out what I'm doing wrong here?  BTW, the
-monitor is a 19" NEC.  No chance that the monitor reports via DDC that
-it can't do 1024x768.
-
-Thanks.
+Thank you.

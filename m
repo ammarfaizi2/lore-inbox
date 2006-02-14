@@ -1,99 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422732AbWBNSAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422731AbWBNSAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422732AbWBNSAm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 13:00:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422733AbWBNSAm
+	id S1422731AbWBNSAk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 13:00:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422732AbWBNSAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 13:00:42 -0500
-Received: from rtr.ca ([64.26.128.89]:18372 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1422732AbWBNSAl (ORCPT
+	Tue, 14 Feb 2006 13:00:40 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:37794 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1422731AbWBNSAj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 13:00:41 -0500
-From: Mark Lord <lkml@rtr.ca>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Subject: Re: LibPATA code issues / 2.6.15.4
-Date: Tue, 14 Feb 2006 13:00:36 -0500
-User-Agent: KMail/1.9.1
-Cc: David Greaves <david@dgreaves.com>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34>
-In-Reply-To: <Pine.LNX.4.64.0602141211350.10793@p34>
+	Tue, 14 Feb 2006 13:00:39 -0500
+Date: Tue, 14 Feb 2006 19:00:11 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+cc: dhazelton@enter.net, seanlkml@sympatico.ca, sam@vilain.net,
+       peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
+       luke@dashjr.org, lkml@dervishd.net, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+In-Reply-To: <43F206D4.nailMWZJIUTRR@burner>
+Message-ID: <Pine.LNX.4.61.0602141859060.32490@yvahk01.tjqt.qr>
+References: <43EB7BBA.nailIFG412CGY@burner> <200602131749.46880.luke@dashjr.org>
+ <43F1BB4C.nailMWZ118O17@burner> <200602140708.07746.dhazelton@enter.net>
+ <43F206D4.nailMWZJIUTRR@burner>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602141300.37118.lkml@rtr.ca>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 February 2006 12:12, Justin Piszcz wrote:
-> I would like to try the patch too, if available.
+>
+>I did send a fix for an important bug in 1997 and it was NOT integraded by
+>the Linux kernel people.
+>
+Resend it. I also see that some of my patches/compilefixes don't make it 
+into the main tree at first time.
 
-Something like this:  (for 2.6.16-rc3-git2, but should be okay on 2.6.15 also).
 
-Untested:  include the original SCSI opcode in printk's for libata SCSI errors,
-to help understand where the errors are coming from.
 
-Signed-Off-By:  Mark Lord <mlord@pobox.com>
-
---- linux/drivers/scsi/libata-scsi.c.orig	2006-02-12 19:27:25.000000000 -0500
-+++ linux/drivers/scsi/libata-scsi.c	2006-02-14 12:54:17.000000000 -0500
-@@ -420,6 +420,7 @@
-  *	@sk: the sense key we'll fill out
-  *	@asc: the additional sense code we'll fill out
-  *	@ascq: the additional sense code qualifier we'll fill out
-+ *	@opcode: the original SCSI command opcode byte
-  *
-  *	Converts an ATA error into a SCSI error.  Fill out pointers to
-  *	SK, ASC, and ASCQ bytes for later use in fixed or descriptor
-@@ -429,7 +430,7 @@
-  *	spin_lock_irqsave(host_set lock)
-  */
- void ata_to_sense_error(unsigned id, u8 drv_stat, u8 drv_err, u8 *sk, u8 *asc, 
--			u8 *ascq)
-+			u8 *ascq, u8 opcode)
- {
- 	int i;
- 
-@@ -508,8 +509,8 @@
- 		}
- 	}
- 	/* No error?  Undecoded? */
--	printk(KERN_WARNING "ata%u: no sense translation for status: 0x%02x\n", 
--	       id, drv_stat);
-+	printk(KERN_WARNING "ata%u: no sense translation for op=0x%02x status: 0x%02x\n", 
-+	       id, opcode, drv_stat);
- 
- 	/* For our last chance pick, use medium read error because
- 	 * it's much more common than an ATA drive telling you a write
-@@ -520,8 +521,8 @@
- 	*ascq = 0x04; /*  "auto-reallocation failed" */
- 
-  translate_done:
--	printk(KERN_ERR "ata%u: translated ATA stat/err 0x%02x/%02x to "
--	       "SCSI SK/ASC/ASCQ 0x%x/%02x/%02x\n", id, drv_stat, drv_err,
-+	printk(KERN_ERR "ata%u: translated op=0x%02x ATA stat/err 0x%02x/%02x to "
-+	       "SCSI SK/ASC/ASCQ 0x%x/%02x/%02x\n", id, opcode, drv_stat, drv_err,
- 	       *sk, *asc, *ascq);
- 	return;
- }
-@@ -562,7 +563,7 @@
- 	 */
- 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
- 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
--				   &sb[1], &sb[2], &sb[3]);
-+				   &sb[1], &sb[2], &sb[3], cmd->cmnd[0]);
- 		sb[1] &= 0x0f;
- 	}
- 
-@@ -637,7 +638,7 @@
- 	 */
- 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
- 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
--				   &sb[2], &sb[12], &sb[13]);
-+				   &sb[2], &sb[12], &sb[13], cmd->cmnd[0]);
- 		sb[2] &= 0x0f;
- 	}
- 
+Jan Engelhardt
+-- 

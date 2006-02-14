@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422641AbWBNQpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422646AbWBNQrl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422641AbWBNQpA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 11:45:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422642AbWBNQpA
+	id S1422646AbWBNQrl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 11:47:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422645AbWBNQrk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 11:45:00 -0500
-Received: from mail.gmx.de ([213.165.64.21]:3220 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1422641AbWBNQo7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 11:44:59 -0500
-X-Authenticated: #428038
-Date: Tue, 14 Feb 2006 17:44:55 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060214164455.GA7860@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <43EB7BBA.nailIFG412CGY@burner> <200602131749.46880.luke@dashjr.org> <43F1BB4C.nailMWZ118O17@burner> <200602140708.07746.dhazelton@enter.net> <43F206D4.nailMWZJIUTRR@burner>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43F206D4.nailMWZJIUTRR@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+	Tue, 14 Feb 2006 11:47:40 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:1155 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1422643AbWBNQrj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 11:47:39 -0500
+Subject: Re: [PATCH] ide: Allow IDE interface to specify its not capable of
+	32-bit operations
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0602141022000.27351-100000@gate.crashing.org>
+References: <Pine.LNX.4.44.0602141022000.27351-100000@gate.crashing.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 14 Feb 2006 16:50:28 +0000
+Message-Id: <1139935828.10394.44.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-02-14:
+On Maw, 2006-02-14 at 10:22 -0600, Kumar Gala wrote:
+> In some embedded systems the IDE hardware interface may only support 16-bit
+> or smaller accesses.  Allow the interface to specify if this is the case
+> and don't allow the drive or user to override the setting.
 
-> "D. Hazelton" <dhazelton@enter.net> wrote:
-> 
-> 
-> > As I'm sure you know, Linux is an Open Source operating system. If you need it 
-> > to support DMA in the ide-scsi system, then you are free to add said support. 
-> 
-> It seems that you did missunderstand Linux:
-> 
-> I did send a fix for an important bug in 1997 and it was NOT integraded by
-> the Linux kernel people.
+The "no_io_32bit" is just a dead leftover. It has no effect at all
+anyway so this patch is a bit pointless.
 
-Wow, 9 years ago. Was it for 2.0 already or still 1.2?
 
-Does the bug persist in 2.6.16-rc3? If so, resend your fix.
 
-> As long as the Linux project proves that Linux is not yet mature enough for 
-> being able to _really_ do what you propose, it makes no sense to waste time
-> on LKML.
+Do a grep over the code for no_io_32bit and you will see its essentially
+a private variable in the CMD640 driver.
 
-An action speaks louder than 1000 words. When are you leaving?
-
--- 
-Matthias Andree

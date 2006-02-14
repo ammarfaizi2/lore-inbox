@@ -1,66 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbWBNGCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030475AbWBNGGU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030473AbWBNGCF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 01:02:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030475AbWBNGCF
+	id S1030475AbWBNGGU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 01:06:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030477AbWBNGGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 01:02:05 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57837 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030473AbWBNGCD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 01:02:03 -0500
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Kirill Korotaev <dev@sw.ru>, linux-kernel@vger.kernel.org,
-       vserver@list.linux-vserver.org, Herbert Poetzl <herbert@13thfloor.at>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: [RFC][PATCH 04/20] pspace: Allow multiple instaces of the
- process id namespace
-References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
-	<m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>
-	<m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1fymwmgk0.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1bqxkmgcv.fsf_-_@ebiederm.dsl.xmission.com> <43ECF803.8080404@sw.ru>
-	<m1psluw1jj.fsf@ebiederm.dsl.xmission.com> <43F04FD6.5090603@sw.ru>
-	<20060213170207.GB24200@sergelap.austin.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 13 Feb 2006 22:59:35 -0700
-In-Reply-To: <20060213170207.GB24200@sergelap.austin.ibm.com> (Serge E.
- Hallyn's message of "Mon, 13 Feb 2006 11:02:07 -0600")
-Message-ID: <m1slqmtr94.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 14 Feb 2006 01:06:20 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:53163 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1030475AbWBNGGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 01:06:19 -0500
+Message-ID: <43F172BA.1020405@jp.fujitsu.com>
+Date: Tue, 14 Feb 2006 15:03:38 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>
+Subject: [RFC][PATCH 0/4] PCI legacy I/O port free driver
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This seems a very valid point.  And even if you implement code to detect
-> when a process exits whether it is a child_reaper for some pspace, you
-> can't just make pspace->child_reaper = pspace->child_reaper->child_reaper,
-> as the wid may not be valid in the grandparent's namespace, right?
+Hi,
 
-Right. What I have done is in the PSPACE_EXIT condition all children
-when they die self reap and have the global process reaper set to their
-parent.  However since exit_signal == -1 the initial process reaper
-never sees them.
+I encountered a problem that some PCI devices don't work on my system
+which have huge number of PCI devices.
 
-Even for a nested pspace I figure it is an error for anything to outlive
-init.  The wid not working is a valid reason for this however if it was
-really necessary a new wid value could be allocated.  As nothing on
-the inside of a pspace is directly aware of it. 
+It is mandatory for all PCI device drivers to enable the device by
+calling pci_enable_device() which enables all regions probed from the
+device's BARs. If pci_enable_device() failes to enable any regions
+probed from BARs, it returns as error. On the large servers, I/O port
+resource could not be assigned to all PCI devices because it is
+limited (64KB on Intel Architecture[1]) and it would be fragmented
+(I/O base register of PCI-to-PCI bridge will usually be aligned to a
+4KB boundary[2]). In this case, the devices which have no I/O port
+resource assigned don't work because pci_enable_device() for those
+devices failes. This is what happened on my machine.
+---
+[1]: Some machines support 64KB I/O port space per PCI segment.
+[2]: Some P2P bridges support optional 1KB aligned I/O base.
 
-The situation is very similar to being behind a NAT firewall.
+Here, there are many PCI devices that provide both I/O port and MMIO
+interface, and some of those devices can be handled without using I/O
+port interface. The reason why such devices provide I/O port interface
+is for compatibility to legacy OSs. So this kind of devices should
+work even if enough I/O port resources are not assigned. The "PCI
+Local Bus Specification Revision 3.0" also mentions about this topic
+(Please see p.44, "IMPLEMENTATION NOTE"). On the current linux,
+unfortunately, this kind of devices don't work if I/O port resources
+are not assigned, because pci_enable_device() for those devices fails.
 
-Eric
+To solve this problem, this series of patches introduces a new
+interface pci_set_bar_mask() and pci_set_bar_mask_by_resource() for
+PCI device drivers to tell the kernel what regions they really want to
+use. Once the driver call pci_set_bar_mask*(), following
+pci_enable_device() and pci_request_regions() call handles only the
+specific regions. If the driver doesn't use pci_set_bar_mask*(),
+pci_enable_device() and pci_request_regions() handle all regions as
+they currently are. By using pci_set_bar_mask*(), we can make PCI
+drivers legacy I/O port free with very small change.
+
+I'm attaching the following four patches:
+
+    [patch 1/4] Inntroduce pci_set_bar_mask*()
+    [patch 2/4] Update Documantion/pci.txt
+    [patch 3/4] Make Intel e1000 driver legacy I/O port free
+    [patch 4/4] Make Emulex lpfc driver legacy I/O port free
+
+I would very much appreciate giving me any comments and suggestions.
+
+Thanks,
+Kenji Kaneshige

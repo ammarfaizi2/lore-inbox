@@ -1,76 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030579AbWBNOJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030578AbWBNOQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030579AbWBNOJt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 09:09:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030578AbWBNOJt
+	id S1030578AbWBNOQE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 09:16:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030581AbWBNOQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 09:09:49 -0500
-Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:46467 "EHLO
-	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id S1030579AbWBNOJs convert rfc822-to-8bit (ORCPT
+	Tue, 14 Feb 2006 09:16:04 -0500
+Received: from smtpout07-01.prod.mesa1.secureserver.net ([64.202.165.230]:33438
+	"HELO smtpout07-04.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S1030578AbWBNOQD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 09:09:48 -0500
-From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: Roman Zippel <zippel@linux-m68k.org>
-Date: Tue, 14 Feb 2006 15:09:39 +0100
+	Tue, 14 Feb 2006 09:16:03 -0500
+From: hackmiester / Hunter Fuller <hackmiester@hackmiester.com>
+Reply-To: hackmiester@hackmiester.com
+Organization: hackmiester.com, Ltd.
+To: Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Flames over -- Re: Which is simpler?
+Date: Tue, 14 Feb 2006 08:15:41 -0600
+User-Agent: KMail/1.8
+References: <Pine.LNX.4.44L0.0602122104330.20351-100000@netrider.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0602122104330.20351-100000@netrider.rowland.org>
+X-Face: #pm4uI.4%U/S1i<i'(UPkahbf^inZ;WOH{EKM,<n/P;R5m8#`2&`HN`hB;ht_>oJYRGD3o
+	)AM
 MIME-Version: 1.0
-Subject: Re: time patches by Roman Zippel
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <43F1F2B4.7205.6BBE301@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
-In-reply-to: <Pine.LNX.4.61.0602141400140.9696@scrub.home>
-References: <43F195DF.23967.551458C@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
-X-mailer: Pegasus Mail for Windows (4.31)
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
-Content-description: Mail message body
-X-Content-Conformance: HerringScan-0.25/Sophos-P=4.02.0+V=4.02+U=2.07.127+R=06 February 2006+T=118674@20060214.140926Z
+Message-Id: <200602140815.44008.hackmiester@hackmiester.com>
+Content-Type: multipart/signed;
+  boundary="nextPart1139930704.RnJvuABIDx";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 Feb 2006 at 14:21, Roman Zippel wrote:
+--nextPart1139930704.RnJvuABIDx
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Hi,
-> 
-> On Tue, 14 Feb 2006, Ulrich Windl wrote:
-> 
-> > 15_time_offset and 18_time_freq change some well-known constants (like MAXPHASE)
-> > by three orders of magnitude.
+On Sunday 12 February 2006 20:19, Alan Stern wrote:
+> On Sun, 12 Feb 2006, Phillip Susi wrote:
+> > Alan Stern wrote:
+> > > Both of you are missing an important difference between Suspend-to-RAM
+> > > and Suspend-to-Disk.
+> > >
+> > > Suspend-to-RAM is a true suspend operation, in that the hardware's
+> > > state is maintained _in the hardware_.  External buses like USB will
+> > > retain suspend power, for instance (assuming the motherboard supports
+> > > it; some don't).
+> > >
+> > > Suspend-to-Disk, by contrast, is _not_ a true suspend.  It can more
+> > > accurately be described as checkpoint-and-turn-off.  Hardware state is
+> > > not maintained.  (Some systems may support a special ACPI state that
+> > > does maintain suspend power to external buses during shutdown, I forg=
+et
+> > > what it's called.  And I down't know whether swsusp uses this state.)
+> >
+> > I would disagree.  The only difference between the two is WHERE the
+> > state is maintained - ram vs. disk.  I won't really argue it though,
+> > because it's just semantics -- call it whatever you want.
+>
+> It's not just semantics.  There's a real difference between maintaining
+> state in the hardware and maintaining it somewhere else.  The biggest
+> difference is that if the hardware retains suspend power, it is able to
+> detect disconnections.  When the system resumes, it _knows_ whether a
+> device was attached the entire time, as opposed to being unplugged and
+> replugged (or possibly a different device plugged in!) while the system
+> was asleep.  If the hardware is down completely, there is no way of
+> telling for certain whether a device attached to some port is the same one
+> that was there when the system got suspended.
+>
+> Another difference is the possibility of remote wakeup.  Clearly it can't
+> happen when there's no power available.
 
---- linux-2.6-mm.orig/include/linux/timex.h	2005-12-21 12:12:00.000000000 +0100
-+++ linux-2.6-mm/include/linux/timex.h	2005-12-21 12:12:08.000000000 +0100
-@@ -95,11 +95,11 @@
- #define SHIFT_USEC 16		/* frequency offset scale (shift) */
- #define FINENSEC (1L << SHIFT_SCALE) /* ~1 ns in phase units */
- 
--#define MAXPHASE 512000L        /* max phase error (us) */
-+#define MAXPHASE 500000000L	/* max phase error (ns) */
- #define MAXFREQ (512L << SHIFT_USEC)  /* max frequency error (ppm) */
- #define MINSEC 16L              /* min interval between updates (s) */
- #define MAXSEC 1200L            /* max interval between updates (s) */
--#define	NTP_PHASE_LIMIT	(MAXPHASE << 5)	/* beyond max. dispersion */
-+#define NTP_PHASE_LIMIT	((MAXPHASE / 1000) << 5) /* beyond max. dispersion */
+Well... sort of. I know that my notebook can be brought up over LAN when it=
+ is=20
+off - suspended to disk or otherwise.
+>
+> > > So for example, let's say you have a filesystem mounted on a USB flash
+> > > or disk drive.  With Suspend-to-RAM, there's a very good chance that
+> > > the connection and filesystem will still be intact when you resume.=20
+> > > With Suspend-to-Disk, the USB connection will terminate when the
+> > > computer shuts down.  When you resume, the device will be gone and yo=
+ur
+> > > filesystem will be screwed.
+> >
+> > This is not true.  The USB bus is shut down either way, and provided
+> > that you have not unplugged the disk, nothing will be screwed when you
+> > resume from disk or ram.
+>
+> Have you actually tried it?  I have.
+>
+> In any case, it is undeniably true that if the bus is shut down then all
+> the USB connections are lost.  When you resume it will be the same as if
+> you had unplugged all the USB devices and then replugged them.  Not a good
+> thing to do when they contain mounted filesystems; all the memory mappings
+> are invalidated.
 
+It all depends on the machine I guess. Mine keeps even the CD drive running=
+=20
+when it's off!
+>
+> (Bear in mind that whether a USB bus gets shut down depends on the
+> motherboard; some supply suspend power and some don't.  It depends on the
+> USB controller too; some support low-power states other than "completely
+> off" and others don't.)
+>
+> Alan Stern
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-> > 
-> > the new adjtime() (16_time_adjust, 12_time_adj) changes the semantics: Since about
-> > Linux 0.99, adjtime() had the adjtime_is_accurate property, i.e. on the long term
-> > it behaved like an addition.
-> 
-> I disagree, could you please explain how you come to this conclusion?
+=2D-=20
+=2D-hackmiester
+If you can read this, you don't need glasses.
 
-+			tick_nsec_curr += time_adjust * 1000 / HZ;
+--nextPart1139930704.RnJvuABIDx
+Content-Type: application/pgp-signature
 
-Assuming 1024Hz interrupt frequency:
-(1탎 * 1000) / 1024 == 0ns; 0 * 1024 == 0탎, not 1탎
-(2탎 * 1000) / 1024 == 1ns; 1 * 1024 == 1.024탎, not 2탎
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-> The patches don't change the behaviour beyond that they increase 
-> resolution and precision. Only the final patch changes the ntp code to 
-> match the behaviour of ntp reference code without including all its mess.
+iD8DBQBD8eYP3ApzN91C7BcRAiiwAJ47jd9Mr51z7Aoi+2VCfyNJsG4nlACfbvFW
+kNNU40Z/KXm1cdpVyF7ly0U=
+=DUmM
+-----END PGP SIGNATURE-----
 
-It's quite hard to tell: The code is very different what I've ever seen.
-
-Regards,
-Ulrich
-
+--nextPart1139930704.RnJvuABIDx--

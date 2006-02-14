@@ -1,151 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030500AbWBNGvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbWBNGwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030500AbWBNGvo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 01:51:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030501AbWBNGvo
+	id S1030420AbWBNGwp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 01:52:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030501AbWBNGwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 01:51:44 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:41882 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1030500AbWBNGvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 01:51:43 -0500
-Subject: [PATCH] don't use cpuid.2 to determine cache info if cpuid.4 is
-	supported
-From: Shaohua Li <shaohua.li@intel.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
-Content-Type: text/plain
-Date: Tue, 14 Feb 2006 14:51:07 +0800
-Message-Id: <1139899867.2750.8.camel@sli10-desk.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Feb 2006 01:52:45 -0500
+Received: from taurus.voltaire.com ([193.47.165.240]:7801 "EHLO
+	taurus.voltaire.com") by vger.kernel.org with ESMTP
+	id S1030420AbWBNGwo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 01:52:44 -0500
+Date: Tue, 14 Feb 2006 08:51:45 +0200
+From: Gleb Natapov <gleb@minantech.com>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Hugh Dickins <hugh@veritas.com>, William Irwin <wli@holomorphy.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       openib-general@openib.org
+Subject: Re: madvise MADV_DONTFORK/MADV_DOFORK
+Message-ID: <20060214065145.GE24524@minantech.com>
+References: <20060213154114.GO32041@mellanox.co.il> <Pine.LNX.4.61.0602131754430.8653@goblin.wat.veritas.com> <20060213190206.GC12458@mellanox.co.il>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060213190206.GC12458@mellanox.co.il>
+X-OriginalArrivalTime: 14 Feb 2006 06:52:43.0123 (UTC) FILETIME=[410EF430:01C63133]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't use cpuid.2 to determine cache info if cpuid.4 is supported. The
-exception is P4 trace cache. We always use cpuid.2 to get trace cache
-under P4.
+On Mon, Feb 13, 2006 at 09:02:06PM +0200, Michael S. Tsirkin wrote:
+> Quoting r. Hugh Dickins <hugh@veritas.com>:
+> > > Add madvise options to control whether memory range is inherited across fork.
+> > > Useful e.g. for when hardware is doing DMA from/into these pages.
+> > > 
+> > > Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+> > 
+> > Looks good to me, Michael (but Gleb's eye has always proved better than
+> > mine).  Just a couple of adjustments I'd ask before you send to Andrew: 
+> 
+> Gleb has acked this to me in a private mail.
+> Right, Gleb?
+> 
+Sory to be late :)
 
-Signed-off-by: Shaohua Li <shaohua.li@intel.com>
----
+Yes the patch is looking good.
 
- linux-2.6.16-rc2-root/arch/i386/kernel/cpu/intel_cacheinfo.c |   63 +++++------
- 1 files changed, 30 insertions(+), 33 deletions(-)
+Acked-by: Gleb Natapov <glebn@voltaire.com>
 
-diff -puN arch/i386/kernel/cpu/intel_cacheinfo.c arch/i386/kernel/cpu/intel_cacheinfo.c
---- linux-2.6.16-rc2/arch/i386/kernel/cpu/intel_cacheinfo.c	2006-02-10 09:54:21.000000000 +0800
-+++ linux-2.6.16-rc2-root/arch/i386/kernel/cpu/intel_cacheinfo.c	2006-02-13 11:44:07.000000000 +0800
-@@ -170,8 +170,7 @@ static int __init find_num_cache_leaves(
- unsigned int __cpuinit init_intel_cacheinfo(struct cpuinfo_x86 *c)
- {
- 	unsigned int trace = 0, l1i = 0, l1d = 0, l2 = 0, l3 = 0; /* Cache sizes */
--	unsigned int new_l1d = 0, new_l1i = 0; /* Cache sizes from cpuid(4) */
--	unsigned int new_l2 = 0, new_l3 = 0, i; /* Cache sizes from cpuid(4) */
-+	int i;
- 
- 	if (c->cpuid_level > 4) {
- 		static int is_initialized;
-@@ -197,16 +196,16 @@ unsigned int __cpuinit init_intel_cachei
- 				    case 1:
- 					if (this_leaf.eax.split.type ==
- 							CACHE_TYPE_DATA)
--						new_l1d = this_leaf.size/1024;
-+						l1d = this_leaf.size/1024;
- 					else if (this_leaf.eax.split.type ==
- 							CACHE_TYPE_INST)
--						new_l1i = this_leaf.size/1024;
-+						l1i = this_leaf.size/1024;
- 					break;
- 				    case 2:
--					new_l2 = this_leaf.size/1024;
-+					l2 = this_leaf.size/1024;
- 					break;
- 				    case 3:
--					new_l3 = this_leaf.size/1024;
-+					l3 = this_leaf.size/1024;
- 					break;
- 				    default:
- 					break;
-@@ -214,11 +213,19 @@ unsigned int __cpuinit init_intel_cachei
- 			}
- 		}
- 	}
--	if (c->cpuid_level > 1) {
-+	/*
-+	 * Don't use cpuid2 if cpuid4 is supported. For P4, we use cpuid2 for
-+	 * trace cache
-+	 */
-+	if ((num_cache_leaves == 0 || c->x86 == 15) && c->cpuid_level > 1) {
- 		/* supports eax=2  call */
- 		int i, j, n;
- 		int regs[4];
- 		unsigned char *dp = (unsigned char *)regs;
-+		int only_trace = 0;
-+
-+		if (num_cache_leaves != 0 && c->x86 == 15)
-+			only_trace = 1;
- 
- 		/* Number of times to iterate */
- 		n = cpuid_eax(2) & 0xFF;
-@@ -240,6 +247,8 @@ unsigned int __cpuinit init_intel_cachei
- 				while (cache_table[k].descriptor != 0)
- 				{
- 					if (cache_table[k].descriptor == des) {
-+						if (only_trace && cache_table[k].cache_type != LVL_TRACE)
-+							break;
- 						switch (cache_table[k].cache_type) {
- 						case LVL_1_INST:
- 							l1i += cache_table[k].size;
-@@ -265,34 +274,22 @@ unsigned int __cpuinit init_intel_cachei
- 				}
- 			}
- 		}
-+	}
- 
--		if (new_l1d)
--			l1d = new_l1d;
--
--		if (new_l1i)
--			l1i = new_l1i;
--
--		if (new_l2)
--			l2 = new_l2;
--
--		if (new_l3)
--			l3 = new_l3;
--
--		if ( trace )
--			printk (KERN_INFO "CPU: Trace cache: %dK uops", trace);
--		else if ( l1i )
--			printk (KERN_INFO "CPU: L1 I cache: %dK", l1i);
--		if ( l1d )
--			printk(", L1 D cache: %dK\n", l1d);
--		else
--			printk("\n");
--		if ( l2 )
--			printk(KERN_INFO "CPU: L2 cache: %dK\n", l2);
--		if ( l3 )
--			printk(KERN_INFO "CPU: L3 cache: %dK\n", l3);
-+	if ( trace )
-+		printk (KERN_INFO "CPU: Trace cache: %dK uops", trace);
-+	else if ( l1i )
-+		printk (KERN_INFO "CPU: L1 I cache: %dK", l1i);
-+	if ( l1d )
-+		printk(", L1 D cache: %dK\n", l1d);
-+	else
-+		printk("\n");
-+	if ( l2 )
-+		printk(KERN_INFO "CPU: L2 cache: %dK\n", l2);
-+	if ( l3 )
-+		printk(KERN_INFO "CPU: L3 cache: %dK\n", l3);
- 
--		c->x86_cache_size = l3 ? l3 : (l2 ? l2 : (l1i+l1d));
--	}
-+	c->x86_cache_size = l3 ? l3 : (l2 ? l2 : (l1i+l1d));
- 
- 	return l2;
- }
-_
-
-
+--
+			Gleb.

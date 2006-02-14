@@ -1,80 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030567AbWBNK4Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030568AbWBNK4W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030567AbWBNK4Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 05:56:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030568AbWBNK4Q
+	id S1030568AbWBNK4W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 05:56:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030570AbWBNK4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 05:56:16 -0500
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:4135 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1030567AbWBNK4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 05:56:15 -0500
-Date: Tue, 14 Feb 2006 11:56:08 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Olaf Hering <olh@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Hannes Reinecke <hare@suse.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: calibrate_migration_costs takes ages on s390
-Message-ID: <20060214105608.GD19896@osiris.boeblingen.de.ibm.com>
-References: <20060213102634.GA4677@osiris.boeblingen.de.ibm.com> <20060213104645.GA17173@elte.hu> <20060213234254.GA5368@suse.de> <20060214000807.GA6188@suse.de> <20060214080942.GC19896@osiris.boeblingen.de.ibm.com>
+	Tue, 14 Feb 2006 05:56:22 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:38888 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1030568AbWBNK4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 05:56:21 -0500
+Message-ID: <43F1B762.9080303@jp.fujitsu.com>
+Date: Tue, 14 Feb 2006 19:56:34 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060214080942.GC19896@osiris.boeblingen.de.ibm.com>
-User-Agent: mutt-ng/devel-r781 (Linux)
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>, davem@davemloft.net
+Subject: [PATCH] unify pfn_to_page take3 [19/23] sparc64 pfn_to_page
+References: <43F1A753.2020003@jp.fujitsu.com>
+In-Reply-To: <43F1A753.2020003@jp.fujitsu.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I did a quick git bisect search. This is one is the hurting one:
-> 
-> Author: Ingo Molnar <mingo@elte.hu>  2006-02-07 21:58:54
-> Committer: Linus Torvalds <torvalds@g5.osdl.org>  2006-02-08 01:12:33
-> Parent: 8519fb30e438f8088b71a94a7d5a660a814d3872 ([PATCH] mm: compound release fix)
-> Child:  0d4c3e7a8c65892c7d6a748fdbb4499e988880db ([PATCH] unshare system call -v5: Documentation file)
->
->     The fix is to include a __delay(1) call in the loop, to correctly approximate
->     the intended delay timeout of 1 second.  The code assumes that every
->     architecture implements __delay(1) to last around 1/(loops_per_jiffy*HZ)
->     seconds.
-> 
-> I guess we're once again suffering from being a virtualized platform: the
-> formerly used call to cpu_relax() informed the underlying hypervisor that
-> we want to give up the current cpu while __delay() keeps it.
-> Unless we're scheduled away involuntarily.
-> The "Detect Soft Lockups" option doesn't make too much sense too on our
-> platform, since we get a lot of false positives.
-> Quick fix: turn off the options CONFIG_DEBUG_SPINLOCK and
-> CONFIG_DETECT_SOFTLOCKUP.
+sparc64 can use generic funcs.
+CONFIG_OUT_OF_LINE_PFN_TO_PAGE is selected.
 
-Wrong analysis. Our __delay() implementation is broken. This doesn't help for
-the CONFIG_DETECT_SOFTLOCKUP case, but at least CONFIG_DEBUG_SPINLOCK works
-again with this.
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-Andrew, could you pick this one up, or should I send it separately?
 
-[PATCH] s390: fix __delay implementation
+Index: testtree/arch/sparc64/Kconfig
+===================================================================
+--- testtree.orig/arch/sparc64/Kconfig
++++ testtree/arch/sparc64/Kconfig
+@@ -34,6 +34,10 @@ config ARCH_MAY_HAVE_PC_FDC
+  	bool
+  	default y
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
++config OUT_OF_LINE_PFN_TO_PAGE
++	bool
++	default y
++
+  choice
+  	prompt "Kernel page size"
+  	default SPARC64_PAGE_SIZE_8KB
+Index: testtree/arch/sparc64/mm/init.c
+===================================================================
+--- testtree.orig/arch/sparc64/mm/init.c
++++ testtree/arch/sparc64/mm/init.c
+@@ -320,16 +320,6 @@ void __kprobes flush_icache_range(unsign
+  	}
+  }
 
-Fix __delay implementation. Called with an argument "1" or "0" it
-would loop nearly forever (since (1/2)-1 = 0xffffffff).
+-unsigned long page_to_pfn(struct page *page)
+-{
+-	return (unsigned long) ((page - mem_map) + pfn_base);
+-}
+-
+-struct page *pfn_to_page(unsigned long pfn)
+-{
+-	return (mem_map + (pfn - pfn_base));
+-}
+-
+  void show_mem(void)
+  {
+  	printk("Mem-info:\n");
+Index: testtree/include/asm-sparc64/page.h
+===================================================================
+--- testtree.orig/include/asm-sparc64/page.h
++++ testtree/include/asm-sparc64/page.h
+@@ -129,8 +129,8 @@ typedef unsigned long pgprot_t;
+   * the first physical page in the machine is at some huge physical address,
+   * such as 4GB.   This is common on a partitioned E10000, for example.
+   */
+-extern struct page *pfn_to_page(unsigned long pfn);
+-extern unsigned long page_to_pfn(struct page *);
++/* pfn_base is declared in pgtable.h */
++#define ARCH_PFN_OFFSET		(pfn_base)
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
+  #define virt_to_page(kaddr)	pfn_to_page(__pa(kaddr)>>PAGE_SHIFT)
 
- arch/s390/lib/delay.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+@@ -147,6 +147,7 @@ extern unsigned long page_to_pfn(struct
 
-diff --git a/arch/s390/lib/delay.c b/arch/s390/lib/delay.c
-index e96c35b..71f0a2f 100644
---- a/arch/s390/lib/delay.c
-+++ b/arch/s390/lib/delay.c
-@@ -30,7 +30,7 @@ void __delay(unsigned long loops)
-          */
-         __asm__ __volatile__(
-                 "0: brct %0,0b"
--                : /* no outputs */ : "r" (loops/2) );
-+                : /* no outputs */ : "r" ((loops/2) + 1));
- }
- 
- /*
+  #endif /* !(__KERNEL__) */
+
++#include <asm-generic/memory_model.h>
+  #include <asm-generic/page.h>
+
+  #endif /* !(_SPARC64_PAGE_H) */
+

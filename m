@@ -1,58 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030576AbWBNOFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030579AbWBNOJt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030576AbWBNOFm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 09:05:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030578AbWBNOFm
+	id S1030579AbWBNOJt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 09:09:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030578AbWBNOJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 09:05:42 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:5771 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1030576AbWBNOFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 09:05:41 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Tue, 14 Feb 2006 15:03:13 +0100
-To: schilling@fokus.fraunhofer.de, kernel@crazytrain.com
-Cc: peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-       jerome.lacoste@gmail.com, jengelh@linux01.gwdg.de, dhazelton@enter.net
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F1E321.nailMWZBGFE34@burner>
-References: <20060208162828.GA17534@voodoo>
- <43EC8F22.nailISDL17DJF@burner>
- <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com>
- <200602092241.29294.dhazelton@enter.net>
- <43F08D45.nailKUSE1SA4H@burner> <1139879123.3697.16.camel@crazytrain>
-In-Reply-To: <1139879123.3697.16.camel@crazytrain>
-User-Agent: nail 11.2 8/15/04
+	Tue, 14 Feb 2006 09:09:49 -0500
+Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:46467 "EHLO
+	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S1030579AbWBNOJs convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 09:09:48 -0500
+From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: Roman Zippel <zippel@linux-m68k.org>
+Date: Tue, 14 Feb 2006 15:09:39 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: Re: time patches by Roman Zippel
+Cc: linux-kernel@vger.kernel.org
+Message-ID: <43F1F2B4.7205.6BBE301@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+In-reply-to: <Pine.LNX.4.61.0602141400140.9696@scrub.home>
+References: <43F195DF.23967.551458C@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+X-mailer: Pegasus Mail for Windows (4.31)
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.25/Sophos-P=4.02.0+V=4.02+U=2.07.127+R=06 February 2006+T=118674@20060214.140926Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel <kernel@crazytrain.com> wrote:
+On 14 Feb 2006 at 14:21, Roman Zippel wrote:
 
-> On Mon, 2006-02-13 at 08:44, Joerg Schilling wrote:
-> > Any patch that
+> Hi,
+> 
+> On Tue, 14 Feb 2006, Ulrich Windl wrote:
+> 
+> > 15_time_offset and 18_time_freq change some well-known constants (like MAXPHASE)
+> > by three orders of magnitude.
+
+--- linux-2.6-mm.orig/include/linux/timex.h	2005-12-21 12:12:00.000000000 +0100
++++ linux-2.6-mm/include/linux/timex.h	2005-12-21 12:12:08.000000000 +0100
+@@ -95,11 +95,11 @@
+ #define SHIFT_USEC 16		/* frequency offset scale (shift) */
+ #define FINENSEC (1L << SHIFT_SCALE) /* ~1 ns in phase units */
+ 
+-#define MAXPHASE 512000L        /* max phase error (us) */
++#define MAXPHASE 500000000L	/* max phase error (ns) */
+ #define MAXFREQ (512L << SHIFT_USEC)  /* max frequency error (ppm) */
+ #define MINSEC 16L              /* min interval between updates (s) */
+ #define MAXSEC 1200L            /* max interval between updates (s) */
+-#define	NTP_PHASE_LIMIT	(MAXPHASE << 5)	/* beyond max. dispersion */
++#define NTP_PHASE_LIMIT	((MAXPHASE / 1000) << 5) /* beyond max. dispersion */
+
+
 > > 
-> > -	does not break things
-> > 
-> Good. Makes sense.  Acceptable.
->
->
-> > -	fits into the spirit of the currnt implementation
-> > 
-> Bad.  Subject to the gate keeper's ideas, whims, and personal agenda.
+> > the new adjtime() (16_time_adjust, 12_time_adj) changes the semantics: Since about
+> > Linux 0.99, adjtime() had the adjtime_is_accurate property, i.e. on the long term
+> > it behaved like an addition.
+> 
+> I disagree, could you please explain how you come to this conclusion?
 
-So you like to tell us that you don"t like this?
++			tick_nsec_curr += time_adjust * 1000 / HZ;
 
-Well, then start a campaign against Linux......
+Assuming 1024Hz interrupt frequency:
+(1µs * 1000) / 1024 == 0ns; 0 * 1024 == 0µs, not 1µs
+(2µs * 1000) / 1024 == 1ns; 1 * 1024 == 1.024µs, not 2µs
 
+> The patches don't change the behaviour beyond that they increase 
+> resolution and precision. Only the final patch changes the ntp code to 
+> match the behaviour of ntp reference code without including all its mess.
 
-Jörg
+It's quite hard to tell: The code is very different what I've ever seen.
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Regards,
+Ulrich
+

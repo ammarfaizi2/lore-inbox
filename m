@@ -1,56 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030499AbWBNGrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030500AbWBNGvo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030499AbWBNGrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 01:47:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030500AbWBNGrQ
+	id S1030500AbWBNGvo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 01:51:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030501AbWBNGvo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 01:47:16 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:28596
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1030499AbWBNGrP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 01:47:15 -0500
-Date: Mon, 13 Feb 2006 22:47:18 -0800
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
-Subject: [GIT PATCH] I2C and hwmon patches for 2.6.16-rc3
-Message-ID: <20060214064718.GA20228@kroah.com>
+	Tue, 14 Feb 2006 01:51:44 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:41882 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1030500AbWBNGvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 01:51:43 -0500
+Subject: [PATCH] don't use cpuid.2 to determine cache info if cpuid.4 is
+	supported
+From: Shaohua Li <shaohua.li@intel.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
+Content-Type: text/plain
+Date: Tue, 14 Feb 2006 14:51:07 +0800
+Message-Id: <1139899867.2750.8.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some i2c and hwmon patches for 2.6.16-rc3.  They all fix bugs
-that are currently present in the tree.  All but one of these patches
-have been in the last few -mm releases.
+Don't use cpuid.2 to determine cache info if cpuid.4 is supported. The
+exception is P4 trace cache. We always use cpuid.2 to get trace cache
+under P4.
 
-Please pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/i2c-2.6.git/
-or from:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/i2c-2.6.git/
-if it isn't synced up yet.
+Signed-off-by: Shaohua Li <shaohua.li@intel.com>
+---
 
-The full patch series will sent to the sensors mailing list, if anyone
-wants to see them.
+ linux-2.6.16-rc2-root/arch/i386/kernel/cpu/intel_cacheinfo.c |   63 +++++------
+ 1 files changed, 30 insertions(+), 33 deletions(-)
 
-thanks,
+diff -puN arch/i386/kernel/cpu/intel_cacheinfo.c arch/i386/kernel/cpu/intel_cacheinfo.c
+--- linux-2.6.16-rc2/arch/i386/kernel/cpu/intel_cacheinfo.c	2006-02-10 09:54:21.000000000 +0800
++++ linux-2.6.16-rc2-root/arch/i386/kernel/cpu/intel_cacheinfo.c	2006-02-13 11:44:07.000000000 +0800
+@@ -170,8 +170,7 @@ static int __init find_num_cache_leaves(
+ unsigned int __cpuinit init_intel_cacheinfo(struct cpuinfo_x86 *c)
+ {
+ 	unsigned int trace = 0, l1i = 0, l1d = 0, l2 = 0, l3 = 0; /* Cache sizes */
+-	unsigned int new_l1d = 0, new_l1i = 0; /* Cache sizes from cpuid(4) */
+-	unsigned int new_l2 = 0, new_l3 = 0, i; /* Cache sizes from cpuid(4) */
++	int i;
+ 
+ 	if (c->cpuid_level > 4) {
+ 		static int is_initialized;
+@@ -197,16 +196,16 @@ unsigned int __cpuinit init_intel_cachei
+ 				    case 1:
+ 					if (this_leaf.eax.split.type ==
+ 							CACHE_TYPE_DATA)
+-						new_l1d = this_leaf.size/1024;
++						l1d = this_leaf.size/1024;
+ 					else if (this_leaf.eax.split.type ==
+ 							CACHE_TYPE_INST)
+-						new_l1i = this_leaf.size/1024;
++						l1i = this_leaf.size/1024;
+ 					break;
+ 				    case 2:
+-					new_l2 = this_leaf.size/1024;
++					l2 = this_leaf.size/1024;
+ 					break;
+ 				    case 3:
+-					new_l3 = this_leaf.size/1024;
++					l3 = this_leaf.size/1024;
+ 					break;
+ 				    default:
+ 					break;
+@@ -214,11 +213,19 @@ unsigned int __cpuinit init_intel_cachei
+ 			}
+ 		}
+ 	}
+-	if (c->cpuid_level > 1) {
++	/*
++	 * Don't use cpuid2 if cpuid4 is supported. For P4, we use cpuid2 for
++	 * trace cache
++	 */
++	if ((num_cache_leaves == 0 || c->x86 == 15) && c->cpuid_level > 1) {
+ 		/* supports eax=2  call */
+ 		int i, j, n;
+ 		int regs[4];
+ 		unsigned char *dp = (unsigned char *)regs;
++		int only_trace = 0;
++
++		if (num_cache_leaves != 0 && c->x86 == 15)
++			only_trace = 1;
+ 
+ 		/* Number of times to iterate */
+ 		n = cpuid_eax(2) & 0xFF;
+@@ -240,6 +247,8 @@ unsigned int __cpuinit init_intel_cachei
+ 				while (cache_table[k].descriptor != 0)
+ 				{
+ 					if (cache_table[k].descriptor == des) {
++						if (only_trace && cache_table[k].cache_type != LVL_TRACE)
++							break;
+ 						switch (cache_table[k].cache_type) {
+ 						case LVL_1_INST:
+ 							l1i += cache_table[k].size;
+@@ -265,34 +274,22 @@ unsigned int __cpuinit init_intel_cachei
+ 				}
+ 			}
+ 		}
++	}
+ 
+-		if (new_l1d)
+-			l1d = new_l1d;
+-
+-		if (new_l1i)
+-			l1i = new_l1i;
+-
+-		if (new_l2)
+-			l2 = new_l2;
+-
+-		if (new_l3)
+-			l3 = new_l3;
+-
+-		if ( trace )
+-			printk (KERN_INFO "CPU: Trace cache: %dK uops", trace);
+-		else if ( l1i )
+-			printk (KERN_INFO "CPU: L1 I cache: %dK", l1i);
+-		if ( l1d )
+-			printk(", L1 D cache: %dK\n", l1d);
+-		else
+-			printk("\n");
+-		if ( l2 )
+-			printk(KERN_INFO "CPU: L2 cache: %dK\n", l2);
+-		if ( l3 )
+-			printk(KERN_INFO "CPU: L3 cache: %dK\n", l3);
++	if ( trace )
++		printk (KERN_INFO "CPU: Trace cache: %dK uops", trace);
++	else if ( l1i )
++		printk (KERN_INFO "CPU: L1 I cache: %dK", l1i);
++	if ( l1d )
++		printk(", L1 D cache: %dK\n", l1d);
++	else
++		printk("\n");
++	if ( l2 )
++		printk(KERN_INFO "CPU: L2 cache: %dK\n", l2);
++	if ( l3 )
++		printk(KERN_INFO "CPU: L3 cache: %dK\n", l3);
+ 
+-		c->x86_cache_size = l3 ? l3 : (l2 ? l2 : (l1i+l1d));
+-	}
++	c->x86_cache_size = l3 ? l3 : (l2 ? l2 : (l1i+l1d));
+ 
+ 	return l2;
+ }
+_
 
-greg k-h
-
- Documentation/hwmon/w83627hf |    4 ++++
- drivers/hwmon/it87.c         |    3 ++-
- drivers/hwmon/vt8231.c       |    8 ++++----
- drivers/hwmon/w83781d.c      |   43 +++++++++++++++++++++++++------------------
- drivers/i2c/busses/i2c-isa.c |   12 ------------
- 5 files changed, 35 insertions(+), 35 deletions(-)
-
-
-Jean Delvare:
-      vt8231: Fix sysfs temperature interface
-      w83781d: Use real-time status registers
-      w83627hf: Document the reset module parameter
-      it87: Fix oops on removal
-      i2c: Drop outdated probe/remove code in i2c-isa
 

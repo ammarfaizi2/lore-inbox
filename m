@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030493AbWBNILu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030508AbWBNIQU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030493AbWBNILu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 03:11:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030496AbWBNILu
+	id S1030508AbWBNIQU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 03:16:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030509AbWBNIQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 03:11:50 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:33694 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1030493AbWBNILt (ORCPT
+	Tue, 14 Feb 2006 03:16:20 -0500
+Received: from smtp.enter.net ([216.193.128.24]:49679 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S1030508AbWBNIQU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 03:11:49 -0500
-Date: Tue, 14 Feb 2006 09:11:34 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Luke-Jr <luke@dashjr.org>
-cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, davidsen@tmr.com,
-       chris@gnome-de.org, nix@esperi.org.uk, linux-kernel@vger.kernel.org,
-       axboe@suse.de
+	Tue, 14 Feb 2006 03:16:20 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-In-Reply-To: <200602131727.26945.luke@dashjr.org>
-Message-ID: <Pine.LNX.4.61.0602140909190.7198@yvahk01.tjqt.qr>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
- <43F088AB.nailKUSB18RM0@burner> <Pine.LNX.4.61.0602131742460.24297@yvahk01.tjqt.qr>
- <200602131727.26945.luke@dashjr.org>
+Date: Tue, 14 Feb 2006 03:25:19 -0500
+User-Agent: KMail/1.8.1
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, mj@ucw.cz,
+       seanlkml@sympatico.ca, sam@vilain.net, peter.read@gmail.com,
+       matthias.andree@gmx.de, lkml@dervishd.net, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net
+References: <43EB7BBA.nailIFG412CGY@burner> <200602131842.02377.dhazelton@enter.net> <Pine.LNX.4.61.0602140903400.7198@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0602140903400.7198@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602140325.20286.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >> Well, "any user" just opens his Windows Explorer and takes a look at the
->> >> icon of his drive D:\\ to see whether it's a CD-ROM or DVD. It is
->> >> interesting to see professional programmers often argue that a
->> >
->> >This is not true: a drive letter mapping does not need to exist on MS-WIN
->> >in order to be able to access it via ASPI or SPTI.
->>
->> I have to support this view. Linux filesystems do not show up in Windows
->> Explorer (because there's obviously an fs driver lacking), but there's
->> always a way to damage your Linux from within Windows.
+On Tuesday 14 February 2006 03:04, Jan Engelhardt wrote:
+> >> -	SCSI commands are bastardized on ATAPI
+> >
+> >identify the problem - provide a test case or two and I'll get off my lazy
+> > ass and see if I can't figure out what's causing the problem.
 >
->Really? My Windows-using friend has all his Linux partitions fully visible and 
->usable in Windows Explorer...
+> Maybe we can put a testsuite together that sends all sorts of commands to a
+> cd drive and then see with 1. which Linuxes 2. which models it happens.
 >
-Might depend! On DOS and Win98, there is no indication in either 
-DOS or Explorer that there is a second harddisk (got an xfs on it) at all. 
-Only partition entries with Win* type get a drive letter (which does not 
-imply reading is also possible).
-Might be different on your Windows.
+>
+> Jan Engelhardt
 
+Excellent idea, but since Joerg probably has all the information already I 
+don't see why he can't provide it. At least that way there is some time saved 
+and I won't wind up seeing my aging CDRW drive get any excessive wear.
 
-
-Jan Engelhardt
--- 
+DRH

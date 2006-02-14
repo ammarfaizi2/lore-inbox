@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422792AbWBNUZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422794AbWBNU1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422792AbWBNUZh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 15:25:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422793AbWBNUZh
+	id S1422794AbWBNU1h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 15:27:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422796AbWBNU1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 15:25:37 -0500
-Received: from mail.gmx.net ([213.165.64.21]:236 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1422792AbWBNUZg (ORCPT
+	Tue, 14 Feb 2006 15:27:37 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:27041 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422794AbWBNU1g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 15:25:36 -0500
-X-Authenticated: #428038
-Date: Tue, 14 Feb 2006 21:25:30 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060214202530.GB14371@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	linux-kernel@vger.kernel.org
-References: <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com> <20060210235654.GA22512@kroah.com> <43F0891E.nailKUSCGC52G@burner> <20060213154921.GA22597@kroah.com> <43F22887.nailCA4XYHC4@burner> <20060214195337.GC11594@merlin.emma.line.org> <43F2364C.nailGN3SVGJ9@burner>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43F2364C.nailGN3SVGJ9@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+	Tue, 14 Feb 2006 15:27:36 -0500
+Date: Tue, 14 Feb 2006 12:23:20 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: ak@suse.de, bunk@stusta.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc3-mm1: i386 compilation broken
+Message-Id: <20060214122320.21b4459b.akpm@osdl.org>
+In-Reply-To: <6bffcb0e0602140554j56d5a95bi@mail.gmail.com>
+References: <20060214014157.59af972f.akpm@osdl.org>
+	<20060214131715.GA10701@stusta.de>
+	<200602141427.49763.ak@suse.de>
+	<6bffcb0e0602140554j56d5a95bi@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-02-14:
+Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+>
+> Hi,
+> 
+> On 14/02/06, Andi Kleen <ak@suse.de> wrote:
+> > On Tuesday 14 February 2006 14:17, Adrian Bunk wrote:
+> > > On Tue, Feb 14, 2006 at 01:41:57AM -0800, Andrew Morton wrote:
+> > > >...
+> > > > Changes since 2.6.16-rc2-mm1:
+> > > >...
+> > > > +x86_64-fix-string.patch
+> > > >...
+> > > >  x86_64 tree updates.
+> > > >...
+> > >
+> > > This patch breaks the compilation on i386:
+> >
+> > Ok then the -ffreestanding was apparently still needed on other architectures too.
+> > I guess that part of the patch can be just dropped.
+> >
+> > Andrew can you drop that please?
+> >
+> > -Andi
+> 
+> Thanks, problem solved!
 
-> You don't need to repoeat this  again, I already know that you are unteachable.
+Andi like to break x86 - I think it's a market-share thing.
 
-Yet another insult.
+I wonder why I didn't hit that problem.
 
-> For the others: the topic is the device and OS independent libscg.
+> Andrew can you add this to hot-fixes?
 
-Check the subject line, and check the destination address.
-
-This is CD writing on Linux, and it you who is still failing to provide
-information about non-CD-related bugs.
-
--- 
-Matthias Andree
+Done.  I backed out the whole patch.

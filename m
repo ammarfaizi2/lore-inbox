@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422787AbWBNUQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422790AbWBNUUQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422787AbWBNUQt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 15:16:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422785AbWBNUQt
+	id S1422790AbWBNUUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 15:20:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422783AbWBNUUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 15:16:49 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:9354 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1422784AbWBNUQs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 15:16:48 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Thomas Renninger <trenn@suse.de>
-Subject: Re: [PATCH, RFC] [1/3] Generic in-kernel AC status
-Date: Tue, 14 Feb 2006 21:17:30 +0100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@suse.cz>, Stefan Seyfried <seife@suse.de>,
-       Matthew Garrett <mjg59@srcf.ucam.org>, linux-pm@lists.osdl.org,
-       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20060208125753.GA25562@srcf.ucam.org> <20060210121913.GA4974@elf.ucw.cz> <43F216FE.7050101@suse.de>
-In-Reply-To: <43F216FE.7050101@suse.de>
+	Tue, 14 Feb 2006 15:20:15 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:52885 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1422790AbWBNUUO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 15:20:14 -0500
+Date: Tue, 14 Feb 2006 12:19:46 -0800
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Claudio Martins <ctpm@rnl.ist.utl.pt>
+Cc: linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Jan Kara <jack@suse.cz>, Nohez <nohez@cmie.com>
+Subject: Re: OCFS2 Filesystem inconsistency across nodes
+Message-ID: <20060214201946.GD20175@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <200602100536.02893.ctpm@rnl.ist.utl.pt> <200602110540.57573.ctpm@rnl.ist.utl.pt> <20060213222606.GC20175@ca-server1.us.oracle.com> <200602140616.11856.ctpm@rnl.ist.utl.pt>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602142117.31232.rjw@sisk.pl>
+In-Reply-To: <200602140616.11856.ctpm@rnl.ist.utl.pt>
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 February 2006 18:44, Thomas Renninger wrote:
-> Pavel Machek wrote:
-> > On Pá 10-02-06 09:06:43, Stefan Seyfried wrote:
-> >> On Wed, Feb 08, 2006 at 12:57:53PM +0000, Matthew Garrett wrote:
-> >>> The included patch adds support for power management methods to register 
-> >>> callbacks in order to allow drivers to check if the system is on AC or 
-> >>> not. Following patches add support to ACPI and APM. Feedback welcome.
-> >> Ok. Maybe i am not seeing the point. But why do we need this in the kernel?
-> >> Can't we handles this easily in userspace?
-> > 
-> > Some kernel parts need to now: for example powernow-k8: some
-> > frequencies are not allowed when you are running off battery. [Just
-> > now it is solved by not allowing those frequencies at all unless ACPI
-> > is available; quite an ugly solution.]
-> > 
-> Allowed CPUfreqs are exported via _PPC.
-> This is why a lot hardware sends an ac_adapter and a processor event
-> when (un)plugging ac adapter.
-> Limiting cpufreq already works nice that way.
+On Tue, Feb 14, 2006 at 06:16:11AM +0000, Claudio Martins wrote:
+>  This patch does indeed seem to fix this particular problem. Now creating and 
+> deleting files/directories gives expected results across nodes.
+Great!
+
+>  The bad news is that it didn't last long. While doing some more tests I found 
+> another problem, but judging from kernel messages I think this one is related 
+> to the DLM code.
+Not so great :/
+
+We have some dlm fixes in our git tree which haven't made their way to Linus
+yet (I wanted to run a few more tests). Would you be interested in patching
+with them so we can see which bugs are left? The easiest way to get this is
+to pull them out of 2.6.16-rc3-mm1:
+
+http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc3/2.6.16-rc3-mm1/broken-out/git-ocfs2.patch
+
+You'll also pull a performance fix in that patch. Of course, even easier
+might be to just run 2.6.16-rc3-mm1 for now as it also contains the
+checkpoint list split backout.
+
+>  On node 0, tar exited with:
+> tar: 
+> build-AMD-linux-2.6.16-rc2-git3-jbdfix1/drivers/media/video/cx25840/cx25840-core.c: 
+> Cannot stat: Invalid argument
 > 
-> AMD64 laptops are booting with lower freqs per default until they are
-> pushed up, so there shouldn't be anything critical?
+> On node 2, tar exited with a segmentation fault.
+Could you load up debugfs.ocfs2 against your file system and run the
+following command:
 
-This is not true as far as my box is concerned (Asus L5D).  It starts with
-the _highest_ clock available.
+debugfs: locate <M0000000000000000d4a94b05ae097f>
 
-> For the brightness part, I don't see any "laptop is going to explode"
-> issue.
-> I always hated the brightness going down when I unplugged ac on M$
+It will tell me the path to the file which that metadata lock refers to.
+The path may help us figure out what sort of access we're having problems on
+here.
+	--Mark
 
-Currently I have the same problem on Linux, but I don't know the solution
-(yet).  Any hints? :-)
-
-Rafael
+--
+Mark Fasheh
+Senior Software Developer, Oracle
+mark.fasheh@oracle.com

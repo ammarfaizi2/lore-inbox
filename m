@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422692AbWBNRUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422697AbWBNR2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422692AbWBNRUk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 12:20:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422693AbWBNRUj
+	id S1422697AbWBNR2j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 12:28:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422698AbWBNR2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 12:20:39 -0500
-Received: from adsl-71-140-189-62.dsl.pltn13.pacbell.net ([71.140.189.62]:393
-	"EHLO aexorsyst.com") by vger.kernel.org with ESMTP
-	id S1422692AbWBNRUi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 12:20:38 -0500
-From: "John Z. Bohach" <jzb@aexorsyst.com>
-Reply-To: jzb@aexorsyst.com
-To: Al Viro <viro@ftp.linux.org.uk>, Phillip Susi <psusi@cfl.rr.com>
-Subject: Re: root=/dev/sda1 fails but root=0x0801 works...
-Date: Tue, 14 Feb 2006 09:20:20 -0800
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
-References: <200602132316.15992.jzb@aexorsyst.com> <43F1FA74.80607@cfl.rr.com> <20060214162458.GD27946@ftp.linux.org.uk>
-In-Reply-To: <20060214162458.GD27946@ftp.linux.org.uk>
+	Tue, 14 Feb 2006 12:28:39 -0500
+Received: from master.soleranetworks.com ([67.137.28.188]:25502 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S1422697AbWBNR2i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 12:28:38 -0500
+Message-ID: <43F220B6.1080406@soleranetworks.com>
+Date: Tue, 14 Feb 2006 11:25:58 -0700
+From: "Jeff V. Merkey" <jmerkey@soleranetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: SMBFS Locking Issues with Advanced Server 2000/2003 [kernel 2.6.14]
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602140920.20685.jzb@aexorsyst.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 February 2006 08:24, Al Viro wrote:
-> On Tue, Feb 14, 2006 at 10:42:44AM -0500, Phillip Susi wrote:
-> > This is expected behavior.  The kernel doesn't have a /dev at the time
-> > it mounts the root fs so it has no idea what /dev/sda1 is.
->
-> Incorrect.  Read init/do_mounts.c::name_to_dev_t().
 
-Thanks for the info...Philip, you are correct, but for the wrong reason.  Al,
-you hit it right on the head...
+Attached errors.  Intermittent errors occur when VNC viewer is installed 
+and running from a remote server which is also mapped
+with smbfs.  Problem can be recreated by executing perl commands 
+remotely against source code stored on a Windows 2000/2003
+Advanced Server.  There are no other applications locking the code.  The 
+first error occurs when running Perl and Perl hangs remotely
+and the process never returns.  After hitting control C to break out of 
+Perl, SMBFS leaves the files locked remotely and they cannot be deleted 
+until the volume is unmounted.  Unmounting and remounting clears the 
+problem, but this is dirty and should recover more gracefully.
 
-It is intentional behavior, but the reason is that
-for name_to_dev_t() to work, CONFIG_SYSFS must be enabled...so there's
-my connection to the CONFIG_* option that I suspected...
+Mount also reports erroneously when this occurs that the volume is 
+mounted twice, which it is not the case -- the volume was only mounted
+once. 
 
-Thanks again...
+Perl command:
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+perl -pi -e "s/interface/interfaceIndex/g" *[ch]
 
--- 
-     ###  Any similarity between my views and the truth is completely ###
-     ###  coincidental, except that they are endorsed by NO ONE       ###
+erroneous mount info:
 
+/dev/sda3 on / type ext3 (rw)
+none on /proc type proc (rw)
+none on /sys type sysfs (rw)
+none on /dev/pts type devpts (rw,gid=5,mode=620)
+/dev/sda1 on /boot type ext3 (rw)
+none on /dev/shm type tmpfs (rw)
+/dev/sda4 on /pfs type dsfs (rw)
+//192.168.2.27/dsfs on /win type smbfs (0)
+//192.168.2.27/dsfs on /win type smbfs (0)
+
+
+Error returned after perl croaks:
+
+[root@predator dsarchive]#
+[root@predator dsarchive]# rm -rf 01-14-06-final/
+rm: cannot remove `01-14-06-final//utils/dscapture.c': Text file busy
+rm: cannot remove `01-14-06-final//utils/dsinput.c': Text file busy
+[root@predator dsarchive]#
+[root@predator dsarchive]#
+[root@predator dsarchive]#
+
+Jeff

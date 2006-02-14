@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030502AbWBNGzT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030501AbWBNG5L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030502AbWBNGzT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 01:55:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030503AbWBNGzT
+	id S1030501AbWBNG5L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 01:57:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030503AbWBNG5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 01:55:19 -0500
-Received: from nproxy.gmail.com ([64.233.182.198]:58936 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030502AbWBNGzS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 01:55:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qf0IOoif5gO8gFpWKG16ArdR48UZT/MZ9QpuWZgk/2jGm/GGz6iSg2lkY9lOpOcrLuaSWrgjHjj/GLCkF5m5suTEjeNUZC0vqgRTsRviNGTA/nwkp2H+qUPjKFmV3Ch/3LbO9VnUUvPKv7xM9OBPKnEQbZJq6ctjEFwXUmBXorc=
-Message-ID: <21d7e9970602132255l5a7ff5feqa82ccad2c90ac4d8@mail.gmail.com>
-Date: Tue, 14 Feb 2006 17:55:16 +1100
-From: Dave Airlie <airlied@gmail.com>
-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-       linux-kernel@vger.kernel.org, davej@redhat.com,
-       dri-devel@lists.sourceforge.net
-Subject: Re: IRQ disabled (i915?) when switchig between gnome themes (gnome-theme-manager)
-In-Reply-To: <20060130203809.GA8098@dominikbrodowski.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 14 Feb 2006 01:57:10 -0500
+Received: from mail.gmx.net ([213.165.64.21]:44007 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030501AbWBNG5H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 01:57:07 -0500
+X-Authenticated: #5082238
+Date: Tue, 14 Feb 2006 07:57:18 +0100
+From: Carsten Otto <c-otto@gmx.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: penberg@cs.Helsinki.FI, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: Kernel BUG at include/linux/gfp.h:80
+Message-ID: <20060214065718.GA14555@carsten-otto.halifax.rwth-aachen.de>
+Reply-To: c-otto@gmx.de
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, penberg@cs.Helsinki.FI,
+	linux-kernel@vger.kernel.org, ak@suse.de
+References: <Pine.LNX.4.58.0601201214060.13564@sbz-30.cs.Helsinki.FI> <20060213201644.GA8961@carsten-otto.halifax.rwth-aachen.de> <20060213200429.0521880d.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
 Content-Disposition: inline
-References: <20060130203809.GA8098@dominikbrodowski.de>
+In-Reply-To: <20060213200429.0521880d.akpm@osdl.org>
+X-GnuGP-Key: http://c-otto.de/pubkey.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/31/06, Dominik Brodowski <linux@dominikbrodowski.net> wrote:
-> Hi,
->
-> Something strange goes on when I try to switch more than two times between
-> gnome themes using gnome-theme-manager: the X server is killed -- that also
-> happens with 2.6.15, and that is surely an userspace bug, and the login
-> manager restarts. With current git and also with 2.6.16-rc1-mm3 and -mm4
-> sometimes the screen, and _only_ the screen is "frozen", and all the time
-> IRQ 10 is disabled:
->
->  10:      34430          XT-PIC  Intel 82801DB-ICH4, Intel 82801DB-ICH4
-> Modem, yenta, yenta, ehci_hcd:usb1, uhci_hcd:usb2, i915@pci:0000:00:02.0
->
-> What's a bit strange about this is that the IRQ handler for i915 seems to be
-> gone right at the moment the "nobody cared" check triggers -- maybe the IRQ
-> handler is unregistered (a bit) too early?
->
-> CONFIG_AGP_INTEL=y
-> CONFIG_DRM_I915=y
->
-> 00:00.0 Host bridge: Intel Corporation 82852/82855 GM/GME/PM/GMV Processor to I/O Controller (rev 02)
-> 00:00.1 System peripheral: Intel Corporation 82852/82855 GM/GME/PM/GMV Processor to I/O Controller (rev 02)
-> 00:00.3 System peripheral: Intel Corporation 82852/82855 GM/GME/PM/GMV Processor to I/O Controller (rev 02)
-> 00:02.0 VGA compatible controller: Intel Corporation 82852/855GM Integrated Graphics Device (rev 02)
-> 00:02.1 Display controller: Intel Corporation 82852/855GM Integrated Graphics Device (rev 02)
->
 
-Can you try the patch at
-http://www.skynet.ie/~airlied/patches/dri/i915_irq_stop.diff
+--ikeVEW9yuYc//A+q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I think it might fix it, it cleans up any pending interrupts on disable..
+On Mon, Feb 13, 2006 at 08:04:29PM -0800, Andrew Morton wrote:
+> Is that new behaviour?
 
-Dave.
+Yes.
+
+> If so, which was the most recent kernel which
+> worked OK?
+
+2.6.15.1 (but without this patch and therefore without sound from the
+emu10k1).
+
+> What sort of video card are you using?
+
+Geforce 4 4600 (AGP, NVIDIA). Driver: 8178
+
+Thanks,
+--=20
+Carsten Otto
+c-otto@gmx.de
+www.c-otto.de
+
+--ikeVEW9yuYc//A+q
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFD8X9OjUF4jpCSQBQRAmqtAJ97nh1CfLG77k+rAlwKyUXbdKKhJQCfRfLL
+PEMKE4GQYcod5CZqtereoqE=
+=pK+X
+-----END PGP SIGNATURE-----
+
+--ikeVEW9yuYc//A+q--

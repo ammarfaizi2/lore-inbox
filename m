@@ -1,110 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422845AbWBNWcD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422847AbWBNWcm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422845AbWBNWcD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 17:32:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422846AbWBNWcD
+	id S1422847AbWBNWcm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 17:32:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422846AbWBNWcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 17:32:03 -0500
-Received: from mail.kroah.org ([69.55.234.183]:28365 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1422845AbWBNWcA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 17:32:00 -0500
-Date: Tue, 14 Feb 2006 14:24:28 -0800
-From: Greg KH <greg@kroah.com>
-To: Olivier Galibert <galibert@pobox.com>,
-       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       linux-kernel@vger.kernel.org
+	Tue, 14 Feb 2006 17:32:41 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:63132
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1422844AbWBNWcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 17:32:32 -0500
+From: Rob Landley <rob@landley.net>
+To: Olivier Galibert <galibert@pobox.com>
 Subject: Re: Device enumeration (was Re: CD writing in future Linux (stirring up a hornets' nest))
-Message-ID: <20060214222428.GA357@kroah.com>
-References: <43D7C1DF.1070606@gmx.de> <20060213175046.GA20952@kroah.com> <20060213195322.GB89006@dspnet.fr.eu.org> <200602140023.15771.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060214104003.GA97714@dspnet.fr.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Date: Tue, 14 Feb 2006 17:32:22 -0500
+User-Agent: KMail/1.8.3
+Cc: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <43D7C1DF.1070606@gmx.de> <200602140023.15771.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060214104003.GA97714@dspnet.fr.eu.org>
 In-Reply-To: <20060214104003.GA97714@dspnet.fr.eu.org>
-User-Agent: Mutt/1.5.11
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200602141732.22712.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 14, 2006 at 11:40:04AM +0100, Olivier Galibert wrote:
-> On Tue, Feb 14, 2006 at 12:23:15AM -0500, Andrew James Wade wrote:
-> > On Monday 13 February 2006 14:53, Olivier Galibert wrote:
-> > > Problem: finding and talking to all the devices which have capability
-> > > <x>, as long as the system administrator allows.
-> > ... 
-> > > At that point, we get several answers:
-> > ...
+On Tuesday 14 February 2006 5:40 am, Olivier Galibert wrote:
+
 > > > 4- sysfs has all the information you need, just read it
-> > ...
-> > > Answer 4 would be very nice if it was correct.  sysfs is pretty much
-> > > mandatory at that point, and modulo some fixable incompleteness
-> > > provides all the capability information and model names and everything
-> > > needed to find the useful devices.  What it does not provide is the
-> > > mapping between a device as found in sysfs, and a device node you can
-> > > open to talk to the device. You get the major/minor, which allows you 
-> > > to create a temporary device node iff you're root.  Or you can scan
-> > > all the nodes in /dev to find the one to open, which is kinda
-> > > ridiculous and inefficient.  Or you have to go back to udev/hal to ask
-> > > for the sysfs node/device node path mapping, and then why use sysfs in
-> > > the first place.
-> >      They're providing different things. Enumerating devices (as the kernel
-> > sees them) is sysfs's business. Providing device nodes is not the kernel's
-> > business, and should not be. (The kernel doesn't know the appropriate
-> > permissions). And while it can be used to enumerate devices, that's not
-> > really the function of /dev. It's providing the device nodes with the
-> > appropriate permissions, and hopefully with names that are meaningful
-> > to the users. So you really need both sysfs and /dev.
-> 
-> Indeed.
-> 
-> 
-> > The difficulty is the mapping between sysfs and /dev.
-> 
-> Which is what I say each time.
-> 
-> 
+
+There's no ownership or permissions information in sysfs.  Even busybox's 
+eight kilobyte micro-udev replacement has the option for an /etc/mdev.conf to 
+specify permissions and ownership on device nodes.
+
 > > That mapping should not live in sysfs,
-> > /dev is none of the kernel's business and sysfs is the kernel's playground.
-> 
+> > /dev is none of the kernel's business and sysfs is the kernel's
+> > playground.
+>
 > Why not have udev and whatever comes after tell the kernel so that a
 > symlink is done in sysfs?  The kernel not deciding policy do not
 > prevent it from storing and giving back userland-provided information.
-> You get the best of both worlds, complete device information including
-> how to talk with it in sysfs, and complete naming and policy setting
-> in userspace.
 
-Because if you have to have udev push the names back into the kernel,
-why not just ask udev in the first place what they were?  It's just
-pointless to add this to the kernel.  It doesn't belong there at all.
-
-Anyway, udev isn't the tool to rely on for this stuff anyway, that's
-what HAL is for.  If you don't like how HAL is working out, then go take
-it up with those developers.  And if you have specific udev issues,
-please, bring it up on the linux-hotplug-devel mailing list.
-
-Either way, again, it's not a kernel issue.
+That wouldn't help us.  If userspace generates the info, then userspace can 
+drop a note in /dev or something to keep it there.
 
 > I guess you didn't bother to read the "answer 3" paragraph of my
 > email.  Do you trust udev to still exist two years from now, given
-> that hotplug died in less than that?
+> that hotplug died in less than that?  Do you trust udevinfo to have
+> the same interface two years from now given that the current interface
+> is already incompatible with a not even two-years old one (udev 039,
+> 15-Oct-2004 according to kernel.org) which is widely deployed as part
+> of fedora core 3?
 
-Huh?  Do you know when hotplug showed up?  2.3.99-something.  And it
-still works just fine today if you want to use it.  It hasn't gone away
-at all.  All that is changed is how the distros use that interface.  The
-fact that some distros have depreciated how it is used has nothing to do
-with the kernel.  Take it up with those distros, nothing the kernel
-developers can do here.
+You want something simple and stable?
 
-> Do you trust udevinfo to have the same interface two years from now
-> given that the current interface is already incompatible with a not
-> even two-years old one (udev 039, 15-Oct-2004 according to kernel.org)
-> which is widely deployed as part of fedora core 3?
+Busybox's mdev should still be there, and have the same interface, two 
+years from now.  (We may have to fix it between now and then if the kernel 
+keeps moving out from under us, but that shouldn't change how you set up and 
+use it.)
 
-Again, use HAL, not udev for this stuff.  FC3 is also out of date for
-lots of things becides udev, so why refer to it?
+When you call "mdev -s", we iterate through /sys/class and sys/block looking 
+for "dev" nodes containing a "major:minor" string, and take the name of the 
+directory we find each /dev node in as the name of the device to mknod 
+in /dev.  (As an option, it can check /etc/mdev.conf which has three 
+space-separated fields: a regex, a numeric colon-separated uid:gid pair, and 
+octal permissions.  "tty[0-9]* 0:42 770".  Stops at the first match and uses 
+that ownership and permission info for the new node.  If there's no mdev.conf 
+or it doesn't match any regex against the name it's creating, it defaults to 
+0:0 and 660.)
 
-> Of course I can always go the ALSA way, hardcode the device names and
-> tell udev (and the user) to fuck off.
+If you call it without -s, it assumes it was called from /sbin/hotplug and 
+looks at its environment variables to figure out what device node to 
+create/delete.
 
-As is your right.  Have fun.
+That's it.  That's all we do.  No persistent naming, no device renaming, /dev 
+is a flat namespace with no subdirectories, mounting tmpfs on it before 
+calling us is your problem, as is putting /dev/pts and /dev/shm in there...
 
-greg k-h
+Changes to the kernel have already managed to break us twice 
+(switching /sys/class from real subdirectories to symlinks means we can't 
+just ignore symlinks when recursing down through directories anymore, which 
+is a problem because the existing symlinks form loops.  And 
+deprecating /sbin/hotplug means we've got to bloat the code with netlink 
+stuff.)  But we'll cope, and the user interface isn't changing.
+
+We can extend the mdev.conf file to specify other stuff.  (Such as append a 
+command line as an optional argument #4 to execute when one of these suckers 
+is created/destroyed.  But so far, it's really really simple and our target 
+audience hasn't needed more than that.)
+
+If you want to try mdev, grab the most recent snapshot from 
+busybox.net/downloads/snapshots and build it this way:
+
+make allnoconfig
+echo "CONFIG_MDEV=y" >> .config
+echo "CONFIG_FEATURE_MDEV_CONF=y" >> .config
+make
+mv busybox mdev
+
+There you go, standalone 8k binary.  It'll come standard in the busybox 1.1.1 
+release.  (It was in 1.1.0, but had a bug.)
+
+Rob
+-- 
+Never bet against the cheap plastic solution.

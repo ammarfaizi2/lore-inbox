@@ -1,55 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbWBNE2a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030320AbWBNEgz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750977AbWBNE2a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 23:28:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWBNE23
+	id S1030320AbWBNEgz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 23:36:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbWBNEgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 23:28:29 -0500
-Received: from mx1.rowland.org ([192.131.102.7]:11536 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S1750962AbWBNE23 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 23:28:29 -0500
-Date: Mon, 13 Feb 2006 23:28:27 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: Phillip Susi <psusi@cfl.rr.com>, Alon Bar-Lev <alon.barlev@gmail.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Flames over -- Re: Which is simpler?
-In-Reply-To: <DD0B9449-14AF-47D1-8372-DDC7E896DBC2@mac.com>
-Message-ID: <Pine.LNX.4.44L0.0602132317530.20628-100000@netrider.rowland.org>
+	Mon, 13 Feb 2006 23:36:55 -0500
+Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:61520 "EHLO
+	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1030320AbWBNEgz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 23:36:55 -0500
+Message-ID: <43F15E65.4090102@bigpond.net.au>
+Date: Tue, 14 Feb 2006 15:36:53 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andreas Gruenbacher <agruen@suse.de>
+CC: quilt-dev@nongnu.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Quilt-dev] Quilt 0.43 has been released! [SERIOUS BUG]
+References: <20060202230210.05a6ad4a.khali@linux-fr.org> <43F14DAA.6000703@bigpond.net.au> <200602140510.54960.agruen@suse.de>
+In-Reply-To: <200602140510.54960.agruen@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 14 Feb 2006 04:36:53 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Feb 2006, Kyle Moffett wrote:
+Andreas Gruenbacher wrote:
+> On Tuesday 14 February 2006 04:25, Peter Williams wrote:
+> 
+>>The problem arises when pushing a patch that has errors in it (due to
+>>changes in the previous patches in the series) and needs the -f flag to
+>>force the push.  What's happening is that the reverse of the errors is
+>>being applied to the "pre patch" file in the .pc directory.  Then when
+>>you pop this patch it returns the file to a state with the reverse of
+>>the errors applied to it.
+> 
+> 
+> Found and fixed. It's a missed rollback_patch on one of the two branches of 
+> the code that checks if a patch can be reverse applied.
 
-> Which causes worse data-loss, writing out cached pages and filesystem  
-> metadata to a filesystem that has changed in the mean-time (possibly  
-> allocating those for metadata, etc) or forcibly unmounting it as  
-> though the user pulled the cable?  Most filesystems are designed to  
-> handle the latter (it's the same as a hard-shutdown), whereas _none_  
-> are designed to handle the former.
+That was quick.
 
-That's a good point.  Furthermore, any decent suspend script will flush
-all dirty buffers to disk before suspending anything.
+> This case apparently 
+> doesn't trigger as easily as it seems, or else we would have found it sooner. 
+> Still quite bad.
+> 
+> Shall we wait until the translations are up-to-date again, or release 0.44 
+> immediately?
+> 
+> 
+>>I'm having trouble understanding how quilt could be dumb enough to do
+>>this as surely the "pre patch" file in the .pc directory should be just
+>>a copy of the file before the patch is applied.
+> 
+> 
+> Hey, it's just a bug.
 
-> A good set of suspend scripts should handle the hardware-suspend with  
-> no extra work because hardware supporting hardware-suspend basically  
-> inevitably supports USB low-power-mode,
+:-)
 
-Unfortunately a lot of hardware doesn't support USB low-power mode.  I 
-guess you'd say therefore it doesn't really support hardware-suspend.  
-This may be so, but it's small comfort to the owners of those systems.
+> 
+> 
+>>This bug can completely hose a set of patches if the user doesn't notice
+>>it very early and do something about it.  The work around is to revert
+>>to version 0.42 of quilt.
+> 
+> 
+> You should have sent your gquilt announcement to the quilt-dev list as well. 
+> Thank you for summarizing the changes.
 
-I have to admit, although technically Phillip's argument is wrong, from a
-useability standpoint it is right.  Windows allows users to disconnect and
-reconnect USB storage devices while the system is hibernating, with no
-apparent ill effects -- although I've never tried to unplug one device and
-then plug in a different one on the same port while the computer was
-asleep.  I don't know to what extent Windows checks descriptors/serial 
-numbers/disk labels/whatever when it wakes up.
+Sorry.  They were mainly due to your change from "-p <patch>" to "-P 
+<patch>" for some commands.  The other issue was a change to the return 
+value and error message when "quilt top" was used in a directory without 
+any quilt data.  So no real changes to gquilt as seen by the user just 
+implementation changes.
 
-Alan Stern
+BTW the --version function made it possible to make gquilt still work 
+with versions earlier than 0.43.
 
+Thanks
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

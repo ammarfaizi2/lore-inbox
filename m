@@ -1,90 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030324AbWBNKME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbWBNKMD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030324AbWBNKME (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 05:12:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030316AbWBNKLi
+	id S1030300AbWBNKMD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 05:12:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030546AbWBNKMB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 05:11:38 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:40423 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030300AbWBNKLZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 05:11:25 -0500
-Message-ID: <43F1ACFF.2070702@jp.fujitsu.com>
-Date: Tue, 14 Feb 2006 19:12:15 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 14 Feb 2006 05:12:01 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:39658 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030274AbWBNKLm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 05:11:42 -0500
+Date: Tue, 14 Feb 2006 11:11:38 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de, mingo@elte.hu
+Subject: [PATCH 09/12] hrtimer: remove DEFINE_KTIME/ktime_to_clock_t
+Message-ID: <Pine.LNX.4.61.0602141111320.3736@scrub.home>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Andrew Morton <akpm@osdl.org>, axp-list@redhat.com
-Subject: [PATCH] unify pfn_to_page take3 [5/23] alpha pfn_to_page
-References: <43F1A753.2020003@jp.fujitsu.com>
-In-Reply-To: <43F1A753.2020003@jp.fujitsu.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alpha can use generic funcs.
 
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Now that it_real_value is gone, the last user of DEFINE_KTIME and
+ktime_to_clock_t are also gone, so remove it before someone starts using
+it again.
 
-Index: testtree/include/asm-alpha/mmzone.h
+Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+---
+
+ include/linux/ktime.h |   20 --------------------
+ 1 file changed, 20 deletions(-)
+
+Index: linux-2.6-git/include/linux/ktime.h
 ===================================================================
---- testtree.orig/include/asm-alpha/mmzone.h
-+++ testtree/include/asm-alpha/mmzone.h
-@@ -59,9 +59,6 @@ PLAT_NODE_DATA_LOCALNR(unsigned long p,
-  #define kvaddr_to_nid(kaddr)	pa_to_nid(__pa(kaddr))
-  #define node_start_pfn(nid)	(NODE_DATA(nid)->node_start_pfn)
-
--#define local_mapnr(kvaddr) \
--      ((__pa(kvaddr) >> PAGE_SHIFT) - node_start_pfn(kvaddr_to_nid(kvaddr)))
+--- linux-2.6-git.orig/include/linux/ktime.h	2006-02-14 04:56:26.000000000 +0100
++++ linux-2.6-git/include/linux/ktime.h	2006-02-14 04:56:42.000000000 +0100
+@@ -64,9 +64,6 @@ typedef union {
+ 
+ #if (BITS_PER_LONG == 64) || defined(CONFIG_KTIME_SCALAR)
+ 
+-/* Define a ktime_t variable and initialize it to zero: */
+-#define DEFINE_KTIME(kt)		ktime_t kt = { .tv64 = 0 }
 -
-  /*
-   * Given a kaddr, LOCAL_BASE_ADDR finds the owning node of the memory
-   * and returns the kaddr corresponding to first physical page in the
-@@ -104,19 +101,8 @@ PLAT_NODE_DATA_LOCALNR(unsigned long p,
-  	__xx;                                                           \
-  })
-
--#define pfn_to_page(pfn)						\
--({									\
-- 	unsigned long kaddr = (unsigned long)__va((pfn) << PAGE_SHIFT);	\
--	(NODE_DATA(kvaddr_to_nid(kaddr))->node_mem_map + local_mapnr(kaddr));	\
--})
+ /**
+  * ktime_set - Set a ktime_t variable from a seconds/nanoseconds value
+  *
+@@ -113,9 +110,6 @@ static inline ktime_t timeval_to_ktime(s
+ /* Map the ktime_t to timeval conversion to ns_to_timeval function */
+ #define ktime_to_timeval(kt)		ns_to_timeval((kt).tv64)
+ 
+-/* Map the ktime_t to clock_t conversion to the inline in jiffies.h: */
+-#define ktime_to_clock_t(kt)		nsec_to_clock_t((kt).tv64)
 -
--#define page_to_pfn(page)						\
--	((page) - page_zone(page)->zone_mem_map +			\
--	 (page_zone(page)->zone_start_pfn))
+ /* Convert ktime_t to nanoseconds - NOP in the scalar storage format: */
+ #define ktime_to_ns(kt)			((kt).tv64)
+ 
+@@ -136,9 +130,6 @@ static inline ktime_t timeval_to_ktime(s
+  *   tv.sec < 0 and 0 >= tv.nsec < NSEC_PER_SEC
+  */
+ 
+-/* Define a ktime_t variable and initialize it to zero: */
+-#define DEFINE_KTIME(kt)		ktime_t kt = { .tv64 = 0 }
 -
-  #define page_to_pa(page)						\
--	((( (page) - page_zone(page)->zone_mem_map )			\
--	+ page_zone(page)->zone_start_pfn) << PAGE_SHIFT)
-+	(page_to_pfn(page) << PAGE_SHIFT)
-
-  #define pfn_to_nid(pfn)		pa_to_nid(((u64)(pfn) << PAGE_SHIFT))
-  #define pfn_valid(pfn)							\
-Index: testtree/include/asm-alpha/page.h
-===================================================================
---- testtree.orig/include/asm-alpha/page.h
-+++ testtree/include/asm-alpha/page.h
-@@ -85,8 +85,6 @@ typedef unsigned long pgprot_t;
-  #define __pa(x)			((unsigned long) (x) - PAGE_OFFSET)
-  #define __va(x)			((void *)((unsigned long) (x) + PAGE_OFFSET))
-  #ifndef CONFIG_DISCONTIGMEM
--#define pfn_to_page(pfn)	(mem_map + (pfn))
--#define page_to_pfn(page)	((unsigned long)((page) - mem_map))
-  #define virt_to_page(kaddr)	pfn_to_page(__pa(kaddr) >> PAGE_SHIFT)
-
-  #define pfn_valid(pfn)		((pfn) < max_mapnr)
-@@ -95,9 +93,9 @@ typedef unsigned long pgprot_t;
-
-  #define VM_DATA_DEFAULT_FLAGS		(VM_READ | VM_WRITE | VM_EXEC | \
-  					 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
+ /* Set a ktime_t variable to a value in sec/nsec representation: */
+ static inline ktime_t ktime_set(const long secs, const unsigned long nsecs)
+ {
+@@ -255,17 +246,6 @@ static inline struct timeval ktime_to_ti
+ }
+ 
+ /**
+- * ktime_to_clock_t - convert a ktime_t variable to clock_t format
+- * @kt:		the ktime_t variable to convert
+- *
+- * Returns a clock_t variable with the converted value
+- */
+-static inline clock_t ktime_to_clock_t(const ktime_t kt)
+-{
+-	return nsec_to_clock_t( (u64) kt.tv.sec * NSEC_PER_SEC + kt.tv.nsec);
+-}
 -
-  #endif /* __KERNEL__ */
-
-+#include <asm-generic/memory_model.h>
-  #include <asm-generic/page.h>
-
-  #endif /* _ALPHA_PAGE_H */
-
+-/**
+  * ktime_to_ns - convert a ktime_t variable to scalar nanoseconds
+  * @kt:		the ktime_t variable to convert
+  *

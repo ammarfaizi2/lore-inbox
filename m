@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161076AbWBNPWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161074AbWBNPWB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161076AbWBNPWV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 10:22:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161075AbWBNPWV
+	id S1161074AbWBNPWB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 10:22:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161075AbWBNPWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 10:22:21 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:13572 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161076AbWBNPWN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 10:22:13 -0500
-Date: Tue, 14 Feb 2006 16:22:12 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Hannes Reinecke <hare@suse.de>, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/scsi/aic7xxx/aic79xx_core.c: make ahd_done_with_status() static
-Message-ID: <20060214152212.GH10701@stusta.de>
+	Tue, 14 Feb 2006 10:22:01 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:16559 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1161074AbWBNPWA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 10:22:00 -0500
+Message-ID: <43F1F56C.7000307@zytor.com>
+Date: Tue, 14 Feb 2006 07:21:16 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+CC: jengelh@linux01.gwdg.de, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       austin-group-l@opengroup.org
+Subject: Re: The naming of at()s is a difficult matter
+References: <43EEACA7.5020109@zytor.com> <Pine.LNX.4.61.0602121137090.25363@yvahk01.tjqt.qr> <43F09320.nailKUSI1GXEI@burner> <Pine.LNX.4.61.0602140916440.7198@yvahk01.tjqt.qr> <43F1F2C2.nailMWZGOQDYR@burner>
+In-Reply-To: <43F1F2C2.nailMWZGOQDYR@burner>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes a needlessly global function static.
+Joerg Schilling wrote:
+> 
+> I am not shure if this would match the rules from the Opengroup.
+> Solaris has these interfaces since at least 5 years.
+> 
 
+Surely you're not suggesting that TOG's job is to rubber-stamp bad 
+Solaris decisions...
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
-This patch was already sent on:
-- 3 Feb 2006
-
---- linux-2.6.16-rc1-mm5-full/drivers/scsi/aic7xxx/aic79xx_core.c.old	2006-02-03 16:41:13.000000000 +0100
-+++ linux-2.6.16-rc1-mm5-full/drivers/scsi/aic7xxx/aic79xx_core.c	2006-02-03 16:41:28.000000000 +0100
-@@ -7382,7 +7382,7 @@
- 	ahd->flags &= ~AHD_UPDATE_PEND_CMDS;
- }
- 
--void
-+static void
- ahd_done_with_status(struct ahd_softc *ahd, struct scb *scb, uint32_t status)
- {
- 	cam_status ostat;
-
+	-hpa

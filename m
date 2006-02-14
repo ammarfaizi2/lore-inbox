@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422691AbWBNRUU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422692AbWBNRUk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422691AbWBNRUU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 12:20:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422692AbWBNRUU
+	id S1422692AbWBNRUk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 12:20:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422693AbWBNRUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 12:20:20 -0500
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:48536 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S1422691AbWBNRUS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 12:20:18 -0500
-X-IronPort-AV: i="4.02,114,1139212800"; 
-   d="scan'208"; a="1776299931:sNHT2061738198"
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Roland Dreier <rolandd@cisco.com>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: AMD 8131 and MSI quirk
-X-Message-Flag: Warning: May contain useful information
-References: <524q799p2t.fsf@cisco.com> <20060214165222.GC12974@mellanox.co.il>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 14 Feb 2006 09:19:49 -0800
-In-Reply-To: <20060214165222.GC12974@mellanox.co.il> (Michael S. Tsirkin's
- message of "Tue, 14 Feb 2006 18:52:22 +0200")
-Message-ID: <adabqx9vowa.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Tue, 14 Feb 2006 12:20:39 -0500
+Received: from adsl-71-140-189-62.dsl.pltn13.pacbell.net ([71.140.189.62]:393
+	"EHLO aexorsyst.com") by vger.kernel.org with ESMTP
+	id S1422692AbWBNRUi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 12:20:38 -0500
+From: "John Z. Bohach" <jzb@aexorsyst.com>
+Reply-To: jzb@aexorsyst.com
+To: Al Viro <viro@ftp.linux.org.uk>, Phillip Susi <psusi@cfl.rr.com>
+Subject: Re: root=/dev/sda1 fails but root=0x0801 works...
+Date: Tue, 14 Feb 2006 09:20:20 -0800
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
+References: <200602132316.15992.jzb@aexorsyst.com> <43F1FA74.80607@cfl.rr.com> <20060214162458.GD27946@ftp.linux.org.uk>
+In-Reply-To: <20060214162458.GD27946@ftp.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 14 Feb 2006 17:20:16.0030 (UTC) FILETIME=[EBF09BE0:01C6318A]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602140920.20685.jzb@aexorsyst.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Michael> The following should do this IMO. Roland, could you test
-    Michael> this patch please?
+On Tuesday 14 February 2006 08:24, Al Viro wrote:
+> On Tue, Feb 14, 2006 at 10:42:44AM -0500, Phillip Susi wrote:
+> > This is expected behavior.  The kernel doesn't have a /dev at the time
+> > it mounts the root fs so it has no idea what /dev/sda1 is.
+>
+> Incorrect.  Read init/do_mounts.c::name_to_dev_t().
 
-I'll need to find a system with the required setup; unfortunately I
-don't have one myself.
+Thanks for the info...Philip, you are correct, but for the wrong reason.  Al,
+you hit it right on the head...
 
-What's required is an Opteron motherboard with both an AMD 8131 PCI-X
-bridge and a PCI Express slot (typically Nvidia Nforce4), and an
-MSI-capable device (such as a Mellanox HCA) on the PCIe bus.  I know
-that eg Tyan makes such a motherboard.  Does anyone reading this have
-a setup like that?
+It is intentional behavior, but the reason is that
+for name_to_dev_t() to work, CONFIG_SYSFS must be enabled...so there's
+my connection to the CONFIG_* option that I suspected...
 
- - R.
+Thanks again...
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+     ###  Any similarity between my views and the truth is completely ###
+     ###  coincidental, except that they are endorsed by NO ONE       ###
+

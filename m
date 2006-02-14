@@ -1,37 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030583AbWBNTAq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030595AbWBNTBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030583AbWBNTAq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 14:00:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030587AbWBNTAp
+	id S1030595AbWBNTBn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 14:01:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030592AbWBNTBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 14:00:45 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:37262 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1030583AbWBNTAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 14:00:45 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Tue, 14 Feb 2006 19:59:19 +0100
-To: schilling@fokus.fraunhofer.de, greg@kroah.com
-Cc: nix@esperi.org.uk, linux-kernel@vger.kernel.org, davidsen@tmr.com,
-       axboe@suse.de
+	Tue, 14 Feb 2006 14:01:43 -0500
+Received: from mail.tmr.com ([64.65.253.246]:8973 "EHLO firewall2.tmr.com")
+	by vger.kernel.org with ESMTP id S1030596AbWBNTBn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 14:01:43 -0500
+Date: Tue, 14 Feb 2006 14:01:15 -0500 (EST)
+From: Bill Davidsen <tmrbill@tmr.com>
+Reply-To: davidsen@tmr.com
+To: Greg KH <greg@kroah.com>
+cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, <davidsen@tmr.com>,
+       <nix@esperi.org.uk>, <linux-kernel@vger.kernel.org>, <axboe@suse.de>
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F22887.nailCA4XYHC4@burner>
-References: <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
- <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
- <20060125181847.b8ca4ceb.grundig@teleline.es>
- <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de>
- <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com>
- <20060210235654.GA22512@kroah.com> <43F0891E.nailKUSCGC52G@burner>
- <20060213154921.GA22597@kroah.com>
 In-Reply-To: <20060213154921.GA22597@kroah.com>
-User-Agent: nail 11.2 8/15/04
+Message-ID: <Pine.LNX.4.44.0602141356550.7951-100000@firewall2.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
+On Mon, 13 Feb 2006, Greg KH wrote:
 
 > On Mon, Feb 13, 2006 at 02:26:54PM +0100, Joerg Schilling wrote:
 > > Greg KH <greg@kroah.com> wrote:
@@ -47,21 +39,31 @@ Greg KH <greg@kroah.com> wrote:
 > > > It does so today in sysfs, that is what it is there for.
 > > 
 > > Do you really whant libscg to open _every_ non-directory file under /sys?
->
+> 
 > Of course not.  Here's one line of bash that gets you the major:minor
 > file of every block device in the system:
 > 	block_devices="$(echo /sys/block/*/dev /sys/block/*/*/dev)"
->
+> 
 > The block devices are all in a specific location.
+> 
+> And here's a way to get the cdroms of the system:
+	[snip]
+> 
+> If you want to do this in C, there is a libsysfs, which should help you
+> out a bit on intregrating sysfs support into your program (although udev
+> has recently ripped it out and replaced it with 200 lines of code that
+> is way smaller and much faster...)
+> 
+> Hope this helps,
 
-Are you sure you understand the problem?
+Just determined that at least in FC4 the udev stuff doesn't seem to create 
+the sg devices, cdrecord doesn't work with devices which use the scsi 
+interface AFAIK, fails with USB, Firewire, and real SCSI devices.
 
-It isd most unlikely that all SCSI devices are there.
-
-Jörg
+I'm still looking at this, trying w/o udev.
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+bill davidsen <davidsen@tmr.com>
+  CTO TMR Associates, Inc
+Doing interesting things with little computers since 1979
+

@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030294AbWBNFrh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030314AbWBNF5S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030294AbWBNFrh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 00:47:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030296AbWBNFrh
+	id S1030314AbWBNF5S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 00:57:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbWBNF5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 00:47:37 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:49602 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030294AbWBNFrg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 00:47:36 -0500
-Message-Id: <200602140547.k1E5lNg19060@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Andrew Morton'" <akpm@osdl.org>
-Cc: <nickpiggin@yahoo.com.au>, <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
-Subject: RE: [patch 0/2] fix perf. bug in wake-up load balancing for aim7 and db workload
-Date: Mon, 13 Feb 2006 21:47:22 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Tue, 14 Feb 2006 00:57:18 -0500
+Received: from sv1.valinux.co.jp ([210.128.90.2]:13522 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S932347AbWBNF5S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 00:57:18 -0500
+Date: Tue, 14 Feb 2006 14:57:17 +0900
+From: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+To: "Suryanarayanan, Rajaram" <Rajaram.Suryanarayanan@in.unisys.com>
+Cc: vatsa@in.ibm.com, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net, balbir.singh@in.ibm.com
+Subject: Re: [ckrm-tech] [PATCH 1/2] add a CPU resource controller
+In-Reply-To: <88299102B8C1F54BB5C8E47F30B2FBE201E95DB0@inblr-exch1.eu.uis.unisys.com>
+References: <88299102B8C1F54BB5C8E47F30B2FBE201E95DB0@inblr-exch1.eu.uis.unisys.com>
+X-Mailer: Sylpheed version 2.2.0beta8 (GTK+ 2.8.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcYxGJFIQSeLxpczTkiETdGkKh6yfgADluWQ
-In-Reply-To: <20060213193856.696bf1f0.akpm@osdl.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Message-Id: <20060214055717.442A37402D@sv1.valinux.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote on Monday, February 13, 2006 7:39 PM
-> Post-mortem time.   Why was it merged?
-> 
-> This patch was added to -mm on 8 November 2006.  Was merged into mainline
-> 12 January 2006.  That's two months in -mm and one month in mainline.
-> 
-> I don't think it's reasonable to stretch the latency of scheduler patches
-> to even longer than three months and I doubt if that'll solve the problem.
-> 
-> Oh well, at least we found it.
+On Tue, 14 Feb 2006 11:05:48 +0530
+"Suryanarayanan, Rajaram" <Rajaram.Suryanarayanan@in.unisys.com> wrote:
 
-I guess I'm the one to blame :-(  Our kernel performance project needs to
-be more active in testing pending performance patches that sits in -mm.
+> Thanks Kurosawa. I am not able to get your second point.
+> I want to understand whether people will be able to choose and use any
+> one resource controller among these two ? Will both exist as part of
+> CKRM in future ? Also if anyone comes up with another new resource
+> controller in future, will it also be added to the existing choices ?
 
+Hmm...
+I suppose that the project manager of CKRM (Chandra?) will decide which 
+(or both) resource controller should be included in the CKRM.
 
-> > We should back out the above commit and add a sysctl variable to control the
-> > behavior of load balancing in wake up path, so user can dynamically select
-> > a mode that best fit for the workload environment.  And kernel can achieve
-> > best performance in two extreme ends of incompatible workload environments.
-> 
-> Well I don't see any benchmark numbers in the original patch.  Just an
-> assertion that it "should" help something.
-> 
-> I'm more inclined to revert it and not add the sysctl (ugh) until we have a
-> good reason to do so.
-
-The discussion on wake-up load balancing started July 28 last year [1].
-In that post, it was outlined that the performance patch gave 2.3% gain
-for db transaction processing workload.  It was then followed up by a
-couple of iterations, including one from Ingo[2] and one from Nick[3].
-
-I think we just demonstrated that there are two workloads exist today
-which has completely opposite requirement on load balancing in the
-wake up path.  People has tried to make kernel smart and detect work-
-load environment, but so far it hasn't worked.  And hence the sysctl
-that I'm proposing right now.
-
-
-[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=112259224917701&w=2
-[2] http://marc.theaimsgroup.com/?l=linux-kernel&m=112265450426975&w=2
-[3] http://marc.theaimsgroup.com/?l=linux-kernel&m=113051195601837&w=2
-
+-- 
+KUROSAWA, Takahiro

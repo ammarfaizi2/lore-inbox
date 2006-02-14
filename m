@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030367AbWBNG5J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030505AbWBNG6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030367AbWBNG5J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 01:57:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030503AbWBNG5I
+	id S1030505AbWBNG6K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 01:58:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030509AbWBNG6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 01:57:08 -0500
-Received: from harddata.com ([216.123.194.198]:5819 "EHLO mail.harddata.com")
-	by vger.kernel.org with ESMTP id S1030367AbWBNG5G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 01:57:06 -0500
-Date: Mon, 13 Feb 2006 23:55:50 -0700
-From: Michal Jaegermann <michal@harddata.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       "Brown, Len" <len.brown@intel.com>, davem@davemloft.net,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org, axboe@suse.de,
-       James.Bottomley@steeleye.com, greg@kroah.com,
-       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       luming.yu@intel.com, lk@bencastricum.nl, sanjoy@mrao.cam.ac.uk,
-       helgehaf@aitel.hist.no, fluido@fluido.as, gbruchhaeuser@gmx.de,
-       Nicolas.Mailhot@LaPoste.net, perex@suse.cz, tiwai@suse.de,
-       patrizio.bassi@gmail.com, bni.swe@gmail.com, arvidjaar@mail.ru,
-       p_christ@hol.gr, ghrt@dial.kappa.ro, jinhong.hu@gmail.com,
-       andrew.vasquez@qlogic.com, linux-scsi@vger.kernel.org, bcrl@kvack.org
-Subject: Re: Linux 2.6.16-rc3
-Message-ID: <20060214065550.GA27216@mail.harddata.com>
-References: <F7DC2337C7631D4386A2DF6E8FB22B30060BD1D9@hdsmsx401.amr.corp.intel.com> <20060213001240.05e57d42.akpm@osdl.org> <1139821068.2997.22.camel@laptopd505.fenrus.org> <20060214030821.GA23031@mail.harddata.com> <1139887857.11659.28.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1139887857.11659.28.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
+	Tue, 14 Feb 2006 01:58:09 -0500
+Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:63620 "EHLO
+	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S1030504AbWBNG6I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 01:58:08 -0500
+From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: Christoph Lameter <clameter@engr.sgi.com>
+Date: Tue, 14 Feb 2006 07:57:21 +0100
+MIME-Version: 1.0
+Subject: Re: 2.6.15:kernel/time.c: The Nanosecond and code duplication
+Cc: linux-kernel@vger.kernel.org
+Message-ID: <43F18D63.23094.53018CA@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+In-reply-to: <Pine.LNX.4.62.0602131308280.3026@schroedinger.engr.sgi.com>
+References: <43F05143.29965.5D3E74@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+X-mailer: Pegasus Mail for Windows (4.31)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.25/Sophos-P=4.02.0+V=4.02+U=2.07.127+R=06 February 2006+T=118673@20060214.064404Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 13, 2006 at 10:30:56PM -0500, Lee Revell wrote:
-> On Mon, 2006-02-13 at 20:08 -0700, Michal Jaegermann wrote:
-> > On Mon, Feb 13, 2006 at 09:57:48AM +0100, Arjan van de Ven wrote:
-> > > 
-> > > 2.6.15 went into distros as well, such as Fedora Core 4 ;)
-> > 
-> > And promptly broke laptop suspension.  See, for example:
-> > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=180998
+On 13 Feb 2006 at 13:11, Christoph Lameter wrote:
+
+> On Mon, 13 Feb 2006, Ulrich Windl wrote:
 > 
-> It broke suspension on YOUR laptop - the bug report does not give a make
-> and model.
+> > There's a hacked-on getnstimeofday() which, what I discovered doesn't actually 
+> > pass along the nanosecond resolution of xtime. It does:
+> 
+> This is the fall back function for arches without nanosecond 
+> resolution....
 
-Yes, indeed.  It is Acer Travelmate 230 and it is using
-'acpi_sleep=s3_bios'.  The bug report noted though that the
-following showed up:
+Like the i386 family? Having seen some more of the code, I found that the posix-
+timers.c also has it's own family of time routines (plus routines that seem quite 
+hard to use inside the kernel, so I added just another wrapper). I really think 
+these are too many functions all dealing with getting the current time. I really 
+think that nowadays all lower resolution clocks should be derived from the POSIX 
+time routines (I'm talking about the concept, not a particular implementation).
 
-Yenta O2: res at 0x94/0xD4: 00/ca
-Yenta O2: enabling read prefetch/write burst
-    ACPI-0265: *** Error: No installed handler for fixed event [00000002]
+> 
+> > The proper solution most likely is to define POSIX compatible routines with 
+> > nanosecond resolution, and then define the microsecond-resolution from those, and 
+> > not the other way round.
+> 
+> Right.
 
-which was not something which I have seen before and indeed on
-another laptop with the same kernel is absent.  But it was also not
-there on 230 with earlier kernels.
+;-)
 
-BTW - this another laptop mentioned above, which happens to be Acer
-Travelmate 740, is doing suspend/resume with 2.6.15 kernel, and no
-'acpi_sleep=s3_bios' is needed,  but shortly after such cycle both
-an external mouse and a touchpad go crazy and a mouse pointer
-refuses to move in X from the left screen edge.  Not very useful and
-so far I did not found a way to reset rodents.  No problems of that
-sort before I will try to suspend.  Always something "interesting".
-It is actually possible that in this case this is a problem with
-"ATI Radeon Mobility M6" video driver which gets upset by suspend
-(or some other pieces driving display) but I do not really know.
+Regards,
+Ulrich
 
-   Michal

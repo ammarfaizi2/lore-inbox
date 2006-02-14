@@ -1,40 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030581AbWBNOYR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030582AbWBNOZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030581AbWBNOYR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 09:24:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030582AbWBNOYR
+	id S1030582AbWBNOZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 09:25:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030583AbWBNOZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 09:24:17 -0500
-Received: from mail.gmx.de ([213.165.64.21]:6108 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030581AbWBNOYQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 09:24:16 -0500
-X-Authenticated: #428038
-Date: Tue, 14 Feb 2006 15:24:12 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: linux-kernel@vger.kernel.org, jerome.lacoste@gmail.com
+	Tue, 14 Feb 2006 09:25:27 -0500
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:32676 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1030582AbWBNOZ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 09:25:26 -0500
+Date: Tue, 14 Feb 2006 09:25:24 -0500
+To: Martin Mares <mj@ucw.cz>
+Cc: Marcin Dalecki <dalecki.marcin@neostrada.pl>,
+       Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       jerome.lacoste@gmail.com, peter.read@gmail.com, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       jengelh@linux01.gwdg.de, dhazelton@enter.net
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060214142412.GA3936@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	linux-kernel@vger.kernel.org, jerome.lacoste@gmail.com
-References: <20060208162828.GA17534@voodoo> <200602092241.29294.dhazelton@enter.net> <43F08D45.nailKUSE1SA4H@burner> <200602131801.47050.dhazelton@enter.net> <43F1DD0A.nailMWZ718HUV@burner>
-MIME-Version: 1.0
+Message-ID: <20060214142524.GC29940@csclub.uwaterloo.ca>
+References: <20060208162828.GA17534@voodoo> <20060210114721.GB20093@merlin.emma.line.org> <43EC887B.nailISDGC9CP5@burner> <200602090757.13767.dhazelton@enter.net> <43EC8F22.nailISDL17DJF@burner> <5a2cf1f60602100738r465dd996m2ddc8ef18bf1b716@mail.gmail.com> <43F06220.nailKUS5D8SL2@burner> <mj+md-20060213.104344.18941.atrey@ucw.cz> <2D9D57EA-1197-4965-82ED-61DEAF73D9F9@neostrada.pl> <mj+md-20060214.091056.25971.atrey@ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43F1DD0A.nailMWZ718HUV@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+In-Reply-To: <mj+md-20060214.091056.25971.atrey@ucw.cz>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-02-14:
+On Tue, Feb 14, 2006 at 10:20:30AM +0100, Martin Mares wrote:
+> That's unfortunately not true -- many USB devices don't have a usable
+> serial number.
+> 
+> Also, if I have a single device of its kind, let's say a USB mouse,
+> I really want to call it "The Mouse" and I don't want to reconfigure
+> anything if I plug it to a different port or replace it with a slightly
+> different mouse. All mice are considered equivalent by the user
+> as there is no reason to distinguish between them.
 
-> If you do not follow the spirit of the interface design
+Unless you are trying to setup two mice, two keyboards and two screens
+on one machine at the same time.  Some people do that.  Then which mouse
+is which is relevant.
 
-This is not a technical restriction, but a soaking sponge you can
-throw in anyone's face.
+> The same applies to CD burners -- as long as I have only one (which is
+> still the most common situation), I shouldn't have to think about how
+> to call it. Let it be just /dev/cdrw.
 
--- 
-Matthias Andree
+Many people have a cd writer and then add a dvd writer.  Not that
+unusual really.
+
+> When I get multiple such devices, things start getting interesting, but
+> there is no single naming strategy which fits all uses. For example,
+> if I have two USB ports into which I connect USB disks various people
+> bring to me, it's convenient to call them "left" and "right", because
+> the serial number doesn't mean anything to me if I haven't seen the
+> device before. On the other hand, if I connect my own drives, it makes
+> sense to call them by their serial numbers or something like that.
+> 
+> I think that it's clear from all this, that device naming is a matter
+> of policy and that the best the OS can do is to give the users a way
+> how to specify their policy, which is what udev does.
+
+Well udev is starting to look useful.  It no longer causes lots of
+breakage when I install it on my system. :)
+
+Len Sorensen

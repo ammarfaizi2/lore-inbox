@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbWBNAal@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbWBNAdE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030303AbWBNAal (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 19:30:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030323AbWBNAal
+	id S1030264AbWBNAdE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 19:33:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWBNAdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 19:30:41 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:63206 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030303AbWBNAak (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 19:30:40 -0500
-Date: Mon, 13 Feb 2006 19:29:14 -0500
-From: Dave Jones <davej@redhat.com>
-To: Dave Airlie <airlied@gmail.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mauro Tassinari <mtassinari@cmanet.it>, airlied@linux.ie
-Subject: Re: 2.6.16-rc3: more regressions
-Message-ID: <20060214002914.GB15878@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Dave Airlie <airlied@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
-	Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Mauro Tassinari <mtassinari@cmanet.it>, airlied@linux.ie
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org> <20060213170945.GB6137@stusta.de> <Pine.LNX.4.64.0602130931221.3691@g5.osdl.org> <20060213174658.GC23048@redhat.com> <Pine.LNX.4.64.0602130952210.3691@g5.osdl.org> <21d7e9970602131608y77c35b4fn63b8eeb4101a44d1@mail.gmail.com>
-Mime-Version: 1.0
+	Mon, 13 Feb 2006 19:33:04 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:12302 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1030264AbWBNAdC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Feb 2006 19:33:02 -0500
+To: "D. Hazelton" <dhazelton@enter.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
+	<43F0891E.nailKUSCGC52G@burner> <871wy6sy7y.fsf@hades.wkstn.nix>
+	<200602131903.08327.dhazelton@enter.net>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: if it payed rent for disk space, you'd be rich.
+Date: Tue, 14 Feb 2006 00:32:49 +0000
+In-Reply-To: <200602131903.08327.dhazelton@enter.net> (D. Hazelton's message
+ of "Mon, 13 Feb 2006 19:03:07 -0500")
+Message-ID: <87oe1ard8u.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <21d7e9970602131608y77c35b4fn63b8eeb4101a44d1@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 14, 2006 at 11:08:16AM +1100, Dave Airlie wrote:
- > >
- > > DaveA, I'll apply this for now. Comments?
- > >
- > 
- > (sorry - I've been finding my way back home from Xdevconf, just landed)...
- > 
- > I asked DaveJ I believe in one thread to disable Load "dri" in his
- > xorg.conf and report back,
+On Mon, 13 Feb 2006, D. Hazelton whispered secretively:
+> On Monday 13 February 2006 17:14, Nix wrote:
+>> (I doubt libscg would ever be interested in the stuff in most of the
+>> other directories: things like /dev/mem are not SCSI devices and never
+>> will be, and /sys/class/scsi_device contains *everything* Linux
+>> considers a SCSI device, no matter what transport it is on, SATA and
+>> all. However, I don't know if it handles IDE devices that you can SG_IO
+>> to because I don't have any such here. Anyone know?)
+> 
+> Not on my system, and I have a DVD-ROM and a CDRW drive attached, both of 
+> which are capable of SG_IO.
 
-Ah sorry about that.  You were just about to go to LCA when that came
-up, so I figured I'd wait until you had time to look at it again :)
+Blast. Well, all these SCSI-like things *should* appear in one place
+in /sys, dammit. Even if they don't right now. :/
 
-There's a log at http://people.redhat.com/davej/Xorg.0.log
-That doesn't have drm disabled, but it is being run on a kernel
-with the pci id commented out.  I'm a bit reluctant to reboot
-the workstation to try a non-drm enabled X at the moment, until
-some stuff finishes.  Let me know if that log is insufficient or not.
-
-		Dave
+-- 
+`... follow the bouncing internment camps.' --- Peter da Silva

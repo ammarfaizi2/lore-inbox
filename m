@@ -1,79 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030305AbWBNGAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbWBNGCF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030305AbWBNGAF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 01:00:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030404AbWBNGAF
+	id S1030473AbWBNGCF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 01:02:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030475AbWBNGCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 01:00:05 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:34021
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1030305AbWBNGAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 01:00:04 -0500
-Date: Mon, 13 Feb 2006 22:00:07 -0800
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [GIT PATCH] USB patches for 2.6.16-rc3
-Message-ID: <20060214060007.GA618@kroah.com>
-Mime-Version: 1.0
+	Tue, 14 Feb 2006 01:02:05 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57837 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030473AbWBNGCD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 01:02:03 -0500
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Kirill Korotaev <dev@sw.ru>, linux-kernel@vger.kernel.org,
+       vserver@list.linux-vserver.org, Herbert Poetzl <herbert@13thfloor.at>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: [RFC][PATCH 04/20] pspace: Allow multiple instaces of the
+ process id namespace
+References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>
+	<m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>
+	<m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1fymwmgk0.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1bqxkmgcv.fsf_-_@ebiederm.dsl.xmission.com> <43ECF803.8080404@sw.ru>
+	<m1psluw1jj.fsf@ebiederm.dsl.xmission.com> <43F04FD6.5090603@sw.ru>
+	<20060213170207.GB24200@sergelap.austin.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Mon, 13 Feb 2006 22:59:35 -0700
+In-Reply-To: <20060213170207.GB24200@sergelap.austin.ibm.com> (Serge E.
+ Hallyn's message of "Mon, 13 Feb 2006 11:02:07 -0600")
+Message-ID: <m1slqmtr94.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some USB patches for 2.6.16-rc3.  They do the following:
-	- build fix for sl811 driver.
-	- new device ids for ldusb, hid-core, and pl2303 drivers.
-	- take EXPERIMENTAL tag off of the ldusb driver.
-	- usb-storage unusual-devices update fixing some new devices.
-	- USB EHCI handoff fixup (fixes a number of reported problems.)
-	- ability to debug USB OHCI and UHCI handoff a bit easier.
+> This seems a very valid point.  And even if you implement code to detect
+> when a process exits whether it is a child_reaper for some pspace, you
+> can't just make pspace->child_reaper = pspace->child_reaper->child_reaper,
+> as the wid may not be valid in the grandparent's namespace, right?
 
-All of these patches have been in the -mm tree for a while.
+Right. What I have done is in the PSPACE_EXIT condition all children
+when they die self reap and have the global process reaper set to their
+parent.  However since exit_signal == -1 the initial process reaper
+never sees them.
 
-Please pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
+Even for a nested pspace I figure it is an error for anything to outlive
+init.  The wid not working is a valid reason for this however if it was
+really necessary a new wid value could be allocated.  As nothing on
+the inside of a pspace is directly aware of it. 
 
-The full patches will be sent to the linux-usb-devel mailing list, if
-anyone wants to see them.
+The situation is very similar to being behind a NAT firewall.
 
-thanks,
-
-greg k-h
-
- drivers/usb/host/pci-quirks.c      |   16 +++++++---
- drivers/usb/host/sl811_cs.c        |    4 +-
- drivers/usb/input/hid-core.c       |   50 ++++++++++++++++++--------------
- drivers/usb/misc/Kconfig           |    2 -
- drivers/usb/misc/ldusb.c           |   57 ++++++++++++++++++++-----------------
- drivers/usb/serial/pl2303.c        |    5 +--
- drivers/usb/serial/pl2303.h        |    4 ++
- drivers/usb/storage/unusual_devs.h |   52 +++++++++++++++++++++++++++++----
- 8 files changed, 127 insertions(+), 63 deletions(-)
-
-----
-
-Alan Stern:
-      usb-storage: new unusual_devs entry
-      usb-storage: unusual_devs entry
-      USB: unusual_devs.h entry: TrekStor i.Beat
-      USB: unusual_devs.h entry: iAUDIO M5
-
-Christian Lindner:
-      USB: PL2303: Leadtek 9531 GPS-Mouse
-
-David Brownell:
-      USB: fix up the usb early handoff logic for EHCI
-      USB: sl811_cs needs platform_device conversion too
-
-Michael Hund:
-      USB: add new device ids to ldusb
-      USB: change ldusb's experimental state
-
-Phil Dibowitz:
-      USB: unusual-devs bugfix
-
-
+Eric

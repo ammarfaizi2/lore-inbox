@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030472AbWBNFbL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbWBNFgZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030472AbWBNFbL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 00:31:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030469AbWBNFbK
+	id S1030208AbWBNFgZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 00:36:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030294AbWBNFgZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 00:31:10 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:41409 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030465AbWBNFbI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 00:31:08 -0500
-Subject: Re: Linux 2.6.16-rc3
-From: Arjan van de Ven <arjan@infradead.org>
-To: Michal Jaegermann <michal@harddata.com>
-Cc: Andrew Morton <akpm@osdl.org>, "Brown, Len" <len.brown@intel.com>,
-       davem@davemloft.net, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       axboe@suse.de, James.Bottomley@steeleye.com, greg@kroah.com,
-       linux-acpi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       luming.yu@intel.com, lk@bencastricum.nl, sanjoy@mrao.cam.ac.uk,
-       helgehaf@aitel.hist.no, fluido@fluido.as, gbruchhaeuser@gmx.de,
-       Nicolas.Mailhot@LaPoste.net, perex@suse.cz, tiwai@suse.de,
-       patrizio.bassi@gmail.com, bni.swe@gmail.com, arvidjaar@mail.ru,
-       p_christ@hol.gr, ghrt@dial.kappa.ro, jinhong.hu@gmail.com,
-       andrew.vasquez@qlogic.com, linux-scsi@vger.kernel.org, bcrl@kvack.org
-In-Reply-To: <20060214030821.GA23031@mail.harddata.com>
-References: <F7DC2337C7631D4386A2DF6E8FB22B30060BD1D9@hdsmsx401.amr.corp.intel.com>
-	 <20060213001240.05e57d42.akpm@osdl.org>
-	 <1139821068.2997.22.camel@laptopd505.fenrus.org>
-	 <20060214030821.GA23031@mail.harddata.com>
-Content-Type: text/plain
-Date: Tue, 14 Feb 2006 06:31:01 +0100
-Message-Id: <1139895061.4117.7.camel@laptopd505.fenrus.org>
+	Tue, 14 Feb 2006 00:36:25 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:8094 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030208AbWBNFgX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 00:36:23 -0500
+Date: Tue, 14 Feb 2006 11:08:52 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+Cc: "Suryanarayanan, Rajaram" <Rajaram.Suryanarayanan@in.unisys.com>,
+       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net,
+       balbir.singh@in.ibm.com
+Subject: Re: [ckrm-tech] [PATCH 1/2] add a CPU resource controller
+Message-ID: <20060214053852.GD28942@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <88299102B8C1F54BB5C8E47F30B2FBE201E95CD2@inblr-exch1.eu.uis.unisys.com> <20060214052604.7EA9174031@sv1.valinux.co.jp>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060214052604.7EA9174031@sv1.valinux.co.jp>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-13 at 20:08 -0700, Michal Jaegermann wrote:
-> On Mon, Feb 13, 2006 at 09:57:48AM +0100, Arjan van de Ven wrote:
-> > On Mon, 2006-02-13 at 00:12 -0800, Andrew Morton wrote:
-> > > 
-> > > I think we can assume that it will be seen there.  2.6.16 is going into
-> > > distros and will have more exposure than 2.6.15, 
-> > 
-> > 2.6.15 went into distros as well, such as Fedora Core 4 ;)
-> 
-> And promptly broke laptop suspension.  See, for example:
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=180998
+On Tue, Feb 14, 2006 at 02:26:04PM +0900, KUROSAWA Takahiro wrote:
+> It's not a forward port of the existing CPU resource controller 
+> but a new CPU resource controller for CKRM.  Its resource control
+> mechanism is different from that of the existing one.
 
+Hmm ..I guess it depends on which version of CKRM you are referring when
+you say "existing". When I replied earlier, I was referring to f-series.
+f-series cpu controller is based on the patch you sent to lkml right?
 
-fedora core 4 never really supported suspend in the first place tho..
-
-
+-- 
+Regards,
+vatsa

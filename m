@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbWBNGJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030477AbWBNGKD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030393AbWBNGJR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 01:09:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030423AbWBNGJR
+	id S1030477AbWBNGKD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 01:10:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030478AbWBNGKD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 01:09:17 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:62881 "EHLO
+	Tue, 14 Feb 2006 01:10:03 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:48802 "EHLO
 	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030393AbWBNGJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 01:09:16 -0500
-Message-ID: <43F17379.8010900@jp.fujitsu.com>
-Date: Tue, 14 Feb 2006 15:06:49 +0900
+	id S1030477AbWBNGKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 01:10:00 -0500
+Message-ID: <43F173B7.3030905@jp.fujitsu.com>
+Date: Tue, 14 Feb 2006 15:07:51 +0900
 From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
 User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 X-Accept-Language: ja, en-us, en
@@ -19,7 +19,7 @@ To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        linux-pci@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>,
        Greg KH <greg@kroah.com>
 CC: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: [RFC][PATCH 1/4] PCI legacy I/O port free driver - Introduce pci_set_bar_mask*()
+Subject: [RFC][PATCH 2/4] PCI legacy I/O port free driver - Update Documantion/pci.txt
 References: <43F172BA.1020405@jp.fujitsu.com>
 In-Reply-To: <43F172BA.1020405@jp.fujitsu.com>
 Content-Type: text/plain; charset=ISO-2022-JP
@@ -27,113 +27,49 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch introduces a new interface pci_select_resource() for PCI
-device drivers to tell kernel what resources they want to use. This
-interface enables some PCI device drivers to handle the devices even
-if no I/O resources are allocated to the devices.
+This patch adds the description about pci_select_resource() into
+Documenation/pci.txt.
 
 Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
 
- drivers/pci/pci.c   |   14 +++++++++-----
- drivers/pci/probe.c |    1 +
- include/linux/pci.h |   15 +++++++++++++++
- 3 files changed, 25 insertions(+), 5 deletions(-)
+ Documentation/pci.txt |   25 +++++++++++++++++++++++++
+ 1 files changed, 25 insertions(+)
 
-Index: linux-2.6.16-rc3/drivers/pci/pci.c
+Index: linux-2.6.16-rc3/Documentation/pci.txt
 ===================================================================
---- linux-2.6.16-rc3.orig/drivers/pci/pci.c	2006-02-14 12:25:10.000000000 +0900
-+++ linux-2.6.16-rc3/drivers/pci/pci.c	2006-02-14 12:27:59.000000000 +0900
-@@ -497,7 +497,7 @@
- {
- 	int err;
+--- linux-2.6.16-rc3.orig/Documentation/pci.txt	2006-01-03 12:21:10.000000000 +0900
++++ linux-2.6.16-rc3/Documentation/pci.txt	2006-02-14 12:28:03.000000000 +0900
+@@ -169,6 +169,31 @@
+ needed and wakes up the device if it was in suspended state. Please note
+ that this function can fail.
  
--	if ((err = pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1)))
-+	if ((err = pci_enable_device_bars(dev, dev->bar_mask)))
- 		return err;
- 	pci_fixup_device(pci_fixup_enable, dev);
- 	dev->is_enabled = 1;
-@@ -535,6 +535,7 @@
- 
- 	pcibios_disable_device(dev);
- 	dev->is_enabled = 0;
-+	pci_set_bar_mask(dev, (1 << PCI_NUM_RESOURCES) - 1);
- }
- 
- /**
-@@ -681,7 +682,8 @@
- 	int i;
- 	
- 	for (i = 0; i < 6; i++)
--		pci_release_region(pdev, i);
-+		if (pdev->bar_mask & (1 << i))
-+			pci_release_region(pdev, i);
- }
- 
- /**
-@@ -702,13 +704,15 @@
- 	int i;
- 	
- 	for (i = 0; i < 6; i++)
--		if(pci_request_region(pdev, i, res_name))
--			goto err_out;
-+		if (pdev->bar_mask & (1 << i))
-+			if (pci_request_region(pdev, i, res_name))
-+				goto err_out;
- 	return 0;
- 
- err_out:
- 	while(--i >= 0)
--		pci_release_region(pdev, i);
-+		if (pdev->bar_mask & (1 << i))
-+			pci_release_region(pdev, i);
- 		
- 	return -EBUSY;
- }
-Index: linux-2.6.16-rc3/drivers/pci/probe.c
-===================================================================
---- linux-2.6.16-rc3.orig/drivers/pci/probe.c	2006-02-14 12:25:10.000000000 +0900
-+++ linux-2.6.16-rc3/drivers/pci/probe.c	2006-02-14 12:27:59.000000000 +0900
-@@ -803,6 +803,7 @@
- 	dev->vendor = l & 0xffff;
- 	dev->device = (l >> 16) & 0xffff;
- 	dev->cfg_size = pci_cfg_space_size(dev);
-+	pci_set_bar_mask(dev, (1 << PCI_NUM_RESOURCES) - 1);
- 
- 	/* Assume 32-bit PCI; let 64-bit PCI cards (which are far rarer)
- 	   set this higher, assuming the system even supports it.  */
-Index: linux-2.6.16-rc3/include/linux/pci.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/linux/pci.h	2006-02-14 12:25:13.000000000 +0900
-+++ linux-2.6.16-rc3/include/linux/pci.h	2006-02-14 12:27:59.000000000 +0900
-@@ -143,6 +143,7 @@
- 	 */
- 	unsigned int	irq;
- 	struct resource resource[DEVICE_COUNT_RESOURCE]; /* I/O and memory regions + expansion ROMs */
-+	int		bar_mask;	/* bitmask of BAR's to be enabled */
- 
- 	/* These fields are used by common fixups */
- 	unsigned int	transparent:1;	/* Transparent PCI bridge */
-@@ -695,6 +696,20 @@
- }
- #endif /* HAVE_ARCH_PCI_RESOURCE_TO_USER */
- 
-+static inline void pci_set_bar_mask(struct pci_dev *dev, int mask)
-+{
-+	dev->bar_mask = mask;
-+}
++   If you want to enable only the specific type of regions of the device,
++you can tell it to the kernel by calling pci_set_bar_mask() or
++pci_set_bar_mask_by_resource() before calling pci_enable_device(). Once
++you tell it to the kernel, the following pci_enable_device() and
++pci_request_regions() call will handles only the regions you specified.
++The kernel will enables all regions of the device if you don't use
++pci_set_bar_mask*(). The pci_set_bar_mask*() would be needed to make some
++drivers legacy I/O port free. On the large servers, I/O port resource could
++not be assigned to all PCI devices because it is limited (64KB on Intel
++Architecture[1]) and it would be fragmented (I/O base register of
++PCI-to-PCI bridge will usually be aligned to a 4KB boundary[2]). In this
++case, pci_enable_device() for those devices will fail if you try to enable
++all the regions. However, it is a problem for some PCI devices that provide
++both I/O port and MMIO interface because some of them can be handled
++without using I/O port interface. The reason why such devices provide I/O
++port interface is for compatibility to legacy OSs. So this kind of devices
++should work even if enough I/O port resources are not assigned. The "PCI
++Local Bus Specification Revision 3.0" also mentions about this topic
++(Please see p.44, "IMPLEMENTATION NOTE"). You can solve this problem by
++using pci_set_bar_mask*(). Please note that the information specified
++through pci_set_bar_mask*() will be cleared at pci_disable_device() time.
++---
++[1] Some machines support 64KB I/O port space per PCI segment.
++[2] Some P2P bridges support optional 1KB aligned I/O base.
 +
-+static inline void pci_set_bar_mask_by_resource(struct pci_dev *dev,
-+						unsigned long mask)
-+{
-+	int i, bar_mask = 0;
-+	for (i = 0; i < PCI_NUM_RESOURCES; i++)
-+		if (pci_resource_flags(dev, i) & mask)
-+			bar_mask |= (1 << i);
-+	pci_set_bar_mask(dev, bar_mask);
-+}
- 
- /*
-  *  The world is not perfect and supplies us with broken PCI devices.
-
+    If you want to use the device in bus mastering mode, call pci_set_master()
+ which enables the bus master bit in PCI_COMMAND register and also fixes
+ the latency timer value if it's set to something bogus by the BIOS.
 
 

@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030346AbWBNEwu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030354AbWBNFCK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030346AbWBNEwu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 23:52:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030353AbWBNEwt
+	id S1030354AbWBNFCK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 00:02:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030348AbWBNFCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 23:52:49 -0500
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:13936 "EHLO
-	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S1030346AbWBNEwt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 23:52:49 -0500
-Message-ID: <43F1621D.1060401@suse.com>
-Date: Mon, 13 Feb 2006 23:52:45 -0500
-From: Jeffrey Mahoney <jeffm@suse.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Macintosh/20050923)
+	Tue, 14 Feb 2006 00:02:10 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:35333 "EHLO
+	cyberguard.com.au") by vger.kernel.org with ESMTP id S1030354AbWBNFCJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 00:02:09 -0500
+Message-ID: <43F16484.2080800@snapgear.com>
+Date: Tue, 14 Feb 2006 15:03:00 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: "Kevin O'Connor" <kevin@koconnor.net>, Chris Wright <chrisw@sous-sol.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, jmorris@namei.org
-Subject: Re: Size-128 slab leak
-References: <20060131024928.GA11395@double.lan>	 <20060201231001.0ca96bf0.akpm@osdl.org>  <20060203040018.GA3757@double.lan> <1138972872.18268.327.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1138972872.18268.327.camel@moss-spartans.epoch.ncsc.mil>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+To: Jon Ringle <jringle@vertical.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux running on a PCI Option device?
+References: <43EAE4AC.6070807@snapgear.com> <200602091131.12535.jringle@vertical.com>
+In-Reply-To: <200602091131.12535.jringle@vertical.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Smalley wrote:
-> BTW, Jeff - I assume you know about the unrelated breakage in
-> SELinux/reiserfs support that was introduced by the changes for atomic
-> security labeling of inodes in 2.6.14.  If you care, you might want to
-> use the same workaround upstreamed for xfs for 2.6.16.  But I understand
-> that SELinux is not a priority in SuSE presently.
+Hi Jon,
 
-Hi Stephen -
+Jon Ringle wrote:
+> On Thursday 09 February 2006 01:43 am, Greg Ungerer wrote:
+>>Jon Ringle wrote:
+>>>I am working on a new board that will have Linux running on an xscale
+>>>processor. This board will be a PCI Option device. I currently have a
+>>>IXDP465 eval board which has a PCI Option connector that I will use for
+>>>prototyping. From what I can tell so far, Linux wants to scan the PCI bus
+>>>for devices as if it is the PCI host. Is there any provision in Linux so
+>>>that it can take on the role of a PCI option rather than a PCI host?
+>>
+>>Have a look at the code in arch/arm/mach-ixp4xx/common-pci.c, in
+>>the function ixp4xx_pci_preinit().
+>>
+>>It does a check on whether the PCI bus is configured as HOST or not.
+>>I don't know if that code support is enough for it all to work right
+>>though (I certainly haven't tried it on either the 425 or 465...)
+> 
+> 
+> Something that I don't quite understand is how I'm supposed to make vendor Id 
+> information available to the PCI host. Any ideas there?
 
-Thanks for the reminder on this one. I have a series of patches that
-rework the reiserfs xattr implementation. One of the patches adds
-journalling for xattrs, including putting the inherited ACLs in the same
-transaction as the object creation. Adding the SELinux attribute to the
-same transaction wouldn't be too much of a problem.
+No, sorry, no idea. I haven't looked at it in that much detail.
 
-I should have a patch tomorrow, though it will depend on the xattr patchset.
+Regards
+Greg
 
--Jeff
 
---
-Jeff Mahoney
-SUSE Labs
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com

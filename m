@@ -1,89 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbWBNKCO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030248AbWBNKHX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030217AbWBNKCO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 05:02:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030280AbWBNKCO
+	id S1030248AbWBNKHX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 05:07:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbWBNKHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 05:02:14 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:19085 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030217AbWBNKCM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 05:02:12 -0500
-Date: Tue, 14 Feb 2006 05:01:50 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Ingo Molnar <mingo@elte.hu>, George Anzinger <george@wildturkeyranch.net>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH -rt] speed up nanosleep on early expire
-Message-ID: <Pine.LNX.4.58.0602140450290.1843@gandalf.stny.rr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Feb 2006 05:07:22 -0500
+Received: from mx0.towertech.it ([213.215.222.73]:14316 "HELO mx0.towertech.it")
+	by vger.kernel.org with SMTP id S1030248AbWBNKHW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 05:07:22 -0500
+Date: Tue, 14 Feb 2006 11:07:13 +0100
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: Paul Mundt <lethal@linux-sh.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 01/11] RTC subsystem, class
+Message-ID: <20060214110713.5600a427@inspiron>
+In-Reply-To: <20060214090253.GA32597@linux-sh.org>
+References: <20060213225416.865078000@towertech.it>
+	<20060213225417.074551000@towertech.it>
+	<20060214090253.GA32597@linux-sh.org>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 14 Feb 2006 11:02:53 +0200
+Paul Mundt <lethal@linux-sh.org> wrote:
 
-Here's a revisit of the problem of nanosleep waking up the softirq to wake
-itself up when the timer has already expired.  As mentioned in my last
-patch, this causes large latencies to nanosleep.  But the last patch was
-sloppy and introduced too much ugly code.
+> On Mon, Feb 13, 2006 at 11:54:17PM +0100, Alessandro Zummo wrote:
+> > --- linux-rtc.orig/drivers/Makefile	2006-02-13 19:34:35.000000000 +0100
+> > +++ linux-rtc/drivers/Makefile	2006-02-13 19:35:30.000000000 +0100
+> > @@ -56,6 +56,7 @@ obj-$(CONFIG_USB_GADGET)	+= usb/gadget/
+> >  obj-$(CONFIG_GAMEPORT)		+= input/gameport/
+> >  obj-$(CONFIG_INPUT)		+= input/
+> >  obj-$(CONFIG_I2O)		+= message/
+> > +obj-y				+= rtc/
+> >  obj-$(CONFIG_I2C)		+= i2c/
+> >  obj-$(CONFIG_W1)		+= w1/
+> >  obj-$(CONFIG_HWMON)		+= hwmon/
+> 
+> Why is this obj-y? obj-$(CONFIG_RTC_CLASS) perhaps?
 
-I should have noticed this the first time, but here's a much cleaner
-patch.  As the hrtimer_interrupt checks the data field to determine to
-wake the process up directly or to wake up the softirq, I noticed that the
-nanosleep doesn't even need the softirq.  So instead of waking up the
-softirq in enqueue_hrtimer, I do the same work as the hrtimer_interrupt
-does, and that is to wake up the process directly if there is no function
-associated with the timer.
+ there are a couple of primitives that are used
+ in different places in the kernel, even when rtc class
+ is not in use. mostly time struture conversion
+ and validation.
 
-I also saved a few microseconds by checking in schedule_hrtimer if current
-is already running don't call schedule.
+-- 
 
-This patch is much cleaner than the last patch, and gives pretty much the
-same result.
+ Best regards,
 
--- Steve
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
 
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+  http://www.towertech.it
 
-Index: linux-2.6.15-rt16/kernel/hrtimer.c
-===================================================================
---- linux-2.6.15-rt16.orig/kernel/hrtimer.c	2006-02-10 09:53:53.000000000 -0500
-+++ linux-2.6.15-rt16/kernel/hrtimer.c	2006-02-14 04:30:43.000000000 -0500
-@@ -578,9 +578,18 @@
- 		 * and schedule the softirq.
- 		 */
- 		if (hrtimer_hres_active && hrtimer_reprogram(timer, base)) {
--			list_add_tail(&timer->list, &base->expired);
--			timer->state = HRTIMER_PENDING_CALLBACK;
--			raise_softirq(HRTIMER_SOFTIRQ);
-+			/*
-+			 * Only wake up the hrtimer softirq if it is needed,
-+			 * otherwise wake up the process waiting for this timer.
-+			 */
-+			if (!timer->function) {
-+				wake_up_process(timer->data);
-+				timer->state = HRTIMER_EXPIRED;
-+			} else {
-+				list_add_tail(&timer->list, &base->expired);
-+				timer->state = HRTIMER_PENDING_CALLBACK;
-+				raise_softirq(HRTIMER_SOFTIRQ);
-+			}
- 			return;
- 		}
- #endif
-@@ -1029,7 +1038,13 @@
-
- 	hrtimer_start(timer, timer->expires, mode);
-
--	schedule();
-+	/*
-+	 * the timer could have arleady expired, in which
-+	 * case current would be running. Don't bother calling
-+	 * schedule.
-+	 */
-+	if (likely(current->state))
-+		schedule();
- 	hrtimer_cancel(timer);
-
- 	/* Return the remaining time: */

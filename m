@@ -1,68 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161039AbWBNMnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161040AbWBNMqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161039AbWBNMnM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 07:43:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161040AbWBNMnM
+	id S1161040AbWBNMqi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 07:46:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161042AbWBNMqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 07:43:12 -0500
-Received: from zproxy.gmail.com ([64.233.162.200]:42941 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161039AbWBNMnL convert rfc822-to-8bit
+	Tue, 14 Feb 2006 07:46:38 -0500
+Received: from wproxy.gmail.com ([64.233.184.204]:4847 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161040AbWBNMqh convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 07:43:11 -0500
+	Tue, 14 Feb 2006 07:46:37 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dPbb1tEIb7wUkYUV870LBbNoufeTWF0xsd+podc+jxkdupwP3VBOZaKl43+1Aga1e8x/GlAPHt4KIAjnkFXOSIfindzU9RbhPxN+7wM3PdyBWn1g/fexssTzLLBOH64fuCuPX09A3hnl/cjW4bhUjHfziGs1uFlH7y4Yhn22Igw=
-Message-ID: <5a2cf1f60602140443q38cf93acmaa7c3a6c4ac09a26@mail.gmail.com>
-Date: Tue, 14 Feb 2006 13:43:09 +0100
-From: jerome lacoste <jerome.lacoste@gmail.com>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Cc: peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
-       jengelh@linux01.gwdg.de, dhazelton@enter.net
-In-Reply-To: <43F1BFA8.nailMWZ21G8NF@burner>
+        b=kxGe3OP4l4/vWc5uGKNDMbcZcyuDiAB8gq1fbTZhIazTsE2ELhn84MnP17o6ny02zU0nsd6SV0LNlw4YGXxdbmZd90YLZPffW8gya40G+QVEhzHwKiHC03eoqK5GxPQ7qdf3CMKG9wcE2zDZLyODPXBHIqUvhRV2LT13o/cjERk=
+Message-ID: <6bffcb0e0602140446i4c33d015y@mail.gmail.com>
+Date: Tue, 14 Feb 2006 13:46:36 +0100
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: sander@humilis.net
+Subject: Re: 2.6.16-rc3-mm1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       sam@ravnborg.org
+In-Reply-To: <20060214121642.GA23915@favonius>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <20060208162828.GA17534@voodoo>
-	 <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com>
-	 <43F0A010.nailKUSR1CGG5@burner>
-	 <5a2cf1f60602130724n7b060e29r57411260b04d5972@mail.gmail.com>
-	 <43F0AA83.nailKUS171HI4B@burner>
-	 <5a2cf1f60602130805u537de206k22fa418ee214cf02@mail.gmail.com>
-	 <43F0B2BA.nailKUS1DNTEHA@burner>
-	 <5a2cf1f60602130912u7e8d28c4w4ef1749ff6c73142@mail.gmail.com>
-	 <43F0CBF0.nailMFL11QJR1@burner> <43F1BFA8.nailMWZ21G8NF@burner>
+References: <20060214014157.59af972f.akpm@osdl.org>
+	 <6bffcb0e0602140316sae62b9an@mail.gmail.com>
+	 <20060214121642.GA23915@favonius>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/14/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
-> Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
->
-> > jerome lacoste <jerome.lacoste@gmail.com> wrote:
-> > > but thank to that proposal, one would also have:
-> > >
-> > > 1,0,0 <= /dev/hdc
-> > > 2,0,0 <= /dev/hdd
-> > >
-> > > I think it's a good compromise between what the users want and what you want.
-> > >
-> > > So, WDYT?
+Hi,
+
+On 14/02/06, Sander <sander@humilis.net> wrote:
+> Michal Piotrowski wrote (ao):
+> > It's strange... rc3-mm1 vs. rc2-mm1
 > >
-> > If this would not be Linux only, go ahead.
+> > :/usr/src/linux-mm$ uname -a
+> > Linux ltg01-sid 2.6.16-rc2-mm1 #15 SMP PREEMPT Thu Feb 9 18:12:08 CET
+> > 2006 i686 GNU/Linux
 > >
-> > Note that you would have to do real hard work as it is not trivial to prove your
-> > patch on all supported OS....
+> >
+> > :/usr/src/linux-mm$ head Makefile
+> > VERSION = 2
+> > PATCHLEVEL = 6
+> > SUBLEVEL = 16
+> > EXTRAVERSION =-rc3-mm1
+> >
+> > there is something wrong with build system.
 >
-> I did get no reply.
+> You just booted an old kernel (see the date in your uname output).
+>
+>         Kind regards, Sander
+>
+> --
+> Humilis IT Services and Solutions
+> http://www.humilis.net
+>
 
-Nothin I read above give me the impression that you expected an answer.
+Ups...
 
-> Does this mean that you are no longer interested because I request real work
-> instead of a cheap hack?
+But wait! It's my first -mm kernel on that box after system
+reinstallation. uname contain my new hostname "ltg01-sid" - it's very
+strange.
 
-...
+I will check my build script.
 
-Jerome
+Regards,
+Michal Piotrowski

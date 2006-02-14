@@ -1,22 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030342AbWBNEKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030349AbWBNEOO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030342AbWBNEKF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Feb 2006 23:10:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030346AbWBNEKE
+	id S1030349AbWBNEOO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Feb 2006 23:14:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030347AbWBNEOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Feb 2006 23:10:04 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:8097 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030342AbWBNEKC (ORCPT
+	Mon, 13 Feb 2006 23:14:14 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:17314 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030349AbWBNEOO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Feb 2006 23:10:02 -0500
-Date: Mon, 13 Feb 2006 20:09:05 -0800
+	Mon, 13 Feb 2006 23:14:14 -0500
+Date: Mon, 13 Feb 2006 20:13:13 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Joshua Hudson <joshudson@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sb_bread & bforget
-Message-Id: <20060213200905.5706dc33.akpm@osdl.org>
-In-Reply-To: <bda6d13a0602131503n14650120gaa39eda9a38aefbf@mail.gmail.com>
-References: <bda6d13a0602131503n14650120gaa39eda9a38aefbf@mail.gmail.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: kenneth.w.chen@intel.com, mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/2] fix perf. bug in wake-up load balancing for aim7
+ and db workload
+Message-Id: <20060213201313.1856af42.akpm@osdl.org>
+In-Reply-To: <43F15531.3060809@yahoo.com.au>
+References: <200602140309.k1E394g17590@unix-os.sc.intel.com>
+	<20060213193856.696bf1f0.akpm@osdl.org>
+	<43F15211.2090206@yahoo.com.au>
+	<43F15531.3060809@yahoo.com.au>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,16 +28,24 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Hudson <joshudson@gmail.com> wrote:
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 >
-> New filesystem is using BTrees for directories. An update will touch
-> multiple blocks, loaded into buffer_head structures with sb_bread.
+> Nick Piggin wrote:
+> > Andrew Morton wrote:
+> > 
+> >>
+> >>
+> >> Well I don't see any benchmark numbers in the original patch.  Just an
+> >> assertion that it "should" help something.
+> >>
+> > 
+> > The regression was in a Ken's commercial database benchmark. I couldn't
+> > reproduce it but presumably it did fix it otherwise Ken would would have
+> > piped up?
+> > 
 > 
-> If update fails (only possible causes are read error & disk full), is it
-> kosher to call bforget on all modified buffer_head structures, or
-> does that have some unintended consequences?
+> BTW, I did actually ask that you hold off merging it until Ken came
+> back with some numbers.
+> 
 
-It's probably wrong.  bforget() will clear the dirty bit, so you'd lose
-anything else which had been written to that buffer but not written back.
-
-bforget() is used for truncate, where we know the data is being tosed away.
+So you did.

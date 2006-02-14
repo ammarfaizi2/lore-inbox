@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422889AbWBNXc4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422887AbWBNXfs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422889AbWBNXc4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 18:32:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422888AbWBNXc4
+	id S1422887AbWBNXfs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 18:35:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422892AbWBNXfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 18:32:56 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:33040 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1422887AbWBNXcz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 18:32:55 -0500
-Date: Wed, 15 Feb 2006 00:32:54 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Rob Landley <rob@landley.net>
-Cc: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: Device enumeration (was Re: CD writing in future Linux (stirring up a hornets' nest))
-Message-ID: <20060214233253.GB83161@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Rob Landley <rob@landley.net>,
-	ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <43D7C1DF.1070606@gmx.de> <200602140023.15771.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060214104003.GA97714@dspnet.fr.eu.org> <200602141732.22712.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 14 Feb 2006 18:35:47 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:62931 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1422887AbWBNXfr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 18:35:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FvQerV7ARLkYx3rqfgoAsVO+QdzV6uWHcj7nRHDdl9gTSSte+ql3YjIemsIb/Jaz63NT05eOX3mOJxpuC4peXjc8pPg1SKf6H6cWOFbEh9xIl8SGnWyo5kOYmft57UX16ozFoaPtoipGvJSUUTwJs8oPwDifyeBYoB6ENgz7dPY=
+Message-ID: <6bffcb0e0602141535x673a2caay@mail.gmail.com>
+Date: Wed, 15 Feb 2006 00:35:46 +0100
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: Norbert Preining <preining@logic.at>
+Subject: Re: 2.6.16-rc3-mm1 build failure
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060214232516.GI4850@gamma.logic.tuwien.ac.at>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200602141732.22712.rob@landley.net>
-User-Agent: Mutt/1.4.2.1i
+References: <20060214232516.GI4850@gamma.logic.tuwien.ac.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 14, 2006 at 05:32:22PM -0500, Rob Landley wrote:
-> On Tuesday 14 February 2006 5:40 am, Olivier Galibert wrote:
-> > Why not have udev and whatever comes after tell the kernel so that a
-> > symlink is done in sysfs?  The kernel not deciding policy do not
-> > prevent it from storing and giving back userland-provided information.
-> 
-> That wouldn't help us.  If userspace generates the info, then userspace can 
-> drop a note in /dev or something to keep it there.
+Hi,
 
-And all I've been saying is that userspace:
+On 15/02/06, Norbert Preining <preining@logic.at> wrote:
+> HI Andrew!
+>
+>   LD      .tmp_vmlinux1
+> arch/i386/kernel/built-in.o: In function `show_type':intel_cacheinfo.c:(.text+0x72c7): undefined reference to `strcpy'
+> :intel_cacheinfo.c:(.text+0x72d9): undefined reference to `strcpy'
+> :intel_cacheinfo.c:(.text+0x72eb): undefined reference to `strcpy'
+> :intel_cacheinfo.c:(.text+0x72fd): undefined reference to `strcpy'
+> kernel/built-in.o: In function `prof_cpu_mask_read_proc':profile.c:(.text+0x4a2e): undefined reference to `strcpy'
+> kernel/built-in.o:clocksource.c:(.text+0x19b32): more undefined references to `strcpy' follow
+> make: *** [.tmp_vmlinux1] Error 1
+>
+> config is attached
+>
+> Best wishes
+>
+> Norbert
 
-1- should drop a filesystem-level note, not require calling an
-   executable with a time-varying interface and no real reason to
-   think it will still be in use in a couple of years
+Here is patch:
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc3/2.6.16-rc3-mm1/hot-fixes/x86_64-fix-string-fix.patch
 
-2- should drop it in sysfs, because:
-   a- if it is there and cleanly defined, and "use this netlink
-      message to have a symlink created in sysfs pointing to the node you
-      just created" is clean and simple enough, all the concurrent
-      device-node generating tools will support it quickly (hotplug,
-      udev, mdev, maybe others, who knows)
-   b- nothing requires at that point the devices to be in /dev
-   c- sysfs already manages all the directory hierarchy or naming you
-      need to define uniquely a device, why replicate it somewhere else?
-
-At that point I guess I just need to make a patch for the kernel side
-and then we'll see.
-
-  OG.
+Regards,
+Michal Piotrowski

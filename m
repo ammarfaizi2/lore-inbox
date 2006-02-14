@@ -1,58 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161121AbWBNQ1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422632AbWBNQaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161121AbWBNQ1w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 11:27:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161122AbWBNQ1w
+	id S1422632AbWBNQaq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 11:30:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422631AbWBNQaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 11:27:52 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:32385 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S1161119AbWBNQ1v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 11:27:51 -0500
-Message-ID: <43F2050B.8020006@dgreaves.com>
-Date: Tue, 14 Feb 2006 16:27:55 +0000
-From: David Greaves <david@dgreaves.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark Lord <lkml@rtr.ca>
-Cc: Justin Piszcz <jpiszcz@lucidpixels.com>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>
-Subject: Re: LibPATA code issues / 2.6.15.4
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F1EE4A.3050107@rtr.ca>
-In-Reply-To: <43F1EE4A.3050107@rtr.ca>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 14 Feb 2006 11:30:46 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:54736 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1422632AbWBNQaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 11:30:46 -0500
+Subject: Re: Problems with sound on latest kernels.
+From: Lee Revell <rlrevell@joe-job.com>
+To: Lz <elezeta@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <cde01ae70602140558g6440af40mf59e3e1992088d3b@mail.gmail.com>
+References: <cde01ae70602140558g6440af40mf59e3e1992088d3b@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 14 Feb 2006 11:30:40 -0500
+Message-Id: <1139934640.11659.95.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.90 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
+On Tue, 2006-02-14 at 14:58 +0100, Lz wrote:
+> Hello,
+> 
+> I can't manage to get my sound cards (SB VIBRA and SB AWE 32) working
+> on the latest kernels (> 2.6.14 approximately).
+> 
 
-> Justin Piszcz wrote:
-> ..
->
->>  ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
->>  ata3: status=0x51 { DriveReady SeekComplete Error }
->>  ata3: error=0x04 { DriveStatusError }
->
->
-> I wonder if the FUA logic is inserting cache-flush commands
-> and perhaps the drive is rejecting those?
->
-> Jeff, we really ought to be including the failed ATA opcode
-> in those error messages!!
->
-If such a thing were available as a patch then I too would apply it and
-hopefully could provide useful feedback.
+Please use ALSA CVS to do a binary search by date to identify the change
+that broke it.
 
-David
-PS My problems:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=113769509617034&w=2
-http://marc.theaimsgroup.com/?l=linux-ide&m=113828551519727&w=2
-http://marc.theaimsgroup.com/?l=linux-ide&m=113829573105369&w=2
-http://marc.theaimsgroup.com/?l=linux-ide&m=113933732903205&w=2
-
+Lee
 

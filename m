@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422699AbWBNRh3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422703AbWBNRmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422699AbWBNRh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 12:37:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422700AbWBNRh2
+	id S1422703AbWBNRmu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 12:42:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422704AbWBNRmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 12:37:28 -0500
-Received: from 213-140-2-71.ip.fastwebnet.it ([213.140.2.71]:23269 "EHLO
-	aa004msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1422699AbWBNRh2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 12:37:28 -0500
-Date: Tue, 14 Feb 2006 18:38:52 +0100
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       trivial@kernel.org
-Subject: Re: [trivial PATCH] "drivers/usb/media/stv680.h": fix jiffies
- timeout --
-Message-ID: <20060214183852.0cdf6f62@localhost>
-In-Reply-To: <20060214161535.GD5689@us.ibm.com>
-References: <20060214163312.22960006@localhost>
-	<20060214161535.GD5689@us.ibm.com>
-X-Mailer: Sylpheed-Claws 2.0.0-rc4 (GTK+ 2.8.8; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Feb 2006 12:42:50 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:62168 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1422703AbWBNRmt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 12:42:49 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Tue, 14 Feb 2006 18:41:23 +0100
+To: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43F21643.nailMWZZ188CM@burner>
+References: <43EB7BBA.nailIFG412CGY@burner>
+ <mj+md-20060213.160108.13290.atrey@ucw.cz>
+ <43F0B32D.nailKUS1E3S8I3@burner>
+ <200602131842.02377.dhazelton@enter.net>
+ <Pine.LNX.4.61.0602140903400.7198@yvahk01.tjqt.qr>
+ <43F1F196.nailMWZE1HZK5@burner>
+ <20060214165318.GB7860@merlin.emma.line.org>
+In-Reply-To: <20060214165318.GB7860@merlin.emma.line.org>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Feb 2006 08:15:35 -0800
-Nishanth Aravamudan <nacc@us.ibm.com> wrote:
+Matthias Andree <matthias.andree@gmx.de> wrote:
 
-> 
-> NACK. PENCAM_TIMEOUT is a *milliseconds* timeout value.
-> 
-> From the comment for usb_control_msg:
-> 
->  *      @timeout: time in msecs to wait for the message to complete before
->  *              timing out (if 0 the wait is forever)
-> 
-> Milliseconds do not depend on HZ in anyway.
-> 
-> Thanks,
-> Nish
+> Joerg Schilling schrieb am 2006-02-14:
+>
+> > Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+> > 
+> > > >
+> > > >> -	SCSI commands are bastardized on ATAPI
+> > > >
+> > > >identify the problem - provide a test case or two and I'll get off my lazy ass 
+> > > >and see if I can't figure out what's causing the problem.
+> > > >
+> > >
+> > > Maybe we can put a testsuite together that sends all sorts of commands to a 
+> > > cd drive and then see with 1. which Linuxes 2. which models it happens.
+> > 
+> > You need to ask around for people with problems....
+> > Debian had some relevent data but removed it the day I was referring to it :-(
+>
+> In other words: you cannot provide details or even prove the asserted
+> bug, and you are trying to shift the blame on Debian. If they no longer
+> have the reports, chances are the bugs have been fixed since through
+> Debian patches, that's their workflow.
 
-Opsss... I was using a source browser ;)
+In other words, you are still only trying to create voilence but 
+unable/unwilling to cooperate?
 
-http://lxr.linux.no/source/drivers/usb/core/message.c#L118
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=186099
 
-It's a bit outdated... (2.6.11)
+Jörg
 
 -- 
-	Paolo Ornati
-	Linux 2.6.15.4-suspend2 on x86_64
-
-
--- 
-	Paolo Ornati
-	Linux 2.6.15.4-suspend2 on x86_64
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

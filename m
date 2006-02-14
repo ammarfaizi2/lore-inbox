@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030553AbWBNKZp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030550AbWBNKZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030553AbWBNKZp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 05:25:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030554AbWBNKZp
+	id S1030550AbWBNKZL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 05:25:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030553AbWBNKZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 05:25:45 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:63383
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1030553AbWBNKZn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 05:25:43 -0500
-Subject: Re: [PATCH 01/13] hrtimer: round up relative start time
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060214074151.GA29426@elte.hu>
-References: <Pine.LNX.4.61.0602130207560.23745@scrub.home>
-	 <1139827927.4932.17.camel@localhost.localdomain>
-	 <Pine.LNX.4.61.0602131208050.30994@scrub.home>
-	 <20060214074151.GA29426@elte.hu>
-Content-Type: text/plain
-Date: Tue, 14 Feb 2006 11:26:09 +0100
-Message-Id: <1139912769.2480.529.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.5 
+	Tue, 14 Feb 2006 05:25:11 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:17639 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1030550AbWBNKZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 05:25:09 -0500
+Message-ID: <43F1B028.9020604@jp.fujitsu.com>
+Date: Tue, 14 Feb 2006 19:25:44 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>, dhowells@redhat.com
+Subject: [PATCH] unify pfn_to_page take3 [9/23]  frv pfn_tp_page
+References: <43F1A753.2020003@jp.fujitsu.com>
+In-Reply-To: <43F1A753.2020003@jp.fujitsu.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-14 at 08:41 +0100, Ingo Molnar wrote:
-> ok, lets go back to this one:
-> 
-> * Roman Zippel <zippel@linux-m68k.org> wrote:
-> 
-> > Let's assume a get_time() which simply returns xtime and so has a 
-> > resolution of around TICK_NSEC. This means the real time when one 
-> > calls get_time() is somewhere between xtime and xtime+TICK_NSEC.  
-> > Assuming the real time is xtime+TICK_NSEC-1, get_time() will return 
-> > xtime and a relative timer with TICK_NSEC-1 will expire immediately.
-> 
-> i agree that on systems where get_time() has a TICK_NSEC resolution, 
-> such short timeouts are bad.
-> 
-> i dont agree with the fix though: it penalizes platforms where 
-> ->get_time() resolution is sane.
+FRV can use generic funcs.
 
-Thats true, but we have no information about get_time() resolution at
-all. So the only way to work around that for now is Romans fix even if
-we add the penalty to _all_ platforms.
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-	tglx
+Index: testtree/include/asm-frv/page.h
+===================================================================
+--- testtree.orig/include/asm-frv/page.h
++++ testtree/include/asm-frv/page.h
+@@ -57,13 +57,9 @@ extern unsigned long min_low_pfn;
+  extern unsigned long max_pfn;
 
+  #ifdef CONFIG_MMU
+-#define pfn_to_page(pfn)	(mem_map + (pfn))
+-#define page_to_pfn(page)	((unsigned long) ((page) - mem_map))
+  #define pfn_valid(pfn)		((pfn) < max_mapnr)
+-
+  #else
+-#define pfn_to_page(pfn)	(&mem_map[(pfn) - (PAGE_OFFSET >> PAGE_SHIFT)])
+-#define page_to_pfn(page)	((PAGE_OFFSET >> PAGE_SHIFT) + (unsigned long) ((page) - mem_map))
++#define ARCH_PFN_OFFSET		(PAGE_OFFSET >> PAGE_SHIFT)
+  #define pfn_valid(pfn)		((pfn) >= min_low_pfn && (pfn) < max_low_pfn)
 
+  #endif
+@@ -87,6 +83,7 @@ extern unsigned long max_pfn;
+  #define WANT_PAGE_VIRTUAL	1
+  #endif
 
++#include <asm-generic/memory_model.h>
+  #include <asm-generic/page.h>
+
+  #endif /* _ASM_PAGE_H */
 

@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422709AbWBNU33@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161038AbWBNUdU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422709AbWBNU33 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 15:29:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWBNU32
+	id S1161038AbWBNUdU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 15:33:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161046AbWBNUdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 15:29:28 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:16546 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932335AbWBNU32 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 15:29:28 -0500
-Date: Tue, 14 Feb 2006 12:28:25 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc3-mm1
-Message-Id: <20060214122825.5b8de370.akpm@osdl.org>
-In-Reply-To: <43F1EA2B.4090203@ens-lyon.org>
-References: <20060214014157.59af972f.akpm@osdl.org>
-	<43F1EA2B.4090203@ens-lyon.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Tue, 14 Feb 2006 15:33:20 -0500
+Received: from nproxy.gmail.com ([64.233.182.203]:41529 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161038AbWBNUdT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 15:33:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=iJnhMEE0BfBuHHlzWM0qKovB6pFzq1C6IPF8TBMx85Pgb3Hhvi1gLSPhXgH6/xRw/cY9uPjgEK9HJELN1tY5ssyBwJ+jbQJF2wG7ZfRoWw5JRj3zlD7W5sRLZQZ7Su3aDJ6ntqP4aLWjRD3p/Ld8DRjlsWoo1ucZIme63WljcDo=
+Message-ID: <9871ee5f0602141233t3cf11775lcb6351f31d4f377e@mail.gmail.com>
+Date: Tue, 14 Feb 2006 15:33:17 -0500
+From: Timothy Miller <theosib@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: HELP: Problem with radeonfb setting wrong resolution
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
->
-> Andrew Morton wrote:
-> 
-> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc3/2.6.16-rc3-mm1/
-> >
-> >  
-> >
-> 
-> Hi Andrew,
-> 
-> WARNING: speedstep-centrino.ko needs unknown symbol cpu_online_map
-> 
-> This symbol is in include/linux/cpumask.h but actually only defined and
-> exported in smpboot.c which is not compiled on UP.
-> 
+I humbly apologize if it is inappropriate for me to post this question
+here.  I'm not subscribed, and I haven't been in a while.  I've
+googled around for answers to this, but I don't find anything that
+directly addresses the issue I'm seeing.  Please cc me.
 
+I'm installing a new Gentoo box, and I have configured the
+2.6.12-gentoo-r6 kernel.
 
-diff -puN arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c~git-acpi-up-fix-2 arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c
---- devel/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c~git-acpi-up-fix-2	2006-02-14 12:27:41.000000000 -0800
-+++ devel-akpm/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c	2006-02-14 12:27:41.000000000 -0800
-@@ -654,8 +654,10 @@ static int centrino_target (struct cpufr
- 		return -EINVAL;
- 	}
- 
-+#ifdef CONFIG_SMP
- 	/* cpufreq holds the hotplug lock, so we are safe from here on */
- 	cpus_and(online_policy_cpus, cpu_online_map, policy->cpus);
-+#endif
- 
- 	saved_mask = current->cpus_allowed;
- 	first_cpu = 1;
-_
+Here's what I have enabled:
 
++ Support for framebuffer devices
++ ATI Radeon display support
++ DDC/I2C for ATI Radeon support
++ Lots of debug output from Radeon drive
++ VGA text console
++ Framebuffer Console support
+
+In the grub.conf file, I have this at the end of the kernel line:
+
+video=radeonfb:1024x768
+
+When booting up, radeonfb finds the device (A Radeon 7000 PCI card),
+the monitor flickers for a second, and then what I get is a 640x480
+screen, but the kernel seems to think it's 1024x768, because text goes
+off the screen.
+
+I've googled for this, but what I find is old stuff where people are
+complaining about seeing a higher resolution than the one they asked
+for.  I'm getting a LOWER resolution.
+
+I can't figure out what I'm doing wrong, but there are no kernel error
+messages that tell me anything has gone wrong.
+
+Can anyone help me figure out what I'm doing wrong here?  BTW, the
+monitor is a 19" NEC.  No chance that the monitor reports via DDC that
+it can't do 1024x768.
+
+Thanks.

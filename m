@@ -1,29 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161064AbWBNPGm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161068AbWBNPLp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161064AbWBNPGm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 10:06:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161065AbWBNPGl
+	id S1161068AbWBNPLp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 10:11:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161065AbWBNPLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 10:06:41 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:15554 "EHLO
+	Tue, 14 Feb 2006 10:11:45 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:49863 "EHLO
 	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1161064AbWBNPGl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 10:06:41 -0500
+	id S1161068AbWBNPLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 10:11:44 -0500
 From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Tue, 14 Feb 2006 16:04:54 +0100
-To: jengelh@linux01.gwdg.de, dhazelton@enter.net
-Cc: seanlkml@sympatico.ca, schilling@fokus.fraunhofer.de, sam@vilain.net,
-       peter.read@gmail.com, mj@ucw.cz, matthias.andree@gmx.de,
-       lkml@dervishd.net, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F1F196.nailMWZE1HZK5@burner>
-References: <43EB7BBA.nailIFG412CGY@burner>
- <mj+md-20060213.160108.13290.atrey@ucw.cz>
- <43F0B32D.nailKUS1E3S8I3@burner>
- <200602131842.02377.dhazelton@enter.net>
- <Pine.LNX.4.61.0602140903400.7198@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0602140903400.7198@yvahk01.tjqt.qr>
+Date: Tue, 14 Feb 2006 16:09:54 +0100
+To: schilling@fokus.fraunhofer.de, jengelh@linux01.gwdg.de
+Cc: linux-kernel@vger.kernel.org, hpa@zytor.com, drepper@redhat.com,
+       austin-group-l@opengroup.org
+Subject: Re: The naming of at()s is a difficult matter
+Message-ID: <43F1F2C2.nailMWZGOQDYR@burner>
+References: <43EEACA7.5020109@zytor.com>
+ <Pine.LNX.4.61.0602121137090.25363@yvahk01.tjqt.qr>
+ <43F09320.nailKUSI1GXEI@burner>
+ <Pine.LNX.4.61.0602140916440.7198@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0602140916440.7198@yvahk01.tjqt.qr>
 User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
@@ -33,18 +30,22 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
 
+>
+> >> > I have noticed that the new ...at() system calls are named in what
+> >> > appears to be a completely haphazard fashion.  In Unix system calls,
+> >> > an f- prefix means it operates on a file descriptor; the -at suffix (a
+> >> > prefix would have been more consistent, but oh well) similarly
+> >> > indicates it operates on a (directory fd, pathname) pair.
+> >> >
+> >> shmat operates on dirfd/pathname?
 > >
-> >> -	SCSI commands are bastardized on ATAPI
-> >
-> >identify the problem - provide a test case or two and I'll get off my lazy ass 
-> >and see if I can't figure out what's causing the problem.
+> >Do you have a better proposal for naming the interfaces?
 > >
 >
-> Maybe we can put a testsuite together that sends all sorts of commands to a 
-> cd drive and then see with 1. which Linuxes 2. which models it happens.
+> chownfn maybe. (fd + name)
 
-You need to ask around for people with problems....
-Debian had some relevent data but removed it the day I was referring to it :-(
+I am not shure if this would match the rules from the Opengroup.
+Solaris has these interfaces since at least 5 years.
 
 Jörg
 

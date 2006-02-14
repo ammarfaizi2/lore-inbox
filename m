@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030558AbWBNKms@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030560AbWBNKnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030558AbWBNKms (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 05:42:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030560AbWBNKms
+	id S1030560AbWBNKnr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 05:43:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030562AbWBNKnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 05:42:48 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:7587 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030558AbWBNKmr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 05:42:47 -0500
-Message-ID: <43F1B458.9040201@jp.fujitsu.com>
-Date: Tue, 14 Feb 2006 19:43:36 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Andrew Morton <akpm@osdl.org>, linuxppc-dev@ozlabs.org
-Subject: [PATCH] unify pfn_to_page take3 [14/23] ppc pfn_to_page
-References: <43F1A753.2020003@jp.fujitsu.com>
-In-Reply-To: <43F1A753.2020003@jp.fujitsu.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Feb 2006 05:43:47 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:44621 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1030560AbWBNKnq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 05:43:46 -0500
+Date: Tue, 14 Feb 2006 11:43:45 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is my SATA/400GB drive dying?
+Message-ID: <20060214104345.GM3209@harddisk-recovery.com>
+References: <Pine.LNX.4.64.0602130658110.21652@p34> <Pine.LNX.4.64.0602132016350.2607@p34> <Pine.LNX.4.64.0602132018290.2607@p34>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0602132018290.2607@p34>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PPC can use generic funcs.
+On Mon, Feb 13, 2006 at 08:18:47PM -0500, Justin Piszcz wrote:
+> Still get the errors:
+> 
+> [ 2311.980127] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+> 0xb/00/00
+> [ 2311.980134] ata3: status=0x51 { DriveReady SeekComplete Error }
+> [ 2311.980138] ata3: error=0x04 { DriveStatusError }
 
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+FWIW, this could be related to smartctl trying to monitor the disk.
+Try this:
 
-Index: testtree/include/asm-ppc/page.h
-===================================================================
---- testtree.orig/include/asm-ppc/page.h
-+++ testtree/include/asm-ppc/page.h
-@@ -149,8 +149,7 @@ extern int page_is_ram(unsigned long pfn
-  #define __pa(x) ___pa((unsigned long)(x))
-  #define __va(x) ((void *)(___va((unsigned long)(x))))
+  smartctl -d ata -a /dev/sdX
 
--#define pfn_to_page(pfn)	(mem_map + ((pfn) - PPC_PGSTART))
--#define page_to_pfn(page)	((unsigned long)((page) - mem_map) + PPC_PGSTART)
-+#define ARCH_PFN_OFFSET		(PPC_PGSTART)
-  #define virt_to_page(kaddr)	pfn_to_page(__pa(kaddr) >> PAGE_SHIFT)
-  #define page_to_virt(page)	__va(page_to_pfn(page) << PAGE_SHIFT)
+If that complains about SMART being disabled, enable it with:
 
-@@ -175,5 +174,6 @@ extern __inline__ int get_order(unsigned
-  /* We do define AT_SYSINFO_EHDR but don't use the gate mecanism */
-  #define __HAVE_ARCH_GATE_AREA		1
+  smartctl -d ata -e /dev/sdX
 
-+#include <asm-generic/memory_model.h>
-  #endif /* __KERNEL__ */
-  #endif /* _PPC_PAGE_H */
 
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

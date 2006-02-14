@@ -1,62 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbWBNJDR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030523AbWBNJHn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932446AbWBNJDR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 04:03:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWBNJDQ
+	id S1030523AbWBNJHn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 04:07:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030524AbWBNJHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 04:03:16 -0500
-Received: from smtp3.pp.htv.fi ([213.243.153.36]:59836 "EHLO smtp3.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S932446AbWBNJDO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 04:03:14 -0500
-Date: Tue, 14 Feb 2006 11:02:53 +0200
-From: Paul Mundt <lethal@linux-sh.org>
-To: Alessandro Zummo <azummo-vger@towertech.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 01/11] RTC subsystem, class
-Message-ID: <20060214090253.GA32597@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Alessandro Zummo <azummo-vger@towertech.it>,
-	linux-kernel@vger.kernel.org
-References: <20060213225416.865078000@towertech.it> <20060213225417.074551000@towertech.it>
+	Tue, 14 Feb 2006 04:07:42 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:63641 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1030523AbWBNJHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 04:07:42 -0500
+Date: Tue, 14 Feb 2006 01:07:12 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>, kernel@kolivas.org,
+       npiggin@suse.de, mingo@elte.hu, rostedt@goodmis.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [rfc][patch] sched: remove smpnice
+Message-ID: <20060214010712.B20191@unix-os.sc.intel.com>
+References: <43ED3D6A.8010300@bigpond.net.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YZ5djTAD1cGYuMQK"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060213225417.074551000@towertech.it>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <43ED3D6A.8010300@bigpond.net.au>; from pwil3058@bigpond.net.au on Fri, Feb 10, 2006 at 05:27:06PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 10, 2006 at 05:27:06PM -0800, Peter Williams wrote:
+>> "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
+>>>My testing showed that 178.galgel in SPECfp2000 is down by 
+>~10% when run with 
+>>>nice -20 on a 4P(8-way with HT) system compared to a nice-0 run.
+>
+>Is it normal to run enough -20 tasks to cause this problem to manifest?
 
---YZ5djTAD1cGYuMQK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On a 4P(8-way with HT), if you run a -20 task(a simple infinite loop)
+it hops from one processor to another processor... you can observe it
+using top.
 
-On Mon, Feb 13, 2006 at 11:54:17PM +0100, Alessandro Zummo wrote:
-> --- linux-rtc.orig/drivers/Makefile	2006-02-13 19:34:35.000000000 +0100
-> +++ linux-rtc/drivers/Makefile	2006-02-13 19:35:30.000000000 +0100
-> @@ -56,6 +56,7 @@ obj-$(CONFIG_USB_GADGET)	+= usb/gadget/
->  obj-$(CONFIG_GAMEPORT)		+= input/gameport/
->  obj-$(CONFIG_INPUT)		+= input/
->  obj-$(CONFIG_I2O)		+= message/
-> +obj-y				+= rtc/
->  obj-$(CONFIG_I2C)		+= i2c/
->  obj-$(CONFIG_W1)		+= w1/
->  obj-$(CONFIG_HWMON)		+= hwmon/
+find_busiest_group() thinks there is an imbalance and ultimately the
+idle cpu kicks active load balance on busy cpu, resulting in the hopping.
 
-Why is this obj-y? obj-$(CONFIG_RTC_CLASS) perhaps?
+>>>
+>>>b) On a lightly loaded system, this can result in HT 
+>scheduler optimizations
+>>>being disabled in presence of low priority tasks... in this 
+>case, they(low
+>>>priority ones) can end up running on the same package, even 
+>in the presence 
+>>>of other idle packages.. Though this is not as serious as 
+>"a" above...
+>>>
+>
+>I think that this issue comes under the heading of "Result of better 
+>nice enforcement" which is the purpose of the patch :-).  I wouldn't 
+>call this HT disablement or do I misunderstand the issue.
+>
+>The only way that I can see load balancing subverting the HT 
+>scheduling 
+>mechanisms is if (say) there are 2 CPUs with 2 HT channels 
+>each and all 
+>of the high priority tasks end up sharing the 2 channels of one CPU 
+>while all of the low priority tasks share the 2 channels of the other 
+>one.  This scenario is far more likely to happen without the smpnice 
+>patches than with them.
 
---YZ5djTAD1cGYuMQK
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+I agree with you.. But lets take a DP system with HT, now if there are
+only two low priority tasks running, ideally we should be running them
+on two different packages. With this patch, we may end up running on the
+same logical processor.. leave alone running on the same package..
+As these are low priority tasks, it might be ok.. But...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFD8Zy91K+teJFxZ9wRAjGZAKCEg84iJXMlhYy+4HWyE6PqFMLUbgCggRZQ
-MY20b2JPPkk5+whk9D1jj64=
-=Zw1U
------END PGP SIGNATURE-----
-
---YZ5djTAD1cGYuMQK--
+thanks,
+suresh

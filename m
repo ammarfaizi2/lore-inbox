@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422786AbWBNVUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422789AbWBNVWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422786AbWBNVUW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 16:20:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422796AbWBNVUW
+	id S1422789AbWBNVWt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 16:22:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422795AbWBNVWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 16:20:22 -0500
-Received: from [194.90.237.34] ([194.90.237.34]:5786 "EHLO mtlexch01.mtl.com")
-	by vger.kernel.org with ESMTP id S1422786AbWBNVUV (ORCPT
+	Tue, 14 Feb 2006 16:22:49 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:29369 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422789AbWBNVWs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 16:20:21 -0500
-Date: Tue, 14 Feb 2006 23:21:45 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Kristen Accardi <kristen.c.accardi@intel.com>
-Cc: Roland Dreier <rolandd@cisco.com>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: AMD 8131 and MSI quirk
-Message-ID: <20060214212145.GC14113@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <524q799p2t.fsf@cisco.com> <20060214165222.GC12974@mellanox.co.il> <1139940226.18044.3.camel@whizzy>
+	Tue, 14 Feb 2006 16:22:48 -0500
+Date: Tue, 14 Feb 2006 13:21:33 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: herbert@13thfloor.at, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove duplicate #includes
+Message-Id: <20060214132133.0c48f874.akpm@osdl.org>
+In-Reply-To: <20060214220313.1158be5b.khali@linux-fr.org>
+References: <20060213093959.GA10496@MAIL.13thfloor.at>
+	<20060214220313.1158be5b.khali@linux-fr.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1139940226.18044.3.camel@whizzy>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 14 Feb 2006 21:22:12.0265 (UTC) FILETIME=[B84A4990:01C631AC]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Kristen Accardi <kristen.c.accardi@intel.com>:
-> > It turns out AMD 8131 quirk only affects MSI for devices behind the 8131
-> > bridge.  Handle this by adding a flags field in pci_bus, inherited from
-> > parent to child.
+Jean Delvare <khali@linux-fr.org> wrote:
+>
+> Hi Herbert,
 > 
-> It seems like we have a way to turn of msi already (the no_msi bit in
-> the pci_dev structure).  Does it make sense to just have the child bus
-> pci_dev structure inherit the no_msi bit from the parent's pci_dev
-> structure when doing an allocation, or does that unnecessarily remove
-> the msi capability for devices that may not need it?
+> > recently I stumbled over a few files which #include the 
+> > same .h file twice -- sometimes even in the immediately
+> > following line. so I thought I'd look into that to reduce 
+> > the amount of duplicate includes in the kernel ...
+> > (...)
+> > diff -NurpP --minimal linux-2.6.16-rc2/drivers/macintosh/therm_pm72.c linux-2.6.16-rc2-mpf/drivers/macintosh/therm_pm72.c
+> > --- linux-2.6.16-rc2/drivers/macintosh/therm_pm72.c	2006-02-07 11:52:31 +0100
+> > +++ linux-2.6.16-rc2-mpf/drivers/macintosh/therm_pm72.c	2006-02-13 02:07:58 +0100
+> > @@ -104,7 +104,6 @@
+> >  #include <linux/kernel.h>
+> >  #include <linux/delay.h>
+> >  #include <linux/sched.h>
+> > -#include <linux/i2c.h>
+> >  #include <linux/slab.h>
+> >  #include <linux/init.h>
+> >  #include <linux/spinlock.h>
 > 
-> Kristen
+> This one was already taken care of in a different patch:
+> 
+> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc3/2.6.16-rc3-mm1/broken-out/macintosh-cleanup-the-use-of-i2c-headers.patch
+> 
+> So please exclude this part from your patch so as to avoid collisions.
+> 
 
-This bit is already used to mean that msi is disabled for a specific device,
-which appears to be a PCI Express to PCI bridge (PCI_DEVICE_ID_INTEL_PXH).  So
-it seems that disabling MSI for child devices as well might break things (i.e.
-disable msi unnecessarily).
-Working for Intel, I guess you would know about the PCI_DEVICE_ID_INTEL_PXH
-best: what do you say?
+Is OK.  I'll stage the big cleanup patches like this after everyone else's
+patches, so all that is left in this patch is stuff which doesn't intersect
+with anyone else's work.
 
-In my opinion, it is cleaner to separate the two concepts: suppress msi
-for child devices versus suppress it for the specific device.
-
-Right?
-
--- 
-Michael S. Tsirkin
-Staff Engineer, Mellanox Technologies
+That's one of the advantages of having everyone's development trees all in
+one place.  (And people who run development trees which aren't in -mm lose).

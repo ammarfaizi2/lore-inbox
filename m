@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030424AbWBNSmt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030491AbWBNSnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030424AbWBNSmt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 13:42:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030449AbWBNSms
+	id S1030491AbWBNSnh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 13:43:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030503AbWBNSnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 13:42:48 -0500
-Received: from hummeroutlaws.com ([12.161.0.3]:20233 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S1030424AbWBNSmr (ORCPT
+	Tue, 14 Feb 2006 13:43:37 -0500
+Received: from atpro.com ([12.161.0.3]:7434 "EHLO atpro.com")
+	by vger.kernel.org with ESMTP id S1030491AbWBNSng (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 13:42:47 -0500
+	Tue, 14 Feb 2006 13:43:36 -0500
 From: "Jim Crilly" <jim@why.dont.jablowme.net>
-Date: Tue, 14 Feb 2006 13:42:10 -0500
+Date: Tue, 14 Feb 2006 13:43:25 -0500
 To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: trudheim@gmail.com, Valdis.Kletnieks@vt.edu, peter.read@gmail.com,
-       mj@ucw.cz, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jerome.lacoste@gmail.com, jengelh@linux01.gwdg.de, dhazelton@enter.net
+Cc: dhazelton@enter.net, peter.read@gmail.com, mj@ucw.cz,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jerome.lacoste@gmail.com, jengelh@linux01.gwdg.de
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060214184210.GB4749@voodoo>
+Message-ID: <20060214184324.GC4749@voodoo>
 Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	trudheim@gmail.com, Valdis.Kletnieks@vt.edu, peter.read@gmail.com,
-	mj@ucw.cz, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-	jerome.lacoste@gmail.com, jengelh@linux01.gwdg.de,
-	dhazelton@enter.net
-References: <5a2cf1f60602130724n7b060e29r57411260b04d5972@mail.gmail.com> <43F0AA83.nailKUS171HI4B@burner> <5a2cf1f60602130805u537de206k22fa418ee214cf02@mail.gmail.com> <43F0B2BA.nailKUS1DNTEHA@burner> <Pine.LNX.4.61.0602131732190.24297@yvahk01.tjqt.qr> <43F0B5BE.nailMBX2SZNBE@burner> <200602131919.k1DJJF5G025923@turing-police.cc.vt.edu> <43F1C385.nailMWZ599SQ5@burner> <515e525f0602140501j1f9fbe14x8a3eef0bbf179035@mail.gmail.com> <43F209BB.nailMWZP1XY5P@burner>
+	dhazelton@enter.net, peter.read@gmail.com, mj@ucw.cz,
+	matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+	jerome.lacoste@gmail.com, jengelh@linux01.gwdg.de
+References: <20060208162828.GA17534@voodoo> <200602092241.29294.dhazelton@enter.net> <43F08D45.nailKUSE1SA4H@burner> <200602131801.47050.dhazelton@enter.net> <43F1DD0A.nailMWZ718HUV@burner>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <43F209BB.nailMWZP1XY5P@burner>
+In-Reply-To: <43F1DD0A.nailMWZ718HUV@burner>
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02/14/06 05:47:55PM +0100, Joerg Schilling wrote:
-> Anders Karlsson <trudheim@gmail.com> wrote:
+On 02/14/06 02:37:14PM +0100, Joerg Schilling wrote:
+> "D. Hazelton" <dhazelton@enter.net> wrote:
 > 
-> > On 2/14/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
-> > [snip]
-> > > -       How does HAL allow one cdrecord instance to work
-> > >         without being interrupted by HAL?
+> > > -	does not need more time to integrate than I would need to
+> > > 	write this from scratch
+> > >
+> > > Unfortunately, many people who send patches to me do not follow
+> > > these simple rules.
 > >
-> > Uuh, if the writer unit is plugged in via USB and HAL detects it going
-> > away, as in getting disconnected from the system, don't you think it
-> > would be a smart move for cdrecord to pay attention to such an alert?
-> >
-> > I am sure you can explain to me if there are overwhelming technical
-> > reason to continue dumping data to a non-existant device.
+> > Okay - show me your standards document and I'll get to work on a patch to do 
+> > what I earlier proposed. It won't be "adding new functionality" but it will 
+> > be making the interface a tiny bit simpler for the novice user.
 > 
-> It seems that you did not loisten to this discussion before, why doyou come in 
-> now not knowing the topcis?
+> ?????
 > 
-> Try to get hand on the deleted bug entries on Debian and you will see how
-> cdrecord is interrupted.
+> 1)	RTFM
+> 2)	ftp://ftp.berlios.de/pub/cdrecord/PORTING
+> 3)	http://cdrecord.berlios.de/old/private/port.ps
+> 4)	http://cvs.opensolaris.org/source/xref/on/usr/src/tools/scripts/cstyle.pl
+> 
+> 
+> If you do not follow the spirit of the interface design or of you break
+> things on other OS, your patch will not be accepted.
 > 
 > Jörg
 
-Apparently you're the one not paying attention, the so-called bugs you were
-talking about haven't been deleted and I even mentioned that I found them
-in this 'discussion' days ago.
+You're allowed to yell RTFM to him, but when you were pointed to the HAL
+documentation you cried that you didn't want to spend time reading it? How
+does that work?
 
 Jim.

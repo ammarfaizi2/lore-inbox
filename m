@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030534AbWBNJr1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030533AbWBNJsf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030534AbWBNJr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 04:47:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030537AbWBNJr1
+	id S1030533AbWBNJsf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 04:48:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030539AbWBNJse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 04:47:27 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:53390 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030534AbWBNJrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 04:47:25 -0500
-Message-ID: <43F1A753.2020003@jp.fujitsu.com>
-Date: Tue, 14 Feb 2006 18:48:03 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 14 Feb 2006 04:48:34 -0500
+Received: from lucidpixels.com ([66.45.37.187]:49344 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1030533AbWBNJse (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 04:48:34 -0500
+Date: Tue, 14 Feb 2006 04:48:31 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: linux-kernel@vger.kernel.org
+Subject: LibPATA code issues / 2.6.15.4
+Message-ID: <Pine.LNX.4.64.0602140439580.3567@p34>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Andrew Morton <akpm@osdl.org>, Kyle McMartin <kyle@mcmartin.ca>
-Subject: [PATCH] unify pfn_to_page take3 [0/23] 
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, this is unify-pfn_to_page patch take3. thank you for comments on
-previous version.
+Jeff,
 
-This patch consolidates definitions of pfn_to_page/page_to_pfn which are
-defined by each arch to generic one. Most of archs can use it.
-This patch is against 2.6.16-rc3 and totally rewritten.
+I'd have to double check but I do not recall getting these errors before 
+the pass-thru code was introduced in 2.6.15, I also was not running the 
+smart daemon until 2.6.15 for SATA drives as it was not supported.
 
-Changelog v2 -> v3
-  - linux/memory_model.h is moved to asm-generic/memory_model.h
-  - If an arch can use generic funcs, it includes asm-generic/memory_model.h.
-    If not, it doesn't include them. (m68k, m68knommu, ia64 + virtual_mem_map)
-  - remvoed CONFIG_ARCH_PFN_TO_PAGE
-  - CONFIG_DONT_INLINE_PFN_TO_PAGE was renamed to CONFIG_OUT_OF_LINE_PFN_TO_PAGE
-    This is used by x86_64+DISCONTIGMEM and sparc64.
+I had a few issues before that I posted to LKML, those were due to too 
+many SATA devices etc, everything is back to normal for the most part.
 
-Changelog: v1->v2
-  - linux/memory_model.h is added. this defines pfn<->page translation.
-  - new config options (set by arch) CONFIG_DONT_INLINE_PFN_TO_PAGE
-    and CONFIG_ARCH_HAS_PFN_TO_PAGE are added.
-  - SPARSEMEM's page_to_pfn is moved to linux/memory_model.h
+Speed, etc, all is well again, almost...
 
--- Kame.
+/dev/sdc:
+  Timing buffered disk reads:  154 MB in  3.02 seconds =  50.97 MB/sec
+/dev/sdc:
+  Timing buffered disk reads:  162 MB in  3.00 seconds =  53.94 MB/sec
+
+The only issue I have is when I copy a lot of files to a WD 400GB drive I 
+these pesky errors in dmesg:
+
+  ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
+  ata3: status=0x51 { DriveReady SeekComplete Error }
+  ata3: error=0x04 { DriveStatusError }
+
+Yet, everything copied (226GB) or so to the 400GB drive without a single 
+I/O error that I am aware of.  So my question is, why do I get these 
+errors in dmesg if they are not critical?
+
+Thanks,
+
+Justin.
+
 

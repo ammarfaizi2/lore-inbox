@@ -1,43 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422659AbWBNTHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422664AbWBNTJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422659AbWBNTHk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 14:07:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422660AbWBNTHj
+	id S1422664AbWBNTJU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 14:09:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422660AbWBNTJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 14:07:39 -0500
-Received: from zproxy.gmail.com ([64.233.162.193]:17729 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1422659AbWBNTHj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 14:07:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=q4UOYIAE44vGRHZHjglT1oEKrZy46b0KUAQhn5gzi3kDke8jbrLNajQOMwqo2wp+mmg+7HPTfdrh5JPU7B8+xxAQeCgAWizbgfA0m7/ZWrIk+OZx47AfVdphctXrw+9yp9JpOVWOXFOojCN6o/z1br4aAnExVkclWqSHyq96ca0=
-Message-ID: <f383264b0602141107v78864d7bua38fbaeefafd5@mail.gmail.com>
-Date: Tue, 14 Feb 2006 11:07:38 -0800
-From: Matt Reimer <mattjreimer@gmail.com>
-To: Tejun Heo <htejun@gmail.com>
-Subject: Re: [PATCH 4/8] block: convert IDE to use blk_kmap helpers
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1137165856390-git-send-email-htejun@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 14 Feb 2006 14:09:20 -0500
+Received: from verein.lst.de ([213.95.11.210]:64720 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S1422664AbWBNTJT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 14:09:19 -0500
+Date: Tue, 14 Feb 2006 20:09:09 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Horst Hummel <horst.hummel@de.ibm.com>
+Cc: kernel <linux-kernel@vger.kernel.org>, heiko <heicars2@de.ibm.com>,
+       Stefan Weinhuber <wein@de.ibm.com>, Martin <mschwid2@de.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, ihno@suse.de
+Subject: Re: [PATCH 0/5] new dasd ioctl patchkit
+Message-ID: <20060214190909.GA20527@lst.de>
+References: <1139935988.6183.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <11371658562541-git-send-email-htejun@gmail.com>
-	 <1137165856390-git-send-email-htejun@gmail.com>
+In-Reply-To: <1139935988.6183.5.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/13/06, Tejun Heo <htejun@gmail.com> wrote:
-> Convert direct uses of kmap/unmap to blk_kmap/unmap in IDE.  This
-> combined with the previous bio helper change fixes PIO cache coherency
-> bugs on architectures with aliased caches.
->
-> Signed-off-by: Tejun Heo <htejun@gmail.com>
+On Tue, Feb 14, 2006 at 05:53:08PM +0100, Horst Hummel wrote:
+> Unfortunately neither me nor Stefan W. got an answer on the question
+> about being more precise on 'ioctl mess' or any other statements
+> like 'adds more junk to already crappy code'.
+> 
+> We can't see - and you did not specify - reasons why the current
+> approach does not work. Therefore I don't see any urgency to change
+> that NOW instead of discuss the design change (consulting Martin - 
+> he will be back next week) and do the ioctl change when we have an 
+> agreed solution including ALL components. 
 
-This series of patches makes booting from CF on my PXA255 device. Thanks Tejun.
+ (1) devices have pretty clear ownership.  Implementing ioctls in
+     different modules means we get a very undefined API.  Given that
+     ioctls are generally deprecated adding extensions to that is
+     a bad idea.
+ (2) cleaning up that mess reduced code size a lot
+ (3) the cmb module had more glue code than actual ioctl implementation
+     which speaks words at length.
+ (4) adding new ioctls is not okay in general, you should be using
+     better APIs.
+ (5) you're not just adding new ioctls but also add them using the
+     dynamic registration facility that I NACKed before and remove in
+     earlier sent patches, but you copletly ignored all objections
+     and just resent the patches anyway
+ (6) in addition to the dynamic ioctls it's also adding a misc device,
+     leading to a totally incoherent interface.
 
-Will these patches make 2.6.16?
+> I agree that you proposal is straight forward and looks more pretty,
+> but I don't like the approach to just delete code that doesn't fit
+> your ideas.
 
-Matt
+It's not code that doesn't fit mu ideas but code that was rushed in
+despite my veto for good reasons.
+
+> As I already said, I would like to wait for final solution and 
+> don't apply the patches NOW.
+
+that's totally fine with me.  As long as we backout the bogus eer
+patch before 2.6.16 all the cleanups and even the eckd ioctl fix
+can wait.  But don't put this crappy interface into 1.6.16 and thus
+SLES10 so that applications start to rely on it.

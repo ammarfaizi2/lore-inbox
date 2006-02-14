@@ -1,101 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422883AbWBNX4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422892AbWBNX6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422883AbWBNX4F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 18:56:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422890AbWBNX4F
+	id S1422892AbWBNX6j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 18:58:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422890AbWBNX6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 18:56:05 -0500
-Received: from mtl.rackplans.net ([65.39.167.249]:14981 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id S1422883AbWBNX4D (ORCPT
+	Tue, 14 Feb 2006 18:58:38 -0500
+Received: from lucidpixels.com ([66.45.37.187]:32128 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1422888AbWBNX6i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 18:56:03 -0500
-Date: Tue, 14 Feb 2006 18:55:12 -0500 (EST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mauro Tassinari <mtassinari@cmanet.it>, airlied@linux.ie,
-       dri-devel@lists.sourceforge.net
-Subject: Re: 2.6.16-rc3: more regressions
-In-Reply-To: <20060213183445.GA3588@stusta.de>
-Message-ID: <Pine.LNX.4.64.0602141851530.18291@innerfire.net>
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org>
- <20060213170945.GB6137@stusta.de> <Pine.LNX.4.64.0602130931221.3691@g5.osdl.org>
- <20060213174658.GC23048@redhat.com> <Pine.LNX.4.64.0602130952210.3691@g5.osdl.org>
- <Pine.LNX.4.64.0602131007500.3691@g5.osdl.org> <20060213183445.GA3588@stusta.de>
+	Tue, 14 Feb 2006 18:58:38 -0500
+Date: Tue, 14 Feb 2006 18:58:37 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: Mark Lord <lkml@rtr.ca>
+cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>
+Subject: Re: LibPATA code issues / 2.6.15.4
+In-Reply-To: <43F1EE4A.3050107@rtr.ca>
+Message-ID: <Pine.LNX.4.64.0602141857500.5959@p34>
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F1EE4A.3050107@rtr.ca>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Feb 2006, Adrian Bunk wrote:
+FYI:
 
-> Date: Mon, 13 Feb 2006 19:34:45 +0100
-> From: Adrian Bunk <bunk@stusta.de>
-> To: Linus Torvalds <torvalds@osdl.org>
-> Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
->     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
->     Mauro Tassinari <mtassinari@cmanet.it>, airlied@linux.ie,
->     dri-devel@lists.sourceforge.net
-> Subject: Re: 2.6.16-rc3: more regressions
-> 
-> On Mon, Feb 13, 2006 at 10:16:59AM -0800, Linus Torvalds wrote:
-> > 
-> > 
-> > On Mon, 13 Feb 2006, Linus Torvalds wrote:
-> > > 
-> > > DaveA, I'll apply this for now. Comments?
-> > 
-> > Btw, the fact that Mauro has the same exact PCI ID (well, lspci stupidly 
-> > suppresses the ID entirely, but the string seems to match the one that 
-> > Dave Jones reports) may be unrelated.
-> 
-> Dave's patch removes the entry for the card with the 0x5b60.
-> 
-> According to his bug report, Mauro has a Radeon X300SE that should 
-> have the 0x5b70 according to pci.ids from pciutils and that doesn't seem 
-> to be claimed by the DRM driver (and the dmesg from the bug report 
-> confirms that the radeon DRM driver didn't claim to be responsible for 
-> this card).
-> 
-> > DaveJ (or Mauro): since you can test this, can you test having that ID 
-> > there but _without_ the other changes to drm in -rc1?
-> > 
-> > Ie was it the addition of that particular ID, or are the other radeon
-> > driver changes (which haven't had as much testing) perhaps the culprit?
-> > 
-> > I realize that without the ID, that card would never have been tested 
-> > anyway, but the point being that plain 2.6.15 with _just_ that ID added 
-> > has at least gotten more testing on other (similar) chips. So before I 
-> > revert that particular ID, it would be nice to know that it was broken 
-> > even with the previous radeon driver state.
-> 
-> The ID removed by Dave's patch is the only ID listed for an RV370 chips 
-> (the other RV370's aren't listed in the radeon DRM driver).
-> 
-> I suspect Dave and Mauro having unrelated problems.
-> 
-> > 		Linus
-> 
-> cu
-> Adrian
+Make a 100GB file, md5sum it, copy it to 'problem' drive and md5sum it, 
+same MD5SUMS.
 
-The X300 has two pci ids:
-0000:05:00.0 0300: 1002:5b60
-0000:05:00.1 0380: 1002:5b70
+box:/x8# /usr/bin/time dd if=/dev/zero of=100gb bs=1M count=100000 ; 
+/usr/bin/time md5sum 100gb; /usr/bin/time cp 100gb /x4 ; cd /x4 ; 
+/usr/bin/time md5sum 100gb
+100000+0 records in
+100000+0 records out
+104857600000 bytes transferred in 4735.034107 seconds (22145057 bytes/sec)
+0.29user 245.59system 1:18:55elapsed 5%CPU (0avgtext+0avgdata 
+0maxresident)k
+0inputs+0outputs (0major+210minor)pagefaults 0swaps
+1e95cd44e2cb773f483ea7b2f676258d  100gb
+248.24user 98.17system 32:50.97elapsed 17%CPU (0avgtext+0avgdata 
+0maxresident)k
+0inputs+0outputs (1major+188minor)pagefaults 0swaps
+14.75user 341.92system 35:25.25elapsed 16%CPU (0avgtext+0avgdata 
+0maxresident)k
+0inputs+0outputs (4major+183minor)pagefaults 0swaps
+1e95cd44e2cb773f483ea7b2f676258d  100gb
+246.95user 110.41system 28:06.49elapsed 21%CPU (0avgtext+0avgdata 
+0maxresident)k
+0inputs+0outputs (1major+190minor)pagefaults 0swaps
+box:/x4#
 
-0000:05:00.0 VGA compatible controller: ATI Technologies Inc RV370 5B60 
-[Radeon X300 (PCIE)]
-0000:05:00.1 Display controller: ATI Technologies Inc RV370 [Radeon 
-X300SE]
+Also, all SMART tests passed with flying colors..
 
-	Gerhard
+(FYI)
 
 
---
-Gerhard Mack
+On Tue, 14 Feb 2006, Mark Lord wrote:
 
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
+> Justin Piszcz wrote:
+> ..
+>>  ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
+>>  ata3: status=0x51 { DriveReady SeekComplete Error }
+>>  ata3: error=0x04 { DriveStatusError }
+>
+> I wonder if the FUA logic is inserting cache-flush commands
+> and perhaps the drive is rejecting those?
+>
+> Jeff, we really ought to be including the failed ATA opcode
+> in those error messages!!
+>
+> Cheers
+>

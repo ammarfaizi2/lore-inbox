@@ -1,88 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030548AbWBNKOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030552AbWBNKSB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030548AbWBNKOi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 05:14:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030280AbWBNKLW
+	id S1030552AbWBNKSB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 05:18:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030550AbWBNKSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 05:11:22 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:33514 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1030274AbWBNKLD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 05:11:03 -0500
-Date: Tue, 14 Feb 2006 11:11:00 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de, mingo@elte.hu
-Subject: [PATCH 03/12] hrtimer: optimize hrtimer_run_queues
-Message-ID: <Pine.LNX.4.61.0602141110540.3706@scrub.home>
+	Tue, 14 Feb 2006 05:18:00 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:15030 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1030549AbWBNKR7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 05:17:59 -0500
+Message-ID: <43F1AEA7.4010800@jp.fujitsu.com>
+Date: Tue, 14 Feb 2006 19:19:19 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] unify pfn_to_page take3 [6/23]  arm pfn_to_page
+References: <43F1A753.2020003@jp.fujitsu.com>
+In-Reply-To: <43F1A753.2020003@jp.fujitsu.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ARM can use generic funcs.
+PFN_TO_NID, LOCAL_MAP_NR are defined by sub-archs.
 
-Every time hrtimer_run_queues() is called, get_time() is called twice,
-which can be quite expensive, just reading xtime is much cheaper and
-does the same job (at least for the current low resolution timer, for
-high resolution timer we can something different later).
-Cache the expiry time in last_expired, so run_hrtimer_queue() doesn't
-has to calculate it (clock sources usually know when their expired).
+Signed-Off-By: KAMEZAWA Hirotuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
-Acked-by: Ingo Molnar <mingo@elte.hu>
 
----
-
- include/linux/hrtimer.h |    1 +
- kernel/hrtimer.c        |   17 +++++++++++++----
- 2 files changed, 14 insertions(+), 4 deletions(-)
-
-Index: linux-2.6-git/include/linux/hrtimer.h
+Index: testtree/include/asm-arm/memory.h
 ===================================================================
---- linux-2.6-git.orig/include/linux/hrtimer.h	2006-02-13 22:29:45.000000000 +0100
-+++ linux-2.6-git/include/linux/hrtimer.h	2006-02-13 22:29:56.000000000 +0100
-@@ -89,6 +89,7 @@ struct hrtimer_base {
- 	ktime_t			resolution;
- 	ktime_t			(*get_time)(void);
- 	struct hrtimer		*curr_timer;
-+	ktime_t			last_expired;
- };
- 
- /*
-Index: linux-2.6-git/kernel/hrtimer.c
-===================================================================
---- linux-2.6-git.orig/kernel/hrtimer.c	2006-02-13 22:29:51.000000000 +0100
-+++ linux-2.6-git/kernel/hrtimer.c	2006-02-13 22:29:56.000000000 +0100
-@@ -541,7 +541,7 @@ int hrtimer_get_res(const clockid_t whic
-  */
- static inline void run_hrtimer_queue(struct hrtimer_base *base)
- {
--	ktime_t now = base->get_time();
-+	ktime_t now = base->last_expired;
- 	struct rb_node *node;
- 
- 	spin_lock_irq(&base->lock);
-@@ -594,10 +594,19 @@ static inline void run_hrtimer_queue(str
- void hrtimer_run_queues(void)
- {
- 	struct hrtimer_base *base = __get_cpu_var(hrtimer_bases);
--	int i;
-+	ktime_t now, mono;
-+	int seq;
- 
--	for (i = 0; i < MAX_HRTIMER_BASES; i++)
--		run_hrtimer_queue(&base[i]);
-+	do {
-+		seq = read_seqbegin(&xtime_lock);
-+		now = timespec_to_ktime(xtime);
-+		mono = timespec_to_ktime(wall_to_monotonic);
-+	} while (read_seqretry(&xtime_lock, seq));
+--- testtree.orig/include/asm-arm/memory.h
++++ testtree/include/asm-arm/memory.h
+@@ -172,9 +172,7 @@ static inline __deprecated void *bus_to_
+   *  virt_addr_valid(k)	indicates whether a virtual address is valid
+   */
+  #ifndef CONFIG_DISCONTIGMEM
+-
+-#define page_to_pfn(page)	(((page) - mem_map) + PHYS_PFN_OFFSET)
+-#define pfn_to_page(pfn)	((mem_map + (pfn)) - PHYS_PFN_OFFSET)
++#define ARCH_PFN_OFFSET		(PHYS_PFN_OFFSET)
+  #define pfn_valid(pfn)		((pfn) >= PHYS_PFN_OFFSET && (pfn) < (PHYS_PFN_OFFSET + max_mapnr))
+
+  #define virt_to_page(kaddr)	(pfn_to_page(__pa(kaddr) >> PAGE_SHIFT))
+@@ -189,13 +187,8 @@ static inline __deprecated void *bus_to_
+   * around in memory.
+   */
+  #include <linux/numa.h>
+-
+-#define page_to_pfn(page)					\
+-	(( (page) - page_zone(page)->zone_mem_map)		\
+-	  + page_zone(page)->zone_start_pfn)
+-
+-#define pfn_to_page(pfn)					\
+-	(PFN_TO_MAPBASE(pfn) + LOCAL_MAP_NR((pfn) << PAGE_SHIFT))
++#define arch_pfn_to_nid(pfn)	(PFN_TO_NID(pfn))
++#define arch_local_page_offset(pfn, nid) (LOCAL_MAP_NR((pfn) << PAGE_OFFSET))
+
+  #define pfn_valid(pfn)						\
+  	({							\
+@@ -222,6 +215,7 @@ static inline __deprecated void *bus_to_
+
+  #endif /* !CONFIG_DISCONTIGMEM */
+
 +
-+	base[CLOCK_REALTIME].last_expired = now;
-+	run_hrtimer_queue(&base[CLOCK_REALTIME]);
-+	base[CLOCK_MONOTONIC].last_expired = ktime_add(now, mono);
-+	run_hrtimer_queue(&base[CLOCK_MONOTONIC]);
- }
- 
- /*
+  /*
+   * For BIO.  "will die".  Kill me when bio_to_phys() and bvec_to_phys() die.
+   */
+@@ -243,4 +237,6 @@ static inline __deprecated void *bus_to_
+
+  #endif
+
++#include <asm-generic/memory_model.h>
++
+  #endif
+

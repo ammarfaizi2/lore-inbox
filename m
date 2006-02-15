@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422973AbWBOFm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422979AbWBOFxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422973AbWBOFm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 00:42:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422974AbWBOFm3
+	id S1422979AbWBOFxV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 00:53:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422981AbWBOFxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 00:42:29 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:35734 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1422973AbWBOFm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 00:42:28 -0500
-Message-ID: <43F2BF9B.90402@jp.fujitsu.com>
-Date: Wed, 15 Feb 2006 14:43:55 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, kyle@mcmartin.ca
-Subject: Re: [PATCH] unify pfn_to_page take3 [0/23]
-References: <43F1A753.2020003@jp.fujitsu.com> <20060214213356.02b0caef.akpm@osdl.org>
-In-Reply-To: <20060214213356.02b0caef.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 15 Feb 2006 00:53:21 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:4748 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422979AbWBOFxU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 00:53:20 -0500
+Date: Tue, 14 Feb 2006 21:52:16 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH trivial] Add missing return value of kauditd_thread
+Message-Id: <20060214215216.5abac525.akpm@osdl.org>
+In-Reply-To: <s5h4q31btlb.wl%tiwai@suse.de>
+References: <s5h4q31btlb.wl%tiwai@suse.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
->> User-Agent: Thunderbird 1.5 (Windows/20051201)
+Takashi Iwai <tiwai@suse.de> wrote:
+>
+> Add the missing return value of kauditd_thread().
 > 
-> uh-oh.
+> Signed-off-by: Takashi Iwai <tiwai@suse.de>
 > 
->>  Hi, this is unify-pfn_to_page patch take3. thank you for comments on
->>  previous version.
+> ---
 > 
-> I get 100% rejects on all patches due to your email clients's
-> space-stuffing, which my client (or at least this version of it) doesn't
-> want to un-space-stuff.
-> 
-> Please resend off-list, using text/plain attachments.
-> 
-Ouch, very sorry..
-I posted them in usual way, but something was wrong.
+> diff --git a/kernel/audit.c b/kernel/audit.c
+> index 0a813d2..a08fc96 100644
+> --- a/kernel/audit.c
+> +++ b/kernel/audit.c
+> @@ -300,6 +300,7 @@ static int kauditd_thread(void *dummy)
+>  			remove_wait_queue(&kauditd_wait, &wait);
+>  		}
+>  	}
+> +	return 0;
+>  }
+>  
+>  void audit_send_reply(int pid, int seq, int type, int done, int multi,
 
-I'll do soon.
-
-I'm now comparing inlined and out-of-lined pfn_to_page() on ia64 sparsemem.
-I'll post it if it is interesting.
-
--- Kame
-
+Patch is already present in the seemingly-moribund audit git repo.

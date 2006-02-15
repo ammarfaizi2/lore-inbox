@@ -1,40 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423058AbWBOJHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423057AbWBOJHn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423058AbWBOJHV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 04:07:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423057AbWBOJHV
+	id S1423057AbWBOJHn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 04:07:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423059AbWBOJHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 04:07:21 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:43734 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1423058AbWBOJHI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 04:07:08 -0500
-Date: Wed, 15 Feb 2006 01:05:59 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Coywolf Qi Hunt <qiyong@fc-cn.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] make sysctl_overcommit_memory enumeration sensible
-Message-Id: <20060215010559.55b55414.akpm@osdl.org>
-In-Reply-To: <20060215085456.GA2481@localhost.localdomain>
-References: <20060215085456.GA2481@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 15 Feb 2006 04:07:43 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35592 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1423057AbWBOJHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 04:07:42 -0500
+Date: Wed, 15 Feb 2006 09:07:32 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, greg@kroah.com
+Subject: Re: [RFC][PATCH 1/4] PCI legacy I/O port free driver - Introduce pci_set_bar_mask*()
+Message-ID: <20060215090732.GA15898@flint.arm.linux.org.uk>
+Mail-Followup-To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-pci@atrey.karlin.mff.cuni.cz, greg@kroah.com
+References: <43F172BA.1020405@jp.fujitsu.com> <43F17379.8010900@jp.fujitsu.com> <20060214210744.3a7a756a.akpm@osdl.org> <43F2C44C.7080806@jp.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F2C44C.7080806@jp.fujitsu.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf Qi Hunt <qiyong@fc-cn.com> wrote:
->
-> I see system admins often confused when they sysctl vm.overcommit_memory.
-> This patch makes overcommit_memory enumeration sensible.
+On Wed, Feb 15, 2006 at 03:03:56PM +0900, Kenji Kaneshige wrote:
+> Andrew Morton wrote:
+> >Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com> wrote:
+> >
+> >>This patch introduces a new interface pci_select_resource() for PCI
+> >>device drivers to tell kernel what resources they want to use.
+> >
+> >
+> >It'd be nice if we didn't need to introduce any new API functions for this.
+> >If we could just do:
+> >
+> >struct pci_something pci_something_table[] = {
+> >	...
+> >	{
+> >		...
+> >		.dont_allocate_io_space = 1,
+> >		...
+> >	},
+> >	...
+> >};
+> >
+> >within each driver which wants it.
+> >
+> >But I can't think of a suitable per-device-id structure with which we can
+> >do that :(
+> >
+> >
 > 
-> 0 - no overcommit
-> 1 - always overcommit
-> 2 - heuristic overcommit (default)
+> My another idea was to use pci quirks. In this approach, we don't
+> need to introduce any new API. But I gave up this idea because it
+> looked abuse of pci quirks.
 > 
-> I don't feel this would break any userspace scripts.
+> Anyway, I try to think about new ideas we don't need to introduce
+> any new API.
 
-eh?   If any such scripts exist, they'll break.
+What about pci_enable_device_bars() ?
 
-Confused.
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

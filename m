@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWBOUCa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbWBOUFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751187AbWBOUCa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 15:02:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWBOUCa
+	id S1751274AbWBOUFF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 15:05:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWBOUFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 15:02:30 -0500
-Received: from mail.suse.de ([195.135.220.2]:43711 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751187AbWBOUC3 (ORCPT
+	Wed, 15 Feb 2006 15:05:05 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:48355 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751274AbWBOUFD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 15:02:29 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Christopher Friesen" <cfriesen@nortel.com>
-Subject: Re: [patch 0/5] lightweight robust futexes: -V1
-Date: Wed, 15 Feb 2006 21:02:11 +0100
-User-Agent: KMail/1.8.2
-Cc: Ulrich Drepper <drepper@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       David Singleton <dsingleton@mvista.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20060215151711.GA31569@elte.hu> <200602151942.20494.ak@suse.de> <43F385C1.9020508@nortel.com>
-In-Reply-To: <43F385C1.9020508@nortel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 15 Feb 2006 15:05:03 -0500
+Date: Wed, 15 Feb 2006 12:03:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: carsteno@de.ibm.com
+Cc: cotte@de.ibm.com, hch@lst.de, horst.hummel@de.ibm.com,
+       linux-kernel@vger.kernel.org, heicars2@de.ibm.com, wein@de.ibm.com,
+       mschwid2@de.ibm.com, ihno@suse.de
+Subject: Re: [PATCH 0/5] new dasd ioctl patchkit
+Message-Id: <20060215120343.1e4e8afe.akpm@osdl.org>
+In-Reply-To: <43F3397B.3090207@de.ibm.com>
+References: <1139935988.6183.5.camel@localhost.localdomain>
+	<20060214190909.GA20527@lst.de>
+	<43F3397B.3090207@de.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602152102.12795.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 February 2006 20:49, Christopher Friesen wrote:
+Carsten Otte <cotte@de.ibm.com> wrote:
+>
+> Christoph Hellwig wrote:
+> > As long as we backout the bogus eer
+> > patch before 2.6.16 all the cleanups and even the eckd ioctl fix
+> > can wait.  But don't put this crappy interface into 1.6.16 and thus
+> > SLES10 so that applications start to rely on it.
+> ACK: Given that a) both Horst and Christoph think the ioctl interface
+> needs cleanup but proposed cleanup interfers with existing
+> functionality (cmb), and b) later cleanup would change the
+> user-interface of eer, we should rush neither the ioctl change nor
+> eer into .16 until the maintainer is back afaics.
+> 
 
-> The goal is for the kernel to unlock the mutex, but the next task to 
-> aquire it gets some special notification that the status is unknown.  At 
-> that point the task can either validate/clean up the data and reset the 
-> mutex to clean (if it can) or it can give up the mutex and pass it on to 
-> some other task that does know how to validate/clean up.
+I don't have a patch in hand to purely back out the eer modeule.  What I
+have is
 
-The "send signal when any mapper dies" proposal would do that. The other process
-could catch the signal and do something with it.
+dasd-cleanup-dasd_ioctl.patch
+dasd-cleanup-dasd_ioctl-fix.patch
+dasd-add-per-disciple-ioctl-method.patch
+dasd-merge-dasd_cmd-into-dasd_mod.patch
+dasd-backout-dasd_eer-module.patch
+dasd-kill-dynamic-ioctl-registration.patch
 
--Andi
+So what do we do?

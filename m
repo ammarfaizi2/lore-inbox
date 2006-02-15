@@ -1,74 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWBOSml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWBOSod@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbWBOSml (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 13:42:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbWBOSmk
+	id S1751169AbWBOSod (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 13:44:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWBOSod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 13:42:40 -0500
-Received: from ns.suse.de ([195.135.220.2]:18357 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750774AbWBOSmk (ORCPT
+	Wed, 15 Feb 2006 13:44:33 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:43701 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1751169AbWBOSoc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 13:42:40 -0500
-From: Andi Kleen <ak@suse.de>
-To: Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [patch 0/5] lightweight robust futexes: -V1
-Date: Wed, 15 Feb 2006 19:42:19 +0100
-User-Agent: KMail/1.8.2
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       David Singleton <dsingleton@mvista.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20060215151711.GA31569@elte.hu> <p73lkwc5xv2.fsf@verdi.suse.de> <43F36A00.602@redhat.com>
-In-Reply-To: <43F36A00.602@redhat.com>
+	Wed, 15 Feb 2006 13:44:32 -0500
+Message-ID: <43F3764C.8080503@cfl.rr.com>
+Date: Wed, 15 Feb 2006 13:43:24 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Seewer Philippe <philippe.seewer@bfh.ch>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC: disk geometry via sysfs
+References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com> <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com> <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com> <43F2E8BA.90001@bfh.ch> <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com> <1140019615.14831.22.camel@localhost.localdomain> <43F354E9.2020900@cfl.rr.com> <1140024754.14831.31.camel@localhost.localdomain>
+In-Reply-To: <1140024754.14831.31.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602151942.20494.ak@suse.de>
+X-OriginalArrivalTime: 15 Feb 2006 18:46:02.0562 (UTC) FILETIME=[11ECD220:01C63260]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14269.000
+X-TM-AS-Result: No--4.000000-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 February 2006 18:50, Ulrich Drepper wrote:
-> Andi Kleen wrote:
-> > e.g. you could add a new VMA flag that says "when one user
-> > of this dies unexpectedly by a signal kill all" 
+Alan Cox wrote:
+> On Mer, 2006-02-15 at 11:20 -0500, Phillip Susi wrote:
+>> Why do you say the partitioning tool needs to know the disk reported 
+>> C/H/S?  The value stored in the MBR must match the bios reported values, 
+>> not the disk reported ones, so why does the partitioner care about what 
+>> the disk reports?
 > 
-> "kill all"?  
-
-It would solve the problem statement given by Ingo in the rationale 
-for this kernel patch - cleaning up after a hanging yum. 
-
-If there are any other problems this is intended to solve then they 
-should be stated in the rationale.
-
-> > And what happens if the patch is rejected? I don't really think you
-> > can force patches in this way ("do it or I break glibc")
+> You answered that in asking the question.  "The value stored in the MBR
+> must match the ...". What if the MBR has not yet been written ?
 > 
-> Nothing which relies on the syscalls goes into cvs unless the kernel
-> side is first committed. I never do this. 
 
-Great we agree on that then.
+The value in the MBR must match the _bios_ value, not the value that the 
+disk reports in its inquiry command ( which often will be different ). 
+When creating a new MBR you need to get the geometry from the bios, not 
+the drive itself.
 
-> The list being corrupted means that the mutexes are corrupted.  In which
-> case the application would crash anyway.
+> (Also btw its *should*...) most modern OS's will take a sane MBR
+> geometry and trust it over BIOS defaults.
+> 
 
-I'm not concerned about the application, just about the kernel.
-
-> As for the "endless loop".  You didn't read the code, it seems.  There
-> are two mechanisms to prevent this: the list is destroyed when the
-> individual elements are handled and there is an upper limit on the
-> number of robust mutexes which can be registered.  The limit is
-> ridiculously high so it'll no problem for correct programs and it also
-> will eliminate run-away list following code.
-
-Ok good that's handled. How about long blocking on swapped out pages
-in exit?
-
-You would need a SO_LINGER I guess, but implementing that would be 
-fairly nasty.
-
-I think the "kill all" approach would be much simpler.
+If the value in the MBR differs from the geometry that the bios reports, 
+then boot code using int 13 in chs mode will fail because it won't be 
+using the geometry that the bios expects.
 
 
--Andi

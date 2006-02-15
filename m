@@ -1,53 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWBOWAK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbWBOWCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbWBOWAK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 17:00:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWBOWAJ
+	id S1751297AbWBOWCN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 17:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWBOWCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 17:00:09 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:47760
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751315AbWBOWAI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 17:00:08 -0500
-Date: Wed, 15 Feb 2006 13:59:57 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] Re: Linux 2.6.16-rc3
-Message-ID: <20060215215957.GA25784@kroah.com>
-References: <20060215170614.GD1546@kroah.com> <Pine.LNX.4.44L0.0602151651370.4801-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0602151651370.4801-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.5.11
+	Wed, 15 Feb 2006 17:02:13 -0500
+Received: from hobbit.corpit.ru ([81.13.94.6]:44635 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1751297AbWBOWCM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 17:02:12 -0500
+Message-ID: <43F3A4EA.3040000@tls.msk.ru>
+Date: Thu, 16 Feb 2006 01:02:18 +0300
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: readahead logic and I/O errors
+References: <43F39089.2050302@tls.msk.ru> <Pine.LNX.4.61.0602151549190.10849@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0602151549190.10849@chaos.analogic.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 15, 2006 at 04:52:43PM -0500, Alan Stern wrote:
-> On Wed, 15 Feb 2006, Greg KH wrote:
+linux-os (Dick Johnson) wrote:
+> On Wed, 15 Feb 2006, Michael Tokarev wrote:
 > 
-> > On Wed, Feb 15, 2006 at 05:35:08PM +0100, Arjan van de Ven wrote:
-> > > On Wed, 2006-02-15 at 08:27 -0800, Greg KH wrote:
-> > > > 
-> > > > Nah, I don't think it's a good idea.  James's patch should work just
-> > > > fine.
-> > > 
-> > > another option is to have a "kill list" which you put the thing on, and
-> > > then wake up a thread. only 2 pointers in the object ;(
-> > 
-> > Hm, that's almost what James's patch is trying to do.  Care to mock up a
-> > patch that shows this?  It might be a simpler solution.
 > 
-> It won't work.  You might have to do 2 put_device calls on the same 
-> structure.  That's why I suggested the "pending puts" counter; something 
-> can't go on a list more than once.
+>>The thing is: I just fired a cdrom drive in my PC.
+>>It was a good device, and now it's dead.
+>>And the reason is the readahead logic, plus an unreadable
+>>(damaged, scratched) CD-rom.
+[]
+> Aside from the obvious read-ahead bug you discovered, have you
+> tried your CD drive after the reboot? It is not possible to
+> kill those things with software, even if attempting to write
+> with too much infrared LED drive. There is nothing except for
+> the removable disc to get hurt. Even the "head" isn't in contact.
+> It's just some infrared light, focused with a voice-coil, that
+> moves on a fixed platform.
 
-It would only go on the list if the "put" was the last one.  Otherwise
-it would not make any sense to put it on any list.
+I opened the drive after BIOS didn't detect it on reboot (after
+power-off).  There's one fired (burned? perished? how's that in
+english?) chip on the plate, wich smells like fired silicone.
+  It looks like a ~5mm pit in the center of square chip, full of
+ache, and there's a crack across it.  The drive is dead.
 
-thanks,
+I think it's a chip which controls one of the motors of the drive,
+most probably the one which moves the head, because the head
+motor connector is right near the chip.
 
-greg k-h
+When I turned off power, the drive was *hot*, and it started
+"trembling" (or chattering) when I turned power off.
+
+It was a dvd-cd combo (read dvd, read-write cd) Teac drive, I
+don't remember the model (there's no label on the drive, and
+I can't send inquiry/identify command to it anymore, obviously).
+
+Yest it looks like a problem in the drive *too*, as it should
+not behave like that in the first place.  But the thing is, I
+did know something's bad going on, I saw it, but I wasn't able
+to stop it from linux, only poweroff stopped things from going.
+
+/mjt

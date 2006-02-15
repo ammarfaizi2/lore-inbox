@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945989AbWBOPoi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945992AbWBOPo7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945989AbWBOPoi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 10:44:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945990AbWBOPoi
+	id S1945992AbWBOPo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 10:44:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945993AbWBOPo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 10:44:38 -0500
-Received: from [213.91.10.50] ([213.91.10.50]:8408 "EHLO zone4.gcu-squad.org")
-	by vger.kernel.org with ESMTP id S1945989AbWBOPoh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 10:44:37 -0500
-Date: Wed, 15 Feb 2006 16:41:39 +0100 (CET)
-To: linux-kernel@vger.kernel.org
-Subject: Re: Random reboots
-X-IlohaMail-Blah: khali@localhost
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
-Message-ID: <6cBigqfP.1140018099.7722170.khali@localhost>
-In-Reply-To: <20060215142809.GA17842@tau.solarneutrino.net>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: "Ryan Richter" <ryan@tau.solarneutrino.net>,
-       "Erik Mouw" <erik@harddisk-recovery.com>,
-       "Nick Warne" <nick@linicks.net>
+	Wed, 15 Feb 2006 10:44:59 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:15854 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1945992AbWBOPo6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 10:44:58 -0500
+Date: Wed, 15 Feb 2006 16:44:38 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Greg KH <greg@kroah.com>
+cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, davidsen@tmr.com,
+       nix@esperi.org.uk, linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+In-Reply-To: <20060213154921.GA22597@kroah.com>
+Message-ID: <Pine.LNX.4.61.0602151643470.25885@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
+ <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
+ <20060125181847.b8ca4ceb.grundig@teleline.es> <20060125173127.GR4212@suse.de>
+ <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix>
+ <43ED005F.5060804@tmr.com> <20060210235654.GA22512@kroah.com>
+ <43F0891E.nailKUSCGC52G@burner> <20060213154921.GA22597@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Greylist: Sender is SPF-compliant, not delayed by milter-greylist-2.1.2 (zone4.gcu-squad.org [127.0.0.1]); Wed, 15 Feb 2006 16:41:40 +0100 (CET)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>
+>Of course not.  Here's one line of bash that gets you the major:minor
+>file of every block device in the system:
+>	block_devices="$(echo /sys/block/*/dev /sys/block/*/*/dev)"
+>
+When was that added? /sys/block/hdc/device/ only has "power", "block", 
+"bus" and "driver" here on a 2.6.13-rc3.
 
-Hi Ryan,
 
-On 2006-02-15, Ryan Richter wrote:
-> The sensors report a bunch of obvious nonsesne as always...  I keep them
-> configured in with the hope that one day they'll report useful
-> information, but that day hasn't come yet.  I just checked, and all the
-> fans are still fine.  It's in a huge case with lots of fans and it's
-> hardly warmer than room temp.  The opteron 240s don't put out much heat.
-
-The sensors might just need some board-specific configuration. May I ask
-which motherboard this is?
-
-I may help you (in private) setup your sensors. If you're interested,
-send the output of "sensors-detect" and "sensors" to me and I'll
-see what can be done to improve the reported values.
-
-Two more random thoughts:
-
-Any reason why you run 2.6.15 rather than 2.6.15.4? That's where I would
-start if I was suspecting a kernel bug.
-
-Did you already update the BIOS to the latest version available? There
-are a few kernel complaints in your dmesg which might be solved by a
-newer BIOS (and/or parameter changes in the BIOS setup).
-
---
-Jean Delvare
+Jan Engelhardt
+-- 

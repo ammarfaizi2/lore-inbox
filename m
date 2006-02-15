@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWBOTOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWBOTQl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932158AbWBOTOE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 14:14:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWBOTOE
+	id S932164AbWBOTQl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 14:16:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWBOTQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 14:14:04 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:39609 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S932158AbWBOTOC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 14:14:02 -0500
-Subject: ptrace and threads
-From: "Charles P. Wright" <cwright@cs.sunysb.edu>
+	Wed, 15 Feb 2006 14:16:41 -0500
+Received: from smtprelay05.ispgateway.de ([80.67.18.43]:21169 "EHLO
+	smtprelay05.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932164AbWBOTQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 14:16:40 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 15 Feb 2006 14:14:01 -0500
-Message-Id: <1140030841.10553.9.camel@polarbear.fsl.cs.sunysb.edu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Subject: Re: + acpi_os_acquire_object-gfp_kernel-called-with-irqs.patch added to -mm tree
+Date: Wed, 15 Feb 2006 20:15:59 +0100
+User-Agent: KMail/1.7.2
+Cc: Davi Arnaut <davi.arnaut@gmail.com>, Dave Jones <davej@redhat.com>,
+       len.brown@intel.com, pavel@ucw.cz, akpm@osdl.org
+References: <200602132314.k1DNElaA011901@shell0.pdx.osdl.net> <20060213235244.GA11200@redhat.com> <20060213222406.518edeb8.davi.arnaut@gmail.com>
+In-Reply-To: <20060213222406.518edeb8.davi.arnaut@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602152016.05461.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-Is there a proper, non-racy, way to hand a ptraced child off from one
-tracing process to another tracing process?
+On Tuesday 14 February 2006 02:24, Davi Arnaut wrote:
+> You are right, this one instead should work better.
+> 
+> Signed-off-by: Davi Arnaut <davi.arnaut@gmail.com>
+> --
+> 
+> diff --git a/drivers/acpi/osl.c b/drivers/acpi/osl.c
+> index ac5bbae..8d44b0d 100644
+> --- a/drivers/acpi/osl.c
+> +++ b/drivers/acpi/osl.c
+> @@ -1175,7 +1175,12 @@ acpi_status acpi_os_release_object(acpi_
+>  
+>  void *acpi_os_acquire_object(acpi_cache_t * cache)
+>  {
+> -	void *object = kmem_cache_alloc(cache, GFP_KERNEL);
+> +	void *object;
+> +	
+> +	if (acpi_in_resume)
+> +		object = kmem_cache_alloc(cache, GFP_ATOMIC);
+> +	else
+> +		object = kmem_cache_alloc(cache, GFP_KERNEL);
+>  	WARN_ON(!object);
+>  	return object;
+>  }
 
-Specifically, I want to architect my tracing application such that each
-traced process is traced by a separate thread.
+Why not even fold all the memsets from the caller into this function?
+This reduces code of the call sites further and makes it clearer.
+Also in every call site, we do some check 
+(or not as fixed by your patch :-)) and memset it afterwards.
 
-For non-threaded applications, I was adding CLONE_STOPPED to the
-clone(2) flags of the child.  This way, when the child process started
-up, it would be stopped and a new tracing thread could PTRACE_ATTACH to
-it before any system calls were executed.  Unfortunately, this method
-doesn't seem to work for threaded traced processes.  The reason is that
-the SIGSTOP may be delivered to the traced parent instead of the traced
-child, because signal handlers are shared.
+Since kzalloc() this is the new fashion anyway :-)
 
-My next thought was to add CLONE_PTRACE to the flags.  This way, the
-tracing process gets signaled via wait before the child begins to
-execute.  The problem now is that I need to the have a separate
-monitoring thread take control of the child.  I tried using
-ptrace(PTRACE_DETACH, ..., ..., SIGSTOP) in the original tracing process
-to stop the process after the fork, followed by a ptrace(PTRACE_ATTACH)
-in the new tracing process.  Again, the STOP signal doesn't seem to be
-reliably delivered (and the man page says you can't use SIGSTOP as an
-argument to PTRACE_CONT and that PTRACE_DETACH's semantics match those
-of PTRACE_CONT).
 
-Thank you,
-Charles
+Regards
 
-P.S. I am not subscribed to lkml, so please Cc: me on replies.
+Ingo Oeser
 

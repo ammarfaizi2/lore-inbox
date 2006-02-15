@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422987AbWBOGBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbWBOGFy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422987AbWBOGBV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 01:01:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422990AbWBOGBV
+	id S1751014AbWBOGFy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 01:05:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751016AbWBOGFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 01:01:21 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:11210 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1422987AbWBOGBT convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 01:01:19 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 15 Feb 2006 01:05:54 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:59822 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751011AbWBOGFx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 01:05:53 -0500
+Message-ID: <43F2C44C.7080806@jp.fujitsu.com>
+Date: Wed, 15 Feb 2006 15:03:56 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [linux-usb-devel] Re: Linux 2.6.16-rc3
-Date: Wed, 15 Feb 2006 13:58:51 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F840AF2824B@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [linux-usb-devel] Re: Linux 2.6.16-rc3
-thread-index: AcYx8SYvfAkV5rhiR3WldIDk+GnmpgAAE6OQ
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>,
-       "Brown, Len" <len.brown@intel.com>
-Cc: "David S. Miller" <davem@davemloft.net>, <akpm@osdl.org>,
-       <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>, <axboe@suse.de>,
-       <James.Bottomley@steeleye.com>, <greg@kroah.com>,
-       <linux-acpi@vger.kernel.org>, <linux-usb-devel@lists.sourceforge.net>,
-       <lk@bencastricum.nl>, <helgehaf@aitel.hist.no>, <fluido@fluido.as>,
-       <gbruchhaeuser@gmx.de>, <Nicolas.Mailhot@LaPoste.net>, <perex@suse.cz>,
-       <tiwai@suse.de>, <patrizio.bassi@gmail.com>, <bni.swe@gmail.com>,
-       <arvidjaar@mail.ru>, <p_christ@hol.gr>, <ghrt@dial.kappa.ro>,
-       <jinhong.hu@gmail.com>, <andrew.vasquez@qlogic.com>,
-       <linux-scsi@vger.kernel.org>, <bcrl@kvack.org>
-X-OriginalArrivalTime: 15 Feb 2006 05:58:54.0473 (UTC) FILETIME=[E70BCF90:01C631F4]
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       greg@kroah.com
+Subject: Re: [RFC][PATCH 1/4] PCI legacy I/O port free driver - Introduce
+ pci_set_bar_mask*()
+References: <43F172BA.1020405@jp.fujitsu.com>	<43F17379.8010900@jp.fujitsu.com> <20060214210744.3a7a756a.akpm@osdl.org>
+In-Reply-To: <20060214210744.3a7a756a.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I don't think anybody claimed this isn't a regression for the 600X.
->
->I narrowed it further.  The short story is that this commit (diff below
->sig) makes the second S3 sleep go into the endless loop, if the loaded
->modules are exactly thermal, processor, intel_agp, and agpgart:
+Andrew Morton wrote:
+> Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com> wrote:
+> 
+>>This patch introduces a new interface pci_select_resource() for PCI
+>> device drivers to tell kernel what resources they want to use.
+> 
+> 
+> It'd be nice if we didn't need to introduce any new API functions for this.
+> If we could just do:
+> 
+> struct pci_something pci_something_table[] = {
+> 	...
+> 	{
+> 		...
+> 		.dont_allocate_io_space = 1,
+> 		...
+> 	},
+> 	...
+> };
+> 
+> within each driver which wants it.
+> 
+> But I can't think of a suitable per-device-id structure with which we can
+> do that :(
+> 
+> 
 
-If you believe this patch is the root cause of the regression you have
-been seeing. Then, I would say the thing is a little bit different with
-ec_intr=0 and ec_intr=1. Basically, ec_intr=0 will disable EC related
-ACPI interrupt before finishing _Qxx method execution , but ec_intr=1
-always enable EC interrupt.  This could cause some hardware/BIOS
-events get lost under ec_intr=0, which shouldn't lost.
+My another idea was to use pci quirks. In this approach, we don't
+need to introduce any new API. But I gave up this idea because it
+looked abuse of pci quirks.
 
-We need to figure out what's going on here rather than falling back to
-ec_intr=0 behavior.
+Anyway, I try to think about new ideas we don't need to introduce
+any new API.
 
---Luming
+Thanks,
+Kenji Kaneshige

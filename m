@@ -1,48 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030620AbWBODd2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030627AbWBODfQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030620AbWBODd2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 22:33:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030627AbWBODd2
+	id S1030627AbWBODfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 22:35:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030626AbWBODfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 22:33:28 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:4582 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S1030620AbWBODd1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 22:33:27 -0500
-Date: Tue, 14 Feb 2006 19:33:11 -0800
-From: Greg KH <gregkh@suse.de>
-To: Hansjoerg Lipp <hjlipp@web.de>
-Cc: Karsten Keil <kkeil@suse.de>, i4ldeveloper@listserv.isdn4linux.de,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Tilman Schmidt <tilman@imap.cc>
-Subject: Re: [PATCH 7/9] isdn4linux: Siemens Gigaset drivers - direct USB connection
-Message-ID: <20060215033310.GD5099@suse.de>
-References: <gigaset307x.2006.02.11.001.0@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.1@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.2@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.3@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.4@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.5@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.6@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.7@hjlipp.my-fqdn.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <gigaset307x.2006.02.11.001.7@hjlipp.my-fqdn.de>
-User-Agent: Mutt/1.5.11
+	Tue, 14 Feb 2006 22:35:16 -0500
+Received: from ms-smtp-05.texas.rr.com ([24.93.47.44]:35528 "EHLO
+	ms-smtp-05-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S1030627AbWBODfO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 22:35:14 -0500
+Message-ID: <43F2AE7C.7080601@austin.rr.com>
+Date: Tue, 14 Feb 2006 22:30:52 -0600
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird  (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: torvalds@osdl.org
+CC: shaggy@austin.ibm.com, linux-kernel@vger.kernel.org, bunk@stusta.de
+Subject: [PATCH] [CIFS] fix cifs_user_read oops when null SMB response on
+ forcedirectio mount
+Content-Type: multipart/mixed;
+ boundary="------------010203020808020205020207"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 11, 2006 at 03:52:28PM +0100, Hansjoerg Lipp wrote:
-> +/* table of devices that work with this driver */
-> +static struct usb_device_id gigaset_table [] = {
-> +	{ USB_DEVICE(USB_GIGA_VENDOR_ID, USB_GIGA_PRODUCT_ID) },
-> +	{ USB_DEVICE(USB_GIGA_VENDOR_ID, USB_4175_PRODUCT_ID) },
-> +	{ USB_DEVICE(USB_GIGA_VENDOR_ID, USB_SX303_PRODUCT_ID) },
-> +	{ USB_DEVICE(USB_GIGA_VENDOR_ID, USB_SX353_PRODUCT_ID) },
-> +	{ } /* Terminating entry */
-> +};
-> +
-> +MODULE_DEVICE_TABLE(usb, gigaset_table);
-> +
-> +/* Get a minor range for your devices from the usb maintainer */
-> +#define USB_SKEL_MINOR_BASE	200
+This is a multi-part message in MIME format.
+--------------010203020808020205020207
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I don't think you need that comment anymore, or the #define anymore :)
+This patch fixes an oops reported by Adrian Bunk in cifs_user_read when a null 
+read response is returned on a forcedirectio mount.  
 
-thanks,
+Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+Signed-off-by: Steve French <sfrench@us.ibm.com>
 
-greg k-h
+diff --git a/fs/cifs/file.c b/fs/cifs/file.c
+index d17c97d..675bd25 100644
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -1442,13 +1442,15 @@ ssize_t cifs_user_read(struct file *file
+ 					 &bytes_read, &smb_read_data,
+ 					 &buf_type);
+ 			pSMBr = (struct smb_com_read_rsp *)smb_read_data;
+-			if (copy_to_user(current_offset, 
+-					 smb_read_data + 4 /* RFC1001 hdr */
+-					 + le16_to_cpu(pSMBr->DataOffset), 
+-					 bytes_read)) {
+-				rc = -EFAULT;
+-			}
+ 			if (smb_read_data) {
++				if (copy_to_user(current_offset,
++						smb_read_data +
++						4 /* RFC1001 length field */ +
++						le16_to_cpu(pSMBr->DataOffset),
++						bytes_read)) {
++					rc = -EFAULT;
++				}
++
+ 				if(buf_type == CIFS_SMALL_BUFFER)
+ 					cifs_small_buf_release(smb_read_data);
+ 				else if(buf_type == CIFS_LARGE_BUFFER)
+
+
+
+--------------010203020808020205020207
+Content-Type: text/x-patch;
+ name="cifs-user-read-oops.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cifs-user-read-oops.patch"
+
+diff --git a/fs/cifs/file.c b/fs/cifs/file.c
+index d17c97d..675bd25 100644
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -1442,13 +1442,15 @@ ssize_t cifs_user_read(struct file *file
+ 					 &bytes_read, &smb_read_data,
+ 					 &buf_type);
+ 			pSMBr = (struct smb_com_read_rsp *)smb_read_data;
+-			if (copy_to_user(current_offset, 
+-					 smb_read_data + 4 /* RFC1001 hdr */
+-					 + le16_to_cpu(pSMBr->DataOffset), 
+-					 bytes_read)) {
+-				rc = -EFAULT;
+-			}
+ 			if (smb_read_data) {
++				if (copy_to_user(current_offset,
++						smb_read_data +
++						4 /* RFC1001 length field */ +
++						le16_to_cpu(pSMBr->DataOffset),
++						bytes_read)) {
++					rc = -EFAULT;
++				}
++
+ 				if(buf_type == CIFS_SMALL_BUFFER)
+ 					cifs_small_buf_release(smb_read_data);
+ 				else if(buf_type == CIFS_LARGE_BUFFER)
+
+--------------010203020808020205020207--

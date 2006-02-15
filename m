@@ -1,72 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946015AbWBOQb3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946007AbWBOQbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946015AbWBOQb3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 11:31:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946014AbWBOQb3
+	id S1946007AbWBOQbD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 11:31:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946010AbWBOQbD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 11:31:29 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:2934 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S1946013AbWBOQb2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 11:31:28 -0500
-Date: Wed, 15 Feb 2006 17:31:35 +0100
-From: Sander <sander@humilis.net>
-To: Jens Axboe <axboe@suse.de>
-Cc: Sander <sander@humilis.net>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc3 kernel BUG at drivers/scsi/sata_mv.c:1018
-Message-ID: <20060215163135.GA20806@favonius>
-Reply-To: sander@humilis.net
-References: <20060215131653.GA26178@favonius> <20060215145925.GU4203@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 15 Feb 2006 11:31:03 -0500
+Received: from solarneutrino.net ([66.199.224.43]:18441 "EHLO
+	tau.solarneutrino.net") by vger.kernel.org with ESMTP
+	id S1946007AbWBOQbB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 11:31:01 -0500
+Date: Wed, 15 Feb 2006 11:30:58 -0500
+To: Jean Delvare <khali@linux-fr.org>
+Cc: linux-kernel@vger.kernel.org, Erik Mouw <erik@harddisk-recovery.com>,
+       Nick Warne <nick@linicks.net>
+Subject: Re: Random reboots
+Message-ID: <20060215163058.GC17864@tau.solarneutrino.net>
+References: <20060215160036.GB17864@tau.solarneutrino.net> <ARSSpsNs.1140020437.1823510.khali@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20060215145925.GU4203@suse.de>
-X-Uptime: 16:36:36 up 15 days,  7:55, 23 users,  load average: 3.20, 2.85, 2.58
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <ARSSpsNs.1140020437.1823510.khali@localhost>
+User-Agent: Mutt/1.5.9i
+From: Ryan Richter <ryan@tau.solarneutrino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote (ao):
-> On Wed, Feb 15 2006, Sander wrote:
-> > I get a kernel BUG message when I try to create a raid1 or raid5 over
-> > nine 64MB partitions located on nine sata disks (Maxtor Pro 500) on a
-> > fresh setup. The system locks hard: no sysrq.
-> > 
-> > The onboard controller is an nVidia nForce with three disks.
-> > The six other disks are connected to a Marvell 88SX6081 controller.
-
-> It's barfing on a barrier write, I bet. The attached patch should fix
-> it.
-
-Your patch does indeed fix the hang. The raid1 is done, and raid5 over
-the second partition is building.
-
-Thanks a lot Jens!!
-
-	Sander
-
-
-> [PATCH] Add missing FUA write to sata_mv dma command list
+On Wed, Feb 15, 2006 at 05:20:37PM +0100, Jean Delvare wrote:
+> There's one chip missing. If memory serves, this board has two hardware
+> monitoring chips: one Winbond Super-I/O and one LM85-compatible SMBus
+> chip. You are missing the i2c-amd756 driver in your kernel build
+> (CONFIG_I2C_AMD756) which prevents you from accessing that second chip.
 > 
-> Signed-off-by: Jens Axboe <axboe@suse.de>
+> Additionally, the Winbond Super-I/O chips are better supported by the
+> newer w83627hf driver than by the w83781d you are using.
 > 
-> diff --git a/drivers/scsi/sata_mv.c b/drivers/scsi/sata_mv.c
-> index 6fddf17..2770005 100644
-> --- a/drivers/scsi/sata_mv.c
-> +++ b/drivers/scsi/sata_mv.c
-> @@ -997,6 +997,7 @@ static void mv_qc_prep(struct ata_queued
->  	case ATA_CMD_READ_EXT:
->  	case ATA_CMD_WRITE:
->  	case ATA_CMD_WRITE_EXT:
-> +	case ATA_CMD_WRITE_FUA_EXT:
->  		mv_crqb_pack_cmd(cw++, tf->hob_nsect, ATA_REG_NSECT, 0);
->  		break;
->  #ifdef LIBATA_NCQ		/* FIXME: remove this line when NCQ added */
+> So, you should change your kernel configuration to:
 > 
-> -- 
-> Jens Axboe
+> CONFIG_I2C_AMD756=y
+> #CONFIG_SENSORS_W83781D is not set
+> CONFIG_SENSORS_W83627HF=y
+> 
+> Then you'll probably have much better results - even if the
+> configuration file might need additional tweaking.
 
--- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+Aha, thanks.  I probably configured out the AMD756 when we switched to
+this board from an actual AMD 7xx board, thinking it was no longer
+appropriate.  I'll make the change this weekend.
+
+> > Still, I don't see why the new kernel shouldn't be stable if 2.6.11.3
+> > was.
+> 
+> If not software regression, the aging of your hardware might have caused
+> it, as I mentioned earlier. But you are free to believe in the
+> hypothesis you prefer, given that we are not currently able to
+> demonstrate it anyway ;)
+
+It could certainly be hardware, but it seems awfully unlikely that that
+would occur exactly when I upgraded the kernel.  A kernel bug just seems
+the most parsimonious explanation, to me.
+
+-ryan

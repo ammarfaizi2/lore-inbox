@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbWBOUXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWBOUXi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751293AbWBOUXO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 15:23:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWBOUXN
+	id S1750869AbWBOUXi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 15:23:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbWBOUXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 15:23:13 -0500
-Received: from xproxy.gmail.com ([66.249.82.205]:37574 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751293AbWBOUXM (ORCPT
+	Wed, 15 Feb 2006 15:23:37 -0500
+Received: from xproxy.gmail.com ([66.249.82.197]:476 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751299AbWBOUX2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 15:23:12 -0500
+	Wed, 15 Feb 2006 15:23:28 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=N95ZOhTYNWCVQN9Wk9yVwR/evO7ww6Gsic8IurUC5akLEezzErzyrkiZzuskPIjz8fXkGS2MzNmsdGhgXcbQ190RJyRJzMf81lbsq5UYZfU6MH47T0E53qJJrn4J/NVIxHRwEqcq9PbjXeuM3jhzRNTiAIT2O6ve6yFekJmczN0=
-Date: Wed, 15 Feb 2006 18:22:58 -0300
+        b=E+OWkniJ8iGiEwC01FU3uacHFNO6tEwO1S9WYdXEZo6XKEjQhmzH5Yaom0+hNuuvIkTvWyuklUyup9rfF7GC8VPWUzaMsR431MsDS87g2LamaQzlUzo4xYkwtj0sFwIajiftEYE790OHFtanJ1Cc2jdYE7/hlTQkUjiMxrQEVhk=
+Date: Wed, 15 Feb 2006 18:23:16 -0300
 From: Davi Arnaut <davi.arnaut@gmail.com>
 To: torvalds@osdl.org
 Cc: davi.arnaut@gmail.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 0/2] strndup_user, v2
-Message-Id: <20060215182258.03505613.davi.arnaut@gmail.com>
+Subject: [PATCH 2/2] strndup_user, convert (keyctl)
+Message-Id: <20060215182316.fadf8e71.davi.arnaut@gmail.com>
 X-Mailer: Sylpheed
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,92 +26,203 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-This patch series creates a strndup_user() function in order to avoid duplicated
-and error-prone (userspace modifying the string after the strlen_user()) code.
-
-v2: Inline strdup_user and fixed a bogus strdup_user usage.
-
-The diffstat:
-
- include/linux/string.h |    7 ++
- kernel/module.c        |   19 +-------
- mm/util.c              |   37 +++++++++++++++
- security/keys/keyctl.c |  116 ++++++++++---------------------------------------
- 4 files changed, 72 insertions(+), 107 deletions(-)
-
+Convert security/keys/keyctl.c string duplication to strdup_user()
 
 Signed-off-by: Davi Arnaut <davi.arnaut@gmail.com>
 --
 
-diff --git a/include/linux/string.h b/include/linux/string.h
-index 369be32..8fbf139 100644
---- a/include/linux/string.h
-+++ b/include/linux/string.h
-@@ -18,6 +18,13 @@ extern char * strsep(char **,const char 
- extern __kernel_size_t strspn(const char *,const char *);
- extern __kernel_size_t strcspn(const char *,const char *);
+diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
+index 0c62798..ff1417e 100644
+--- a/security/keys/keyctl.c
++++ b/security/keys/keyctl.c
+@@ -17,6 +17,7 @@
+ #include <linux/keyctl.h>
+ #include <linux/fs.h>
+ #include <linux/capability.h>
++#include <linux/string.h>
+ #include <linux/err.h>
+ #include <asm/uaccess.h>
+ #include "internal.h"
+@@ -38,7 +39,7 @@ asmlinkage long sys_add_key(const char _
+ 	key_ref_t keyring_ref, key_ref;
+ 	char type[32], *description;
+ 	void *payload;
+-	long dlen, ret;
++	long ret;
  
-+extern char *strndup_user(const char __user *, long);
-+
-+static inline char *strdup_user(const char __user *s)
-+{
-+	return strndup_user(s, 4096);
-+}
-+
- /*
-  * Include machine specific inline routines
-  */
-diff --git a/mm/util.c b/mm/util.c
-index 5f4bb59..09c2c3b 100644
---- a/mm/util.c
-+++ b/mm/util.c
-@@ -1,6 +1,8 @@
- #include <linux/slab.h>
- #include <linux/string.h>
- #include <linux/module.h>
-+#include <linux/err.h>
-+#include <asm/uaccess.h>
+ 	ret = -EINVAL;
+ 	if (plen > 32767)
+@@ -54,24 +55,11 @@ asmlinkage long sys_add_key(const char _
+ 	if (type[0] == '.')
+ 		goto error;
  
- /**
-  * kzalloc - allocate memory. The memory is set to zero.
-@@ -37,3 +39,38 @@ char *kstrdup(const char *s, gfp_t gfp)
- 	return buf;
- }
- EXPORT_SYMBOL(kstrdup);
-+
-+/*
-+ * strndup_user - duplicate an existing string from user space
-+ *
-+ * @s: The string to duplicate
-+ * @n: Maximum number of bytes to copy, including the trailing NUL.
-+ */
-+char *strndup_user(const char __user *s, long n)
-+{
-+	char *p;
-+	long length;
-+
-+	length = strlen_user(s);
-+
-+	if (!length)
-+		return ERR_PTR(-EFAULT);
-+
-+	if (length > n)
-+		length = n;
-+
-+	p = kmalloc(length, GFP_KERNEL);
-+
-+	if (!p)
-+		return ERR_PTR(-ENOMEM);
-+
-+	if (strncpy_from_user(p, s, length) < 0) {
-+		kfree(p);
-+		return ERR_PTR(-EFAULT);
+-	ret = -EFAULT;
+-	dlen = strnlen_user(_description, PAGE_SIZE - 1);
+-	if (dlen <= 0)
+-		goto error;
+-
+-	ret = -EINVAL;
+-	if (dlen > PAGE_SIZE - 1)
+-		goto error;
+-
+-	ret = -ENOMEM;
+-	description = kmalloc(dlen + 1, GFP_KERNEL);
+-	if (!description)
++	description = strdup_user(_description);
++	if (IS_ERR(description)) {
++		ret = PTR_ERR(description);
+ 		goto error;
+-	description[dlen] = '\0';
+-
+-	ret = -EFAULT;
+-	if (copy_from_user(description, _description, dlen) != 0)
+-		goto error2;
 +	}
-+
-+	p[length - 1] = '\0';
-+
-+	return p;
-+}
-+EXPORT_SYMBOL(strndup_user);
+ 
+ 	/* pull the payload in if one was supplied */
+ 	payload = NULL;
+@@ -136,7 +124,7 @@ asmlinkage long sys_request_key(const ch
+ 	struct key *key;
+ 	key_ref_t dest_ref;
+ 	char type[32], *description, *callout_info;
+-	long dlen, ret;
++	long ret;
+ 
+ 	/* pull the type into kernel space */
+ 	ret = strncpy_from_user(type, _type, sizeof(type) - 1);
+@@ -149,46 +137,20 @@ asmlinkage long sys_request_key(const ch
+ 		goto error;
+ 
+ 	/* pull the description into kernel space */
+-	ret = -EFAULT;
+-	dlen = strnlen_user(_description, PAGE_SIZE - 1);
+-	if (dlen <= 0)
+-		goto error;
+-
+-	ret = -EINVAL;
+-	if (dlen > PAGE_SIZE - 1)
+-		goto error;
+-
+-	ret = -ENOMEM;
+-	description = kmalloc(dlen + 1, GFP_KERNEL);
+-	if (!description)
++	description = strdup_user(_description);
++	if (IS_ERR(description)) {
++		ret = PTR_ERR(description);
+ 		goto error;
+-	description[dlen] = '\0';
+-
+-	ret = -EFAULT;
+-	if (copy_from_user(description, _description, dlen) != 0)
+-		goto error2;
++	}
+ 
+ 	/* pull the callout info into kernel space */
+ 	callout_info = NULL;
+ 	if (_callout_info) {
+-		ret = -EFAULT;
+-		dlen = strnlen_user(_callout_info, PAGE_SIZE - 1);
+-		if (dlen <= 0)
+-			goto error2;
+-
+-		ret = -EINVAL;
+-		if (dlen > PAGE_SIZE - 1)
+-			goto error2;
+-
+-		ret = -ENOMEM;
+-		callout_info = kmalloc(dlen + 1, GFP_KERNEL);
+-		if (!callout_info)
++		callout_info = strdup_user(_callout_info);
++		if (IS_ERR(callout_info)) {
++			ret = PTR_ERR(callout_info);
+ 			goto error2;
+-		callout_info[dlen] = '\0';
+-
+-		ret = -EFAULT;
+-		if (copy_from_user(callout_info, _callout_info, dlen) != 0)
+-			goto error3;
++		}
+ 	}
+ 
+ 	/* get the destination keyring if specified */
+@@ -264,36 +226,21 @@ long keyctl_get_keyring_ID(key_serial_t 
+ long keyctl_join_session_keyring(const char __user *_name)
+ {
+ 	char *name;
+-	long nlen, ret;
++	long ret;
+ 
+ 	/* fetch the name from userspace */
+ 	name = NULL;
+ 	if (_name) {
+-		ret = -EFAULT;
+-		nlen = strnlen_user(_name, PAGE_SIZE - 1);
+-		if (nlen <= 0)
++		name = strdup_user(_name);
++		if (IS_ERR(name)) {
++			ret = PTR_ERR(name);
+ 			goto error;
+-
+-		ret = -EINVAL;
+-		if (nlen > PAGE_SIZE - 1)
+-			goto error;
+-
+-		ret = -ENOMEM;
+-		name = kmalloc(nlen + 1, GFP_KERNEL);
+-		if (!name)
+-			goto error;
+-		name[nlen] = '\0';
+-
+-		ret = -EFAULT;
+-		if (copy_from_user(name, _name, nlen) != 0)
+-			goto error2;
++		}
+ 	}
+ 
+ 	/* join the session */
+ 	ret = join_session_keyring(name);
+ 
+- error2:
+-	kfree(name);
+  error:
+ 	return ret;
+ 
+@@ -566,7 +513,7 @@ long keyctl_keyring_search(key_serial_t 
+ 	struct key_type *ktype;
+ 	key_ref_t keyring_ref, key_ref, dest_ref;
+ 	char type[32], *description;
+-	long dlen, ret;
++	long ret;
+ 
+ 	/* pull the type and description into kernel space */
+ 	ret = strncpy_from_user(type, _type, sizeof(type) - 1);
+@@ -574,24 +521,11 @@ long keyctl_keyring_search(key_serial_t 
+ 		goto error;
+ 	type[31] = '\0';
+ 
+-	ret = -EFAULT;
+-	dlen = strnlen_user(_description, PAGE_SIZE - 1);
+-	if (dlen <= 0)
+-		goto error;
+-
+-	ret = -EINVAL;
+-	if (dlen > PAGE_SIZE - 1)
++	description = strdup_user(_description);
++	if (IS_ERR(description)) {
++		ret = PTR_ERR(description);
+ 		goto error;
+-
+-	ret = -ENOMEM;
+-	description = kmalloc(dlen + 1, GFP_KERNEL);
+-	if (!description)
+-		goto error;
+-	description[dlen] = '\0';
+-
+-	ret = -EFAULT;
+-	if (copy_from_user(description, _description, dlen) != 0)
+-		goto error2;
++	}
+ 
+ 	/* get the keyring at which to begin the search */
+ 	keyring_ref = lookup_user_key(NULL, ringid, 0, 0, KEY_SEARCH);
+

@@ -1,83 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030612AbWBODTF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030614AbWBODUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030612AbWBODTF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 22:19:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030615AbWBODTF
+	id S1030614AbWBODUU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 22:20:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030613AbWBODUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 22:19:05 -0500
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:41600 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030614AbWBODTC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 22:19:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=k0ondqwRz0/3Gf+5/cpWxdriQT23KH23KRlbYa7O0mTROnubAoNLOMHVDH8WuPk4lRqmzoMrgzmGblq7sWPJ/DGwPYgVWw+9qd48Oci8fdog9GR65CMrsMwyDB0fHlata1h2DnD0hgG3iiFalubBClbmR3pFsgNAVjcTViJpIKM=  ;
-Message-ID: <43F29B84.6020009@yahoo.com.au>
-Date: Wed, 15 Feb 2006 14:09:56 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org, christoph@lameter.com
-Subject: Re: + vmscan-rename-functions.patch added to -mm tree
-References: <200602120605.k1C65QFE028051@shell0.pdx.osdl.net> <2cd57c900602141847m7af4ec7ap@mail.gmail.com>
-In-Reply-To: <2cd57c900602141847m7af4ec7ap@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Feb 2006 22:20:20 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:23506
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1030614AbWBODUS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 22:20:18 -0500
+Date: Tue, 14 Feb 2006 19:19:59 -0800
+From: Greg KH <gregkh@suse.de>
+To: Hansjoerg Lipp <hjlipp@web.de>
+Cc: Karsten Keil <kkeil@suse.de>, i4ldeveloper@listserv.isdn4linux.de,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Tilman Schmidt <tilman@imap.cc>
+Subject: Re: [PATCH 1/9] isdn4linux: Siemens Gigaset drivers - Kconfigs and Makefiles
+Message-ID: <20060215031959.GA5099@suse.de>
+References: <gigaset307x.2006.02.11.001.0@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.1@hjlipp.my-fqdn.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <gigaset307x.2006.02.11.001.1@hjlipp.my-fqdn.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf Qi Hunt wrote:
-> 2006/2/12, akpm@osdl.org <akpm@osdl.org>:
+On Sat, Feb 11, 2006 at 03:52:27PM +0100, Hansjoerg Lipp wrote:
+> From: Tilman Schmidt <tilman@imap.cc>, Hansjoerg Lipp <hjlipp@web.de>
 > 
->>The patch titled
->>
->>     vmscan: rename functions
->>
->>has been added to the -mm tree.  Its filename is
->>
->>     vmscan-rename-functions.patch
->>
->>See http://www.zip.com.au/~akpm/linux/patches/stuff/added-to-mm.txt to find
->>out what to do about this
->>
->>
->>From: Andrew Morton <akpm@osdl.org>
->>
->>We have:
->>
->>        try_to_free_pages
->>        ->shrink_caches(struct zone **zones, ..)
->>          ->shrink_zone(struct zone *, ...)
->>            ->shrink_cache(struct zone *, ...)
->>              ->shrink_list(struct list_head *, ...)
->>
->>which is fairly irrational.
->>
->>Rename things so that we have
->>
->>        try_to_free_pages
->>        ->shrink_zones(struct zone **zones, ..)
->>          ->shrink_zone(struct zone *, ...)
->>            ->do_shrink_zone(struct zone *, ...)
->>              ->shrink_page_list(struct list_head *, ...)
+> This patch prepares the kernel build infrastructure for addition of the
+> Gigaset ISDN drivers. It creates a Makefile and Kconfig file for the
+> Gigaset driver and hooks them into those of the isdn4linux subsystem.
+> It also adds a MAINTAINERS entry for the driver.
 > 
-> 
-> Every time I read this part it annoys me. Thanks.
+> This patch depends on patches 2 to 9 of the present set, as without the
+> actual source files, activating the options added here will cause the
+> kernel build to fail.
 
-I don't much care, but if there is renaming afoot, I'd vote for
+Care to redo that and add the Makefile change at the same time as the
+driver goes into the tree?  We don't want to break the buid for a
+specific patch.
 
-->shrink_zones(struct zone **zones, ..)
-  ->shrink_zone(struct zone *, ...)
-   ->shrink_inactive_list(struct zone *, ...)
-    ->shrink_page_list(struct list_head *, ...)
-   ->shrink_active_list (alternatively, leave as refill_inactive_list)
+thanks,
 
-shrink_zone and do_shrink_zone don't really say any more to me than
-shrink_zone and shrink_cache.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+greg k-h

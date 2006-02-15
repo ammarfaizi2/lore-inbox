@@ -1,80 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945948AbWBOPAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945958AbWBOO76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945948AbWBOPAS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 10:00:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945957AbWBOPAQ
+	id S1945958AbWBOO76 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 09:59:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945948AbWBOO76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 10:00:16 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:49938 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1945948AbWBOPAP (ORCPT
+	Wed, 15 Feb 2006 09:59:58 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:19611 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1945958AbWBOO75 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 10:00:15 -0500
-Date: Wed, 15 Feb 2006 15:59:25 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Sander <sander@humilis.net>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc3 kernel BUG at drivers/scsi/sata_mv.c:1018
-Message-ID: <20060215145925.GU4203@suse.de>
-References: <20060215131653.GA26178@favonius>
+	Wed, 15 Feb 2006 09:59:57 -0500
+Date: Wed, 15 Feb 2006 08:59:42 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
+       vserver@list.linux-vserver.org, Herbert Poetzl <herbert@13thfloor.at>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: (pspace,pid) vs true pid virtualization
+Message-ID: <20060215145942.GA9274@sergelap.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060215131653.GA26178@favonius>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 15 2006, Sander wrote:
-> Hi Jeff and others,
-> 
-> I get a kernel BUG message when I try to create a raid1 or raid5 over
-> nine 64MB partitions located on nine sata disks (Maxtor Pro 500) on a
-> fresh setup. The system locks hard: no sysrq.
-> 
-> The onboard controller is an nVidia nForce with three disks.
-> The six other disks are connected to a Marvell 88SX6081 controller.
-> 
-> Last night and the first half of today all disks were tested with
-> badblocks in write mode, which the system survived just fine (one disk
-> out of ten detected as broken, so nine disks left).
-> 
-> A google search leads me to
-> 
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0601.2/0479.html
-> 
-> and
-> 
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0601.2/0626.html
-> 
-> I had MSI disabled in the .config already, and will try again with debug
-> options set.
-> 
-> In the mean time, is this of any help?
-> 
-> I can try any patch you throw at me, or any config option, as this
-> system is not in production yet.
+Hi,
 
-It's barfing on a barrier write, I bet. The attached patch should fix
-it.
+the lkml discussion on pid virtualization has been covering many of the
+issues both relating directly to pid virtualization, and relating to
+optimizations in the two specific implementations.
 
----
+However, if we're going to get anywhere, the first decision which we
+need to make is whether to go with a (container,pid), (pspace,pid) or
+equivalent pair like approach, or a virtualized pid approach.  Linus had
+previously said that he prefers the former.  Since there has been much
+discussion since then, I thought I'd try to recap the pros and cons of
+each approach, with the hope that the head Penguins will chime in one
+more time, after which we can hopefully focus our efforts.
 
-[PATCH] Add missing FUA write to sata_mv dma command list
+Issues with the (pspace,pid) pair like approach:
+	1. how do we reap zombies when the "real" init process
+		is not visible from within a container?
+	2. global process view
+		userspace tools may need to be taught about containers
+		in order to provide any container with a "global pid view".
+		i.e. all tasks could be listed as (pspace,pid), or as
+		pid1/pid2/pid3 where pid1 is creator of pid2's pspace
+		which is creator of pid3's pspace...
+	3. no half-isolation mode?
+		containers are always fully isolated.  This doesn't
+		need to be the case if userspace tools are taught
+		to deal with containerids.  On the other hand, it
+		can also be considered one of it's strenghts.
 
-Signed-off-by: Jens Axboe <axboe@suse.de>
+Issues with pid virtualization;
+	1. maintenance/correctness
+		pids and vpids are now different and must not be mixed.
+		Enforcing this simply in the kernel is a concern.  Sparse
+		may be useful here, or simply using different opaque types.
+	2. slowdown after migration
+		before checkpt, pid==vpid.  After restore or migration,
+		vpid = hash(pid) or vice versa.
 
-diff --git a/drivers/scsi/sata_mv.c b/drivers/scsi/sata_mv.c
-index 6fddf17..2770005 100644
---- a/drivers/scsi/sata_mv.c
-+++ b/drivers/scsi/sata_mv.c
-@@ -997,6 +997,7 @@ static void mv_qc_prep(struct ata_queued
- 	case ATA_CMD_READ_EXT:
- 	case ATA_CMD_WRITE:
- 	case ATA_CMD_WRITE_EXT:
-+	case ATA_CMD_WRITE_FUA_EXT:
- 		mv_crqb_pack_cmd(cw++, tf->hob_nsect, ATA_REG_NSECT, 0);
- 		break;
- #ifdef LIBATA_NCQ		/* FIXME: remove this line when NCQ added */
+Please add any issues I've not listed, or correct anything you feel I've
+misrepresented.
 
--- 
-Jens Axboe
-
+thanks,
+-serge

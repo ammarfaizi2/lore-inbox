@@ -1,72 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWBPTHo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030569AbWBPTJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932344AbWBPTHo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 14:07:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWBPTHo
+	id S1030569AbWBPTJd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 14:09:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030619AbWBPTJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 14:07:44 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:63949 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S932319AbWBPTHn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 14:07:43 -0500
-Date: Thu, 16 Feb 2006 20:06:48 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Ulrich Drepper <drepper@redhat.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 0/6] lightweight robust futexes: -V3 - Why in userspace?
-In-Reply-To: <1140111257.21681.26.camel@localhost.localdomain>
-Message-Id: <Pine.OSF.4.05.10602161956400.20911-100000@da410>
+	Thu, 16 Feb 2006 14:09:33 -0500
+Received: from master.altlinux.org ([62.118.250.235]:19984 "EHLO
+	master.altlinux.org") by vger.kernel.org with ESMTP
+	id S1030569AbWBPTJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 14:09:33 -0500
+Date: Wed, 15 Feb 2006 23:54:01 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Davi Arnaut <davi.arnaut@gmail.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/2] strndup_user, v2
+Message-Id: <20060215235401.381eea7c.vsu@altlinux.ru>
+In-Reply-To: <20060215182258.03505613.davi.arnaut@gmail.com>
+References: <20060215182258.03505613.davi.arnaut@gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i586-alt-linux-gnu)
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Wed__15_Feb_2006_23_54_01_+0300_Lb0Jh6IqptVOjJC5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just jump into a thread somewhere to ask my question :-)
+--Signature=_Wed__15_Feb_2006_23_54_01_+0300_Lb0Jh6IqptVOjJC5
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Why does the list have to be in userspace?
+On Wed, 15 Feb 2006 18:22:58 -0300 Davi Arnaut wrote:
 
-As I see it there can only be a problem when some thread has done
-FUTEX_WAIT and is blocked. If no task is blocked (or on it's way to
-being blocked) there is no problem. 
+> This patch series creates a strndup_user() function in order to avoid dup=
+licated
+> and error-prone (userspace modifying the string after the strlen_user()) =
+code.
+>=20
+> v2: Inline strdup_user and fixed a bogus strdup_user usage.
+>=20
+> The diffstat:
+>=20
+>  include/linux/string.h |    7 ++
+>  kernel/module.c        |   19 +-------
+>  mm/util.c              |   37 +++++++++++++++
+>  security/keys/keyctl.c |  116 ++++++++++--------------------------------=
+-------
+>  4 files changed, 72 insertions(+), 107 deletions(-)
+>=20
+>=20
+> Signed-off-by: Davi Arnaut <davi.arnaut@gmail.com>
+> --
+>=20
+> diff --git a/include/linux/string.h b/include/linux/string.h
+> index 369be32..8fbf139 100644
+> --- a/include/linux/string.h
+> +++ b/include/linux/string.h
+> @@ -18,6 +18,13 @@ extern char * strsep(char **,const char=20
+>  extern __kernel_size_t strspn(const char *,const char *);
+>  extern __kernel_size_t strcspn(const char *,const char *);
+> =20
+> +extern char *strndup_user(const char __user *, long);
+> +
+> +static inline char *strdup_user(const char __user *s)
+> +{
+> +	return strndup_user(s, 4096);
 
-The solution I could imagine was the FUTEX_WAIT operation adds the
-waiting task to a list of waiters attached to the mutex owner's task_t
-(which is known by it's pid in the userspace flag) just before calling
-schedule(). This list needs to be protected by a spinlock, ofcourse.
-When a task dies it can wake up the waiters on it's list without relying
-on the userspace.
+PAGE_SIZE ?
 
-What race conditions have I missed?
+> +}
+> +
+>  /*
+>   * Include machine specific inline routines
+>   */
+> diff --git a/mm/util.c b/mm/util.c
+> index 5f4bb59..09c2c3b 100644
+> --- a/mm/util.c
+> +++ b/mm/util.c
+> @@ -1,6 +1,8 @@
+>  #include <linux/slab.h>
+>  #include <linux/string.h>
+>  #include <linux/module.h>
+> +#include <linux/err.h>
+> +#include <asm/uaccess.h>
+> =20
+>  /**
+>   * kzalloc - allocate memory. The memory is set to zero.
+> @@ -37,3 +39,38 @@ char *kstrdup(const char *s, gfp_t gfp)
+>  	return buf;
+>  }
+>  EXPORT_SYMBOL(kstrdup);
+> +
+> +/*
+> + * strndup_user - duplicate an existing string from user space
+> + *
+> + * @s: The string to duplicate
+> + * @n: Maximum number of bytes to copy, including the trailing NUL.
+> + */
+> +char *strndup_user(const char __user *s, long n)
+> +{
+> +	char *p;
+> +	long length;
+> +
+> +	length =3D strlen_user(s);
 
-Esben
+This should be strnlen_user(s, n) - no need to look at the whole
+potentially huge string if you already have the limit.
 
+> +
+> +	if (!length)
+> +		return ERR_PTR(-EFAULT);
+> +
+> +	if (length > n)
+> +		length =3D n;
 
+This silently truncates a too long string, which might not be proper
+behavior (in fact, your patch #2 changes the behavior of keyctl
+functions, which were rejecting too long strings with -EINVAL - this is
+not good).
 
+> +
+> +	p =3D kmalloc(length, GFP_KERNEL);
+> +
+> +	if (!p)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	if (strncpy_from_user(p, s, length) < 0) {
 
-On Thu, 16 Feb 2006, Daniel Walker wrote:
+This can be plain copy_from_user() - you already have the length, and
+even if someone sneaks a NUL byte in the middle, copying bytes past it
+will not matter.
 
-> On Thu, 2006-02-16 at 18:24 +0100, Ingo Molnar wrote:
-> > * Daniel Walker <dwalker@mvista.com> wrote:
-> > 
-> > > Another thing I noticed was that futex_offset on the surface looks 
-> > > like a malicious users dream variable .. [...]
-> > 
-> > i have no idea what you mean by that - could you explain whatever threat 
-> > you have in mind, in more detail?
-> 
-> 	As I said, "on the surface" you could manipulate the futex_offset to
-> access memory unrelated to the futex structure . That's all I'm
-> referring too .. 
-> 
-> Daniel
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> +		kfree(p);
+> +		return ERR_PTR(-EFAULT);
+> +	}
+> +
+> +	p[length - 1] =3D '\0';
+> +
+> +	return p;
+> +}
+> +EXPORT_SYMBOL(strndup_user);
 
+--Signature=_Wed__15_Feb_2006_23_54_01_+0300_Lb0Jh6IqptVOjJC5
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.17 (GNU/Linux)
+
+iD8DBQFD85TsW82GfkQfsqIRAmiPAJ9uz1rylC4shXERhl2noUWy/CR7RgCfWjMS
+/cT+vI28+W/7DbyMcF7oSiE=
+=5DyM
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__15_Feb_2006_23_54_01_+0300_Lb0Jh6IqptVOjJC5--

@@ -1,65 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbWBOTuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbWBOUBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751261AbWBOTuE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 14:50:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWBOTuD
+	id S1750959AbWBOUBd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 15:01:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWBOUBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 14:50:03 -0500
-Received: from zcars04f.nortel.com ([47.129.242.57]:54221 "EHLO
-	zcars04f.nortel.com") by vger.kernel.org with ESMTP
-	id S1750992AbWBOTuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 14:50:01 -0500
-Message-ID: <43F385C1.9020508@nortel.com>
-Date: Wed, 15 Feb 2006 13:49:21 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Ulrich Drepper <drepper@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       David Singleton <dsingleton@mvista.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/5] lightweight robust futexes: -V1
-References: <20060215151711.GA31569@elte.hu> <p73lkwc5xv2.fsf@verdi.suse.de> <43F36A00.602@redhat.com> <200602151942.20494.ak@suse.de>
-In-Reply-To: <200602151942.20494.ak@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 15 Feb 2006 15:01:33 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:23522 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750959AbWBOUBc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 15:01:32 -0500
+Date: Wed, 15 Feb 2006 12:00:21 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Thierry Vignaud <tvignaud@mandriva.com>
+Cc: tiwai@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.16-rc3
+Message-Id: <20060215120021.565a47fb.akpm@osdl.org>
+In-Reply-To: <m2lkwckaen.fsf@vador.mandriva.com>
+References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org>
+	<20060212190520.244fcaec.akpm@osdl.org>
+	<s5hk6bz4gca.wl%tiwai@suse.de>
+	<m2zmkuqcs5.fsf@vador.mandriva.com>
+	<20060214225154.2e82dfd2.akpm@osdl.org>
+	<m2lkwckaen.fsf@vador.mandriva.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Feb 2006 19:49:23.0867 (UTC) FILETIME=[EBADEEB0:01C63268]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Wednesday 15 February 2006 18:50, Ulrich Drepper wrote:
->>Andi Kleen wrote:
->>
->>>e.g. you could add a new VMA flag that says "when one user
->>>of this dies unexpectedly by a signal kill all" 
->>
->>"kill all"?  
-
-> It would solve the problem statement given by Ingo in the rationale 
-> for this kernel patch - cleaning up after a hanging yum. 
+Thierry Vignaud <tvignaud@mandriva.com> wrote:
+>
+> Andrew Morton <akpm@osdl.org> writes:
 > 
-> If there are any other problems this is intended to solve then they 
-> should be stated in the rationale.
+>  > >  > It's not a "regression".  PM didn't work with ens1370 at all in
+>  > >  > the eralier version.
+>  > > 
+>  > >  btw, PM support in snd-intel8x0 is broken (at least regarding
+>  > >  suspending) in 2.6.16-rc2-mm1 on a nforce2 chipset
+>  > 
+>  > Can you identify when this breakage occurred?
+> 
+>  i'll try to compile a few older kernels (and/or just older
+>  alsa-kernel) if you want but i'm not sure it's a regression (i'll
+>  check if it has ever worked before).
 
-"robust" mutexes isn't a new thing, so I assume Ingo didn't think he 
-needed to post the whole rationale.
+OK, thanks.
 
-Consider a group of tasks that want to use a mutex to control access to 
-data.  If one of them dies while holding the mutex, the state of the 
-data is unknown and the mutex is left locked.
+>  i've tried unloading/reloading sound modules after resuming (maybe
+>  would it work if unloaded before suspending but of course full PM
+>  support would be nicer).
+> 
+>  not sure if it can help but while resuming, the snd-intel8x0 printed
+>  quite a lot of warnings (due to preempting[1] i guess?) such as:
+>  BUG: scheduling while atomic: zsh/0x00000001/2196
+>   <c028b93f> schedule+0x43/0x54e   <c028c6bf> schedule_timeout+0x7a/0x95
+>   <c011c755> process_timeout+0x0/0x5   <d4938e56> snd_intel8x0_chip_init+0x110/0x39e [snd_intel8x0]
+>   <d4939142> intel8x0_resume+0x5e/0x1ba [snd_intel8x0]   <c01b6dee> pci_device_resume+0x16/0x43
+>   <c02025d9> resume_device+0x7d/0x96   <c02026a7> dpm_resume+0x58/0x80
+>   <c02026dc> device_resume+0xd/0x16   <c012db1f> pm_suspend_disk+0xbf/0xc8
+>   <c012cb95> enter_state+0x50/0x16f   <c012cd37> state_store+0x83/0x8f
+>   <c012ccb4> state_store+0x0/0x8f   <c0173492> subsys_attr_store+0x1e/0x22
+>   <c0173a1b> sysfs_write_file+0x92/0xb9   <c0173989> sysfs_write_file+0x0/0xb9
+>   <c01491ca> vfs_write+0x83/0x122   <c01499df> sys_write+0x3c/0x63
+>   <c0102973> sysenter_past_esp+0x54/0x75  
+> 
+>  dmesg after resuming (only look at the beginning, the end is only ehci
+>  garbage b/c ehci is bugging for monthes (rejecting mass media after
+>  writing a few Mo)):
 
-The goal is for the kernel to unlock the mutex, but the next task to 
-aquire it gets some special notification that the status is unknown.  At 
-that point the task can either validate/clean up the data and reset the 
-mutex to clean (if it can) or it can give up the mutex and pass it on to 
-some other task that does know how to validate/clean up.
-
-You want the speed of futexes if possible.  You want to keep running. 
-You just want to know that the data protected by the mutex may not be 
-self-consistent.
-
-Chris
+That's odd.  I don't see what could have elevated preempt_count() on that
+path.  What does `grep PREEMPT .config' say?

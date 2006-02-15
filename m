@@ -1,76 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWBORzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbWBOSKt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751183AbWBORzz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 12:55:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWBORzz
+	id S1751193AbWBOSKt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 13:10:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWBOSKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 12:55:55 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:37526 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1751183AbWBORzy (ORCPT
+	Wed, 15 Feb 2006 13:10:49 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:28298 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751193AbWBOSKs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 12:55:54 -0500
-Message-ID: <43F37D56.2D7AB32F@tv-sign.ru>
-Date: Wed, 15 Feb 2006 22:13:26 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Wed, 15 Feb 2006 13:10:48 -0500
+Date: Wed, 15 Feb 2006 10:10:17 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Bharata B Rao <bharata@in.ibm.com>
+cc: Christoph Lameter <clameter@engr.sgi.com>, Andi Kleen <ak@suse.de>,
+       Ray Bryant <raybry@mpdtxmail.amd.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes
+ 2.6.16-rc1[2] on 2 node X86_64
+In-Reply-To: <20060215103813.GD2966@in.ibm.com>
+Message-ID: <Pine.LNX.4.64.0602151004370.6920@schroedinger.engr.sgi.com>
+References: <20060205163618.GB21972@in.ibm.com> <200602081706.26853.ak@suse.de>
+ <20060209043933.GA2986@in.ibm.com> <200602091058.26811.ak@suse.de>
+ <Pine.LNX.4.64.0602141131280.14488@schroedinger.engr.sgi.com>
+ <20060215054620.GA2966@in.ibm.com> <20060215103813.GD2966@in.ibm.com>
 MIME-Version: 1.0
-To: paulmck@us.ibm.com, Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 2/2] fix kill_proc_info() vs fork() theoretical race
-References: <43E77D3C.C967A275@tv-sign.ru> <20060214223214.GG1400@us.ibm.com> <43F3352C.E2D8F998@tv-sign.ru>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-copy_process:
+On Wed, 15 Feb 2006, Bharata B Rao wrote:
 
-	attach_pid(p, PIDTYPE_PID, p->pid);
-	attach_pid(p, PIDTYPE_TGID, p->tgid);
+> We don't initialize the free_area list for all zones. Instead,
+> free_area_init_core() does that only for zones which are non-empty.
 
-What if kill_proc_info(p->pid) happens in between?
+Right.
 
-copy_process() holds current->sighand.siglock, so we are safe
-in CLONE_THREAD case, because current->sighand == p->sighand.
+> But in __rmqueue(), we depend on these free_area lists to be intialized
+> correctly for all zones, which is not true in the present case we
+> are discussing.
 
-Otherwise, p->sighand is unlocked, the new process is already
-visible to the find_task_by_pid(), but have a copy of parent's
-'struct pid' in ->pids[PIDTYPE_TGID].
+> I think we either need to initialize free_area lists for all zones
+> or check for !zone->free_area->nr_free in __rmqueue().
 
-This means that __group_complete_signal() may hang while doing
+Or we can initialize all pcp to contain empty lists for zones without 
+pages.
 
-	do ... while (next_thread() != p)
+> Even with this, mbind still needs to be fixed. Even though it
+> can't get a conforming zone in the node (MPOL_BIND case), right now,
+> it goes ahead with the "bind"ing of the memory area. This causes the
+> application to crash (assuming we have fixed the __rmqueue kernel crash)
+> (Haven't yet figured our why exactly the application dies)
 
-We can solve this problem if we reverse these 2 attach_pid()s:
+The application crashes because of an OOM.
 
-	attach_pid() does wmb()
-
-	group_send_sig_info() calls spin_lock(), which
-	provides a read barrier. // Yes ?
-
-I don't think we can hit this race in practice, but still.
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
---- 2.6.16-rc3/kernel/fork.c~2_HANG	2006-02-15 23:21:51.000000000 +0300
-+++ 2.6.16-rc3/kernel/fork.c	2006-02-16 00:03:20.000000000 +0300
-@@ -1173,8 +1173,6 @@ static task_t *copy_process(unsigned lon
- 	if (unlikely(p->ptrace & PT_PTRACED))
- 		__ptrace_link(p, current->parent);
- 
--	attach_pid(p, PIDTYPE_PID, p->pid);
--	attach_pid(p, PIDTYPE_TGID, p->tgid);
- 	if (thread_group_leader(p)) {
- 		p->signal->tty = current->signal->tty;
- 		p->signal->pgrp = process_group(current);
-@@ -1184,6 +1182,8 @@ static task_t *copy_process(unsigned lon
- 		if (p->pid)
- 			__get_cpu_var(process_counts)++;
- 	}
-+	attach_pid(p, PIDTYPE_TGID, p->tgid);
-+	attach_pid(p, PIDTYPE_PID, p->pid);
- 
- 	nr_threads++;
- 	total_forks++;

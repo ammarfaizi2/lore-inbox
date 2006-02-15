@@ -1,49 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWBOM0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945915AbWBOMfv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbWBOM0R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 07:26:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbWBOM0R
+	id S1945915AbWBOMfv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 07:35:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945918AbWBOMfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 07:26:17 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:58503 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751138AbWBOM0Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 07:26:16 -0500
-Date: Wed, 15 Feb 2006 13:26:01 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
-       linux-kernel@vger.kernel.org, John Stultz <johnstul@us.ibm.com>
-Subject: Re: [patch] hrtimer: round up relative start time on low-res arches
-In-Reply-To: <20060215091959.GB1376@elte.hu>
-Message-ID: <Pine.LNX.4.61.0602151259270.30994@scrub.home>
-References: <Pine.LNX.4.61.0602130207560.23745@scrub.home>
- <1139827927.4932.17.camel@localhost.localdomain> <Pine.LNX.4.61.0602131208050.30994@scrub.home>
- <20060214074151.GA29426@elte.hu> <Pine.LNX.4.61.0602141113060.30994@scrub.home>
- <20060214122031.GA30983@elte.hu> <Pine.LNX.4.61.0602150033150.30994@scrub.home>
- <20060215091959.GB1376@elte.hu>
+	Wed, 15 Feb 2006 07:35:51 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:19618 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1945915AbWBOMfu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 07:35:50 -0500
+Message-ID: <43F31F7E.4050705@jp.fujitsu.com>
+Date: Wed, 15 Feb 2006 21:33:02 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, greg@kroah.com
+Subject: Re: [RFC][PATCH 1/4] PCI legacy I/O port free driver - Introduce
+ pci_set_bar_mask*()
+References: <43F172BA.1020405@jp.fujitsu.com> <43F17379.8010900@jp.fujitsu.com> <20060214210744.3a7a756a.akpm@osdl.org> <43F2C44C.7080806@jp.fujitsu.com> <20060215090732.GA15898@flint.arm.linux.org.uk>
+In-Reply-To: <20060215090732.GA15898@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Russell King wrote:
+> On Wed, Feb 15, 2006 at 03:03:56PM +0900, Kenji Kaneshige wrote:
+> 
+>>Andrew Morton wrote:
+>>
+>>>Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com> wrote:
+>>>
+>>>
+>>>>This patch introduces a new interface pci_select_resource() for PCI
+>>>>device drivers to tell kernel what resources they want to use.
+>>>
+>>>
+>>>It'd be nice if we didn't need to introduce any new API functions for this.
+>>>If we could just do:
+>>>
+>>>struct pci_something pci_something_table[] = {
+>>>	...
+>>>	{
+>>>		...
+>>>		.dont_allocate_io_space = 1,
+>>>		...
+>>>	},
+>>>	...
+>>>};
+>>>
+>>>within each driver which wants it.
+>>>
+>>>But I can't think of a suitable per-device-id structure with which we can
+>>>do that :(
+>>>
+>>>
+>>
+>>My another idea was to use pci quirks. In this approach, we don't
+>>need to introduce any new API. But I gave up this idea because it
+>>looked abuse of pci quirks.
+>>
+>>Anyway, I try to think about new ideas we don't need to introduce
+>>any new API.
+> 
+> 
+> What about pci_enable_device_bars() ?
+> 
 
-On Wed, 15 Feb 2006, Ingo Molnar wrote:
+Yes, it's one option (In fact, my first idea was using it),
+though we need to move the following lines into
+pci_enable_device_bars() from pci_enable_device().
 
-> yeah, agreed. That will be accurately fixed via GTOD's per-hwclock 
-> resolution values. It will have another advantage as well: e.g. the 
-> whole of m68k wont be penalized via CONFIG_TIME_LOW_RES for having a 
-> handful of sub-arches (Apollo, Sun3x, Q40) that dont have a higher 
-> resolution timer - every clock can define its own resolution. You could 
-> help that effort by porting m68k to use GTOD ;-)
+        pci_fixup_device(pci_fixup_enable, dev);
+        dev->is_enabled = 1;
 
-I'll do that as soon as the perfomance is equal or better than what we 
-have right now and expensive 64bit math in the fast path, where it's 
-provably a waste, is not exactly encouraging. I already provided all the 
-math and code to keep it cheap and (relatively) simple, but I don't have 
-the time to work constantly on it, so if you'd help to integrate it into 
-John's work it would go a lot faster.
+Actually, IIRC, there are one or two existing drivers using it.
+In addition to pci_enable_device_bars(), we can use
+pci_request_region() for requesting each region instead of using
+pci_request_regions().
 
-bye, Roman
+The reason I didn't use this option was I thought we would need
+bigger changes to drivers if we use pci_enable_devie_bars() and
+pci_request_region(). For example, if we use pci_request_region()
+for requesting the specific regions and if an error occurs
+while doing that, we need to release only the regions we succeeded
+in requesting. I think this is a little bit troublesome for driver
+writers. In adition, though this is my personal opinion, only one
+API to enable devices (e.g. pci_enable_device()) looks nice to me.
+Anyway, I think it would be nice if we can solve the problem by
+as small changes as possible to the existing drivers.
+How do you think?
+
+Thanks,
+Kenji Kaneshige

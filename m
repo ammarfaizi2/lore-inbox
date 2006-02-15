@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946003AbWBOQDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946002AbWBOQHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946003AbWBOQDn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 11:03:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946002AbWBOQDn
+	id S1946002AbWBOQHe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 11:07:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946004AbWBOQHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 11:03:43 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:12506 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1946003AbWBOQDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 11:03:42 -0500
-Subject: Re: RFC: disk geometry via sysfs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: Seewer Philippe <philippe.seewer@bfh.ch>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <43F346DA.4020404@cfl.rr.com>
-References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com>
-	 <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com>
-	 <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com>
-	 <43F2E8BA.90001@bfh.ch>
-	 <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com>
-	 <1140012392.14831.13.camel@localhost.localdomain>
-	 <43F346DA.4020404@cfl.rr.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 15 Feb 2006 16:06:55 +0000
-Message-Id: <1140019615.14831.22.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 15 Feb 2006 11:07:33 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:28387 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1946002AbWBOQHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 11:07:33 -0500
+Date: Wed, 15 Feb 2006 11:07:32 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: James Bottomley <James.Bottomley@SteelEye.com>, Greg KH <greg@kroah.com>
+cc: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: Linux 2.6.16-rc3
+In-Reply-To: <1139934883.14115.4.camel@mulgrave.il.steeleye.com>
+Message-ID: <Pine.LNX.4.44L0.0602151103160.4598-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2006-02-15 at 10:20 -0500, Phillip Susi wrote:
-> I thought that C/H/S addressing was purely a function of int 13, not the 
-> hardware interface?  If it is a function of some older hardware 
-> interfaces, then we are still talking about two different, and likely 
-> incompatible geometries:  the one the disk reports, and the one the bios 
-> reports.  The values in the MBR must be the values the bios reports. 
+On Tue, 14 Feb 2006, James Bottomley wrote:
 
-We have at least three
+> On Mon, 2006-02-13 at 12:38 -0800, Greg KH wrote:
+> > > - Nasty warnings from scsi about kobject-layer things being called
+> > from
+> > >   irq context.  James has a push-it-to-process-context patch which
+> > sadly
+> > >   assumes kmalloc() is immortal, but no other fix seems to have
+> > offered
+> > >   itself.
+> > 
+> > This has been the case for a long time.  I don't really think there is
+> > a
+> > rush to get this fixed, but I really like James's proposed patch.
+> > It's
+> > up to him if he feels it is ready for 2.6.16 or not.
+> 
+> Well, I can't solve the problem that it requires memory allocation from
+> IRQ context to operate.  Based on that, it's an unsafe interface.  I'm
+> going to put it inside SCSI for 2.6.16, since it's better than what we
+> have now, but I don't think we can export it globally.
 
-Disk reported C/H/S
-BIOS reported C/H/S (hda/hdb only)
-Actual C/H/S (if it exists)
-Partition table C/H/S
+Could we perhaps make this safer and more general?
 
-A partitioning tool needs to know
-	Disk reported C/H/S
-	Partition table C/H/S
-	Preferably BIOS reported C/H/S if there is one
+For instance, add to struct device a "pending puts" counter and a list
+header (both protected by a global spinlock), and have a kernel thread
+periodically check the list, doing put_device wherever needed.  How does
+that sound?
 
-The partition table C/H/S is on disk so trivial
-The disk reported ones are in the identify block so could be pulled via
-	/proc and sysfs
-The BIOS one is PC specific low memory poking around
-
-I agree entirely that HD_GETGEO itself shouldn't matter.
+Alan Stern
 

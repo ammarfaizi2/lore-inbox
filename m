@@ -1,51 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945907AbWBOMB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945904AbWBOMG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945907AbWBOMB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 07:01:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945909AbWBOMB0
+	id S1945904AbWBOMG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 07:06:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945909AbWBOMG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 07:01:26 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:34221 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S1945907AbWBOMBZ (ORCPT
+	Wed, 15 Feb 2006 07:06:59 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:55933 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1945904AbWBOMG7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 07:01:25 -0500
+	Wed, 15 Feb 2006 07:06:59 -0500
+Message-ID: <43F31972.3030902@sw.ru>
+Date: Wed, 15 Feb 2006 15:07:14 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: [RFC][PATCH 04/20] pspace: Allow multiple instaces of the process
+ id namespace
+References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>	<m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>	<m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com>	<m1fymwmgk0.fsf_-_@ebiederm.dsl.xmission.com>	<m1bqxkmgcv.fsf_-_@ebiederm.dsl.xmission.com> <43ECF803.8080404@sw.ru>	<m1psluw1jj.fsf@ebiederm.dsl.xmission.com> <43F04FD6.5090603@sw.ru> <m1wtfytri1.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1wtfytri1.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17395.5672.693046.262274@alkaid.it.uu.se>
-Date: Wed, 15 Feb 2006 12:53:12 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Roger Leigh <rleigh@whinlatter.ukfsn.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       debian-powerpc@lists.debian.org
-Subject: Re: 2.6.16-rc2 powerpc timestamp skew
-In-Reply-To: <17394.48045.253033.885865@cargo.ozlabs.ibm.com>
-References: <87pslspkj5.fsf@hardknott.home.whinlatter.ukfsn.org>
-	<1139779983.5247.39.camel@localhost.localdomain>
-	<87irrj85vp.fsf@hardknott.home.whinlatter.ukfsn.org>
-	<1139870065.5237.26.camel@localhost.localdomain>
-	<17394.48045.253033.885865@cargo.ozlabs.ibm.com>
-X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mackerras writes:
- > Benjamin Herrenschmidt writes:
- > 
- > > Ok, does not using NTP fixes it ?
- > 
- > Try this patch.  With this the values from gettimeofday() or the VDSO
- > should stay exactly in sync with xtime even if NTP is adjusting the
- > clock.
- > 
- > This patch still has quite a few debugging printks in it, so it's not
- > final by any means.  I'll be interested to hear how it goes, and in
- > particular whether or not you see any "oops, time got ahead" messages.
+Hello Eric,
 
-This patch fixed the clock skew issues (warnings from 'make' while
-building new kernels) my G4 eMac has been having since about 2.6.15.
-User-space is YDL4.0 and ntpd is used to maintain a correct clock.
+>>memory barrier doesn't help. you really need to think about.
+> Except for instances where you need an atomic read/modify/write the
+> only primitives you have are reads, writes and barriers.
+> 
+> I have all of the correct reads and writes therefore the only thing
+> that could help are barriers if the logic is otherwise sane.
+the problem is that you do read/write for synchronization of other 
+operations (fork/pspace leader die).
+i.e. you try to make a serialization, you see? It doesn't work this way.
 
-/Mikael
+....
+
+> This exchange seems to have a hostile and not a cooperative tone so
+> I will finish the investigation and bug fixing elsewhere.
+Eric, I think it turned this way because you started pointing to our 
+bugs in VPIDs, while having lots of own and not working code.
+I can point you another _really_ disastrous bugs in your IPC and 
+networking virtualization. But discussing bugs is not want I want, you 
+see? I want us to make some solution suatable for all the parties.
+
+And while you have not working solution it is hard to discuss whether it 
+is good or not, whether it is beatutiful or not. It is incomplete and 
+doesn't work. So many statements that one solution is better than 
+another are not valid.
+
+And we are too cycled on PIDs. Why? I think this is the most minor 
+feature which can easily live out of mainstream if needed, while 
+virtualization is the main goal.
+I also don't understand why you are eager to introduce new sys calls 
+like pkill(path_to_process), but is trying to use waitpid() for pspace 
+die notifications? Maybe it is simply better to introduce container 
+specific syscalls which should be clean and tidy, instead of messing 
+things up with clone()/waitpid() and so on? The more simple code we 
+have, the better it is for all of us.
+
+If possible keep posting your patches. I would even ask you to add me to 
+CC always. You are doing a really good job and discussion solutions is 
+the only possible way to push something to mainstream I suppose.
+I would also be happy to arrange a meeting with the interested parties, 
+since talking eye to eye can be much more productive.
+
+> I expect that there might be a few more issues like this.  My only
+> expectation was that the code was complete enough to discuss semantics
+> and kernel mechanisms for creating a namespaces, and the code has
+> successfully served that purpose.
+To some extent yes.
+
+Kirill
+

@@ -1,59 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbWBOTIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbWBOTJr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751262AbWBOTIA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 14:08:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWBOTIA
+	id S1751269AbWBOTJr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 14:09:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWBOTJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 14:08:00 -0500
-Received: from atlrel9.hp.com ([156.153.255.214]:9647 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S1751262AbWBOTH7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 14:07:59 -0500
-Subject: [PATCH] 2.6.16-rc3-mm1 - restore zeroing of packet_command struct
-	in sr_ioctl.c
-From: Lee Schermerhorn <lee.schermerhorn@hp.com>
-Reply-To: lee.schermerhorn@hp.com
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Organization: LOSL, Nashua
-Date: Wed, 15 Feb 2006 14:07:37 -0500
-Message-Id: <1140030457.6619.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+	Wed, 15 Feb 2006 14:09:47 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:52928
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1751269AbWBOTJr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 14:09:47 -0500
+From: Rob Landley <rob@landley.net>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Date: Wed, 15 Feb 2006 14:09:41 -0500
+User-Agent: KMail/1.8.3
+Cc: Matthias Andree <matthias.andree@gmx.de>,
+       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com> <200602142155.03407.rob@landley.net> <20060215183115.GE29940@csclub.uwaterloo.ca>
+In-Reply-To: <20060215183115.GE29940@csclub.uwaterloo.ca>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602151409.41523.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The 'git-scsi-misc' patch removed 2 calls to memset() to zero out
-a struct packet_command before passing it to sr_do_ioctl().  This
-causes sr_do_ioctl() to use the uninitialized 'sense' member as a
-pointer, instead of allocating a new request_sense struct.  On my
-system, this results in an Oops that kills off hald and others.
+On Wednesday 15 February 2006 1:31 pm, Lennart Sorensen wrote:
+> On Tue, Feb 14, 2006 at 09:55:03PM -0500, Rob Landley wrote:
+> > The last gasp of the SCSI bigots is Serial Attached Scsi.  It's
+> > hilarious. Electrically it's identical (they just gold-plate the
+> > connectors and such so they can charge more for it).  The giveaway is
+> > that you can plug a SATA drive into a SAS controller and it works on
+> > "dual standard" controller firmware. Which one's going to have the unit
+> > volume to be cheap and sell through its inventory to bring out new
+> > generations faster?  And which one is exactly the same technology with
+> > buckets of hype, slightly different firmware, and a huge markup for the
+> > people who still think that because ISA sucked, its designated successor
+> > PCI can't be trusted?
+>
+> SAS is actually a lot more complex than SATA.
 
-This patch restores the 2 memset calls.
+This is a good thing?
 
-Signed-off-by:  Lee Schermerhorn <lee.schermerhorn@hp.com>
+> SAS drives are dual ported, so you can connect them to two controllers at
+> once.
 
-Index: linux-2.6.16-rc3-mm1/drivers/scsi/sr_ioctl.c
-===================================================================
---- linux-2.6.16-rc3-mm1.orig/drivers/scsi/sr_ioctl.c	2006-02-15 13:06:08.000000000 -0500
-+++ linux-2.6.16-rc3-mm1/drivers/scsi/sr_ioctl.c	2006-02-15 13:08:56.000000000 -0500
-@@ -48,6 +48,7 @@ static int sr_read_tochdr(struct cdrom_d
- 	if (!buffer)
- 		return -ENOMEM;
- 
-+	memset(&cgc, 0, sizeof(struct packet_command));
- 	cgc.timeout = IOCTL_TIMEOUT;
- 	cgc.cmd[0] = GPCMD_READ_TOC_PMA_ATIP;
- 	cgc.cmd[8] = 12;		/* LSB of length */
-@@ -77,6 +78,7 @@ static int sr_read_tocentry(struct cdrom
- 	if (!buffer)
- 		return -ENOMEM;
- 
-+	memset(&cgc, 0, sizeof(struct packet_command));
- 	cgc.timeout = IOCTL_TIMEOUT;
- 	cgc.cmd[0] = GPCMD_READ_TOC_PMA_ATIP;
- 	cgc.cmd[1] |= (tocentry->cdte_format == CDROM_MSF) ? 0x02 : 0;
+Yup.  Apparently with SAS, the controllers are far more likely to fail than 
+the drives.
 
+> Makes  
+> redundant systems much simpler to build if you can connect each physical
+> drive to two places at once.
 
+Or you could use raid and get complete redundancy rather than two paths to the 
+same single point of failure.  Your choice.
+
+> They support port expanders (which SATA 
+> seems to be starting to support although more limited).
+
+If it uses a PHY then it's gig ethernet under the covers.  Each hop is a point 
+to point connection, but throwing switches in there isn't exactly a new 
+problem.  When demand arrives, I expect supply will catch up.
+
+> You can run SATA drives on an SAS controller, but of course you don't get
+> dual port.
+
+I still don't see why drives are expected to be more reliable than 
+controllers.
+
+I think the most paranoid setup I've seen was six disks holding two disks 
+worth of information.  A three way raid-5, mirrored.  It could lose any three 
+disks out of the group, and several 4 disk combinations.  If six SATA drives 
+are cheaper than two SAS drives.  (Yeah, the CRC calculation eats CPU and 
+flushes your cache.  So what?)
+
+I keep thinking there should be something more useful you could do than "hot 
+spare" with extra disks in simple RAID 5, some way of dynamically scaling 
+more parity info.  But it's not an area I play in much...
+
+> You can not run SAS drives on an SATA controller however.
+
+Only because the firmware doesn't support it.  (I.E. It's an intentional lack 
+of support.)
+
+> SATA is essentially a subset of SAS.
+
+I was under the impression that SATA came first and SAS surrounded it with 
+unnecessary extensions so they could charge more money.  But then I've 
+largely ignored SAS (as has everyone else I know outside of Dell), so I can't 
+claim to be an expert here...
+
+> Len Sorensen
+
+Rob
+-- 
+Never bet against the cheap plastic solution.

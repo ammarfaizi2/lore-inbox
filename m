@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbWBOKct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWBOKdg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751070AbWBOKct (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 05:32:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWBOKct
+	id S1751103AbWBOKdg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 05:33:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWBOKdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 05:32:49 -0500
-Received: from fw5.argo.co.il ([194.90.79.130]:15378 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S1751070AbWBOKcs (ORCPT
+	Wed, 15 Feb 2006 05:33:36 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:46225 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751103AbWBOKdf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 05:32:48 -0500
-Message-ID: <43F30346.1070802@argo.co.il>
-Date: Wed, 15 Feb 2006 12:32:38 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Coywolf Qi Hunt <qiyong@fc-cn.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] make sysctl_overcommit_memory enumeration sensible
-References: <20060215085456.GA2481@localhost.localdomain> <20060215010559.55b55414.akpm@osdl.org> <20060215093136.GA2600@localhost.localdomain>
-In-Reply-To: <20060215093136.GA2600@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Feb 2006 10:32:45.0186 (UTC) FILETIME=[2883A620:01C6321B]
+	Wed, 15 Feb 2006 05:33:35 -0500
+Date: Wed, 15 Feb 2006 16:08:13 +0530
+From: Bharata B Rao <bharata@in.ibm.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Andi Kleen <ak@suse.de>, Ray Bryant <raybry@mpdtxmail.amd.com>,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes 2.6.16-rc1[2] on 2 node X86_64
+Message-ID: <20060215103813.GD2966@in.ibm.com>
+Reply-To: bharata@in.ibm.com
+References: <20060205163618.GB21972@in.ibm.com> <200602081706.26853.ak@suse.de> <20060209043933.GA2986@in.ibm.com> <200602091058.26811.ak@suse.de> <Pine.LNX.4.64.0602141131280.14488@schroedinger.engr.sgi.com> <20060215054620.GA2966@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060215054620.GA2966@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf Qi Hunt wrote:
+On Wed, Feb 15, 2006 at 11:16:20AM +0530, Bharata B Rao wrote:
+> On Tue, Feb 14, 2006 at 11:33:00AM -0800, Christoph Lameter wrote:
+> > I just took another look at this issue and I cannot see anything wrong. An 
+> > empty zone should be ignored by the page allocator since nr_free == 0. My 
+> > patch should not be needed.
+> 
+> There is a check for list_empty(&area->free_list) in __rmqueue(), which
+> I think is one of the points in the page allocator where the emptiness of
+> the free_area list is checked. The current zone(when the crash happens)
+> bypasses this test leading to this crash.
+> 
 
->On Wed, Feb 15, 2006 at 01:05:59AM -0800, Andrew Morton wrote:
->  
->
->>Coywolf Qi Hunt <qiyong@fc-cn.com> wrote:
->>    
->>
->>>I see system admins often confused when they sysctl vm.overcommit_memory.
->>>This patch makes overcommit_memory enumeration sensible.
->>>
->>>0 - no overcommit
->>>1 - always overcommit
->>>2 - heuristic overcommit (default)
->>>
->>>I don't feel this would break any userspace scripts.
->>>      
->>>
->>eh?   If any such scripts exist, they'll break.
->>
->>Confused.
->>    
->>
->
->That's a corner case. Let'em break and fix.  Otherwise, users will
->be confused. Even they get it right, after some weeks they'll have
->to re-read the doc. A logical user interface is important to human.
->  
->
+We don't initialize the free_area list for all zones. Instead,
+free_area_init_core() does that only for zones which are non-empty.
 
-If I have
+But in __rmqueue(), we depend on these free_area lists to be intialized
+correctly for all zones, which is not true in the present case we
+are discussing.
 
-  vm.overcommit_memory = 2
+I think we either need to initialize free_area lists for all zones
+or check for !zone->free_area->nr_free in __rmqueue().
 
-in my /etc/sysctl.conf, its meaning silently changes. I'll know about it 
-during the next oomkiller pass.
+Even with this, mbind still needs to be fixed. Even though it
+can't get a conforming zone in the node (MPOL_BIND case), right now,
+it goes ahead with the "bind"ing of the memory area. This causes the
+application to crash (assuming we have fixed the __rmqueue kernel crash)
+(Haven't yet figured our why exactly the application dies)
 
--- 
-error compiling committee.c: too many arguments to function
-
+Regards,
+Bharata.

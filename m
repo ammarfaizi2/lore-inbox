@@ -1,95 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWBORv7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWBORzu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWBORv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 12:51:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWBORv7
+	id S1751190AbWBORzu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 12:55:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbWBORzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 12:51:59 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:54449 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751173AbWBORv6 (ORCPT
+	Wed, 15 Feb 2006 12:55:50 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:37270 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751190AbWBORzt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 12:51:58 -0500
-Message-ID: <43F36A00.602@redhat.com>
-Date: Wed, 15 Feb 2006 09:50:56 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5 (X11/20060128)
+	Wed, 15 Feb 2006 12:55:49 -0500
+Message-ID: <43F37D54.4D0AAEFD@tv-sign.ru>
+Date: Wed, 15 Feb 2006 22:13:24 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       David Singleton <dsingleton@mvista.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/5] lightweight robust futexes: -V1
-References: <20060215151711.GA31569@elte.hu> <p73lkwc5xv2.fsf@verdi.suse.de>
-In-Reply-To: <p73lkwc5xv2.fsf@verdi.suse.de>
-X-Enigmail-Version: 0.93.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig2BD4B436ADE2E0D864E72AB7"
+To: paulmck@us.ibm.com, Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 1/2] fix kill_proc_info() vs CLONE_THREAD race
+References: <43E77D3C.C967A275@tv-sign.ru> <20060214223214.GG1400@us.ibm.com> <43F3352C.E2D8F998@tv-sign.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig2BD4B436ADE2E0D864E72AB7
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+There is a window after copy_process() unlocks ->sighand.siglock
+and before it adds the new thread to the thread list.
 
-Andi Kleen wrote:
-> e.g. you could add a new VMA flag that says "when one user
-> of this dies unexpectedly by a signal kill all"=20
+In that window __group_complete_signal(SIGKILL) will not see the
+new thread yet, so this thread will start running while the whole
+thread group was supposed to exit.
 
-"kill all"?  That is so completely different from the intended behavior.
- Robust mutexes are no concept which has been invented here.  It is
-clearly specified.  The reaction to a terminating thread/process is
-notification of other interested parties.
+I beleive we have another good reason to place attach_pid(PID/TGID)
+under ->sighand.siglock. We can do the same for
 
-None of your proposals makes any sense in this context.
+	release_task()->__unhash_process()
 
+	de_thread()->switch_exec_pids()
 
-> And what happens if the patch is rejected? I don't really think you
-> can force patches in this way ("do it or I break glibc")
+After that we don't need tasklist_lock to iterate over the thread
+list, and we can simplify things, see for example do_sigaction()
+or sys_times().
 
-Nothing which relies on the syscalls goes into cvs unless the kernel
-side is first committed.  I never do this.  What is in cvs now is an
-implementation of the intra-thread robust mutexes based on the same
-mechanisms.  I.e., using the new syscall is a trivial thing since the
-infrastructure is already in place.  And the method is proven to work.
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-
-> What happens when the list gets corrupted? Does the kernel go
-> into an endless loop? Kernel going through arbitary user structures
-> like this seems very risky to me. There are ways to do
-> list walking with cycle detection, but they still have quite
-> bad worst case detection times.
-
-The list being corrupted means that the mutexes are corrupted.  In which
-case the application would crash anyway.
-
-As for the "endless loop".  You didn't read the code, it seems.  There
-are two mechanisms to prevent this: the list is destroyed when the
-individual elements are handled and there is an upper limit on the
-number of robust mutexes which can be registered.  The limit is
-ridiculously high so it'll no problem for correct programs and it also
-will eliminate run-away list following code.
-
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
-
-
---------------enig2BD4B436ADE2E0D864E72AB7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFD82oA2ijCOnn/RHQRAq7xAJ93+DtWubHU7nQk86LGOsbEkuW3KgCcDotm
-bEw9f2Z2D/YYtlPMP6B5rSg=
-=97it
------END PGP SIGNATURE-----
-
---------------enig2BD4B436ADE2E0D864E72AB7--
+--- 2.6.16-rc3/kernel/fork.c~1_KILL	2006-02-15 22:52:07.000000000 +0300
++++ 2.6.16-rc3/kernel/fork.c	2006-02-15 23:21:51.000000000 +0300
+@@ -1123,8 +1123,8 @@ static task_t *copy_process(unsigned lon
+ 		p->real_parent = current;
+ 	p->parent = p->real_parent;
+ 
++	spin_lock(&current->sighand->siglock);
+ 	if (clone_flags & CLONE_THREAD) {
+-		spin_lock(&current->sighand->siglock);
+ 		/*
+ 		 * Important: if an exit-all has been started then
+ 		 * do not create this new thread - the whole thread
+@@ -1162,8 +1162,6 @@ static task_t *copy_process(unsigned lon
+ 			 */
+ 			p->it_prof_expires = jiffies_to_cputime(1);
+ 		}
+-
+-		spin_unlock(&current->sighand->siglock);
+ 	}
+ 
+ 	/*
+@@ -1189,6 +1187,7 @@ static task_t *copy_process(unsigned lon
+ 
+ 	nr_threads++;
+ 	total_forks++;
++	spin_unlock(&current->sighand->siglock);
+ 	write_unlock_irq(&tasklist_lock);
+ 	proc_fork_connector(p);
+ 	return p;

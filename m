@@ -1,60 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbWBOEh5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422825AbWBOErq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750916AbWBOEh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 23:37:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422658AbWBOEh5
+	id S1422825AbWBOErq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 23:47:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422833AbWBOErq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 23:37:57 -0500
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:64893 "HELO
-	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750916AbWBOEh4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 23:37:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=E/CAVEq1XOOmCydQSD0TlOi7FtXCth+WSLFCOTFQ1N5mg50kE586RvyFiKRGUkECW9Lp93sRFrn+6wVtREy6yqpvi9plHuaoc6qQZQgSduWCU07Bl8esGOLddZNuCOh0hA22sst1e3+s5Qk+tPC7L3QEmZPQAVGTKyuS0+Jb+9k=  ;
-Message-ID: <43F2AEAE.5010700@yahoo.com.au>
-Date: Wed, 15 Feb 2006 15:31:42 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Tue, 14 Feb 2006 23:47:46 -0500
+Received: from usbb-lacimss2.unisys.com ([192.63.108.52]:33041 "EHLO
+	usbb-lacimss2.unisys.com") by vger.kernel.org with ESMTP
+	id S1422825AbWBOErq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 23:47:46 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-CC: Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>,
-       William Irwin <wli@holomorphy.com>, Roland Dreier <rdreier@cisco.com>,
-       Gleb Natapov <gleb@minantech.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       openib-general@openib.org, Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Grant Grundler <grundler@parisc-linux.org>,
-       Matthew Wilcox <matthew@wil.cx>
-Subject: Re: [PATCH] madvise MADV_DONTFORK/MADV_DOFORK
-References: <20060213154114.GO32041@mellanox.co.il> <Pine.LNX.4.64.0602131104460.3691@g5.osdl.org> <adar767133j.fsf@cisco.com> <Pine.LNX.4.64.0602131125180.3691@g5.osdl.org> <Pine.LNX.4.61.0602131943050.9573@goblin.wat.veritas.com> <20060213210906.GC13603@mellanox.co.il> <Pine.LNX.4.61.0602132157110.3761@goblin.wat.veritas.com> <Pine.LNX.4.64.0602131426470.3691@g5.osdl.org> <20060213225538.GE13603@mellanox.co.il> <Pine.LNX.4.61.0602132259450.4627@goblin.wat.veritas.com> <20060213233517.GG13603@mellanox.co.il>
-In-Reply-To: <20060213233517.GG13603@mellanox.co.il>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [ckrm-tech] [PATCH 1/2] add a CPU resource controller
+Date: Wed, 15 Feb 2006 10:17:35 +0530
+Message-ID: <88299102B8C1F54BB5C8E47F30B2FBE201EC0D02@inblr-exch1.eu.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ckrm-tech] [PATCH 1/2] add a CPU resource controller
+Thread-Index: AcYxK64dPkta/derQIa+X0Fnt+L7wQAvjr9w
+From: "Suryanarayanan, Rajaram" <Rajaram.Suryanarayanan@in.unisys.com>
+To: "KUROSAWA Takahiro" <kurosawa@valinux.co.jp>, <vatsa@in.ibm.com>
+Cc: <linux-kernel@vger.kernel.org>, <ckrm-tech@lists.sourceforge.net>,
+       <balbir.singh@in.ibm.com>
+X-OriginalArrivalTime: 15 Feb 2006 04:47:38.0055 (UTC) FILETIME=[F21A3570:01C631EA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael S. Tsirkin wrote:
+  	
+-----Original Message-----
+From: KUROSAWA Takahiro [mailto:kurosawa@valinux.co.jp] 
+Sent: Tuesday, February 14, 2006 11:28 AM
+To: vatsa@in.ibm.com
+Cc: Suryanarayanan, Rajaram; linux-kernel@vger.kernel.org;
+ckrm-tech@lists.sourceforge.net; balbir.singh@in.ibm.com
+Subject: Re: [ckrm-tech] [PATCH 1/2] add a CPU resource controller
 
-> Index: linux-2.6.16-rc2/include/asm-x86_64/mman.h
-> ===================================================================
-> --- linux-2.6.16-rc2.orig/include/asm-x86_64/mman.h	2006-02-14 01:22:27.000000000 +0200
-> +++ linux-2.6.16-rc2/include/asm-x86_64/mman.h	2006-02-14 01:24:57.000000000 +0200
-> @@ -37,6 +37,8 @@
->  #define MADV_WILLNEED	0x3		/* pre-fault pages */
->  #define MADV_DONTNEED	0x4		/* discard these pages */
->  #define MADV_REMOVE	0x5		/* remove these pages & resources */
-> +#define MADV_DONTFORK	0x30		/* dont inherit across fork */
-> +#define MADV_DOFORK	0x31		/* do inherit across fork */
->  
+On Tue, 14 Feb 2006 11:08:52 +0530
+Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
 
-May I ask, what is the rationale for ignoring the apparent conventions
-of all architectures? For example parisc, you appear to even go contrary
-to the comment.
+> > It's not a forward port of the existing CPU resource controller 
+> > but a new CPU resource controller for CKRM.  Its resource control
+> > mechanism is different from that of the existing one.
+> 
+> Hmm ..I guess it depends on which version of CKRM you are referring
+when
+> you say "existing". When I replied earlier, I was referring to
+f-series.
+> f-series cpu controller is based on the patch you sent to lkml right?
+
+Ah, I referred to the CKRM e- series controller as "existing controller"
+and referred to the controller that I had sent as "a new CPU resource 
+controller."
+
+So, the controller that I had sent is the existing controller of
+f- series.
+
+Sorry for confusion,
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+KUROSAWA, Takahiro
+
+
+Thanks for the clarification.
+I was actually confused by the words "This patchset adds a CPU resource
+controller for CKRM" in the earlier mail. I thought this is some new
+controller..
+Currently I have downloaded cpurc_v0.3-2614 and plan to look in to it
+for understanding CKRM. Later I guess I can catch up with the current
+changes that you are making..
+
+Regards,
+Rajaram Suryanarayanan | Team Lead | ES7000 Linux Systems Group    
+Unisys Global Services -India | 
+'Purva Premier', 135/1, Residency Road, | Bangalore - 560 025 |
++91-80-51594560
+Do your best. Leave the rest to Linux.  	
+

@@ -1,114 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945974AbWBOPT5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945978AbWBOPWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945974AbWBOPT5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 10:19:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945975AbWBOPTv
+	id S1945978AbWBOPWG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 10:22:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945981AbWBOPWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 10:19:51 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:28876 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1945978AbWBOPTp (ORCPT
+	Wed, 15 Feb 2006 10:22:05 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:21915 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1945978AbWBOPWB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 10:19:45 -0500
-Date: Wed, 15 Feb 2006 16:18:01 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Ulrich Drepper <drepper@redhat.com>, Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       David Singleton <dsingleton@mvista.com>, Andrew Morton <akpm@osdl.org>
-Subject: [patch 5/5] lightweight robust futexes: x86_64
-Message-ID: <20060215151801.GF31569@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 15 Feb 2006 10:22:01 -0500
+Message-ID: <43F346DA.4020404@cfl.rr.com>
+Date: Wed, 15 Feb 2006 10:20:58 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Seewer Philippe <philippe.seewer@bfh.ch>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC: disk geometry via sysfs
+References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com>  <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com>  <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com>  <43F2E8BA.90001@bfh.ch>  <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com> <1140012392.14831.13.camel@localhost.localdomain>
+In-Reply-To: <1140012392.14831.13.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Feb 2006 15:23:33.0682 (UTC) FILETIME=[C8A0D920:01C63243]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14269.000
+X-TM-AS-Result: No--3.700000-5.000000-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> On Mer, 2006-02-15 at 10:01 +0100, Seewer Philippe wrote:
+>   
+>> This would mean dropping the HDIO_GETGEO ioctl completely and force
+>> applications such as fdisk/sfdisk and even dosemu to determine disk
+>> geometry for themselves. Which I think actually would be the most
+>> correct approach.
+>>     
+>
+> In the IDE case the drive geometry has meaning in certain cases,
+> specifically the C/H/S drive addressing case with old old drives. 
 
-x86_64: add the futex_atomic_cmpxchg_inuser() assembly implementation, and
-wire up the new syscalls.
+I thought that C/H/S addressing was purely a function of int 13, not the 
+hardware interface?  If it is a function of some older hardware 
+interfaces, then we are still talking about two different, and likely 
+incompatible geometries:  the one the disk reports, and the one the bios 
+reports.  The values in the MBR must be the values the bios reports. 
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Arjan van de Ven <arjan@infradead.org>
-Acked-by: Ulrich Drepper <drepper@redhat.com>
 
-----
-
- arch/x86_64/ia32/ia32entry.S |    2 ++
- include/asm-x86_64/futex.h   |   24 ++++++++++++++++++++++++
- include/asm-x86_64/unistd.h  |    6 +++++-
- 3 files changed, 31 insertions(+), 1 deletion(-)
-
-Index: linux-robust-list.q/arch/x86_64/ia32/ia32entry.S
-===================================================================
---- linux-robust-list.q.orig/arch/x86_64/ia32/ia32entry.S
-+++ linux-robust-list.q/arch/x86_64/ia32/ia32entry.S
-@@ -688,6 +688,8 @@ ia32_sys_call_table:
- 	.quad sys_ni_syscall		/* pselect6 for now */
- 	.quad sys_ni_syscall		/* ppoll for now */
- 	.quad sys_unshare		/* 310 */
-+	.quad compat_sys_set_robust_list
-+	.quad compat_sys_get_robust_list
- ia32_syscall_end:		
- 	.rept IA32_NR_syscalls-(ia32_syscall_end-ia32_sys_call_table)/8
- 		.quad ni_syscall
-Index: linux-robust-list.q/include/asm-x86_64/futex.h
-===================================================================
---- linux-robust-list.q.orig/include/asm-x86_64/futex.h
-+++ linux-robust-list.q/include/asm-x86_64/futex.h
-@@ -94,5 +94,29 @@ futex_atomic_op_inuser (int encoded_op, 
- 	return ret;
- }
- 
-+
-+static inline int
-+futex_atomic_cmpxchg_inuser(int __user *uaddr, int oldval, int newval)
-+{
-+	__asm__ __volatile__(
-+		"1:	" LOCK_PREFIX "cmpxchgl %1, %2		\n"
-+
-+		"2:	.section .fixup, \"ax\"			\n"
-+		"3:	mov	%3, %0				\n"
-+		"	jmp	2b				\n"
-+		"	.previous				\n"
-+
-+		"	.section __ex_table, \"a\"		\n"
-+		"	.align	8				\n"
-+		"	.quad	1b,3b				\n"
-+		"	.previous				\n"
-+
-+	     : "=&a" (oldval), "=&r" (newval), "=m" (*uaddr)
-+	     : "i" (-EFAULT)
-+	     : "memory"
-+	);
-+
-+	return oldval;
-+}
- #endif
- #endif
-Index: linux-robust-list.q/include/asm-x86_64/unistd.h
-===================================================================
---- linux-robust-list.q.orig/include/asm-x86_64/unistd.h
-+++ linux-robust-list.q/include/asm-x86_64/unistd.h
-@@ -605,8 +605,12 @@ __SYSCALL(__NR_pselect6, sys_ni_syscall)
- __SYSCALL(__NR_ppoll,	sys_ni_syscall)		/* for now */
- #define __NR_unshare		272
- __SYSCALL(__NR_unshare,	sys_unshare)
-+#define __NR_set_robust_list	273
-+__SYSCALL(__NR_set_robust_list, sys_set_robust_list)
-+#define __NR_get_robust_list	274
-+__SYSCALL(__NR_get_robust_list, sys_get_robust_list)
- 
--#define __NR_syscall_max __NR_unshare
-+#define __NR_syscall_max __NR_get_robust_list
- 
- #ifndef __NO_STUBS
- 

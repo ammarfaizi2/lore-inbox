@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWBOSOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWBOSOz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751205AbWBOSOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 13:14:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWBOSOJ
+	id S1751212AbWBOSOz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 13:14:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWBOSOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 13:14:09 -0500
-Received: from [194.90.237.34] ([194.90.237.34]:55160 "EHLO mtlexch01.mtl.com")
-	by vger.kernel.org with ESMTP id S1751205AbWBOSOI (ORCPT
+	Wed, 15 Feb 2006 13:14:54 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:12427 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751212AbWBOSOy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 13:14:08 -0500
-Date: Wed, 15 Feb 2006 20:15:36 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-arch@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Roland Dreier <rdreier@cisco.com>, Hugh Dickins <hugh@veritas.com>,
-       Gleb Natapov <gleb@minantech.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       openib-general@openib.org, Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Matthew Wilcox <matthew@wil.cx>
-Subject: Re: [PATCH] add asm-generic/mman.h
-Message-ID: <20060215181536.GN12974@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20060215151649.GA12090@mellanox.co.il> <1140019088.21448.3.camel@dyn9047017100.beaverton.ibm.com> <20060215165016.GD12974@mellanox.co.il> <1140022377.21448.6.camel@dyn9047017100.beaverton.ibm.com> <20060215170935.GE12974@mellanox.co.il> <Pine.LNX.4.64.0602150916580.3691@g5.osdl.org> <1140025250.21448.15.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1140025250.21448.15.camel@dyn9047017100.beaverton.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 15 Feb 2006 18:16:02.0296 (UTC) FILETIME=[E0E20780:01C6325B]
+	Wed, 15 Feb 2006 13:14:54 -0500
+Date: Wed, 15 Feb 2006 10:14:49 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: bharata@in.ibm.com, Ray Bryant <raybry@mpdtxmail.amd.com>,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes
+ 2.6.16-rc1[2] on 2 node X86_64
+In-Reply-To: <200602151221.53730.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0602151010290.6920@schroedinger.engr.sgi.com>
+References: <20060205163618.GB21972@in.ibm.com> <20060215054620.GA2966@in.ibm.com>
+ <20060215103813.GD2966@in.ibm.com> <200602151221.53730.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Badari Pulavarty <pbadari@us.ibm.com>:
-> Yes. I did that earlier and checked everything.
-> 
-> MADV_REMOVE is a known change. Since it added very recently,
-> I guess is okay to fix it for real. But if we are going to
-> change it, I am hoping to see it very soon in mainline. 
-> (Before distros fork-off).
+On Wed, 15 Feb 2006, Andi Kleen wrote:
 
-I agree. Andrew, could take this into -mm?
-This replaces Roland's fix-up-madv_dontfork-madv_dofork-definitions.patch
+> How about the appended patch? Does it fix the problem for you?
 
--- 
-Michael S. Tsirkin
-Staff Engineer, Mellanox Technologies
+I think we still need to address the issue of being able to crash
+the page allocator if an empty zone is in the zonelist. 
+
+> This should work fine for now, but whoever implements node hot removal
+> needs to fix this somewhere else too (or make sure zone datastructures 
+> by itself never go away, only their memory)
+
+Yup. Simply initializing the pcp structures with empty lists should 
+suffice though.
+

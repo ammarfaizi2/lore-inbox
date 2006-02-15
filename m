@@ -1,38 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWBORu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWBORv7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751118AbWBORu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 12:50:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWBORu5
+	id S1751173AbWBORv7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 12:51:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWBORv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 12:50:57 -0500
-Received: from [202.149.212.34] ([202.149.212.34]:61510 "EHLO cmie.com")
-	by vger.kernel.org with ESMTP id S1751118AbWBORu4 (ORCPT
+	Wed, 15 Feb 2006 12:51:59 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:54449 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751173AbWBORv6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 12:50:56 -0500
-Date: Wed, 15 Feb 2006 23:20:49 +0530 (IST)
-From: Nohez <nohez@cmie.com>
-X-X-Sender: <nohez@mars.cmie.ernet.in>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-cc: Claudio Martins <ctpm@rnl.ist.utl.pt>, <linux-kernel@vger.kernel.org>
-Subject: Re: OCFS2 Filesystem inconsistency across nodes
-In-Reply-To: <20060214201946.GD20175@ca-server1.us.oracle.com>
-Message-ID: <Pine.LNX.4.33.0602152244050.3591-100000@mars.cmie.ernet.in>
+	Wed, 15 Feb 2006 12:51:58 -0500
+Message-ID: <43F36A00.602@redhat.com>
+Date: Wed, 15 Feb 2006 09:50:56 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5 (X11/20060128)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andi Kleen <ak@suse.de>
+CC: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Arjan van de Ven <arjan@infradead.org>,
+       David Singleton <dsingleton@mvista.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/5] lightweight robust futexes: -V1
+References: <20060215151711.GA31569@elte.hu> <p73lkwc5xv2.fsf@verdi.suse.de>
+In-Reply-To: <p73lkwc5xv2.fsf@verdi.suse.de>
+X-Enigmail-Version: 0.93.1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig2BD4B436ADE2E0D864E72AB7"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig2BD4B436ADE2E0D864E72AB7
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Applied both the patches - jbd-undo.patch and the dlm.patch
-from mm1 kernel to the recently released OpenSuSE kernel
-(kernel-smp-2.6.16_rc3-2). Recreated the filesystem using mkfs.ocfs2.
-Tried the two tests that I had reported in my previous email. Both of
-them run ok now.
+Andi Kleen wrote:
+> e.g. you could add a new VMA flag that says "when one user
+> of this dies unexpectedly by a signal kill all"=20
 
-Now started bonnie++ on one node while the same volume on the other node
-is mounted and is in quiescent stage. Its been more than 5 hours now
-and both the nodes are up & running. Seeing some very high load of >8 at
-times on the node running bonnie++. Test node has 4GB RAM and bonnie++
-is creating files of 8GB to test IO performance. Will start bonnie++
-on both the nodes concurrently later.
+"kill all"?  That is so completely different from the intended behavior.
+ Robust mutexes are no concept which has been invented here.  It is
+clearly specified.  The reaction to a terminating thread/process is
+notification of other interested parties.
 
+None of your proposals makes any sense in this context.
+
+
+> And what happens if the patch is rejected? I don't really think you
+> can force patches in this way ("do it or I break glibc")
+
+Nothing which relies on the syscalls goes into cvs unless the kernel
+side is first committed.  I never do this.  What is in cvs now is an
+implementation of the intra-thread robust mutexes based on the same
+mechanisms.  I.e., using the new syscall is a trivial thing since the
+infrastructure is already in place.  And the method is proven to work.
+
+
+> What happens when the list gets corrupted? Does the kernel go
+> into an endless loop? Kernel going through arbitary user structures
+> like this seems very risky to me. There are ways to do
+> list walking with cycle detection, but they still have quite
+> bad worst case detection times.
+
+The list being corrupted means that the mutexes are corrupted.  In which
+case the application would crash anyway.
+
+As for the "endless loop".  You didn't read the code, it seems.  There
+are two mechanisms to prevent this: the list is destroyed when the
+individual elements are handled and there is an upper limit on the
+number of robust mutexes which can be registered.  The limit is
+ridiculously high so it'll no problem for correct programs and it also
+will eliminate run-away list following code.
+
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
+
+
+--------------enig2BD4B436ADE2E0D864E72AB7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFD82oA2ijCOnn/RHQRAq7xAJ93+DtWubHU7nQk86LGOsbEkuW3KgCcDotm
+bEw9f2Z2D/YYtlPMP6B5rSg=
+=97it
+-----END PGP SIGNATURE-----
+
+--------------enig2BD4B436ADE2E0D864E72AB7--

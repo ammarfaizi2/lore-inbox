@@ -1,60 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbWBOUz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbWBOU7h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751230AbWBOUz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 15:55:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWBOUz1
+	id S1751279AbWBOU7h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 15:59:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbWBOU7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 15:55:27 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:53448 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1751230AbWBOUz1 (ORCPT
+	Wed, 15 Feb 2006 15:59:37 -0500
+Received: from spirit.analogic.com ([204.178.40.4]:59397 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1751279AbWBOU7g convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 15:55:27 -0500
-Message-ID: <43F39500.8060008@cfl.rr.com>
-Date: Wed, 15 Feb 2006 15:54:24 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Wed, 15 Feb 2006 15:59:36 -0500
 MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Seewer Philippe <philippe.seewer@bfh.ch>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: disk geometry via sysfs
-References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com> <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com> <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com> <43F2E8BA.90001@bfh.ch> <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com> <1140019615.14831.22.camel@localhost.localdomain> <43F354E9.2020900@cfl.rr.com> <1140024754.14831.31.camel@localhost.localdomain> <43F3764C.8080503@cfl.rr.com> <Pine.LNX.4.61.0602151411130.9546@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0602151411130.9546@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Feb 2006 20:57:04.0707 (UTC) FILETIME=[6020F130:01C63272]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14270.000
-X-TM-AS-Result: No--10.500000-5.000000-31
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <43F39089.2050302@tls.msk.ru>
+X-OriginalArrivalTime: 15 Feb 2006 20:59:32.0488 (UTC) FILETIME=[B8368880:01C63272]
+Content-class: urn:content-classes:message
+Subject: Re: readahead logic and I/O errors
+Date: Wed, 15 Feb 2006 15:59:32 -0500
+Message-ID: <Pine.LNX.4.61.0602151549190.10849@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: readahead logic and I/O errors
+thread-index: AcYycrg92y4ihEA9QrGs26GUWPaKKg==
+References: <43F39089.2050302@tls.msk.ru>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Michael Tokarev" <mjt@tls.msk.ru>
+Cc: "Linux-kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
-> If the disc is a modern disk, and the BIOS is modern as well,
-> it won't care. For instance, if we attempt to seek to cylinder
-> 10, sector 10, and there are only 9 sectors, then the supplied
-> head number is incremented, the sector to be read becomes 1
-> (dumb ones based), and everything is fine. If the head number
-> can't be incremented, it wraps to 0. Problems occur if the BIOS
-> has been set to "physical" mode for access. In this mode, the
-> CHS are absolute and "you can't get there from here." In the
-> physical mode, you can't have more than 1024 cylinders because
-> they need to fit into 10 bits.
-> 
-> As long as the BIOS is set for LBA, the boot sequence should not
-> care.
-> 
 
-Are you sure?  Do all bioses perform this auto correction?  I would have 
-thought that they would simply fail the request because you asked for a 
-sector or head that is outside the valid range.  Even if some bioses 
-will accept illegal values and auto translate, I doubt that they all do.
+On Wed, 15 Feb 2006, Michael Tokarev wrote:
 
-And what if you error in the other direction?  If the MBR lists a LOWER 
-number of heads than the bios thinks there is?  In that case you're 
-going to ask the bios for a larger cylinder number, and it will happily 
-read a sector from the disk that is further from the start than you 
-intended.
+> The thing is: I just fired a cdrom drive in my PC.
+> It was a good device, and now it's dead.
+> And the reason is the readahead logic, plus an unreadable
+> (damaged, scratched) CD-rom.
+>
+> By default, linux enables read-ahead for all block devices
+> (I can't be certain about "all", but it's true for hard
+> disks, cd-roms and floppies at least).  And when a read
+> request comes to the device, according to readahead logic,
+> linux tries to get more data from the drive than requested.
+>
+> Now, one of blocks requested to be read can't be read due
+> to whatever condition.  It happens on removable media, it's
+> a normal (sort of, anyway) condition.
+>
+> Looks like I had many unreadable blocks on that CD.  And,
+> instead of obvious (in my view anyway) thing to do, namely,
+> to STOP readahead operation and return only whatever data
+> which was requested by an application (it was just `cp')
+> after FIRST I/O error, linux continued trying reading-ahead,
+> discovering more and more failed blocks, as dmesg said.
+>
+> And finally, after about 100 blocks failed in a row, the
+> drive fired.
+>
+> I wasn't able to stop the process - `cp' was in D state
+> sitting in one read() syscall thus unkillable.  Umount
+> didn't work (obviously).  Only one option left was to
+> reboot/poweroff the system, which I was finally forced
+> to do.. but too late.
+>
+> I don't understand the logic in ll_rw_blk.c (the file
+> is quite large), but my guessing is that initially,
+> the read request was one for several blocks, but when
+> it failed, linux continued trying to get next block,
+> next-to-next block and so on - hence all consequtive
+> failed block numbers in dmesg, ie, it split original
+> large request into several smaller chunks, failing each
+> in turn.
+>
+> Even if I'm wrong here and it originally made "short"
+> reads, the question remains:
+>
+> Why linux tries to continue readahead operation after
+> I/O errors, instead of just dropping the reads, and
+> repeat them WHEN ACTUALLY NEEDED?  `cp' will stop after
+> first failed read(), so only one bad sector will be tried,
+> instead of numerous, finally firing the drive?
+>
+> When setting readahead to 0, the same CD can be read up
+> to the first error, and will fail correctly.
+>
+> The same happens with floppy as well - exactly the same
+> thing.  I especially damaged a floppy disk (I still have
+> several here), just to verify - after ~15 minutes of waiting
+> while it will finish it's readahead nonsense, I become bored
+> and finally rebooted the system.
+>
+> So, to sum: current linux behaviour (similar since 2.4 -- at
+> least I remember seeing something like that, repeated attempts
+> to read something from a bad drive, -- up to current 2.6.15)
+> is that it's trivial to kill the system just by inserting a
+> cd-rom or floppy with some unreadable sectors.  Worse, it's
+> possible to FIRE the system this way (with certain drives
+> anyway), as just happened here (I understand, maybe, after
+> some more waiting, when it will try all 128 or 256 more sectors,
+> it WILL finally do something useful again and stop retrying,
+> but eg on this my drive, each read attempt took about 30 sec,
+> retrying several times by its own, so total time is umm..
+> quite large, and there's nothing one can do with it but
+> to poweroff the PC).
+>
+> From my point of view, it's a serious bug (even if not counting
+> my dead CD drive).
+>
+> Thanks.
+>
+> /mjt
 
+Aside from the obvious read-ahead bug you discovered, have you
+tried your CD drive after the reboot? It is not possible to
+kill those things with software, even if attempting to write
+with too much infrared LED drive. There is nothing except for
+the removable disc to get hurt. Even the "head" isn't in contact.
+It's just some infrared light, focused with a voice-coil, that
+moves on a fixed platform.
 
+Of course you can make many cow-flops from discs, but can you
+describe how you think the drive got "fired" as you say?
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.66 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

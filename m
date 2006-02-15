@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWBOW0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbWBOW2A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751342AbWBOW0h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 17:26:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWBOW0h
+	id S1751343AbWBOW2A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 17:28:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWBOW2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 17:26:37 -0500
-Received: from [203.2.177.25] ([203.2.177.25]:21056 "EHLO pfeiffer.tusc.com.au")
-	by vger.kernel.org with ESMTP id S1751342AbWBOW0f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 17:26:35 -0500
-Subject: [PATCH 6/6] x25: Allow 32 bit socket ioctl in 64 bit kernel
-From: Shaun Pereira <spereira@tusc.com.au>
-Reply-To: spereira@tusc.com.au
-To: "David S. Miller" <davem@davemloft.net>,
-       x25 maintainer <eis@baty.hanse.de>, netdev <netdev@vger.kernel.org>,
-       linux-kenel <linux-kernel@vger.kernel.org>
-Cc: Andre Hendry <ahendry@tusc.com.au>, Arnd Bergmann <arnd@arndb.de>
-Content-Type: text/plain
-Date: Thu, 16 Feb 2006 09:22:59 +1100
-Message-Id: <1140042179.8745.31.camel@spereira05.tusc.com.au>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Feb 2006 17:28:00 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:50704 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751343AbWBOW17 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 17:27:59 -0500
+Date: Wed, 15 Feb 2006 23:27:57 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Cc: Steve French <smfltc@us.ibm.com>,
+       "linux-cifs-client@lists.samba.org" 
+	<linux-cifs-client@lists.samba.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Additional questions on your hang
+Message-ID: <20060215222757.GD5066@stusta.de>
+References: <20050721115604.GB3160@stusta.de> <OF31F3CBF1.99DB2B76-ON87257046.0068484B-86257046.0068A410@us.ibm.com> <20050722191457.GL3160@stusta.de> <43F20EC0.8090305@us.ibm.com> <20060214171713.GA3513@stusta.de> <1139946851.9961.28.camel@kleikamp.austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1139946851.9961.28.camel@kleikamp.austin.ibm.com>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allow patch 5 to use 32-64 bit conversion mechanism
+On Tue, Feb 14, 2006 at 01:54:11PM -0600, Dave Kleikamp wrote:
+>...
+> I wasn't able to trace it to an exact line of code, but I think I see
+> what the problem is.
+> 
+> This patch moves the copy_to_user from smb_read_data after the test
+> whether smb_read_data is null.  It's good not to dereference a pointer
+> if you have a reason to test it for null afterward.
+> 
+> This patch has not been compiled or tested.
+>...
 
-Signed-off-by:Shaun Pereira <spereira@tusc.com.au>
- diff -uprN -X dontdiff linux-2.6.16-rc3-vanilla/net/x25/af_x25.c
-linux-2.6.16-rc3/net/x25/af_x25.c
---- linux-2.6.16-rc3-vanilla/net/x25/af_x25.c	2006-02-15
-11:17:03.000000000 +1100
-+++ linux-2.6.16-rc3/net/x25/af_x25.c	2006-02-15 11:17:20.000000000
-+1100
-@@ -1529,6 +1529,8 @@ static int compat_x25_ioctl(struct socke
- 			break;
- 		case SIOCX25GFACILITIES:
- 		case SIOCX25SFACILITIES:
-+		case SIOCX25GDTEFACILITIES:
-+		case SIOCX25SDTEFACILITIES:
- 		case SIOCX25GCALLUSERDATA:
- 		case SIOCX25SCALLUSERDATA:
- 		case SIOCX25GCAUSEDIAG:
+Thanks, this patch works fine for me and after disassembling it seems 
+you've found exactly the place where the kernel Oops'ed for me in the 
+forcedirectio case.
+
+But even with this patch applied, I had a freeze in the 
+non-forcedirectio case, although much later than usual.
+There seems to be more than one bug.  :-(
+
+I'm currently trying whether there are still any problems in the 
+forcedirectio case, and I'll report back as soon as I am able to provide 
+any additional information.
+
+> David Kleikamp
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

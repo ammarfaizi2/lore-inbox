@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945960AbWBOPBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945965AbWBOPEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945960AbWBOPBs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 10:01:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945961AbWBOPBs
+	id S1945965AbWBOPEs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 10:04:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945964AbWBOPEs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 10:01:48 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:19974 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1945960AbWBOPBr (ORCPT
+	Wed, 15 Feb 2006 10:04:48 -0500
+Received: from mail.suse.de ([195.135.220.2]:57748 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1945957AbWBOPEr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 10:01:47 -0500
-Date: Wed, 15 Feb 2006 16:01:46 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Device enumeration (was Re: CD writing in future Linux (stirring up a hornets' nest))
-Message-ID: <20060215150146.GB89078@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-	linux-kernel@vger.kernel.org
-References: <43D7C1DF.1070606@gmx.de> <20060213175046.GA20952@kroah.com> <20060213195322.GB89006@dspnet.fr.eu.org> <200602140023.15771.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060214104003.GA97714@dspnet.fr.eu.org> <20060214222428.GA357@kroah.com> <20060214230023.GA66586@dspnet.fr.eu.org> <20060214234546.GA10590@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060214234546.GA10590@kroah.com>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 15 Feb 2006 10:04:47 -0500
+Message-ID: <43F3430D.1010002@suse.de>
+Date: Wed, 15 Feb 2006 16:04:45 +0100
+From: Thomas Renninger <trenn@suse.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@suse.cz>,
+       Stefan Seyfried <seife@suse.de>, linux-pm@lists.osdl.org,
+       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH, RFC] [1/3] Generic in-kernel AC status
+References: <20060208125753.GA25562@srcf.ucam.org> <20060210121913.GA4974@elf.ucw.cz> <43F216FE.7050101@suse.de> <200602142117.31232.rjw@sisk.pl> <43F3206B.6090902@suse.de> <20060215124729.GA10968@srcf.ucam.org>
+In-Reply-To: <20060215124729.GA10968@srcf.ucam.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 14, 2006 at 03:45:46PM -0800, Greg KH wrote:
-> On Wed, Feb 15, 2006 at 12:00:23AM +0100, Olivier Galibert wrote:
-> > On Tue, Feb 14, 2006 at 02:24:28PM -0800, Greg KH wrote:
-> > > Because if you have to have udev push the names back into the kernel,
-> > > why not just ask udev in the first place what they were?
-> > 
-> > Because there is no reason to think udev of 2008 will be compatible
-> > with today's udev given udev's history.  And that's provided udev is
-> > still in use at that time.
+Matthew Garrett wrote:
+> On Wed, Feb 15, 2006 at 01:36:59PM +0100, Thomas Renninger wrote:
 > 
-> Just like gnome and kde of 2008 will not be compatible with the gnome
-> and kde of today.
-
-If history is a guide, it will.  KDE is harder because the C++ as
-implemented in gcc has changed in the meantime, so things that were
-correct-ish two years ago aren't anymore and the libraries aren't
-binary-compatible with the older gccs, but in the gtk/gnome case I
-have programs I wrote in 1999 that still compile and work as is.  And
-in the X case, I have programs from before linux existed that still
-compile and work as is.  So I'm not sure what your point is here.
-
-
-> > > Again, use HAL, not udev for this stuff.  FC3 is also out of date for
-> > > lots of things becides udev, so why refer to it?
-> > 
-> > Because it proves you don't give a shit about backwards compatibility.
+>> Maybe I oversaw an issue, but I really don't see a reason for connecting
+>> the brightness to ac in kernel space.
 > 
-> *plonk*
+> The backlight class maintainer specified that /sys/../brightness should 
+Who's that? Is there more info/spec available?
+> return the *current* brightness. In some cases that's impossible without 
+> knowing the ac status.
+> 
+Ok.
+The ac/battery status is used to guess the current brightness? Please
+do not set suggested values automatically, IMO this is not a nice feature...
+I am really looking forward to see a general /sys/../brightness.
+Thanks a lot for working on this!
+Just an idea for later:
+Beside min/max there probably should be a /sys/../brightness_bat 
+and /sys/../brightness_ac.
+- If ac/battery brightness will not be set by kernel, userspace can write the
+  right value to /sys/../brightness and the above two can be readonly.
+- If ac/battery brightness will be set by kernel the above two should even be
+  writeable so that people can avoid the need of pressing "brightness up"
+  button without hacking the kernel.
 
-Truth hurts?
+I vote for letting userspace doing the stuff..., e.g. changing brightness behind
+the back of some userspace tool will result in userspace tools starting to
+poll.
 
-  OG.
+Comments?
+
+    Thomas
+

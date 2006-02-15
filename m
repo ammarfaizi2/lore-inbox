@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422907AbWBOGyJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422899AbWBOHBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422907AbWBOGyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 01:54:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422904AbWBOGyJ
+	id S1422899AbWBOHBG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 02:01:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422902AbWBOHBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 01:54:09 -0500
-Received: from stinky.trash.net ([213.144.137.162]:35782 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S1422907AbWBOGyH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 01:54:07 -0500
-Message-ID: <43F2CFB6.9030106@trash.net>
-Date: Wed, 15 Feb 2006 07:52:38 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Taprogge <jlt_kernel@shamrock.dyndns.org>
-CC: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       netfilter@lists.netfilter.org
-Subject: Re: 2.6.16-rc3 panic related to IP Forwarding and/or Netfilter
-References: <20060214173455.GA19355@ranger.taprogge.wh>
-In-Reply-To: <20060214173455.GA19355@ranger.taprogge.wh>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 15 Feb 2006 02:01:06 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:8357 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422899AbWBOHBF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 02:01:05 -0500
+Date: Tue, 14 Feb 2006 22:59:50 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: psusi@cfl.rr.com, jzb@aexorsyst.com, linux-kernel@vger.kernel.org
+Subject: Re: root=/dev/sda1 fails but root=0x0801 works...
+Message-Id: <20060214225950.3a697ec8.akpm@osdl.org>
+In-Reply-To: <20060214162458.GD27946@ftp.linux.org.uk>
+References: <200602132316.15992.jzb@aexorsyst.com>
+	<43F1FA74.80607@cfl.rr.com>
+	<20060214162458.GD27946@ftp.linux.org.uk>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Taprogge wrote:
-> Hello.
-> 
-> After upgrading from 2.6.13 an IP Masquerading router panics as soon as
-> soon as packages are forwarder (or rather should be).  As long as IP
-> Masquerading is disabled (and thus no forwarding occurs) the box runs
-> stable.
-> 
-> A picture of the panic ouput can be found at:
-> http://shamrock.dyndns.org/~ln/kernel/2.6.16rc3_panic/panic.jpg
-> The config is at:
-> http://shamrock.dyndns.org/~ln/kernel/2.6.16rc3_panic/config-2.6.16-rc3-g51d6aa16-dirty
-> 
-> The kernel was patched to support SIP-contrack however the extra files
-> have not been compiled and should thus have no influence.
-> 
-> Please cc me on replies as I am not subscribed to the lists.
+Al Viro <viro@ftp.linux.org.uk> wrote:
+>
+> Read init/do_mounts.c::name_to_dev_t().
+>
 
-Known problem, I'll submit a fix tonight. Until then you can avoid
-the crash by making sure your masquerade rules don't change packets
-which matched an IPsec policy so they don't match anymore.
+I tried to do that a while ago, when I was trying to use it for
+name_to_dev_t()ing in swsusp somewhere.
+
+
+>From my notes at the time:
+
+  a) It barfs if /sys is already mounted.
+
+  b) Fix that, mkdir and mount barf because it needs set_fs(KERNEL_DS)
+
+  c) Fix that, it barfs because name_to_dev_t is just broken.  It is
+     accessing the wrong pathnames in /sys.
+
+I think it needs a bit of help.

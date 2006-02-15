@@ -1,65 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945990AbWBOP4D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945999AbWBOQAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945990AbWBOP4D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 10:56:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945995AbWBOP4D
+	id S1945999AbWBOQAi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 11:00:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946002AbWBOQAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 10:56:03 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:59015 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1945990AbWBOP4C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 10:56:02 -0500
-Date: Wed, 15 Feb 2006 10:56:01 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-cc: Kernel development list <linux-kernel@vger.kernel.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-Subject: Re: Flames over -- Re: Which is simpler?
-In-Reply-To: <200602142141.10545.rjw@sisk.pl>
-Message-ID: <Pine.LNX.4.44L0.0602151049490.4598-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Feb 2006 11:00:38 -0500
+Received: from solarneutrino.net ([66.199.224.43]:16905 "EHLO
+	tau.solarneutrino.net") by vger.kernel.org with ESMTP
+	id S1945999AbWBOQAi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 11:00:38 -0500
+Date: Wed, 15 Feb 2006 11:00:36 -0500
+To: Jean Delvare <khali@linux-fr.org>
+Cc: linux-kernel@vger.kernel.org, Erik Mouw <erik@harddisk-recovery.com>,
+       Nick Warne <nick@linicks.net>
+Subject: Re: Random reboots
+Message-ID: <20060215160036.GB17864@tau.solarneutrino.net>
+References: <20060215142809.GA17842@tau.solarneutrino.net> <6cBigqfP.1140018099.7722170.khali@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <6cBigqfP.1140018099.7722170.khali@localhost>
+User-Agent: Mutt/1.5.9i
+From: Ryan Richter <ryan@tau.solarneutrino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Feb 2006, Rafael J. Wysocki wrote:
-
-> > Remember that it's always a bad idea to unplug a disk drive containing a
-> > mounted filesystem.  With USB that's true even when your system is asleep!
-> > The safest thing is to unmount all USB-based filesystems before suspending 
-> > and remount them after resuming.
+On Wed, Feb 15, 2006 at 04:41:39PM +0100, Jean Delvare wrote:
 > 
-> Still, this may be impossible if the box is suspending because of its
-> battery running critical.
-
-Yes.  When there's nothing you can do... do nothing.  :-)
-
-> I'm afraid this behavior will cause support problems to appear in the long
-> run.   [BTW, I wonder if it's USB-only, or some other subsystems behave
-> in a similar way, like ieee1394 or external SATA.  And how about
-> NFS/CIFS/whatever network filesystems mounted on the suspending box?]
-
-Some networked filesystems may have this problem, for instance, if they 
-rely on some sort of keep-alive to maintain a connection.  I don't know 
-anything about 1394 or SATA.
-
-> I think one solution to consider could be to add an abstract fs layer
-> on top of the removable filesystem, like subfs in SuSE, with the ability
-> to retain the user information accross device disconnects and to update
-> the fs state from the actual device when it reappears in the system and
-> to resolve possible conflicts (to a reasonable extent).
-
-Maybe.  To me this seems an unavoidable policy decision that should be 
-settled by one of the big Linux panjandrums.  Maybe someone can convince 
-Andrew (or even Linus) to offer a ruling...
-
-> > I'm not aware of any warnings about this in the documentation.  If you 
-> > would like to add something, please go ahead.
+> Hi Ryan,
 > 
-> I'm going to do this.  Can I use your explanation above?
+> On 2006-02-15, Ryan Richter wrote:
+> > The sensors report a bunch of obvious nonsesne as always...  I keep them
+> > configured in with the hope that one day they'll report useful
+> > information, but that day hasn't come yet.  I just checked, and all the
+> > fans are still fine.  It's in a huge case with lots of fans and it's
+> > hardly warmer than room temp.  The opteron 240s don't put out much heat.
+> 
+> The sensors might just need some board-specific configuration. May I ask
+> which motherboard this is?
+> 
+> I may help you (in private) setup your sensors. If you're interested,
+> send the output of "sensors-detect" and "sensors" to me and I'll
+> see what can be done to improve the reported values.
 
-Feel free to use it.
+It's a Tyan S2880, and I'm using their sensors.conf:
 
-Alan Stern
+ftp://ftp.tyan.com/software/lms/lms_s2880.tgz
 
+Here's what sensors reports:
+
+w83627hf-isa-0290
+Adapter: ISA adapter
+VCore 1:   +1.54 V  (min =  +1.47 V, max =  +1.62 V)       ALARM  
+VCore 2:   +1.54 V  (min =  +1.47 V, max =  +1.62 V)       ALARM  
++3.3V:     +3.33 V  (min =  +3.14 V, max =  +3.46 V)              
++5V:       +4.97 V  (min =  +4.73 V, max =  +5.24 V)              
++12V:      +4.56 V  (min = +10.82 V, max = +13.19 V)              
+-12V:      -2.25 V  (min = -13.18 V, max = -10.88 V)              
+-5V:       -3.94 V  (min =  -5.25 V, max =  -4.75 V)              
+V5SB:      +5.51 V  (min =  +4.73 V, max =  +5.24 V)              
+VBat:      +1.28 V  (min =  +2.40 V, max =  +3.60 V)              
+fan1:     4354 RPM  (min =   -1 RPM, div = 2)                     
+fan2:     3479 RPM  (min = 5273 RPM, div = 2)                     
+fan3:        0 RPM  (min = 30681 RPM, div = 2)                     
+temp1:       +77°C  (high =  -128°C, hyst =  -128°C)   sensor = thermistor           
+temp2:     +77.5°C  (high =   +80°C, hyst =   +75°C)   sensor = thermistor           
+temp3:     +77.5°C  (high =   +80°C, hyst =   +75°C)   sensor = thermistor           
+vid:      +1.550 V  (VRM Version 2.4)
+
+The temps and +/-12V readings are obviously wrong, and always have been
+AFAIR.  I've run the machine with 6 more 10krpm old full-height drives
+than it currently has.  I checked the max 5V and 12V current draw of the
+drives and specced the power supply carefully when we bought it a couple
+years ago, and it has lots of headroom on both of those rails.
+
+> Two more random thoughts:
+> 
+> Any reason why you run 2.6.15 rather than 2.6.15.4? That's where I would
+> start if I was suspecting a kernel bug.
+> 
+> Did you already update the BIOS to the latest version available? There
+> are a few kernel complaints in your dmesg which might be solved by a
+> newer BIOS (and/or parameter changes in the BIOS setup).
+
+I'll be booting 2.6.15.4 this weekend.  The BIOS is indeed old, and I
+see there's a newer one that came out a year ago.  It'll be a while
+before I can try it, I need to scare up a keyboard, video card, and
+monitor, not to mention a DOS disk.  You can tell why I haven't flashed
+the BIOS in years...
+
+Still, I don't see why the new kernel shouldn't be stable if 2.6.11.3
+was.
+
+Thanks,
+-ryan

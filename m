@@ -1,410 +1,273 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945977AbWBOPTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945957AbWBOPTL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945977AbWBOPTb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 10:19:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945975AbWBOPTV
+	id S1945957AbWBOPTL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 10:19:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945969AbWBOPTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 10:19:21 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:17356 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1945974AbWBOPTT (ORCPT
+	Wed, 15 Feb 2006 10:19:11 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:26575 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1945957AbWBOPTK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 10:19:19 -0500
-Date: Wed, 15 Feb 2006 16:17:22 +0100
+	Wed, 15 Feb 2006 10:19:10 -0500
+Date: Wed, 15 Feb 2006 16:17:11 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
 Cc: Ulrich Drepper <drepper@redhat.com>, Thomas Gleixner <tglx@linutronix.de>,
        Arjan van de Ven <arjan@infradead.org>,
        David Singleton <dsingleton@mvista.com>, Andrew Morton <akpm@osdl.org>
-Subject: [patch 1/5] lightweight robust futexes: core
-Message-ID: <20060215151722.GB31569@elte.hu>
+Subject: [patch 0/5] lightweight robust futexes: -V1
+Message-ID: <20060215151711.GA31569@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
+X-ELTE-SpamScore: -2.2
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-this patch adds the core infrastructure for robust futexes:
-structure definitions, the new syscalls and the do_exit() based
-cleanup mechanism.
+This patchset provides a new (written from scratch) implementation of 
+robust futexes, called "lightweight robust futexes". We believe this new 
+implementation is faster and simpler than the vma-based robust futex 
+solutions presented before, and we'd like this patchset to be adopted in 
+the upstream kernel. This is version 1 of the patchset.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Arjan van de Ven <arjan@infradead.org>
-Acked-by: Ulrich Drepper <drepper@redhat.com>
+Background
+----------
 
-----
+what are robust futexes? To answer that, we first need to understand 
+what futexes are: normal futexes are special types of locks that in the 
+noncontended case can be acquired/released from userspace without having 
+to enter the kernel.
 
- include/linux/futex.h   |   89 ++++++++++++++++++++++++
- include/linux/sched.h   |    3 
- include/linux/threads.h |    3 
- kernel/exit.c           |    3 
- kernel/futex.c          |  173 ++++++++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 270 insertions(+), 1 deletion(-)
+A futex is in essence a user-space address, e.g. a 32-bit lock variable 
+field. If userspace notices contention (the lock is already owned and 
+someone else wants to grab it too) then the lock is marked with a value 
+that says "there's a waiter pending", and the sys_futex(FUTEX_WAIT) 
+syscall is used to wait for the other guy to release it. The kernel 
+creates a 'futex queue' internally, so that it can later on match up the 
+waiter with the waker - without them having to know about each other.  
+When the owner thread releases the futex, it notices (via the variable 
+value) that there were waiter(s) pending, and does the 
+sys_futex(FUTEX_WAKE) syscall to wake them up.  Once all waiters have 
+taken and released the lock, the futex is again back to 'uncontended' 
+state, and there's no in-kernel state associated with it. The kernel 
+completely forgets that there ever was a futex at that address. This 
+method makes futexes very lightweight and scalable.
 
-Index: linux-robust-list.q/include/linux/futex.h
-===================================================================
---- linux-robust-list.q.orig/include/linux/futex.h
-+++ linux-robust-list.q/include/linux/futex.h
-@@ -1,6 +1,8 @@
- #ifndef _LINUX_FUTEX_H
- #define _LINUX_FUTEX_H
- 
-+#include <linux/sched.h>
-+
- /* Second argument to futex syscall */
- 
- 
-@@ -11,10 +13,97 @@
- #define FUTEX_CMP_REQUEUE	4
- #define FUTEX_WAKE_OP		5
- 
-+/*
-+ * Support for robust futexes: the kernel cleans up held futexes at
-+ * thread exit time.
-+ */
-+
-+/*
-+ * Per-lock list entry - embedded in user-space locks, somewhere close
-+ * to the futex field. (Note: user-space uses a double-linked list to
-+ * achieve O(1) list add and remove, but the kernel only needs to know
-+ * about the forward link)
-+ *
-+ * NOTE: this structure is part of the syscall ABI, and must not be
-+ * changed.
-+ */
-+struct robust_list {
-+	struct robust_list __user *next;
-+};
-+
-+/*
-+ * Per-thread list head:
-+ *
-+ * NOTE: this structure is part of the syscall ABI, and must only be
-+ * changed if the change is first communicated with the glibc folks.
-+ * (When an incompatible change is done, we'll increase the structure
-+ *  size, which glibc will detect)
-+ */
-+struct robust_list_head {
-+	/*
-+	 * The head of the list. Points back to itself if empty:
-+	 */
-+	struct robust_list list;
-+
-+	/*
-+	 * This relative offset is set by user-space, it gives the kernel
-+	 * the relative position of the futex field to examine. This way
-+	 * we keep userspace flexible, to freely shape its data-structure,
-+	 * without hardcoding any particular offset into the kernel:
-+	 */
-+	long futex_offset;
-+
-+	/*
-+	 * The death of the thread may race with userspace setting
-+	 * up a lock's links. So to handle this race, userspace first
-+	 * sets this field to the address of the to-be-taken lock,
-+	 * then does the lock acquire, and then adds itself to the
-+	 * list, and then clears this field. Hence the kernel will
-+	 * always have full knowledge of all locks that the thread
-+	 * _might_ have taken. We check the owner TID in any case,
-+	 * so only truly owned locks will be handled.
-+	 */
-+	struct robust_list __user *list_add_pending;
-+};
-+
-+/*
-+ * Are there any waiters for this robust futex:
-+ */
-+#define FUTEX_WAITERS		0x80000000
-+
-+/*
-+ * The kernel signals via this bit that a thread holding a futex
-+ * has exited without unlocking the futex. The kernel also does
-+ * a FUTEX_WAKE on such futexes, after setting the bit, to wake
-+ * up any possible waiters:
-+ */
-+#define FUTEX_OWNER_DIED	0x40000000
-+
-+/*
-+ * Reserved bit:
-+ */
-+#define FUTEX_OWNER_PENDING	0x20000000
-+
-+/*
-+ * The rest of the robust-futex field is for the TID:
-+ */
-+#define FUTEX_TID_MASK		0x1fffffff
-+
-+/*
-+ * A limit of one million locks held per thread (!) ought to be enough
-+ * for some time. This also protects against a deliberately circular
-+ * list. Not worth introducing an rlimit for this:
-+ */
-+#define ROBUST_LIST_LIMIT	1048576
-+
- long do_futex(unsigned long uaddr, int op, int val,
- 		unsigned long timeout, unsigned long uaddr2, int val2,
- 		int val3);
- 
-+extern int handle_futex_death(unsigned int *uaddr, struct task_struct *curr);
-+
-+extern void exit_robust_list(struct task_struct *curr);
-+
- #define FUTEX_OP_SET		0	/* *(int *)UADDR2 = OPARG; */
- #define FUTEX_OP_ADD		1	/* *(int *)UADDR2 += OPARG; */
- #define FUTEX_OP_OR		2	/* *(int *)UADDR2 |= OPARG; */
-Index: linux-robust-list.q/include/linux/sched.h
-===================================================================
---- linux-robust-list.q.orig/include/linux/sched.h
-+++ linux-robust-list.q/include/linux/sched.h
-@@ -35,6 +35,7 @@
- #include <linux/topology.h>
- #include <linux/seccomp.h>
- #include <linux/rcupdate.h>
-+#include <linux/futex.h>
- 
- #include <linux/auxvec.h>	/* For AT_VECTOR_SIZE */
- 
-@@ -871,6 +872,8 @@ struct task_struct {
- 	nodemask_t mems_allowed;
- 	int cpuset_mems_generation;
- #endif
-+	struct robust_list_head __user *robust_list;
-+
- 	atomic_t fs_excl;	/* holding fs exclusive resources */
- 	struct rcu_head rcu;
- };
-Index: linux-robust-list.q/include/linux/threads.h
-===================================================================
---- linux-robust-list.q.orig/include/linux/threads.h
-+++ linux-robust-list.q/include/linux/threads.h
-@@ -28,7 +28,8 @@
- #define PID_MAX_DEFAULT (CONFIG_BASE_SMALL ? 0x1000 : 0x8000)
- 
- /*
-- * A maximum of 4 million PIDs should be enough for a while:
-+ * A maximum of 4 million PIDs should be enough for a while.
-+ * [NOTE: PID/TIDs are limited to 2^29 ~= 500+ million, see futex.h.]
-  */
- #define PID_MAX_LIMIT (CONFIG_BASE_SMALL ? PAGE_SIZE * 8 : \
- 	(sizeof(long) > 4 ? 4 * 1024 * 1024 : PID_MAX_DEFAULT))
-Index: linux-robust-list.q/kernel/exit.c
-===================================================================
---- linux-robust-list.q.orig/kernel/exit.c
-+++ linux-robust-list.q/kernel/exit.c
-@@ -31,6 +31,7 @@
- #include <linux/signal.h>
- #include <linux/cn_proc.h>
- #include <linux/mutex.h>
-+#include <linux/futex.h>
- 
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-@@ -849,6 +850,8 @@ fastcall NORET_TYPE void do_exit(long co
- 		exit_itimers(tsk->signal);
- 		acct_process(code);
- 	}
-+	if (unlikely(tsk->robust_list))
-+		exit_robust_list(tsk);
- 	exit_mm(tsk);
- 
- 	exit_sem(tsk);
-Index: linux-robust-list.q/kernel/futex.c
-===================================================================
---- linux-robust-list.q.orig/kernel/futex.c
-+++ linux-robust-list.q/kernel/futex.c
-@@ -8,6 +8,10 @@
-  *  Removed page pinning, fix privately mapped COW pages and other cleanups
-  *  (C) Copyright 2003, 2004 Jamie Lokier
-  *
-+ *  Robust futex support started by Ingo Molnar
-+ *  (C) Copyright 2006 Red Hat Inc, All Rights Reserved
-+ *  Thanks to Thomas Gleixner for suggestions, analysis and fixes.
-+ *
-  *  Thanks to Ben LaHaise for yelling "hashed waitqueues" loudly
-  *  enough at me, Linus for the original (flawed) idea, Matthew
-  *  Kirkwood for proof-of-concept implementation.
-@@ -829,6 +833,175 @@ error:
- 	goto out;
- }
- 
-+/*
-+ * Support for robust futexes: the kernel cleans up held futexes at
-+ * thread exit time.
-+ *
-+ * Implementation: user-space maintains a per-thread list of locks it
-+ * is holding. Upon do_exit(), the kernel carefully walks this list,
-+ * and marks all locks that are owned by this thread with the
-+ * FUTEX_OWNER_DEAD bit, and wakes up a waiter (if any). The list is
-+ * always manipulated with the lock held, so the list is private and
-+ * per-thread. Userspace also maintains a per-thread 'list_add_pending'
-+ * field, to allow the kernel to clean up if the thread dies after
-+ * acquiring the lock, but just before it could have added itself to
-+ * the list. There can only be one such pending lock.
-+ */
-+
-+/**
-+ * sys_set_robust_list - set the robust-futex list head of a task
-+ * @head: pointer to the list-head
-+ * @len: length of the list-head, as userspace expects
-+ */
-+asmlinkage long
-+sys_set_robust_list(struct robust_list_head __user *head,
-+		    size_t len)
-+{
-+	/*
-+	 * The kernel knows only one size for now:
-+	 */
-+	if (unlikely(len != sizeof(*head)))
-+		return -EINVAL;
-+
-+	current->robust_list = head;
-+
-+	return 0;
-+}
-+
-+/**
-+ * sys_get_robust_list - get the robust-futex list head of a task
-+ * @pid: pid of the process [zero for current task]
-+ * @head_ptr: pointer to a list-head pointer, the kernel fills it in
-+ * @len_ptr: pointer to a length field, the kernel fills in the header size
-+ */
-+asmlinkage long
-+sys_get_robust_list(int pid, struct robust_list_head __user **head_ptr,
-+		    size_t __user *len_ptr)
-+{
-+	struct robust_list_head *head;
-+	unsigned long ret;
-+
-+	if (!pid)
-+		head = current->robust_list;
-+	else {
-+		struct task_struct *p;
-+
-+		ret = -ESRCH;
-+		read_lock(&tasklist_lock);
-+		p = find_task_by_pid(pid);
-+		if (!p)
-+			goto err_unlock;
-+		ret = -EPERM;
-+		if ((current->euid != p->euid) && (current->euid != p->uid) &&
-+				!capable(CAP_SYS_PTRACE))
-+			goto err_unlock;
-+		head = p->robust_list;
-+		read_unlock(&tasklist_lock);
-+	}
-+
-+	if (put_user(sizeof(*head), len_ptr))
-+		return -EFAULT;
-+	return put_user(head, head_ptr);
-+
-+err_unlock:
-+	read_unlock(&tasklist_lock);
-+
-+	return ret;
-+}
-+
-+/*
-+ * Process a futex-list entry, check whether it's owned by the
-+ * dying task, and do notification if so:
-+ */
-+int handle_futex_death(unsigned int *uaddr, struct task_struct *curr)
-+{
-+	unsigned int futex_val;
-+
-+repeat:
-+	if (get_user(futex_val, uaddr))
-+		return -1;
-+
-+	if ((futex_val & FUTEX_TID_MASK) == curr->pid) {
-+		/*
-+		 * Ok, this dying thread is truly holding a futex
-+		 * of interest. Set the OWNER_DIED bit atomically
-+		 * via cmpxchg, and if the value had FUTEX_WAITERS
-+		 * set, wake up a waiter (if any). (We have to do a
-+		 * futex_wake() even if OWNER_DIED is already set -
-+		 * to handle the rare but possible case of recursive
-+		 * thread-death.) The rest of the cleanup is done in
-+		 * userspace.
-+		 */
-+		if (futex_atomic_cmpxchg_inuser(uaddr, futex_val,
-+					 futex_val | FUTEX_OWNER_DIED) !=
-+								   futex_val)
-+			goto repeat;
-+
-+		if (futex_val & FUTEX_WAITERS)
-+			futex_wake((unsigned long)uaddr, 1);
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * Walk curr->robust_list (very carefully, it's a userspace list!)
-+ * and mark any locks found there dead, and notify any waiters.
-+ *
-+ * We silently return on any sign of list-walking problem.
-+ */
-+void exit_robust_list(struct task_struct *curr)
-+{
-+	struct robust_list_head __user *head = curr->robust_list;
-+	struct robust_list __user *entry, *pending;
-+	unsigned int limit = ROBUST_LIST_LIMIT;
-+	unsigned long futex_offset;
-+
-+	/*
-+	 * Fetch the list head (which was registered earlier, via
-+	 * sys_set_robust_list()):
-+	 */
-+	if (get_user(entry, &head->list.next))
-+		return;
-+	/*
-+	 * Fetch the relative futex offset:
-+	 */
-+	if (get_user(futex_offset, &head->futex_offset))
-+		return;
-+	/*
-+	 * Fetch any possibly pending lock-add first, and handle it
-+	 * if it exists:
-+	 */
-+	if (get_user(pending, &head->list_add_pending))
-+		return;
-+	if (pending)
-+		if (handle_futex_death((void *)pending + futex_offset, curr))
-+			return;
-+
-+	while (entry != &head->list) {
-+		/*
-+		 * A pending lock might already be on the list, so
-+		 * dont process it twice:
-+		 */
-+		if (entry != pending)
-+			if (handle_futex_death((void *)pending + futex_offset,
-+						curr))
-+				return;
-+
-+		/*
-+		 * Fetch the next entry in the list:
-+		 */
-+		if (get_user(entry, &entry->next))
-+			return;
-+		/*
-+		 * Avoid excessively long or circular lists:
-+		 */
-+		if (!--limit)
-+			break;
-+
-+		cond_resched();
-+	}
-+}
-+
- long do_futex(unsigned long uaddr, int op, int val, unsigned long timeout,
- 		unsigned long uaddr2, int val2, int val3)
- {
+"Robustness" is about dealing with crashes while holding a lock: if a 
+process exits prematurely while holding a pthread_mutex_t lock that is 
+also shared with some other process (e.g. yum segfaults while holding a 
+pthread_mutex_t, or yum is kill -9-ed), then waiters for that lock need 
+to be notified that the last owner of the lock exited in some irregular 
+way.
+
+To solve such types of problems, "robust mutex" userspace APIs were 
+created: pthread_mutex_lock() returns an error value if the owner exits 
+prematurely - and the new owner can decide whether the data protected by 
+the lock can be recovered safely.
+
+There is a big conceptual problem with futex based mutexes though: it is 
+the kernel that destroys the owner task (e.g. due to a SEGFAULT), but 
+the kernel cannot help with the cleanup: if there is no 'futex queue' 
+(and in most cases there is none, futexes being fast lightweight locks) 
+then the kernel has no information to clean up after the held lock!  
+Userspace has no chance to clean up after the lock either - userspace is 
+the one that crashes, so it has no opportunity to clean up. Catch-22.
+
+In practice, when e.g. yum is kill -9-ed (or segfaults), a system reboot 
+is needed to release that futex based lock. This is one of the leading 
+bugreports against yum.
+
+To solve this problem, 'Robust Futex' patches were created and presented 
+on lkml: the one written by Todd Kneisel and David Singleton is the most 
+advanced at the moment. These patches all tried to extend the futex 
+abstraction by registering futex-based locks in the kernel - and thus 
+give the kernel a chance to clean up.
+
+E.g. in David Singleton's robust-futex-6.patch, there are 3 new syscall 
+variants to sys_futex(): FUTEX_REGISTER, FUTEX_DEREGISTER and 
+FUTEX_RECOVER. The kernel attaches such robust futexes to vmas (via 
+vma->vm_file->f_mapping->robust_head), and at do_exit() time, all vmas 
+are searched to see whether they have a robust_head set.
+
+Lots of work went into the vma-based robust-futex patch, and recently it 
+has improved significantly, but unfortunately it still has two 
+fundamental problems left:
+
+ - they have quite complex locking and race scenarios. The vma-based 
+   patches had been pending for years, but they are still not completely 
+   reliable.
+
+ - they have to scan _every_ vma at sys_exit() time, per thread!
+
+The second disadvantage is a real killer: pthread_exit() takes around 1 
+microsecond on Linux, but with thousands (or tens of thousands) of vmas 
+every pthread_exit() takes a millisecond or more, also totally 
+destroying the CPU's L1 and L2 caches!
+
+This is very much noticeable even for normal process sys_exit_group() 
+calls: the kernel has to do the vma scanning unconditionally! (this is 
+because the kernel has no knowledge about how many robust futexes there 
+are to be cleaned up, because a robust futex might have been registered 
+in another task, and the futex variable might have been simply mmap()-ed 
+into this process's address space).
+
+This huge overhead forced the creation of CONFIG_FUTEX_ROBUST, but worse 
+than that: the overhead makes robust futexes impractical for any type of 
+generic Linux distribution.
+
+So it became clear to us, something had to be done. Last week, when 
+Thomas Gleixner tried to fix up the vma-based robust futex patch in the 
+-rt tree, he found a handful of new races and we were talking about it 
+and were analyzing the situation. At that point a fundamentally 
+different solution occured to me. This patchset (written in the past 
+couple of days) implements that new solution. Be warned though - the 
+patchset does things we normally dont do in Linux, so some might find 
+the approach disturbing. Parental advice recommended ;-)
+
+New approach to robust futexes
+------------------------------
+
+At the heart of this new approach there is a per-thread private list of 
+robust locks that userspace is holding (maintained by glibc) - which 
+userspace list is registered with the kernel via a new syscall [this 
+registration happens at most once per thread lifetime]. At do_exit() 
+time, the kernel checks this user-space list: are there any robust futex 
+locks to be cleaned up?
+
+In the common case, at do_exit() time, there is no list registered, so 
+the cost of robust futexes is just a simple current->robust_list != NULL 
+comparison. If the thread has registered a list, then normally the list 
+is empty. If the thread/process crashed or terminated in some incorrect 
+way then the list might be non-empty: in this case the kernel carefully 
+walks the list [not trusting it], and marks all locks that are owned by 
+this thread with the FUTEX_OWNER_DEAD bit, and wakes up one waiter (if 
+any).
+
+The list is guaranteed to be private and per-thread, so it's lockless. 
+There is one race possible though: since adding to and removing from the 
+list is done after the futex is acquired by glibc, there is a few 
+instructions window for the thread (or process) to die there, leaving 
+the futex hung. To protect against this possibility, userspace (glibc) 
+also maintains a simple per-thread 'list_op_pending' field, to allow the 
+kernel to clean up if the thread dies after acquiring the lock, but just 
+before it could have added itself to the list. Glibc sets this 
+list_op_pending field before it tries to acquire the futex, and clears 
+it after the list-add (or list-remove) has finished.
+
+That's all that is needed - all the rest of robust-futex cleanup is done 
+in userspace [just like with the previous patches].
+
+Ulrich Drepper has implemented the necessary glibc support for this new 
+mechanism, which fully enables robust mutexes. (Ulrich plans to commit 
+these changes to glibc-HEAD later today.)
+
+Key differences of this userspace-list based approach, compared to the 
+vma based method:
+
+ - it's much, much faster: at thread exit time, there's no need to loop 
+   over every vma (!), which the VM-based method has to do. Only a very 
+   simple 'is the list empty' op is done.
+
+ - no VM changes are needed - 'struct address_space' is left alone.
+
+ - no registration of individual locks is needed: robust mutexes dont 
+   need any extra per-lock syscalls. Robust mutexes thus become a very 
+   lightweight primitive - so they dont force the application designer 
+   to do a hard choice between performance and robustness - robust 
+   mutexes are just as fast.
+
+ - no per-lock kernel allocation happens.
+
+ - no resource limits are needed.
+
+ - no kernel-space recovery call (FUTEX_RECOVER) is needed.
+
+ - the implementation and the locking is "obvious", and there are no 
+   interactions with the VM.
+
+Performance
+-----------
+
+I have benchmarked the time needed for the kernel to process a list of 1 
+million (!) held locks, using the new method [on a 2GHz CPU]:
+
+ - with FUTEX_WAIT set [contended mutex]: 130 msecs
+ - without FUTEX_WAIT set [uncontended mutex]: 30 msecs
+
+I have also measured an approach where glibc does the lock notification 
+[which it currently does for !pshared robust mutexes], and that took 256 
+msecs - clearly slower, due to the 1 million FUTEX_WAKE syscalls 
+userspace had to do.
+
+(1 million held locks are unheard of - we expect at most a handful of 
+locks to be held at a time. Nevertheless it's nice to know that this 
+approach scales nicely.)
+
+Implementation details
+----------------------
+
+The patch adds two new syscalls: one to register the userspace list, and 
+one to query the registered list pointer:
+
+ asmlinkage long
+ sys_set_robust_list(struct robust_list_head __user *head,
+                     size_t len);
+
+ asmlinkage long
+ sys_get_robust_list(int pid, struct robust_list_head __user **head_ptr,
+                     size_t __user *len_ptr);
+
+List registration is very fast: the pointer is simply stored in 
+current->robust_list. [Note that in the future, if robust futexes become 
+widespread, we could extend sys_clone() to register a robust-list head 
+for new threads, without the need of another syscall.]
+
+So there is virtually zero overhead for tasks not using robust futexes, 
+and even for robust futex users, there is only one extra syscall per 
+thread lifetime, and the cleanup operation, if it happens, is fast and 
+straightforward. The kernel doesnt have any internal distinction between 
+robust and normal futexes.
+
+If a futex is found to be held at exit time, the kernel sets the highest 
+bit of the futex word:
+
+	#define FUTEX_OWNER_DIED        0x40000000
+
+and wakes up the next futex waiter (if any). User-space does the rest of 
+the cleanup.
+
+Otherwise, robust futexes are acquired by glibc by putting the TID into 
+the futex field atomically. Waiters set the FUTEX_WAITERS bit:
+
+	#define FUTEX_WAITERS           0x80000000
+
+and the remaining bits are for the TID.
+
+Testing, architecture support
+-----------------------------
+
+i've tested the new syscalls on x86 and x86_64, and have made sure the 
+parsing of the userspace list is robust [ ;-) ] even if the list is 
+deliberately corrupted.
+
+i386 and x86_64 syscalls are wired up at the moment, and Ulrich has 
+tested the new glibc code (on x86_64 and i386), and it works for his 
+robust-mutex testcases.
+
+All other architectures should build just fine too - but they wont have 
+the new syscalls yet.
+
+Architectures need to implement the new futex_atomic_cmpxchg_inuser() 
+inline function before writing up the syscalls (that function returns 
+-ENOSYS right now).
+
+	Ingo

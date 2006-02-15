@@ -1,98 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945915AbWBOMfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945921AbWBOMhG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945915AbWBOMfv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 07:35:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945918AbWBOMfv
+	id S1945921AbWBOMhG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 07:37:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945920AbWBOMhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 07:35:51 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:19618 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1945915AbWBOMfu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 07:35:50 -0500
-Message-ID: <43F31F7E.4050705@jp.fujitsu.com>
-Date: Wed, 15 Feb 2006 21:33:02 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
+	Wed, 15 Feb 2006 07:37:06 -0500
+Received: from ns1.suse.de ([195.135.220.2]:52973 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1945918AbWBOMhE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 07:37:04 -0500
+Message-ID: <43F3206B.6090902@suse.de>
+Date: Wed, 15 Feb 2006 13:36:59 +0100
+From: Thomas Renninger <trenn@suse.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, greg@kroah.com
-Subject: Re: [RFC][PATCH 1/4] PCI legacy I/O port free driver - Introduce
- pci_set_bar_mask*()
-References: <43F172BA.1020405@jp.fujitsu.com> <43F17379.8010900@jp.fujitsu.com> <20060214210744.3a7a756a.akpm@osdl.org> <43F2C44C.7080806@jp.fujitsu.com> <20060215090732.GA15898@flint.arm.linux.org.uk>
-In-Reply-To: <20060215090732.GA15898@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Pavel Machek <pavel@suse.cz>, Stefan Seyfried <seife@suse.de>,
+       Matthew Garrett <mjg59@srcf.ucam.org>, linux-pm@lists.osdl.org,
+       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH, RFC] [1/3] Generic in-kernel AC status
+References: <20060208125753.GA25562@srcf.ucam.org> <20060210121913.GA4974@elf.ucw.cz> <43F216FE.7050101@suse.de> <200602142117.31232.rjw@sisk.pl>
+In-Reply-To: <200602142117.31232.rjw@sisk.pl>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Wed, Feb 15, 2006 at 03:03:56PM +0900, Kenji Kaneshige wrote:
-> 
->>Andrew Morton wrote:
+Rafael J. Wysocki wrote:
+> On Tuesday 14 February 2006 18:44, Thomas Renninger wrote:
+>> Pavel Machek wrote:
+>>> On Pá 10-02-06 09:06:43, Stefan Seyfried wrote:
+>>>> On Wed, Feb 08, 2006 at 12:57:53PM +0000, Matthew Garrett wrote:
+>>>>> The included patch adds support for power management methods to register 
+>>>>> callbacks in order to allow drivers to check if the system is on AC or 
+>>>>> not. Following patches add support to ACPI and APM. Feedback welcome.
+>>>> Ok. Maybe i am not seeing the point. But why do we need this in the kernel?
+>>>> Can't we handles this easily in userspace?
+>>> Some kernel parts need to now: for example powernow-k8: some
+>>> frequencies are not allowed when you are running off battery. [Just
+>>> now it is solved by not allowing those frequencies at all unless ACPI
+>>> is available; quite an ugly solution.]
+>>>
+>> Allowed CPUfreqs are exported via _PPC.
+>> This is why a lot hardware sends an ac_adapter and a processor event
+>> when (un)plugging ac adapter.
+>> Limiting cpufreq already works nice that way.
 >>
->>>Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com> wrote:
->>>
->>>
->>>>This patch introduces a new interface pci_select_resource() for PCI
->>>>device drivers to tell kernel what resources they want to use.
->>>
->>>
->>>It'd be nice if we didn't need to introduce any new API functions for this.
->>>If we could just do:
->>>
->>>struct pci_something pci_something_table[] = {
->>>	...
->>>	{
->>>		...
->>>		.dont_allocate_io_space = 1,
->>>		...
->>>	},
->>>	...
->>>};
->>>
->>>within each driver which wants it.
->>>
->>>But I can't think of a suitable per-device-id structure with which we can
->>>do that :(
->>>
->>>
->>
->>My another idea was to use pci quirks. In this approach, we don't
->>need to introduce any new API. But I gave up this idea because it
->>looked abuse of pci quirks.
->>
->>Anyway, I try to think about new ideas we don't need to introduce
->>any new API.
+>> AMD64 laptops are booting with lower freqs per default until they are
+>> pushed up, so there shouldn't be anything critical?
 > 
+> This is not true as far as my box is concerned (Asus L5D).  It starts with
+> the _highest_ clock available.
+Hmm, but then there shouldn't be any critical overheat problems and if,
+the hardware has to switch off the machine hard. OS always could freeze,
+but the battery must not start to burn...
 > 
-> What about pci_enable_device_bars() ?
+>> For the brightness part, I don't see any "laptop is going to explode"
+>> issue.
+>> I always hated the brightness going down when I unplugged ac on M$
 > 
+> Currently I have the same problem on Linux, but I don't know the solution
+> (yet).  Any hints? :-)
+Hmm, this is probably done by ACPI in some ac connected function?
+Seems as some machines already adjust brightness in ACPI context to the
+ac/battery brightness value and some leave it to the OS to adjust.
+Override it in /sys/../brightness (as soon as it exists) or the current
+vendor specific solution file.
+Connect the acpid to a battery ACPI event rule and let override it there.
 
-Yes, it's one option (In fact, my first idea was using it),
-though we need to move the following lines into
-pci_enable_device_bars() from pci_enable_device().
 
-        pci_fixup_device(pci_fixup_enable, dev);
-        dev->is_enabled = 1;
+IMO, the /sys/.../brightness patch should go in as soon as possible, I think
+all everybody agrees here?
 
-Actually, IIRC, there are one or two existing drivers using it.
-In addition to pci_enable_device_bars(), we can use
-pci_request_region() for requesting each region instead of using
-pci_request_regions().
+Maybe I oversaw an issue, but I really don't see a reason for connecting
+the brightness to ac in kernel space.
+Some weeks later someone likes to have a /sys/../brightness_ignore_ac switch ...
 
-The reason I didn't use this option was I thought we would need
-bigger changes to drivers if we use pci_enable_devie_bars() and
-pci_request_region(). For example, if we use pci_request_region()
-for requesting the specific regions and if an error occurs
-while doing that, we need to release only the regions we succeeded
-in requesting. I think this is a little bit troublesome for driver
-writers. In adition, though this is my personal opinion, only one
-API to enable devices (e.g. pci_enable_device()) looks nice to me.
-Anyway, I think it would be nice if we can solve the problem by
-as small changes as possible to the existing drivers.
-How do you think?
-
-Thanks,
-Kenji Kaneshige
+    Thomas

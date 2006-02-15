@@ -1,78 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWBOIhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423037AbWBOIjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751017AbWBOIhH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 03:37:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbWBOIhH
+	id S1423037AbWBOIjk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 03:39:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423038AbWBOIjj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 03:37:07 -0500
-Received: from mail.gmx.net ([213.165.64.21]:53704 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751017AbWBOIhF (ORCPT
+	Wed, 15 Feb 2006 03:39:39 -0500
+Received: from mr1.bfh.ch ([147.87.250.50]:18620 "EHLO mr1.bfh.ch")
+	by vger.kernel.org with ESMTP id S1423037AbWBOIjj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 03:37:05 -0500
-X-Authenticated: #428038
-Date: Wed, 15 Feb 2006 09:37:01 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Rob Landley <rob@landley.net>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060215083701.GB32149@merlin.emma.line.org>
-Mail-Followup-To: Rob Landley <rob@landley.net>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com> <200602141751.02153.rob@landley.net> <20060215000420.GB21088@merlin.emma.line.org> <200602142155.03407.rob@landley.net>
+	Wed, 15 Feb 2006 03:39:39 -0500
+thread-index: AcYyC1FOeX31JjN0SoqAnD/kIHmxqw==
+X-PMWin-Version: 2.5.0e, Antispam-Engine: 2.2.0.0, Antivirus-Engine: 2.32.10
+Content-Class: urn:content-classes:message
+Importance: normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
+Message-ID: <43F2E8BA.90001@bfh.ch>
+Date: Wed, 15 Feb 2006 09:39:22 +0100
+From: "Seewer Philippe" <philippe.seewer@bfh.ch>
+Organization: BFH
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050811)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200602142155.03407.rob@landley.net>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+To: "Phillip Susi" <psusi@cfl.rr.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: disk geometry via sysfs
+References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com> <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com> <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com>
+In-Reply-To: <43F21F21.1010509@cfl.rr.com>
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Feb 2006 08:39:21.0505 (UTC) FILETIME=[51345110:01C6320B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Feb 2006, Rob Landley wrote:
 
-> The last gasp of the SCSI bigots is Serial Attached Scsi.  It's hilarious.  
-> Electrically it's identical (they just gold-plate the connectors and such so 
-> they can charge more for it).
-
-Gold plating contacts is nothing fancy that would have relevance for the
-price elsewhere - but it is a way against corrosion, and been used for
-decades with success. And contact problems make for nearly one half of
-the issues I have here with older computers. In newer computers, having
-components with moving parts that are too cheap (IOW they were saving
-pennies from the wrong end) is a problem because it causes downtime
-again.
-
-> > You'd have to enable strace to actually unravel SG_IO contents, else
-> > you're only getting a useless pointer - unless you trust cdrecord -V.
+Phillip Susi wrote:
+> Seewer Philippe wrote:
 > 
-> *shrug*  Or stick printfs in the source code.  Coasters are cheap and cd 
-> rewriteables last a while if you don't scratch them up...
-
-I'm not exactly a friend of empiric programming if I can help it.
-Sometimes, when working with closed-source firmware, there's no other
-choice, but that doesn't imply everything needs to be done that way.
-
->         All other make programs are either not smart enough or have bugs.
-
-The bug in GNU make that Jörg complains so loudly is about is purely
-cosmetic with no adverse effect on the stability of the build. It's just
-spewing a few messages about non-existant .d files it is trying to
-include, because of the way it works. The dependency on these files is
-fully functional, it spews the warning, generates the file, and that's
-it. If you feel uncomfortable with that, filter them.
-
-GNU make is rock solid in projects much larger than Jörg can imagine,
-and with more complex dependencies than he might oversee.
-
->         ***** If you are on a platform that is not yet known by the      *****
->         ***** Schily makefilesystem you cannot use GNU make.             *****
->         ***** In this case, the automake features of smake are required. *****
+>>
+>> IDE tries to return the actual hardware geometry. Most other drivers
+>> implement a "fake". Or try to guess the geometry from the MBR...
+>>
 > 
-> And yes, that _is_ entirely typical...
+> But there is no "actual hardware geometry".  IDE disks can report a
+> geometry, but that is no more real than any other made up geometry.  If
+> you take the geometry that the disk itself reports and write that to the
+> MBR, then software that actually uses the geometry ( i.e. non LBA boot
+> loaders ) will fail because it is not the geometry that the bios uses.
+> 
+> The only remaining purpose to geometry values that I see is to store in
+> the MBR for non LBA boot loaders to use.  Since they must have the
+> values the bios uses, then you need to get the values from the bios when
+> creating such an MBR.
+> 
+>> My personal answer is here: Because there are so many tools around which
+>> use the kernel values, that it is easier to overwrite the kernel than
+>> patch all other software... (i know, i know...)
+> 
+> 
+> The only tools that I am aware of are boot loaders and disk
+> partitioners, and these tools do not need the geometry, they just try to
+> get it to maintain compatibility with ancient systems.  As such, it is
+> long past time for them to no longer require this information.
+> 
+>>
+>> And additionally: When partitioning its sometimes necessary or safer to
+>> write a whole new mbr (dd if=... of=... ; parted mklabel msdos). When
+>> dd'ing the mbr goes away. And some drivers return geometry based on the
+>> mbr...... So overwriting these values might come handy.
+>>
+> 
+> But what would you overwrite them with?  The only values that have any
+> actual use are the ones from the bios.  If you get the values from the
+> bios, it makes no sense to change them later.
+> 
+Hi Phillip
 
-Reusing existing terms in different context is one of his hobbies, yes.
+I'd like to close this discussion if possible.
 
--- 
-Matthias Andree
+I think we both know that disk geometry is a fiction and except for a
+few "older" devices which still need support, Linux couldn't care less
+about it (and in an ideal world this would include myself).
+
+On the other hand, at least in the x86 world, we must live with the fact
+that there are other os around, which, as you so aptly put, aren't sane.
+In order to work with them and if necessary to fix things, geometry
+information is necessary. One part is the bios geometry, available
+through edd or other means. The other part is the geometry the kernel
+exports (whatever sane values it contains or where they come from).
+
+Both are necessary for debugging and fixing. And sometimes it actually
+makes sense to overwrite the kernel with values that are "compatible".
+Whether gleaned from the bios via edd or computed by hand does not
+matter as long as the user has to it by himself. I've given a few
+examples for this, others can be found by googling (For example the ide
+disk geometry rewrite for http://unattended.sourceforge.net).
+
+I completely agree with all that the kernel should never try to report
+bios geometry for a disk unless absolutely necessary and should not
+attempt to fix things automagically.
+
+But, as long as the Linux kernel does something with disk geometry, and
+this could mean just returning some bogus values, it makes sense to
+export these values read/write in sysfs. Because we all know, sysfs is
+much easier to handle than say for example ioctls.
+
+Regards
+Philippe Seewer

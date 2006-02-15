@@ -1,100 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422739AbWBOLWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422754AbWBOLcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422739AbWBOLWF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 06:22:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWBOLWF
+	id S1422754AbWBOLcO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 06:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWBOLcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 06:22:05 -0500
-Received: from mail.suse.de ([195.135.220.2]:26338 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932452AbWBOLWD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 06:22:03 -0500
-From: Andi Kleen <ak@suse.de>
-To: bharata@in.ibm.com
-Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes 2.6.16-rc1[2] on 2 node X86_64
-Date: Wed, 15 Feb 2006 12:21:53 +0100
-User-Agent: KMail/1.8.2
-Cc: Christoph Lameter <clameter@engr.sgi.com>,
-       Ray Bryant <raybry@mpdtxmail.amd.com>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-References: <20060205163618.GB21972@in.ibm.com> <20060215054620.GA2966@in.ibm.com> <20060215103813.GD2966@in.ibm.com>
-In-Reply-To: <20060215103813.GD2966@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 15 Feb 2006 06:32:14 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:49574 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932449AbWBOLcN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 06:32:13 -0500
+Date: Wed, 15 Feb 2006 13:23:19 +0200 (EET)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFT/PATCH] 3c509: use proper suspend/resume API
+In-Reply-To: <20060215022523.1d21b9c9.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0602151317110.14223@sbz-30.cs.Helsinki.FI>
+References: <1139935173.22151.2.camel@localhost> <20060215022523.1d21b9c9.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602151221.53730.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 February 2006 11:38, Bharata B Rao wrote:
+Hi Andrew,
 
-> 
-> Even with this, mbind still needs to be fixed. Even though it
-> can't get a conforming zone in the node (MPOL_BIND case),
+On Wed, 15 Feb 2006, Andrew Morton wrote:
+> Problem is, it doesn't resume correctly either with or without the patch:
+> it needs rmmod+modprobe to get it going again.  (Which is better than the
+> aic7xxx driver, which has a coronary and panics the kernel on post-resume
+> reboot).
 
-It should just use lower zones then (e.g. if no ZONE_NORMAL
-use ZONE_DMA32). yes that needs to be fixed.
+Hmm. Either I am totally confused or we don't even attempt suspend/resume 
+for eisa and mca bus devices. Care to try this patch?
 
-How about the appended patch? Does it fix the problem for you?
+			Pekka
 
--Andi
-
-Handle all and empty zones when setting up custom zonelists for mbind
-
-The memory allocator doesn't like empty zones (which have an 
-uninitialized freelist), so a x86-64 system with a node fully
-in GFP_DMA32 only would crash on mbind.
-
-Fix that up by putting all possible zones as fallback into the zonelist
-and skipping the empty ones.
-
-In fact the code always enough allocated space for all zones,
-but only used it for the highest. This change just uses all the
-memory that was allocated before.
-
-This should work fine for now, but whoever implements node hot removal
-needs to fix this somewhere else too (or make sure zone datastructures 
-by itself never go away, only their memory)
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-
-Index: linux/mm/mempolicy.c
+Index: 2.6/drivers/eisa/eisa-bus.c
 ===================================================================
---- linux.orig/mm/mempolicy.c
-+++ linux/mm/mempolicy.c
-@@ -132,19 +132,29 @@ static int mpol_check_policy(int mode, n
- 	}
- 	return nodes_subset(*nodes, node_online_map) ? 0 : -EINVAL;
+--- 2.6.orig/drivers/eisa/eisa-bus.c
++++ 2.6/drivers/eisa/eisa-bus.c
+@@ -128,9 +128,31 @@ static int eisa_bus_match (struct device
+ 	return 0;
  }
-+
- /* Generate a custom zonelist for the BIND policy. */
- static struct zonelist *bind_zonelist(nodemask_t *nodes)
- {
- 	struct zonelist *zl;
--	int num, max, nd;
-+	int num, max, nd, k;
  
- 	max = 1 + MAX_NR_ZONES * nodes_weight(*nodes);
--	zl = kmalloc(sizeof(void *) * max, GFP_KERNEL);
-+	zl = kmalloc(sizeof(struct zone *) * max, GFP_KERNEL);
- 	if (!zl)
- 		return NULL;
- 	num = 0;
--	for_each_node_mask(nd, *nodes)
--		zl->zones[num++] = &NODE_DATA(nd)->node_zones[policy_zone];
-+	/* First put in the highest zones from all nodes, then all the next 
-+	   lower zones etc. Avoid empty zones because the memory allocator
-+	   doesn't like them. If you implement node hot removal you
-+	   have to fix that. */
-+	for (k = policy_zone; k >= 0; k--) { 
-+		for_each_node_mask(nd, *nodes) { 
-+			struct zone *z = &NODE_DATA(nd)->node_zones[k];
-+			if (z->present_pages > 0) 
-+				zl->zones[num++] = z;
-+		}
-+	}
- 	zl->zones[num] = NULL;
- 	return zl;
++static int eisa_bus_suspend(struct device * dev, pm_message_t state)
++{
++	int ret = 0;
++
++	if (dev->driver && dev->driver->suspend)
++		ret = dev->driver->suspend(dev, state);
++
++	return ret;
++}
++
++static int eisa_bus_resume(struct device * dev)
++{
++	int ret = 0;
++
++	if (dev->driver && dev->driver->resume)
++		ret = dev->driver->resume(dev);
++
++	return ret;
++}
++
+ struct bus_type eisa_bus_type = {
+ 	.name  = "eisa",
+ 	.match = eisa_bus_match,
++	.suspend = eisa_bus_suspend,
++	.resume = eisa_bus_resume,
+ };
+ 
+ int eisa_driver_register (struct eisa_driver *edrv)
+Index: 2.6/drivers/mca/mca-bus.c
+===================================================================
+--- 2.6.orig/drivers/mca/mca-bus.c
++++ 2.6/drivers/mca/mca-bus.c
+@@ -63,9 +63,32 @@ static int mca_bus_match (struct device 
+ 	return 0;
  }
+ 
++static int mca_bus_suspend(struct device * dev, pm_message_t state)
++{
++	int ret = 0;
++
++	if (dev->driver && dev->driver->suspend)
++		ret = dev->driver->suspend(dev, state);
++
++	return ret;
++}
++
++static int mca_bus_resume(struct device * dev)
++{
++	int ret = 0;
++
++	if (dev->driver && dev->driver->resume)
++		ret = dev->driver->resume(dev);
++
++	return ret;
++}
++
++
+ struct bus_type mca_bus_type = {
+ 	.name  = "MCA",
+ 	.match = mca_bus_match,
++	.suspend = mca_bus_suspend,
++	.resume = mca_bus_resume,
+ };
+ EXPORT_SYMBOL (mca_bus_type);
+ 

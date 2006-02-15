@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422906AbWBOGSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422900AbWBOGVD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422906AbWBOGSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 01:18:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422998AbWBOGSQ
+	id S1422900AbWBOGVD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 01:21:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422998AbWBOGVD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 01:18:16 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:24470 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422906AbWBOGSP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 01:18:15 -0500
-Date: Tue, 14 Feb 2006 22:16:54 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: nickpiggin@yahoo.com.au, mst@mellanox.co.il, hugh@veritas.com,
-       wli@holomorphy.com, gleb@minantech.com, benh@kernel.crashing.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       vandrove@vc.cvut.cz, pbadari@us.ibm.com, grundler@parisc-linux.org,
-       matthew@wil.cx
-Subject: Re: [PATCH] madvise MADV_DONTFORK/MADV_DOFORK
-Message-Id: <20060214221654.67288424.akpm@osdl.org>
-In-Reply-To: <adawtfxqhk1.fsf@cisco.com>
-References: <20060213154114.GO32041@mellanox.co.il>
-	<Pine.LNX.4.64.0602131104460.3691@g5.osdl.org>
-	<adar767133j.fsf@cisco.com>
-	<Pine.LNX.4.64.0602131125180.3691@g5.osdl.org>
-	<Pine.LNX.4.61.0602131943050.9573@goblin.wat.veritas.com>
-	<20060213210906.GC13603@mellanox.co.il>
-	<Pine.LNX.4.61.0602132157110.3761@goblin.wat.veritas.com>
-	<Pine.LNX.4.64.0602131426470.3691@g5.osdl.org>
-	<20060213225538.GE13603@mellanox.co.il>
-	<Pine.LNX.4.61.0602132259450.4627@goblin.wat.veritas.com>
-	<20060213233517.GG13603@mellanox.co.il>
-	<43F2AEAE.5010700@yahoo.com.au>
-	<adawtfxqhk1.fsf@cisco.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 15 Feb 2006 01:21:03 -0500
+Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:4240 "HELO
+	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1422900AbWBOGVA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 01:21:00 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] make INPUT a bool
+Date: Wed, 15 Feb 2006 01:20:58 -0500
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
+References: <20060214152218.GI10701@stusta.de>
+In-Reply-To: <20060214152218.GI10701@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602150120.58844.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier <rdreier@cisco.com> wrote:
+On Tuesday 14 February 2006 10:22, Adrian Bunk wrote:
+> Make INPUT a bool.
+> 
+> INPUT!=y is only possible if EMBEDDED=y, and in such cases it doesn't 
+> make that much sense to make it modular.
 >
-> Do we still have a chance to change this?
 
-yes, please do.
+Adrian,
+
+We also need to get rid of input_register_device pinning input module
+and input_dev release function decrementing module's refcount.
+
+Thanks!
+
+-- 
+Dmitry

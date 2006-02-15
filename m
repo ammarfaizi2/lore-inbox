@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWBOWXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWBOWYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751334AbWBOWXK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 17:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWBOWXK
+	id S1751333AbWBOWYl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 17:24:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWBOWYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 17:23:10 -0500
-Received: from [203.2.177.25] ([203.2.177.25]:57913 "EHLO pfeiffer.tusc.com.au")
-	by vger.kernel.org with ESMTP id S1751329AbWBOWXI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 17:23:08 -0500
-Subject: [PATCH 4/6] x25: Allow 32 bit socket ioctl in 64 bit kernel
-From: Shaun Pereira <spereira@tusc.com.au>
-Reply-To: spereira@tusc.com.au
-To: netdev <netdev@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>,
-       linux-kenel <linux-kernel@vger.kernel.org>,
-       x25 maintainer <eis@baty.hanse.de>
-Cc: Andre Hendry <ahendry@tusc.com.au>, Arnd Bergmann <arnd@arndb.de>
-Content-Type: text/plain
-Date: Thu, 16 Feb 2006 09:19:53 +1100
-Message-Id: <1140041993.8745.28.camel@spereira05.tusc.com.au>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Feb 2006 17:24:40 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:920 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751333AbWBOWYj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 17:24:39 -0500
+Date: Wed, 15 Feb 2006 17:24:38 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+cc: Kernel development list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] Re: Linux 2.6.16-rc3
+In-Reply-To: <1140033491.2883.11.camel@mulgrave.il.steeleye.com>
+Message-ID: <Pine.LNX.4.44L0.0602151722250.4817-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch allows an x25 server application to run on a 64 bit kernel,
-by fixing the following error message from the kernel. 
+On Wed, 15 Feb 2006, James Bottomley wrote:
 
-T2 kernel: schedule_timeout:
- wrong timeout value ffffffffffffffff from ffffffff88164796
-  
-Signed-off-by:Shaun Pereira <spereira@tusc.com.au>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+> On Wed, 2006-02-15 at 11:07 -0500, Alan Stern wrote:
+> > Could we perhaps make this safer and more general?
+> > 
+> > For instance, add to struct device a "pending puts" counter and a list
+> > header (both protected by a global spinlock), and have a kernel thread
+> > periodically check the list, doing put_device wherever needed.  How does
+> > that sound?
+> 
+> That's what I've been discussing with Jens elsewhere on this list.
+> However, I think what you're proposing is overly complex.  All we really
+> need is for a way of flagging a kobject (or kref) so the final put will
+> be in user context.  Then we can use storage within the kobject or
+> device (or something else) for the purpose.
 
-diff -uprN -X dontdiff linux-2.6.16-rc3-vanilla/net/x25/af_x25.c
-linux-2.6.16-rc3/net/x25/af_x25.c
---- linux-2.6.16-rc3-vanilla/net/x25/af_x25.c	2006-02-15
-11:13:50.000000000 +1100
-+++ linux-2.6.16-rc3/net/x25/af_x25.c	2006-02-15 11:14:06.000000000
-+1100
-@@ -743,7 +743,7 @@ out:
- 	return rc;
- }
- 
--static int x25_wait_for_data(struct sock *sk, int timeout)
-+static int x25_wait_for_data(struct sock *sk, long timeout)
- {
- 	DECLARE_WAITQUEUE(wait, current);
- 	int rc = 0;
+That's more or less what I was suggesting.  The problems are: How do you 
+know which put is the last?  (Answer: you don't.  So every put has to be 
+done in process context.)  And how do you flag the data structure and tell 
+some process thread to do the put?  (Answer: by putting the object on a 
+list, as in my suggestion.)
+
+Alan Stern
 

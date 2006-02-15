@@ -1,35 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWBOLxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945903AbWBOL7J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751066AbWBOLxL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 06:53:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWBOLxL
+	id S1945903AbWBOL7J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 06:59:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422781AbWBOL7I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 06:53:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:60065 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751062AbWBOLxK (ORCPT
+	Wed, 15 Feb 2006 06:59:08 -0500
+Received: from smtp.nedstat.nl ([194.109.98.184]:32153 "HELO smtp.nedstat.nl")
+	by vger.kernel.org with SMTP id S1422770AbWBOL7H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 06:53:10 -0500
-Date: Wed, 15 Feb 2006 03:52:05 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mark Rustad <MRustad@mac.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] elf: 0-length loading issue
-Message-Id: <20060215035205.13f637bc.akpm@osdl.org>
-In-Reply-To: <r02010500-1044-527BBEA29DD111DA99F10011248907EC@[192.168.1.21]>
-References: <r02010500-1044-527BBEA29DD111DA99F10011248907EC@[192.168.1.21]>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 15 Feb 2006 06:59:07 -0500
+X-Greylist: Passed host: 194.109.98.185 whitelisted
+X-Greylist: Passed host: 194.109.98.185 whitelisted
+X-Greylist: Passed host: 194.109.98.185 whitelisted
+X-Greylist: Passed host: 194.109.98.185 whitelisted
+X-Greylist: Passed host: 194.109.98.185 whitelisted
+Subject: Re: + vmscan-rename-functions.patch added to -mm tree
+From: Peter Zijlstra <peter@programming.kicks-ass.net>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Coywolf Qi Hunt <coywolf@gmail.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, christoph@lameter.com
+In-Reply-To: <43F2E7C8.9040600@yahoo.com.au>
+References: <200602120605.k1C65QFE028051@shell0.pdx.osdl.net>
+	 <2cd57c900602141847m7af4ec7ap@mail.gmail.com>
+	 <43F29B84.6020009@yahoo.com.au>
+	 <1139985978.6722.14.camel@localhost.localdomain>
+	 <43F2E7C8.9040600@yahoo.com.au>
+Content-Type: text/plain
+Date: Wed, 15 Feb 2006 12:59:00 +0100
+Message-Id: <1140004740.6087.83.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Rustad <MRustad@mac.com> wrote:
->
-> I have run into an elf loading issue when moving a program from running with a 2.6.5-
->  derived SuSE kernel to the 2.6.15 kernel.org kernel. The image being loaded is admittedly
->  unusual, but used to work and seems to me to be valid.
+On Wed, 2006-02-15 at 19:35 +1100, Nick Piggin wrote:
+> Peter Zijlstra wrote:
+> > On Wed, 2006-02-15 at 14:09 +1100, Nick Piggin wrote:
+> 
+> >>shrink_zone and do_shrink_zone don't really say any more to me than
+> >>shrink_zone and shrink_cache.
+> > 
+> > 
+> > I know not everybody believes in a plugable reclaim policy, but that is
+> > what I'm building. And from that POV I'd rather not see the
+> > active/inactive names get used here.
+> > 
+> 
+> active/inactive is what we have now. If you manage to get a pluggable
+> reclaim policy merged then I assure you, renaming these yet again will
+> be the least of your worries :)
 
-This was fixed in 2.6.16-rc1.  I'll send that fix over to the 2.6.15.x
-maintainers, thanks.
+True indeed.
+
+> > My vote goes to Coywolf's suggestion.
+> > 
+> 
+> What was that?
+
+Hmm, seems like I shouldn't read email before waking up, apparently I
+got the quoting levels mixed up.
+
+Anyway, this one:
+
+>>        try_to_free_pages
+>>        ->shrink_zones(struct zone **zones, ..)
+>>          ->shrink_zone(struct zone *, ...)
+>>            ->do_shrink_zone(struct zone *, ...)
+>>              ->shrink_page_list(struct list_head *, ...)
+
 

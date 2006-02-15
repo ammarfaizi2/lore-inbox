@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbWBOVsf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWBOVws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751307AbWBOVsf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 16:48:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbWBOVsf
+	id S1751308AbWBOVws (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 16:52:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWBOVws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 16:48:35 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:25360 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751307AbWBOVsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 16:48:35 -0500
-Date: Wed, 15 Feb 2006 22:48:33 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Christoph Hellwig <hch@lst.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] deprecate the tasklist_lock export
-Message-ID: <20060215214833.GA5066@stusta.de>
-References: <20060215130734.GA5590@lst.de>
+	Wed, 15 Feb 2006 16:52:48 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:30390 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751308AbWBOVwr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 16:52:47 -0500
+Date: Wed, 15 Feb 2006 16:52:43 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Greg KH <greg@kroah.com>
+cc: Arjan van de Ven <arjan@infradead.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: Linux 2.6.16-rc3
+In-Reply-To: <20060215170614.GD1546@kroah.com>
+Message-ID: <Pine.LNX.4.44L0.0602151651370.4801-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060215130734.GA5590@lst.de>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 15, 2006 at 02:07:34PM +0100, Christoph Hellwig wrote:
-> Drivers have no business looking at the task list and thus using this
-> lock.  The only possibly modular users left are:
+On Wed, 15 Feb 2006, Greg KH wrote:
+
+> On Wed, Feb 15, 2006 at 05:35:08PM +0100, Arjan van de Ven wrote:
+> > On Wed, 2006-02-15 at 08:27 -0800, Greg KH wrote:
+> > > 
+> > > Nah, I don't think it's a good idea.  James's patch should work just
+> > > fine.
+> > 
+> > another option is to have a "kill list" which you put the thing on, and
+> > then wake up a thread. only 2 pointers in the object ;(
 > 
->  arch/ia64/kernel/mca.c
->...
->  fs/binfmt_elf.c
-> 
-> which I'll send out fixes for soon.
->...
+> Hm, that's almost what James's patch is trying to do.  Care to mock up a
+> patch that shows this?  It might be a simpler solution.
 
-These two can't be built modular.
+It won't work.  You might have to do 2 put_device calls on the same 
+structure.  That's why I suggested the "pending puts" counter; something 
+can't go on a list more than once.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Alan Stern
 

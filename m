@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030610AbWBODSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030611AbWBODSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030610AbWBODSL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 22:18:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030613AbWBODSL
+	id S1030611AbWBODSj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 22:18:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030612AbWBODSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 22:18:11 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:8165 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1030610AbWBODSK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 22:18:10 -0500
-From: Rob Landley <rob@landley.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Device enumeration (was Re: CD writing in future Linux (stirring up a hornets' nest))
-Date: Tue, 14 Feb 2006 22:18:03 -0500
-User-Agent: KMail/1.8.3
-Cc: Olivier Galibert <galibert@pobox.com>,
-       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       linux-kernel@vger.kernel.org
-References: <43D7C1DF.1070606@gmx.de> <200602141924.22965.rob@landley.net> <20060215005439.GB18326@kroah.com>
-In-Reply-To: <20060215005439.GB18326@kroah.com>
+	Tue, 14 Feb 2006 22:18:39 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:38104 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1030611AbWBODSh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 22:18:37 -0500
+Message-ID: <43F29D02.1090606@jp.fujitsu.com>
+Date: Wed, 15 Feb 2006 12:16:18 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
+Subject: Re: [RFC][PATCH 0/4] PCI legacy I/O port free driver
+References: <43F172BA.1020405@jp.fujitsu.com> <p7364ni475t.fsf@verdi.suse.de>
+In-Reply-To: <p7364ni475t.fsf@verdi.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602142218.04158.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 February 2006 7:54 pm, Greg KH wrote:
-> On Tue, Feb 14, 2006 at 07:24:22PM -0500, Rob Landley wrote:
-> > I plan to start objecting earlier in future next time they propose to
-> > break us for no readily apparent reason.
->
-> Please do.
+Andi Kleen wrote:
+> Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com> writes:
+> 
+> 
+>>I encountered a problem that some PCI devices don't work on my system
+>>which have huge number of PCI devices.
+> 
+> 
+> Is that a large IA64 system?
+> 
 
-I will.  I'm not complaining to you about failure to provide timely feedback.  
-(I fell behind on the list again...)
+Yes. My IA64 system can have maximum 128 PCI slots, but
+currently many of devices on those slots don't work...
 
-> That was because we needed a local copy of libsysfs due to linking
-> against klibc.  Also because we needed to fix up libsysfs to actually
-> work for our needs :)
->
-> Anyway, we've now dropped libsysfs entirely, replacing it with 200 lines
-> of code that is much faster and more flexible.
+> [...]
+> 
+> The basic concept looks good to me, but I would suggest you use
+> the Linux bitmap functions (DECLARE_BITMAP(), set_bit, test_bit etc.)
+> instead of open coding all that.
+> 
+> And for the e1000 change - instead of adding a big switch with
+> magic numbers that will likely bitrot it's better to use 
+> the driver_data field in pci_device_id for such device specific flags.
+> 
 
-Yup.
+I see.
+I will try to fix my patches based on your suggestion.
 
-> libsysfs dried up and blew away when IBM abandonded it and stoped
-> funding the developers who were working on it.  Projects need active
-> developers, something that IBM was not willing to provide for this one,
-> for whatever reason...
+Thanks,
+Kenji Kaneshige
 
-I'm still not sure why it existed in the first place.  Oh well.
-
-> > If mdev accomplishes nothing else, we can poke Linus and go "no fair,
-> > this was exported to userspace and we depend on it", which udev hasn't.
->
-> Again, please complain if we break anything, we want to know, and I'll
-> do my best to keep it from happening.
-
-Understood.  I'm caught up with the list again (ok, I skipped 3 months) and am 
-going to try to stay that way...
-
-> thanks,
->
-> greg k-h
-
-Rob
--- 
-Never bet against the cheap plastic solution.

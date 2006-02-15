@@ -1,76 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWBOCHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030517AbWBOCKc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932072AbWBOCHY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 21:07:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWBOCHX
+	id S1030517AbWBOCKc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 21:10:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030529AbWBOCKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 21:07:23 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:61322
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S932072AbWBOCHX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 21:07:23 -0500
-From: Rob Landley <rob@landley.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Device enumeration (was Re: CD writing in future Linux (stirring up a hornets' nest))
-Date: Tue, 14 Feb 2006 21:07:16 -0500
-User-Agent: KMail/1.8.3
-Cc: Olivier Galibert <galibert@pobox.com>,
-       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       linux-kernel@vger.kernel.org
-References: <43D7C1DF.1070606@gmx.de> <200602141732.22712.rob@landley.net> <20060214234736.GB10590@kroah.com>
-In-Reply-To: <20060214234736.GB10590@kroah.com>
+	Tue, 14 Feb 2006 21:10:32 -0500
+Received: from smtp.enter.net ([216.193.128.24]:25608 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S1030517AbWBOCKb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 21:10:31 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Olivier Galibert <galibert@pobox.com>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Date: Tue, 14 Feb 2006 21:19:42 -0500
+User-Agent: KMail/1.8.1
+Cc: Rob Landley <rob@landley.net>, Matthias Andree <matthias.andree@gmx.de>,
+       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com> <200602141751.02153.rob@landley.net> <20060214232401.GA83161@dspnet.fr.eu.org>
+In-Reply-To: <20060214232401.GA83161@dspnet.fr.eu.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200602142107.16709.rob@landley.net>
+Message-Id: <200602142119.42981.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 February 2006 6:47 pm, Greg KH wrote:
-> On Tue, Feb 14, 2006 at 05:32:22PM -0500, Rob Landley wrote:
-> > Changes to the kernel have already managed to break us twice
-> > (switching /sys/class from real subdirectories to symlinks means we can't
-> > just ignore symlinks when recursing down through directories anymore,
-> > which is a problem because the existing symlinks form loops.
+On Tuesday 14 February 2006 18:24, Olivier Galibert wrote:
+> On Tue, Feb 14, 2006 at 05:51:01PM -0500, Rob Landley wrote:
+> > I'm only interested in supporting ATA cd burners under a 2.6 or newer
+> > kernel, using the DMA method.  (SCSI is dead, I honestly don't care.)  I
+> > was hoping I could just open the /dev/cdrom and call the appropriate
+> > ioctls on it, but reading the cdrecord source proved enough of an
+> > exercise in masochism that I always give up after the first hour and put
+> > it back on the todo list.
 >
-> I've shown a simple way to handle this, so this should not be a problem
-> anymore.
-
-Yup.  We're ok with the current stuff, thanks.
-
-(I haven't updated the mdev code yet because I need to build a 2.6.16-pre 
-kernel with the new layout to test against, but I've got a couple options 
-worked out.)
-
-> > And deprecating /sbin/hotplug means we've got to bloat the code with
-> > netlink stuff.)  But we'll cope, and the user interface isn't
-> > changing.
+> There may be a chance that cdrdao provides a better starting point,
+> readability-wise.  It seems to be simpler in what it does, and I've
+> tended to have a better success rate with it than with cdrecord on
+> "normal" usage.  Of course, it does not (or did not) include the
+> advanced usage cdrecord supports (various writing modes, multisession,
+> who knows what else).
 >
-> Since when is /sbin/hotplug "depreciated"?
+>   OG.
 
-http://lwn.net/Articles/166377/
+However it is a C++ application, and I don't know about other people, but for 
+various historic reasons I'd rather use C for a command-line application. And 
+it isn't free of the masochism related to cdrecord as, the last time I 
+checked, cdrdao used libscg.
 
-  The hotplug helper /sbin/hotplug is now officially deprecated. The control
-  file /proc/sys/kernel/hotplug has moved to /sys/kernel/uevent_helper, but it
-  is expected to be disabled on most systems in favor of udev and the netlink
-  interface.   
+Now, with that out of the way... cdrdao, in my experience, supports all the 
+features, but the last time I used it the documentation for the layout files 
+format was scarce and I was unable to figure out how to use it to write an 
+ISO file to a disc.
 
-> It still works just fine, and isn't going anywhere anytime soon.
-
-Good news for fans of small and simple, then. :)
-
-> Turns out that some distros just don't want to use it, and use netlink
-> instead.  That should not stop you from using it if you wish, as the
-> kernel sure doesn't care one way or the other.
-
-Cool.  For busybox, /sbin/hotplug is "the easy way".
-
-> thanks,
->
-> greg k-h
-
-Rob
--- 
-Never bet against the cheap plastic solution.
+DRH

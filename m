@@ -1,85 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422743AbWBOLLS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422739AbWBOLWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422743AbWBOLLS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 06:11:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422747AbWBOLLS
+	id S1422739AbWBOLWF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 06:22:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWBOLWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 06:11:18 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:53141 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422743AbWBOLLS (ORCPT
+	Wed, 15 Feb 2006 06:22:05 -0500
+Received: from mail.suse.de ([195.135.220.2]:26338 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932452AbWBOLWD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 06:11:18 -0500
-Date: Wed, 15 Feb 2006 03:10:15 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Ian E. Morgan" <imorgan@webcon.ca>
-Cc: linux-kernel@vger.kernel.org, rhardy@webcon.ca
-Subject: Re: Process D-stated in generic_unplug_device
-Message-Id: <20060215031015.718103b1.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0602141413450.13866@light.int.webcon.net>
-References: <Pine.LNX.4.64.0602141413450.13866@light.int.webcon.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 15 Feb 2006 06:22:03 -0500
+From: Andi Kleen <ak@suse.de>
+To: bharata@in.ibm.com
+Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes 2.6.16-rc1[2] on 2 node X86_64
+Date: Wed, 15 Feb 2006 12:21:53 +0100
+User-Agent: KMail/1.8.2
+Cc: Christoph Lameter <clameter@engr.sgi.com>,
+       Ray Bryant <raybry@mpdtxmail.amd.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+References: <20060205163618.GB21972@in.ibm.com> <20060215054620.GA2966@in.ibm.com> <20060215103813.GD2966@in.ibm.com>
+In-Reply-To: <20060215103813.GD2966@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602151221.53730.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Ian E. Morgan" <imorgan@webcon.ca> wrote:
->
-> After a recent kernel upgrade (essentially 2.6.15.4 + a selection of other
-> patches from -git and -mm), we've had problems with proftpd getting stuck in
-> D-state when being shut down. There is no hot-pluging involved here (so I'm
-> confused about the call to generic_unplug_device).
-> 
-> # /cat/proc/6012/wchan
-> sync_page
-> 
-> A task dump shows:
-> 
-> Feb 14 13:45:12 guru kernel: proftpd       D 00000005     0  6012      1 29519        9328 (NOTLB)
-> Feb 14 13:45:12 guru kernel: da507c50 dd83b520 c03db380 00000005 c152a580 dfc74284 c15a8fc c01e84c2 
-> Feb 14 13:45:12 guru kernel:        c15af8fc da506000 c01e84f4 c15af8fc 00004a32 9ae11a4 0000cd50 dd83b520 
-> Feb 14 13:45:12 guru kernel:        dd83b648 da507ca8 da507cb0 c1400e20 da507c58 c03041b 00000000 c013bd28 
-> Feb 14 13:45:12 guru kernel: Call Trace:
-> Feb 14 13:45:12 guru kernel:  [<c01e84c2>] __generic_unplug_device+0x1a/0x30
-> Feb 14 13:45:13 guru kernel:  [<c01e84f4>] generic_unplug_device+0x1c/0x36
-> Feb 14 13:45:13 guru kernel:  [<c030419b>] io_schedule+0xe/0x16
-> Feb 14 13:45:13 guru kernel:  [<c013bd28>] sync_page+0x3e/0x4b
-> Feb 14 13:45:13 guru kernel:  [<c0304450>] __wait_on_bit_lock+0x41/0x61
-> Feb 14 13:45:13 guru kernel:  [<c013bcea>] sync_page+0x0/0x4b
-> Feb 14 13:45:13 guru kernel:  [<c013c530>] __lock_page+0x91/0x99
-> Feb 14 13:45:13 guru kernel:  [<c012ee49>] wake_bit_function+0x0/0x34
-> Feb 14 13:45:13 guru kernel:  [<c012ee49>] wake_bit_function+0x0/0x34
-> Feb 14 13:45:13 guru kernel:  [<c013d765>] filemap_nopage+0x29a/0x377
-> Feb 14 13:45:13 guru kernel:  [<c014c467>] do_no_page+0x65/0x243
-> Feb 14 13:45:13 guru kernel:  [<c014c8ee>] __handle_mm_fault+0x229/0x24d
-> Feb 14 13:45:13 guru kernel:  [<c01128ee>] do_page_fault+0x1c2/0x5a5
-> Feb 14 13:45:13 guru kernel:  [<c01f8d1e>] __copy_from_user_ll+0x40/0x6c
-> Feb 14 13:45:13 guru kernel:  [<c010371c>] apic_timer_interrupt+0x1c/0x24
-> Feb 14 13:45:13 guru kernel:  [<c011272c>] do_page_fault+0x0/0x5a5
-> Feb 14 13:45:13 guru kernel:  [<c01037e7>] error_code+0x4f/0x54
-> Feb 14 13:45:13 guru kernel:  [<c01a83bb>] reiserfs_copy_from_user_to_file_region+0x4d/xd8
-> Feb 14 13:45:13 guru kernel:  [<c01a975e>] reiserfs_file_write+0x419/0x6ac
-> Feb 14 13:45:13 guru kernel:  [<c01d0efa>] inode_has_perm+0x49/0x6b
-> Feb 14 13:45:13 guru kernel:  [<c01f595a>] prio_tree_insert+0xf3/0x187
-> Feb 14 13:45:13 guru kernel:  [<c01d3131>] selinux_file_permission+0x113/0x159
-> Feb 14 13:45:13 guru kernel:  [<c015abbb>] vfs_write+0xcc/0x18f
-> Feb 14 13:45:13 guru kernel:  [<c015ad3d>] sys_write+0x4b/0x74
-> Feb 14 13:45:13 guru kernel:  [<c0102cb5>] syscall_call+0x7/0xb
-> 
-> Obviously this process is non-killable and requires a reboot to get us back
-> into working order.
-> 
+On Wednesday 15 February 2006 11:38, Bharata B Rao wrote:
 
-I assume that we're seeing some stack gunk there and it's really stuck in
-sync_page()->io_schedule().
+> 
+> Even with this, mbind still needs to be fixed. Even though it
+> can't get a conforming zone in the node (MPOL_BIND case),
 
-This is almost certainly caused by a block layer or (more likely) device
-driver bug: we submitted a read I/O, we're waiting for the completion
-interrupt and it never came.
+It should just use lower zones then (e.g. if no ZONE_NORMAL
+use ZONE_DMA32). yes that needs to be fixed.
 
-Please test vanilla 2.6.16-rc3 and let us know what block device driver is
-involved, which I/O scheduler, etc.
+How about the appended patch? Does it fix the problem for you?
 
-Also, try mounting the filesystems with `-o barrier=none'.  That barrier
-code seems to have been a source of many problems.
+-Andi
+
+Handle all and empty zones when setting up custom zonelists for mbind
+
+The memory allocator doesn't like empty zones (which have an 
+uninitialized freelist), so a x86-64 system with a node fully
+in GFP_DMA32 only would crash on mbind.
+
+Fix that up by putting all possible zones as fallback into the zonelist
+and skipping the empty ones.
+
+In fact the code always enough allocated space for all zones,
+but only used it for the highest. This change just uses all the
+memory that was allocated before.
+
+This should work fine for now, but whoever implements node hot removal
+needs to fix this somewhere else too (or make sure zone datastructures 
+by itself never go away, only their memory)
+
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+Index: linux/mm/mempolicy.c
+===================================================================
+--- linux.orig/mm/mempolicy.c
++++ linux/mm/mempolicy.c
+@@ -132,19 +132,29 @@ static int mpol_check_policy(int mode, n
+ 	}
+ 	return nodes_subset(*nodes, node_online_map) ? 0 : -EINVAL;
+ }
++
+ /* Generate a custom zonelist for the BIND policy. */
+ static struct zonelist *bind_zonelist(nodemask_t *nodes)
+ {
+ 	struct zonelist *zl;
+-	int num, max, nd;
++	int num, max, nd, k;
+ 
+ 	max = 1 + MAX_NR_ZONES * nodes_weight(*nodes);
+-	zl = kmalloc(sizeof(void *) * max, GFP_KERNEL);
++	zl = kmalloc(sizeof(struct zone *) * max, GFP_KERNEL);
+ 	if (!zl)
+ 		return NULL;
+ 	num = 0;
+-	for_each_node_mask(nd, *nodes)
+-		zl->zones[num++] = &NODE_DATA(nd)->node_zones[policy_zone];
++	/* First put in the highest zones from all nodes, then all the next 
++	   lower zones etc. Avoid empty zones because the memory allocator
++	   doesn't like them. If you implement node hot removal you
++	   have to fix that. */
++	for (k = policy_zone; k >= 0; k--) { 
++		for_each_node_mask(nd, *nodes) { 
++			struct zone *z = &NODE_DATA(nd)->node_zones[k];
++			if (z->present_pages > 0) 
++				zl->zones[num++] = z;
++		}
++	}
+ 	zl->zones[num] = NULL;
+ 	return zl;
+ }

@@ -1,109 +1,174 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423037AbWBOIjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423038AbWBOImj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423037AbWBOIjk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 03:39:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423038AbWBOIjj
+	id S1423038AbWBOImj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 03:42:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423039AbWBOImj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 03:39:39 -0500
-Received: from mr1.bfh.ch ([147.87.250.50]:18620 "EHLO mr1.bfh.ch")
-	by vger.kernel.org with ESMTP id S1423037AbWBOIjj (ORCPT
+	Wed, 15 Feb 2006 03:42:39 -0500
+Received: from mail.gmx.de ([213.165.64.21]:39079 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1423038AbWBOImj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 03:39:39 -0500
-thread-index: AcYyC1FOeX31JjN0SoqAnD/kIHmxqw==
-X-PMWin-Version: 2.5.0e, Antispam-Engine: 2.2.0.0, Antivirus-Engine: 2.32.10
-Content-Class: urn:content-classes:message
-Importance: normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
-Message-ID: <43F2E8BA.90001@bfh.ch>
-Date: Wed, 15 Feb 2006 09:39:22 +0100
-From: "Seewer Philippe" <philippe.seewer@bfh.ch>
-Organization: BFH
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050811)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Phillip Susi" <psusi@cfl.rr.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: disk geometry via sysfs
-References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com> <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com> <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com>
-In-Reply-To: <43F21F21.1010509@cfl.rr.com>
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Feb 2006 08:39:21.0505 (UTC) FILETIME=[51345110:01C6320B]
+	Wed, 15 Feb 2006 03:42:39 -0500
+X-Authenticated: #2308221
+Date: Wed, 15 Feb 2006 09:42:35 +0100
+From: Christian Trefzer <ctrefzer@gmx.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, adaplas@pol.net,
+       linux-fbdev-devel@lists.sourceforge.net,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 24/24] neofb: avoid resetting display config on unblank
+Message-ID: <20060215084235.GA10220@zeus.uziel.local>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YiEDa0DAkWCtVeE4"
+Content-Disposition: inline
+In-Reply-To: <20060214215943.37902fc4.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Phillip Susi wrote:
-> Seewer Philippe wrote:
-> 
->>
->> IDE tries to return the actual hardware geometry. Most other drivers
->> implement a "fake". Or try to guess the geometry from the MBR...
->>
-> 
-> But there is no "actual hardware geometry".  IDE disks can report a
-> geometry, but that is no more real than any other made up geometry.  If
-> you take the geometry that the disk itself reports and write that to the
-> MBR, then software that actually uses the geometry ( i.e. non LBA boot
-> loaders ) will fail because it is not the geometry that the bios uses.
-> 
-> The only remaining purpose to geometry values that I see is to store in
-> the MBR for non LBA boot loaders to use.  Since they must have the
-> values the bios uses, then you need to get the values from the bios when
-> creating such an MBR.
-> 
->> My personal answer is here: Because there are so many tools around which
->> use the kernel values, that it is easier to overwrite the kernel than
->> patch all other software... (i know, i know...)
-> 
-> 
-> The only tools that I am aware of are boot loaders and disk
-> partitioners, and these tools do not need the geometry, they just try to
-> get it to maintain compatibility with ancient systems.  As such, it is
-> long past time for them to no longer require this information.
-> 
->>
->> And additionally: When partitioning its sometimes necessary or safer to
->> write a whole new mbr (dd if=... of=... ; parted mklabel msdos). When
->> dd'ing the mbr goes away. And some drivers return geometry based on the
->> mbr...... So overwriting these values might come handy.
->>
-> 
-> But what would you overwrite them with?  The only values that have any
-> actual use are the ones from the bios.  If you get the values from the
-> bios, it makes no sense to change them later.
-> 
-Hi Phillip
+--YiEDa0DAkWCtVeE4
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'd like to close this discussion if possible.
+Hi Andrew,
 
-I think we both know that disk geometry is a fiction and except for a
-few "older" devices which still need support, Linux couldn't care less
-about it (and in an ideal world this would include myself).
+first of all, my apologies for this mess. Finally, I got things right
+wrt. the driver, now let me see if I can submit the patch properly, for
+once : /
 
-On the other hand, at least in the x86 world, we must live with the fact
-that there are other os around, which, as you so aptly put, aren't sane.
-In order to work with them and if necessary to fix things, geometry
-information is necessary. One part is the bios geometry, available
-through edd or other means. The other part is the geometry the kernel
-exports (whatever sane values it contains or where they come from).
 
-Both are necessary for debugging and fixing. And sometimes it actually
-makes sense to overwrite the kernel with values that are "compatible".
-Whether gleaned from the bios via edd or computed by hand does not
-matter as long as the user has to it by himself. I've given a few
-examples for this, others can be found by googling (For example the ide
-disk geometry rewrite for http://unattended.sourceforge.net).
+On Tue, Feb 14, 2006 at 09:59:43PM -0800, Andrew Morton wrote:
+> The earlier patch has already been merged.  Please check that the version
+> which I merged into -mm still makes sense.
+>=20
+> The above isn't a very good changelog entry.  It doesn't tell us what
+> problem the patch fixes and it doesn't tell us how it fixes it.
 
-I completely agree with all that the kernel should never try to report
-bios geometry for a disk unless absolutely necessary and should not
-attempt to fix things automagically.
+Thanks for the slap. Here goes:
 
-But, as long as the Linux kernel does something with disk geometry, and
-this could mean just returning some bogus values, it makes sense to
-export these values read/write in sysfs. Because we all know, sysfs is
-much easier to handle than say for example ioctls.
+Actually, there were two mistakes in the register-read-on-(un)blank
+approach.
 
-Regards
-Philippe Seewer
+- First, without proper register (un)locking the value read back will
+  always be zero, and this is what I missed entirely until just now. Due
+  to this, the logic could not be verified at all and I tried some bogus
+  checks which are completely stupid.
+
+- Second, the LCD status bit will always be set to zero when the
+  backlight has been turned off. Reading the value back during unblank
+  will disable the LCD unconditionally, regardless of the state it is
+  supposed to be in, since we set it to zero beforehand.
+
+
+So this is what we do now:
+
+- create a new variable in struct neofb_par, and use that to determine
+  whether to read back registers (initialized to true)
+
+- before actually blanking the screen, read back the register to sense
+  any possible change made through Fn key combo
+
+- use proper neoUnlock() / neoLock() to actually read something
+
+- every call to neofb_blank() determines if we read back next time:
+  blanking disables readback, unblanking (FB_BLANK_UNBLANK) enables it
+
+
+This should give us a nice and clean state machine. Has been thoroughly
+tested on a Dell Latitude CPiA / NM220 Chip docked to a C/Dock2 with
+attached CRT in all possible combinations of LCD/CRT on/off. I changed
+the config via Fn key, let the console blank, unblanked by keypress -
+works flawlessly.
+
+
+Below patch applies against what should currently be in Linus' tree, as
+my previous error-prone attempt has already been merged. I'd call this
+neofb-read-display-config-properly.patch as it applies on top of my
+previous already-merged mess.
+
+Andrew, please discard any other patches of mine still in -mm, this
+would be the solution to this issue unless somebody else finds a
+problem.
+
+The only problem left wrt. neofb AFAICS would be the initialization of
+CRT-only resulting in no signal being received by the monitor. This is
+in no way changed by any of my patches.=20
+
+
+> "Signed-off-by:", please.
+
+Signed-off-by: Christian Trefzer <ctrefzer@gmx.de>
+
+--- a/include/video/neomagic.h	2006-01-03 04:21:10.000000000 +0100
++++ b/include/video/neomagic.h	2006-02-09 20:59:20.164839408 +0100
+@@ -159,6 +159,7 @@
+ 	unsigned char PanelDispCntlReg1;
+ 	unsigned char PanelDispCntlReg2;
+ 	unsigned char PanelDispCntlReg3;
++	unsigned char PanelDispCntlRegRead;
+ 	unsigned char PanelVertCenterReg1;
+ 	unsigned char PanelVertCenterReg2;
+ 	unsigned char PanelVertCenterReg3;
+--- a/drivers/video/neofb.c	2006-02-15 06:27:58.000000000 +0100
++++ b/drivers/video/neofb.c	2006-02-15 08:56:14.295858976 +0100
+@@ -843,6 +843,9 @@
+=20
+ 	par->SysIfaceCntl2 =3D 0xc0;	/* VESA Bios sets this to 0x80! */
+=20
++	/* Initialize: by default, we want display config register to be read */
++	par->PanelDispCntlRegRead =3D 1;
++
+ 	/* Enable any user specified display devices. */
+ 	par->PanelDispCntlReg1 =3D 0x00;
+ 	if (par->internal_display)
+@@ -1334,12 +1337,16 @@
+ 	struct neofb_par *par =3D (struct neofb_par *)info->par;
+ 	int seqflags, lcdflags, dpmsflags, reg;
+=20
+-	/*
+-	 * Reload the value stored in the register, might have been changed via
+-	 * FN keystroke
+-	 */
+-	par->PanelDispCntlReg1 =3D vga_rgfx(NULL, 0x20) & 0x03;
+=20
++	/* Reload the value stored in the register, if sensible. It might have
++	 * been changed via FN keystroke. */
++	if (par->PanelDispCntlRegRead) {
++		neoUnlock();
++		par->PanelDispCntlReg1 =3D vga_rgfx(NULL, 0x20) & 0x03;
++		neoLock(&par->state);
++	}
++	par->PanelDispCntlRegRead =3D !blank_mode;
++=09
+ 	switch (blank_mode) {
+ 	case FB_BLANK_POWERDOWN:	/* powerdown - both sync lines down */
+ 		seqflags =3D VGA_SR01_SCREEN_OFF; /* Disable sequencer */
+
+--YiEDa0DAkWCtVeE4
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iQIVAwUBQ/Lpel2m8MprmeOlAQJwvRAAuhmIeEDlQ+xuNN2kBay3Ujd7T4v2t86e
+PlTJNFsb1Q8ve0xnHdYZT6/2YT0EyR4HofHVbw1KP+lJpcwHjHG3ckL5wIrPMABJ
+cZNugIsUFdV7awvolgIOIUbCTmNf//+Z7ECksH5Xefn58ZkqIkNr272yLj7cu72e
+ddFC33iszA0VhFwm/86Ya+L/nF+68E1lxAM31Yp4qn9m5wn22QYgNbUrn92S6EB+
+ZMJTm0SLYJPSCoRODKSetbskuAckp5MpiB1xRSeIM2HztnIfHqUNut+q4KexrGiD
+FQOUGCvvdQyDhEvgiM/RU13rJSrNZWs4vgWmSuYnRBERjisToDhb4AJbqTALCmBb
+Vfza9dDZ2m1mM8XPbrLqHNnsn2y83sC3DfO+PdyyE2t8xQRf73inBs4uaFLFDHL9
+VNk5Y7pMSfh2KGhKg2sQDhmaZh/ZW2dfIjhpT+xZaOcK1Hiz+jxd2yUUOF+tc35l
+UDzA6KFTURxGbib3Bsp34dxkpD3FbjMrr8HXoUg1iD1H42vsDFXX1nBUrVHhZUuM
+r1mbNEOE6OT7LV9Av/GBa9gCiVReI5kx/IFy+vCkka4lvf16mxLAmdaQsvqYFflt
+x/3nDfLhPz9tLp5DehRWiLv5IDorxBQHrOzYzAWSMmoJcgwsbJn26joixSfaWz+w
+M2WXmwlVMMA=
+=ECgo
+-----END PGP SIGNATURE-----
+
+--YiEDa0DAkWCtVeE4--
+

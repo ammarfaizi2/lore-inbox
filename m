@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030611AbWBODSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030609AbWBODSG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030611AbWBODSj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 22:18:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030612AbWBODSj
+	id S1030609AbWBODSG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 22:18:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030610AbWBODSF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 22:18:39 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:38104 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030611AbWBODSh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 22:18:37 -0500
-Message-ID: <43F29D02.1090606@jp.fujitsu.com>
-Date: Wed, 15 Feb 2006 12:16:18 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
+	Tue, 14 Feb 2006 22:18:05 -0500
+Received: from smtp2.ist.utl.pt ([193.136.128.22]:13264 "EHLO smtp2.ist.utl.pt")
+	by vger.kernel.org with ESMTP id S1030609AbWBODSE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 22:18:04 -0500
+From: Claudio Martins <ctpm@rnl.ist.utl.pt>
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Subject: Re: OCFS2 Filesystem inconsistency across nodes
+Date: Wed, 15 Feb 2006 03:17:56 +0000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Jan Kara <jack@suse.cz>, Nohez <nohez@cmie.com>
+References: <200602100536.02893.ctpm@rnl.ist.utl.pt> <200602140616.11856.ctpm@rnl.ist.utl.pt> <20060214201946.GD20175@ca-server1.us.oracle.com>
+In-Reply-To: <20060214201946.GD20175@ca-server1.us.oracle.com>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
-Subject: Re: [RFC][PATCH 0/4] PCI legacy I/O port free driver
-References: <43F172BA.1020405@jp.fujitsu.com> <p7364ni475t.fsf@verdi.suse.de>
-In-Reply-To: <p7364ni475t.fsf@verdi.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200602150317.57250.ctpm@rnl.ist.utl.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com> writes:
-> 
-> 
->>I encountered a problem that some PCI devices don't work on my system
->>which have huge number of PCI devices.
-> 
-> 
-> Is that a large IA64 system?
-> 
 
-Yes. My IA64 system can have maximum 128 PCI slots, but
-currently many of devices on those slots don't work...
+On Tuesday 14 February 2006 20:19, Mark Fasheh wrote:
+>
+> We have some dlm fixes in our git tree which haven't made their way to
+> Linus yet (I wanted to run a few more tests). Would you be interested in
+> patching with them so we can see which bugs are left? The easiest way to
+> get this is to pull them out of 2.6.16-rc3-mm1:
+>
+> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc3/2.6.1
+>6-rc3-mm1/broken-out/git-ocfs2.patch
+>
 
-> [...]
-> 
-> The basic concept looks good to me, but I would suggest you use
-> the Linux bitmap functions (DECLARE_BITMAP(), set_bit, test_bit etc.)
-> instead of open coding all that.
-> 
-> And for the e1000 change - instead of adding a big switch with
-> magic numbers that will likely bitrot it's better to use 
-> the driver_data field in pci_device_id for such device specific flags.
-> 
+ OK, will do.
 
-I see.
-I will try to fix my patches based on your suggestion.
+>
+> Could you load up debugfs.ocfs2 against your file system and run the
+> following command:
+>
+> debugfs: locate <M0000000000000000d4a94b05ae097f>
+>
+> It will tell me the path to the file which that metadata lock refers to.
+> The path may help us figure out what sort of access we're having problems
+> on here.
 
-Thanks,
-Kenji Kaneshige
+debugfs.ocfs2 1.1.5
+debugfs: locate <M0000000000000000d4a94b05ae097f>
+13936971        /ctpm/dir2/build-AMD-linux-2.6.16-rc2-git3-jbdfix1/drivers/media/video/cx25840/cx25840-core.c
+
+
+ This is a file from the kernel build tree I untarred on node 1. So I suppose 
+the other two nodes eventually were trying to read it.
+
+
+Regards
+
+Claudio
 

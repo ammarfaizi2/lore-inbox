@@ -1,73 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422876AbWBOAnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422905AbWBOAyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422876AbWBOAnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 19:43:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422902AbWBOAnZ
+	id S1422905AbWBOAyq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 19:54:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422906AbWBOAyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 19:43:25 -0500
-Received: from mail.gmx.net ([213.165.64.21]:27052 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1422876AbWBOAnZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 19:43:25 -0500
-X-Authenticated: #428038
-Date: Wed, 15 Feb 2006 01:43:20 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Greg KH <greg@kroah.com>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060215004320.GB21742@merlin.emma.line.org>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20060125181847.b8ca4ceb.grundig@teleline.es> <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com> <20060210235654.GA22512@kroah.com> <43F0891E.nailKUSCGC52G@burner> <871wy6sy7y.fsf@hades.wkstn.nix> <43F1BE96.nailMY212M61V@burner> <20060214223001.GB357@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Tue, 14 Feb 2006 19:54:46 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:8346 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S1422905AbWBOAyp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 19:54:45 -0500
+Date: Tue, 14 Feb 2006 16:54:39 -0800
+From: Greg KH <greg@kroah.com>
+To: Rob Landley <rob@landley.net>
+Cc: Olivier Galibert <galibert@pobox.com>,
+       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Device enumeration (was Re: CD writing in future Linux (stirring up a hornets' nest))
+Message-ID: <20060215005439.GB18326@kroah.com>
+References: <43D7C1DF.1070606@gmx.de> <200602141732.22712.rob@landley.net> <20060214231732.GB66586@dspnet.fr.eu.org> <200602141924.22965.rob@landley.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060214223001.GB357@kroah.com>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+In-Reply-To: <200602141924.22965.rob@landley.net>
 User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Feb 2006, Greg KH wrote:
-
-> On Tue, Feb 14, 2006 at 12:27:18PM +0100, Joerg Schilling wrote:
-> > 
-> > Please send me the whitepaper that was used to define the interfaces
-> > and functionality of the /sys device
+On Tue, Feb 14, 2006 at 07:24:22PM -0500, Rob Landley wrote:
 > 
-> I was not aware that there is now a rule that we must write whitepapers
-> describing as to what the interface looks like in complete detail that
-> we want to add to the Linux kernel.  Will you please point me to the
-> proper authorities that will be enforcing this newly created rule?
+> I plan to start objecting earlier in future next time they propose to break us 
+> for no readily apparent reason.
 
-Well, Jörg's questions, although ridiculously exaggerated and quixotic,
-show a general problem in Linux: documentation is constantly outdated,
-missing, and not part of the kernel package.
+Please do.
 
-If Linux were based in Utopia, it would ship with a complete set of
-kernel-related manual pages and HOWTOs.
+> The best way to stabilize an interface is to have users object, and udev 
+> doesn't count.  Not only do they implement both the kernel and the userspace 
+> side, but in project management terms anybody who approaches shared libraries 
+> by keeping their own custom copy of the library source in their project 
+> source tree...
 
-I appreciate the efforts of the old and new man-pages maintainers, and I
-know the problems in motivation when writing documentation and keeping
-it up to date distracts people from writing code -- but those people
-know their code best.
+That was because we needed a local copy of libsysfs due to linking
+against klibc.  Also because we needed to fix up libsysfs to actually
+work for our needs :)
 
-> > Please send me the other documentation (e.g. man pages) on the /sys
-> > device
-> 
-> What "/sys device"?  sysfs is a file system, and there have been many
-> magazine articles, and conference papers written, and talks given on the
-> topic.
+Anyway, we've now dropped libsysfs entirely, replacing it with 200 lines
+of code that is much faster and more flexible.
 
-And that is the key problem. magazine here, conference there, talk
-(perhaps only slides available) somewhere else -- a manual that was in
-/usr/src/linux/Documentation might make a real difference. Even a
-commented link list in Documentation/* might be a good starting point.
+> Not exactly a role model for respecting and stabilizing the interfaces
+> they link against.  Not that I ever understood what libsysfs was for
+> anyway, since the point of sysfs is to be _easy_to_parse_...  But I'm
+> also not surprised libsysfs dried up and blew away when it's main user
+> forked the project.
 
-Patrick Mochel added some bits three years ago, but they were internals
-and thus a bit less interesting.
+libsysfs dried up and blew away when IBM abandonded it and stoped
+funding the developers who were working on it.  Projects need active
+developers, something that IBM was not willing to provide for this one,
+for whatever reason...
 
--- 
-Matthias Andree
+> If mdev accomplishes nothing else, we can poke Linus and go "no fair, this was 
+> exported to userspace and we depend on it", which udev hasn't.
+
+Again, please complain if we break anything, we want to know, and I'll
+do my best to keep it from happening.
+
+thanks,
+
+greg k-h

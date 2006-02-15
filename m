@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945992AbWBOPo7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945997AbWBOP5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945992AbWBOPo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 10:44:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945993AbWBOPo7
+	id S1945997AbWBOP5G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 10:57:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945998AbWBOP5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 10:44:59 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:15854 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1945992AbWBOPo6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 10:44:58 -0500
-Date: Wed, 15 Feb 2006 16:44:38 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Greg KH <greg@kroah.com>
-cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, davidsen@tmr.com,
-       nix@esperi.org.uk, linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-In-Reply-To: <20060213154921.GA22597@kroah.com>
-Message-ID: <Pine.LNX.4.61.0602151643470.25885@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
- <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
- <20060125181847.b8ca4ceb.grundig@teleline.es> <20060125173127.GR4212@suse.de>
- <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix>
- <43ED005F.5060804@tmr.com> <20060210235654.GA22512@kroah.com>
- <43F0891E.nailKUSCGC52G@burner> <20060213154921.GA22597@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Feb 2006 10:57:06 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:13536 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1945997AbWBOP5D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 10:57:03 -0500
+Subject: Re: [PATCH] add asm-generic/mman.h
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: linux-arch@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       Roland Dreier <rdreier@cisco.com>, Hugh Dickins <hugh@veritas.com>,
+       Linus Torvalds <torvalds@osdl.org>, Gleb Natapov <gleb@minantech.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       openib-general@openib.org, Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Matthew Wilcox <matthew@wil.cx>
+In-Reply-To: <20060215151649.GA12090@mellanox.co.il>
+References: <20060215151649.GA12090@mellanox.co.il>
+Content-Type: text/plain
+Date: Wed, 15 Feb 2006 07:58:08 -0800
+Message-Id: <1140019088.21448.3.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->Of course not.  Here's one line of bash that gets you the major:minor
->file of every block device in the system:
->	block_devices="$(echo /sys/block/*/dev /sys/block/*/*/dev)"
->
-When was that added? /sys/block/hdc/device/ only has "power", "block", 
-"bus" and "driver" here on a 2.6.13-rc3.
+On Wed, 2006-02-15 at 17:16 +0200, Michael S. Tsirkin wrote:
+> How does the following look (against gc3-git)?
+
+I tried to do the same earlier (while doing MADV_REMOVE) and got
+ugly (I was trying to completely get rid of asm-specific ones), 
+so I gave up.
+
+Anyway,
 
 
-Jan Engelhardt
--- 
+> Index: linux-2.6.16-rc3/include/asm-generic/mman.h
+> ===================================================================
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linux-2.6.16-rc3/include/asm-generic/mman.h	2006-02-15 19:59:41.000000000 +0200
+..
+> +#define MS_ASYNC	1		/* sync memory asynchronously */
+> +#define MS_SYNC		2		/* synchronous memory sync */
+> +#define MS_INVALIDATE	4		/* invalidate the caches */
+
+Shouldn't this be ?
+
++#define MS_ASYNC	1		/* sync memory asynchronously */
++#define MS_INVALIDATE	2		/* invalidate the caches */
++#define MS_SYNC	4		/* synchronous memory sync */
+
+Thanks,
+Badari
+
+

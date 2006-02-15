@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWBOVhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWBOVj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbWBOVhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 16:37:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWBOVhJ
+	id S932181AbWBOVj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 16:39:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWBOVj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 16:37:09 -0500
-Received: from xenotime.net ([66.160.160.81]:5307 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751300AbWBOVhH (ORCPT
+	Wed, 15 Feb 2006 16:39:59 -0500
+Received: from smtp1.ist.utl.pt ([193.136.128.21]:21228 "EHLO smtp1.ist.utl.pt")
+	by vger.kernel.org with ESMTP id S1751300AbWBOVj7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 16:37:07 -0500
-Date: Wed, 15 Feb 2006 13:37:05 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: linux-kernel@vger.kernel.org
-cc: bjorn.helgaas@hp.com, akpm@osdl.org
-Subject: Re: + mmconfig-add-kernel-parameter-documentation.patch added to
- -mm tree
-In-Reply-To: <200602152101.k1FL1flj013177@shell0.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.58.0602151334390.32155@shark.he.net>
-References: <200602152101.k1FL1flj013177@shell0.pdx.osdl.net>
+	Wed, 15 Feb 2006 16:39:59 -0500
+From: Claudio Martins <ctpm@ist.utl.pt>
+To: Nohez <nohez@cmie.com>
+Subject: Re: OCFS2 Filesystem inconsistency across nodes
+Date: Wed, 15 Feb 2006 21:42:47 +0000
+User-Agent: KMail/1.7.2
+Cc: Mark Fasheh <mark.fasheh@oracle.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.33.0602152244050.3591-100000@mars.cmie.ernet.in>
+In-Reply-To: <Pine.LNX.4.33.0602152244050.3591-100000@mars.cmie.ernet.in>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602152142.48028.ctpm@ist.utl.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Feb 2006 akpm@osdl.org wrote:
 
+On Wednesday 15 February 2006 17:50, Nohez wrote:
 >
-> The patch titled
+> Now started bonnie++ on one node while the same volume on the other node
+> is mounted and is in quiescent stage. Its been more than 5 hours now
+> and both the nodes are up & running. Seeing some very high load of >8 at
+> times on the node running bonnie++. Test node has 4GB RAM and bonnie++
+> is creating files of 8GB to test IO performance. Will start bonnie++
+> on both the nodes concurrently later.
 >
->      mmconfig: add kernel parameter documentation
->
-> has been added to the -mm tree.  Its filename is
->
->      mmconfig-add-kernel-parameter-documentation.patch
->
-> See http://www.zip.com.au/~akpm/linux/patches/stuff/added-to-mm.txt to find
-> out what to do about this
->
->
-> From: Bjorn Helgaas <bjorn.helgaas@hp.com>
->
-> Mention the "pci=nommconf" option in kernel-parameters.txt.
->
-> Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> ---
->
->  Documentation/kernel-parameters.txt |    2 ++
->  1 files changed, 2 insertions(+)
->
-> diff -puN Documentation/kernel-parameters.txt~mmconfig-add-kernel-parameter-documentation Documentation/kernel-parameters.txt
-> --- devel/Documentation/kernel-parameters.txt~mmconfig-add-kernel-parameter-documentation	2006-02-15 13:00:34.000000000 -0800
-> +++ devel-akpm/Documentation/kernel-parameters.txt	2006-02-15 13:00:34.000000000 -0800
-> @@ -1150,6 +1150,8 @@ running once the system is up.
->  				Mechanism 1.
->  		conf2		[IA-32] Force use of PCI Configuration
->  				Mechanism 2.
-> +		nommconf	[IA-32] Disable use of MMCONFIG for PCI
-> +				Configuration
 
-should be (add X86-64):
-		nommconf	[IA-32,X86-64] Disable use of MMCONFIG
-				for PCI Configuration
+ Nice. It'll be interesting when you start concurrent tests. I think the last 
+fixes from -mm made it better, but I'm still getting DLM errors and processes 
+hung in D state when using tar concurrently reading kernel trees on 3 nodes. 
+I'd like to know if you'll get the same or not.
+ I'll be sending kernel messages and a more complete report later this 
+evening. 
 
->  		nosort		[IA-32] Don't sort PCI devices according to
->  				order given by the PCI BIOS. This sorting is
->  				done to get a device order compatible with
+Regards
 
--- 
-~Randy
+Claudio
+

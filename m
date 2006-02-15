@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbWBORjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946061AbWBORnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751037AbWBORjp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 12:39:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWBORjp
+	id S1946061AbWBORnT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 12:43:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946062AbWBORnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 12:39:45 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:59619 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751037AbWBORjo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 12:39:44 -0500
-Subject: Re: [PATCH] add asm-generic/mman.h
-From: Badari Pulavarty <pbadari@us.ibm.com>
+	Wed, 15 Feb 2006 12:43:19 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:32141 "EHLO
+	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
+	id S1946061AbWBORnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 12:43:18 -0500
+Message-ID: <43F36833.9060100@grupopie.com>
+Date: Wed, 15 Feb 2006 17:43:15 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, linux-arch@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Roland Dreier <rdreier@cisco.com>, Hugh Dickins <hugh@veritas.com>,
-       Gleb Natapov <gleb@minantech.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       openib-general@openib.org, Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Matthew Wilcox <matthew@wil.cx>
-In-Reply-To: <Pine.LNX.4.64.0602150916580.3691@g5.osdl.org>
-References: <20060215151649.GA12090@mellanox.co.il>
-	 <1140019088.21448.3.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060215165016.GD12974@mellanox.co.il>
-	 <1140022377.21448.6.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060215170935.GE12974@mellanox.co.il>
-	 <Pine.LNX.4.64.0602150916580.3691@g5.osdl.org>
-Content-Type: text/plain
-Date: Wed, 15 Feb 2006 09:40:50 -0800
-Message-Id: <1140025250.21448.15.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Trap flag handling change in 2.6.10-bk5 broke Kylix debugger
+References: <43F23BB4.8070703@grupopie.com> <Pine.LNX.4.64.0602141243020.3691@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602141243020.3691@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-02-15 at 09:28 -0800, Linus Torvalds wrote:
-> 
-> On Wed, 15 Feb 2006, Michael S. Tsirkin wrote:
-> >
-> > Other numbers look right, dont they?
-> 
-> Suggestion: for each macro name, do
-> 
-> 	grep "macroname" patch
-> 
-> and if you see anything that looks even half-way suspicious, check it.
-> 
-> Here's a pipeline from hell which shows that you broke at least 
-> MADV_REMOVE (which has values 5-9 depending on architecture).
+Linus Torvalds wrote:
+> [...]
+> Hmm. You could try variations on the appended patch. Try changing the 
+> "#if 0" to "#if 1" in various combinations, to see which one Kylix seems 
+> to care about.
 
-Yes. I did that earlier and checked everything.
+Sorry about the delay, but being Valentine's day and all changes our 
+priorities a bit ;)
 
-MADV_REMOVE is a known change. Since it added very recently,
-I guess is okay to fix it for real. But if we are going to
-change it, I am hoping to see it very soon in mainline. 
-(Before distros fork-off).
+Anyway, a friend of mine tested the patch and reported that the 
+combinations 000 (all comented out), 001 (the first 2 commented out, but 
+the last one not) and 110 (...) still hung the debugger. I suppose these 
+were all the combinations he tested.
 
-Thanks,
-Badari
+Tonight I'll have more time to test this again and we can probably have 
+a more interactive debug session.
 
+In the mean time, just a few more data points. The debugger seems to use 
+LinuxThreads and only works with LD_ASSUME_KERNEL=2.4.1, even on a 
+2.6.10 kernel.
+
+If we don't set this, the debugger hangs in a different way. Apparently 
+it is waiting on a signal, it has a signal pending that is one of the 
+first real-time signals (the ones used by LinuxThreads), but its signal 
+mask is blocking it.
+
+Anyway, I thought of trying to attach a strace to the debugger tonight 
+to try to see exactly what the debugger is doing. Is this supposed to 
+work? Or trying to trace a process that is itself tracing another 
+process a no-no and can give unreliable results?
+
+-- 
+Paulo Marques - www.grupopie.com
+
+Pointy-Haired Boss: I don't see anything that could stand in our way.
+            Dilbert: Sanity? Reality? The laws of physics?

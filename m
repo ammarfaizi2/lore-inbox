@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945993AbWBOQre@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946017AbWBOQst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945993AbWBOQre (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 11:47:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946017AbWBOQre
+	id S1946017AbWBOQst (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 11:48:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946021AbWBOQst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 11:47:34 -0500
-Received: from jose.lug.udel.edu ([128.175.60.112]:16035 "EHLO
-	jose.lug.udel.edu") by vger.kernel.org with ESMTP id S1945993AbWBOQrd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 11:47:33 -0500
-Date: Wed, 15 Feb 2006 11:47:33 -0500
-To: Marc Koschewski <marc@osknowledge.org>
-Cc: Christian <christiand59@web.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc: CIFS reproducibly freezes the computer
-Message-ID: <20060215164732.GA29573@lug.udel.edu>
-References: <20060214135016.GC10701@stusta.de> <200602141659.40176.christiand59@web.de> <20060214164002.GC5905@stiffy.osknowledge.org> <20060214184708.GA29656@lug.udel.edu> <20060215133523.GA6628@stiffy.osknowledge.org>
-MIME-Version: 1.0
+	Wed, 15 Feb 2006 11:48:49 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:10846 "EHLO mtlexch01.mtl.com")
+	by vger.kernel.org with ESMTP id S1946017AbWBOQsr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 11:48:47 -0500
+Date: Wed, 15 Feb 2006 18:50:16 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-arch@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       Roland Dreier <rdreier@cisco.com>, Hugh Dickins <hugh@veritas.com>,
+       Linus Torvalds <torvalds@osdl.org>, Gleb Natapov <gleb@minantech.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       openib-general@openib.org, Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Matthew Wilcox <matthew@wil.cx>
+Subject: Re: [PATCH] add asm-generic/mman.h
+Message-ID: <20060215165016.GD12974@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20060215151649.GA12090@mellanox.co.il> <1140019088.21448.3.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060215133523.GA6628@stiffy.osknowledge.org>
-User-Agent: Mutt/1.5.11
-From: ross@jose.lug.udel.edu (Ross Vandegrift)
+In-Reply-To: <1140019088.21448.3.camel@dyn9047017100.beaverton.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 15 Feb 2006 16:50:42.0046 (UTC) FILETIME=[F4F9E1E0:01C6324F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 15, 2006 at 02:35:23PM +0100, Marc Koschewski wrote:
-> I moved to CIFS because SMB didn't work well for me, as well as did NFS. Both
-> seems to stall in a way, I could never really reproduce. But CIFS is very stable
-> over here. Never ever had a problem with it, whereas both NFS and SMB are likely
-> to cause trouble at least once a week. Without log records, without any chance
-> of recovery. Mostly hard-freezes.
+Quoting r. Badari Pulavarty <pbadari@us.ibm.com>:
+> Subject: Re: [PATCH] add asm-generic/mman.h
+> 
+> On Wed, 2006-02-15 at 17:16 +0200, Michael S. Tsirkin wrote:
+> > How does the following look (against gc3-git)?
+> 
+> I tried to do the same earlier (while doing MADV_REMOVE) and got
+> ugly (I was trying to completely get rid of asm-specific ones), 
+> so I gave up.
+> 
+> Anyway,
+> 
+> 
+> > Index: linux-2.6.16-rc3/include/asm-generic/mman.h
+> > ===================================================================
+> > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> > +++ linux-2.6.16-rc3/include/asm-generic/mman.h	2006-02-15 19:59:41.000000000 +0200
+> ..
+> > +#define MS_ASYNC	1		/* sync memory asynchronously */
+> > +#define MS_SYNC		2		/* synchronous memory sync */
+> > +#define MS_INVALIDATE	4		/* invalidate the caches */
+> 
+> Shouldn't this be ?
+> 
+> +#define MS_ASYNC	1		/* sync memory asynchronously */
+> +#define MS_INVALIDATE	2		/* invalidate the caches */
+> +#define MS_SYNC	4		/* synchronous memory sync */
+> 
+> Thanks,
+> Badari
+> 
 
-Well, any interaction with Windows 2k3 has to use CIFS.  SMB doesn't
-work - I know, I tried smbfs first.  Of course smbclient can't really trigger
-a hard lockup since it's in userspace.  I try to use it for any large
-uploads I have to do, since the issue seems exclusive to the cifs
-code.
-
-NFS on the other hand, I'm not sure what issues you've seen.  I
-haven't had a reproducable problem with NFS in probably ten years.
-Well, at least that was Linux's fault.  I'd love it if Juniper could
-explain why their VPNs are currently eating my fragmented UDP packets,
-but I digress...
+Note that this only looks misaligned in the patch. When you apply, +
+disappears and numbers get aligned.
+Other stuff in asm-xx/mman.h is aligned by tabs and not by spaces,
+so why should these options be aligned by spaces?
 
 -- 
-Ross Vandegrift
-ross@lug.udel.edu
-
-"The good Christian should beware of mathematicians, and all those who
-make empty prophecies. The danger already exists that the mathematicians
-have made a covenant with the devil to darken the spirit and to confine
-man in the bonds of Hell."
-	--St. Augustine, De Genesi ad Litteram, Book II, xviii, 37
+Michael S. Tsirkin
+Staff Engineer, Mellanox Technologies

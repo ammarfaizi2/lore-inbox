@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWBORzu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWBORzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751190AbWBORzu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 12:55:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbWBORzu
+	id S1751183AbWBORzz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 12:55:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWBORzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 12:55:50 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:37270 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1751190AbWBORzt (ORCPT
+	Wed, 15 Feb 2006 12:55:55 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:37526 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751183AbWBORzy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 12:55:49 -0500
-Message-ID: <43F37D54.4D0AAEFD@tv-sign.ru>
-Date: Wed, 15 Feb 2006 22:13:24 +0300
+	Wed, 15 Feb 2006 12:55:54 -0500
+Message-ID: <43F37D56.2D7AB32F@tv-sign.ru>
+Date: Wed, 15 Feb 2006 22:13:26 +0300
 From: Oleg Nesterov <oleg@tv-sign.ru>
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
 X-Accept-Language: en
@@ -18,59 +18,59 @@ MIME-Version: 1.0
 To: paulmck@us.ibm.com, Ingo Molnar <mingo@elte.hu>
 Cc: linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>,
        Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 1/2] fix kill_proc_info() vs CLONE_THREAD race
+Subject: [PATCH 2/2] fix kill_proc_info() vs fork() theoretical race
 References: <43E77D3C.C967A275@tv-sign.ru> <20060214223214.GG1400@us.ibm.com> <43F3352C.E2D8F998@tv-sign.ru>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a window after copy_process() unlocks ->sighand.siglock
-and before it adds the new thread to the thread list.
+copy_process:
 
-In that window __group_complete_signal(SIGKILL) will not see the
-new thread yet, so this thread will start running while the whole
-thread group was supposed to exit.
+	attach_pid(p, PIDTYPE_PID, p->pid);
+	attach_pid(p, PIDTYPE_TGID, p->tgid);
 
-I beleive we have another good reason to place attach_pid(PID/TGID)
-under ->sighand.siglock. We can do the same for
+What if kill_proc_info(p->pid) happens in between?
 
-	release_task()->__unhash_process()
+copy_process() holds current->sighand.siglock, so we are safe
+in CLONE_THREAD case, because current->sighand == p->sighand.
 
-	de_thread()->switch_exec_pids()
+Otherwise, p->sighand is unlocked, the new process is already
+visible to the find_task_by_pid(), but have a copy of parent's
+'struct pid' in ->pids[PIDTYPE_TGID].
 
-After that we don't need tasklist_lock to iterate over the thread
-list, and we can simplify things, see for example do_sigaction()
-or sys_times().
+This means that __group_complete_signal() may hang while doing
+
+	do ... while (next_thread() != p)
+
+We can solve this problem if we reverse these 2 attach_pid()s:
+
+	attach_pid() does wmb()
+
+	group_send_sig_info() calls spin_lock(), which
+	provides a read barrier. // Yes ?
+
+I don't think we can hit this race in practice, but still.
 
 Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
---- 2.6.16-rc3/kernel/fork.c~1_KILL	2006-02-15 22:52:07.000000000 +0300
-+++ 2.6.16-rc3/kernel/fork.c	2006-02-15 23:21:51.000000000 +0300
-@@ -1123,8 +1123,8 @@ static task_t *copy_process(unsigned lon
- 		p->real_parent = current;
- 	p->parent = p->real_parent;
+--- 2.6.16-rc3/kernel/fork.c~2_HANG	2006-02-15 23:21:51.000000000 +0300
++++ 2.6.16-rc3/kernel/fork.c	2006-02-16 00:03:20.000000000 +0300
+@@ -1173,8 +1173,6 @@ static task_t *copy_process(unsigned lon
+ 	if (unlikely(p->ptrace & PT_PTRACED))
+ 		__ptrace_link(p, current->parent);
  
-+	spin_lock(&current->sighand->siglock);
- 	if (clone_flags & CLONE_THREAD) {
--		spin_lock(&current->sighand->siglock);
- 		/*
- 		 * Important: if an exit-all has been started then
- 		 * do not create this new thread - the whole thread
-@@ -1162,8 +1162,6 @@ static task_t *copy_process(unsigned lon
- 			 */
- 			p->it_prof_expires = jiffies_to_cputime(1);
- 		}
--
--		spin_unlock(&current->sighand->siglock);
+-	attach_pid(p, PIDTYPE_PID, p->pid);
+-	attach_pid(p, PIDTYPE_TGID, p->tgid);
+ 	if (thread_group_leader(p)) {
+ 		p->signal->tty = current->signal->tty;
+ 		p->signal->pgrp = process_group(current);
+@@ -1184,6 +1182,8 @@ static task_t *copy_process(unsigned lon
+ 		if (p->pid)
+ 			__get_cpu_var(process_counts)++;
  	}
- 
- 	/*
-@@ -1189,6 +1187,7 @@ static task_t *copy_process(unsigned lon
++	attach_pid(p, PIDTYPE_TGID, p->tgid);
++	attach_pid(p, PIDTYPE_PID, p->pid);
  
  	nr_threads++;
  	total_forks++;
-+	spin_unlock(&current->sighand->siglock);
- 	write_unlock_irq(&tasklist_lock);
- 	proc_fork_connector(p);
- 	return p;

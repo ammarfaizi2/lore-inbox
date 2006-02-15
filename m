@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422986AbWBOF7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422987AbWBOGBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422986AbWBOF7E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 00:59:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422987AbWBOF7E
+	id S1422987AbWBOGBV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 01:01:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422990AbWBOGBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 00:59:04 -0500
-Received: from nproxy.gmail.com ([64.233.182.199]:54892 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1422986AbWBOF7D convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 00:59:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JMr3IPCoF4aIUK+1knsNw6NVf0qIbo1c/aqEIWCynRZiQmNDsjtvWLXRsB/4o1z4/iqZ8aYJ8q5BqR0jFBmKODLBKpswObkiSs6OqOgdi2oqq3/wgtgreu98Ifj035qMFOaXNnsKaEN6F8jxotiW1LGqGcL5tiHoR4UxhfSgCgg=
-Message-ID: <67029b170602142159i7a2bf1b2w@mail.gmail.com>
-Date: Wed, 15 Feb 2006 13:59:01 +0800
-From: Zhou Yingchao <yingchao.zhou@gmail.com>
-To: bibo mao <bibo_mao@linux.intel.com>
-Subject: Re: Fwd: [PATCH] kretprobe instance recycled by parent process
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43F324CD.1020807@linux.intel.com>
+	Wed, 15 Feb 2006 01:01:21 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:11210 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1422987AbWBOGBT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 01:01:19 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43F3059A.9070601@linux.intel.com>
-	 <67029b170602141936v69b85832q@mail.gmail.com>
-	 <67029b170602141939v4791ac72l@mail.gmail.com>
-	 <43F324CD.1020807@linux.intel.com>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [linux-usb-devel] Re: Linux 2.6.16-rc3
+Date: Wed, 15 Feb 2006 13:58:51 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F840AF2824B@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [linux-usb-devel] Re: Linux 2.6.16-rc3
+thread-index: AcYx8SYvfAkV5rhiR3WldIDk+GnmpgAAE6OQ
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>,
+       "Brown, Len" <len.brown@intel.com>
+Cc: "David S. Miller" <davem@davemloft.net>, <akpm@osdl.org>,
+       <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>, <axboe@suse.de>,
+       <James.Bottomley@steeleye.com>, <greg@kroah.com>,
+       <linux-acpi@vger.kernel.org>, <linux-usb-devel@lists.sourceforge.net>,
+       <lk@bencastricum.nl>, <helgehaf@aitel.hist.no>, <fluido@fluido.as>,
+       <gbruchhaeuser@gmx.de>, <Nicolas.Mailhot@LaPoste.net>, <perex@suse.cz>,
+       <tiwai@suse.de>, <patrizio.bassi@gmail.com>, <bni.swe@gmail.com>,
+       <arvidjaar@mail.ru>, <p_christ@hol.gr>, <ghrt@dial.kappa.ro>,
+       <jinhong.hu@gmail.com>, <andrew.vasquez@qlogic.com>,
+       <linux-scsi@vger.kernel.org>, <bcrl@kvack.org>
+X-OriginalArrivalTime: 15 Feb 2006 05:58:54.0473 (UTC) FILETIME=[E70BCF90:01C631F4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >> When kretprobe probe schedule() function, if probed process exit then
-> >> schedule() function will never return, so some kretprobe instance will
-> >> never be recycled. By this patch the parent process will recycle
-> >> retprobe instance of probed function, there will be no memory leak of
-> >> kretprobe instance. This patch is based on 2.6.16-rc3.
-> >
-> > Is there any process which can exit without go through the do_exit() path?
-> > --
-> When process exits through do_exit() function, it will call schedule()
-> function. But if schedule() function is probed by kretprobe, this time
-> schedule() function will not return never because process has exited.
+>> I don't think anybody claimed this isn't a regression for the 600X.
 >
-> bibo,mao
->
+>I narrowed it further.  The short story is that this commit (diff below
+>sig) makes the second S3 sleep go into the endless loop, if the loaded
+>modules are exactly thermal, processor, intel_agp, and agpgart:
 
-In the original path, doesn't the call path of
-do_exit()->exit_thread()->kprobe_flush_task(current) recycle the
-kretprobe instance? Is there anything misundstood?
---
-Yingchao Zhou
-***********************************************
- Institute Of Computing Technology
- Chinese Academy of Sciences
- Tel(O) : 010-62613792-28
-***********************************************
+If you believe this patch is the root cause of the regression you have
+been seeing. Then, I would say the thing is a little bit different with
+ec_intr=0 and ec_intr=1. Basically, ec_intr=0 will disable EC related
+ACPI interrupt before finishing _Qxx method execution , but ec_intr=1
+always enable EC interrupt.  This could cause some hardware/BIOS
+events get lost under ec_intr=0, which shouldn't lost.
+
+We need to figure out what's going on here rather than falling back to
+ec_intr=0 behavior.
+
+--Luming

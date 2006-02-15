@@ -1,153 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWBOXXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbWBOXYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751317AbWBOXXM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 18:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWBOXXM
+	id S1751299AbWBOXYk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 18:24:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbWBOXYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 18:23:12 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:7104 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751317AbWBOXXL (ORCPT
+	Wed, 15 Feb 2006 18:24:40 -0500
+Received: from watts.utsl.gen.nz ([202.78.240.73]:20129 "EHLO mail.utsl.gen.nz")
+	by vger.kernel.org with ESMTP id S1751299AbWBOXYj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 18:23:11 -0500
-Date: Wed, 15 Feb 2006 15:23:02 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Hubertus Franke <frankeh@watson.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: SMP BUG
-In-Reply-To: <20060215230701.GD1508@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0602151521320.22082@g5.osdl.org>
-References: <43F12207.9010507@watson.ibm.com> <20060215230701.GD1508@flint.arm.linux.org.uk>
+	Wed, 15 Feb 2006 18:24:39 -0500
+Message-ID: <43F3B820.8030907@vilain.net>
+Date: Thu, 16 Feb 2006 12:24:16 +1300
+From: Sam Vilain <sam@vilain.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Kirill Korotaev <dev@sw.ru>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>, Herbert Poetzl <herbert@13thfloor.at>
+Subject: Re: (pspace,pid) vs true pid virtualization
+References: <20060215145942.GA9274@sergelap.austin.ibm.com>
+In-Reply-To: <20060215145942.GA9274@sergelap.austin.ibm.com>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Serge E. Hallyn wrote:
+> However, if we're going to get anywhere, the first decision which we
+> need to make is whether to go with a (container,pid), (pspace,pid) or
+> equivalent pair like approach, or a virtualized pid approach.  Linus had
+> previously said that he prefers the former.  Since there has been much
+> discussion since then, I thought I'd try to recap the pros and cons of
+> each approach, with the hope that the head Penguins will chime in one
+> more time, after which we can hopefully focus our efforts.
 
+I am thinking that you can have both.  Not in the sense of
+overcomplicating, but in the sense of having your cake and eating it
+too.
 
-On Wed, 15 Feb 2006, Russell King wrote:
-> 
-> Yes, I'm also seeing an oops caused by exactly this on ARM:
+The only thing which is a unique, system wide identifier for the process
+is the &task_struct.  So we are already virtualising this pointer into a
+PID for userland.  The only difference is that we cache it (nay, keep
+the authorative version of it) in the task_struct.
 
-I suspect ARM just initializes the cpu_possible_map too late, like alpha 
-and s390 did.
+The (XID, PID) approach internally is also fine.  This says that there
+is a container XID, and within it, the PID refers to a particular
+task_struct.  A given task_struct will likely exist in more than one
+place in the (XID, PID) space.  Perhaps the values of PID for XID = 0
+and XID = task.xid can be cached in the task_struct, but that is a
+detail.
 
-That said, nobody seemed to comment on this patch by Rik, which seemed to 
-be a nice cleanup regardless of any other issues.
+Depending on the flags on the XID, we can incorporate all the approaches
+being tabled.  You want virtualised pids?  Well, that'll hurt a little,
+but suit yourself - set a flag on your container and inside the
+container you get virtualised PIDs.  You want a flat view for all your
+vservers?  Fine, just use an XID without the virtualisation flag and
+with the "all seeing eye" property set.  Or you use an XID _with_ the
+virtualisation flag set, and then call a tuple-endowed API to find the
+information you're after.
 
-Does this fix the ARM oops?
+We can enforce this by simply removing all the internal macros that deal
+with single PID references only; ie, enforce the XID to be used
+everywhere.  This removes the distinction between virtual PIDs and
+"real" pids; it's not a type difference, but an XID value difference.
 
-		Linus
+There are lots and lots of details I'm glossing over, but such finer
+points are best discussed by trading patches.
 
----
-Date: Wed, 8 Feb 2006 20:20:58 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-Subject: Re: [PATCH] percpu data: only iterate over possible CPUs
+IOW, we can stop arguing and start implementing :-).
 
-On Wed, 8 Feb 2006, Rik van Riel wrote:
-
-> On Sun, 5 Feb 2006, Linux Kernel Mailing List wrote:
-> 
-> > [PATCH] percpu data: only iterate over possible CPUs
-> 
-> The sched.c bit breaks Xen, and probably also other architectures
-> that have CPU hotplug.  I suspect the reason is that during early 
-> bootup only the boot CPU is online, so nothing initialises the
-> runqueues for CPUs that are brought up afterwards.
-> 
-> I suspect we can get rid of this problem quite easily by moving
-> runqueue initialisation to init_idle()...
-
-Well, it works.  This (fairly trivial) patch makes hotplug cpu
-work again, by ensuring that the runqueues of a newly brought
-up CPU are initialized just before they are needed.
-
-Without this patch the "spin_lock_irqsave(&rq->lock, flags);"
-in init_idle() would oops if CONFIG_DEBUG_SPINLOCK was set.
-
-With this patch, things just work.
-
-Signed-off-by: Rik van Riel <riel@redhat.com>
-
---- linux-2.6.15.i686/kernel/sched.c.idle_init	2006-02-08 17:56:50.000000000 -0500
-+++ linux-2.6.15.i686/kernel/sched.c	2006-02-08 17:58:57.000000000 -0500
-@@ -4437,6 +4437,35 @@ void __devinit init_idle(task_t *idle, i
- {
- 	runqueue_t *rq = cpu_rq(cpu);
- 	unsigned long flags;
-+	prio_array_t *array;
-+	int j, k;
-+
-+	spin_lock_init(&rq->lock);
-+	rq->nr_running = 0;
-+	rq->active = rq->arrays;
-+	rq->expired = rq->arrays + 1;
-+	rq->best_expired_prio = MAX_PRIO;
-+
-+#ifdef CONFIG_SMP
-+	rq->sd = NULL;
-+	for (j = 1; j < 3; j++)
-+		rq->cpu_load[j] = 0;
-+	rq->active_balance = 0;
-+	rq->push_cpu = 0;
-+	rq->migration_thread = NULL;
-+	INIT_LIST_HEAD(&rq->migration_queue);
-+#endif
-+	atomic_set(&rq->nr_iowait, 0);
-+
-+	for (j = 0; j < 2; j++) {
-+		array = rq->arrays + j;
-+		for (k = 0; k < MAX_PRIO; k++) {
-+			INIT_LIST_HEAD(array->queue + k);
-+			__clear_bit(k, array->bitmap);
-+		}
-+		// delimiter for bitsearch
-+		__set_bit(MAX_PRIO, array->bitmap);
-+	}
- 
- 	idle->sleep_avg = 0;
- 	idle->array = NULL;
-@@ -6110,41 +6139,6 @@ int in_sched_functions(unsigned long add
- 
- void __init sched_init(void)
- {
--	runqueue_t *rq;
--	int i, j, k;
--
--	for_each_cpu(i) {
--		prio_array_t *array;
--
--		rq = cpu_rq(i);
--		spin_lock_init(&rq->lock);
--		rq->nr_running = 0;
--		rq->active = rq->arrays;
--		rq->expired = rq->arrays + 1;
--		rq->best_expired_prio = MAX_PRIO;
--
--#ifdef CONFIG_SMP
--		rq->sd = NULL;
--		for (j = 1; j < 3; j++)
--			rq->cpu_load[j] = 0;
--		rq->active_balance = 0;
--		rq->push_cpu = 0;
--		rq->migration_thread = NULL;
--		INIT_LIST_HEAD(&rq->migration_queue);
--#endif
--		atomic_set(&rq->nr_iowait, 0);
--
--		for (j = 0; j < 2; j++) {
--			array = rq->arrays + j;
--			for (k = 0; k < MAX_PRIO; k++) {
--				INIT_LIST_HEAD(array->queue + k);
--				__clear_bit(k, array->bitmap);
--			}
--			// delimiter for bitsearch
--			__set_bit(MAX_PRIO, array->bitmap);
--		}
--	}
--
- 	/*
- 	 * The boot idle thread does lazy MMU switching as well:
- 	 */
-
+Sam.

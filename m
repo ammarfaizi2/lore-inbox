@@ -1,38 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945942AbWBONvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945950AbWBOODm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945942AbWBONvM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 08:51:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945944AbWBONvM
+	id S1945950AbWBOODm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 09:03:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945952AbWBOODm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 08:51:12 -0500
-Received: from sigma957.CIS.mcmaster.ca ([130.113.64.83]:45220 "EHLO
-	sigma957.cis.mcmaster.ca") by vger.kernel.org with ESMTP
-	id S1945942AbWBONvL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 08:51:11 -0500
-Date: Wed, 15 Feb 2006 08:50:50 -0500 (EST)
-From: Mark Hahn <hahn@physics.mcmaster.ca>
-X-X-Sender: hahn@coffee.psychology.mcmaster.ca
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Coywolf Qi Hunt <qiyong@fc-cn.com>, <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] make sysctl_overcommit_memory enumeration sensible
-In-Reply-To: <43F2EDD6.7000204@yahoo.com.au>
-Message-ID: <Pine.LNX.4.44.0602150846170.4737-100000@coffee.psychology.mcmaster.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-PMX-Version-Mac: 4.7.1.128075, Antispam-Engine: 2.1.0.0, Antispam-Data: 2006.02.15.052607
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0'
-X-Spam-Flag: NO
+	Wed, 15 Feb 2006 09:03:42 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:45190 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1945950AbWBOODl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 09:03:41 -0500
+Subject: Re: RFC: disk geometry via sysfs
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Seewer Philippe <philippe.seewer@bfh.ch>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <43F2EE04.9060500@bfh.ch>
+References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com>
+	 <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com>
+	 <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com>
+	 <43F2E8BA.90001@bfh.ch>
+	 <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com>
+	 <43F2EE04.9060500@bfh.ch>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 15 Feb 2006 14:06:32 +0000
+Message-Id: <1140012392.14831.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What's the point? The current has been there for a long time, and
-> is well documented.
+On Mer, 2006-02-15 at 10:01 +0100, Seewer Philippe wrote:
+> This would mean dropping the HDIO_GETGEO ioctl completely and force
+> applications such as fdisk/sfdisk and even dosemu to determine disk
+> geometry for themselves. Which I think actually would be the most
+> correct approach.
 
-right - low-pointage user-space break.  it _would_ make a small amount of
-sense to use a string (never/guess/always works for me), but the existing
-meanings (2/0/1 respectively) would need to be provided through a major 
-release cycle then generate an error if used...
+In the IDE case the drive geometry has meaning in certain cases,
+specifically the C/H/S drive addressing case with old old drives. 
 
-regards, mark hahn.
 

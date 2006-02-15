@@ -1,1063 +1,322 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945973AbWBOPP1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945969AbWBOPTT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945973AbWBOPP1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 10:15:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945974AbWBOPP0
+	id S1945969AbWBOPTT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 10:19:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945975AbWBOPTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 10:15:26 -0500
-Received: from [194.90.237.34] ([194.90.237.34]:21726 "EHLO mtlexch01.mtl.com")
-	by vger.kernel.org with ESMTP id S1945973AbWBOPPY (ORCPT
+	Wed, 15 Feb 2006 10:19:19 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:34255 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1945969AbWBOPTS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 10:15:24 -0500
-Date: Wed, 15 Feb 2006 17:16:49 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: linux-arch@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Roland Dreier <rdreier@cisco.com>, Hugh Dickins <hugh@veritas.com>,
-       Linus Torvalds <torvalds@osdl.org>, Gleb Natapov <gleb@minantech.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       openib-general@openib.org, Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Badari Pulavarty <pbadari@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
-       Matthew Wilcox <matthew@wil.cx>
-Subject: [PATCH] add asm-generic/mman.h
-Message-ID: <20060215151649.GA12090@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+	Wed, 15 Feb 2006 10:19:18 -0500
+Date: Wed, 15 Feb 2006 16:17:31 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Ulrich Drepper <drepper@redhat.com>, Thomas Gleixner <tglx@linutronix.de>,
+       Arjan van de Ven <arjan@infradead.org>,
+       David Singleton <dsingleton@mvista.com>, Andrew Morton <akpm@osdl.org>
+Subject: [patch 2/5] lightweight robust futexes: compat
+Message-ID: <20060215151731.GC31569@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 15 Feb 2006 15:17:15.0765 (UTC) FILETIME=[E75F4A50:01C63242]
+X-ELTE-SpamScore: -2.2
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How does the following look (against gc3-git)?
 
- asm-alpha/mman.h   |    8 +++++---
- asm-arm/mman.h     |   31 +------------------------------
- asm-arm26/mman.h   |   31 +------------------------------
- asm-cris/mman.h    |   31 +------------------------------
- asm-frv/mman.h     |   31 +------------------------------
- asm-generic/mman.h |   37 +++++++++++++++++++++++++++++++++++++
- asm-h8300/mman.h   |   31 +------------------------------
- asm-i386/mman.h    |   31 +------------------------------
- asm-ia64/mman.h    |   31 +------------------------------
- asm-m32r/mman.h    |   33 ++-------------------------------
- asm-m68k/mman.h    |   31 +------------------------------
- asm-mips/mman.h    |   22 ++++++++++++----------
- asm-parisc/mman.h  |    8 +++++---
- asm-powerpc/mman.h |   32 ++------------------------------
- asm-s390/mman.h    |   31 +------------------------------
- asm-sh/mman.h      |   31 +------------------------------
- asm-sparc/mman.h   |   31 ++-----------------------------
- asm-sparc64/mman.h |   31 ++-----------------------------
- asm-v850/mman.h    |   30 +-----------------------------
- asm-x86_64/mman.h  |   30 +-----------------------------
- asm-xtensa/mman.h  |   22 ++++++++++++----------
- 21 files changed, 91 insertions(+), 503 deletions(-)
+32-bit syscall compatibility support. (This patch also moves all
+futex related compat functionality into kernel/futex_compat.c.)
 
-Tested on x86_64.
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Arjan van de Ven <arjan@infradead.org>
+Acked-by: Ulrich Drepper <drepper@redhat.com>
 
----
+----
 
-Make new MADV_REMOVE, MADV_DONTFORK, MADV_DOFORK consistent across all arches.
-The idea is to make it possible to use them portably even before distros
-include them in libc headers.
+ include/linux/compat.h |   18 ++++++
+ include/linux/sched.h  |    3 +
+ kernel/Makefile        |    3 +
+ kernel/compat.c        |   23 -------
+ kernel/exit.c          |    5 +
+ kernel/futex_compat.c  |  143 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 172 insertions(+), 23 deletions(-)
 
-Move common flags to asm-generic/mman.h
-
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-
-Index: linux-2.6.16-rc3/include/asm-powerpc/mman.h
+Index: linux-robust-list.q/include/linux/compat.h
 ===================================================================
---- linux-2.6.16-rc3.orig/include/asm-powerpc/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-powerpc/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -1,6 +1,8 @@
- #ifndef _ASM_POWERPC_MMAN_H
- #define _ASM_POWERPC_MMAN_H
+--- linux-robust-list.q.orig/include/linux/compat.h
++++ linux-robust-list.q/include/linux/compat.h
+@@ -121,6 +121,24 @@ typedef struct compat_sigevent {
+ 	} _sigev_un;
+ } compat_sigevent_t;
  
-+#include <asm-generic/mman.h>
++struct compat_robust_list {
++	compat_uptr_t			next;
++};
 +
- /*
-  * This program is free software; you can redistribute it and/or
-  * modify it under the terms of the GNU General Public License
-@@ -8,19 +10,6 @@
-  * 2 of the License, or (at your option) any later version.
-  */
- 
--#define PROT_READ	0x1		/* page can be read */
--#define PROT_WRITE	0x2		/* page can be written */
--#define PROT_EXEC	0x4		/* page can be executed */
--#define PROT_SEM	0x8		/* page may be used for atomic ops */
--#define PROT_NONE	0x0		/* page can not be accessed */
--#define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
--#define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
--
--#define MAP_SHARED	0x01		/* Share changes */
--#define MAP_PRIVATE	0x02		/* Changes are private */
--#define MAP_TYPE	0x0f		/* Mask for type of mapping */
--#define MAP_FIXED	0x10		/* Interpret addr exactly */
--#define MAP_ANONYMOUS	0x20		/* don't use a file */
- #define MAP_RENAME      MAP_ANONYMOUS   /* In SunOS terminology */
- #define MAP_NORESERVE   0x40            /* don't reserve swap pages */
- #define MAP_LOCKED	0x80
-@@ -29,27 +18,10 @@
- #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
- #define MAP_EXECUTABLE	0x1000		/* mark it as an executable */
- 
--#define MS_ASYNC	1		/* sync memory asynchronously */
--#define MS_INVALIDATE	2		/* invalidate the caches */
--#define MS_SYNC		4		/* synchronous memory sync */
--
- #define MCL_CURRENT     0x2000          /* lock all currently mapped pages */
- #define MCL_FUTURE      0x4000          /* lock all additions to address space */
- 
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
- 
--#define MADV_NORMAL	0x0		/* default page-in behavior */
--#define MADV_RANDOM	0x1		/* page-in minimum required */
--#define MADV_SEQUENTIAL	0x2		/* read-ahead aggressively */
--#define MADV_WILLNEED	0x3		/* pre-fault pages */
--#define MADV_DONTNEED	0x4		/* discard these pages */
--#define MADV_REMOVE	0x5		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
--
--/* compatibility flags */
--#define MAP_ANON	MAP_ANONYMOUS
--#define MAP_FILE	0
--
- #endif	/* _ASM_POWERPC_MMAN_H */
-Index: linux-2.6.16-rc3/include/asm-cris/mman.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/asm-cris/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-cris/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -3,19 +3,7 @@
- 
- /* verbatim copy of asm-i386/ version */
- 
--#define PROT_READ	0x1		/* page can be read */
--#define PROT_WRITE	0x2		/* page can be written */
--#define PROT_EXEC	0x4		/* page can be executed */
--#define PROT_SEM	0x8		/* page may be used for atomic ops */
--#define PROT_NONE	0x0		/* page can not be accessed */
--#define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
--#define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
--
--#define MAP_SHARED	0x01		/* Share changes */
--#define MAP_PRIVATE	0x02		/* Changes are private */
--#define MAP_TYPE	0x0f		/* Mask for type of mapping */
--#define MAP_FIXED	0x10		/* Interpret addr exactly */
--#define MAP_ANONYMOUS	0x20		/* don't use a file */
-+#include <asm-generic/mman.h>
- 
- #define MAP_GROWSDOWN	0x0100		/* stack-like segment */
- #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
-@@ -25,24 +13,7 @@
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
- 
--#define MS_ASYNC	1		/* sync memory asynchronously */
--#define MS_INVALIDATE	2		/* invalidate the caches */
--#define MS_SYNC		4		/* synchronous memory sync */
--
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
- 
--#define MADV_NORMAL	0x0		/* default page-in behavior */
--#define MADV_RANDOM	0x1		/* page-in minimum required */
--#define MADV_SEQUENTIAL	0x2		/* read-ahead aggressively */
--#define MADV_WILLNEED	0x3		/* pre-fault pages */
--#define MADV_DONTNEED	0x4		/* discard these pages */
--#define MADV_REMOVE	0x5		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
--
--/* compatibility flags */
--#define MAP_ANON	MAP_ANONYMOUS
--#define MAP_FILE	0
--
- #endif /* __CRIS_MMAN_H__ */
-Index: linux-2.6.16-rc3/include/asm-arm26/mman.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/asm-arm26/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-arm26/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -1,19 +1,7 @@
- #ifndef __ARM_MMAN_H__
- #define __ARM_MMAN_H__
- 
--#define PROT_READ	0x1		/* page can be read */
--#define PROT_WRITE	0x2		/* page can be written */
--#define PROT_EXEC	0x4		/* page can be executed */
--#define PROT_SEM	0x8		/* page may be used for atomic ops */
--#define PROT_NONE	0x0		/* page can not be accessed */
--#define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
--#define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
--
--#define MAP_SHARED	0x01		/* Share changes */
--#define MAP_PRIVATE	0x02		/* Changes are private */
--#define MAP_TYPE	0x0f		/* Mask for type of mapping */
--#define MAP_FIXED	0x10		/* Interpret addr exactly */
--#define MAP_ANONYMOUS	0x20		/* don't use a file */
-+#include <asm-generic/mman.h>
- 
- #define MAP_GROWSDOWN	0x0100		/* stack-like segment */
- #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
-@@ -23,24 +11,7 @@
- #define MAP_POPULATE    0x8000          /* populate (prefault) page tables */
- #define MAP_NONBLOCK    0x10000         /* do not block on IO */
- 
--#define MS_ASYNC	1		/* sync memory asynchronously */
--#define MS_INVALIDATE	2		/* invalidate the caches */
--#define MS_SYNC		4		/* synchronous memory sync */
--
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
- 
--#define MADV_NORMAL	0x0		/* default page-in behavior */
--#define MADV_RANDOM	0x1		/* page-in minimum required */
--#define MADV_SEQUENTIAL	0x2		/* read-ahead aggressively */
--#define MADV_WILLNEED	0x3		/* pre-fault pages */
--#define MADV_DONTNEED	0x4		/* discard these pages */
--#define MADV_REMOVE	0x5		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
--
--/* compatibility flags */
--#define MAP_ANON	MAP_ANONYMOUS
--#define MAP_FILE	0
--
- #endif /* __ARM_MMAN_H__ */
-Index: linux-2.6.16-rc3/include/asm-alpha/mman.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/asm-alpha/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-alpha/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -42,9 +42,11 @@
- #define MADV_WILLNEED	3		/* will need these pages */
- #define	MADV_SPACEAVAIL	5		/* ensure resources are available */
- #define MADV_DONTNEED	6		/* don't need these pages */
--#define MADV_REMOVE	7		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
++struct compat_robust_list_head {
++	struct compat_robust_list	list;
++	compat_long_t			futex_offset;
++	compat_uptr_t			list_add_pending;
++};
 +
-+/* common/generic parameters */
-+#define MADV_REMOVE	9		/* remove these pages & resources */
-+#define MADV_DONTFORK	10		/* don't inherit across fork */
-+#define MADV_DOFORK	11		/* do inherit across fork */
- 
- /* compatibility flags */
- #define MAP_ANON	MAP_ANONYMOUS
-Index: linux-2.6.16-rc3/include/asm-m68k/mman.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/asm-m68k/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-m68k/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -1,19 +1,7 @@
- #ifndef __M68K_MMAN_H__
- #define __M68K_MMAN_H__
- 
--#define PROT_READ	0x1		/* page can be read */
--#define PROT_WRITE	0x2		/* page can be written */
--#define PROT_EXEC	0x4		/* page can be executed */
--#define PROT_SEM	0x8		/* page may be used for atomic ops */
--#define PROT_NONE	0x0		/* page can not be accessed */
--#define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
--#define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
--
--#define MAP_SHARED	0x01		/* Share changes */
--#define MAP_PRIVATE	0x02		/* Changes are private */
--#define MAP_TYPE	0x0f		/* Mask for type of mapping */
--#define MAP_FIXED	0x10		/* Interpret addr exactly */
--#define MAP_ANONYMOUS	0x20		/* don't use a file */
-+#include <asm-generic/mman.h>
- 
- #define MAP_GROWSDOWN	0x0100		/* stack-like segment */
- #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
-@@ -23,24 +11,7 @@
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
- 
--#define MS_ASYNC	1		/* sync memory asynchronously */
--#define MS_INVALIDATE	2		/* invalidate the caches */
--#define MS_SYNC		4		/* synchronous memory sync */
--
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
- 
--#define MADV_NORMAL	0x0		/* default page-in behavior */
--#define MADV_RANDOM	0x1		/* page-in minimum required */
--#define MADV_SEQUENTIAL	0x2		/* read-ahead aggressively */
--#define MADV_WILLNEED	0x3		/* pre-fault pages */
--#define MADV_DONTNEED	0x4		/* discard these pages */
--#define MADV_REMOVE	0x5		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
--
--/* compatibility flags */
--#define MAP_ANON	MAP_ANONYMOUS
--#define MAP_FILE	0
--
- #endif /* __M68K_MMAN_H__ */
-Index: linux-2.6.16-rc3/include/asm-xtensa/mman.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/asm-xtensa/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-xtensa/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -67,17 +67,19 @@
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
- 
--#define MADV_NORMAL	0x0		/* default page-in behavior */
--#define MADV_RANDOM	0x1		/* page-in minimum required */
--#define MADV_SEQUENTIAL	0x2		/* read-ahead aggressively */
--#define MADV_WILLNEED	0x3		/* pre-fault pages */
--#define MADV_DONTNEED	0x4		/* discard these pages */
--#define MADV_REMOVE	0x5		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
-+#define MADV_NORMAL	0		/* no further special treatment */
-+#define MADV_RANDOM	1		/* expect random page references */
-+#define MADV_SEQUENTIAL	2		/* expect sequential page references */
-+#define MADV_WILLNEED	3		/* will need these pages */
-+#define MADV_DONTNEED	4		/* don't need these pages */
++extern void compat_exit_robust_list(struct task_struct *curr);
 +
-+/* common parameters: try to keep these consistent across architectures */
-+#define MADV_REMOVE	9		/* remove these pages & resources */
-+#define MADV_DONTFORK	10		/* don't inherit across fork */
-+#define MADV_DOFORK	11		/* do inherit across fork */
++asmlinkage long
++compat_sys_set_robust_list(struct compat_robust_list_head __user *head,
++			   compat_size_t len);
++asmlinkage long
++compat_sys_get_robust_list(int pid, compat_uptr_t *head_ptr,
++			   compat_size_t __user *len_ptr);
  
- /* compatibility flags */
--#define MAP_ANON       MAP_ANONYMOUS
--#define MAP_FILE       0
-+#define MAP_ANON	MAP_ANONYMOUS
-+#define MAP_FILE	0
- 
- #endif /* _XTENSA_MMAN_H */
-Index: linux-2.6.16-rc3/include/asm-mips/mman.h
+ long compat_sys_semctl(int first, int second, int third, void __user *uptr);
+ long compat_sys_msgsnd(int first, int second, int third, void __user *uptr);
+Index: linux-robust-list.q/include/linux/sched.h
 ===================================================================
---- linux-2.6.16-rc3.orig/include/asm-mips/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-mips/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -60,17 +60,19 @@
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
+--- linux-robust-list.q.orig/include/linux/sched.h
++++ linux-robust-list.q/include/linux/sched.h
+@@ -873,6 +873,9 @@ struct task_struct {
+ 	int cpuset_mems_generation;
+ #endif
+ 	struct robust_list_head __user *robust_list;
++#ifdef CONFIG_COMPAT
++	struct compat_robust_list_head __user *compat_robust_list;
++#endif
  
--#define MADV_NORMAL	0x0		/* default page-in behavior */
--#define MADV_RANDOM	0x1		/* page-in minimum required */
--#define MADV_SEQUENTIAL	0x2		/* read-ahead aggressively */
--#define MADV_WILLNEED	0x3		/* pre-fault pages */
--#define MADV_DONTNEED	0x4		/* discard these pages */
--#define MADV_REMOVE	0x5		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
-+#define MADV_NORMAL	0		/* no further special treatment */
-+#define MADV_RANDOM	1		/* expect random page references */
-+#define MADV_SEQUENTIAL	2		/* expect sequential page references */
-+#define MADV_WILLNEED	3		/* will need these pages */
-+#define MADV_DONTNEED	4		/* don't need these pages */
+ 	atomic_t fs_excl;	/* holding fs exclusive resources */
+ 	struct rcu_head rcu;
+Index: linux-robust-list.q/kernel/Makefile
+===================================================================
+--- linux-robust-list.q.orig/kernel/Makefile
++++ linux-robust-list.q/kernel/Makefile
+@@ -12,6 +12,9 @@ obj-y     = sched.o fork.o exec_domain.o
+ 
+ obj-$(CONFIG_DEBUG_MUTEXES) += mutex-debug.o
+ obj-$(CONFIG_FUTEX) += futex.o
++ifeq ($(CONFIG_COMPAT),y)
++obj-$(CONFIG_FUTEX) += futex_compat.o
++endif
+ obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
+ obj-$(CONFIG_SMP) += cpu.o spinlock.o
+ obj-$(CONFIG_DEBUG_SPINLOCK) += spinlock.o
+Index: linux-robust-list.q/kernel/compat.c
+===================================================================
+--- linux-robust-list.q.orig/kernel/compat.c
++++ linux-robust-list.q/kernel/compat.c
+@@ -17,7 +17,6 @@
+ #include <linux/time.h>
+ #include <linux/signal.h>
+ #include <linux/sched.h>	/* for MAX_SCHEDULE_TIMEOUT */
+-#include <linux/futex.h>	/* for FUTEX_WAIT */
+ #include <linux/syscalls.h>
+ #include <linux/unistd.h>
+ #include <linux/security.h>
+@@ -238,28 +237,6 @@ asmlinkage long compat_sys_sigprocmask(i
+ 	return ret;
+ }
+ 
+-#ifdef CONFIG_FUTEX
+-asmlinkage long compat_sys_futex(u32 __user *uaddr, int op, int val,
+-		struct compat_timespec __user *utime, u32 __user *uaddr2,
+-		int val3)
+-{
+-	struct timespec t;
+-	unsigned long timeout = MAX_SCHEDULE_TIMEOUT;
+-	int val2 = 0;
+-
+-	if ((op == FUTEX_WAIT) && utime) {
+-		if (get_compat_timespec(&t, utime))
+-			return -EFAULT;
+-		timeout = timespec_to_jiffies(&t) + 1;
+-	}
+-	if (op >= FUTEX_REQUEUE)
+-		val2 = (int) (unsigned long) utime;
+-
+-	return do_futex((unsigned long)uaddr, op, val, timeout,
+-			(unsigned long)uaddr2, val2, val3);
+-}
+-#endif
+-
+ asmlinkage long compat_sys_setrlimit(unsigned int resource,
+ 		struct compat_rlimit __user *rlim)
+ {
+Index: linux-robust-list.q/kernel/exit.c
+===================================================================
+--- linux-robust-list.q.orig/kernel/exit.c
++++ linux-robust-list.q/kernel/exit.c
+@@ -32,6 +32,7 @@
+ #include <linux/cn_proc.h>
+ #include <linux/mutex.h>
+ #include <linux/futex.h>
++#include <linux/compat.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -852,6 +853,10 @@ fastcall NORET_TYPE void do_exit(long co
+ 	}
+ 	if (unlikely(tsk->robust_list))
+ 		exit_robust_list(tsk);
++#ifdef CONFIG_COMPAT
++	if (unlikely(tsk->compat_robust_list))
++		compat_exit_robust_list(tsk);
++#endif
+ 	exit_mm(tsk);
+ 
+ 	exit_sem(tsk);
+Index: linux-robust-list.q/kernel/futex_compat.c
+===================================================================
+--- /dev/null
++++ linux-robust-list.q/kernel/futex_compat.c
+@@ -0,0 +1,143 @@
++/*
++ * linux/kernel/futex_compat.c
++ *
++ * Futex compatibililty routines.
++ *
++ * Copyright 2006, Red Hat, Inc., Ingo Molnar
++ */
 +
-+/* common parameters: try to keep these consistent across architectures */
-+#define MADV_REMOVE	9		/* remove these pages & resources */
-+#define MADV_DONTFORK	10		/* don't inherit across fork */
-+#define MADV_DOFORK	11		/* do inherit across fork */
- 
- /* compatibility flags */
--#define MAP_ANON       MAP_ANONYMOUS
--#define MAP_FILE       0
-+#define MAP_ANON	MAP_ANONYMOUS
-+#define MAP_FILE	0
- 
- #endif /* _ASM_MMAN_H */
-Index: linux-2.6.16-rc3/include/asm-sparc64/mman.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/asm-sparc64/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-sparc64/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -2,21 +2,10 @@
- #ifndef __SPARC64_MMAN_H__
- #define __SPARC64_MMAN_H__
- 
-+#include <asm-generic/mman.h>
++#include <linux/linkage.h>
++#include <linux/compat.h>
++#include <linux/futex.h>
 +
- /* SunOS'ified... */
- 
--#define PROT_READ	0x1		/* page can be read */
--#define PROT_WRITE	0x2		/* page can be written */
--#define PROT_EXEC	0x4		/* page can be executed */
--#define PROT_SEM	0x8		/* page may be used for atomic ops */
--#define PROT_NONE	0x0		/* page can not be accessed */
--#define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
--#define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
--
--#define MAP_SHARED	0x01		/* Share changes */
--#define MAP_PRIVATE	0x02		/* Changes are private */
--#define MAP_TYPE	0x0f		/* Mask for type of mapping */
--#define MAP_FIXED	0x10		/* Interpret addr exactly */
--#define MAP_ANONYMOUS	0x20		/* don't use a file */
- #define MAP_RENAME      MAP_ANONYMOUS   /* In SunOS terminology */
- #define MAP_NORESERVE   0x40            /* don't reserve swap pages */
- #define MAP_INHERIT     0x80            /* SunOS doesn't do this, but... */
-@@ -27,10 +16,6 @@
- #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
- #define MAP_EXECUTABLE	0x1000		/* mark it as an executable */
- 
--#define MS_ASYNC	1		/* sync memory asynchronously */
--#define MS_INVALIDATE	2		/* invalidate the caches */
--#define MS_SYNC		4		/* synchronous memory sync */
--
- #define MCL_CURRENT     0x2000          /* lock all currently mapped pages */
- #define MCL_FUTURE      0x4000          /* lock all additions to address space */
- 
-@@ -48,18 +33,6 @@
- #define MC_LOCKAS       5  /* Lock an entire address space of the calling process */
- #define MC_UNLOCKAS     6  /* Unlock entire address space of calling process */
- 
--#define MADV_NORMAL	0x0		/* default page-in behavior */
--#define MADV_RANDOM	0x1		/* page-in minimum required */
--#define MADV_SEQUENTIAL	0x2		/* read-ahead aggressively */
--#define MADV_WILLNEED	0x3		/* pre-fault pages */
--#define MADV_DONTNEED	0x4		/* discard these pages */
- #define MADV_FREE	0x5		/* (Solaris) contents can be freed */
--#define MADV_REMOVE	0x6		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
--
--/* compatibility flags */
--#define MAP_ANON	MAP_ANONYMOUS
--#define MAP_FILE	0
- 
- #endif /* __SPARC64_MMAN_H__ */
-Index: linux-2.6.16-rc3/include/asm-v850/mman.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/asm-v850/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-v850/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -1,18 +1,7 @@
- #ifndef __V850_MMAN_H__
- #define __V850_MMAN_H__
- 
--#define PROT_READ	0x1		/* page can be read */
--#define PROT_WRITE	0x2		/* page can be written */
--#define PROT_EXEC	0x4		/* page can be executed */
--#define PROT_NONE	0x0		/* page can not be accessed */
--#define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
--#define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
--
--#define MAP_SHARED	0x01		/* Share changes */
--#define MAP_PRIVATE	0x02		/* Changes are private */
--#define MAP_TYPE	0x0f		/* Mask for type of mapping */
--#define MAP_FIXED	0x10		/* Interpret addr exactly */
--#define MAP_ANONYMOUS	0x20		/* don't use a file */
-+#include <asm-generic/mman.h>
- 
- #define MAP_GROWSDOWN	0x0100		/* stack-like segment */
- #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
-@@ -20,24 +9,7 @@
- #define MAP_LOCKED	0x2000		/* pages are locked */
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- 
--#define MS_ASYNC	1		/* sync memory asynchronously */
--#define MS_INVALIDATE	2		/* invalidate the caches */
--#define MS_SYNC		4		/* synchronous memory sync */
--
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
- 
--#define MADV_NORMAL	0x0		/* default page-in behavior */
--#define MADV_RANDOM	0x1		/* page-in minimum required */
--#define MADV_SEQUENTIAL	0x2		/* read-ahead aggressively */
--#define MADV_WILLNEED	0x3		/* pre-fault pages */
--#define MADV_DONTNEED	0x4		/* discard these pages */
--#define MADV_REMOVE	0x5		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
--
--/* compatibility flags */
--#define MAP_ANON	MAP_ANONYMOUS
--#define MAP_FILE	0
--
- #endif /* __V850_MMAN_H__ */
-Index: linux-2.6.16-rc3/include/asm-s390/mman.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/asm-s390/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-s390/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -9,19 +9,7 @@
- #ifndef __S390_MMAN_H__
- #define __S390_MMAN_H__
- 
--#define PROT_READ	0x1		/* page can be read */
--#define PROT_WRITE	0x2		/* page can be written */
--#define PROT_EXEC	0x4		/* page can be executed */
--#define PROT_SEM	0x8		/* page may be used for atomic ops */
--#define PROT_NONE	0x0		/* page can not be accessed */
--#define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
--#define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
--
--#define MAP_SHARED	0x01		/* Share changes */
--#define MAP_PRIVATE	0x02		/* Changes are private */
--#define MAP_TYPE	0x0f		/* Mask for type of mapping */
--#define MAP_FIXED	0x10		/* Interpret addr exactly */
--#define MAP_ANONYMOUS	0x20		/* don't use a file */
-+#include <asm-generic/mman.h>
- 
- #define MAP_GROWSDOWN	0x0100		/* stack-like segment */
- #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
-@@ -31,24 +19,7 @@
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
- 
--#define MS_ASYNC	1		/* sync memory asynchronously */
--#define MS_INVALIDATE	2		/* invalidate the caches */
--#define MS_SYNC		4		/* synchronous memory sync */
--
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
- 
--#define MADV_NORMAL    0x0              /* default page-in behavior */
--#define MADV_RANDOM    0x1              /* page-in minimum required */
--#define MADV_SEQUENTIAL        0x2             /* read-ahead aggressively */
--#define MADV_WILLNEED  0x3              /* pre-fault pages */
--#define MADV_DONTNEED  0x4              /* discard these pages */
--#define MADV_REMOVE    0x5		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
--
--/* compatibility flags */
--#define MAP_ANON	MAP_ANONYMOUS
--#define MAP_FILE	0
--
- #endif /* __S390_MMAN_H__ */
-Index: linux-2.6.16-rc3/include/asm-parisc/mman.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/asm-parisc/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-parisc/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -38,7 +38,11 @@
- #define MADV_SPACEAVAIL 5               /* insure that resources are reserved */
- #define MADV_VPS_PURGE  6               /* Purge pages from VM page cache */
- #define MADV_VPS_INHERIT 7              /* Inherit parents page size */
--#define MADV_REMOVE     8		/* remove these pages & resources */
-+
-+/* common/generic parameters */
-+#define MADV_REMOVE	9		/* remove these pages & resources */
-+#define MADV_DONTFORK	10		/* don't inherit across fork */
-+#define MADV_DOFORK	11		/* do inherit across fork */
- 
- /* The range 12-64 is reserved for page size specification. */
- #define MADV_4K_PAGES   12              /* Use 4K pages  */
-@@ -49,8 +53,6 @@
- #define MADV_4M_PAGES   22              /* Use 4 Megabyte pages */
- #define MADV_16M_PAGES  24              /* Use 16 Megabyte pages */
- #define MADV_64M_PAGES  26              /* Use 64 Megabyte pages */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
- 
- /* compatibility flags */
- #define MAP_ANON	MAP_ANONYMOUS
-Index: linux-2.6.16-rc3/include/asm-i386/mman.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/asm-i386/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-i386/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -1,19 +1,7 @@
- #ifndef __I386_MMAN_H__
- #define __I386_MMAN_H__
- 
--#define PROT_READ	0x1		/* page can be read */
--#define PROT_WRITE	0x2		/* page can be written */
--#define PROT_EXEC	0x4		/* page can be executed */
--#define PROT_SEM	0x8		/* page may be used for atomic ops */
--#define PROT_NONE	0x0		/* page can not be accessed */
--#define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
--#define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
--
--#define MAP_SHARED	0x01		/* Share changes */
--#define MAP_PRIVATE	0x02		/* Changes are private */
--#define MAP_TYPE	0x0f		/* Mask for type of mapping */
--#define MAP_FIXED	0x10		/* Interpret addr exactly */
--#define MAP_ANONYMOUS	0x20		/* don't use a file */
-+#include <asm-generic/mman.h>
- 
- #define MAP_GROWSDOWN	0x0100		/* stack-like segment */
- #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
-@@ -23,24 +11,7 @@
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
- 
--#define MS_ASYNC	1		/* sync memory asynchronously */
--#define MS_INVALIDATE	2		/* invalidate the caches */
--#define MS_SYNC		4		/* synchronous memory sync */
--
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
- 
--#define MADV_NORMAL	0x0		/* default page-in behavior */
--#define MADV_RANDOM	0x1		/* page-in minimum required */
--#define MADV_SEQUENTIAL	0x2		/* read-ahead aggressively */
--#define MADV_WILLNEED	0x3		/* pre-fault pages */
--#define MADV_DONTNEED	0x4		/* discard these pages */
--#define MADV_REMOVE	0x5		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
--
--/* compatibility flags */
--#define MAP_ANON	MAP_ANONYMOUS
--#define MAP_FILE	0
--
- #endif /* __I386_MMAN_H__ */
-Index: linux-2.6.16-rc3/include/asm-sh/mman.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/asm-sh/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-sh/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -1,19 +1,7 @@
- #ifndef __ASM_SH_MMAN_H
- #define __ASM_SH_MMAN_H
- 
--#define PROT_READ	0x1		/* page can be read */
--#define PROT_WRITE	0x2		/* page can be written */
--#define PROT_EXEC	0x4		/* page can be executed */
--#define PROT_SEM	0x8		/* page may be used for atomic ops */
--#define PROT_NONE	0x0		/* page can not be accessed */
--#define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
--#define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
--
--#define MAP_SHARED	0x01		/* Share changes */
--#define MAP_PRIVATE	0x02		/* Changes are private */
--#define MAP_TYPE	0x0f		/* Mask for type of mapping */
--#define MAP_FIXED	0x10		/* Interpret addr exactly */
--#define MAP_ANONYMOUS	0x20		/* don't use a file */
-+#include <asm-generic/mman.h>
- 
- #define MAP_GROWSDOWN	0x0100		/* stack-like segment */
- #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
-@@ -23,24 +11,7 @@
- #define MAP_POPULATE	0x8000		/* populate (prefault) page tables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
- 
--#define MS_ASYNC	1		/* sync memory asynchronously */
--#define MS_INVALIDATE	2		/* invalidate the caches */
--#define MS_SYNC		4		/* synchronous memory sync */
--
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
- 
--#define MADV_NORMAL	0x0		/* default page-in behavior */
--#define MADV_RANDOM	0x1		/* page-in minimum required */
--#define MADV_SEQUENTIAL	0x2		/* read-ahead aggressively */
--#define MADV_WILLNEED	0x3		/* pre-fault pages */
--#define MADV_DONTNEED	0x4		/* discard these pages */
--#define MADV_REMOVE	0x5		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
--
--/* compatibility flags */
--#define MAP_ANON	MAP_ANONYMOUS
--#define MAP_FILE	0
--
- #endif /* __ASM_SH_MMAN_H */
-Index: linux-2.6.16-rc3/include/asm-ia64/mman.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/asm-ia64/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-ia64/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -8,19 +8,7 @@
-  *	David Mosberger-Tang <davidm@hpl.hp.com>, Hewlett-Packard Co
-  */
- 
--#define PROT_READ	0x1		/* page can be read */
--#define PROT_WRITE	0x2		/* page can be written */
--#define PROT_EXEC	0x4		/* page can be executed */
--#define PROT_SEM	0x8		/* page may be used for atomic ops */
--#define PROT_NONE	0x0		/* page can not be accessed */
--#define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
--#define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
--
--#define MAP_SHARED	0x01		/* Share changes */
--#define MAP_PRIVATE	0x02		/* Changes are private */
--#define MAP_TYPE	0x0f		/* Mask for type of mapping */
--#define MAP_FIXED	0x10		/* Interpret addr exactly */
--#define MAP_ANONYMOUS	0x20		/* don't use a file */
-+#include <asm-generic/mman.h>
- 
- #define MAP_GROWSDOWN	0x00100		/* stack-like segment */
- #define MAP_GROWSUP	0x00200		/* register stack-like segment */
-@@ -31,24 +19,7 @@
- #define MAP_POPULATE	0x08000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
- 
--#define MS_ASYNC	1		/* sync memory asynchronously */
--#define MS_INVALIDATE	2		/* invalidate the caches */
--#define MS_SYNC		4		/* synchronous memory sync */
--
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
- 
--#define MADV_NORMAL	0x0		/* default page-in behavior */
--#define MADV_RANDOM	0x1		/* page-in minimum required */
--#define MADV_SEQUENTIAL	0x2		/* read-ahead aggressively */
--#define MADV_WILLNEED	0x3		/* pre-fault pages */
--#define MADV_DONTNEED	0x4		/* discard these pages */
--#define MADV_REMOVE	0x5		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
--
--/* compatibility flags */
--#define MAP_ANON	MAP_ANONYMOUS
--#define MAP_FILE	0
--
- #endif /* _ASM_IA64_MMAN_H */
-Index: linux-2.6.16-rc3/include/asm-generic/mman.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.16-rc3/include/asm-generic/mman.h	2006-02-15 19:59:41.000000000 +0200
-@@ -0,0 +1,42 @@
-+#ifndef _ASM_GENERIC_MMAN_H
-+#define _ASM_GENERIC_MMAN_H
++#include <asm/uaccess.h>
 +
 +/*
-+ Author: Michael S. Tsirkin <mst@mellanox.co.il>, Mellanox Technologies Ltd.
-+ Based on: asm-xxx/mman.h
-+*/
++ * Walk curr->robust_list (very carefully, it's a userspace list!)
++ * and mark any locks found there dead, and notify any waiters.
++ *
++ * We silently return on any sign of list-walking problem.
++ */
++void compat_exit_robust_list(struct task_struct *curr)
++{
++	struct compat_robust_list_head __user *head = curr->compat_robust_list;
++	struct robust_list __user *entry, *pending;
++	compat_uptr_t uentry, upending;
++	unsigned int limit = ROBUST_LIST_LIMIT;
++	compat_long_t futex_offset;
 +
-+#define PROT_READ	0x1		/* page can be read */
-+#define PROT_WRITE	0x2		/* page can be written */
-+#define PROT_EXEC	0x4		/* page can be executed */
-+#define PROT_SEM	0x8		/* page may be used for atomic ops */
-+#define PROT_NONE	0x0		/* page can not be accessed */
-+#define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
-+#define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
++	/*
++	 * Fetch the list head (which was registered earlier, via
++	 * sys_set_robust_list()):
++	 */
++	if (get_user(uentry, &head->list.next))
++		return;
++	entry = compat_ptr(uentry);
++	/*
++	 * Fetch the relative futex offset:
++	 */
++	if (get_user(futex_offset, &head->futex_offset))
++		return;
++	/*
++	 * Fetch any possibly pending lock-add first, and handle it
++	 * if it exists:
++	 */
++	if (get_user(upending, &head->list_add_pending))
++		return;
++	pending = compat_ptr(upending);
++	if (upending)
++		if (handle_futex_death((void *)pending + futex_offset, curr))
++			return;
 +
-+#define MAP_SHARED	0x01		/* Share changes */
-+#define MAP_PRIVATE	0x02		/* Changes are private */
-+#define MAP_TYPE	0x0f		/* Mask for type of mapping */
-+#define MAP_FIXED	0x10		/* Interpret addr exactly */
-+#define MAP_ANONYMOUS	0x20		/* don't use a file */
++	while (compat_ptr(uentry) != &head->list) {
++		/*
++		 * A pending lock might already be on the list, so
++		 * dont process it twice:
++		 */
++		if (entry != pending)
++			if (handle_futex_death((void *)entry + futex_offset,
++						curr))
++				return;
 +
-+#define MS_ASYNC	1		/* sync memory asynchronously */
-+#define MS_SYNC		2		/* synchronous memory sync */
-+#define MS_INVALIDATE	4		/* invalidate the caches */
++		/*
++		 * Fetch the next entry in the list:
++		 */
++		if (get_user(uentry, (compat_uptr_t *)&entry->next))
++			return;
++		entry = compat_ptr(uentry);
++		/*
++		 * Avoid excessively long or circular lists:
++		 */
++		if (!--limit)
++			break;
 +
-+#define MADV_NORMAL	0		/* no further special treatment */
-+#define MADV_RANDOM	1		/* expect random page references */
-+#define MADV_SEQUENTIAL	2		/* expect sequential page references */
-+#define MADV_WILLNEED	3		/* will need these pages */
-+#define MADV_DONTNEED	4		/* don't need these pages */
++		cond_resched();
++	}
++}
 +
-+/* common parameters: try to keep these consistent across architectures */
-+#define MADV_REMOVE	9		/* remove these pages & resources */
-+#define MADV_DONTFORK	10		/* don't inherit across fork */
-+#define MADV_DOFORK	11		/* do inherit across fork */
++asmlinkage long
++compat_sys_set_robust_list(struct compat_robust_list_head __user *head,
++			   compat_size_t len)
++{
++	if (unlikely(len != sizeof(*head)))
++		return -EINVAL;
 +
-+/* compatibility flags */
-+#define MAP_ANON	MAP_ANONYMOUS
-+#define MAP_FILE	0
++	current->compat_robust_list = head;
 +
-+#endif
-Index: linux-2.6.16-rc3/include/asm-sparc/mman.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/asm-sparc/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-sparc/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -2,21 +2,10 @@
- #ifndef __SPARC_MMAN_H__
- #define __SPARC_MMAN_H__
- 
-+#include <asm-generic/mman.h>
++	return 0;
++}
 +
- /* SunOS'ified... */
- 
--#define PROT_READ	0x1		/* page can be read */
--#define PROT_WRITE	0x2		/* page can be written */
--#define PROT_EXEC	0x4		/* page can be executed */
--#define PROT_SEM	0x8		/* page may be used for atomic ops */
--#define PROT_NONE	0x0		/* page can not be accessed */
--#define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
--#define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
--
--#define MAP_SHARED	0x01		/* Share changes */
--#define MAP_PRIVATE	0x02		/* Changes are private */
--#define MAP_TYPE	0x0f		/* Mask for type of mapping */
--#define MAP_FIXED	0x10		/* Interpret addr exactly */
--#define MAP_ANONYMOUS	0x20		/* don't use a file */
- #define MAP_RENAME      MAP_ANONYMOUS   /* In SunOS terminology */
- #define MAP_NORESERVE   0x40            /* don't reserve swap pages */
- #define MAP_INHERIT     0x80            /* SunOS doesn't do this, but... */
-@@ -27,10 +16,6 @@
- #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
- #define MAP_EXECUTABLE	0x1000		/* mark it as an executable */
- 
--#define MS_ASYNC	1		/* sync memory asynchronously */
--#define MS_INVALIDATE	2		/* invalidate the caches */
--#define MS_SYNC		4		/* synchronous memory sync */
--
- #define MCL_CURRENT     0x2000          /* lock all currently mapped pages */
- #define MCL_FUTURE      0x4000          /* lock all additions to address space */
- 
-@@ -48,18 +33,6 @@
- #define MC_LOCKAS       5  /* Lock an entire address space of the calling process */
- #define MC_UNLOCKAS     6  /* Unlock entire address space of calling process */
- 
--#define MADV_NORMAL	0x0		/* default page-in behavior */
--#define MADV_RANDOM	0x1		/* page-in minimum required */
--#define MADV_SEQUENTIAL	0x2		/* read-ahead aggressively */
--#define MADV_WILLNEED	0x3		/* pre-fault pages */
--#define MADV_DONTNEED	0x4		/* discard these pages */
- #define MADV_FREE	0x5		/* (Solaris) contents can be freed */
--#define MADV_REMOVE	0x6		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
--
--/* compatibility flags */
--#define MAP_ANON	MAP_ANONYMOUS
--#define MAP_FILE	0
- 
- #endif /* __SPARC_MMAN_H__ */
-Index: linux-2.6.16-rc3/include/asm-m32r/mman.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/asm-m32r/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-m32r/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -1,21 +1,9 @@
- #ifndef __M32R_MMAN_H__
- #define __M32R_MMAN_H__
- 
--/* orig : i386 2.6.0-test6 */
--
--#define PROT_READ	0x1		/* page can be read */
--#define PROT_WRITE	0x2		/* page can be written */
--#define PROT_EXEC	0x4		/* page can be executed */
--#define PROT_SEM	0x8		/* page may be used for atomic ops */
--#define PROT_NONE	0x0		/* page can not be accessed */
--#define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
--#define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#include <asm-generic/mman.h>
- 
--#define MAP_SHARED	0x01		/* Share changes */
--#define MAP_PRIVATE	0x02		/* Changes are private */
--#define MAP_TYPE	0x0f		/* Mask for type of mapping */
--#define MAP_FIXED	0x10		/* Interpret addr exactly */
--#define MAP_ANONYMOUS	0x20		/* don't use a file */
-+/* orig : i386 2.6.0-test6 */
- 
- #define MAP_GROWSDOWN	0x0100		/* stack-like segment */
- #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
-@@ -25,24 +13,7 @@
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
- 
--#define MS_ASYNC	1		/* sync memory asynchronously */
--#define MS_INVALIDATE	2		/* invalidate the caches */
--#define MS_SYNC		4		/* synchronous memory sync */
--
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
- 
--#define MADV_NORMAL	0x0		/* default page-in behavior */
--#define MADV_RANDOM	0x1		/* page-in minimum required */
--#define MADV_SEQUENTIAL	0x2		/* read-ahead aggressively */
--#define MADV_WILLNEED	0x3		/* pre-fault pages */
--#define MADV_DONTNEED	0x4		/* discard these pages */
--#define MADV_REMOVE	0x5		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
--
--/* compatibility flags */
--#define MAP_ANON	MAP_ANONYMOUS
--#define MAP_FILE	0
--
- #endif /* __M32R_MMAN_H__ */
-Index: linux-2.6.16-rc3/include/asm-frv/mman.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/asm-frv/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-frv/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -1,19 +1,7 @@
- #ifndef __ASM_MMAN_H__
- #define __ASM_MMAN_H__
- 
--#define PROT_READ	0x1		/* page can be read */
--#define PROT_WRITE	0x2		/* page can be written */
--#define PROT_EXEC	0x4		/* page can be executed */
--#define PROT_SEM	0x8		/* page may be used for atomic ops */
--#define PROT_NONE	0x0		/* page can not be accessed */
--#define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
--#define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
--
--#define MAP_SHARED	0x01		/* Share changes */
--#define MAP_PRIVATE	0x02		/* Changes are private */
--#define MAP_TYPE	0x0f		/* Mask for type of mapping */
--#define MAP_FIXED	0x10		/* Interpret addr exactly */
--#define MAP_ANONYMOUS	0x20		/* don't use a file */
-+#include <asm-generic/mman.h>
- 
- #define MAP_GROWSDOWN	0x0100		/* stack-like segment */
- #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
-@@ -23,25 +11,8 @@
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
- 
--#define MS_ASYNC	1		/* sync memory asynchronously */
--#define MS_INVALIDATE	2		/* invalidate the caches */
--#define MS_SYNC		4		/* synchronous memory sync */
--
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
- 
--#define MADV_NORMAL	0x0		/* default page-in behavior */
--#define MADV_RANDOM	0x1		/* page-in minimum required */
--#define MADV_SEQUENTIAL	0x2		/* read-ahead aggressively */
--#define MADV_WILLNEED	0x3		/* pre-fault pages */
--#define MADV_DONTNEED	0x4		/* discard these pages */
--#define MADV_REMOVE	0x5		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
--
--/* compatibility flags */
--#define MAP_ANON	MAP_ANONYMOUS
--#define MAP_FILE	0
--
- #endif /* __ASM_MMAN_H__ */
- 
-Index: linux-2.6.16-rc3/include/asm-h8300/mman.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/asm-h8300/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-h8300/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -1,19 +1,7 @@
- #ifndef __H8300_MMAN_H__
- #define __H8300_MMAN_H__
- 
--#define PROT_READ	0x1		/* page can be read */
--#define PROT_WRITE	0x2		/* page can be written */
--#define PROT_EXEC	0x4		/* page can be executed */
--#define PROT_SEM	0x8		/* page may be used for atomic ops */
--#define PROT_NONE	0x0		/* page can not be accessed */
--#define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
--#define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
--
--#define MAP_SHARED	0x01		/* Share changes */
--#define MAP_PRIVATE	0x02		/* Changes are private */
--#define MAP_TYPE	0x0f		/* Mask for type of mapping */
--#define MAP_FIXED	0x10		/* Interpret addr exactly */
--#define MAP_ANONYMOUS	0x20		/* don't use a file */
-+#include <asm-generic/mman.h>
- 
- #define MAP_GROWSDOWN	0x0100		/* stack-like segment */
- #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
-@@ -23,24 +11,7 @@
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
- 
--#define MS_ASYNC	1		/* sync memory asynchronously */
--#define MS_INVALIDATE	2		/* invalidate the caches */
--#define MS_SYNC		4		/* synchronous memory sync */
--
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
- 
--#define MADV_NORMAL	0x0		/* default page-in behavior */
--#define MADV_RANDOM	0x1		/* page-in minimum required */
--#define MADV_SEQUENTIAL	0x2		/* read-ahead aggressively */
--#define MADV_WILLNEED	0x3		/* pre-fault pages */
--#define MADV_DONTNEED	0x4		/* discard these pages */
--#define MADV_REMOVE	0x5		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
--
--/* compatibility flags */
--#define MAP_ANON	MAP_ANONYMOUS
--#define MAP_FILE	0
--
- #endif /* __H8300_MMAN_H__ */
-Index: linux-2.6.16-rc3/include/asm-arm/mman.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/asm-arm/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-arm/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -1,19 +1,7 @@
- #ifndef __ARM_MMAN_H__
- #define __ARM_MMAN_H__
- 
--#define PROT_READ	0x1		/* page can be read */
--#define PROT_WRITE	0x2		/* page can be written */
--#define PROT_EXEC	0x4		/* page can be executed */
--#define PROT_SEM	0x8		/* page may be used for atomic ops */
--#define PROT_NONE	0x0		/* page can not be accessed */
--#define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
--#define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
--
--#define MAP_SHARED	0x01		/* Share changes */
--#define MAP_PRIVATE	0x02		/* Changes are private */
--#define MAP_TYPE	0x0f		/* Mask for type of mapping */
--#define MAP_FIXED	0x10		/* Interpret addr exactly */
--#define MAP_ANONYMOUS	0x20		/* don't use a file */
-+#include <asm-generic/mman.h>
- 
- #define MAP_GROWSDOWN	0x0100		/* stack-like segment */
- #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
-@@ -23,24 +11,7 @@
- #define MAP_POPULATE	0x8000		/* populate (prefault) page tables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
- 
--#define MS_ASYNC	1		/* sync memory asynchronously */
--#define MS_INVALIDATE	2		/* invalidate the caches */
--#define MS_SYNC		4		/* synchronous memory sync */
--
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
- 
--#define MADV_NORMAL	0x0		/* default page-in behavior */
--#define MADV_RANDOM	0x1		/* page-in minimum required */
--#define MADV_SEQUENTIAL	0x2		/* read-ahead aggressively */
--#define MADV_WILLNEED	0x3		/* pre-fault pages */
--#define MADV_DONTNEED	0x4		/* discard these pages */
--#define MADV_REMOVE	0x5		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
--
--/* compatibility flags */
--#define MAP_ANON	MAP_ANONYMOUS
--#define MAP_FILE	0
--
- #endif /* __ARM_MMAN_H__ */
-Index: linux-2.6.16-rc3/include/asm-x86_64/mman.h
-===================================================================
---- linux-2.6.16-rc3.orig/include/asm-x86_64/mman.h	2006-02-15 18:59:13.000000000 +0200
-+++ linux-2.6.16-rc3/include/asm-x86_64/mman.h	2006-02-15 19:01:32.000000000 +0200
-@@ -1,19 +1,8 @@
- #ifndef __X8664_MMAN_H__
- #define __X8664_MMAN_H__
- 
--#define PROT_READ	0x1		/* page can be read */
--#define PROT_WRITE	0x2		/* page can be written */
--#define PROT_EXEC	0x4		/* page can be executed */
--#define PROT_NONE	0x0		/* page can not be accessed */
--#define PROT_SEM	0x8
--#define PROT_GROWSDOWN	0x01000000	/* mprotect flag: extend change to start of growsdown vma */
--#define PROT_GROWSUP	0x02000000	/* mprotect flag: extend change to end of growsup vma */
-+#include <asm-generic/mman.h>
- 
--#define MAP_SHARED	0x01		/* Share changes */
--#define MAP_PRIVATE	0x02		/* Changes are private */
--#define MAP_TYPE	0x0f		/* Mask for type of mapping */
--#define MAP_FIXED	0x10		/* Interpret addr exactly */
--#define MAP_ANONYMOUS	0x20		/* don't use a file */
- #define MAP_32BIT	0x40		/* only give out 32bit addresses */
- 
- #define MAP_GROWSDOWN	0x0100		/* stack-like segment */
-@@ -24,24 +13,7 @@
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
- 
--#define MS_ASYNC	1		/* sync memory asynchronously */
--#define MS_INVALIDATE	2		/* invalidate the caches */
--#define MS_SYNC		4		/* synchronous memory sync */
--
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
- 
--#define MADV_NORMAL	0x0		/* default page-in behavior */
--#define MADV_RANDOM	0x1		/* page-in minimum required */
--#define MADV_SEQUENTIAL	0x2		/* read-ahead aggressively */
--#define MADV_WILLNEED	0x3		/* pre-fault pages */
--#define MADV_DONTNEED	0x4		/* discard these pages */
--#define MADV_REMOVE	0x5		/* remove these pages & resources */
--#define MADV_DONTFORK	0x30		/* dont inherit across fork */
--#define MADV_DOFORK	0x31		/* do inherit across fork */
--
--/* compatibility flags */
--#define MAP_ANON	MAP_ANONYMOUS
--#define MAP_FILE	0
--
- #endif
--- 
-Michael S. Tsirkin
-Staff Engineer, Mellanox Technologies
++asmlinkage long
++compat_sys_get_robust_list(int pid, compat_uptr_t *head_ptr,
++			   compat_size_t __user *len_ptr)
++{
++	struct compat_robust_list_head *head;
++	unsigned long ret;
++
++	if (!pid)
++		head = current->compat_robust_list;
++	else {
++		struct task_struct *p;
++
++		ret = -ESRCH;
++		read_lock(&tasklist_lock);
++		p = find_task_by_pid(pid);
++		if (!p)
++			goto err_unlock;
++		ret = -EPERM;
++		if ((current->euid != p->euid) && (current->euid != p->uid) &&
++				!capable(CAP_SYS_PTRACE))
++			goto err_unlock;
++		head = p->compat_robust_list;
++		read_unlock(&tasklist_lock);
++	}
++
++	if (put_user(sizeof(*head), len_ptr))
++		return -EFAULT;
++	return put_user(ptr_to_compat(head), head_ptr);
++
++err_unlock:
++	read_unlock(&tasklist_lock);
++
++	return ret;
++}
++
++asmlinkage long compat_sys_futex(u32 __user *uaddr, int op, int val,
++		struct compat_timespec __user *utime, u32 __user *uaddr2,
++		int val3)
++{
++	struct timespec t;
++	unsigned long timeout = MAX_SCHEDULE_TIMEOUT;
++	int val2 = 0;
++
++	if ((op == FUTEX_WAIT) && utime) {
++		if (get_compat_timespec(&t, utime))
++			return -EFAULT;
++		timeout = timespec_to_jiffies(&t) + 1;
++	}
++	if (op >= FUTEX_REQUEUE)
++		val2 = (int) (unsigned long) utime;
++
++	return do_futex((unsigned long)uaddr, op, val, timeout,
++			(unsigned long)uaddr2, val2, val3);
++}

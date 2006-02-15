@@ -1,67 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030609AbWBODSG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030612AbWBODTF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030609AbWBODSG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 22:18:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030610AbWBODSF
+	id S1030612AbWBODTF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 22:19:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030615AbWBODTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 22:18:05 -0500
-Received: from smtp2.ist.utl.pt ([193.136.128.22]:13264 "EHLO smtp2.ist.utl.pt")
-	by vger.kernel.org with ESMTP id S1030609AbWBODSE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 22:18:04 -0500
-From: Claudio Martins <ctpm@rnl.ist.utl.pt>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-Subject: Re: OCFS2 Filesystem inconsistency across nodes
-Date: Wed, 15 Feb 2006 03:17:56 +0000
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Jan Kara <jack@suse.cz>, Nohez <nohez@cmie.com>
-References: <200602100536.02893.ctpm@rnl.ist.utl.pt> <200602140616.11856.ctpm@rnl.ist.utl.pt> <20060214201946.GD20175@ca-server1.us.oracle.com>
-In-Reply-To: <20060214201946.GD20175@ca-server1.us.oracle.com>
+	Tue, 14 Feb 2006 22:19:05 -0500
+Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:41600 "HELO
+	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030614AbWBODTC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 22:19:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=k0ondqwRz0/3Gf+5/cpWxdriQT23KH23KRlbYa7O0mTROnubAoNLOMHVDH8WuPk4lRqmzoMrgzmGblq7sWPJ/DGwPYgVWw+9qd48Oci8fdog9GR65CMrsMwyDB0fHlata1h2DnD0hgG3iiFalubBClbmR3pFsgNAVjcTViJpIKM=  ;
+Message-ID: <43F29B84.6020009@yahoo.com.au>
+Date: Wed, 15 Feb 2006 14:09:56 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org, christoph@lameter.com
+Subject: Re: + vmscan-rename-functions.patch added to -mm tree
+References: <200602120605.k1C65QFE028051@shell0.pdx.osdl.net> <2cd57c900602141847m7af4ec7ap@mail.gmail.com>
+In-Reply-To: <2cd57c900602141847m7af4ec7ap@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602150317.57250.ctpm@rnl.ist.utl.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Coywolf Qi Hunt wrote:
+> 2006/2/12, akpm@osdl.org <akpm@osdl.org>:
+> 
+>>The patch titled
+>>
+>>     vmscan: rename functions
+>>
+>>has been added to the -mm tree.  Its filename is
+>>
+>>     vmscan-rename-functions.patch
+>>
+>>See http://www.zip.com.au/~akpm/linux/patches/stuff/added-to-mm.txt to find
+>>out what to do about this
+>>
+>>
+>>From: Andrew Morton <akpm@osdl.org>
+>>
+>>We have:
+>>
+>>        try_to_free_pages
+>>        ->shrink_caches(struct zone **zones, ..)
+>>          ->shrink_zone(struct zone *, ...)
+>>            ->shrink_cache(struct zone *, ...)
+>>              ->shrink_list(struct list_head *, ...)
+>>
+>>which is fairly irrational.
+>>
+>>Rename things so that we have
+>>
+>>        try_to_free_pages
+>>        ->shrink_zones(struct zone **zones, ..)
+>>          ->shrink_zone(struct zone *, ...)
+>>            ->do_shrink_zone(struct zone *, ...)
+>>              ->shrink_page_list(struct list_head *, ...)
+> 
+> 
+> Every time I read this part it annoys me. Thanks.
 
-On Tuesday 14 February 2006 20:19, Mark Fasheh wrote:
->
-> We have some dlm fixes in our git tree which haven't made their way to
-> Linus yet (I wanted to run a few more tests). Would you be interested in
-> patching with them so we can see which bugs are left? The easiest way to
-> get this is to pull them out of 2.6.16-rc3-mm1:
->
-> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc3/2.6.1
->6-rc3-mm1/broken-out/git-ocfs2.patch
->
+I don't much care, but if there is renaming afoot, I'd vote for
 
- OK, will do.
+->shrink_zones(struct zone **zones, ..)
+  ->shrink_zone(struct zone *, ...)
+   ->shrink_inactive_list(struct zone *, ...)
+    ->shrink_page_list(struct list_head *, ...)
+   ->shrink_active_list (alternatively, leave as refill_inactive_list)
 
->
-> Could you load up debugfs.ocfs2 against your file system and run the
-> following command:
->
-> debugfs: locate <M0000000000000000d4a94b05ae097f>
->
-> It will tell me the path to the file which that metadata lock refers to.
-> The path may help us figure out what sort of access we're having problems
-> on here.
+shrink_zone and do_shrink_zone don't really say any more to me than
+shrink_zone and shrink_cache.
 
-debugfs.ocfs2 1.1.5
-debugfs: locate <M0000000000000000d4a94b05ae097f>
-13936971        /ctpm/dir2/build-AMD-linux-2.6.16-rc2-git3-jbdfix1/drivers/media/video/cx25840/cx25840-core.c
-
-
- This is a file from the kernel build tree I untarred on node 1. So I suppose 
-the other two nodes eventually were trying to read it.
-
-
-Regards
-
-Claudio
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

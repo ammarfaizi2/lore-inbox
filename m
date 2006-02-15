@@ -1,99 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423053AbWBOJBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423052AbWBOJCG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423053AbWBOJBf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 04:01:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423054AbWBOJBf
+	id S1423052AbWBOJCG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 04:02:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423058AbWBOJCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 04:01:35 -0500
-Received: from host-a-002.milc.com.pl ([213.17.132.2]:7620 "EHLO milc.com.pl")
-	by vger.kernel.org with ESMTP id S1423053AbWBOJBe (ORCPT
+	Wed, 15 Feb 2006 04:02:06 -0500
+Received: from mr1.bfh.ch ([147.87.250.50]:58308 "EHLO mr1.bfh.ch")
+	by vger.kernel.org with ESMTP id S1423052AbWBOJCC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 04:01:34 -0500
-Date: Wed, 15 Feb 2006 10:01:30 +0100
-From: Yoss <bartek@milc.com.pl>
-To: Willy TARREAU <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory leak in 2.4.33-pre1?
-Message-ID: <20060215090130.GA3343@milc.com.pl>
-References: <20060213214651.GA27844@milc.com.pl> <20060214000529.GJ11380@w.ods.org> <20060214082136.GA9993@milc.com.pl> <20060214214349.GA298@w.ods.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060214214349.GA298@w.ods.org>
-User-Agent: Mutt/1.3.28i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.4 (milc.com.pl [127.0.0.1]); Wed, 15 Feb 2006 10:01:30 +0100 (CET)
+	Wed, 15 Feb 2006 04:02:02 -0500
+thread-index: AcYyDnhEyIuCt3h+SSaHW4BYvb1IIw==
+X-PMWin-Version: 2.5.0e, Antispam-Engine: 2.2.0.0, Antivirus-Engine: 2.32.10
+Content-Class: urn:content-classes:message
+Importance: normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
+Message-ID: <43F2EE04.9060500@bfh.ch>
+Date: Wed, 15 Feb 2006 10:01:56 +0100
+From: "Seewer Philippe" <philippe.seewer@bfh.ch>
+Organization: BFH
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050811)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
+Cc: "Phillip Susi" <psusi@cfl.rr.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: disk geometry via sysfs
+References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com> <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com> <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com> <43F2E8BA.90001@bfh.ch> <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com>
+In-Reply-To: <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com>
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Feb 2006 09:01:55.0200 (UTC) FILETIME=[7811C800:01C6320E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 14, 2006 at 10:43:49PM +0100, Willy TARREAU wrote:
-> On Tue, Feb 14, 2006 at 09:21:36AM +0100, Yoss wrote:
-> > I downgraded hernel to 2.4.33 last night.
-> I presume you mean 2.4.32 here.
 
-Right. :)
 
+Bartlomiej Zolnierkiewicz wrote:
+> On 2/15/06, Seewer Philippe <philippe.seewer@bfh.ch> wrote:
+>>
+>>Hi Phillip
+>>
+>>I'd like to close this discussion if possible.
+>>
+>>I think we both know that disk geometry is a fiction and except for a
+>>few "older" devices which still need support, Linux couldn't care less
+>>about it (and in an ideal world this would include myself).
+>>
+>>On the other hand, at least in the x86 world, we must live with the fact
+>>that there are other os around, which, as you so aptly put, aren't sane.
+>>In order to work with them and if necessary to fix things, geometry
+>>information is necessary. One part is the bios geometry, available
+>>through edd or other means. The other part is the geometry the kernel
+>>exports (whatever sane values it contains or where they come from).
+>>
+>>Both are necessary for debugging and fixing. And sometimes it actually
+>>makes sense to overwrite the kernel with values that are "compatible".
+>>Whether gleaned from the bios via edd or computed by hand does not
+>>matter as long as the user has to it by himself. I've given a few
+>>examples for this, others can be found by googling (For example the ide
+>>disk geometry rewrite for http://unattended.sourceforge.net).
+>>
+>>I completely agree with all that the kernel should never try to report
+>>bios geometry for a disk unless absolutely necessary and should not
+>>attempt to fix things automagically.
+>>
+>>But, as long as the Linux kernel does something with disk geometry, and
+>>this could mean just returning some bogus values, it makes sense to
+>>export these values read/write in sysfs. Because we all know, sysfs is
+>>much easier to handle than say for example ioctls.
 > 
-> > So there is no slabinfo from that problem now. But thank you for reply.
-> > Why is this memory not showed somewhere in top or free?
 > 
-> I don't know, it's some gray area for me too, it's just that I'm used to
-> this behaviour. I even have a program that I run to free it when I want
-> to prioritize disk cache usage over dentry cache (appended to this mail).
-
-I think it is grey for me too ;\
-After about 36h of run the summary size of processes is 714MB. Free
-says:
-
-webcache:~# free -m
-             total       used       free     shared    buffers  cached
-Mem:          1009        996         13          0		    50      93
--/+ buffers/cache:        852        157
-Swap:         1953          0       1953
-
-So thereis 139MB of difference. But:
-
-#slabtop -s c -o | head -20
-
-Active / Total Objects (% used)    : 793971 / 805664 (98.5%)
- Active / Total Slabs (% used)      : 66499 / 66513 (100.0%)
- Active / Total Caches (% used)     : 36 / 59 (61.0%)
- Active / Total Size (% used)       : 235510.62K / 236644.88K (99.5%)
- Minimum / Average / Maximum Object : 0.02K / 0.29K / 128.00K
-
-OBJS ACTIVE  USE OBJ SIZE  SLABS OBJ/SLAB CACHE SIZE NAME
-362495 362490  99%    0.50K  51785        8     207140K inode_cache
-380910 380900  99%    0.12K  12697       32      50788K dentry_cache
-44800  35342  78%    0.09K   1120       42        4480K	buffer_head
-636    607  95%    2.00K    318        2          1272K size-2048
-139    139 100%    4.00K    139        1           556K size-4096
-2064   1891  91%    0.16K     86       25          344K ip_dst_cache
-232    224  96%    0.91K     58        4           232K	sock
-2080   2048  98%    0.09K     52       42	       208K blkdev_requests
-5198   4495  86%    0.03K     46      128		   184K size-32
-1032    658  63%    0.16K     43       25		   172K skbuff_head_cache
-870    864  99%    0.12K     29       32		   116K filp
-1416   1381  97%    0.06K     24       64		    96K size-64
-570    545  95%    0.12K     19			 32         76K size-128
-								 
-> Have you noticed the difference ? So the memory is not wasted at all. It's
-> just reported as 'used'.
-
-I see. I also noticed that I simply cannot tell what for is this memory
-used. Is this better for me to enlarge cache_mem in squid for about
-100MB and have less *_cache or is better to have more *_cache? :)
-
-> > > If you don't believe me, simply allocate 1 GB in a process, then free it.
-> > If that what you said is rigth, day after tomorow I'll have the same
-> > situation - only thing I have changed is kernel. So we'll see. :)
+> This made me thinking - if all the kernel does is returning some bogus
+> values and we need to fix applications to use sysfs interface why not
+> instead just fix applications to not use ioctl interface?
 > 
-> If you encounter it, simply run the tool below with a size in kB. Warning!
-> a wrong parameter associated with improper ulimit will hang your system !
-> Ask it to allocate what you *know* you can free (eg: the swapfree space).
+> Bartlomiej
 
-I don't matter is this memory used for cache or free. I just want to be
-sure that it is not leaking :)
+Good point (and the one I was afraid of coming up).
 
--- 
-Bart³omiej Butyn aka Yoss
-Nie ma tego z³ego co by na gorsze nie wysz³o.
+This would mean dropping the HDIO_GETGEO ioctl completely and force
+applications such as fdisk/sfdisk and even dosemu to determine disk
+geometry for themselves. Which I think actually would be the most
+correct approach.
+
+But this would come to a similar situation as in the beginnings of 2.6
+when we had partitioning problems because bios geometry support was
+dropped.
+
+That's something I don't have the guts to decide (and luckily can't), so
+I'd rather go with sysfs and provide a means to be as compatible as
+possible without doing anything automagically.
+
+

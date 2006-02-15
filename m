@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWBOWpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWBOWqW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbWBOWpg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 17:45:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWBOWpf
+	id S932208AbWBOWqW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 17:46:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWBOWqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 17:45:35 -0500
-Received: from [203.2.177.25] ([203.2.177.25]:43055 "EHLO pfeiffer.tusc.com.au")
-	by vger.kernel.org with ESMTP id S1751129AbWBOWpe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 17:45:34 -0500
-Subject: [PATCH 6/6] x25: Allow 32 bit socket ioctl in 64 bit kernel
-From: Shaun Pereira <spereira@tusc.com.au>
-Reply-To: spereira@tusc.com.au
-To: "David S. Miller" <davem@davemloft.net>, netdev <netdev@vger.kernel.org>,
-       linux-kenel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 16 Feb 2006 09:43:35 +1100
-Message-Id: <1140043416.8745.52.camel@spereira05.tusc.com.au>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Feb 2006 17:46:21 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:61456 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932208AbWBOWqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 17:46:21 -0500
+Date: Wed, 15 Feb 2006 23:46:19 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lethal@linux-sh.org, kkojima@rr.iij4u.or.jp,
+       linuxsh-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Jean-Luc Leger <reiga@dspnet.fr.eu.org>
+Subject: [2.6 patch] arch/sh/Kconfig: fix the ISA_DMA_API dependencies
+Message-ID: <20060215224619.GF5066@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allow patch 5 to use 32-64 bit conversion mechanism
+Jean-Luc Leger <reiga@dspnet.fr.eu.org> found this obvious typo.
 
-Signed-off-by:Shaun Pereira <spereira@tusc.com.au>
 
-diff -uprN -X dontdiff linux-2.6.16-rc3-vanilla/net/x25/af_x25.c linux-2.6.16-rc3/net/x25/af_x25.c
---- linux-2.6.16-rc3-vanilla/net/x25/af_x25.c	2006-02-15 11:17:03.000000000 +1100
-+++ linux-2.6.16-rc3/net/x25/af_x25.c	2006-02-15 11:17:20.000000000 +1100
-@@ -1529,6 +1529,8 @@ static int compat_x25_ioctl(struct socke
- 			break;
- 		case SIOCX25GFACILITIES:
- 		case SIOCX25SFACILITIES:
-+		case SIOCX25GDTEFACILITIES:
-+		case SIOCX25SDTEFACILITIES:
- 		case SIOCX25GCALLUSERDATA:
- 		case SIOCX25SCALLUSERDATA:
- 		case SIOCX25GCAUSEDIAG:
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Acked-by: Paul Mundt <lethal@linux-sh.org>
+
+---
+
+This patch was already sent on:
+- 14 Feb 2006
+
+--- linux-2.6.16-rc2-mm1-full/arch/sh/Kconfig.old	2006-02-14 01:18:22.000000000 +0100
++++ linux-2.6.16-rc2-mm1-full/arch/sh/Kconfig	2006-02-14 01:19:43.000000000 +0100
+@@ -446,7 +446,7 @@
+ 
+ config ISA_DMA_API
+ 	bool
+-	depends on MPC1211
++	depends on SH_MPC1211
+ 	default y
+ 
+ menu "Kernel features"
 

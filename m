@@ -1,94 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030608AbWBODRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030610AbWBODSL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030608AbWBODRN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 22:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030609AbWBODRN
+	id S1030610AbWBODSL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 22:18:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030613AbWBODSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 22:17:13 -0500
-Received: from smtpout.mac.com ([17.250.248.45]:31173 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1030608AbWBODRN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 22:17:13 -0500
-X-PGP-Universal: processed;
-	by AlPB on Tue, 14 Feb 2006 21:17:11 -0600
-Date: Tue, 14 Feb 2006 21:15:31 -0600
-From: Mark Rustad <MRustad@mac.com>
-Subject: [PATCH] elf: 0-length loading issue
-To: linux-kernel@vger.kernel.org
-X-Priority: 3
-Message-ID: <r02010500-1044-527BBEA29DD111DA99F10011248907EC@[192.168.1.21]>
+	Tue, 14 Feb 2006 22:18:11 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:8165 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1030610AbWBODSK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 22:18:10 -0500
+From: Rob Landley <rob@landley.net>
+To: Greg KH <greg@kroah.com>
+Subject: Re: Device enumeration (was Re: CD writing in future Linux (stirring up a hornets' nest))
+Date: Tue, 14 Feb 2006 22:18:03 -0500
+User-Agent: KMail/1.8.3
+Cc: Olivier Galibert <galibert@pobox.com>,
+       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
+       linux-kernel@vger.kernel.org
+References: <43D7C1DF.1070606@gmx.de> <200602141924.22965.rob@landley.net> <20060215005439.GB18326@kroah.com>
+In-Reply-To: <20060215005439.GB18326@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Mailsmith 2.1.5 (Blindsider)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602142218.04158.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have run into an elf loading issue when moving a program from running with a 2.6.5-
-derived SuSE kernel to the 2.6.15 kernel.org kernel. The image being loaded is admittedly
-unusual, but used to work and seems to me to be valid.
+On Tuesday 14 February 2006 7:54 pm, Greg KH wrote:
+> On Tue, Feb 14, 2006 at 07:24:22PM -0500, Rob Landley wrote:
+> > I plan to start objecting earlier in future next time they propose to
+> > break us for no readily apparent reason.
+>
+> Please do.
 
-The program header for the troublesome image is the following:
+I will.  I'm not complaining to you about failure to provide timely feedback.  
+(I fell behind on the list again...)
 
-Back.t:     file format elf32-i386
+> That was because we needed a local copy of libsysfs due to linking
+> against klibc.  Also because we needed to fix up libsysfs to actually
+> work for our needs :)
+>
+> Anyway, we've now dropped libsysfs entirely, replacing it with 200 lines
+> of code that is much faster and more flexible.
 
-Program Header:
-    LOAD off    0x00000000 vaddr 0x08048000 paddr 0x08048000 align 2**12
-         filesz 0x00135718 memsz 0x00135718 flags r-x
-    LOAD off    0x00135720 vaddr 0x0817e720 paddr 0x0817e720 align 2**12
-         filesz 0x0000ffbc memsz 0x0002e594 flags rw-
-    LOAD off    0x00146000 vaddr 0x63c03000 paddr 0x63c03000 align 2**12
-         filesz 0x00000000 memsz 0x0008134c flags rw-
-    NOTE off    0x00000200 vaddr 0x08048200 paddr 0x08048200 align 2**2
-         filesz 0x00000020 memsz 0x00000020 flags r--
-    NOTE off    0x00000220 vaddr 0x08048220 paddr 0x08048220 align 2**2
-         filesz 0x00000018 memsz 0x00000018 flags r--
-   STACK off    0x00000000 vaddr 0x00000000 paddr 0x00000000 align 2**2
-         filesz 0x00000000 memsz 0x00000000 flags rw-
+Yup.
 
-Note that the third LOAD area has a filesz of 0. This causes the elf loader to
-attempt to do an mmap of zero length. In the older kernel, this seemed to "work"
-in that no error was generated. Now in mm/mmap.c there is a check on the length
-which returns -EINVAL if the length being mapped is zero. That error currently
-results in a SIGKILL before things even get started.
+> libsysfs dried up and blew away when IBM abandonded it and stoped
+> funding the developers who were working on it.  Projects need active
+> developers, something that IBM was not willing to provide for this one,
+> for whatever reason...
 
-In case you are wondering how this image was created, this funny load section was
-the result from the following lines in a custom linker script:
+I'm still not sure why it existed in the first place.  Oh well.
 
-  . = 0x63c03000;
-  PROVIDE (SHMEM_START = .);
-  .shmem (NOLOAD) :  { *(.shmem) }
+> > If mdev accomplishes nothing else, we can poke Linus and go "no fair,
+> > this was exported to userspace and we depend on it", which udev hasn't.
+>
+> Again, please complain if we break anything, we want to know, and I'll
+> do my best to keep it from happening.
 
-AFAIK, this is not an invalid thing to do. If I am wrong about that, please
-let me know.
+Understood.  I'm caught up with the list again (ok, I skipped 3 months) and am 
+going to try to stay that way...
 
-The following patch allows this image to be successfully run. This patch attempts
-to tread lightly on the source by only modifying the existing error path. It might
-be better to check for the zero length to avoid making the doomed elf_map call.
+> thanks,
+>
+> greg k-h
 
-From: Mark Rustad <MRustad@mac.com>
-
-Allow zero-length load sections once again. They stopped working when do_mmap
-began failing 0-length mappings.
-
-Signed-off-by: Mark Rustad <MRustad@mac.com>
----
-
---- a/fs/binfmt_elf.c	2006-01-02 21:21:10.000000000 -0600
-+++ b/fs/binfmt_elf.c	2006-02-02 10:03:05.686253489 -0600
-@@ -842,8 +842,11 @@ static int load_elf_binary(struct linux_
- 
- 		error = elf_map(bprm->file, load_bias + vaddr, elf_ppnt, elf_prot, elf_flags);
- 		if (BAD_ADDR(error)) {
--			send_sig(SIGKILL, current, 0);
--			goto out_free_dentry;
-+			if (elf_ppnt->p_filesz) {
-+				send_sig(SIGKILL, current, 0);
-+				goto out_free_dentry;
-+			}
-+			error = ELF_PAGESTART(load_bias + vaddr);
- 		}
- 
- 		if (!load_addr_set) {
+Rob
 -- 
-Mark Rustad, mrustad@mac.com
+Never bet against the cheap plastic solution.

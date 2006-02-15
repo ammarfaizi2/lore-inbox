@@ -1,45 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWBOTQn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWBOTXo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbWBOTQn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 14:16:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbWBOTQn
+	id S932171AbWBOTXo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 14:23:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWBOTXo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 14:16:43 -0500
-Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:57604 "EHLO
-	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
-	id S932166AbWBOTQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 14:16:42 -0500
-To: Rob Landley <rob@landley.net>
-Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Matthias Andree <matthias.andree@gmx.de>,
-       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com>
-	<200602142155.03407.rob@landley.net>
-	<20060215183115.GE29940@csclub.uwaterloo.ca>
-	<200602151409.41523.rob@landley.net>
-From: Doug McNaught <doug@mcnaught.org>
-Date: Wed, 15 Feb 2006 14:16:36 -0500
-In-Reply-To: <200602151409.41523.rob@landley.net> (Rob Landley's message of
- "Wed, 15 Feb 2006 14:09:41 -0500")
-Message-ID: <87k6bwl9ez.fsf@asmodeus.mcnaught.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.4 (gnu/linux)
+	Wed, 15 Feb 2006 14:23:44 -0500
+Received: from spirit.analogic.com ([204.178.40.4]:58377 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S932171AbWBOTXn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 14:23:43 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <43F3764C.8080503@cfl.rr.com>
+X-OriginalArrivalTime: 15 Feb 2006 19:23:40.0218 (UTC) FILETIME=[5397C9A0:01C63265]
+Content-class: urn:content-classes:message
+Subject: Re: RFC: disk geometry via sysfs
+Date: Wed, 15 Feb 2006 14:23:39 -0500
+Message-ID: <Pine.LNX.4.61.0602151411130.9546@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: RFC: disk geometry via sysfs
+thread-index: AcYyZVOhp90wFJF8QgqBRbiDJb0anQ==
+References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com> <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com> <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com> <43F2E8BA.90001@bfh.ch> <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com> <1140019615.14831.22.camel@localhost.localdomain> <43F354E9.2020900@cfl.rr.com> <1140024754.14831.31.camel@localhost.localdomain> <43F3764C.8080503@cfl.rr.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Phillip Susi" <psusi@cfl.rr.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Seewer Philippe" <philippe.seewer@bfh.ch>,
+       "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>,
+       <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley <rob@landley.net> writes:
 
-> On Wednesday 15 February 2006 1:31 pm, Lennart Sorensen wrote:
->> once.
+On Wed, 15 Feb 2006, Phillip Susi wrote:
+
+> Alan Cox wrote:
+>> On Mer, 2006-02-15 at 11:20 -0500, Phillip Susi wrote:
+>>> Why do you say the partitioning tool needs to know the disk reported
+>>> C/H/S?  The value stored in the MBR must match the bios reported values,
+>>> not the disk reported ones, so why does the partitioner care about what
+>>> the disk reports?
+>>
+>> You answered that in asking the question.  "The value stored in the MBR
+>> must match the ...". What if the MBR has not yet been written ?
+>>
 >
-> Yup.  Apparently with SAS, the controllers are far more likely to fail than 
-> the drives.
+> The value in the MBR must match the _bios_ value, not the value that the
+> disk reports in its inquiry command ( which often will be different ).
+> When creating a new MBR you need to get the geometry from the bios, not
+> the drive itself.
+>
+>> (Also btw its *should*...) most modern OS's will take a sane MBR
+>> geometry and trust it over BIOS defaults.
+>>
+>
+> If the value in the MBR differs from the geometry that the bios reports,
+> then boot code using int 13 in chs mode will fail because it won't be
+> using the geometry that the bios expects.
+>
 
-I think the actual idea (or one of them) is to have two machines
-connected to each drive, in a hot-standby configuration.  This has
-been done for a long time with parallel SCSI, where both machines have
-controllers on the bus.
+If the disc is a modern disk, and the BIOS is modern as well,
+it won't care. For instance, if we attempt to seek to cylinder
+10, sector 10, and there are only 9 sectors, then the supplied
+head number is incremented, the sector to be read becomes 1
+(dumb ones based), and everything is fine. If the head number
+can't be incremented, it wraps to 0. Problems occur if the BIOS
+has been set to "physical" mode for access. In this mode, the
+CHS are absolute and "you can't get there from here." In the
+physical mode, you can't have more than 1024 cylinders because
+they need to fit into 10 bits.
 
--Doug
+As long as the BIOS is set for LBA, the boot sequence should not
+care.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.66 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

@@ -1,43 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946056AbWBORgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946050AbWBORhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946056AbWBORgF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 12:36:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946055AbWBORgF
+	id S1946050AbWBORhO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 12:37:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946054AbWBORhO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 12:36:05 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37524 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1946056AbWBORgD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 12:36:03 -0500
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 8/8] fix handling of st_nlink on procfs root
-References: <E1F6vyO-00009r-3a@ZenIV.linux.org.uk>
-	<m1slql3rn2.fsf@ebiederm.dsl.xmission.com>
-	<20060215103911.GL27946@ftp.linux.org.uk>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 15 Feb 2006 10:35:08 -0700
-In-Reply-To: <20060215103911.GL27946@ftp.linux.org.uk> (Al Viro's message of
- "Wed, 15 Feb 2006 10:39:11 +0000")
-Message-ID: <m11wy4ttir.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 15 Feb 2006 12:37:14 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:15772 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1946050AbWBORhM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 12:37:12 -0500
+Subject: Re: [PATCH] add asm-generic/mman.h
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: linux-arch@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       Roland Dreier <rdreier@cisco.com>, Hugh Dickins <hugh@veritas.com>,
+       Linus Torvalds <torvalds@osdl.org>, Gleb Natapov <gleb@minantech.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       openib-general@openib.org, Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Matthew Wilcox <matthew@wil.cx>
+In-Reply-To: <20060215165016.GD12974@mellanox.co.il>
+References: <20060215151649.GA12090@mellanox.co.il>
+	 <1140019088.21448.3.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060215165016.GD12974@mellanox.co.il>
+Content-Type: text/plain
+Date: Wed, 15 Feb 2006 08:52:57 -0800
+Message-Id: <1140022377.21448.6.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro <viro@ftp.linux.org.uk> writes:
+On Wed, 2006-02-15 at 18:50 +0200, Michael S. Tsirkin wrote:
+> Quoting r. Badari Pulavarty <pbadari@us.ibm.com>:
+> > Subject: Re: [PATCH] add asm-generic/mman.h
+> > 
+> > On Wed, 2006-02-15 at 17:16 +0200, Michael S. Tsirkin wrote:
+> > > How does the following look (against gc3-git)?
+> > 
+> > I tried to do the same earlier (while doing MADV_REMOVE) and got
+> > ugly (I was trying to completely get rid of asm-specific ones), 
+> > so I gave up.
+> > 
+> > Anyway,
+> > 
+> > 
+> > > Index: linux-2.6.16-rc3/include/asm-generic/mman.h
+> > > ===================================================================
+> > > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> > > +++ linux-2.6.16-rc3/include/asm-generic/mman.h	2006-02-15 19:59:41.000000000 +0200
+> > ..
+> > > +#define MS_ASYNC	1		/* sync memory asynchronously */
+> > > +#define MS_SYNC		2		/* synchronous memory sync */
+> > > +#define MS_INVALIDATE	4		/* invalidate the caches */
+> > 
+> > Shouldn't this be ?
+> > 
+> > +#define MS_ASYNC	1		/* sync memory asynchronously */
+> > +#define MS_INVALIDATE	2		/* invalidate the caches */
+> > +#define MS_SYNC	4		/* synchronous memory sync */
+> > 
+> > Thanks,
+> > Badari
+> > 
+> 
+> Note that this only looks misaligned in the patch. When you apply, +
+> disappears and numbers get aligned.
+> Other stuff in asm-xx/mman.h is aligned by tabs and not by spaces,
+> so why should these options be aligned by spaces?
 
-> On Wed, Feb 15, 2006 at 02:20:17AM -0700, Eric W. Biederman wrote:
->> And it is actually wrong.  It fails to take into account the static
->> /proc entries.
->> > +	stat->nlink = proc_root.nlink + nr_processes();
->
-> The hell it does. See ^^^^^^^^^^^^^^ this.
 
-Right.  Sorry.  I had a similar issue and when I check your patch for the
-same problem somehow I thought proc_root was a struct inode and not a
-struct proc_dir_entry. 
+I am not talking about alignment or spaces. 
+What I meant was ..
 
-Eric
+MS_SYNC should be 4
+MS_INVALIDATE should be 2
+
+You got it other way in your patch.
+
+Thanks,
+Badari
 

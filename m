@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWBOS7Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWBOTGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750835AbWBOS7Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 13:59:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbWBOS7Z
+	id S1751257AbWBOTGS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 14:06:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWBOTGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 13:59:25 -0500
-Received: from master.altlinux.org ([62.118.250.235]:36869 "EHLO
-	master.altlinux.org") by vger.kernel.org with ESMTP
-	id S1750835AbWBOS7Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 13:59:24 -0500
-Date: Wed, 15 Feb 2006 21:58:55 +0300
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-abi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix module refcount leak in __set_personality()
-Message-ID: <20060215185855.GE8670@procyon.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Wed, 15 Feb 2006 14:06:18 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.158]:48114 "EHLO
+	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S1751257AbWBOTGR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 14:06:17 -0500
+Date: Wed, 15 Feb 2006 11:05:30 -0800 (PST)
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Arjan van de Ven <arjan@infradead.org>,
+       David Singleton <dsingleton@mvista.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 0/5] lightweight robust futexes: -V1
+In-Reply-To: <20060215151711.GA31569@elte.hu>
+Message-ID: <Pine.LNX.4.64.0602151059300.14526@dhcp153.mvista.com>
+References: <20060215151711.GA31569@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If the change of personality does not lead to change of exec domain,
-__set_personality() returned without releasing the module reference
-acquired by lookup_exec_domain().
+On Wed, 15 Feb 2006, Ingo Molnar wrote:
 
-Signed-off-by: Sergey Vlasov <vsu@altlinux.ru>
+>
+> This patchset provides a new (written from scratch) implementation of
+> robust futexes, called "lightweight robust futexes". We believe this new
+> implementation is faster and simpler than the vma-based robust futex
+> solutions presented before, and we'd like this patchset to be adopted in
+> the upstream kernel. This is version 1 of the patchset.
 
----
+ 	Next point of discussion must be PI . Considering that this 
+implementation is lacking it. Maybe it wouldn't be "lightweight" if it was 
+included.
 
-diff --git a/kernel/exec_domain.c b/kernel/exec_domain.c
-index 867d6db..c01cead 100644
---- a/kernel/exec_domain.c
-+++ b/kernel/exec_domain.c
-@@ -140,6 +140,7 @@ __set_personality(u_long personality)
- 	ep = lookup_exec_domain(personality);
- 	if (ep == current_thread_info()->exec_domain) {
- 		current->personality = personality;
-+		module_put(ep->module);
- 		return 0;
- 	}
- 
+ 	If PI is to be added to Linux it will need to encompass both 
+mutex implementations . Was this a consideration in the design of these 
+lightweight futexes?
+
+Daniel

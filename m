@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWBOKcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbWBOKct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbWBOKcL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 05:32:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbWBOKcL
+	id S1751070AbWBOKct (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 05:32:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWBOKct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 05:32:11 -0500
-Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:28247 "HELO
-	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751104AbWBOKcK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 05:32:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=6h/JzHaq76qG/RsVoAITDjQPY1oKbx7/MuphA1WniavRe71QHlsTlOy6BCqMKTq9Sl9HFxQSE06YiCnunYLf21Z7j/xy6rCQsUxZxaVGE1f44Vnf/FXUs0OF8Ac9auBMsUp9uYFoHnVeuXZS4I1DSTtwoEi3t9G/XVUtng1FXdc=  ;
-Message-ID: <43F2E7C8.9040600@yahoo.com.au>
-Date: Wed, 15 Feb 2006 19:35:20 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 15 Feb 2006 05:32:49 -0500
+Received: from fw5.argo.co.il ([194.90.79.130]:15378 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S1751070AbWBOKcs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 05:32:48 -0500
+Message-ID: <43F30346.1070802@argo.co.il>
+Date: Wed, 15 Feb 2006 12:32:38 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Peter Zijlstra <peter@programming.kicks-ass.net>
-CC: Coywolf Qi Hunt <coywolf@gmail.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, christoph@lameter.com
-Subject: Re: + vmscan-rename-functions.patch added to -mm tree
-References: <200602120605.k1C65QFE028051@shell0.pdx.osdl.net>	 <2cd57c900602141847m7af4ec7ap@mail.gmail.com>	 <43F29B84.6020009@yahoo.com.au> <1139985978.6722.14.camel@localhost.localdomain>
-In-Reply-To: <1139985978.6722.14.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Coywolf Qi Hunt <qiyong@fc-cn.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] make sysctl_overcommit_memory enumeration sensible
+References: <20060215085456.GA2481@localhost.localdomain> <20060215010559.55b55414.akpm@osdl.org> <20060215093136.GA2600@localhost.localdomain>
+In-Reply-To: <20060215093136.GA2600@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Feb 2006 10:32:45.0186 (UTC) FILETIME=[2883A620:01C6321B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Zijlstra wrote:
-> On Wed, 2006-02-15 at 14:09 +1100, Nick Piggin wrote:
+Coywolf Qi Hunt wrote:
 
->>shrink_zone and do_shrink_zone don't really say any more to me than
->>shrink_zone and shrink_cache.
-> 
-> 
-> I know not everybody believes in a plugable reclaim policy, but that is
-> what I'm building. And from that POV I'd rather not see the
-> active/inactive names get used here.
-> 
+>On Wed, Feb 15, 2006 at 01:05:59AM -0800, Andrew Morton wrote:
+>  
+>
+>>Coywolf Qi Hunt <qiyong@fc-cn.com> wrote:
+>>    
+>>
+>>>I see system admins often confused when they sysctl vm.overcommit_memory.
+>>>This patch makes overcommit_memory enumeration sensible.
+>>>
+>>>0 - no overcommit
+>>>1 - always overcommit
+>>>2 - heuristic overcommit (default)
+>>>
+>>>I don't feel this would break any userspace scripts.
+>>>      
+>>>
+>>eh?   If any such scripts exist, they'll break.
+>>
+>>Confused.
+>>    
+>>
+>
+>That's a corner case. Let'em break and fix.  Otherwise, users will
+>be confused. Even they get it right, after some weeks they'll have
+>to re-read the doc. A logical user interface is important to human.
+>  
+>
 
-active/inactive is what we have now. If you manage to get a pluggable
-reclaim policy merged then I assure you, renaming these yet again will
-be the least of your worries :)
+If I have
 
-> My vote goes to Coywolf's suggestion.
-> 
+  vm.overcommit_memory = 2
 
-What was that?
+in my /etc/sysctl.conf, its meaning silently changes. I'll know about it 
+during the next oomkiller pass.
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+error compiling committee.c: too many arguments to function
+

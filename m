@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751030AbWBOGLL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbWBOGNf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751030AbWBOGLL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 01:11:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWBOGLL
+	id S1751036AbWBOGNf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 01:13:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbWBOGNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 01:11:11 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:414 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751030AbWBOGLK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 01:11:10 -0500
-Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
-From: Lee Revell <rlrevell@joe-job.com>
-To: MIke Galbraith <efault@gmx.de>
-Cc: Con Kolivas <kernel@kolivas.org>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       gcoady@gmail.com, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1139980940.24148.47.camel@homer>
-References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
-	 <200602131637.43335.kernel@kolivas.org> <1139810224.7935.9.camel@homer>
-	 <200602131708.52342.kernel@kolivas.org>  <1139812538.7744.8.camel@homer>
-	 <1139812725.2739.94.camel@mindpipe>  <1139814504.8124.6.camel@homer>
-	 <1139820181.3202.2.camel@mindpipe>  <1139834106.7831.115.camel@homer>
-	 <1139977373.2733.9.camel@mindpipe>  <1139980940.24148.47.camel@homer>
-Content-Type: text/plain
-Date: Wed, 15 Feb 2006 01:11:04 -0500
-Message-Id: <1139983865.2733.20.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.91 
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Feb 2006 01:13:35 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:28744 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751035AbWBOGNf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 01:13:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:subject:from:organization:cc:content-type:mime-version:references:content-transfer-encoding:message-id:in-reply-to:user-agent;
+        b=gCEinO9db4fyEZd2/78YpD9wgkI9X13r2o33KbgaI43e15S4+ERROzwzhnTbg+2XIBd4/Kg04bIx4oH+Dwc4tCXBhzpgTOCjb7Ca1bkAIJ2zFrBj/KXzOIfj+fp1TFohNfRZgpsQiGsrPrlFeuPnaSc+hdrU760CDX4ARBUD0Ec=
+Date: Wed, 15 Feb 2006 06:13:31 -0000
+To: "Rob Landley" <rob@landley.net>,
+       "Matthias Andree" <matthias.andree@gmx.de>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+From: "Anders Karlsson" <trudheim@gmail.com>
+Organization: Trudheim Technology Limited
+Cc: "Linux-Kernel mailing list" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; format=flowed; delsp=yes; charset=utf-8
+MIME-Version: 1.0
+References: <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com> <200602141751.02153.rob@landley.net> <20060215000420.GB21088@merlin.emma.line.org> <200602142155.03407.rob@landley.net>
+Content-Transfer-Encoding: 8bit
+Message-ID: <op.s4z3ktyviv906l@lenin>
+In-Reply-To: <200602142155.03407.rob@landley.net>
+User-Agent: Opera Mail/9.00 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-02-15 at 06:22 +0100, MIke Galbraith wrote:
-> > OK, with 2.6.16-rc2-mm1, "ls" bounces around between 0.15s and
-> 0.50s.
-> > Better than mainline but the large seemingly random variance is
-> still
-> > perceptible and annoying.  And, "ls | cat" behaves about the same as
-> > "ls", while on mainline it was consistently faster (!).
-> 
-> Ok.  That means the reduction in fluctuation had nothing to do with my
-> changes.  It also suggests that there may be something of a regression
-> in the changes that are in mm, which I also carried in my patch, since
-> the timing for both kernels appear to be ~identical with or without my
-> bits.  That seems a little odd to me considering what those changes
-> do.
-> 
-> > 
-> > Do you have an updated patch against -mm that I can test?
-> 
-> I will soon if you still want to try it. I've fixed the throttle
-> release
-> thing, and am fine tuning the interactivity bits.  I have it working
-> very well now, but want to try to squeeze some more from it.
-> 
-> Drop me a line if you're still interested from the interactivity side,
-> but I think the ls delay reduction has turned out to be a red
-> herring. 
+On Wed, 15 Feb 2006 02:55:03 -0000, Rob Landley <rob@landley.net> wrote:
 
-Just to be clear - this is 2.6.16-rc2-mm1 *without* your patch that I am
-talking about.
+[snip]
+> The last gasp of the SCSI bigots is Serial Attached Scsi.  It's  
+> hilarious. Electrically it's identical (they just gold-plate the
+> connectors and such so they can charge more for it).  The
+> giveaway is that you can plug a SATA drive into a SAS controller
+> and it works on "dual standard" controller firmware.
+> Which one's going to have the unit volume to be cheap and sell
+> through its inventory to bring out new generations faster?  And
+> which one is exactly the same technology with buckets of hype,
+> slightly different firmware, and a huge markup for the people who
+> still think that because ISA sucked, its designated successor PCI
+> can't be trusted?
+>
+> Buying the exact same technology for way more money, based on a  
+> two-decade old bias in an industry where a given generation of
+> hardware becomes obsolete every 3 years.  Funny to me, anyway...
+[snip]
 
-Lee
+SAS will have the old SCSI advantage of multiple devices per
+chain though. That is something that is very off-putting about
+SATA actually that you need as many interfaces as you have
+disks.
 
+For commercial reasons, you'll probably find that the more
+expensive SAS disks will be the ones with the lower seek-times,
+the better warranties etc. We may not like it, but it ain't
+going to change in a hurry.
+
+Regards,
+
+-- 
+Anders Karlsson <anders@trudheim.com>
+QA Engineer | GnuPG Key ID - 0x4B20601A

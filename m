@@ -1,91 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932498AbWBPHUi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWBPHcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932498AbWBPHUi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 02:20:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbWBPHUi
+	id S1751199AbWBPHcN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 02:32:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWBPHcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 02:20:38 -0500
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:31420 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932498AbWBPHUh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 02:20:37 -0500
-Date: Thu, 16 Feb 2006 08:20:25 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Ashok Raj <ashok.raj@intel.com>
-Subject: [patch 4/4] s390: possible_cpus parameter
-Message-ID: <20060216072025.GG9241@osiris.boeblingen.de.ibm.com>
+	Thu, 16 Feb 2006 02:32:13 -0500
+Received: from [61.135.151.188] ([61.135.151.188]:42578 "HELO virgilio.it")
+	by vger.kernel.org with SMTP id S1751199AbWBPHcM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 02:32:12 -0500
+Message-ID: <883d01c63275$13de5c60$c3a71be9@venserinvestmentcompanyvenseri>
+Reply-To: "Venser Investment Company" 
+	  <venserinvestmentcompanyvenseri@virgilio.it>
+From: "Venser Investment Company" 
+	<venserinvestmentcompanyvenseri@virgilio.it>
+To: <linux-kernel@vger.kernel.org>
+Subject: Invest funds in your Country
+Date: Wed, 15 Feb 2006 21:16:25 +1000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: mutt-ng/devel-r781 (Linux)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1158
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Venser  Investment Company.
+ 
+Dear Sir/ Madam,
+ 
+Allow me introduce our company to you, we are a modest Cayman Islands based
+European Business and Finance Consultancy, offering service to midline
+businesses and individuals in the Europe who desire to expand into other
+countries or business activities.
+ 
+We are presently confronted with a request to invest funds in your country,
+the funds belong legitimately to widower from Saudi Arabia and the funds are
+deposited with the Pott Exchange of Netherlands. 
+ 
+Against this background we are seeking your indulgence to respond to us
+indicating if you are capable and wiling to partner with us in the
+investment of Twenty Five Million US Dollars, in a covert expedient and
+confidential manner.
+ 
+The investor in this case is interested in Industry and real estate, and
+your advice will be much valuable and highly regarded in this matter.
+ 
+If you are intrested, we advise you send email to us through our company
+email address; venserinvestment@netscape.net  or you give us a call   Tel :
++393 280 292 423.
 
-Introduce possible_cpus command line option. Hard sets the number of bits set
-in cpu_possible_map. Unlike the additional_cpus parameter this one guarantees
-that num_possible_cpus() will stay constant even if the system gets rebooted
-and a different number of cpus are present at startup.
+Your swift response will be appreciated, and we will like you to include a
+brief profile of yourself family or business, along with your complete
+contact information in your response.
+ 
+Thank you so much and we look forward to doing business with you.
+ 
+Alberto Petris. MBA.
+For: Venser  Investment Company.
+Email: venserinvestment@netscape.net
+Tel :  +393 280 292 423
+ 
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
-
- Documentation/cpu-hotplug.txt |    6 ++++++
- arch/s390/kernel/smp.c        |   14 +++++++++++---
- 2 files changed, 17 insertions(+), 3 deletions(-)
-
-diff -purN a/Documentation/cpu-hotplug.txt b/Documentation/cpu-hotplug.txt
---- a/Documentation/cpu-hotplug.txt	2006-02-16 07:56:45.000000000 +0100
-+++ b/Documentation/cpu-hotplug.txt	2006-02-16 08:00:39.000000000 +0100
-@@ -50,6 +50,12 @@ additional_cpus=n	[x86_64, s390 only] us
-                         This option sets
- 			cpu_possible_map = cpu_present_map + additional_cpus
- 
-+possible_cpus=n		[s390 only] use this to set hotpluggable cpus.
-+			This option sets possible_cpus bits in
-+			cpu_possible_map. Thus keeping the numbers of bits set
-+			constant even if the machine gets rebooted.
-+			This option overrides additional_cpus.
-+
- CPU maps and such
- -----------------
- [More on cpumaps and primitive to manipulate, please check
-diff -purN a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
---- a/arch/s390/kernel/smp.c	2006-02-16 07:56:45.000000000 +0100
-+++ b/arch/s390/kernel/smp.c	2006-02-16 07:56:35.000000000 +0100
-@@ -673,15 +673,16 @@ __cpu_up(unsigned int cpu)
- }
- 
- static unsigned int __initdata additional_cpus;
-+static unsigned int __initdata possible_cpus;
- 
- void __init smp_setup_cpu_possible_map(void)
- {
- 	unsigned int pcpus, cpu;
- 
--	pcpus = smp_count_cpus() + additional_cpus;
-+	pcpus = min(smp_count_cpus() + additional_cpus, (unsigned int) NR_CPUS);
- 
--	if (pcpus > NR_CPUS)
--		pcpus = NR_CPUS;
-+	if (possible_cpus)
-+		pcpus = min(possible_cpus, (unsigned int) NR_CPUS);
- 
- 	for (cpu = 0; cpu < pcpus; cpu++)
- 		cpu_set(cpu, cpu_possible_map);
-@@ -698,6 +699,13 @@ static int __init setup_additional_cpus(
- }
- early_param("additional_cpus", setup_additional_cpus);
- 
-+static int __init setup_possible_cpus(char *s)
-+{
-+	possible_cpus = simple_strtoul(s, NULL, 0);
-+	return 0;
-+}
-+early_param("possible_cpus", setup_possible_cpus);
-+
- int
- __cpu_disable(void)
- {

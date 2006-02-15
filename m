@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030626AbWBODfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030624AbWBODj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030626AbWBODfv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 22:35:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030629AbWBODfv
+	id S1030624AbWBODj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 22:39:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030625AbWBODj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 22:35:51 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:6374 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S1030626AbWBODfu
+	Tue, 14 Feb 2006 22:39:28 -0500
+Received: from nproxy.gmail.com ([64.233.182.199]:1924 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030624AbWBODj1 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 22:35:50 -0500
-Date: Tue, 14 Feb 2006 19:35:37 -0800
-From: Greg KH <gregkh@suse.de>
-To: Hansjoerg Lipp <hjlipp@web.de>
-Cc: Karsten Keil <kkeil@suse.de>, i4ldeveloper@listserv.isdn4linux.de,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Tilman Schmidt <tilman@imap.cc>
-Subject: Re: [PATCH 9/9] isdn4linux: Siemens Gigaset drivers - M105 USB DECT adapter
-Message-ID: <20060215033537.GE5099@suse.de>
-References: <gigaset307x.2006.02.11.001.0@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.1@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.2@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.3@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.4@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.5@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.6@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.7@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.8@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.9@hjlipp.my-fqdn.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 14 Feb 2006 22:39:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gN/gSJL7t0DLOzEFhUYnRyBWGmFXDTh9fqO/gaSpvYcIHlpljPzEtULnSDTW6IPYJydGVSTiHgd8FM7KGdO1bpMELT81Sd2YmCFV6pdjB5zDM3nYn9VoYjsAVFXduQ2a/G/rpA8NtNG7/oprI0YCmvtpXQk5K9vrGp7QtgLNopI=
+Message-ID: <67029b170602141939v4791ac72l@mail.gmail.com>
+Date: Wed, 15 Feb 2006 11:39:26 +0800
+From: Zhou Yingchao <yingchao.zhou@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Fwd: [PATCH] kretprobe instance recycled by parent process
+In-Reply-To: <67029b170602141936v69b85832q@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <gigaset307x.2006.02.11.001.9@hjlipp.my-fqdn.de>
-User-Agent: Mutt/1.5.11
+References: <43F3059A.9070601@linux.intel.com>
+	 <67029b170602141936v69b85832q@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 11, 2006 at 03:52:29PM +0100, Hansjoerg Lipp wrote:
-> +
-> +/* Get a minor range for your devices from the usb maintainer */
-> +#define USB_SKEL_MINOR_BASE	200
+2006/2/15, bibo mao <bibo_mao@linux.intel.com>:
+> When kretprobe probe schedule() function, if probed process exit then
+> schedule() function will never return, so some kretprobe instance will
+> never be recycled. By this patch the parent process will recycle
+> retprobe instance of probed function, there will be no memory leak of
+> kretprobe instance. This patch is based on 2.6.16-rc3.
 
-I don't think you need this here anymore :)
+Is there any process which can exit without go through the do_exit() path?
+--
+Yingchao Zhou
+***********************************************
+ Institute Of Computing Technology
+ Chinese Academy of Sciences
+ Tel(O) : 010-62613792-28
+***********************************************
 
-> +struct usb_cardstate {
-> +	struct usb_device       *udev;                  /* save off the usb device pointer */
-> +	struct usb_interface    *interface;             /* the interface for this device */
 
-You can get to the usb_device from the usb_interface with a helper
-function call, but if you want to save both pointers off too, that's
-fine.
-
-
+--
+Yingchao Zhou
+***********************************************
+ Institute Of Computing Technology
+ Chinese Academy of Sciences
+ Tel(O) : 010-62613792-28
+***********************************************

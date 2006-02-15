@@ -1,89 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbWBOXYk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWBOX32@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751299AbWBOXYk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 18:24:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbWBOXYk
+	id S1750747AbWBOX32 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 18:29:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbWBOX32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 18:24:40 -0500
-Received: from watts.utsl.gen.nz ([202.78.240.73]:20129 "EHLO mail.utsl.gen.nz")
-	by vger.kernel.org with ESMTP id S1751299AbWBOXYj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 18:24:39 -0500
-Message-ID: <43F3B820.8030907@vilain.net>
-Date: Thu, 16 Feb 2006 12:24:16 +1300
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+	Wed, 15 Feb 2006 18:29:28 -0500
+Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:24310 "EHLO
+	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750747AbWBOX31 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 18:29:27 -0500
+Message-ID: <43F3B952.90606@bigpond.net.au>
+Date: Thu, 16 Feb 2006 10:29:22 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Kirill Korotaev <dev@sw.ru>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>, Herbert Poetzl <herbert@13thfloor.at>
-Subject: Re: (pspace,pid) vs true pid virtualization
-References: <20060215145942.GA9274@sergelap.austin.ibm.com>
-In-Reply-To: <20060215145942.GA9274@sergelap.austin.ibm.com>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Peter Williams <pwil3058@bigpond.net.au>
+CC: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Andrew Morton <akpm@osdl.org>, kernel@kolivas.org, npiggin@suse.de,
+       mingo@elte.hu, rostedt@goodmis.org, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [rfc][patch] sched: remove smpnice
+References: <43ED3D6A.8010300@bigpond.net.au> <20060214010712.B20191@unix-os.sc.intel.com> <43F25C60.4080603@bigpond.net.au> <20060214230745.A1677@unix-os.sc.intel.com> <43F3ACDD.4060901@bigpond.net.au>
+In-Reply-To: <43F3ACDD.4060901@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 15 Feb 2006 23:29:22 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serge E. Hallyn wrote:
-> However, if we're going to get anywhere, the first decision which we
-> need to make is whether to go with a (container,pid), (pspace,pid) or
-> equivalent pair like approach, or a virtualized pid approach.  Linus had
-> previously said that he prefers the former.  Since there has been much
-> discussion since then, I thought I'd try to recap the pros and cons of
-> each approach, with the hope that the head Penguins will chime in one
-> more time, after which we can hopefully focus our efforts.
+Peter Williams wrote:
+> Siddha, Suresh B wrote:
+> 
+>> On Wed, Feb 15, 2006 at 09:40:32AM +1100, Peter Williams wrote:
+>>
+>>> Siddha, Suresh B wrote:
+>>>
+>>>> On a 4P(8-way with HT), if you run a -20 task(a simple infinite loop)
+>>>> it hops from one processor to another processor... you can observe it
+>>>> using top.
+>>>
+>>>
+>>> How do you get top to display which CPU tasks are running on?
+>>
+>>
+>>
+>> In the interactive mode, you can select the "last used cpu" field to 
+>> display.
 
-I am thinking that you can have both.  Not in the sense of
-overcomplicating, but in the sense of having your cake and eating it
-too.
+Thanks this works and I'm now convinced that there's hopping occurring 
+but I disagree on the cause (see below).
 
-The only thing which is a unique, system wide identifier for the process
-is the &task_struct.  So we are already virtualising this pointer into a
-PID for userland.  The only difference is that we cache it (nay, keep
-the authorative version of it) in the task_struct.
+>> or you can use /proc/pid/stat
+>>
+>>
+>>>> find_busiest_group() thinks there is an imbalance and ultimately the
+>>>> idle cpu kicks active load balance on busy cpu, resulting in the 
+>>>> hopping.
+>>>
+>>>
+>>> I'm still having trouble getting my head around this.  A task 
+>>> shouldn't be moved unless there's at least one other task on its 
+>>> current CPU, it 
+>>
+>>
+>>
+>> Because of the highest priority task, weighted load of that cpu
+>> will be > SCHED_LOAD_SCALE. Because of this, an idle cpu in 
+>> find_busiest_group() thinks that there is an imbalance.. This is due to
+>> the code near the comment "however we may be ablet to increase total 
+>> CPU power used by ...". That piece of code assumes that a unit load
+>> is represented by SCHED_LOAD_SCALE (which is no longer true with smpnice)
+>> and finally results in "pwr_move > pwr_now".. This will make the idle cpu
+>> try to pull that process from busiest cpu and the process will 
+>> ultimately move
+>> with the help of active load balance...
+> 
+> 
+> But as I pointed out, with the code as it is in the recent -mm kernels, 
+> the amount of biased load (i.e. NICE_TO_BIAS_PRIO(0)) that 
+> find_busiest_group() sets *imbalance to in these circumstances is too 
+> small for a task with nice less than zero to be moved i.e. move_tasks() 
+> will skip it.  Or are you just referring to the vanilla kernels?
 
-The (XID, PID) approach internally is also fine.  This says that there
-is a container XID, and within it, the PID refers to a particular
-task_struct.  A given task_struct will likely exist in more than one
-place in the (XID, PID) space.  Perhaps the values of PID for XID = 0
-and XID = task.xid can be cached in the task_struct, but that is a
-detail.
+The upshot of this is that the code near "however we may" etc. never 
+gets executed.  So what must be happening is that *imbalance is greater 
+than SCHED_LOAD_SCALE so it goes out unchanged (as the fact that the 
+problem occurs with hard spinners lets try_to_wake_up() off the hook). 
+But, as I also said in another e-mail, there must be another task with 
+equal or higher priority than the task (that's doing the hopping) on its 
+CPU for it to be booted off.  I would surmise that the prime candidate 
+here would be the migration thread for the CPU in question as it's a 
+real time task and seems to run fairly frequently.
 
-Depending on the flags on the XID, we can incorporate all the approaches
-being tabled.  You want virtualised pids?  Well, that'll hurt a little,
-but suit yourself - set a flag on your container and inside the
-container you get virtualised PIDs.  You want a flat view for all your
-vservers?  Fine, just use an XID without the virtualisation flag and
-with the "all seeing eye" property set.  Or you use an XID _with_ the
-virtualisation flag set, and then call a tuple-endowed API to find the
-information you're after.
+The obvious way to handle this is too NOT move tasks from a run queue 
+where the migration thread is running unless the number of running tasks 
+on that CPU is greater than 2.  I'll try to come up with a patch that 
+does this without causing too much complexity.
 
-We can enforce this by simply removing all the internal macros that deal
-with single PID references only; ie, enforce the XID to be used
-everywhere.  This removes the distinction between virtual PIDs and
-"real" pids; it's not a type difference, but an XID value difference.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-There are lots and lots of details I'm glossing over, but such finer
-points are best discussed by trading patches.
-
-IOW, we can stop arguing and start implementing :-).
-
-Sam.
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

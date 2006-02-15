@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030624AbWBODj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030617AbWBODxy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030624AbWBODj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 22:39:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030625AbWBODj2
+	id S1030617AbWBODxy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 22:53:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030625AbWBODxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 22:39:28 -0500
-Received: from nproxy.gmail.com ([64.233.182.199]:1924 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030624AbWBODj1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 22:39:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gN/gSJL7t0DLOzEFhUYnRyBWGmFXDTh9fqO/gaSpvYcIHlpljPzEtULnSDTW6IPYJydGVSTiHgd8FM7KGdO1bpMELT81Sd2YmCFV6pdjB5zDM3nYn9VoYjsAVFXduQ2a/G/rpA8NtNG7/oprI0YCmvtpXQk5K9vrGp7QtgLNopI=
-Message-ID: <67029b170602141939v4791ac72l@mail.gmail.com>
-Date: Wed, 15 Feb 2006 11:39:26 +0800
-From: Zhou Yingchao <yingchao.zhou@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Fwd: [PATCH] kretprobe instance recycled by parent process
-In-Reply-To: <67029b170602141936v69b85832q@mail.gmail.com>
+	Tue, 14 Feb 2006 22:53:54 -0500
+Received: from mailserver.applegatebroadband.net ([207.55.227.3]:47623 "EHLO
+	apbb.net") by vger.kernel.org with ESMTP id S1030617AbWBODxy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 22:53:54 -0500
+Message-ID: <43F2A59D.6010604@wildturkeyranch.net>
+Date: Tue, 14 Feb 2006 19:53:01 -0800
+From: George Anzinger <george@wildturkeyranch.net>
+Reply-To: george@wildturkeyranch.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43F3059A.9070601@linux.intel.com>
-	 <67029b170602141936v69b85832q@mail.gmail.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de, mingo@elte.hu
+Subject: Re: [PATCH 08/12] hrtimer: completely remove it_real_value
+References: <Pine.LNX.4.61.0602141111270.3731@scrub.home> <43F20CCA.6010105@wildturkeyranch.net> <Pine.LNX.4.61.0602141804190.30994@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0602141804190.30994@scrub.home>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/2/15, bibo mao <bibo_mao@linux.intel.com>:
-> When kretprobe probe schedule() function, if probed process exit then
-> schedule() function will never return, so some kretprobe instance will
-> never be recycled. By this patch the parent process will recycle
-> retprobe instance of probed function, there will be no memory leak of
-> kretprobe instance. This patch is based on 2.6.16-rc3.
+Roman Zippel wrote:
+> Hi,
+> 
+> On Tue, 14 Feb 2006, George Anzinger wrote:
+> 
+> 
+>>>Remove the it_real_value from /proc/*/stat, during 1.2.x was the last
+>>>time it returned useful data (as it was directly maintained by the
+>>>scheduler), now it's only a waste of time to calculate it.
+>>
+>>This may be true but this changes the order of items presented making any
+>>"code" looking for items after it_real_value in the list look at the wrong
+>>thing.  If we are going to change this, I think we need some sort of version
+>>in the output.  Something that changes when ever the output format or content
+>>is modified in any way.
+> 
+> 
+> I think you missed this:
+> 
+> 
+>>>@@ -413,7 +411,7 @@ static int do_task_stat(struct task_stru
+>>> 	start_time = nsec_to_clock_t(start_time);
+>>>  	res = sprintf(buffer,"%d (%s) %c %d %d %d %d %d %lu %lu \
+>>>-%lu %lu %lu %lu %lu %ld %ld %ld %ld %d %ld %llu %lu %ld %lu %lu %lu %lu %lu
+>>>\
+>>>+%lu %lu %lu %lu %lu %ld %ld %ld %ld %d 0 %llu %lu %ld %lu %lu %lu %lu %lu \
+> 
+>                                             ^
+I think you are right.  Looks ok to me.
 
-Is there any process which can exit without go through the do_exit() path?
---
-Yingchao Zhou
-***********************************************
- Institute Of Computing Technology
- Chinese Academy of Sciences
- Tel(O) : 010-62613792-28
-***********************************************
+-- 
+George Anzinger   george@wildturkeyranch.net
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
 
-
---
-Yingchao Zhou
-***********************************************
- Institute Of Computing Technology
- Chinese Academy of Sciences
- Tel(O) : 010-62613792-28
-***********************************************

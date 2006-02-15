@@ -1,111 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422868AbWBOAEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbWBOAJi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422868AbWBOAEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 19:04:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422891AbWBOAEZ
+	id S1750846AbWBOAJi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 19:09:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbWBOAJi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 19:04:25 -0500
-Received: from mail.gmx.de ([213.165.64.21]:38573 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1422868AbWBOAEY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 19:04:24 -0500
-X-Authenticated: #428038
-Date: Wed, 15 Feb 2006 01:04:20 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Rob Landley <rob@landley.net>
-Cc: Matthias Andree <matthias.andree@gmx.de>,
-       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060215000420.GB21088@merlin.emma.line.org>
-Mail-Followup-To: Rob Landley <rob@landley.net>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com> <43F1C385.nailMWZ599SQ5@burner> <20060214122333.GA32743@merlin.emma.line.org> <200602141751.02153.rob@landley.net>
+	Tue, 14 Feb 2006 19:09:38 -0500
+Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:1001 "EHLO
+	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750844AbWBOAJh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 19:09:37 -0500
+Message-ID: <43F2713E.3080204@bigpond.net.au>
+Date: Wed, 15 Feb 2006 11:09:34 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200602141751.02153.rob@landley.net>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+To: Paul Jackson <pj@sgi.com>
+CC: suresh.b.siddha@intel.com, akpm@osdl.org, kernel@kolivas.org,
+       npiggin@suse.de, mingo@elte.hu, rostedt@goodmis.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [rfc][patch] sched: remove smpnice
+References: <43ED3D6A.8010300@bigpond.net.au>	<20060214010712.B20191@unix-os.sc.intel.com>	<43F25C60.4080603@bigpond.net.au> <20060214154432.9a4f8a0c.pj@sgi.com>
+In-Reply-To: <20060214154432.9a4f8a0c.pj@sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 15 Feb 2006 00:09:34 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Feb 2006, Rob Landley wrote:
+Paul Jackson wrote:
+> Peter wrote:
+> 
+>>In these circumstances, moving the task 
+>>to an idle CPU should be a "good thing" unless the time taken for the 
+>>move is longer than the time that will pass before the task becomes the 
+>>running task on its current CPU.
+> 
+> 
+> Even then, it's not always a "good thing".
+> 
+> The less of the cache-memory hierarchy the two CPUs share, the greater
+> the penalty to the task for memory accesses after the move.
+> 
+> At one extreme, two hyperthreads on the same core share essentially all
+> the memory hierarchy, so have no such penalty.
+> 
+> At the other extreme, two CPUs at opposite ends of a big NUMA box have,
+> so far as performance is concerned, quite different views of the memory
+> hierarchy.  A task moved to a far away CPU will be cache cold for
+> several layers of core, package, board, and perhaps router hierarchy,
+> and have slower access to its main memory pages.
 
-> With mkisofs I can just start from the spec, reverse engineer a few existing 
-> ISOs, or grab the really old code from before Joerg got ahold of it (back 
-> when it was still readable).  That's no problem.  But for cdrecord, I can't 
-> find documentation on what the kernel expects.
+This will complicate things IF we end up having to introduce an "is it 
+worth moving this particular task" test to move_tasks() in addition to 
+the "cache hot" test.  E.g. "will it take longer for this task to do 
+something useful on its new CPU than if we leave it here?" would 
+obviously have to take into account any delay in accessing memory as a 
+result of the move.  Hopefully it won't come to that :-).
 
-That's mostly the sg <http://sg.torque.net/sg/p/sg_v3_ho.html> interface
-that matters, and of that mostly the open and SG_IO parts. cdrecord is
-severely bound to talking SCSI.
-
-> I'm only interested in supporting ATA cd burners under a 2.6 or newer kernel, 
-> using the DMA method.  (SCSI is dead, I honestly don't care.)
-
-SCSI being dead for writing is actually a pity because SCSI was all in
-all so much smoother. More devices on the same cable (which was a real
-bus), no hassles with b0rked "IDE" interfaces that only work for hard
-disks but not ATAPI devices and more. Everything SCSI has had for more
-than a decade is slowly retrofitted into ATA(PI), removed if not good
-enough (TCQ), and reinvented (NCQ) when in fact SCSI had it right for
-aeons.
-
-The good thing is ATAPI via ide-cd vs. SCSI does not matter any more,
-and SCSI vs. parallel matters very little (but that's just as dead as
-SCSI for CD writing). If you don't care to enumerate devices or obtain
-b,t,l, you just take the device name, open it and do some sanity checks
-to see if you're talking to a CD-ROM.
-
-The downside is, and here an abstraction layer has a point, just this
-simple won't be portable. SG_IO is Linux-specific.
-
-Jörg's complaints about ide-cd being different, layer violations and
-else are entirely artificially constructed complaints, at least he
-hasn't been able to document real bugs in ide-cd in the course of this
-thread, but holding on to ide-scsi which is known to have severe bugs.
-He was under some miscomprehension of the Linux internals and split
-ATA: and SCSI namespaces and added some more artificial complaints about
-non-existent problems.
-
-One question I do have is if SG_IO would work on /dev/sr* as well. I
-don't know the answer and don't have time to dig through the relevant
-code now.
-
-> I was hoping I could just open the /dev/cdrom and call the appropriate
-> ioctls on it, but reading the cdrecord source proved enough of an
-> exercise in masochism that I always give up after the first hour and
-> put it back on the todo list.
-
-Perhaps reading a late MMC draft from t10.org is more useful as a
-starting point, if you want the real thing, you'll have to get an
-official standard. And perhaps retrofitting CD support into growisofs
-(from the dvd+rw-tools) might be another idea.
-
-> I suppose I should say "screw the source code" and just run the cdrecord 
-> binary under strace to see what it's doing,
-
-You'd have to enable strace to actually unravel SG_IO contents, else
-you're only getting a useless pointer - unless you trust cdrecord -V.
-
-> * How bad?  Random example of ignoring how the rest of the world works is that 
-> it runs autoconf from within make, meaning there's no obvious way to specify 
-> "./configure --prefix=/mypath", so the last time I played with it (which was 
-> a while ago), I wound up doing this:
-
-To be fair, installation into specific paths is documented in 2.01 and
-newer alphas. Quoting INSTALL, section "Using a different installation
-directory[...]":
-
-  "If your make program supports to propagate make macros to sub make
-  programs which is the case for recent smake releases as well as for a
-  recent gnumake:
-
-        smake INS_BASE=/usr/local install
-  or
-        gmake INS_BASE=/usr/local install"
-
+Peter
 -- 
-Matthias Andree
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

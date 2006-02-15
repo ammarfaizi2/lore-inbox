@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWBOOTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWBOOXz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932102AbWBOOTV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 09:19:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWBOOTV
+	id S932449AbWBOOXz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 09:23:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWBOOXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 09:19:21 -0500
-Received: from vmaila.mclink.it ([195.110.128.108]:35847 "EHLO
-	vmaila.mclink.it") by vger.kernel.org with ESMTP id S932102AbWBOOTU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 09:19:20 -0500
-From: "Mauro Tassinari" <mtassinari@cmanet.it>
-To: "'Adrian Bunk'" <bunk@stusta.de>
-Cc: "'Linus Torvalds'" <torvalds@osdl.org>, "'Dave Jones'" <davej@redhat.com>,
-       "'Andrew Morton'" <akpm@osdl.org>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       <airlied@linux.ie>, <dri-devel@lists.sourceforge.net>
-Subject: Re: 2.6.16-rc3: more regressions
-Date: Wed, 15 Feb 2006 15:17:30 +0100
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA//gP36uv0hG9NQDAJogAp8KAAAAQAAAANQL/eIi7wEWXuWvAG6xFngEAAAAA@cmanet.it>
+	Wed, 15 Feb 2006 09:23:55 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:51080 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932449AbWBOOXz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 09:23:55 -0500
+Message-ID: <43F3397B.3090207@de.ibm.com>
+Date: Wed, 15 Feb 2006 15:23:55 +0100
+From: Carsten Otte <cotte@de.ibm.com>
+Reply-To: carsteno@de.ibm.com
+Organization: IBM Deutschland
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Christoph Hellwig <hch@lst.de>
+CC: Horst Hummel <horst.hummel@de.ibm.com>,
+       kernel <linux-kernel@vger.kernel.org>, heiko <heicars2@de.ibm.com>,
+       Stefan Weinhuber <wein@de.ibm.com>, Martin <mschwid2@de.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, ihno@suse.de
+Subject: Re: [PATCH 0/5] new dasd ioctl patchkit
+References: <1139935988.6183.5.camel@localhost.localdomain> <20060214190909.GA20527@lst.de>
+In-Reply-To: <20060214190909.GA20527@lst.de>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Module                  Size  Used by
->appletalk              27696  2
->ax25                   45784  2
->ipx                    21164  2
->radeon                 94112  0
->
->this of course on 2.6.15, since 2.6.16 completely hangs, and no other info
-can be gathered.
+Christoph Hellwig wrote:
+> As long as we backout the bogus eer
+> patch before 2.6.16 all the cleanups and even the eckd ioctl fix
+> can wait.  But don't put this crappy interface into 1.6.16 and thus
+> SLES10 so that applications start to rely on it.
+ACK: Given that a) both Horst and Christoph think the ioctl interface
+needs cleanup but proposed cleanup interfers with existing
+functionality (cmb), and b) later cleanup would change the
+user-interface of eer, we should rush neither the ioctl change nor
+eer into .16 until the maintainer is back afaics.
 
+Carsten
+-- 
 
-BTW, modprobe-ing radeon.ko (no Xorg started), 2.6.16-rc1 stays up and this
-is dmesg:
-
-... snip ...
-
-ACPI: PCI Interrupt 0000:04:00.0[A] -> GSI 16 (level, low) -> IRQ 16
-[drm] Initialized radeon 1.21.0 20051229 on minor 0
-
-... snip ...
-
-then, as soon as Xorg is started, the system hangs.
-
-Mauro
-
+Carsten Otte
+IBM Linux technology center
+ARCH=s390

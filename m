@@ -1,48 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750907AbWBOFVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422962AbWBOFWP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750907AbWBOFVE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 00:21:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422960AbWBOFVE
+	id S1422962AbWBOFWP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 00:22:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422961AbWBOFWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 00:21:04 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:1674 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S1750907AbWBOFVC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 00:21:02 -0500
-Date: Tue, 14 Feb 2006 21:20:52 -0800
-From: Greg KH <greg@kroah.com>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060215052051.GA22240@kroah.com>
-References: <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com> <20060210235654.GA22512@kroah.com> <43F0891E.nailKUSCGC52G@burner> <871wy6sy7y.fsf@hades.wkstn.nix> <43F1BE96.nailMY212M61V@burner> <20060214223001.GB357@kroah.com> <20060215004320.GB21742@merlin.emma.line.org>
+	Wed, 15 Feb 2006 00:22:15 -0500
+Received: from mail.gmx.de ([213.165.64.21]:45972 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1422962AbWBOFWO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 00:22:14 -0500
+X-Authenticated: #14349625
+Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
+From: MIke Galbraith <efault@gmx.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Con Kolivas <kernel@kolivas.org>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       gcoady@gmail.com, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1139977373.2733.9.camel@mindpipe>
+References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
+	 <200602131637.43335.kernel@kolivas.org> <1139810224.7935.9.camel@homer>
+	 <200602131708.52342.kernel@kolivas.org>  <1139812538.7744.8.camel@homer>
+	 <1139812725.2739.94.camel@mindpipe>  <1139814504.8124.6.camel@homer>
+	 <1139820181.3202.2.camel@mindpipe>  <1139834106.7831.115.camel@homer>
+	 <1139977373.2733.9.camel@mindpipe>
+Content-Type: text/plain
+Date: Wed, 15 Feb 2006 06:22:20 +0100
+Message-Id: <1139980940.24148.47.camel@homer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060215004320.GB21742@merlin.emma.line.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 15, 2006 at 01:43:20AM +0100, Matthias Andree wrote:
-> > > Please send me the other documentation (e.g. man pages) on the /sys
-> > > device
+On Tue, 2006-02-14 at 23:22 -0500, Lee Revell wrote:
+> On Mon, 2006-02-13 at 13:35 +0100, MIke Galbraith wrote:
+> > On Mon, 2006-02-13 at 03:43 -0500, Lee Revell wrote:
+> > > On Mon, 2006-02-13 at 08:08 +0100, MIke Galbraith wrote:
+> > > > On Mon, 2006-02-13 at 01:38 -0500, Lee Revell wrote:
+> > > > > Do you know which of those changes fixes the "ls" problem?
+> > > > 
+> > > > No, it could be either, both, or neither.  Heck, it _could_ be a
+> > > > combination of all of the things in my experimental tree for that
+> > > > matter.  I put this patch out there because I know they're both bugs,
+> > > > and strongly suspect it'll cure the worst of the interactivity related
+> > > > delays.
+> > > > 
+> > > > I'm hoping you'll test it and confirm that it fixes yours.
+> > > 
+> > > Nope, this does not fix it.  "time ls" ping-pongs back and forth between
+> > > ~0.1s and ~0.9s.  Must have been something else in the first patch.
 > > 
-> > What "/sys device"?  sysfs is a file system, and there have been many
-> > magazine articles, and conference papers written, and talks given on the
-> > topic.
+> > Hmm.  Thinking about it some more, it's probably more than this alone,
+> > but it could well be the boost qualifier I'm using...
 > 
-> And that is the key problem. magazine here, conference there, talk
-> (perhaps only slides available) somewhere else -- a manual that was in
-> /usr/src/linux/Documentation might make a real difference. Even a
-> commented link list in Documentation/* might be a good starting point.
+> OK, with 2.6.16-rc2-mm1, "ls" bounces around between 0.15s and 0.50s.
+> Better than mainline but the large seemingly random variance is still
+> perceptible and annoying.  And, "ls | cat" behaves about the same as
+> "ls", while on mainline it was consistently faster (!).
+
+Ok.  That means the reduction in fluctuation had nothing to do with my
+changes.  It also suggests that there may be something of a regression
+in the changes that are in mm, which I also carried in my patch, since
+the timing for both kernels appear to be ~identical with or without my
+bits.  That seems a little odd to me considering what those changes do.
+
 > 
-> Patrick Mochel added some bits three years ago, but they were internals
-> and thus a bit less interesting.
+> Do you have an updated patch against -mm that I can test?
 
-What would be "interesting"?  The sysfs and driver model chapter of the
-Linux Device Driver book from Oreilly, third edition?  Or something
-oriented toward users of sysfs, not developers using it?
+I will soon if you still want to try it. I've fixed the throttle release
+thing, and am fine tuning the interactivity bits.  I have it working
+very well now, but want to try to squeeze some more from it.
 
-thanks,
+Drop me a line if you're still interested from the interactivity side,
+but I think the ls delay reduction has turned out to be a red herring.
 
-greg k-h
+	-Mike
+

@@ -1,48 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945968AbWBOO4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945948AbWBOPAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945968AbWBOO4W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 09:56:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945966AbWBOO4W
+	id S1945948AbWBOPAS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 10:00:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945957AbWBOPAQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 09:56:22 -0500
-Received: from jaguar.mkp.net ([192.139.46.146]:30879 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S1945963AbWBOO4V (ORCPT
+	Wed, 15 Feb 2006 10:00:16 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:49938 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1945948AbWBOPAP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 09:56:21 -0500
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: <hawkes@sgi.com>, "Tony Luck" <tony.luck@gmail.com>,
-       "Andrew Morton" <akpm@osdl.org>, <linux-ia64@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, "Jack Steiner" <steiner@sgi.com>,
-       "Robin Holt" <holt@sgi.com>, "Dimitri Sivanich" <sivanich@sgi.com>
-Subject: Re: [PATCH] ia64: simplify and fix udelay()
-References: <200602150908.k1F98dg02934@unix-os.sc.intel.com>
-From: Jes Sorensen <jes@sgi.com>
-Date: 15 Feb 2006 09:56:20 -0500
-In-Reply-To: <200602150908.k1F98dg02934@unix-os.sc.intel.com>
-Message-ID: <yq0y80cy8kr.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
+	Wed, 15 Feb 2006 10:00:15 -0500
+Date: Wed, 15 Feb 2006 15:59:25 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Sander <sander@humilis.net>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc3 kernel BUG at drivers/scsi/sata_mv.c:1018
+Message-ID: <20060215145925.GU4203@suse.de>
+References: <20060215131653.GA26178@favonius>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060215131653.GA26178@favonius>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Ken" == Chen, Kenneth W <kenneth.w.chen@intel.com> writes:
+On Wed, Feb 15 2006, Sander wrote:
+> Hi Jeff and others,
+> 
+> I get a kernel BUG message when I try to create a raid1 or raid5 over
+> nine 64MB partitions located on nine sata disks (Maxtor Pro 500) on a
+> fresh setup. The system locks hard: no sysrq.
+> 
+> The onboard controller is an nVidia nForce with three disks.
+> The six other disks are connected to a Marvell 88SX6081 controller.
+> 
+> Last night and the first half of today all disks were tested with
+> badblocks in write mode, which the system survived just fine (one disk
+> out of ten detected as broken, so nine disks left).
+> 
+> A google search leads me to
+> 
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0601.2/0479.html
+> 
+> and
+> 
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0601.2/0626.html
+> 
+> I had MSI disabled in the .config already, and will try again with debug
+> options set.
+> 
+> In the mean time, is this of any help?
+> 
+> I can try any patch you throw at me, or any config option, as this
+> system is not in production yet.
 
-Ken> hawkes@sgi.com wrote on Tuesday, February 14, 2006 10:40 AM
->> a preemption and migration to another CPU during the while-loop
+It's barfing on a barrier write, I bet. The attached patch should fix
+it.
 
-Ken> Off topic from the subject line a bit, but related: how many
-Ken> Altix SN2 customers in the field turn on CONFIG_PREEMPT? Redhat
-Ken> EL4 doesn't turn on preempt, SuSE SLES9 and SLES10 beta don't
-Ken> turn it on either.  Is there a real benefit of turning that
-Ken> option on for SN2?
+---
 
-Ken,
+[PATCH] Add missing FUA write to sata_mv dma command list
 
-Not sure if any do, however as long as it's a supported kernel option
-then we ought to make sure the kernel is reliable under it. Who knows,
-at some point some distro might even decide to switch it on as well
-(as much as I would discourage doing so ;).
+Signed-off-by: Jens Axboe <axboe@suse.de>
 
-Cheers,
-Jes
+diff --git a/drivers/scsi/sata_mv.c b/drivers/scsi/sata_mv.c
+index 6fddf17..2770005 100644
+--- a/drivers/scsi/sata_mv.c
++++ b/drivers/scsi/sata_mv.c
+@@ -997,6 +997,7 @@ static void mv_qc_prep(struct ata_queued
+ 	case ATA_CMD_READ_EXT:
+ 	case ATA_CMD_WRITE:
+ 	case ATA_CMD_WRITE_EXT:
++	case ATA_CMD_WRITE_FUA_EXT:
+ 		mv_crqb_pack_cmd(cw++, tf->hob_nsect, ATA_REG_NSECT, 0);
+ 		break;
+ #ifdef LIBATA_NCQ		/* FIXME: remove this line when NCQ added */
+
+-- 
+Jens Axboe
+

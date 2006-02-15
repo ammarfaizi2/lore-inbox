@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWBOTQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWBOTQn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbWBOTQl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 14:16:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWBOTQl
+	id S932166AbWBOTQn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 14:16:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbWBOTQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 14:16:41 -0500
-Received: from smtprelay05.ispgateway.de ([80.67.18.43]:21169 "EHLO
-	smtprelay05.ispgateway.de") by vger.kernel.org with ESMTP
-	id S932164AbWBOTQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 14:16:40 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: + acpi_os_acquire_object-gfp_kernel-called-with-irqs.patch added to -mm tree
-Date: Wed, 15 Feb 2006 20:15:59 +0100
-User-Agent: KMail/1.7.2
-Cc: Davi Arnaut <davi.arnaut@gmail.com>, Dave Jones <davej@redhat.com>,
-       len.brown@intel.com, pavel@ucw.cz, akpm@osdl.org
-References: <200602132314.k1DNElaA011901@shell0.pdx.osdl.net> <20060213235244.GA11200@redhat.com> <20060213222406.518edeb8.davi.arnaut@gmail.com>
-In-Reply-To: <20060213222406.518edeb8.davi.arnaut@gmail.com>
+	Wed, 15 Feb 2006 14:16:43 -0500
+Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:57604 "EHLO
+	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
+	id S932166AbWBOTQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 14:16:42 -0500
+To: Rob Landley <rob@landley.net>
+Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Matthias Andree <matthias.andree@gmx.de>,
+       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com>
+	<200602142155.03407.rob@landley.net>
+	<20060215183115.GE29940@csclub.uwaterloo.ca>
+	<200602151409.41523.rob@landley.net>
+From: Doug McNaught <doug@mcnaught.org>
+Date: Wed, 15 Feb 2006 14:16:36 -0500
+In-Reply-To: <200602151409.41523.rob@landley.net> (Rob Landley's message of
+ "Wed, 15 Feb 2006 14:09:41 -0500")
+Message-ID: <87k6bwl9ez.fsf@asmodeus.mcnaught.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602152016.05461.ioe-lkml@rameria.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Rob Landley <rob@landley.net> writes:
 
-On Tuesday 14 February 2006 02:24, Davi Arnaut wrote:
-> You are right, this one instead should work better.
-> 
-> Signed-off-by: Davi Arnaut <davi.arnaut@gmail.com>
-> --
-> 
-> diff --git a/drivers/acpi/osl.c b/drivers/acpi/osl.c
-> index ac5bbae..8d44b0d 100644
-> --- a/drivers/acpi/osl.c
-> +++ b/drivers/acpi/osl.c
-> @@ -1175,7 +1175,12 @@ acpi_status acpi_os_release_object(acpi_
->  
->  void *acpi_os_acquire_object(acpi_cache_t * cache)
->  {
-> -	void *object = kmem_cache_alloc(cache, GFP_KERNEL);
-> +	void *object;
-> +	
-> +	if (acpi_in_resume)
-> +		object = kmem_cache_alloc(cache, GFP_ATOMIC);
-> +	else
-> +		object = kmem_cache_alloc(cache, GFP_KERNEL);
->  	WARN_ON(!object);
->  	return object;
->  }
+> On Wednesday 15 February 2006 1:31 pm, Lennart Sorensen wrote:
+>> once.
+>
+> Yup.  Apparently with SAS, the controllers are far more likely to fail than 
+> the drives.
 
-Why not even fold all the memsets from the caller into this function?
-This reduces code of the call sites further and makes it clearer.
-Also in every call site, we do some check 
-(or not as fixed by your patch :-)) and memset it afterwards.
+I think the actual idea (or one of them) is to have two machines
+connected to each drive, in a hot-standby configuration.  This has
+been done for a long time with parallel SCSI, where both machines have
+controllers on the bus.
 
-Since kzalloc() this is the new fashion anyway :-)
-
-
-Regards
-
-Ingo Oeser
-
+-Doug

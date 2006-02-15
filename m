@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWBOOQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWBOOTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbWBOOQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 09:16:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWBOOQ1
+	id S932102AbWBOOTV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 09:19:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWBOOTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 09:16:27 -0500
-Received: from mr1.bfh.ch ([147.87.250.50]:10193 "EHLO mr1.bfh.ch")
-	by vger.kernel.org with ESMTP id S932092AbWBOOQ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 09:16:27 -0500
-thread-index: AcYyOa0uD3FTdDYKRfa7GCaGhi4Efw==
-X-PMWin-Version: 2.5.0e, Antispam-Engine: 2.2.0.0, Antivirus-Engine: 2.32.10
-Content-Class: urn:content-classes:message
-Importance: normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
-Message-ID: <43F3367F.8020807@bfh.ch>
-Date: Wed, 15 Feb 2006 15:11:11 +0100
-From: "Seewer Philippe" <philippe.seewer@bfh.ch>
-Organization: BFH
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050811)
-X-Accept-Language: en-us, en
+	Wed, 15 Feb 2006 09:19:21 -0500
+Received: from vmaila.mclink.it ([195.110.128.108]:35847 "EHLO
+	vmaila.mclink.it") by vger.kernel.org with ESMTP id S932102AbWBOOTU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 09:19:20 -0500
+From: "Mauro Tassinari" <mtassinari@cmanet.it>
+To: "'Adrian Bunk'" <bunk@stusta.de>
+Cc: "'Linus Torvalds'" <torvalds@osdl.org>, "'Dave Jones'" <davej@redhat.com>,
+       "'Andrew Morton'" <akpm@osdl.org>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
+       <airlied@linux.ie>, <dri-devel@lists.sourceforge.net>
+Subject: Re: 2.6.16-rc3: more regressions
+Date: Wed, 15 Feb 2006 15:17:30 +0100
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA//gP36uv0hG9NQDAJogAp8KAAAAQAAAANQL/eIi7wEWXuWvAG6xFngEAAAAA@cmanet.it>
 MIME-Version: 1.0
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>,
-       "Phillip Susi" <psusi@cfl.rr.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: disk geometry via sysfs
-References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com> <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com> <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com> <43F2E8BA.90001@bfh.ch> <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com> <43F2EE04.9060500@bfh.ch> <1140012392.14831.13.camel@localhost.localdomain>
-In-Reply-To: <1140012392.14831.13.camel@localhost.localdomain>
 Content-Type: text/plain;
-	charset="ISO-8859-1"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Feb 2006 14:11:12.0405 (UTC) FILETIME=[AD068C50:01C63239]
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>Module                  Size  Used by
+>appletalk              27696  2
+>ax25                   45784  2
+>ipx                    21164  2
+>radeon                 94112  0
+>
+>this of course on 2.6.15, since 2.6.16 completely hangs, and no other info
+can be gathered.
 
 
-Alan Cox wrote:
-> On Mer, 2006-02-15 at 10:01 +0100, Seewer Philippe wrote:
-> 
->>This would mean dropping the HDIO_GETGEO ioctl completely and force
->>applications such as fdisk/sfdisk and even dosemu to determine disk
->>geometry for themselves. Which I think actually would be the most
->>correct approach.
-> 
-> 
-> In the IDE case the drive geometry has meaning in certain cases,
-> specifically the C/H/S drive addressing case with old old drives. 
-> 
-> 
-Yes. But the addressing is abstracted by the kernel and we where talking
-about dropping the getgeo ioctrl. Not geometry itself.
+BTW, modprobe-ing radeon.ko (no Xorg started), 2.6.16-rc1 stays up and this
+is dmesg:
+
+... snip ...
+
+ACPI: PCI Interrupt 0000:04:00.0[A] -> GSI 16 (level, low) -> IRQ 16
+[drm] Initialized radeon 1.21.0 20051229 on minor 0
+
+... snip ...
+
+then, as soon as Xorg is started, the system hangs.
+
+Mauro
+

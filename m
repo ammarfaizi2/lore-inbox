@@ -1,77 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWBOKyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422719AbWBOK66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbWBOKyk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 05:54:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWBOKyk
+	id S1422719AbWBOK66 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 05:58:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWBOK66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 05:54:40 -0500
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:30087 "HELO
-	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751124AbWBOKyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 05:54:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=mzgE1lLHY+jXG8xTn72FzX04x5cAR9UBdw+qx/PZbbKIyfTSLqEbrMyavT0KdJwEmMs+PskJt8+EpAwI2PQKrL33/dHrGbiW2aQ0MpjsuWrxHi8lKcAsK4I9D4JeED1LaMBzIvSLxPh0pL8IB41uQcAhkgNOQ2juxid8lJgVX4k=  ;
-Message-ID: <43F2EDD6.7000204@yahoo.com.au>
-Date: Wed, 15 Feb 2006 20:01:10 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 15 Feb 2006 05:58:58 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:33159 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751137AbWBOK66 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 05:58:58 -0500
+Date: Wed, 15 Feb 2006 11:58:56 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: time patches by Roman Zippel
+In-Reply-To: <43F2E59D.24184.A70C2D5@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+Message-ID: <Pine.LNX.4.61.0602151132430.30994@scrub.home>
+References: <43F1F2B4.7205.6BBE301@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+ <43F2E59D.24184.A70C2D5@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
 MIME-Version: 1.0
-To: Coywolf Qi Hunt <qiyong@fc-cn.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] make sysctl_overcommit_memory enumeration sensible
-References: <20060215085456.GA2481@localhost.localdomain>
-In-Reply-To: <20060215085456.GA2481@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811837-67307697-1140001136=:30994"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf Qi Hunt wrote:
-> I see system admins often confused when they sysctl vm.overcommit_memory.
-> This patch makes overcommit_memory enumeration sensible.
-> 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-What's the point? The current has been there for a long time, and
-is well documented.
+---1463811837-67307697-1140001136=:30994
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-> 0 - no overcommit
-> 1 - always overcommit
-> 2 - heuristic overcommit (default)
-> 
-> I don't feel this would break any userspace scripts.
+Hi,
 
-You mean, except for the ones that go `echo 0 > /proc/sys/vm/overcommit_memory`;
-or `echo 2 > /proc/sys/vm/overcommit_memory` ?
+On Wed, 15 Feb 2006, Ulrich Windl wrote:
 
-And those sysctl configuration files that get set at bootup?
+> > > Assuming 1024Hz interrupt frequency:
+> > > (1=B5s * 1000) / 1024 =3D=3D 0ns; 0 * 1024 =3D=3D 0=B5s, not 1=B5s
+> > > (2=B5s * 1000) / 1024 =3D=3D 1ns; 1 * 1024 =3D=3D 1.024=B5s, not 2=B5=
+s
+> >=20
+> > Ok, I didn't put much effort into optimizing it for uncommon HZ values.=
+=20
+> > Why is it so important? It's currently unused on any Linux machine=20
+> > synchronized via NTP.
+>=20
+> Roman,
+>=20
+> how do you know? When using "disable kernel", NTP relies on adjtime() to =
+adjust=20
+> the time. Some people even prefer that, because the algorithms do floatin=
+g point=20
+> math in user space instead of fixed-point maths in kernel space.
 
-> If it seems OK, I'll
-> update the documents.
-> 
-> Signed-off-by: Coywolf Qi Hunt <qiyong@fc-cn.com>
-> ---
-> diff --git a/include/linux/mman.h b/include/linux/mman.h
-> index 18a5689..e50f5ad 100644
-> --- a/include/linux/mman.h
-> +++ b/include/linux/mman.h
-> @@ -10,9 +10,9 @@
->  #define MREMAP_MAYMOVE	1
->  #define MREMAP_FIXED	2
->  
-> -#define OVERCOMMIT_GUESS		0
-> +#define OVERCOMMIT_NEVER		0
->  #define OVERCOMMIT_ALWAYS		1
-> -#define OVERCOMMIT_NEVER		2
-> +#define OVERCOMMIT_GUESS		2
->  extern int sysctl_overcommit_memory;
->  extern int sysctl_overcommit_ratio;
->  extern atomic_t vm_committed_space;
-> 
+This still requires they choose an uncommon HZ value, which is not really=
+=20
+likely. Anyway, it's not really difficult to add the remainder to=20
+time_adj_curr. Since the adjtime() has only a usec resolution and this=20
+rounding error is only 1 usec, I didn't consider it to be that important.
 
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+bye, Roman
+---1463811837-67307697-1140001136=:30994--

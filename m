@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422893AbWBOA0v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422897AbWBOAaS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422893AbWBOA0v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 19:26:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422897AbWBOA0v
+	id S1422897AbWBOAaS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 19:30:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422898AbWBOAaS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 19:26:51 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:35528
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1422893AbWBOA0v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 19:26:51 -0500
-From: Rob Landley <rob@landley.net>
-To: Olivier Galibert <galibert@pobox.com>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Tue, 14 Feb 2006 19:26:45 -0500
-User-Agent: KMail/1.8.3
-Cc: Matthias Andree <matthias.andree@gmx.de>,
-       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com> <200602141751.02153.rob@landley.net> <20060214232401.GA83161@dspnet.fr.eu.org>
-In-Reply-To: <20060214232401.GA83161@dspnet.fr.eu.org>
+	Tue, 14 Feb 2006 19:30:18 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:31362 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1422897AbWBOAaR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 19:30:17 -0500
+Date: Wed, 15 Feb 2006 01:30:04 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] hrtimer: round up relative start time on low-res arches
+In-Reply-To: <20060214122031.GA30983@elte.hu>
+Message-ID: <Pine.LNX.4.61.0602150033150.30994@scrub.home>
+References: <Pine.LNX.4.61.0602130207560.23745@scrub.home>
+ <1139827927.4932.17.camel@localhost.localdomain> <Pine.LNX.4.61.0602131208050.30994@scrub.home>
+ <20060214074151.GA29426@elte.hu> <Pine.LNX.4.61.0602141113060.30994@scrub.home>
+ <20060214122031.GA30983@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602141926.45359.rob@landley.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 February 2006 6:24 pm, Olivier Galibert wrote:
-> There may be a chance that cdrdao provides a better starting point,
-> readability-wise.  It seems to be simpler in what it does, and I've
-> tended to have a better success rate with it than with cdrecord on
-> "normal" usage.  Of course, it does not (or did not) include the
-> advanced usage cdrecord supports (various writing modes, multisession,
-> who knows what else).
+Hi,
 
-I wanna go:
+On Tue, 14 Feb 2006, Ingo Molnar wrote:
 
-./busybox cdwrite filename.iso /dev/cdrom
+> CONFIG_TIME_LOW_RES is a temporary way for architectures to signal that 
+> they simply return xtime in do_gettimeoffset(). In this corner-case we 
+> want to round up by resolution when starting a relative timer, to avoid 
+> short timeouts. This will go away with the GTOD framework.
 
-And:
+This fixes the worst cases. Even the common case should somehow reflect 
+that the relative start time should be rounded up in the same way (even 
+if not by that much), e.g. due to rounding the current get_time() (at 
+least for the non TIME_INTERPOLATION case) has a 1usec resolution, which 
+should be added there. 
 
-./busybox cdwrite -e
-
-To blank a rewriteable.
-
-Anything else is gravy, pretty much...
-
->   OG.
-
-Rob
--- 
-Never bet against the cheap plastic solution.
+bye, Roman

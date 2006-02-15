@@ -1,65 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946009AbWBOQ1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946015AbWBOQb3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946009AbWBOQ1S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 11:27:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946011AbWBOQ1S
+	id S1946015AbWBOQb3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 11:31:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946014AbWBOQb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 11:27:18 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:39897
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1946009AbWBOQ1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 11:27:17 -0500
-Date: Wed, 15 Feb 2006 08:27:20 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] Re: Linux 2.6.16-rc3
-Message-ID: <20060215162720.GA1503@kroah.com>
-References: <1139934883.14115.4.camel@mulgrave.il.steeleye.com> <Pine.LNX.4.44L0.0602151103160.4598-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
+	Wed, 15 Feb 2006 11:31:29 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:2934 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S1946013AbWBOQb2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 11:31:28 -0500
+Date: Wed, 15 Feb 2006 17:31:35 +0100
+From: Sander <sander@humilis.net>
+To: Jens Axboe <axboe@suse.de>
+Cc: Sander <sander@humilis.net>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc3 kernel BUG at drivers/scsi/sata_mv.c:1018
+Message-ID: <20060215163135.GA20806@favonius>
+Reply-To: sander@humilis.net
+References: <20060215131653.GA26178@favonius> <20060215145925.GU4203@suse.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0602151103160.4598-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060215145925.GU4203@suse.de>
+X-Uptime: 16:36:36 up 15 days,  7:55, 23 users,  load average: 3.20, 2.85, 2.58
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 15, 2006 at 11:07:32AM -0500, Alan Stern wrote:
-> On Tue, 14 Feb 2006, James Bottomley wrote:
-> 
-> > On Mon, 2006-02-13 at 12:38 -0800, Greg KH wrote:
-> > > > - Nasty warnings from scsi about kobject-layer things being called
-> > > from
-> > > >   irq context.  James has a push-it-to-process-context patch which
-> > > sadly
-> > > >   assumes kmalloc() is immortal, but no other fix seems to have
-> > > offered
-> > > >   itself.
-> > > 
-> > > This has been the case for a long time.  I don't really think there is
-> > > a
-> > > rush to get this fixed, but I really like James's proposed patch.
-> > > It's
-> > > up to him if he feels it is ready for 2.6.16 or not.
+Jens Axboe wrote (ao):
+> On Wed, Feb 15 2006, Sander wrote:
+> > I get a kernel BUG message when I try to create a raid1 or raid5 over
+> > nine 64MB partitions located on nine sata disks (Maxtor Pro 500) on a
+> > fresh setup. The system locks hard: no sysrq.
 > > 
-> > Well, I can't solve the problem that it requires memory allocation from
-> > IRQ context to operate.  Based on that, it's an unsafe interface.  I'm
-> > going to put it inside SCSI for 2.6.16, since it's better than what we
-> > have now, but I don't think we can export it globally.
+> > The onboard controller is an nVidia nForce with three disks.
+> > The six other disks are connected to a Marvell 88SX6081 controller.
+
+> It's barfing on a barrier write, I bet. The attached patch should fix
+> it.
+
+Your patch does indeed fix the hang. The raid1 is done, and raid5 over
+the second partition is building.
+
+Thanks a lot Jens!!
+
+	Sander
+
+
+> [PATCH] Add missing FUA write to sata_mv dma command list
 > 
-> Could we perhaps make this safer and more general?
+> Signed-off-by: Jens Axboe <axboe@suse.de>
 > 
-> For instance, add to struct device a "pending puts" counter and a list
-> header (both protected by a global spinlock), and have a kernel thread
-> periodically check the list, doing put_device wherever needed.  How does
-> that sound?
+> diff --git a/drivers/scsi/sata_mv.c b/drivers/scsi/sata_mv.c
+> index 6fddf17..2770005 100644
+> --- a/drivers/scsi/sata_mv.c
+> +++ b/drivers/scsi/sata_mv.c
+> @@ -997,6 +997,7 @@ static void mv_qc_prep(struct ata_queued
+>  	case ATA_CMD_READ_EXT:
+>  	case ATA_CMD_WRITE:
+>  	case ATA_CMD_WRITE_EXT:
+> +	case ATA_CMD_WRITE_FUA_EXT:
+>  		mv_crqb_pack_cmd(cw++, tf->hob_nsect, ATA_REG_NSECT, 0);
+>  		break;
+>  #ifdef LIBATA_NCQ		/* FIXME: remove this line when NCQ added */
+> 
+> -- 
+> Jens Axboe
 
-Sounds like a garbage collector :)
-
-Nah, I don't think it's a good idea.  James's patch should work just
-fine.
-
-thanks,
-
-greg k-h
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

@@ -1,49 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423033AbWBOIRd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423012AbWBOITk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423033AbWBOIRd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 03:17:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423034AbWBOIRd
+	id S1423012AbWBOITk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 03:19:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423034AbWBOITk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 03:17:33 -0500
-Received: from [194.90.237.34] ([194.90.237.34]:43397 "EHLO mtlexch01.mtl.com")
-	by vger.kernel.org with ESMTP id S1423033AbWBOIRb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 03:17:31 -0500
-Date: Wed, 15 Feb 2006 10:18:57 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au, hugh@veritas.com,
-       wli@holomorphy.com, gleb@minantech.com, benh@kernel.crashing.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       vandrove@vc.cvut.cz, pbadari@us.ibm.com, grundler@parisc-linux.org,
-       matthew@wil.cx
-Subject: Re: [PATCH] Fix up MADV_DONTFORK/MADV_DOFORK definitions
-Message-ID: <20060215081857.GD10026@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20060213210906.GC13603@mellanox.co.il> <Pine.LNX.4.61.0602132157110.3761@goblin.wat.veritas.com> <Pine.LNX.4.64.0602131426470.3691@g5.osdl.org> <20060213225538.GE13603@mellanox.co.il> <Pine.LNX.4.61.0602132259450.4627@goblin.wat.veritas.com> <20060213233517.GG13603@mellanox.co.il> <43F2AEAE.5010700@yahoo.com.au> <adawtfxqhk1.fsf@cisco.com> <20060214221654.67288424.akpm@osdl.org> <adaslqlqgdz.fsf_-_@cisco.com>
+	Wed, 15 Feb 2006 03:19:40 -0500
+Received: from amsfep12-int.chello.nl ([213.46.243.17]:30543 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1423012AbWBOITj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 03:19:39 -0500
+Subject: Re: + vmscan-rename-functions.patch added to -mm tree
+From: Peter Zijlstra <peter@programming.kicks-ass.net>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Coywolf Qi Hunt <coywolf@gmail.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, christoph@lameter.com
+In-Reply-To: <43F29B84.6020009@yahoo.com.au>
+References: <200602120605.k1C65QFE028051@shell0.pdx.osdl.net>
+	 <2cd57c900602141847m7af4ec7ap@mail.gmail.com>
+	 <43F29B84.6020009@yahoo.com.au>
+Content-Type: text/plain
+Date: Wed, 15 Feb 2006 07:46:18 +0100
+Message-Id: <1139985978.6722.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <adaslqlqgdz.fsf_-_@cisco.com>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 15 Feb 2006 08:19:23.0359 (UTC) FILETIME=[870DBEF0:01C63208]
+X-Mailer: Evolution 2.5.90 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please apply.
-
-Quoting Roland Dreier <rdreier@cisco.com>:
-> Change MADV_DONTFORK and MADV_DOFORK to be 9 and 10 respectively.
-> These values are unused on all architectures and safely outside of the
-> parisc reserved range.  Define the values in decimal or hex to match
-> the surrounding style for each architecture.  While we're touching all
-> this, change the comments from "dont inherit" to "don't inherit."
+On Wed, 2006-02-15 at 14:09 +1100, Nick Piggin wrote:
+> Coywolf Qi Hunt wrote:
+> > 2006/2/12, akpm@osdl.org <akpm@osdl.org>:
+> > 
+> >>The patch titled
+> >>
+> >>     vmscan: rename functions
+> >>
+> >>has been added to the -mm tree.  Its filename is
+> >>
+> >>     vmscan-rename-functions.patch
+> >>
+> >>See http://www.zip.com.au/~akpm/linux/patches/stuff/added-to-mm.txt to find
+> >>out what to do about this
+> >>
+> >>
+> >>From: Andrew Morton <akpm@osdl.org>
+> >>
+> >>We have:
+> >>
+> >>        try_to_free_pages
+> >>        ->shrink_caches(struct zone **zones, ..)
+> >>          ->shrink_zone(struct zone *, ...)
+> >>            ->shrink_cache(struct zone *, ...)
+> >>              ->shrink_list(struct list_head *, ...)
+> >>
+> >>which is fairly irrational.
+> >>
+> >>Rename things so that we have
+> >>
+> >>        try_to_free_pages
+> >>        ->shrink_zones(struct zone **zones, ..)
+> >>          ->shrink_zone(struct zone *, ...)
+> >>            ->do_shrink_zone(struct zone *, ...)
+> >>              ->shrink_page_list(struct list_head *, ...)
+> > 
+> > 
+> > Every time I read this part it annoys me. Thanks.
 > 
-> Signed-off-by: Roland Dreier <rolandd@cisco.com>
+> I don't much care, but if there is renaming afoot, I'd vote for
+> 
+> ->shrink_zones(struct zone **zones, ..)
+>   ->shrink_zone(struct zone *, ...)
+>    ->shrink_inactive_list(struct zone *, ...)
+>     ->shrink_page_list(struct list_head *, ...)
+>    ->shrink_active_list (alternatively, leave as refill_inactive_list)
+> 
+> shrink_zone and do_shrink_zone don't really say any more to me than
+> shrink_zone and shrink_cache.
 
-Acked-by: Michael S. Tsirkin <mst@mellanox.co.il>
-Thanks,
+I know not everybody believes in a plugable reclaim policy, but that is
+what I'm building. And from that POV I'd rather not see the
+active/inactive names get used here.
 
--- 
-Michael S. Tsirkin
-Staff Engineer, Mellanox Technologies
+My vote goes to Coywolf's suggestion.
+
+Peter
+

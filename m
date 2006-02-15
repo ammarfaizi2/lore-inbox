@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422958AbWBOE5c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbWBOFIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422958AbWBOE5c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 23:57:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422960AbWBOE5c
+	id S1750908AbWBOFIu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 00:08:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbWBOFIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 23:57:32 -0500
-Received: from fmr13.intel.com ([192.55.52.67]:48274 "EHLO
-	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1422958AbWBOE5b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 23:57:31 -0500
-Message-ID: <43F324CD.1020807@linux.intel.com>
-Date: Wed, 15 Feb 2006 20:55:41 +0800
-From: bibo mao <bibo_mao@linux.intel.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Zhou Yingchao <yingchao.zhou@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Fwd: [PATCH] kretprobe instance recycled by parent process
-References: <43F3059A.9070601@linux.intel.com>	 <67029b170602141936v69b85832q@mail.gmail.com> <67029b170602141939v4791ac72l@mail.gmail.com>
-In-Reply-To: <67029b170602141939v4791ac72l@mail.gmail.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+	Wed, 15 Feb 2006 00:08:50 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:55532 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750908AbWBOFIu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 00:08:50 -0500
+Date: Tue, 14 Feb 2006 21:07:44 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       greg@kroah.com, kaneshige.kenji@jp.fujitsu.com
+Subject: Re: [RFC][PATCH 1/4] PCI legacy I/O port free driver - Introduce
+ pci_set_bar_mask*()
+Message-Id: <20060214210744.3a7a756a.akpm@osdl.org>
+In-Reply-To: <43F17379.8010900@jp.fujitsu.com>
+References: <43F172BA.1020405@jp.fujitsu.com>
+	<43F17379.8010900@jp.fujitsu.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zhou Yingchao wrote:
-> 2006/2/15, bibo mao <bibo_mao@linux.intel.com>:
->> When kretprobe probe schedule() function, if probed process exit then
->> schedule() function will never return, so some kretprobe instance will
->> never be recycled. By this patch the parent process will recycle
->> retprobe instance of probed function, there will be no memory leak of
->> kretprobe instance. This patch is based on 2.6.16-rc3.
-> 
-> Is there any process which can exit without go through the do_exit() path?
-> --
-When process exits through do_exit() function, it will call schedule() 
-function. But if schedule() function is probed by kretprobe, this time 
-schedule() function will not return never because process has exited.
+Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com> wrote:
+>
+> This patch introduces a new interface pci_select_resource() for PCI
+>  device drivers to tell kernel what resources they want to use.
 
-bibo,mao
+It'd be nice if we didn't need to introduce any new API functions for this.
+If we could just do:
+
+struct pci_something pci_something_table[] = {
+	...
+	{
+		...
+		.dont_allocate_io_space = 1,
+		...
+	},
+	...
+};
+
+within each driver which wants it.
+
+But I can't think of a suitable per-device-id structure with which we can
+do that :(
+

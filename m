@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422900AbWBOGVD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422998AbWBOGW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422900AbWBOGVD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 01:21:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422998AbWBOGVD
+	id S1422998AbWBOGW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 01:22:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422999AbWBOGW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 01:21:03 -0500
-Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:4240 "HELO
-	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1422900AbWBOGVA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 01:21:00 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [2.6 patch] make INPUT a bool
-Date: Wed, 15 Feb 2006 01:20:58 -0500
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
-References: <20060214152218.GI10701@stusta.de>
-In-Reply-To: <20060214152218.GI10701@stusta.de>
+	Wed, 15 Feb 2006 01:22:59 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:47818 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1422998AbWBOGW6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 01:22:58 -0500
+Message-ID: <43F2C874.10400@linux.intel.com>
+Date: Wed, 15 Feb 2006 14:21:40 +0800
+From: bibo mao <bibo_mao@linux.intel.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Zhou Yingchao <yingchao.zhou@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Fwd: [PATCH] kretprobe instance recycled by parent process
+References: <43F3059A.9070601@linux.intel.com>	 <67029b170602141936v69b85832q@mail.gmail.com>	 <67029b170602141939v4791ac72l@mail.gmail.com>	 <43F324CD.1020807@linux.intel.com> <67029b170602142159i7a2bf1b2w@mail.gmail.com>
+In-Reply-To: <67029b170602142159i7a2bf1b2w@mail.gmail.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602150120.58844.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 February 2006 10:22, Adrian Bunk wrote:
-> Make INPUT a bool.
+Zhou Yingchao wrote:
+>>>> When kretprobe probe schedule() function, if probed process exit then
+>>>> schedule() function will never return, so some kretprobe instance will
+>>>> never be recycled. By this patch the parent process will recycle
+>>>> retprobe instance of probed function, there will be no memory leak of
+>>>> kretprobe instance. This patch is based on 2.6.16-rc3.
+>>> Is there any process which can exit without go through the do_exit() path?
+>>> --
+>> When process exits through do_exit() function, it will call schedule()
+>> function. But if schedule() function is probed by kretprobe, this time
+>> schedule() function will not return never because process has exited.
+>>
+>> bibo,mao
+>>
 > 
-> INPUT!=y is only possible if EMBEDDED=y, and in such cases it doesn't 
-> make that much sense to make it modular.
->
+> In the original path, doesn't the call path of
+> do_exit()->exit_thread()->kprobe_flush_task(current) recycle the
+> kretprobe instance? Is there anything misundstood?
+> --
+yes, it is right. The old recycle method is
+    do_exit()->exit_thread()->kprobe_flush_task(current)
+             ->schedule()
+At last line of do_exit() it will call schedule() function, and this 
+time it will never return. But if schedule function is probed, who is 
+responsible for recycling it?
 
-Adrian,
-
-We also need to get rid of input_register_device pinning input module
-and input_dev release function decrementing module's refcount.
-
-Thanks!
-
--- 
-Dmitry
+bibo,mao

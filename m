@@ -1,95 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945904AbWBOMG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945912AbWBOMLk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945904AbWBOMG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 07:06:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945909AbWBOMG7
+	id S1945912AbWBOMLk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 07:11:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945914AbWBOMLk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 07:06:59 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:55933 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1945904AbWBOMG7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 07:06:59 -0500
-Message-ID: <43F31972.3030902@sw.ru>
-Date: Wed, 15 Feb 2006 15:07:14 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Wed, 15 Feb 2006 07:11:40 -0500
+Received: from coumail01.netbenefit.co.uk ([212.53.64.106]:23233 "EHLO
+	coumail01.netbenefit.co.uk") by vger.kernel.org with ESMTP
+	id S1945912AbWBOMLk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 07:11:40 -0500
+Message-ID: <002a01c63228$abda02f0$0a00a8c0@emachine>
+From: "Michael Gilroy" <mgilroy@a2etech.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel bug mm/page_alloc.c
+Date: Wed, 15 Feb 2006 12:09:28 -0000
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: [RFC][PATCH 04/20] pspace: Allow multiple instaces of the process
- id namespace
-References: <m11wygnvlp.fsf@ebiederm.dsl.xmission.com>	<m1vevsmgvz.fsf@ebiederm.dsl.xmission.com>	<m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com>	<m1fymwmgk0.fsf_-_@ebiederm.dsl.xmission.com>	<m1bqxkmgcv.fsf_-_@ebiederm.dsl.xmission.com> <43ECF803.8080404@sw.ru>	<m1psluw1jj.fsf@ebiederm.dsl.xmission.com> <43F04FD6.5090603@sw.ru> <m1wtfytri1.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1wtfytri1.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2670
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Eric,
+Hi,
+       I get a repeatable error due to failures in mm/page_alloc.c, errors 
+occur during heavy utilisation of the file-system with bonnie++. I'm using 
+an experimental driver for the RAID 6 operations however as the error 
+message below indicates that the bug is being caused elsewhere I wonder if 
+this is a bug in the kernel. If not can anyone suggest a probable cause or 
+method to help locate the cause of this bug?
+kernel BUG at mm/page_alloc.c:761!
 
->>memory barrier doesn't help. you really need to think about.
-> Except for instances where you need an atomic read/modify/write the
-> only primitives you have are reads, writes and barriers.
-> 
-> I have all of the correct reads and writes therefore the only thing
-> that could help are barriers if the logic is otherwise sane.
-the problem is that you do read/write for synchronization of other 
-operations (fork/pspace leader die).
-i.e. you try to make a serialization, you see? It doesn't work this way.
+invalid operand: 0000 [#1]
 
-....
+Modules linked in: raid6 xor radeon drm parport_pc lp parport autofs4 
+i2c_dev i2 c_core sunrpc ipt_REJECT ipt_state ip_conntrack iptable_filter 
+ip_tables dm_mod video button battery ac ipv6 ohci_hcd hw_random sata_sil24 
+tg3 floppy ext3 jbd s ata_sil libata sd_mod scsi_mod
 
-> This exchange seems to have a hostile and not a cooperative tone so
-> I will finish the investigation and bug fixing elsewhere.
-Eric, I think it turned this way because you started pointing to our 
-bugs in VPIDs, while having lots of own and not working code.
-I can point you another _really_ disastrous bugs in your IPC and 
-networking virtualization. But discussing bugs is not want I want, you 
-see? I want us to make some solution suatable for all the parties.
+CPU: 0
 
-And while you have not working solution it is hard to discuss whether it 
-is good or not, whether it is beatutiful or not. It is incomplete and 
-doesn't work. So many statements that one solution is better than 
-another are not valid.
+EIP: 0060:[<c0136172>] Not tainted VLI
 
-And we are too cycled on PIDs. Why? I think this is the most minor 
-feature which can easily live out of mainstream if needed, while 
-virtualization is the main goal.
-I also don't understand why you are eager to introduce new sys calls 
-like pkill(path_to_process), but is trying to use waitpid() for pspace 
-die notifications? Maybe it is simply better to introduce container 
-specific syscalls which should be clean and tidy, instead of messing 
-things up with clone()/waitpid() and so on? The more simple code we 
-have, the better it is for all of us.
+EFLAGS: 00010202 (2.6.15.2)
 
-If possible keep posting your patches. I would even ask you to add me to 
-CC always. You are doing a really good job and discussion solutions is 
-the only possible way to push something to mainstream I suppose.
-I would also be happy to arrange a meeting with the interested parties, 
-since talking eye to eye can be much more productive.
+EIP is at buffered_rmqueue+0xbd/0x1a3
 
-> I expect that there might be a few more issues like this.  My only
-> expectation was that the code was complete enough to discuss semantics
-> and kernel mechanisms for creating a namespaces, and the code has
-> successfully served that purpose.
-To some extent yes.
+eax: 00000001 ebx: c0319720 ecx: 00001000 edx: 00000001
 
-Kirill
+esi: c0319720 edi: c0319740 ebp: eb9cfd24 esp: eb9cfcfc
+
+ds: 007b es: 007b ss: 0068
+
+Process bonnie++ (pid: 4548, threadinfo=eb9cf000 task=ecd99030)
+
+Stack: 00001000 00000001 00000000 c1210000 00000246 000200d2 00000000 
+c03199ec
+
+00000044 00000000 eb9cfd44 c0136367 00000003 00000000 000200d2 c03199e8
+
+000200d2 eb9cfdb0 eb9cfd74 c01363d8 00000044 00000000 ecd99030 00000010
+
+Call Trace:
+
+[<c0103078>] show_stack+0x76/0x7e
+
+[<c010317f>] show_registers+0xe8/0x150
+
+[<c010331a>] die+0xbe/0x12f
+
+[<c02c5122>] do_trap+0x7c/0x96
+
+[<c010357b>] do_invalid_op+0x95/0x9c
+
+[<c0102d7f>] error_code+0x4f/0x54
+
+[<c0136367>] get_page_from_freelist+0x74/0x8c
+
+[<c01363d8>] __alloc_pages+0x59/0x271
+
+[<c01341cd>] generic_file_buffered_write+0x157/0x4b9
+
+[<c01348d5>] __generic_file_aio_write_nolock+0x3a6/0x3d1
+
+[<c01349f0>] __generic_file_write_nolock+0x74/0x8a
+
+[<c0134b8f>] generic_file_write+0x49/0xaf
+
+[<c014cd73>] vfs_write+0xa9/0x14e
+
+[<c014ceb3>] sys_write+0x3b/0x60
+
+[<c0102afb>] sysenter_past_esp+0x54/0x75
+
+Code: f0 e8 e3 fb ff ff 89 45 e4 8b 55 e8 89 d8 e8 26 ee 18 00 83 7d e4 00 
+0f 84 e9 00 00 00 8b 55 e4 89 f0 e8 5c f7 ff ff 85 c0 74 08 <0f> 0b f9 02 f5 
+88 2d c0 8b 96 38 01 00 00 bf 28 00 00 00 8d 82
+
+
+
+
+Please CC me on any replies as I'm not subscribed to this list.
+
+thanks
+_______________________
+Michael Gilroy
+Research Engineer
+A2E Limited
+Adaptive House
+Quarrywood Court
+Livingston
+EH54 6AX
+Scotland 
+
 

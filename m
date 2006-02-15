@@ -1,71 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423046AbWBOJmt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWBOJsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423046AbWBOJmt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 04:42:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWBOJmt
+	id S1751052AbWBOJsW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 04:48:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWBOJsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 04:42:49 -0500
-Received: from xproxy.gmail.com ([66.249.82.192]:17392 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932451AbWBOJms (ORCPT
+	Wed, 15 Feb 2006 04:48:22 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:21906 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1751051AbWBOJsV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 04:42:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=U6uI/MpO+5y9L+AMeUqdHmjl/l02fPuFLdpyQdzPeE3Mq1R5P+Dj8aFpsIuOFGJRiyeD1jYn3F7uxe0EMnTx+cBMQg6j2y6276QUDCEtfll8M85V25MGcPTxW0RNYxsEOwOEfHBYdkCu8GgO9BVu0gj5Rp2FXYaq92XTOiMgn0o=
-Date: Wed, 15 Feb 2006 07:42:37 -0300
-From: Davi Arnaut <davi.arnaut@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATH 0/2] strndup_user, description
-Message-Id: <20060215074237.cec92f44.davi.arnaut@gmail.com>
-In-Reply-To: <1139971990.14831.2.camel@localhost.localdomain>
-References: <20060214214747.ef05e4d8.davi.arnaut@gmail.com>
-	<1139971990.14831.2.camel@localhost.localdomain>
-X-Mailer: Sylpheed
+	Wed, 15 Feb 2006 04:48:21 -0500
+Date: Wed, 15 Feb 2006 10:48:20 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Arthur Othieno <apgo@patchbomb.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] remove duplicate #includes
+Message-ID: <20060215094820.GB28677@MAIL.13thfloor.at>
+Mail-Followup-To: Arthur Othieno <apgo@patchbomb.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>
+References: <20060213093959.GA10496@MAIL.13thfloor.at> <20060214155057.GE14516@krypton>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060214155057.GE14516@krypton>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Feb 2006 02:53:10 +0000
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
-> On Maw, 2006-02-14 at 21:47 -0300, Davi Arnaut wrote:
-> > This patch series creates a strndup_user() function in order to avoid duplicated
-> > and error-prone (userspace modifying the string after the strlen_user()) code.
+On Tue, Feb 14, 2006 at 10:50:57AM -0500, Arthur Othieno wrote:
+> On Mon, Feb 13, 2006 at 10:39:59AM +0100, Herbert Poetzl wrote:
+> > 
+> > Hi Andrew! Folks!
+> > 
+> > recently I stumbled over a few files which #include the 
+> > same .h file twice -- sometimes even in the immediately
+> > following line. so I thought I'd look into that to reduce 
+> > the amount of duplicate includes in the kernel ...
+> > 
+> > I first searched for 'potential' duplicates with the
+> > following command sequence ...
+> > 
+> >   find . -type f -name '*.[hcS]' -exec gawk '/^#include/ { X[$2]++ } END { for (n in X) if (X[n]>1) printf("%s: %s[%d]\n",FILENAME,n,X[n]); }' {} \;
 > 
-> Well userspace can still modify in this case. So you could still get a
-> \0 mid buffer but that seems harmless.
+> scripts/checkincludes.pl ;-)
 
-Yes.
+darn! I knew it was there, but I could not remember
+where I saw it! thanks for the hint with the cluebat
 
-> However
+> > .. then, I inspected each of the results, and if it was
+> > valid, I removed every but the first occurence (of course 
+> > only after detailed inspection)
+> >
+> > I will do a bunch of further tests with this patch to
+> > make absolutely 100% sure that there are no bad changes.
+> > the patch contains the obvious cases first, and the not
+> > so obvious ones at the end.
 > 
-> > +#define strdup_user(s)	strndup_user(s, PAGE_SIZE)
-> 
-> Better this doesn't exist as it is a wrapper for a bad habit that isnt
-> yet used so why encourage it.
-> 
+> Please, please, split this into smaller, readable chunks. As is, it is
+> bound to break patches queued up in -mm and other subsystem trees. You
+> don't want the angry mob coming after you, really.
 
-Ok, I will inline it.
- 
+okay, maybe a good idea .. for now it was just to
+get an idea how many worms are in this can :)
+
+thanks,
+Herbert
+
+> [snip]
 > 
-> > +	length = strlen_user(s);
+> > --- linux-2.6.16-rc2/arch/parisc/kernel/signal.c	2006-01-03 17:29:13 +0100
+> > +++ linux-2.6.16-rc2-mpf/arch/parisc/kernel/signal.c	2006-02-13 01:24:26 +0100
+> > @@ -24,7 +24,6 @@
+> >  #include <linux/ptrace.h>
+> >  #include <linux/unistd.h>
+> >  #include <linux/stddef.h>
+> > -#include <linux/compat.h>
 > 
-> What if n is very large ? Should use strnlen_user clipped by n
-
-That's what "if (length > n) length = n" is for.
- 
-> Also say the length limit is 8 and the text is "hello\0"
+> Second occurrence is the redundant one here; include/linux/compat.h
+> already wrapped around #ifdef CONFIG_COMPAT ..
 > 
-> We get length = 5  5 < 8, alloc 5 bytes set 5th to \0 and return "hell
-> \0"
-
-No, we would get length = 6, strlen_user returns the size of the string
-_including_ the terminating NUL.
-
---
-Davi Arnaut
-
+> >  #include <linux/elf.h>
+> >  #include <linux/personality.h>
+> >  #include <asm/ucontext.h>
+> 
+> [snip]
+> 
+> > diff -NurpP --minimal linux-2.6.16-rc2/arch/powerpc/platforms/powermac/setup.c linux-2.6.16-rc2-mpf/arch/powerpc/platforms/powermac/setup.c
+> > --- linux-2.6.16-rc2/arch/powerpc/platforms/powermac/setup.c	2006-02-07 11:52:12 +0100
+> > +++ linux-2.6.16-rc2-mpf/arch/powerpc/platforms/powermac/setup.c	2006-02-13 01:35:28 +0100
+> > @@ -76,7 +76,6 @@
+> >  #include <asm/smu.h>
+> >  #include <asm/pmc.h>
+> >  #include <asm/lmb.h>
+> > -#include <asm/udbg.h>
+> 
+> You broke CONFIG_PPC_PMAC when CONFIG_PPC64=n
+> 
+> >  #include "pmac.h"
+> >  
+> 
+> [snip]
+> 
+> > diff -NurpP --minimal linux-2.6.16-rc2/drivers/char/drm/drm.h linux-2.6.16-rc2-mpf/drivers/char/drm/drm.h
+> > --- linux-2.6.16-rc2/drivers/char/drm/drm.h	2006-02-07 11:52:24 +0100
+> > +++ linux-2.6.16-rc2-mpf/drivers/char/drm/drm.h	2006-02-13 01:48:55 +0100
+> > @@ -51,11 +51,9 @@
+> >  #if defined(__FreeBSD__) && defined(IN_MODULE)
+> >  /* Prevent name collision when including sys/ioccom.h */
+> >  #undef ioctl
+> > -#include <sys/ioccom.h>
+> >  #define ioctl(a,b,c)		xf86ioctl(a,b,c)
+> > -#else
+> > -#include <sys/ioccom.h>
+> >  #endif				/* __FreeBSD__ && xf86ioctl */
+> > +#include <sys/ioccom.h>
+> 
+> This changes semantics, like Bastian pointed out..
+> 
+> >  #define DRM_IOCTL_NR(n)		((n) & 0xff)
+> >  #define DRM_IOC_VOID		IOC_VOID
+> >  #define DRM_IOC_READ		IOC_OUT

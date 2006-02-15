@@ -1,99 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945940AbWBONm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945943AbWBONn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945940AbWBONm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 08:42:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945942AbWBONm7
+	id S1945943AbWBONn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 08:43:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945944AbWBONn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 08:42:59 -0500
-Received: from xproxy.gmail.com ([66.249.82.199]:10703 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1945940AbWBONm6 (ORCPT
+	Wed, 15 Feb 2006 08:43:59 -0500
+Received: from pip251.ish.de ([80.69.98.251]:39827 "EHLO mail01.ish.de")
+	by vger.kernel.org with ESMTP id S1945943AbWBONn6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 08:42:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=j5r2tJs96LgoN5EdkpT4py1en/7bBOHIMRgZKMvpR1RI3vKdiO97NSy73NZ4U7RA2ABtj3Z6dcNfmnhApIaFSh8dSqeRUjAKGcQwoGuy7VRWfMhXzh5lyJsoMhvO3fmC/2OLXy9oIUxmounkct75ckG/JQBmijVD8NA6/swyoH4=
-Reply-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
-To: Olivier Galibert <galibert@pobox.com>
-Subject: Re: Device enumeration (was Re: CD writing in future Linux (stirring up a hornets' nest))
-Date: Wed, 15 Feb 2006 08:42:41 -0500
-User-Agent: KMail/1.8.3
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <43D7C1DF.1070606@gmx.de> <200602140023.15771.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060214104003.GA97714@dspnet.fr.eu.org>
-In-Reply-To: <20060214104003.GA97714@dspnet.fr.eu.org>
+	Wed, 15 Feb 2006 08:43:58 -0500
+Message-ID: <43F33013.4020305@crypto.rub.de>
+Date: Wed, 15 Feb 2006 14:43:47 +0100
+From: Marcel Selhorst <selhorst@crypto.rub.de>
+User-Agent: Mail/News 1.5 (X11/20060208)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org, akpm@osdl.org, castet.matthieu@free.fr,
+       kjhall@us.ibm.com
+Subject: [PATCH] Infineon TPM: IO-port leakage fix, WTX-bugfix
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602150842.41975.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-From: Andrew James Wade <andrew.j.wade@gmail.com>
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.2-14; AVE: 6.33.0.31; VDF: 6.33.0.238; host: mail)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 February 2006 05:40, Olivier Galibert wrote:
-> On Tue, Feb 14, 2006 at 12:23:15AM -0500, Andrew James Wade wrote:
+Dear all,
 
-> > The difficulty is the mapping between sysfs and /dev.
-> 
-> Which is what I say each time.
+this patch fixes IO-port leakage from request_region in case of error during TPM
+initialization, adds more pnp-verification and fixes a WTX-bug.
 
-Yes, sorry, you do do that.
+Best regards,
+Marcel Selhorst
 
-> > That mapping should not live in sysfs,
-> > /dev is none of the kernel's business and sysfs is the kernel's playground.
-> 
-> Why not have udev and whatever comes after tell the kernel so that a
-> symlink is done in sysfs?  The kernel not deciding policy do not
-> prevent it from storing and giving back userland-provided information.
-> You get the best of both worlds, complete device information including
-> how to talk with it in sysfs, and complete naming and policy setting
-> in userspace.
+Signed-off-by: Marcel Selhorst <selhorst@crypto.rub.de>
+---
 
-Well, as Rob Landley pointed out, /dev is not necessarily the same across
-the entire system. I don't know if this is a problem (is sysfs going to be
-visible in a chrooted environment anyway?), but I take it as an indication
-that /dev shouldn't be any of the kernel's business.
+--- linux-2.6.16-rc2/drivers/char/tpm/tpm_infineon.c.old	2006-02-08
+11:45:09.000000000 +0100
++++ linux-2.6.16-rc2/drivers/char/tpm/tpm_infineon.c	2006-02-15 13:32:00.000000000 +0100
+@@ -33,6 +33,7 @@
+ static int TPM_INF_DATA;
+ static int TPM_INF_ADDR;
+ static int TPM_INF_BASE;
++static int TPM_INF_ADDR_LEN;
+ static int TPM_INF_PORT_LEN;
 
-> > 
-> >      The mapping could be provided via symlinks, like so:
-> > 
-> > /dev/rdev/block/hdb/hdb1 -> /dev/hdb1
-> > /dev/rdev/block/hdb -> /dev/hdb
-> > /dev/rdev/block/hda/hda2 -> /dev/hda2
-> > /dev/rdev/block/hda/hda1 -> /dev/hda1
-> > /dev/rdev/block/hda -> /dev/hda
-> 
-> Why manage a directory tree in udev when you have a perfectly good one
-> in sysfs already. We're talking about a friggin' userland-provided 
-> string here, nothing more.
+ /* TPM header definitions */
+@@ -195,6 +196,7 @@ static int tpm_inf_recv(struct tpm_chip
+ 	int i;
+ 	int ret;
+ 	u32 size = 0;
++	number_of_wtx = 0;
 
-It is rather ugly to duplicate the directory tree. But it is better
-than mission-creep of sysfs. And userspace has to maintain its own view
-(or views) of devices anyway: GUIs may want to allow users to assign icons
-to devices, or descriptive strings, or who knows what else. That
-definitely shouldn't live in sysfs.
+ recv_begin:
+ 	/* start receiving header */
+@@ -378,24 +380,35 @@ static int __devinit tpm_inf_pnp_probe(s
+ 	if (pnp_port_valid(dev, 0) && pnp_port_valid(dev, 1) &&
+ 	    !(pnp_port_flags(dev, 0) & IORESOURCE_DISABLED)) {
+ 		TPM_INF_ADDR = pnp_port_start(dev, 0);
++		TPM_INF_ADDR_LEN = pnp_port_len(dev, 0);
+ 		TPM_INF_DATA = (TPM_INF_ADDR + 1);
+ 		TPM_INF_BASE = pnp_port_start(dev, 1);
+ 		TPM_INF_PORT_LEN = pnp_port_len(dev, 1);
+-		if (!TPM_INF_PORT_LEN)
+-			return -EINVAL;
++		if ((TPM_INF_PORT_LEN < 4) || (TPM_INF_ADDR_LEN < 2)) {
++			rc = -EINVAL;
++			goto err_last;
++		}
+ 		dev_info(&dev->dev, "Found %s with ID %s\n",
+ 			 dev->name, dev_id->id);
+-		if (!((TPM_INF_BASE >> 8) & 0xff))
+-			return -EINVAL;
++		if (!((TPM_INF_BASE >> 8) & 0xff)) {
++			rc = -EINVAL;
++			goto err_last;
++		}
+ 		/* publish my base address and request region */
+ 		tpm_inf.base = TPM_INF_BASE;
+ 		if (request_region
+ 		    (tpm_inf.base, TPM_INF_PORT_LEN, "tpm_infineon0") == NULL) {
+-			release_region(tpm_inf.base, TPM_INF_PORT_LEN);
+-			return -EINVAL;
++			rc = -EINVAL;
++			goto err_last;
++		}
++		if (request_region
++		    (TPM_INF_ADDR, TPM_INF_ADDR_LEN, "tpm_infineon0") == NULL) {
++			rc = -EINVAL;
++			goto err_last;
+ 		}
+ 	} else {
+-		return -EINVAL;
++		rc = -EINVAL;
++		goto err_last;
+ 	}
 
-> > But I don't know if there is much point in doing so as udev already
-> > provides that information.
-> 
-> I guess you didn't bother to read the "answer 3" paragraph of my
-> email.  Do you trust udev to still exist two years from now, given
-> that hotplug died in less than that?  Do you trust udevinfo to have
-> the same interface two years from now given that the current interface
-> is already incompatible with a not even two-years old one (udev 039,
-> 15-Oct-2004 according to kernel.org) which is widely deployed as part
-> of fedora core 3?
+ 	/* query chip for its vendor, its version number a.s.o. */
+@@ -443,8 +456,8 @@ static int __devinit tpm_inf_pnp_probe(s
+ 			dev_err(&dev->dev,
+ 				"Could not set IO-ports to 0x%lx\n",
+ 				tpm_inf.base);
+-			release_region(tpm_inf.base, TPM_INF_PORT_LEN);
+-			return -EIO;
++			rc = -EIO;
++			goto err_release_region;
+ 		}
 
-No I don't trust udevinfo to have a stable interface. And that would be
-a useful thing to have even if HAL is the only consumer. I suspect it would
-be nice for all udev-like solutions to share the same interface. I'm just
-hesitant to put forward my suggestion as the right interface.
+ 		/* activate register */
+@@ -471,14 +484,21 @@ static int __devinit tpm_inf_pnp_probe(s
 
-I'd suggest answer 2 for the problem -- Hal knows it, ask him -- though
-that's easy enough to say when I'm not writing the hypothetical program.
-Hal can then worry about finding and integrating information about devices
-in disparate places. If Hal doesn't provide a suitable interface, that
-should be fixed.
+ 		rc = tpm_register_hardware(&dev->dev, &tpm_inf);
+ 		if (rc < 0) {
+-			release_region(tpm_inf.base, TPM_INF_PORT_LEN);
+-			return -ENODEV;
++			rc = -ENODEV;
++			goto err_release_region;
+ 		}
+ 		return 0;
+ 	} else {
+-		dev_info(&dev->dev, "No Infineon TPM found!\n");
+-		return -ENODEV;
++		rc = -ENODEV;
++		goto err_release_region;
+ 	}
++
++err_release_region:
++release_region(tpm_inf.base, TPM_INF_PORT_LEN);
++release_region(TPM_INF_ADDR, TPM_INF_ADDR_LEN);
++
++err_last:
++return rc;
+ }
 
-Andrew Wade
+ static __devexit void tpm_inf_pnp_remove(struct pnp_dev *dev)
+@@ -518,5 +538,5 @@ module_exit(cleanup_inf);
+
+ MODULE_AUTHOR("Marcel Selhorst <selhorst@crypto.rub.de>");
+ MODULE_DESCRIPTION("Driver for Infineon TPM SLD 9630 TT 1.1 / SLB 9635 TT 1.2");
+-MODULE_VERSION("1.6");
++MODULE_VERSION("1.7");
+ MODULE_LICENSE("GPL");
+

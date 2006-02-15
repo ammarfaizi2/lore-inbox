@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945916AbWBONHl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945925AbWBONLo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945916AbWBONHl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 08:07:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945929AbWBONHl
+	id S1945925AbWBONLo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 08:11:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945930AbWBONLo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 08:07:41 -0500
-Received: from verein.lst.de ([213.95.11.210]:52892 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1945916AbWBONHl (ORCPT
+	Wed, 15 Feb 2006 08:11:44 -0500
+Received: from mo01.iij4u.or.jp ([210.130.0.20]:15084 "EHLO mo01.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S1945925AbWBONLn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 08:07:41 -0500
-Date: Wed, 15 Feb 2006 14:07:34 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org
+	Wed, 15 Feb 2006 08:11:43 -0500
+Date: Wed, 15 Feb 2006 22:11:35 +0900 (JST)
+Message-Id: <20060215.221135.121135595.toriatama@inter7.jp>
+To: paulkf@microgate.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] deprecate the tasklist_lock export
-Message-ID: <20060215130734.GA5590@lst.de>
+Subject: Re: PPP with PCMCIA modem stalls on 2.6.10 or later
+From: Kouji Toriatama <toriatama@inter7.jp>
+In-Reply-To: <1139937159.3189.4.camel@amdx2.microgate.com>
+References: <1139863919.3868.16.camel@amdx2.microgate.com>
+	<20060215.005753.74732581.toriatama@inter7.jp>
+	<1139937159.3189.4.camel@amdx2.microgate.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Drivers have no business looking at the task list and thus using this
-lock.  The only possibly modular users left are:
+Paul Fulghum <paulkf@microgate.com> wrote:
+> In 2.6.10, a new check for errors on received characters was added.
+> 
+> Try the patch below. It prevents the check from discarding
+> received frames, but outputs an error message to the syslog.
+> 
+> Run with the patch and return the results with
+> any syslog output containing the error message.
 
- arch/ia64/kernel/mca.c
- drivers/edac/edac_mc.c
- fs/binfmt_elf.c
+I have tried your patch in 2.6.15.4, but the problem did not
+change at all.  I have also tried the patch in 2.6.10, but
+the result was the same.  I have got no error messages from
+syslog and dmesg.
 
-which I'll send out fixes for soon.
+Are there any other tests I can do to pin down the problem?
 
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-
-Index: linux-2.6/Documentation/feature-removal-schedule.txt
-===================================================================
---- linux-2.6.orig/Documentation/feature-removal-schedule.txt	2006-02-15 14:03:37.000000000 +0100
-+++ linux-2.6/Documentation/feature-removal-schedule.txt	2006-02-15 14:05:37.000000000 +0100
-@@ -182,3 +182,14 @@
- 	implementation details and provides a higherlevel interface that
- 	prevents bugs and code duplication
- Who:	Christoph Hellwig <hch@lst.de>
-+
-+---------------------------
-+
-+What:	remove EXPORT_SYMBOL(tasklist_lock)
-+When:	August 2006
-+Files:	kernel/fork.c
-+Why:	tasklist_lock protects the kernel internal task list.  Modules have
-+	no business looking at it, and all instances in drivers have been due
-+	to use of too-lowlevel APIs.  Having this symbol exported prevents
-+	moving to more scalable locking schemes for the task list.
-+Who:	Christoph Hellwig <hch@lst.de>
+Best regards,
+Kouji Toriatama

@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030613AbWBODXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030616AbWBODYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030613AbWBODXp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Feb 2006 22:23:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030616AbWBODXp
+	id S1030616AbWBODYh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Feb 2006 22:24:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030617AbWBODYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Feb 2006 22:23:45 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:33742 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030613AbWBODXo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Feb 2006 22:23:44 -0500
-Date: Tue, 14 Feb 2006 19:22:32 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Tilman Schmidt <tilman@imap.cc>
-Cc: hjlipp@web.de, kkeil@suse.de, i4ldeveloper@listserv.isdn4linux.de,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-Subject: Re: [PATCH 6/9] isdn4linux: Siemens Gigaset drivers - procfs
- interface
-Message-Id: <20060214192232.126e6ab2.akpm@osdl.org>
-In-Reply-To: <43F289F5.2080102@imap.cc>
-References: <gigaset307x.2006.02.11.001.0@hjlipp.my-fqdn.de>
-	<gigaset307x.2006.02.11.001.1@hjlipp.my-fqdn.de>
-	<gigaset307x.2006.02.11.001.2@hjlipp.my-fqdn.de>
-	<gigaset307x.2006.02.11.001.3@hjlipp.my-fqdn.de>
-	<gigaset307x.2006.02.11.001.4@hjlipp.my-fqdn.de>
-	<gigaset307x.2006.02.11.001.5@hjlipp.my-fqdn.de>
-	<gigaset307x.2006.02.11.001.6@hjlipp.my-fqdn.de>
-	<20060212022742.16df78a2.akpm@osdl.org>
-	<43F289F5.2080102@imap.cc>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 14 Feb 2006 22:24:37 -0500
+Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:15233 "EHLO
+	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1030616AbWBODYg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Feb 2006 22:24:36 -0500
+Date: Tue, 14 Feb 2006 22:17:57 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Trap flag handling change in 2.6.10-bk5 broke Kylix
+  debugger
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Message-ID: <200602142220_MC3-1-B866-DF84@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tilman Schmidt <tilman@imap.cc> wrote:
->
-> > - You did the ringbuffer the wrong way.  Don't constrain the head and
->  >   tail to be within 0..MAX_EVENTS.  Instead, just let them wrap right up to
->  >   0xffffffff.   Apply the masking when you actually _use_ them.
->  > 
->  >   That way, empty is (head == tail) and full is (tail - head == MAX_EVENTS).
+In-Reply-To: <43F23BB4.8070703@grupopie.com>
+
+On Tue, 14 Feb 2006 at 20:21:08 +0000, Paulo Marques wrote:
+
+> Going even further, a 2.6.10-bk5 kernel without this single change runs 
+> the debugger just fine:
 > 
->  Interesting idea. I have to admit it's rather new to me. I have always
->  done ringbuffers the way they are done in the Gigaset driver now. Can
->  you point me to some example code done the way you propose, so I can
->  familiarize myself with its advantages?
+> > @@ -718,23 +717,21 @@
+> >              */
+> >             if ((regs->xcs & 3) == 0)
+> >                     goto clear_TF_reenable;
+> > -           if ((tsk->ptrace & (PT_DTRACE|PT_PTRACED)) == PT_DTRACE)
+> > -                   goto clear_TF;
+> > +
+> > +           /*
+> > +            * Was the TF flag set by a debugger? If so, clear it now,
+> > +            * so that register information is correct.
+> > +            */
+> > +           if (tsk->ptrace & PT_DTRACE) {
+> > +                   regs->eflags &= ~TF_MASK;
+> > +                   tsk->ptrace &= ~PT_DTRACE;
+> > +                   if (!tsk->ptrace & PT_DTRACE)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^
+  Looks like this is always true because that bit was cleared one line above.
+Maybe it should be testing PT_DTRACED instead?  And it's missing parens too,
+so try:
+                        if (!(tsk->ptrace & PT_DTRACED))
 
-Pretty much all the Becker-derived net drivers do this - Say,
-vortex_private.cur_tx, .cur_tx.  Also include/linux/circ_buf.h and its
-various users.
 
+> > +                           goto clear_TF;
+> > +           }
+> >     }
+> >  
+> >     /* Ok, finally something we can handle */
+
+-- 
+Chuck
+"Equations are the Devil's sentences."  --Stephen Colbert

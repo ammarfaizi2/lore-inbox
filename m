@@ -1,138 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbWBOU7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWBOVBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751279AbWBOU7h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 15:59:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbWBOU7h
+	id S1751290AbWBOVBD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 16:01:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWBOVBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 15:59:37 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:59397 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1751279AbWBOU7g convert rfc822-to-8bit (ORCPT
+	Wed, 15 Feb 2006 16:01:03 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:62604 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751290AbWBOVBB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 15:59:36 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <43F39089.2050302@tls.msk.ru>
-X-OriginalArrivalTime: 15 Feb 2006 20:59:32.0488 (UTC) FILETIME=[B8368880:01C63272]
-Content-class: urn:content-classes:message
-Subject: Re: readahead logic and I/O errors
-Date: Wed, 15 Feb 2006 15:59:32 -0500
-Message-ID: <Pine.LNX.4.61.0602151549190.10849@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: readahead logic and I/O errors
-thread-index: AcYycrg92y4ihEA9QrGs26GUWPaKKg==
-References: <43F39089.2050302@tls.msk.ru>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Michael Tokarev" <mjt@tls.msk.ru>
-Cc: "Linux-kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Wed, 15 Feb 2006 16:01:01 -0500
+Date: Wed, 15 Feb 2006 21:59:10 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: Christopher Friesen <cfriesen@nortel.com>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Arjan van de Ven <arjan@infradead.org>,
+       David Singleton <dsingleton@mvista.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/5] lightweight robust futexes: -V1
+Message-ID: <20060215205910.GA11130@elte.hu>
+References: <20060215151711.GA31569@elte.hu> <200602151942.20494.ak@suse.de> <43F385C1.9020508@nortel.com> <200602152102.12795.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602152102.12795.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 15 Feb 2006, Michael Tokarev wrote:
+* Andi Kleen <ak@suse.de> wrote:
 
-> The thing is: I just fired a cdrom drive in my PC.
-> It was a good device, and now it's dead.
-> And the reason is the readahead logic, plus an unreadable
-> (damaged, scratched) CD-rom.
->
-> By default, linux enables read-ahead for all block devices
-> (I can't be certain about "all", but it's true for hard
-> disks, cd-roms and floppies at least).  And when a read
-> request comes to the device, according to readahead logic,
-> linux tries to get more data from the drive than requested.
->
-> Now, one of blocks requested to be read can't be read due
-> to whatever condition.  It happens on removable media, it's
-> a normal (sort of, anyway) condition.
->
-> Looks like I had many unreadable blocks on that CD.  And,
-> instead of obvious (in my view anyway) thing to do, namely,
-> to STOP readahead operation and return only whatever data
-> which was requested by an application (it was just `cp')
-> after FIRST I/O error, linux continued trying reading-ahead,
-> discovering more and more failed blocks, as dmesg said.
->
-> And finally, after about 100 blocks failed in a row, the
-> drive fired.
->
-> I wasn't able to stop the process - `cp' was in D state
-> sitting in one read() syscall thus unkillable.  Umount
-> didn't work (obviously).  Only one option left was to
-> reboot/poweroff the system, which I was finally forced
-> to do.. but too late.
->
-> I don't understand the logic in ll_rw_blk.c (the file
-> is quite large), but my guessing is that initially,
-> the read request was one for several blocks, but when
-> it failed, linux continued trying to get next block,
-> next-to-next block and so on - hence all consequtive
-> failed block numbers in dmesg, ie, it split original
-> large request into several smaller chunks, failing each
-> in turn.
->
-> Even if I'm wrong here and it originally made "short"
-> reads, the question remains:
->
-> Why linux tries to continue readahead operation after
-> I/O errors, instead of just dropping the reads, and
-> repeat them WHEN ACTUALLY NEEDED?  `cp' will stop after
-> first failed read(), so only one bad sector will be tried,
-> instead of numerous, finally firing the drive?
->
-> When setting readahead to 0, the same CD can be read up
-> to the first error, and will fail correctly.
->
-> The same happens with floppy as well - exactly the same
-> thing.  I especially damaged a floppy disk (I still have
-> several here), just to verify - after ~15 minutes of waiting
-> while it will finish it's readahead nonsense, I become bored
-> and finally rebooted the system.
->
-> So, to sum: current linux behaviour (similar since 2.4 -- at
-> least I remember seeing something like that, repeated attempts
-> to read something from a bad drive, -- up to current 2.6.15)
-> is that it's trivial to kill the system just by inserting a
-> cd-rom or floppy with some unreadable sectors.  Worse, it's
-> possible to FIRE the system this way (with certain drives
-> anyway), as just happened here (I understand, maybe, after
-> some more waiting, when it will try all 128 or 256 more sectors,
-> it WILL finally do something useful again and stop retrying,
-> but eg on this my drive, each read attempt took about 30 sec,
-> retrying several times by its own, so total time is umm..
-> quite large, and there's nothing one can do with it but
-> to poweroff the PC).
->
-> From my point of view, it's a serious bug (even if not counting
-> my dead CD drive).
->
-> Thanks.
->
-> /mjt
+> On Wednesday 15 February 2006 20:49, Christopher Friesen wrote:
+> 
+> > The goal is for the kernel to unlock the mutex, but the next task to 
+> > aquire it gets some special notification that the status is unknown.  At 
+> > that point the task can either validate/clean up the data and reset the 
+> > mutex to clean (if it can) or it can give up the mutex and pass it on to 
+> > some other task that does know how to validate/clean up.
+> 
+> The "send signal when any mapper dies" proposal would do that. The 
+> other process could catch the signal and do something with it.
 
-Aside from the obvious read-ahead bug you discovered, have you
-tried your CD drive after the reboot? It is not possible to
-kill those things with software, even if attempting to write
-with too much infrared LED drive. There is nothing except for
-the removable disc to get hurt. Even the "head" isn't in contact.
-It's just some infrared light, focused with a voice-coil, that
-moves on a fixed platform.
+the last time we had special signals for glibc-internal purpose it was 
+called 'LinuxThreads'. The concept sucked big big time. Using internal 
+signals means playing with the signal mask - this could conflict with 
+the application, etc. etc. It's simply out of question to play signal 
+games. Not to mention the problem of multiple mappers dying. Should thus 
+queued signals be used? How about if the signal queue overflows.
 
-Of course you can make many cow-flops from discs, but can you
-describe how you think the drive got "fired" as you say?
+Signals are really not for stuff like this. Signals are an old, 
+semantics-laden and thus fragile concept that are not suited for 
+abstractions like that.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.66 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-_
-
+Another flaw with your suggestion is that the mapper _might not know_ at 
+the time of mmap() that this memory includes a robust futex. So that 
+brings us back to the per-lock registration syscall approach (and 
+overhead) that our patch avoids. Furthermore, glibc would have to track 
+whether a thread used a robust mutex for the first time - which means 
+external object to pthread_mutex_t - additional complications, overhead 
+and design weaknesses.
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+If you take a look at the list-based robust futex code and the concept, 
+you'll see that a lightweight userspace list of futexes, optionally 
+parsed by the kernel, mixes very well with the existing futex philosophy 
+and methodology. It doesnt have any of these complications and 
+cornercases, precisely because its design aligns naturally with the 
+futex philosophy: futexes are primarily memory based objects. They are 
+not signals. They are not in-kernel structures. They are primarily a 
+piece of userspace memory.
 
-Thank you.
+	Ingo

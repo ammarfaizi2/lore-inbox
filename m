@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946045AbWBOR3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946046AbWBORb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946045AbWBOR3g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 12:29:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946050AbWBOR3g
+	id S1946046AbWBORb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 12:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946049AbWBORby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 12:29:36 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:9191 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1946045AbWBOR3f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 12:29:35 -0500
-Subject: Re: RFC: disk geometry via sysfs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	Wed, 15 Feb 2006 12:31:54 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:53683 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1946046AbWBORby (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 12:31:54 -0500
+Subject: Re: [RFC][PATCH] UDF filesystem uid fix
+From: Pekka Enberg <penberg@cs.helsinki.fi>
 To: Phillip Susi <psusi@cfl.rr.com>
-Cc: Seewer Philippe <philippe.seewer@bfh.ch>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <43F354E9.2020900@cfl.rr.com>
-References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com>
-	 <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com>
-	 <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com>
-	 <43F2E8BA.90001@bfh.ch>
-	 <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com>
-	 <1140019615.14831.22.camel@localhost.localdomain>
-	 <43F354E9.2020900@cfl.rr.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 15 Feb 2006 17:32:34 +0000
-Message-Id: <1140024754.14831.31.camel@localhost.localdomain>
+Cc: Peter Osterlund <petero2@telia.com>, linux-kernel@vger.kernel.org,
+       bfennema@falcon.csc.calpoly.edu, Christoph Hellwig <hch@lst.de>,
+       Al Viro <viro@ftp.linux.org.uk>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <43F34ED5.8020306@cfl.rr.com>
+References: <m3lkwg4f25.fsf@telia.com>
+	 <84144f020602130149k72b8ebned89ff5719cdd0c2@mail.gmail.com>
+	 <43F0B8FC.6020605@cfl.rr.com>
+	 <Pine.LNX.4.58.0602140916230.15339@sbz-30.cs.Helsinki.FI>
+	 <43F1FD39.1040900@cfl.rr.com>
+	 <84144f020602142331s756aff15o69d1d67f1b18127e@mail.gmail.com>
+	 <43F34ED5.8020306@cfl.rr.com>
+Date: Wed, 15 Feb 2006 19:31:48 +0200
+Message-Id: <1140024709.24898.7.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2006-02-15 at 11:20 -0500, Phillip Susi wrote:
-> Why do you say the partitioning tool needs to know the disk reported 
-> C/H/S?  The value stored in the MBR must match the bios reported values, 
-> not the disk reported ones, so why does the partitioner care about what 
-> the disk reports?
+On Wed, 2006-02-15 at 10:55 -0500, Phillip Susi wrote:
+> Maybe I should amend the patch to work like this:
+> 
+> uid/gid : specify default id when -1 is on disk
+> uid/gid = force : ignore ids on disk
+> uid/gid = [no]save : do [not] save actual id to disk ( save -1 instead )
+> 
+> Possibly with nosave being the default.  Would this be more acceptable?
 
-You answered that in asking the question.  "The value stored in the MBR
-must match the ...". What if the MBR has not yet been written ?
+Yeah, sounds much better to me. However, I am wondering if we can
+actually drop the nosave/save cases completely. Wouldn't we get the same
+semantics by letting uid/gid specify the default id and make the ignore
+case look like we're always reading -1 from disk, and never writing out
+any ids? So as a desktop user, you mount with "uid=", "gid=", and
+"force" passed as mount option and it works as expected.
 
-(Also btw its *should*...) most modern OS's will take a sane MBR
-geometry and trust it over BIOS defaults.
-
-Alan
+			Pekka
 

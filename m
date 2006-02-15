@@ -1,155 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030569AbWBPTJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030580AbWBPTJe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030569AbWBPTJd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 14:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030619AbWBPTJd
+	id S1030580AbWBPTJe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 14:09:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030619AbWBPTJe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 14:09:33 -0500
-Received: from master.altlinux.org ([62.118.250.235]:19984 "EHLO
+	Thu, 16 Feb 2006 14:09:34 -0500
+Received: from master.altlinux.org ([62.118.250.235]:19728 "EHLO
 	master.altlinux.org") by vger.kernel.org with ESMTP
-	id S1030569AbWBPTJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1030580AbWBPTJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 16 Feb 2006 14:09:33 -0500
-Date: Wed, 15 Feb 2006 23:54:01 +0300
+Date: Wed, 15 Feb 2006 23:57:25 +0300
 From: Sergey Vlasov <vsu@altlinux.ru>
 To: Davi Arnaut <davi.arnaut@gmail.com>
 Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/2] strndup_user, v2
-Message-Id: <20060215235401.381eea7c.vsu@altlinux.ru>
-In-Reply-To: <20060215182258.03505613.davi.arnaut@gmail.com>
-References: <20060215182258.03505613.davi.arnaut@gmail.com>
+Subject: Re: [PATCH 1/2] strndup_user, convert (module)
+Message-Id: <20060215235725.15d54441.vsu@altlinux.ru>
+In-Reply-To: <20060215182306.d26a4121.davi.arnaut@gmail.com>
+References: <20060215182306.d26a4121.davi.arnaut@gmail.com>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i586-alt-linux-gnu)
 Mime-Version: 1.0
 Content-Type: multipart/signed; protocol="application/pgp-signature";
  micalg="PGP-SHA1";
- boundary="Signature=_Wed__15_Feb_2006_23_54_01_+0300_Lb0Jh6IqptVOjJC5"
+ boundary="Signature=_Wed__15_Feb_2006_23_57_25_+0300__HD.vStMtr0koZzR"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Wed__15_Feb_2006_23_54_01_+0300_Lb0Jh6IqptVOjJC5
+--Signature=_Wed__15_Feb_2006_23_57_25_+0300__HD.vStMtr0koZzR
 Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, 15 Feb 2006 18:22:58 -0300 Davi Arnaut wrote:
+On Wed, 15 Feb 2006 18:23:06 -0300 Davi Arnaut wrote:
 
-> This patch series creates a strndup_user() function in order to avoid dup=
-licated
-> and error-prone (userspace modifying the string after the strlen_user()) =
-code.
->=20
-> v2: Inline strdup_user and fixed a bogus strdup_user usage.
->=20
-> The diffstat:
->=20
->  include/linux/string.h |    7 ++
->  kernel/module.c        |   19 +-------
->  mm/util.c              |   37 +++++++++++++++
->  security/keys/keyctl.c |  116 ++++++++++--------------------------------=
--------
->  4 files changed, 72 insertions(+), 107 deletions(-)
->=20
+> Convert kernel/module.c string duplication to strdup_user()
 >=20
 > Signed-off-by: Davi Arnaut <davi.arnaut@gmail.com>
 > --
 >=20
-> diff --git a/include/linux/string.h b/include/linux/string.h
-> index 369be32..8fbf139 100644
-> --- a/include/linux/string.h
-> +++ b/include/linux/string.h
-> @@ -18,6 +18,13 @@ extern char * strsep(char **,const char=20
->  extern __kernel_size_t strspn(const char *,const char *);
->  extern __kernel_size_t strcspn(const char *,const char *);
+> diff --git a/kernel/module.c b/kernel/module.c
+> index 5aad477..d7d428d 100644
+> --- a/kernel/module.c
+> +++ b/kernel/module.c
+> @@ -1538,7 +1538,6 @@ static struct module *load_module(void _
+>  	unsigned int i, symindex =3D 0, strindex =3D 0, setupindex, exindex,
+>  		exportindex, modindex, obsparmindex, infoindex, gplindex,
+>  		crcindex, gplcrcindex, versindex, pcpuindex;
+> -	long arglen;
+>  	struct module *mod;
+>  	long err =3D 0;
+>  	void *percpu =3D NULL, *ptr =3D NULL; /* Stops spurious gcc warning */
+> @@ -1655,23 +1654,11 @@ static struct module *load_module(void _
+>  	}
 > =20
-> +extern char *strndup_user(const char __user *, long);
-> +
-> +static inline char *strdup_user(const char __user *s)
-> +{
-> +	return strndup_user(s, 4096);
+>  	/* Now copy in args */
+> -	arglen =3D strlen_user(uargs);
+> -	if (!arglen) {
+> -		err =3D -EFAULT;
+> -		goto free_hdr;
+> -	}
+> -	args =3D kmalloc(arglen, GFP_KERNEL);
+> -	if (!args) {
+> -		err =3D -ENOMEM;
+> +	args =3D strdup_user(uargs);
 
-PAGE_SIZE ?
+Before your changes the args string was limited by the maximum size
+supported by kmalloc(); you have changed the limit to 4096 hardcoded
+inside strdup_user(), which is much lower.
 
-> +}
-> +
->  /*
->   * Include machine specific inline routines
->   */
-> diff --git a/mm/util.c b/mm/util.c
-> index 5f4bb59..09c2c3b 100644
-> --- a/mm/util.c
-> +++ b/mm/util.c
-> @@ -1,6 +1,8 @@
->  #include <linux/slab.h>
->  #include <linux/string.h>
->  #include <linux/module.h>
-> +#include <linux/err.h>
-> +#include <asm/uaccess.h>
+> +	if (IS_ERR(args)) {
+> +		err =3D PTR_ERR(args);
+>  		goto free_hdr;
+>  	}
+> -	if (copy_from_user(args, uargs, arglen) !=3D 0) {
+> -		err =3D -EFAULT;
+> -		goto free_mod;
+> -	}
+> -
+> -	/* Userspace could have altered the string after the strlen_user() */
+> -	args[arglen - 1] =3D '\0';
 > =20
->  /**
->   * kzalloc - allocate memory. The memory is set to zero.
-> @@ -37,3 +39,38 @@ char *kstrdup(const char *s, gfp_t gfp)
->  	return buf;
->  }
->  EXPORT_SYMBOL(kstrdup);
-> +
-> +/*
-> + * strndup_user - duplicate an existing string from user space
-> + *
-> + * @s: The string to duplicate
-> + * @n: Maximum number of bytes to copy, including the trailing NUL.
-> + */
-> +char *strndup_user(const char __user *s, long n)
-> +{
-> +	char *p;
-> +	long length;
-> +
-> +	length =3D strlen_user(s);
+>  	if (find_module(mod->name)) {
+>  		err =3D -EEXIST;
 
-This should be strnlen_user(s, n) - no need to look at the whole
-potentially huge string if you already have the limit.
-
-> +
-> +	if (!length)
-> +		return ERR_PTR(-EFAULT);
-> +
-> +	if (length > n)
-> +		length =3D n;
-
-This silently truncates a too long string, which might not be proper
-behavior (in fact, your patch #2 changes the behavior of keyctl
-functions, which were rejecting too long strings with -EINVAL - this is
-not good).
-
-> +
-> +	p =3D kmalloc(length, GFP_KERNEL);
-> +
-> +	if (!p)
-> +		return ERR_PTR(-ENOMEM);
-> +
-> +	if (strncpy_from_user(p, s, length) < 0) {
-
-This can be plain copy_from_user() - you already have the length, and
-even if someone sneaks a NUL byte in the middle, copying bytes past it
-will not matter.
-
-> +		kfree(p);
-> +		return ERR_PTR(-EFAULT);
-> +	}
-> +
-> +	p[length - 1] =3D '\0';
-> +
-> +	return p;
-> +}
-> +EXPORT_SYMBOL(strndup_user);
-
---Signature=_Wed__15_Feb_2006_23_54_01_+0300_Lb0Jh6IqptVOjJC5
+--Signature=_Wed__15_Feb_2006_23_57_25_+0300__HD.vStMtr0koZzR
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.9.17 (GNU/Linux)
 
-iD8DBQFD85TsW82GfkQfsqIRAmiPAJ9uz1rylC4shXERhl2noUWy/CR7RgCfWjMS
-/cT+vI28+W/7DbyMcF7oSiE=
-=5DyM
+iD8DBQFD85W1W82GfkQfsqIRAv6aAJwIpLqkDi46AVrqyEjLpP8TnwS/FgCfbGTK
+7aExdRdW4h59GcDn8VNwiVI=
+=FJcU
 -----END PGP SIGNATURE-----
 
---Signature=_Wed__15_Feb_2006_23_54_01_+0300_Lb0Jh6IqptVOjJC5--
+--Signature=_Wed__15_Feb_2006_23_57_25_+0300__HD.vStMtr0koZzR--

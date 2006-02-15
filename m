@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423003AbWBOHMQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423007AbWBOHRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423003AbWBOHMQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 02:12:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423007AbWBOHMQ
+	id S1423007AbWBOHRp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 02:17:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423008AbWBOHRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 02:12:16 -0500
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:6276 "HELO
-	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1423003AbWBOHMP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 02:12:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=unKID3XVOhPEK4KgG8Cdj0kfu1kwm3O0gyPLDQyj0Men2bA80unXJJo4oKhGuqsp7C5utcoYgdXsp1ODJ774yx0g3tFWdw9UqwdTrkg5AMck7YySXYEOONcTXwoRvA8wUutThNZXAH+a+mhbQjGAtKKv2h4CSamfN0d6BiaQKK8=  ;
-Message-ID: <43F2CB2A.7000909@yahoo.com.au>
-Date: Wed, 15 Feb 2006 17:33:14 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: hawkes@SGI.com
-CC: Suresh Siddha <suresh.b.siddha@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Jack Steiner <steiner@SGI.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] load_balance: "busiest CPU" -> "busier CPUs"
-References: <20060207012729.8707.66350.sendpatchset@tomahawk.engr.sgi.com>
-In-Reply-To: <20060207012729.8707.66350.sendpatchset@tomahawk.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 15 Feb 2006 02:17:45 -0500
+Received: from mail.gmx.de ([213.165.64.21]:60801 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1423007AbWBOHRo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 02:17:44 -0500
+X-Authenticated: #14349625
+Subject: Re: 2.6 vs 2.4, ssh terminal slowdown
+From: MIke Galbraith <efault@gmx.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Con Kolivas <kernel@kolivas.org>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       gcoady@gmail.com, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1139983865.2733.20.camel@mindpipe>
+References: <j4kiu1de3tnck2bs7609ckmt89pfoumlbe@4ax.com>
+	 <200602131637.43335.kernel@kolivas.org> <1139810224.7935.9.camel@homer>
+	 <200602131708.52342.kernel@kolivas.org>  <1139812538.7744.8.camel@homer>
+	 <1139812725.2739.94.camel@mindpipe>  <1139814504.8124.6.camel@homer>
+	 <1139820181.3202.2.camel@mindpipe>  <1139834106.7831.115.camel@homer>
+	 <1139977373.2733.9.camel@mindpipe>  <1139980940.24148.47.camel@homer>
+	 <1139983865.2733.20.camel@mindpipe>
+Content-Type: text/plain
+Date: Wed, 15 Feb 2006 08:17:59 +0100
+Message-Id: <1139987879.12598.20.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hawkes@SGI.com wrote:
-> Second try, incorporating Suresh Siddha's suggestion to avoid adding
-> a field to the runqueue struct.
+On Wed, 2006-02-15 at 01:11 -0500, Lee Revell wrote:
+> On Wed, 2006-02-15 at 06:22 +0100, MIke Galbraith wrote:
+> > > OK, with 2.6.16-rc2-mm1, "ls" bounces around between 0.15s and
+> > 0.50s.
+> > > Better than mainline but the large seemingly random variance is
+> > still
+> > > perceptible and annoying.  And, "ls | cat" behaves about the same as
+> > > "ls", while on mainline it was consistently faster (!).
+> > 
+> > Ok.  That means the reduction in fluctuation had nothing to do with my
+> > changes.  It also suggests that there may be something of a regression
+> > in the changes that are in mm, which I also carried in my patch, since
+> > the timing for both kernels appear to be ~identical with or without my
+> > bits.  That seems a little odd to me considering what those changes
+> > do.
+> > 
+> > > 
+> > > Do you have an updated patch against -mm that I can test?
+> > 
+> > I will soon if you still want to try it. I've fixed the throttle
+> > release
+> > thing, and am fine tuning the interactivity bits.  I have it working
+> > very well now, but want to try to squeeze some more from it.
+> > 
+> > Drop me a line if you're still interested from the interactivity side,
+> > but I think the ls delay reduction has turned out to be a red
+> > herring. 
 > 
+> Just to be clear - this is 2.6.16-rc2-mm1 *without* your patch that I am
+> talking about.
 
-Sorry for not getting back to you earlier.
+Exactly.  2.6.16-rc2-mm1 without my patch has a delay of .15 to .50s.
+2.6.16-rc1 with my patch had a reported delay of from .19 to .45s.
+That's identical in my book.  My patch to rc1 also contained Con's
+changes that are in mm, that's constant.  Subtracting the variable, my
+patch, made no difference.  Con's changes may be responsible for the
+behavior change, but mine are certainly not.
 
-Looks like it should work, although bviously exclusive cpusets are
-still the preferred way to do exclusive partitioning. Not sure what
-the others think about adding complexity and overhead for a
-relatively uncommon case, I'm not a huge fan.
+	-Mike
 
-I have a suggestion for an improvement - cycle through all CPUs
-in the busiest group before moving on to find_busiest_group again?
-
-Do you really need the schedstat field? You'll have to bump the
-schedstat version.
-
-The idea I had when thinking about how to handle this, is to have
-something like your `consider_cpus` field in the sched domain
-itself (which can help you not do too much work at one time, but
-will have other complexities like when to reset the mask).
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 

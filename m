@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWBOSOz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWBOST7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbWBOSOz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 13:14:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWBOSOy
+	id S1751215AbWBOST7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 13:19:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWBOST7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 13:14:54 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:12427 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751212AbWBOSOy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 13:14:54 -0500
-Date: Wed, 15 Feb 2006 10:14:49 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: bharata@in.ibm.com, Ray Bryant <raybry@mpdtxmail.amd.com>,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes
- 2.6.16-rc1[2] on 2 node X86_64
-In-Reply-To: <200602151221.53730.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0602151010290.6920@schroedinger.engr.sgi.com>
-References: <20060205163618.GB21972@in.ibm.com> <20060215054620.GA2966@in.ibm.com>
- <20060215103813.GD2966@in.ibm.com> <200602151221.53730.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Feb 2006 13:19:59 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:62894 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751215AbWBOST6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 13:19:58 -0500
+Subject: Re: [BUG] kernel 2.6.15.4: soft lockup detected on CPU#0!
+From: Lee Revell <rlrevell@joe-job.com>
+To: Folkert van Heusden <folkert@vanheusden.com>
+Cc: Charles-Edouard Ruault <ce@ruault.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060215150710.GN30182@vanheusden.com>
+References: <43EF8388.10202@ruault.com>
+	 <20060214114102.GC20975@vanheusden.com>
+	 <1139934749.11659.97.camel@mindpipe>
+	 <20060215150710.GN30182@vanheusden.com>
+Content-Type: text/plain
+Date: Wed, 15 Feb 2006 13:19:52 -0500
+Message-Id: <1140027592.2733.38.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.91 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Feb 2006, Andi Kleen wrote:
+On Wed, 2006-02-15 at 16:07 +0100, Folkert van Heusden wrote:
+> 
+> So it seems it switches back to pio somewhere in time.
+> 
+> But on the other hand: shouldn't pio run ok as well without softlockup
+> errors? 
 
-> How about the appended patch? Does it fix the problem for you?
+AFAICT in PIO mode if a huge IO request is submitted and/or the device
+is slow to respond there's nothing to prevent us spending a long time in
+the IDE driver.
 
-I think we still need to address the issue of being able to crash
-the page allocator if an empty zone is in the zonelist. 
+IIRC this can't be made preemptible due to data corruption issues on
+some hardware.  Maybe we should touch the watchdog in there.
 
-> This should work fine for now, but whoever implements node hot removal
-> needs to fix this somewhere else too (or make sure zone datastructures 
-> by itself never go away, only their memory)
-
-Yup. Simply initializing the pcp structures with empty lists should 
-suffice though.
+Lee
 

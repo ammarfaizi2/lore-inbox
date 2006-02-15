@@ -1,94 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423052AbWBOJCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423055AbWBOJDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423052AbWBOJCG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 04:02:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423058AbWBOJCG
+	id S1423055AbWBOJDd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 04:03:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423056AbWBOJDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 04:02:06 -0500
-Received: from mr1.bfh.ch ([147.87.250.50]:58308 "EHLO mr1.bfh.ch")
-	by vger.kernel.org with ESMTP id S1423052AbWBOJCC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 04:02:02 -0500
-thread-index: AcYyDnhEyIuCt3h+SSaHW4BYvb1IIw==
-X-PMWin-Version: 2.5.0e, Antispam-Engine: 2.2.0.0, Antivirus-Engine: 2.32.10
-Content-Class: urn:content-classes:message
-Importance: normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
-Message-ID: <43F2EE04.9060500@bfh.ch>
-Date: Wed, 15 Feb 2006 10:01:56 +0100
-From: "Seewer Philippe" <philippe.seewer@bfh.ch>
-Organization: BFH
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050811)
-X-Accept-Language: en-us, en
+	Wed, 15 Feb 2006 04:03:33 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:8305 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1423055AbWBOJDb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 04:03:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=U3poV/2jZqBZysFYBxHYmvhwlVekadl3MBUp2MZOhvEIgdq1BzwsPqAdcDbyDc/TGtYIbtcZTuNF7xmpItBHCQ/djpB4TbZEvqe4nVXjorsOHACQBYKapqdoCmIMW8df5u4/lu8FDMcXHtg6tEms7sT42u0E2j4MCQR9R2WuoeI=
+Message-ID: <ff1cadb20602150103u437562ddu@mail.gmail.com>
+Date: Wed, 15 Feb 2006 10:03:30 +0100
+From: Luca Falavigna <dktrkranz@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] CONSOLE_LP_STRICT Kconfig option
+Cc: linux-kernel@vger.kernel.org, rdunlap@xenotime.net
+In-Reply-To: <p731wy63s0j.fsf@verdi.suse.de>
 MIME-Version: 1.0
-To: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
-Cc: "Phillip Susi" <psusi@cfl.rr.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: disk geometry via sysfs
-References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com> <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com> <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com> <43F2E8BA.90001@bfh.ch> <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com>
-In-Reply-To: <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com>
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Feb 2006 09:01:55.0200 (UTC) FILETIME=[7811C800:01C6320E]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43F1ED62.4050609@gmail.com> <p731wy63s0j.fsf@verdi.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Oops, I noticed I sent twice my email. Sorry.
 
+14 Feb 2006 15:59:56 +0100, Andi Kleen <ak@suse.de>:
+> This shouldn't be a CONFIG. This should be a runtime option.
+> It's ridiculous to have to recompile your kernel just to fix some
+> problem with your printer.
+>
+> e.g. sysctl, ioctl, sysfs entry, module parameter. Whatever is en
+> vogue these days. Easiest would be probably a module_param().
 
-Bartlomiej Zolnierkiewicz wrote:
-> On 2/15/06, Seewer Philippe <philippe.seewer@bfh.ch> wrote:
->>
->>Hi Phillip
->>
->>I'd like to close this discussion if possible.
->>
->>I think we both know that disk geometry is a fiction and except for a
->>few "older" devices which still need support, Linux couldn't care less
->>about it (and in an ideal world this would include myself).
->>
->>On the other hand, at least in the x86 world, we must live with the fact
->>that there are other os around, which, as you so aptly put, aren't sane.
->>In order to work with them and if necessary to fix things, geometry
->>information is necessary. One part is the bios geometry, available
->>through edd or other means. The other part is the geometry the kernel
->>exports (whatever sane values it contains or where they come from).
->>
->>Both are necessary for debugging and fixing. And sometimes it actually
->>makes sense to overwrite the kernel with values that are "compatible".
->>Whether gleaned from the bios via edd or computed by hand does not
->>matter as long as the user has to it by himself. I've given a few
->>examples for this, others can be found by googling (For example the ide
->>disk geometry rewrite for http://unattended.sourceforge.net).
->>
->>I completely agree with all that the kernel should never try to report
->>bios geometry for a disk unless absolutely necessary and should not
->>attempt to fix things automagically.
->>
->>But, as long as the Linux kernel does something with disk geometry, and
->>this could mean just returning some bogus values, it makes sense to
->>export these values read/write in sysfs. Because we all know, sysfs is
->>much easier to handle than say for example ioctls.
-> 
-> 
-> This made me thinking - if all the kernel does is returning some bogus
-> values and we need to fix applications to use sysfs interface why not
-> instead just fix applications to not use ioctl interface?
-> 
-> Bartlomiej
+This feature only gets involved when passing console=lp0 parameter to
+the bootloader. I never tried to load a new system console while
+system was running so I'm not sure if it behaves correctly. If it
+does, I will modify this patch following your advices.
 
-Good point (and the one I was afraid of coming up).
+Regards,
 
-This would mean dropping the HDIO_GETGEO ioctl completely and force
-applications such as fdisk/sfdisk and even dosemu to determine disk
-geometry for themselves. Which I think actually would be the most
-correct approach.
-
-But this would come to a similar situation as in the beginnings of 2.6
-when we had partitioning problems because bios geometry support was
-dropped.
-
-That's something I don't have the guts to decide (and luckily can't), so
-I'd rather go with sysfs and provide a means to be as compatible as
-possible without doing anything automagically.
-
-
+--
+Luca

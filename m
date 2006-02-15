@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbWBOW2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWBOWfj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751343AbWBOW2A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 17:28:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWBOW2A
+	id S932183AbWBOWfj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 17:35:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWBOWfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 17:28:00 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:50704 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751343AbWBOW17 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 17:27:59 -0500
-Date: Wed, 15 Feb 2006 23:27:57 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: Steve French <smfltc@us.ibm.com>,
-       "linux-cifs-client@lists.samba.org" 
-	<linux-cifs-client@lists.samba.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Additional questions on your hang
-Message-ID: <20060215222757.GD5066@stusta.de>
-References: <20050721115604.GB3160@stusta.de> <OF31F3CBF1.99DB2B76-ON87257046.0068484B-86257046.0068A410@us.ibm.com> <20050722191457.GL3160@stusta.de> <43F20EC0.8090305@us.ibm.com> <20060214171713.GA3513@stusta.de> <1139946851.9961.28.camel@kleikamp.austin.ibm.com>
+	Wed, 15 Feb 2006 17:35:39 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:20923 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751300AbWBOWfi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 17:35:38 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ID2hM4wZ9m3K0tpxDlISmGkLV4ygoqxuW3tlUCTSlWjTo1dN0cakbXM66DS4RtJEg9tWRIT2FTrl8h84NJZ0zoWPLJ9PqRbyb1AJbPhmufwMvslEGx9DCO4/eJXn98ftEZTiV209V3MniKuID0EsWAERxi+TkB1CxYV39qzvO/Y=
+Message-ID: <39e6f6c70602151435r5b965670oab580c75bbaee7ab@mail.gmail.com>
+Date: Wed, 15 Feb 2006 20:35:37 -0200
+From: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>
+To: spereira@tusc.com.au
+Subject: Re: [PATCH 5/6] x25: Allow 32 bit socket ioctl in 64 bit kernel
+Cc: netdev <netdev@vger.kernel.org>,
+       linux-kenel <linux-kernel@vger.kernel.org>,
+       x25 maintainer <eis@baty.hanse.de>,
+       "David S. Miller" <davem@davemloft.net>, Arnd Bergmann <arnd@arndb.de>,
+       Andre Hendry <ahendry@tusc.com.au>
+In-Reply-To: <1140042162.8745.30.camel@spereira05.tusc.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1139946851.9961.28.camel@kleikamp.austin.ibm.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <1140042162.8745.30.camel@spereira05.tusc.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 14, 2006 at 01:54:11PM -0600, Dave Kleikamp wrote:
->...
-> I wasn't able to trace it to an exact line of code, but I think I see
-> what the problem is.
-> 
-> This patch moves the copy_to_user from smb_read_data after the test
-> whether smb_read_data is null.  It's good not to dereference a pointer
-> if you have a reason to test it for null afterward.
-> 
-> This patch has not been compiled or tested.
->...
+On 2/15/06, Shaun Pereira <spereira@tusc.com.au> wrote:
 
-Thanks, this patch works fine for me and after disassembling it seems 
-you've found exactly the place where the kernel Oops'ed for me in the 
-forcedirectio case.
+> +               switch (*p) {
+> +                       case X25_FAC_CALLING_AE:
+> +                               if (p[1] > 33)
+> +                               break;
+> +                               dte_facs->calling_len = p[2];
+> +                               memcpy(dte_facs->calling_ae, &p[3], p[1] - 1);
+> +                               *vc_fac_mask |= X25_MASK_CALLING_AE;
+> +                               break;
 
-But even with this patch applied, I had a freeze in the 
-non-forcedirectio case, although much later than usual.
-There seems to be more than one bug.  :-(
+Can this '33' magic number be replaced with a define or sizeof(something)?
 
-I'm currently trying whether there are still any problems in the 
-forcedirectio case, and I'll report back as soon as I am able to provide 
-any additional information.
-
-> David Kleikamp
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+- Arnaldo

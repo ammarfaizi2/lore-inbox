@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946023AbWBOQz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946024AbWBOQ5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946023AbWBOQz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 11:55:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946024AbWBOQz6
+	id S1946024AbWBOQ5x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 11:57:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946025AbWBOQ5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 11:55:58 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:5127 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1946023AbWBOQz5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 11:55:57 -0500
-Date: Wed, 15 Feb 2006 17:55:49 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Rob Landley <rob@landley.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Device enumeration (was Re: CD writing in future Linux (stirring up a hornets' nest))
-Message-ID: <20060215165549.GC516@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org
-References: <43D7C1DF.1070606@gmx.de> <200602141732.22712.rob@landley.net> <20060214231732.GB66586@dspnet.fr.eu.org> <200602141924.22965.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602141924.22965.rob@landley.net>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 15 Feb 2006 11:57:53 -0500
+Received: from [213.91.10.50] ([213.91.10.50]:55765 "EHLO zone4.gcu-squad.org")
+	by vger.kernel.org with ESMTP id S1946024AbWBOQ5w convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 11:57:52 -0500
+Date: Wed, 15 Feb 2006 17:55:10 +0100 (CET)
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Quilt 0.44
+X-IlohaMail-Blah: khali@localhost
+X-IlohaMail-Method: mail() [mem]
+X-IlohaMail-Dummy: moo
+X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
+Message-ID: <lFUEkPbd.1140022510.6575600.khali@localhost>
+From: "Jean Delvare" <khali@linux-fr.org>
+Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Greylist: Sender is SPF-compliant, not delayed by milter-greylist-2.1.2 (zone4.gcu-squad.org [127.0.0.1]); Wed, 15 Feb 2006 17:55:11 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 14, 2006 at 07:24:22PM -0500, Rob Landley wrote:
-> I'm torn between "nuts to alsa", pointing out that "ln -s /dev /dev/snd" 
-> should shut it up nicely, and thinking up a way to actually do what it wants.
-> 
-> If there's a real need for subdirectories, I'm sure we can come up with a way 
-> to shunt stuff into them.  (Of course a shellout could do it, but if it's 
-> common enough we could build something into mdev...)
-> 
-> The easy one's the symlink, assuming there are no name collisions flinging 
-> everything into one directory...
 
-Let's see, on a recent kernel and recent udev I have as directories
-under /dev:
+Hi all,
 
-- disk, a pure udev creation, so no conflict there
-- loop, devices names under that are numeric.  mount has /dev/loop%d
-  and /dev/loop/%d hardcoded
-- bus/usb, this one collides with itself if flattened
-- snd/sound, names except for seq and timer are pretty much line
-  noise.  "timer" is scary though.
-- net with tun and (I think) tap.
-- pktcdvd with "control", not sure what tool uses it
-- misc is ok (they're all ex-/dev/xx devices)
-- video1394, dv1394, i2c with '0' as device name
-- dri with card%d
-- cpu which self-collides too
-- input with a potentially dangerous event%d
+Quilt 0.44 has been released today. It fixes a serious bug in the push
+command which could lead to data loss. Thanks to Peter Williams for
+reporting. This bug was introduced in release 0.43, so I invite all
+users of that release to upgrade to 0.44 quickly.
 
-So, well, I think you're going to need directories for usb and cpu
-without doubt, and some of the rest is potentially risky, long-term
-wise.
+Quilt 0.44 can be downloaded from here:
+  http://savannah.nongnu.org/download/quilt/quilt-0.44.tar.gz
 
-  OG.
-
+Thanks,
+--
+Jean Delvare

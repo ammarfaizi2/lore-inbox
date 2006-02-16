@@ -1,49 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWBPRsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWBPRyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbWBPRsV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 12:48:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWBPRsV
+	id S932195AbWBPRyY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 12:54:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbWBPRyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 12:48:21 -0500
-Received: from pat.qlogic.com ([198.70.193.2]:55209 "EHLO avexch02.qlogic.com")
-	by vger.kernel.org with ESMTP id S1751390AbWBPRsU (ORCPT
+	Thu, 16 Feb 2006 12:54:24 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:33446 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932195AbWBPRyX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 12:48:20 -0500
-Date: Thu, 16 Feb 2006 09:48:17 -0800
-From: Andrew Vasquez <andrew.vasquez@qlogic.com>
-To: Sean Bruno <sean.bruno@dsl-only.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Qlogic Firmware Inteface Specifications
-Message-ID: <20060216174817.GB5627@andrew-vasquezs-powerbook-g4-15.local>
-References: <1140109443.29317.18.camel@home-desk>
+	Thu, 16 Feb 2006 12:54:23 -0500
+Date: Thu, 16 Feb 2006 11:53:26 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
+       linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: (pspace,pid) vs true pid virtualization
+Message-ID: <20060216175326.GA11974@sergelap.austin.ibm.com>
+References: <20060215145942.GA9274@sergelap.austin.ibm.com> <m11wy4s24i.fsf@ebiederm.dsl.xmission.com> <20060216142928.GA22358@sergelap.austin.ibm.com> <m17j7vqmy1.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1140109443.29317.18.camel@home-desk>
-Organization: QLogic Corporation
+In-Reply-To: <m17j7vqmy1.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Mutt/1.5.11
-X-OriginalArrivalTime: 16 Feb 2006 17:48:19.0335 (UTC) FILETIME=[2C181170:01C63321]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Feb 2006, Sean Bruno wrote:
-
-> Does anyone have the publication numbers for Qlogic's firmware interface
-> specifications?  
+Quoting Eric W. Biederman (ebiederm@xmission.com):
+> > I think it should be acceptable if a pidspace is visible in all it's
+> > ancestor pidspaces.  I.e. if I create pspace2 and pspace3 from pid 234
+> > in pspace1, then pspace2 doesn't need to be able to address pspace3
+> > and vice versa.
 > 
-> I have been trying to get Qlogic to get me the document covering the
-> QLA1040's Target mode firmware and they seem to be having trouble
-> finding it.
+> A good rule.  Now consider pspace 4 which is a child of pid 567
+> in pspace 3.
 > 
+> What should pspace 3 see? 
 
-mailto: support@qlogic.com
+Implementation dependent.
 
-> Just thought I would ask.  Please don't send me the document as it is
-> governed by their NDA process...lame.
-> 
+What I'd like to see is:
 
-or better yet -- work the request through your company's QLogic
-program manager, if that's an option.
+> What should pspace 3 see? 
 
---
-av
+The pid of the init process for pspace 4.
+
+> What should pspace 1 see?
+
+The pid of the init process for pspace 3.
+
+> What happens when you migrate pspace 3 into a different pspace
+> on a different machine?
+
+Nothing special.  "Migrate" was just a checkpoint (from pspace 1)
+and a resume (from pspace N on some machine).  So now pspace N on
+the new machine has created a new pspace - which happens to be
+immediately populated with the contents of the old pspace 3 - and
+see the pid of the init process of this new pspace.
+
+> Is there a sane implementation for this?
+
+IMO, definately yes.
+
+But I haven't tried it, so my opinion is just that.
+
+-serge

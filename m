@@ -1,157 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161132AbWBPPPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWBPP1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161132AbWBPPPS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 10:15:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161136AbWBPPPS
+	id S932301AbWBPP1i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 10:27:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWBPP1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 10:15:18 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11786 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1161132AbWBPPPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 10:15:15 -0500
-Date: Thu, 16 Feb 2006 15:15:04 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Carlos Aguiar <carlos.aguiar@indt.org.br>
-Cc: linux-kernel@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-       Pierre Ossman <drzeus-list@drzeus.cx>
-Subject: Re: [RFC] mmc: add OMAP driver
-Message-ID: <20060216151504.GA29443@flint.arm.linux.org.uk>
-Mail-Followup-To: Carlos Aguiar <carlos.aguiar@indt.org.br>,
-	linux-kernel@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-	Pierre Ossman <drzeus-list@drzeus.cx>
-References: <43F48BCA.8010608@indt.org.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43F48BCA.8010608@indt.org.br>
-User-Agent: Mutt/1.4.1i
+	Thu, 16 Feb 2006 10:27:38 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:62309 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S932301AbWBPP1i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 10:27:38 -0500
+Message-ID: <43F499A8.4080204@cfl.rr.com>
+Date: Thu, 16 Feb 2006 10:26:32 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Seewer Philippe <philippe.seewer@bfh.ch>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC: disk geometry via sysfs
+References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com> <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com> <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com> <43F2E8BA.90001@bfh.ch> <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com> <11 <Pine.LNX.4.61.0602160728100.20319@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0602160728100.20319@chaos.analogic.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Feb 2006 15:28:31.0105 (UTC) FILETIME=[A451BF10:01C6330D]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14271.000
+X-TM-AS-Result: No--11.490000-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 16, 2006 at 10:27:22AM -0400, Carlos Aguiar wrote:
-> +	/* Any data transfer means adtc type (but that information is not
-> +	 * in command structure, so we flagged it into host struct.)
-> +	 * However, telling bc, bcr and ac apart based on response is
-> +	 * not foolproof:
-> +	 * CMD0  = bc  = resp0  CMD15 = ac  = resp0
-> +	 * CMD2  = bcr = resp2  CMD10 = ac  = resp2
-> +	 *
-> +	 * Resolve to best guess with some exception testing:
-> +	 * resp0 -> bc, except CMD15 = ac
-> +	 * rest are ac, except if opendrain
-> +	 */
-> +	if (host->data) {
-> +		cmdtype = OMAP_MMC_CMDTYPE_ADTC;
-> +	} else if (resptype == 0 && cmd->opcode != 15) {
-> +		cmdtype = OMAP_MMC_CMDTYPE_BC;
-> +	} else if (host->bus_mode == MMC_BUSMODE_OPENDRAIN) {
-> +		cmdtype = OMAP_MMC_CMDTYPE_BCR;
-> +	} else {
-> +		cmdtype = OMAP_MMC_CMDTYPE_AC;
-> +	}
+linux-os (Dick Johnson) wrote:
+>> I'm talking about the geometry of the disk.  If the disk has 16 sectors
+>> and 8 heads, then the maximum value allowed for any valid address is 16
+>> in the sector field and 7 in the heads field.  This influences the
+>> translation to/from LBA.  A sector with LBA of 1234 would have a CHS
+>> address using this geometry of 9/5/3.  If the disk reports a geometry of
+>> x/8/16 but the bios is using a geometry of x/255/63, then when you pass
+>> 9/5/3 to int 13 it will fetch LBA 144902 which is clearly not going to
+>> give you what you wanted.
+>>
+> 
+> Wrong! The disk gets an OFFSET!  It doesn't care how that OFFSET
+> is obtained. That OFFSET is the sum of some variables. Some start
+> at 0 and some start at 1. The BIOS takes these PHONY things, without
+> checking to see if they "fit" in some pre-conceived notion of
+> "geometery" and sums them all up to make an OFFSET. The C/H/S
+> stuff started and ENDED with the ST-506 interface.  PERIOD.
+> 
 
-This is no longer necessary - we now supply the command type via
-cmd->flags.
+Please reread my explanation above.  The bios has to compute the 
+absolute offset based on the geometry and the values you pass it.  It 
+does so by multiplying the track number you pass by the number of 
+sectors per track, multiplies the cylinder number by the number of 
+sectors per track and the number of tracks, and adds those two values to 
+the sector number you pass to arrive at the LBA to read.  If it performs 
+the CHS->LBA translation using a different geometry than you used to go 
+from LBA->CHS, then it will get the wrong sector.
 
-> +static void
-> +mmc_omap_cmd_done(struct mmc_omap_host *host, struct mmc_command *cmd)
-> +{
-> +	host->cmd = NULL;
-> +
 
-	if (cmd->flags & MMC_RSP_PRESENT) {
-		if (cmd->flags & MMC_RSP_136) {
-			cmd->resp[3] =
-				OMAP_MMC_READ(host->base, RSP0) |
-				(OMAP_MMC_READ(host->base, RSP1) << 16);
-			cmd->resp[2] =
-				OMAP_MMC_READ(host->base, RSP2) |
-				(OMAP_MMC_READ(host->base, RSP3) << 16);
-			cmd->resp[1] =
-				OMAP_MMC_READ(host->base, RSP4) |
-				(OMAP_MMC_READ(host->base, RSP5) << 16);
-			cmd->resp[0] =
-				OMAP_MMC_READ(host->base, RSP6) |
-				(OMAP_MMC_READ(host->base, RSP7) << 16);
-		} else {
-			cmd->resp[0] =
-				OMAP_MMC_READ(host->base, RSP6) |
-				(OMAP_MMC_READ(host->base, RSP7) << 16);
-		}
-	}
-
-would be clearer, and probably more efficient.  (gcc isn't really
-that good at working out bit patterns from switch statements.)
-
-> +	/* Optimize the loop a bit by calculating the register only
-> +	 * once */
-> +	reg = host->base + OMAP_MMC_REG_DATA;
-> +	p = host->buffer;
-> +	n /= 2;
-> +	if (write) {
-> +		while (n--)
-> +			__raw_writew(*p++, reg);
-> +	} else {
-> +		while (n-- > 0)
-> +			*p++ = __raw_readw(reg);
-> +	}
-
-readsw / writesw would be a far more efficient implementation.
-
-> +	host->base = (void __iomem *)pdev->resource[0].start;
-
-This is still very very very very wrong.  MMIO resources do not contain
-virtual addresses.  Casting it to a virtual address like this is insane.
-
-> +	mmc_add_host(mmc);
-
-At this point the host becomes live.  Is the following initialisation
-safe to do after the host has been manipulated to talk to MMC cards?
-
-> +
-> +	if (host->switch_pin >= 0) {
-> +		INIT_WORK(&host->switch_work, mmc_omap_switch_handler, host);
-> +		init_timer(&host->switch_timer);
-> +		host->switch_timer.function = mmc_omap_switch_timer;
-> +		host->switch_timer.data = (unsigned long) host;
-> +		if (omap_request_gpio(host->switch_pin) != 0) {
-> +			printk(KERN_WARNING "MMC%d: Unable to get GPIO pin for MMC cover switch\n",
-> +			       host->id);
-> +			host->switch_pin = -1;
-> +			goto no_switch;
-> +		}
-> +
-> +		omap_set_gpio_direction(host->switch_pin, 1);
-> +		set_irq_type(OMAP_GPIO_IRQ(host->switch_pin), IRQT_RISING);
-> +		ret = request_irq(OMAP_GPIO_IRQ(host->switch_pin),
-> +				  mmc_omap_switch_irq, 0, DRIVER_NAME, host);
-
-Don't use set_irq_type, use request_irq with SA_TRIGGER_RISING please.
-
-> +	if (host) {
-> +		mmc_remove_host(host->mmc);
-> +		free_irq(host->irq, host);
-> +#ifdef CONFIG_I2C
-> +		mmc_omap_power(host, 0);
-> +#endif
-
-Power should be turned off by the MMC layer anyway.
-
-> +#ifdef CONFIG_PM
-> +static int mmc_omap_suspend(struct platform_device *pdev, pm_message_t mesg)
-> +{
-> +	int ret = 0;
-> +	struct mmc_omap_host *host = platform_get_drvdata(pdev);
-> +
-> +	if (host && host->suspended)
-> +		return 0;
-> +
-> +	if (!irqs_disabled())
-> +		return -EAGAIN;
-
-IRQs will never be disabled here.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

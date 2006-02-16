@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWBPHcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932503AbWBPHhs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751199AbWBPHcN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 02:32:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWBPHcN
+	id S932503AbWBPHhs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 02:37:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbWBPHhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 02:32:13 -0500
-Received: from [61.135.151.188] ([61.135.151.188]:42578 "HELO virgilio.it")
-	by vger.kernel.org with SMTP id S1751199AbWBPHcM (ORCPT
+	Thu, 16 Feb 2006 02:37:48 -0500
+Received: from ozlabs.org ([203.10.76.45]:54466 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932503AbWBPHhs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 02:32:12 -0500
-Message-ID: <883d01c63275$13de5c60$c3a71be9@venserinvestmentcompanyvenseri>
-Reply-To: "Venser Investment Company" 
-	  <venserinvestmentcompanyvenseri@virgilio.it>
-From: "Venser Investment Company" 
-	<venserinvestmentcompanyvenseri@virgilio.it>
-To: <linux-kernel@vger.kernel.org>
-Subject: Invest funds in your Country
-Date: Wed, 15 Feb 2006 21:16:25 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Thu, 16 Feb 2006 02:37:48 -0500
+Date: Thu, 16 Feb 2006 18:37:45 +1100
+From: Michael Neuling <mikey@neuling.org>
+To: Al Viro <viro@ftp.linux.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Chained CPIOs writing to the same file bug
+Message-Id: <20060216183745.50cc2bf6.mikey@neuling.org>
+X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.6; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1158
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Venser  Investment Company.
- 
-Dear Sir/ Madam,
- 
-Allow me introduce our company to you, we are a modest Cayman Islands based
-European Business and Finance Consultancy, offering service to midline
-businesses and individuals in the Europe who desire to expand into other
-countries or business activities.
- 
-We are presently confronted with a request to invest funds in your country,
-the funds belong legitimately to widower from Saudi Arabia and the funds are
-deposited with the Pott Exchange of Netherlands. 
- 
-Against this background we are seeking your indulgence to respond to us
-indicating if you are capable and wiling to partner with us in the
-investment of Twenty Five Million US Dollars, in a covert expedient and
-confidential manner.
- 
-The investor in this case is interested in Industry and real estate, and
-your advice will be much valuable and highly regarded in this matter.
- 
-If you are intrested, we advise you send email to us through our company
-email address; venserinvestment@netscape.net  or you give us a call   Tel :
-+393 280 292 423.
+You can chain CPIOs together for the initramfs, but if two CPIOs write
+to the same file, we don't clear the first before writing the second.
+If the first is larger than the second, we end up with a mash of the
+two.  Trivial patch below to fix this.
 
-Your swift response will be appreciated, and we will like you to include a
-brief profile of yourself family or business, along with your complete
-contact information in your response.
- 
-Thank you so much and we look forward to doing business with you.
- 
-Alberto Petris. MBA.
-For: Venser  Investment Company.
-Email: venserinvestment@netscape.net
-Tel :  +393 280 292 423
- 
+Signed-off-by: Michael Neuling <mikey@neuling.org>
+---
+ init/initramfs.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
 
+Index: linux-2.6-linus/init/initramfs.c
+===================================================================
+--- linux-2.6-linus.orig/init/initramfs.c
++++ linux-2.6-linus/init/initramfs.c
+@@ -250,7 +250,8 @@ static int __init do_name(void)
+ 		return 0;
+ 	if (S_ISREG(mode)) {
+ 		if (maybe_link() >= 0) {
+-			wfd = sys_open(collected, O_WRONLY|O_CREAT, mode);
++			wfd = sys_open(collected, O_WRONLY|O_CREAT|O_TRUNC,
++				       mode);
+ 			if (wfd >= 0) {
+ 				sys_fchown(wfd, uid, gid);
+ 				sys_fchmod(wfd, mode);

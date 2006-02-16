@@ -1,49 +1,98 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbWBOKlb (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 15 Feb 2006 05:41:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWBOKlb
+	id S1030615AbWBPNIW (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 16 Feb 2006 08:08:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030619AbWBPNIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 05:41:31 -0500
-Received: from zeus1.kernel.org ([204.152.191.4]:34227 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751138AbWBOKla (ORCPT
+	Thu, 16 Feb 2006 08:08:22 -0500
+Received: from [219.157.213.26] ([219.157.213.26]:57360 "HELO netscape.net")
+	by vger.kernel.org with SMTP id S1030615AbWBPNIW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 05:41:30 -0500
-Date: Wed, 15 Feb 2006 08:39:05 -0200
-From: "Baez" <bigevilivzf@yahoo.dk>
-To: linux-kernel@vger.kernel.org
-Subject: Fwd:
-Message-ID: <5kYt743.BI349.lu4.232E3D7A2@localhost>
-X-Accept-Language: en,zh,ka,je,lo,ja,ko,tr,ru
+	Thu, 16 Feb 2006 08:08:22 -0500
+Message-ID: <B9378794.5E88A96@netscape.net>
+Date: Thu, 16 Feb 2006 19:58:54 +0600
+From: "East-West Australia lotteries" <ellenbleeker@netscape.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+To: <linux-kernel@vger.kernel.org>
+Subject: CONTACT THE PAYING BANK
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751152AbWBOKlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1030615AbWBPNIW@vger.kernel.org>
 
-Good day to you sir,
+East-West Australia Lotteries,
+1022 Kingsway Ave., Osborne,
+Western Australia, 6018.
+Head office: Maliebaan 38-40, 3581CR,
+Utrecht, The Netherlands.
 
-We specialize in extremely popular, yet hard to find M3Dsss.
+Dear Sir/Madam,
 
-LOW pri$ces in the net!
+YOU WON: €1,000,000.00!euros
+With utmost joy, we are pleased to inform you of the result of the
+East-West Australia Lotteries  International programs held on the 15th of
+february 2006 drew cash Prize of €1,000,000.00. Your e-mail address
+attached
+to Code number 370011672387-290-02 with claim
+Number 12093782/42 drew these lucky numbers 894-4563-001-764-64-2911, which
+consequently won in the 2nd category. You have been approved to receive a
+cash prize of €1,000,000.00 (One Million Euros).
+Be advised that due to incessant mix up in cash prize transfer to previous
+winners, we advise that you Keep your winning information confidential
+until
+your claims is been processed and your funds (€1,000,000.00) Transferred to
+you. This security measure is important; its protocol meant to avoid double
+claims, transfer and unwarranted abuse of this program by other
+participants.
+METHOD OF SELECTING WINNERS:
+Participants were selected anonymously through a private ballot system
+(computer ballot) from over 35,000 Companies and 70,000 individual e-mail
+addresses all over the world. At the final draw your e-mail address Emerged
+as the winner of our last jackpot.This is promotional program takes place
+bi-annually, and it is promoted and sponsored Orient software Corporation
+(Orient Networks). It is met to reward some individuals and corporations
+who
+have devote Their time and resources surfing the world wide web (www) with
+their email addresses. Remember, all winning must be claimed not later than
+5 working days from today. After the expiration of that time frame, if your
+funds are unclaimed, it will be refunded to us and included in our next
+draws.We hope you will use part of your cash prize to participate in our
+next €18million draws in November 2006. Lastly, in order to avoid
+unnecessary
+delays/complications with the transfer of your funds to you, please
+Always remember to quote your Code number in all correspondence with our
+paying bank (Deutsche Bank-Amsterdam). Furthermore, should there be any
+change of your present
+address, please notify us Immediately so to make the appropriate
+adjustment.
 
------------------------- ---------
+Congratulations from the management and staffs of East-West Australia
+Lotteries. 
 
-copy the address below and paste in your web browser:
+Kindly, immediately, contact our Paying Bank (Deutsche Bank-Amsterdam) for
+your payment advice.
+Send them following e-mail:
+I……………(your names)…….., with e-mail address………..(your e-mail address)…..,
+contact address………..(postal address)…….and code number:……….(quote your code
+number)…….is the winner of the last East-West Astralia lotteries draws,
+with a cash prize of €1,000,000.00. Kindly advise me with details of the
+process of the transfer of my cash prize.
 
-arching.newtechtown.com/?zz=3Dlowcost
+Contact details of our Paying Bank:
+Contact person:  Mr. Powell Green.
+Department of Private Banking,
+Deutsche Bank, Amsterdam, the Netherlands.
+E-mail: servicescust@netscape.net
+Tel: 31 647-494-395
+Fax 31-84-752-0508
+Congratulations.
+Yours in services,
+Ellen Bleeker.(Lottery Coordinator)
+Note: Participants below 21 years are automatically disqualified.
+All e-mail transmission/correspondence are 100% protected by our Secure
+Socket Layer (SSL) server.
 
-----------------------------------
 
-
-
-(Click on the state or county heading in the table below to more easily fi=
-nd your own.).
-Her feet peek out from beneath the duvet..
-In the evening she would sit for hours outside her caravan writing in a le=
-dger..
-Lyin' on the sidewalk,.
-Our caravan was next to the van where the odd job woman lived,.
-
-Thanks,
-
-Jocelyn Baez

@@ -1,146 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWBPDHO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbWBPDGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751375AbWBPDHO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 22:07:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbWBPDHO
+	id S1751373AbWBPDGP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 22:06:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751374AbWBPDGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 22:07:14 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:12945 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751375AbWBPDHM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 22:07:12 -0500
-Date: Wed, 15 Feb 2006 19:05:56 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Darrick J. Wong" <djwong@us.ibm.com>
-Cc: dm-devel@redhat.com, lcm@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] User-configurable HDIO_GETGEO for dm volumes
-Message-Id: <20060215190556.59c343b4.akpm@osdl.org>
-In-Reply-To: <43F38D83.3040702@us.ibm.com>
-References: <43F38D83.3040702@us.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 15 Feb 2006 22:06:15 -0500
+Received: from mxsf23.cluster1.charter.net ([209.225.28.223]:65442 "EHLO
+	mxsf23.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S1751373AbWBPDGP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 22:06:15 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17395.60448.356879.548491@smtp.charter.net>
+Date: Wed, 15 Feb 2006 22:06:08 -0500
+From: "John Stoffel" <john@stoffel.org>
+To: Rob Landley <rob@landley.net>
+Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Matthias Andree <matthias.andree@gmx.de>,
+       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+In-Reply-To: <200602151409.41523.rob@landley.net>
+References: <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com>
+	<200602142155.03407.rob@landley.net>
+	<20060215183115.GE29940@csclub.uwaterloo.ca>
+	<200602151409.41523.rob@landley.net>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Darrick J. Wong" <djwong@us.ibm.com> wrote:
->
-> Here's a rework of last week's HDIO_GETGEO patch.  Based on all the 
->  feedback that I received last week, it seems that a better way to 
->  approach this problem is:
-> 
->  - Store a hd_geometry structure with each dm_table entry.
->  - Provide a dm getgeo method that returns that geometry (or
->     -ENOTTY if there is no geometry).
->  - Add a dm control ioctl to set the geometry of an arbitrary dm device.
->  - Modify dmsetup to be able to set geometries.
-> 
->  This way, dmraid can associate geometries with bootable fakeraid 
->  devices, and dmsetup can be told to assign a geometry to a single-device 
->  linear/multipath setup as desired.  Furthermore, HDIO_GETGEO callers 
->  will go away empty-handed if the userspace config tools do not set up a 
->  geometry, as is the case now.  The decision to assign a geometry (and 
->  what that should be) is totally deferred to userspace.
-> 
->  So, dm-getgeo_1.patch is a patch to 2.6.16-rc3 that modifies the dm 
->  driver to store and retrieve geometries.  I chose to attach the 
->  hd_geometry structure to dm_table because it seemed like a convenient 
->  place to attach config data.  The only part of this patch that I think 
->  to be particularly dodgy is the dev_setgeo function, because I'm using 
->  the dm_target_msg struct to pass the user's hd_geometry into the kernel. 
->    I'm not really sure if or how I'm supposed to send binary blobs into 
->  the dm code, though the piggyback method works adequately.  Obviously, 
->  this introduces a new dm control ioctl DM_DEV_SETGEO.
-> 
->  The second patch (device-mapper-geometry_1.patch), unsurprisingly, is a 
->  patch to the userspace libdevmapper/dmsetup code to enable the passing 
->  of hd_geometry structures to the kernel.
->
-> ...
->
-> diff -Naurp old/drivers/md/dm.c linux-2.6.16-rc3/drivers/md/dm.c
-> --- old/drivers/md/dm.c	2006-02-15 10:49:46.000000000 -0800
-> +++ linux-2.6.16-rc3/drivers/md/dm.c	2006-02-15 10:42:14.000000000 -0800
-> @@ -17,6 +17,7 @@
->  #include <linux/mempool.h>
->  #include <linux/slab.h>
->  #include <linux/idr.h>
-> +#include <linux/hdreg.h>
->  
->  static const char *_name = DM_NAME;
->  
-> @@ -225,6 +226,16 @@ static int dm_blk_close(struct inode *in
->  	return 0;
->  }
->  
-> +static int dm_blk_getgeo(struct block_device *bdev, struct hd_geometry *geo)
-> +{
-> +	int ret;
-> +	struct mapped_device *md = bdev->bd_disk->private_data;
-> +
-> +	ret = dm_table_get_geometry(md->map, geo);
-> +
-> +	return (ret ? 0 : -ENOTTY);
-> +}	
+>>>>> "Rob" == Rob Landley <rob@landley.net> writes:
 
-Normally kernel functions return zero on success.  So that they can return
-negative errno on failure.  Is that appropriate here?  Just propagate the
-dm_table_get_geometry() return value?
+Rob> Yup.  Apparently with SAS, the controllers are far more likely to
+Rob> fail than the drives.
 
-> +static int dev_setgeo(struct dm_ioctl *param, size_t param_size)
-> +{
-> +	int r = 0;
-> +	size_t len;
-> +	struct mapped_device *md;
-> +	struct dm_table *tbl;
-> +	struct dm_geometry_msg *dgm;
-> +	struct dm_target_msg *tmsg;
-> +
-> +	md = find_device(param);
-> +	if (!md)
-> +		return -ENXIO;
-> +
-> +	/*
-> +	 * Grab our output buffer.
-> +	 */
-> +	tmsg = get_result_buffer(param, param_size, &len);
-> +	dgm = (struct dm_geometry_msg *)tmsg->message;
-> +
-> +	tbl = dm_get_table(md);
-> +
-> +	r = dm_table_set_geometry(tbl, &dgm->geo);
-> +
-> +	dm_table_put(tbl);
-> +	dm_put(md);
-> +
-> +	return (r ? 0 : -EINVAL);
-> +}
-> +
-> ...
-> +int dm_table_set_geometry(struct dm_table *t, struct hd_geometry *geo)
-> +{
-> +	memcpy(&t->forced_geometry, geo, sizeof(*geo));
-> +
-> +	return 1;
-> +}
+While a single drive is more likely to fail when compared to a single
+controller, for a truly redundant system you want no single point of
+failure, which means redundant controllers is a requirement.
 
-That's brave - we take the hd_geometry straight from userspace without
-checking anything?
+>> Makes redundant systems much simpler to build if you can connect
+>> each physical drive to two places at once.
 
-Will this code dtrt if userspace is 32-bit and the kernel is 64-bit?
+Rob> Or you could use raid and get complete redundancy rather than two
+Rob> paths to the same single point of failure.  Your choice.
 
-struct hd_geometry looks like something which different compilers could lay
-out differently, perhaps even different gcc versions.  We're relying upon
-the userspace representation being identical to the kernel's
-representation.
+Excuse me?  Think about what you just wrote here and what you're
+implying.  
 
-It means that struct hd_geometry becomes part of the kernel ABI.  We can
-never again change it and neither we (nor the compiler) can ever change its
-layout.  That's dangerous.  I'd suggest that you not use hd_geometry in
-this way (unless we're already using it that way, which might be the case).
+Of course you would use RAID here, along with two controllers and two
+paths to the single disk.  But you'd also have multiple disks here as
+well.  Not a single disk and two controllers and consider that
+reliable.  
 
-It'd be better to use some carefully laid-out and documented structure
-which is private to DM and which is designed for future-compatibility and
-for user<->kernel communication.
+>> They support port expanders (which SATA seems to be starting to
+>> support although more limited).
 
+Rob> I still don't see why drives are expected to be more reliable
+Rob> than controllers.
+
+He never said they were. 
+
+Rob> I think the most paranoid setup I've seen was six disks holding
+Rob> two disks worth of information.  A three way raid-5, mirrored.
+Rob> It could lose any three disks out of the group, and several 4
+Rob> disk combinations.  If six SATA drives are cheaper than two SAS
+Rob> drives.  (Yeah, the CRC calculation eats CPU and flushes your
+Rob> cache.  So what?)
+
+And how many controllers could that setup lose?  You need to think of
+the whole path, not just the disks at the ends, when you are planning
+for reliability (and performance as well).  
+
+Also, with dual ports on a drive, it becomes much easier to build two
+machine clusters which both can see all the drives shared between the
+clusters.  Just like SCSI (old, original 5MB/S scsi) where you changed
+hte ID of one of the initiators.  Not done frequently, but certainly
+done alot with VMS/VAX clusters.
+
+Rob> I keep thinking there should be something more useful you could
+Rob> do than "hot spare" with extra disks in simple RAID 5, some way
+Rob> of dynamically scaling more parity info.  But it's not an area I
+Rob> play in much...
+
+RAID6, or as NetApp calls it, Dual Parity.  You can lose any TWO disks
+in a raid group and still be working.  It covers to more common single
+disk fails, and then you still have full parity coverage if another
+disk fails during the re-build of the parity info onto the spare
+drive.  
+
+With 250Gb disks, that run a 50MB/S, it takes a LONG time to actually
+sweep though all the data and rebuild the parity.  24 hours or more.
+So to cover your butt, you'd like to have even more redundancy.
+
+I've run fully mirrored servers, where I had redundant paths to each
+disk from each controller.  When I lost a controller, which certainly
+happened, I didn't lose any data, nor disk I lose mirroring either.
+Very nice.
+
+In the situtations where I only had one controller per set of disks,
+and mirrored between controlles, losing a controller meant I had to
+re-mirror things once they got running again, but I didn't lose data.
+Very nice.
+
+Building reliable disk storage is not cheap.  Fast, reliable, cheap.
+Pick any two.  :]
+
+John

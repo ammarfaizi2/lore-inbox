@@ -1,65 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbWBPUei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964888AbWBPUi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964890AbWBPUei (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 15:34:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964889AbWBPUeh
+	id S964888AbWBPUi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 15:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964889AbWBPUi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 15:34:37 -0500
-Received: from stinky.trash.net ([213.144.137.162]:49297 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S964788AbWBPUeg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 15:34:36 -0500
-Message-ID: <43F4E183.2020508@trash.net>
-Date: Thu, 16 Feb 2006 21:33:07 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Taprogge <jlt_lk@shamrock.dyndns.org>
-CC: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       netfilter@lists.netfilter.org
-Subject: Re: 2.6.16-rc3 panic related to IP Forwarding and/or Netfilter
-References: <20060216001056.GA7446@ranger.taprogge.wh> <43F3C547.8050901@trash.net> <20060216144457.GA1576@ranger.taprogge.wh>
-In-Reply-To: <20060216144457.GA1576@ranger.taprogge.wh>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Feb 2006 15:38:27 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:65196 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964888AbWBPUi0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 15:38:26 -0500
+Date: Thu, 16 Feb 2006 21:36:26 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Arjan van de Ven <arjan@infradead.org>, Daniel Walker <dwalker@mvista.com>,
+       linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>,
+       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 0/6] lightweight robust futexes: -V3 - Why in userspace?
+Message-ID: <20060216203626.GB21415@elte.hu>
+References: <1140118455.4117.91.camel@laptopd505.fenrus.org> <Pine.OSF.4.05.10602162057040.20911-100000@da410>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.OSF.4.05.10602162057040.20911-100000@da410>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Taprogge wrote:
-> The two patches fix the panic.  However routing still does not quite
-> work. 
-> 
-> My setup consits of two masquerading gateways with local adresses
-> 192.168.1.128 (2.6.15.1) and 192.168.3.11 (2.6.16-rc3 + patches).  They
-> connect the two local networks through an IPSEC tunnel.  With the exact
-> same setup that previously (192.168.3.11 running 2.6.13) worked I can
-> now only reach from 192.168.1.0/24 to 192.168.3.0/24 and not the other
-> way around:
-> 
-> Pinging from 192.168.1.128 I am getting:
-> 	$ ping 192.168.3.15
-> 	PING 192.168.3.15 (192.168.3.15): 56 data bytes
-> 	64 bytes from 192.168.3.15: icmp_seq=0 ttl=63 time=127.9 ms
-> 
-> On the other hand pinging from 192.168.3.11 I am getting timeouts.
-> 
-> This is even the case if I set the nat POSTROUTING rule to: 
-> 	$ iptables -t mangle -I PREROUTING -p esp -j MARK --set-mark 111
-> 	$ iptables -t nat -F POSTROUTING
-> 	$ iptables -t nat -A POSTROUTING -o ppp0 -s 192.168.3.0/24 \
-> 		-m mark ! --mark 111 -j MASQUERADE
-> 
-> on both sides of the tunnel which should disable masquerading for IPSEC
-> packages.
-> 
-> However the tunnel works as soon as I completly disable masquerading.
 
-2.6.16-rc includes patches for proper netfilter IPsec handling. Packets
-will now go through the chains once in plain text and once encrypted,
-so I guess you're masquerading the packets that should go through the
-tunnel to an address that doesn't match the policy anymore and they
-are therefore not handled by IPsec (this is also the case my patches
-fixed). So you need to make sure you don't have any SNAT rules that
-change the unencrypted packets to an address not included in the policy.
+* Esben Nielsen <simlo@phys.au.dk> wrote:
+
+> > On Thu, 2006-02-16 at 20:06 +0100, Esben Nielsen wrote:
+> > > I just jump into a thread somewhere to ask my question :-)
+> > > 
+> > > Why does the list have to be in userspace?
+> > 
+> > because it's faster ;)
+> > 
+> >
+> Faster??? 
+
+yes, it's faster.
+
+> As I see it, extra manipulations have to be done even in the non-congested
+> case: Every time the lock is taken the locking thread has to add the lock
+> to a the list, and reversely remove the lock from the list. I.e.
+> instructions are _added_ to the fast path where you stay purely in
+> userspace.
+
+Note that glibc was already doing these list ops for the current 
+(limited, userspace-only) implementation of robust mutexes, so moving 
+the cleanup to kernel-space has only a small effect on the userspace 
+fastpath.
+
+even considering the list ops, they are 2-3 (non-LOCK-ed) instructions 
+of memory values that are already cached => it's almost for free. Ulrich 
+(who is a kind of person who writes glibc code in assembly whenever he 
+can excuse it with a performance argument) would be pretty upset if it 
+wasnt cheap :-)
+
+> I am ofcourse comparing to a solution where you do a syscall on 
+> everytime you do a lock. What I am asking about is whethere it 
+> wouldn't be enough to maintain the list at the FUTEX_WAIT/FUTEX_WAKE 
+> operation - i.e. the slow path where you have to go into the kernel.
+
+no, that's not enough at all: we need to be able to clean up after 
+futexes even if the kernel was _never involved_ with them. The pure 
+userspace futex fastpath still can keep a lock stuck! In fact that is 
+the common-case.
+
+	Ingo

@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbWBPCwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbWBPCy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751368AbWBPCwb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 21:52:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbWBPCwb
+	id S1751369AbWBPCy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 21:54:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWBPCy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 21:52:31 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:51340 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751368AbWBPCwb (ORCPT
+	Wed, 15 Feb 2006 21:54:57 -0500
+Received: from ozlabs.org ([203.10.76.45]:43442 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751369AbWBPCy5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 21:52:31 -0500
-Date: Wed, 15 Feb 2006 18:51:20 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Charles-Edouard Ruault <ce@ruault.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] kernel 2.6.15.4: soft lockup detected on CPU#0!
-Message-Id: <20060215185120.6c35eca2.akpm@osdl.org>
-In-Reply-To: <43EF8388.10202@ruault.com>
-References: <43EF8388.10202@ruault.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 15 Feb 2006 21:54:57 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17395.59762.126398.423546@cargo.ozlabs.ibm.com>
+Date: Thu, 16 Feb 2006 13:54:42 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+Subject: Re: [PATCH] Provide an interface for getting the current tick
+ length
+In-Reply-To: <20060215180848.4556e501.akpm@osdl.org>
+References: <17395.53939.795908.336324@cargo.ozlabs.ibm.com>
+	<20060215173545.43a7412d.akpm@osdl.org>
+	<17395.56186.238204.312647@cargo.ozlabs.ibm.com>
+	<20060215180848.4556e501.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Charles-Edouard Ruault <ce@ruault.com> wrote:
->
-> i was trying to rip a CD when the whole machine started to freeze
->  periodicaly, i then looked at the logs and found the following :
-> 
->  Feb 12 19:23:39 ruault kernel: hdc: irq timeout: status=0x80 { Busy }
->  Feb 12 19:23:39 ruault kernel: ide: failed opcode was: unknown
->  Feb 12 19:23:39 ruault kernel: hdd: status timeout: status=0x80 { Busy }
->  Feb 12 19:23:39 ruault kernel: ide: failed opcode was: unknown
->  Feb 12 19:23:39 ruault kernel: hdd: drive not ready for command
+Andrew Morton writes:
 
-No idea what caused that.
+> Ah, you copied-and-pasted from update_wall_time_one_tick().
 
->  Feb 12 19:23:39 ruault kernel: BUG: soft lockup detected on CPU#0!
+Yep, and I didn't even notice the extra space.
 
-The following was merged today.  Hopefully it suppresses this false
-positive.
+> Can we share that code?
 
---- devel/drivers/ide/ide-taskfile.c~ide-touch-softlockup-detector-during-pio	2006-02-15 14:57:05.000000000 -0800
-+++ devel-akpm/drivers/ide/ide-taskfile.c	2006-02-15 14:57:05.000000000 -0800
-@@ -34,6 +34,7 @@
- #include <linux/kernel.h>
- #include <linux/timer.h>
- #include <linux/mm.h>
-+#include <linux/sched.h>
- #include <linux/interrupt.h>
- #include <linux/major.h>
- #include <linux/errno.h>
-@@ -314,6 +315,8 @@ static void ide_pio_datablock(ide_drive_
- 	if (rq->bio)	/* fs request */
- 		rq->errors = 0;
- 
-+	touch_softlockup_watchdog();
-+
- 	switch (drive->hwif->data_phase) {
- 	case TASKFILE_MULTI_IN:
- 	case TASKFILE_MULTI_OUT:
-_
+We could share the code that computes time_adjust_step, i.e. this
+much:
 
+	if ((time_adjust_step = time_adjust) != 0) {
+		/*
+		 * We are doing an adjtime thing.  Prepare time_adjust_step to
+		 * be within bounds.  Note that a positive time_adjust means we
+		 * want the clock to run faster.
+		 *
+		 * Limit the amount of the step to be in the range
+		 * -tickadj .. +tickadj
+		 */
+		time_adjust_step = min(time_adjust_step, (long)tickadj);
+		time_adjust_step = max(time_adjust_step, (long)-tickadj);
+	}
+
+Is that enough to be worth factoring out?  Note that
+update_wall_time_one_tick() needs both time_adjust_step and
+delta_nsec, so to share more, we would have to have a function
+returning two values and it would start to get ugly.
+
+Paul.

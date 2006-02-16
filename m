@@ -1,56 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030426AbWBPMMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030374AbWBPMNl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030426AbWBPMMU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 07:12:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030503AbWBPMMU
+	id S1030374AbWBPMNl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 07:13:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030503AbWBPMNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 07:12:20 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:7117 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1030374AbWBPMMT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 07:12:19 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Thu, 16 Feb 2006 13:09:53 +0100
-To: schilling@fokus.fraunhofer.de, nix@esperi.org.uk
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, davidsen@tmr.com,
-       axboe@suse.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F46B91.nail20W817IPJ@burner>
-References: <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
- <20060125144543.GY4212@suse.de>
- <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
- <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
- <20060125181847.b8ca4ceb.grundig@teleline.es>
- <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de>
- <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com>
- <20060210235654.GA22512@kroah.com> <43F0891E.nailKUSCGC52G@burner>
- <871wy6sy7y.fsf@hades.wkstn.nix> <43F1BE96.nailMY212M61V@burner>
- <87d5hpr2ct.fsf@hades.wkstn.nix>
-In-Reply-To: <87d5hpr2ct.fsf@hades.wkstn.nix>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 16 Feb 2006 07:13:40 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:59871 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030374AbWBPMNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 07:13:40 -0500
+Subject: Re: Questions about pthread
+From: Arjan van de Ven <arjan@infradead.org>
+To: Revital Eres <revitale@forescout.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5AF1F1D1E5A5D6439B308F35EA4603F50867C5@sol.fsd.forescout.com>
+References: <5AF1F1D1E5A5D6439B308F35EA4603F50867C5@sol.fsd.forescout.com>
+Content-Type: text/plain
+Date: Thu, 16 Feb 2006 13:13:36 +0100
+Message-Id: <1140092017.4117.71.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nix <nix@esperi.org.uk> wrote:
+On Thu, 2006-02-16 at 14:10 +0200, Revital Eres wrote:
+> Hello,
+> I understand that every system call is a cancellation point for pthreads. My question is how can I avoid this to happen; meaning- to forbid the cancellation point in the system call wrapper. (I call a system call from a cleanup function that is just been cancelled) 
 
-> > Please send me a statement on how long this interface will be maintained
-> > inside Linux without breaking interfaces.
->
-> What a ridiculous request. If people use it, it won't be broken. If it
-> proves unusable due to flaws, it will change. Sheesh.
 
-Looks like you are a Linux newby and did not yet relize how Linux
-is maintained :-(
+this is not the right mailing list for this question; you're much better
+off asking this on one of the glibc mailing lists....
 
-ide-scsi is used and needed but made unsusable.
 
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

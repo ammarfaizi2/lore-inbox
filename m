@@ -1,102 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWBPPlT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWBPPnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932291AbWBPPlT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 10:41:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbWBPPlT
+	id S932294AbWBPPnx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 10:43:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWBPPnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 10:41:19 -0500
-Received: from mr1.bfh.ch ([147.87.250.50]:20194 "EHLO mr1.bfh.ch")
-	by vger.kernel.org with ESMTP id S932291AbWBPPlS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 10:41:18 -0500
-Thread-Index: AcYzD2lbInBQq2MqQ6KYHOcjVHpUdw==
-X-PMWin-Version: 2.5.0e, Antispam-Engine: 2.2.0.0, Antivirus-Engine: 2.32.10
-Content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
-Importance: normal
-Message-ID: <43F49D16.6060801@bfh.ch>
-Date: Thu, 16 Feb 2006 16:41:10 +0100
-From: "Seewer Philippe" <philippe.seewer@bfh.ch>
-Organization: BFH
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050811)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Phillip Susi" <psusi@cfl.rr.com>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: disk geometry via sysfs
-References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com>  <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com>  <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com>  <43F2E8BA.90001@bfh.ch>  <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com> <43F433F6.2000500@bfh.ch> <43F49BF4.5090705@cfl.rr.com>
-In-Reply-To: <43F49BF4.5090705@cfl.rr.com>
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	Thu, 16 Feb 2006 10:43:53 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.158]:32501 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S932294AbWBPPnw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 10:43:52 -0500
+Subject: Re: [patch 0/5] lightweight robust futexes: -V1
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Arjan van de Ven <arjan@infradead.org>,
+       David Singleton <dsingleton@mvista.com>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060215213122.GA17450@elte.hu>
+References: <20060215151711.GA31569@elte.hu>
+	 <Pine.LNX.4.64.0602151059300.14526@dhcp153.mvista.com>
+	 <20060215213122.GA17450@elte.hu>
+Content-Type: text/plain
+Date: Thu, 16 Feb 2006 07:43:50 -0800
+Message-Id: <1140104630.21681.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Feb 2006 15:41:10.0960 (UTC) FILETIME=[693A6B00:01C6330F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2006-02-15 at 22:31 +0100, Ingo Molnar wrote:
+> * Daniel Walker <dwalker@mvista.com> wrote:
+> 
+> > >This patchset provides a new (written from scratch) implementation of
+> > >robust futexes, called "lightweight robust futexes". We believe this new
+> > >implementation is faster and simpler than the vma-based robust futex
+> > >solutions presented before, and we'd like this patchset to be adopted in
+> > >the upstream kernel. This is version 1 of the patchset.
+> > 
+> > 	Next point of discussion must be PI. [...]
+> 
+> robustness is an orthogonal feature to Priority Inheritance. In fact it 
+> was requested before on lkml to separate robustness support from PI 
+> support, and the vma-based robust futex patches now do precisely that - 
+> they dont offer PI. So no, PI does not play here, it's a separate thing.
 
+	I was more interested in knowing if you considered it in the design.
 
-Phillip Susi wrote:
-> Seewer Philippe wrote:
-> 
->> Thats the problem point here. As of 2.6 the kernel does no longer know
->> anything about bios geometry. The exception here might be for older
->> drives which do not support lba, where the physical geometry is the one
->> the bios reports (if not configured diffently).
->>
->> This is, as we all know, intentional. Because it's quite impossible to
->> always and accurately match bios disk information to drives reported by
->> drivers.
->>
-> 
-> If it is intentional that the kernel not keep track of the bios
-> geometry, then it should not track geometry at all.  The only reason for
-> the existence of GETGEO is so partitioning tools can figure out what to
-> put in the MBR for the disk geometry.  If they do not get the values
-> that the bios reports, then they are getting useless information.
-> 
-> Why give the illusion that they got the right information when you are
-> just lieing to them?  Wouldn't it be better to fail the request so the
-> tool knows it can't get the right info from the system?
-> 
->> Not only windows but other os as well.
->>
->> The problem here is a general interface problem. Tools want one
->> interface (be it ioctl or sysfs). If they can depend on a kernel
->> interface only partially and have to determine values themeself
->> otherwise, that interface should be dropped. Again i'm talking about the
->> interface, not actual code which might still depend on c/h/s.
->>
-> 
-> Exactly, the interface should be completely dropped since it really is
-> useless to the tools anyhow without accurate information from the bios.
-> 
->> On the other hand, if we keep that interface (or perhaps ioctl for
->> compatibility and sysfs for newer things) and introduce a means to tell
->> the driver via userspace what we want, many things can be solved. For
->> example for older drives which need chs, userspace can tell the driver
->> what the bios uses if values differ. For other implementations which
->> return defaults which are correct in 80% of all cases, the other 20% can
->> be overridden.
->>
-> 
-> That is true, but since the kernel doesn't use this information, it
-> amounts to holding onto a user space configuration parameter.  Since
-> it's just a user space configuration parameter, shouldn't that go in a
-> conf file in /etc or something, rather than burdening the kernel with
-> that information?  And since the kernel won't remember the settings
-> across boots, then you're going to end up with them stored in a conf
-> file anyhow with a boot time script that copies it to the kernel, so
-> that fdisk can read it back from the kernel later.  Since you likely
-> will only partition a drive when installing, is there even a need to
-> store it at all, let alone in the kernel?  Just let fdisk ask the user
-> or choose defaults.
-> 
->> It's of course not really the kernel's responsability to fix things (or
->> better allow the user to fix things) not important to Linux, but i think
->> for the sake of compatility necessary.
->>
-> 
-The problem does not end with fdisk. There are tons of tools (sfdisk,
-parted, dosemu, ...) which would be affected.
+Daniel 
+

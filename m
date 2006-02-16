@@ -1,145 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbWBPVrD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWBPVtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932478AbWBPVrD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 16:47:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbWBPVrA
+	id S932358AbWBPVtT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 16:49:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbWBPVtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 16:47:00 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:8045 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932359AbWBPVrA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 16:47:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=c+CkiqKEedSP4SklItKXpCh7+LlpphC1p1oiswgxuLDainQ9ZwU1PF1CpeKUqwwrgU/YmsEhWt/zIMFlcbOesamoIFPpVtjks3eZUvzkxWIRPuXWfsMIuDLYS7JJjHU7pBtABbAB2RWvSRMrccTTHKjtoV1biM/r70AwDsOESwE=
-Message-ID: <9a8748490602161346x6e2802e8r4edf7dcbdafa5e17@mail.gmail.com>
-Date: Thu, 16 Feb 2006 22:46:59 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Wrong number of core_siblings in sysfs for Athlon64 X2
-Cc: Andi Kleen <ak@suse.de>, Greg Kroah-Hartman <gregkh@suse.de>
+	Thu, 16 Feb 2006 16:49:19 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:12674 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932358AbWBPVtS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 16:49:18 -0500
+Date: Thu, 16 Feb 2006 13:49:12 -0800 (PST)
+From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+X-X-Sender: jbrandeb@lindenhurst-2.jf.intel.com
+To: skraw@ithnet.com, linux-kernel@vger.kernel.org
+cc: jesse.brandeburg@intel.com
+Subject: Re: Severe problem with e1000 driver in 2.4.31/32 (at least)
+In-Reply-To: <4807377b0602161342l4b46fa3cu26a007789ba08443@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0602161344240.5564@lindenhurst-2.jf.intel.com>
+References: <20060216203948.5953a1e9.skraw@ithnet.com>
+ <4807377b0602161342l4b46fa3cu26a007789ba08443@mail.gmail.com>
+ReplyTo: "Jesse Brandeburg" <jesse.brandeburg@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an AMD Athlon64 X2 4400+ CPU (dual core, not SMT capable, so
-two cores and two threads) - running a 32bit kernel.
+> ---------- Forwarded message ----------
+> From: Stephan von Krawczynski <skraw@ithnet.com>
+> today we had to experience a bug in e1000 network driver on this type of
+> network card (a current PCI e1000 sold everywhere):
+>
+> 02:07.0 Ethernet controller: Intel Corp.: Unknown device 107c (rev 05)
+>        Subsystem: Intel Corp.: Unknown device 1376
+>        Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 18
+>        Memory at f9000000 (32-bit, non-prefetchable) [size=128K]
+>        Memory at f9020000 (32-bit, non-prefetchable) [size=128K]
+>        I/O ports at a800 [size=64]
+>        Expansion ROM at <unassigned> [disabled] [size=128K]
+>        Capabilities: [dc] Power Management version 2
+>        Capabilities: [e4] PCI-X non-bridge device.
+>
+> We can simply crash the box (2.4.32 stock kernel, 2.4.31 is the same) by
+> performing this:
+>
+> 1) Boot box with network physically disconnected
+> 2) start pinging some host somewhere, you get "unreachable", let it run
+> 3) connect the network and await some ping replies.
+> 4) disconnect the network again
+> 5) box is dead
+>
+> The box runs into a BUG in e1000_hw.c line 5052. The BUG shows up because the
+> code is obviously executed inside an interrupt, which seems not intended.
+> As this BUG is always reproducable and pretty annoying we made this pretty bad
+> workaround:
 
-Linux dragon 2.6.16-rc3-git7 #4 SMP PREEMPT Thu Feb 16 22:14:55 CET
-2006 i686 athlon-4 i386 GNU/Linux
+Please try this patch, compile tested.  It matches up this particular code 
+to what is currently in 2.6.16-rc
 
-I just noticed that the number of core siblings reported through sysfs
-is wrong. The number of thread siblings is correct and so is the info
-reported via /proc/cpuinfo - only sysfs seems to get it wrong.
+e1000: fix BUG reported due to calling msec_delay in irq context
 
-juhl@dragon:~$ cat /sys/devices/system/cpu/cpu1/topology/thread_siblings
-2
-juhl@dragon:~$ cat /sys/devices/system/cpu/cpu1/topology/core_siblings
-3
+There are some functions that are called in irq context that need to use
+msec_delay_irq instead to avoid a BUG.
 
-two thread siblings makes perfect sense, but 3 core siblings?
-Did my cores start to reproduce? - I know CPU's get hot, but I didn't
-know that was the reason ;-)
+Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
 
-Proc nicely reports 2 cores with same physical id and 2 siblings :
+---
 
-juhl@dragon:~$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 15
-model           : 35
-model name      : AMD Athlon(tm) 64 X2 Dual Core Processor 4400+
-stepping        : 2
-cpu MHz         : 2200.724
-cache size      : 1024 KB
-physical id     : 0
-siblings        : 2
-core id         : 0
-cpu cores       : 2
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt
-lm 3dnowext 3dnow pni lahf_lm cmp_legacy ts fid vid ttp
-bogomips        : 4405.02
+  drivers/net/e1000/e1000_hw.c |    8 ++++----
+  1 files changed, 4 insertions(+), 4 deletions(-)
 
-processor       : 1
-vendor_id       : AuthenticAMD
-cpu family      : 15
-model           : 35
-model name      : AMD Athlon(tm) 64 X2 Dual Core Processor 4400+
-stepping        : 2
-cpu MHz         : 2200.724
-cache size      : 1024 KB
-physical id     : 0
-siblings        : 2
-core id         : 1
-cpu cores       : 2
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt
-lm 3dnowext 3dnow pni lahf_lm cmp_legacy ts fid vid ttp
-bogomips        : 4399.55
+diff --git a/drivers/net/e1000/e1000_hw.c b/drivers/net/e1000/e1000_hw.c
+--- a/drivers/net/e1000/e1000_hw.c
++++ b/drivers/net/e1000/e1000_hw.c
+@@ -5049,7 +5049,7 @@ e1000_config_dsp_after_link_change(struc
+              if(ret_val)
+                  return ret_val;
 
+-            msec_delay(20);
++            msec_delay_irq(20);
 
-I tried adding some printk's to arch/i386/kernel/smpboot.c to see how
-cpu_core_map got initialized, but couldn't spot any errors.
+              ret_val = e1000_write_phy_reg(hw, 0x0000,
+                                            IGP01E1000_IEEE_FORCE_GIGA);
+@@ -5073,7 +5073,7 @@ e1000_config_dsp_after_link_change(struc
+              if(ret_val)
+                  return ret_val;
 
-In set_cpu_sibling_map() there's a loop that runs for_each_cpu_mask(i,
-cpu_sibling_setup_map) and does
-                        cpu_set(i, cpu_core_map[cpu]);
-                        cpu_set(cpu, cpu_core_map[i]);
-I tried adding printk(KERN_WARNING "DEBUG: i = %d, cpu = %d\n", i, cpu);
-just before those cpuset() calls, and that prints out
-    DEBUG: i = 0, cpu = 0
-    DEBUG: i = 0, cpu = 1
-    DEBUG: i = 1, cpu = 1
-So we'll set bits 0 & 1 for each of the two cores in cpu_core_map[] ,
-which looks sane to me.
+-            msec_delay(20);
++            msec_delay_irq(20);
 
-So where does the extra core sibling come from that's reported via sysfs?
+              /* Now enable the transmitter */
+              ret_val = e1000_write_phy_reg(hw, 0x2F5B, phy_saved_data);
+@@ -5098,7 +5098,7 @@ e1000_config_dsp_after_link_change(struc
+              if(ret_val)
+                  return ret_val;
 
-As far as I can tell, the
-    #define topology_core_siblings(cpu)             (cpu_core_map[cpu])
-in include/asm-i386/topology.h , will cause this bit of code :
+-            msec_delay(20);
++            msec_delay_irq(20);
 
-#define define_siblings_show_func(name)                                 \
-static ssize_t show_##name(struct sys_device *dev, char *buf)           \
-{                                                                       \
-        ssize_t len = -1;                                               \
-        unsigned int cpu = dev->id;                                     \
-        len = cpumask_scnprintf(buf, NR_CPUS+1, topology_##name(cpu));  \
-        return (len + sprintf(buf + len, "\n"));                        \
-}
-...
-#ifdef topology_core_siblings
-define_siblings_show_func(core_siblings);
-...
+              ret_val = e1000_write_phy_reg(hw, 0x0000,
+                                            IGP01E1000_IEEE_FORCE_GIGA);
+@@ -5114,7 +5114,7 @@ e1000_config_dsp_after_link_change(struc
+              if(ret_val)
+                  return ret_val;
 
-in drivers/base/topology.c to print out the nr of core siblings based
-on what's in cpu_core_map - which as far as I can tell is OK.
+-            msec_delay(20);
++            msec_delay_irq(20);
 
-Obviously something is wrong, but I just can't seem to spot it.  Any clues?
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+              /* Now enable the transmitter */
+              ret_val = e1000_write_phy_reg(hw, 0x2F5B, phy_saved_data);

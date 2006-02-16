@@ -1,90 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWBPRMx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932486AbWBPRQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932331AbWBPRMx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 12:12:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbWBPRMx
+	id S932486AbWBPRQz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 12:16:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWBPRQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 12:12:53 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26122 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932331AbWBPRMw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 12:12:52 -0500
-Date: Thu, 16 Feb 2006 17:12:00 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>, "Brown, Len" <len.brown@intel.com>,
-       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net,
-       "Yu, Luming" <luming.yu@intel.com>, Ben Castricum <lk@bencastricum.nl>,
-       sanjoy@mrao.cam.ac.uk, Helge Hafting <helgehaf@aitel.hist.no>,
-       "Carlo E. Prelz" <fluido@fluido.as>,
-       Gerrit Bruchh?user <gbruchhaeuser@gmx.de>, Nicolas.Mailhot@LaPoste.net,
-       Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>,
-       Patrizio Bassi <patrizio.bassi@gmail.com>,
-       Bj?rn Nilsson <bni.swe@gmail.com>, Andrey Borzenkov <arvidjaar@mail.ru>,
-       "P. Christeas" <p_christ@hol.gr>, ghrt <ghrt@dial.kappa.ro>,
-       jinhong hu <jinhong.hu@gmail.com>,
-       Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-scsi@vger.kernel.org,
-       Benjamin LaHaise <bcrl@kvack.org>
-Subject: Re: Linux 2.6.16-rc3
-Message-ID: <20060216171200.GD29443@flint.arm.linux.org.uk>
-Mail-Followup-To: James Bottomley <James.Bottomley@SteelEye.com>,
-	Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-	Jens Axboe <axboe@suse.de>, "Brown, Len" <len.brown@intel.com>,
-	"David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
-	linux-usb-devel@lists.sourceforge.net,
-	"Yu, Luming" <luming.yu@intel.com>,
-	Ben Castricum <lk@bencastricum.nl>, sanjoy@mrao.cam.ac.uk,
-	Helge Hafting <helgehaf@aitel.hist.no>,
-	"Carlo E. Prelz" <fluido@fluido.as>,
-	Gerrit Bruchh?user <gbruchhaeuser@gmx.de>,
-	Nicolas.Mailhot@LaPoste.net, Jaroslav Kysela <perex@suse.cz>,
-	Takashi Iwai <tiwai@suse.de>,
-	Patrizio Bassi <patrizio.bassi@gmail.com>,
-	Bj?rn Nilsson <bni.swe@gmail.com>,
-	Andrey Borzenkov <arvidjaar@mail.ru>,
-	"P. Christeas" <p_christ@hol.gr>, ghrt <ghrt@dial.kappa.ro>,
-	jinhong hu <jinhong.hu@gmail.com>,
-	Andrew Vasquez <andrew.vasquez@qlogic.com>,
-	linux-scsi@vger.kernel.org, Benjamin LaHaise <bcrl@kvack.org>
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org> <20060212190520.244fcaec.akpm@osdl.org> <20060213203800.GC22441@kroah.com> <1139934883.14115.4.camel@mulgrave.il.steeleye.com> <1140054960.3037.5.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
+	Thu, 16 Feb 2006 12:16:55 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:28578 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751385AbWBPRQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 12:16:54 -0500
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Kirill Korotaev <dev@sw.ru>, linux-kernel@vger.kernel.org,
+       vserver@list.linux-vserver.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: (pspace,pid) vs true pid virtualization
+References: <20060215145942.GA9274@sergelap.austin.ibm.com>
+	<m11wy4s24i.fsf@ebiederm.dsl.xmission.com>
+	<20060216143030.GA27585@MAIL.13thfloor.at>
+	<20060216153729.GB22358@sergelap.austin.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 16 Feb 2006 10:13:43 -0700
+In-Reply-To: <20060216153729.GB22358@sergelap.austin.ibm.com> (Serge E.
+ Hallyn's message of "Thu, 16 Feb 2006 09:37:29 -0600")
+Message-ID: <m1wtfvp6pk.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1140054960.3037.5.camel@mulgrave.il.steeleye.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 15, 2006 at 08:56:00PM -0500, James Bottomley wrote:
-> On Tue, 2006-02-14 at 10:34 -0600, James Bottomley wrote:
-> > Well, I can't solve the problem that it requires memory allocation from
-> > IRQ context to operate.  Based on that, it's an unsafe interface.  I'm
-> > going to put it inside SCSI for 2.6.16, since it's better than what we
-> > have now, but I don't think we can export it globally.
-> 
-> OK, this is what I'm proposing as the device model fix.  What it does is
-> thread context checking APIs throughout the device subsystem.  SCSI can
-> then use it simply via device_put_process_context().  Since we have to
-> supply the kref_work; I'd plan to do that as an additional element in
-> struct scsi_device.
-> 
-> This, by itself, won't solve the SCSI target problem, but I plan to fix
-> that via a device model addition which would have target alloc waiting
-> around for any deleted targets to disappear.
-> 
-> Since this is planned for post 2.6.16, we have plenty of time to argue
-> about it.
+"Serge E. Hallyn" <serue@us.ibm.com> writes:
 
-This is probably an idiotic question, but if there's something in the
-scsi release handler can't be called in non-process context, why can't
-scsi queue up the release processing via the work API itself, rather
-than having to have this additional code and complexity for everyone?
+> Quoting Herbert Poetzl (herbert@13thfloor.at):
+>> > - Should a process have some sort of global (on the machine identifier)?
+>> 
+>> this is mandatory, as it is required to kill any process
+>> from the host (admin) context, without entering the pid
+>> space (which would lead to all kind of security issues)
+>
+> Just to be clear: you think there should be cases where pspace x can
+> kill processes in pspace y, but can't enter it?
+>
+> I'm not convinced that grounded in reasonable assumptions...
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Actually I think it is.  The admin should control what is running
+on their box.
+
+>> > - Should we be able to monitor a pid space from the outside?
+>> 
+>> yes, definitely, but it could happen via some special
+>> interfaces, i.e. no need to make it compatible
+>
+> What sort of interfaces do you envision for these two?  If we
+> can lay them out well enough, maybe the result will satisfy the
+> openvz folks?
+>
+> For instance, perhaps we just use a proc interface, where in the
+> current pspace, if we've created a new pspace which in our pspace
+> is known as process 567, then we might see
+>
+> /proc
+> /proc/567
+> /proc/567/pspace
+> /proc/567/pspace/1 -> link to /proc/567
+> /proc/567/pspace/2
+>
+> Now we also might be able to interact with the pspace by doing
+> something like
+>
+> 	echo -9 > /proc/567/pspace/2/kill
+>
+> and of course do things like
+>
+> 	cd /proc/567/pspace/1/root
+
+Actually I think this is the model we need to investigate if we
+need to extend the interface to handle new things.
+
+By using the filesystem it allows things to be cobbled together with
+scripts so new C programs are not required.  
+
+It happens that Plan9 does it this way successfully, so there is some
+precedent.
+
+Actually increasingly I like this notion, as it also allows us to
+export the ability to kill a process with a network filesystem.
+Which means multiple machine management in a cluster could easily
+reduce to the same set of tools as multiple pid space management.
+
+>> > - After migration what identifiers should the tasks have?
+>> 
+>> doesn't matter, as long as they are unique, so
+>>  ppid1/ppid2/ppid3/pid would work ...
+>
+> And where are we talking about?  Is this an identifier for userspace
+> tools?  Or just in kernelspace?
+
+The point seems to be that the identifiers don't matter just
+so long as there is one.
+
+Eric

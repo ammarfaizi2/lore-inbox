@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbWBPWJs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWBPWZb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932355AbWBPWJs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 17:09:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbWBPWJs
+	id S1750736AbWBPWZb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 17:25:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWBPWZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 17:09:48 -0500
-Received: from mail.gmx.net ([213.165.64.20]:52715 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932355AbWBPWJs (ORCPT
+	Thu, 16 Feb 2006 17:25:31 -0500
+Received: from zproxy.gmail.com ([64.233.162.199]:43156 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750736AbWBPWZb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 17:09:48 -0500
-X-Authenticated: #31060655
-Message-ID: <43F4F811.1090308@gmx.net>
-Date: Thu, 16 Feb 2006 23:09:21 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.12) Gecko/20050921
-X-Accept-Language: de, en
+	Thu, 16 Feb 2006 17:25:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=SGmSggeSKACba/LrIVTt1OQWa4cTIlsDX+yK3j83Ul9Ow+CIY4R68ChijWHoao7dCI4xhuHNeNdCEwqcemGCRoiyjzqhyUyrRyrTpPtoXSyxsPJgx48uRI6+YtiXxtmlaQq1u/LAXtsG8mXsYqmDRyeuBGvEwpHSQcU4ftRSNDk=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH][TRIVIAL] Documentation: Fix typo in cputopology.txt
+Date: Thu, 16 Feb 2006 23:25:44 +0100
+User-Agent: KMail/1.9.1
+Cc: Trivial Patch Monkey <trivial@kernel.org>
 MIME-Version: 1.0
-To: s.schmidt@avm.de
-CC: opensuse-factory@opensuse.org, Greg KH <greg@kroah.com>, torvalds@osdl.org,
-       kkeil@suse.de, linux-kernel@vger.kernel.org,
-       libusb-devel@lists.sourceforge.net
-Subject: Re: [opensuse-factory] Re[2]: 2.6.16 serious consequences / GPL_EXPORT_SYMBOL
- / USB drivers of major vendor excluded
-References: <OFED05BE20.31E2BACE-ONC1257115.005DE6CA-C1257117.004F2C48@avm.de>
-In-Reply-To: <OFED05BE20.31E2BACE-ONC1257115.005DE6CA-C1257117.004F2C48@avm.de>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Disposition: inline
+Message-Id: <200602162325.44511.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-s.schmidt@avm.de wrote:
-> 
-> The user space does not ensure the reliability of time critical analog
-> services like Fax G3 or analog modem emulations. This quality of service
-> can only be guaranteed within the kernel space.
-> [...] To anticipate any "open vs. closed source" discussion: Only a
-> handful of companies worldwide have such know-how. With regard to our
-> competitive situation, we have to protect our hard-won intellectual
-> property and therefore cannot open the closed source part of the driver.
+Fix a small typo in Documentation/cputopology.txt
 
-Thanks for clarifying the situation.
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
 
-Since your intellectual property is in the DSP algorithms, are there
-any obstacles opensourcing the parts of the ISDN drivers which only
-handle normal ISDN without fax/modem emulation? This would make every
-distribution out there support your devices without any additional work
-on your side.
-You can still offer your full-featured drivers as usual.
+ Documentation/cputopology.txt |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Regards,
-Carl-Daniel Hailfinger
+--- linux-2.6.16-rc3-git7/Documentation/cputopology.txt~	2006-02-16 21:11:11.000000000 +0100
++++ linux-2.6.16-rc3-git7/Documentation/cputopology.txt	2006-02-16 21:11:12.000000000 +0100
+@@ -12,7 +12,7 @@
+ represent the thread siblings to cpu X in the same physical package;
+ 
+ To implement it in an architecture-neutral way, a new source file,
+-driver/base/topology.c, is to export the 5 attributes.
++drivers/base/topology.c, is to export the 5 attributes.
+ 
+ If one architecture wants to support this feature, it just needs to
+ implement 4 defines, typically in file include/asm-XXX/topology.h.
+

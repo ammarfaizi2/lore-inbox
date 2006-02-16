@@ -1,55 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWBPRAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWBPRD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbWBPRAF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 12:00:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWBPRAF
+	id S1751222AbWBPRD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 12:03:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWBPRD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 12:00:05 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19722 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932150AbWBPRAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 12:00:04 -0500
-Date: Thu, 16 Feb 2006 16:59:58 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Carlos Aguiar <carlos.aguiar@indt.org.br>
-Cc: linux-kernel@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-       Pierre Ossman <drzeus-list@drzeus.cx>
-Subject: Re: [RFC] mmc: add OMAP driver
-Message-ID: <20060216165957.GC29443@flint.arm.linux.org.uk>
-Mail-Followup-To: Carlos Aguiar <carlos.aguiar@indt.org.br>,
-	linux-kernel@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-	Pierre Ossman <drzeus-list@drzeus.cx>
-References: <43F48BCA.8010608@indt.org.br>
-Mime-Version: 1.0
+	Thu, 16 Feb 2006 12:03:27 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:46346 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751222AbWBPRD0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 12:03:26 -0500
+Date: Thu, 16 Feb 2006 18:03:25 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] unexport install_page
+Message-ID: <20060216170325.GF3511@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43F48BCA.8010608@indt.org.br>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One additional comment on the patch which I missed, and has shown to
-be a related cause of problems on a different host controller...
+No in-kernel module is using it, so there's no reason bloating the 
+kernel with this EXPORT_SYMBOL.
 
-On Thu, Feb 16, 2006 at 10:27:22AM -0400, Carlos Aguiar wrote:
-> +static inline void set_data_timeout(struct mmc_omap_host *host, struct mmc_request *req)
-> +{
-> +	int timeout;
-> +	u16 reg;
-> +
-> +	/* Convert ns to clock cycles by assuming 20MHz frequency
-> +	 * 1 cycle at 20MHz = 500 ns
-> +	 */
-> +	timeout = req->data->timeout_clks + req->data->timeout_ns / 500;
-> +
-> +	/* Some cards require more time to do at least the first read operation */
-> +	timeout = timeout << 4;
 
-This is a hack because you got your calculation above wrong.  If you
-assume a fast clock, the timeout will be too slow for a slower clock.
-If you do the calculation correctly and you won't need such hacks.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+--- linux-2.6.16-rc3-mm1-full/mm/fremap.c.old	2006-02-16 16:45:09.000000000 +0100
++++ linux-2.6.16-rc3-mm1-full/mm/fremap.c	2006-02-16 16:45:18.000000000 +0100
+@@ -89,7 +89,6 @@
+ out:
+ 	return err;
+ }
+-EXPORT_SYMBOL(install_page);
+ 
+ /*
+  * Install a file pte to a given virtual memory address, release any
+

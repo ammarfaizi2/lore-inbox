@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbWBPGxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbWBPHQM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932477AbWBPGxU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 01:53:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWBPGxU
+	id S932488AbWBPHQM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 02:16:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWBPHQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 01:53:20 -0500
-Received: from smtp-out-01.utu.fi ([130.232.202.171]:32960 "EHLO
-	smtp-out-01.utu.fi") by vger.kernel.org with ESMTP id S932477AbWBPGxT
+	Thu, 16 Feb 2006 02:16:12 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:20636 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932488AbWBPHQL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 01:53:19 -0500
-Date: Thu, 16 Feb 2006 08:53:16 +0200
-From: Jan Knutar <jk-lkml@sci.fi>
-Subject: Re: readahead logic and I/O errors
-In-reply-to: <43F39089.2050302@tls.msk.ru>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <200602160853.16297.jk-lkml@sci.fi>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-References: <43F39089.2050302@tls.msk.ru>
-User-Agent: KMail/1.6.2
+	Thu, 16 Feb 2006 02:16:11 -0500
+Date: Thu, 16 Feb 2006 08:15:58 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, linux-kernel@vger.kernel.org
+Subject: [patch 1/4] s390: ccw device disbanding
+Message-ID: <20060216071558.GD9241@osiris.boeblingen.de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: mutt-ng/devel-r781 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 February 2006 22:35, Michael Tokarev wrote:
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-> after FIRST I/O error, linux continued trying reading-ahead,
-> discovering more and more failed blocks, as dmesg said.
+If __ccw_device_disband_start() fails to initiate disbanding, it should finish
+with ccw_device_disband_done() (which leaves the device in offline state)
+instead of ccw_device_verify_done() (which leaves the device in online state).
 
-Sorry for hijacking the thread, but on another note, is there
-anyway to tell linux to tell the drive to not bother retrying
-read errors? Would be perfect for streaming video from a
-CD or DVD. Usually video players have excellent error
-recovery themselves, which probably looks better on the
-screen than the movie coming to a grinding halt due to
-the retries.
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
 
-I remember this being discussed quite some time ago,
-but I don't remember if anything came out of it?
+ drivers/s390/cio/device_pgid.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -urpN linux-2.6/drivers/s390/cio/device_pgid.c linux-2.6-patched/drivers/s390/cio/device_pgid.c
+--- linux-2.6/drivers/s390/cio/device_pgid.c	2006-02-16 07:29:50.000000000 +0100
++++ linux-2.6-patched/drivers/s390/cio/device_pgid.c	2006-02-16 07:30:05.000000000 +0100
+@@ -405,7 +405,7 @@ __ccw_device_disband_start(struct ccw_de
+ 		cdev->private->iretry = 5;
+ 		cdev->private->imask >>= 1;
+ 	}
+-	ccw_device_verify_done(cdev, (sch->lpm != 0) ? 0 : -ENODEV);
++	ccw_device_disband_done(cdev, (sch->lpm != 0) ? 0 : -ENODEV);
+ }
+ 
+ /*

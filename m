@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932495AbWBPFyT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbWBPG0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932495AbWBPFyT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 00:54:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932498AbWBPFyS
+	id S1751116AbWBPG0E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 01:26:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbWBPG0D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 00:54:18 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54171 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932495AbWBPFyS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 00:54:18 -0500
-To: Sam Vilain <sam@vilain.net>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
-       linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: (pspace,pid) vs true pid virtualization
-References: <20060215145942.GA9274@sergelap.austin.ibm.com>
-	<43F3B820.8030907@vilain.net>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 15 Feb 2006 22:50:12 -0700
-In-Reply-To: <43F3B820.8030907@vilain.net> (Sam Vilain's message of "Thu, 16
- Feb 2006 12:24:16 +1300")
-Message-ID: <m1mzgrrgx7.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Thu, 16 Feb 2006 01:26:03 -0500
+Received: from fed1rmmtao01.cox.net ([68.230.241.38]:26337 "EHLO
+	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
+	id S1750955AbWBPG0B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 01:26:01 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: [ANNOUNCE] GIT 1.2.1
+cc: linux-kernel@vger.kernel.org
+Date: Wed, 15 Feb 2006 22:25:59 -0800
+Message-ID: <7vzmkrizuw.fsf@assigned-by-dhcp.cox.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Vilain <sam@vilain.net> writes:
+The latest maintenance release GIT 1.2.1 is available at the
+usual places:
 
-> Serge E. Hallyn wrote:
->> However, if we're going to get anywhere, the first decision which we
->> need to make is whether to go with a (container,pid), (pspace,pid) or
->> equivalent pair like approach, or a virtualized pid approach.  Linus had
->> previously said that he prefers the former.  Since there has been much
->> discussion since then, I thought I'd try to recap the pros and cons of
->> each approach, with the hope that the head Penguins will chime in one
->> more time, after which we can hopefully focus our efforts.
->
-> IOW, we can stop arguing and start implementing :-).
+	http://www.kernel.org/pub/software/scm/git/
 
-PID Space god mode....
+	git-1.2.1.tar.{gz,bz2}			(tarball)
+	RPMS/$arch/git-*-1.2.1-1.$arch.rpm	(RPM)
 
-If internally each pspace had a small number, that we could prepend
-to the pid.  We would have a local global pid view.
 
-If we hashed each pid by the unsigned long version of pspace->nr | pid.
-We would have a hash table with a global view.
+Nothing earth-shattering but cleanups and cleanups and cleanups.
 
-If we exported this number to user space we would have global pids.
+All the interesting things are happening in "master" and "pu",
+which will be a topic for a separate message.
 
-I absolutely hate the idea because it yields a set of processes whose
-view of the world is difficult if not impossible to migrate to another
-machine, plus those processes need an extra set of translation functions.
+----------------------------------------------------------------
 
-It is worth mentioning because it is easy to implement, and either everyone
-else will like it and it will get adopted or it will at least provide
-an easy way to implement a transition API, for those people currently stuck.
+Changes since v1.2.0 are as follows:
 
-Eric
+Fernando J. Pereda:
+      Print an error if cloning a http repo and NO_CURL is set
+
+Fredrik Kuivinen:
+      s/SHELL/SHELL_PATH/ in Makefile
+
+Josef Weidendorfer:
+      More useful/hinting error messages in git-checkout
+
+Junio C Hamano:
+      Documentation: git-commit in 1.2.X series defaults to --include.
+      Documentation: git-ls-files asciidocco.
+      bisect: remove BISECT_NAMES after done.
+      combine-diff: diff-files fix.
+      combine-diff: diff-files fix (#2)
+      checkout: fix dirty-file display.
+
+

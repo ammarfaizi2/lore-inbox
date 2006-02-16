@@ -1,75 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964885AbWBPUcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbWBPUei@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964885AbWBPUcd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 15:32:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbWBPUcc
+	id S964890AbWBPUei (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 15:34:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964889AbWBPUeh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 15:32:32 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:28429 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932357AbWBPUcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 15:32:31 -0500
-Date: Thu, 16 Feb 2006 21:32:30 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: len.brown@intel.com
-Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] ACPI should depend on, not select PCI
-Message-ID: <20060216203229.GB3694@stusta.de>
+	Thu, 16 Feb 2006 15:34:37 -0500
+Received: from stinky.trash.net ([213.144.137.162]:49297 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S964788AbWBPUeg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 15:34:36 -0500
+Message-ID: <43F4E183.2020508@trash.net>
+Date: Thu, 16 Feb 2006 21:33:07 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Jens Taprogge <jlt_lk@shamrock.dyndns.org>
+CC: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netfilter@lists.netfilter.org
+Subject: Re: 2.6.16-rc3 panic related to IP Forwarding and/or Netfilter
+References: <20060216001056.GA7446@ranger.taprogge.wh> <43F3C547.8050901@trash.net> <20060216144457.GA1576@ranger.taprogge.wh>
+In-Reply-To: <20060216144457.GA1576@ranger.taprogge.wh>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ACPI should depend on, not select PCI.
+Jens Taprogge wrote:
+> The two patches fix the panic.  However routing still does not quite
+> work. 
+> 
+> My setup consits of two masquerading gateways with local adresses
+> 192.168.1.128 (2.6.15.1) and 192.168.3.11 (2.6.16-rc3 + patches).  They
+> connect the two local networks through an IPSEC tunnel.  With the exact
+> same setup that previously (192.168.3.11 running 2.6.13) worked I can
+> now only reach from 192.168.1.0/24 to 192.168.3.0/24 and not the other
+> way around:
+> 
+> Pinging from 192.168.1.128 I am getting:
+> 	$ ping 192.168.3.15
+> 	PING 192.168.3.15 (192.168.3.15): 56 data bytes
+> 	64 bytes from 192.168.3.15: icmp_seq=0 ttl=63 time=127.9 ms
+> 
+> On the other hand pinging from 192.168.3.11 I am getting timeouts.
+> 
+> This is even the case if I set the nat POSTROUTING rule to: 
+> 	$ iptables -t mangle -I PREROUTING -p esp -j MARK --set-mark 111
+> 	$ iptables -t nat -F POSTROUTING
+> 	$ iptables -t nat -A POSTROUTING -o ppp0 -s 192.168.3.0/24 \
+> 		-m mark ! --mark 111 -j MASQUERADE
+> 
+> on both sides of the tunnel which should disable masquerading for IPSEC
+> packages.
+> 
+> However the tunnel works as soon as I completly disable masquerading.
 
-Otherwise, illegal configurations like X86_VOYAGER=y, PCI=y are 
-possible.
-
-This patch also fixes the options select'ing ACPI to also select PCI.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
- arch/ia64/Kconfig    |    1 +
- arch/x86_64/Kconfig  |    1 +
- drivers/acpi/Kconfig |    3 +--
- 3 files changed, 3 insertions(+), 2 deletions(-)
-
---- linux-2.6.16-rc3-mm1-full/drivers/acpi/Kconfig.old	2006-02-16 21:21:23.000000000 +0100
-+++ linux-2.6.16-rc3-mm1-full/drivers/acpi/Kconfig	2006-02-16 21:21:42.000000000 +0100
-@@ -10,9 +10,8 @@
- config ACPI
- 	bool "ACPI Support"
- 	depends on IA64 || X86
-+	depends on PCI
- 	select PM
--	select PCI
--
- 	default y
- 	---help---
- 	  Advanced Configuration and Power Interface (ACPI) support for 
---- linux-2.6.16-rc3-mm1-full/arch/ia64/Kconfig.old	2006-02-16 21:21:52.000000000 +0100
-+++ linux-2.6.16-rc3-mm1-full/arch/ia64/Kconfig	2006-02-16 21:22:08.000000000 +0100
-@@ -73,6 +73,7 @@
- config IA64_GENERIC
- 	bool "generic"
- 	select ACPI
-+	select PCI
- 	select NUMA
- 	select ACPI_NUMA
- 	help
---- linux-2.6.16-rc3-mm1-full/arch/x86_64/Kconfig.old	2006-02-16 21:22:19.000000000 +0100
-+++ linux-2.6.16-rc3-mm1-full/arch/x86_64/Kconfig	2006-02-16 21:23:39.000000000 +0100
-@@ -285,6 +285,7 @@
-        bool "ACPI NUMA detection"
-        depends on NUMA
-        select ACPI 
-+	select PCI
-        select ACPI_NUMA
-        default y
-        help
-
+2.6.16-rc includes patches for proper netfilter IPsec handling. Packets
+will now go through the chains once in plain text and once encrypted,
+so I guess you're masquerading the packets that should go through the
+tunnel to an address that doesn't match the policy anymore and they
+are therefore not handled by IPsec (this is also the case my patches
+fixed). So you need to make sure you don't have any SNAT rules that
+change the unencrypted packets to an address not included in the policy.

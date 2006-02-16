@@ -1,71 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWBPEIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbWBPEXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932272AbWBPEIj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 23:08:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWBPEIj
+	id S932273AbWBPEXA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 23:23:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWBPEXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 23:08:39 -0500
-Received: from 63.15.233.220.exetel.com.au ([220.233.15.63]:61341 "EHLO
-	sydlxfw01.samad.com.au") by vger.kernel.org with ESMTP
-	id S932272AbWBPEIj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 23:08:39 -0500
-Date: Thu, 16 Feb 2006 15:08:36 +1100
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060216040836.GN26235@samad.com.au>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com> <200602151409.41523.rob@landley.net> <17395.60448.356879.548491@smtp.charter.net> <200602152232.54517.rob@landley.net>
+	Wed, 15 Feb 2006 23:23:00 -0500
+Received: from imf22aec.mail.bellsouth.net ([205.152.59.70]:19597 "EHLO
+	imf22aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S932273AbWBPEXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 23:23:00 -0500
+X-Mailer: Openwave WebEngine, version 2.8.16.1 (webedge20-101-1106-101-20040924)
+X-Originating-IP: [65.13.11.254]
+From: <tomichm@bellsouth.net>
+To: <linux-kernel@vger.kernel.org>
+CC: <jeremy@goop.org>
+Subject: patch to speedstep-centrino.c
+Date: Wed, 15 Feb 2006 23:22:58 -0500
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6o78gXsyQHm68LY/"
-Content-Disposition: inline
-In-Reply-To: <200602152232.54517.rob@landley.net>
-User-Agent: Mutt/1.5.11
-From: Alexander Samad <alex@samad.com.au>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Message-Id: <20060216042258.PODB2023.ibm65aec.bellsouth.net@mail.bellsouth.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I guess I goofed by submitting this in HTML previously...sorry...
 
---6o78gXsyQHm68LY/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Below is a patch to the speedstep-centrino.c file.  It's needed to fix a missing symbol error (online_cpu_map) in the latest mm patch of the kernel.
 
-On Wed, Feb 15, 2006 at 10:32:54PM -0500, Rob Landley wrote:
-> On Wednesday 15 February 2006 10:06 pm, John Stoffel wrote:
-> > Building reliable disk storage is not cheap.  Fast, reliable, cheap.
-> > Pick any two.  :]
->=20
-> Nah, I start by picking cheap anyway, and apparently if I want reliable t=
-hat=20
-> just means it'd be slow by your formula. :)
+--- linux-2.6.16-rc3-mm1/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c      2006-02-15 22:31:54.561277488 -0500
++++ linux-2.6.16-rc3-mm1-patched/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c      2006-02-15 22:05:15.964091566 -0500
+@@ -654,8 +654,10 @@ static int centrino_target (struct cpufr
+                return -EINVAL;
+        }
 
-any particular reason we haven't talked about SAN's=20
++#ifdef CONFIG_SMP
+        /* cpufreq holds the hotplug lock, so we are safe from here on */
+        cpus_and(online_policy_cpus, cpu_online_map, policy->cpus);
++#endif
 
->=20
-> > John
->=20
-> Rob
-> --=20
-> Never bet against the cheap plastic solution.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->=20
+        saved_mask = current->cpus_allowed;
+        first_cpu = 1;
 
---6o78gXsyQHm68LY/
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFD8/rEkZz88chpJ2MRAoHLAJ44dm+ykCaumbeo37Em4cX/Tg6HXgCg7tkB
-8IP+SFih+zR3XllcCtrRtJU=
-=E/Ul
------END PGP SIGNATURE-----
-
---6o78gXsyQHm68LY/--

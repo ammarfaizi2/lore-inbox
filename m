@@ -1,45 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbWBPReU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWBPRi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932540AbWBPReU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 12:34:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbWBPReT
+	id S1751387AbWBPRi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 12:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWBPRi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 12:34:19 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:23025 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S932540AbWBPReT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 12:34:19 -0500
-Subject: Re: [patch 0/6] lightweight robust futexes: -V3
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060216172435.GC29151@elte.hu>
-References: <20060216094130.GA29716@elte.hu>
-	 <1140107585.21681.18.camel@localhost.localdomain>
-	 <20060216172435.GC29151@elte.hu>
-Content-Type: text/plain
-Date: Thu, 16 Feb 2006 09:34:16 -0800
-Message-Id: <1140111257.21681.26.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 16 Feb 2006 12:38:27 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:31874 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751387AbWBPRi0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 12:38:26 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <43F4B796.1010701@s5r6.in-berlin.de>
+Date: Thu, 16 Feb 2006 18:34:14 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: James Bottomley <James.Bottomley@SteelEye.com>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
+       "Brown, Len" <len.brown@intel.com>,
+       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net,
+       "Yu, Luming" <luming.yu@intel.com>, Ben Castricum <lk@bencastricum.nl>,
+       sanjoy@mrao.cam.ac.uk, Helge Hafting <helgehaf@aitel.hist.no>,
+       "Carlo E. Prelz" <fluido@fluido.as>,
+       Gerrit Bruchh?user <gbruchhaeuser@gmx.de>, Nicolas.Mailhot@LaPoste.net,
+       Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>,
+       Patrizio Bassi <patrizio.bassi@gmail.com>,
+       Bj?rn Nilsson <bni.swe@gmail.com>, Andrey Borzenkov <arvidjaar@mail.ru>,
+       "P. Christeas" <p_christ@hol.gr>, ghrt <ghrt@dial.kappa.ro>,
+       jinhong hu <jinhong.hu@gmail.com>,
+       Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-scsi@vger.kernel.org,
+       Benjamin LaHaise <bcrl@kvack.org>
+Subject: Re: Linux 2.6.16-rc3
+References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org> <20060212190520.244fcaec.akpm@osdl.org> <20060213203800.GC22441@kroah.com> <1139934883.14115.4.camel@mulgrave.il.steeleye.com> <1140054960.3037.5.camel@mulgrave.il.steeleye.com> <20060216171200.GD29443@flint.arm.linux.org.uk>
+In-Reply-To: <20060216171200.GD29443@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: (0.59) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-16 at 18:24 +0100, Ingo Molnar wrote:
-> * Daniel Walker <dwalker@mvista.com> wrote:
+Russell King wrote:
+> On Wed, Feb 15, 2006 at 08:56:00PM -0500, James Bottomley wrote:
+[...]
+>>OK, this is what I'm proposing as the device model fix.  What it does is
+>>thread context checking APIs throughout the device subsystem.  SCSI can
+>>then use it simply via device_put_process_context().
+[...]
+>>Since this is planned for post 2.6.16, we have plenty of time to argue
+>>about it.
 > 
-> > Another thing I noticed was that futex_offset on the surface looks 
-> > like a malicious users dream variable .. [...]
-> 
-> i have no idea what you mean by that - could you explain whatever threat 
-> you have in mind, in more detail?
+> This is probably an idiotic question, but if there's something in the
+> scsi release handler can't be called in non-process context, why can't
+> scsi queue up the release processing via the work API itself, rather
+> than having to have this additional code and complexity for everyone?
 
-	As I said, "on the surface" you could manipulate the futex_offset to
-access memory unrelated to the futex structure . That's all I'm
-referring too .. 
-
-Daniel
-
+Moreover, why are SCSI release handlers called in non-process context in 
+the first place? IMO the fix should be to make sure that SCSI release 
+handlers are always called from process context --- by the respective 
+layers which manage physical devices, i.e. one or more layers beneath 
+SCSI core.
+-- 
+Stefan Richter
+-=====-=-==- --=- =----
+http://arcgraph.de/sr/

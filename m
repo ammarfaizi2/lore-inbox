@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932503AbWBPHhs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbWBPHst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932503AbWBPHhs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 02:37:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbWBPHhs
+	id S932508AbWBPHst (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 02:48:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932507AbWBPHst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 02:37:48 -0500
-Received: from ozlabs.org ([203.10.76.45]:54466 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932503AbWBPHhs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 02:37:48 -0500
-Date: Thu, 16 Feb 2006 18:37:45 +1100
-From: Michael Neuling <mikey@neuling.org>
-To: Al Viro <viro@ftp.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Chained CPIOs writing to the same file bug
-Message-Id: <20060216183745.50cc2bf6.mikey@neuling.org>
-X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.6; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 16 Feb 2006 02:48:49 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:56470 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932508AbWBPHss
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 02:48:48 -0500
+Message-ID: <43F42DFC.4080604@aitel.hist.no>
+Date: Thu, 16 Feb 2006 08:47:08 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: cmm@us.ibm.com
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: fsck: i_blocks is xxx should be yyy on ext3
+References: <43EA079A.4010108@aitel.hist.no>	 <20060208225359.426573cf.akpm@osdl.org> <1140050679.20936.14.camel@dyn9047017067.beaverton.ibm.com>
+In-Reply-To: <1140050679.20936.14.camel@dyn9047017067.beaverton.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can chain CPIOs together for the initramfs, but if two CPIOs write
-to the same file, we don't clear the first before writing the second.
-If the first is larger than the second, we end up with a mash of the
-two.  Trivial patch below to fix this.
+Mingming Cao wrote:
 
-Signed-off-by: Michael Neuling <mikey@neuling.org>
----
- init/initramfs.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
+>On Wed, 2006-02-08 at 22:53 -0800, Andrew Morton wrote:
+>  
+>
+>>Helge Hafting <helge.hafting@aitel.hist.no> wrote:
+>>    
+>>
+>>> Today I rebooted into 2.6.16-rc2-mm1.  Fsck checked a "clean" ext3 fs,
+>>> because it was many mounts since the last time.
+>>>
+>>> I have seen that many times, but this time I got a lot of
+>>> "i_blocks is xxx, should be yyy fix?"
+>>>
+>>> In all cases, the blocks were fixed to a lower number.
+>>>      
+>>>
+>>Yes, thanks.  It's due to the ext3_getblocks() patches in -mm.  I can't
+>>think of any actual harm which it'll cause.
+>>
+>>To reproduce:
+>>
+>>mkfs
+>>mount
+>>dbench 32
+>><wait 20 seconds>
+>>killall dbench
+>>umount
+>>fsck
+>>-
+>>    
+>>
+>
+>Sorry about the late response.  I failed to reproduce the problem with
+>above instructions. I am running 2.6.16-rc2-mm1 kernel, played dbench
+>32 ,64 and 128, and tried both 8 cpu and 1 cpu, still no luck at last. I
+>am using e2fsck version 1.35 though. What versions you are using?
+>  
+>
+single cpu, e2fsck 1.39-WIP (31-Dec-2005)
+        Using EXT2FS Library version 1.39-WIP, 31-Dec-2005
 
-Index: linux-2.6-linus/init/initramfs.c
-===================================================================
---- linux-2.6-linus.orig/init/initramfs.c
-+++ linux-2.6-linus/init/initramfs.c
-@@ -250,7 +250,8 @@ static int __init do_name(void)
- 		return 0;
- 	if (S_ISREG(mode)) {
- 		if (maybe_link() >= 0) {
--			wfd = sys_open(collected, O_WRONLY|O_CREAT, mode);
-+			wfd = sys_open(collected, O_WRONLY|O_CREAT|O_TRUNC,
-+				       mode);
- 			if (wfd >= 0) {
- 				sys_fchown(wfd, uid, gid);
- 				sys_fchmod(wfd, mode);
+I didn't use dbench, only normal use of the machine.
+
+Helge Hafting
+

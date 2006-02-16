@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWBPOZz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWBPO0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbWBPOZz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 09:25:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWBPOZz
+	id S932290AbWBPO0S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 09:26:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWBPO0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 09:25:55 -0500
-Received: from webbox4.loswebos.de ([213.187.93.205]:13292 "EHLO
-	webbox4.loswebos.de") by vger.kernel.org with ESMTP id S932391AbWBPOZy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 09:25:54 -0500
-Date: Thu, 16 Feb 2006 15:25:56 +0100
-From: Marc Koschewski <marc@osknowledge.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.6.15.4 login errors
-Message-ID: <20060216142556.GC5939@stiffy.osknowledge.org>
-References: <Pine.LNX.4.61.0602160859380.4753@chaos.analogic.com>
+	Thu, 16 Feb 2006 09:26:18 -0500
+Received: from host217-46-213-187.in-addr.btopenworld.com ([217.46.213.187]:41850
+	"EHLO help.basilica.co.uk") by vger.kernel.org with ESMTP
+	id S932391AbWBPO0R convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 09:26:17 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-In-Reply-To: <Pine.LNX.4.61.0602160859380.4753@chaos.analogic.com>
-X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
-X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
-X-Operating-System: Linux stiffy 2.6.16-rc3-marc-gd89b8f40-dirty
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: GPL3 Related question
+Date: Thu, 16 Feb 2006 14:30:14 -0000
+Message-ID: <8941BE5F6A42CC429DA3BC4189F9D44201503D@bashdad01.hd.basilica.co.uk>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: GPL3 Related question
+Thread-Index: AcYzBEI6lpCb83EcRA6TvwNpwzswuwAATjcQ
+From: "Khushil Dep" <khushil.dep@help.basilica.co.uk>
+To: "Marc Perkel" <marc@perkel.com>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* linux-os (Dick Johnson) <linux-os@analogic.com> [2006-02-16 09:13:46 -0500]:
+www.plone.org
 
-> 
-> 
-> After installing linux-2.6.15.4, attempts to log in a non-root
-> account gives these errors.
-> 
-> Password:
-> Last login: Thu Feb 16 08:53:20 on tty1
-> Keymap 0: Permission denied
-> Keymap 1: Permission denied
-> Keymap 2: Permission denied
-> LDSKBENT: Operation not permitted
-> loadkeys: could not deallocate keymap 3
-> 
-> I have searched /etc/profile, /etc/bashrc, all the scripts in
-> /etc/profile.d. I can't find where loadkeys is even executed!
-> 
-> This is a RH Fedora base. Anybody know how to turn this crap off?
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.15.4 on an i686 machine (5590.48 BogoMips).
-> Warning : 98.36% of all statistics are fiction.
-> _
-> 
+-----------------------
+Khushil Dep
 
-vi .profile .bashrc .bash_profile in the user's ~/ ?
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Marc Perkel
+Sent: 16 February 2006 14:17
+To: linux-kernel@vger.kernel.org
+Subject: GPL3 Related question
 
-The executed binary should be 'loadkeys'. Try 'loadkeys -s' as a user and see
-the output on the console. Should be your quite your error messages...
+No - not going to start up the debate again. I was just wondering if 
+anyone know what software the FSF was using to do their commenting on 
+the GPL3. I've emailed them and gotno reply. I think it's kind of a kool
 
-Marc
+system and would like to use it myself for some other projects.
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,69 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWBPQJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWBPQMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932304AbWBPQJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 11:09:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWBPQJ3
+	id S932308AbWBPQMT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 11:12:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWBPQMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 11:09:29 -0500
-Received: from mo01.iij4u.or.jp ([210.130.0.20]:21733 "EHLO mo01.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S932304AbWBPQJ3 (ORCPT
+	Thu, 16 Feb 2006 11:12:18 -0500
+Received: from mail.tmr.com ([64.65.253.246]:57753 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S932308AbWBPQMS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 11:09:29 -0500
-Date: Fri, 17 Feb 2006 01:09:19 +0900 (JST)
-Message-Id: <20060217.010919.121148551.toriatama@inter7.jp>
-To: paulkf@microgate.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PPP with PCMCIA modem stalls on 2.6.10 or later
-From: Kouji Toriatama <toriatama@inter7.jp>
-In-Reply-To: <1140019368.3119.12.camel@amdx2.microgate.com>
-References: <1139937159.3189.4.camel@amdx2.microgate.com>
-	<20060215.221135.121135595.toriatama@inter7.jp>
-	<1140019368.3119.12.camel@amdx2.microgate.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 16 Feb 2006 11:12:18 -0500
+Message-ID: <43F4A533.1040900@tmr.com>
+Date: Thu, 16 Feb 2006 11:15:47 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Albert Cahalan <acahalan@gmail.com>, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>	 <43D7A7F4.nailDE92K7TJI@burner>	 <787b0d920601251826l6a2491ccy48d22d33d1e2d3e7@mail.gmail.com>	 <43D8D396.nailE2X31OHFU@burner>	 <787b0d920601261619l43bb95f5k64ddd338f377e56a@mail.gmail.com>	 <43DE8A06.9010800@tmr.com> <1138659135.16102.30.camel@mindpipe>
+In-Reply-To: <1138659135.16102.30.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Fulghum <paulkf@microgate.com> wrote:
-  > Try the following patch, and report the syslog output.
-  > 
-  > This may be lost receive data due to full flip buffer.
-  > 2.6.9 would try processing rx data in the ISR if the
-  > flip buffer was full. This violated locking requirements
-  > and was changed to only process rx data in scheduled work.
-  > This can slow the processing of data.
+Lee Revell wrote:
 
-I have tried your patch.  The following is a part of syslog
-output.
-------------------------------------------------------------------
-Feb 16 23:52:40 moka kernel: receive_chars:flip full:low_latency=0
-Feb 16 23:52:40 moka kernel: receive_chars:flip full:discard char
-------------------------------------------------------------------
-I have got this pair of two lines many times while running the
-wget command.
+>On Mon, 2006-01-30 at 16:49 -0500, Bill Davidsen wrote:
+>  
+>
+>>Look a year down the road, when we have have two (or more) new 25GB 
+>>optical formats coming out, probably with new features and commands
+>>and several vendors building drives for them. Both formats have DRM
+>>stuff in them, and GPL 3 forbids implementing DRM (simplification). 
+>>    
+>>
+>
+>Who cares what GPL 3 says, the kernel is GPL2.
+>
 
+Did you miss the subject? My reply was to a suggestion that cdrecord 
+(it's not the kernel!) be forked, and discussion of what license MIGHT 
+apply. I was making an information point about an application which is 
+very important to a lot of people.
 
-  > Also try using the setserial utility to set
-  > the 'low_latency' option for the device. That should
-  > operate the same as 2.6.9 (which can be dangerous).
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO TMR Associates, Inc
+  Doing interesting things with small computers since 1979
 
-With 'low_latency' option in 2.6.15 with your patch, the problem
-did not occur and no output from syslog.
-
-
-  > The improved flip buffering code in 2.6.16-rc3
-  > should also prevent any loss of data. If possible,
-  > try 2.6.16-rc3.
-
-I have tried 2.6.16-rc3.  With or without 'low_latency' option,
-the problem did not occur.  It seems to work fine!  I will use
-2.6.16-rc3 or later.
-
-If you have any additional plan to pin down this problem, I will
-try your patch.
-
-
-Thank you for your help,
-Kouji Toriatama

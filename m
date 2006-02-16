@@ -1,79 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161118AbWBPNpL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWBPOLL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161118AbWBPNpL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 08:45:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161122AbWBPNpL
+	id S932259AbWBPOLL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 09:11:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWBPOLL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 08:45:11 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:29063 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161118AbWBPNpI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 08:45:08 -0500
-Date: Thu, 16 Feb 2006 07:44:47 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Kirill Korotaev <dev@sw.ru>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: [RFC][PATCH 04/20] pspace: Allow multiple instaces of the process id namespace
-Message-ID: <20060216134447.GA12039@sergelap.austin.ibm.com>
-References: <m1vevsmgvz.fsf@ebiederm.dsl.xmission.com> <m1lkwomgoj.fsf_-_@ebiederm.dsl.xmission.com> <m1fymwmgk0.fsf_-_@ebiederm.dsl.xmission.com> <m1bqxkmgcv.fsf_-_@ebiederm.dsl.xmission.com> <43ECF803.8080404@sw.ru> <m1psluw1jj.fsf@ebiederm.dsl.xmission.com> <43F04FD6.5090603@sw.ru> <m1wtfytri1.fsf@ebiederm.dsl.xmission.com> <43F31972.3030902@sw.ru> <20060215133131.GD28677@MAIL.13thfloor.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060215133131.GD28677@MAIL.13thfloor.at>
-User-Agent: Mutt/1.5.11
+	Thu, 16 Feb 2006 09:11:11 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:6547 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932259AbWBPOLK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 09:11:10 -0500
+Date: Thu, 16 Feb 2006 15:10:51 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: john stultz <johnstul@us.ibm.com>
+cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] hrtimer: round up relative start time on low-res arches
+In-Reply-To: <1140036234.27720.8.camel@leatherman>
+Message-ID: <Pine.LNX.4.61.0602161244240.30994@scrub.home>
+References: <Pine.LNX.4.61.0602130207560.23745@scrub.home> 
+ <1139827927.4932.17.camel@localhost.localdomain>  <Pine.LNX.4.61.0602131208050.30994@scrub.home>
+  <20060214074151.GA29426@elte.hu>  <Pine.LNX.4.61.0602141113060.30994@scrub.home>
+  <20060214122031.GA30983@elte.hu>  <Pine.LNX.4.61.0602150033150.30994@scrub.home>
+  <20060215091959.GB1376@elte.hu>  <Pine.LNX.4.61.0602151259270.30994@scrub.home>
+ <1140036234.27720.8.camel@leatherman>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Herbert Poetzl (herbert@13thfloor.at):
-> > I also don't understand why you are eager to introduce new sys calls 
-> > like pkill(path_to_process), but is trying to use waitpid() for pspace 
-> > die notifications? Maybe it is simply better to introduce container 
-> > specific syscalls which should be clean and tidy, instead of messing 
-> > things up with clone()/waitpid() and so on? The more simple code we 
-> > have, the better it is for all of us.
-> 
-> now that you mention it, maybe we should have a few
-> rounds how those 'generic' container syscalls would 
-> look like?
+Hi,
 
-I still like the following:
+On Wed, 15 Feb 2006, john stultz wrote:
 
-clone(): extended with flags for asking a private copy of various
-	namespaces.  For the CLONE_NEWPIDSPACE flag, the pid which
-	is returned to the parent process is it's handle to the
-	new pidspace.
+> 	I just wanted to make sure you know I'm not ignoring your suggestions.
+> I do appreciate the time you have spent, and I have been continuing to
+> work on implementing your idea. Unfortunately the code is not trivial
+> and very much hurts the readability. I expect thats a sacrifice that
+> will be necessary, but hopefully after some review cycles we'll be able
+> to come to something we both like.
 
-sys_execpid(pid, argv, envp): exec a new syscall with the requested
-	pid, if the pid is available.  Else either return an error,
-	or pick a random pid.  Error makes sense to me, but that's
-	probably debatable.
+The code could be cleaned up a little, but the main difference is that my 
+code is much more compact, it lacks all the redundancy of your code, which 
+makes it harder to read. My hope was here instead of putting back the 
+code redundancy to add documentation instead, which would explain the 
+subtleties.
+I actually think that the basic principle of my code is quite simple, the 
+problem is that it's a little buried inbetween how the incremental updates 
+are done in my prototype, so after a little cleaning and separating the 
+special cases, I think my code would be a lot more readable.
 
-sys_fork_slide(pid): fork and slide into the pidspace belong to pid.
-	This way we can do things like
+> I'm hoping to have a first pass patch I can mail this week.
 
-	p = sys_fork_slide(2794);
-	if (p == 0) {
-		kill(2974);
-	} else {
-		waitpid(p, 0, 0);
-	}
+I'm looking forward to it.
+BTW What do you think how difficult it would be to rebase your patches on 
+my NTP4 patches? In the end the simplification of my patches should also 
+make your patches simpler, as it precalculates as much as possible and 
+reduces the work done in the fast paths. It would avoid a lot of extra 
+work, which you currently do.
+The main problem that I see is that you need to drop the ppm calculations, 
+the new code provides a scaled nsec value per tick (tick_nsec + time_adj) 
+and you basically only need "(update - 10^9/HZ) / cycles" to calculate the 
+new multiplier adjustment.
+You also need to drop your ntp rework, the changes to the generic code 
+should be quite simple now, basically just exporting second_overflow() 
+and creating an alternative do_timer() entry point which doesn't call 
+update_wall_time().
 
-Ok, this last one in particular needs to be improved, but these two
-syscalls and the clone flags together give us all we need.  Right?
+Besides some small cleanups I think my code is ready for some serious 
+testing, but it conflicts with your NTP changes.
 
--serge
+bye, Roman

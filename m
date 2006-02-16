@@ -1,111 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbWBPRC6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWBPRDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750891AbWBPRC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 12:02:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWBPRC6
+	id S1751093AbWBPRDe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 12:03:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbWBPRDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 12:02:58 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:29555 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1750891AbWBPRC6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 12:02:58 -0500
-Message-ID: <43F4B002.9010007@cfl.rr.com>
-Date: Thu, 16 Feb 2006 12:01:54 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Thu, 16 Feb 2006 12:03:33 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13986 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751093AbWBPRDc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 12:03:32 -0500
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
+       linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: (pspace,pid) vs true pid virtualization
+References: <20060215145942.GA9274@sergelap.austin.ibm.com>
+	<m11wy4s24i.fsf@ebiederm.dsl.xmission.com>
+	<20060216143030.GA27585@MAIL.13thfloor.at>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 16 Feb 2006 09:59:50 -0700
+In-Reply-To: <20060216143030.GA27585@MAIL.13thfloor.at> (Herbert Poetzl's
+ message of "Thu, 16 Feb 2006 15:30:30 +0100")
+Message-ID: <m11wy3qlx5.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Seewer Philippe <philippe.seewer@bfh.ch>
-CC: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: disk geometry via sysfs
-References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com> <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com> <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com> <43F2E8BA.90001@bfh.ch> <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com> <11 <43F4A519.4050005@bfh.ch>
-In-Reply-To: <43F4A519.4050005@bfh.ch>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Feb 2006 17:03:53.0744 (UTC) FILETIME=[F7472900:01C6331A]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14271.000
-X-TM-AS-Result: No--17.790000-5.000000-31
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seewer Philippe wrote:
-> I think what we should be talking about here is what is necessary to
-> write a mbr and partition a disk, not how the whole c/h/s shebang works,
-> because that is no longer of any real interest.
-> 
-> The important fact here is that Linux does not really depend on an MBR
-> which matches the BIOS. Only other os do...
+Herbert Poetzl <herbert@13thfloor.at> writes:
 
-True.
+>> - Should the first pid in a pid space have pid 1?
+>
+> depends, usually either one process has pid==1 (the init)
+> or no process should use that pid (still handled special)
+> nevertheless, the latter case requires a 'fake' pid==1
+> to make some userspace processes happy (e.g. pstree)
 
-> 
-> The current behaviour of partitioning tools under Linux is (most of the
-> time) quite simple: If an MBR exists, determine the geometry to use to
-> create new partitions from the MBR.
-> 
-> The problem starts when creating a new MBR. In this case we need a
-> geometry. There most Utilities depend (probably historically) on
-> HDIO_GETGEO. By now we know that these values do not necessarily
-> correspond to bios values. They don't have to, because they can contain
-> as much bogus as we want. Why? Because all partitions will be created
-> with these values as a base. The question here is actually only if the
-> user wants compatible values or not.
-> 
+Ok.  So we always need a pid == 1 to show up.
 
-That is the sticking point.  The MBR can NOT contain whatever values we 
-want.  It must contain the values that the bios expects, otherwise boot 
-loaders that use those values will fail to operate correctly.
+>> - Should pid == 1 ignore signals, it doesn't have a handler for?
+>
+> the 'init' process must be protected in a similar fashion
+> than the real init is, otherwise guests will end up dying
+> in certain situations, of course, it would be nice to have
+> some kind of flag to turn this on and off
 
-> The problem increases when we use tools such as dosemu, which need to
-> emulate a bios. If we do things there like deploy windows with dosemu
-> (please remember, this is just an example), the geometry values
-> represented by dosemu need to be exactly the same as the bios returns.
-> 
+That is an interesting thought... Have a flag that sets
+if you get to ignore unhandled signals :)
 
-dosemu emulates the bios and talks to the disk via the kernel, so it 
-does not care what the real bios geometry is, or even if there IS a real 
-bios geometry.  You can run dosemu on any block device, including a loop 
-device, which clearly has no geometry.  It can choose whatever geometry 
-it wants to emulate, though it should probably use whatever existing 
-geometry is in the MBR of the disk ( physical or virtual ) that you are 
-having it use.
+>> - Should any children of pid 1 be allowed to live 
+>>   when pid == 1 is killed?
+>
+> agan that's a feature which would be nice, especially
+> for the lightweight contexts, which do not have an init
+> process running inside the guest
 
-> The problem increases further with the use of bootloaders. Because they
-> need at least some basic geometry information. See the thread "Support
-> HDIO_GETGEO on device-mapper volumes" in this mailinglist for an example
-> (Actually this thread is among the reasons why I started this).
-> 
+But if init is killed you want to still see init and have
+children reaped?
 
-The boot loaders get it from the MBR if they are not operating in LBA 
-mode.  The partitioners put the geometry in the MBR.  The geometry that 
-they place there must match the values expected by the bios.  If the 
-kernel does not know those values, then it should not lie to the 
-partitioning tools about it, it should fail the request, and let the 
-partitioning tool decide what to do.
+>> - Should a process have some sort of global (on the machine identifier)?
+>
+> this is mandatory, as it is required to kill any process
+> from the host (admin) context, without entering the pid
+> space (which would lead to all kind of security issues)
 
-> So the whole thing comes to the question whether we drop any interfaces
-> reporting geometry, making userspace tools responsible or if we provide
-> a common interface which can be modified by userspace if necessary.
-> (There are no other workable options i can see)
-> 
+Ok.  Would it be sufficient to simply stomp the entire pid
+space?  I.e. do you need fine grained control, or is this merely
+a matter of keeping the machine usable for everyone else?
 
-Right, the kernel can keep the old interface and rely on yet another 
-user space tool to tell the kernel what it should report, or it can drop 
-it and rely on the partitioners to deal with it.
+>> - Should the pids in a pid space be visible from the outside?
+>
+> yes, while not strictly required, folks really like to
+> view the overall system state. this can be done with the
+> help of special tools, but again it should be done
+> without entering each guest pid space ...
 
-> I vote for keeping it in the kernel, because otherwise tons of
-> user-space tools would need to be modified and it actually might be the
-> case that a driver knows what he's returning...
-> 
+Ok. I didn't ask quite what I thought I had asked :)
+I agree that monitoring seems important.
 
-You said already that as of 2.6 the kernel no longer knows the bios 
-values, so the driver NEVER knows the right value to return.  Since that 
-is the case, it should not pretend that it does know, it should let the 
-user space partitioning tools know it does not know.  Yes, they may need 
-modified to handle that case, but that is something they should have 
-been doing a long time ago, and why complicate the kernel when this is 
-really done in user space anyhow?
+>> - Should the parent of pid 1 be able to wait for it for it's 
+>>   children?
+>
+> definitely, we (Linux-VServer) added this some time ago
+> and it helps to maintain/restart a guest.
+
+That is how I expected that to get used. :)
+
+>> - Is a completely disjoin pid space acceptable to anyone?
+>
+> yes, as long as the beforementioned access, management
+> and control mechanisms are in place ...
+
+Good answer.
+
+>> - What should the parent of pid == 1 see?
+>
+> doesn't really matter, but I see three options there:
+>  
+>  - the parent space
+>  - the child space
+>  - both
+
+An answer from a totally different perspective :)
+
+>> - Should a process not in the default pid space be able to create 
+>>   another pid space?
+>
+> that would be a requirement for hierarchical spaces
+
+Well if the spaces were completely disjoin it would not be very
+much of a hierarchy...
+
+>> - Should we be able to monitor a pid space from the outside?
+>
+> yes, definitely, but it could happen via some special
+> interfaces, i.e. no need to make it compatible
+
+
+>> - Should we be able to have processes enter a pid space?
+>
+> definitely, without that, the entire VPS concept will
+> not work, folks use the 'admin' backdoors 90% of the
+> time ...
+
+A good inducement to get this part right :)
+
+To give a little more context when you are using this
+functionality to make a super chroot you and you only have
+one sysadmin, or when your talented sysadmin is assisting 
+other sysadmins of guests is when this comes up.
+
+>> - Do we need to be able to be able to ptrace/kill individual 
+>> processes in a pid space, from the outside, and why?
+>
+> ptrace: no not really, if there are issues which want
+>   to be investigated, you can always enter the space and
+>   attach the strace there. IMHO there is not much info
+>   in ptracing the space creation/transition
+>
+> kill: yes, once you identified an evil guest process,
+>   you want to get rid of it, without entering the space
+>
+>> - After migration what identifiers should the tasks have?
+>
+> doesn't matter, as long as they are unique, so
+>  ppid1/ppid2/ppid3/pid would work ...
+>
+>> If we can answer these kinds of questions we can likely focus in on
+>> what the implementation should look like. So far I have not seen a
+>> question that could not be implemented with a (pspace, pid)/pid or a
+>> vpid/pid implementation.
+>
+> best,
+> Herbert
+
+Thanks.
+
+Eric
 
 

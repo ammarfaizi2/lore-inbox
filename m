@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWBPKxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWBPLBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbWBPKxE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 05:53:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWBPKxE
+	id S1751344AbWBPLBW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 06:01:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWBPLBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 05:53:04 -0500
-Received: from coumail01.netbenefit.co.uk ([212.53.64.106]:42474 "EHLO
-	coumail01.netbenefit.co.uk") by vger.kernel.org with ESMTP
-	id S1751331AbWBPKxD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 05:53:03 -0500
-Message-ID: <001001c632e7$23d89af0$0a00a8c0@emachine>
-From: "Michael Gilroy" <mgilroy@a2etech.com>
-To: "Ram Gupta" <ram.gupta5@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <002a01c63228$abda02f0$0a00a8c0@emachine> <728201270602150913j4e8292fdh8e53cfe988a27dd3@mail.gmail.com>
-Subject: Re: Kernel bug mm/page_alloc.c
-Date: Thu, 16 Feb 2006 10:52:54 -0000
+	Thu, 16 Feb 2006 06:01:22 -0500
+Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:49322 "EHLO
+	liaag2ag.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751344AbWBPLBV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 06:01:21 -0500
+Date: Thu, 16 Feb 2006 05:58:15 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: i386 singlestep is borken
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200602160601_MC3-1-B882-BFB6@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2670
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using an AMD opteron so I can't see how the F00F bug could be affecting 
-me. I don't have that option in my .config file either. Any other 
-suggestions?
+Playing around with singlestep on i386, I found this:
 
-thanks,
+1. User sets TF and starts to singlestep through code,
+   handling SIGTRAPS as they occur.
 
-mike 
+2. Makes vsyscall; debug trap occurs in kernel mode and TF
+   is cleared.  TIF_SINGLESTEP gets set so kernel will remember
+   to re-enable TF on return to user.  But when user eflags
+   is saved on the stack, TF has already been cleared.
 
+3. When user gets control back, TF is not re-enabled.
+
+4. Even after user clears TF, TIF_SINGLESTEP remains set
+   for that thread.
+
+None of this happens when using int80 because the flag
+is cleared and re-enabled by the interrupt handler.
+TIF_SINGLESTEP never gets set and doesn't need to be.
+
+-- 
+Chuck
+"Equations are the Devil's sentences."  --Stephen Colbert
 

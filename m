@@ -1,90 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWBPPhZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWBPPhf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932260AbWBPPhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 10:37:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWBPPhY
+	id S932262AbWBPPhf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 10:37:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbWBPPhf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 10:37:24 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:26471 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S932260AbWBPPhY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 10:37:24 -0500
-Message-ID: <43F49BF4.5090705@cfl.rr.com>
-Date: Thu, 16 Feb 2006 10:36:20 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Seewer Philippe <philippe.seewer@bfh.ch>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: disk geometry via sysfs
-References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com>  <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com>  <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com>  <43F2E8BA.90001@bfh.ch>  <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com> <43F433F6.2000500@bfh.ch>
-In-Reply-To: <43F433F6.2000500@bfh.ch>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Feb 2006 15:38:18.0870 (UTC) FILETIME=[02A79160:01C6330F]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14271.000
-X-TM-AS-Result: No--21.049000-5.000000-31
+	Thu, 16 Feb 2006 10:37:35 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:28328 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932262AbWBPPhe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 10:37:34 -0500
+Date: Thu, 16 Feb 2006 09:37:29 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
+       linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: (pspace,pid) vs true pid virtualization
+Message-ID: <20060216153729.GB22358@sergelap.austin.ibm.com>
+References: <20060215145942.GA9274@sergelap.austin.ibm.com> <m11wy4s24i.fsf@ebiederm.dsl.xmission.com> <20060216143030.GA27585@MAIL.13thfloor.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060216143030.GA27585@MAIL.13thfloor.at>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seewer Philippe wrote:
-> Thats the problem point here. As of 2.6 the kernel does no longer know
-> anything about bios geometry. The exception here might be for older
-> drives which do not support lba, where the physical geometry is the one
-> the bios reports (if not configured diffently).
+Quoting Herbert Poetzl (herbert@13thfloor.at):
+> > - Should a process have some sort of global (on the machine identifier)?
 > 
-> This is, as we all know, intentional. Because it's quite impossible to
-> always and accurately match bios disk information to drives reported by
-> drivers.
+> this is mandatory, as it is required to kill any process
+> from the host (admin) context, without entering the pid
+> space (which would lead to all kind of security issues)
+
+Just to be clear: you think there should be cases where pspace x can
+kill processes in pspace y, but can't enter it?
+
+I'm not convinced that grounded in reasonable assumptions...
+
+> > - Should the pids in a pid space be visible from the outside?
 > 
-
-If it is intentional that the kernel not keep track of the bios 
-geometry, then it should not track geometry at all.  The only reason for 
-the existence of GETGEO is so partitioning tools can figure out what to 
-put in the MBR for the disk geometry.  If they do not get the values 
-that the bios reports, then they are getting useless information.
-
-Why give the illusion that they got the right information when you are 
-just lieing to them?  Wouldn't it be better to fail the request so the 
-tool knows it can't get the right info from the system?
-
-> Not only windows but other os as well.
-> 
-> The problem here is a general interface problem. Tools want one
-> interface (be it ioctl or sysfs). If they can depend on a kernel
-> interface only partially and have to determine values themeself
-> otherwise, that interface should be dropped. Again i'm talking about the
-> interface, not actual code which might still depend on c/h/s.
+> yes, while not strictly required, folks really like to
+> view the overall system state. this can be done with the
+> help of special tools, but again it should be done
+> without entering each guest pid space ...
 > 
 
-Exactly, the interface should be completely dropped since it really is 
-useless to the tools anyhow without accurate information from the bios.
+...
 
-> On the other hand, if we keep that interface (or perhaps ioctl for
-> compatibility and sysfs for newer things) and introduce a means to tell
-> the driver via userspace what we want, many things can be solved. For
-> example for older drives which need chs, userspace can tell the driver
-> what the bios uses if values differ. For other implementations which
-> return defaults which are correct in 80% of all cases, the other 20% can
-> be overridden.
+> > - Should we be able to monitor a pid space from the outside?
 > 
+> yes, definitely, but it could happen via some special
+> interfaces, i.e. no need to make it compatible
 
-That is true, but since the kernel doesn't use this information, it 
-amounts to holding onto a user space configuration parameter.  Since 
-it's just a user space configuration parameter, shouldn't that go in a 
-conf file in /etc or something, rather than burdening the kernel with 
-that information?  And since the kernel won't remember the settings 
-across boots, then you're going to end up with them stored in a conf 
-file anyhow with a boot time script that copies it to the kernel, so 
-that fdisk can read it back from the kernel later.  Since you likely 
-will only partition a drive when installing, is there even a need to 
-store it at all, let alone in the kernel?  Just let fdisk ask the user 
-or choose defaults.
+What sort of interfaces do you envision for these two?  If we
+can lay them out well enough, maybe the result will satisfy the
+openvz folks?
 
-> It's of course not really the kernel's responsability to fix things (or
-> better allow the user to fix things) not important to Linux, but i think
-> for the sake of compatility necessary.
+For instance, perhaps we just use a proc interface, where in the
+current pspace, if we've created a new pspace which in our pspace
+is known as process 567, then we might see
+
+/proc
+/proc/567
+/proc/567/pspace
+/proc/567/pspace/1 -> link to /proc/567
+/proc/567/pspace/2
+
+Now we also might be able to interact with the pspace by doing
+something like
+
+	echo -9 > /proc/567/pspace/2/kill
+
+and of course do things like
+
+	cd /proc/567/pspace/1/root
+
+> > - After migration what identifiers should the tasks have?
 > 
+> doesn't matter, as long as they are unique, so
+>  ppid1/ppid2/ppid3/pid would work ...
 
+And where are we talking about?  Is this an identifier for userspace
+tools?  Or just in kernelspace?
+
+-serge

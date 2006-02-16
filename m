@@ -1,72 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWBPR6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbWBPSBc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbWBPR6w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 12:58:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932551AbWBPR6v
+	id S1030371AbWBPSBc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 13:01:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030406AbWBPSBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 12:58:51 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:3799 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932549AbWBPR6u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 12:58:50 -0500
-Date: Thu, 16 Feb 2006 11:57:49 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
-       linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: (pspace,pid) vs true pid virtualization
-Message-ID: <20060216175749.GB11974@sergelap.austin.ibm.com>
-References: <20060215145942.GA9274@sergelap.austin.ibm.com> <m11wy4s24i.fsf@ebiederm.dsl.xmission.com> <20060216143030.GA27585@MAIL.13thfloor.at> <20060216153729.GB22358@sergelap.austin.ibm.com> <m1wtfvp6pk.fsf@ebiederm.dsl.xmission.com>
+	Thu, 16 Feb 2006 13:01:32 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31498 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030371AbWBPSBb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 13:01:31 -0500
+Date: Thu, 16 Feb 2006 18:01:25 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Tejun Heo <htejun@gmail.com>, Linus Torvalds <torvalds@osdl.org>
+Cc: Matt Reimer <mattjreimer@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/8] block: convert IDE to use blk_kmap helpers
+Message-ID: <20060216180125.GE29443@flint.arm.linux.org.uk>
+Mail-Followup-To: Tejun Heo <htejun@gmail.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Matt Reimer <mattjreimer@gmail.com>, linux-kernel@vger.kernel.org
+References: <11371658562541-git-send-email-htejun@gmail.com> <1137165856390-git-send-email-htejun@gmail.com> <f383264b0602141107v78864d7bua38fbaeefafd5@mail.gmail.com> <43F28C4E.1090104@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1wtfvp6pk.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <43F28C4E.1090104@gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Eric W. Biederman (ebiederm@xmission.com):
-> "Serge E. Hallyn" <serue@us.ibm.com> writes:
-> 
-> > Quoting Herbert Poetzl (herbert@13thfloor.at):
-> >> > - Should a process have some sort of global (on the machine identifier)?
-> >> 
-> >> this is mandatory, as it is required to kill any process
-> >> from the host (admin) context, without entering the pid
-> >> space (which would lead to all kind of security issues)
+On Wed, Feb 15, 2006 at 11:05:02AM +0900, Tejun Heo wrote:
+> Matt Reimer wrote:
+> >On 1/13/06, Tejun Heo <htejun@gmail.com> wrote:
 > >
-> > Just to be clear: you think there should be cases where pspace x can
-> > kill processes in pspace y, but can't enter it?
+> >>Convert direct uses of kmap/unmap to blk_kmap/unmap in IDE.  This
+> >>combined with the previous bio helper change fixes PIO cache coherency
+> >>bugs on architectures with aliased caches.
+> >>
+> >>Signed-off-by: Tejun Heo <htejun@gmail.com>
 > >
-> > I'm not convinced that grounded in reasonable assumptions...
+> >
+> >This series of patches makes booting from CF on my PXA255 device. Thanks 
+> >Tejun.
+> >
+> >Will these patches make 2.6.16?
+> >
 > 
-> Actually I think it is.  The admin should control what is running
-> on their box.
+> Unfortunately, this patchset has some pending issues and probably should 
+> be spinned one more time with another approach, although I'm currently 
+> not very sure what the another approach should be.  :-(
+> 
+> I'll try to do something.  Thanks.
 
-Of course.  I meant "grounded in reasonable security assumptions."
+I think that's a mistake.  Yes, James has decided to object, but I
+think that James' objections are unfounded.
 
-If you really are the admin then you will find another way of
-"getting into" the pspace.
+Since James doesn't even have a machine which shows this bug, it's
+rather convenient for him to object and effectively stand in the way
+of having the bug being fixed.
 
-But really, what does "enter" mean in this case?  If you can see
-the processes so as to kill them, is that all you need?  After all
-this is distinct from the filesystem namespace - the pids are the
-only thing that's distinct.  So the only thing that I can see you
-preventing by preventing "entering" the pspace is starting a new
-process with a pid valid in the other pspace.
+Or that's how I'm reading the current impass on these patches.
 
--serge
+Linus - can we merge Tejun's patches so that we have an IDE subsystem
+which works on ARM platforms please?  If James wants to come up with
+another solution later on, I'm sure we can transition all drivers
+over to that new solution once we know what it is.  Until then, can
+we please fix the bug?
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbWBPQcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWBPQdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932322AbWBPQcL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 11:32:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWBPQcL
+	id S932323AbWBPQdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 11:33:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWBPQdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 11:32:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:35247 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932322AbWBPQcK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 11:32:10 -0500
-Date: Thu, 16 Feb 2006 08:28:36 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: i386 singlestep is borken
-In-Reply-To: <200602160601_MC3-1-B882-BFB6@compuserve.com>
-Message-ID: <Pine.LNX.4.64.0602160825370.916@g5.osdl.org>
-References: <200602160601_MC3-1-B882-BFB6@compuserve.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Feb 2006 11:33:08 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.158]:29938 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S932323AbWBPQdH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 11:33:07 -0500
+Subject: Re: [patch 0/6] lightweight robust futexes: -V3
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060216094130.GA29716@elte.hu>
+References: <20060216094130.GA29716@elte.hu>
+Content-Type: text/plain
+Date: Thu, 16 Feb 2006 08:33:04 -0800
+Message-Id: <1140107585.21681.18.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Another thing I noticed was that futex_offset on the surface looks like
+a malicious users dream variable .. I didn't notice security addressed
+at all in your initial write up . I was told it was a big topic at last
+years OLS ..  In your write up you did say you corrupted the
+robust_list , but did you corrupt the offset? Is this even a concern?
 
-On Thu, 16 Feb 2006, Chuck Ebbert wrote:
+Daniel
+
+
+On Thu, 2006-02-16 at 10:41 +0100, Ingo Molnar wrote:
+> This is release -V3 of the "lightweight robust futexes" patchset. The 
+> patchset can also be downloaded from:
 > 
-> 2. Makes vsyscall; debug trap occurs in kernel mode and TF
->    is cleared.  TIF_SINGLESTEP gets set so kernel will remember
->    to re-enable TF on return to user.  But when user eflags
->    is saved on the stack, TF has already been cleared.
+>   http://redhat.com/~mingo/lightweight-robust-futexes/
+> 
+> Changes since -V2:
+> 
+> Ulrich Drepper ran the code through more glibc testcases, which 
+> unearthed a couple of bugs:
+> 
+>  - fixed bug in the i386 and x86_64 assembly code (Ulrich Drepper)
+> 
+>  - fixed bug in the list walking futex-wakeups (found by Ulrich Drepper)
+> 
+>  - race fix: do not bail out in the list walk when the list_op_pending 
+>    pointer cannot be followed by the kernel - another userspace thread 
+>    may have already destroyed the mutex (and unmapped it), before this 
+>    thread had a chance to clear the field.
+> 
+>  - cleanup: renamed list_add_pending to list_op_pending. (the field is 
+>    used for list removals too)
+> 
+> 	Ingo
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-This is exactly correct. 
-
-TF should be re-enabled by the "is there work to be done at system call 
-return time?" logic, which should mean that we go through 
-do_notify_resume() (which will set TF_MASK) and return with an "iret".
-
-We can't return with a sysexit in the TF case, and setting TF on the stack 
-is thus useless.
-
-> 3. When user gets control back, TF is not re-enabled.
-
-Sounds like something is broken, but I don't see what.
-
-I did check single-step over sysenter at some point (a long time ago), so 
-this has worked.
-
-		Linus

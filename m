@@ -1,93 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932545AbWBPSLi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbWBPSOO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932545AbWBPSLi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 13:11:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbWBPSLi
+	id S932330AbWBPSOO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 13:14:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbWBPSON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 13:11:38 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:21183 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932545AbWBPSLg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 13:11:36 -0500
-Message-ID: <43F4BFFC.8050604@austin.ibm.com>
-Date: Thu, 16 Feb 2006 12:10:04 -0600
-From: Joel Schopp <jschopp@austin.ibm.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Nathan Lynch <nathanl@austin.ibm.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch 2/4] s390: fix preempt_count of idle thread with cpu hotplug
-References: <20060216071808.GE9241@osiris.boeblingen.de.ibm.com>
-In-Reply-To: <20060216071808.GE9241@osiris.boeblingen.de.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Feb 2006 13:14:13 -0500
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:34482 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S932330AbWBPSON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 13:14:13 -0500
+X-IronPort-AV: i="4.02,120,1139205600"; 
+   d="scan'208"; a="381983444:sNHT163956372"
+Date: Thu, 16 Feb 2006 12:14:14 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Phillip Susi <psusi@cfl.rr.com>, Seewer Philippe <philippe.seewer@bfh.ch>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC: disk geometry via sysfs
+Message-ID: <20060216181414.GB28554@lists.us.dell.com>
+References: <43F0B484.3060603@cfl.rr.com> <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com> <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com> <43F2E8BA.90001@bfh.ch> <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com> <1140012392.14831.13.camel@localhost.localdomain> <43F346DA.4020404@cfl.rr.com> <1140019615.14831.22.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1140019615.14831.22.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Set preempt_count of idle_thread to zero before switching off cpu.
-> Otherwise the preempt_count will be wrong if the cpu is switched on again
-> since the thread will be reused.
+On Wed, Feb 15, 2006 at 04:06:55PM +0000, Alan Cox wrote:
+> On Mer, 2006-02-15 at 10:20 -0500, Phillip Susi wrote:
+> > I thought that C/H/S addressing was purely a function of int 13, not the 
+> > hardware interface?  If it is a function of some older hardware 
+> > interfaces, then we are still talking about two different, and likely 
+> > incompatible geometries:  the one the disk reports, and the one the bios 
+> > reports.  The values in the MBR must be the values the bios reports. 
 > 
+> We have at least three
+> 
+> Disk reported C/H/S
+> BIOS reported C/H/S (hda/hdb only)
+> Actual C/H/S (if it exists)
+> Partition table C/H/S
+> 
+> A partitioning tool needs to know
+> 	Disk reported C/H/S
+> 	Partition table C/H/S
+> 	Preferably BIOS reported C/H/S if there is one
+> 
+> The partition table C/H/S is on disk so trivial
+> The disk reported ones are in the identify block so could be pulled via
+> 	/proc and sysfs
+> The BIOS one is PC specific low memory poking around
 
-I had a similar discussion back in November, that one about 
-/proc/interrupts stats.  Rather than do that all over again below is a 
-cut and paste of my reply to that discussion.  The executive summary is 
-I rather like the current behavior as is.
+On i386 and x86_64, the edd module reports the 2 types of C/H/S values
+as BIOS knows them, in /sys/firmware/edd/int13_dev*/
 
--------------------------------------------------------------
+legacy_max_cylinder, legacy_max_head, and legacy_max_sectors_per_track
+are int13 AH=08h values.
 
- > When CPU2 is off-lined, the statistics for CPU2 do not appear
- >(expected). However when you look at the before picture (all CPUs
- >present) and after picture (all cpus present after CPU2 re-added), you
- >see that the original data was returned and has incremented:
+default_cylinders, default_heads, and default_sectors_per_track are
+int13 AH=48h values.
 
-<snip>
+Files not in that directory mean the value reported by BIOS was zero.
 
- > Results are similar for other interrupt levels.
- >
- > This does not seem like the correct approach. Shouldn't an
- > added CPU be considered new and stats begin again from zero?
- > Can you please give us guidance on this issue?  Is it
- > a bug or expected behavior?
-
-There are several legitimate options here, including the current 
-behavior.  I'm not clear other than kernel developers doing debugging 
-who consumes this data. If it is just kernel developers I contend we are 
-capable of understanding whatever data is presented.
-
-Current Behavior:
-Stats carry over.  The advantage of this is that the stats history is 
-not lost.  Consider the scenario where a cpu is moved regularly between 
-two partitions in response to workload.  It would probably be best in 
-that situation to keep the full history of that cpu during all the times 
-it has been in the partition. This view would be consistent with the cpu 
-always being there, just sometimes being off.  I haven't fully thought 
-through the impact of a different physical cpu being added in the same 
-logical slot, or how virtualized cpus fits into this paradigm.  But I 
-suspect they shouldn't change the concept.
-
-Reset every time:
-The advantage of this is the cpus start with a clean slate.  There is 
-logic to avoiding the situation where some hotplug added cpus have state 
-already and some hotplug added cpus start with nothing.  Consistency is 
-not a bad thing.  On the other hand this is a bit of selective amnesia, 
-we would be forgetting all past statistics only for cpus that had taken 
-some time off.  It's like taking a vacation from work and having your 
-old email thrown away while you are gone.
-
-Reset all every time:
-It could well be argued that the old cpu statistics from every active 
-cpu serve only to confuse things because the cpus were in a different 
-state.  If you didn't reset all cpus statistics, then after adding a new 
-cpu you couldn't say for instance that cpu 5 is taking 45% of the 
-interrupts.  The statistics are meaningless without their context, and 
-by adding a cpu we have destroyed their context.  Therefore we should 
-reset all statistics so they all have the same frame of reference.  The 
-downside of course is that we lose all history on all cpus.
-
-Personally, I'm fine with the current behavior.  It makes the most sense 
-to me and is the least complex to implement (already done).  We maybe 
-should document it (send a patch in reply to the one Ashok Raj just 
-posted to lkml).  Unless somebody has a real user of cpu statistics that 
-this behavior breaks.
+-- 
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

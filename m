@@ -1,214 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWBPDJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWBPDM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751374AbWBPDJx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 22:09:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbWBPDJw
+	id S1751377AbWBPDM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 22:12:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWBPDM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 22:09:52 -0500
-Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:23998 "EHLO
-	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751374AbWBPDJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 22:09:52 -0500
-Message-ID: <43F3ECFD.9000701@bigpond.net.au>
-Date: Thu, 16 Feb 2006 14:09:49 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Con Kolivas <kernel@kolivas.org>, npiggin@suse.de,
-       Steven Rostedt <rostedt@goodmis.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: [PATCH] sched: fix smpnice abmormal nice anomalies
-Content-Type: multipart/mixed;
- boundary="------------010708020807020501070405"
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 16 Feb 2006 03:09:49 +0000
+	Wed, 15 Feb 2006 22:12:56 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:17042 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751377AbWBPDM4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 22:12:56 -0500
+Date: Wed, 15 Feb 2006 19:11:46 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+Subject: Re: [PATCH] Provide an interface for getting the current tick
+ length
+Message-Id: <20060215191146.126c052d.akpm@osdl.org>
+In-Reply-To: <17395.59762.126398.423546@cargo.ozlabs.ibm.com>
+References: <17395.53939.795908.336324@cargo.ozlabs.ibm.com>
+	<20060215173545.43a7412d.akpm@osdl.org>
+	<17395.56186.238204.312647@cargo.ozlabs.ibm.com>
+	<20060215180848.4556e501.akpm@osdl.org>
+	<17395.59762.126398.423546@cargo.ozlabs.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010708020807020501070405
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Paul Mackerras <paulus@samba.org> wrote:
+>
+> > Can we share that code?
+> 
+> We could share the code that computes time_adjust_step, i.e. this
+> much:
+> 
+> 	if ((time_adjust_step = time_adjust) != 0) {
+> 		/*
+> 		 * We are doing an adjtime thing.  Prepare time_adjust_step to
+> 		 * be within bounds.  Note that a positive time_adjust means we
+> 		 * want the clock to run faster.
+> 		 *
+> 		 * Limit the amount of the step to be in the range
+> 		 * -tickadj .. +tickadj
+> 		 */
+> 		time_adjust_step = min(time_adjust_step, (long)tickadj);
+> 		time_adjust_step = max(time_adjust_step, (long)-tickadj);
+> 	}
+>
 
-Suresh B. Siddha has reported:
+And the next line!
 
-"On a lightly loaded system, this can result in HT scheduler 
-optimizations being disabled in presence of low priority tasks... in 
-this case, they(low priority ones) can end up running on the same 
-package, even in the presence of other idle packages."
+> Is that enough to be worth factoring out?  Note that
+> update_wall_time_one_tick() needs both time_adjust_step and
+> delta_nsec, so to share more, we would have to have a function
+> returning two values and it would start to get ugly.
+> 
 
-Analysis has shown that this is a manifestation of a more general 
-problem which occurs when the average of the nice values assigned to 
-runnable tasks is skewed in either direction.  The cause is that 
-find_busiest_group() assumes that the average weighted load per task is 
-SCHED_LOAD_SCALE which will not be true when the distribution of nice 
-values is skewed in one direction or the other.  This in turn will cause 
-the load balancing code to under balance when the skew is towards low 
-priority tasks (i.e. positive nice) and over balance when it is skewed 
-in the opposite direction.
+update_wall_time_one_tick() gets:
 
-The attached patch fixes this problem.  It replaces SCHED_LOAD_SCALE 
-with the average load per task (calculated during the search for the 
-busiest group) in those places where SCHED_LOAD_SCALE was being used to 
-represent the load generated by a single task.
+	long delta_nsec = new_function();
 
-Signed-off-by: Peter Williams <pwil3058@bigpond.com.au>
+and your new function becomes
 
---
+	return (u64)new_function() << (SHIFT_SCALE - 10)) + time_adj;
 
-Andrew,
-	This patch in conjunction with the "Fix smpnice high priority task 
-hopping problem" patch posted earlier should address all of the 
-outstanding smpnice issues.  Could you please add them to -mm so that 
-they can get wider testing?
 
-Thanks,
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
-
---------------010708020807020501070405
-Content-Type: text/plain;
- name="fix-smpnice-abnormal-nice-anomalies"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fix-smpnice-abnormal-nice-anomalies"
-
-Index: MM-2.6.X/kernel/sched.c
-===================================================================
---- MM-2.6.X.orig/kernel/sched.c	2006-02-16 11:02:45.000000000 +1100
-+++ MM-2.6.X/kernel/sched.c	2006-02-16 12:39:30.000000000 +1100
-@@ -2025,9 +2025,11 @@ find_busiest_group(struct sched_domain *
- 	struct sched_group *busiest = NULL, *this = NULL, *group = sd->groups;
- 	unsigned long max_load, avg_load, total_load, this_load, total_pwr;
- 	unsigned long max_pull;
-+	unsigned long avg_load_per_task, busiest_nr_running;
- 	int load_idx;
- 
- 	max_load = this_load = total_load = total_pwr = 0;
-+	busiest_nr_running = 0;
- 	if (idle == NOT_IDLE)
- 		load_idx = sd->busy_idx;
- 	else if (idle == NEWLY_IDLE)
-@@ -2039,11 +2041,12 @@ find_busiest_group(struct sched_domain *
- 		unsigned long load;
- 		int local_group;
- 		int i;
-+		unsigned long sum_nr_running;
- 
- 		local_group = cpu_isset(this_cpu, group->cpumask);
- 
- 		/* Tally up the load of all CPUs in the group */
--		avg_load = 0;
-+		sum_nr_running = avg_load = 0;
- 
- 		for_each_cpu_mask(i, group->cpumask) {
- 			if (*sd_idle && !idle_cpu(i))
-@@ -2056,6 +2059,7 @@ find_busiest_group(struct sched_domain *
- 				load = source_load(i, load_idx);
- 
- 			avg_load += load;
-+			sum_nr_running += cpu_rq(i)->nr_running;
- 		}
- 
- 		total_load += avg_load;
-@@ -2070,11 +2074,15 @@ find_busiest_group(struct sched_domain *
- 		} else if (avg_load > max_load) {
- 			max_load = avg_load;
- 			busiest = group;
-+			busiest_nr_running = sum_nr_running;
- 		}
- 		group = group->next;
- 	} while (group != sd->groups);
- 
--	if (!busiest || this_load >= max_load || max_load <= SCHED_LOAD_SCALE)
-+	/* Don't assume that busiest_nr_running > 0 */
-+	avg_load_per_task = busiest_nr_running ? max_load / busiest_nr_running : max_load;
-+
-+	if (!busiest || this_load >= max_load || max_load <= avg_load_per_task)
- 		goto out_balanced;
- 
- 	avg_load = (SCHED_LOAD_SCALE * total_load) / total_pwr;
-@@ -2096,19 +2104,25 @@ find_busiest_group(struct sched_domain *
- 	 */
- 
- 	/* Don't want to pull so many tasks that a group would go idle */
--	max_pull = min(max_load - avg_load, max_load - SCHED_LOAD_SCALE);
-+	max_pull = min(max_load - avg_load, max_load - avg_load_per_task);
- 
- 	/* How much load to actually move to equalise the imbalance */
- 	*imbalance = min(max_pull * busiest->cpu_power,
- 				(avg_load - this_load) * this->cpu_power)
- 			/ SCHED_LOAD_SCALE;
- 
--	if (*imbalance < SCHED_LOAD_SCALE) {
-+	/*
-+	 * if *imbalance is less than the average load per runnable task
-+	 * there is no gaurantee that any tasks will be moved so we'll have
-+	 * a think about bumping its value to force at least one task to be
-+	 * moved
-+	 */
-+	if (*imbalance < avg_load_per_task) {
- 		unsigned long pwr_now = 0, pwr_move = 0;
- 		unsigned long tmp;
- 
--		if (max_load - this_load >= SCHED_LOAD_SCALE*2) {
--			*imbalance = NICE_TO_BIAS_PRIO(0);
-+		if (max_load - this_load >= avg_load_per_task*2) {
-+			*imbalance = biased_load(avg_load_per_task);
- 			return busiest;
- 		}
- 
-@@ -2118,31 +2132,32 @@ find_busiest_group(struct sched_domain *
- 		 * moving them.
- 		 */
- 
--		pwr_now += busiest->cpu_power*min(SCHED_LOAD_SCALE, max_load);
--		pwr_now += this->cpu_power*min(SCHED_LOAD_SCALE, this_load);
-+		pwr_now += busiest->cpu_power*min(avg_load_per_task, max_load);
-+		pwr_now += this->cpu_power*min(avg_load_per_task, this_load);
- 		pwr_now /= SCHED_LOAD_SCALE;
- 
- 		/* Amount of load we'd subtract */
--		tmp = SCHED_LOAD_SCALE*SCHED_LOAD_SCALE/busiest->cpu_power;
-+		tmp = avg_load_per_task*SCHED_LOAD_SCALE/busiest->cpu_power;
- 		if (max_load > tmp)
--			pwr_move += busiest->cpu_power*min(SCHED_LOAD_SCALE,
-+			pwr_move += busiest->cpu_power*min(avg_load_per_task,
- 							max_load - tmp);
- 
- 		/* Amount of load we'd add */
- 		if (max_load*busiest->cpu_power <
--				SCHED_LOAD_SCALE*SCHED_LOAD_SCALE)
-+				avg_load_per_task*SCHED_LOAD_SCALE)
- 			tmp = max_load*busiest->cpu_power/this->cpu_power;
- 		else
--			tmp = SCHED_LOAD_SCALE*SCHED_LOAD_SCALE/this->cpu_power;
--		pwr_move += this->cpu_power*min(SCHED_LOAD_SCALE, this_load + tmp);
-+			tmp = avg_load_per_task*SCHED_LOAD_SCALE/this->cpu_power;
-+		pwr_move += this->cpu_power*min(avg_load_per_task, this_load + tmp);
- 		pwr_move /= SCHED_LOAD_SCALE;
- 
--		/* Move if we gain throughput */
--		if (pwr_move <= pwr_now)
-+		/* Move if we gain throughput
-+		 * or if there's a reasonable chance that *imbalance is big enough to cause a move
-+		 */
-+		if (pwr_move > pwr_now)
-+			*imbalance = avg_load_per_task;
-+		 else if (*imbalance <= avg_load_per_task / 2)
- 			goto out_balanced;
--
--		*imbalance = NICE_TO_BIAS_PRIO(0);
--		return busiest;
- 	}
- 
- 	/*
-
---------------010708020807020501070405--

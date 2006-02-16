@@ -1,85 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbWBPTj4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030584AbWBPTuw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964882AbWBPTj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 14:39:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWBPTj4
+	id S1030584AbWBPTuw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 14:50:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030619AbWBPTuw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 14:39:56 -0500
-Received: from mail-a02.ithnet.com ([217.64.83.97]:65182 "HELO ithnet.com")
-	by vger.kernel.org with SMTP id S964882AbWBPTjz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 14:39:55 -0500
-X-Sender-Authentication: net64
-Date: Thu, 16 Feb 2006 20:39:48 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Severe problem with e1000 driver in 2.4.31/32 (at least)
-Message-Id: <20060216203948.5953a1e9.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 16 Feb 2006 14:50:52 -0500
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:49850 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S1030584AbWBPTuv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 14:50:51 -0500
+Date: Thu, 16 Feb 2006 20:49:56 +0100
+To: opensuse-factory@opensuse.org
+Cc: Greg KH <greg@kroah.com>, torvalds@osdl.org, kkeil@suse.de,
+       linux-kernel@vger.kernel.org, libusb-devel@lists.sourceforge.net
+Subject: Re: [opensuse-factory] Re[2]: 2.6.16 serious consequences / GPL_EXPORT_SYMBOL / USB drivers of major vendor excluded
+Message-ID: <20060216194955.GM3595@schiele.dyndns.org>
+Mail-Followup-To: Robert Schiele <rschiele@uni-mannheim.de>,
+	opensuse-factory@opensuse.org, Greg KH <greg@kroah.com>,
+	torvalds@osdl.org, kkeil@suse.de, linux-kernel@vger.kernel.org,
+	libusb-devel@lists.sourceforge.net
+References: <20060205205313.GA9188@kroah.com> <OFED05BE20.31E2BACE-ONC1257115.005DE6CA-C1257117.004F2C48@avm.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YS7t75H5cNTCpbja"
+Content-Disposition: inline
+In-Reply-To: <OFED05BE20.31E2BACE-ONC1257115.005DE6CA-C1257117.004F2C48@avm.de>
+User-Agent: Mutt/1.5.9i
+From: Robert Schiele <rschiele@uni-mannheim.de>
+Reply-To: Robert Schiele <rschiele@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-today we had to experience a bug in e1000 network driver on this type of
-network card (a current PCI e1000 sold everywhere):
+--YS7t75H5cNTCpbja
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-02:07.0 Ethernet controller: Intel Corp.: Unknown device 107c (rev 05)
-        Subsystem: Intel Corp.: Unknown device 1376
-        Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 18
-        Memory at f9000000 (32-bit, non-prefetchable) [size=128K]
-        Memory at f9020000 (32-bit, non-prefetchable) [size=128K]
-        I/O ports at a800 [size=64]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [dc] Power Management version 2
-        Capabilities: [e4] PCI-X non-bridge device.
+On Thu, Feb 16, 2006 at 03:24:44PM +0100, Sven Schmidt wrote:
+> The user space does not ensure the reliability of time critical analog
+> services like Fax G3 or analog modem emulations. This quality of service
+> can only be guaranteed within the kernel space.
 
-We can simply crash the box (2.4.32 stock kernel, 2.4.31 is the same) by
-performing this:
+Huh? You are offering your fax emulation at
+ftp://ftp.avm.de/fritz.box/tools/fax4box/ for Windows to communicate over
+Ethernet with the Fritz!Box.  You don't tell me that communicating over
+Ethernet is more reliable than implementing it in user space?  Or is my
+understanding about how this tool is working completely wrong?
 
-1) Boot box with network physically disconnected
-2) start pinging some host somewhere, you get "unreachable", let it run
-3) connect the network and await some ping replies.
-4) disconnect the network again
-5) box is dead
+> As a private corporation our primary focus is market relevance. AVM
+> invested more than 10 years of work to make analog services like Fax G3 a=
+nd
+> analog modem emulation available to users of the digital ISDN network. The
+> situation is similar for the DSL part of the driver with very complex DSP
+> algorithms. To anticipate any "open vs. closed source" discussion:Only a
+> handful of companies worldwide have such know-how. With regard to our
+> competitive situation, we have to protect our hard-won intellectual
+> property and therefore cannot open the closed source part of the driver.
 
-The box runs into a BUG in e1000_hw.c line 5052. The BUG shows up because the
-code is obviously executed inside an interrupt, which seems not intended.
-As this BUG is always reproducable and pretty annoying we made this pretty bad
-workaround:
+It is perfectly understandable that you don't want to offer this special
+know-how in public.  But isn't your implementation modular enough to open
+source the drivers _without_ support for these analog services as a first
+step?  This driver could then be shipped without problems enabling your use=
+rs
+to download a more advanced closed source module from your web site if desi=
+red
+and you don't care about the license issues.
 
-In e1000_osdep.h replace:
+Robert
 
-#define msec_delay(x)   do { if(in_interrupt()) { \
-                                /* Don't mdelay in interrupt context! */ \
-                                BUG(); \
-                        } else { \
-                                set_current_state(TASK_UNINTERRUPTIBLE); \
-                                schedule_timeout((x * HZ)/1000 + 2); \
-                        } } while(0)
+--=20
+Robert Schiele			Tel.: +49-621-181-2214
+Dipl.-Wirtsch.informatiker	mailto:rschiele@uni-mannheim.de
 
-with
+"Quidquid latine dictum sit, altum sonatur."
 
-#define msec_delay(x)   do { if(in_interrupt()) { \
-                                /* Don't mdelay in interrupt context! */ \
-                                mdelay(x); \
-                        } else { \
-                                set_current_state(TASK_UNINTERRUPTIBLE); \
-                                schedule_timeout((x * HZ)/1000 + 2); \
-                        } } while(0)
+--YS7t75H5cNTCpbja
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-Obviously this is not a solution, but it saves the world at least. This is why
-I offer no applyable patch.
+iD8DBQFD9NdjxcDFxyGNGNcRAtZ1AKC7wMK0N6rUmfNvTGPI96g3ayHNqwCfYCBv
+ZzQGkhrM/7CcjVrNcm58Sjk=
+=AwgG
+-----END PGP SIGNATURE-----
 
-Someone with inside knowledge of this driver should take a look why
-e1000_config_dsp_after_link_change in e1000_hw.c is executed in interrupt
-context. Btw I don't know if this shows up in 2.6 either.
+--YS7t75H5cNTCpbja--
 
--- 
-Regards,
-Stephan

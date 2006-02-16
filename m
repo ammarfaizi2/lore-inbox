@@ -1,45 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWBPUy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbWBPU5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964792AbWBPUy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 15:54:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbWBPUy7
+	id S964899AbWBPU5M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 15:57:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWBPU5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 15:54:59 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:19447 "EHLO
-	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S964792AbWBPUy6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 15:54:58 -0500
-Date: Thu, 16 Feb 2006 12:54:04 -0800 (PST)
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 0/6] lightweight robust futexes: -V3
-In-Reply-To: <20060216202357.GA21415@elte.hu>
-Message-ID: <Pine.LNX.4.64.0602161229390.30911@dhcp153.mvista.com>
-References: <20060216094130.GA29716@elte.hu> <1140107585.21681.18.camel@localhost.localdomain>
- <20060216172435.GC29151@elte.hu> <1140111257.21681.26.camel@localhost.localdomain>
- <20060216202357.GA21415@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 16 Feb 2006 15:57:12 -0500
+Received: from quechua.inka.de ([193.197.184.2]:13760 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S964899AbWBPU5L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 15:57:11 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] deprecate the tasklist_lock export
+References: <20060215130734.GA5590@lst.de>
+Organization: private Linux site, southern Germany
+From: Olaf Titz <olaf@bigred.inka.de>
+Date: Thu, 16 Feb 2006 21:50:30 +0100
+Message-ID: <E1F9q58-0001yZ-00@bigred.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20060215130734.GA5590@lst.de> you write:
+> Drivers have no business looking at the task list and thus using this
+> lock.  The only possibly modular users left are:
 
-On Thu, 16 Feb 2006, Ingo Molnar wrote:
-> and? You can 'manipulate' arbitrary userspace memory, be that used by
-> the kernel or not, and you can do a sys_futex(FUTEX_WAKE) on any
-> arbitrary userspace memory address too (this is a core property of
-> futexes). You must have meant something specific when you said "on the
-> surface looks like a malicious users dream variable". In other words:
-> please move your statement out of innuendo by backing it up with
-> specifics (or by retracting it) - right now it's hanging in the air :)
+CIPE is a driver which consists of a kernel module and a userspace
+program, where each one of possibly many kernel devices is associated
+with exactly one userspace process, and it uses the task list to keep
+track of these associations. Is there a recommended other way to
+handle such a situation?
 
+Olaf
 
- 	Sorry I didn't mean to leave something hanging out there. I was 
-just making an observation. The 'dream variable' comment was maybe a little 
-to much and I'll gladly retract that .. I'll replace it with , I think the 
-code needs more review in that area ..
-
-Daniel

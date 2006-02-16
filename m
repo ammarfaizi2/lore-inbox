@@ -1,96 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030580AbWBPTJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030630AbWBPTKE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030580AbWBPTJe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 14:09:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030619AbWBPTJe
+	id S1030630AbWBPTKE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 14:10:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030631AbWBPTKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 14:09:34 -0500
-Received: from master.altlinux.org ([62.118.250.235]:19728 "EHLO
-	master.altlinux.org") by vger.kernel.org with ESMTP
-	id S1030580AbWBPTJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 14:09:33 -0500
-Date: Wed, 15 Feb 2006 23:57:25 +0300
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Davi Arnaut <davi.arnaut@gmail.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] strndup_user, convert (module)
-Message-Id: <20060215235725.15d54441.vsu@altlinux.ru>
-In-Reply-To: <20060215182306.d26a4121.davi.arnaut@gmail.com>
-References: <20060215182306.d26a4121.davi.arnaut@gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i586-alt-linux-gnu)
+	Thu, 16 Feb 2006 14:10:00 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:24265 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1030628AbWBPTJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 14:09:58 -0500
+Subject: Re: Linux 2.6.16-rc3
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>, "Brown, Len" <len.brown@intel.com>,
+       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net,
+       "Yu, Luming" <luming.yu@intel.com>, Ben Castricum <lk@bencastricum.nl>,
+       sanjoy@mrao.cam.ac.uk, Helge Hafting <helgehaf@aitel.hist.no>,
+       "Carlo E. Prelz" <fluido@fluido.as>,
+       Gerrit Bruchh?user <gbruchhaeuser@gmx.de>, Nicolas.Mailhot@LaPoste.net,
+       Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>,
+       Patrizio Bassi <patrizio.bassi@gmail.com>,
+       Bj?rn Nilsson <bni.swe@gmail.com>, Andrey Borzenkov <arvidjaar@mail.ru>,
+       "P. Christeas" <p_christ@hol.gr>, ghrt <ghrt@dial.kappa.ro>,
+       jinhong hu <jinhong.hu@gmail.com>,
+       Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-scsi@vger.kernel.org,
+       Benjamin LaHaise <bcrl@kvack.org>
+In-Reply-To: <20060216181803.GG29443@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org>
+	 <20060212190520.244fcaec.akpm@osdl.org> <20060213203800.GC22441@kroah.com>
+	 <1139934883.14115.4.camel@mulgrave.il.steeleye.com>
+	 <1140054960.3037.5.camel@mulgrave.il.steeleye.com>
+	 <20060216171200.GD29443@flint.arm.linux.org.uk>
+	 <1140112653.3178.9.camel@mulgrave.il.steeleye.com>
+	 <20060216180939.GF29443@flint.arm.linux.org.uk>
+	 <1140113671.3178.16.camel@mulgrave.il.steeleye.com>
+	 <20060216181803.GG29443@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Thu, 16 Feb 2006 11:09:29 -0800
+Message-Id: <1140116969.3178.24.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Wed__15_Feb_2006_23_57_25_+0300__HD.vStMtr0koZzR"
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Wed__15_Feb_2006_23_57_25_+0300__HD.vStMtr0koZzR
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, 2006-02-16 at 18:18 +0000, Russell King wrote:
+> Maybe implementing it as a helper function would be the best and
+> simplest solution?
+> 
+> static void scsi_release(struct device *dev)
+> {
+> 	schedule_release_process(dev, scsi_release_process);
+> }
+> 
+> where schedule_release_process() contains more or less what I posted
+> in the previous mailing.
 
-On Wed, 15 Feb 2006 18:23:06 -0300 Davi Arnaut wrote:
+That's almost exactly the execute_in_process_context() API that began
+this discussion (and which Andi NAK'd).  However, it could possibly be
+resurrected with the proviso that the caller has to feed in the
+workqueue memory.  How would people feel about that?
 
-> Convert kernel/module.c string duplication to strdup_user()
->=20
-> Signed-off-by: Davi Arnaut <davi.arnaut@gmail.com>
-> --
->=20
-> diff --git a/kernel/module.c b/kernel/module.c
-> index 5aad477..d7d428d 100644
-> --- a/kernel/module.c
-> +++ b/kernel/module.c
-> @@ -1538,7 +1538,6 @@ static struct module *load_module(void _
->  	unsigned int i, symindex =3D 0, strindex =3D 0, setupindex, exindex,
->  		exportindex, modindex, obsparmindex, infoindex, gplindex,
->  		crcindex, gplcrcindex, versindex, pcpuindex;
-> -	long arglen;
->  	struct module *mod;
->  	long err =3D 0;
->  	void *percpu =3D NULL, *ptr =3D NULL; /* Stops spurious gcc warning */
-> @@ -1655,23 +1654,11 @@ static struct module *load_module(void _
->  	}
-> =20
->  	/* Now copy in args */
-> -	arglen =3D strlen_user(uargs);
-> -	if (!arglen) {
-> -		err =3D -EFAULT;
-> -		goto free_hdr;
-> -	}
-> -	args =3D kmalloc(arglen, GFP_KERNEL);
-> -	if (!args) {
-> -		err =3D -ENOMEM;
-> +	args =3D strdup_user(uargs);
+James
 
-Before your changes the args string was limited by the maximum size
-supported by kmalloc(); you have changed the limit to 4096 hardcoded
-inside strdup_user(), which is much lower.
 
-> +	if (IS_ERR(args)) {
-> +		err =3D PTR_ERR(args);
->  		goto free_hdr;
->  	}
-> -	if (copy_from_user(args, uargs, arglen) !=3D 0) {
-> -		err =3D -EFAULT;
-> -		goto free_mod;
-> -	}
-> -
-> -	/* Userspace could have altered the string after the strlen_user() */
-> -	args[arglen - 1] =3D '\0';
-> =20
->  	if (find_module(mod->name)) {
->  		err =3D -EEXIST;
-
---Signature=_Wed__15_Feb_2006_23_57_25_+0300__HD.vStMtr0koZzR
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.17 (GNU/Linux)
-
-iD8DBQFD85W1W82GfkQfsqIRAv6aAJwIpLqkDi46AVrqyEjLpP8TnwS/FgCfbGTK
-7aExdRdW4h59GcDn8VNwiVI=
-=FJcU
------END PGP SIGNATURE-----
-
---Signature=_Wed__15_Feb_2006_23_57_25_+0300__HD.vStMtr0koZzR--

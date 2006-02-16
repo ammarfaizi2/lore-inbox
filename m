@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbWBPSOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbWBPSO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932330AbWBPSOO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 13:14:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbWBPSON
+	id S932548AbWBPSO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 13:14:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932552AbWBPSO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 13:14:13 -0500
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:34482 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S932330AbWBPSON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 13:14:13 -0500
-X-IronPort-AV: i="4.02,120,1139205600"; 
-   d="scan'208"; a="381983444:sNHT163956372"
-Date: Thu, 16 Feb 2006 12:14:14 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Phillip Susi <psusi@cfl.rr.com>, Seewer Philippe <philippe.seewer@bfh.ch>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: disk geometry via sysfs
-Message-ID: <20060216181414.GB28554@lists.us.dell.com>
-References: <43F0B484.3060603@cfl.rr.com> <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com> <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com> <43F2E8BA.90001@bfh.ch> <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com> <1140012392.14831.13.camel@localhost.localdomain> <43F346DA.4020404@cfl.rr.com> <1140019615.14831.22.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Thu, 16 Feb 2006 13:14:28 -0500
+Received: from mail.gmx.de ([213.165.64.20]:52141 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932548AbWBPSO1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 13:14:27 -0500
+X-Authenticated: #428038
+Date: Thu, 16 Feb 2006 19:14:22 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060216181422.GA18837@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <43EB7BBA.nailIFG412CGY@burner> <Pine.LNX.4.61.0602140903400.7198@yvahk01.tjqt.qr> <43F1F196.nailMWZE1HZK5@burner> <200602141710.37869.dhazelton@enter.net> <43F4652F.nail20W57J1QB@burner> <20060216115204.GA8713@merlin.emma.line.org> <43F4BF26.nail2KA210T4X@burner>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1140019615.14831.22.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <43F4BF26.nail2KA210T4X@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 15, 2006 at 04:06:55PM +0000, Alan Cox wrote:
-> On Mer, 2006-02-15 at 10:20 -0500, Phillip Susi wrote:
-> > I thought that C/H/S addressing was purely a function of int 13, not the 
-> > hardware interface?  If it is a function of some older hardware 
-> > interfaces, then we are still talking about two different, and likely 
-> > incompatible geometries:  the one the disk reports, and the one the bios 
-> > reports.  The values in the MBR must be the values the bios reports. 
-> 
-> We have at least three
-> 
-> Disk reported C/H/S
-> BIOS reported C/H/S (hda/hdb only)
-> Actual C/H/S (if it exists)
-> Partition table C/H/S
-> 
-> A partitioning tool needs to know
-> 	Disk reported C/H/S
-> 	Partition table C/H/S
-> 	Preferably BIOS reported C/H/S if there is one
-> 
-> The partition table C/H/S is on disk so trivial
-> The disk reported ones are in the identify block so could be pulled via
-> 	/proc and sysfs
-> The BIOS one is PC specific low memory poking around
+Joerg Schilling schrieb am 2006-02-16:
 
-On i386 and x86_64, the edd module reports the 2 types of C/H/S values
-as BIOS knows them, in /sys/firmware/edd/int13_dev*/
+> Matthias Andree <matthias.andree@gmx.de> wrote:
+> 
+> > > I usually fix real bugs immediately after I know them.
+> >
+> > "Usually" is the key here. Sometimes, you refuse to fix real bugs
+> > forever even if you're made aware of them, and rather shift the blame
+> > on somebody else.
+> 
+> Show me a single real bug that I did not fix.
 
-legacy_max_cylinder, legacy_max_head, and legacy_max_sectors_per_track
-are int13 AH=08h values.
+Namespace split ATA/SCSI is unfixed in 2.01.01a06.
 
-default_cylinders, default_heads, and default_sectors_per_track are
-int13 AH=48h values.
+Bogus warnings about Linux are unfixed in said version.
 
-Files not in that directory mean the value reported by BIOS was zero.
+Bogus warnings about /dev/* are unfixed in said version.
+
+Linux uname() detection code is broken since 2.6.10 because it assumes
+fixed-width fields.
+
+That makes four.
 
 -- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+Matthias Andree

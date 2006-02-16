@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWBPWdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWBPWdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750758AbWBPWdM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 17:33:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWBPWdM
+	id S1750759AbWBPWdV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 17:33:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWBPWdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 17:33:12 -0500
-Received: from smtp.enter.net ([216.193.128.24]:19717 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S1750758AbWBPWdM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 17:33:12 -0500
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Thu, 16 Feb 2006 17:42:25 -0500
-User-Agent: KMail/1.8.1
-Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org
-References: <43EB7BBA.nailIFG412CGY@burner> <20060216115204.GA8713@merlin.emma.line.org> <43F4BF26.nail2KA210T4X@burner>
-In-Reply-To: <43F4BF26.nail2KA210T4X@burner>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602161742.26419.dhazelton@enter.net>
+	Thu, 16 Feb 2006 17:33:21 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:33247 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S1750759AbWBPWdU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 17:33:20 -0500
+Date: Thu, 16 Feb 2006 23:32:47 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Arjan van de Ven <arjan@infradead.org>, Daniel Walker <dwalker@mvista.com>,
+       linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>,
+       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 0/6] lightweight robust futexes: -V3 - Why in userspace?
+In-Reply-To: <20060216203626.GB21415@elte.hu>
+Message-Id: <Pine.OSF.4.05.10602162301050.22107-100000@da410>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 February 2006 13:06, Joerg Schilling wrote:
-> Matthias Andree <matthias.andree@gmx.de> wrote:
-> > > I usually fix real bugs immediately after I know them.
-> >
-> > "Usually" is the key here. Sometimes, you refuse to fix real bugs
-> > forever even if you're made aware of them, and rather shift the blame
-> > on somebody else.
->
-> Show me a single real bug that I did not fix.
 
-At this point I, personally, am not aware of any.  However, after a careful 
-review of libscg in preparation for the patch I promised you, I can see that 
-it would be possible for the code to be rewritten so that just the linux 
-section contains the various workarounds that might be needed.
+On Thu, 16 Feb 2006, Ingo Molnar wrote:
 
-With your refusal to even consider doing that I can see where some people get 
-this idea (I myself was under this exact same belief until I began my code 
-review in preparation for the proposed patch).
+> [...]
+> 
+> > I am ofcourse comparing to a solution where you do a syscall on 
+> > everytime you do a lock. What I am asking about is whethere it 
+> > wouldn't be enough to maintain the list at the FUTEX_WAIT/FUTEX_WAKE 
+> > operation - i.e. the slow path where you have to go into the kernel.
+> 
+> no, that's not enough at all: we need to be able to clean up after 
+> futexes even if the kernel was _never involved_ with them. The pure 
+> userspace futex fastpath still can keep a lock stuck! In fact that is 
+> the common-case.
+> 
 
-I am unsure if you refused to provide OS specific workarounds for known bugs 
-in order to keep the code orthogonal,  or if you had another reason. But with 
-the division of the various operating system specific pieces of libscg into 
-seperate source files it doesn't make sense.
+As I understand the protocol the userspace task writes it's pid into the
+lock atomically when locking it and erases it atomically when it leaves
+the lock. If it is killed inbetween the pid is still there.
+Now if another task comes along it reads the pid, sets the wait flag and goes 
+into the kernel. The kernel will now be able to see that the pid is no
+longer valid and therefore the owner must be dead. 
 
-> > > I don't see that it makes sense to archive Linux bugs as long ad the
-> > > Linux kernel folks are obviously not willing to fix them.
-> >
-> > Then the bugs can't have been important to you.
->
-> ??? Id the Linux kernel is not fixed, the importance is irrelevent
-> unfortunately.
+Esben
 
-Of the two bugs you've reported, one only exists in a deprecated and soon to 
-be removed module. I will try to fix the other one as soon as you can provide 
-me with enough data that I can see exactly what is getting messed up where.
+> 	Ingo
+> 
 
-As to you wanting to be able to read the SCSI status byte and the actual size 
-of the completed DMA... Those parts of the kernel are as close to a blackbox 
-to me as any code gets. Perhaps you could provide information or ideas on how 
-it could be managed?
-
-DRH

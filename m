@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbWBPUsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWBPUy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964795AbWBPUsp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 15:48:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbWBPUsp
+	id S964792AbWBPUy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 15:54:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbWBPUy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 15:48:45 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:35796 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S964795AbWBPUsp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 15:48:45 -0500
-Date: Thu, 16 Feb 2006 12:47:58 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, drepper@redhat.com,
-       tglx@linutronix.de, arjan@infradead.org, akpm@osdl.org
+	Thu, 16 Feb 2006 15:54:59 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.158]:19447 "EHLO
+	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S964792AbWBPUy6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 15:54:58 -0500
+Date: Thu, 16 Feb 2006 12:54:04 -0800 (PST)
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
 Subject: Re: [patch 0/6] lightweight robust futexes: -V3
-Message-Id: <20060216124758.d51befd5.pj@sgi.com>
-In-Reply-To: <1140111257.21681.26.camel@localhost.localdomain>
-References: <20060216094130.GA29716@elte.hu>
-	<1140107585.21681.18.camel@localhost.localdomain>
-	<20060216172435.GC29151@elte.hu>
-	<1140111257.21681.26.camel@localhost.localdomain>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20060216202357.GA21415@elte.hu>
+Message-ID: <Pine.LNX.4.64.0602161229390.30911@dhcp153.mvista.com>
+References: <20060216094130.GA29716@elte.hu> <1140107585.21681.18.camel@localhost.localdomain>
+ <20060216172435.GC29151@elte.hu> <1140111257.21681.26.camel@localhost.localdomain>
+ <20060216202357.GA21415@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel wrote:
-> "on the surface" you could manipulate the futex_offset to
-> access memory unrelated to the futex structure .
 
-If a piece of malicious code has wormed its way far enough into my
-application to be manipulating this list, then I don't think that code
-will gain any further advantage by manpulating this list.  I think my
-application is already powned.
+On Thu, 16 Feb 2006, Ingo Molnar wrote:
+> and? You can 'manipulate' arbitrary userspace memory, be that used by
+> the kernel or not, and you can do a sys_futex(FUTEX_WAKE) on any
+> arbitrary userspace memory address too (this is a core property of
+> futexes). You must have meant something specific when you said "on the
+> surface looks like a malicious users dream variable". In other words:
+> please move your statement out of innuendo by backing it up with
+> specifics (or by retracting it) - right now it's hanging in the air :)
 
-That malicious code would have no need to have the kernel futext handling
-code do its dirty work indirectly via manipulations of this list.  It can
-just do the dirty work directly.
 
-All Ingo needs to insure is that the kernel will assume no more
-priviledge when reading/writing this list than the current task had,
-from user space, reading/writing this list.
+ 	Sorry I didn't mean to leave something hanging out there. I was 
+just making an observation. The 'dream variable' comment was maybe a little 
+to much and I'll gladly retract that .. I'll replace it with , I think the 
+code needs more review in that area ..
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Daniel

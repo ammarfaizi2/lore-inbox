@@ -1,108 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbWBPTjA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbWBPTj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964886AbWBPTjA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 14:39:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWBPTjA
+	id S964882AbWBPTj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 14:39:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWBPTj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 14:39:00 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:3202 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964882AbWBPTi7 (ORCPT
+	Thu, 16 Feb 2006 14:39:56 -0500
+Received: from mail-a02.ithnet.com ([217.64.83.97]:65182 "HELO ithnet.com")
+	by vger.kernel.org with SMTP id S964882AbWBPTjz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 14:38:59 -0500
-Subject: Re: (pspace,pid) vs true pid virtualization
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
-       linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-In-Reply-To: <20060216191245.GA28223@MAIL.13thfloor.at>
-References: <20060215145942.GA9274@sergelap.austin.ibm.com>
-	 <m11wy4s24i.fsf@ebiederm.dsl.xmission.com>
-	 <20060216143030.GA27585@MAIL.13thfloor.at>
-	 <1140111692.21383.2.camel@localhost.localdomain>
-	 <20060216191245.GA28223@MAIL.13thfloor.at>
-Content-Type: text/plain
-Date: Thu, 16 Feb 2006 11:38:13 -0800
-Message-Id: <1140118693.21383.18.camel@localhost.localdomain>
+	Thu, 16 Feb 2006 14:39:55 -0500
+X-Sender-Authentication: net64
+Date: Thu, 16 Feb 2006 20:39:48 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Severe problem with e1000 driver in 2.4.31/32 (at least)
+Message-Id: <20060216203948.5953a1e9.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-16 at 20:12 +0100, Herbert Poetzl wrote:
-> On Thu, Feb 16, 2006 at 09:41:32AM -0800, Dave Hansen wrote:
-> > Giving admin processes the ability to enter pid spaces seems like it
-> > solves an entire class of problems, right?. 
-> 
-> really depends on the situation and the setup.
-> let me give a few examples here (I'll assume
-> fully blown guests not just pid spaces here)
-> 
->  - guest is running some kind of resource hog, 
->    which already reached the given guest limits
-> 
->    any attempt to enter the guest will fail
->    because the limits do not permit that
-> 
->  - the guest has been suspended (unscheduled)
->    because of some fork bomb running inside
->    and you want to kill off only the bomb
-> 
->    entering the guest would immediately stop
->    your process, so no way to send signals
-> 
->  - there is a pid killer running inside the
->    guest, which kills every newly created
->    process as soon as it is discovered
-> 
->    entering the guest would kill your shell
+Hello,
 
-Brainstorming ... what do you think about having a special init process
-inside the child to act as a proxy of sorts?  It is controlled by the
-parent vserver/container, and would not be subject to resource limits.
-It would not necessarily need to fork in order to kill other processes
-inside the vserver (not subject to resource limits).  It could also
-continue when the rest of the guest was suspended.
+today we had to experience a bug in e1000 network driver on this type of
+network card (a current PCI e1000 sold everywhere):
 
-A pid killer would be ineffective against such a process because you
-can't kill init.  
+02:07.0 Ethernet controller: Intel Corp.: Unknown device 107c (rev 05)
+        Subsystem: Intel Corp.: Unknown device 1376
+        Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 18
+        Memory at f9000000 (32-bit, non-prefetchable) [size=128K]
+        Memory at f9020000 (32-bit, non-prefetchable) [size=128K]
+        I/O ports at a800 [size=64]
+        Expansion ROM at <unassigned> [disabled] [size=128K]
+        Capabilities: [dc] Power Management version 2
+        Capabilities: [e4] PCI-X non-bridge device.
 
-> > Could you explain a bit what kinds of security issues it introduces?
-> 
-> well, it introduces a bunch of issues, not all
-> directly security related, here some of them:
-> (I keep them general because most of them can
-> be worked around by additional checks and flags)
-> 
->  - ptrace from inside the context could hijack
->    your 'admin' task and use it for all kind
->    of evil stuff
+We can simply crash the box (2.4.32 stock kernel, 2.4.31 is the same) by
+performing this:
 
-You can't ptrace init, right?
+1) Boot box with network physically disconnected
+2) start pinging some host somewhere, you get "unreachable", let it run
+3) connect the network and await some ping replies.
+4) disconnect the network again
+5) box is dead
 
-> In general, I prefer to think of this as working 
-> with nuclear material via an actuator from behind 
-> a 4" lead wall -- you just do not want to go in 
-> to fix things :)
+The box runs into a BUG in e1000_hw.c line 5052. The BUG shows up because the
+code is obviously executed inside an interrupt, which seems not intended.
+As this BUG is always reproducable and pretty annoying we made this pretty bad
+workaround:
 
-Where does that lead you?  Having a single global pid space which the
-admin can see?  Or, does a special set of system calls do it well
-enough?
+In e1000_osdep.h replace:
 
--- Dave
+#define msec_delay(x)   do { if(in_interrupt()) { \
+                                /* Don't mdelay in interrupt context! */ \
+                                BUG(); \
+                        } else { \
+                                set_current_state(TASK_UNINTERRUPTIBLE); \
+                                schedule_timeout((x * HZ)/1000 + 2); \
+                        } } while(0)
 
+with
+
+#define msec_delay(x)   do { if(in_interrupt()) { \
+                                /* Don't mdelay in interrupt context! */ \
+                                mdelay(x); \
+                        } else { \
+                                set_current_state(TASK_UNINTERRUPTIBLE); \
+                                schedule_timeout((x * HZ)/1000 + 2); \
+                        } } while(0)
+
+
+Obviously this is not a solution, but it saves the world at least. This is why
+I offer no applyable patch.
+
+Someone with inside knowledge of this driver should take a look why
+e1000_config_dsp_after_link_change in e1000_hw.c is executed in interrupt
+context. Btw I don't know if this shows up in 2.6 either.
+
+-- 
+Regards,
+Stephan

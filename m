@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWBPMBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030336AbWBPMHZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932254AbWBPMBd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 07:01:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWBPMBd
+	id S1030336AbWBPMHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 07:07:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030296AbWBPMHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 07:01:33 -0500
-Received: from mail.gmx.net ([213.165.64.21]:45787 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932254AbWBPMBc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 07:01:32 -0500
-X-Authenticated: #428038
-Date: Thu, 16 Feb 2006 13:01:29 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Greg KH <greg@kroah.com>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060216120129.GA8878@merlin.emma.line.org>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <43D7C1DF.1070606@gmx.de> <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com> <20060210235654.GA22512@kroah.com> <43F0891E.nailKUSCGC52G@burner> <871wy6sy7y.fsf@hades.wkstn.nix> <43F1BE96.nailMY212M61V@burner> <20060214223001.GB357@kroah.com> <20060215004320.GB21742@merlin.emma.line.org> <20060215052051.GA22240@kroah.com>
+	Thu, 16 Feb 2006 07:07:25 -0500
+Received: from wscnet.wsc.cz ([212.80.64.118]:54918 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S932271AbWBPMHZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 07:07:25 -0500
+Message-ID: <43F46AF4.5090007@liberouter.org>
+Date: Thu, 16 Feb 2006 13:06:53 +0059
+From: Jiri Slaby <slaby@liberouter.org>
+User-Agent: Mail/News 1.5 (X11/20060103)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060215052051.GA22240@kroah.com>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+To: Conio sandiago <coniodiago@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: configure local printer
+References: <993d182d0602160351h454cf23dj9f5454c9eca98ef@mail.gmail.com>
+In-Reply-To: <993d182d0602160351h454cf23dj9f5454c9eca98ef@mail.gmail.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Feb 2006, Greg KH wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > And that is the key problem. magazine here, conference there, talk
-> > (perhaps only slides available) somewhere else -- a manual that was in
-> > /usr/src/linux/Documentation might make a real difference. Even a
-> > commented link list in Documentation/* might be a good starting point.
-> > 
-> > Patrick Mochel added some bits three years ago, but they were internals
-> > and thus a bit less interesting.
-> 
-> What would be "interesting"?  The sysfs and driver model chapter of the
-> Linux Device Driver book from Oreilly, third edition?  Or something
-> oriented toward users of sysfs, not developers using it?
+Conio sandiago wrote:
+> Now i want to print a jpeg image
+> can anyone please let me know
+> how to do this
+Not a kernel question, try find a better place.
 
-Integrating documentation with the kernel. Documentation/* is constantly
-out of date and incomplete, and sometimes has non-intuitive names.
+regards,
+- --
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
--- 
-Matthias Andree
+iD8DBQFD9Gr0MsxVwznUen4RAs9yAJ9gmcoqSgfTOc0iQtt1DcqMTq4VeQCfeFLu
+MvCiE2yH0k5wbgznnfQQbZM=
+=F8Nf
+-----END PGP SIGNATURE-----

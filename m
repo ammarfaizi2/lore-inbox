@@ -1,66 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbWBPEwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbWBPFOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932464AbWBPEwy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 23:52:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWBPEwy
+	id S932476AbWBPFOH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 00:14:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWBPFOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 23:52:54 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:28843 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932464AbWBPEwx (ORCPT
+	Thu, 16 Feb 2006 00:14:07 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:28106 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932476AbWBPFOF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 23:52:53 -0500
-Date: Wed, 15 Feb 2006 20:51:40 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: selhorst@crypto.rub.de, linux-kernel@vger.kernel.org,
-       castet.matthieu@free.fr, kjhall@us.ibm.com
-Subject: Re: [PATCH] Infineon TPM: IO-port leakage fix, WTX-bugfix
-Message-Id: <20060215205140.46819b18.akpm@osdl.org>
-In-Reply-To: <20060215203929.52ac2197.rdunlap@xenotime.net>
-References: <43F33013.4020305@crypto.rub.de>
-	<20060215203929.52ac2197.rdunlap@xenotime.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 16 Feb 2006 00:14:05 -0500
+Date: Thu, 16 Feb 2006 10:48:45 +0530
+From: Bharata B Rao <bharata@in.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Christoph Lameter <clameter@engr.sgi.com>,
+       Ray Bryant <raybry@mpdtxmail.amd.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [discuss] mmap, mbind and write to mmap'ed memory crashes 2.6.16-rc1[2] on 2 node X86_64
+Message-ID: <20060216051845.GA2968@in.ibm.com>
+Reply-To: bharata@in.ibm.com
+References: <20060205163618.GB21972@in.ibm.com> <20060215054620.GA2966@in.ibm.com> <20060215103813.GD2966@in.ibm.com> <200602151221.53730.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602151221.53730.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
->
-> On Wed, 15 Feb 2006 14:43:47 +0100 Marcel Selhorst wrote:
+On Wed, Feb 15, 2006 at 12:21:53PM +0100, Andi Kleen wrote:
+> On Wednesday 15 February 2006 11:38, Bharata B Rao wrote:
 > 
-> > Dear all,
 > > 
-> > this patch fixes IO-port leakage from request_region in case of error during TPM
-> > initialization, adds more pnp-verification and fixes a WTX-bug.
-> > 
-> > Best regards,
-> > Marcel Selhorst
-> > 
-> > Signed-off-by: Marcel Selhorst <selhorst@crypto.rub.de>
-> > ---
-> > 
-> > --- linux-2.6.16-rc2/drivers/char/tpm/tpm_infineon.c.old	2006-02-08
-> > 11:45:09.000000000 +0100
+> > Even with this, mbind still needs to be fixed. Even though it
+> > can't get a conforming zone in the node (MPOL_BIND case),
 > 
-> Those 2 lines ^^^^^ should have been one line.  Email client strikes again.
-
-Curiously patch(1) didn't care about that.
-
-> > +
-> > +err_release_region:
-> > +release_region(tpm_inf.base, TPM_INF_PORT_LEN);
-> > +release_region(TPM_INF_ADDR, TPM_INF_ADDR_LEN);
-> > +
-> > +err_last:
-> > +return rc;
-> >  }
+> It should just use lower zones then (e.g. if no ZONE_NORMAL
+> use ZONE_DMA32). yes that needs to be fixed.
 > 
-> The release_region() calls and return should be indented one tab stop.
+> How about the appended patch? Does it fix the problem for you?
+> 
 
-Yeah, I fixed that up.
+Yes, this fixes the problem. The kernel and the application
+don't crash now with this patch.
 
-> (email client again??)
-
-I doubt it.
+Regards,
+Bharata.

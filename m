@@ -1,54 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWBPQMT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWBPQLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932308AbWBPQMT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 11:12:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWBPQMS
+	id S932307AbWBPQLl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 11:11:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWBPQLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 11:12:18 -0500
-Received: from mail.tmr.com ([64.65.253.246]:57753 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S932308AbWBPQMS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 11:12:18 -0500
-Message-ID: <43F4A533.1040900@tmr.com>
-Date: Thu, 16 Feb 2006 11:15:47 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Thu, 16 Feb 2006 11:11:41 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:55722 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S932307AbWBPQLk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 11:11:40 -0500
+Message-ID: <43F4A432.8070308@cosmosbay.com>
+Date: Thu, 16 Feb 2006 17:11:30 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Albert Cahalan <acahalan@gmail.com>, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>	 <43D7A7F4.nailDE92K7TJI@burner>	 <787b0d920601251826l6a2491ccy48d22d33d1e2d3e7@mail.gmail.com>	 <43D8D396.nailE2X31OHFU@burner>	 <787b0d920601261619l43bb95f5k64ddd338f377e56a@mail.gmail.com>	 <43DE8A06.9010800@tmr.com> <1138659135.16102.30.camel@mindpipe>
-In-Reply-To: <1138659135.16102.30.camel@mindpipe>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: dipankar@in.ibm.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] Fix file counting
+References: <20060216153301.GA1352@in.ibm.com>
+In-Reply-To: <20060216153301.GA1352@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 16 Feb 2006 17:11:30 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
+Dipankar Sarma a écrit :
+> Eric,
+> 
+> Going by your patch, I converted my nr-files patch to use
+> percpu counters - except that I just used the existing
+> percpu counter code. This patch is untested, just for comments.
+> If you agree with the approach, we can go with it. I will
+> get some benchmark numbers measured on a 16-CPU box.
+> 
+> Thanks
+> Dipankar
+> 
+> 
+> 
+> The way we do file struct accounting is not very suitable for batched
+> freeing. For scalability reasons, file accounting was constructor/destructor
+> based. This meant that nr_files was decremented only when
+> the object was removed from the slab cache. This is
+> susceptible to slab fragmentation. With RCU based file structure,
+> consequent batched freeing and a test program like Serge's,
+> we just speed this up and end up with a very fragmented slab -
+> 
+> llm22:~ # cat /proc/sys/fs/file-nr
+> 587730  0       758844
+> 
+> At the same time, I see only a 2000+ objects in filp cache.
+> The following patch I fixes this problem. 
+> 
+> This patch changes the file counting by removing the filp_count_lock.
+> Instead we use a separate percpu counter, nr_files, for now and all
+> accesses to it are through get_nr_files() api. In the sysctl
+> handler for nr_files, we populate files_stat.nr_files before returning
+> to user.
+> 
+> Counting files as an when they are created and destroyed (as opposed
+> to inside slab) allows us to correctly count open files with RCU.
+> 
+> Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+> ---
+> 
+> 
+> 
+> 
+>  fs/dcache.c          |    2 -
+>  fs/file_table.c      |   80 +++++++++++++++++++++++++++++++--------------------
+>  include/linux/file.h |    2 -
+>  include/linux/fs.h   |    2 +
+>  kernel/sysctl.c      |    5 ++-
+>  net/unix/af_unix.c   |    2 -
+>  6 files changed, 57 insertions(+), 36 deletions(-)
+> 
 
->On Mon, 2006-01-30 at 16:49 -0500, Bill Davidsen wrote:
->  
->
->>Look a year down the road, when we have have two (or more) new 25GB 
->>optical formats coming out, probably with new features and commands
->>and several vendors building drives for them. Both formats have DRM
->>stuff in them, and GPL 3 forbids implementing DRM (simplification). 
->>    
->>
->
->Who cares what GPL 3 says, the kernel is GPL2.
->
+Hi Dipankar
 
-Did you miss the subject? My reply was to a suggestion that cdrecord 
-(it's not the kernel!) be forked, and discussion of what license MIGHT 
-apply. I was making an information point about an application which is 
-very important to a lot of people.
+I believe your patch is good.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
+However there is a bug in get_empty_filp() :
 
+if security_file_alloc(f) returns TRUE : The goto fail_sec;  is done and 
+fail_sec: does a file_free(f)
+
+This means an extra percpu_counter_mod(&nr_files, -1L); will be done.
+
+So I think you must apply this patch too :
+
+  fail_sec:
+-	file_free(f);
++	kmem_cache_free(filp_cachep, f);
+  fail:
+  	return NULL;
+
+
+(Ie no need for a delayed free done via rcu here, just a direct 
+kmem_cache_free() call)
+
+Eric

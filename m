@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWBPD3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWBPDaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932090AbWBPD3n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 22:29:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWBPD3m
+	id S932154AbWBPDaK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 22:30:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWBPDaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 22:29:42 -0500
-Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:49504 "HELO
-	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932090AbWBPD3m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 22:29:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=2x45OvdYED6BqV8N75RamlhbYoUMIJMIiPOBxQaO8JviFjUfj7lTejooOAdi5Tx3M5AJ18K9FET2AUyuD8mCuv6kDPX+IikHnLUsg//unVuyBWNUeEaW1w69bjeCXybkgZNoch/dp5t2X4kLEnVGmIyi2c5/BCQyaWHWcetiERw=  ;
-Message-ID: <43F3F187.4040404@yahoo.com.au>
-Date: Thu, 16 Feb 2006 14:29:11 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 15 Feb 2006 22:30:10 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:43671 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932154AbWBPDaI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 22:30:08 -0500
+Date: Wed, 15 Feb 2006 19:30:03 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Paul Mackerras <paulus@samba.org>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       johnstul@us.ibm.com
+Subject: Re: [PATCH] Provide an interface for getting the current tick length
+In-Reply-To: <17395.59762.126398.423546@cargo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.64.0602151926590.916@g5.osdl.org>
+References: <17395.53939.795908.336324@cargo.ozlabs.ibm.com>
+ <20060215173545.43a7412d.akpm@osdl.org> <17395.56186.238204.312647@cargo.ozlabs.ibm.com>
+ <20060215180848.4556e501.akpm@osdl.org> <17395.59762.126398.423546@cargo.ozlabs.ibm.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, rmk+lkml@arm.linux.org.uk,
-       Ingo Molnar <mingo@elte.hu>, frankeh@watson.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SMP BUG
-References: <43F12207.9010507@watson.ibm.com> <20060215230701.GD1508@flint.arm.linux.org.uk> <Pine.LNX.4.64.0602151521320.22082@g5.osdl.org> <20060215153013.474ff5e0.akpm@osdl.org> <Pine.LNX.4.64.0602151647260.22082@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0602151647260.22082@g5.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
 
-> So I like Rik's patch, but I don't feel _too_ strongly about it. The 
-> people who actually work on the scheduler should be the ones to sign off 
-> (or not) on it.
+
+On Thu, 16 Feb 2006, Paul Mackerras wrote:
 > 
+> We could share the code that computes time_adjust_step, i.e. this
+> much:
+> 
+> 	if ((time_adjust_step = time_adjust) != 0) {
 
-I thought it looked fine. As you say, the scheduler can't work (and
-will blow up) if init_idle() isn't called before it is used.
+And while at it, please make it much more readable by writing it as
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+	time_adjust_step = time_adjust;
+	if (time_adjust_step) {
+		..
+
+which is even less to type (no "!= 0", no extra parenthesis, just a 
+";<nl><tab>", and you've saved a whopping three bytes of source code while 
+making the end result more readable, and the compiler will generate the 
+same thing.
+
+Assignments inside tests should probably be relegated entirely to loop 
+constructs, where doing them outside the test changes semantics.
+
+			Linus

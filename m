@@ -1,53 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWBPRKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWBPRMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbWBPRKd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 12:10:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWBPRKd
+	id S932331AbWBPRMx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 12:12:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbWBPRMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 12:10:33 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:26484 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S932096AbWBPRKc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 12:10:32 -0500
-Message-ID: <43F4B1C9.9070002@cfl.rr.com>
-Date: Thu, 16 Feb 2006 12:09:29 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Seewer Philippe <philippe.seewer@bfh.ch>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: disk geometry via sysfs
-References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com> <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com> <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com> <43F2E8BA.90001@bfh.ch> <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com> <11 <Pine.LNX.4.61.0602161125580.23082@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0602161125580.23082@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Feb 2006 17:11:28.0929 (UTC) FILETIME=[0696E110:01C6331C]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14271.000
-X-TM-AS-Result: No--8.200000-5.000000-31
+	Thu, 16 Feb 2006 12:12:53 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26122 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932331AbWBPRMw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 12:12:52 -0500
+Date: Thu, 16 Feb 2006 17:12:00 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>, "Brown, Len" <len.brown@intel.com>,
+       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net,
+       "Yu, Luming" <luming.yu@intel.com>, Ben Castricum <lk@bencastricum.nl>,
+       sanjoy@mrao.cam.ac.uk, Helge Hafting <helgehaf@aitel.hist.no>,
+       "Carlo E. Prelz" <fluido@fluido.as>,
+       Gerrit Bruchh?user <gbruchhaeuser@gmx.de>, Nicolas.Mailhot@LaPoste.net,
+       Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>,
+       Patrizio Bassi <patrizio.bassi@gmail.com>,
+       Bj?rn Nilsson <bni.swe@gmail.com>, Andrey Borzenkov <arvidjaar@mail.ru>,
+       "P. Christeas" <p_christ@hol.gr>, ghrt <ghrt@dial.kappa.ro>,
+       jinhong hu <jinhong.hu@gmail.com>,
+       Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-scsi@vger.kernel.org,
+       Benjamin LaHaise <bcrl@kvack.org>
+Subject: Re: Linux 2.6.16-rc3
+Message-ID: <20060216171200.GD29443@flint.arm.linux.org.uk>
+Mail-Followup-To: James Bottomley <James.Bottomley@SteelEye.com>,
+	Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+	Jens Axboe <axboe@suse.de>, "Brown, Len" <len.brown@intel.com>,
+	"David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
+	linux-usb-devel@lists.sourceforge.net,
+	"Yu, Luming" <luming.yu@intel.com>,
+	Ben Castricum <lk@bencastricum.nl>, sanjoy@mrao.cam.ac.uk,
+	Helge Hafting <helgehaf@aitel.hist.no>,
+	"Carlo E. Prelz" <fluido@fluido.as>,
+	Gerrit Bruchh?user <gbruchhaeuser@gmx.de>,
+	Nicolas.Mailhot@LaPoste.net, Jaroslav Kysela <perex@suse.cz>,
+	Takashi Iwai <tiwai@suse.de>,
+	Patrizio Bassi <patrizio.bassi@gmail.com>,
+	Bj?rn Nilsson <bni.swe@gmail.com>,
+	Andrey Borzenkov <arvidjaar@mail.ru>,
+	"P. Christeas" <p_christ@hol.gr>, ghrt <ghrt@dial.kappa.ro>,
+	jinhong hu <jinhong.hu@gmail.com>,
+	Andrew Vasquez <andrew.vasquez@qlogic.com>,
+	linux-scsi@vger.kernel.org, Benjamin LaHaise <bcrl@kvack.org>
+References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org> <20060212190520.244fcaec.akpm@osdl.org> <20060213203800.GC22441@kroah.com> <1139934883.14115.4.camel@mulgrave.il.steeleye.com> <1140054960.3037.5.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1140054960.3037.5.camel@mulgrave.il.steeleye.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
-> I read it, and it's wrong. You don't bother to learn. I will
-> take one last hack at this and then drop it.
+On Wed, Feb 15, 2006 at 08:56:00PM -0500, James Bottomley wrote:
+> On Tue, 2006-02-14 at 10:34 -0600, James Bottomley wrote:
+> > Well, I can't solve the problem that it requires memory allocation from
+> > IRQ context to operate.  Based on that, it's an unsafe interface.  I'm
+> > going to put it inside SCSI for 2.6.16, since it's better than what we
+> > have now, but I don't think we can export it globally.
 > 
-> When a disk is first accessed, the BIOS reads the disk capacity.
-> That's all. This disk capacity is in 512-byte things called "sectors".
+> OK, this is what I'm proposing as the device model fix.  What it does is
+> thread context checking APIs throughout the device subsystem.  SCSI can
+> then use it simply via device_put_process_context().  Since we have to
+> supply the kref_work; I'd plan to do that as an additional element in
+> struct scsi_device.
 > 
+> This, by itself, won't solve the SCSI target problem, but I plan to fix
+> that via a device model addition which would have target alloc waiting
+> around for any deleted targets to disappear.
+> 
+> Since this is planned for post 2.6.16, we have plenty of time to argue
+> about it.
 
-You don't bother to mention HOW it is wrong, so it appears it is you who 
-fail to learn.  I will attempt once more to explain.  When you call int 
-13 and ask it for C = 3, H = 4, S = 5, exactly which sector you get 
-depends very much on what the bios thinks the geometry of the disk is, 
-because the bios will translate 3/4/5 into a completely different value 
-before sending it to the drive.  That translation is dependent entirely 
-on which fake geometry the bios chooses to report the disk has.
+This is probably an idiotic question, but if there's something in the
+scsi release handler can't be called in non-process context, why can't
+scsi queue up the release processing via the work API itself, rather
+than having to have this additional code and complexity for everyone?
 
-I illustrated this translation and you simply say it is wrong.  If that 
-is the case then show how.
-
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

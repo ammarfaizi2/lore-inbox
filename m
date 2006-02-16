@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWBPPzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWBPQJ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932145AbWBPPzH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 10:55:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWBPPzH
+	id S932304AbWBPQJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 11:09:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWBPQJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 10:55:07 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:12442 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932145AbWBPPzF (ORCPT
+	Thu, 16 Feb 2006 11:09:29 -0500
+Received: from mo01.iij4u.or.jp ([210.130.0.20]:21733 "EHLO mo01.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S932304AbWBPQJ3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 10:55:05 -0500
-Date: Thu, 16 Feb 2006 07:54:43 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Hubertus Franke <frankeh@watson.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: SMP BUG
-In-Reply-To: <20060216102056.GA24741@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0602160752290.916@g5.osdl.org>
-References: <43F12207.9010507@watson.ibm.com> <20060215230701.GD1508@flint.arm.linux.org.uk>
- <Pine.LNX.4.64.0602151521320.22082@g5.osdl.org> <20060216102056.GA24741@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Feb 2006 11:09:29 -0500
+Date: Fri, 17 Feb 2006 01:09:19 +0900 (JST)
+Message-Id: <20060217.010919.121148551.toriatama@inter7.jp>
+To: paulkf@microgate.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PPP with PCMCIA modem stalls on 2.6.10 or later
+From: Kouji Toriatama <toriatama@inter7.jp>
+In-Reply-To: <1140019368.3119.12.camel@amdx2.microgate.com>
+References: <1139937159.3189.4.camel@amdx2.microgate.com>
+	<20060215.221135.121135595.toriatama@inter7.jp>
+	<1140019368.3119.12.camel@amdx2.microgate.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul Fulghum <paulkf@microgate.com> wrote:
+  > Try the following patch, and report the syslog output.
+  > 
+  > This may be lost receive data due to full flip buffer.
+  > 2.6.9 would try processing rx data in the ISR if the
+  > flip buffer was full. This violated locking requirements
+  > and was changed to only process rx data in scheduled work.
+  > This can slow the processing of data.
+
+I have tried your patch.  The following is a part of syslog
+output.
+------------------------------------------------------------------
+Feb 16 23:52:40 moka kernel: receive_chars:flip full:low_latency=0
+Feb 16 23:52:40 moka kernel: receive_chars:flip full:discard char
+------------------------------------------------------------------
+I have got this pair of two lines many times while running the
+wget command.
 
 
-On Thu, 16 Feb 2006, Russell King wrote:
-> 
-> It fixes that exact oops but only by preventing us getting that far
-> due to another oops.
+  > Also try using the setserial utility to set
+  > the 'low_latency' option for the device. That should
+  > operate the same as 2.6.9 (which can be dangerous).
 
-Thanks for walking through it.
+With 'low_latency' option in 2.6.15 with your patch, the problem
+did not occur and no output from syslog.
 
-> We call cpu_up, which sends a CPU_UP_PREPARE event.  This causes the
-> migration thread to be spawned, and rq->migration_thread to be set.
-> 
-> Eventually, we call the architecture __cpu_up(), which ends up
-> calling init_idle().  Due to this patch, init_idle() then NULLs out
-> rq->migration_thread.
 
-Fair enough.
+  > The improved flip buffering code in 2.6.16-rc3
+  > should also prevent any loss of data. If possible,
+  > try 2.6.16-rc3.
 
-That actually does point to a real bug, I think. The fact that we 
-apparently now survive the fact that we spawn the migration thread before 
-the idle thread works looks like it just hides the bug that we shouldn't 
-do that. Ingo?
+I have tried 2.6.16-rc3.  With or without 'low_latency' option,
+the problem did not occur.  It seems to work fine!  I will use
+2.6.16-rc3 or later.
 
-Oh, well. For now the fix is clearly to just leave things well alone, and 
-just have cpu_possible_map initialized early enough.
+If you have any additional plan to pin down this problem, I will
+try your patch.
 
-		Linus
+
+Thank you for your help,
+Kouji Toriatama

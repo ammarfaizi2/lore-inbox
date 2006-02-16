@@ -1,69 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWBPRi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbWBPRmZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751387AbWBPRi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 12:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWBPRi1
+	id S1751388AbWBPRmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 12:42:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWBPRmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 12:38:27 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:31874 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751387AbWBPRi0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 12:38:26 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <43F4B796.1010701@s5r6.in-berlin.de>
-Date: Thu, 16 Feb 2006 18:34:14 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: James Bottomley <James.Bottomley@SteelEye.com>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
-       "Brown, Len" <len.brown@intel.com>,
-       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net,
-       "Yu, Luming" <luming.yu@intel.com>, Ben Castricum <lk@bencastricum.nl>,
-       sanjoy@mrao.cam.ac.uk, Helge Hafting <helgehaf@aitel.hist.no>,
-       "Carlo E. Prelz" <fluido@fluido.as>,
-       Gerrit Bruchh?user <gbruchhaeuser@gmx.de>, Nicolas.Mailhot@LaPoste.net,
-       Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>,
-       Patrizio Bassi <patrizio.bassi@gmail.com>,
-       Bj?rn Nilsson <bni.swe@gmail.com>, Andrey Borzenkov <arvidjaar@mail.ru>,
-       "P. Christeas" <p_christ@hol.gr>, ghrt <ghrt@dial.kappa.ro>,
-       jinhong hu <jinhong.hu@gmail.com>,
-       Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-scsi@vger.kernel.org,
-       Benjamin LaHaise <bcrl@kvack.org>
-Subject: Re: Linux 2.6.16-rc3
-References: <Pine.LNX.4.64.0602121709240.3691@g5.osdl.org> <20060212190520.244fcaec.akpm@osdl.org> <20060213203800.GC22441@kroah.com> <1139934883.14115.4.camel@mulgrave.il.steeleye.com> <1140054960.3037.5.camel@mulgrave.il.steeleye.com> <20060216171200.GD29443@flint.arm.linux.org.uk>
-In-Reply-To: <20060216171200.GD29443@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 16 Feb 2006 12:42:25 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:7623 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751388AbWBPRmZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 12:42:25 -0500
+Subject: Re: (pspace,pid) vs true pid virtualization
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
+       linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+In-Reply-To: <20060216143030.GA27585@MAIL.13thfloor.at>
+References: <20060215145942.GA9274@sergelap.austin.ibm.com>
+	 <m11wy4s24i.fsf@ebiederm.dsl.xmission.com>
+	 <20060216143030.GA27585@MAIL.13thfloor.at>
+Content-Type: text/plain
+Date: Thu, 16 Feb 2006 09:41:32 -0800
+Message-Id: <1140111692.21383.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: (0.59) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Wed, Feb 15, 2006 at 08:56:00PM -0500, James Bottomley wrote:
-[...]
->>OK, this is what I'm proposing as the device model fix.  What it does is
->>thread context checking APIs throughout the device subsystem.  SCSI can
->>then use it simply via device_put_process_context().
-[...]
->>Since this is planned for post 2.6.16, we have plenty of time to argue
->>about it.
+On Thu, 2006-02-16 at 15:30 +0100, Herbert Poetzl wrote:
+> > - Should a process have some sort of global (on the machine identifier)?
 > 
-> This is probably an idiotic question, but if there's something in the
-> scsi release handler can't be called in non-process context, why can't
-> scsi queue up the release processing via the work API itself, rather
-> than having to have this additional code and complexity for everyone?
+> this is mandatory, as it is required to kill any process
+> from the host (admin) context, without entering the pid
+> space (which would lead to all kind of security issues) 
 
-Moreover, why are SCSI release handlers called in non-process context in 
-the first place? IMO the fix should be to make sure that SCSI release 
-handlers are always called from process context --- by the respective 
-layers which manage physical devices, i.e. one or more layers beneath 
-SCSI core.
--- 
-Stefan Richter
--=====-=-==- --=- =----
-http://arcgraph.de/sr/
+Giving admin processes the ability to enter pid spaces seems like it
+solves an entire class of problems, right?.  Could you explain a bit
+what kinds of security issues it introduces?
+
+-- Dave
+

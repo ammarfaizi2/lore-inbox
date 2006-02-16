@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbWBPHQM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932487AbWBPHSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932488AbWBPHQM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 02:16:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWBPHQM
+	id S932487AbWBPHSV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 02:18:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWBPHSV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 02:16:12 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:20636 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932488AbWBPHQL
+	Thu, 16 Feb 2006 02:18:21 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:40604 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932487AbWBPHSU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 02:16:11 -0500
-Date: Thu, 16 Feb 2006 08:15:58 +0100
+	Thu, 16 Feb 2006 02:18:20 -0500
+Date: Thu, 16 Feb 2006 08:18:08 +0100
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, linux-kernel@vger.kernel.org
-Subject: [patch 1/4] s390: ccw device disbanding
-Message-ID: <20060216071558.GD9241@osiris.boeblingen.de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Nathan Lynch <nathanl@austin.ibm.com>,
+       Joel Schopp <jschopp@austin.ibm.com>, Ingo Molnar <mingo@elte.hu>
+Subject: [patch 2/4] s390: fix preempt_count of idle thread with cpu hotplug
+Message-ID: <20060216071808.GE9241@osiris.boeblingen.de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,28 +23,32 @@ User-Agent: mutt-ng/devel-r781 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-If __ccw_device_disband_start() fails to initiate disbanding, it should finish
-with ccw_device_disband_done() (which leaves the device in offline state)
-instead of ccw_device_verify_done() (which leaves the device in online state).
+Set preempt_count of idle_thread to zero before switching off cpu.
+Otherwise the preempt_count will be wrong if the cpu is switched on again
+since the thread will be reused.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
 
- drivers/s390/cio/device_pgid.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Looks to me like at least powerpc seems to have the same problem.
 
-diff -urpN linux-2.6/drivers/s390/cio/device_pgid.c linux-2.6-patched/drivers/s390/cio/device_pgid.c
---- linux-2.6/drivers/s390/cio/device_pgid.c	2006-02-16 07:29:50.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/cio/device_pgid.c	2006-02-16 07:30:05.000000000 +0100
-@@ -405,7 +405,7 @@ __ccw_device_disband_start(struct ccw_de
- 		cdev->private->iretry = 5;
- 		cdev->private->imask >>= 1;
- 	}
--	ccw_device_verify_done(cdev, (sch->lpm != 0) ? 0 : -ENODEV);
-+	ccw_device_disband_done(cdev, (sch->lpm != 0) ? 0 : -ENODEV);
- }
+ arch/s390/kernel/process.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletion(-)
+
+diff -urpN linux-2.6/arch/s390/kernel/process.c linux-2.6-patched/arch/s390/kernel/process.c
+--- linux-2.6/arch/s390/kernel/process.c	2006-02-16 07:29:46.000000000 +0100
++++ linux-2.6-patched/arch/s390/kernel/process.c	2006-02-16 07:30:06.000000000 +0100
+@@ -128,8 +128,10 @@ void default_idle(void)
+ 	__ctl_set_bit(8, 15);
  
- /*
+ #ifdef CONFIG_HOTPLUG_CPU
+-	if (cpu_is_offline(cpu))
++	if (cpu_is_offline(cpu)) {
++		preempt_enable_no_resched();
+ 		cpu_die();
++	}
+ #endif
+ 
+ 	local_mcck_disable();

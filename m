@@ -1,61 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbWBPLSa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWBPLas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751352AbWBPLSa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 06:18:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWBPLSa
+	id S1751365AbWBPLas (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 06:30:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWBPLar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 06:18:30 -0500
-Received: from ruault.com ([81.57.109.127]:2207 "EHLO ruault.com")
-	by vger.kernel.org with ESMTP id S1751352AbWBPLS3 (ORCPT
+	Thu, 16 Feb 2006 06:30:47 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:20620 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S1751365AbWBPLar (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 06:18:29 -0500
-Message-ID: <43F45F7A.8090606@ruault.com>
-Date: Thu, 16 Feb 2006 12:18:18 +0100
-From: Charles-Edouard Ruault <ce@ruault.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051018)
-X-Accept-Language: en-us, en
+	Thu, 16 Feb 2006 06:30:47 -0500
+From: Roger Leigh <rleigh@whinlatter.ukfsn.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       debian-powerpc@lists.debian.org
+Subject: Re: 2.6.16-rc2 powerpc timestamp skew
+References: <87pslspkj5.fsf@hardknott.home.whinlatter.ukfsn.org>
+	<1139779983.5247.39.camel@localhost.localdomain>
+	<87irrj85vp.fsf@hardknott.home.whinlatter.ukfsn.org>
+	<1139870065.5237.26.camel@localhost.localdomain>
+	<17394.48045.253033.885865@cargo.ozlabs.ibm.com>
+Date: Thu, 16 Feb 2006 11:30:37 +0000
+In-Reply-To: <17394.48045.253033.885865@cargo.ozlabs.ibm.com> (Paul
+	Mackerras's message of "Wed, 15 Feb 2006 16:27:09 +1100")
+Message-ID: <87y80bilr6.fsf@hardknott.home.whinlatter.ukfsn.org>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Folkert van Heusden <folkert@vanheusden.com>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] kernel 2.6.15.4: soft lockup detected on CPU#0!
-References: <43EF8388.10202@ruault.com>	<20060215185120.6c35eca2.akpm@osdl.org>	<43F44978.2050809@ruault.com>	<20060216103619.GI30182@vanheusden.com> <20060216024625.1b5dc77b.akpm@osdl.org>
-In-Reply-To: <20060216024625.1b5dc77b.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+--=-=-=
+Content-Transfer-Encoding: quoted-printable
 
->Folkert van Heusden <folkert@vanheusden.com> wrote:
->  
+Paul Mackerras <paulus@samba.org> writes:
+
+> Benjamin Herrenschmidt writes:
 >
->>I noticed that altough -i says using dma, that -d tells me it really is
->> off.
->>    
->>
+>> Ok, does not using NTP fixes it ?
 >
->Yup, `hdparm -i' tells you what the drive _can_ do, not what it's actually
->doing.
+> Try this patch.  With this the values from gettimeofday() or the VDSO
+> should stay exactly in sync with xtime even if NTP is adjusting the
+> clock.
 >
->  
->
-here's what i have:
+> This patch still has quite a few debugging printks in it, so it's not
+> final by any means.  I'll be interested to hear how it goes, and in
+> particular whether or not you see any "oops, time got ahead" messages.
 
-sudo /sbin/hdparm -d /dev/hdd
-/dev/hdd:
- using_dma    =  1 (on)
+Without your patch, the clock works perfectly when NTP is not in use,
+but when NTP is in use I get a large amount of skew (3 min) after
+about half an hour.
 
-sudo /sbin/hdparm -d /dev/hdc
-/dev/hdc:
- using_dma    =  1 (on)
+With your patch (tested against 2.6.16-rc3), there is no skew whether
+NTP is running or not, and the system has been up 90 mins so far.
+They two times appear to be the same.
 
-So it appears that both CDROM/DVDROM drives are using DMA, which
-confirms what i was thinking (since the traceback i have is not the same
-as the one Folker provided which clearly indicates that it happens
-during a pio operation ).
 
--- 
-Charles-Edouard Ruault
-GPG key Id E4D2B80C
+Regards,
+Roger
 
+=2D-=20
+Roger Leigh
+                Printing on GNU/Linux?  http://gutenprint.sourceforge.net/
+                Debian GNU/Linux        http://www.debian.org/
+                GPG Public Key: 0x25BFB848.  Please sign and encrypt your m=
+ail.
+
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBD9GJhVcFcaSW/uEgRAiAYAJ948nKcjhZlXZvBgc7Bu8xqBUqezQCgnHx2
+nJqNTMs+yzjEgFsfcfwYbI4=
+=YR/n
+-----END PGP SIGNATURE-----
+--=-=-=--

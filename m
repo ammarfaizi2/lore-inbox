@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030441AbWBPJtO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030413AbWBPKVJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030441AbWBPJtO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 04:49:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030584AbWBPJtO
+	id S1030413AbWBPKVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 05:21:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030454AbWBPKVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 04:49:14 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:21189 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030441AbWBPJtN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 04:49:13 -0500
-Date: Thu, 16 Feb 2006 10:47:31 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Cliff Wickman <cpw@sgi.com>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       george anzinger <george@mvista.com>
-Subject: Re: [RFC] sys_setrlimit() in 2.6.16
-Message-ID: <20060216094731.GA32676@elte.hu>
-References: <20060214222417.GA8479@sgi.com> <20060216005826.4afc87ae.akpm@osdl.org>
+	Thu, 16 Feb 2006 05:21:08 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59913 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030413AbWBPKVH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 05:21:07 -0500
+Date: Thu, 16 Feb 2006 10:20:56 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: SMP BUG
+Message-ID: <20060216102056.GA24741@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Hubertus Franke <frankeh@watson.ibm.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <43F12207.9010507@watson.ibm.com> <20060215230701.GD1508@flint.arm.linux.org.uk> <Pine.LNX.4.64.0602151521320.22082@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060216005826.4afc87ae.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <Pine.LNX.4.64.0602151521320.22082@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 15, 2006 at 03:23:02PM -0800, Linus Torvalds wrote:
+> Does this fix the ARM oops?
 
-* Andrew Morton <akpm@osdl.org> wrote:
+It fixes that exact oops but only by preventing us getting that far
+due to another oops.
 
-> This has to be considered a bug.  The spec certainly implies that a 
-> limit of zero should be honoured and, probably more importantly, 
-> that's how it works in 2.4.
-> 
-> Problem is, the code in there all assumes that an it_prof_expires of 
-> zero means "it was never set", and changing that (add a yes-it-has 
-> flag?) would be less than trivial.
-> 
-> So I think the path of least resistance here is to just convert the 
-> caller's zero seconds into one second.  That in fact gives the same 
-> behaviour as 2.4: you get whacked after one second or more CPU time.
-> 
-> (This is not a final patch - that revolting expression in 
-> sys_setrlimit() needs help first).
+We call cpu_up, which sends a CPU_UP_PREPARE event.  This causes the
+migration thread to be spawned, and rq->migration_thread to be set.
 
-your approach looks good to me. It doesnt make much sense anyway to have 
-a task whacked right after startup ... so adding a common-sense "the 
-user must have meant some really small value" thing doesnt look all that 
-wrong.
+Eventually, we call the architecture __cpu_up(), which ends up
+calling init_idle().  Due to this patch, init_idle() then NULLs out
+rq->migration_thread.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+Later, we send a CPU_ONLINE event, which then tries to do
+wake_up_process(rq->migration_thread) - resulting in a NULL pointer
+deref in try_to_wake_up().
 
-	Ingo
+Hence, with this patch, it looks like rq will be used prior to
+initialisation.  I could try commenting out the migration_thread
+initialisation to NULL, but I suspect that there may be other
+problems associated with this patch (eg, rq->migration_queue).
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

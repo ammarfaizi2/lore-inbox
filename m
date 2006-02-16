@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWBPFYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbWBPFml@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932177AbWBPFYU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 00:24:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWBPFYU
+	id S932480AbWBPFml (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 00:42:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWBPFml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 00:24:20 -0500
-Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:14958 "HELO
-	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932177AbWBPFYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 00:24:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=477PmId02NNZH9oFYhGoioC2jZMKQoK5/JHt7Wn1OsapZZB2YZNsjgWmIuDAMCFmCIhMMJSa4gzyKeSSNY+oibkYIaur11fsxspiMDqVJNOrF8/+zcMVnkrpJYEzNtLSto1iWdnPYciKHDGWVzEV76ubYFsQl2H7TQ9wZsiBXrQ=  ;
-Message-ID: <43F408B7.8080408@yahoo.com.au>
-Date: Thu, 16 Feb 2006 16:08:07 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: neilb@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Possibly bug in radix_tree_delete, and fix.
-References: <17395.58244.839605.685011@cse.unsw.edu.au>	<43F3EE8F.8060000@yahoo.com.au> <20060215195541.6a3acd67.akpm@osdl.org>
-In-Reply-To: <20060215195541.6a3acd67.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 16 Feb 2006 00:42:41 -0500
+Received: from [203.2.177.25] ([203.2.177.25]:41804 "EHLO pfeiffer.tusc.com.au")
+	by vger.kernel.org with ESMTP id S932477AbWBPFmk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 00:42:40 -0500
+Subject: Re: [PATCH 5/6] x25: Allow 32 bit socket ioctl in 64 bit kernel
+From: Shaun Pereira <spereira@tusc.com.au>
+Reply-To: spereira@tusc.com.au
+To: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>
+Cc: netdev <netdev@vger.kernel.org>,
+       linux-kenel <linux-kernel@vger.kernel.org>,
+       x25 maintainer <eis@baty.hanse.de>,
+       "David S. Miller" <davem@davemloft.net>, Arnd Bergmann <arnd@arndb.de>,
+       Andre Hendry <ahendry@tusc.com.au>
+In-Reply-To: <39e6f6c70602151435r5b965670oab580c75bbaee7ab@mail.gmail.com>
+References: <1140042162.8745.30.camel@spereira05.tusc.com.au>
+	 <39e6f6c70602151435r5b965670oab580c75bbaee7ab@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 16 Feb 2006 16:40:26 +1100
+Message-Id: <1140068426.4941.12.camel@spereira05.tusc.com.au>
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Thanks for that Aranaldo
 
->>Not sure why it didn't trigger Andrew's test suite, but I guess that's
->>something to add.
+I have corrected this so as to be compliant with OSI Network services
+for DTE facilities and rebuilt and retested the patches
+Corrected patches follow.
+
+
+
+On Wed, 2006-02-15 at 20:35 -0200, Arnaldo Carvalho de Melo wrote:
+> On 2/15/06, Shaun Pereira <spereira@tusc.com.au> wrote:
 > 
+> > +               switch (*p) {
+> > +                       case X25_FAC_CALLING_AE:
+> > +                               if (p[1] > 33)
+> > +                               break;
+> > +                               dte_facs->calling_len = p[2];
+> > +                               memcpy(dte_facs->calling_ae, &p[3], p[1] - 1);
+> > +                               *vc_fac_mask |= X25_MASK_CALLING_AE;
+> > +                               break;
 > 
-> Could you please do so?  And add in the previous enhancements you made?  I
-> was never able to sort out the patches you sent.  And test Neil's later
-> patch (which looks OK to me)?
+> Can this '33' magic number be replaced with a define or sizeof(something)?
 > 
+> - Arnaldo
 
-I will do so, give me a few minutes.
-
-I don't think the patches I sent before would look any different now
-(actually I'm quite sure I haven't made any new changes), so I'm not
-sure if there would be any point, would there?
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751376AbWBPDSa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWBPD3n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751376AbWBPDSa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 22:18:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWBPDSa
+	id S932090AbWBPD3n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 22:29:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWBPD3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 22:18:30 -0500
-Received: from ozlabs.org ([203.10.76.45]:25270 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751376AbWBPDS3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 22:18:29 -0500
+	Wed, 15 Feb 2006 22:29:42 -0500
+Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:49504 "HELO
+	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932090AbWBPD3m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 22:29:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=2x45OvdYED6BqV8N75RamlhbYoUMIJMIiPOBxQaO8JviFjUfj7lTejooOAdi5Tx3M5AJ18K9FET2AUyuD8mCuv6kDPX+IikHnLUsg//unVuyBWNUeEaW1w69bjeCXybkgZNoch/dp5t2X4kLEnVGmIyi2c5/BCQyaWHWcetiERw=  ;
+Message-ID: <43F3F187.4040404@yahoo.com.au>
+Date: Thu, 16 Feb 2006 14:29:11 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, rmk+lkml@arm.linux.org.uk,
+       Ingo Molnar <mingo@elte.hu>, frankeh@watson.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: SMP BUG
+References: <43F12207.9010507@watson.ibm.com> <20060215230701.GD1508@flint.arm.linux.org.uk> <Pine.LNX.4.64.0602151521320.22082@g5.osdl.org> <20060215153013.474ff5e0.akpm@osdl.org> <Pine.LNX.4.64.0602151647260.22082@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602151647260.22082@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17395.61187.693245.267767@cargo.ozlabs.ibm.com>
-Date: Thu, 16 Feb 2006 14:18:27 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-Subject: Re: [PATCH] Provide an interface for getting the current tick
- length
-In-Reply-To: <20060215191146.126c052d.akpm@osdl.org>
-References: <17395.53939.795908.336324@cargo.ozlabs.ibm.com>
-	<20060215173545.43a7412d.akpm@osdl.org>
-	<17395.56186.238204.312647@cargo.ozlabs.ibm.com>
-	<20060215180848.4556e501.akpm@osdl.org>
-	<17395.59762.126398.423546@cargo.ozlabs.ibm.com>
-	<20060215191146.126c052d.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
+Linus Torvalds wrote:
 
-> Paul Mackerras <paulus@samba.org> wrote:
+> So I like Rik's patch, but I don't feel _too_ strongly about it. The 
+> people who actually work on the scheduler should be the ones to sign off 
+> (or not) on it.
 > 
-> > Is that enough to be worth factoring out?  Note that
-> > update_wall_time_one_tick() needs both time_adjust_step and
-> > delta_nsec, so to share more, we would have to have a function
-> > returning two values and it would start to get ugly.
-> > 
-> 
-> update_wall_time_one_tick() gets:
-> 
-> 	long delta_nsec = new_function();
-> 
-> and your new function becomes
-> 
-> 	return (u64)new_function() << (SHIFT_SCALE - 10)) + time_adj;
 
-and update_wall_time_one_tick misses out on this bit:
+I thought it looked fine. As you say, the scheduler can't work (and
+will blow up) if init_idle() isn't called before it is used.
 
-		/* Reduce by this step the amount of time left  */
-		time_adjust -= time_adjust_step;
-
-That's why I said that update_wall_time_one_tick needs both
-time_adjust_step and delta_nsec.  If you have a nice way to return
-both values, please let me know...
-
-Paul.
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

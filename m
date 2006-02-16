@@ -1,143 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbWBPHz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbWBPINM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932510AbWBPHz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 02:55:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932511AbWBPHz1
+	id S932513AbWBPINM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 03:13:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWBPINM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 02:55:27 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:32139 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932510AbWBPHz0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 02:55:26 -0500
-Date: Thu, 16 Feb 2006 02:55:17 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
-cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.15-rt16: possible sound-related side-effect
-In-Reply-To: <200602152339.k1FNdVIO021090@auster.physics.adelaide.edu.au>
-Message-ID: <Pine.LNX.4.58.0602160245150.7272@gandalf.stny.rr.com>
-References: <200602152339.k1FNdVIO021090@auster.physics.adelaide.edu.au>
+	Thu, 16 Feb 2006 03:13:12 -0500
+Received: from mr1.bfh.ch ([147.87.250.50]:9604 "EHLO mr1.bfh.ch")
+	by vger.kernel.org with ESMTP id S932513AbWBPINL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 03:13:11 -0500
+X-PMWin-Version: 2.5.0e, Antispam-Engine: 2.2.0.0, Antivirus-Engine: 2.32.10
+Thread-Index: AcYy0MB8ahj8pI8iTLaPLNxMHWInnA==
+Message-ID: <43F433F6.2000500@bfh.ch>
+Content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
+Importance: normal
+Date: Thu, 16 Feb 2006 09:12:38 +0100
+From: "Seewer Philippe" <philippe.seewer@bfh.ch>
+Organization: BFH
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050811)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Phillip Susi" <psusi@cfl.rr.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: disk geometry via sysfs
+References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com>  <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com>  <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com>  <43F2E8BA.90001@bfh.ch>  <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com> <1140016519.14831.18.camel@localhost.localdomain> <43F348C2.2070305@cfl.rr.com>
+In-Reply-To: <43F348C2.2070305@cfl.rr.com>
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Feb 2006 08:12:38.0438 (UTC) FILETIME=[C01D7460:01C632D0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 16 Feb 2006, Jonathan Woithe wrote:
 
-> Hi Steve
->
-> > > In the last week I have updated the kernel on our laptop to 2.6.15-rt16.
-> > > By and large this worked well and had the attractive side effect of making
-> > > the clock run at the correct speed once more.
-> > >
-> > > During development of an ALSA patch I had the need to remove and reinsert
-> > > the hda-intel and hda-codec modules on numerous occasions.  Every so often
-> > > (perhaps once every 5 or 6 times on average) the initialisation sequence of
-> > > hda-intel would get hung up and the associated insmod would never return.  A
-> > > reboot was required to clear the problem.  The following messages were
-> > > written to syslog repeatedly and often:
-> > >
-> > >   Feb  5 21:36:24: ALSA sound/pci/hda/hda_intel.c:511: azx_get_response timeout
-> > >   Feb  5 21:36:26 halite last message repeated 9 times
-> > >   Feb  5 21:36:29 halite kernel: printk: 31 messages suppressed.
-> > >
-> > > I have noticed the "azx_get_response timeout" messages in earlier kernels
-> > > as well, but up until now the hda initialisation hasn't gotten hung up.
-> > >
-> > > The latching up of the hda-intel initialisation does not appear to occur
-> > > when doing the same thing under a non-RT 2.6.15 kernel.  Furthermore, I have
-> > > had an instance where the lockup occured while cold-booting an unmodified
-> > > 2.6.15-rt16, which rules out any changes I made to ALSA as the cause of the
-> > > problem.  In any case the changes I was making to ALSA don't affect the
-> > > initialisation code.
-> > >
-> > > Prior to this kernel I was running an unmodified 2.6.14-rt21 kernel and
-> > > while these messages did occur they didn't cause hda-intel to lock up.
-> > >
-> > > Any suggestions as to what might be causing this and/or of further tests
-> > > which might help narrow down the cause?
-> >
-> > Could you turn on nmi_watchdog as well as softlockup_detect.
-> >
-> > nmi_watchedog:
-> >   make sure CONFIG_X86_LOCAL_APIC is set, and then pass in the command
-> >   line "nmi_watchdog=2 lapic"  (lapic may or may not be needed, but should
-> >   not hurt to include it).
-> >
-> > softlockup_detect:
-> >   set CONFIG_DETECT_SOFTLOCKUP.
-> >
-> > these may point out better what is locked up.
->
-> The NMI watchdog triggers only when the kernel as a whole locks up.  That
-> isn't what's happening here.  What is occuring is that the HDA side of
-> things is entering a seemingly endless loop, but the rest of the kernel
-> continues to function normally.
+Phillip Susi wrote:
+> Alan Cox wrote:
+> 
+>> The tools need to know the C/H/S drive addressing data for old drives
+>> because it is used to determine partition tables. That doesn't have to
+>> be GETGEO but it does need to exist somewhere.
+> 
+> Currently GETGEO very often does not report the same values of the bios
+> doesn't it?  For some disks it's completely made up, and for others it
+> is the value returned by the drive itself, which often differs from the
+> bios values.  If this is the case, and it is the bios values that must
+> be stored in the MBR, then it makes little sense to have GETGEO seeing
+> as how it often provides incorrect information.
+As stated earlier GETGEO reports the drivers/subsystem's idea of disk
+geometry.
+> Wouldn't it be better then, to clean up GETGEO everywhere so that unless
+> it has correct values from the bios, it should just fail?  And leave it
+> up to fdisk and friends to inform the user of that failure, choose
+> default values, and allow the user to override those defaults should
+> they need to?
+Thats the problem point here. As of 2.6 the kernel does no longer know
+anything about bios geometry. The exception here might be for older
+drives which do not support lba, where the physical geometry is the one
+the bios reports (if not configured diffently).
 
-Sorry, I was thinking your kernel locked up, not just the insmod.  OK,
-forget about what I asked.
+This is, as we all know, intentional. Because it's quite impossible to
+always and accurately match bios disk information to drives reported by
+drivers.
+
+> 
+> The only time they would even have to worry about it is if they are
+> installing linux on a blank disk, and then want to install windows to
+> dual boot with it.  In that case they might have to correct the CHS
+> values in the MBR to match the values the bios provides.
+> 
+> 
+Not only windows but other os as well.
+
+The problem here is a general interface problem. Tools want one
+interface (be it ioctl or sysfs). If they can depend on a kernel
+interface only partially and have to determine values themeself
+otherwise, that interface should be dropped. Again i'm talking about the
+interface, not actual code which might still depend on c/h/s.
+
+On the other hand, if we keep that interface (or perhaps ioctl for
+compatibility and sysfs for newer things) and introduce a means to tell
+the driver via userspace what we want, many things can be solved. For
+example for older drives which need chs, userspace can tell the driver
+what the bios uses if values differ. For other implementations which
+return defaults which are correct in 80% of all cases, the other 20% can
+be overridden.
+
+It's of course not really the kernel's responsability to fix things (or
+better allow the user to fix things) not important to Linux, but i think
+for the sake of compatility necessary.
 
 
->
-> In any case, I did the above and booted with "nmi_watchdog=2 lapic".  I
-> triggered the fault but neither the soft lockup nor NMI watchdog triggered,
-> which given the above was of no surprise.
->
-> The "azx_get_response timeout" is only produced by a single function:
-> azx_get_response() in hda_intel.c.  This in turn seems to be called from
-> only one location - azx_codec_create() in hda_intel.c.  azx_probe() calls
 
-It's not called there. It's setup as a function pointer, so it is called
-when another fuction calls the get_response pointer.
-
-> azx_codec_create() exactly once, and azx_probe() is the .probe method for
-> the PCI driver definition.  Given that the above call chain in hda-intel.c
-> does not contain any loops, I conclude that the PCI code is repeatedly
-> calling the probe method due (presumedly) to the repeated timeouts.  I can't
-> see how else azx_get_response() could be called repeatedly.
-
-If you want to know where it is being called from, do add the following:
-
-static unsigned int azx_get_response(struct hda_codec *codec)
-{
-	azx_t *chip = codec->bus->private_data;
-	int timeout = 50;
-
-	while (chip->rirb.cmds) {
-		if (! --timeout) {
-			snd_printk(KERN_ERR "azx_get_response timeout\n");
-+			dump_stack();
-			chip->rirb.rp = azx_readb(chip, RIRBWP);
-			chip->rirb.cmds = 0;
-			return -1;
-		}
-		msleep(1);
-	}
-	return chip->rirb.res; /* the last value */
-}
-
-that will show the call trace of the function.
-
->
-> As mentioned in the original post, other kernels display the timeout
-> message.  However, they do not loop endlessly and the driver load succeeds
-> (presumedly on the second attempt, since only one timeout message was ever
-> seen at a time).  Applying rt16 to 2.6.15 seems to change something which
-> causes the endless timeouts.  The condition doesn't exist all the time; once
-> it does exist however it persists until reboot.  Note too that the condition
-> seems to only affect the HDA side of things - all other components of the
-> kernel appear to function correctly.
->
-> The machine in question is an i915-based laptop using PCI-express internally.
->
-> Any other suggestions as to tests which might narrow down the problem's cause?
->
-
-Yeah, could you just add that dump_stack to see who is calling this.  Then
-we can look into that.
-
-Thanks,
-
--- Steve

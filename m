@@ -1,60 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbWBPCy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbWBPC4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751369AbWBPCy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 21:54:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWBPCy5
+	id S1751370AbWBPC4V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 21:56:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWBPC4V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 21:54:57 -0500
-Received: from ozlabs.org ([203.10.76.45]:43442 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751369AbWBPCy5 (ORCPT
+	Wed, 15 Feb 2006 21:56:21 -0500
+Received: from xproxy.gmail.com ([66.249.82.203]:7876 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751370AbWBPC4U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 21:54:57 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 15 Feb 2006 21:56:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=ukxDML9l1oNyNQSgRXrcIL/FiWNXYiWEsSTr6pIzCxGiKsui7ZKEVMdjOFLIWz0Ia2kFv67Rs0iO39xKD5n1RM343kPuooMYoYsU28LJPNLk3cXzbaDyIClcIzQMSLepJFW/RikM+lSKXl2KvBDlbJuxJoJAWL5+NErJ9vyV07g=
+Date: Thu, 16 Feb 2006 00:56:09 -0300
+From: Davi Arnaut <davi.arnaut@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/2] strndup_user, v2
+Message-Id: <20060216005609.fbc35236.davi.arnaut@gmail.com>
+In-Reply-To: <1140053156.14831.43.camel@localhost.localdomain>
+References: <20060215182258.03505613.davi.arnaut@gmail.com>
+	<1140053156.14831.43.camel@localhost.localdomain>
+X-Mailer: Sylpheed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <17395.59762.126398.423546@cargo.ozlabs.ibm.com>
-Date: Thu, 16 Feb 2006 13:54:42 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-Subject: Re: [PATCH] Provide an interface for getting the current tick
- length
-In-Reply-To: <20060215180848.4556e501.akpm@osdl.org>
-References: <17395.53939.795908.336324@cargo.ozlabs.ibm.com>
-	<20060215173545.43a7412d.akpm@osdl.org>
-	<17395.56186.238204.312647@cargo.ozlabs.ibm.com>
-	<20060215180848.4556e501.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
+On Thu, 16 Feb 2006 01:25:56 +0000
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-> Ah, you copied-and-pasted from update_wall_time_one_tick().
+> On Mer, 2006-02-15 at 18:22 -0300, Davi Arnaut wrote:
+> > +static inline char *strdup_user(const char __user *s)
+> > +{
+> > +	return strndup_user(s, 4096);
+> > +}
+> 
+> Still shouldn't exist. Its just a bad idea to give people broken
+> function they don't yet use.
 
-Yep, and I didn't even notice the extra space.
+Ok, I will remove it. But it's a sane default, if someone wants more
+than 4096, they should use strndup_user.
+ 
+> > +	length = strlen_user(s);
+> 
+> Should use strnlen_user or this function is useless for most cases.
 
-> Can we share that code?
+Ok.
 
-We could share the code that computes time_adjust_step, i.e. this
-much:
+> > +
+> > +	if (!length)
+> > +		return ERR_PTR(-EFAULT);
+> 
+> Zero isn't an -EFAULT length. Its a null string and valid
 
-	if ((time_adjust_step = time_adjust) != 0) {
-		/*
-		 * We are doing an adjtime thing.  Prepare time_adjust_step to
-		 * be within bounds.  Note that a positive time_adjust means we
-		 * want the clock to run faster.
-		 *
-		 * Limit the amount of the step to be in the range
-		 * -tickadj .. +tickadj
-		 */
-		time_adjust_step = min(time_adjust_step, (long)tickadj);
-		time_adjust_step = max(time_adjust_step, (long)-tickadj);
-	}
+strlen_user returns _0_ on exception. If you don't belive me,
+kernel/module.c or arch/x86_64/lib/usercopy.c are a good starting
+point.
 
-Is that enough to be worth factoring out?  Note that
-update_wall_time_one_tick() needs both time_adjust_step and
-delta_nsec, so to share more, we would have to have a function
-returning two values and it would start to get ugly.
+> > +
+> > +	if (length > n)
+> > +		length = n;
+> > +
+> > +	p = kmalloc(length, GFP_KERNEL);
+> > +
+> > +	if (!p)
+> > +		return ERR_PTR(-ENOMEM);
+> > +
+> > +	if (strncpy_from_user(p, s, length) < 0) {
+> > +		kfree(p);
+> > +		return ERR_PTR(-EFAULT);
+> > +	}
+> > +
+> > +	p[length - 1] = '\0';
+> 
+> And still broken.
+> 
+> "Hello" -> length = 5   "Hello\0"[4] = 0 "Hell"
+> 
 
-Paul.
+NO! strlen_user("Hello") -> length = 6
+
+strlen_user returns the size of the string INCLUDING the
+terminating NUL.
+
+Are we talking in the same language ? 
+
+--
+Davi Arnaut

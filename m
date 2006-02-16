@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932525AbWBPJog@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWBPJnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932525AbWBPJog (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 04:44:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbWBPJoe
+	id S1750777AbWBPJnO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 04:43:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWBPJnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 04:44:34 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:63439 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932521AbWBPJoP (ORCPT
+	Thu, 16 Feb 2006 04:43:14 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:45519 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750777AbWBPJnN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 04:44:15 -0500
-Date: Thu, 16 Feb 2006 10:42:34 +0100
+	Thu, 16 Feb 2006 04:43:13 -0500
+Date: Thu, 16 Feb 2006 10:41:30 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
 Cc: Ulrich Drepper <drepper@redhat.com>, Thomas Gleixner <tglx@linutronix.de>,
        Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
-Subject: [patch 5/6] lightweight robust futexes: i386
-Message-ID: <20060216094234.GF29716@elte.hu>
+Subject: [patch 0/6] lightweight robust futexes: -V3
+Message-ID: <20060216094130.GA29716@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -30,76 +30,26 @@ X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is release -V3 of the "lightweight robust futexes" patchset. The 
+patchset can also be downloaded from:
 
-i386: add the futex_atomic_cmpxchg_inuser() assembly implementation, and
-wire up the new syscalls.
+  http://redhat.com/~mingo/lightweight-robust-futexes/
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Arjan van de Ven <arjan@infradead.org>
-Acked-by: Ulrich Drepper <drepper@redhat.com>
+Changes since -V2:
 
-----
+Ulrich Drepper ran the code through more glibc testcases, which 
+unearthed a couple of bugs:
 
- arch/i386/kernel/syscall_table.S |    2 ++
- include/asm-i386/futex.h         |   20 +++++++++++++++++++-
- include/asm-i386/unistd.h        |    4 +++-
- 3 files changed, 24 insertions(+), 2 deletions(-)
+ - fixed bug in the i386 and x86_64 assembly code (Ulrich Drepper)
 
-Index: linux-robust-list.q/arch/i386/kernel/syscall_table.S
-===================================================================
---- linux-robust-list.q.orig/arch/i386/kernel/syscall_table.S
-+++ linux-robust-list.q/arch/i386/kernel/syscall_table.S
-@@ -310,3 +310,5 @@ ENTRY(sys_call_table)
- 	.long sys_pselect6
- 	.long sys_ppoll
- 	.long sys_unshare		/* 310 */
-+	.long sys_set_robust_list
-+	.long sys_get_robust_list
-Index: linux-robust-list.q/include/asm-i386/futex.h
-===================================================================
---- linux-robust-list.q.orig/include/asm-i386/futex.h
-+++ linux-robust-list.q/include/asm-i386/futex.h
-@@ -107,7 +107,25 @@ futex_atomic_op_inuser (int encoded_op, 
- static inline int
- futex_atomic_cmpxchg_inuser(int __user *uaddr, int oldval, int newval)
- {
--	return -ENOSYS;
-+	__asm__ __volatile__(
-+		"1:	" LOCK_PREFIX "cmpxchgl %3, %1		\n"
-+
-+		"2:	.section .fixup, \"ax\"			\n"
-+		"3:	mov     %2, %0				\n"
-+		"	jmp     2b				\n"
-+		"	.previous				\n"
-+
-+		"	.section __ex_table, \"a\"		\n"
-+		"	.align  8				\n"
-+		"	.long   1b,3b				\n"
-+		"	.previous				\n"
-+
-+		: "=a" (oldval), "=m" (*uaddr)
-+		: "i" (-EFAULT), "r" (newval), "0" (oldval)
-+		: "memory"
-+	);
-+
-+	return oldval;
- }
- 
- #endif
-Index: linux-robust-list.q/include/asm-i386/unistd.h
-===================================================================
---- linux-robust-list.q.orig/include/asm-i386/unistd.h
-+++ linux-robust-list.q/include/asm-i386/unistd.h
-@@ -316,8 +316,10 @@
- #define __NR_pselect6		308
- #define __NR_ppoll		309
- #define __NR_unshare		310
-+#define __NR_set_robust_list	311
-+#define __NR_get_robust_list	312
- 
--#define NR_syscalls 311
-+#define NR_syscalls 313
- 
- /*
-  * user-visible error numbers are in the range -1 - -128: see
+ - fixed bug in the list walking futex-wakeups (found by Ulrich Drepper)
+
+ - race fix: do not bail out in the list walk when the list_op_pending 
+   pointer cannot be followed by the kernel - another userspace thread 
+   may have already destroyed the mutex (and unmapped it), before this 
+   thread had a chance to clear the field.
+
+ - cleanup: renamed list_add_pending to list_op_pending. (the field is 
+   used for list removals too)
+
+	Ingo

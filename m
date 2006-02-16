@@ -1,55 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWBPWiP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWBPWjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbWBPWiP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 17:38:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWBPWiP
+	id S1750749AbWBPWjS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 17:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWBPWjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 17:38:15 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:55952 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750728AbWBPWiO (ORCPT
+	Thu, 16 Feb 2006 17:39:18 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:27346 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750749AbWBPWjR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 17:38:14 -0500
-Date: Thu, 16 Feb 2006 23:36:18 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Arjan van de Ven <arjan@infradead.org>, Daniel Walker <dwalker@mvista.com>,
-       linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>,
-       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 0/6] lightweight robust futexes: -V3 - Why in userspace?
-Message-ID: <20060216223618.GA8182@elte.hu>
-References: <20060216203626.GB21415@elte.hu> <Pine.OSF.4.05.10602162301050.22107-100000@da410>
+	Thu, 16 Feb 2006 17:39:17 -0500
+Date: Thu, 16 Feb 2006 17:39:16 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: linux-ide@vger.kernel.org
+Subject: Fix IDE locking error.
+Message-ID: <20060216223916.GA8463@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	linux-ide@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.05.10602162301050.22107-100000@da410>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This bit us a few kernels ago, and for some reason never made it's way
+upstream.
 
-* Esben Nielsen <simlo@phys.au.dk> wrote:
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=144743
+Kernel panic - not syncing: drivers/ide/pci/piix.c:231:
+spin_lock(drivers/ide/ide.c:c03cef28) already locked by driver/ide/ide-iops.c/1153.
 
-> As I understand the protocol the userspace task writes it's pid into 
-> the lock atomically when locking it and erases it atomically when it 
-> leaves the lock. If it is killed inbetween the pid is still there. Now 
-> if another task comes along it reads the pid, sets the wait flag and 
-> goes into the kernel. The kernel will now be able to see that the pid 
-> is no longer valid and therefore the owner must be dead.
+From: Alan Cox <alan@redhat.com>
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-this is racy - we cannot know whether the PID wrapped around.
-
-nor does this method offer any solution for the case where there are 
-already waiters pending: they might be hung forever. With our solution 
-one of those waiters gets woken up and notice that the lock is dead. 
-(and in the unlikely even of that thread dying too while trying to 
-recover the data, the kernel will do yet another wakeup, of the next 
-waiter.)
-
-	Ingo
+--- linux-2.6.12/drivers/ide/pci/piix.c~	2005-07-11 10:23:24.637181320 +0100
++++ linux-2.6.12/drivers/ide/pci/piix.c	2005-07-11 10:23:24.637181320 +0100
+@@ -203,6 +203,8 @@
+ 	}
+ }
+ 
++static spinlock_t tune_lock = SPIN_LOCK_UNLOCKED;
++
+ /**
+  *	piix_tune_drive		-	tune a drive attached to a PIIX
+  *	@drive: drive to tune
+@@ -229,7 +231,12 @@
+ 			    { 2, 3 }, };
+ 
+ 	pio = ide_get_best_pio_mode(drive, pio, 5, NULL);
+-	spin_lock_irqsave(&ide_lock, flags);
++	
++	/* Master v slave is synchronized above us but the slave register is
++	   shared by the two hwifs so the corner case of two slave timeouts in
++	   parallel must be locked */
++	   
++	spin_lock_irqsave(&tune_lock, flags);
+ 	pci_read_config_word(dev, master_port, &master_data);
+ 	if (is_slave) {
+ 		master_data = master_data | 0x4000;
+@@ -249,7 +256,7 @@
+ 	pci_write_config_word(dev, master_port, master_data);
+ 	if (is_slave)
+ 		pci_write_config_byte(dev, slave_port, slave_data);
+-	spin_unlock_irqrestore(&ide_lock, flags);
++	spin_unlock_irqrestore(&tune_lock, flags);
+ }
+ 
+ /**

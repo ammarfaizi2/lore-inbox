@@ -1,117 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWBPTAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWBPTBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbWBPTAV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 14:00:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWBPTAV
+	id S932175AbWBPTBd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 14:01:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWBPTBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 14:00:21 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:1960 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932152AbWBPTAU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 14:00:20 -0500
-Subject: Re: fsck: i_blocks is xxx should be yyy on ext3
-From: Mingming Cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <43F42DFC.4080604@aitel.hist.no>
-References: <43EA079A.4010108@aitel.hist.no>
-	 <20060208225359.426573cf.akpm@osdl.org>
-	 <1140050679.20936.14.camel@dyn9047017067.beaverton.ibm.com>
-	 <43F42DFC.4080604@aitel.hist.no>
-Content-Type: text/plain
-Organization: IBM LTC
-Date: Thu, 16 Feb 2006 11:00:17 -0800
-Message-Id: <1140116417.3757.11.camel@dyn9047017067.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Feb 2006 14:01:33 -0500
+Received: from spirit.analogic.com ([204.178.40.4]:14605 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S932175AbWBPTBc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 14:01:32 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <43F4B1C9.9070002@cfl.rr.com>
+X-OriginalArrivalTime: 16 Feb 2006 19:01:29.0185 (UTC) FILETIME=[64A60510:01C6332B]
+Content-class: urn:content-classes:message
+Subject: Re: RFC: disk geometry via sysfs
+Date: Thu, 16 Feb 2006 14:01:28 -0500
+Message-ID: <Pine.LNX.4.61.0602161316100.23547@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: RFC: disk geometry via sysfs
+thread-index: AcYzK2StD1z3JoHgRpS0OWQbr508tw==
+References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com> <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com> <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com> <43F2E8BA.90001@bfh.ch> <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com> <11 <Pine.LNX.4.61.0602161125580.23082@chaos.analogic.com> <43F4B1C9.9070002@cfl.rr.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Phillip Susi" <psusi@cfl.rr.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Seewer Philippe" <philippe.seewer@bfh.ch>,
+       "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>,
+       <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-16 at 08:47 +0100, Helge Hafting wrote:
-> Mingming Cao wrote:
-> 
-> >On Wed, 2006-02-08 at 22:53 -0800, Andrew Morton wrote:
-> >  
-> >
-> >>Helge Hafting <helge.hafting@aitel.hist.no> wrote:
-> >>    
-> >>
-> >>> Today I rebooted into 2.6.16-rc2-mm1.  Fsck checked a "clean" ext3 fs,
-> >>> because it was many mounts since the last time.
-> >>>
-> >>> I have seen that many times, but this time I got a lot of
-> >>> "i_blocks is xxx, should be yyy fix?"
-> >>>
-> >>> In all cases, the blocks were fixed to a lower number.
-> >>>      
-> >>>
-> >>Yes, thanks.  It's due to the ext3_getblocks() patches in -mm.  I can't
-> >>think of any actual harm which it'll cause.
-> >>
-> >>To reproduce:
-> >>
-> >>mkfs
-> >>mount
-> >>dbench 32
-> >><wait 20 seconds>
-> >>killall dbench
-> >>umount
-> >>fsck
-> >>-
-> >>    
-> >>
-> >
-> >Sorry about the late response.  I failed to reproduce the problem with
-> >above instructions. I am running 2.6.16-rc2-mm1 kernel, played dbench
-> >32 ,64 and 128, and tried both 8 cpu and 1 cpu, still no luck at last. I
-> >am using e2fsck version 1.35 though. What versions you are using?
-> >  
-> >
-> single cpu, e2fsck 1.39-WIP (31-Dec-2005)
->         Using EXT2FS Library version 1.39-WIP, 31-Dec-2005
-> 
-> I didn't use dbench, only normal use of the machine.
-> 
-> Helge Hafting
-> 
-> 
 
-I was able to constantly reproduce this problem on another machine with
-1 cpu, and find the bug.  
+On Thu, 16 Feb 2006, Phillip Susi wrote:
 
-In the ext3_new_blocks() code, if the # of allocated blocks (num) is
-less than the requested # of blocks to allocate (*count), we will need
-to free some quota via DQUOT_FREE_BLOCK(), which will eventually adjust
-i_blocks value properly. the delta value *count-num is wrong, as we re-
-set the *count too early.
+> linux-os (Dick Johnson) wrote:
+>> I read it, and it's wrong. You don't bother to learn. I will
+>> take one last hack at this and then drop it.
+>>
+>> When a disk is first accessed, the BIOS reads the disk capacity.
+>> That's all. This disk capacity is in 512-byte things called "sectors".
+>>
+> You don't bother to mention HOW it is wrong, so it appears it is you who
+> fail to learn.  I will attempt once more to explain.  When you call int
+> 13 and ask it for C = 3, H = 4, S = 5, exactly which sector you get
+> depends very much on what the bios thinks the geometry of the disk is,
+> because the bios will translate 3/4/5 into a completely different value
+> before sending it to the drive.  That translation is dependent entirely
+> on which fake geometry the bios chooses to report the disk has.
+>
+> I illustrated this translation and you simply say it is wrong.  If that
+> is the case then show how.
 
+You sure are interested in arguing. The translation cannot be wrong
+because the BIOS invented the translation which was created when
+the BIOS did a "read capacity." That translation is stored in the
+BIOS as a BPB, not on the disk, and it is accessed by any file-
+systems that use the 16-bit Int 0x13 interface. If the file-
+systems are not broken, they will NOT use the wrong translation
+because they will read the current interpretation by reading
+the BPB from the vector represented by int 0x64, or by executing
+Int 0x13, function code 8 (read drive parameters). These parameters
+are INVENTED upon startup as previously explained.
 
-The patch seems fixed the bug on my machine, could you please give it a
-try?
+As previously explained, the fake geometry is not geometry at
+all, but rather a translation key that was decided upon
+startup after the capacity was determined. Its sole purpose
+is to get a sector-offset through the limited register-set
+in the 0x13 interface.
 
-Thanks.
+[FS offset]--->[encode KEY]--->[INT 0x13]--->[decode KEY]--->[drive offset]
+                         |                             |
+                         |-- anything that will fit ---|
 
+This encode/decode key should have never been let out of its cage.
+Unfortunately some DOS tools put it on the disks in a table
+called the BPB.
 
- linux-2.6.15-cmm/fs/ext3/balloc.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+DOS creates two software interrupt vectors, int 0x25, and
+int 0x26, (absolute read and write), which perform this
+translation using the stuff in the BPB. This means that
+the caller (the file-system) doesn't have to worry about
+these things.
 
-diff -puN fs/ext3/balloc.c~ext3-getblocks-i_blocks-fix fs/ext3/balloc.c
---- linux-2.6.15/fs/ext3/balloc.c~ext3-getblocks-i_blocks-fix
-2006-02-16 10:19:23.000000000 -0800
-+++ linux-2.6.15-cmm/fs/ext3/balloc.c   2006-02-16 10:19:49.000000000
--0800
-@@ -1441,8 +1441,8 @@ allocated:
+Since the offsets are directly available when the BIOS is not
+used, this BPB is useless.
 
-        *errp = 0;
-        brelse(bitmap_bh);
--       *count = num;
-        DQUOT_FREE_BLOCK(inode, *count-num);
-+       *count = num;
-        return ret_block;
+Even when using dosemu, where a virtual 0x13 is available, the
+key used to access this resource is obtained by reading the
+capacity of the DOS file-system(s) and building a BPB for
+each (virtual) disk.
 
- io_error:
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.15.4 on an i686 machine (5590.48 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+_
+
 
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-
+Thank you.

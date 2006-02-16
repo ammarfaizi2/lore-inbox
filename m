@@ -1,119 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbWBPFnw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWBPFoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932482AbWBPFnw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 00:43:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbWBPFnv
+	id S932481AbWBPFoS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 00:44:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWBPFoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 00:43:51 -0500
-Received: from [203.2.177.25] ([203.2.177.25]:63749 "EHLO pfeiffer.tusc.com.au")
-	by vger.kernel.org with ESMTP id S932478AbWBPFnu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 00:43:50 -0500
-Subject: [PATCH 1/6] x25: Allow 32 bit socket ioctl in 64 bit kernel
-From: Shaun Pereira <spereira@tusc.com.au>
-Reply-To: spereira@tusc.com.au
-To: linux-kenel <linux-kernel@vger.kernel.org>,
-       netdev <netdev@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>
+	Thu, 16 Feb 2006 00:44:18 -0500
+Received: from sccrmhc13.comcast.net ([63.240.77.83]:63717 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S932481AbWBPFoR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 00:44:17 -0500
+Subject: SATA timeouts with Seagate disk on VIA VT6420 controller
+From: Nicholas Miell <nmiell@comcast.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Thu, 16 Feb 2006 16:41:45 +1100
-Message-Id: <1140068505.4941.15.camel@spereira05.tusc.com.au>
+Date: Wed, 15 Feb 2006 21:44:14 -0800
+Message-Id: <1140068654.3274.12.camel@entropy>
 Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4.njm.1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Includes correction from Arnaldo's suggestions.
-32 bit modular socket ioctl emulation for 64 bit kernel
+>From time to time, I've been experiencing timeouts with my SATA disk (a
+Seagate ST3300831AS) attached to a VIA VT6420 controller on a VIA
+K8T800-based MSI motherboard. This has happened somewhat rarely on a
+variety of Fedora kernel versions.
 
-The following patch provides 32 bit userland ioctl support for modular (x.25 type) 
-socket ioctls in a 64 bit kernel. Since the the register_ioctl32_conversion() 
-is now obsolete, this patch provides a mechanism to allow 32 bit user space 
-ioctls to reach the kernel. 
+Basically, sometimes IO will get really slow and I'll start getting
+"ata1: command 0x35 timeout, stat 0x50 host_stat 0x4" in my logs, with
+the occasional "ata1: command 0x25 timeout, stat 0x50 host_stat 0x4" and
+"ata1: command 0xb0 timeout, stat 0x50 host_stat 0x0" thrown in for good
+measure.
 
-Signed-off-by:Shaun Pereira <spereira@tusc.com.au>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+The disk (and/or controller) isn't unresponsive -- I can do a smartctl
+-a -d ata /dev/sda and it'll complete (eventually), and IO to the disk
+continues (very slowly), but it's generally unusable until the next
+reboot.
 
-diff -uprN -X dontdiff linux-2.6.16-rc3-vanilla/include/linux/net.h linux-2.6.16-rc3/include/linux/net.h
---- linux-2.6.16-rc3-vanilla/include/linux/net.h	2006-02-16 14:57:01.000000000 +1100
-+++ linux-2.6.16-rc3/include/linux/net.h	2006-02-16 14:57:36.000000000 +1100
-@@ -143,6 +143,8 @@ struct proto_ops {
- 				      struct poll_table_struct *wait);
- 	int		(*ioctl)     (struct socket *sock, unsigned int cmd,
- 				      unsigned long arg);
-+	int	 	(*compat_ioctl) (struct socket *sock, unsigned int cmd,
-+				      unsigned long arg);
- 	int		(*listen)    (struct socket *sock, int len);
- 	int		(*shutdown)  (struct socket *sock, int flags);
- 	int		(*setsockopt)(struct socket *sock, int level,
-@@ -247,6 +249,8 @@ SOCKCALL_UWRAP(name, poll, (struct file 
- 	      (file, sock, wait)) \
- SOCKCALL_WRAP(name, ioctl, (struct socket *sock, unsigned int cmd, \
- 			 unsigned long arg), (sock, cmd, arg)) \
-+SOCKCALL_WRAP(name, compat_ioctl, (struct socket *sock, unsigned int cmd, \
-+			 unsigned long arg), (sock, cmd, arg)) \
- SOCKCALL_WRAP(name, listen, (struct socket *sock, int len), (sock, len)) \
- SOCKCALL_WRAP(name, shutdown, (struct socket *sock, int flags), (sock, flags)) \
- SOCKCALL_WRAP(name, setsockopt, (struct socket *sock, int level, int optname, \
-@@ -271,6 +275,7 @@ static const struct proto_ops name##_ops
- 	.getname	= __lock_##name##_getname,	\
- 	.poll		= __lock_##name##_poll,		\
- 	.ioctl		= __lock_##name##_ioctl,	\
-+	.compat_ioctl	= __lock_##name##_compat_ioctl,	\
- 	.listen		= __lock_##name##_listen,	\
- 	.shutdown	= __lock_##name##_shutdown,	\
- 	.setsockopt	= __lock_##name##_setsockopt,	\
-@@ -279,6 +284,7 @@ static const struct proto_ops name##_ops
- 	.recvmsg	= __lock_##name##_recvmsg,	\
- 	.mmap		= __lock_##name##_mmap,		\
- };
-+
- #endif
- 
- #define MODULE_ALIAS_NETPROTO(proto) \
-diff -uprN -X dontdiff linux-2.6.16-rc3-vanilla/net/socket.c linux-2.6.16-rc3/net/socket.c
---- linux-2.6.16-rc3-vanilla/net/socket.c	2006-02-16 14:57:01.000000000 +1100
-+++ linux-2.6.16-rc3/net/socket.c	2006-02-16 14:57:36.000000000 +1100
-@@ -109,6 +109,10 @@ static unsigned int sock_poll(struct fil
- 			      struct poll_table_struct *wait);
- static long sock_ioctl(struct file *file,
- 		      unsigned int cmd, unsigned long arg);
-+#ifdef CONFIG_COMPAT
-+static long compat_sock_ioctl(struct file *file,
-+		      unsigned int cmd, unsigned long arg);
-+#endif
- static int sock_fasync(int fd, struct file *filp, int on);
- static ssize_t sock_readv(struct file *file, const struct iovec *vector,
- 			  unsigned long count, loff_t *ppos);
-@@ -130,6 +134,9 @@ static struct file_operations socket_fil
- 	.aio_write =	sock_aio_write,
- 	.poll =		sock_poll,
- 	.unlocked_ioctl = sock_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl = compat_sock_ioctl,
-+#endif
- 	.mmap =		sock_mmap,
- 	.open =		sock_no_open,	/* special open code to disallow open via /proc */
- 	.release =	sock_close,
-@@ -2089,6 +2096,20 @@ void socket_seq_show(struct seq_file *se
- }
- #endif /* CONFIG_PROC_FS */
- 
-+#ifdef CONFIG_COMPAT
-+static long compat_sock_ioctl(struct file *file, unsigned cmd, unsigned long arg)
-+{
-+	struct socket *sock;
-+	sock = file->private_data;
-+
-+	int ret = -ENOIOCTLCMD;
-+	if(sock->ops->compat_ioctl)
-+		ret = sock->ops->compat_ioctl(sock, cmd, arg);
-+
-+	return ret;
-+}
-+#endif
-+
- /* ABI emulation layers need these two */
- EXPORT_SYMBOL(move_addr_to_kernel);
- EXPORT_SYMBOL(move_addr_to_user);
+Any help would be appreciated.
+
+	Thanks, Nicholas.
+
+-- 
+Nicholas Miell <nmiell@comcast.net>
 

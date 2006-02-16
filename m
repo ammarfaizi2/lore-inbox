@@ -1,89 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWBPWhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWBPWiP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbWBPWhF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 17:37:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750963AbWBPWhF
+	id S1750728AbWBPWiP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 17:38:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWBPWiP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 17:37:05 -0500
-Received: from pool-71-161-48-129.clppva.east.verizon.net ([71.161.48.129]:33487
-	"EHLO ccs.covici.com") by vger.kernel.org with ESMTP
-	id S1750767AbWBPWhE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 17:37:04 -0500
-MIME-Version: 1.0
+	Thu, 16 Feb 2006 17:38:15 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:55952 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750728AbWBPWiO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 17:38:14 -0500
+Date: Thu, 16 Feb 2006 23:36:18 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Arjan van de Ven <arjan@infradead.org>, Daniel Walker <dwalker@mvista.com>,
+       linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>,
+       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 0/6] lightweight robust futexes: -V3 - Why in userspace?
+Message-ID: <20060216223618.GA8182@elte.hu>
+References: <20060216203626.GB21415@elte.hu> <Pine.OSF.4.05.10602162301050.22107-100000@da410>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17396.65161.567436.689494@ccs.covici.com>
-Date: Thu, 16 Feb 2006 17:36:57 -0500
-From: John covici <covici@ccs.covici.com>
-To: linux-kernel@vger.kernel.org
-Subject: Problems with SB Live using 2.6.15.3
-X-Mailer: VM 7.17 under Emacs 22.0.50.2
-Reply-To: covici@ccs.covici.com
+Content-Disposition: inline
+In-Reply-To: <Pine.OSF.4.05.10602162301050.22107-100000@da410>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been having problems using my SBLive card (details of which
-card below), with Linux 2.6.15 kernel.  It works fine in 2.6.14, but
-alsa mixers refuse to work in the 15 series.  Here is the output when
-modprobing snd-emu10k1 .
 
-modprobe snd-emu10k1
-vendor=0x1102, device=0x2, subsystem_vendor_id=0x80661102, subsystem_id=0x8066
-Sound card name=SB Live [Unknown], vendor=0x1102, device=0x2, subsystem=0x80661102.
-Setting up ALSA...ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-ALSA lib simple_none.c:1216:(simple_add1) helem (MIXER,'Front Playback Volume',0,0,0) appears twice or more
-amixer: Mixer hw:0 load error: Invalid argument
-done.
+* Esben Nielsen <simlo@phys.au.dk> wrote:
 
+> As I understand the protocol the userspace task writes it's pid into 
+> the lock atomically when locking it and erases it atomically when it 
+> leaves the lock. If it is killed inbetween the pid is still there. Now 
+> if another task comes along it reads the pid, sets the wait flag and 
+> goes into the kernel. The kernel will now be able to see that the pid 
+> is no longer valid and therefore the owner must be dead.
 
-I did this with no asound.state file at all, so I don't know where it
-got this error from.  I tried doing stores and removing what I thought
-were duplicate controls, but no joy.
+this is racy - we cannot know whether the PID wrapped around.
 
-Any assistance would be appreciated.
+nor does this method offer any solution for the case where there are 
+already waiters pending: they might be hung forever. With our solution 
+one of those waiters gets woken up and notice that the lock is dead. 
+(and in the unlikely even of that thread dying too while trying to 
+recover the data, the kernel will do yet another wakeup, of the next 
+waiter.)
 
-
--- 
-Your life is like a penny.  You're going to lose it.  The question is:
-How do
-you spend it?
-
-         John Covici
-         covici@ccs.covici.com
+	Ingo

@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWBPFqG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbWBPFrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbWBPFqG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 00:46:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWBPFqF
+	id S932490AbWBPFrA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 00:47:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWBPFrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 00:46:05 -0500
-Received: from [203.2.177.25] ([203.2.177.25]:39948 "EHLO pfeiffer.tusc.com.au")
-	by vger.kernel.org with ESMTP id S932485AbWBPFqD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 00:46:03 -0500
-Subject: [PATCH 4/6] x25: Allow 32 bit socket ioctl in 64 bit kernel
-From: Shaun Pereira <spereira@tusc.com.au>
-Reply-To: spereira@tusc.com.au
-To: linux-kenel <linux-kernel@vger.kernel.org>,
-       netdev <netdev@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>
-Content-Type: text/plain
-Date: Thu, 16 Feb 2006 16:44:13 +1100
-Message-Id: <1140068654.4941.22.camel@spereira05.tusc.com.au>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Feb 2006 00:47:00 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:34686 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S932490AbWBPFq7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 00:46:59 -0500
+Date: Thu, 16 Feb 2006 06:46:44 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: carsteno@de.ibm.com, cotte@de.ibm.com, hch@lst.de, horst.hummel@de.ibm.com,
+       linux-kernel@vger.kernel.org, heicars2@de.ibm.com, wein@de.ibm.com,
+       mschwid2@de.ibm.com, ihno@suse.de
+Subject: Re: [PATCH 0/5] new dasd ioctl patchkit
+Message-ID: <20060216054644.GA9241@osiris.boeblingen.de.ibm.com>
+References: <1139935988.6183.5.camel@localhost.localdomain> <20060214190909.GA20527@lst.de> <43F3397B.3090207@de.ibm.com> <20060215120343.1e4e8afe.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060215120343.1e4e8afe.akpm@osdl.org>
+User-Agent: mutt-ng/devel-r781 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-32 bit modular socket ioctl emulation for 64 bit kernel
+> > > As long as we backout the bogus eer
+> > > patch before 2.6.16 all the cleanups and even the eckd ioctl fix
+> > > can wait.  But don't put this crappy interface into 1.6.16 and thus
+> > > SLES10 so that applications start to rely on it.
+> > ACK: Given that a) both Horst and Christoph think the ioctl interface
+> > needs cleanup but proposed cleanup interfers with existing
+> > functionality (cmb), and b) later cleanup would change the
+> > user-interface of eer, we should rush neither the ioctl change nor
+> > eer into .16 until the maintainer is back afaics.
+> > 
+> 
+> I don't have a patch in hand to purely back out the eer modeule.  What I
+> have is
+> 
+> dasd-cleanup-dasd_ioctl.patch
+> dasd-cleanup-dasd_ioctl-fix.patch
+> dasd-add-per-disciple-ioctl-method.patch
+> dasd-merge-dasd_cmd-into-dasd_mod.patch
+> dasd-backout-dasd_eer-module.patch
+> dasd-kill-dynamic-ioctl-registration.patch
+> 
+> So what do we do?
 
-This patch allows an x25 server application to run on a 64 bit kernel, by
-fixing the following error message from the kernel. 
+Looks like people still haven't agreed. If they _finally_ agree on something
+and the result is that the eer should be backed out, I will send that patch.
+Sorry... I'm just the stupid patch monkey here.
 
-T2 kernel: schedule_timeout:
- wrong timeout value ffffffffffffffff from ffffffff88164796
-  
-Signed-off-by:Shaun Pereira <spereira@tusc.com.au>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-
-diff -uprN -X dontdiff linux-2.6.16-rc3-vanilla/net/x25/af_x25.c linux-2.6.16-rc3/net/x25/af_x25.c
---- linux-2.6.16-rc3-vanilla/net/x25/af_x25.c	2006-02-16 15:28:58.000000000 +1100
-+++ linux-2.6.16-rc3/net/x25/af_x25.c	2006-02-16 15:29:04.000000000 +1100
-@@ -743,7 +743,7 @@ out:
- 	return rc;
- }
- 
--static int x25_wait_for_data(struct sock *sk, int timeout)
-+static int x25_wait_for_data(struct sock *sk, long timeout)
- {
- 	DECLARE_WAITQUEUE(wait, current);
- 	int rc = 0;
-
+Heiko

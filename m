@@ -1,54 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWBPIj1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWBPI7p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbWBPIj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 03:39:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbWBPIj1
+	id S1751283AbWBPI7p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 03:59:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWBPI7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 03:39:27 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:9170 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932278AbWBPIj1 (ORCPT
+	Thu, 16 Feb 2006 03:59:45 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:29929 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751283AbWBPI7o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 03:39:27 -0500
-Date: Thu, 16 Feb 2006 09:37:44 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: SMP BUG
-Message-ID: <20060216083744.GA18962@elte.hu>
-References: <43F12207.9010507@watson.ibm.com> <20060215230701.GD1508@flint.arm.linux.org.uk> <Pine.LNX.4.64.0602151521320.22082@g5.osdl.org>
+	Thu, 16 Feb 2006 03:59:44 -0500
+Date: Thu, 16 Feb 2006 00:58:26 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Cliff Wickman <cpw@sgi.com>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       george anzinger <george@mvista.com>
+Subject: Re: [RFC] sys_setrlimit() in 2.6.16
+Message-Id: <20060216005826.4afc87ae.akpm@osdl.org>
+In-Reply-To: <20060214222417.GA8479@sgi.com>
+References: <20060214222417.GA8479@sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0602151521320.22082@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Linus Torvalds <torvalds@osdl.org> wrote:
-
-> That said, nobody seemed to comment on this patch by Rik, which seemed 
-> to be a nice cleanup regardless of any other issues.
+Cliff Wickman <cpw@sgi.com> wrote:
+>
+> A test suite uncovered a possible bug in setrlimit(2), in 2.6.16-rc3.
 > 
-> Does this fix the ARM oops?
+> A code that does
+>         mylimits.rlim_cur = 0;
+>         setrlimit(RLIMIT_CPU, &mylimits);
+> does not set a cpu time limit.
+> 
+> No signal is sent to this code when its "limit" of 0 seconds expires.
+> Whereas, under the 2.6.5 kernel (SuSE SLESS9) a signal was sent.
+> 
+> I don't see any obvious difference in sys_setrlimit() or
+> set_process_cpu_timer() between 2.6.5 and 2.6.16.
+> 
+> Is this a correction, or a bug?
+> 
+> Is a cpu time limit of 0 supposed to limit a task to 0 seconds, or
+> leave it unlimited?
+> 
 
-> Signed-off-by: Rik van Riel <riel@redhat.com>
+This has to be considered a bug.  The spec certainly implies that a limit
+of zero should be honoured and, probably more importantly, that's how it
+works in 2.4.
 
-yep - i agree that pushing runqueue initialization into init_idle() is a 
-natural thing to do. [We used to do init_idle() much later in the past, 
-but today we do it straight from sched_init() - so Rik's patch should be 
-perfectly fine.]
+Problem is, the code in there all assumes that an it_prof_expires of zero
+means "it was never set", and changing that (add a yes-it-has flag?) would
+be less than trivial.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+So I think the path of least resistance here is to just convert the
+caller's zero seconds into one second.  That in fact gives the same
+behaviour as 2.4: you get whacked after one second or more CPU time.
 
-	Ingo
+(This is not a final patch - that revolting expression in sys_setrlimit()
+needs help first).
+
+
+diff -puN kernel/sys.c~a kernel/sys.c
+--- devel/kernel/sys.c~a	2006-02-16 00:42:49.000000000 -0800
++++ devel-akpm/kernel/sys.c	2006-02-16 00:45:10.000000000 -0800
+@@ -1657,7 +1657,19 @@ asmlinkage long sys_setrlimit(unsigned i
+ 	    (cputime_eq(current->signal->it_prof_expires, cputime_zero) ||
+ 	     new_rlim.rlim_cur <= cputime_to_secs(
+ 		     current->signal->it_prof_expires))) {
+-		cputime_t cputime = secs_to_cputime(new_rlim.rlim_cur);
++		unsigned long rlim_cur = new_rlim.rlim_cur;
++		cputime_t cputime;
++
++		if (rlim_cur == 0) {
++			/*
++			 * The caller is asking for an immediate RLIMIT_CPU
++			 * expiry.  But we use the zero value to mean "it was
++			 * never set".  So let's cheat and make it one second
++			 * instead
++			 */
++			rlim_cur = 1;
++		}
++		cputime = secs_to_cputime(rlim_cur);
+ 		read_lock(&tasklist_lock);
+ 		spin_lock_irq(&current->sighand->siglock);
+ 		set_process_cpu_timer(current, CPUCLOCK_PROF,
+_
+

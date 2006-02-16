@@ -1,61 +1,287 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWBPP1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbWBPPdz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbWBPP1i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 10:27:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWBPP1i
+	id S932295AbWBPPdz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 10:33:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbWBPPdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 10:27:38 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:62309 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S932301AbWBPP1i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 10:27:38 -0500
-Message-ID: <43F499A8.4080204@cfl.rr.com>
-Date: Thu, 16 Feb 2006 10:26:32 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Seewer Philippe <philippe.seewer@bfh.ch>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: disk geometry via sysfs
-References: <43EC8FBA.1080307@bfh.ch> <43F0B484.3060603@cfl.rr.com> <43F0D7AD.8050909@bfh.ch> <43F0DF32.8060709@cfl.rr.com> <43F206E7.70601@bfh.ch> <43F21F21.1010509@cfl.rr.com> <43F2E8BA.90001@bfh.ch> <58cb370e0602150051w2f276banb7662394bef2c369@mail.gmail.com> <11 <Pine.LNX.4.61.0602160728100.20319@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0602160728100.20319@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Feb 2006 15:28:31.0105 (UTC) FILETIME=[A451BF10:01C6330D]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14271.000
-X-TM-AS-Result: No--11.490000-5.000000-31
+	Thu, 16 Feb 2006 10:33:55 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:30866 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932295AbWBPPdy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 10:33:54 -0500
+Date: Thu, 16 Feb 2006 21:03:01 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: dada1@cosmosbay.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC][PATCH] Fix file counting
+Message-ID: <20060216153301.GA1352@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
->> I'm talking about the geometry of the disk.  If the disk has 16 sectors
->> and 8 heads, then the maximum value allowed for any valid address is 16
->> in the sector field and 7 in the heads field.  This influences the
->> translation to/from LBA.  A sector with LBA of 1234 would have a CHS
->> address using this geometry of 9/5/3.  If the disk reports a geometry of
->> x/8/16 but the bios is using a geometry of x/255/63, then when you pass
->> 9/5/3 to int 13 it will fetch LBA 144902 which is clearly not going to
->> give you what you wanted.
->>
-> 
-> Wrong! The disk gets an OFFSET!  It doesn't care how that OFFSET
-> is obtained. That OFFSET is the sum of some variables. Some start
-> at 0 and some start at 1. The BIOS takes these PHONY things, without
-> checking to see if they "fit" in some pre-conceived notion of
-> "geometery" and sums them all up to make an OFFSET. The C/H/S
-> stuff started and ENDED with the ST-506 interface.  PERIOD.
-> 
+Eric,
 
-Please reread my explanation above.  The bios has to compute the 
-absolute offset based on the geometry and the values you pass it.  It 
-does so by multiplying the track number you pass by the number of 
-sectors per track, multiplies the cylinder number by the number of 
-sectors per track and the number of tracks, and adds those two values to 
-the sector number you pass to arrive at the LBA to read.  If it performs 
-the CHS->LBA translation using a different geometry than you used to go 
-from LBA->CHS, then it will get the wrong sector.
+Going by your patch, I converted my nr-files patch to use
+percpu counters - except that I just used the existing
+percpu counter code. This patch is untested, just for comments.
+If you agree with the approach, we can go with it. I will
+get some benchmark numbers measured on a 16-CPU box.
+
+Thanks
+Dipankar
 
 
+
+The way we do file struct accounting is not very suitable for batched
+freeing. For scalability reasons, file accounting was constructor/destructor
+based. This meant that nr_files was decremented only when
+the object was removed from the slab cache. This is
+susceptible to slab fragmentation. With RCU based file structure,
+consequent batched freeing and a test program like Serge's,
+we just speed this up and end up with a very fragmented slab -
+
+llm22:~ # cat /proc/sys/fs/file-nr
+587730  0       758844
+
+At the same time, I see only a 2000+ objects in filp cache.
+The following patch I fixes this problem. 
+
+This patch changes the file counting by removing the filp_count_lock.
+Instead we use a separate percpu counter, nr_files, for now and all
+accesses to it are through get_nr_files() api. In the sysctl
+handler for nr_files, we populate files_stat.nr_files before returning
+to user.
+
+Counting files as an when they are created and destroyed (as opposed
+to inside slab) allows us to correctly count open files with RCU.
+
+Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+---
+
+
+
+
+ fs/dcache.c          |    2 -
+ fs/file_table.c      |   80 +++++++++++++++++++++++++++++++--------------------
+ include/linux/file.h |    2 -
+ include/linux/fs.h   |    2 +
+ kernel/sysctl.c      |    5 ++-
+ net/unix/af_unix.c   |    2 -
+ 6 files changed, 57 insertions(+), 36 deletions(-)
+
+diff -puN fs/dcache.c~fix-file-counting fs/dcache.c
+--- linux-2.6.16-rc3-rcu/fs/dcache.c~fix-file-counting	2006-02-15 16:00:02.000000000 +0530
++++ linux-2.6.16-rc3-rcu-dipankar/fs/dcache.c	2006-02-15 16:00:02.000000000 +0530
+@@ -1736,7 +1736,7 @@ void __init vfs_caches_init(unsigned lon
+ 			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
+ 
+ 	filp_cachep = kmem_cache_create("filp", sizeof(struct file), 0,
+-			SLAB_HWCACHE_ALIGN|SLAB_PANIC, filp_ctor, filp_dtor);
++			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
+ 
+ 	dcache_init(mempages);
+ 	inode_init(mempages);
+diff -puN fs/file_table.c~fix-file-counting fs/file_table.c
+--- linux-2.6.16-rc3-rcu/fs/file_table.c~fix-file-counting	2006-02-15 16:00:02.000000000 +0530
++++ linux-2.6.16-rc3-rcu-dipankar/fs/file_table.c	2006-02-15 17:50:21.000000000 +0530
+@@ -5,6 +5,7 @@
+  *  Copyright (C) 1997 David S. Miller (davem@caip.rutgers.edu)
+  */
+ 
++#include <linux/config.h>
+ #include <linux/string.h>
+ #include <linux/slab.h>
+ #include <linux/file.h>
+@@ -19,52 +20,67 @@
+ #include <linux/capability.h>
+ #include <linux/cdev.h>
+ #include <linux/fsnotify.h>
+-
++#include <linux/sysctl.h>
++#include <linux/percpu_counter.h>
++#include <asm/atomic.h>
++  
+ /* sysctl tunables... */
+ struct files_stat_struct files_stat = {
+ 	.max_files = NR_FILE
+ };
+ 
+-EXPORT_SYMBOL(files_stat); /* Needed by unix.o */
+-
+ /* public. Not pretty! */
+- __cacheline_aligned_in_smp DEFINE_SPINLOCK(files_lock);
++__cacheline_aligned_in_smp DEFINE_SPINLOCK(files_lock);
++  
++static struct percpu_counter nr_files __cacheline_aligned_in_smp;
+ 
+-static DEFINE_SPINLOCK(filp_count_lock);
++static inline void file_free_rcu(struct rcu_head *head)
++{
++	struct file *f =  container_of(head, struct file, f_u.fu_rcuhead);
++	kmem_cache_free(filp_cachep, f);
++}
+ 
+-/* slab constructors and destructors are called from arbitrary
+- * context and must be fully threaded - use a local spinlock
+- * to protect files_stat.nr_files
++static inline void file_free(struct file *f)
++{
++	percpu_counter_mod(&nr_files, -1L);
++	call_rcu(&f->f_u.fu_rcuhead, file_free_rcu);
++}
++  
++/*
++ * Return the total number of open files in the system
+  */
+-void filp_ctor(void *objp, struct kmem_cache *cachep, unsigned long cflags)
++int get_nr_files(void)
+ {
+-	if ((cflags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+-	    SLAB_CTOR_CONSTRUCTOR) {
+-		unsigned long flags;
+-		spin_lock_irqsave(&filp_count_lock, flags);
+-		files_stat.nr_files++;
+-		spin_unlock_irqrestore(&filp_count_lock, flags);
+-	}
++	return percpu_counter_read_positive(&nr_files);
+ }
+ 
+-void filp_dtor(void *objp, struct kmem_cache *cachep, unsigned long dflags)
++/*
++ * Return the maximum number of open files in the system
++ */
++int get_max_files(void)
+ {
+-	unsigned long flags;
+-	spin_lock_irqsave(&filp_count_lock, flags);
+-	files_stat.nr_files--;
+-	spin_unlock_irqrestore(&filp_count_lock, flags);
++	return files_stat.max_files;
+ }
+ 
+-static inline void file_free_rcu(struct rcu_head *head)
++EXPORT_SYMBOL(get_max_files);
++
++/*
++ * Handle nr_files sysctl
++ */
++#if defined(CONFIG_SYSCTL) && defined(CONFIG_PROC_FS)
++int proc_nr_files(ctl_table *table, int write, struct file *filp,
++                     void __user *buffer, size_t *lenp, loff_t *ppos)
+ {
+-	struct file *f =  container_of(head, struct file, f_u.fu_rcuhead);
+-	kmem_cache_free(filp_cachep, f);
++	files_stat.nr_files = get_nr_files();
++	return proc_dointvec(table, write, filp, buffer, lenp, ppos);
+ }
+-
+-static inline void file_free(struct file *f)
++#else
++int proc_nr_files(ctl_table *table, int write, struct file *filp,
++                     void __user *buffer, size_t *lenp, loff_t *ppos)
+ {
+-	call_rcu(&f->f_u.fu_rcuhead, file_free_rcu);
++	return -ENOSYS;
+ }
++#endif
+ 
+ /* Find an unused file structure and return a pointer to it.
+  * Returns NULL, if there are no more free file structures or
+@@ -78,7 +94,7 @@ struct file *get_empty_filp(void)
+ 	/*
+ 	 * Privileged users can go above max_files
+ 	 */
+-	if (files_stat.nr_files >= files_stat.max_files &&
++	if (get_nr_files() >= files_stat.max_files &&
+ 				!capable(CAP_SYS_ADMIN))
+ 		goto over;
+ 
+@@ -97,14 +113,15 @@ struct file *get_empty_filp(void)
+ 	rwlock_init(&f->f_owner.lock);
+ 	/* f->f_version: 0 */
+ 	INIT_LIST_HEAD(&f->f_u.fu_list);
++	percpu_counter_mod(&nr_files, 1L);
+ 	return f;
+ 
+ over:
+ 	/* Ran out of filps - report that */
+-	if (files_stat.nr_files > old_max) {
++	if (get_nr_files() > old_max) {
+ 		printk(KERN_INFO "VFS: file-max limit %d reached\n",
+-					files_stat.max_files);
+-		old_max = files_stat.nr_files;
++					get_max_files());
++		old_max = get_nr_files();
+ 	}
+ 	goto fail;
+ 
+@@ -276,4 +293,5 @@ void __init files_init(unsigned long mem
+ 	if (files_stat.max_files < NR_FILE)
+ 		files_stat.max_files = NR_FILE;
+ 	files_defer_init();
++	percpu_counter_init(&nr_files);
+ } 
+diff -puN include/linux/file.h~fix-file-counting include/linux/file.h
+--- linux-2.6.16-rc3-rcu/include/linux/file.h~fix-file-counting	2006-02-15 16:00:02.000000000 +0530
++++ linux-2.6.16-rc3-rcu-dipankar/include/linux/file.h	2006-02-15 16:00:02.000000000 +0530
+@@ -60,8 +60,6 @@ extern void put_filp(struct file *);
+ extern int get_unused_fd(void);
+ extern void FASTCALL(put_unused_fd(unsigned int fd));
+ struct kmem_cache;
+-extern void filp_ctor(void * objp, struct kmem_cache *cachep, unsigned long cflags);
+-extern void filp_dtor(void * objp, struct kmem_cache *cachep, unsigned long dflags);
+ 
+ extern struct file ** alloc_fd_array(int);
+ extern void free_fd_array(struct file **, int);
+diff -puN include/linux/fs.h~fix-file-counting include/linux/fs.h
+--- linux-2.6.16-rc3-rcu/include/linux/fs.h~fix-file-counting	2006-02-15 16:00:02.000000000 +0530
++++ linux-2.6.16-rc3-rcu-dipankar/include/linux/fs.h	2006-02-15 16:00:02.000000000 +0530
+@@ -35,6 +35,8 @@ struct files_stat_struct {
+ 	int max_files;		/* tunable */
+ };
+ extern struct files_stat_struct files_stat;
++extern int get_nr_files(void);
++extern int get_max_files(void);
+ 
+ struct inodes_stat_t {
+ 	int nr_inodes;
+diff -puN kernel/sysctl.c~fix-file-counting kernel/sysctl.c
+--- linux-2.6.16-rc3-rcu/kernel/sysctl.c~fix-file-counting	2006-02-15 16:00:02.000000000 +0530
++++ linux-2.6.16-rc3-rcu-dipankar/kernel/sysctl.c	2006-02-15 16:00:02.000000000 +0530
+@@ -52,6 +52,9 @@
+ #include <linux/nfs_fs.h>
+ #endif
+ 
++extern int proc_nr_files(ctl_table *table, int write, struct file *filp,
++                     void __user *buffer, size_t *lenp, loff_t *ppos);
++
+ #if defined(CONFIG_SYSCTL)
+ 
+ /* External variables not in a header file. */
+@@ -921,7 +924,7 @@ static ctl_table fs_table[] = {
+ 		.data		= &files_stat,
+ 		.maxlen		= 3*sizeof(int),
+ 		.mode		= 0444,
+-		.proc_handler	= &proc_dointvec,
++		.proc_handler	= &proc_nr_files,
+ 	},
+ 	{
+ 		.ctl_name	= FS_MAXFILE,
+diff -puN net/unix/af_unix.c~fix-file-counting net/unix/af_unix.c
+--- linux-2.6.16-rc3-rcu/net/unix/af_unix.c~fix-file-counting	2006-02-15 16:00:02.000000000 +0530
++++ linux-2.6.16-rc3-rcu-dipankar/net/unix/af_unix.c	2006-02-15 16:00:02.000000000 +0530
+@@ -547,7 +547,7 @@ static struct sock * unix_create1(struct
+ 	struct sock *sk = NULL;
+ 	struct unix_sock *u;
+ 
+-	if (atomic_read(&unix_nr_socks) >= 2*files_stat.max_files)
++	if (atomic_read(&unix_nr_socks) >= 2*get_max_files())
+ 		goto out;
+ 
+ 	sk = sk_alloc(PF_UNIX, GFP_KERNEL, &unix_proto, 1);
+
+_

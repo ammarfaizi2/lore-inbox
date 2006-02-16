@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWBPPnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWBPPzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbWBPPnx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 10:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWBPPnx
+	id S932145AbWBPPzH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 10:55:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWBPPzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 10:43:53 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:32501 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S932294AbWBPPnw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 10:43:52 -0500
-Subject: Re: [patch 0/5] lightweight robust futexes: -V1
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       David Singleton <dsingleton@mvista.com>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060215213122.GA17450@elte.hu>
-References: <20060215151711.GA31569@elte.hu>
-	 <Pine.LNX.4.64.0602151059300.14526@dhcp153.mvista.com>
-	 <20060215213122.GA17450@elte.hu>
-Content-Type: text/plain
-Date: Thu, 16 Feb 2006 07:43:50 -0800
-Message-Id: <1140104630.21681.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Feb 2006 10:55:07 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:12442 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932145AbWBPPzF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 10:55:05 -0500
+Date: Thu, 16 Feb 2006 07:54:43 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Hubertus Franke <frankeh@watson.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: SMP BUG
+In-Reply-To: <20060216102056.GA24741@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0602160752290.916@g5.osdl.org>
+References: <43F12207.9010507@watson.ibm.com> <20060215230701.GD1508@flint.arm.linux.org.uk>
+ <Pine.LNX.4.64.0602151521320.22082@g5.osdl.org> <20060216102056.GA24741@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-02-15 at 22:31 +0100, Ingo Molnar wrote:
-> * Daniel Walker <dwalker@mvista.com> wrote:
+
+
+On Thu, 16 Feb 2006, Russell King wrote:
 > 
-> > >This patchset provides a new (written from scratch) implementation of
-> > >robust futexes, called "lightweight robust futexes". We believe this new
-> > >implementation is faster and simpler than the vma-based robust futex
-> > >solutions presented before, and we'd like this patchset to be adopted in
-> > >the upstream kernel. This is version 1 of the patchset.
-> > 
-> > 	Next point of discussion must be PI. [...]
+> It fixes that exact oops but only by preventing us getting that far
+> due to another oops.
+
+Thanks for walking through it.
+
+> We call cpu_up, which sends a CPU_UP_PREPARE event.  This causes the
+> migration thread to be spawned, and rq->migration_thread to be set.
 > 
-> robustness is an orthogonal feature to Priority Inheritance. In fact it 
-> was requested before on lkml to separate robustness support from PI 
-> support, and the vma-based robust futex patches now do precisely that - 
-> they dont offer PI. So no, PI does not play here, it's a separate thing.
+> Eventually, we call the architecture __cpu_up(), which ends up
+> calling init_idle().  Due to this patch, init_idle() then NULLs out
+> rq->migration_thread.
 
-	I was more interested in knowing if you considered it in the design.
+Fair enough.
 
-Daniel 
+That actually does point to a real bug, I think. The fact that we 
+apparently now survive the fact that we spawn the migration thread before 
+the idle thread works looks like it just hides the bug that we shouldn't 
+do that. Ingo?
 
+Oh, well. For now the fix is clearly to just leave things well alone, and 
+just have cpu_possible_map initialized early enough.
+
+		Linus

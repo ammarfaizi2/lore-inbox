@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbWBPQkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbWBPQlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932324AbWBPQkV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 11:40:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWBPQkV
+	id S932328AbWBPQlg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 11:41:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbWBPQlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 11:40:21 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:59187 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932324AbWBPQkT
+	Thu, 16 Feb 2006 11:41:36 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:9070 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932328AbWBPQlf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 11:40:19 -0500
-Date: Thu, 16 Feb 2006 17:40:17 +0100
+	Thu, 16 Feb 2006 11:41:35 -0500
+Date: Thu, 16 Feb 2006 17:41:33 +0100
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch 1/3] s390: smp initialization speed
-Message-ID: <20060216164017.GH9241@osiris.boeblingen.de.ibm.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, linux-kernel@vger.kernel.org
+Subject: [patch 2/3] s390: fix assignment instead of check in ccw_device_set_online()
+Message-ID: <20060216164133.GI9241@osiris.boeblingen.de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,59 +22,39 @@ User-Agent: mutt-ng/devel-r781 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-The last changes that introduced the additional_cpus command line parameter
-also introduced a regression regarding smp initialization speed. In
-smp_setup_cpu_possible_map() cpu_present_map is set to the same value
-as cpu_possible_map. Especially that means that bits in the present map
-will be set for cpus that are not present. This will cause a slow down
-in the initial cpu_up() loop in smp_init() since trying to take cpus online
-that aren't present takes a while.
-Fix this by setting only bits for present cpus in cpu_present_map and
-set cpu_present_map to cpu_possible_map in smp_cpus_done().
+Fix assignment instead of check in ccw_device_set_online().
+Also remove unneeded assignment in ccw_device_do_sense().
 
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
 
- arch/s390/kernel/smp.c |   15 ++++++++++-----
- 1 files changed, 10 insertions(+), 5 deletions(-)
+ drivers/s390/cio/device.c        |    2 +-
+ drivers/s390/cio/device_status.c |    1 -
+ 2 files changed, 1 insertion(+), 2 deletions(-)
 
-diff -urpN linux-2.6/arch/s390/kernel/smp.c linux-2.6-patched/arch/s390/kernel/smp.c
---- linux-2.6/arch/s390/kernel/smp.c	2006-02-16 17:10:59.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/smp.c	2006-02-16 17:10:59.000000000 +0100
-@@ -677,17 +677,21 @@ static unsigned int __initdata possible_
- 
- void __init smp_setup_cpu_possible_map(void)
- {
--	unsigned int pcpus, cpu;
-+	unsigned int phy_cpus, pos_cpus, cpu;
- 
--	pcpus = min(smp_count_cpus() + additional_cpus, (unsigned int) NR_CPUS);
-+	phy_cpus = smp_count_cpus();
-+	pos_cpus = min(phy_cpus + additional_cpus, (unsigned int) NR_CPUS);
- 
- 	if (possible_cpus)
--		pcpus = min(possible_cpus, (unsigned int) NR_CPUS);
-+		pos_cpus = min(possible_cpus, (unsigned int) NR_CPUS);
- 
--	for (cpu = 0; cpu < pcpus; cpu++)
-+	for (cpu = 0; cpu < pos_cpus; cpu++)
- 		cpu_set(cpu, cpu_possible_map);
- 
--	cpu_present_map = cpu_possible_map;
-+	phy_cpus = min(phy_cpus, pos_cpus);
-+
-+	for (cpu = 0; cpu < phy_cpus; cpu++)
-+		cpu_set(cpu, cpu_present_map);
+diff -urpN linux-2.6/drivers/s390/cio/device.c linux-2.6-patched/drivers/s390/cio/device.c
+--- linux-2.6/drivers/s390/cio/device.c	2006-02-16 17:10:40.000000000 +0100
++++ linux-2.6-patched/drivers/s390/cio/device.c	2006-02-16 17:11:00.000000000 +0100
+@@ -359,7 +359,7 @@ ccw_device_set_online(struct ccw_device 
+ 	else 
+ 		pr_debug("ccw_device_offline returned %d, device %s\n",
+ 			 ret, cdev->dev.bus_id);
+-	return (ret = 0) ? -ENODEV : ret;
++	return (ret == 0) ? -ENODEV : ret;
  }
  
- #ifdef CONFIG_HOTPLUG_CPU
-@@ -843,6 +847,7 @@ void __devinit smp_prepare_boot_cpu(void
- 
- void smp_cpus_done(unsigned int max_cpus)
- {
-+	cpu_present_map = cpu_possible_map;
- }
- 
- /*
+ static ssize_t
+diff -urpN linux-2.6/drivers/s390/cio/device_status.c linux-2.6-patched/drivers/s390/cio/device_status.c
+--- linux-2.6/drivers/s390/cio/device_status.c	2006-02-16 17:10:40.000000000 +0100
++++ linux-2.6-patched/drivers/s390/cio/device_status.c	2006-02-16 17:11:00.000000000 +0100
+@@ -317,7 +317,6 @@ ccw_device_do_sense(struct ccw_device *c
+ 	/*
+ 	 * We have ending status but no sense information. Do a basic sense.
+ 	 */
+-	sch = to_subchannel(cdev->dev.parent);
+ 	sch->sense_ccw.cmd_code = CCW_CMD_BASIC_SENSE;
+ 	sch->sense_ccw.cda = (__u32) __pa(cdev->private->irb.ecw);
+ 	sch->sense_ccw.count = SENSE_MAX_COUNT;

@@ -1,107 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWBPJpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030441AbWBPJtO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932523AbWBPJpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 04:45:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbWBPJpG
+	id S1030441AbWBPJtO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 04:49:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030584AbWBPJtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 04:45:06 -0500
-Received: from ruault.com ([81.57.109.127]:59371 "EHLO ruault.com")
-	by vger.kernel.org with ESMTP id S932523AbWBPJow (ORCPT
+	Thu, 16 Feb 2006 04:49:14 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:21189 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030441AbWBPJtN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 04:44:52 -0500
-Message-ID: <43F44978.2050809@ruault.com>
-Date: Thu, 16 Feb 2006 10:44:24 +0100
-From: Charles-Edouard Ruault <ce@ruault.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051018)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Thu, 16 Feb 2006 04:49:13 -0500
+Date: Thu, 16 Feb 2006 10:47:31 +0100
+From: Ingo Molnar <mingo@elte.hu>
 To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] kernel 2.6.15.4: soft lockup detected on CPU#0!
-References: <43EF8388.10202@ruault.com> <20060215185120.6c35eca2.akpm@osdl.org>
-In-Reply-To: <20060215185120.6c35eca2.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Cc: Cliff Wickman <cpw@sgi.com>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       george anzinger <george@mvista.com>
+Subject: Re: [RFC] sys_setrlimit() in 2.6.16
+Message-ID: <20060216094731.GA32676@elte.hu>
+References: <20060214222417.GA8479@sgi.com> <20060216005826.4afc87ae.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060216005826.4afc87ae.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
 
->Charles-Edouard Ruault <ce@ruault.com> wrote:
->  
->
->>i was trying to rip a CD when the whole machine started to freeze
->> periodicaly, i then looked at the logs and found the following :
->>
->> Feb 12 19:23:39 ruault kernel: hdc: irq timeout: status=0x80 { Busy }
->> Feb 12 19:23:39 ruault kernel: ide: failed opcode was: unknown
->> Feb 12 19:23:39 ruault kernel: hdd: status timeout: status=0x80 { Busy }
->> Feb 12 19:23:39 ruault kernel: ide: failed opcode was: unknown
->> Feb 12 19:23:39 ruault kernel: hdd: drive not ready for command
->>    
->>
->
->No idea what caused that.
->
->  
->
->> Feb 12 19:23:39 ruault kernel: BUG: soft lockup detected on CPU#0!
->>    
->>
->
->The following was merged today.  Hopefully it suppresses this false
->positive.
->  
->
->From what i understand it will fix the problem only if the drive is in
-PIO mode, which is the case for  Folkert van Heusden, who reported the
-same BUG output.
-However it does not appear that my cdrom drives are using PIO, from the
-logs i have they're supposed to use DMA :
+* Andrew Morton <akpm@osdl.org> wrote:
 
->Feb 12 19:37:12 ruault kernel: hdc: ATAPI 40X CD-ROM CD-R/RW drive,2048kB Cache, DMA
-> Feb 12 19:37:12 ruault kernel: Uniform CD-ROM driver Revision: 3.20
-> Feb 12 19:37:12 ruault kernel: hdd: ATAPI 32X DVD-ROM DVD-R CD-R/RW
-> drive, 2048kB Cache, UDMA(33)
+> This has to be considered a bug.  The spec certainly implies that a 
+> limit of zero should be honoured and, probably more importantly, 
+> that's how it works in 2.4.
+> 
+> Problem is, the code in there all assumes that an it_prof_expires of 
+> zero means "it was never set", and changing that (add a yes-it-has 
+> flag?) would be less than trivial.
+> 
+> So I think the path of least resistance here is to just convert the 
+> caller's zero seconds into one second.  That in fact gives the same 
+> behaviour as 2.4: you get whacked after one second or more CPU time.
+> 
+> (This is not a final patch - that revolting expression in 
+> sys_setrlimit() needs help first).
 
-sudo /sbin/hdparm -i /dev/hdc
+your approach looks good to me. It doesnt make much sense anyway to have 
+a task whacked right after startup ... so adding a common-sense "the 
+user must have meant some really small value" thing doesnt look all that 
+wrong.
 
-/dev/hdc:
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
- Model=PLEXTOR CD-R PX-W1610A, FwRev=1.05, SerialNo=
- Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
- RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
- BuffType=unknown, BuffSize=0kB, MaxMultSect=0
- (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
- IORDY=on/off, tPIO={min:180,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  sdma0 sdma1 sdma2 mdma0 mdma1 *mdma2
- AdvancedPM=no
-
- sudo /sbin/hdparm -i /dev/hdd
-
-/dev/hdd:
-
- Model=_NEC DVD_RW ND-3500AG, FwRev=2.1A, SerialNo=
- Config={ Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
- RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
- BuffType=unknown, BuffSize=0kB, MaxMultSect=0
- (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
- IORDY=yes, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 *udma2
- AdvancedPM=no
-
-
-So i think this patch won't do me any good :(
-any other idea ????
-
-Thanks for the answer.
-
-
-
--- 
-Charles-Edouard Ruault
-GPG key Id E4D2B80C
-
+	Ingo

@@ -1,72 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932520AbWBPXlo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbWBPXow@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932520AbWBPXlo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 18:41:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbWBPXlo
+	id S932544AbWBPXow (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 18:44:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbWBPXow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 18:41:44 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:8079 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932520AbWBPXln (ORCPT
+	Thu, 16 Feb 2006 18:44:52 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:14999 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932544AbWBPXow (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 18:41:43 -0500
-Date: Fri, 17 Feb 2006 00:39:52 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Arjan van de Ven <arjan@infradead.org>, Daniel Walker <dwalker@mvista.com>,
-       linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>,
-       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 0/6] lightweight robust futexes: -V3 - Why in userspace?
-Message-ID: <20060216233952.GB12143@elte.hu>
-References: <20060216223618.GA8182@elte.hu> <Pine.OSF.4.05.10602170003380.22107-100000@da410>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.05.10602170003380.22107-100000@da410>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 16 Feb 2006 18:44:52 -0500
+Date: Fri, 17 Feb 2006 00:44:38 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: john stultz <johnstul@us.ibm.com>
+cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] hrtimer: round up relative start time on low-res arches
+In-Reply-To: <1140116771.7028.31.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.61.0602162305210.30994@scrub.home>
+References: <Pine.LNX.4.61.0602130207560.23745@scrub.home> 
+ <1139827927.4932.17.camel@localhost.localdomain>  <Pine.LNX.4.61.0602131208050.30994@scrub.home>
+  <20060214074151.GA29426@elte.hu>  <Pine.LNX.4.61.0602141113060.30994@scrub.home>
+  <20060214122031.GA30983@elte.hu>  <Pine.LNX.4.61.0602150033150.30994@scrub.home>
+  <20060215091959.GB1376@elte.hu>  <Pine.LNX.4.61.0602151259270.30994@scrub.home>
+  <1140036234.27720.8.camel@leatherman>  <Pine.LNX.4.61.0602161244240.30994@scrub.home>
+ <1140116771.7028.31.camel@cog.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Esben Nielsen <simlo@phys.au.dk> wrote:
+On Thu, 16 Feb 2006, john stultz wrote:
 
-> > this is racy - we cannot know whether the PID wrapped around.
-> >
-> What about adding more bits to check on? The PID to lookup the task_t 
-> and then some extra bits to uniquely identify the actual task.
+> I'll admit I'm slow, but since it has taken me a number of weeks to sort
+> out exactly the details of what is being done in your implementation,
+> and I *still* have bugs after re-implementing it, I'd not claim your
+> code is simple. The potential to be very precise and efficient: yes, but
+> not so trivial to follow.
 
-which would just be a fancy name for a wider PID space, and would thus 
-still not protect against PID reuse :-)
+Wow, I didn't expect it to be that difficult, I'm sorry about that. :)
+Next time I'll split it apart into the basic parts, so it should be easier 
+to read and follow.
 
-> > nor does this method offer any solution for the case where there are 
-> > already waiters pending: they might be hung forever. 
->
-> It was for this case I suggested maintaining a list of waiters within 
-> the kernel on each task_t. The adding has to be done FUTEX_WAIT so the 
-> adding operation needs to be protected.
+> (This is why I cringe at the idea of trying to implement it for each
+> clock like you're prototype suggested.)
 
-i'm not sure i follow - what list is this and how would it be 
-maintained?
+I didn't suggest that, the function itself is already quite generic and 
+could be called like "clock_update(cycles);". What I'm suggesting is to 
+make it a template function, so that one create a optimized version based 
+on some parameters (e.g. it's possible to optimize some parts away by 
+making them constant).
+That's not really necessary for the first version, only that a clock can 
+call the "clock_update(cycles);" directly from it's interrupt handler, 
+later it can be replaced with an optimized version.
 
-> > With our solution 
-> > one of those waiters gets woken up and notice that the lock is dead. 
-> > (and in the unlikely even of that thread dying too while trying to 
-> > recover the data, the kernel will do yet another wakeup, of the next 
-> > waiter.)
-> > 
-> I admit your solution is a good one. The only drawback - besides being 
-> untraditional - is that memory corruption can leave futexes locked at 
-> exit.
+> Maybe when I send out the patch you can suggest improvements to the
+> comments or other ways to better clarify the code as you suggested
+> above.
 
-so? Memory corruption can overwrite the futex value anyway, and can thus 
-cause the wrong owner to be identified - causing a locked futex. This 
-patch does not protect against bad effects of memory corruption - 
-there's really no way to keep userspace from breaking itself.
+Now I'm really curious. :)
 
-	Ingo
+> I'd be very much open to it, although I haven't seen any further updates
+> to the code since I mailed you some feedback on them. Have you had a
+> chance to follow up on those?
+
+Not yet, but it would only minor updates (mostly documenting it better and 
+cleanups as you suggested), the basic stuff is still the same.
+
+> > In the end the simplification of my patches should also 
+> > make your patches simpler, as it precalculates as much as possible and 
+> > reduces the work done in the fast paths. It would avoid a lot of extra 
+> > work, which you currently do.
+> 
+> Well, I'm still cautious, since it still has some dependencies on HZ
+> (see equation below), which I'm trying to avoid.
+
+There is no real dependency on HZ, it's just that the synchronisations 
+steps and incremental updates are done in fixed intervals. The interval 
+could easily be independent of HZ.
+
+bye, Roman

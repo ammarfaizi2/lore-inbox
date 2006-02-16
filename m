@@ -1,110 +1,285 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWBPVtT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbWBPVuk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932358AbWBPVtT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 16:49:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbWBPVtT
+	id S932362AbWBPVuk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 16:50:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbWBPVuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 16:49:19 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:12674 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932358AbWBPVtS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 16:49:18 -0500
-Date: Thu, 16 Feb 2006 13:49:12 -0800 (PST)
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
-X-X-Sender: jbrandeb@lindenhurst-2.jf.intel.com
-To: skraw@ithnet.com, linux-kernel@vger.kernel.org
-cc: jesse.brandeburg@intel.com
-Subject: Re: Severe problem with e1000 driver in 2.4.31/32 (at least)
-In-Reply-To: <4807377b0602161342l4b46fa3cu26a007789ba08443@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0602161344240.5564@lindenhurst-2.jf.intel.com>
-References: <20060216203948.5953a1e9.skraw@ithnet.com>
- <4807377b0602161342l4b46fa3cu26a007789ba08443@mail.gmail.com>
-ReplyTo: "Jesse Brandeburg" <jesse.brandeburg@intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 16 Feb 2006 16:50:40 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:14817
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S932362AbWBPVui (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 16:50:38 -0500
+Date: Thu, 16 Feb 2006 13:50:23 -0800
+From: Greg KH <greg@kroah.com>
+To: Nathan Lynch <ntl@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sysfs-related oops during module unload (2.6.16-rc2)
+Message-ID: <20060216215023.GA30417@kroah.com>
+References: <20060211220351.GA3293@localhost.localdomain> <20060211224526.GA25237@kroah.com> <20060212052751.GB3293@localhost.localdomain> <20060212053849.GA27587@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060212053849.GA27587@kroah.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ---------- Forwarded message ----------
-> From: Stephan von Krawczynski <skraw@ithnet.com>
-> today we had to experience a bug in e1000 network driver on this type of
-> network card (a current PCI e1000 sold everywhere):
->
-> 02:07.0 Ethernet controller: Intel Corp.: Unknown device 107c (rev 05)
->        Subsystem: Intel Corp.: Unknown device 1376
->        Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 18
->        Memory at f9000000 (32-bit, non-prefetchable) [size=128K]
->        Memory at f9020000 (32-bit, non-prefetchable) [size=128K]
->        I/O ports at a800 [size=64]
->        Expansion ROM at <unassigned> [disabled] [size=128K]
->        Capabilities: [dc] Power Management version 2
->        Capabilities: [e4] PCI-X non-bridge device.
->
-> We can simply crash the box (2.4.32 stock kernel, 2.4.31 is the same) by
-> performing this:
->
-> 1) Boot box with network physically disconnected
-> 2) start pinging some host somewhere, you get "unreachable", let it run
-> 3) connect the network and await some ping replies.
-> 4) disconnect the network again
-> 5) box is dead
->
-> The box runs into a BUG in e1000_hw.c line 5052. The BUG shows up because the
-> code is obviously executed inside an interrupt, which seems not intended.
-> As this BUG is always reproducable and pretty annoying we made this pretty bad
-> workaround:
+On Sat, Feb 11, 2006 at 09:38:49PM -0800, Greg KH wrote:
+> On Sat, Feb 11, 2006 at 11:27:52PM -0600, Nathan Lynch wrote:
+> > Greg KH wrote:
+> > > On Sat, Feb 11, 2006 at 04:03:53PM -0600, Nathan Lynch wrote:
+> > > > If the refcnt attribute of a module is open when the module is
+> > > > unloaded, we get an oops when the file is closed.  I used ide_cd for
+> > > > this report but I don't think the oops is caused by the driver itself.
+> > > > This bug seems to be restricted to the /sys/module hierarchy; it
+> > > > doesn't happen with /sys/class etc.
+> > > > 
+> > > > I suspect it's an extra put or a missing get somewhere, but the fix
+> > > > isn't obvious to me after looking at it for a little while, so I'm
+> > > > punting.
+> > > > 
+> > > > I'm pretty sure this happens with 2.6.15; I can double-check if
+> > > > needed.
+> > > 
+> > > Ugh, we aren't setting the owner of these fields properly, good catch.
+> > > 
+> > > Does the patch below (built tested only), solve this for you?
+> > 
+> > Thanks, but no, I get the same oops.  The refcnt attribute isn't part
+> > of the modinfo_attrs array.
+> 
+> Ah, crap, you're right.  We really need to dynamically create these
+> attributes for every module to get the owner right.  That will be a
+> bigger patch that I'll work on on Monday...
 
-Please try this patch, compile tested.  It matches up this particular code 
-to what is currently in 2.6.16-rc
+Ok, turns out the code was trying to increment the module reference
+count correctly, but it wasn't working right at all.  And we were not
+showing a few things in sysfs if module unload was not selected, which
+isn't right.
 
-e1000: fix BUG reported due to calling msec_delay in irq context
+So here's a patch that fixes all of this, and your original problem.
+Bonus is that it actually removes more code than it adds :)
 
-There are some functions that are called in irq context that need to use
-msec_delay_irq instead to avoid a BUG.
+Can you test it out to verify that it works for you?
 
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+thanks,
+
+greg k-h
+
 
 ---
+ include/linux/module.h |    1 
+ kernel/module.c        |   77 +++++++++++++++++++------------------------------
+ kernel/params.c        |   10 ------
+ 3 files changed, 32 insertions(+), 56 deletions(-)
 
-  drivers/net/e1000/e1000_hw.c |    8 ++++----
-  1 files changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/net/e1000/e1000_hw.c b/drivers/net/e1000/e1000_hw.c
---- a/drivers/net/e1000/e1000_hw.c
-+++ b/drivers/net/e1000/e1000_hw.c
-@@ -5049,7 +5049,7 @@ e1000_config_dsp_after_link_change(struc
-              if(ret_val)
-                  return ret_val;
-
--            msec_delay(20);
-+            msec_delay_irq(20);
-
-              ret_val = e1000_write_phy_reg(hw, 0x0000,
-                                            IGP01E1000_IEEE_FORCE_GIGA);
-@@ -5073,7 +5073,7 @@ e1000_config_dsp_after_link_change(struc
-              if(ret_val)
-                  return ret_val;
-
--            msec_delay(20);
-+            msec_delay_irq(20);
-
-              /* Now enable the transmitter */
-              ret_val = e1000_write_phy_reg(hw, 0x2F5B, phy_saved_data);
-@@ -5098,7 +5098,7 @@ e1000_config_dsp_after_link_change(struc
-              if(ret_val)
-                  return ret_val;
-
--            msec_delay(20);
-+            msec_delay_irq(20);
-
-              ret_val = e1000_write_phy_reg(hw, 0x0000,
-                                            IGP01E1000_IEEE_FORCE_GIGA);
-@@ -5114,7 +5114,7 @@ e1000_config_dsp_after_link_change(struc
-              if(ret_val)
-                  return ret_val;
-
--            msec_delay(20);
-+            msec_delay_irq(20);
-
-              /* Now enable the transmitter */
-              ret_val = e1000_write_phy_reg(hw, 0x2F5B, phy_saved_data);
+--- gregkh-2.6.orig/include/linux/module.h
++++ gregkh-2.6/include/linux/module.h
+@@ -242,6 +242,7 @@ struct module
+ 	/* Sysfs stuff. */
+ 	struct module_kobject mkobj;
+ 	struct module_param_attrs *param_attrs;
++	struct module_attribute *modinfo_attrs;
+ 	const char *version;
+ 	const char *srcversion;
+ 
+--- gregkh-2.6.orig/kernel/module.c
++++ gregkh-2.6/kernel/module.c
+@@ -379,7 +379,6 @@ static inline void percpu_modcopy(void *
+ }
+ #endif /* CONFIG_SMP */
+ 
+-#ifdef CONFIG_MODULE_UNLOAD
+ #define MODINFO_ATTR(field)	\
+ static void setup_modinfo_##field(struct module *mod, const char *s)  \
+ {                                                                     \
+@@ -411,12 +410,7 @@ static struct module_attribute modinfo_#
+ MODINFO_ATTR(version);
+ MODINFO_ATTR(srcversion);
+ 
+-static struct module_attribute *modinfo_attrs[] = {
+-	&modinfo_version,
+-	&modinfo_srcversion,
+-	NULL,
+-};
+-
++#ifdef CONFIG_MODULE_UNLOAD
+ /* Init the unload section of the module. */
+ static void module_unload_init(struct module *mod)
+ {
+@@ -731,6 +725,15 @@ static inline void module_unload_init(st
+ }
+ #endif /* CONFIG_MODULE_UNLOAD */
+ 
++static struct module_attribute *modinfo_attrs[] = {
++	&modinfo_version,
++	&modinfo_srcversion,
++#ifdef CONFIG_MODULE_UNLOAD
++	&refcnt,
++#endif
++	NULL,
++};
++
+ #ifdef CONFIG_OBSOLETE_MODPARM
+ /* Bounds checking done below */
+ static int obsparm_copy_string(const char *val, struct kernel_param *kp)
+@@ -1056,37 +1059,28 @@ static inline void remove_sect_attrs(str
+ }
+ #endif /* CONFIG_KALLSYMS */
+ 
+-
+-#ifdef CONFIG_MODULE_UNLOAD
+-static inline int module_add_refcnt_attr(struct module *mod)
+-{
+-	return sysfs_create_file(&mod->mkobj.kobj, &refcnt.attr);
+-}
+-static void module_remove_refcnt_attr(struct module *mod)
+-{
+-	return sysfs_remove_file(&mod->mkobj.kobj, &refcnt.attr);
+-}
+-#else
+-static inline int module_add_refcnt_attr(struct module *mod)
+-{
+-	return 0;
+-}
+-static void module_remove_refcnt_attr(struct module *mod)
+-{
+-}
+-#endif
+-
+-#ifdef CONFIG_MODULE_UNLOAD
+ static int module_add_modinfo_attrs(struct module *mod)
+ {
+ 	struct module_attribute *attr;
++	struct module_attribute *temp_attr;
+ 	int error = 0;
+ 	int i;
+ 
++	mod->modinfo_attrs = kzalloc((sizeof(struct module_attribute) *
++					(ARRAY_SIZE(modinfo_attrs) + 1)),
++					GFP_KERNEL);
++	if (!mod->modinfo_attrs)
++		return -ENOMEM;
++
++	temp_attr = mod->modinfo_attrs;
+ 	for (i = 0; (attr = modinfo_attrs[i]) && !error; i++) {
+ 		if (!attr->test ||
+-		    (attr->test && attr->test(mod)))
+-			error = sysfs_create_file(&mod->mkobj.kobj,&attr->attr);
++		    (attr->test && attr->test(mod))) {
++			memcpy(temp_attr, attr, sizeof(*temp_attr));
++			temp_attr->attr.owner = mod;
++			error = sysfs_create_file(&mod->mkobj.kobj,&temp_attr->attr);
++			++temp_attr;
++		}
+ 	}
+ 	return error;
+ }
+@@ -1096,12 +1090,16 @@ static void module_remove_modinfo_attrs(
+ 	struct module_attribute *attr;
+ 	int i;
+ 
+-	for (i = 0; (attr = modinfo_attrs[i]); i++) {
++	for (i = 0; (attr = &mod->modinfo_attrs[i]); i++) {
++		/* pick a field to test for end of list */
++		if (!attr->attr.name)
++			break;
+ 		sysfs_remove_file(&mod->mkobj.kobj,&attr->attr);
+-		attr->free(mod);
++		if (attr->free)
++			attr->free(mod);
+ 	}
++	kfree(mod->modinfo_attrs);
+ }
+-#endif
+ 
+ static int mod_sysfs_setup(struct module *mod,
+ 			   struct kernel_param *kparam,
+@@ -1119,19 +1117,13 @@ static int mod_sysfs_setup(struct module
+ 	if (err)
+ 		goto out;
+ 
+-	err = module_add_refcnt_attr(mod);
+-	if (err)
+-		goto out_unreg;
+-
+ 	err = module_param_sysfs_setup(mod, kparam, num_params);
+ 	if (err)
+ 		goto out_unreg;
+ 
+-#ifdef CONFIG_MODULE_UNLOAD
+ 	err = module_add_modinfo_attrs(mod);
+ 	if (err)
+ 		goto out_unreg;
+-#endif
+ 
+ 	return 0;
+ 
+@@ -1143,10 +1135,7 @@ out:
+ 
+ static void mod_kobject_remove(struct module *mod)
+ {
+-#ifdef CONFIG_MODULE_UNLOAD
+ 	module_remove_modinfo_attrs(mod);
+-#endif
+-	module_remove_refcnt_attr(mod);
+ 	module_param_sysfs_remove(mod);
+ 
+ 	kobject_unregister(&mod->mkobj.kobj);
+@@ -1424,7 +1413,6 @@ static char *get_modinfo(Elf_Shdr *sechd
+ 	return NULL;
+ }
+ 
+-#ifdef CONFIG_MODULE_UNLOAD
+ static void setup_modinfo(struct module *mod, Elf_Shdr *sechdrs,
+ 			  unsigned int infoindex)
+ {
+@@ -1439,7 +1427,6 @@ static void setup_modinfo(struct module 
+ 						attr->attr.name));
+ 	}
+ }
+-#endif
+ 
+ #ifdef CONFIG_KALLSYMS
+ int is_exported(const char *name, const struct module *mod)
+@@ -1755,10 +1742,8 @@ static struct module *load_module(void _
+ 	if (strcmp(mod->name, "driverloader") == 0)
+ 		add_taint(TAINT_PROPRIETARY_MODULE);
+ 
+-#ifdef CONFIG_MODULE_UNLOAD
+ 	/* Set up MODINFO_ATTR fields */
+ 	setup_modinfo(mod, sechdrs, infoindex);
+-#endif
+ 
+ 	/* Fix up syms, so that st_value is a pointer to location. */
+ 	err = simplify_symbols(sechdrs, symindex, strtab, versindex, pcpuindex,
+--- gregkh-2.6.orig/kernel/params.c
++++ gregkh-2.6/kernel/params.c
+@@ -638,13 +638,8 @@ static ssize_t module_attr_show(struct k
+ 	if (!attribute->show)
+ 		return -EIO;
+ 
+-	if (!try_module_get(mk->mod))
+-		return -ENODEV;
+-
+ 	ret = attribute->show(attribute, mk->mod, buf);
+ 
+-	module_put(mk->mod);
+-
+ 	return ret;
+ }
+ 
+@@ -662,13 +657,8 @@ static ssize_t module_attr_store(struct 
+ 	if (!attribute->store)
+ 		return -EIO;
+ 
+-	if (!try_module_get(mk->mod))
+-		return -ENODEV;
+-
+ 	ret = attribute->store(attribute, mk->mod, buf, len);
+ 
+-	module_put(mk->mod);
+-
+ 	return ret;
+ }
+ 

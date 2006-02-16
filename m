@@ -1,58 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbWBPG0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWBPG1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751116AbWBPG0E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 01:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbWBPG0D
+	id S1751175AbWBPG1m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 01:27:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWBPG1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 01:26:03 -0500
-Received: from fed1rmmtao01.cox.net ([68.230.241.38]:26337 "EHLO
-	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
-	id S1750955AbWBPG0B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 01:26:01 -0500
-From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org
-Subject: [ANNOUNCE] GIT 1.2.1
-cc: linux-kernel@vger.kernel.org
-Date: Wed, 15 Feb 2006 22:25:59 -0800
-Message-ID: <7vzmkrizuw.fsf@assigned-by-dhcp.cox.net>
+	Thu, 16 Feb 2006 01:27:41 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:20098 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751175AbWBPG1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 01:27:41 -0500
+Date: Thu, 16 Feb 2006 07:27:27 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Hannes Reinecke <hare@suse.de>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: calibrate_migration_costs takes ages on s390
+Message-ID: <20060216062727.GB9241@osiris.boeblingen.de.ibm.com>
+References: <20060213102634.GA4677@osiris.boeblingen.de.ibm.com> <20060213104645.GA17173@elte.hu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060213104645.GA17173@elte.hu>
+User-Agent: mutt-ng/devel-r781 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest maintenance release GIT 1.2.1 is available at the
-usual places:
+> introduce the CONFIG_DEFAULT_MIGRATION_COST method for an architecture
+> to set the scheduler migration costs. This turns off automatic detection
+> of migration costs. Makes sense on virtual platforms, where migration
+> costs are hard to measure accurately.
+> 
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> 
+> ----
+> 
+>  arch/s390/Kconfig |    4 ++++
+>  kernel/sched.c    |   13 ++++++++++++-
+>  2 files changed, 16 insertions(+), 1 deletion(-)
+> 
+> Index: linux-robust-list.q/arch/s390/Kconfig
+> ===================================================================
+> --- linux-robust-list.q.orig/arch/s390/Kconfig
+> +++ linux-robust-list.q/arch/s390/Kconfig
+> @@ -80,6 +80,10 @@ config HOTPLUG_CPU
+>  	  can be controlled through /sys/devices/system/cpu/cpu#.
+>  	  Say N if you want to disable CPU hotplug.
+>  
+> +config DEFAULT_MIGRATION_COST
+> +	int
+> +	default "1000000"
+> +
+>  config MATHEMU
+>  	bool "IEEE FPU emulation"
+>  	depends on MARCH_G5
+> Index: linux-robust-list.q/kernel/sched.c
+> ===================================================================
+> --- linux-robust-list.q.orig/kernel/sched.c
+> +++ linux-robust-list.q/kernel/sched.c
+> @@ -5159,7 +5159,18 @@ static void init_sched_build_groups(stru
+>  #define MAX_DOMAIN_DISTANCE 32
+>  
+>  static unsigned long long migration_cost[MAX_DOMAIN_DISTANCE] =
+> -		{ [ 0 ... MAX_DOMAIN_DISTANCE-1 ] = -1LL };
+> +		{ [ 0 ... MAX_DOMAIN_DISTANCE-1 ] =
+> +/*
+> + * Architectures may override the migration cost and thus avoid
+> + * boot-time calibration. Unit is nanoseconds. Mostly useful for
+> + * virtualized hardware:
+> + */
+> +#ifdef CONFIG_DEFAULT_MIGRATION_COST
+> +			CONFIG_DEFAULT_MIGRATION_COST
+> +#else
+> +			-1LL
+> +#endif
+> +};
+>  
+>  /*
+>   * Allow override of migration cost - in units of microseconds.
+> -
 
-	http://www.kernel.org/pub/software/scm/git/
+This one should be applied then.
 
-	git-1.2.1.tar.{gz,bz2}			(tarball)
-	RPMS/$arch/git-*-1.2.1-1.$arch.rpm	(RPM)
-
-
-Nothing earth-shattering but cleanups and cleanups and cleanups.
-
-All the interesting things are happening in "master" and "pu",
-which will be a topic for a separate message.
-
-----------------------------------------------------------------
-
-Changes since v1.2.0 are as follows:
-
-Fernando J. Pereda:
-      Print an error if cloning a http repo and NO_CURL is set
-
-Fredrik Kuivinen:
-      s/SHELL/SHELL_PATH/ in Makefile
-
-Josef Weidendorfer:
-      More useful/hinting error messages in git-checkout
-
-Junio C Hamano:
-      Documentation: git-commit in 1.2.X series defaults to --include.
-      Documentation: git-ls-files asciidocco.
-      bisect: remove BISECT_NAMES after done.
-      combine-diff: diff-files fix.
-      combine-diff: diff-files fix (#2)
-      checkout: fix dirty-file display.
-
-
+Thanks,
+Heiko

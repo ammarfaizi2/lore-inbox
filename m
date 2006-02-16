@@ -1,83 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbWBPAji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbWBPAom@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbWBPAji (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 19:39:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbWBPAjh
+	id S1751322AbWBPAom (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 19:44:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWBPAom
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 19:39:37 -0500
-Received: from omta03sl.mx.bigpond.com ([144.140.92.155]:27203 "EHLO
-	omta03sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751294AbWBPAjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 19:39:37 -0500
-Message-ID: <43F3C9C6.5080606@bigpond.net.au>
-Date: Thu, 16 Feb 2006 11:39:34 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Wed, 15 Feb 2006 19:44:42 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:43748 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751322AbWBPAol
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Feb 2006 19:44:41 -0500
+Subject: Re: fsck: i_blocks is xxx should be yyy on ext3
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
 To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>, npiggin@suse.de,
-       Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
-       Linus Torvalds <torvalds@osdl.org>, Con Kolivas <kernel@kolivas.org>
-Subject: [PATCH] Fix smpnice high priority task hopping problem
-Content-Type: multipart/mixed;
- boundary="------------010201090002030004050900"
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 16 Feb 2006 00:39:34 +0000
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060208225359.426573cf.akpm@osdl.org>
+References: <43EA079A.4010108@aitel.hist.no>
+	 <20060208225359.426573cf.akpm@osdl.org>
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Wed, 15 Feb 2006 16:44:38 -0800
+Message-Id: <1140050679.20936.14.camel@dyn9047017067.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010201090002030004050900
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, 2006-02-08 at 22:53 -0800, Andrew Morton wrote:
+> Helge Hafting <helge.hafting@aitel.hist.no> wrote:
+> >
+> >  Today I rebooted into 2.6.16-rc2-mm1.  Fsck checked a "clean" ext3 fs,
+> >  because it was many mounts since the last time.
+> > 
+> >  I have seen that many times, but this time I got a lot of
+> >  "i_blocks is xxx, should be yyy fix?"
+> > 
+> >  In all cases, the blocks were fixed to a lower number.
+> 
+> Yes, thanks.  It's due to the ext3_getblocks() patches in -mm.  I can't
+> think of any actual harm which it'll cause.
+> 
+> To reproduce:
+> 
+> mkfs
+> mount
+> dbench 32
+> <wait 20 seconds>
+> killall dbench
+> umount
+> fsck
+> -
 
-Suresh B. Siddha has reported:
+Sorry about the late response.  I failed to reproduce the problem with
+above instructions. I am running 2.6.16-rc2-mm1 kernel, played dbench
+32 ,64 and 128, and tried both 8 cpu and 1 cpu, still no luck at last. I
+am using e2fsck version 1.35 though. What versions you are using?
 
-"on a lightly loaded system, this will result in higher priority job 
-hopping around from one processor to another processor.. This is because 
-of the code in find_busiest_group() which assumes that SCHED_LOAD_SCALE 
-represents a unit process load and with nice_to_bias calculations this 
-is no longer true (in the presence of non nice-0 tasks)"
 
-Analysis of this problem as revealed that the smpnice code results in 
-the weighted load being larger than 1 and this triggers the active load 
-balancing code.  However, in active_load_balance(), the migration thread 
-fails to take into account itself when deciding if there are any tasks 
-to be migrated from its run queue. I.e. even if there is only one other 
-task on the run queue other than itself it will still migrate that other 
-task.
+Thanks!
 
-The attached patch fixes that anomaly.
+Mingming
 
-Signed-off-by: Peter Williams <pwil3058@bigpond.com.au>
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
-
---------------010201090002030004050900
-Content-Type: text/plain;
- name="fix-smpnice-task-hopping-problem"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fix-smpnice-task-hopping-problem"
-
-Index: MM-2.6.X/kernel/sched.c
-===================================================================
---- MM-2.6.X.orig/kernel/sched.c	2006-02-16 10:51:52.000000000 +1100
-+++ MM-2.6.X/kernel/sched.c	2006-02-16 11:02:45.000000000 +1100
-@@ -2406,7 +2406,7 @@ static void active_load_balance(runqueue
- 	runqueue_t *target_rq;
- 	int target_cpu = busiest_rq->push_cpu;
- 
--	if (busiest_rq->nr_running <= 1)
-+	if (busiest_rq->nr_running <= 2)
- 		/* no task to move */
- 		return;
- 
-
---------------010201090002030004050900--

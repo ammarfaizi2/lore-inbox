@@ -1,74 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbWBPVLa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbWBPVXm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964901AbWBPVLa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 16:11:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWBPVLa
+	id S1750957AbWBPVXm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 16:23:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbWBPVXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 16:11:30 -0500
-Received: from watts.utsl.gen.nz ([202.78.240.73]:60321 "EHLO mail.utsl.gen.nz")
-	by vger.kernel.org with ESMTP id S964901AbWBPVL3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 16:11:29 -0500
-Message-ID: <43F4EA6D.2040504@vilain.net>
-Date: Fri, 17 Feb 2006 10:11:09 +1300
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Herbert Poetzl <herbert@13thfloor.at>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
-       linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: (pspace,pid) vs true pid virtualization
-References: <20060215145942.GA9274@sergelap.austin.ibm.com>	 <m11wy4s24i.fsf@ebiederm.dsl.xmission.com>	 <20060216143030.GA27585@MAIL.13thfloor.at>	 <1140111692.21383.2.camel@localhost.localdomain>	 <20060216191245.GA28223@MAIL.13thfloor.at> <1140118693.21383.18.camel@localhost.localdomain>
-In-Reply-To: <1140118693.21383.18.camel@localhost.localdomain>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 16 Feb 2006 16:23:42 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:1495 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750880AbWBPVXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 16:23:41 -0500
+Date: Thu, 16 Feb 2006 13:23:09 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, drepper@redhat.com, tglx@linutronix.de,
+       arjan@infradead.org, akpm@osdl.org
+Subject: Re: [patch 0/6] lightweight robust futexes: -V3
+Message-Id: <20060216132309.fd4e4723.pj@sgi.com>
+In-Reply-To: <20060216094130.GA29716@elte.hu>
+References: <20060216094130.GA29716@elte.hu>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> Brainstorming ... what do you think about having a special init process
-> inside the child to act as a proxy of sorts?  It is controlled by the
-> parent vserver/container, and would not be subject to resource limits.
-> It would not necessarily need to fork in order to kill other processes
-> inside the vserver (not subject to resource limits).  It could also
-> continue when the rest of the guest was suspended.
-> A pid killer would be ineffective against such a process because you
-> can't kill init.  
+Nice stuff ...
 
-Well, another approach would be to create a new context which has
-visibility over the other container as well as the ability to send
-signals to it.
+I wonder if some of the initial questions about whether gcc would be
+forcing something on the kernel, and whether it was unsafe for the
+kernel to be walking a user list, are distracting from a more
+interesting (in my view) question.
 
->>In general, I prefer to think of this as working 
->>with nuclear material via an actuator from behind 
->>a 4" lead wall -- you just do not want to go in 
->>to fix things :)
-> Where does that lead you?  Having a single global pid space which the
-> admin can see?  Or, does a special set of system calls do it well
-> enough?
+One can view this as just another sort of "interesting" system call,
+where user code puts some data in various register and memory
+locations, and then ends up by some predictable path in kernel code
+which is acting on the request encoded in that data.
 
-I don't like this term "single global pid space".  Two containers might
-be able to see all processes on the system, one might have a flat
-mapping to all PIDs < 64k (or pid_max), one with the XID,PID encoded
-bitwise.  They are both global pid spaces, but there is no "single" one,
-unless that is all you compile in.
+As always with system calls:
+ 1) the kernel can't trust the user data any further than the user
+    could have thrown it, and
+ 2) the interface needs a robust ABI and one or more language API's,
+    which will stand the test of time, over various architectures
+    and 32-64 emulations.
 
-Sam.
+>From what I could see glancing at the code and comments, Ingo has (1)
+covered easily enough.
+
+Would it make sense to have a language independent specification of
+this interface, providing a detailed ABI, suitably generalized to cover
+the various big endian, little endian, 32 and 64 and cross environments
+that Linux normally supports?
+
+I have in mind something that a competent assembly language coder could
+write to, directly, when coding user access to this facility?  Or some
+other language or library implementor, besides C and glibc, could
+develop to?
+
+The biggest problem that I find in new and interesting ways for the
+kernel to interact with user space is not thinking carefully through
+and documenting in obscene detail the exact interface (this byte here
+means this, that little endian quad there means thus, ...) for all
+archs and emulations of interest.  This tends to result in some corner
+cases that have warts which can never be fixed, in order to maintain
+compatibility.
+
+This is sort of like specifying the over the wire protocols the
+internet, where each byte is spelled out, avoiding any assumption
+of what sort of computing device is on the other end.  Well, not
+quite that bad.  I guess we can assume the user code is running
+on the same arch as the kernel, give or take possible word size
+and endian emulations ... though if performance of this even from
+within machine architecture emulators was a priority, even that
+assumption is perhaps not desirable.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

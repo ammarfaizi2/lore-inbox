@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbWBPAwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWBPBO4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932506AbWBPAwi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 19:52:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWBPAwi
+	id S932213AbWBPBO4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 20:14:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWBPBO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 19:52:38 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:23518 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932263AbWBPAwh (ORCPT
+	Wed, 15 Feb 2006 20:14:56 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:45283 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932213AbWBPBOz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 19:52:37 -0500
-Date: Wed, 15 Feb 2006 16:52:27 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: rmk+lkml@arm.linux.org.uk, Ingo Molnar <mingo@elte.hu>,
-       frankeh@watson.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SMP BUG
-In-Reply-To: <20060215153013.474ff5e0.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0602151647260.22082@g5.osdl.org>
-References: <43F12207.9010507@watson.ibm.com> <20060215230701.GD1508@flint.arm.linux.org.uk>
- <Pine.LNX.4.64.0602151521320.22082@g5.osdl.org> <20060215153013.474ff5e0.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Feb 2006 20:14:55 -0500
+Date: Wed, 15 Feb 2006 17:13:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: cmm@us.ibm.com
+Cc: helge.hafting@aitel.hist.no, linux-kernel@vger.kernel.org
+Subject: Re: fsck: i_blocks is xxx should be yyy on ext3
+Message-Id: <20060215171343.6b540516.akpm@osdl.org>
+In-Reply-To: <1140050679.20936.14.camel@dyn9047017067.beaverton.ibm.com>
+References: <43EA079A.4010108@aitel.hist.no>
+	<20060208225359.426573cf.akpm@osdl.org>
+	<1140050679.20936.14.camel@dyn9047017067.beaverton.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 15 Feb 2006, Andrew Morton wrote:
+Mingming Cao <cmm@us.ibm.com> wrote:
+>
+> On Wed, 2006-02-08 at 22:53 -0800, Andrew Morton wrote:
+> > Helge Hafting <helge.hafting@aitel.hist.no> wrote:
+> > >
+> > >  Today I rebooted into 2.6.16-rc2-mm1.  Fsck checked a "clean" ext3 fs,
+> > >  because it was many mounts since the last time.
+> > > 
+> > >  I have seen that many times, but this time I got a lot of
+> > >  "i_blocks is xxx, should be yyy fix?"
+> > > 
+> > >  In all cases, the blocks were fixed to a lower number.
+> > 
+> > Yes, thanks.  It's due to the ext3_getblocks() patches in -mm.  I can't
+> > think of any actual harm which it'll cause.
+> > 
+> > To reproduce:
+> > 
+> > mkfs
+> > mount
+> > dbench 32
+> > <wait 20 seconds>
+> > killall dbench
+> > umount
+> > fsck
+> > -
 > 
-> I thought that patch wasn't a good one.  The runqueues should be
-> initialised in sched_init().  init_idle() is called from fork_idle() which
-> is called from the bowels of arch code.  I'm not sure that it gets called
-> at all if !SMP (which seems strange).
+> Sorry about the late response.  I failed to reproduce the problem with
+> above instructions. I am running 2.6.16-rc2-mm1 kernel, played dbench
+> 32 ,64 and 128, and tried both 8 cpu and 1 cpu, still no luck at last.
 
-sched_init() calls init_idle for the current CPU.
+It happens - I tried it just then.  It only failed one time in five
+attempts, and that with just a single inode.
 
-Perhaps more importantly, every _single_ CPU that comes up must call 
-init-idle pretty much by definition. It's really what starts the whole 
-scheduling thing - the scheduler itself very much depends on the "idle" 
-task for each CPU.
 
-So the reason I thought that Rik's patch was a cleanup was not because it 
-was needed (initializing cpu_possible_map early should fix up the 
-problems), but because it would actually be a very natural thing to do to 
-to initialize the scheduler data structures as part of init-idle. The 
-scheduler really isn't initialized until it has an idle thread anyway.
+> I am using e2fsck version 1.35 though. What versions you are using?
+> 
 
-init_idle() already does part of the scheduler initializations, a pretty 
-fundamental part, in fact:
+e2fsprogs-1.34-1
 
-	rq->curr = rq->idle = idle;
-
-and the fact that "sched_init()" does some _other_ part of scheduler data 
-structure initialization is actually just ugly.
-
-So I like Rik's patch, but I don't feel _too_ strongly about it. The 
-people who actually work on the scheduler should be the ones to sign off 
-(or not) on it.
-
-		Linus
+e2fsck -fn /dev/hda5

@@ -1,92 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbWBPC4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWBPDHO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751370AbWBPC4V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Feb 2006 21:56:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWBPC4V
+	id S1751375AbWBPDHO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Feb 2006 22:07:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbWBPDHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Feb 2006 21:56:21 -0500
-Received: from xproxy.gmail.com ([66.249.82.203]:7876 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751370AbWBPC4U (ORCPT
+	Wed, 15 Feb 2006 22:07:14 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:12945 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751375AbWBPDHM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Feb 2006 21:56:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=ukxDML9l1oNyNQSgRXrcIL/FiWNXYiWEsSTr6pIzCxGiKsui7ZKEVMdjOFLIWz0Ia2kFv67Rs0iO39xKD5n1RM343kPuooMYoYsU28LJPNLk3cXzbaDyIClcIzQMSLepJFW/RikM+lSKXl2KvBDlbJuxJoJAWL5+NErJ9vyV07g=
-Date: Thu, 16 Feb 2006 00:56:09 -0300
-From: Davi Arnaut <davi.arnaut@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/2] strndup_user, v2
-Message-Id: <20060216005609.fbc35236.davi.arnaut@gmail.com>
-In-Reply-To: <1140053156.14831.43.camel@localhost.localdomain>
-References: <20060215182258.03505613.davi.arnaut@gmail.com>
-	<1140053156.14831.43.camel@localhost.localdomain>
-X-Mailer: Sylpheed
+	Wed, 15 Feb 2006 22:07:12 -0500
+Date: Wed, 15 Feb 2006 19:05:56 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+Cc: dm-devel@redhat.com, lcm@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] User-configurable HDIO_GETGEO for dm volumes
+Message-Id: <20060215190556.59c343b4.akpm@osdl.org>
+In-Reply-To: <43F38D83.3040702@us.ibm.com>
+References: <43F38D83.3040702@us.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Feb 2006 01:25:56 +0000
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
-> On Mer, 2006-02-15 at 18:22 -0300, Davi Arnaut wrote:
-> > +static inline char *strdup_user(const char __user *s)
-> > +{
-> > +	return strndup_user(s, 4096);
-> > +}
+"Darrick J. Wong" <djwong@us.ibm.com> wrote:
+>
+> Here's a rework of last week's HDIO_GETGEO patch.  Based on all the 
+>  feedback that I received last week, it seems that a better way to 
+>  approach this problem is:
 > 
-> Still shouldn't exist. Its just a bad idea to give people broken
-> function they don't yet use.
-
-Ok, I will remove it. But it's a sane default, if someone wants more
-than 4096, they should use strndup_user.
- 
-> > +	length = strlen_user(s);
+>  - Store a hd_geometry structure with each dm_table entry.
+>  - Provide a dm getgeo method that returns that geometry (or
+>     -ENOTTY if there is no geometry).
+>  - Add a dm control ioctl to set the geometry of an arbitrary dm device.
+>  - Modify dmsetup to be able to set geometries.
 > 
-> Should use strnlen_user or this function is useless for most cases.
-
-Ok.
-
-> > +
-> > +	if (!length)
-> > +		return ERR_PTR(-EFAULT);
+>  This way, dmraid can associate geometries with bootable fakeraid 
+>  devices, and dmsetup can be told to assign a geometry to a single-device 
+>  linear/multipath setup as desired.  Furthermore, HDIO_GETGEO callers 
+>  will go away empty-handed if the userspace config tools do not set up a 
+>  geometry, as is the case now.  The decision to assign a geometry (and 
+>  what that should be) is totally deferred to userspace.
 > 
-> Zero isn't an -EFAULT length. Its a null string and valid
-
-strlen_user returns _0_ on exception. If you don't belive me,
-kernel/module.c or arch/x86_64/lib/usercopy.c are a good starting
-point.
-
-> > +
-> > +	if (length > n)
-> > +		length = n;
-> > +
-> > +	p = kmalloc(length, GFP_KERNEL);
-> > +
-> > +	if (!p)
-> > +		return ERR_PTR(-ENOMEM);
-> > +
-> > +	if (strncpy_from_user(p, s, length) < 0) {
-> > +		kfree(p);
-> > +		return ERR_PTR(-EFAULT);
-> > +	}
-> > +
-> > +	p[length - 1] = '\0';
+>  So, dm-getgeo_1.patch is a patch to 2.6.16-rc3 that modifies the dm 
+>  driver to store and retrieve geometries.  I chose to attach the 
+>  hd_geometry structure to dm_table because it seemed like a convenient 
+>  place to attach config data.  The only part of this patch that I think 
+>  to be particularly dodgy is the dev_setgeo function, because I'm using 
+>  the dm_target_msg struct to pass the user's hd_geometry into the kernel. 
+>    I'm not really sure if or how I'm supposed to send binary blobs into 
+>  the dm code, though the piggyback method works adequately.  Obviously, 
+>  this introduces a new dm control ioctl DM_DEV_SETGEO.
 > 
-> And still broken.
-> 
-> "Hello" -> length = 5   "Hello\0"[4] = 0 "Hell"
-> 
+>  The second patch (device-mapper-geometry_1.patch), unsurprisingly, is a 
+>  patch to the userspace libdevmapper/dmsetup code to enable the passing 
+>  of hd_geometry structures to the kernel.
+>
+> ...
+>
+> diff -Naurp old/drivers/md/dm.c linux-2.6.16-rc3/drivers/md/dm.c
+> --- old/drivers/md/dm.c	2006-02-15 10:49:46.000000000 -0800
+> +++ linux-2.6.16-rc3/drivers/md/dm.c	2006-02-15 10:42:14.000000000 -0800
+> @@ -17,6 +17,7 @@
+>  #include <linux/mempool.h>
+>  #include <linux/slab.h>
+>  #include <linux/idr.h>
+> +#include <linux/hdreg.h>
+>  
+>  static const char *_name = DM_NAME;
+>  
+> @@ -225,6 +226,16 @@ static int dm_blk_close(struct inode *in
+>  	return 0;
+>  }
+>  
+> +static int dm_blk_getgeo(struct block_device *bdev, struct hd_geometry *geo)
+> +{
+> +	int ret;
+> +	struct mapped_device *md = bdev->bd_disk->private_data;
+> +
+> +	ret = dm_table_get_geometry(md->map, geo);
+> +
+> +	return (ret ? 0 : -ENOTTY);
+> +}	
 
-NO! strlen_user("Hello") -> length = 6
+Normally kernel functions return zero on success.  So that they can return
+negative errno on failure.  Is that appropriate here?  Just propagate the
+dm_table_get_geometry() return value?
 
-strlen_user returns the size of the string INCLUDING the
-terminating NUL.
+> +static int dev_setgeo(struct dm_ioctl *param, size_t param_size)
+> +{
+> +	int r = 0;
+> +	size_t len;
+> +	struct mapped_device *md;
+> +	struct dm_table *tbl;
+> +	struct dm_geometry_msg *dgm;
+> +	struct dm_target_msg *tmsg;
+> +
+> +	md = find_device(param);
+> +	if (!md)
+> +		return -ENXIO;
+> +
+> +	/*
+> +	 * Grab our output buffer.
+> +	 */
+> +	tmsg = get_result_buffer(param, param_size, &len);
+> +	dgm = (struct dm_geometry_msg *)tmsg->message;
+> +
+> +	tbl = dm_get_table(md);
+> +
+> +	r = dm_table_set_geometry(tbl, &dgm->geo);
+> +
+> +	dm_table_put(tbl);
+> +	dm_put(md);
+> +
+> +	return (r ? 0 : -EINVAL);
+> +}
+> +
+> ...
+> +int dm_table_set_geometry(struct dm_table *t, struct hd_geometry *geo)
+> +{
+> +	memcpy(&t->forced_geometry, geo, sizeof(*geo));
+> +
+> +	return 1;
+> +}
 
-Are we talking in the same language ? 
+That's brave - we take the hd_geometry straight from userspace without
+checking anything?
 
---
-Davi Arnaut
+Will this code dtrt if userspace is 32-bit and the kernel is 64-bit?
+
+struct hd_geometry looks like something which different compilers could lay
+out differently, perhaps even different gcc versions.  We're relying upon
+the userspace representation being identical to the kernel's
+representation.
+
+It means that struct hd_geometry becomes part of the kernel ABI.  We can
+never again change it and neither we (nor the compiler) can ever change its
+layout.  That's dangerous.  I'd suggest that you not use hd_geometry in
+this way (unless we're already using it that way, which might be the case).
+
+It'd be better to use some carefully laid-out and documented structure
+which is private to DM and which is designed for future-compatibility and
+for user<->kernel communication.
+

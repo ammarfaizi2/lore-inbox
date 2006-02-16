@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932566AbWBPWIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbWBPWJs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932566AbWBPWIP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 17:08:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbWBPWIO
+	id S932355AbWBPWJs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 17:09:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbWBPWJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 17:08:14 -0500
-Received: from zproxy.gmail.com ([64.233.162.192]:42580 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932567AbWBPWIN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 17:08:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=neaBncVYFfdriGR7E4HO+flxDSldAJ8Z9cECCXiPkhIpC9kZeIrmKA/kIpefbZl2ITxvX5yaOnhSknFcu5vxrM/YKiXF79d5jLcbTig3otSWSdwTTU5HCSFlPacTpxR0xiL3lj44Bjb4/C64osbvyRM3vKr8kjHBAQ8suN7nkaY=
-Message-ID: <9a8748490602161408i736a7ab3vef09f3e1c95916fe@mail.gmail.com>
-Date: Thu, 16 Feb 2006 23:08:12 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: Wrong number of core_siblings in sysfs for Athlon64 X2
-Cc: LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>
-In-Reply-To: <200602162259.32433.ak@suse.de>
+	Thu, 16 Feb 2006 17:09:48 -0500
+Received: from mail.gmx.net ([213.165.64.20]:52715 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932355AbWBPWJs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 17:09:48 -0500
+X-Authenticated: #31060655
+Message-ID: <43F4F811.1090308@gmx.net>
+Date: Thu, 16 Feb 2006 23:09:21 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.12) Gecko/20050921
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9a8748490602161346x6e2802e8r4edf7dcbdafa5e17@mail.gmail.com>
-	 <200602162259.32433.ak@suse.de>
+To: s.schmidt@avm.de
+CC: opensuse-factory@opensuse.org, Greg KH <greg@kroah.com>, torvalds@osdl.org,
+       kkeil@suse.de, linux-kernel@vger.kernel.org,
+       libusb-devel@lists.sourceforge.net
+Subject: Re: [opensuse-factory] Re[2]: 2.6.16 serious consequences / GPL_EXPORT_SYMBOL
+ / USB drivers of major vendor excluded
+References: <OFED05BE20.31E2BACE-ONC1257115.005DE6CA-C1257117.004F2C48@avm.de>
+In-Reply-To: <OFED05BE20.31E2BACE-ONC1257115.005DE6CA-C1257117.004F2C48@avm.de>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/16/06, Andi Kleen <ak@suse.de> wrote:
-> On Thursday 16 February 2006 22:46, Jesper Juhl wrote:
->
-> > Obviously something is wrong, but I just can't seem to spot it.  Any clues?
->
-> It's a bitmap. 3 = 0b11
->
+s.schmidt@avm.de wrote:
+> 
+> The user space does not ensure the reliability of time critical analog
+> services like Fax G3 or analog modem emulations. This quality of service
+> can only be guaranteed within the kernel space.
+> [...] To anticipate any "open vs. closed source" discussion: Only a
+> handful of companies worldwide have such know-how. With regard to our
+> competitive situation, we have to protect our hard-won intellectual
+> property and therefore cannot open the closed source part of the driver.
 
-When I was reading the smpboot code my brain *was* actually in the
-"this is a bitmap" mode, but when I then looked at the sysfs code it
-for some reason switched to "this wants to just print the number of
-siblings as an integer" mode - which was obviously where I went wrong.
-If it's being treated as a bitmap when it's created why would that
-change when it gets printed - D'OH!
+Thanks for clarifying the situation.
 
-Thank you very much for that hit with the clue stick Andi.
+Since your intellectual property is in the DSP algorithms, are there
+any obstacles opensourcing the parts of the ISDN drivers which only
+handle normal ISDN without fax/modem emulation? This would make every
+distribution out there support your devices without any additional work
+on your side.
+You can still offer your full-featured drivers as usual.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Regards,
+Carl-Daniel Hailfinger

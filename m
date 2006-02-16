@@ -1,67 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWBPLde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWBPLvI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932198AbWBPLde (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 06:33:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWBPLde
+	id S1751366AbWBPLvI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 06:51:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWBPLvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 06:33:34 -0500
-Received: from smtp.net4india.com ([202.71.129.73]:10724 "EHLO
-	smx2.net4india.com") by vger.kernel.org with ESMTP id S932198AbWBPLdd
+	Thu, 16 Feb 2006 06:51:08 -0500
+Received: from nproxy.gmail.com ([64.233.182.198]:19411 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751366AbWBPLvH convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 06:33:33 -0500
-Message-ID: <43F46319.9090400@designergraphix.com>
-Date: Thu, 16 Feb 2006 17:03:45 +0530
-From: Kaiwan N Billimoria <kaiwan@designergraphix.com>
-Organization: Designer Graphix
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
-X-Accept-Language: en-us, en
+	Thu, 16 Feb 2006 06:51:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=uf9+grk+JwKodZSwy34tP81HDYHnq/W583z6yWPZtVzze91xDVqoanABtb327o8HSmeYlakhA8RnkdHr3ySNdh6SaAQTa3B0Fdst2AQ7/VBkp1e0IvlWo2Bw+d+RVskJD2zlKS4fT+4peHC+DfY2ISpACic+a6k0RiAs/eQDWRk=
+Message-ID: <993d182d0602160351h454cf23dj9f5454c9eca98ef@mail.gmail.com>
+Date: Thu, 16 Feb 2006 17:21:05 +0530
+From: Conio sandiago <coniodiago@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: configure local printer
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>, philippe.seewer@bfh.ch
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Stuck creating sysfs hooks for a driver..
-References: <43F2DE34.60101@designergraphix.com> <20060215221301.GA25941@kroah.com>
-In-Reply-To: <20060215221301.GA25941@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >Seewer Philippe wrote:
+Hi All
+i have a embedded linux successfully runing.
+I want to add a printer in that.
+Printer has usb interface.
+The printer is succefully detected and a device node is created
+in /dev/usb/lp0.
 
->Hmmm...
->
->I don't know if this'll really help, but have a look at
->drivers/firmware/edd.c
+if i print a text file using following command
 
- >Greg KH wrote:
+cat /temp.txt > /dev/usb/lp0
+then the file is successfully printed.
 
->Have you read Documentation/hwmon/sysfs-interface?  I think that,
->combined with using the hwmon class code is what you want to use here.
->
->Hope this helps,
->
->greg k-h
->
->  
->
-Thanks, yes I shall look up both these..at first glance they do look 
-promising.
+Now i want to print a jpeg image
+can anyone please let me know
+how to do this
 
-One thing i'd like to point out though, Greg: the LM70 is an 
-SPI/Microwire based system and not i2c; so straight away, the i2c 
-interface by itself will not be used...; also, the specific board 
-(LM70CILD-3, which i've written the 2.4 driver for & am now porting to 
-2.6), comes with a built-in parport interface..so that's what the driver 
-takes into account of course..
-
-Also it's a relatively simple temperature sensor - it does not seem to 
-support hysteresis temperature, i/p voltages, etc. I'm saying all this 
-as the sysfs interface i envision is just a simple read-only hook: the 
-o/p value (after a little userspace massaging) is the temperature in 
-Celsius correct to 0.25 degrees. So it looks to me that this particular 
-driver necessitates a kind-of "custom" entry under /sys/class/hwmon with 
-it's own userspace support. Do I move ahead in this direction?
-
-Regards,
-kaiwan.
-
+thanks
+conio

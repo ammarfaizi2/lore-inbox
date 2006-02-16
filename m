@@ -1,56 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWBPQl2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbWBPQmj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932326AbWBPQl2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 11:41:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWBPQl2
+	id S932332AbWBPQmj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 11:42:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWBPQmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 11:41:28 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:28065
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932326AbWBPQl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 11:41:27 -0500
-Date: Thu, 16 Feb 2006 08:41:08 -0800
-From: Greg KH <greg@kroah.com>
-To: Kaiwan N Billimoria <kaiwan@designergraphix.com>
-Cc: philippe.seewer@bfh.ch, linux-kernel@vger.kernel.org
-Subject: Re: Stuck creating sysfs hooks for a driver..
-Message-ID: <20060216164108.GA12420@kroah.com>
-References: <43F2DE34.60101@designergraphix.com> <20060215221301.GA25941@kroah.com> <43F46319.9090400@designergraphix.com>
-Mime-Version: 1.0
+	Thu, 16 Feb 2006 11:42:38 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:18032 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932332AbWBPQmh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 11:42:37 -0500
+Date: Thu, 16 Feb 2006 17:42:33 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch 3/3] s390: sys32_fstatat -> sys32_fstatat64
+Message-ID: <20060216164233.GJ9241@osiris.boeblingen.de.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43F46319.9090400@designergraphix.com>
-User-Agent: Mutt/1.5.11
+User-Agent: mutt-ng/devel-r781 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 16, 2006 at 05:03:45PM +0530, Kaiwan N Billimoria wrote:
-> One thing i'd like to point out though, Greg: the LM70 is an 
-> SPI/Microwire based system and not i2c; so straight away, the i2c 
-> interface by itself will not be used...; also, the specific board 
-> (LM70CILD-3, which i've written the 2.4 driver for & am now porting to 
-> 2.6), comes with a built-in parport interface..so that's what the driver 
-> takes into account of course..
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-That's fine, you do not have to be a i2c driver to use the hwmon
-interface.  There are other drivers in the drivers/hwmon/ directory
-today that are not i2c drivers.  It is not a requirement at all.
+Just rename the compat system call to keep the name consistent with
+all the other *64 compat system calls.
 
-> Also it's a relatively simple temperature sensor - it does not seem to 
-> support hysteresis temperature, i/p voltages, etc. I'm saying all this 
-> as the sysfs interface i envision is just a simple read-only hook: the 
-> o/p value (after a little userspace massaging) is the temperature in 
-> Celsius correct to 0.25 degrees. So it looks to me that this particular 
-> driver necessitates a kind-of "custom" entry under /sys/class/hwmon with 
-> it's own userspace support. Do I move ahead in this direction?
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
 
-No.  Use the same names for your files as is described in the document.
-If you can't provide all of the different files, that's fine, just
-provide what you can.  The userspace tools will handle this properly.
+ arch/s390/kernel/compat_linux.c   |    4 ++--
+ arch/s390/kernel/compat_wrapper.S |    6 +++---
+ arch/s390/kernel/syscalls.S       |    2 +-
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
-This also keeps you from having to write custom userspace tools for
-every individual program that wants to know this information.
-
-thanks,
-
-greg k-h
+diff --git a/arch/s390/kernel/compat_linux.c b/arch/s390/kernel/compat_linux.c
+index 2d02162..cc058dc 100644
+--- a/arch/s390/kernel/compat_linux.c
++++ b/arch/s390/kernel/compat_linux.c
+@@ -905,8 +905,8 @@ asmlinkage long sys32_fstat64(unsigned l
+ 	return ret;
+ }
+ 
+-asmlinkage long sys32_fstatat(unsigned int dfd, char __user *filename,
+-			      struct stat64_emu31 __user* statbuf, int flag)
++asmlinkage long sys32_fstatat64(unsigned int dfd, char __user *filename,
++				struct stat64_emu31 __user* statbuf, int flag)
+ {
+ 	struct kstat stat;
+ 	int error = -EINVAL;
+diff --git a/arch/s390/kernel/compat_wrapper.S b/arch/s390/kernel/compat_wrapper.S
+index dd2d6c3..615964c 100644
+--- a/arch/s390/kernel/compat_wrapper.S
++++ b/arch/s390/kernel/compat_wrapper.S
+@@ -1523,13 +1523,13 @@ compat_sys_futimesat_wrapper:
+ 	llgtr	%r4,%r4			# struct timeval *
+ 	jg	compat_sys_futimesat
+ 
+-	.globl sys32_fstatat_wrapper
+-sys32_fstatat_wrapper:
++	.globl sys32_fstatat64_wrapper
++sys32_fstatat64_wrapper:
+ 	llgfr	%r2,%r2			# unsigned int
+ 	llgtr	%r3,%r3			# char *
+ 	llgtr	%r4,%r4			# struct stat64 *
+ 	lgfr	%r5,%r5			# int
+-	jg	sys32_fstatat
++	jg	sys32_fstatat64
+ 
+ 	.globl sys_unlinkat_wrapper
+ sys_unlinkat_wrapper:
+diff --git a/arch/s390/kernel/syscalls.S b/arch/s390/kernel/syscalls.S
+index 84921fe..7c88d85 100644
+--- a/arch/s390/kernel/syscalls.S
++++ b/arch/s390/kernel/syscalls.S
+@@ -301,7 +301,7 @@ SYSCALL(sys_mkdirat,sys_mkdirat,sys_mkdi
+ SYSCALL(sys_mknodat,sys_mknodat,sys_mknodat_wrapper)	/* 290 */
+ SYSCALL(sys_fchownat,sys_fchownat,sys_fchownat_wrapper)
+ SYSCALL(sys_futimesat,sys_futimesat,compat_sys_futimesat_wrapper)
+-SYSCALL(sys_fstatat64,sys_newfstatat,sys32_fstatat_wrapper)
++SYSCALL(sys_fstatat64,sys_newfstatat,sys32_fstatat64_wrapper)
+ SYSCALL(sys_unlinkat,sys_unlinkat,sys_unlinkat_wrapper)
+ SYSCALL(sys_renameat,sys_renameat,sys_renameat_wrapper)	/* 295 */
+ SYSCALL(sys_linkat,sys_linkat,sys_linkat_wrapper)

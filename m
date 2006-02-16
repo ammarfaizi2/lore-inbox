@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbWBPUWL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbWBPUY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964902AbWBPUWL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 15:22:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWBPUWL
+	id S964896AbWBPUY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 15:24:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbWBPUY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 15:22:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:23464 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964900AbWBPUWK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 15:22:10 -0500
-Date: Thu, 16 Feb 2006 12:20:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: ce@ruault.com, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] kernel 2.6.15.4: soft lockup detected on CPU#0!
-Message-Id: <20060216122045.7a664bc6.akpm@osdl.org>
-In-Reply-To: <58cb370e0602160533n3325ba03yfedaf4e55278521d@mail.gmail.com>
-References: <43EF8388.10202@ruault.com>
-	<20060215185120.6c35eca2.akpm@osdl.org>
-	<58cb370e0602160533n3325ba03yfedaf4e55278521d@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 16 Feb 2006 15:24:26 -0500
+Received: from zcars04f.nortel.com ([47.129.242.57]:25255 "EHLO
+	zcars04f.nortel.com") by vger.kernel.org with ESMTP id S964896AbWBPUYZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 15:24:25 -0500
+Message-ID: <43F4DF54.6030303@nortel.com>
+Date: Thu, 16 Feb 2006 14:23:48 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Esben Nielsen <simlo@phys.au.dk>
+CC: Arjan van de Ven <arjan@infradead.org>, Daniel Walker <dwalker@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Ulrich Drepper <drepper@redhat.com>,
+       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 0/6] lightweight robust futexes: -V3 - Why in userspace?
+References: <Pine.OSF.4.05.10602162057040.20911-100000@da410>
+In-Reply-To: <Pine.OSF.4.05.10602162057040.20911-100000@da410>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Feb 2006 20:23:50.0374 (UTC) FILETIME=[E5D3A060:01C63336]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
->
-> On 2/16/06, Andrew Morton <akpm@osdl.org> wrote:
-> > Charles-Edouard Ruault <ce@ruault.com> wrote:
-> > >
-> > > i was trying to rip a CD when the whole machine started to freeze
-> > >  periodicaly, i then looked at the logs and found the following :
-> > >
-> > >  Feb 12 19:23:39 ruault kernel: hdc: irq timeout: status=0x80 { Busy }
-> > >  Feb 12 19:23:39 ruault kernel: ide: failed opcode was: unknown
-> > >  Feb 12 19:23:39 ruault kernel: hdd: status timeout: status=0x80 { Busy }
-> > >  Feb 12 19:23:39 ruault kernel: ide: failed opcode was: unknown
-> > >  Feb 12 19:23:39 ruault kernel: hdd: drive not ready for command
-> >
-> > No idea what caused that.
-> >
-> > >  Feb 12 19:23:39 ruault kernel: BUG: soft lockup detected on CPU#0!
-> >
-> > The following was merged today.  Hopefully it suppresses this false
-> > positive.
+Esben Nielsen wrote:
+> On Thu, 16 Feb 2006, Arjan van de Ven wrote:
 > 
-> Unfortunately it won't.  Charles' problem is different (and the BUG
-> output is different!) - soft lockup got triggered for PIO handling in
-> ide-cd driver.  This patch fixes the problem only for generic ATA PIO
-> routines (disks and [P]IDENTIFY), ATAPI PIO still needs fixing
-> (ide-cd/floppy/tape/scsi drivers).
+> 
+>>On Thu, 2006-02-16 at 20:06 +0100, Esben Nielsen wrote:
 
-argh.  We do need to bop that warning on the head - it's consuming people's
-time and causing unneeded concern.
+>>>Why does the list have to be in userspace?
+>>
+>>because it's faster ;)
 
-> Andrew, there is no "high level" function for ATAPI PIO as
-> ide_pio_datablock() for ATA PIO so fixing soft lockup false positives
-> would require going through all drivers and adding bunch of
-> touch_softlockup_watchdog() or using sledge-hammer approach
-> and touching watchdog in ide-iops.c:atapi_[input,output]_bytes().
+> Faster??? 
+> As I see it, extra manipulations have to be done even in the non-congested
+> case: Every time the lock is taken the locking thread has to add the lock
+> to a the list, and reversely remove the lock from the list. I.e.
+> instructions are _added_ to the fast path where you stay purely in
+> userspace.
+> 
+> I am ofcourse comparing to a solution where you do a syscall on everytime
+> you do a lock.
 
-Send fixup patch, please?
+
+The whole *point* of futexes is that on uncontested operations you don't 
+have to do a syscall.  Thus, if you can avoid taking a syscall while 
+still getting reliability, you'll be faster.
+
+Dropping to kernelspace isn't free.
+
+Chris
 

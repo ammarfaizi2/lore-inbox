@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751471AbWBQQ1B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030641AbWBQQ1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751471AbWBQQ1B (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 11:27:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161137AbWBQQ1A
+	id S1030641AbWBQQ1l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 11:27:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030645AbWBQQ1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 11:27:00 -0500
-Received: from mx1.suse.de ([195.135.220.2]:32443 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751574AbWBQQ06 (ORCPT
+	Fri, 17 Feb 2006 11:27:41 -0500
+Received: from amdext3.amd.com ([139.95.251.6]:38281 "EHLO amdext3.amd.com")
+	by vger.kernel.org with ESMTP id S1030641AbWBQQ1k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 11:26:58 -0500
-From: Andi Kleen <ak@suse.de>
-To: Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH: 001/012] Memory hotplug for new nodes v.2. (pgdat allocation)
-Date: Fri, 17 Feb 2006 17:16:33 +0100
-User-Agent: KMail/1.8.2
-Cc: Yasunori Goto <y-goto@jp.fujitsu.com>, Andrew Morton <akpm@osdl.org>,
-       "Luck, Tony" <tony.luck@intel.com>,
-       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
-       Joel Schopp <jschopp@austin.ibm.com>, linux-ia64@vger.kernel.org,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       x86-64 Discuss <discuss@x86-64.org>
-References: <20060217210749.406A.Y-GOTO@jp.fujitsu.com> <1140190792.21383.64.camel@localhost.localdomain>
-In-Reply-To: <1140190792.21383.64.camel@localhost.localdomain>
+	Fri, 17 Feb 2006 11:27:40 -0500
+X-Server-Uuid: 89466532-923C-4A88-82C1-66ACAA0041DF
+Date: Fri, 17 Feb 2006 09:29:22 -0700
+From: "Jordan Crouse" <jordan.crouse@amd.com>
+To: "Nick Warne" <nick@linicks.net>
+cc: lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org,
+       info-linux@ldcmail.amd.com, "Jean Delvare" <khali@linux-fr.org>
+Subject: Re: Add LM82 support
+Message-ID: <20060217162922.GP20157@cosmic.amd.com>
+References: <20060216175930.GE20157@cosmic.amd.com>
+ <LYRIS-4270-26349-2006.02.17-07.32.29--jordan.crouse#amd.com@whitestar.amd.com>
 MIME-Version: 1.0
+In-Reply-To: <LYRIS-4270-26349-2006.02.17-07.32.29--jordan.crouse#amd.com@whitestar.amd.com>
+User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 17 Feb 2006 16:22:53.0627 (UTC)
+ FILETIME=[6758D8B0:01C633DE]
+X-WSS-ID: 6FEB27D72W4237852-01-01
 Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+ charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602171716.34297.ak@suse.de>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 February 2006 16:39, Dave Hansen wrote:
+On 17/02/06 13:09 +0000, Nick Warne wrote:
+> '
+> >                 if (kind <= 0) { /* identification failed */
+> > @@ -296,10 +318,15 @@ static int lm83_detect(struct i2c_adapte
+> >         if (kind == lm83) {
+> >                 name = "lm83";
+> >         }
+> > +       else if (kind = lm82) {
+> > +               name = "lm82";
+> > +       }
+> 
+> Is that a '=' typo in the 'else if' there?
 
-> I'm a teensy bit concerned that this doesn't share enough code with the
-> boot-time initialization.  For instance, the kthread_create() seems to
-> be a pretty darn generic piece.  I'd feel a lot more at ease if this
-> patch did something with _existing_ code instead of just adding.
+Yep - thats what that would be.  That must be my typo of the week, since
+I just had it in another driver I'm writing.  I'll post a fixup here
+very shortly with all the comments.
 
-Agreed. Having significantly different code paths for hot add and
-for normal initialization isn't a good idea. It will just lead to 
-long term code drift and problems.
+Jordan 
 
-So i would suggest to generalize the standard functions enough
-to make them callable from a hotplug layer.
+-- 
+Jordan Crouse
+Senior Linux Engineer
+AMD - Personal Connectivity Solutions Group
+<www.amd.com/embeddedprocessors>
 
--Andi

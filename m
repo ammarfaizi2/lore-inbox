@@ -1,86 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWBQLjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWBQLi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751246AbWBQLjq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 06:39:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWBQLjq
+	id S1751234AbWBQLi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 06:38:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWBQLi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 06:39:46 -0500
-Received: from egor.donpac.ru ([80.254.111.31]:55994 "EHLO donpac.ru")
-	by vger.kernel.org with ESMTP id S1750829AbWBQLjp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 06:39:45 -0500
-Date: Fri, 17 Feb 2006 14:39:42 +0300
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SIIG 8-port serial boards support
-Message-ID: <20060217113942.GA30787@pazke>
-Mail-Followup-To: Russell King <rmk+lkml@arm.linux.org.uk>,
-	linux-kernel@vger.kernel.org
-References: <20060124082538.GB4855@pazke> <20060124210140.GB23513@flint.arm.linux.org.uk> <20060202102644.GC5034@flint.arm.linux.org.uk> <20060202132726.GD24903@pazke> <20060202201734.GA17329@flint.arm.linux.org.uk> <20060203091308.GA19805@pazke> <20060203092435.GA30738@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
+	Fri, 17 Feb 2006 06:38:58 -0500
+Received: from pcpool00.mathematik.uni-freiburg.de ([132.230.30.150]:8880 "EHLO
+	pcpool00.mathematik.uni-freiburg.de") by vger.kernel.org with ESMTP
+	id S1750829AbWBQLi6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 06:38:58 -0500
+Date: Fri, 17 Feb 2006 12:38:36 +0100
+From: "Bernhard R. Link" <brlink@debian.org>
+To: linux-parport@lists.infradead.org
+Cc: philb@gnu.org, tim@cyberelk.net, andrea@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] register sysfs device for lp devices
+Message-ID: <20060217113836.GA26254@pcpool00.mathematik.uni-freiburg.de>
+Mail-Followup-To: linux-parport@lists.infradead.org, philb@gnu.org,
+	tim@cyberelk.net, andrea@suse.de, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060203092435.GA30738@flint.arm.linux.org.uk>
-X-Uname: Linux 2.6.16-rc1-pazke i686
-User-Agent: Mutt/1.5.11
-From: Andrey Panin <pazke@donpac.ru>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Give class_device_create a device pointer parport drivers
+can set via a new parport_set_dev.
+Also patch parport_gsci and parport_pc as example.
 
---n8g4imXOkfNTN/H1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-of-by: Bernhard R Link <brlink@debian.org>
 
-On 034, 02 03, 2006 at 09:24:36 +0000, Russell King wrote:
-> On Fri, Feb 03, 2006 at 12:13:08PM +0300, Andrey Panin wrote:
-> > On 033, 02 02, 2006 at 08:17:35 +0000, Russell King wrote:
-> > > As I've said many a time, we need a generic way to set different hand-
-> > > shaking modes.  I've suggested using some spare bits in termios in the
-> > > past, but nothing ever came of that - folk lose interest at that poin=
-t.
+---
 
-No wonder they do. Extra bits are not a problem, but for 8250.c we need some
-way to glue subdrivers with serial8250_set_termios(). Callback in uart_port
-structure ?
+Compile and run-tested with linux-2.6.16-rc3-git4.
 
-> > IMHO there is no need to userspace visible changes to support RS485 on
-> > these cards, because some of them are RS485 only and some have jumpers
-> > for individual ports.  There is nothing that userspace can configure.
-> > We only need to set two bits in ACR according to card type and jumper
-> > settings and UART will drive RS485 transiever transparently.
->=20
-> In this particular case you may be right, but I'm looking at the bigger
-> picture, where plain 16550's may be used for RS485.
-
-Common way to use plain 16550 for RS485 is to wire transiever to the RTS
-and force userspace to use RTS/CTS flow control. I doubt there are many=20
-other sane way to do it.
-
-> There are drivers which want to implement their own private ioctl to
-> enable RS485 mode.  What I'm saying is that we should have one solution,
-> not multiple solutions to this problem. When we have such a solution,
-> your RS485 card will be able to fit into that model.
-
-But it will need a way to pass ACR value anyway :)
-
---=20
-Andrey Panin		| Linux and UNIX system administrator
-pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
-
---n8g4imXOkfNTN/H1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFD9bX+PjHNUy6paxMRAhKjAKC0OjoNF8L1kfKISyil+Yv/PmzxOgCfVBf7
-/Cx2Xkv/8JpbQ60mAUrF/jU=
-=u/Y6
------END PGP SIGNATURE-----
-
---n8g4imXOkfNTN/H1--
+Index: mlinux-2.6.15-git12/drivers/char/lp.c
+===================================================================
+--- mlinux-2.6.15-git12.orig/drivers/char/lp.c	2006-02-10 08:22:48.000000000 +0100
++++ mlinux-2.6.15-git12/drivers/char/lp.c	2006-02-13 14:46:29.000000000 +0100
+@@ -805,7 +805,7 @@
+ 	if (reset)
+ 		lp_reset(nr);
+ 
+-	class_device_create(lp_class, NULL, MKDEV(LP_MAJOR, nr), NULL,
++	class_device_create(lp_class, NULL, MKDEV(LP_MAJOR, nr), port->dev,
+ 				"lp%d", nr);
+ 	devfs_mk_cdev(MKDEV(LP_MAJOR, nr), S_IFCHR | S_IRUGO | S_IWUGO,
+ 			"printers/%d", nr);
+Index: mlinux-2.6.15-git12/drivers/parport/parport_gsc.c
+===================================================================
+--- mlinux-2.6.15-git12.orig/drivers/parport/parport_gsc.c	2006-02-13 14:27:53.000000000 +0100
++++ mlinux-2.6.15-git12/drivers/parport/parport_gsc.c	2006-02-13 14:46:29.000000000 +0100
+@@ -340,6 +340,9 @@
+ 	parport_gsc_write_data(p, 0);
+ 	parport_gsc_data_forward (p);
+ 
++	/* Tell sysfs which device is behind this parport */
++	parport_set_dev (p, &dev->dev);
++
+ 	/* Now that we've told the sharing engine about the port, and
+ 	   found out its characteristics, let the high-level drivers
+ 	   know about it. */
+Index: mlinux-2.6.15-git12/drivers/parport/parport_pc.c
+===================================================================
+--- mlinux-2.6.15-git12.orig/drivers/parport/parport_pc.c	2006-02-13 14:30:26.000000000 +0100
++++ mlinux-2.6.15-git12/drivers/parport/parport_pc.c	2006-02-13 14:46:29.000000000 +0100
+@@ -2340,6 +2340,7 @@
+ 	spin_lock(&ports_lock);
+ 	list_add(&priv->list, &ports_list);
+ 	spin_unlock(&ports_lock);
++	parport_set_dev (p, &dev->dev);
+ 	parport_announce_port (p);
+ 
+ 	return p;
+Index: mlinux-2.6.15-git12/drivers/parport/share.c
+===================================================================
+--- mlinux-2.6.15-git12.orig/drivers/parport/share.c	2006-02-13 14:30:26.000000000 +0100
++++ mlinux-2.6.15-git12/drivers/parport/share.c	2006-02-13 14:46:29.000000000 +0100
+@@ -341,6 +341,11 @@
+ 
+ 	tmp->waithead = tmp->waittail = NULL;
+ 
++	/*
++	 * no sysfs device known unless the announcer sets it before
++	 */
++	tmp->dev = NULL;
++
+ 	return tmp;
+ }
+ 
+Index: mlinux-2.6.15-git12/include/linux/parport.h
+===================================================================
+--- mlinux-2.6.15-git12.orig/include/linux/parport.h	2006-02-13 14:30:42.000000000 +0100
++++ mlinux-2.6.15-git12/include/linux/parport.h	2006-02-13 14:46:29.000000000 +0100
+@@ -258,6 +258,7 @@
+ 	struct semaphore irq;
+ };
+ 
++struct device;
+ /* A parallel port */
+ struct parport {
+ 	unsigned long base;	/* base address */
+@@ -313,6 +314,8 @@
+ 
+ 	struct list_head full_list;
+ 	struct parport *slaves[3];
++
++	struct device *dev; /* for the sysfs device symlink */
+ };
+ 
+ #define DEFAULT_SPIN_TIME 500 /* us */
+@@ -331,6 +334,10 @@
+ struct parport *parport_register_port(unsigned long base, int irq, int dma,
+ 				      struct parport_operations *ops);
+ 
++/* parport_set_dev set the generic device behind this port, so drivers
++ * can display it in their sysfs nodes */
++#define parport_set_dev(port,devptr) ((port)->dev = (devptr))
++
+ /* Once a registered port is ready for high-level drivers to use, the
+    low-level driver that registered it should announce it.  This will
+    call the high-level drivers' attach() functions (after things like

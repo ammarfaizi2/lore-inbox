@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751773AbWBQUxb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751736AbWBQUzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751773AbWBQUxb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 15:53:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751781AbWBQUxb
+	id S1751736AbWBQUzq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 15:55:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751781AbWBQUzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 15:53:31 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:52717 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751773AbWBQUxa (ORCPT
+	Fri, 17 Feb 2006 15:55:46 -0500
+Received: from mx1.suse.de ([195.135.220.2]:19601 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751736AbWBQUzp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 15:53:30 -0500
-Date: Fri, 17 Feb 2006 12:50:54 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, drepper@redhat.com, tglx@linutronix.de,
-       arjan@infradead.org, akpm@osdl.org
-Subject: Re: [patch 0/6] lightweight robust futexes: -V3
-Message-Id: <20060217125054.1446958e.pj@sgi.com>
-In-Reply-To: <20060217115958.GA14938@elte.hu>
-References: <20060216094130.GA29716@elte.hu>
-	<20060216132309.fd4e4723.pj@sgi.com>
-	<20060216215036.GD25738@elte.hu>
-	<20060216205618.d4d97d9d.pj@sgi.com>
-	<20060217115958.GA14938@elte.hu>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 17 Feb 2006 15:55:45 -0500
+From: Andi Kleen <ak@suse.de>
+To: dan.yeisley@unisys.com
+Subject: Re: [patch] i386 need to pass virtual address to smp_read_mpc()
+Date: Fri, 17 Feb 2006 21:55:34 +0100
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <1140207880.2910.10.camel@localhost.localdomain>
+In-Reply-To: <1140207880.2910.10.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602172155.35060.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > [ ... nice writeup of the robust-futex ABI ... ]
+On Friday 17 February 2006 21:24, Daniel Yeisley wrote:
+> I'm seeing a kernel panic on an ES7000-600 when booting in virtual wire
+> mode.  The panic happens because smp_read_mpc() is passed a physical
+> address, and it should be virtual.  I tested the attached patch on the
+> ES7000-600 and on a 2 cpu Dell box, and saw no problems on either.
 > 
-> can i put this into Documentation/robust-futex-ABI.txt?
+> Signed-off-by:  Dan Yeisley <dan.yeisley@unisys.com>
+> ---
+> 
+> diff -Naur -p linux-2.6.16-rc1-git3-7/arch/i386/kernel/mpparse.c linux-2.6.16-rc1-git3-7-a/arch/i386/kernel/mpparse.c
+> --- linux-2.6.16-rc1-git3-7/arch/i386/kernel/mpparse.c  2006-01-30 18:38:18.000000000 -0500
+> +++ linux-2.6.16-rc1-git3-7-a/arch/i386/kernel/mpparse.c        2006-02-16 04:51:35.551014272 -0500
+> @@ -710,7 +710,7 @@ void __init get_smp_config (void)
+>                  * Read the physical hardware table.  Anything here will
+>                  * override the defaults.
+>                  */
+> -               if (!smp_read_mpc((void *)mpf->mpf_physptr)) {
+> +               if (!smp_read_mpc(phys_to_virt(mpf->mpf_physptr)))
 
-Good idea - so be it.
 
-Could you review it for accuracy -- I'm sure I screwed
-it up in some details, large or small.
+Actually the patch is broken. Andrew, if you merge it please add the missing { here.
 
-Ulrich -- if you're reading this -- your review comments
-would be most welcome as well.
+Dan, please only submit patches that are compile tested at least.
 
-In particular:
- 1) See the description of the removal protocol, below
-    the XXX comment.  I was really guessing there.
- 2) Could you add a statement on how current code should
-    handle the FUTEX_OWNER_PENDING bit (when to set it,
-    when to clear it, when to preserve it) so that current
-    code won't be incompatible with likely future uses of
-    this big?
- 3) You have implicit ABI versioning in the size of the
-    head struct.  Could you add words describing that?
+-Andi
 
-Thanks.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+>                         smp_found_config = 0;
+>                         printk(KERN_ERR "BIOS bug, MP table errors detected!...\n");
+>                         printk(KERN_ERR "... disabling SMP support. (tell your hw vendor)\n");
+> 
+> 
+> 

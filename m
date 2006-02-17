@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751733AbWBQUcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751742AbWBQUek@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751733AbWBQUcL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 15:32:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751736AbWBQUcL
+	id S1751742AbWBQUek (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 15:34:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751751AbWBQUek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 15:32:11 -0500
-Received: from mail20.messagelabs.com ([216.82.245.67]:54947 "HELO
-	mail20.messagelabs.com") by vger.kernel.org with SMTP
-	id S1751733AbWBQUcK convert rfc822-to-8bit (ORCPT
+	Fri, 17 Feb 2006 15:34:40 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:9410 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751742AbWBQUej (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 15:32:10 -0500
-X-VirusChecked: Checked
-X-Env-Sender: Scott_Kilau@digi.com
-X-Msg-Ref: server-11.tower-20.messagelabs.com!1140208323!29341084!1
-X-StarScan-Version: 5.5.9.1; banners=-,-,-
-X-Originating-IP: [66.77.174.21]
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Fri, 17 Feb 2006 15:34:39 -0500
+From: Andi Kleen <ak@suse.de>
+To: dan.yeisley@unisys.com
+Subject: Re: [patch] i386 need to pass virtual address to smp_read_mpc()
+Date: Fri, 17 Feb 2006 21:34:24 +0100
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <1140207880.2910.10.camel@localhost.localdomain>
+In-Reply-To: <1140207880.2910.10.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: [PATCH] SIIG 8-port serial boards support
-Date: Fri, 17 Feb 2006 14:32:03 -0600
-Message-ID: <335DD0B75189FB428E5C32680089FB9F8034C6@mtk-sms-mail01.digi.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: [PATCH] SIIG 8-port serial boards support
-Thread-Index: AcY0ATX2STGavwkiRqC/f0+IpkZyEg==
-From: "Kilau, Scott" <Scott_Kilau@digi.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <rmk+lkml@arm.linux.org.uk>
-X-OriginalArrivalTime: 17 Feb 2006 20:32:03.0628 (UTC) FILETIME=[363DF6C0:01C63401]
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602172134.24582.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
-(Sorry for the ugly copy/paste here, grabbing from a web browser to
-email)
+On Friday 17 February 2006 21:24, Daniel Yeisley wrote:
+> I'm seeing a kernel panic on an ES7000-600 when booting in virtual wire
+> mode.  The panic happens because smp_read_mpc() is passed a physical
+> address, and it should be virtual.  I tested the attached patch on the
+> ES7000-600 and on a 2 cpu Dell box, and saw no problems on either.
 
-On Fri, Feb 17, 2006 at 08:02:13PM +0000, Russell King wrote:
-> Finally, let me explain why I favour the termios solution.  The
-biggest
-> (and most important) aspect is that it allows existing applications
-> such as minicom and gettys to work as expected - getting the correct
-> handshaking mode that they desire without having to change userspace.
+Looks obviously correct. Should probably be in 2.6.16
 
-What about creating a "struct termiox".
-Yeah, it creates a new ioctl, but it is a pretty standard
-ioctl among Unix's.
+-Andi
 
-I know adding termiox calls has been brought up before in
-the past, and of course, nothing ever gets added...
-
-Scott
-
-
-
+> 
+> Signed-off-by:  Dan Yeisley <dan.yeisley@unisys.com>
+> ---
+> 
+> diff -Naur -p linux-2.6.16-rc1-git3-7/arch/i386/kernel/mpparse.c linux-2.6.16-rc1-git3-7-a/arch/i386/kernel/mpparse.c
+> --- linux-2.6.16-rc1-git3-7/arch/i386/kernel/mpparse.c  2006-01-30 18:38:18.000000000 -0500
+> +++ linux-2.6.16-rc1-git3-7-a/arch/i386/kernel/mpparse.c        2006-02-16 04:51:35.551014272 -0500
+> @@ -710,7 +710,7 @@ void __init get_smp_config (void)
+>                  * Read the physical hardware table.  Anything here will
+>                  * override the defaults.
+>                  */
+> -               if (!smp_read_mpc((void *)mpf->mpf_physptr)) {
+> +               if (!smp_read_mpc(phys_to_virt(mpf->mpf_physptr)))
+>                         smp_found_config = 0;
+>                         printk(KERN_ERR "BIOS bug, MP table errors detected!...\n");
+>                         printk(KERN_ERR "... disabling SMP support. (tell your hw vendor)\n");
+> 
+> 
+> 

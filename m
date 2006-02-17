@@ -1,203 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751741AbWBQUed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751755AbWBQUjc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751741AbWBQUed (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 15:34:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751742AbWBQUed
+	id S1751755AbWBQUjc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 15:39:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751757AbWBQUjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 15:34:33 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:38365 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751741AbWBQUec
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 15:34:32 -0500
-Date: Sat, 18 Feb 2006 02:03:42 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, "Paul E.McKenney" <paulmck@us.ibm.com>
-Subject: Re: [PATCH 1/2] rcu batch tuning
-Message-ID: <20060217203342.GA2619@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20060217154147.GL29846@in.ibm.com> <20060217154337.GM29846@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060217154337.GM29846@in.ibm.com>
-User-Agent: Mutt/1.5.11
+	Fri, 17 Feb 2006 15:39:32 -0500
+Received: from spirit.analogic.com ([204.178.40.4]:14348 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1751755AbWBQUjc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 15:39:32 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <7c3341450602171224y5eba2095o@mail.gmail.com>
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+x-originalarrivaltime: 17 Feb 2006 20:39:27.0952 (UTC) FILETIME=[3F146D00:01C63402]
+Content-class: urn:content-classes:message
+Subject: Re: C/H/S from user space
+Date: Fri, 17 Feb 2006 15:39:17 -0500
+Message-ID: <Pine.LNX.4.61.0602171534320.4415@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: C/H/S from user space
+Thread-Index: AcY0Aj8b6KNwtkTsR3mLwsMjWOjydA==
+References: <Pine.LNX.4.61.0602171157140.8950@chaos.analogic.com> <43F617FA.2030609@wolfmountaingroup.com> <Pine.LNX.4.61.0602171452520.4290@chaos.analogic.com> <7c3341450602171224y5eba2095o@mail.gmail.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Nick Warne" <nick@linicks.net>
+Cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       "Linux kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
 
-The earlier version of this patch was against 2.6.16-rc3 and didn't
-apply cleanly to 2.6.16-rc3-mm1. This version applies cleanly
-to 2.6.16-rc3-mm1.
+On Fri, 17 Feb 2006, Nick Warne wrote:
 
-This patch adds new tunables for RCU queue and finished batches.
-There are two types of controls - number of completed RCU updates
-invoked in a batch (blimit) and monitoring for high rate of
-incoming RCUs on a cpu (qhimark, qlowmark). By default,
-the per-cpu batch limit is set to a small value. If
-the input RCU rate exceeds the high watermark, we do two things -
-force quiescent state on all cpus and set the batch limit
-of the CPU to INTMAX. Setting batch limit to INTMAX forces all
-finished RCUs to be processed in one shot. If we have more than
-INTMAX RCUs queued up, then we have bigger problems anyway.
-Once the incoming queued RCUs fall below the low watermark, the batch limit
-is set to the default.
+> > So, since Linux doesn't destroy that information remaining in
+>> the BIOS tables, I show how to make it available to a 'root' user.
+>> Observation over several machines will show that the BIOS always
+>> uses the same stuff for large media and, in fact, it has no choice.
+>> Basically, this means that the first part of the boot-code, the
+>> stuff that needs to be translated to fit into the int 0x13 registers,
+>> needs to be below 1024 cylinders, 63 sectors-track, and 256 heads.
+>> Trivial... even LILO was able to do that! Once the machine boots
+>> past the requirement to use the BIOS services, it's a CHS=NOP.
+>
+>
+> If I am off the mark here, forgive me.
+>
+> Since I moved exclusively to GNU/Linux 2 years ago, I notice when I
+> update kernel I get this:
+>
+> nick@linuxamd:nick$ sudo /sbin/lilo -v
+> LILO version 22.5.9, Copyright (C) 1992-1998 Werner Almesberger
+> Development beyond version 21 Copyright (C) 1999-2004 John Coffman
+> Released 08-Apr-2004 and compiled at 00:18:50 on May 21 2004.
+>
+> Warning: LBA32 addressing assumed
+> Reading boot sector from /dev/hda2
+> Warning: Kernel & BIOS return differing head/sector geometries for device 0x80
+>    Kernel: 65535 cylinders, 16 heads, 63 sectors
+>      BIOS: 1024 cylinders, 255 heads, 63 sectors
+> Warning: Kernel & BIOS return differing head/sector geometries for device 0x81
+>    Kernel: 29777 cylinders, 16 heads, 63 sectors
+>      BIOS: 1024 cylinders, 255 heads, 63 sectors
+>
+> Now, from day one I never used the -v option with lilo, but as I get
+> more experienced (!) I do now and see the above... I have never
+> investigated due to worrying if I start messing with it I will trash
+> my disks - as I see all anyway on this disks (and no errors), all
+> works great/fast etc.
+>
+> Is this what is going on here (re this thread?).
+>
+> Nick
+>
 
-Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
----
+Nothing to worry about. If you make lots of new kernels to
+try them out, you might wish to use GRUB instead of LILO.
 
+However, once the boot-process gets out of 16-bit mode, it
+isn't going to use the 16-bit disk services so it doesn't
+care about any of that stuff. C/H/S is just a "key" to get
+you through the fact that the 16-bit BIOS puts some minimal
+stuff in registers to access the disk.
 
- include/linux/rcupdate.h |    6 +++
- kernel/rcupdate.c        |   74 ++++++++++++++++++++++++++++++++++++-----------
- 2 files changed, 63 insertions(+), 17 deletions(-)
-
-diff -puN include/linux/rcupdate.h~rcu-batch-tuning include/linux/rcupdate.h
---- linux-2.6.16-rc3-mm1-rcu/include/linux/rcupdate.h~rcu-batch-tuning	2006-02-18 01:18:24.000000000 +0530
-+++ linux-2.6.16-rc3-mm1-rcu-dipankar/include/linux/rcupdate.h	2006-02-18 01:18:24.000000000 +0530
-@@ -98,13 +98,17 @@ struct rcu_data {
- 	long  	       	batch;           /* Batch # for current RCU batch */
- 	struct rcu_head *nxtlist;
- 	struct rcu_head **nxttail;
--	long            count; /* # of queued items */
-+	long            qlen; 	 	 /* # of queued callbacks */
- 	struct rcu_head *curlist;
- 	struct rcu_head **curtail;
- 	struct rcu_head *donelist;
- 	struct rcu_head **donetail;
-+	long		blimit;		 /* Upper limit on a processed batch */
- 	int cpu;
- 	struct rcu_head barrier;
-+#ifdef CONFIG_SMP
-+	long		last_rs_qlen;	 /* qlen during the last resched */
-+#endif
- };
- 
- DECLARE_PER_CPU(struct rcu_data, rcu_data);
-diff -puN kernel/rcupdate.c~rcu-batch-tuning kernel/rcupdate.c
---- linux-2.6.16-rc3-mm1-rcu/kernel/rcupdate.c~rcu-batch-tuning	2006-02-18 01:18:24.000000000 +0530
-+++ linux-2.6.16-rc3-mm1-rcu-dipankar/kernel/rcupdate.c	2006-02-18 01:24:07.000000000 +0530
-@@ -68,7 +68,43 @@ DEFINE_PER_CPU(struct rcu_data, rcu_bh_d
- 
- /* Fake initialization required by compiler */
- static DEFINE_PER_CPU(struct tasklet_struct, rcu_tasklet) = {NULL};
--static int maxbatch = 10000;
-+static int blimit = 10;
-+static int qhimark = 10000;
-+static int qlowmark = 100;
-+#ifdef CONFIG_SMP
-+static int rsinterval = 1000;
-+#endif
-+
-+static atomic_t rcu_barrier_cpu_count;
-+static DEFINE_MUTEX(rcu_barrier_mutex);
-+static struct completion rcu_barrier_completion;
-+
-+#ifdef CONFIG_SMP
-+static void force_quiescent_state(struct rcu_data *rdp,
-+			struct rcu_ctrlblk *rcp)
-+{
-+	int cpu;
-+	cpumask_t cpumask;
-+	set_need_resched();
-+	if (unlikely(rdp->qlen - rdp->last_rs_qlen > rsinterval)) {
-+		rdp->last_rs_qlen = rdp->qlen;
-+		/*
-+		 * Don't send IPI to itself. With irqs disabled,
-+		 * rdp->cpu is the current cpu.
-+		 */
-+		cpumask = rcp->cpumask;
-+		cpu_clear(rdp->cpu, cpumask);
-+		for_each_cpu_mask(cpu, cpumask)
-+			smp_send_reschedule(cpu);
-+	}
-+}
-+#else 
-+static inline void force_quiescent_state(struct rcu_data *rdp,
-+			struct rcu_ctrlblk *rcp)
-+{
-+	set_need_resched();
-+}
-+#endif
- 
- /**
-  * call_rcu - Queue an RCU callback for invocation after a grace period.
-@@ -94,16 +130,14 @@ void fastcall call_rcu(struct rcu_head *
- 	*rdp->nxttail = head;
- 	rdp->nxttail = &head->next;
- 
--	if (unlikely(++rdp->count > 10000))
--		set_need_resched();
-+	if (unlikely(++rdp->qlen > qhimark)) {
-+		rdp->blimit = INT_MAX;
-+		force_quiescent_state(rdp, &rcu_ctrlblk);
-+	}
- 
- 	local_irq_restore(flags);
- }
- 
--static atomic_t rcu_barrier_cpu_count;
--static DEFINE_MUTEX(rcu_barrier_mutex);
--static struct completion rcu_barrier_completion;
--
- /**
-  * call_rcu_bh - Queue an RCU for invocation after a quicker grace period.
-  * @head: structure to be used for queueing the RCU updates.
-@@ -132,12 +166,12 @@ void fastcall call_rcu_bh(struct rcu_hea
- 	rdp = &__get_cpu_var(rcu_bh_data);
- 	*rdp->nxttail = head;
- 	rdp->nxttail = &head->next;
--	rdp->count++;
--/*
-- *  Should we directly call rcu_do_batch() here ?
-- *  if (unlikely(rdp->count > 10000))
-- *      rcu_do_batch(rdp);
-- */
-+
-+	if (unlikely(++rdp->qlen > qhimark)) {
-+		rdp->blimit = INT_MAX;
-+		force_quiescent_state(rdp, &rcu_bh_ctrlblk);
-+	}
-+
- 	local_irq_restore(flags);
- }
- 
-@@ -200,10 +234,12 @@ static void rcu_do_batch(struct rcu_data
- 		next = rdp->donelist = list->next;
- 		list->func(list);
- 		list = next;
--		rdp->count--;
--		if (++count >= maxbatch)
-+		rdp->qlen--;
-+		if (++count >= rdp->blimit)
- 			break;
- 	}
-+	if (rdp->blimit == INT_MAX && rdp->qlen <= qlowmark)
-+		rdp->blimit = blimit;
- 	if (!rdp->donelist)
- 		rdp->donetail = &rdp->donelist;
- 	else
-@@ -473,6 +509,7 @@ static void rcu_init_percpu_data(int cpu
- 	rdp->quiescbatch = rcp->completed;
- 	rdp->qs_pending = 0;
- 	rdp->cpu = cpu;
-+	rdp->blimit = blimit;
- }
- 
- static void __devinit rcu_online_cpu(int cpu)
-@@ -566,7 +603,12 @@ void synchronize_kernel(void)
- 	synchronize_rcu();
- }
- 
--module_param(maxbatch, int, 0);
-+module_param(blimit, int, 0);
-+module_param(qhimark, int, 0);
-+module_param(qlowmark, int, 0);
-+#ifdef CONFIG_SMP
-+module_param(rsinterval, int, 0);
-+#endif
- EXPORT_SYMBOL_GPL(rcu_batches_completed);
- EXPORT_SYMBOL_GPL_FUTURE(call_rcu);	/* WARNING: GPL-only in April 2006. */
- EXPORT_SYMBOL_GPL_FUTURE(call_rcu_bh);	/* WARNING: GPL-only in April 2006. */
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.15.4 on an i686 machine (5589.53 BogoMips).
+Warning : 98.36% of all statistics are fiction.
 _
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

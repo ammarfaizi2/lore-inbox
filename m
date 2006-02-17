@@ -1,112 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWBQLoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWBQLrF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbWBQLoo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 06:44:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWBQLoo
+	id S1751396AbWBQLrF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 06:47:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWBQLrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 06:44:44 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:8345 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1751393AbWBQLon (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 06:44:43 -0500
-Date: Fri, 17 Feb 2006 12:44:41 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       Kirill Korotaev <dev@sw.ru>, linux-kernel@vger.kernel.org,
-       vserver@list.linux-vserver.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: (pspace,pid) vs true pid virtualization
-Message-ID: <20060217114441.GA17940@MAIL.13thfloor.at>
-Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
-	Dave Hansen <haveblue@us.ibm.com>,
-	"Serge E. Hallyn" <serue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
-	linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-	Hubertus Franke <frankeh@watson.ibm.com>,
-	Cedric Le Goater <clg@fr.ibm.com>,
-	Kyle Moffett <mrmacman_g4@mac.com>, Greg <gkurz@fr.ibm.com>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Greg KH <greg@kroah.com>, Rik van Riel <riel@redhat.com>,
-	Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-	Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-	Andi Kleen <ak@suse.de>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Jes Sorensen <jes@sgi.com>
-References: <20060215145942.GA9274@sergelap.austin.ibm.com> <m11wy4s24i.fsf@ebiederm.dsl.xmission.com> <20060216142928.GA22358@sergelap.austin.ibm.com> <m17j7vqmy1.fsf@ebiederm.dsl.xmission.com> <20060216175326.GA11974@sergelap.austin.ibm.com> <m1mzgrp3nl.fsf@ebiederm.dsl.xmission.com> <20060216184407.GC11974@sergelap.austin.ibm.com> <1140115979.21383.11.camel@localhost.localdomain> <m1bqx6p815.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 17 Feb 2006 06:47:05 -0500
+Received: from nproxy.gmail.com ([64.233.182.196]:49655 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751396AbWBQLrE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 06:47:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GxvZygKZXkqZiAqUConHofiNajb8hZ8hLja23thmEaXNS7mXT9u6flPdDdant2YzQRVI5xTgytnaoP6c9O6mMAL6WOzcPO7ZZfYrXKBsIn7lYtCIZwuaghoDUXeJEjZSVvWq78UvIYNDjMKB6DEg8d6fkSxrUoIqh9PjGFY3gyA=
+Message-ID: <58cb370e0602170347qeddb390u680895fd2f0aab7d@mail.gmail.com>
+Date: Fri, 17 Feb 2006 12:47:02 +0100
+From: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [BUG] kernel 2.6.15.4: soft lockup detected on CPU#0!
+Cc: ce@ruault.com, linux-kernel@vger.kernel.org, "Ingo Molnar" <mingo@elte.hu>
+In-Reply-To: <20060216122045.7a664bc6.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <m1bqx6p815.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.6i
+References: <43EF8388.10202@ruault.com> <20060215185120.6c35eca2.akpm@osdl.org>
+	 <58cb370e0602160533n3325ba03yfedaf4e55278521d@mail.gmail.com>
+	 <20060216122045.7a664bc6.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 17, 2006 at 03:57:26AM -0700, Eric W. Biederman wrote:
-> Dave Hansen <haveblue@us.ibm.com> writes:
-> 
-> > On Thu, 2006-02-16 at 12:44 -0600, Serge E. Hallyn wrote:
-> >> Now Dave and I were just talking about actually using the
-> >> init process in a pspace to do administration from outside.
-> >> For instance, the userspace code, in /sbin/pspaceinit, which
-> >> runs as (pspace 2, pid 1), could open a pipe with it's parent
-> >> (pspace1, pid 234).  pid 234 can then ask the init process to
-> >> do things like list processes, kill a process, and maybe even
-> >> recursively talk to the init process in pspace 3.
+On 2/16/06, Andrew Morton <akpm@osdl.org> wrote:
+> Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
 > >
-> > This would require a much smarter init, and that a child be nice,
-> > cooperate and pass on what is requested of it if it's nested children
-> > are to be killed.  If a child decided to be mean and ignore its parent's
-> > requests, the parent can always just kill the child.
-> 
-> As for that.  When I mad that suggestion to Herbert Poetzl 
-> his only concern was that a smart init might be too heavy weight 
-> for lightweight vserver.  Generally I like the idea.
+> > On 2/16/06, Andrew Morton <akpm@osdl.org> wrote:
+> > > Charles-Edouard Ruault <ce@ruault.com> wrote:
+> > > >
+> > > > i was trying to rip a CD when the whole machine started to freeze
+> > > >  periodicaly, i then looked at the logs and found the following :
+> > > >
+> > > >  Feb 12 19:23:39 ruault kernel: hdc: irq timeout: status=0x80 { Busy }
+> > > >  Feb 12 19:23:39 ruault kernel: ide: failed opcode was: unknown
+> > > >  Feb 12 19:23:39 ruault kernel: hdd: status timeout: status=0x80 { Busy }
+> > > >  Feb 12 19:23:39 ruault kernel: ide: failed opcode was: unknown
+> > > >  Feb 12 19:23:39 ruault kernel: hdd: drive not ready for command
+> > >
+> > > No idea what caused that.
+> > >
+> > > >  Feb 12 19:23:39 ruault kernel: BUG: soft lockup detected on CPU#0!
+> > >
+> > > The following was merged today.  Hopefully it suppresses this false
+> > > positive.
+> >
+> > Unfortunately it won't.  Charles' problem is different (and the BUG
+> > output is different!) - soft lockup got triggered for PIO handling in
+> > ide-cd driver.  This patch fixes the problem only for generic ATA PIO
+> > routines (disks and [P]IDENTIFY), ATAPI PIO still needs fixing
+> > (ide-cd/floppy/tape/scsi drivers).
+>
+> argh.  We do need to bop that warning on the head - it's consuming people's
+> time and causing unneeded concern.
 
-well, may I remind that this solution would require _two_
-init processes for each guest, which could easily make up
-300-400 unnecessary processes in a lightweight server
-setup?
+Yes, it is definitely consuming time...
+this is 3-rd time we hit false-positive in IDE subsystem.
 
-> > (Read the last sentence, and in case you're wondering, no I don't have
-> > any children in real life)
-> 
-> Speaking of that.  One of my coworkers mentioned that it is unfortunate
-> that our names don't have the double meaning.  So it was suggested we
-> call them 
-> 
-> Speaking of that problematic naming.  One of my coworkers mentioned that
-> it is unfortunate that our set of names does not have a double meaning.
-> After that the suggestion came up to call them families, instead of guest
-> or pidspaces.  Although I guess calling them guests is about as bad :)
+"soft lockup during probe" problem was fixed by touching
+watchdog.  I believe proper fix would require using msleep() instead
+of mdelay() and we knew this before soft lockup issue.
 
-well, at least Guests or VEs are terms already used by
-existing projects, where pspace sounds somewhat strange.
+So from my IDE work POV it was just wasted time...
 
-at the same time I'd like to point out that *spaces is
-a good name for the building blocks, but we definitely
-have to name the 'construct' different, i.e. a 'guest'
-(or VPS or VE or whatever) is _more_ than just a p-space
-it's the sum of all *-spaces required to make it look
-like a real linux system.
+"ATA PIO" problem was handled in the same way.
+I'm still not 100% sure if it was false positive - it looked like
+from the trace but I find it hard to believe that users wouldn't
+complain about 10sec stalls [ Soft lockup detector claims to
+trigger if after 10sec it hasn't been touched - is it really working
+as advertised?  How can we verify this? ].
 
-best,
-Herbert
+Again it only wasted time from IDE POV.
 
-> Eric
+And now ATAPI PIO issues requires me to audit all ATAPI
+device drivers to quiet soft lockup detector...
+
+> > Andrew, there is no "high level" function for ATAPI PIO as
+> > ide_pio_datablock() for ATA PIO so fixing soft lockup false positives
+> > would require going through all drivers and adding bunch of
+> > touch_softlockup_watchdog() or using sledge-hammer approach
+> > and touching watchdog in ide-iops.c:atapi_[input,output]_bytes().
+>
+> Send fixup patch, please?
+
+Other things have much bigger priority than quieting soft lockup
+detector because somebody decided upon driver maintainers that
+soft lockup during hardware access is a _major_ problem (-> system
+stays locked) and needs to be fixed ASAP (-> it is enabled by default).
+
+This feature could be useful but why driver maintainers are _forced_ to
+pay maintenance cost for it?
+
+I can send you another sledge-hammer fix which is quite disgusting as
+it touches watchdog on every ATAPI related PIO access (i.e. many times
+in ATAPI PIO IRQ handlers, during packet command transfer).
+
+Alternatively I can send you patch making soft lockup detector depend on
+"CONFIG_IDE=n".
+
+Bartlomiej

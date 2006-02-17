@@ -1,101 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbWBQCxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWBQCy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750950AbWBQCxq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 21:53:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWBQCxp
+	id S1751357AbWBQCy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 21:54:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWBQCy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 21:53:45 -0500
-Received: from cabal.ca ([134.117.69.58]:29843 "EHLO fattire.cabal.ca")
-	by vger.kernel.org with ESMTP id S1750950AbWBQCxp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 21:53:45 -0500
-Date: Thu, 16 Feb 2006 21:52:42 -0500
-From: Kyle McMartin <kyle@parisc-linux.org>
-To: torvalds@osdl.org
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Generic is_compat_task helper
-Message-ID: <20060217025242.GM13492@quicksilver.road.mcmartin.ca>
-MIME-Version: 1.0
+	Thu, 16 Feb 2006 21:54:27 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:49625 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751357AbWBQCy0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 21:54:26 -0500
+Date: Thu, 16 Feb 2006 18:54:03 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       npiggin@suse.de, Ingo Molnar <mingo@elte.hu>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Linus Torvalds <torvalds@osdl.org>, Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCH] Fix smpnice high priority task hopping problem
+Message-ID: <20060216185403.B27025@unix-os.sc.intel.com>
+References: <43F3C9C6.5080606@bigpond.net.au> <20060216171357.A27025@unix-os.sc.intel.com> <43F53553.50904@bigpond.net.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <43F53553.50904@bigpond.net.au>; from pwil3058@bigpond.net.au on Fri, Feb 17, 2006 at 01:30:43PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Implement a generic is_compat_task function. It should only be used
-when absolutely necessary. For example, to clean up the per-architecture
-tests in drivers/input/evdev.c.
+On Fri, Feb 17, 2006 at 01:30:43PM +1100, Peter Williams wrote:
+> On a normal system, would either of them be moved anyway?
 
-Prototype is such that the existing asm-x86_64 helper needs no change.
+Possible. Because when the migration thread runs it moves the current running
+task out of the processor and the checks in can_migrate_task() like
+"sd->nr_balance_failed > sd->cache_nice_tries" can result in cache hot task
+move to the idle package.. This is a round about way and we should not depend
+on this behavior..
 
-Architecture maintainers must add an appropriate implementation to
-asm/compat.h, if needed.
+> 
+> > 
+> > To fix my reported problem, we need to make sure that find_busiest_group()
+> > doesn't find an imbalance..
+> 
+> I disagree.  If this causes a problem with your "optimizations" then I 
+> think that you need to fix the "optimizations".
+> 
+> There's a rational argument (IMHO) that this patch should be applied 
+> even in the absence of the smpnice patches as it prevents 
+> active_load_balance() doing unnecessary work.  If this isn't good for 
+> hypo threading then hypo threading is a special case and needs to handle 
+> it as such.
 
-Signed-off-by: Kyle McMartin <kyle@parisc-linux.org>
+active load balance is designed only with HT optimizations in mind. And now
+multi-core optimizations also use this active load balance. No one else uses
+active load balance.
 
----
-
-Yeah, this can be abused... but, blocks like:
-
-#ifdef CONFIG_X86_64
-#  define COMPAT_TEST is_compat_task()
-#elif defined(CONFIG_IA64)
-#  define COMPAT_TEST IS_IA32_PROCESS(task_pt_regs(current))
-#elif defined(CONFIG_S390)
-#  define COMPAT_TEST test_thread_flag(TIF_31BIT)
-#elif defined(CONFIG_MIPS)
-#  define COMPAT_TEST (current->thread.mflags & MF_32BIT_ADDR)
-#else
-#  define COMPAT_TEST test_thread_flag(TIF_32BIT)
-#endif
-
-from drivers/input/evdev.c are worse. This style of block also appeared
-in a patch on netdev recently...
-
-I think everyone can agree centralizing this is probably better than
-the current state of affairs.
-
-diff --git a/include/asm-parisc/compat.h b/include/asm-parisc/compat.h
-index 38b918f..a5eb7cd 100644
---- a/include/asm-parisc/compat.h
-+++ b/include/asm-parisc/compat.h
-@@ -5,6 +5,7 @@
-  */
- #include <linux/types.h>
- #include <linux/sched.h>
-+#include <linux/personality.h>
- 
- #define COMPAT_USER_HZ 100
- 
-@@ -144,4 +145,14 @@ static __inline__ void __user *compat_al
- 	return (void __user *)regs->gr[30];
- }
- 
-+static inline int __is_compat_task(struct task_struct *t)
-+{
-+	return (personality(t->personality) == PER_LINUX32);
-+}
-+
-+static inline int is_compat_task(void)
-+{
-+	return __is_compat_task(current);
-+}
-+
- #endif /* _ASM_PARISC_COMPAT_H */
-diff --git a/include/linux/compat.h b/include/linux/compat.h
-index c9ab2a2..d2e0ea9 100644
---- a/include/linux/compat.h
-+++ b/include/linux/compat.h
-@@ -181,5 +181,12 @@ static inline int compat_timespec_compar
- 	return lhs->tv_nsec - rhs->tv_nsec;
- }
- 
-+#else /* !CONFIG_COMPAT */
-+
-+static inline int is_compat_task(void)
-+{
-+	return 0;
-+}
-+
- #endif /* CONFIG_COMPAT */
- #endif /* _LINUX_COMPAT_H */
+thanks,
+suresh

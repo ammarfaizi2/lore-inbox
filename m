@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932584AbWBQIw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbWBQIz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932584AbWBQIw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 03:52:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbWBQIw6
+	id S964903AbWBQIz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 03:55:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbWBQIz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 03:52:58 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:25508 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932584AbWBQIw5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 03:52:57 -0500
-Date: Fri, 17 Feb 2006 00:51:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ian Kent <raven@themaw.net>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       autofs@linux.kernel.org
-Subject: Re: [RFC:PATCH 4/4] autofs4 - add new packet type for v5
- communications
-Message-Id: <20060217005134.6842f0ca.akpm@osdl.org>
-In-Reply-To: <200602170701.k1H71Irp004035@eagle.themaw.net>
-References: <200602170701.k1H71Irp004035@eagle.themaw.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 17 Feb 2006 03:55:59 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:30622 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S964903AbWBQIz6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 03:55:58 -0500
+Message-ID: <43F58F37.8000108@aitel.hist.no>
+Date: Fri, 17 Feb 2006 09:54:15 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rob Landley <rob@landley.net>
+CC: Matthias Andree <matthias.andree@gmx.de>,
+       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <5a2cf1f60602130407j79805b8al55fe999426d90b97@mail.gmail.com> <200602141751.02153.rob@landley.net> <20060215000420.GB21088@merlin.emma.line.org> <200602142155.03407.rob@landley.net>
+In-Reply-To: <200602142155.03407.rob@landley.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Kent <raven@themaw.net> wrote:
+Rob Landley wrote:
+
+>Time will take care of Solaris.  Currently it seems to be making all its money 
+>due to the fact that government contracts can only charge 10% over the cost 
+>of their components, so big government contractors use the most expensive 
+>stuff they can find (and never re-use anything) to make that 10% as big as 
+>humanly possible.  Use Linux in an aircraft carrier and you get a 10% markup 
+>on $100.  Use Solaris in the same aircraft carrier and you get a 10% markup 
+>on whatever insanely inflated figure Sun cares to charge...
+>  
 >
-> +/* autofs v5 common packet struct */
->  +struct autofs_v5_packet {
->  +	struct autofs_packet_hdr hdr;
->  +	autofs_wqt_t wait_queue_token;
->  +	__u32 dev;
->  +	__u64 ino;
->  +	uid_t uid;
->  +	gid_t gid;
->  +	pid_t pid;
->  +	pid_t tgid;
->  +	int len;
->  +	char name[NAME_MAX+1];
->  +};
+Hm, I can sell linux at insanely inflated prices to whoever needs that. :-)
 
-Is this known to work with 32-bit userspace on 64-bit kernels?
-
-In particular, perhaps the ?id_t's should become a type of known size and
-alignment (u32 or u64)?
+Helge Hafting

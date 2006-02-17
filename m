@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbWBQMbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWBQMoL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750991AbWBQMbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 07:31:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbWBQMbQ
+	id S932248AbWBQMoL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 07:44:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbWBQMoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 07:31:16 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:55213 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750829AbWBQMbQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 07:31:16 -0500
-Date: Fri, 17 Feb 2006 07:31:02 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Christoph Hellwig <hch@lst.de>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] deprecate the tasklist_lock export
-In-Reply-To: <20060217112032.GD28448@lst.de>
-Message-ID: <Pine.LNX.4.58.0602170727040.27060@gandalf.stny.rr.com>
-References: <20060215130734.GA5590@lst.de> <Pine.LNX.4.58.0602150903020.25659@gandalf.stny.rr.com>
- <20060217112032.GD28448@lst.de>
+	Fri, 17 Feb 2006 07:44:11 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:52636 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932248AbWBQMoK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 07:44:10 -0500
+Date: Fri, 17 Feb 2006 13:43:44 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: john stultz <johnstul@us.ibm.com>
+cc: Paul Mackerras <paulus@samba.org>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] Provide an interface for getting the current tick
+ length
+In-Reply-To: <1140135082.7028.45.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.61.0602171311430.30994@scrub.home>
+References: <17397.2831.48980.367714@cargo.ozlabs.ibm.com>
+ <1140135082.7028.45.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Fri, 17 Feb 2006, Christoph Hellwig wrote:
+On Thu, 16 Feb 2006, john stultz wrote:
 
-> On Wed, Feb 15, 2006 at 09:09:36AM -0500, Steven Rostedt wrote:
-> > Hmm, I have some debug modules that do use that lock.  Is it possible to
-> > export it only if CONFIG_DEBUG_KERNEL?
->
-> That doesn't make a whole lot of sense.  What's your debug module doing?
-> Should we just put it in the tree as builtin-code under a debug option?
->
+> > +u64 current_tick_length(void)
+> > +{
+> > +	long delta_nsec;
+> > +
+> > +	delta_nsec = tick_nsec + adjtime_adjustment() * 1000;
+> > +	return ((u64) delta_nsec << (SHIFT_SCALE - 10)) + time_adj;
+> > +}
+> 
+> You've got time_adj here, but you're not using what's been accumulated
+> in time_phase, is that really ok?
+> 
+> 
+> Other then that it looks ok to me. I know Roman is working on related
+> code, so I CC'ed him on this.
 
-Nah, It's not worth it.  I have some mutex test modules that search the
-tasks to determine what priorities are there and uses that info for
-setting the priorities of the threads it creates. Yes, this can be done
-from userland as well, but i was being lazy and just wrote eveything in
-the module.
+I was only thinking about the possibility of increasing the precision 
+already, but that can still be done later.
+Otherwise this function will only become simpler, so there's no real 
+problem. Actually it should even make NTP4 conversion easier, if ppc uses 
+this value instead of duplicating the calculation.
 
-So, forget what I asked for and do what you want.  These modules are
-really just for testing specific things that I work on and I can find
-other ways around it.  Really the easiest thing is to just add the EXPORT
-myself since I need to recompile the kernel anyways.
-
-Thanks anyway,
-
--- Steve
-
+bye, Roman

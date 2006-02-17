@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbWBQNac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964824AbWBQNbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964914AbWBQNac (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 08:30:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbWBQNaS
+	id S964824AbWBQNbY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 08:31:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbWBQNao
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 08:30:18 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:21977 "EHLO
+	Fri, 17 Feb 2006 08:30:44 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:58074 "EHLO
 	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S964824AbWBQN3Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 08:29:24 -0500
-Date: Fri, 17 Feb 2006 22:28:33 +0900
+	id S964824AbWBQNaY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 08:30:24 -0500
+Date: Fri, 17 Feb 2006 22:29:20 +0900
 From: Yasunori Goto <y-goto@jp.fujitsu.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH: 002/012] Memory hotplug for new nodes v.2. (changing to __meminit)
+Subject: [PATCH: 007/012] Memory hotplug for new nodes v.2.(create sysfs for node (x86-64))
 Cc: "Luck, Tony" <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
        "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
        Joel Schopp <jschopp@austin.ibm.com>, Dave Hansen <haveblue@us.ibm.com>,
-       linux-ia64@vger.kernel.org,
        Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       x86-64 Discuss <discuss@x86-64.org>
+       linux-ia64@vger.kernel.org, x86-64 Discuss <discuss@x86-64.org>
 X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060217211158.406C.Y-GOTO@jp.fujitsu.com>
+Message-Id: <20060217213414.4076.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
@@ -29,95 +28,70 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is a patch to change from __init to __meminit.
-These functions and data can be used after bootup by this patch.
+This patch is to use arch_register_node() on "x86-64".
+x86-64 uses i386's topology.c Howerver, arch_register_node() is
+written at include/asm-i386/node.c. x86-64 couldn't use it.
 
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+I suppose there is no reason that it must be defined as
+inline function. So, I move it to topology.c.
 
-Index: pgdat3/mm/page_alloc.c
+
+Index: pgdat3/arch/i386/mach-default/topology.c
 ===================================================================
---- pgdat3.orig/mm/page_alloc.c	2006-02-17 15:58:06.000000000 +0900
-+++ pgdat3/mm/page_alloc.c	2006-02-17 16:12:43.000000000 +0900
-@@ -82,8 +82,8 @@ EXPORT_SYMBOL(zone_table);
- static char *zone_names[MAX_NR_ZONES] = { "DMA", "DMA32", "Normal", "HighMem" };
- int min_free_kbytes = 1024;
+--- pgdat3.orig/arch/i386/mach-default/topology.c	2005-10-28 12:04:38.000000000 +0900
++++ pgdat3/arch/i386/mach-default/topology.c	2006-02-17 16:17:30.000000000 +0900
+@@ -69,6 +69,26 @@ EXPORT_SYMBOL(arch_unregister_cpu);
  
--unsigned long __initdata nr_kernel_pages;
--unsigned long __initdata nr_all_pages;
-+unsigned long __meminitdata nr_kernel_pages;
-+unsigned long __meminitdata nr_all_pages;
+ struct i386_node node_devices[MAX_NUMNODES];
  
- #ifdef CONFIG_DEBUG_VM
- static int page_outside_zone_boundaries(struct zone *zone, struct page *page)
-@@ -1579,7 +1579,7 @@ void show_free_areas(void)
-  *
-  * Add all populated zones of a node to the zonelist.
-  */
--static int __init build_zonelists_node(pg_data_t *pgdat,
-+static int __meminit build_zonelists_node(pg_data_t *pgdat,
- 			struct zonelist *zonelist, int nr_zones, int zone_type)
++int arch_register_node(int num)
++{
++	int p_node;
++	struct node *parent = NULL;
++
++	if (!node_online(num))
++		return 0;
++	p_node = parent_node(num);
++
++	if (p_node != num)
++		parent = &node_devices[p_node].node;
++
++	return register_node(&node_devices[num].node, num, parent);
++}
++
++void arch_unregister_node(int num)
++{
++	unregister_node(&node_devices[num].node);
++}
++
+ static int __init topology_init(void)
  {
- 	struct zone *zone;
-@@ -1630,7 +1630,7 @@ static int __initdata node_load[MAX_NUMN
-  * on them otherwise.
-  * It returns -1 if no node is found.
-  */
--static int __init find_next_best_node(int node, nodemask_t *used_node_mask)
-+static int __meminit find_next_best_node(int node, nodemask_t *used_node_mask)
- {
- 	int i, n, val;
- 	int min_val = INT_MAX;
-@@ -1676,7 +1676,7 @@ static int __init find_next_best_node(in
- 	return best_node;
- }
- 
--static void __init build_zonelists(pg_data_t *pgdat)
-+static void __meminit build_zonelists(pg_data_t *pgdat)
- {
- 	int i, j, k, node, local_node;
- 	int prev_node, load;
-@@ -1728,7 +1728,7 @@ static void __init build_zonelists(pg_da
- 
- #else	/* CONFIG_NUMA */
- 
--static void __init build_zonelists(pg_data_t *pgdat)
-+static void __meminit build_zonelists(pg_data_t *pgdat)
- {
- 	int i, j, k, node, local_node;
- 
-@@ -2134,7 +2134,7 @@ static __meminit void init_currently_emp
-  *   - mark all memory queues empty
-  *   - clear the memory bitmaps
-  */
--static void __init free_area_init_core(struct pglist_data *pgdat,
-+static void __meminit free_area_init_core(struct pglist_data *pgdat,
- 		unsigned long *zones_size, unsigned long *zholes_size)
- {
- 	unsigned long j;
-@@ -2214,7 +2214,7 @@ static void __init alloc_node_mem_map(st
- #endif /* CONFIG_FLAT_NODE_MEM_MAP */
- }
- 
--void __init free_area_init_node(int nid, struct pglist_data *pgdat,
-+void __meminit free_area_init_node(int nid, struct pglist_data *pgdat,
- 		unsigned long *zones_size, unsigned long node_start_pfn,
- 		unsigned long *zholes_size)
- {
-Index: pgdat3/include/linux/bootmem.h
+ 	int i;
+Index: pgdat3/include/asm-i386/node.h
 ===================================================================
---- pgdat3.orig/include/linux/bootmem.h	2006-02-17 15:51:08.000000000 +0900
-+++ pgdat3/include/linux/bootmem.h	2006-02-17 16:12:43.000000000 +0900
-@@ -86,8 +86,8 @@ static inline void *alloc_remap(int nid,
- }
- #endif
+--- pgdat3.orig/include/asm-i386/node.h	2005-03-02 16:37:51.000000000 +0900
++++ pgdat3/include/asm-i386/node.h	2006-02-17 16:17:30.000000000 +0900
+@@ -11,19 +11,6 @@ struct i386_node {
+ 	struct node node;
+ };
+ extern struct i386_node node_devices[MAX_NUMNODES];
+-
+-static inline int arch_register_node(int num){
+-	int p_node;
+-	struct node *parent = NULL;
+-
+-	if (!node_online(num))
+-		return 0;
+-	p_node = parent_node(num);
+-
+-	if (p_node != num)
+-		parent = &node_devices[p_node].node;
+-
+-	return register_node(&node_devices[num].node, num, parent);
+-}
++extern int arch_register_node(int);
  
--extern unsigned long __initdata nr_kernel_pages;
--extern unsigned long __initdata nr_all_pages;
-+extern unsigned long __meminitdata nr_kernel_pages;
-+extern unsigned long __meminitdata nr_all_pages;
- 
- extern void *__init alloc_large_system_hash(const char *tablename,
- 					    unsigned long bucketsize,
+ #endif /* _ASM_I386_NODE_H_ */
 
 -- 
 Yasunori Goto 

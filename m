@@ -1,71 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbWBQOTJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751430AbWBQOSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751425AbWBQOTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 09:19:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbWBQOTJ
+	id S1751430AbWBQOSu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 09:18:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWBQOSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 09:19:09 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:26590 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1751425AbWBQOS6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 09:18:58 -0500
-From: Mel Gorman <mel@csn.ul.ie>
-To: linux-mm@kvack.org
-Cc: Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Message-Id: <20060217141752.7621.68392.sendpatchset@skynet.csn.ul.ie>
-In-Reply-To: <20060217141552.7621.74444.sendpatchset@skynet.csn.ul.ie>
-References: <20060217141552.7621.74444.sendpatchset@skynet.csn.ul.ie>
-Subject: [PATCH 6/7] Allow HugeTLB allocations to use ZONE_EASYRCLM
-Date: Fri, 17 Feb 2006 14:17:52 +0000 (GMT)
+	Fri, 17 Feb 2006 09:18:50 -0500
+Received: from zproxy.gmail.com ([64.233.162.195]:55696 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751425AbWBQOSs convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 09:18:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=eCkBmq3Qo+24doqpuDxQt3yuNOF862vFYwNs5y/H2yqyIXh9tgfpg5z+SAJpWU6hOBnVfuM8rQYPiOomf5bHoS7M75n+8bG882pyqPptYZPwssHCQOqu4xE1pLFIVBhT2vGzX8GxOOcSWs9Ju2bMPAhlBsNr9s4YTxALvD3M3Vc=
+Message-ID: <3b0ffc1f0602170618u7a1ad877s337de33c0a8f44f9@mail.gmail.com>
+Date: Fri, 17 Feb 2006 09:18:47 -0500
+From: Kevin Radloff <radsaq@gmail.com>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: [ck] [PATCH] mm: implement swap prefetching (v26)
+Cc: Andrew Morton <akpm@osdl.org>, ck list <ck@vds.kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200602172235.40019.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200602172235.40019.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2/17/06, Con Kolivas <kernel@kolivas.org> wrote:
+> Added disabling of swap prefetching when laptop_mode is enabled.
 
-On ppc64 at least, a HugeTLB is the same size as a memory section. Hence,
-it causes no fragmentation that is worth caring about because a section can
-still be offlined.
+Why bother with this? As someone commented in a previous thread,
+wouldn't it be better to let the laptop_mode script handle it?
 
-Once HugeTLB is allowed to use ZONE_EASYRCLM, the size of the zone becomes a
-"soft" area where HugeTLB allocations may be satisified. For example, take
-a situation where a system administrator is not willing to reserve HugeTLB
-pages at boot time. In this case, he can use kernelcore to size the EasyRclm
-zone which is still usable by normal processes. If a job starts that need
-HugeTLB pages, one could dd a file the size of physical memory, delete it
-and have a good chance of getting a number of HugeTLB pages. To get all of
-EasyRclm as HugeTLB pages, the ability to drain per-cpu pages is required.
-
-Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc3-mm1-106_zonechoose/mm/hugetlb.c linux-2.6.16-rc3-mm1-107_hugetlb_use_easyrclm/mm/hugetlb.c
---- linux-2.6.16-rc3-mm1-106_zonechoose/mm/hugetlb.c	2006-02-16 09:50:44.000000000 +0000
-+++ linux-2.6.16-rc3-mm1-107_hugetlb_use_easyrclm/mm/hugetlb.c	2006-02-17 09:44:58.000000000 +0000
-@@ -49,7 +49,7 @@ static struct page *dequeue_huge_page(st
- 
- 	for (z = zonelist->zones; *z; z++) {
- 		nid = (*z)->zone_pgdat->node_id;
--		if (cpuset_zone_allowed(*z, GFP_HIGHUSER) &&
-+		if (cpuset_zone_allowed(*z, GFP_RCLMUSER) &&
- 		    !list_empty(&hugepage_freelists[nid]))
- 			break;
- 	}
-@@ -68,7 +68,7 @@ static int alloc_fresh_huge_page(void)
- {
- 	static int nid = 0;
- 	struct page *page;
--	page = alloc_pages_node(nid, GFP_HIGHUSER|__GFP_COMP|__GFP_NOWARN,
-+	page = alloc_pages_node(nid, GFP_RCLMUSER|__GFP_COMP|__GFP_NOWARN,
- 					HUGETLB_PAGE_ORDER);
- 	nid = (nid + 1) % num_online_nodes();
- 	if (page) {
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc3-mm1-106_zonechoose/mm/mempolicy.c linux-2.6.16-rc3-mm1-107_hugetlb_use_easyrclm/mm/mempolicy.c
---- linux-2.6.16-rc3-mm1-106_zonechoose/mm/mempolicy.c	2006-02-16 09:50:44.000000000 +0000
-+++ linux-2.6.16-rc3-mm1-107_hugetlb_use_easyrclm/mm/mempolicy.c	2006-02-17 09:44:58.000000000 +0000
-@@ -1201,7 +1201,7 @@ struct zonelist *huge_zonelist(struct vm
- 		unsigned nid;
- 
- 		nid = interleave_nid(pol, vma, addr, HPAGE_SHIFT);
--		return NODE_DATA(nid)->node_zonelists + gfp_zone(GFP_HIGHUSER);
-+		return NODE_DATA(nid)->node_zonelists + gfp_zone(GFP_RCLMUSER);
- 	}
- 	return zonelist_policy(GFP_HIGHUSER, pol);
- }
+--
+Kevin 'radsaq' Radloff
+radsaq@gmail.com
+http://thesaq.com/

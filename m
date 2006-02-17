@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751475AbWBQPV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751473AbWBQPZl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751475AbWBQPV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 10:21:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWBQPV5
+	id S1751473AbWBQPZl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 10:25:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751471AbWBQPZl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 10:21:57 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:50359 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751475AbWBQPV4 (ORCPT
+	Fri, 17 Feb 2006 10:25:41 -0500
+Received: from jaguar.mkp.net ([192.139.46.146]:16614 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S1751457AbWBQPZk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 10:21:56 -0500
-Date: Fri, 17 Feb 2006 15:21:47 +0000
-From: Alasdair G Kergon <agk@redhat.com>
-To: "Darrick J. Wong" <djwong@us.ibm.com>
-Cc: dm-devel@redhat.com, Chris McDermott <lcm@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [dm-devel] Re: [PATCH] User-configurable HDIO_GETGEO for dm volumes
-Message-ID: <20060217152147.GF12169@agk.surrey.redhat.com>
-Mail-Followup-To: "Darrick J. Wong" <djwong@us.ibm.com>,
-	dm-devel@redhat.com, Chris McDermott <lcm@us.ibm.com>,
-	linux-kernel@vger.kernel.org
-References: <43F38D83.3040702@us.ibm.com> <20060217151650.GC12173@agk.surrey.redhat.com>
-Mime-Version: 1.0
+	Fri, 17 Feb 2006 10:25:40 -0500
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] show "SN Devices" menu only if CONFIG_SGI_SN
+References: <20060217132245.GG4422@stusta.de>
+From: Jes Sorensen <jes@sgi.com>
+Date: 17 Feb 2006 10:25:39 -0500
+In-Reply-To: <20060217132245.GG4422@stusta.de>
+Message-ID: <yq08xsaxb0s.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060217151650.GC12173@agk.surrey.redhat.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 17, 2006 at 03:16:50PM +0000, Alasdair G Kergon wrote:
-> +static int dm_blk_getgeo(struct block_device *bdev, struct hd_geometry *geo)
-> +{
-> +	struct mapped_device *md = bdev->bd_disk->private_data;
-> +
-> +	return dm_table_get_geometry(md->map, geo);
-> +}
-> 
-> And if md->map is NULL?
+>>>>> "Adrian" == Adrian Bunk <bunk@stusta.de> writes:
 
-See also:
+Adrian> On architectures like i386, the "Multimedia Capabilities Port
+Adrian> drivers" menu is visible, but it can't be visited since it
+Adrian> contains nothing usable for CONFIG_SGI_SN=n.
 
-  /*
-   * Everyone (including functions in this file), should use this
-   * function to access the md->map field, and make sure they call
-   * dm_table_put() when finished.
-   */
-  struct dm_table *dm_get_table(struct mapped_device *md)
+Thats only a third of the patch, if you want to do that, you should
+remove the redundant SGI_SN checks below.
 
+Like this.
 
-Alasdair
--- 
-agk@redhat.com
+Jes
+
+ drivers/sn/Kconfig |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+Index: linux-2.6/drivers/sn/Kconfig
+===================================================================
+--- linux-2.6.orig/drivers/sn/Kconfig
++++ linux-2.6/drivers/sn/Kconfig
+@@ -3,10 +3,11 @@
+ #
+ 
+ menu "SN Devices"
++	depends on SGI_SN
+ 
+ config SGI_IOC4
+ 	tristate "SGI IOC4 Base IO support"
+-	depends on (IA64_GENERIC || IA64_SGI_SN2) && MMTIMER
++	depends on MMTIMER
+ 	default m
+ 	---help---
+ 	This option enables basic support for the SGI IOC4-based Base IO
+@@ -19,7 +20,6 @@
+ 
+ config SGI_IOC3
+ 	tristate "SGI IOC3 Base IO support"
+-	depends on (IA64_GENERIC || IA64_SGI_SN2)
+ 	default m
+ 	---help---
+ 	This option enables basic support for the SGI IOC3-based Base IO

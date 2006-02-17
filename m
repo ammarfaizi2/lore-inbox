@@ -1,100 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161119AbWBQAOf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161135AbWBQAQu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161119AbWBQAOf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 19:14:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161122AbWBQAOf
+	id S1161135AbWBQAQu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 19:16:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161133AbWBQAQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 19:14:35 -0500
-Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:36496 "EHLO
-	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1161119AbWBQAOe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 19:14:34 -0500
-Date: Thu, 16 Feb 2006 19:11:26 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch] i386: fix singlestepping though a syscall
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200602161914_MC3-1-B89C-55BE@compuserve.com>
+	Thu, 16 Feb 2006 19:16:49 -0500
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:58628 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1161137AbWBQAQt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 19:16:49 -0500
+To: Greg KH <greg@kroah.com>
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       Roland Dreier <rolandd@cisco.com>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: AMD 8131 and MSI quirk
+X-Message-Flag: Warning: May contain useful information
+References: <524q799p2t.fsf@cisco.com> <20060214165222.GC12974@mellanox.co.il>
+	<20060217000927.GA22149@kroah.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 16 Feb 2006 16:16:46 -0800
+In-Reply-To: <20060217000927.GA22149@kroah.com> (Greg KH's message of "Thu,
+ 16 Feb 2006 16:09:27 -0800")
+Message-ID: <adaek22hma9.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 17 Feb 2006 00:16:46.0377 (UTC) FILETIME=[702C7190:01C63357]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Singlestep through a syscall using vsyscall-sysenter had two bugs:
+    Greg> Roland, did you ever verify that this patch worked or not for you?
 
-    1.  Setting TIF_SINGLESTEP is not enough to force
-        do_notify_resume() to be run on return to user;
-        TIF_IRET must also be set.
+Unfortunately as I said I don't have such a system (with AMD 8131 and
+also a host bus controller that _does_ support MSI) myself.
 
-    2.  do_notify_resume() was being passed masked copies
-        of task_thread_flags, so TIF_SINGLESTEP was never
-        seen as set when it was called. This was changed
-        to use the 'test' instruction instead of 'and';
-        a duplicated piece of code was removed instead
-        of fixing that part too.
+Michael has tested on systems with AMD 8131, so I don't think the
+patch could hurt.
 
-Also changed some misleading 'jne' to 'jnz' to make it
-clearer what is happening.
-
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-
----
- arch/i386/kernel/entry.S |   17 +++++------------
- arch/i386/kernel/traps.c |    1 +
- 2 files changed, 6 insertions(+), 12 deletions(-)
-
---- 2.6.16-rc3-nb.orig/arch/i386/kernel/entry.S
-+++ 2.6.16-rc3-nb/arch/i386/kernel/entry.S
-@@ -152,9 +152,9 @@ ENTRY(resume_userspace)
- 					# setting need_resched or sigpending
- 					# between sampling and the iret
- 	movl TI_flags(%ebp), %ecx
--	andl $_TIF_WORK_MASK, %ecx	# is there any work to be done on
-+	testl $_TIF_WORK_MASK, %ecx	# is there any work to be done on
- 					# int/exception return?
--	jne work_pending
-+	jnz work_pending
- 	jmp restore_all
- 
- #ifdef CONFIG_PREEMPT
-@@ -301,21 +301,14 @@ work_pending:
- 	jz work_notifysig
- work_resched:
- 	call schedule
--	cli				# make sure we don't miss an interrupt
--					# setting need_resched or sigpending
--					# between sampling and the iret
--	movl TI_flags(%ebp), %ecx
--	andl $_TIF_WORK_MASK, %ecx	# is there any work to be done other
--					# than syscall tracing?
--	jz restore_all
--	testb $_TIF_NEED_RESCHED, %cl
--	jnz work_resched
-+	jmp resume_userspace
- 
-+	ALIGN
- work_notifysig:				# deal with pending signals and
- 					# notify-resume requests
- 	testl $VM_MASK, EFLAGS(%esp)
- 	movl %esp, %eax
--	jne work_notifysig_v86		# returning to kernel-space or
-+	jnz work_notifysig_v86		# returning to kernel-space or
- 					# vm86-space
- 	xorl %edx, %edx
- 	call do_notify_resume
---- 2.6.16-rc3-nb.orig/arch/i386/kernel/traps.c
-+++ 2.6.16-rc3-nb/arch/i386/kernel/traps.c
-@@ -795,6 +795,7 @@ debug_vm86:
- 
- clear_TF_reenable:
- 	set_tsk_thread_flag(tsk, TIF_SINGLESTEP);
-+	set_tsk_thread_flag(tsk, TIF_IRET);
- 	regs->eflags &= ~TF_MASK;
- 	return;
- }
--- 
-Chuck
-"Equations are the Devil's sentences."  --Stephen Colbert
+ - R.

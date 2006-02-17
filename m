@@ -1,80 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161133AbWBQAUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161136AbWBQA2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161133AbWBQAUy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 19:20:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161136AbWBQAUy
+	id S1161136AbWBQA2J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 19:28:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161139AbWBQA2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 19:20:54 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:47848 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S1161133AbWBQAUy
+	Thu, 16 Feb 2006 19:28:09 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:11407 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161136AbWBQA2H
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 19:20:54 -0500
-Date: Fri, 17 Feb 2006 01:20:18 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Arjan van de Ven <arjan@infradead.org>, Daniel Walker <dwalker@mvista.com>,
-       linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>,
-       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 0/6] lightweight robust futexes: -V3 - Why in userspace?
-In-Reply-To: <20060216233952.GB12143@elte.hu>
-Message-Id: <Pine.OSF.4.05.10602170111450.22107-100000@da410>
+	Thu, 16 Feb 2006 19:28:07 -0500
+Subject: Re: [patch] hrtimer: round up relative start time on low-res arches
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0602162305210.30994@scrub.home>
+References: <Pine.LNX.4.61.0602130207560.23745@scrub.home>
+	 <1139827927.4932.17.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0602131208050.30994@scrub.home>
+	 <20060214074151.GA29426@elte.hu>
+	 <Pine.LNX.4.61.0602141113060.30994@scrub.home>
+	 <20060214122031.GA30983@elte.hu>
+	 <Pine.LNX.4.61.0602150033150.30994@scrub.home>
+	 <20060215091959.GB1376@elte.hu>
+	 <Pine.LNX.4.61.0602151259270.30994@scrub.home>
+	 <1140036234.27720.8.camel@leatherman>
+	 <Pine.LNX.4.61.0602161244240.30994@scrub.home>
+	 <1140116771.7028.31.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0602162305210.30994@scrub.home>
+Content-Type: text/plain
+Date: Thu, 16 Feb 2006 16:28:04 -0800
+Message-Id: <1140136085.7028.65.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Feb 2006, Ingo Molnar wrote:
+On Fri, 2006-02-17 at 00:44 +0100, Roman Zippel wrote:
+> On Thu, 16 Feb 2006, john stultz wrote:
+> > > In the end the simplification of my patches should also 
+> > > make your patches simpler, as it precalculates as much as possible and 
+> > > reduces the work done in the fast paths. It would avoid a lot of extra 
+> > > work, which you currently do.
+> > 
+> > Well, I'm still cautious, since it still has some dependencies on HZ
+> > (see equation below), which I'm trying to avoid.
+> 
+> There is no real dependency on HZ, it's just that the synchronisations 
+> steps and incremental updates are done in fixed intervals. The interval 
+> could easily be independent of HZ.
 
-> 
-> * Esben Nielsen <simlo@phys.au.dk> wrote:
-> 
-> > > this is racy - we cannot know whether the PID wrapped around.
-> > >
-> > What about adding more bits to check on? The PID to lookup the task_t 
-> > and then some extra bits to uniquely identify the actual task.
-> 
-> which would just be a fancy name for a wider PID space, and would thus 
-> still not protect against PID reuse :-)
-> 
-Can it really be correct there is no way to uniquely identify a thread in
-the uptime of the system? It could be done with BigIntegers :-)
+Ok, one concern was that in the cycle->interval conversion, some
+interval lengths are not possible due to the clock's resolution.
 
+In my mind, I'd like to provide a interval length to the NTP code and
+have the NTP code provide an adjusted interval which can be used in
+error accumulation and the resulting multiplier adjustment.
 
-> > > nor does this method offer any solution for the case where there are 
-> > > already waiters pending: they might be hung forever. 
-> >
-> > It was for this case I suggested maintaining a list of waiters within 
-> > the kernel on each task_t. The adding has to be done FUTEX_WAIT so the 
-> > adding operation needs to be protected.
-> 
-> i'm not sure i follow - what list is this and how would it be 
-> maintained?
->
+Or, we just write off the cycle->interval error as part of the clock's
+natural error and let the NTP daemon compensate for it. Your thoughts?
 
-At the FUTEX_WAIT operation add the waiter to a list of waiters on the
-owner's task_t. At FUTEX_WAKE remove the waiter. At task exit wake up the
-waiters.
- 
-> > > With our solution 
-> > > one of those waiters gets woken up and notice that the lock is dead. 
-> > > (and in the unlikely even of that thread dying too while trying to 
-> > > recover the data, the kernel will do yet another wakeup, of the next 
-> > > waiter.)
-> > > 
-> > I admit your solution is a good one. The only drawback - besides being 
-> > untraditional - is that memory corruption can leave futexes locked at 
-> > exit.
-> 
-> so? Memory corruption can overwrite the futex value anyway, and can thus 
-> cause the wrong owner to be identified - causing a locked futex. This 
-> patch does not protect against bad effects of memory corruption - 
-> there's really no way to keep userspace from breaking itself.
-> 
+Regardless, the point is that I'd prefer if the timeofday code to be
+able to specify to the NTP code what the interval length is, rather then
+the other way around. Does that sound reasonable?
 
-At least you could wake up those who are already blocked in the kernel...
-
-Esben
-
-> 	Ingo
-> 
+thanks
+-john
 

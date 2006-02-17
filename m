@@ -1,59 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030641AbWBQQ1l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030647AbWBQQba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030641AbWBQQ1l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 11:27:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030645AbWBQQ1l
+	id S1030647AbWBQQba (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 11:31:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030648AbWBQQba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 11:27:41 -0500
-Received: from amdext3.amd.com ([139.95.251.6]:38281 "EHLO amdext3.amd.com")
-	by vger.kernel.org with ESMTP id S1030641AbWBQQ1k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 11:27:40 -0500
-X-Server-Uuid: 89466532-923C-4A88-82C1-66ACAA0041DF
-Date: Fri, 17 Feb 2006 09:29:22 -0700
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: "Nick Warne" <nick@linicks.net>
-cc: lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org,
-       info-linux@ldcmail.amd.com, "Jean Delvare" <khali@linux-fr.org>
-Subject: Re: Add LM82 support
-Message-ID: <20060217162922.GP20157@cosmic.amd.com>
-References: <20060216175930.GE20157@cosmic.amd.com>
- <LYRIS-4270-26349-2006.02.17-07.32.29--jordan.crouse#amd.com@whitestar.amd.com>
+	Fri, 17 Feb 2006 11:31:30 -0500
+Received: from nproxy.gmail.com ([64.233.182.203]:55850 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030647AbWBQQb3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 11:31:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=n1RAIgUPujhphACIyxRgfPgi7nqvk7rvsF7ffUZBP9LWc9GvpWXvGTqsh82mooLcmdSswVyXPywmMz+ug/LXF1sc74ckDPqsyD2QzbrLauQ2cXZf1nuLGXI2vo0KW6+Yn/UZZkNrkoPXFTXZv5cJf1BoeJF2aw+6Vj/NjgfXI64=
+Message-ID: <cde01ae70602170831h43668a5ay3a3e4f0ce446c241@mail.gmail.com>
+Date: Fri, 17 Feb 2006 17:31:27 +0100
+From: Lz <elezeta@gmail.com>
+To: "Adam Belay" <ambx1@neo.rr.com>, Lz <elezeta@gmail.com>,
+       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Problems with sound on latest kernels.
+In-Reply-To: <20060217061701.GA17208@neo.rr.com>
 MIME-Version: 1.0
-In-Reply-To: <LYRIS-4270-26349-2006.02.17-07.32.29--jordan.crouse#amd.com@whitestar.amd.com>
-User-Agent: Mutt/1.5.11
-X-OriginalArrivalTime: 17 Feb 2006 16:22:53.0627 (UTC)
- FILETIME=[6758D8B0:01C633DE]
-X-WSS-ID: 6FEB27D72W4237852-01-01
-Content-Type: text/plain;
- charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+References: <cde01ae70602140558g6440af40mf59e3e1992088d3b@mail.gmail.com>
+	 <1139934640.11659.95.camel@mindpipe>
+	 <20060214232222.1016fe87.akpm@osdl.org>
+	 <cde01ae70602150542m1b57aa83l62508927276241b@mail.gmail.com>
+	 <20060217061701.GA17208@neo.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17/02/06 13:09 +0000, Nick Warne wrote:
-> '
-> >                 if (kind <= 0) { /* identification failed */
-> > @@ -296,10 +318,15 @@ static int lm83_detect(struct i2c_adapte
-> >         if (kind == lm83) {
-> >                 name = "lm83";
-> >         }
-> > +       else if (kind = lm82) {
-> > +               name = "lm82";
-> > +       }
-> 
-> Is that a '=' typo in the 'else if' there?
+Hello, it seems to be fixed at the latests git-.
 
-Yep - thats what that would be.  That must be my typo of the week, since
-I just had it in another driver I'm writing.  I'll post a fixup here
-very shortly with all the comments.
+Do you still need me to try that patch?
 
-Jordan 
+On 2/17/06, Adam Belay <ambx1@neo.rr.com> wrote:
+> On Wed, Feb 15, 2006 at 02:42:05PM +0100, Lz wrote:
+> > On 2/15/06, Andrew Morton <akpm@osdl.org> wrote:
+> > >
+> > > Poor guy - that's rocket science.  It looks like it's due to breakage in
+> > > the pnp code anwyay.
+> >
+> > Yeah, it seemed that to me, alsa wasn't even loaded at that time.
+>
+> This patch may solve your problem.  Could you send a new dmesg output with it
+> applied?
+>
+> Thanks,
+> Adam
+>
+> --- a/drivers/pnp/card.c        2006-01-02 22:21:10.000000000 -0500
+> +++ b/drivers/pnp/card.c        2006-02-17 00:45:37.123525896 -0500
+> @@ -302,13 +302,11 @@
+>         down_write(&dev->dev.bus->subsys.rwsem);
+>         dev->card_link = clink;
+>         dev->dev.driver = &drv->link.driver;
+> -       if (drv->link.driver.probe) {
+> -               if (drv->link.driver.probe(&dev->dev)) {
+> -                       dev->dev.driver = NULL;
+> -                       dev->card_link = NULL;
+> -                       up_write(&dev->dev.bus->subsys.rwsem);
+> -                       return NULL;
+> -               }
+> +       if (pnp_bus_type.probe(&dev->dev)) {
+> +               dev->dev.driver = NULL;
+> +               dev->card_link = NULL;
+> +               up_write(&dev->dev.bus->subsys.rwsem);
+> +               return NULL;
+>         }
+>         device_bind_driver(&dev->dev);
+>         up_write(&dev->dev.bus->subsys.rwsem);
+>
 
--- 
-Jordan Crouse
-Senior Linux Engineer
-AMD - Personal Connectivity Solutions Group
-<www.amd.com/embeddedprocessors>
 
+--
+Lz (elezeta@gmail.com).
+http://elezeta.bounceme.net

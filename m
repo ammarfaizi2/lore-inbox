@@ -1,158 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWBQPQI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbWBQPRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750779AbWBQPQI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 10:16:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWBQPQI
+	id S1751459AbWBQPRL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 10:17:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751465AbWBQPRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 10:16:08 -0500
-Received: from relay1.udl.es ([193.144.10.29]:62187 "EHLO relay1.udl.es")
-	by vger.kernel.org with ESMTP id S1750779AbWBQPQF (ORCPT
+	Fri, 17 Feb 2006 10:17:10 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:19634 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751459AbWBQPRI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 10:16:05 -0500
-Subject: kernel BUG at fs/locks.c:1932!
-From: Fermin Molina <fermin@asic.udl.es>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Fri, 17 Feb 2006 16:15:59 +0100
-Message-Id: <1140189359.22719.51.camel@viagra.udl.net>
+	Fri, 17 Feb 2006 10:17:08 -0500
+Date: Fri, 17 Feb 2006 15:16:50 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+Cc: dm-devel@redhat.com, Chris McDermott <lcm@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] User-configurable HDIO_GETGEO for dm volumes
+Message-ID: <20060217151650.GC12173@agk.surrey.redhat.com>
+Mail-Followup-To: "Darrick J. Wong" <djwong@us.ibm.com>,
+	dm-devel@redhat.com, Chris McDermott <lcm@us.ibm.com>,
+	linux-kernel@vger.kernel.org
+References: <43F38D83.3040702@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F38D83.3040702@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Feb 15, 2006 at 12:22:27PM -0800, Darrick J. Wong wrote:
+> - Store a hd_geometry structure with each dm_table entry.
 
-I run samba sharing NFS mounted shares from another machine. I'm getting
-the following bugs in console (and in logs), when I stop samba (but not
-always, I think it depends of stalled locks):
+> I chose to attach the 
+> hd_geometry structure to dm_table because it seemed like a convenient 
+> place to attach config data.  
 
-lockd: unexpected unlock status: 7
-lockd: unexpected unlock status: 7
-lockd: unexpected unlock status: 7
-------------[ cut here ]------------
-kernel BUG at fs/locks.c:1932!
-invalid operand: 0000 [#1]
-SMP
-last sysfs file: /class/vc/vcsa5/dev
-Modules linked in: nfsd exportfs parport_pc lp parport nfs lockd nfs_acl sunrpc
-video button battery ac i2c_piix4 i2c_core eepro100 cpqphp e1000 e100 mii floppy ext3 jbd dm_mod cciss sd_mod scsi_mod
-CPU:    5
-EIP:    0060:[<c017f12f>]    Not tainted VLI
-EFLAGS: 00010246   (2.6.15-1.1831_FC4smp)
-EIP is at locks_remove_flock+0xc5/0xe8
-eax: cbaccc78   ebx: d49d4828   ecx: f7fff180   edx: 00000000
-esi: d972a980   edi: d49d4760   ebp: cbaccc78   esp: e993ef08
-ds: 007b   es: 007b   ss: 0068
-Process smbd (pid: 25624, threadinfo=e993e000 task=f7e5a000)
+Given the current device-mapper code structure, I don't think
+that's a good place to attach it.  Did you consider 'struct
+mapped_device' instead?  In your patch, the geometry will
+disappear every time the mapped device's table is reloaded.  
+Userspace device-mapper applications are free to reload tables
+whenever they wish, so this patch is of little value unless every
+userspace device-mapper application you use is updated to support
+geometries, or you write a userspace daemon to monitor the devices
+for reloads and reset your preferred geometry each time...
 
-Stack: 00000000 00000000 00000000 00000000 00000000 d972a980 00006418 00000000
-       00000000 00000000 00000000 00000000 00000000 d972a980 00000202 00000000
-       00000000 ffffffff 7fffffff 00000000 00000000 00000000 00000000 00000000
-Call Trace:
- [<c016a5fe>] __fput+0x9a/0x186     [<c0168e71>] filp_close+0x3e/0x62
- [<c0104035>] syscall_call+0x7/0xb
-Code: c0 74 0d 3b 70 34 74 15 89 c3 8b 03 85 c0 75 f3 e8 82 ca 1a 00 83 c4 68 5b 5e 5f 5d c3 0f b6 50 38 f6 c2 02 75 11 80 e2 20 75 15 <0f> 0b 8c 07 df ad 34 c0 89 c3 eb d3 89 d8 e8 0f df ff ff eb bd
-Continuing in 1 seconds.
+That said, it might then be an idea for __bind() to clear
+the geometry iff a non-zero device size changes.
 
-------------------------
++static int dm_blk_getgeo(struct block_device *bdev, struct hd_geometry *geo)
++{
++	struct mapped_device *md = bdev->bd_disk->private_data;
++
++	return dm_table_get_geometry(md->map, geo);
++}
 
-Feb 16 16:02:06 users kernel: ------------[ cut here ]------------
-Feb 16 16:02:06 users kernel: kernel BUG at fs/locks.c:1932!
-Feb 16 16:02:06 users kernel: invalid operand: 0000 [#1]
-Feb 16 16:02:06 users kernel: SMP
-Feb 16 16:02:06 users kernel: last sysfs file: /block/dm-2/dev
-Feb 16 16:02:06 users kernel: Modules linked in: nfsd exportfs parport_pc lp parport nfs lockd nfs_acl sunrpc video button battery ac i2c_piix4 i2c_core eepro100 cpqphp e1000 e100 mii floppy ext3 jbd dm_mod cciss sd_mod scsi_mod
-Feb 16 16:02:06 users kernel: CPU:    5
-Feb 16 16:02:06 users kernel: EIP:    0060:[<c017f12f>]    Not tainted VLI
-Feb 16 16:02:06 users kernel: EFLAGS: 00010246   (2.6.15-1.1831_FC4smp)
-Feb 16 16:02:06 users kernel: EIP is at locks_remove_flock+0xc5/0xe8
-Feb 16 16:02:06 users kernel: eax: f2553ee8   ebx: e6ab9238   ecx: 00b6c507   edx: 00000000
-Feb 16 16:02:06 users kernel: esi: ed840180   edi: e6ab9170   ebp: f2553ee8   esp: f60a8f08
-Feb 16 16:02:06 users kernel: ds: 007b   es: 007b   ss: 0068
-Feb 16 16:02:06 users kernel: Process smbd (pid: 4846, threadinfo=f60a8000 task=f7cbd550)
-Feb 16 16:02:06 users kernel: Stack: 00000000 00000000 00000000 00000000 00000000 ed840180 000012ee 00000000
-Feb 16 16:02:07 users kernel:        00000000 00000000 00000000 00000000 00000000 ed840180 00000202 00000000
-Feb 16 16:02:07 users kernel:        00000000 ffffffff 7fffffff 00000000 00000000 00000000 00000000 00000000
-Feb 16 16:02:07 users kernel: Call Trace:
-Feb 16 16:02:08 users kernel:  [<c016a5fe>] __fput+0x9a/0x186     [<c0168e71>] filp_close+0x3e/0x62
-Feb 16 16:02:08 users kernel:  [<c0104035>] syscall_call+0x7/0xb
-Feb 16 16:02:08 users kernel: Code: c0 74 0d 3b 70 34 74 15 89 c3 8b 03 85 c0 75 f3 e8 82 ca 1a 00 83 c4 68 5b 5e 5f 5d c3 0f b6 50 38 f6 c2 02 75 11 80 e2 20 75 15 <0f> 0b 8c 07 df ad 34 c0 89 c3 eb d3 89 d8 e8 0f df ff ff eb bd
-Feb 16 16:02:08 users kernel: Continuing in 120 seconds.
+And if md->map is NULL?
+See above and side-step this issue by avoiding dm_table* completely?
 
-------------------------
 
-Feb 17 10:00:02 users nmbd[11718]: [2006/02/17 10:00:02, 0] nmbd/nmbd.c:terminate(58)
-Feb 17 10:00:02 users nmbd[11718]:   Got SIGTERM: going down...
-Feb 17 10:00:09 users kernel:  ------------[ cut here ]------------
-Feb 17 10:00:09 users kernel: kernel BUG at fs/locks.c:1932!
-Feb 17 10:00:09 users kernel: invalid operand: 0000 [#2]
-Feb 17 10:00:09 users kernel: SMP
-Feb 17 10:00:09 users kernel: last sysfs file: /block/dm-2/dev
-Feb 17 10:00:09 users kernel: Modules linked in: nfsd exportfs parport_pc lp parport nfs lockd nfs_acl sunrpc video button battery ac i2c_piix4 i2c_core eepro100 cpqphp e1000 e100 mii floppy ext3 jbd dm_mod cciss sd_mod scsi_mod
-Feb 17 10:00:09 users kernel: CPU:    0
-Feb 17 10:00:09 users kernel: EIP:    0060:[<c017f12f>]    Not tainted VLI
-Feb 17 10:00:09 users kernel: EFLAGS: 00010246   (2.6.15-1.1831_FC4smp)
-Feb 17 10:00:09 users kernel: EIP is at locks_remove_flock+0xc5/0xe8
-Feb 17 10:00:09 users kernel: eax: e7399a08   ebx: ea8b6e18   ecx: f7fff180   edx: 00000000
-Feb 17 10:00:09 users kernel: esi: f7dd3e80   edi: ea8b6d50   ebp: e7399a08   esp: cf7c0f08
-Feb 17 10:00:09 users kernel: ds: 007b   es: 007b   ss: 0068
-Feb 17 10:00:09 users kernel: Process smbd (pid: 11799, threadinfo=cf7c0000 task=f7de7550)
-Feb 17 10:00:09 users kernel: Stack: 00000000 00000000 00000000 00000000 00000000 f7dd3e80 00002e17 00000000
-Feb 17 10:00:09 users kernel:        00000000 00000000 00000000 00000000 00000000 f7dd3e80 00000202 00000000
-Feb 17 10:00:09 users kernel:        00000000 ffffffff 7fffffff 00000000 00000000 00000000 00000000 00000000
-Feb 17 10:00:09 users kernel: Call Trace:
-Feb 17 10:00:09 users kernel:  [<c016a5fe>] __fput+0x9a/0x186     [<c0168e71>] filp_close+0x3e/0x62
-Feb 17 10:00:09 users kernel:  [<c0104035>] syscall_call+0x7/0xb
-Feb 17 10:00:10 users kernel: Code: c0 74 0d 3b 70 34 74 15 89 c3 8b 03 85 c0 75 f3 e8 82 ca 1a 00 83 c4 68 5b 5e 5f 5d c3 0f b6 50 38 f6 c2 02 75 11 80 e2 20 75 15 <0f> 0b 8c 07 df ad 34 c0 89 c3 eb d3 89 d8 e8 0f df ff ff eb bd
-Feb 17 10:00:10 users kernel: Continuing in 120 seconds.
++		{DM_DEV_SETGEO_CMD, dev_setgeo}
 
-------------------------
+Naming inconsistency here:
 
-Feb 17 14:00:02 users nmbd[20963]: [2006/02/17 14:00:02, 0] nmbd/nmbd.c:terminate(58)
-Feb 17 14:00:02 users nmbd[20963]:   Got SIGTERM: going down...
-Feb 17 14:00:09 users kernel: ------------[ cut here ]------------
-Feb 17 14:00:09 users kernel: kernel BUG at fs/locks.c:1932!
-Feb 17 14:00:09 users kernel: invalid operand: 0000 [#3]
-Feb 17 14:00:09 users kernel: SMP
-Feb 17 14:00:09 users kernel: last sysfs file: /block/dm-2/dev
-Feb 17 14:00:09 users kernel: Modules linked in: nfsd exportfs parport_pc lp parport nfs lockd nfs_acl sunrpc video button battery ac i2c_piix4 i2c_core eepro100 cpqphp e1000 e100 mii floppy ext3 jbd dm_mod cciss sd_mod scsi_mod
-Feb 17 14:00:09 users kernel: CPU:    0
-Feb 17 14:00:09 users kernel: EIP:    0060:[<c017f12f>]    Not tainted VLI
-Feb 17 14:00:09 users kernel: EFLAGS: 00010246   (2.6.15-1.1831_FC4smp)
-Feb 17 14:00:09 users kernel: EIP is at locks_remove_flock+0xc5/0xe8
-Feb 17 14:00:09 users kernel: eax: e23d3798   ebx: f7936530   ecx: f7fff180   edx: 00000000
-Feb 17 14:00:09 users kernel: esi: f7f06580   edi: f7936468   ebp: e23d3798   esp: edf05f08
-Feb 17 14:00:09 users kernel: ds: 007b   es: 007b   ss: 0068
-Feb 17 14:00:10 users kernel: Process smbd (pid: 21685, threadinfo=edf05000 task=ddc28550)
-Feb 17 14:00:10 users rpc.mountd: authenticated unmount request from RECTOR128.udl.net:699 for /usuaris/users (/usuaris/users)
-Feb 17 14:00:10 users kernel: Stack: 00000000 00000000 00000000 00000000 00000000 f7f06580 000054b5 00000000
-Feb 17 14:00:10 users kernel:        00000000 00000000 00000000 00000000 00000000 f7f06580 00000202 00000000
-Feb 17 14:00:10 users kernel:        00000000 ffffffff 7fffffff 00000000 00000000 00000000 00000000 00000000
-Feb 17 14:00:10 users kernel: Call Trace:
-Feb 17 14:00:10 users kernel:  [<c016a5fe>] __fput+0x9a/0x186     [<c0168e71>] filp_close+0x3e/0x62
-Feb 17 14:00:11 users kernel:  [<c0104035>] syscall_call+0x7/0xb
-Feb 17 14:00:11 users kernel: Code: c0 74 0d 3b 70 34 74 15 89 c3 8b 03 85 c0 75 f3 e8 82 ca 1a 00 83 c4 68 5b 5e 5f 5d c3 0f b6 50 38 f6 c2 02 75 11 80 e2 20 75 15 <0f> 0b 8c 07 df ad 34 c0 89 c3 eb d3 89 d8 e8 0f df ff ff eb bd
-Feb 17 14:00:11 users kernel: Continuing in 120 seconds.
+  Currently you have a DM_TABLE_* implementation - the data
+  is stored per-table not per-device.  I'm suggesting you leave
+  this as DM_DEV_* but fix the implementation to match the name.
 
-------------------------
+Also, every time a new ioctl is added upstream you need to increment 
+the minor number (and date):
 
-I think this is a problem with file locking in NFS code, and samba
-triggers this bug. In fact, all samba locking over NFS works very, very
-bad and samba shares gets stalled constantly.
+  #define DM_VERSION_MAJOR        4
+- #define DM_VERSION_MINOR        5
++ #define DM_VERSION_MINOR        6
+  #define DM_VERSION_PATCHLEVEL   0
+- #define DM_VERSION_EXTRA        "-ioctl (2005-10-04)"
++ #define DM_VERSION_EXTRA        "-ioctl (2006-02-17)"
 
-I read this http://lkml.org/lkml/2005/12/21/334 but kernel I use have
-this patch applied (I use kernel 2.6.15.3). The client with samba is a
-i386 based machine with SMP (4 processors); the NFS server is a Solaris
-7.
+And please document the new ioctl briefly within dm-ioctl.h like the
+existing ones.
 
-Thanks in advance,
 
+As for how to pass the binary data, passing it as a string in the
+same manner as DM_DEV_RENAME should be OK if you prefer not to
+define a new binary structure for it.
+
++	/*
++	 * Grab our input buffer.
++	 */
++	tmsg = get_result_buffer(param, param_size, &len);
+
+'result' here means *output* not *input*.  Calling that function here
+might change the pointer that says where your input data starts 
+before you've processed it!
+
+
++	if (x != 4)
++		goto out2;
+
++	if (indata[0] > 65535 || indata[1] > 255
++	    || indata[2] > 255 || indata[3] > ULONG_MAX)
++		goto out2;
+
+Please issue error messages with DMWARN().
+
++	tbl = dm_get_table(md);
++	r = dm_table_set_geometry(tbl, &dgm);
+
+Most device-mapper ioctls populate the 'status' fields on
+return.  In this case, it doesn't make much difference because
+the ioctl isn't changing any of them.  Regardless, *every* function
+in _ioctls[] must set param->data_size correctly before returning.
+(Set to zero in this particular case.)
+
+[I also find it helpful if variable names are consistent between
+functions e.g. 'table' rather than 'tbl']
+
++#define DM_DEV_SETGEO_32    _IOWR(DM_IOCTL, DM_DEV_SETGEO_CMD, ioctl_struct)
+
+And include/linux/compat_ioctl.h?
+
+Alasdair
 -- 
-Fermin Molina Ibarz
-Tècnic sistemes - ASIC
-Universitat de Lleida
-Tel: +34 973 702151
-GPG: 0x060F857A
-
-
+agk@redhat.com

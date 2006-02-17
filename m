@@ -1,125 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWBQTiR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbWBQTm6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751412AbWBQTiR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 14:38:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWBQTiQ
+	id S1751423AbWBQTm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 14:42:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWBQTm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 14:38:16 -0500
-Received: from [217.7.64.195] ([217.7.64.195]:36497 "EHLO moci.net4u.de")
-	by vger.kernel.org with ESMTP id S1751412AbWBQTiO (ORCPT
+	Fri, 17 Feb 2006 14:42:58 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:150 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751423AbWBQTm5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 14:38:14 -0500
-From: Ernst Herzberg <earny@net4u.de>
-Reply-To: earny@net4u.de
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.16-rc3 macromedia flash regression...
-Date: Fri, 17 Feb 2006 20:38:10 +0100
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org
-References: <200602170508.52712.list-lkml@net4u.de> <20060216232315.06c659f5.akpm@osdl.org>
-In-Reply-To: <20060216232315.06c659f5.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Feb 2006 14:42:57 -0500
+Date: Fri, 17 Feb 2006 19:42:49 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+Cc: Neil Brown <neilb@suse.de>, Alasdair Kergon <agk@redhat.com>,
+       Lars Marowsky-Bree <lmb@suse.de>,
+       device-mapper development <dm-devel@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] sysfs representation of stacked devices (dm/md)
+Message-ID: <20060217194249.GO12169@agk.surrey.redhat.com>
+Mail-Followup-To: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>,
+	Neil Brown <neilb@suse.de>, Alasdair Kergon <agk@redhat.com>,
+	Lars Marowsky-Bree <lmb@suse.de>,
+	device-mapper development <dm-devel@redhat.com>,
+	linux-kernel@vger.kernel.org
+References: <43F60F31.1030507@ce.jp.nec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602172038.10408.earny@net4u.de>
+In-Reply-To: <43F60F31.1030507@ce.jp.nec.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Freitag 17 Februar 2006 08:23, Andrew Morton wrote:
-> Ernst Herzberg <list-lkml@net4u.de> wrote:
-> > .... or not regession, that's the question.
-> >
-> >  2.6.16-rc2 works without problems.
-> >
-> >  With -rc3 a .swf that opens a ip connection back to the server takes
-> > ages to load. strace shows that the player hangs for long times in
-> > select().
-> >
-> >  Digging through the changelog brings up
-> >
-> >  commit 643a654540579b0dcc7a206a4a7475276a41aff0
-> >  Author: Andrew Morton <akpm@osdl.org>
-> >  Date:   Sat Feb 11 17:55:52 2006 -0800
-> >
-> >      [PATCH] select: fix returned timeval
->
-> y'know, when I sent that patch out to reviewers I said "Could you guys
-> please double-check this like hawks?  Especially the handy-dandy new
-> timespec/timeval comparison functions.  I invariably screw that sort of
-> thing up."
->
-> Does this help?
->
->
-> diff -puN fs/select.c~select-time-comparison-fixes fs/select.c
-> --- devel/fs/select.c~select-time-comparison-fixes	2006-02-16
-> 23:17:54.000000000 -0800 +++ devel-akpm/fs/select.c	2006-02-16
-> 23:19:21.000000000 -0800
-> @@ -404,7 +404,7 @@ asmlinkage long sys_select(int n, fd_set
->  			goto sticky;
->  		rtv.tv_usec = jiffies_to_usecs(do_div((*(u64*)&timeout), HZ));
->  		rtv.tv_sec = timeout;
-> -		if (timeval_compare(&rtv, &tv) < 0)
-> +		if (timeval_compare(&rtv, &tv) >= 0)
->  			rtv = tv;
->  		if (copy_to_user(tvp, &rtv, sizeof(rtv))) {
->  sticky:
-> @@ -471,7 +471,7 @@ asmlinkage long sys_pselect7(int n, fd_s
->  		rts.tv_nsec = jiffies_to_usecs(do_div((*(u64*)&timeout), HZ)) *
->  						1000;
->  		rts.tv_sec = timeout;
-> -		if (timespec_compare(&rts, &ts) < 0)
-> +		if (timespec_compare(&rts, &ts) >= 0)
->  			rts = ts;
->  		if (copy_to_user(tsp, &rts, sizeof(rts))) {
->  sticky:
-> @@ -775,7 +775,7 @@ asmlinkage long sys_ppoll(struct pollfd
->  		rts.tv_nsec = jiffies_to_usecs(do_div((*(u64*)&timeout), HZ)) *
->  						1000;
->  		rts.tv_sec = timeout;
-> -		if (timespec_compare(&rts, &ts) < 0)
-> +		if (timespec_compare(&rts, &ts) >= 0)
->  			rts = ts;
->  		if (copy_to_user(tsp, &rts, sizeof(rts))) {
->  		sticky:
-> diff -puN fs/compat.c~select-time-comparison-fixes fs/compat.c
-> --- devel/fs/compat.c~select-time-comparison-fixes	2006-02-16
-> 23:17:54.000000000 -0800 +++ devel-akpm/fs/compat.c	2006-02-16
-> 23:19:33.000000000 -0800
-> @@ -1757,7 +1757,7 @@ asmlinkage long compat_sys_select(int n,
->  			goto sticky;
->  		rtv.tv_usec = jiffies_to_usecs(do_div((*(u64*)&timeout), HZ));
->  		rtv.tv_sec = timeout;
-> -		if (compat_timeval_compare(&rtv, &tv) < 0)
-> +		if (compat_timeval_compare(&rtv, &tv) >= 0)
->  			rtv = tv;
->  		if (copy_to_user(tvp, &rtv, sizeof(rtv))) {
->  sticky:
-> @@ -1834,7 +1834,7 @@ asmlinkage long compat_sys_pselect7(int
->  			rts.tv_sec++;
->  			rts.tv_nsec -= NSEC_PER_SEC;
->  		}
-> -		if (compat_timespec_compare(&rts, &ts) < 0)
-> +		if (compat_timespec_compare(&rts, &ts) >= 0)
->  			rts = ts;
->  		copy_to_user(tsp, &rts, sizeof(rts));
->  	}
-> @@ -1934,7 +1934,7 @@ asmlinkage long compat_sys_ppoll(struct
->  		rts.tv_nsec = jiffies_to_usecs(do_div((*(u64*)&timeout), HZ)) *
->  					1000;
->  		rts.tv_sec = timeout;
-> -		if (compat_timespec_compare(&rts, &ts) < 0)
-> +		if (compat_timespec_compare(&rts, &ts) >= 0)
->  			rts = ts;
->  		if (copy_to_user(tsp, &rts, sizeof(rts))) {
->  sticky:
-> _
+On Fri, Feb 17, 2006 at 01:00:17PM -0500, Jun'ichi Nomura wrote:
+> These patches provide common representation of dependencies
+> between stacked devices (dm and md) in sysfs.
 
----------------------------
+I'm neutral on this change so long as it can be done without 
+introducing problems for device-mapper.
 
-The patch does _not_ fix the problem.
+> Though md0, dm-0, dm-1 and sd[a-d] contain same LVM2 meta data,
+> LVM2 should pick up md0 as PV, not dm-0, dm-1 and sdXs.
+> mdadm should build md0 from dm-0 and dm-1, not from sdXs.
+> Similar things will happen on 'mount' and 'fsck' if we use
+> file system labels instead of LVM2.
+ 
+I can't speak for the 'mount' code base, but I don't think it'll
+make any significant difference to LVM2 - we'd still have to do 
+all the same device scanning as we do now because we have to be
+aware of md devices defined in on-disk metadata regardless of 
+whether or not the kernel knows about them at the time the 
+command is run.
 
-sorry...
-<earny/>
+> Currently, these relationships are determined by each tool
+> combining information like the existence of md metadata
+> and dm dependency ioctl.
+ 
+And attempts to open a device exclusively.  That's one check LVM2 
+does before running 'pvcreate' on a device.
+
+> thus we only need to check "holders" directory of the device
+> to decide whether the device is used by dm/md.
+> Also we can walk down the "slaves" directories to collect
+> the devices conposing the given dm/md device.
+
+For device-mapper devices, 'dmsetup deps' and ls --tree already
+gives you this information reasonably efficiently.
+
+Would others find the proposal useful for non-dm devices?
+
+And rather than adding code just to dm and md, would it be better 
+to implement it by enhancing bd_claim()?
+ 
+Alasdair
+-- 
+agk@redhat.com

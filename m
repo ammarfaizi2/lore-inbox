@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWBQVid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161154AbWBQVjT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751437AbWBQVid (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 16:38:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161153AbWBQVid
+	id S1161154AbWBQVjT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 16:39:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161155AbWBQVjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 16:38:33 -0500
-Received: from mail.bmts.com ([216.183.128.202]:33989 "EHLO mail.bmts.com")
-	by vger.kernel.org with ESMTP id S1751588AbWBQVic (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 16:38:32 -0500
-Message-ID: <43F64255.2080104@bmts.com>
-Date: Fri, 17 Feb 2006 16:38:29 -0500
-From: C Shore <alemc.2@bmts.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Free Hardware: Compaq RA4100 with drives, and Compaq 64-bit PCI 66
- MHz Fibre Channel Card
-X-Enigmail-Version: 0.91.0.0
-OpenPGP: id=BD8DBB54
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Feb 2006 16:39:18 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62987 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1161154AbWBQVjS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 16:39:18 -0500
+Date: Fri, 17 Feb 2006 21:39:03 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SIIG 8-port serial boards support
+Message-ID: <20060217213903.GE13502@flint.arm.linux.org.uk>
+Mail-Followup-To: Paul Fulghum <paulkf@microgate.com>,
+	linux-kernel@vger.kernel.org
+References: <20060124082538.GB4855@pazke> <20060124210140.GB23513@flint.arm.linux.org.uk> <20060202102644.GC5034@flint.arm.linux.org.uk> <20060202132726.GD24903@pazke> <20060202201734.GA17329@flint.arm.linux.org.uk> <20060203091308.GA19805@pazke> <20060203092435.GA30738@flint.arm.linux.org.uk> <20060217113942.GA30787@pazke> <20060217200213.GA13502@flint.arm.linux.org.uk> <43F63FD0.3060300@microgate.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F63FD0.3060300@microgate.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Feb 17, 2006 at 03:27:44PM -0600, Paul Fulghum wrote:
+> Russell King wrote:
+> >So, there are three distinct flow control scenarios:
+> 
+> So I'm clear on how you interpret these,
+> am I correct with the following?
+> 
+> >- conventional RTS/CTS
+> RTS active = ready to receive
+> CTS active = allowed to send
+> 
+> >- alternative RTS/CTS
+> RTS active = on before send, off after send
+> CTS active = allowed to send
 
-I have a compaq ra4100 RAID rack mount enclosure with 6 18.2 GB 7200 rpm
-drives, a compaq 64-bit pci 66 MHz fibre channel card, and a fibre
-channel cable. These work with NT, but sadly are not supported in recent
-2.4 kernels (older than 2.4.19 apparently works, but I've not used that
-old a kernel) or 2.6 kernel.  The driver that hp made open source is
-called cpqfc, but fails to work.
+I'll have to dig through my archives to confirm this one.
 
-I'd like to support kernel development, and I don't know anything about
-driver programming in linux, or the fibre channel protocol, and while I
-feel confident I could learn the necessary skills to update the driver
-(or preferably split the driver up so the ra4100 could be used with
-fibre channel cards other than the compaq one), I have other projects
-that are higher priority for me.  Therefore, if you mail me off-list,
-and can provide some verifiable bona fides, and indicate that you will
-work on making this hardware work with a modern kernel, I will ship the
-hardware to you for free (to most of Canada, and continental US; the
-beast is *heavy* and that will be expensive enough).
+> >- RS485
+> RTS active = on before send, off after send (RTS enables driver)
+> CTS ignored (2 wire mode, no CTS)
+> 
+> So maybe the extra control fields would be:
+> CRTSONTX - RTS on before send, off after send
+> CTXONCTS - wait for CTS before sending
 
-I do require some sort of proof that you're not just planning on taking
-the drives.  An email saying 'please send the drives, I will work on a
-driver' is therefore insufficient; include references please.
+That's a possibility, except that programs today expect CRTSCTS to
+enable RTS/CTS flow control.
 
-I am not subscribed, so any mail on this subject should be sent directly
-to me, or at least cc'd.
+What I suggest is to use CRTSCTS to enable the chosen flow control
+method.  Then we have a set of cflag bits which describe the flow
+control mode, eg CFLOWRS485, CFLOWMODEM, CFLOWALT (probably needs
+better names.)  CFLOWMODEM being the conventional mode should have
+an all zeros value.
 
-Thanks,
-
-Daniel
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFD9kJVeVDHer2Nu1QRAmcpAJsH0kKitm9HZxeGIS8HdgRicsVV4ACdHRaS
-pKFSWHRDOeMn68f60sYUvnM=
-=sBiF
------END PGP SIGNATURE-----
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

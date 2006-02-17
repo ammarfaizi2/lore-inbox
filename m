@@ -1,84 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161144AbWBQAxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161145AbWBQA4E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161144AbWBQAxG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 19:53:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161145AbWBQAxG
+	id S1161145AbWBQA4E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 19:56:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161146AbWBQA4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 19:53:06 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:21216 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161144AbWBQAxF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 19:53:05 -0500
-Subject: Re: [PATCH v2] Provide an interface for getting the current tick
-	length
-From: john stultz <johnstul@us.ibm.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <17397.7198.893154.620097@cargo.ozlabs.ibm.com>
-References: <17397.2831.48980.367714@cargo.ozlabs.ibm.com>
-	 <1140135082.7028.45.camel@cog.beaverton.ibm.com>
-	 <17397.7198.893154.620097@cargo.ozlabs.ibm.com>
-Content-Type: text/plain
-Date: Thu, 16 Feb 2006 16:53:02 -0800
-Message-Id: <1140137582.7028.69.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Feb 2006 19:56:03 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:44047 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161145AbWBQA4C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 19:56:02 -0500
+Date: Fri, 17 Feb 2006 01:56:00 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Martin MOKREJ? <mmokrejs@ribosome.natur.cuni.cz>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.16-rc3-git5: drivers/acpi/osl.c:57:38: empty filename in #include
+Message-ID: <20060217005600.GE4422@stusta.de>
+References: <43F3B553.2010506@ribosome.natur.cuni.cz> <20060217000525.GD4422@stusta.de> <Pine.LNX.4.58.0602161609070.25305@shark.he.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0602161609070.25305@shark.he.net>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-02-17 at 11:43 +1100, Paul Mackerras wrote:
-> john stultz writes:
+On Thu, Feb 16, 2006 at 04:11:32PM -0800, Randy.Dunlap wrote:
+> On Fri, 17 Feb 2006, Adrian Bunk wrote:
 > 
-> > > +	if (time_adjust_step)
-> > >  		/* Reduce by this step the amount of time left  */
-> > >  		time_adjust -= time_adjust_step;
-> > 
-> > Does the if statement really buy you anything here? 
+> > On Thu, Feb 16, 2006 at 12:12:19AM +0100, Martin MOKREJ? wrote:
+> >
+> > > Hi,
+> >
+> > Hi Martin,
+> >
+> > >   I have the following problem when compiling linux kernel on Intel
+> > > Pentium4M machine:
+> > >
+> > > drivers/acpi/osl.c:57:38: empty filename in #include
+> > > drivers/acpi/osl.c: In function `acpi_os_table_override':
+> > > drivers/acpi/osl.c:258: error: `AmlCode' undeclared (first use in
+> > > this function)
+> > > drivers/acpi/osl.c:258: error: (Each undeclared identifier is
+> > > reported only once
+> > > drivers/acpi/osl.c:258: error: for each function it appears in.)
+> > > make[2]: *** [drivers/acpi/osl.o] Error 1
+> > >
+> > >   It turned out I have enabled the custom DSDT option but the field
+> > > for the custom file have left empty. That's the cause for the error.
+> > > Something should probably take care of this case. I use "menuconfig"
+> > > to manipulate the .config file.
+> >
+> > this is a class of errors Kconfig can't handle.
+> >
+> > And if it was handled, the next problems were to check first whether the
+> > file exists, and next whether it's actually a valid DSDT table file...
+> >
+> > Kconfig helps you to avoid many errors, but there are classes of errors
+> > it simply can't prevent.
 > 
-> Well, just avoiding dirtying a cache line in the common case where
-> time_adjust and time_adjust_step are zero, that's all.  It's a very
-> minor thing.  In fact if time_adjust is zero we could avoid the
-> procedure call, the subtraction and the multiplication by 1000, like
-> this:
-> 
-> 	delta_nsec = tick_nsec;
-> 	if (time_adjust) {
-> 		time_adjust_step = adjtime_adjustment();
-> 		/* Reduce by this step the amount of time left  */
-> 		time_adjust -= time_adjust_step;
-> 		delta_nsec += time_adjust_step * 1000;
-> 	}
+> Adrian, I looked at this one also, and I cannot find /AmlCode/
+> in any .h or .c file.  Did you find it?  if so, where?
 
-Yea, I was thinking if you weren't going to do it for the mult, why
-bother on the subtract. Either way, I'm not too picky, it should just be
-consistent.
+I'm seeing it in both 2.6.15.4 and Linus' current tree at exactly the 
+place the error message from the bug report mentions it.
 
-> > > +u64 current_tick_length(void)
-> > > +{
-> > > +	long delta_nsec;
-> > > +
-> > > +	delta_nsec = tick_nsec + adjtime_adjustment() * 1000;
-> > > +	return ((u64) delta_nsec << (SHIFT_SCALE - 10)) + time_adj;
-> > > +}
-> > 
-> > You've got time_adj here, but you're not using what's been accumulated
-> > in time_phase, is that really ok?
-> 
-> Yes.
-> 
-> What's been accumulated in time_phase is always less than a
-> nanosecond's worth.  I took the approach of delivering the full
-> precision of time_adj to the arch code (i.e. including the 12 bits to
-> the right of the binary point), rather than truncating it to whole
-> nanoseconds and then having to vary it by +/- 1 nanosecond each tick.
+> thanks,
+> ~Randy
 
-So you're accumulating it yourself in the arch code? That's fine, I just
-wanted to be sure.
+cu
+Adrian
 
-Acked-by: john stultz <johnstul@us.ibm.com>
+-- 
 
-thanks
--john
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

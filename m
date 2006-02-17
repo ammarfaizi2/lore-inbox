@@ -1,167 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030625AbWBQALd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161073AbWBQALe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030625AbWBQALd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 19:11:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWBQALd
+	id S1161073AbWBQALe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 19:11:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWBQALe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 19:11:33 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:9939 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750827AbWBQALc (ORCPT
+	Thu, 16 Feb 2006 19:11:34 -0500
+Received: from xenotime.net ([66.160.160.81]:26282 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750827AbWBQALd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 19:11:32 -0500
-Subject: Re: [PATCH v2] Provide an interface for getting the current tick
-	length
-From: john stultz <johnstul@us.ibm.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <17397.2831.48980.367714@cargo.ozlabs.ibm.com>
-References: <17397.2831.48980.367714@cargo.ozlabs.ibm.com>
-Content-Type: text/plain
-Date: Thu, 16 Feb 2006 16:11:22 -0800
-Message-Id: <1140135082.7028.45.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Feb 2006 19:11:33 -0500
+Date: Thu, 16 Feb 2006 16:11:32 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Adrian Bunk <bunk@stusta.de>
+cc: Martin MOKREJ? <mmokrejs@ribosome.natur.cuni.cz>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.16-rc3-git5: drivers/acpi/osl.c:57:38: empty filename in
+ #include
+In-Reply-To: <20060217000525.GD4422@stusta.de>
+Message-ID: <Pine.LNX.4.58.0602161609070.25305@shark.he.net>
+References: <43F3B553.2010506@ribosome.natur.cuni.cz> <20060217000525.GD4422@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-02-17 at 10:30 +1100, Paul Mackerras wrote:
-> This provides an interface for arch code to find out how many
-> nanoseconds are going to be added on to xtime by the next call to
-> do_timer.  The value returned is a fixed-point number in 52.12 format
-> in nanoseconds.  The reason for this format is that it gives the
-> full precision that the timekeeping code is using internally.
-> 
-> The motivation for this is to fix a problem that has arisen on 32-bit
-> powerpc in that the value returned by do_gettimeofday drifts apart
-> from xtime if NTP is being used.  PowerPC is now using a lockless
-> do_gettimeofday based on reading the timebase register and performing
-> some simple arithmetic.  (This method of getting the time is also
-> exported to userspace via the VDSO.)  However, the factor and offset
-> it uses were calculated based on the nominal tick length and weren't
-> being adjusted when NTP varied the tick length.
-> 
-> Note that 64-bit powerpc has had the lockless do_gettimeofday for a
-> long time now.  It also had an extremely hairy routine that got called
-> from the 32-bit compat routine for adjtimex, which adjusted the
-> factor and offset according to what it thought the timekeeping code
-> was going to do.  Not only was this only called if a 32-bit task did
-> adjtimex (i.e. not if a 64-bit task did adjtimex), it was also
-> duplicating computations from kernel/timer.c and it wasn't clear that
-> it was (still) correct.
-> 
-> The simple solution is to ask the timekeeping code how long the
-> current jiffy will be on each timer interrupt, after calling
-> do_timer.  If this jiffy will be a different length from the last one,
-> we then need to compute new values for the factor and offset used in
-> the lockless do_gettimeofday.  In this way we can keep xtime and
-> do_gettimeofday in sync, even when NTP is varying the tick length.
-> 
-> Note that when adjtimex varies the tick length, it almost always
-> introduces the variation from the next tick on.  The only case I could
-> see where adjtimex would vary the length of the current tick is when
-> an old-style adjtime adjustment is being cancelled.  (It's not clear
-> to me why the adjustment has to be cancelled immediately rather than
-> from the next tick on.)  Thus I don't see any real need for a hook in
-> adjtimex; the rare case of an old-style adjustment being cancelled can
-> be fixed up at the next tick.
-> 
-> Signed-off-by: Paul Mackerras <paulus@samba.org>
-> ---
-> This version of the patch has the adjtime calculation factored out and
-> the assignments inside if statements removed, as requested.
-> 
-> diff --git a/include/linux/timex.h b/include/linux/timex.h
-> index 04a4a8c..b7ca120 100644
-> --- a/include/linux/timex.h
-> +++ b/include/linux/timex.h
-> @@ -345,6 +345,9 @@ time_interpolator_reset(void)
->  
->  #endif /* !CONFIG_TIME_INTERPOLATION */
->  
-> +/* Returns how long ticks are at present, in ns / 2^(SHIFT_SCALE-10). */
-> +extern u64 current_tick_length(void);
-> +
->  #endif /* KERNEL */
->  
->  #endif /* LINUX_TIMEX_H */
-> diff --git a/kernel/timer.c b/kernel/timer.c
-> index b9dad39..fe3a9a9 100644
-> --- a/kernel/timer.c
-> +++ b/kernel/timer.c
-> @@ -717,12 +717,16 @@ static void second_overflow(void)
->  #endif
->  }
->  
-> -/* in the NTP reference this is called "hardclock()" */
-> -static void update_wall_time_one_tick(void)
-> +/*
-> + * Returns how many microseconds we need to add to xtime this tick
-> + * in doing an adjustment requested with adjtime.
-> + */
-> +static long adjtime_adjustment(void)
->  {
-> -	long time_adjust_step, delta_nsec;
-> +	long time_adjust_step;
->  
-> -	if ((time_adjust_step = time_adjust) != 0 ) {
-> +	time_adjust_step = time_adjust;
-> +	if (time_adjust_step) {
->  		/*
->  		 * We are doing an adjtime thing.  Prepare time_adjust_step to
->  		 * be within bounds.  Note that a positive time_adjust means we
-> @@ -733,10 +737,19 @@ static void update_wall_time_one_tick(vo
->  		 */
->  		time_adjust_step = min(time_adjust_step, (long)tickadj);
->  		time_adjust_step = max(time_adjust_step, (long)-tickadj);
-> +	}
-> +	return time_adjust_step;
-> +}
->  
-> +/* in the NTP reference this is called "hardclock()" */
-> +static void update_wall_time_one_tick(void)
-> +{
-> +	long time_adjust_step, delta_nsec;
-> +
-> +	time_adjust_step = adjtime_adjustment();
-> +	if (time_adjust_step)
->  		/* Reduce by this step the amount of time left  */
->  		time_adjust -= time_adjust_step;
+On Fri, 17 Feb 2006, Adrian Bunk wrote:
 
-Does the if statement really buy you anything here? 
+> On Thu, Feb 16, 2006 at 12:12:19AM +0100, Martin MOKREJ? wrote:
+>
+> > Hi,
+>
+> Hi Martin,
+>
+> >   I have the following problem when compiling linux kernel on Intel
+> > Pentium4M machine:
+> >
+> > drivers/acpi/osl.c:57:38: empty filename in #include
+> > drivers/acpi/osl.c: In function `acpi_os_table_override':
+> > drivers/acpi/osl.c:258: error: `AmlCode' undeclared (first use in
+> > this function)
+> > drivers/acpi/osl.c:258: error: (Each undeclared identifier is
+> > reported only once
+> > drivers/acpi/osl.c:258: error: for each function it appears in.)
+> > make[2]: *** [drivers/acpi/osl.o] Error 1
+> >
+> >   It turned out I have enabled the custom DSDT option but the field
+> > for the custom file have left empty. That's the cause for the error.
+> > Something should probably take care of this case. I use "menuconfig"
+> > to manipulate the .config file.
+>
+> this is a class of errors Kconfig can't handle.
+>
+> And if it was handled, the next problems were to check first whether the
+> file exists, and next whether it's actually a valid DSDT table file...
+>
+> Kconfig helps you to avoid many errors, but there are classes of errors
+> it simply can't prevent.
 
+Adrian, I looked at this one also, and I cannot find /AmlCode/
+in any .h or .c file.  Did you find it?  if so, where?
 
-> -	}
->  	delta_nsec = tick_nsec + time_adjust_step * 1000;
->  	/*
->  	 * Advance the phase, once it gets to one microsecond, then
-> @@ -759,6 +772,22 @@ static void update_wall_time_one_tick(vo
->  }
->  
->  /*
-> + * Return how long ticks are at the moment, that is, how much time
-> + * update_wall_time_one_tick will add to xtime next time we call it
-> + * (assuming no calls to do_adjtimex in the meantime).
-> + * The return value is in fixed-point nanoseconds with SHIFT_SCALE-10
-> + * bits to the right of the binary point.
-> + * This function has no side-effects.
-> + */
-> +u64 current_tick_length(void)
-> +{
-> +	long delta_nsec;
-> +
-> +	delta_nsec = tick_nsec + adjtime_adjustment() * 1000;
-> +	return ((u64) delta_nsec << (SHIFT_SCALE - 10)) + time_adj;
-> +}
-
-You've got time_adj here, but you're not using what's been accumulated
-in time_phase, is that really ok?
-
-
-Other then that it looks ok to me. I know Roman is working on related
-code, so I CC'ed him on this.
-
-thanks
--john
-
+thanks,
+-- 
+~Randy

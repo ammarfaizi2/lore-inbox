@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161149AbWBQHLc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWBQHMu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161149AbWBQHLc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 02:11:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbWBQHLc
+	id S932533AbWBQHMu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 02:12:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbWBQHMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 02:11:32 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:50921 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932533AbWBQHLb (ORCPT
+	Fri, 17 Feb 2006 02:12:50 -0500
+Received: from ozlabs.org ([203.10.76.45]:11156 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932533AbWBQHMu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 02:11:31 -0500
-Date: Thu, 16 Feb 2006 23:10:14 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: earny@net4u.de
-Cc: list-lkml@net4u.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc3 macromedia flash regression...
-Message-Id: <20060216231014.6c2ae214.akpm@osdl.org>
-In-Reply-To: <200602170508.52712.list-lkml@net4u.de>
-References: <200602170508.52712.list-lkml@net4u.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 17 Feb 2006 02:12:50 -0500
+Subject: Re: Robust futexes
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Paul Jackson <pj@SGI.com>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <20060216224207.98526b40.pj@sgi.com>
+References: <1140152271.25078.42.camel@localhost.localdomain>
+	 <20060216224207.98526b40.pj@sgi.com>
+Content-Type: text/plain
+Date: Fri, 17 Feb 2006 18:12:50 +1100
+Message-Id: <1140160371.25078.81.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ernst Herzberg <list-lkml@net4u.de> wrote:
->
-> .... or not regession, that's the question.
+On Thu, 2006-02-16 at 22:42 -0800, Paul Jackson wrote:
+> Rusty wrote:
+> >  having futex
+> > calls which tell the kernel that the u32 value is in fact the holder's
+> > TID?
 > 
->  2.6.16-rc2 works without problems.
-> 
->  With -rc3 a .swf that opens a ip connection back to the server takes ages to 
->  load. strace shows that the player hangs for long times in select().
->
->  Digging through the changelog brings up
-> 
->  commit 643a654540579b0dcc7a206a4a7475276a41aff0
->  Author: Andrew Morton <akpm@osdl.org>
->  Date:   Sat Feb 11 17:55:52 2006 -0800
-> 
->      [PATCH] select: fix returned timeval
+> Huh - I must be dense.  When would these calls be made?
+> Once per task creation, once per allocation of memory
+> for the lock, once per contested lock attempt, once per
+> uncontested lock attempt, ... ?
 
-Thanks for working that out.
+Hi Paul,
 
-Are you able to send along the relevant parts of the strace output, so we
-see the select() inputs and outputs?
+	Sorry if I wasn't clear.  A flag on the futex_wait operation (or, given
+the current implementation, YA multiplexed FUTEX_WAIT variant).
+
+> With Ingo's robust_futexes, you could have a task that
+> has taken and released a gazillion futex locks, and is
+> still at the present moment holding 47 of them, drop dead
+> and be able to initiate cleanup of exactly those 47 locks,
+> never having made but one system call at the birth of the
+> thread.
+> 
+> Can your idea do that?
+
+I think so, yes.  The kernel realizes it has to sleep, checks the thread
+corresponding to the TID it just read is still alive, if not goes into
+cleanup path...
+
+Does that clarify?
+Rusty.
+-- 
+ ccontrol: http://ozlabs.org/~rusty/ccontrol
+

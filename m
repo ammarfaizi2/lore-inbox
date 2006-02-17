@@ -1,89 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWBQSpK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWBQSpl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751121AbWBQSpK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 13:45:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWBQSpK
+	id S1751123AbWBQSpl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 13:45:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWBQSpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 13:45:10 -0500
-Received: from smtp.enter.net ([216.193.128.24]:10258 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S1751121AbWBQSpD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 13:45:03 -0500
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Fri, 17 Feb 2006 15:45:21 -0500
-User-Agent: KMail/1.8.1
-Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org
-References: <43EB7BBA.nailIFG412CGY@burner> <20060216181422.GA18837@merlin.emma.line.org> <43F5A5A4.nail2VC61NOF6@burner>
-In-Reply-To: <43F5A5A4.nail2VC61NOF6@burner>
+	Fri, 17 Feb 2006 13:45:41 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:10124 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751123AbWBQSpj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 13:45:39 -0500
+Date: Fri, 17 Feb 2006 13:45:37 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andrew Morton <akpm@osdl.org>
+cc: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] gdth.c: Adjustment for notifier-chain update
+In-Reply-To: <20060216154609.747156a8.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44L0.0602171335420.6533-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200602171545.21867.dhazelton@enter.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 February 2006 05:29, Joerg Schilling wrote:
-> Matthias Andree <matthias.andree@gmx.de> wrote:
-> > Joerg Schilling schrieb am 2006-02-16:
-> > > Matthias Andree <matthias.andree@gmx.de> wrote:
-> > > > > I usually fix real bugs immediately after I know them.
-> > > >
-> > > > "Usually" is the key here. Sometimes, you refuse to fix real bugs
-> > > > forever even if you're made aware of them, and rather shift the blame
-> > > > on somebody else.
-> > >
-> > > Show me a single real bug that I did not fix.
+This patch (as654) adds a line to gdth.c that was removed by accident as
+part of the big notifier-chain update patch series.
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+
+---
+
+On Thu, 16 Feb 2006, Andrew Morton wrote:
+
+> Alan Stern <stern@rowland.harvard.edu> wrote:
 > >
-> > Namespace split ATA/SCSI is unfixed in 2.01.01a06.
->
-> The namne space split is a Linux kernel bug
+> > Notifier chain re-implementation (as636b): Two notifier chain callout
+> > routines try to unregister themselves.  The new blocking-notifier API
+> > does not support this, so this patch fixes the problem by adding a new
+> > flag.
+> 
+> gdth.c has undergone a lot of rework due to a patch from Christoph Hellwig.
+> That patch is fairly speculative, so my staging of your patch after his has
+> put a perhaps unreasonable dependency on the notifier patches.
+> 
+> Still, I'll leave it as-is for now, but we may need to rejig things later.
+> 
+> Please review gdth.c in next -mm, make sure that the notifier changes in there
+> still make sense (Or check the attached)
 
-Then why have I been talking about a unification with you?
+The patched source file for gdth.c you sent wasn't quite right.  The
+reboot-notifier block was registered but never unregistered!  An extra
+line of code got removed by mistake; this patch puts it back.
 
-I would quote your comments on it, but since that was a private mail I will 
-not do so.
+The driver has other issues -- it uses the old SCSI host model and it's 
+subject to races as a result.  Really the notifier block should be 
+registered when the module initializes and unregistered when the module 
+exits.  But at least this will now be no worse than it was before.
 
-> > Bogus warnings about Linux are unfixed in said version.
->
-> Warnings related to Linux kernel bugs
+Alan Stern
 
->From what I can tell a lot of the warnings are bogus. You even go to great 
-lengths to "scare" people into only using "official" versions of cdrtools.
+--- a/drivers/scsi/gdth.c	2006-02-17 13:27:28.000000000 -0500
++++ b/drivers/scsi/gdth.c	2006-02-17 13:32:29.000000000 -0500
+@@ -4729,6 +4729,7 @@ static int gdth_release(struct Scsi_Host
+             del_timer(&gdth_timer);
+ #endif
+             unregister_chrdev(major,"gdth");
++            unregister_reboot_notifier(&gdth_notifier);
+         }
+     }
+ 
 
-As to that, you have sections in the code marked "Do Not Change" and "Do Not 
-Remove" - I checked the GPLv2 today (the one shipped with all versions of 
-cdrecord I can find) and there is nothing in that which gives you the right 
-to restrict what someone else does to your code.
-
-Call it people being polite that nobody has removed that stuff from the 
-existing primary port of cdrtools.
-
-> > Bogus warnings about /dev/* are unfixed in said version.
->
-> Warnings related to Linux kernel bugs
-
-No. There is no Kernel bug in the SG_IO via /dev/hd* implementation.
-While I can gloss over most other warnings, the following seem to be scare 
-tactics to me:
-
-cdrecord: Warning: Running on Linux-2.6.12-gentoo-r6
-cdrecord: There are unsettled issues with Linux-2.5 and newer.
-cdrecord: If you have unexpected problems, please try Linux-2.4 or Solaris.
-
-Warning: Using badly designed ATAPI via /dev/hd* interface.
-
-> > Linux uname() detection code is broken since 2.6.10 because it assumes
-> > fixed-width fields.
->
-> Warnings related to Linux kernel bugs
-
-Since when is a function that doesn't handle a value returned not the source 
-of a bug?
-
-Show me the POSIX rules that say all fields returned by uname() have to have a 
-certain fixed size.
-
-DRH

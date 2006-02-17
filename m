@@ -1,54 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWBQXMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751691AbWBQXOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750972AbWBQXMp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 18:12:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWBQXMp
+	id S1751691AbWBQXOq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 18:14:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751599AbWBQXOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 18:12:45 -0500
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:56765
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1750972AbWBQXMo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 18:12:44 -0500
-Message-ID: <43F65824.8050204@microgate.com>
-Date: Fri, 17 Feb 2006 17:11:32 -0600
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Fri, 17 Feb 2006 18:14:46 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:17931 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751478AbWBQXOp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 18:14:45 -0500
+Date: Sat, 18 Feb 2006 00:14:44 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       John Stultz <johnstul@us.ibm.com>, paulus@samba.org,
+       linuxppc-dev@ozlabs.org, gregkh@suse.de,
+       Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>, len.brown@intel.com,
+       linux-acpi@vger.kernel.org, Meelis Roos <mroos@linux.ee>,
+       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       linux-input@atrey.karlin.mff.cuni.cz
+Subject: 2.6.16-rc4: known regressions
+Message-ID: <20060217231444.GM4422@stusta.de>
+References: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org>
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: linux@horizon.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SIIG 8-port serial boards support
-References: <20060217222529.14155.qmail@science.horizon.com> <20060217223938.GA24170@flint.arm.linux.org.uk>
-In-Reply-To: <20060217223938.GA24170@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Fri, Feb 17, 2006 at 05:25:29PM -0500, linux@horizon.com wrote:
->>CRTSCTS	CRTSHDX	Handshaking
->>off	off	None.  (Computer might as well send RTS< but ignores CTS)
->>on	off	Full-duplex RTS/CTS
->>off	on	RS-485.  CTS ignored, RTS enables transmitter.
->>on	on	RS-232 half-duplex.  RTS is request, CTS is grant.
-...
-> Also, !CRTSCTS is most likely the state used by any existing userspace
-> RS485 implementations which would be using TIOCMBIC/TIOCMBIS to
-> manipulate the RTS signal, so having RTS manipulated in this state
-> would be an undesirable change of behaviour.
-> 
-> Hence, I'm very much in favour of having the default flow control
-> method to preserve in as many ways as possible existing behaviour
-> for CRTSCTS.
+This email lists some known regressions in 2.6.16-rc4 compared to 2.6.15.
 
-It is important to maintain the "driver doesn't touch RTS/CTS"
-semantics without regard to other (new) control flags.
-An application might read the existing termios, and modify only
-the bits it is aware of without verifying that new bits are zero.
-CFLOWXXX also maintains a free setting for future flow modes, such as:
-CFLOWZEN = alter RTS based on /dev/random
+If you find your name in the Cc header, you are either submitter of one 
+of the bugs, maintainer of an affectected subsystem or driver, a patch 
+of you was declared guilty for a breakage or I'm considering you in any 
+other way possibly involved with one or more of these issues.
 
---
-Paul Fulghum
-Microgate Systems, Ltd
+
+Subject    : gnome-volume-manager broken on powerpc since 2.6.16-rc1
+References : http://bugzilla.kernel.org/show_bug.cgi?id=6021
+Submitter  : John Stultz <johnstul@us.ibm.com>
+Status     : still present in -git two days ago
+
+
+Subject    : S3 sleep hangs the second time - 600X
+References : http://bugzilla.kernel.org/show_bug.cgi?id=5989
+Submitter  : Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Status     : problematic commit identified,
+             further discussion is in the bug
+
+Subject    : psmouse starts losing sync in 2.6.16-rc2
+References : http://lkml.org/lkml/2006/2/5/50
+Submitter  : Meelis Roos <mroos@linux.ee>
+Handled-By : Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Status     : Dmitry: Working on various manifestations of this one.
+                     At worst we will have to disable resync by default
+                     before 2.6.16 final is out and continue in 2.6.17 cycle.
+
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

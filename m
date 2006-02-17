@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbWBQBcT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWBQBjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932094AbWBQBcT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 20:32:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWBQBcT
+	id S1750703AbWBQBjq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 20:39:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWBQBjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 20:32:19 -0500
-Received: from CPE-141-168-16-16.nsw.bigpond.net.au ([141.168.16.16]:55976
-	"EHLO sydlxfw01.samad.com.au") by vger.kernel.org with ESMTP
-	id S932094AbWBQBcS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 20:32:18 -0500
-Date: Fri, 17 Feb 2006 12:32:17 +1100
-To: linux-kernel@vger.kernel.org
-Subject: Re: poweroff on i386
-Message-ID: <20060217013217.GP26235@samad.com.au>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20060217012739.GO26235@samad.com.au>
+	Thu, 16 Feb 2006 20:39:46 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:5813 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750703AbWBQBjq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 20:39:46 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BnCwdHgQ2ZomtW9r"
-Content-Disposition: inline
-In-Reply-To: <20060217012739.GO26235@samad.com.au>
-User-Agent: Mutt/1.5.11
-From: Alexander Samad <alex@samad.com.au>
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH][TRIVIAL] Documentation: Fix typo in cputopology.txt
+Date: Fri, 17 Feb 2006 09:39:34 +0800
+Message-ID: <99FA2ED298A9834DB1BF5DE8BDBF241325BE72@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH][TRIVIAL] Documentation: Fix typo in cputopology.txt
+thread-index: AcYzSEI6aiDRQH1UQ02ORE8JYNq36AAGotqQ
+From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+To: "Jesper Juhl" <jesper.juhl@gmail.com>, <linux-kernel@vger.kernel.org>
+Cc: "Trivial Patch Monkey" <trivial@kernel.org>
+X-OriginalArrivalTime: 17 Feb 2006 01:39:36.0290 (UTC) FILETIME=[0278FC20:01C63363]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>-----Original Message-----
+>>From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jesper Juhl
+>>Sent: 2006Äê2ÔÂ17ÈÕ 6:26
+>>To: linux-kernel@vger.kernel.org
+>>Cc: Trivial Patch Monkey
+>>Subject: [PATCH][TRIVIAL] Documentation: Fix typo in cputopology.txt
+>>
+>>Fix a small typo in Documentation/cputopology.txt
+>>
+>>Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+>>---
+>>
+>> Documentation/cputopology.txt |    2 +-
+>> 1 files changed, 1 insertion(+), 1 deletion(-)
+>>
+>>--- linux-2.6.16-rc3-git7/Documentation/cputopology.txt~	2006-02-16 21:11:11.000000000 +0100
+>>+++ linux-2.6.16-rc3-git7/Documentation/cputopology.txt	2006-02-16 21:11:12.000000000 +0100
+>>@@ -12,7 +12,7 @@
+>> represent the thread siblings to cpu X in the same physical package;
+>>
+>> To implement it in an architecture-neutral way, a new source file,
+>>-driver/base/topology.c, is to export the 5 attributes.
+>>+drivers/base/topology.c, is to export the 5 attributes.
+Could you also change "5" to "4"? The final patch was accepted into 2.6.16-rc3 only exported 4 attributes.
 
---BnCwdHgQ2ZomtW9r
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Feb 17, 2006 at 12:27:39PM +1100, Alexander Samad wrote:
-> Hi
->=20
-> I am interested in how the linux kernel powers off i386 machine.  I
-> basically followed the path from /sbin/poweroff to halt.c to the kernel
-> system command reboot and that into apm apm_power_off  I can't find
-> where the non apm machine get powered off
-
-Found it in the drivers/acpi - i was initially only looking in the arch
-section
-
->=20
-> Alex
-
-
-
---BnCwdHgQ2ZomtW9r
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFD9SehkZz88chpJ2MRAgoLAJ99h/0VAT7dU0STFKTaG3NyVVxQ4wCfRmB7
-6Oh3eMyeEZeXY42Hy5FHHW8=
-=fTQ3
------END PGP SIGNATURE-----
-
---BnCwdHgQ2ZomtW9r--
+Thanks,
+Yanmin

@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751617AbWBQUE7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751661AbWBQUIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751617AbWBQUE7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 15:04:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751644AbWBQUE6
+	id S1751661AbWBQUIR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 15:08:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751673AbWBQUIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 15:04:58 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:65493 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S1751616AbWBQUE4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 15:04:56 -0500
-Date: Fri, 17 Feb 2006 12:04:54 -0800
-From: Grant Grundler <iod00d@hp.com>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: Chris Wedgwood <cw@f00f.org>, Grant Grundler <grundler@parisc-linux.org>,
-       Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, linux-ia64@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>,
-       Jesse Barnes <jbarnes@virtuousgeek.org>
-Subject: Re: Problems with MSI-X on ia64
-Message-ID: <20060217200454.GA24942@esmail.cup.hp.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F05BF610F@scsmsx401.amr.corp.intel.com>
-MIME-Version: 1.0
+	Fri, 17 Feb 2006 15:08:17 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54283 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751653AbWBQUIQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 15:08:16 -0500
+Date: Fri, 17 Feb 2006 20:08:06 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Carlos Aguiar <carlos.aguiar@indt.org.br>
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>, Tony Lindgren <tony@atomide.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/5] MMC OMAP driver
+Message-ID: <20060217200805.GB13502@flint.arm.linux.org.uk>
+Mail-Followup-To: Carlos Aguiar <carlos.aguiar@indt.org.br>,
+	Pierre Ossman <drzeus-list@drzeus.cx>,
+	Tony Lindgren <tony@atomide.com>, linux-kernel@vger.kernel.org
+References: <43DF6750.1060505@indt.org.br> <20060201124434.GC3072@flint.arm.linux.org.uk> <20060201194724.GD15939@atomide.com> <20060202104022.GF5034@flint.arm.linux.org.uk> <43E1F0F3.3020801@drzeus.cx> <20060202122410.GA12508@flint.arm.linux.org.uk> <43F629AF.5050309@indt.org.br>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F05BF610F@scsmsx401.amr.corp.intel.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <43F629AF.5050309@indt.org.br>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 17, 2006 at 11:52:45AM -0800, Luck, Tony wrote:
-> > Hrm, it may be doing this.  I wonder how that works though with 4GB's
-> > of RAM installed?
-> 
-> Systems with 4G of RAM usually map part of the RAM above 4G so as to
-> leave a hole for i/o mapping etc.
+On Fri, Feb 17, 2006 at 03:53:19PM -0400, Carlos Aguiar wrote:
+> >+#define mmc_cmd_type(cmd)	((cmd)->flags & MMC_CMD_TYPE)
+> > 
+> >
+> The change above is needed because MMC_CMD_TYPE is used here but not 
+> defined.
 
-exactly.
-rx2600 physical memory map only has 1GB of RAM below 4GB address space.
+I'd rather keep it as "MASK" because that's what it is.  Thanks
+for pointing this out - the fix should hit Linus' tree sometime
+in the near future.
 
-grant
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWBQVxw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbWBQVz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751005AbWBQVxw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 16:53:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbWBQVxw
+	id S1751019AbWBQVz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 16:55:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWBQVz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 16:53:52 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:52681 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1750859AbWBQVxw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 16:53:52 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Fri, 17 Feb 2006 22:52:08 +0100
-To: schilling@fokus.fraunhofer.de, jengelh@linux01.gwdg.de
-Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org, dhazelton@enter.net
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F64588.nail3BO1TI7E1@burner>
-References: <43EB7BBA.nailIFG412CGY@burner>
- <20060216115204.GA8713@merlin.emma.line.org>
- <43F4BF26.nail2KA210T4X@burner>
- <200602161742.26419.dhazelton@enter.net>
- <43F5B686.nail2VCA2A2OF@burner>
- <Pine.LNX.4.61.0602171643560.27452@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0602171643560.27452@yvahk01.tjqt.qr>
-User-Agent: nail 11.2 8/15/04
+	Fri, 17 Feb 2006 16:55:29 -0500
+Received: from liaag1ac.mx.compuserve.com ([149.174.40.29]:49559 "EHLO
+	liaag1ac.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1750859AbWBQVz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 16:55:28 -0500
+Date: Fri, 17 Feb 2006 16:49:57 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch] i386: another possible singlestep fix
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200602171652_MC3-1-B8AC-373E@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+When entering kernel via int80, TIF_SINGLESTEP is not set
+when TF has been set in eflags by the user.  This patch
+does that.
 
-> >Sorry, the way to access SCSI generic via /dev/hd* is deprecated. If ide-scsi
-> >ir removed, then a clean and orthogonal way of accessing SCSI in a generic
-> >way is removed from Linux. If Linux does nto care about orthogonality of 
-> >interfaces, this is a problem of the people who are responbile for the related
-> >interfaces.
-> >
->
-> So what you want is to be able to use write() on a <sg-compatible> device 
-> rather than doing SG_IO ioctl() on <any> device?
+To make things symmetrical, something further should be done.
+Either (a) add to this patch so it clears TF after setting
+TIF_SINGLESTEP, or (b) change the sysenter path so it sets
+TF in regs.eflags when it finds TIF_SINGLESTEP was set by
+do_debug() during kernel entry.
 
-This kind of disinformation is what constantly puts fuel into the fire....
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
-Are you a victim of the firebugs in this list?
-
-Jörg
-
+--- 2.6.16-rc3.orig/arch/i386/kernel/entry.S
++++ 2.6.16-rc3/arch/i386/kernel/entry.S
+@@ -226,6 +226,10 @@ ENTRY(system_call)
+ 	pushl %eax			# save orig_eax
+ 	SAVE_ALL
+ 	GET_THREAD_INFO(%ebp)
++	testl $TF_MASK,EFLAGS(%esp)
++	jz no_singlestep
++	orl $_TIF_SINGLESTEP,TI_flags(%ebp)
++no_singlestep:
+ 					# system call tracing in operation / emulation
+ 	/* Note, _TIF_SECCOMP is bit number 8, and so it needs testw and not testb */
+ 	testw $(_TIF_SYSCALL_EMU|_TIF_SYSCALL_TRACE|_TIF_SECCOMP|_TIF_SYSCALL_AUDIT),TI_flags(%ebp)
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Chuck
+"Equations are the Devil's sentences."  --Stephen Colbert

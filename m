@@ -1,199 +1,256 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbWBQQNr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030462AbWBQQOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964913AbWBQQNr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 11:13:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbWBQQNr
+	id S1030462AbWBQQOw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 11:14:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030628AbWBQQOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 11:13:47 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:55965 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964913AbWBQQNq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 11:13:46 -0500
-Date: Fri, 17 Feb 2006 21:13:37 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, "Paul E.McKenney" <paulmck@us.ibm.com>
-Subject: Re: [PATCH 1/2] rcu batch tuning
-Message-ID: <20060217154337.GM29846@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20060217154147.GL29846@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060217154147.GL29846@in.ibm.com>
-User-Agent: Mutt/1.5.11
+	Fri, 17 Feb 2006 11:14:52 -0500
+Received: from mr1.bfh.ch ([147.87.250.50]:16099 "EHLO mr1.bfh.ch")
+	by vger.kernel.org with ESMTP id S1030462AbWBQQOu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 11:14:50 -0500
+X-PMWin-Version: 2.5.0e, Antispam-Engine: 2.2.0.0, Antivirus-Engine: 2.32.10
+Thread-Index: AcYz3UL2XMJaTRRQTy6NSFGgEiSCNg==
+Content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
+Importance: normal
+Message-ID: <43F5F672.9080904@bfh.ch>
+Date: Fri, 17 Feb 2006 17:14:42 +0100
+From: "Seewer Philippe" <philippe.seewer@bfh.ch>
+Organization: BFH
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050811)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: <tsbogend@alpha.franken.de>
+Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>
+Subject: [PATCH 2/2] pcnet32: PHY selection support
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Feb 2006 16:14:42.0715 (UTC) FILETIME=[42BD9EB0:01C633DD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch adds new tunables for RCU queue and finished batches.
-There are two types of controls - number of completed RCU updates
-invoked in a batch (blimit) and monitoring for high rate of
-incoming RCUs on a cpu (qhimark, qlowmark). By default,
-the per-cpu batch limit is set to a small value. If
-the input RCU rate exceeds the high watermark, we do two things -
-force quiescent state on all cpus and set the batch limit
-of the CPU to INTMAX. Setting batch limit to INTMAX forces all
-finished RCUs to be processed in one shot. If we have more than
-INTMAX RCUs queued up, then we have bigger problems anyway.
-Once the incoming queued RCUs fall below the low watermark, the batch limit
-is set to the default.
+Most AMD pcnet chips support up to 32 external PHYs. This patch
+introduces basic PHY selection/switching support, by adding two
+new module parameters:
+-maxphy: how many PHYs the card supports
+-usephy: which phy to use instead of eeprom default
 
-Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+Maxphy is necessary in order to check the range of usephy and may
+be overriden inside the module.
+
+If only maxphy is present I've implemented an algorithm which checks
+the link state on all PHYs and uses the one that has a link.
+
+I tested this extensively on our 2700/01 FTX cards and works. I have
+added a maxphy override for those cards to the driver as well.
+
+The only drawback here is that I wasn't able to figure out how to
+dynamically switch the PHY, so the whole switching process is done in
+pcnet32_probe1 instead of open or when the link state changes. This
+means that once the driver is loaded the PHY which was connected must
+be used and no change is possible without physically resetting
+(power off/on) the card.
+
+Patch applies to 2.6.16-rc3 and depends on patch nr. 1 to completely
+support AT 2700/01 FTX cards.
+
+Signed-off-by: Philippe Seewer <philippe.seewer@bfh.ch>
 ---
 
+ pcnet32.c |  107 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 105 insertions(+), 2 deletions(-)
 
- include/linux/rcupdate.h |    6 +++
- kernel/rcupdate.c        |   76 +++++++++++++++++++++++++++++++++++------------
- 2 files changed, 63 insertions(+), 19 deletions(-)
 
-diff -puN include/linux/rcupdate.h~rcu-batch-tuning include/linux/rcupdate.h
---- linux-2.6.16-rc3-rcu/include/linux/rcupdate.h~rcu-batch-tuning	2006-02-15 16:00:02.000000000 +0530
-+++ linux-2.6.16-rc3-rcu-dipankar/include/linux/rcupdate.h	2006-02-15 16:00:02.000000000 +0530
-@@ -98,13 +98,17 @@ struct rcu_data {
- 	long  	       	batch;           /* Batch # for current RCU batch */
- 	struct rcu_head *nxtlist;
- 	struct rcu_head **nxttail;
--	long            count; /* # of queued items */
-+	long            qlen; 	 	 /* # of queued callbacks */
- 	struct rcu_head *curlist;
- 	struct rcu_head **curtail;
- 	struct rcu_head *donelist;
- 	struct rcu_head **donetail;
-+	long		blimit;		 /* Upper limit on a processed batch */
- 	int cpu;
- 	struct rcu_head barrier;
-+#ifdef CONFIG_SMP
-+	long		last_rs_qlen;	 /* qlen during the last resched */
-+#endif
+diff -uprN -X linux-2.6.16-rc3-vanilla/Documentation/dontdiff linux-2.6.16-rc3-vanilla/drivers/net/pcnet32.c linux-2.6.16-rc3/drivers/net/pcnet32.c
+--- linux-2.6.16-rc3-vanilla/drivers/net/pcnet32.c      2006-02-17 16:38:44.000000000 +0100
++++ linux-2.6.16-rc3/drivers/net/pcnet32.c      2006-02-17 16:40:47.000000000 +0100
+@@ -22,7 +22,7 @@
+  *************************************************************************/
+
+ #define DRV_NAME       "pcnet32"
+-#define DRV_VERSION    "1.31d"
++#define DRV_VERSION    "1.32"
+ #define DRV_RELDATE    "17.Feb.2006"
+ #define PFX            DRV_NAME ": "
+
+@@ -140,6 +140,10 @@ static int options[MAX_UNITS];
+ static int full_duplex[MAX_UNITS];
+ static int homepna[MAX_UNITS];
+
++/* Options to switch PHY */
++static int maxphy[MAX_UNITS];
++static int usephy[MAX_UNITS];
++
+ /*
+  *                             Theory of Operation
+  *
+@@ -267,6 +271,8 @@ static int homepna[MAX_UNITS];
+  *        See Bugzilla 2669 and 4551.
+  * v1.31d  17 Nov 2006 Philippe Seewer Extended AT 2700/01 FX support
+  *         to support FTX variants as well.
++ * v1.32   17 Nov 2006 Philippe Seewer Basic PHY switching support on
++ *         module load.
+  */
+
+
+@@ -386,6 +392,8 @@ struct pcnet32_private {
+     struct timer_list  watchdog_timer;
+     struct timer_list  blink_timer;
+     u32                        msg_enable;     /* debug message level */
++    int                 maxphy;         /* max PHYs supported by chip */
++    int                 usephy;         /* which PHY to use */
  };
- 
- DECLARE_PER_CPU(struct rcu_data, rcu_data);
-diff -puN kernel/rcupdate.c~rcu-batch-tuning kernel/rcupdate.c
---- linux-2.6.16-rc3-rcu/kernel/rcupdate.c~rcu-batch-tuning	2006-02-15 16:00:02.000000000 +0530
-+++ linux-2.6.16-rc3-rcu-dipankar/kernel/rcupdate.c	2006-02-15 16:00:02.000000000 +0530
-@@ -67,7 +67,43 @@ DEFINE_PER_CPU(struct rcu_data, rcu_bh_d
- 
- /* Fake initialization required by compiler */
- static DEFINE_PER_CPU(struct tasklet_struct, rcu_tasklet) = {NULL};
--static int maxbatch = 10000;
-+static int blimit = 10;
-+static int qhimark = 10000;
-+static int qlowmark = 100;
-+#ifdef CONFIG_SMP
-+static int rsinterval = 1000;
-+#endif
-+
-+static atomic_t rcu_barrier_cpu_count;
-+static struct semaphore rcu_barrier_sema;
-+static struct completion rcu_barrier_completion;
-+
-+#ifdef CONFIG_SMP
-+static void force_quiescent_state(struct rcu_data *rdp,
-+			struct rcu_ctrlblk *rcp)
-+{
-+	int cpu;
-+	cpumask_t cpumask;
-+	set_need_resched();
-+	if (unlikely(rdp->qlen - rdp->last_rs_qlen > rsinterval)) {
-+		rdp->last_rs_qlen = rdp->qlen;
-+		/*
-+		 * Don't send IPI to itself. With irqs disabled,
-+		 * rdp->cpu is the current cpu.
-+		 */
-+		cpumask = rcp->cpumask;
-+		cpu_clear(rdp->cpu, cpumask);
-+		for_each_cpu_mask(cpu, cpumask)
-+			smp_send_reschedule(cpu);
-+	}
-+}
-+#else 
-+static inline void force_quiescent_state(struct rcu_data *rdp,
-+			struct rcu_ctrlblk *rcp)
-+{
-+	set_need_resched();
-+}
-+#endif
- 
- /**
-  * call_rcu - Queue an RCU callback for invocation after a grace period.
-@@ -92,17 +128,13 @@ void fastcall call_rcu(struct rcu_head *
- 	rdp = &__get_cpu_var(rcu_data);
- 	*rdp->nxttail = head;
- 	rdp->nxttail = &head->next;
--
--	if (unlikely(++rdp->count > 10000))
--		set_need_resched();
--
-+	if (unlikely(++rdp->qlen > qhimark)) {
-+		rdp->blimit = INT_MAX;
-+		force_quiescent_state(rdp, &rcu_ctrlblk);
-+	}
- 	local_irq_restore(flags);
- }
- 
--static atomic_t rcu_barrier_cpu_count;
--static struct semaphore rcu_barrier_sema;
--static struct completion rcu_barrier_completion;
--
- /**
-  * call_rcu_bh - Queue an RCU for invocation after a quicker grace period.
-  * @head: structure to be used for queueing the RCU updates.
-@@ -131,12 +163,12 @@ void fastcall call_rcu_bh(struct rcu_hea
- 	rdp = &__get_cpu_var(rcu_bh_data);
- 	*rdp->nxttail = head;
- 	rdp->nxttail = &head->next;
--	rdp->count++;
--/*
-- *  Should we directly call rcu_do_batch() here ?
-- *  if (unlikely(rdp->count > 10000))
-- *      rcu_do_batch(rdp);
-- */
-+
-+	if (unlikely(++rdp->qlen > qhimark)) {
-+		rdp->blimit = INT_MAX;
-+		force_quiescent_state(rdp, &rcu_bh_ctrlblk);
-+	}
-+
- 	local_irq_restore(flags);
- }
- 
-@@ -199,10 +231,12 @@ static void rcu_do_batch(struct rcu_data
- 		next = rdp->donelist = list->next;
- 		list->func(list);
- 		list = next;
--		rdp->count--;
--		if (++count >= maxbatch)
-+		rdp->qlen--;
-+		if (++count >= rdp->blimit)
- 			break;
- 	}
-+	if (rdp->blimit == INT_MAX && rdp->qlen <= qlowmark)
-+		rdp->blimit = blimit;
- 	if (!rdp->donelist)
- 		rdp->donetail = &rdp->donelist;
- 	else
-@@ -473,6 +507,7 @@ static void rcu_init_percpu_data(int cpu
- 	rdp->quiescbatch = rcp->completed;
- 	rdp->qs_pending = 0;
- 	rdp->cpu = cpu;
-+	rdp->blimit = blimit;
- }
- 
- static void __devinit rcu_online_cpu(int cpu)
-@@ -567,7 +602,12 @@ void synchronize_kernel(void)
- 	synchronize_rcu();
- }
- 
--module_param(maxbatch, int, 0);
-+module_param(blimit, int, 0);
-+module_param(qhimark, int, 0);
-+module_param(qlowmark, int, 0);
-+#ifdef CONFIG_SMP
-+module_param(rsinterval, int, 0);
-+#endif
- EXPORT_SYMBOL_GPL(rcu_batches_completed);
- EXPORT_SYMBOL(call_rcu);  /* WARNING: GPL-only in April 2006. */
- EXPORT_SYMBOL(call_rcu_bh);  /* WARNING: GPL-only in April 2006. */
 
-_
+ static void pcnet32_probe_vlbus(void);
+@@ -417,6 +425,7 @@ static void pcnet32_get_regs(struct net_
+ static void pcnet32_purge_tx_ring(struct net_device *dev);
+ static int pcnet32_alloc_ring(struct net_device *dev, char *name);
+ static void pcnet32_free_ring(struct net_device *dev);
++static void pcnet32_switch_phy(struct net_device *dev, int phy);
+
+
+ enum pci_flags_bit {
+@@ -1336,6 +1345,20 @@ pcnet32_probe1(unsigned long ioaddr, int
+     lp->mii_if.mdio_read = mdio_read;
+     lp->mii_if.mdio_write = mdio_write;
+
++    lp->maxphy = 1;
++    if ((cards_found >= MAX_UNITS) || (maxphy[cards_found]))
++        lp->maxphy = maxphy[cards_found];
++
++    lp->usephy = 0;
++    if ((cards_found >= MAX_UNITS) || (usephy[cards_found]))
++        lp->usephy = usephy[cards_found];
++
++    if (lp->usephy > lp->maxphy) {
++        printk(KERN_ERR PFX "   usephy paramater out of range! ignoring!\n");
++       lp->usephy = 0;
++    }
++
++
+     if (fdx && !(lp->options & PCNET32_PORT_ASEL) &&
+                ((cards_found>=MAX_UNITS) || full_duplex[cards_found]))
+        lp->options |= PCNET32_PORT_FD;
+@@ -1358,6 +1381,15 @@ pcnet32_probe1(unsigned long ioaddr, int
+            && dev->dev_addr[2] == 0x75)
+        lp->options = PCNET32_PORT_FD | PCNET32_PORT_GPSI;
+
++    /*
++     * Test for specific cards to set maxphy count
++     */
++    if (lp->pci_dev->subsystem_vendor == PCI_VENDOR_ID_AT &&
++       (lp->pci_dev->subsystem_device == PCI_SUBDEVICE_ID_AT_2700FTX ||
++        lp->pci_dev->subsystem_device == PCI_SUBDEVICE_ID_AT_2701FTX)) {
++      lp->maxphy = 2;
++    }
++
+     lp->init_block.mode = le16_to_cpu(0x0003); /* Disable Rx and Tx. */
+     lp->init_block.tlen_rlen = le16_to_cpu(lp->tx_len_bits | lp->rx_len_bits);
+     for (i = 0; i < 6; i++)
+@@ -1403,9 +1435,38 @@ pcnet32_probe1(unsigned long ioaddr, int
+     }
+
+     /* Set the mii phy_id so that we can query the link state */
+-    if (lp->mii)
++    if (lp->mii) {
+        lp->mii_if.phy_id = ((lp->a.read_bcr (ioaddr, 33)) >> 5) & 0x1f;
+
++       /* Multi PHY? */
++       if (lp->maxphy > 1) {
++           /* Autoswitch? */
++           if (lp->usephy == 0) {
++               /* backup */
++               lp->usephy = lp->mii_if.phy_id;
++
++               /* give preference to eeprom default if no link */
++               media = lp->mii_if.phy_id;
++
++               /* check link */
++               for (i = 1; i <= lp->maxphy; i++) {
++                 lp->mii_if.phy_id = i;
++                 if (mii_check_media(&lp->mii_if, 0, 1)) {
++                   media = i;
++                   /* give preference to eeprom default if link found */
++                   if (i == lp->usephy)
++                     break;
++                 }
++               }
++
++               lp->mii_if.phy_id = media;
++           } else {
++               lp->mii_if.phy_id = lp->usephy;
++           }
++           pcnet32_switch_phy(dev, lp->mii_if.phy_id);
++       }
++    }
++
+     /*
+      * Override options:
+      * Allied Telesyn AT 2700/2701 FX are 100Mbit only and do not
+@@ -1573,6 +1634,32 @@ static void pcnet32_free_ring(struct net
+     }
+ }
+
++static void pcnet32_switch_phy(struct net_device *dev, int phy)
++{
++    struct pcnet32_private *lp = dev->priv;
++    unsigned long ioaddr = dev->base_addr;
++    int i;
++
++    /* Isolate all unused phy's */
++    for (i = 1; i < 3; i++) {
++      if (i != phy)
++        mdio_write(dev, 1, MII_BMCR, BMCR_ISOLATE);
++    }
++
++    /* Make sure used phy is not isolated */
++    mdio_write(dev, phy, MII_BMCR,
++              mdio_read(dev, phy, MII_BMCR) & ~BMCR_ISOLATE);
++
++    /* Rearead mii regs */
++    for (i = 0; i < 5; i++) {
++      mdio_read(dev, phy, i);
++      mdio_read(dev, phy, i);
++    }
++
++    /* Store PHY */
++    lp->a.write_bcr(ioaddr, 33, ((phy & 0x1f) << 5) | MII_BMCR);
++}
++
+
+ static int
+ pcnet32_open(struct net_device *dev)
+@@ -1654,6 +1741,16 @@ pcnet32_open(struct net_device *dev)
+            if (lp->options & PCNET32_PORT_100)
+                val |= 0x08;
+            lp->a.write_bcr (ioaddr, 32, val);
++           /*
++            * AT 2700 FTX seems broken somehow, when disabling the
++            * DANAS the mii registers for the fiber poort need to be
++            * set.
++            */
++           if (lp->pci_dev->subsystem_vendor == PCI_VENDOR_ID_AT &&
++               lp->pci_dev->subsystem_device == PCI_SUBDEVICE_ID_AT_2700FTX &&
++               lp->mii_if.phy_id == 1) {
++             mdio_write(dev, lp->mii_if.phy_id, MII_BMCR, 0x2100);
++           }
+        } else {
+            if (lp->options & PCNET32_PORT_ASEL) {
+                lp->a.write_bcr(ioaddr, 32,
+@@ -2505,6 +2602,12 @@ MODULE_PARM_DESC(full_duplex, DRV_NAME "
+ module_param_array(homepna, int, NULL, 0);
+ MODULE_PARM_DESC(homepna, DRV_NAME " mode for 79C978 cards (1 for HomePNA, 0 for Ethernet, default Ethernet");
+
++/* Module parameters for PHY selection support */
++module_param_array(maxphy, int, NULL, 0);
++MODULE_PARM_DESC(maxphy, DRV_NAME " max PHYs the card supports");
++module_param_array(usephy, int, NULL, 0);
++MODULE_PARM_DESC(usephy, DRV_NAME " use specified PHY port instead of default");
++
+ MODULE_AUTHOR("Thomas Bogendoerfer");
+ MODULE_DESCRIPTION("Driver for PCnet32 and PCnetPCI based ethercards");
+ MODULE_LICENSE("GPL");
+

@@ -1,79 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751069AbWBQXcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbWBQXbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751069AbWBQXcz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 18:32:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbWBQXcz
+	id S1751061AbWBQXbV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 18:31:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbWBQXbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 18:32:55 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28171 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751483AbWBQXcy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 18:32:54 -0500
-Date: Sat, 18 Feb 2006 00:32:53 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, len.brown@intel.com,
-       Paul Bristow <paul@paulbristow.net>, mpm@selenic.com,
-       B.Zolnierkiewicz@elka.pw.edu.pl, dtor_core@ameritech.net, kkeil@suse.de,
-       linux-dvb-maintainer@linuxtv.org, philb@gnu.org, gregkh@suse.de,
-       dwmw2@infradead.org
-Subject: Re: kbuild: Section mismatch warnings
-Message-ID: <20060217233253.GN4422@stusta.de>
-References: <20060217214855.GA5563@mars.ravnborg.org> <20060217224702.GA25761@mars.ravnborg.org>
+	Fri, 17 Feb 2006 18:31:21 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:32971 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S1751042AbWBQXbU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 18:31:20 -0500
+From: Nigel Cunningham <nigel@suspend2.net>
+Organization: Suspend2.net
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux 2.6.16-rc4
+Date: Sat, 18 Feb 2006 09:27:48 +1000
+User-Agent: KMail/1.9.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
+References: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060217224702.GA25761@mars.ravnborg.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: multipart/signed;
+  boundary="nextPart14257714.oFn9ue1UOk";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200602180927.59770.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 17, 2006 at 11:47:02PM +0100, Sam Ravnborg wrote:
->...
-> Syntax:
-> The offset refer to the relative offset from the referenced symbol.
-> So
-> WARNING: drivers/acpi/asus_acpi.o - Section mismatch: reference to .init.text from .data between 'asus_hotk_driver' (at offset 0xc0) and 'model_conf'
-> should be read as:
-> 
-> At 0xc0 bytes after asus_hotk_driver there is a reference to a symbol
-> placed in the section .init.text.
-> 
-> I did not find a way to look up the offending symbol but maybe some elf
-> expert can help?
->...
- 
-I'm not an ELF expert, but simply checking all __init functions in this 
-files finds that this seems to be the following:
+--nextPart14257714.oFn9ue1UOk
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-<--  snip  -->
+Hi.
 
-...
-static struct acpi_driver asus_hotk_driver = {
-        .name = ACPI_HOTK_NAME,
-        .class = ACPI_HOTK_CLASS,
-        .ids = ACPI_HOTK_HID,
-        .ops = {
-                .add = asus_hotk_add,
-                .remove = asus_hotk_remove,
-                },
-};
-...
-static int __init asus_hotk_add(struct acpi_device *device)
-...
+Tested on my Pioneer with Suspend2 2.2.0.1.
 
-<--  snip  -->
+Compiles fine, boots without problems, suspends and resumes without issue.
 
-> 	Sam
->...
+Regards,
 
-cu
-Adrian
+Nigel
+=2D-=20
+See our web page for Howtos, FAQs, the Wiki and mailing list info.
+http://www.suspend2.net                IRC: #suspend2 on Freenode
 
--- 
+--nextPart14257714.oFn9ue1UOk
+Content-Type: application/pgp-signature
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
+iD8DBQBD9lv/N0y+n1M3mo0RAhqwAKCB9C9QB4Ee1A9zC+BFvi14pqkfUACbBbHp
+1iJ4qHxWDAdExgrDalC8tjE=
+=9dQy
+-----END PGP SIGNATURE-----
+
+--nextPart14257714.oFn9ue1UOk--

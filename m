@@ -1,113 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbWBQIUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbWBQIqK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964798AbWBQIUw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 03:20:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbWBQIUw
+	id S932568AbWBQIqK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 03:46:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932590AbWBQIqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 03:20:52 -0500
-Received: from liaag1af.mx.compuserve.com ([149.174.40.32]:28821 "EHLO
-	liaag1af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932505AbWBQIUw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 03:20:52 -0500
-Date: Fri, 17 Feb 2006 03:16:55 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch] i386: fix singlestepping though a syscall
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Paulo Marques <pmarques@grupopie.com>
-Message-ID: <200602170320_MC3-1-B898-C9D3@compuserve.com>
+	Fri, 17 Feb 2006 03:46:09 -0500
+Received: from smtp103.sbc.mail.mud.yahoo.com ([68.142.198.202]:54959 "HELO
+	smtp103.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932568AbWBQIqH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 03:46:07 -0500
+Date: Fri, 17 Feb 2006 00:46:05 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Grant Grundler <iod00d@hp.com>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, linux-ia64@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>,
+       Jesse Barnes <jbarnes@virtuousgeek.org>
+Subject: Re: Problems with MSI-X on ia64
+Message-ID: <20060217084605.GG4523@taniwha.stupidest.org>
+References: <D4CFB69C345C394284E4B78B876C1CF10B848090@cceexc23.americas.cpqcorp.net> <20060217075829.GB22451@esmail.cup.hp.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060217075829.GB22451@esmail.cup.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Feb 2006 at 17:06:22 -0800, Linus Torvalds wrote:
+On Thu, Feb 16, 2006 at 11:58:29PM -0800, Grant Grundler wrote:
 
-> On Thu, 16 Feb 2006, Chuck Ebbert wrote:
-> >
-> > Singlestep through a syscall using vsyscall-sysenter had two bugs:
-> > 
-> >     1.  Setting TIF_SINGLESTEP is not enough to force
-> >         do_notify_resume() to be run on return to user;
-> >         TIF_IRET must also be set.
->
-> Interesting, but I think you pinpointed the _real_ bug.
-> ...
-> Oh, actually, I think you should just remove the clearing of 
-> _TIF_SINGLESTEP from _TIF_WORK_MASK. Does that fix the bug.
+> The root cause is the use of u32 to describe a PCI resource "start".
+> phys_addr needs to be "unsigned long". More details in Log entry
+> below.
 
-Yes, that works.  I was afraid to try it because of unknown side-effects
-but one of those may be that it fixes Paolo's debugger problem.  The C
-program I was testing with is enclosed and I can even (with care) debug
-it with gdb passing through SIGTRAP and step through the signal handler.
+That won't always suffice.
 
-Paolo, can you try this patch for your debugger problem?
-
-
-Do not mask TIF_SINGLESTEP bit in _TIF_WORK_MASK. Masking this stopped
-do_notify_resume() from being called when it should have been.
-
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-
---- 2.6.16-rc3-nb.orig/include/asm-i386/thread_info.h
-+++ 2.6.16-rc3-nb/include/asm-i386/thread_info.h
-@@ -158,8 +158,8 @@ register unsigned long current_stack_poi
- 
- /* work to do on interrupt/exception return */
- #define _TIF_WORK_MASK \
--  (0x0000FFFF & ~(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SINGLESTEP|\
--		  _TIF_SECCOMP|_TIF_SYSCALL_EMU))
-+  (0x0000FFFF & ~(_TIF_SYSCALL_TRACE | _TIF_SYSCALL_AUDIT | \
-+		  _TIF_SECCOMP | _TIF_SYSCALL_EMU))
- /* work to do on any return to u-space */
- #define _TIF_ALLWORK_MASK	(0x0000FFFF & ~_TIF_SECCOMP)
-_ 
-
-#define _GNU_SOURCE
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <signal.h>
-#include <errno.h>
-
-#define TRAP_FLAG 0x100
-
-#ifdef INT80
-# define ENTER_KERNEL	"int $0x80\n\t"
-#else
-# define ENTER_KERNEL	"call *vsyscall\n\t"
-#endif
-
-static struct sigaction sa;
-static void * const vsyscall = (void *)0xffffe400;
-
-static void handler(int nr, siginfo_t *si, void *vuc)
-{
-	struct ucontext *uc = (struct ucontext *)vuc;
-	struct sigcontext *sc = (struct sigcontext *)&uc->uc_mcontext;
-
-	printf("handler: signo = %d, errno = %d, code = %d\n",
-		si->si_signo, si->si_errno, si->si_code);
-	printf("handler: addr = 0x%08x, inst = 0x%02x, flags=0x%08x\n\n",
-		si->si_addr, *(unsigned char *)si->si_addr, sc->eflags);
-}
-
-int main(int argc, char * const argv[])
-{
-	sa.sa_sigaction = handler;
-	sa.sa_flags     = SA_SIGINFO;
-	sigaction(SIGTRAP, &sa, NULL);
-
-	asm volatile ("pushf ; orl %0,(%%esp) ; popf" : : "i" (TRAP_FLAG));
-	asm volatile (ENTER_KERNEL : : "a" (20) /* getpid() */);
-	asm volatile ("pushf ; andl %0,(%%esp) ; popf" : : "i" (~TRAP_FLAG));
-	asm volatile (ENTER_KERNEL : : "a" (20) /* getpid() */);
-
-	return 0;
-}
--- 
-Chuck
-"Equations are the Devil's sentences."  --Stephen Colbert
+I have machines at work that will place some PCI resources above the
+4GB boundary even when booting in '32-bit OS' mode (there is a BIOS
+option for this but no matter the setting some resources always end up
+above 4GB).  I've heard from others they've also been hit by this
+(with 64-bit kernels it's fine).  I guess it could be argued that it's
+a BIOS bug, I'm not entirely sure what to thing,  Windows seems to
+deal with it.

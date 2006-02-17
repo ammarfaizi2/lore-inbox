@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWBQJKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWBQJM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932354AbWBQJKs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 04:10:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbWBQJKs
+	id S932356AbWBQJM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 04:12:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbWBQJM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 04:10:48 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:21006 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S932354AbWBQJKr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 04:10:47 -0500
-Date: Fri, 17 Feb 2006 17:09:46 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       autofs@linux.kernel.org
-Subject: Re: [RFC:PATCH 4/4] autofs4 - add new packet type for v5 communications
-In-Reply-To: <20060217005134.6842f0ca.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0602171703590.4109@eagle.themaw.net>
-References: <200602170701.k1H71Irp004035@eagle.themaw.net>
- <20060217005134.6842f0ca.akpm@osdl.org>
+	Fri, 17 Feb 2006 04:12:57 -0500
+Received: from r3az252.chello.upc.cz ([213.220.243.252]:22917 "EHLO
+	vrapenec.doma") by vger.kernel.org with ESMTP id S932356AbWBQJM4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 04:12:56 -0500
+Message-ID: <43F59384.5090503@ribosome.natur.cuni.cz>
+Date: Fri, 17 Feb 2006 10:12:36 +0100
+From: =?windows-1252?Q?Martin_MOKREJ=8A?= 
+	<mmokrejs@ribosome.natur.cuni.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051002
+X-Accept-Language: cs
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-themaw-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-1.896,
-	required 5, autolearn=not spam, BAYES_00 -2.60,
-	DATE_IN_PAST_12_24 0.70)
-X-themaw-MailScanner-From: raven@themaw.net
+To: Adrian Bunk <bunk@stusta.de>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.16-rc3-git5: drivers/acpi/osl.c:57:38: empty filename in
+ #include
+References: <43F3B553.2010506@ribosome.natur.cuni.cz> <20060217000525.GD4422@stusta.de>
+In-Reply-To: <20060217000525.GD4422@stusta.de>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Feb 2006, Andrew Morton wrote:
+Hi Adrian,
+   thanks for answer, pitty that Kconfig cannot prevent empty values.
+But I don't mind that much.
+M.
 
-> Ian Kent <raven@themaw.net> wrote:
-> >
-> > +/* autofs v5 common packet struct */
-> >  +struct autofs_v5_packet {
-> >  +	struct autofs_packet_hdr hdr;
-> >  +	autofs_wqt_t wait_queue_token;
-> >  +	__u32 dev;
-> >  +	__u64 ino;
-> >  +	uid_t uid;
-> >  +	gid_t gid;
-> >  +	pid_t pid;
-> >  +	pid_t tgid;
-> >  +	int len;
-> >  +	char name[NAME_MAX+1];
-> >  +};
+Adrian Bunk wrote:
+> On Thu, Feb 16, 2006 at 12:12:19AM +0100, Martin MOKREJ? wrote:
+>>  I have the following problem when compiling linux kernel on Intel 
+>>Pentium4M machine:
+>>
+>>drivers/acpi/osl.c:57:38: empty filename in #include
+>>drivers/acpi/osl.c: In function `acpi_os_table_override':
+>>drivers/acpi/osl.c:258: error: `AmlCode' undeclared (first use in 
+>>this function)
+>>drivers/acpi/osl.c:258: error: (Each undeclared identifier is 
+>>reported only once
+>>drivers/acpi/osl.c:258: error: for each function it appears in.)
+>>make[2]: *** [drivers/acpi/osl.o] Error 1
+>>
+>>  It turned out I have enabled the custom DSDT option but the field 
+>>for the custom file have left empty. That's the cause for the error.
+>>Something should probably take care of this case. I use "menuconfig"
+>>to manipulate the .config file.
 > 
-> Is this known to work with 32-bit userspace on 64-bit kernels?
 > 
-> In particular, perhaps the ?id_t's should become a type of known size and
-> alignment (u32 or u64)?
+> this is a class of errors Kconfig can't handle.
 > 
-
-Yes. I take your point.
-
-I used this for some time on my Ultra 2, which has this type of arch, 
-without problem. I increased the ino field from 32 to 64 bits since that 
-time and haven't since tested it.
-
-I'm happy to change them to 64 bit if you believe it will avoid potential 
-problems?
-
-Ian
-
-
+> And if it was handled, the next problems were to check first whether the 
+> file exists, and next whether it's actually a valid DSDT table file...
+> 
+> Kconfig helps you to avoid many errors, but there are classes of errors 
+> it simply can't prevent.

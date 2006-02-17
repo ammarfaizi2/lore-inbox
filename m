@@ -1,71 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751584AbWBQT4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751578AbWBQUAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751584AbWBQT4p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 14:56:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751589AbWBQT4p
+	id S1751578AbWBQUAm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 15:00:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751579AbWBQUAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 14:56:45 -0500
-Received: from mr1.bfh.ch ([147.87.250.50]:17857 "EHLO mr1.bfh.ch")
-	by vger.kernel.org with ESMTP id S1750899AbWBQT4n (ORCPT
+	Fri, 17 Feb 2006 15:00:42 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:17755 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1751072AbWBQUAl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 14:56:43 -0500
-X-PMWin-Version: 2.5.0e, Antispam-Engine: 2.2.0.0, Antivirus-Engine: 2.32.10
-Thread-Index: AcYz/ELgzYRxKb4uR8qP7k7MDhybhg==
-Content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
-Importance: normal
-Message-ID: <43F62A73.3090509@bfh.ch>
-Date: Fri, 17 Feb 2006 20:56:35 +0100
-From: "Seewer Philippe" <philippe.seewer@bfh.ch>
-Organization: BFH
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050811)
-X-Accept-Language: en-us, en
+	Fri, 17 Feb 2006 15:00:41 -0500
+Message-ID: <43F62B1D.7090907@cfl.rr.com>
+Date: Fri, 17 Feb 2006 14:59:25 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: "Adam Kropelin" <akropel1@rochester.rr.com>
-Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
-       <tsbogend@alpha.franken.de>
-Subject: Re: [PATCH 2/2] pcnet32: PHY selection support
-References: <20060217134938.B24429@mail.kroptech.com>
-In-Reply-To: <20060217134938.B24429@mail.kroptech.com>
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+CC: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: C/H/S from user space
+References: <Pine.LNX.4.61.0602171157140.8950@chaos.analogic.com> <43F617FA.2030609@wolfmountaingroup.com>
+In-Reply-To: <43F617FA.2030609@wolfmountaingroup.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Feb 2006 19:56:36.0820 (UTC) FILETIME=[4290D140:01C633FC]
+X-OriginalArrivalTime: 17 Feb 2006 20:01:52.0086 (UTC) FILETIME=[FE7A9760:01C633FC]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14274.000
+X-TM-AS-Result: No--21.300000-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Other than generate CHS addresses that are invalid due to having S > 62, 
+what is this code supposed to do?
 
 
-Adam Kropelin wrote:
-> Seewer Philippe wrote:
+Jeff V. Merkey wrote:
 > 
->>Most AMD pcnet chips support up to 32 external PHYs. This patch
->>introduces basic PHY selection/switching support, by adding two
->>new module parameters:
->>-maxphy: how many PHYs the card supports
->>-usephy: which phy to use instead of eeprom default
->>
->>Maxphy is necessary in order to check the range of usephy and may
->>be overriden inside the module.
+> Dick,
 > 
+> The model Netware uses for large drives for calculating C/H/S addressed 
+> this problem years ago and
+> provides more useful output, since C/H/S is converted into a hieristic 
+> which acts almost like an MD5 hash
+> and for a given dimension, does provide unique output for even very 
+> large drives.
 > 
-> It seems a bit pointless for the range check of a user-supplied value to
-> be driven by another user-supplied value.
-I just want to make sure and there's the possibility of supplying only maxphy
-and let the autoswitch algorithm decide...
+> Code Attached.
+> 
+> Jeff
 > 
 > 
->>If only maxphy is present I've implemented an algorithm which checks
->>the link state on all PHYs and uses the one that has a link.
+> 
+> ULONG SetPartitionTableGeometry(BYTE *hd, BYTE *sec, BYTE *cyl,
+>                ULONG LBA, ULONG TracksPerCylinder,
+>                ULONG SectorsPerTrack)
+> {
+>    ULONG offset, cylinders, head, sector;
+> 
+>    if (!cyl || !hd || !sec)
+>       return -1;
+> 
+>    cylinders = (LBA / (TracksPerCylinder * SectorsPerTrack));
+>    offset = LBA % (TracksPerCylinder * SectorsPerTrack);
+>    head = (WORD)(offset / SectorsPerTrack);
+>    sector = (WORD)(offset % SectorsPerTrack) + 1;
+> 
+>    if (cylinders < 1023)
+>    {
+>       *sec = (BYTE)sector;
+>       *hd = (BYTE)head;
+>       *cyl = (BYTE)(cylinders & 0xff);
+>       *sec |= (BYTE)((cylinders >> 2) & 0xC0);
+>    }
+>    else
+>    {
+>    *sec = (BYTE)(SectorsPerTrack | 0xC0);
+>    *hd = (BYTE)(TracksPerCylinder - 1);
+>    *cyl = (BYTE)0xFE;
+>    }
+> 
+>    return 0;
+> }
+> 
+> ULONG SetPartitionTableValues(struct PartitionTableEntry *Part,
+>                  ULONG Type,
+>                  ULONG StartingLBA,
+>                  ULONG EndingLBA,
+>                  ULONG Flag,
+>                  ULONG TracksPerCylinder,
+>                  ULONG SectorsPerTrack)
+> {
+> 
+>    Part->SysFlag = (BYTE) Type;
+>    Part->fBootable = (BYTE) Flag;
+>    Part->StartLBA = StartingLBA;
+>    Part->nSectorsTotal = (EndingLBA - StartingLBA) + 1;
+> 
+>    SetPartitionTableGeometry(&Part->HeadStart, &Part->SecStart, 
+> &Part->CylStart,
+>                  StartingLBA, TracksPerCylinder, SectorsPerTrack);
+> 
+>    SetPartitionTableGeometry(&Part->HeadEnd, &Part->SecEnd, &Part->CylEnd,
+>                  EndingLBA, TracksPerCylinder, SectorsPerTrack);
+> 
+>    return 0;
+> 
+> }
 > 
 > 
-> Knowing how many PHYs to scan is potentially useful, but how about
-> determining that at runtime? Missing PHYs should be detectable with a
-> timeout or similar. Too risky?
-Actually its possible to query them with mii and all non-present phy's
-should "return" 0xffff. I wanted my changes to have no impact on pcnet
-cards with only one phy, thats why.
 
-> 
-> --Adam
-> 

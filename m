@@ -1,37 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbWBQO04@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751450AbWBQOa4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751462AbWBQO04 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 09:26:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWBQO04
+	id S1751450AbWBQOa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 09:30:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbWBQOa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 09:26:56 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:32163 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751440AbWBQO0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 09:26:55 -0500
-Subject: Re: Fix IDE locking error.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-In-Reply-To: <58cb370e0602170057x59b23957n3e858d5ac4918326@mail.gmail.com>
-References: <20060216223916.GA8463@redhat.com>
-	 <58cb370e0602170057x59b23957n3e858d5ac4918326@mail.gmail.com>
-Content-Type: text/plain
+	Fri, 17 Feb 2006 09:30:56 -0500
+Received: from mail17.syd.optusnet.com.au ([211.29.132.198]:38322 "EHLO
+	mail17.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751450AbWBQOa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 09:30:56 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] mm: implement swap prefetching (v26)
+Date: Sat, 18 Feb 2006 01:30:44 +1100
+User-Agent: KMail/1.9.1
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>
+References: <200602172235.40019.kernel@kolivas.org>
+In-Reply-To: <200602172235.40019.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Fri, 17 Feb 2006 14:28:52 +0000
-Message-Id: <1140186532.4283.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Disposition: inline
+Message-Id: <200602180130.44873.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2006-02-17 at 09:57 +0100, Bartlomiej Zolnierkiewicz wrote:
-> Could we get a decent description of the problem and of the patch?
+On Friday 17 February 2006 22:35, Con Kolivas wrote:
+> Added disabling of swap prefetching when laptop_mode is enabled.
+>
+> Comment and function name cleanups etc.
+>
+> Please consider for -mm.
 
-Audit the lock state on all entries to the tune function and it
-certainly was the case that the old IDE layer could call it with the
-lock either already held or not.
+Heh I borked something rotten in this one. There I go again. Please ignore 
+this request.
 
-Alan
-
+Cheers,
+Con

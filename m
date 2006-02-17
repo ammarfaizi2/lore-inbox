@@ -1,71 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030598AbWBQO42@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030600AbWBQO7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030598AbWBQO42 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 09:56:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030600AbWBQO42
+	id S1030600AbWBQO7l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 09:59:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030619AbWBQO7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 09:56:28 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:40859 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030598AbWBQO41 (ORCPT
+	Fri, 17 Feb 2006 09:59:41 -0500
+Received: from rtr.ca ([64.26.128.89]:52454 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1030600AbWBQO7k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 09:56:27 -0500
-From: David Howells <dhowells@redhat.com>
-To: torvalds@osdl.org, akpm@osdl.org
-cc: keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Keys: Replace duplicate non-updateable keys rather than failing
-X-Mailer: MH-E 7.91+cvs; nmh 1.1; GNU Emacs 22.0.50.1
-Date: Fri, 17 Feb 2006 14:56:21 +0000
-Message-ID: <8265.1140188181@warthog.cambridge.redhat.com>
+	Fri, 17 Feb 2006 09:59:40 -0500
+From: Mark Lord <lkml@rtr.ca>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: LibPATA code issues / 2.6.15.4
+Date: Fri, 17 Feb 2006 09:59:40 -0500
+User-Agent: KMail/1.9.1
+Cc: Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F1EE4A.3050107@rtr.ca> <43F58D29.3040608@pobox.com>
+In-Reply-To: <43F58D29.3040608@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602170959.40286.lkml@rtr.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 17 February 2006 03:45, Jeff Garzik wrote:
+>Submit a patch... 
 
-The attached patch causes an attempt to add a duplicate non-updateable key
-(such as a keyring) to a keyring to discard the extant copy in favour of the
-new one rather than failing with EEXIST:
+You mean, something like this one?
+Untested at present, as I was hoping to hear
+back from one of the original problem reporters
+after they tested it.
 
-	# do the test in an empty session
-	keyctl session
-	# create a new keyring called "a" and attach to session
-	keyctl newring a @s
-	# create another new keyring called "a" and attach to session,
-	# displacing the keyring added by the second command:
-	keyctl newring a @s
+Cheers!
 
-Without this patch, the third command will fail.
 
-For updateable keys (such as those of "user" type), the update method will
-still be called rather than a new key being created.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+-------- Original Message --------
+Subject: Re: LibPATA code issues / 2.6.15.4
+Date: Tue, 14 Feb 2006 13:00:36 -0500
+From: Mark Lord <lkml@rtr.ca>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+CC: David Greaves <david@dgreaves.com>,	Jeff Garzik <jgarzik@pobox.com>, 
+linux-kernel@vger.kernel.org,	IDE/ATA development list 
+<linux-ide@vger.kernel.org>
+References: <Pine.LNX.4.64.0602140439580.3567@p34> 
+<43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34>
 
-warthog>diffstat -p1 keys-replace-2616rc3.diff
- security/keys/key.c |   14 +++++++++-----
- 1 files changed, 9 insertions(+), 5 deletions(-)
+On Tuesday 14 February 2006 12:12, Justin Piszcz wrote:
+> I would like to try the patch too, if available.
 
-diff -uNrp linux-2.6.16-rc3-key-quota/security/keys/key.c linux-2.6.16-rc3-key-replace/security/keys/key.c
---- linux-2.6.16-rc3-key-quota/security/keys/key.c	2006-02-17 14:26:27.000000000 +0000
-+++ linux-2.6.16-rc3-key-replace/security/keys/key.c	2006-02-17 14:31:39.000000000 +0000
-@@ -795,12 +795,16 @@ key_ref_t key_create_or_update(key_ref_t
- 		goto error_3;
+Something like this:  (for 2.6.16-rc3-git2, but should be okay on 2.6.15 
+also).
+
+Untested:  include the original SCSI opcode in printk's for libata SCSI 
+errors,
+to help understand where the errors are coming from.
+
+Signed-Off-By:  Mark Lord <mlord@pobox.com>
+
+--- linux/drivers/scsi/libata-scsi.c.orig	2006-02-12 19:27:25.000000000 -0500
++++ linux/drivers/scsi/libata-scsi.c	2006-02-14 12:54:17.000000000 -0500
+@@ -420,6 +420,7 @@
+  *	@sk: the sense key we'll fill out
+  *	@asc: the additional sense code we'll fill out
+  *	@ascq: the additional sense code qualifier we'll fill out
++ *	@opcode: the original SCSI command opcode byte
+  *
+  *	Converts an ATA error into a SCSI error.  Fill out pointers to
+  *	SK, ASC, and ASCQ bytes for later use in fixed or descriptor
+@@ -429,7 +430,7 @@
+  *	spin_lock_irqsave(host_set lock)
+  */
+ void ata_to_sense_error(unsigned id, u8 drv_stat, u8 drv_err, u8 *sk, u8 
+*asc, 
+-			u8 *ascq)
++			u8 *ascq, u8 opcode)
+ {
+ 	int i;
+ 
+@@ -508,8 +509,8 @@
+ 		}
+ 	}
+ 	/* No error?  Undecoded? */
+-	printk(KERN_WARNING "ata%u: no sense translation for status: 0x%02x\n", 
+-	       id, drv_stat);
++	printk(KERN_WARNING "ata%u: no sense translation for op=0x%02x status: 
+0x%02x\n", 
++	       id, opcode, drv_stat);
+ 
+ 	/* For our last chance pick, use medium read error because
+ 	 * it's much more common than an ATA drive telling you a write
+@@ -520,8 +521,8 @@
+ 	*ascq = 0x04; /*  "auto-reallocation failed" */
+ 
+  translate_done:
+-	printk(KERN_ERR "ata%u: translated ATA stat/err 0x%02x/%02x to "
+-	       "SCSI SK/ASC/ASCQ 0x%x/%02x/%02x\n", id, drv_stat, drv_err,
++	printk(KERN_ERR "ata%u: translated op=0x%02x ATA stat/err 0x%02x/%02x to "
++	       "SCSI SK/ASC/ASCQ 0x%x/%02x/%02x\n", id, opcode, drv_stat, drv_err,
+ 	       *sk, *asc, *ascq);
+ 	return;
+ }
+@@ -562,7 +563,7 @@
+ 	 */
+ 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
+ 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
+-				   &sb[1], &sb[2], &sb[3]);
++				   &sb[1], &sb[2], &sb[3], cmd->cmnd[0]);
+ 		sb[1] &= 0x0f;
  	}
  
--	/* search for an existing key of the same type and description in the
--	 * destination keyring
-+	/* if it's possible to update this type of key, search for an existing
-+	 * key of the same type and description in the destination keyring and
-+	 * update that instead if possible
+@@ -637,7 +638,7 @@
  	 */
--	key_ref = __keyring_search_one(keyring_ref, ktype, description, 0);
--	if (!IS_ERR(key_ref))
--		goto found_matching_key;
-+	if (ktype->update) {
-+		key_ref = __keyring_search_one(keyring_ref, ktype, description,
-+					       0);
-+		if (!IS_ERR(key_ref))
-+			goto found_matching_key;
-+	}
+ 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
+ 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
+-				   &sb[2], &sb[12], &sb[13]);
++				   &sb[2], &sb[12], &sb[13], cmd->cmnd[0]);
+ 		sb[2] &= 0x0f;
+ 	}
  
- 	/* decide on the permissions we want */
- 	perm = KEY_POS_VIEW | KEY_POS_SEARCH | KEY_POS_LINK | KEY_POS_SETATTR;
+-

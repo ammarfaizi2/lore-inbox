@@ -1,58 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbWBQOla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751047AbWBQOqG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751464AbWBQOla (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 09:41:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWBQOla
+	id S1751047AbWBQOqG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 09:46:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWBQOqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 09:41:30 -0500
-Received: from mr1.bfh.ch ([147.87.250.50]:34737 "EHLO mr1.bfh.ch")
-	by vger.kernel.org with ESMTP id S1751461AbWBQOl3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 09:41:29 -0500
-X-PMWin-Version: 2.5.0e, Antispam-Engine: 2.2.0.0, Antivirus-Engine: 2.32.10
-Thread-Index: AcYz0DvTiFYBpvq2SpCnmX4QuCDEvA==
-Content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
-Importance: normal
-Message-ID: <43F5E097.4080709@bfh.ch>
-Date: Fri, 17 Feb 2006 15:41:27 +0100
-From: "Seewer Philippe" <philippe.seewer@bfh.ch>
-Organization: BFH
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050811)
+	Fri, 17 Feb 2006 09:46:06 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:30171 "EHLO
+	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
+	id S1751047AbWBQOqF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 09:46:05 -0500
+Message-ID: <43F5E1A4.7060502@grupopie.com>
+Date: Fri, 17 Feb 2006 14:45:56 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Matthew Wilcox" <matthew@wil.cx>
-Cc: <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] sym53c8xx_2: Add bios_param to sym_glue.c
-References: <43F5D963.9080009@bfh.ch> <20060217143718.GS12822@parisc-linux.org>
-In-Reply-To: <20060217143718.GS12822@parisc-linux.org>
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+To: Linus Torvalds <torvalds@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [SOLVED] Trap flag handling change in 2.6.10-bk5 broke Kylix
+ debugger
+References: <43F23BB4.8070703@grupopie.com> <Pine.LNX.4.64.0602141243020.3691@g5.osdl.org> <43F36833.9060100@grupopie.com> <43F46B1C.3070208@grupopie.com> <Pine.LNX.4.64.0602161127040.916@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602161127040.916@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Feb 2006 14:41:27.0227 (UTC) FILETIME=[3B91E8B0:01C633D0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Matthew Wilcox wrote:
-> On Fri, Feb 17, 2006 at 03:10:43PM +0100, Seewer Philippe wrote:
+Linus Torvalds wrote:
+> On Thu, 16 Feb 2006, Paulo Marques wrote:
+> [...]
+>>I did a workaround in the interposer (remembering that a single step was
+>>requested so that it sets the trap flag on the next call to ptrace) and the
+>>debugger actually works, but I would prefer to do it better.
 > 
->>This patch adds the scsi common function bios_param to the sym53c8xx
->>driver. For simplicity i just copied the code from the sym53c416 driver.
+> Ok. It does seem like the debugger is using the TF bit in the debuggee to 
+> "remember" whether it was single-stepping or not.
 > 
-> 
-> If the driver doesn't define bios_param, the scsi core calls
-> scsicam_bios_param, which seems to do everything this patch does,
-> and more.
-> 
-> A quick survey suggests that most drivers should have their bios_param
-> methods deleted.  Was there a particular problem you found with the
-> default scsicam_bios_param implementation?
-Yes. Using scsicam_bios_parm and other defaults result in a geometry of
-64 heads and 32 sectors even for big disks, which is not what the pc bios
-"gets" from the controller. That is more along the lines of 255/63.
+> Which is pretty insane.
 
-Returning a geometry of x/255/63 seems to be the default for bigger disks
-withing scsi drivers, so i just copied the code...
+It sure is :P
 
+>>BTW, is there a good way to do the "test_tsk_thread_flag(child,
+>>TIF_SINGLESTEP)" from user space?
+> 
+> Not really. Except you should just remember that you asked for 
+> single-stepping. That, together with the status return on the wait (which 
+> tells you why the process stopped - the single-step could have been 
+> aborted because of a real fault), should be plenty good enough, and sounds 
+> like the natural way to do this.
+
+I think I can do a better interposer, then. I can interpose both the 
+ptrace and the wait functions so that I can keep an internal "is being 
+single stepped" state for each process being ptrace'd.
+
+> Relying on the TF bit, which is under the control of the debugged 
+> application itself, is kind of hokey.
+
+If I understand this correctly, if the kernel had some other way of 
+producing a single step (a new flag on newer processors, a timer 
+interrupt going on after one cycle, whatever) it might not even set the 
+trap flag at all, and still execute perfectly well the ptrace syscalls, 
+with all the expected signals being generated, etc.
+
+So this is very much implementation dependent, and the application 
+should not rely on internal kernel mechanisms like that...
+
+> So your patch isn't too intrusive, which is nice. The thing that _isn't_ 
+> nice about it is that it means that the debugger cannot actually set the 
+> TF bit "for real" on the process it is debugging, and it cannot really ask 
+> for what the state of the TF bit is (because it will be overshadowed by 
+> the debugger single-stepping).
+
+The patch wasn't meant to be used like that. It was just to show what 
+was needed to make the debugger happy.
+
+At the very least, the patch needs a lot more comments and a quarantine 
+on -mm before it can be used on mainline.
+
+> So I like your patch because it re-instates old (admittedly broken) 
+> behaviour without breaking the _internal_ kernel logic (just the "external 
+> interface"). And while the old behaviour _was_ broken, being backwards 
+> compatible is damn important.
+>
+> That said, I'd be a lot happier if we could just fix Kylix instead ;(
+
+The interposer is the closest thing we have to "fixing kylix". I think 
+most kylix users will be perfectly happy with the interposer and we 
+really don't need to change the kernel. They are already used to work 
+around problems that arise from the total staleness of the project.
+
+I'll try to send a few posts to Kylix forums with the interposer thing 
+and see how well it is accepted.
+
+ From what I've heard, Borland is selling its languages, including 
+Delphi and Kylix, so maybe the company that buys it will be more willing 
+to properly maintain kylix in the future :)
+
+-- 
+Paulo Marques - www.grupopie.com
+
+Pointy-Haired Boss: I don't see anything that could stand in our way.
+            Dilbert: Sanity? Reality? The laws of physics?

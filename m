@@ -1,71 +1,92 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932552AbWBPTYU (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 16 Feb 2006 14:24:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWBPTYT
+	id S1750744AbWBQEOr (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 16 Feb 2006 23:14:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWBQEOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 14:24:19 -0500
-Received: from pop-borzoi.atl.sa.earthlink.net ([207.69.195.70]:65243 "EHLO
-	pop-borzoi.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S932552AbWBPTYS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 14:24:18 -0500
-Date: Thu, 16 Feb 2006 18:59:20 GMT
-Message-Id: <20060216185920.0F4B54971@user-0ce282f.cable.mindspring.com>
-From: "velmanfund@hotmail.com" <velmanfund@hotmail.com>
-Subject: Your Help is Needed!
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Reply-To: "velmanfund@hotmail.com" <velmanfund@hotmail.com>
+	Thu, 16 Feb 2006 23:14:47 -0500
+Received: from stateless4.tiscali.cz ([213.235.135.69]:53419 "EHLO
+	mail.tiscali.cz") by vger.kernel.org with ESMTP id S1750744AbWBQEOr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 23:14:47 -0500
+Date: Fri, 17 Feb 2006 05:12:23 +0100
+Message-ID: <43EB5DC80001E4C0@stateless4.tiscali.cz>
+From: "Mr.Ta" <tamanuel1@tiscali.cz>
+Subject: Your Response Required
+Reply-To: tamanuel1@o2.pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-2
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Content-Disposition: inline
-X-Mailer: Lotus Notes Release 6.5.3 September 14, 2004
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932552AbWBPTYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750744AbWBQEOr@vger.kernel.org>
 
-Hello,
+Dear Sir,=20
 
-I am writing to you to request your help in a very disturbing case of a=
-n 11 year old girl who is fighting for her life.
+It is with heartfelt hope that I write to seek your co-operation and as=
+sistance
+in my desire to invest into Estate properties in your country,I saw you=
+r
+contact when I was doing research.=20
 
-Four years ago, Lavinia Velman was returning home from the kindergarten=
- when she was hit by a car.
-The recovery was hard and at one time her life depended on a breathing =
-machine in a hospital.
-On 24th of December 2003, Lavinia received as donation a semi-portable =
-breathing machine she could use at home.
-Lavinia's life had begun to return to normal. She could move her hands =
-and could stay without the breathing machine for up to 10 hours.
+Briefly, I am an old man and due for retirement at any moment from now =
+after
+putting many years in civil service as Secretary Ministerial Contract E=
+valuation
+and Implementation, in the office of presidency. And during this past y=
+ears
+in the office I was able to secure huge amount of money from over-invoi=
+ced
+Government Contract Bills, through the advantage of my position in the =
+office.
 
-A new tragedy struck in October last year when an electricity black out=
- caused Lavinia's breathing machine to stop.
-The black out lasted for a few hours, so long that even the breathing m=
-achine's batteries ran out.
-The child panicked and went into cardiac arrest. The medics were very s=
-keptical regarding her chances of survival.
+I have been deliberating on how to invest this fund abroad in a confide=
+ntial
+manner until I came to a conclusion to use it to buy estate Properties =
+and
+lease to people while part of it will be used for other lucrative inves=
+tments
+in your country as part of measures to secure the betterment of my reti=
+rement
+future, till I come over to meet with you.=20
 
-Now the only solution is an operation in a hospital in the UK (Cromwell=
- Hospital, London).
-The costs for the transport and operation are around =A330,000.
-Lavinia's family lives in Sofia, Bulgaria. They are quite poor and have=
- been able to gather only a small part of that amount.
-Please make a donation to support Lavinia and her grief torn family. Pl=
-ease help her in her fight to survive.
+In view of this, I am soliciting your confidence, support and assistanc=
+e
+as my partner to claim this fund for the investment project with your n=
+ame
+and support from the Security Vault where I deposited it for safe keepi=
+ng.
+This is because we civil servants are not allowed to own and operate do=
+llar
+accounts or having offshore account especially outside the country.=20
 
-Your donation, whatever the amount, is greatly appreciated and can make=
- a difference.
+As a matter of fact, to claim this fund remains the vital issue for now=
+ which
+after the successful claim of the fund we can then invest immediately i=
+nto
+any Estate Property or any other areas you may consider lucrative in yo=
+ur
+country or else where.=20
+
+However, I will be happy to disclose to you the amount to be claimed an=
+d
+invested as soon as I received your reply, as I expect you to be trustw=
+orthy
+and kind enough to respond positively to my inquiry.=20
+
+Thanking you for your anticipated co-operation.=20
+
+Regards,=20
+Ta Manuel.=20
 
 
-Donations can be made via check or money order to:=20
-Victor Velman
-32 Bangor Street, Port Dinorwic, Gwynedd, LL56 4JD
-United Kingdom
-Please make checks payable to: VICTOR VELMAN .
+-----------------------------------------------------------------------=
+-----
+TISCALI organizuje charitativn=ED sb=EDrku na pomoc P=E1kist=E1nu, p=F8=
+idejte se!
+http://pakistan.tiscali.cz
 
 
-Thank you very much in advance!
-Silvia and Bill Durham, trying to support a worthy cause
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel"=

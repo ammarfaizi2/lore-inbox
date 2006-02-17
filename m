@@ -1,43 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWBQST1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWBQSUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751143AbWBQST1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 13:19:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWBQST1
+	id S1751309AbWBQSUw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 13:20:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWBQSUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 13:19:27 -0500
-Received: from smtp.andrew.cmu.edu ([128.2.10.82]:43228 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id S1751143AbWBQST0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 13:19:26 -0500
-Message-ID: <38629.128.237.252.29.1140200365.squirrel@128.237.252.29>
-Date: Fri, 17 Feb 2006 13:19:25 -0500 (EST)
-Subject: need help/guide to convert 2.6 module to 2.4
-From: "George P Nychis" <gnychis@cmu.edu>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.5.1 [CVS]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Fri, 17 Feb 2006 13:20:51 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:45741 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751167AbWBQSUv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 13:20:51 -0500
+Date: Fri, 17 Feb 2006 10:21:04 -0800
+From: Don Fry <brazilnut@us.ibm.com>
+To: Seewer Philippe <philippe.seewer@bfh.ch>
+Cc: tsbogend@alpha.franken.de, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [PATCH 1/2] pcnet32: Introduce basic AT 2700/01 FTX support
+Message-ID: <20060217182104.GA19257@us.ibm.com>
+References: <43F5F66F.6040608@bfh.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F5F66F.6040608@bfh.ch>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey guys,
+Philippe,
 
-I found a module for the 2.6 kernel that I want to migrate for the 2.4 kernel.
+On a purely mechanical note, the patches do not apply cleanly because
+of whitespace changes.  Possibly your mailer changed tabs to spaces,
+which causes the patch not to apply, and also causes your patch to have
+different spacing than the rest of the file.  The driver does not
+conform to the 8-space indentation guideline/rule, but it is consistent
+in 4-space indentation.
 
-It is for the XCP network protocol support, found here:
-http://home.online.no/~mosebe/xcp_code.tar.gz
+I am looking over this change and the following one, to try and
+understand what and why you made your changes.
 
+The change made by Thomas Bogendoerfer and modified by myself is much
+more flexible than your changes, in that they are not specific just to
+the Allied Telesyn boards with multiple Phys.  They also allow dynamic
+changing of cabling without requiring the driver to be removed/installed
+or the card power cycled.  I also see little value in the module
+parameters, when it can be determined dynamically. Also, maxphy might be
+thought to the the maximum number of phys, rather than the maximum phy
+number supported.  If static selection of the phy to use is passed in as
+a module parameter, why also include a maxphy?
 
-I also posted the code for you to look at, I am only interested in the router code:
-http://rafb.net/paste/results/WSMhKW65.html
+As I review your patches I will follow up to the mailing list.
 
-Can anyone help me convert this for the 2.4 kernel?  If not can someone please point me in the direction of a guide to do so?
-
-Please CC me in your responses.
-
-Thanks!
-George
-
+On Fri, Feb 17, 2006 at 05:14:39PM +0100, Seewer Philippe wrote:
+> 
+> This patch extends Don Fry's last patch for AT 2700/01 FX to set the
+> speed/fdx options for the FTX variants of these cards as well.
+> 
+> Additionally the option override has been moved from pcnet32_open to
+> pcnet32_probe1 because it's only necessary to override the options once.
+> 
+> Tested and works.
+> 
+> Patch applies to 2.6.16-rc3
+> 
+Don Fry
+brazilnut@us.ibm.com

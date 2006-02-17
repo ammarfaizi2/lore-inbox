@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWBQFDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbWBQFGI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbWBQFDy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 00:03:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWBQFDx
+	id S932276AbWBQFGI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 00:06:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbWBQFGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 00:03:53 -0500
-Received: from [203.2.177.25] ([203.2.177.25]:31002 "EHLO pfeiffer.tusc.com.au")
-	by vger.kernel.org with ESMTP id S1751378AbWBQFDv (ORCPT
+	Fri, 17 Feb 2006 00:06:07 -0500
+Received: from [203.2.177.25] ([203.2.177.25]:40222 "EHLO pfeiffer.tusc.com.au")
+	by vger.kernel.org with ESMTP id S932276AbWBQFGF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 00:03:51 -0500
-Subject: [PATCH 1/6]net:Allow 32 bit socket ioctl in 64 bit kernel
+	Fri, 17 Feb 2006 00:06:05 -0500
+Subject: [PATCH 6/6]x25:dte facilities 32 64 ioctl conversion
 From: Shaun Pereira <spereira@tusc.com.au>
 Reply-To: spereira@tusc.com.au
-To: "David S. Miller" <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+To: "David S. Miller" <davem@davemloft.net>,
        linux-kenel <linux-kernel@vger.kernel.org>,
-       netdev <netdev@vger.kernel.org>
+       netdev <netdev@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
 Cc: Andre Hendry <ahendry@tusc.com.au>
 Content-Type: text/plain
-Date: Fri, 17 Feb 2006 16:00:42 +1100
-Message-Id: <1140152443.1475.22.camel@spereira05.tusc.com.au>
+Date: Fri, 17 Feb 2006 16:02:55 +1100
+Message-Id: <1140152575.1475.27.camel@spereira05.tusc.com.au>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -26,93 +26,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: spereira@tusc.com.au
 
-Since the register_ioctl32_conversion() patch in the kernel
-is now obsolete, provide another method to allow 32 bit user space
-ioctls to reach the kernel.
+Allows dte facility patch to use 32 64 bit ioctl
+conversion mechanism
 
 Signed-off-by:Shaun Pereira <spereira@tusc.com.au>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
 ---
-diff -uprN -X dontdiff linux-2.6.16-rc3-vanilla/include/linux/net.h linux-2.6.16-rc3/include/linux/net.h
---- linux-2.6.16-rc3-vanilla/include/linux/net.h	2006-02-16 14:57:01.000000000 +1100
-+++ linux-2.6.16-rc3/include/linux/net.h	2006-02-16 14:57:36.000000000 +1100
-@@ -143,6 +143,8 @@ struct proto_ops {
- 				      struct poll_table_struct *wait);
- 	int		(*ioctl)     (struct socket *sock, unsigned int cmd,
- 				      unsigned long arg);
-+	int	 	(*compat_ioctl) (struct socket *sock, unsigned int cmd,
-+				      unsigned long arg);
- 	int		(*listen)    (struct socket *sock, int len);
- 	int		(*shutdown)  (struct socket *sock, int flags);
- 	int		(*setsockopt)(struct socket *sock, int level,
-@@ -247,6 +249,8 @@ SOCKCALL_UWRAP(name, poll, (struct file 
- 	      (file, sock, wait)) \
- SOCKCALL_WRAP(name, ioctl, (struct socket *sock, unsigned int cmd, \
- 			 unsigned long arg), (sock, cmd, arg)) \
-+SOCKCALL_WRAP(name, compat_ioctl, (struct socket *sock, unsigned int cmd, \
-+			 unsigned long arg), (sock, cmd, arg)) \
- SOCKCALL_WRAP(name, listen, (struct socket *sock, int len), (sock, len)) \
- SOCKCALL_WRAP(name, shutdown, (struct socket *sock, int flags), (sock, flags)) \
- SOCKCALL_WRAP(name, setsockopt, (struct socket *sock, int level, int optname, \
-@@ -271,6 +275,7 @@ static const struct proto_ops name##_ops
- 	.getname	= __lock_##name##_getname,	\
- 	.poll		= __lock_##name##_poll,		\
- 	.ioctl		= __lock_##name##_ioctl,	\
-+	.compat_ioctl	= __lock_##name##_compat_ioctl,	\
- 	.listen		= __lock_##name##_listen,	\
- 	.shutdown	= __lock_##name##_shutdown,	\
- 	.setsockopt	= __lock_##name##_setsockopt,	\
-@@ -279,6 +284,7 @@ static const struct proto_ops name##_ops
- 	.recvmsg	= __lock_##name##_recvmsg,	\
- 	.mmap		= __lock_##name##_mmap,		\
- };
-+
- #endif
- 
- #define MODULE_ALIAS_NETPROTO(proto) \
-diff -uprN -X dontdiff linux-2.6.16-rc3-vanilla/net/socket.c linux-2.6.16-rc3/net/socket.c
---- linux-2.6.16-rc3-vanilla/net/socket.c	2006-02-16 14:57:01.000000000 +1100
-+++ linux-2.6.16-rc3/net/socket.c	2006-02-16 14:57:36.000000000 +1100
-@@ -109,6 +109,10 @@ static unsigned int sock_poll(struct fil
- 			      struct poll_table_struct *wait);
- static long sock_ioctl(struct file *file,
- 		      unsigned int cmd, unsigned long arg);
-+#ifdef CONFIG_COMPAT
-+static long compat_sock_ioctl(struct file *file,
-+		      unsigned int cmd, unsigned long arg);
-+#endif
- static int sock_fasync(int fd, struct file *filp, int on);
- static ssize_t sock_readv(struct file *file, const struct iovec *vector,
- 			  unsigned long count, loff_t *ppos);
-@@ -130,6 +134,9 @@ static struct file_operations socket_fil
- 	.aio_write =	sock_aio_write,
- 	.poll =		sock_poll,
- 	.unlocked_ioctl = sock_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl = compat_sock_ioctl,
-+#endif
- 	.mmap =		sock_mmap,
- 	.open =		sock_no_open,	/* special open code to disallow open via /proc */
- 	.release =	sock_close,
-@@ -2089,6 +2096,20 @@ void socket_seq_show(struct seq_file *se
- }
- #endif /* CONFIG_PROC_FS */
- 
-+#ifdef CONFIG_COMPAT
-+static long compat_sock_ioctl(struct file *file, unsigned cmd, unsigned long arg)
-+{
-+	struct socket *sock;
-+	sock = file->private_data;
-+
-+	int ret = -ENOIOCTLCMD;
-+	if(sock->ops->compat_ioctl)
-+		ret = sock->ops->compat_ioctl(sock, cmd, arg);
-+
-+	return ret;
-+}
-+#endif
-+
- /* ABI emulation layers need these two */
- EXPORT_SYMBOL(move_addr_to_kernel);
- EXPORT_SYMBOL(move_addr_to_user);
+diff -uprN -X dontdiff linux-2.6.16-rc3-vanilla/net/x25/af_x25.c linux-2.6.16-rc3/net/x25/af_x25.c
+--- linux-2.6.16-rc3-vanilla/net/x25/af_x25.c	2006-02-16 15:33:48.000000000 +1100
++++ linux-2.6.16-rc3/net/x25/af_x25.c	2006-02-16 15:34:05.000000000 +1100
+@@ -1529,6 +1529,8 @@ static int compat_x25_ioctl(struct socke
+ 			break;
+ 		case SIOCX25GFACILITIES:
+ 		case SIOCX25SFACILITIES:
++		case SIOCX25GDTEFACILITIES:
++		case SIOCX25SDTEFACILITIES:
+ 		case SIOCX25GCALLUSERDATA:
+ 		case SIOCX25SCALLUSERDATA:
+ 		case SIOCX25GCAUSEDIAG:
 

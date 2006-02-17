@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751736AbWBQUzq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751787AbWBQU4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751736AbWBQUzq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 15:55:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751781AbWBQUzq
+	id S1751787AbWBQU4T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 15:56:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751789AbWBQU4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 15:55:46 -0500
-Received: from mx1.suse.de ([195.135.220.2]:19601 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751736AbWBQUzp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 15:55:45 -0500
-From: Andi Kleen <ak@suse.de>
-To: dan.yeisley@unisys.com
-Subject: Re: [patch] i386 need to pass virtual address to smp_read_mpc()
-Date: Fri, 17 Feb 2006 21:55:34 +0100
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <1140207880.2910.10.camel@localhost.localdomain>
-In-Reply-To: <1140207880.2910.10.camel@localhost.localdomain>
+	Fri, 17 Feb 2006 15:56:18 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:677 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1751787AbWBQU4S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 15:56:18 -0500
+Message-ID: <43F63846.80109@tmr.com>
+Date: Fri, 17 Feb 2006 15:55:34 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Christoph Hellwig <hch@infradead.org>, "D. Hazelton" <dhazelton@enter.net>,
+       mrmacman_g4@mac.com, peter.read@gmail.com, mj@ucw.cz,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <73d8d0290602060706o75f04c1cx@mail.gmail.com> <233CD3FF-0017-4A74-BE6A-0487DF3F4EA8@mac.com> <43EC83EC.nailISD91HRFF@burner> <200602090737.47747.dhazelton@enter.net> <20060210130228.GA30256@infradead.org>
+In-Reply-To: <20060210130228.GA30256@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602172155.35060.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 February 2006 21:24, Daniel Yeisley wrote:
-> I'm seeing a kernel panic on an ES7000-600 when booting in virtual wire
-> mode.  The panic happens because smp_read_mpc() is passed a physical
-> address, and it should be virtual.  I tested the attached patch on the
-> ES7000-600 and on a 2 cpu Dell box, and saw no problems on either.
+Christoph Hellwig wrote:
+
+> You can access SCSI CDs using /dev/sr* for burning CDs.  It's backed by the
+> same highlevel code as SG_IO on /dev/hd* while the lowerlevel handling is
+> done transparently by the scsi midlayer, the same code used by /dev/sg* for
+> the below-blocklayer handling.
 > 
-> Signed-off-by:  Dan Yeisley <dan.yeisley@unisys.com>
-> ---
-> 
-> diff -Naur -p linux-2.6.16-rc1-git3-7/arch/i386/kernel/mpparse.c linux-2.6.16-rc1-git3-7-a/arch/i386/kernel/mpparse.c
-> --- linux-2.6.16-rc1-git3-7/arch/i386/kernel/mpparse.c  2006-01-30 18:38:18.000000000 -0500
-> +++ linux-2.6.16-rc1-git3-7-a/arch/i386/kernel/mpparse.c        2006-02-16 04:51:35.551014272 -0500
-> @@ -710,7 +710,7 @@ void __init get_smp_config (void)
->                  * Read the physical hardware table.  Anything here will
->                  * override the defaults.
->                  */
-> -               if (!smp_read_mpc((void *)mpf->mpf_physptr)) {
-> +               if (!smp_read_mpc(phys_to_virt(mpf->mpf_physptr)))
+This may be true if you create your own /dev entries, or are a udev guru 
+and can get it to generate the right entries. And if you use ATAPI 
+devices it works fine... But with Fedora and SuSE it appears that USB 
+devices which appear as SCSI aren't functional. I tested the Fedora 
+myself, and after killing udevd and making some entries by hand it 
+worked once.
 
+Now if you can access SCSI burners more power to you, with FC4 up to 
+recent updates, my one convenient real SCSI device most definitely 
+doesn't work, and I havd to fall the system back to Slackware and 2.4 
+which was on it before.
 
-Actually the patch is broken. Andrew, if you merge it please add the missing { here.
+Because you know how to get around the problems doesn't really suggest 
+that there aren't any.
 
-Dan, please only submit patches that are compile tested at least.
-
--Andi
-
-
->                         smp_found_config = 0;
->                         printk(KERN_ERR "BIOS bug, MP table errors detected!...\n");
->                         printk(KERN_ERR "... disabling SMP support. (tell your hw vendor)\n");
-> 
-> 
-> 
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

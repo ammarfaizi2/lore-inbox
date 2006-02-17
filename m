@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWBQLyK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWBQMBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751012AbWBQLyK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 06:54:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWBQLyK
+	id S1750710AbWBQMBX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 07:01:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWBQMBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 06:54:10 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:53901 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751012AbWBQLyI (ORCPT
+	Fri, 17 Feb 2006 07:01:23 -0500
+Received: from albireo.ucw.cz ([84.242.65.108]:53635 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750710AbWBQMBX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 06:54:08 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: suspend console gone ?
-Date: Fri, 17 Feb 2006 12:54:44 +0100
-User-Agent: KMail/1.9.1
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>
-References: <1140141242.3806.2.camel@localhost.localdomain>
-In-Reply-To: <1140141242.3806.2.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Feb 2006 07:01:23 -0500
+Date: Fri, 17 Feb 2006 13:01:23 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: dhazelton@enter.net, matthias.andree@gmx.de, linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <mj+md-20060217.115403.7981.albireo@ucw.cz>
+References: <43EB7BBA.nailIFG412CGY@burner> <20060216115204.GA8713@merlin.emma.line.org> <43F4BF26.nail2KA210T4X@burner> <200602161742.26419.dhazelton@enter.net> <43F5B686.nail2VCA2A2OF@burner>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602171254.45178.rjw@sisk.pl>
+In-Reply-To: <43F5B686.nail2VCA2A2OF@burner>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 February 2006 02:54, Benjamin Herrenschmidt wrote:
-> I haven't tried to track this down yet, but with recent 2.6.16-git, it
-> seems that the suspend console is gone... That is, the kernel still
-> switches VTs from X to some console with no getty on it, but no kernel
-> message gets displayed at all during the suspend process... looks like
-> this kmsg_redirect thing isn't working.
-> 
-> Known problem ?
+Hello!
 
-Sort of.  You have to switch the console loglevel to at least 5 before
-suspend to see the messages.
+> Sorry, the way to access SCSI generic via /dev/hd* is deprecated.
 
-The kernel used to switch this to 10 unconditionally before and lots of
-debug garbage got printed, especially on -mm.
+By whom?
 
-We considered printing some "crucial" messages (like the progress meter ;-))
-at KERN_CRIT, but decided not to do this for now.  We can change this at any
-time, if needed.
+> ir removed, then a clean and orthogonal way of accessing SCSI in a generic
+> way is removed from Linux. If Linux does nto care about orthogonality of 
+> interfaces, this is a problem of the people who are responbile for the related
+> interfaces.
 
-Greetings,
-Rafael
+You open any SCSI device, you do SG_IO on it. What is non-orthogonal in that?
+
+Yes, I agree with you that it's hard to do device discovery, but discovering
+devices is completely orthogonal to doing I/O in them and it's also not
+a problem specific to SCSI devices at all. Hence we want to find a general
+solution suitable for *all* devices and that's what sysfs, udev and HAL are
+for. They might have some rough edges yet, but they definitely solve the
+right problem.
+
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+"In theory, practice and theory are the same, but in practice they are different." -- Larry McVoy

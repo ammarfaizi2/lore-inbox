@@ -1,70 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161136AbWBQA2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161139AbWBQAif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161136AbWBQA2J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 19:28:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161139AbWBQA2J
+	id S1161139AbWBQAif (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 19:38:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161140AbWBQAif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 19:28:09 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:11407 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161136AbWBQA2H
+	Thu, 16 Feb 2006 19:38:35 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:18 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1161139AbWBQAie
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 19:28:07 -0500
-Subject: Re: [patch] hrtimer: round up relative start time on low-res arches
-From: john stultz <johnstul@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0602162305210.30994@scrub.home>
-References: <Pine.LNX.4.61.0602130207560.23745@scrub.home>
-	 <1139827927.4932.17.camel@localhost.localdomain>
-	 <Pine.LNX.4.61.0602131208050.30994@scrub.home>
-	 <20060214074151.GA29426@elte.hu>
-	 <Pine.LNX.4.61.0602141113060.30994@scrub.home>
-	 <20060214122031.GA30983@elte.hu>
-	 <Pine.LNX.4.61.0602150033150.30994@scrub.home>
-	 <20060215091959.GB1376@elte.hu>
-	 <Pine.LNX.4.61.0602151259270.30994@scrub.home>
-	 <1140036234.27720.8.camel@leatherman>
-	 <Pine.LNX.4.61.0602161244240.30994@scrub.home>
-	 <1140116771.7028.31.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0602162305210.30994@scrub.home>
-Content-Type: text/plain
-Date: Thu, 16 Feb 2006 16:28:04 -0800
-Message-Id: <1140136085.7028.65.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Feb 2006 19:38:34 -0500
+To: Martin Mares <mj@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de>
+	<878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com>
+	<20060210235654.GA22512@kroah.com> <43F0891E.nailKUSCGC52G@burner>
+	<871wy6sy7y.fsf@hades.wkstn.nix> <43F1BE96.nailMY212M61V@burner>
+	<87d5hpr2ct.fsf@hades.wkstn.nix> <43F46B91.nail20W817IPJ@burner>
+	<mj+md-20060216.123601.20797.atrey@ucw.cz>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: Lovecraft was an optimist.
+Date: Fri, 17 Feb 2006 00:38:29 +0000
+In-Reply-To: <mj+md-20060216.123601.20797.atrey@ucw.cz> (Martin Mares's
+ message of "Thu, 16 Feb 2006 13:36:48 +0100")
+Message-ID: <87pslmlsze.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-02-17 at 00:44 +0100, Roman Zippel wrote:
-> On Thu, 16 Feb 2006, john stultz wrote:
-> > > In the end the simplification of my patches should also 
-> > > make your patches simpler, as it precalculates as much as possible and 
-> > > reduces the work done in the fast paths. It would avoid a lot of extra 
-> > > work, which you currently do.
-> > 
-> > Well, I'm still cautious, since it still has some dependencies on HZ
-> > (see equation below), which I'm trying to avoid.
+On Thu, 16 Feb 2006, Martin Mares noted:
+> Hello!
 > 
-> There is no real dependency on HZ, it's just that the synchronisations 
-> steps and incremental updates are done in fixed intervals. The interval 
-> could easily be independent of HZ.
+>> ide-scsi is used and needed but made unsusable.
+> 
+> Used maybe, but needed by whom?
 
-Ok, one concern was that in the cycle->interval conversion, some
-interval lengths are not possible due to the clock's resolution.
+Why, by Joerg of course, with his magic telepathy helmet which enables
+him to tell exactly how long people he doesn't know have been using
+Linux, and lets him determine exactly how broken all patches written by
+other people are without even looking at them, and his great genius
+which enables him to tell exactly how Linux must work (i.e., exactly
+like Solaris), regardless of what any of those fools who actually
+*wrote* it may think.
 
-In my mind, I'd like to provide a interval length to the NTP code and
-have the NTP code provide an adjusted interval which can be used in
-error accumulation and the resulting multiplier adjustment.
+How could you possibly think anything else? Nothing else would be
+*rational*. You of course should not respond until you agree with Joerg
+in all matters.
 
-Or, we just write off the cycle->interval error as part of the clock's
-natural error and let the NTP daemon compensate for it. Your thoughts?
-
-Regardless, the point is that I'd prefer if the timeofday code to be
-able to specify to the NTP code what the interval length is, rather then
-the other way around. Does that sound reasonable?
-
-thanks
--john
-
+(I was wondering how Joerg managed to unilaterally impose new licensing
+terms on cdrecord without going through lots of trouble asking all the
+other contributors. I guess I know now: there *are* no other
+contributors, because nobody else can bear to work with him.)

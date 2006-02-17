@@ -1,73 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932592AbWBQJWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161165AbWBQJg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932592AbWBQJWF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 04:22:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932593AbWBQJWE
+	id S1161165AbWBQJg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 04:36:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932600AbWBQJg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 04:22:04 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:22030 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S932592AbWBQJWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 04:22:02 -0500
-Date: Fri, 17 Feb 2006 17:21:54 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       autofs@linux.kernel.org
-Subject: Re: [RFC:PATCH 4/4] autofs4 - add new packet type for v5 communications
-In-Reply-To: <Pine.LNX.4.64.0602171703590.4109@eagle.themaw.net>
-Message-ID: <Pine.LNX.4.64.0602171720240.4109@eagle.themaw.net>
-References: <200602170701.k1H71Irp004035@eagle.themaw.net>
- <20060217005134.6842f0ca.akpm@osdl.org> <Pine.LNX.4.64.0602171703590.4109@eagle.themaw.net>
+	Fri, 17 Feb 2006 04:36:58 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:23247 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S932366AbWBQJg5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 04:36:57 -0500
+Date: Fri, 17 Feb 2006 10:37:05 +0100
+From: Sander <sander@humilis.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: 2.6.16-rc3 - sata_mv - Assertion failed!
+Message-ID: <20060217093705.GA20320@favonius>
+Reply-To: sander@humilis.net
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-themaw-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-1.896,
-	required 5, autolearn=not spam, BAYES_00 -2.60,
-	DATE_IN_PAST_12_24 0.70)
-X-themaw-MailScanner-From: raven@themaw.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Uptime: 09:54:23 up 17 days,  1:23, 28 users,  load average: 3.36, 2.71, 2.55
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Feb 2006, Ian Kent wrote:
+Hi Jeff and others,
 
-> On Fri, 17 Feb 2006, Andrew Morton wrote:
-> 
-> > Ian Kent <raven@themaw.net> wrote:
-> > >
-> > > +/* autofs v5 common packet struct */
-> > >  +struct autofs_v5_packet {
-> > >  +	struct autofs_packet_hdr hdr;
-> > >  +	autofs_wqt_t wait_queue_token;
-> > >  +	__u32 dev;
-> > >  +	__u64 ino;
-> > >  +	uid_t uid;
-> > >  +	gid_t gid;
-> > >  +	pid_t pid;
-> > >  +	pid_t tgid;
-> > >  +	int len;
-> > >  +	char name[NAME_MAX+1];
-> > >  +};
-> > 
-> > Is this known to work with 32-bit userspace on 64-bit kernels?
-> > 
-> > In particular, perhaps the ?id_t's should become a type of known size and
-> > alignment (u32 or u64)?
-> > 
-> 
-> Yes. I take your point.
-> 
-> I used this for some time on my Ultra 2, which has this type of arch, 
-> without problem. I increased the ino field from 32 to 64 bits since that 
-> time and haven't since tested it.
-> 
-> I'm happy to change them to 64 bit if you believe it will avoid potential 
-> problems?
-> 
+I get some error messages while using a raid5 over nine Maxtor 500GB
+disks.
 
-Come to think of it my sons has an AMD64 system with a 32 bit Fedora 
-install on it. I'll test on that as well over the weekend.
+The first three disks are connected to the onboard nForce4, and six to a
+MV88SX6081 8-port SATA II PCI-X Controller (rev 09)
 
-Ian
+I made a 25GB partition on each disk, and create raid5 over them:
 
+mdadm -C -l5 -n9 /dev/md1 /dev/sda2 /dev/sdb2 /dev/sdc2 \
+/dev/sdd2 /dev/sde2 /dev/sdf2 /dev/sdg2 /dev/sdh2 /dev/sdi2
+
+When the recovery is finished, I create an ext3 filesystem, and mount
+it:
+
+mke2fs -j -m1 /dev/md1
+mount -o data=writeback /dev/md1 /mnt
+
+Then I execute the following:
+
+for i in `seq 10`
+do dd if=/dev/zero of=bigfile.$i bs=1024k count=10000
+done
+md5sum bigfile.*
+rm bigfile.*
+
+This time, the system was building another raid5 on other partitions at
+the same time, generating some extra load. The system spits out error
+messages (via netconsole), and responds _very_ slow on disks activity.
+
+I rebuilded 2.6.16-rc3 with ATA_DEBUG and ATA_VERBOSE_DEBUG defined, but
+that kernel hangs when I try to create the raid5. I'll try again with
+only ATA_DEBUG enabled.
+
+I'll also have a look at the firmware version in the Marvell controller,
+and upgrade it if it is not the latest.
+
+Any more I can do? More info I can provide? Is this due to the sata_mv
+driver being beta? If so, I love to test any patches. All disks passed
+badblocks in write mode, fwiw.
+
+	Sander
+
+
+[    0.000000] Linux version 2.6.16-rc3 (root@elisha) (gcc version 4.0.3 20060104 (prerelease) (Debian 4.0.2-6)) #1 SMP Wed Feb 15 17:07:29 CET 2006
+
+[cut]
+
+[   78.285313] ata2: SATA link down (SStatus 0)
+[   78.285361] scsi1 : sata_nv
+[   78.285495]   Vendor: ATA       Model: Maxtor 7H500F0    Rev: HA43
+[   78.286242]   Type:   Direct-Access                      ANSI SCSI revision: 05
+[   78.286795] ACPI: PCI Interrupt Link [LSI1] enabled at IRQ 22
+[   78.286846] GSI 20 sharing vector 0xD1 and IRQ 20
+[   78.286894] ACPI: PCI Interrupt 0000:00:08.0[A] -> Link [LSI1] -> GSI 22 (level, high) -> IRQ 20
+[   78.287266] ata3: SATA max UDMA/133 cmd 0x1458 ctl 0x144E bmdma 0x1420 irq 20
+[   78.287344] ata4: SATA max UDMA/133 cmd 0x1450 ctl 0x144A bmdma 0x1428 irq 20
+[   78.505038] ata3: SATA link up 3.0 Gbps (SStatus 123)
+[   78.704878] ata3: dev 0 ATA-7, max UDMA/133, 976773168 sectors: LBA48
+[   78.705922] nv_sata: Primary device added
+[   78.705926] ata3: dev 0 configured for UDMA/133
+[   78.705929] scsi2 : sata_nv
+[   78.706065] nv_sata: Primary device removed
+[   78.706110] nv_sata: Secondary device added
+[   78.706154] nv_sata: Secondary device removed
+[   78.924512] ata4: SATA link up 3.0 Gbps (SStatus 123)
+[   79.114363] ata4: dev 0 ATA-7, max UDMA/133, 976773168 sectors: LBA48
+[   79.115391] nv_sata: Primary device added
+[   79.115394] ata4: dev 0 configured for UDMA/133
+[   79.115396] scsi3 : sata_nv
+[   79.115520] nv_sata: Primary device removed
+[   79.115564] nv_sata: Secondary device added
+[   79.115609] nv_sata: Secondary device removed
+[   79.115725]   Vendor: ATA[   80.033304] ata6: dev 0 ATA-7, max UDMA/133, 976773168 sectors: LBA48
+[   80.034353] ata6: dev 0 configured for UDMA/133
+[   80.034397] scsi5 : sata_mv
+[   80.492731] ata7: dev 0 ATA-7, max UDMA/133, 976773168 sectors: LBA48
+[   80.493771] ata7: dev 0 configured for UDMA/133
+[   80.493815] scsi6 : sata_mv
+[   80.952151] ata8: dev 0 ATA-7, max UDMA/133, 976773168 sectors: LBA48
+[   80.953186] ata8: dev 0 configured for UDMA/133
+[   80.953231] scsi7 : sata_mv
+[   81.411574] ata9: dev 0 ATA-7, max UDMA/133, 976773168 sectors: LBA48
+[   81.412605] ata9: dev 0 configured for UDMA/133
+[   81.412650] scsi8 : sata_mv
+[   81.880985] ata10: dev 0 ATA-7, max UDMA/133, 976773168 sectors: LBA48
+[   81.882022] ata10: dev 0 configured for UDMA/133
+[   81.882066] scsi9 : sata_mv
+[   81.940725] ata11: no device found (phy stat 00000000)
+[   81.940773] scsi10 : sata_mv
+[   81.990662] ata12: no device found (phy stat 00000000)
+[   81.990709] scsi11 : sata_mv
+[   81.990839]   Vendor: ATA       Model: Maxtor 7H500F0    Rev: HA43
+[   81.991587]   Type:   Direct-Access                      ANSI SCSI revision: 05
+[   81.991795]   Vendor: ATA       Model: Maxtor 7H[   82.879567] Driver 'w83627hf' needs updating - please use bus_type methods
+
+[cut]
+
+[ 2071.503963] ata5: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
+[ 2071.504017] ata5: status=0xd0 { Busy }
+[ 2101.475022] ata5: Entering mv_eng_timeout
+[ 2101.475059] mmio_base ffffc20000080000 ap ffff81013b4a5480 qc ffff81013b4a59b8 scsi_cmnd ffff810116d70b40 &cmnd ffff810116d70bb0
+[ 2101.538621] ata5: no device found (phy stat 00000100)
+[ 2101.601492] ata5: status=0x50 { DriveReady SeekComplete }
+[ 2101.601540] ata5: error=0x01 { AddrMarkNotFound }
+[ 2101.601578] Assertion failed! qc->flags & ATA_QCFLAG_ACTIVE,drivers/scsi/libata-core.c,ata_qc_complete,line=3623
+[ 2101.601637] ata5: status=0x50 { DriveReady SeekComplete }
+[ 2101.601675] ata5: error=0x01 { AddrMarkNotFound }
+[ 2101.601713] sdd: Current: sense key=0x0
+[ 2101.601742]     ASC=0x0 ASCQ=0x0
+[ 2101.601856] Assertion failed! ((in_ptr >> EDMA_REQ_Q_PTR_SHIFT) & MV_MAX_Q_DEPTH_MASK) == ((readl(port_mmio + EDMA_REQ_Q_OUT_PTR_OFS) >> EDMA_REQ_Q_PTR_SHIFT) & MV_MAX_Q_DEPTH_MASK),drivers/scsi/sata_mv.c,mv_qc_issue,line=1073
+[ 2131.567227] ata5: Entering mv_eng_timeout
+[ 2131.567259] mmio_base ffffc20000080000 ap ffff81013b4a5480 qc ffff81013b4a59b8 scsi_cmnd ffff81010b7489c0 &cmnd ffff81010b748a30
+[ 2131.651702] ata5: no device found (phy stat 00000100)
+[ 2131.693584] Assertion failed! qc->flags & ATA_QCFLAG_ACTIVE,drivers/scsi/libata-core.c,ata_qc_complete,line=3623
+[ 2131.693640] ata5: status=0x50 { DriveReady SeekComplete }
+[ 2131.693677] ata5: error=0x01 { AddrMarkNotFound }
+[ 2131.693712] sdd: Current: sense key=0x0
+[ 2131.693741]     ASC=0x0 ASCQ=0x0
+[ 2131.693856] Assertion failed! ((in_ptr >> EDMA_REQ_Q_PTR_SHIFT) & MV_MAX_Q_DEPTH_MASK) == ((readl(port_mmio + EDMA_REQ_Q_OUT_PTR_OFS) >> EDMA_REQ_Q_PTR_SHIFT) & MV_MAX_Q_DEPTH_MASK),drivers/scsi/sata_mv.c,mv_qc_issue,line=1073
+[ 2161.689415] ata5: Entering mv_eng_timeout
+[ 2161.689447] mmio_base ffffc20000080000 ap ffff81013b4a5480 qc ffff81013b4a59b8 scsi_cmnd ffff81010b7489c0 &cmnd ffff81010b748a30
+[ 2161.773886] ata5: no device found (phy stat 00000100)
+[ 2161.815776] ata5: status=0x50 { DriveReady SeekComplete }
+[ 2161.815823] ata5: error=0x01 { AddrMarkNotFound }
+[ 2161.815859] Assertion failed! qc->flags & ATA_QCFLAG_ACTIVE,drivers/scsi/libata-core.c,ata_qc_complete,line=3623
+[ 2161.815917] ata5: status=0x50 { DriveReady SeekComplete }
+[ 2161.815954] ata5: error=0x01 { AddrMarkNotFound }
+[ 2161.815989] sdd: Current: sense key=0x0
+[ 2161.816018]     ASC=0x0 ASCQ=0x0
+[ 2161.816122] Assertion failed! ((in_ptr >> EDMA_REQ_Q_PTR_SHIFT) & MV_MAX_Q_DEPTH_MASK) == ((readl(port_mmio + EDMA_REQ_Q_OUT_PTR_OFS) >> EDMA_REQ_Q_PTR_SHIFT) & MV_MAX_Q_DEPTH_MASK),drivers/scsi/sata_mv.c,mv_qc_issue,line=1073
+[ 2191.781622] ata5: Entering mv_eng_timeout
+[ 2191.781654] mmio_base ffffc20000080000 ap ffff81013b4a5480 qc ffff81013b4a59b8 scsi_cmnd ffff810116d70b40 &cmnd ffff810116d70bb0
+[ 2191.866094] ata5: no device found (phy stat 00000100)
+[ 2191.907980] ata5: status=0x50 { DriveReady SeekComplete }
+[ 2191.908020] ata5: error=0x01 { AddrMarkNotFound }
+[ 2191.908056] Assertion failed! qc->flags & ATA_QCFLAG_ACTIVE,drivers/scsi/libata-core.c,ata_qc_complete,line=3623
+[ 2191.908115] ata5: status=0x50 { DriveReady SeekComplete }
+[ 2191.908151] ata5: error=0x01 { AddrMarkNotFound }
+[ 2191.908188] sdd: Current: sense key=0x0
+[ 2191.908217]     ASC=0x0 ASCQ=0x0
+[ 2191.908305] Assertion failed! ((in_ptr >> EDMA_REQ_Q_PTR_SHIFT) & MV_MAX_Q_DEPTH_MASK) == ((readl(port_mmio + EDMA_REQ_Q_OUT_PTR_OFS) >> EDMA_REQ_Q_PTR_SHIFT) & MV_MAX_Q_DEPTH_MASK),drivers/scsi/sata_mv.c,mv_qc_issue,line=1073
+[ 2221.873842] ata5: Entering mv_eng_timeout
+[ 2221.877167] mmio_base ffffc20000080000 ap ffff81013b4a5480 qc ffff81013b4a59b8 scsi_cmnd ffff81010b7489c0 &cmnd ffff81010b748a30
+
+[cut the same over and over]
+
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

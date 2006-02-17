@@ -1,71 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWBQTz0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751584AbWBQT4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751421AbWBQTz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 14:55:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750898AbWBQTz0
+	id S1751584AbWBQT4p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 14:56:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751589AbWBQT4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 14:55:26 -0500
-Received: from allen.werkleitz.de ([80.190.251.108]:32900 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S1751580AbWBQTzY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 14:55:24 -0500
-Date: Fri, 17 Feb 2006 20:55:15 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       David Singleton <dsingleton@mvista.com>, Andrew Morton <akpm@osdl.org>
-Message-ID: <20060217195515.GA12501@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-	Ulrich Drepper <drepper@redhat.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Arjan van de Ven <arjan@infradead.org>,
-	David Singleton <dsingleton@mvista.com>,
-	Andrew Morton <akpm@osdl.org>
-References: <20060215151711.GA31569@elte.hu> <20060216145823.GA25759@linuxtv.org> <20060216172007.GB29151@elte.hu>
+	Fri, 17 Feb 2006 14:56:45 -0500
+Received: from mr1.bfh.ch ([147.87.250.50]:17857 "EHLO mr1.bfh.ch")
+	by vger.kernel.org with ESMTP id S1750899AbWBQT4n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 14:56:43 -0500
+X-PMWin-Version: 2.5.0e, Antispam-Engine: 2.2.0.0, Antivirus-Engine: 2.32.10
+Thread-Index: AcYz/ELgzYRxKb4uR8qP7k7MDhybhg==
+Content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
+Importance: normal
+Message-ID: <43F62A73.3090509@bfh.ch>
+Date: Fri, 17 Feb 2006 20:56:35 +0100
+From: "Seewer Philippe" <philippe.seewer@bfh.ch>
+Organization: BFH
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050811)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060216172007.GB29151@elte.hu>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-SA-Exim-Connect-IP: 84.190.141.209
-Subject: Re: [patch 0/5] lightweight robust futexes: -V1
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+To: "Adam Kropelin" <akropel1@rochester.rr.com>
+Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
+       <tsbogend@alpha.franken.de>
+Subject: Re: [PATCH 2/2] pcnet32: PHY selection support
+References: <20060217134938.B24429@mail.kroptech.com>
+In-Reply-To: <20060217134938.B24429@mail.kroptech.com>
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Feb 2006 19:56:36.0820 (UTC) FILETIME=[4290D140:01C633FC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 16, 2006, Ingo Molnar wrote:
+
+
+Adam Kropelin wrote:
+> Seewer Philippe wrote:
 > 
-> * Johannes Stezenbach <js@linuxtv.org> wrote:
+>>Most AMD pcnet chips support up to 32 external PHYs. This patch
+>>introduces basic PHY selection/switching support, by adding two
+>>new module parameters:
+>>-maxphy: how many PHYs the card supports
+>>-usephy: which phy to use instead of eeprom default
+>>
+>>Maxphy is necessary in order to check the range of usephy and may
+>>be overriden inside the module.
 > 
-> > Anyway: If a process can trash its robust futext list and then die 
-> > with a segfault, why are the futexes still robust? In this case the 
-> > kernel has no way to wake up waiters with FUTEX_OWNER_DEAD, or does 
-> > it?
 > 
-> that's memory corruption - which robust futexes do not (and cannot) 
-> solve. Robustness is mostly about handling sudden death (e.g. which is 
-> due to oom, or is due to a user killing the task, or due to the 
-> application crashing in some non-memory-corrupting way), but it cannot 
-> handle all possible failure modes.
+> It seems a bit pointless for the range check of a user-supplied value to
+> be driven by another user-supplied value.
+I just want to make sure and there's the possibility of supplying only maxphy
+and let the autoswitch algorithm decide...
+> 
+> 
+>>If only maxphy is present I've implemented an algorithm which checks
+>>the link state on all PHYs and uses the one that has a link.
+> 
+> 
+> Knowing how many PHYs to scan is potentially useful, but how about
+> determining that at runtime? Missing PHYs should be detectable with a
+> timeout or similar. Too risky?
+Actually its possible to query them with mii and all non-present phy's
+should "return" 0xffff. I wanted my changes to have no impact on pcnet
+cards with only one phy, thats why.
 
-Hm, OK, from reading this and the other threads on this
-topic I get:
-
-- there is a tradeoff between speed and robustness
-- the focus for "robust futexes" is on speed
-  (else they wouldn't deserve to be called futexes)
-- thus it is acceptable if they are just 99% robust
-
-That's OK, but IMHO it wouldn't hurt to clearly spell
-it out in the documentation.
-
-
-However, this leaves the question: Is there a slower, but 100% robust
-alternative on Linux for applications which need it?
-
-
-Johannes
+> 
+> --Adam
+> 

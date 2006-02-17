@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751430AbWBQOSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWBQO11@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751430AbWBQOSu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 09:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWBQOSu
+	id S1751442AbWBQO11 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 09:27:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWBQO11
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 09:18:50 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:55696 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751425AbWBQOSs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 09:18:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=eCkBmq3Qo+24doqpuDxQt3yuNOF862vFYwNs5y/H2yqyIXh9tgfpg5z+SAJpWU6hOBnVfuM8rQYPiOomf5bHoS7M75n+8bG882pyqPptYZPwssHCQOqu4xE1pLFIVBhT2vGzX8GxOOcSWs9Ju2bMPAhlBsNr9s4YTxALvD3M3Vc=
-Message-ID: <3b0ffc1f0602170618u7a1ad877s337de33c0a8f44f9@mail.gmail.com>
-Date: Fri, 17 Feb 2006 09:18:47 -0500
-From: Kevin Radloff <radsaq@gmail.com>
-To: Con Kolivas <kernel@kolivas.org>
+	Fri, 17 Feb 2006 09:27:27 -0500
+Received: from mail03.syd.optusnet.com.au ([211.29.132.184]:51675 "EHLO
+	mail03.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751442AbWBQO10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 09:27:26 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Kevin Radloff <radsaq@gmail.com>
 Subject: Re: [ck] [PATCH] mm: implement swap prefetching (v26)
+Date: Sat, 18 Feb 2006 01:26:57 +1100
+User-Agent: KMail/1.9.1
 Cc: Andrew Morton <akpm@osdl.org>, ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200602172235.40019.kernel@kolivas.org>
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Bart Samwel <bart@samwel.tk>
+References: <200602172235.40019.kernel@kolivas.org> <3b0ffc1f0602170618u7a1ad877s337de33c0a8f44f9@mail.gmail.com>
+In-Reply-To: <3b0ffc1f0602170618u7a1ad877s337de33c0a8f44f9@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <200602172235.40019.kernel@kolivas.org>
+Message-Id: <200602180126.58519.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/17/06, Con Kolivas <kernel@kolivas.org> wrote:
-> Added disabling of swap prefetching when laptop_mode is enabled.
+On Saturday 18 February 2006 01:18, Kevin Radloff wrote:
+> On 2/17/06, Con Kolivas <kernel@kolivas.org> wrote:
+> > Added disabling of swap prefetching when laptop_mode is enabled.
+>
+> Why bother with this? As someone commented in a previous thread,
+> wouldn't it be better to let the laptop_mode script handle it?
 
-Why bother with this? As someone commented in a previous thread,
-wouldn't it be better to let the laptop_mode script handle it?
+The discussion was about what size to make the swap prefetching. Since the 
+size is not user tunable any more that is not the case. I had an offlist 
+discussion with Bart Samwel about it and basically if your drive spins down 
+at 5 seconds (which is what commonly happens with laptop mode) you will never 
+have an opportunity to prefetch. This means swap prefetch will basically 
+always spin up the drive nullifying laptop mode. On balance if you care about 
+power more than anything to actually set laptop mode I suspect you wont want 
+prefetch using any more power.
 
---
-Kevin 'radsaq' Radloff
-radsaq@gmail.com
-http://thesaq.com/
+Cheers,
+Con

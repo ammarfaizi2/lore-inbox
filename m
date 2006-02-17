@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbWBQNiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbWBQNkY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964909AbWBQNiA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 08:38:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbWBQNh7
+	id S964912AbWBQNkY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 08:40:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbWBQNkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 08:37:59 -0500
-Received: from bayc1-pasmtp10.bayc1.hotmail.com ([65.54.191.170]:4382 "EHLO
-	BAYC1-PASMTP10.BAYC1.HOTMAIL.COM") by vger.kernel.org with ESMTP
-	id S964909AbWBQNh6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 08:37:58 -0500
-Message-ID: <BAYC1-PASMTP1013B46C27CAE01CF78F54AEF80@CEZ.ICE>
-X-Originating-IP: [65.94.251.146]
-X-Originating-Email: [seanlkml@sympatico.ca]
-Date: Fri, 17 Feb 2006 08:37:10 -0500
-From: sean <seanlkml@sympatico.ca>
+	Fri, 17 Feb 2006 08:40:24 -0500
+Received: from albireo.ucw.cz ([84.242.65.108]:61829 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S964912AbWBQNkW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 08:40:22 -0500
+Date: Fri, 17 Feb 2006 14:40:22 +0100
+From: Martin Mares <mj@ucw.cz>
 To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: schilling@fokus.fraunhofer.de, dhazelton@enter.net, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org
+Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org, dhazelton@enter.net
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-Id: <20060217083710.2dc6879e.seanlkml@sympatico.ca>
-In-Reply-To: <43F5B686.nail2VCA2A2OF@burner>
-References: <43EB7BBA.nailIFG412CGY@burner>
-	<20060216115204.GA8713@merlin.emma.line.org>
-	<43F4BF26.nail2KA210T4X@burner>
-	<200602161742.26419.dhazelton@enter.net>
-	<43F5B686.nail2VCA2A2OF@burner>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.12; i386-redhat-linux-gnu)
+Message-ID: <mj+md-20060217.133041.10720.albireo@ucw.cz>
+References: <43EB7BBA.nailIFG412CGY@burner> <20060216115204.GA8713@merlin.emma.line.org> <43F4BF26.nail2KA210T4X@burner> <200602161742.26419.dhazelton@enter.net> <43F5B686.nail2VCA2A2OF@burner> <mj+md-20060217.115403.7981.albireo@ucw.cz> <43F5CE2D.nail31P31133A@burner>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Feb 2006 13:38:57.0937 (UTC) FILETIME=[80D1A810:01C633C7]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F5CE2D.nail31P31133A@burner>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Feb 2006 12:41:58 +0100
-Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
+Hello!
 
-> In 1997, I did cleanly write dowen what exact features are missing to allow 
-> Linux to be used to _develop_ SCSI user space programs. I did even send a patch
-> for sg.c to the Linux folks. This patch extends the sg SCSI Generic interface
-> in a source AND binary, up AND downwards compatible way.
-> 
-> This patch has been rejected for unknown reasons and the fact that the source 
-> code fond in official Linux release has been changed in an incompatible way, it 
-> is impossible to apply it now.
+> I encourage you to read the previous mails, this has been explained for more 
+> than ten times now.....
 
-Shock!  1997 patch no longer applies cleanly in 2006!  Alert the media!
+Maybe the problem lies in nobody except you considering it an explanation.
 
-Seriously though, this is exactly why I think Linux should start accepting
-patches from crazy people without question or review.   It's much easier to
-deal with whatever cruft is applied by the patch than it is to endure the 
-multi year manic tirades of such individuals who have their egos bruised as
-a result of rejection.
+E.g., your theory about Linux breaking POSIX has been disproved pretty quickly.
 
-Sean
+Feel free to consider the Linux interface silly or badly designed, that's
+everybody's right, but please keep in mind that as long as you are unable to point
+to any *real* problems with it, it's just your opinion not shared by most of
+the other people, including the maintainers of the said subsystems, so it's
+hardly a reason for changing the interface.
+
+Sorry, but although I value your experience with CD writing very much,
+I don't think you are the right person to decide on what the naming of devices
+in Linux will look like, exactly because it's a problem with much broader
+context than just SCSI devices.
+
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+"God doesn't play dice."   -- Albert Einstein

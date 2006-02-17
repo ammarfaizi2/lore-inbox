@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWBQSNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWBQST1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbWBQSNE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 13:13:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWBQSND
+	id S1751143AbWBQST1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 13:19:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWBQST1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 13:13:03 -0500
-Received: from mail.gmx.de ([213.165.64.20]:28321 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750773AbWBQSNB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 13:13:01 -0500
-X-Authenticated: #428038
-Date: Fri, 17 Feb 2006 19:12:52 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: "D. Hazelton" <dhazelton@enter.net>
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060217181252.GB11340@merlin.emma.line.org>
-Mail-Followup-To: "D. Hazelton" <dhazelton@enter.net>,
-	Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	linux-kernel@vger.kernel.org
-References: <43EB7BBA.nailIFG412CGY@burner> <200602161742.26419.dhazelton@enter.net> <43F5B686.nail2VCA2A2OF@burner> <200602171502.20268.dhazelton@enter.net>
+	Fri, 17 Feb 2006 13:19:27 -0500
+Received: from smtp.andrew.cmu.edu ([128.2.10.82]:43228 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id S1751143AbWBQST0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 13:19:26 -0500
+Message-ID: <38629.128.237.252.29.1140200365.squirrel@128.237.252.29>
+Date: Fri, 17 Feb 2006 13:19:25 -0500 (EST)
+Subject: need help/guide to convert 2.6 module to 2.4
+From: "George P Nychis" <gnychis@cmu.edu>
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.5.1 [CVS]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602171502.20268.dhazelton@enter.net>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Feb 2006, D. Hazelton wrote:
+Hey guys,
 
-> Says you. Since the SCSI system via /dev/hd* was just added in, IIRC, the 2.5 
-> series kernel - at the same time ide-scsi was deprecated access via SG_IO 
-> on /dev/hd* is the new method and not deprecated.
+I found a module for the 2.6 kernel that I want to migrate for the 2.4 kernel.
 
-This is all information that libscg does not need to know. There are
-only two models:
+It is for the XCP network protocol support, found here:
+http://home.online.no/~mosebe/xcp_code.tar.gz
 
-1. the old sg2 model before SG_IO was available, was to use write() and
-read() on a /dev/sg* node.
 
-2. the new sg3 model is do SG_IO on any device node no matter if /dev/hd,
-/dev/sg or perhaps /dev/foobaz42 next year. /dev/sg* happened to be the
-first to implement this, others followed suit, and more to come.
+I also posted the code for you to look at, I am only interested in the router code:
+http://rafb.net/paste/results/WSMhKW65.html
 
--- 
-Matthias Andree
+Can anyone help me convert this for the 2.4 kernel?  If not can someone please point me in the direction of a guide to do so?
+
+Please CC me in your responses.
+
+Thanks!
+George
+

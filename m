@@ -1,39 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWBQTzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWBQTz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751398AbWBQTzY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 14:55:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWBQTzY
+	id S1751421AbWBQTz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 14:55:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750898AbWBQTz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 17 Feb 2006 14:55:26 -0500
+Received: from allen.werkleitz.de ([80.190.251.108]:32900 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S1751580AbWBQTzY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 17 Feb 2006 14:55:24 -0500
-Received: from HELIOUS.MIT.EDU ([18.248.3.87]:54917 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S1751064AbWBQTzW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 14:55:22 -0500
-Date: Fri, 17 Feb 2006 14:56:10 -0500
-From: Adam Belay <ambx1@neo.rr.com>
-To: Lz <elezeta@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Problems with sound on latest kernels.
-Message-ID: <20060217195610.GC18338@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, Lz <elezeta@gmail.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <cde01ae70602140558g6440af40mf59e3e1992088d3b@mail.gmail.com> <1139934640.11659.95.camel@mindpipe> <20060214232222.1016fe87.akpm@osdl.org> <cde01ae70602150542m1b57aa83l62508927276241b@mail.gmail.com> <20060217061701.GA17208@neo.rr.com> <cde01ae70602170831h43668a5ay3a3e4f0ce446c241@mail.gmail.com>
+Date: Fri, 17 Feb 2006 20:55:15 +0100
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Arjan van de Ven <arjan@infradead.org>,
+       David Singleton <dsingleton@mvista.com>, Andrew Morton <akpm@osdl.org>
+Message-ID: <20060217195515.GA12501@linuxtv.org>
+Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+	Ulrich Drepper <drepper@redhat.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Arjan van de Ven <arjan@infradead.org>,
+	David Singleton <dsingleton@mvista.com>,
+	Andrew Morton <akpm@osdl.org>
+References: <20060215151711.GA31569@elte.hu> <20060216145823.GA25759@linuxtv.org> <20060216172007.GB29151@elte.hu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <cde01ae70602170831h43668a5ay3a3e4f0ce446c241@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060216172007.GB29151@elte.hu>
+User-Agent: Mutt/1.5.11+cvs20060126
+X-SA-Exim-Connect-IP: 84.190.141.209
+Subject: Re: [patch 0/5] lightweight robust futexes: -V1
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 17, 2006 at 05:31:27PM +0100, Lz wrote:
-> Hello, it seems to be fixed at the latests git-.
+On Thu, Feb 16, 2006, Ingo Molnar wrote:
 > 
-> Do you still need me to try that patch?
+> * Johannes Stezenbach <js@linuxtv.org> wrote:
+> 
+> > Anyway: If a process can trash its robust futext list and then die 
+> > with a segfault, why are the futexes still robust? In this case the 
+> > kernel has no way to wake up waiters with FUTEX_OWNER_DEAD, or does 
+> > it?
+> 
+> that's memory corruption - which robust futexes do not (and cannot) 
+> solve. Robustness is mostly about handling sudden death (e.g. which is 
+> due to oom, or is due to a user killing the task, or due to the 
+> application crashing in some non-memory-corrupting way), but it cannot 
+> handle all possible failure modes.
 
-Are you sure you're using the same kconfig options?  For example, is isapnp
-now disabled, or are you using the ALSA driver instead of the OSS driver
-(appears as "sb" in the kernel log)?
+Hm, OK, from reading this and the other threads on this
+topic I get:
 
-Thanks,
-Adam
+- there is a tradeoff between speed and robustness
+- the focus for "robust futexes" is on speed
+  (else they wouldn't deserve to be called futexes)
+- thus it is acceptable if they are just 99% robust
+
+That's OK, but IMHO it wouldn't hurt to clearly spell
+it out in the documentation.
+
+
+However, this leaves the question: Is there a slower, but 100% robust
+alternative on Linux for applications which need it?
+
+
+Johannes

@@ -1,153 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161153AbWBQVkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161158AbWBQVlF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161153AbWBQVkb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 16:40:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161155AbWBQVka
+	id S1161158AbWBQVlF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 16:41:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161157AbWBQVlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 16:40:30 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:26522 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1161153AbWBQVk3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 16:40:29 -0500
-Date: Fri, 17 Feb 2006 22:40:27 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Hubertus Franke <frankeh@watson.ibm.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Dave Hansen <haveblue@us.ibm.com>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       Kirill Korotaev <dev@sw.ru>, linux-kernel@vger.kernel.org,
-       vserver@list.linux-vserver.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: (pspace,pid) vs true pid virtualization
-Message-ID: <20060217214027.GA30682@MAIL.13thfloor.at>
-Mail-Followup-To: Hubertus Franke <frankeh@watson.ibm.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Dave Hansen <haveblue@us.ibm.com>,
-	"Serge E. Hallyn" <serue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
-	linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-	Cedric Le Goater <clg@fr.ibm.com>,
-	Kyle Moffett <mrmacman_g4@mac.com>, Greg <gkurz@fr.ibm.com>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Greg KH <greg@kroah.com>, Rik van Riel <riel@redhat.com>,
-	Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-	Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-	Andi Kleen <ak@suse.de>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Jes Sorensen <jes@sgi.com>
-References: <m17j7vqmy1.fsf@ebiederm.dsl.xmission.com> <20060216175326.GA11974@sergelap.austin.ibm.com> <m1mzgrp3nl.fsf@ebiederm.dsl.xmission.com> <20060216184407.GC11974@sergelap.austin.ibm.com> <1140115979.21383.11.camel@localhost.localdomain> <m1bqx6p815.fsf@ebiederm.dsl.xmission.com> <20060217114441.GA17940@MAIL.13thfloor.at> <m1vevenptl.fsf@ebiederm.dsl.xmission.com> <20060217124411.GB17940@MAIL.13thfloor.at> <43F5D227.8020105@watson.ibm.com>
-Mime-Version: 1.0
+	Fri, 17 Feb 2006 16:41:04 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:64946 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1161155AbWBQVlB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 16:41:01 -0500
+To: David Lang <dlang@digitalinsight.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Jesper Juhl <jesper.juhl@gmail.com>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pid_t range question
+References: <Pine.LNX.4.61.0602071122520.327@chaos.analogic.com>
+	<m1pslystkz.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.61.0602091751220.30108@yvahk01.tjqt.qr>
+	<m1r76c2yhf.fsf@ebiederm.dsl.xmission.com>
+	<9a8748490602091213p2e020355ue516d59b7d0b6c81@mail.gmail.com>
+	<Pine.LNX.4.61.0602101420550.31246@yvahk01.tjqt.qr>
+	<Pine.LNX.4.62.0602151238520.5446@qynat.qvtvafvgr.pbz>
+	<Pine.LNX.4.61.0602171737530.27452@yvahk01.tjqt.qr>
+	<Pine.LNX.4.62.0602171201020.8348@qynat.qvtvafvgr.pbz>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 17 Feb 2006 14:39:55 -0700
+In-Reply-To: <Pine.LNX.4.62.0602171201020.8348@qynat.qvtvafvgr.pbz> (David
+ Lang's message of "Fri, 17 Feb 2006 13:20:36 -0800 (PST)")
+Message-ID: <m17j7toeac.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43F5D227.8020105@watson.ibm.com>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 17, 2006 at 08:39:51AM -0500, Hubertus Franke wrote:
-> Herbert Poetzl wrote:
-> >On Fri, Feb 17, 2006 at 05:16:06AM -0700, Eric W. Biederman wrote:
-> >
-> >>Herbert Poetzl <herbert@13thfloor.at> writes:
-> >>
-> >>
-> >>>On Fri, Feb 17, 2006 at 03:57:26AM -0700, Eric W. Biederman wrote:
-> >>>
-> >>>>As for that.  When I mad that suggestion to Herbert Poetzl 
-> >>>>his only concern was that a smart init might be too heavy weight 
-> >>>>for lightweight vserver.  Generally I like the idea.
-> >>>
-> >>>well, may I remind that this solution would require _two_
-> >>>init processes for each guest, which could easily make up
-> >>>300-400 unnecessary processes in a lightweight server
-> >>>setup?
-> >>
-> >>I take it seriously enough that I remembered the concern,
-> >>and I think it is legitimate.  Figuring out how to safely
-> >>set the policy is a challenge.  That is something a
-> >>user space daemon trivially gets right.  
-> >>
-> >>The kernel side of a process is about 10K if the user space
-> >>side was also lightweight we could have the entire
-> >>per process cost in the 30K range.  30K*400 = 12000K = 12M.
-> >
-> >
-> >that's something I'm not so worried about, but a statically
-> >compiled userspace process with 20K sounds unusual in the
-> >time of 2M *libcs :)
-> >
-> >
-> >>That is significant but we are still cheap enough that it
-> >>isn't necessarily a show stopper.
-> >>
-> >>I think the cost was only one extra process, for the case where you
-> >>have fakeinit now it would be init, for other cases it would be a
-> >>daemon that gets setup when you initialize the vserver.
-> >
-> 
-> Eric, Herbert.. why do we need an extra process in each and every
-> pspace.
-> 
-> Why not have single global pspace-init daemon that acts as the reaper
-> for all pspace-top processes. Its only at the boundaries of pspaces
-> and with signals were we seem to have trouble.
+David Lang <dlang@digitalinsight.com> writes:
 
-that would probably work, but I think it adds some
-complications and might require certain design changes
-
-just to give some ideas:
-
- - how to reach the guest space if there is no 'handle'?
- - how to handle hierarchical contexts?
-
-> The "pspace-init" reaps the signal of all its sub-pspace's top
-> processes and then "forwards" the signal to processes actually
-> waiting. Kind of an interposer. Same way from the other side.
+> I agree that the mojority of users don't hit this limit, but I've got a couple
+> of boxes that push it (they run out of ram before that, but more ram is on
+> order).
 >
-> You allocate a pid on behalf of the process you spawn in your
-> pidspace. You mark in the pid hash of the lookup that this is merely
-> a proxy and you forward that to the pspace-init where you have a
-> separate lookup with <pspace-caller,pspace,pid>.
-> 
-> Same with signals, once the signal is reaped by pspace-init and its looked
-> up who is the parent pspace and the pid in there, we forward it..
+> however it sounds like switching to a 64 bit kernel will avoid this limit, so
+> I'll put my efforts into configuring a box to do that.
 
-yup, could work ...
+That is what I would recommend.  Unless you do something weird an painful
+like configure a kernel doing the 4G/4G split a 32bit box is going to
+have memory problems with more than 32K tasks.
 
-best,
-Herbert
+Just remember you need push up /proc/sys/kernel/pid-max to raise the default
+on a 64bit box.
 
-> Is something like that workable, idiotic (be kind), too intrusive ?
-> 
-> -- Hubertus
-> 
-> 
-> >
-> >well, depends, currently we do not need a parent to handle
-> >the guest, so there is _no_ waiting process in the light-
-> >weight case either, which makes that two processes for each
-> >guest, no?
-> >
-> >anyway, I'm not strictly against having an init process
-> >inside a guest, as long as it is not an essential part
-> >of the overall design, because that would make it much
-> >harder to rip it out later :)
-> >
-> >best,
-> >Herbert
-> >
-> >
+Eric

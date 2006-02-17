@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751478AbWBQXjH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWBQXk6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751478AbWBQXjH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 18:39:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWBQXjH
+	id S1751483AbWBQXk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 18:40:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbWBQXk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 18:39:07 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:1298 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751478AbWBQXjF (ORCPT
+	Fri, 17 Feb 2006 18:40:58 -0500
+Received: from rtr.ca ([64.26.128.89]:49316 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751483AbWBQXk6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 18:39:05 -0500
-Date: Sat, 18 Feb 2006 00:38:48 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, len.brown@intel.com,
-       Paul Bristow <paul@paulbristow.net>, mpm@selenic.com,
-       B.Zolnierkiewicz@elka.pw.edu.pl, dtor_core@ameritech.net, kkeil@suse.de,
-       linux-dvb-maintainer@linuxtv.org, philb@gnu.org, gregkh@suse.de,
-       dwmw2@infradead.org
-Subject: Re: kbuild: Section mismatch warnings
-Message-ID: <20060217233848.GA26630@mars.ravnborg.org>
-References: <20060217214855.GA5563@mars.ravnborg.org> <20060217224702.GA25761@mars.ravnborg.org> <20060217233253.GN4422@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060217233253.GN4422@stusta.de>
-User-Agent: Mutt/1.5.11
+	Fri, 17 Feb 2006 18:40:58 -0500
+Message-ID: <43F65F03.1080001@rtr.ca>
+Date: Fri, 17 Feb 2006 18:40:51 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: TKIP: replay detected:  WTF?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian
+Lately I've been seeing my kernel logs spammed by these events:
 
-> > I did not find a way to look up the offending symbol but maybe some elf
-> > expert can help?
-> >...
->  
-> I'm not an ELF expert, but simply checking all __init functions in this 
-> files finds that this seems to be the following:
-> 
-> <--  snip  -->
-> 
-> ...
-> static struct acpi_driver asus_hotk_driver = {
->         .name = ACPI_HOTK_NAME,
->         .class = ACPI_HOTK_CLASS,
->         .ids = ACPI_HOTK_HID,
->         .ops = {
->                 .add = asus_hotk_add,
->                 .remove = asus_hotk_remove,
->                 },
-> };
-> ...
-> static int __init asus_hotk_add(struct acpi_device *device)
-> ...
-> 
-Correct.
-What I wanted was modpost to tell that the symbol being referenced in
-the .data section was 'asus_hotk_add' and not just an offset after
-asus_hotk_driver.
+Feb 17 18:38:48 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 000000000001
+Feb 17 18:38:48 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 000000000002
+Feb 17 18:38:48 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 000000000003
+Feb 17 18:38:48 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 000000000004
+Feb 17 18:38:48 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 000000000005
+Feb 17 18:38:48 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 000000000006
+Feb 17 18:38:48 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 000000000007
+Feb 17 18:38:48 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 000000000008
+Feb 17 18:38:48 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 000000000009
+Feb 17 18:38:48 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 00000000000a
+Feb 17 18:38:54 localhost kernel: printk: 1 messages suppressed.
+Feb 17 18:38:54 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 00000000000c
+Feb 17 18:38:58 localhost kernel: printk: 2 messages suppressed.
+Feb 17 18:38:58 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 00000000000f
+Feb 17 18:39:07 localhost kernel: printk: 2 messages suppressed.
+Feb 17 18:39:07 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 000000000012
+Feb 17 18:39:08 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 000000000013
+Feb 17 18:39:25 localhost kernel: printk: 1 messages suppressed.
+Feb 17 18:39:25 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 000000000015
+Feb 17 18:39:26 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 000000000016
+Feb 17 18:39:27 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 000000000017
+Feb 17 18:39:35 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 000000000018
+Feb 17 18:39:36 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 000000000019
 
-What is needed is a link from the RELOCATION RECORD to the symbol table.
+This is with the various 2.6.16-rc*-git* kernels, and possibly older 2.6.15 series as well.
+They always seem to arrive in large bursts, like the bunch shown above.  Using wifi
+over ipw2200 to a WPA2 AP.
 
+Either this is "normal" behaviour, in which case the code should NOT be spamming me,
+or something is broken, in which case.. what?
 
-	Sam
+Cheers

@@ -1,95 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbWBQMwm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWBQNEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964802AbWBQMwm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 07:52:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWBQMwm
+	id S932255AbWBQNEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 08:04:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWBQNEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 07:52:42 -0500
-Received: from zone4.gcu-squad.org ([213.91.10.50]:36316 "EHLO
-	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S932282AbWBQMwm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 07:52:42 -0500
-Date: Fri, 17 Feb 2006 13:48:56 +0100 (CET)
-To: lm-sensors@lm-sensors.org
-Subject: Re: [lm-sensors] [HWMON] Add LM82 support
-X-IlohaMail-Blah: khali@localhost
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
-Message-ID: <XIPwj8XM.1140180536.0732280.khali@localhost>
-In-Reply-To: <20060216175930.GE20157@cosmic.amd.com>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: "Jordan Crouse" <jordan.crouse@amd.com>, info-linux@ldcmail.amd.com,
-       linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Fri, 17 Feb 2006 08:04:25 -0500
+Received: from mail-a02.ithnet.com ([217.64.83.97]:52131 "HELO ithnet.com")
+	by vger.kernel.org with SMTP id S932255AbWBQNEY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 08:04:24 -0500
+X-Sender-Authentication: net64
+Date: Fri, 17 Feb 2006 14:04:21 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Severe problem with e1000 driver in 2.4.31/32 (at least)
+Message-Id: <20060217140421.3f049719.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.64.0602161344240.5564@lindenhurst-2.jf.intel.com>
+References: <20060216203948.5953a1e9.skraw@ithnet.com>
+	<4807377b0602161342l4b46fa3cu26a007789ba08443@mail.gmail.com>
+	<Pine.LNX.4.64.0602161344240.5564@lindenhurst-2.jf.intel.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Greylist: Sender is SPF-compliant, not delayed by milter-greylist-2.1.2 (zone4.gcu-squad.org [127.0.0.1]); Fri, 17 Feb 2006 13:48:58 +0100 (CET)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 16 Feb 2006 13:49:12 -0800 (PST)
+Jesse Brandeburg <jesse.brandeburg@intel.com> wrote:
 
-Hi Jordan,
 
-It's nice to see someone from AMD working with us :)
+> > The box runs into a BUG in e1000_hw.c line 5052. The BUG shows up because
+> > the code is obviously executed inside an interrupt, which seems not
+> > intended. As this BUG is always reproducable and pretty annoying we made
+> > this pretty bad workaround:
+> 
+> Please try this patch, compile tested.  It matches up this particular code 
+> to what is currently in 2.6.16-rc
+> 
+> e1000: fix BUG reported due to calling msec_delay in irq context
+> 
+> There are some functions that are called in irq context that need to use
+> msec_delay_irq instead to avoid a BUG.
+> 
+> Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
 
-On 2006-02-16, Jordan Crouse wrote:
-> This patch adds support for the LM82 temperature sensor from National
-> Semiconductor.  The chip is very much like the LM83 with less temperature
-> sensors.  The really only goofy thing here, is that the registers for the
-> 2nd temperature sensor on the LM82 are marked as the *3rd* sensor on the
-> LM83, so I play a little magic to keep things all nice and linear.
+Hello Jesse,
 
-It is really common for hardware monitoring drivers to just skip some
-inputs when one driver handles several chips with minor differences. For
-example, the w83627hf driver skips in5 and in6 for the W83627THF chip.
-So I'd prefer that you don't attempt to renumber the inputs for the
-LM82, but simply create temp1* and temp3* and omit temp2* and temp4*.
+I can confirm the patch eliminates the problem here. I first thought about
+doing it the same way but was unsure whether the function itself should execute
+in interrupt at all.
+Thank you for your immediate answer, please make sure to include the patch as
+is in 2.4.
 
-One reason why this is important is that there seem to be two variants of
-the LM82. First is the one you have with a chip ID of 0x01. Second is a
-stripped down version of the LM83, with chip ID of 0x03, which is
-totally unrecognizable from the LM83. It will make things much easier if
-the two variants can be handled the same way from user-space, which
-implies that we don't renumber the inputs.
+Stephan
 
-My comments on your code now:
 
-> --- a/drivers/hwmon/lm83.c
-> +++ b/drivers/hwmon/lm83.c
-> @@ -12,6 +12,11 @@
->   * Since the datasheet omits to give the chip stepping code, I give it
->   * here: 0x03 (at register 0xff).
->   *
-> + * <jordan.crouse@amd.com>: Added LM82 support
-> + * http://www.national.com/pf/LM/LM82.html - basically a stripped down
-> + * model of the LM83, with only two temperatures reported.  The stepping
-> + * is 0x01 (at least according to the datasheet).
-> + *
 
-History doesn't belong to the source code, as we have GIT for this. So
-this paragraph should be written just as if the driver had always
-supported the LM82 device. See lm90.c for an example.
+> 
+> ---
+> 
+>   drivers/net/e1000/e1000_hw.c |    8 ++++----
+>   1 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/net/e1000/e1000_hw.c b/drivers/net/e1000/e1000_hw.c
+> --- a/drivers/net/e1000/e1000_hw.c
+> +++ b/drivers/net/e1000/e1000_hw.c
+> @@ -5049,7 +5049,7 @@ e1000_config_dsp_after_link_change(struc
+>               if(ret_val)
+>                   return ret_val;
+> 
+> -            msec_delay(20);
+> +            msec_delay_irq(20);
+> 
+>               ret_val = e1000_write_phy_reg(hw, 0x0000,
+>                                             IGP01E1000_IEEE_FORCE_GIGA);
+> @@ -5073,7 +5073,7 @@ e1000_config_dsp_after_link_change(struc
+>               if(ret_val)
+>                   return ret_val;
+> 
+> -            msec_delay(20);
+> +            msec_delay_irq(20);
+> 
+>               /* Now enable the transmitter */
+>               ret_val = e1000_write_phy_reg(hw, 0x2F5B, phy_saved_data);
+> @@ -5098,7 +5098,7 @@ e1000_config_dsp_after_link_change(struc
+>               if(ret_val)
+>                   return ret_val;
+> 
+> -            msec_delay(20);
+> +            msec_delay_irq(20);
+> 
+>               ret_val = e1000_write_phy_reg(hw, 0x0000,
+>                                             IGP01E1000_IEEE_FORCE_GIGA);
+> @@ -5114,7 +5114,7 @@ e1000_config_dsp_after_link_change(struc
+>               if(ret_val)
+>                   return ret_val;
+> 
+> -            msec_delay(20);
+> +            msec_delay_irq(20);
+> 
+>               /* Now enable the transmitter */
+>               ret_val = e1000_write_phy_reg(hw, 0x2F5B, phy_saved_data);
+> 
 
-You should also include changes to Documentation/hwmon/lm83 in your
-patch. Again you may use lm90 as an example. And an update to
-drivers/hwmon/Kconfig would be welcome as well, to mention the LM82 in
-the lm83 driver help text if no even label.
 
-> @@ -142,6 +147,7 @@ struct lm83_data {
->  	struct semaphore update_lock;
->  	char valid; /* zero until following fields are valid */
->  	unsigned long last_updated; /* in jiffies */
-> +	int type;  /* Remember the type of chip */
-
-You should no more need this if you don't renumber the inputs, right?
-
-All the rest is just fine with me. Great work!
-
-Would you be kind enough to also provide a patch against lm_sensors
-2.10.0 or CVS for user-space support? It should be quite simple.
-
-Thanks,
---
-Jean Delvare

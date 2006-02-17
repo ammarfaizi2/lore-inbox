@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbWBQB1m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbWBQB3j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750847AbWBQB1m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 20:27:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbWBQB1m
+	id S1750930AbWBQB3j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 20:29:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbWBQB3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 20:27:42 -0500
-Received: from 63.15.233.220.exetel.com.au ([220.233.15.63]:44935 "EHLO
-	sydlxfw01.samad.com.au") by vger.kernel.org with ESMTP
-	id S1750843AbWBQB1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 20:27:41 -0500
-Date: Fri, 17 Feb 2006 12:27:39 +1100
+	Thu, 16 Feb 2006 20:29:39 -0500
+Received: from sipsolutions.net ([66.160.135.76]:64785 "EHLO sipsolutions.net")
+	by vger.kernel.org with ESMTP id S1750857AbWBQB3i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Feb 2006 20:29:38 -0500
+Subject: [PATCH linux-2.6] allow windfarm_pm112 module to load
+From: Johannes Berg <johannes@sipsolutions.net>
 To: linux-kernel@vger.kernel.org
-Subject: poweroff on i386
-Message-ID: <20060217012739.GO26235@samad.com.au>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CbqR2XcyIs6OSP+I"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
-From: Alexander Samad <alex@samad.com.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Content-Type: text/plain
+Date: Fri, 17 Feb 2006 02:29:21 +0100
+Message-Id: <1140139762.10320.23.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The windfarm_pm112 module relies on smu_sat_get_sdb_partition which is
+in windfarm_smu_sat.c but is not exported to modules, so despite Kconfig
+having the option to build the pm112 as modules, this can never be
+loaded.
 
---CbqR2XcyIs6OSP+I
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This patch fixes that by exporting smu_sat_get_sdb_partition with
+EXPORT_SYMBOL_GPL
 
-Hi
+Signed-off-by: Johannes Berg <johannes@sipsolutions.net>
 
-I am interested in how the linux kernel powers off i386 machine.  I
-basically followed the path from /sbin/poweroff to halt.c to the kernel
-system command reboot and that into apm apm_power_off  I can't find
-where the non apm machine get powered off
+diff --git a/drivers/macintosh/windfarm_smu_sat.c
+b/drivers/macintosh/windfarm_smu_sat.c
+index 3a32c59..24e51d5 100644
+--- a/drivers/macintosh/windfarm_smu_sat.c
++++ b/drivers/macintosh/windfarm_smu_sat.c
+@@ -151,6 +151,7 @@ struct smu_sdbp_header *smu_sat_get_sdb_
+ 	kfree(buf);
+ 	return NULL;
+ }
++EXPORT_SYMBOL_GPL(smu_sat_get_sdb_partition);
+ 
+ /* refresh the cache */
+ static int wf_sat_read_cache(struct wf_sat *sat)
 
-Alex
 
---CbqR2XcyIs6OSP+I
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFD9SaLkZz88chpJ2MRAqVJAKDRw+bPiuZrQNN3ittBYZYUxJWqPACcDAXW
-/3OcdrVTDlAw8hQO/a9SJ/8=
-=Vhex
------END PGP SIGNATURE-----
-
---CbqR2XcyIs6OSP+I--

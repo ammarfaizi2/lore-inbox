@@ -1,76 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161146AbWBQA6p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161140AbWBQBGm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161146AbWBQA6p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Feb 2006 19:58:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161147AbWBQA6p
+	id S1161140AbWBQBGm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Feb 2006 20:06:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161142AbWBQBGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Feb 2006 19:58:45 -0500
-Received: from xenotime.net ([66.160.160.81]:33758 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1161146AbWBQA6o (ORCPT
+	Thu, 16 Feb 2006 20:06:42 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:29330 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161140AbWBQBGl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Feb 2006 19:58:44 -0500
-Date: Thu, 16 Feb 2006 16:58:44 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Adrian Bunk <bunk@stusta.de>
-cc: "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Martin MOKREJ? <mmokrejs@ribosome.natur.cuni.cz>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.16-rc3-git5: drivers/acpi/osl.c:57:38: empty filename in
- #include
-In-Reply-To: <20060217005600.GE4422@stusta.de>
-Message-ID: <Pine.LNX.4.58.0602161658050.25305@shark.he.net>
-References: <43F3B553.2010506@ribosome.natur.cuni.cz> <20060217000525.GD4422@stusta.de>
- <Pine.LNX.4.58.0602161609070.25305@shark.he.net> <20060217005600.GE4422@stusta.de>
+	Thu, 16 Feb 2006 20:06:41 -0500
+Date: Thu, 16 Feb 2006 17:06:22 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] i386: fix singlestepping though a syscall
+In-Reply-To: <200602161914_MC3-1-B89C-55BE@compuserve.com>
+Message-ID: <Pine.LNX.4.64.0602161659590.916@g5.osdl.org>
+References: <200602161914_MC3-1-B89C-55BE@compuserve.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Feb 2006, Adrian Bunk wrote:
 
-> On Thu, Feb 16, 2006 at 04:11:32PM -0800, Randy.Dunlap wrote:
-> > On Fri, 17 Feb 2006, Adrian Bunk wrote:
-> >
-> > > On Thu, Feb 16, 2006 at 12:12:19AM +0100, Martin MOKREJ? wrote:
-> > >
-> > > > Hi,
-> > >
-> > > Hi Martin,
-> > >
-> > > >   I have the following problem when compiling linux kernel on Intel
-> > > > Pentium4M machine:
-> > > >
-> > > > drivers/acpi/osl.c:57:38: empty filename in #include
-> > > > drivers/acpi/osl.c: In function `acpi_os_table_override':
-> > > > drivers/acpi/osl.c:258: error: `AmlCode' undeclared (first use in
-> > > > this function)
-> > > > drivers/acpi/osl.c:258: error: (Each undeclared identifier is
-> > > > reported only once
-> > > > drivers/acpi/osl.c:258: error: for each function it appears in.)
-> > > > make[2]: *** [drivers/acpi/osl.o] Error 1
-> > > >
-> > > >   It turned out I have enabled the custom DSDT option but the field
-> > > > for the custom file have left empty. That's the cause for the error.
-> > > > Something should probably take care of this case. I use "menuconfig"
-> > > > to manipulate the .config file.
-> > >
-> > > this is a class of errors Kconfig can't handle.
-> > >
-> > > And if it was handled, the next problems were to check first whether the
-> > > file exists, and next whether it's actually a valid DSDT table file...
-> > >
-> > > Kconfig helps you to avoid many errors, but there are classes of errors
-> > > it simply can't prevent.
-> >
-> > Adrian, I looked at this one also, and I cannot find /AmlCode/
-> > in any .h or .c file.  Did you find it?  if so, where?
+
+On Thu, 16 Feb 2006, Chuck Ebbert wrote:
 >
-> I'm seeing it in both 2.6.15.4 and Linus' current tree at exactly the
-> place the error message from the bug report mentions it.
+> Singlestep through a syscall using vsyscall-sysenter had two bugs:
+> 
+>     1.  Setting TIF_SINGLESTEP is not enough to force
+>         do_notify_resume() to be run on return to user;
+>         TIF_IRET must also be set.
 
-Yep, I screwed up my question.  Where is it defined/declared?
-That's what I can't find.
+Interesting, but I think you pinpointed the _real_ bug.
 
--- 
-~Randy
+TIF_SINGLESTEP very much should be enough to force do_notify_resume() to 
+be run on return to user space.
+
+Sounds like somebody is testing _TIF_WORK_MASK rather than 
+_TIF_ALLWORK_MASK.
+
+I'd suspect the "work_pending" case. Looks like we miss testing the TIF 
+flags there.
+
+Oh, actually, I think you should just remove the clearing of 
+_TIF_SINGLESTEP from _TIF_WORK_MASK. Does that fix the bug.
+
+		Linus

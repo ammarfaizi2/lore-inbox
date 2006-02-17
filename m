@@ -1,83 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030631AbWBQOyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030598AbWBQO42@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030631AbWBQOyN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 09:54:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030607AbWBQOyM
+	id S1030598AbWBQO42 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 09:56:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030600AbWBQO42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 09:54:12 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:1245 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030600AbWBQOyK (ORCPT
+	Fri, 17 Feb 2006 09:56:28 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:40859 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030598AbWBQO41 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 09:54:10 -0500
-Date: Fri, 17 Feb 2006 08:53:50 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Hubertus Franke <frankeh@watson.ibm.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Kirill Korotaev <dev@sw.ru>, linux-kernel@vger.kernel.org,
-       vserver@list.linux-vserver.org, Herbert Poetzl <herbert@13thfloor.at>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: (pspace,pid) vs true pid virtualization
-Message-ID: <20060217145350.GA26437@sergelap.austin.ibm.com>
-References: <20060215145942.GA9274@sergelap.austin.ibm.com> <m11wy4s24i.fsf@ebiederm.dsl.xmission.com> <20060216142928.GA22358@sergelap.austin.ibm.com> <43F5448A.6020501@watson.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43F5448A.6020501@watson.ibm.com>
-User-Agent: Mutt/1.5.11
+	Fri, 17 Feb 2006 09:56:27 -0500
+From: David Howells <dhowells@redhat.com>
+To: torvalds@osdl.org, akpm@osdl.org
+cc: keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Keys: Replace duplicate non-updateable keys rather than failing
+X-Mailer: MH-E 7.91+cvs; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Fri, 17 Feb 2006 14:56:21 +0000
+Message-ID: <8265.1140188181@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Hubertus Franke (frankeh@watson.ibm.com):
-> >>- Should a process have some sort of global (on the machine identifier)?
-> 
-> First establish whether that global ID has to be persistent ...
-> I don't see why ! In which case the TASK_REF is the perfect global ID.
 
-The task_refs were only intended to be used in the kernel, iiuc.
+The attached patch causes an attempt to add a duplicate non-updateable key
+(such as a keyring) to a keyring to discard the extant copy in favour of the
+new one rather than failing with EEXIST:
 
-...
+	# do the test in an empty session
+	keyctl session
+	# create a new keyring called "a" and attach to session
+	keyctl newring a @s
+	# create another new keyring called "a" and attach to session,
+	# displacing the keyring added by the second command:
+	keyctl newring a @s
 
-> >>- Should we be able to have processes enter a pid space?
-> >
-> >
-> >IMO that is crucial.
-> 
-> Existing ones .. now that is potentially difficult to do. Particular
-> if you want to enter a pidspace that has already been migrated.
-> Because ones assigned pid might already been taken in the target pspace.
+Without this patch, the third command will fail.
 
-Well the answer changes depending on whether the question asks
-about pid spaces, or full containers.  For full containers, you have
-problems with unsharing various pieces of namespace.  But for the
-pidspace, a simple function with clone() semantics makes perfect sense.
-So your code does:
+For updateable keys (such as those of "user" type), the update method will
+still be called rather than a new key being created.
 
-	child_pid = pidspace_clone(pspace_id);
-	if (child_pid == 0) {
-		/* we are inside pspace 'pspace_id' with a random
-		   pid which is unique in that pspace */
-	} else {
-		/* the child_pid is known by some other pid in it's
-		   own pspace, but in our pspace it's known and hashed
-		   by 'child_pid'.  child_pid and that other pid are
-		   likely different.
-		 */
-	 }
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
-So long as we're just talking about the pidspaces, I don't see any
-unexpected side effects here.
+warthog>diffstat -p1 keys-replace-2616rc3.diff
+ security/keys/key.c |   14 +++++++++-----
+ 1 files changed, 9 insertions(+), 5 deletions(-)
 
--serge
+diff -uNrp linux-2.6.16-rc3-key-quota/security/keys/key.c linux-2.6.16-rc3-key-replace/security/keys/key.c
+--- linux-2.6.16-rc3-key-quota/security/keys/key.c	2006-02-17 14:26:27.000000000 +0000
++++ linux-2.6.16-rc3-key-replace/security/keys/key.c	2006-02-17 14:31:39.000000000 +0000
+@@ -795,12 +795,16 @@ key_ref_t key_create_or_update(key_ref_t
+ 		goto error_3;
+ 	}
+ 
+-	/* search for an existing key of the same type and description in the
+-	 * destination keyring
++	/* if it's possible to update this type of key, search for an existing
++	 * key of the same type and description in the destination keyring and
++	 * update that instead if possible
+ 	 */
+-	key_ref = __keyring_search_one(keyring_ref, ktype, description, 0);
+-	if (!IS_ERR(key_ref))
+-		goto found_matching_key;
++	if (ktype->update) {
++		key_ref = __keyring_search_one(keyring_ref, ktype, description,
++					       0);
++		if (!IS_ERR(key_ref))
++			goto found_matching_key;
++	}
+ 
+ 	/* decide on the permissions we want */
+ 	perm = KEY_POS_VIEW | KEY_POS_SEARCH | KEY_POS_LINK | KEY_POS_SETATTR;

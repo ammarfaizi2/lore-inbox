@@ -1,132 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030638AbWBQPBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030619AbWBQPCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030638AbWBQPBK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 10:01:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030640AbWBQPBK
+	id S1030619AbWBQPCi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 10:02:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030628AbWBQPCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 10:01:10 -0500
-Received: from lucidpixels.com ([66.45.37.187]:9858 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1030638AbWBQPBI (ORCPT
+	Fri, 17 Feb 2006 10:02:38 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:22430 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030619AbWBQPCh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 10:01:08 -0500
-Date: Fri, 17 Feb 2006 10:00:54 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34
-To: Mark Lord <lkml@rtr.ca>
-cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>
-Subject: Re: LibPATA code issues / 2.6.15.4
-In-Reply-To: <200602170959.40286.lkml@rtr.ca>
-Message-ID: <Pine.LNX.4.64.0602171000180.22450@p34>
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F1EE4A.3050107@rtr.ca>
- <43F58D29.3040608@pobox.com> <200602170959.40286.lkml@rtr.ca>
+	Fri, 17 Feb 2006 10:02:37 -0500
+Date: Fri, 17 Feb 2006 16:02:15 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: john stultz <johnstul@us.ibm.com>
+cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] hrtimer: round up relative start time on low-res arches
+In-Reply-To: <1140136085.7028.65.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.61.0602171403140.30994@scrub.home>
+References: <Pine.LNX.4.61.0602130207560.23745@scrub.home> 
+ <1139827927.4932.17.camel@localhost.localdomain>  <Pine.LNX.4.61.0602131208050.30994@scrub.home>
+  <20060214074151.GA29426@elte.hu>  <Pine.LNX.4.61.0602141113060.30994@scrub.home>
+  <20060214122031.GA30983@elte.hu>  <Pine.LNX.4.61.0602150033150.30994@scrub.home>
+  <20060215091959.GB1376@elte.hu>  <Pine.LNX.4.61.0602151259270.30994@scrub.home>
+  <1140036234.27720.8.camel@leatherman>  <Pine.LNX.4.61.0602161244240.30994@scrub.home>
+  <1140116771.7028.31.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.61.0602162305210.30994@scrub.home>
+ <1140136085.7028.65.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have patched the kernel and rebooted it with your patch, but, of course, 
-with my luck it has not given me any errors since, even when repeating 
-major file copies, bonnie++ and iozone!! :(
+Hi,
 
+On Thu, 16 Feb 2006, john stultz wrote:
 
-On Fri, 17 Feb 2006, Mark Lord wrote:
+> > There is no real dependency on HZ, it's just that the synchronisations 
+> > steps and incremental updates are done in fixed intervals. The interval 
+> > could easily be independent of HZ.
+> 
+> Ok, one concern was that in the cycle->interval conversion, some
+> interval lengths are not possible due to the clock's resolution.
+> 
+> In my mind, I'd like to provide a interval length to the NTP code and
+> have the NTP code provide an adjusted interval which can be used in
+> error accumulation and the resulting multiplier adjustment.
+> 
+> Or, we just write off the cycle->interval error as part of the clock's
+> natural error and let the NTP daemon compensate for it. Your thoughts?
 
-> On Friday 17 February 2006 03:45, Jeff Garzik wrote:
->> Submit a patch...
->
-> You mean, something like this one?
-> Untested at present, as I was hoping to hear
-> back from one of the original problem reporters
-> after they tested it.
->
-> Cheers!
->
->
->
-> -------- Original Message --------
-> Subject: Re: LibPATA code issues / 2.6.15.4
-> Date: Tue, 14 Feb 2006 13:00:36 -0500
-> From: Mark Lord <lkml@rtr.ca>
-> To: Justin Piszcz <jpiszcz@lucidpixels.com>
-> CC: David Greaves <david@dgreaves.com>,	Jeff Garzik <jgarzik@pobox.com>,
-> linux-kernel@vger.kernel.org,	IDE/ATA development list
-> <linux-ide@vger.kernel.org>
-> References: <Pine.LNX.4.64.0602140439580.3567@p34>
-> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34>
->
-> On Tuesday 14 February 2006 12:12, Justin Piszcz wrote:
->> I would like to try the patch too, if available.
->
-> Something like this:  (for 2.6.16-rc3-git2, but should be okay on 2.6.15
-> also).
->
-> Untested:  include the original SCSI opcode in printk's for libata SCSI
-> errors,
-> to help understand where the errors are coming from.
->
-> Signed-Off-By:  Mark Lord <mlord@pobox.com>
->
-> --- linux/drivers/scsi/libata-scsi.c.orig	2006-02-12 19:27:25.000000000 -0500
-> +++ linux/drivers/scsi/libata-scsi.c	2006-02-14 12:54:17.000000000 -0500
-> @@ -420,6 +420,7 @@
->  *	@sk: the sense key we'll fill out
->  *	@asc: the additional sense code we'll fill out
->  *	@ascq: the additional sense code qualifier we'll fill out
-> + *	@opcode: the original SCSI command opcode byte
->  *
->  *	Converts an ATA error into a SCSI error.  Fill out pointers to
->  *	SK, ASC, and ASCQ bytes for later use in fixed or descriptor
-> @@ -429,7 +430,7 @@
->  *	spin_lock_irqsave(host_set lock)
->  */
-> void ata_to_sense_error(unsigned id, u8 drv_stat, u8 drv_err, u8 *sk, u8
-> *asc,
-> -			u8 *ascq)
-> +			u8 *ascq, u8 opcode)
-> {
-> 	int i;
->
-> @@ -508,8 +509,8 @@
-> 		}
-> 	}
-> 	/* No error?  Undecoded? */
-> -	printk(KERN_WARNING "ata%u: no sense translation for status: 0x%02x\n",
-> -	       id, drv_stat);
-> +	printk(KERN_WARNING "ata%u: no sense translation for op=0x%02x status:
-> 0x%02x\n",
-> +	       id, opcode, drv_stat);
->
-> 	/* For our last chance pick, use medium read error because
-> 	 * it's much more common than an ATA drive telling you a write
-> @@ -520,8 +521,8 @@
-> 	*ascq = 0x04; /*  "auto-reallocation failed" */
->
->  translate_done:
-> -	printk(KERN_ERR "ata%u: translated ATA stat/err 0x%02x/%02x to "
-> -	       "SCSI SK/ASC/ASCQ 0x%x/%02x/%02x\n", id, drv_stat, drv_err,
-> +	printk(KERN_ERR "ata%u: translated op=0x%02x ATA stat/err 0x%02x/%02x to "
-> +	       "SCSI SK/ASC/ASCQ 0x%x/%02x/%02x\n", id, opcode, drv_stat, drv_err,
-> 	       *sk, *asc, *ascq);
-> 	return;
-> }
-> @@ -562,7 +563,7 @@
-> 	 */
-> 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
-> 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
-> -				   &sb[1], &sb[2], &sb[3]);
-> +				   &sb[1], &sb[2], &sb[3], cmd->cmnd[0]);
-> 		sb[1] &= 0x0f;
-> 	}
->
-> @@ -637,7 +638,7 @@
-> 	 */
-> 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
-> 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
-> -				   &sb[2], &sb[12], &sb[13]);
-> +				   &sb[2], &sb[12], &sb[13], cmd->cmnd[0]);
-> 		sb[2] &= 0x0f;
-> 	}
->
-> -
->
+Here my example does correct for this error, it accumulates the difference 
+between the clock update and the desired ntp update and once it's large 
+enough, it's corrected by a multiplier change.
+
+> Regardless, the point is that I'd prefer if the timeofday code to be
+> able to specify to the NTP code what the interval length is, rather then
+> the other way around. Does that sound reasonable?
+
+I don't understand what the advantage would be, the NTP code needs both 
+and the time interval is actually the variable part, so AFAICT it would 
+make the NTP code only more complex. (NTP changes the amount of time to be 
+passed per tick to adjust clock speed and not the other way around.)
+
+bye, Roman

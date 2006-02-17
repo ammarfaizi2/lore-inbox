@@ -1,137 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbWBQGpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161122AbWBQHBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932511AbWBQGpH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 01:45:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbWBQGpH
+	id S1161122AbWBQHBN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 02:01:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161046AbWBQHBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 01:45:07 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:21988 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932511AbWBQGpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 01:45:05 -0500
-Message-ID: <43F5711F.8010508@jp.fujitsu.com>
-Date: Fri, 17 Feb 2006 15:45:51 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Dave Hansen <haveblue@us.ibm.com>, gregkh@suse.de,
-       lhms <lhms-devel@lists.sourceforge.net>,
-       Yasunori Goto <y-goto@jp.fujitsu.com>
-Subject: [PATCH] change memoryX->phys_device from number to symlink [2/2]
- acpi func
-Content-Type: multipart/mixed;
- boundary="------------090505020402080006070303"
+	Fri, 17 Feb 2006 02:01:13 -0500
+Received: from 203-59-85-100.dyn.iinet.net.au ([203.59.85.100]:56449 "EHLO
+	eagle.themaw.net") by vger.kernel.org with ESMTP id S932519AbWBQHBM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 02:01:12 -0500
+Date: Fri, 17 Feb 2006 15:00:55 +0800
+Message-Id: <200602170700.k1H70tIC004008@eagle.themaw.net>
+From: Ian Kent <raven@themaw.net>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: linux-fsdevel@vger.kernel.org, autofs@linux.kernel.org
+Subject: [RFC:PATCH 1/4] autofs4 - nameidata needs to be up to date for follow_link
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090505020402080006070303
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+In order to be able to trigger a mount using the follow_link
+inode method the nameidata struct that is passed in needs to have
+the vfsmount of the autofs trigger not its parent.
+
+During a path walk if an autofs trigger is mounted on a dentry,
+when the follow_link method is called, the nameidata struct contains
+the vfsmount and mountpoint dentry of the parent mount while the
+dentry that is passed in is the root of the autofs trigger mount.
+I believe it is impossible to get the vfsmount of the trigger 
+mount, within the follow_link method, when only the parent vfsmount
+and the root dentry of the trigger mount are known.
+
+This patch updates the nameidata struct on entry to __do_follow_link
+if it detects that it is out of date. It moves the path_to_nameidata
+to above __do_follow_link to facilitate calling it from there.
+The dput_path is moved as well as that seemed sensible. No changes
+are made to these two functions.
+
+Signed-off-by: Ian Kent <raven@themaw.net>
 
 
---------------090505020402080006070303
-Content-Type: text/x-patch;
- name="physdevice_symlink_02.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="physdevice_symlink_02.patch"
-
-This patch add phys_device symbolic link support to acpi memory hotplug.
-This will help shell script for memory hotplug.
-
-example)
-%readlink /sys/devices/system/memory/memory10/phys_device
-../../../../firmware/acpi/namespace/ACPI/_SB/LSB1/MEM3
-
-
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-
-
-Index: testtree/drivers/acpi/acpi_memhotplug.c
-===================================================================
---- testtree.orig/drivers/acpi/acpi_memhotplug.c	2006-02-17 15:07:53.000000000 +0900
-+++ testtree/drivers/acpi/acpi_memhotplug.c	2006-02-17 15:08:30.000000000 +0900
-@@ -30,6 +30,7 @@
- #include <linux/init.h>
- #include <linux/types.h>
- #include <linux/memory_hotplug.h>
-+#include <linux/memory.h>
- #include <acpi/acpi_drivers.h>
+--- linux-2.6.16-rc2-mm1/fs/namei.c.update-nameidata-on-follow_link	2006-02-09 13:41:32.000000000 +0800
++++ linux-2.6.16-rc2-mm1/fs/namei.c	2006-02-09 13:51:19.000000000 +0800
+@@ -546,6 +546,22 @@ struct path {
+ 	struct dentry *dentry;
+ };
  
- #define ACPI_MEMORY_DEVICE_COMPONENT		0x08000000UL
-@@ -180,6 +181,19 @@
- 	return_VALUE(0);
- }
- 
-+static acpi_status acpi_memory_link_name(struct acpi_memory_device *mem_device)
++static inline void dput_path(struct path *path, struct nameidata *nd)
 +{
-+	struct acpi_device *device = NULL;
-+	acpi_status status;
-+	int ret;
-+	status = acpi_bus_get_device(mem_device->handle, &device);
-+	if (ACPI_FAILURE(status))
-+		return status;
-+	ret = attach_device_to_memsection(mem_device->start_addr,
-+					mem_device->end_addr, &device->kobj);
-+	return_VALUE(ret);
++	dput(path->dentry);
++	if (path->mnt != nd->mnt)
++		mntput(path->mnt);
 +}
 +
- static int acpi_memory_enable_device(struct acpi_memory_device *mem_device)
++static inline void path_to_nameidata(struct path *path, struct nameidata *nd)
++{
++	dput(nd->dentry);
++	if (nd->mnt != path->mnt)
++		mntput(nd->mnt);
++	nd->mnt = path->mnt;
++	nd->dentry = path->dentry;
++}
++
+ static __always_inline int __do_follow_link(struct path *path, struct nameidata *nd)
  {
- 	int result;
-@@ -206,7 +220,8 @@
- 		mem_device->state = MEMORY_INVALID_STATE;
- 		return result;
- 	}
+ 	int error;
+@@ -555,8 +571,11 @@ static __always_inline int __do_follow_l
+ 	touch_atime(path->mnt, dentry);
+ 	nd_set_link(nd, NULL);
+ 
+-	if (path->mnt == nd->mnt)
+-		mntget(path->mnt);
++	if (path->mnt != nd->mnt) {
++		path_to_nameidata(path, nd);
++		dget(dentry);
++	}
++	mntget(path->mnt);
+ 	cookie = dentry->d_inode->i_op->follow_link(dentry, nd);
+ 	error = PTR_ERR(cookie);
+ 	if (!IS_ERR(cookie)) {
+@@ -573,22 +592,6 @@ static __always_inline int __do_follow_l
+ 	return error;
+ }
+ 
+-static inline void dput_path(struct path *path, struct nameidata *nd)
+-{
+-	dput(path->dentry);
+-	if (path->mnt != nd->mnt)
+-		mntput(path->mnt);
+-}
 -
-+	/* link to /sys/devices/system/memory/memoryX  */
-+	result = acpi_memory_link_name(mem_device);
- 	return result;
- }
- 
-@@ -471,6 +486,22 @@
- 	return_ACPI_STATUS(status);
- }
- 
-+static acpi_status __init acpi_memory_link_name_cb(acpi_handle handle, u32 level,
-+						  void *ctxt, void **retv)
-+{
-+	acpi_status status;
-+	struct acpi_memory_device *mem_device;
-+	status = is_memory_device(handle);
-+	if (ACPI_FAILURE(status))
-+		return_ACPI_STATUS(AE_OK); /* continue */
-+	if (acpi_memory_get_device(handle, &mem_device)) {
-+		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
-+				  "Error in finding driver data\n"));
-+		return_ACPI_STATUS(AE_OK); /* continue */
-+	}
-+	return acpi_memory_link_name(mem_device);
-+}
-+
- static int __init acpi_memory_device_init(void)
- {
- 	int result;
-@@ -494,6 +525,16 @@
- 		return_VALUE(-ENODEV);
- 	}
- 
-+	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
-+				     ACPI_UINT32_MAX,
-+				     acpi_memory_link_name_cb,
-+				     NULL, NULL);
-+	if (ACPI_FAILURE(status)) {
-+		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "walk_namespace failed\n"));
-+		acpi_bus_unregister_driver(&acpi_memory_device_driver);
-+		return_VALUE(-ENODEV);
-+	}
-+
- 	return_VALUE(0);
- }
- 
-
---------------090505020402080006070303--
-
-
+-static inline void path_to_nameidata(struct path *path, struct nameidata *nd)
+-{
+-	dput(nd->dentry);
+-	if (nd->mnt != path->mnt)
+-		mntput(nd->mnt);
+-	nd->mnt = path->mnt;
+-	nd->dentry = path->dentry;
+-}
+-
+ /*
+  * This limits recursive symlink follows to 8, while
+  * limiting consecutive symlinks to 40.

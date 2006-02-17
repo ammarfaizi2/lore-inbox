@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWBQSUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbWBQSmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751309AbWBQSUw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 13:20:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWBQSUv
+	id S1751117AbWBQSmT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 13:42:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbWBQSmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 13:20:51 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:45741 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751167AbWBQSUv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 13:20:51 -0500
-Date: Fri, 17 Feb 2006 10:21:04 -0800
-From: Don Fry <brazilnut@us.ibm.com>
-To: Seewer Philippe <philippe.seewer@bfh.ch>
-Cc: tsbogend@alpha.franken.de, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH 1/2] pcnet32: Introduce basic AT 2700/01 FTX support
-Message-ID: <20060217182104.GA19257@us.ibm.com>
-References: <43F5F66F.6040608@bfh.ch>
+	Fri, 17 Feb 2006 13:42:19 -0500
+Received: from smtp-105-friday.nerim.net ([62.4.16.105]:31759 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1750826AbWBQSmS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 13:42:18 -0500
+Date: Fri, 17 Feb 2006 19:42:46 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: "Jordan Crouse" <jordan.crouse@amd.com>
+Cc: "Nick Warne" <nick@linicks.net>, lm-sensors@lm-sensors.org,
+       linux-kernel@vger.kernel.org, info-linux@ldcmail.amd.com
+Subject: Re: Add LM82 support
+Message-Id: <20060217194246.1955d576.khali@linux-fr.org>
+In-Reply-To: <20060217162922.GP20157@cosmic.amd.com>
+References: <20060216175930.GE20157@cosmic.amd.com>
+	<LYRIS-4270-26349-2006.02.17-07.32.29--jordan.crouse#amd.com@whitestar.amd.com>
+	<20060217162922.GP20157@cosmic.amd.com>
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43F5F66F.6040608@bfh.ch>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philippe,
+Hi Jordan,
 
-On a purely mechanical note, the patches do not apply cleanly because
-of whitespace changes.  Possibly your mailer changed tabs to spaces,
-which causes the patch not to apply, and also causes your patch to have
-different spacing than the rest of the file.  The driver does not
-conform to the 8-space indentation guideline/rule, but it is consistent
-in 4-space indentation.
+> On 17/02/06 13:09 +0000, Nick Warne wrote:
+> > > +       else if (kind = lm82) {
+> > > +               name = "lm82";
+> > > +       }
+> > 
+> > Is that a '=' typo in the 'else if' there?
+> 
+> Yep - thats what that would be.  That must be my typo of the week, since
+> I just had it in another driver I'm writing.
 
-I am looking over this change and the following one, to try and
-understand what and why you made your changes.
+Given that gcc clearly warns on this kind of typo, how could it go
+unnoticed?
 
-The change made by Thomas Bogendoerfer and modified by myself is much
-more flexible than your changes, in that they are not specific just to
-the Allied Telesyn boards with multiple Phys.  They also allow dynamic
-changing of cabling without requiring the driver to be removed/installed
-or the card power cycled.  I also see little value in the module
-parameters, when it can be determined dynamically. Also, maxphy might be
-thought to the the maximum number of phys, rather than the maximum phy
-number supported.  If static selection of the phy to use is passed in as
-a module parameter, why also include a maxphy?
-
-As I review your patches I will follow up to the mailing list.
-
-On Fri, Feb 17, 2006 at 05:14:39PM +0100, Seewer Philippe wrote:
-> 
-> This patch extends Don Fry's last patch for AT 2700/01 FX to set the
-> speed/fdx options for the FTX variants of these cards as well.
-> 
-> Additionally the option override has been moved from pcnet32_open to
-> pcnet32_probe1 because it's only necessary to override the options once.
-> 
-> Tested and works.
-> 
-> Patch applies to 2.6.16-rc3
-> 
-Don Fry
-brazilnut@us.ibm.com
+-- 
+Jean Delvare

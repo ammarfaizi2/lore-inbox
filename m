@@ -1,64 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751691AbWBQXOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751069AbWBQXcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751691AbWBQXOq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 18:14:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751599AbWBQXOq
+	id S1751069AbWBQXcz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 18:32:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbWBQXcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 18:14:46 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:17931 "HELO
+	Fri, 17 Feb 2006 18:32:55 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28171 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751478AbWBQXOp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 18:14:45 -0500
-Date: Sat, 18 Feb 2006 00:14:44 +0100
+	id S1751483AbWBQXcy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 18:32:54 -0500
+Date: Sat, 18 Feb 2006 00:32:53 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       John Stultz <johnstul@us.ibm.com>, paulus@samba.org,
-       linuxppc-dev@ozlabs.org, gregkh@suse.de,
-       Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>, len.brown@intel.com,
-       linux-acpi@vger.kernel.org, Meelis Roos <mroos@linux.ee>,
-       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       linux-input@atrey.karlin.mff.cuni.cz
-Subject: 2.6.16-rc4: known regressions
-Message-ID: <20060217231444.GM4422@stusta.de>
-References: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, len.brown@intel.com,
+       Paul Bristow <paul@paulbristow.net>, mpm@selenic.com,
+       B.Zolnierkiewicz@elka.pw.edu.pl, dtor_core@ameritech.net, kkeil@suse.de,
+       linux-dvb-maintainer@linuxtv.org, philb@gnu.org, gregkh@suse.de,
+       dwmw2@infradead.org
+Subject: Re: kbuild: Section mismatch warnings
+Message-ID: <20060217233253.GN4422@stusta.de>
+References: <20060217214855.GA5563@mars.ravnborg.org> <20060217224702.GA25761@mars.ravnborg.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org>
+In-Reply-To: <20060217224702.GA25761@mars.ravnborg.org>
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This email lists some known regressions in 2.6.16-rc4 compared to 2.6.15.
+On Fri, Feb 17, 2006 at 11:47:02PM +0100, Sam Ravnborg wrote:
+>...
+> Syntax:
+> The offset refer to the relative offset from the referenced symbol.
+> So
+> WARNING: drivers/acpi/asus_acpi.o - Section mismatch: reference to .init.text from .data between 'asus_hotk_driver' (at offset 0xc0) and 'model_conf'
+> should be read as:
+> 
+> At 0xc0 bytes after asus_hotk_driver there is a reference to a symbol
+> placed in the section .init.text.
+> 
+> I did not find a way to look up the offending symbol but maybe some elf
+> expert can help?
+>...
+ 
+I'm not an ELF expert, but simply checking all __init functions in this 
+files finds that this seems to be the following:
 
-If you find your name in the Cc header, you are either submitter of one 
-of the bugs, maintainer of an affectected subsystem or driver, a patch 
-of you was declared guilty for a breakage or I'm considering you in any 
-other way possibly involved with one or more of these issues.
+<--  snip  -->
 
+...
+static struct acpi_driver asus_hotk_driver = {
+        .name = ACPI_HOTK_NAME,
+        .class = ACPI_HOTK_CLASS,
+        .ids = ACPI_HOTK_HID,
+        .ops = {
+                .add = asus_hotk_add,
+                .remove = asus_hotk_remove,
+                },
+};
+...
+static int __init asus_hotk_add(struct acpi_device *device)
+...
 
-Subject    : gnome-volume-manager broken on powerpc since 2.6.16-rc1
-References : http://bugzilla.kernel.org/show_bug.cgi?id=6021
-Submitter  : John Stultz <johnstul@us.ibm.com>
-Status     : still present in -git two days ago
+<--  snip  -->
 
-
-Subject    : S3 sleep hangs the second time - 600X
-References : http://bugzilla.kernel.org/show_bug.cgi?id=5989
-Submitter  : Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Status     : problematic commit identified,
-             further discussion is in the bug
-
-Subject    : psmouse starts losing sync in 2.6.16-rc2
-References : http://lkml.org/lkml/2006/2/5/50
-Submitter  : Meelis Roos <mroos@linux.ee>
-Handled-By : Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Status     : Dmitry: Working on various manifestations of this one.
-                     At worst we will have to disable resync by default
-                     before 2.6.16 final is out and continue in 2.6.17 cycle.
-
-
+> 	Sam
+>...
 
 cu
 Adrian

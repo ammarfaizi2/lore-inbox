@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030474AbWBQOxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030470AbWBQOxI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030474AbWBQOxL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 09:53:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030598AbWBQOxL
+	id S1030470AbWBQOxI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 09:53:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWBQOxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 09:53:11 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:34214 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030474AbWBQOxK convert rfc822-to-8bit
+	Fri, 17 Feb 2006 09:53:08 -0500
+Received: from nproxy.gmail.com ([64.233.182.193]:9461 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964913AbWBQOxG convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 09:53:10 -0500
+	Fri, 17 Feb 2006 09:53:06 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=beTivec39FBzPruLKHEtPji2vRUpeCQJrCpJBq5+eIkdTnKEJiT2uoo4GyH0OomFUEtV6Bj6La+t4KaRLcYdhFId7fhvclXSiLsem1f1Sxz2j0ZGmcH7j2xSMozMFV696sPdfPc7/R7SwXrU6WvktKGZqw8LBXcz5NLIe0artiU=
-Message-ID: <3b0ffc1f0602170653o2062b2b1i71832c7869455426@mail.gmail.com>
-Date: Fri, 17 Feb 2006 09:53:09 -0500
-From: Kevin Radloff <radsaq@gmail.com>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: [ck] [PATCH] mm: implement swap prefetching (v26)
-Cc: Andrew Morton <akpm@osdl.org>, ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Bart Samwel <bart@samwel.tk>
-In-Reply-To: <200602180126.58519.kernel@kolivas.org>
+        b=HzKZApnzYO6dgO1dOSIyqT6lg50mXHJzpAFcMojHzYDARx10JdnunjRyOrv34bdBz35tcsNHggUwlMWkHQe5xG+r4YbLebzm7TDM6ygukkrBEcDdt+KDXItRg9VZ8yQXNco7QKzyU6N5l9pliHup+VSgXQ6RzvyBVc0lVyI0IlQ=
+Message-ID: <58cb370e0602170653g30bd36f3j4b1a0e95f64ecbeb@mail.gmail.com>
+Date: Fri, 17 Feb 2006 15:53:04 +0100
+From: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Fix IDE locking error.
+Cc: "Dave Jones" <davej@redhat.com>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+In-Reply-To: <1140186532.4283.2.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <200602172235.40019.kernel@kolivas.org>
-	 <3b0ffc1f0602170618u7a1ad877s337de33c0a8f44f9@mail.gmail.com>
-	 <200602180126.58519.kernel@kolivas.org>
+References: <20060216223916.GA8463@redhat.com>
+	 <58cb370e0602170057x59b23957n3e858d5ac4918326@mail.gmail.com>
+	 <1140186532.4283.2.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/17/06, Con Kolivas <kernel@kolivas.org> wrote:
-> The discussion was about what size to make the swap prefetching. Since the
-> size is not user tunable any more that is not the case. I had an offlist
-> discussion with Bart Samwel about it and basically if your drive spins down
-> at 5 seconds (which is what commonly happens with laptop mode) you will never
-> have an opportunity to prefetch. This means swap prefetch will basically
-> always spin up the drive nullifying laptop mode. On balance if you care about
-> power more than anything to actually set laptop mode I suspect you wont want
-> prefetch using any more power.
+On 2/17/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Gwe, 2006-02-17 at 09:57 +0100, Bartlomiej Zolnierkiewicz wrote:
+> > Could we get a decent description of the problem and of the patch?
+>
+> Audit the lock state on all entries to the tune function and it
+> certainly was the case that the old IDE layer could call it with the
+> lock either already held or not.
 
-Ahh, that's certainly a valid point. Although, it could be said that
-since the laptop mode script allows you to set a great number of thing
-is a great number of ways to achieve your vision of low power mode,
-the effectiveness may actually vary. But I don't comprehend your
-definition of "idle" in the patch anyway, so I won't bother even
-trying to discuss it. ;)
+Thank you but this is not a patch description, this is a recipe
+for me to spend nice friday's evening staring all over IDE code
+and making patch description myself...
 
---
-Kevin 'radsaq' Radloff
-radsaq@gmail.com
-http://thesaq.com/
+http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt ?
+
+Bartlomiej

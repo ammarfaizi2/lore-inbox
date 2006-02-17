@@ -1,86 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751716AbWBQUaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751733AbWBQUcL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751716AbWBQUaP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 15:30:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751733AbWBQUaP
+	id S1751733AbWBQUcL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 15:32:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751736AbWBQUcL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 15:30:15 -0500
-Received: from mr1.bfh.ch ([147.87.250.50]:3019 "EHLO mr1.bfh.ch")
-	by vger.kernel.org with ESMTP id S1751716AbWBQUaO (ORCPT
+	Fri, 17 Feb 2006 15:32:11 -0500
+Received: from mail20.messagelabs.com ([216.82.245.67]:54947 "HELO
+	mail20.messagelabs.com") by vger.kernel.org with SMTP
+	id S1751733AbWBQUcK convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 15:30:14 -0500
-X-PMWin-Version: 2.5.0e, Antispam-Engine: 2.2.0.0, Antivirus-Engine: 2.32.10
-Thread-Index: AcY0APHHHI7HTYZWSnCOZTgvBvsSIw==
+	Fri, 17 Feb 2006 15:32:10 -0500
+X-VirusChecked: Checked
+X-Env-Sender: Scott_Kilau@digi.com
+X-Msg-Ref: server-11.tower-20.messagelabs.com!1140208323!29341084!1
+X-StarScan-Version: 5.5.9.1; banners=-,-,-
+X-Originating-IP: [66.77.174.21]
+X-MimeOLE: Produced By Microsoft Exchange V6.5
 Content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
-Importance: normal
-Message-ID: <43F6324D.3040206@bfh.ch>
-Date: Fri, 17 Feb 2006 21:30:05 +0100
-From: "Seewer Philippe" <philippe.seewer@bfh.ch>
-Organization: BFH
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050811)
-X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: C/H/S from user space
 Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Feb 2006 20:30:08.0278 (UTC) FILETIME=[F17CF360:01C63400]
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Re: [PATCH] SIIG 8-port serial boards support
+Date: Fri, 17 Feb 2006 14:32:03 -0600
+Message-ID: <335DD0B75189FB428E5C32680089FB9F8034C6@mtk-sms-mail01.digi.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Re: [PATCH] SIIG 8-port serial boards support
+Thread-Index: AcY0ATX2STGavwkiRqC/f0+IpkZyEg==
+From: "Kilau, Scott" <Scott_Kilau@digi.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <rmk+lkml@arm.linux.org.uk>
+X-OriginalArrivalTime: 17 Feb 2006 20:32:03.0628 (UTC) FILETIME=[363DF6C0:01C63401]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi everyone,
+(Sorry for the ugly copy/paste here, grabbing from a web browser to
+email)
 
-<snip>
+On Fri, Feb 17, 2006 at 08:02:13PM +0000, Russell King wrote:
+> Finally, let me explain why I favour the termios solution.  The
+biggest
+> (and most important) aspect is that it allows existing applications
+> such as minicom and gettys to work as expected - getting the correct
+> handshaking mode that they desire without having to change userspace.
 
-wow this is really great... but just for your information
-on my ibm notebook the output is this:
+What about creating a "struct termiox".
+Yeah, it creates a new ioctl, but it is a pretty standard
+ioctl among Unix's.
 
-        Disk parameter table(s) at vector 0x41
-Disk0
-    Cylinders = 1024
-      Sectors = 63
-        Heads = 240
-Write precomp = 255
- Landing zone = 65296
-        Reserved bit 0 set
-        Reserved bit 1 set
-        Reserved bit 2 set
-        More than 8 heads
-        Reserved bit 4 set
-        Defect map present
-        Disable retries
-        Disable retries
-Disk1
-    Cylinders = 1024
-      Sectors = 4
-        Heads = 16
-Write precomp = 0
- Landing zone = 0
-        Disk parameter table(s) at vector 0x46
-Disk0
-    Cylinders = 34281
-      Sectors = 240
-        Heads = 230
-Write precomp = 7950
- Landing zone = 61
-        Reserved bit 2 set
-        More than 8 heads
-        Disable retries
-Disk1
-    Cylinders = 47631
-      Sectors = 102
-        Heads = 46
-Write precomp = 3698
- Landing zone = 7952
-        More than 8 heads
-        Defect map present
-        Disable retries
+I know adding termiox calls has been brought up before in
+the past, and of course, nothing ever gets added...
 
+Scott
 
-Just Note the "MAX" of 240 heads (very typical for IBM notebooks).
-
-But anyway this tool is very useful for me. many, many thanks.
 
 

@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751834AbWBRA6N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945946AbWBRBET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751834AbWBRA6N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 19:58:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWBRA5u
+	id S1945946AbWBRBET (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 20:04:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751849AbWBRA6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 19:57:50 -0500
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:35626 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S1751812AbWBRA5N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 19:57:13 -0500
+	Fri, 17 Feb 2006 19:58:14 -0500
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:47881 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1751840AbWBRA6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 19:58:03 -0500
 From: Roland Dreier <rolandd@cisco.com>
-Subject: [PATCH 03/22] pHype specific stuff
-Date: Fri, 17 Feb 2006 16:57:10 -0800
+Subject: [PATCH 14/22] ehca completion queue handling
+Date: Fri, 17 Feb 2006 16:57:43 -0800
 To: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
        openib-general@openib.org
 Cc: SCHICKHJ@de.ibm.com, RAISCH@de.ibm.com, HNGUYEN@de.ibm.com,
        MEDER@de.ibm.com
-Message-Id: <20060218005709.13620.77409.stgit@localhost.localdomain>
+Message-Id: <20060218005743.13620.29456.stgit@localhost.localdomain>
 In-Reply-To: <20060218005532.13620.79663.stgit@localhost.localdomain>
 References: <20060218005532.13620.79663.stgit@localhost.localdomain>
-X-OriginalArrivalTime: 18 Feb 2006 00:57:10.0734 (UTC) FILETIME=[3F9DB6E0:01C63426]
+X-OriginalArrivalTime: 18 Feb 2006 00:57:44.0031 (UTC) FILETIME=[53766EF0:01C63426]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Roland Dreier <rolandd@cisco.com>
 
-It's not clear what the connection between hcp_phyp.c and hcp_phyp.h
-really is -- they don't seem to very closely related.
 
-Again, hcp_phyp.h has some rather large functions that belong in
-a .c file and maybe shouldn't be inlined (although maybe the
-generated assembly ends up being small because it's just
-fiddling registers around).
-
-For a change, hipz_galpa_load() and hipz_galpa_store() actually
-look simple enough that they could probably become inline functions
-in a header (and just kill hcp_phyp.c).  This would also make the
-comments about them being inline in ehca_galpa.h true.
-
-Is ehca_galpha.h needed at all, or can it be folded into another
-file?  Why is its abstraction needed?
 ---
 
- drivers/infiniband/hw/ehca/ehca_galpa.h |   74 +++++++
- drivers/infiniband/hw/ehca/hcp_phyp.c   |   81 +++++++
- drivers/infiniband/hw/ehca/hcp_phyp.h   |  338 +++++++++++++++++++++++++++++++
- 3 files changed, 493 insertions(+), 0 deletions(-)
+ drivers/infiniband/hw/ehca/ehca_cq.c |  416 ++++++++++++++++++++++++++++++++++
+ 1 files changed, 416 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/infiniband/hw/ehca/ehca_galpa.h b/drivers/infiniband/hw/ehca/ehca_galpa.h
+diff --git a/drivers/infiniband/hw/ehca/ehca_cq.c b/drivers/infiniband/hw/ehca/ehca_cq.c
 new file mode 100644
-index 0000000..d64115c
+index 0000000..ebee9c3
 --- /dev/null
-+++ b/drivers/infiniband/hw/ehca/ehca_galpa.h
-@@ -0,0 +1,74 @@
++++ b/drivers/infiniband/hw/ehca/ehca_cq.c
+@@ -0,0 +1,416 @@
 +/*
 + *  IBM eServer eHCA Infiniband device driver for Linux on POWER
 + *
-+ *  pSeries interface definitions
++ *  Completion queue handling
 + *
 + *  Authors: Waleri Fomin <fomin@de.ibm.com>
-+ *           Christoph Raisch <raisch@de.ibm.com>
++ *           Reinhard Ernst <rernst@de.ibm.com>
++ *           Heiko J Schick <schickhj@de.ibm.com>
++ *           Hoang-Nam Nguyen <hnguyen@de.ibm.com>
++ *
 + *
 + *  Copyright (c) 2005 IBM Corporation
 + *
@@ -93,468 +80,376 @@ index 0000000..d64115c
 + * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 + * POSSIBILITY OF SUCH DAMAGE.
 + *
-+ *  $Id: ehca_galpa.h,v 1.6 2006/02/06 10:17:34 schickhj Exp $
++ *  $Id: ehca_cq.c,v 1.61 2006/02/06 10:17:34 schickhj Exp $
 + */
 +
-+#ifndef __EHCA_GALPA_H__
-+#define __EHCA_GALPA_H__
++#define DEB_PREFIX "e_cq"
 +
-+/* eHCA page (mapped into p-memory)
-+    resource to access eHCA register pages in CPU address space
-+*/
-+struct h_galpa {
-+	u64 fw_handle;
-+	/* for pSeries this is a 64bit memory address where
-+	   I/O memory is mapped into CPU address space (kv) */
-+};
-+
-+/**
-+   resource to access eHCA address space registers, all types
-+*/
-+struct h_galpas {
-+	u32 pid;		/*PID of userspace galpa checking */
-+	struct h_galpa user;	/* user space accessible resource,
-+				   set to 0 if unused */
-+	struct h_galpa kernel;	/* kernel space accessible resource,
-+				   set to 0 if unused */
-+};
-+/** @brief store value at offset into galpa, will be inline function
-+ */
-+void hipz_galpa_store(struct h_galpa galpa, u32 offset, u64 value);
-+
-+/** @brief return value from offset in galpa, will be inline function
-+ */
-+u64 hipz_galpa_load(struct h_galpa galpa, u32 offset);
-+
-+#endif				/* __EHCA_GALPA_H__ */
-diff --git a/drivers/infiniband/hw/ehca/hcp_phyp.c b/drivers/infiniband/hw/ehca/hcp_phyp.c
-new file mode 100644
-index 0000000..129e61b
---- /dev/null
-+++ b/drivers/infiniband/hw/ehca/hcp_phyp.c
-@@ -0,0 +1,81 @@
-+/*
-+ *  IBM eServer eHCA Infiniband device driver for Linux on POWER
-+ *
-+ *   load store abstraction for ehca register access
-+ *
-+ *  Authors:  Christoph Raisch <raisch@de.ibm.com>
-+ *
-+ *  Copyright (c) 2005 IBM Corporation
-+ *
-+ *  All rights reserved.
-+ *
-+ *  This source code is distributed under a dual license of GPL v2.0 and OpenIB
-+ *  BSD.
-+ *
-+ * OpenIB BSD License
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions are met:
-+ *
-+ * Redistributions of source code must retain the above copyright notice, this
-+ * list of conditions and the following disclaimer.
-+ *
-+ * Redistributions in binary form must reproduce the above copyright notice,
-+ * this list of conditions and the following disclaimer in the documentation
-+ * and/or other materials
-+ * provided with the distribution.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-+ * POSSIBILITY OF SUCH DAMAGE.
-+ *
-+ *  $Id: hcp_phyp.c,v 1.10 2006/02/06 10:17:34 schickhj Exp $
-+ */
-+
-+
-+#define DEB_PREFIX "PHYP"
-+
-+#ifdef __KERNEL__
 +#include "ehca_kernel.h"
-+#include "hipz_hw.h"
-+/* #include "hipz_structs.h" */
-+/* TODO: still necessary */
++#include "ehca_common.h"
++#include "ehca_iverbs.h"
 +#include "ehca_classes.h"
-+#else				/* !__KERNEL__ */
-+#include "ehca_utools.h"
-+#include "ehca_galpa.h"
-+#endif
++#include "ehca_irq.h"
++#include "hcp_if.h"
++#include <linux/err.h>
++#include <asm/uaccess.h>
 +
-+#ifndef EHCA_USERDRIVER		/* TODO: is this correct */
++#define HIPZ_CQ_REGISTER_ORIG 0
 +
-+u64 hipz_galpa_load(struct h_galpa galpa, u32 offset)
++int ehca_cq_assign_qp(struct ehca_cq *cq, struct ehca_qp *qp)
 +{
-+	u64 addr = galpa.fw_handle + offset;
-+	u64 out;
-+	EDEB_EN(7, "addr=%lx offset=%x ", addr, offset);
-+	out = *(u64 *) addr;
-+	EDEB_EX(7, "addr=%lx value=%lx", addr, out);
-+	return out;
-+};
-+
-+void hipz_galpa_store(struct h_galpa galpa, u32 offset, u64 value)
-+{
-+	u64 addr = galpa.fw_handle + offset;
-+	EDEB(7, "addr=%lx offset=%x value=%lx", addr,
-+	     offset, value);
-+	*(u64 *) addr = value;
-+#ifdef EHCA_USE_HCALL
-+	/* hipz_galpa_load(galpa, offset); */
-+	/* synchronize explicitly */
-+#endif
-+};
-+
-+#endif				/* EHCA_USERDRIVER */
-diff --git a/drivers/infiniband/hw/ehca/hcp_phyp.h b/drivers/infiniband/hw/ehca/hcp_phyp.h
-new file mode 100644
-index 0000000..c82fb4b
---- /dev/null
-+++ b/drivers/infiniband/hw/ehca/hcp_phyp.h
-@@ -0,0 +1,338 @@
-+/*
-+ *  IBM eServer eHCA Infiniband device driver for Linux on POWER
-+ *
-+ *  Firmware calls
-+ *
-+ *  Authors: Christoph Raisch <raisch@de.ibm.com>
-+ *           Waleri Fomin <fomin@de.ibm.com>
-+ *           Gerd Bayer <gerd.bayer@de.ibm.com>
-+ *
-+ *  Copyright (c) 2005 IBM Corporation
-+ *
-+ *  All rights reserved.
-+ *
-+ *  This source code is distributed under a dual license of GPL v2.0 and OpenIB
-+ *  BSD.
-+ *
-+ * OpenIB BSD License
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions are met:
-+ *
-+ * Redistributions of source code must retain the above copyright notice, this
-+ * list of conditions and the following disclaimer.
-+ *
-+ * Redistributions in binary form must reproduce the above copyright notice,
-+ * this list of conditions and the following disclaimer in the documentation
-+ * and/or other materials
-+ * provided with the distribution.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-+ * POSSIBILITY OF SUCH DAMAGE.
-+ *
-+ *  $Id: hcp_phyp.h,v 1.16 2006/02/06 10:17:34 schickhj Exp $
-+ */
-+
-+#ifndef __HCP_PHYP_H__
-+#define __HCP_PHYP_H__
-+
-+#ifndef EHCA_USERDRIVER
-+inline static int hcall_map_page(u64 physaddr, u64 * mapaddr)
-+{
-+	*mapaddr = (u64)(ioremap(physaddr, 4096));
-+
-+	EDEB(7, "ioremap physaddr=%lx mapaddr=%lx", physaddr, *mapaddr);
++	unsigned int qp_num = qp->ehca_qp_core.real_qp_num;
++	unsigned int key = qp_num%QP_HASHTAB_LEN;
++	unsigned long spl_flags = 0;
++	spin_lock_irqsave(&cq->spinlock, spl_flags);
++	list_add(&qp->list_entries, &cq->qp_hashtab[key]);
++	spin_unlock_irqrestore(&cq->spinlock, spl_flags);
++	EDEB(7, "cq_num=%x real_qp_num=%x", cq->cq_number, qp_num);
 +	return 0;
 +}
 +
-+inline static int hcall_unmap_page(u64 mapaddr)
++int ehca_cq_unassign_qp(struct ehca_cq *cq, unsigned int real_qp_num)
 +{
-+	EDEB(7, "mapaddr=%lx", mapaddr);
-+	iounmap((void *)(mapaddr));
-+	return 0;
-+}
-+#else
-+int hcall_map_page(u64 physaddr, u64 * mapaddr);
-+int hcall_unmap_page(u64 mapaddr);
-+#endif
-+
-+struct hcall {
-+	u64 regs[11];
-+};
-+
-+/**
-+ * @brief returns time to wait in secs for the given long busy error code
-+ */
-+inline static u32 getLongBusyTimeSecs(int longBusyRetCode)
-+{
-+	switch (longBusyRetCode) {
-+	case H_LongBusyOrder1msec:
-+		return 1;
-+	case H_LongBusyOrder10msec:
-+		return 10;
-+	case H_LongBusyOrder100msec:
-+		return 100;
-+	case H_LongBusyOrder1sec:
-+		return 1000;
-+	case H_LongBusyOrder10sec:
-+		return 10000;
-+	case H_LongBusyOrder100sec:
-+		return 100000;
-+	default:
-+		return 1;
-+	}			/* eof switch */
++	int ret = -EINVAL;
++	unsigned int key = real_qp_num%QP_HASHTAB_LEN;
++	struct list_head *iter = NULL;
++	struct ehca_qp *qp = NULL;
++	unsigned long spl_flags = 0;
++	spin_lock_irqsave(&cq->spinlock, spl_flags);
++	list_for_each(iter, &cq->qp_hashtab[key]) {
++		qp = list_entry(iter, struct ehca_qp, list_entries);
++		if (qp->ehca_qp_core.real_qp_num == real_qp_num) {
++			list_del(iter);
++			EDEB(7, "removed qp from cq .cq_num=%x real_qp_num=%x",
++			     cq->cq_number, real_qp_num);
++			ret = 0;
++			break;
++		}
++	}
++	spin_unlock_irqrestore(&cq->spinlock, spl_flags);
++	if (ret!=0) {
++		EDEB_ERR(4, "qp not found cq_num=%x real_qp_num=%x",
++			 cq->cq_number, real_qp_num);
++	}
++	return ret;
 +}
 +
-+inline static long plpar_hcall_7arg_7ret(unsigned long opcode,
-+					 unsigned long arg1,    /* <R4  */
-+					 unsigned long arg2,	/* <R5  */
-+					 unsigned long arg3,	/* <R6  */
-+					 unsigned long arg4,	/* <R7  */
-+					 unsigned long arg5,	/* <R8  */
-+					 unsigned long arg6,	/* <R9  */
-+					 unsigned long arg7,	/* <R10 */
-+					 unsigned long *out1,	/* <R4  */
-+					 unsigned long *out2,	/* <R5  */
-+					 unsigned long *out3,	/* <R6  */
-+					 unsigned long *out4,	/* <R7  */
-+					 unsigned long *out5,	/* <R8  */
-+					 unsigned long *out6,	/* <R9  */
-+					 unsigned long *out7	/* <R10 */
-+    )
++struct ehca_qp* ehca_cq_get_qp(struct ehca_cq *cq, int real_qp_num)
 +{
-+	struct hcall hcall_in = {
-+		.regs[0] = opcode,
-+		.regs[1] = arg1,
-+		.regs[2] = arg2,
-+		.regs[3] = arg3,
-+		.regs[4] = arg4,
-+		.regs[5] = arg5,
-+		.regs[6] = arg6,
-+		.regs[7] = arg7	/*,
-+				   .regs[8]=arg8 */
-+	};
-+	struct hcall hcall = hcall_in;
-+	int i;
-+	long ret;
-+	int sleep_msecs;
-+	EDEB(7, "HCALL77_IN r3=%lx r4=%lx r5=%lx r6=%lx r7=%lx r8=%lx"
-+	     " r9=%lx r10=%lx r11=%lx", hcall.regs[0], hcall.regs[1],
-+	     hcall.regs[2], hcall.regs[3], hcall.regs[4], hcall.regs[5],
-+	     hcall.regs[6], hcall.regs[7], hcall.regs[8]);
++	struct ehca_qp *ret = NULL;
++	unsigned int key = real_qp_num%QP_HASHTAB_LEN;
++	struct list_head *iter = NULL;
++	struct ehca_qp *qp = NULL;
++	list_for_each(iter, &cq->qp_hashtab[key]) {
++		qp = list_entry(iter, struct ehca_qp, list_entries);
++		if (qp->ehca_qp_core.real_qp_num == real_qp_num) {
++			ret = qp;
++			break;
++		}
++	}
++	return ret;
++}
 +
-+	/* if phype returns LongBusyXXX,
-+	 * we retry several times, but not forever */
-+	for (i = 0; i < 5; i++) {
-+		__asm__ __volatile__("mr 3,%10\n"
-+				     "mr 4,%11\n"
-+				     "mr 5,%12\n"
-+				     "mr 6,%13\n"
-+				     "mr 7,%14\n"
-+				     "mr 8,%15\n"
-+				     "mr 9,%16\n"
-+				     "mr 10,%17\n"
-+				     "mr 11,%18\n"
-+				     "mr 12,%19\n"
-+				     ".long 0x44000022\n"
-+				     "mr %0,3\n"
-+				     "mr %1,4\n"
-+				     "mr %2,5\n"
-+				     "mr %3,6\n"
-+				     "mr %4,7\n"
-+				     "mr %5,8\n"
-+				     "mr %6,9\n"
-+				     "mr %7,10\n"
-+				     "mr %8,11\n"
-+				     "mr %9,12\n":"=r"(hcall.regs[0]),
-+				     "=r"(hcall.regs[1]), "=r"(hcall.regs[2]),
-+				     "=r"(hcall.regs[3]), "=r"(hcall.regs[4]),
-+				     "=r"(hcall.regs[5]), "=r"(hcall.regs[6]),
-+				     "=r"(hcall.regs[7]), "=r"(hcall.regs[8]),
-+				     "=r"(hcall.regs[9])
-+				     :"r"(hcall.regs[0]), "r"(hcall.regs[1]),
-+				     "r"(hcall.regs[2]), "r"(hcall.regs[3]),
-+				     "r"(hcall.regs[4]), "r"(hcall.regs[5]),
-+				     "r"(hcall.regs[6]), "r"(hcall.regs[7]),
-+				     "r"(hcall.regs[8]), "r"(hcall.regs[9])
-+				     :"r0", "r2", "r3", "r4", "r5", "r6", "r7",
-+				     "r8", "r9", "r10", "r11", "r12", "cc",
-+				     "xer", "ctr", "lr", "cr0", "cr1", "cr5",
-+				     "cr6", "cr7");
++struct ib_cq *ehca_create_cq(struct ib_device *device, int cqe,
++			     struct ib_ucontext *context,
++			     struct ib_udata *udata)
++{
++	struct ib_cq *cq = NULL;
++	struct ehca_cq *my_cq = NULL;
++	u32 number_of_entries = cqe;
++	struct ehca_shca *shca = NULL;
++	struct ipz_adapter_handle adapter_handle;
++	struct ipz_eq_handle eq_handle;
++	struct ipz_cq_handle *cq_handle_ref = NULL;
++	u32 act_nr_of_entries = 0;
++	u32 act_pages = 0;
++	u32 counter = 0;
++	void *vpage = NULL;
++	u64 rpage = 0;
++	struct h_galpa gal;
++	u64 CQx_FEC = 0;
++	u64 hipz_rc = H_Success;
++	int ipz_rc = 0;
++	int ret = 0;
++	const u32 additional_cqe=20;
++	int i= 0;
 +
-+		EDEB(7, "HCALL77_OUT r3=%lx r4=%lx r5=%lx r6=%lx r7=%lx r8=%lx"
-+		     "r9=%lx r10=%lx r11=%lx", hcall.regs[0], hcall.regs[1],
-+		     hcall.regs[2], hcall.regs[3], hcall.regs[4], hcall.regs[5],
-+		     hcall.regs[6], hcall.regs[7], hcall.regs[8]);
-+		ret = hcall.regs[0];
-+		*out1 = hcall.regs[1];
-+		*out2 = hcall.regs[2];
-+		*out3 = hcall.regs[3];
-+		*out4 = hcall.regs[4];
-+		*out5 = hcall.regs[5];
-+		*out6 = hcall.regs[6];
-+		*out7 = hcall.regs[7];
++	EHCA_CHECK_DEVICE_P(device);
++	EDEB_EN(7,  "device=%p cqe=%x context=%p",
++		device, cqe, context);
++	/* cq's maximum depth is 4GB-64
++	 * but we need additional 20 as buffer for receiving errors cqes
++	 */
++	if (cqe>=0xFFFFFFFF-64-additional_cqe) {
++		return ERR_PTR(-EINVAL);
++	}
++	number_of_entries += additional_cqe;
 +
-+		if (!H_isLongBusy(ret)) {
-+			if (ret<0) {
-+				EDEB_ERR(4, "HCALL77_IN r3=%lx r4=%lx r5=%lx r6=%lx "
-+					 "r7=%lx r8=%lx r9=%lx r10=%lx",
-+					 opcode, arg1, arg2, arg3,
-+					 arg4, arg5, arg6, arg7);
-+				EDEB_ERR(4,
-+					 "HCALL77_OUT r3=%lx r4=%lx r5=%lx "
-+					 "r6=%lx r7=%lx r8=%lx r9=%lx r10=%lx ",
-+					 hcall.regs[0], hcall.regs[1],
-+					 hcall.regs[2], hcall.regs[3],
-+					 hcall.regs[4], hcall.regs[5],
-+					 hcall.regs[6], hcall.regs[7]);
-+			}
-+			return ret;
++	my_cq = ehca_cq_new();
++	if (my_cq == NULL) {
++		cq = ERR_PTR(-ENOMEM);
++		EDEB_ERR(4,
++			 "Out of memory for ehca_cq struct "
++			 "device=%p", device);
++		goto create_cq_exit0;
++	}
++	cq = &my_cq->ib_cq;
++
++	shca = container_of(device, struct ehca_shca, ib_device);
++	adapter_handle = shca->ipz_hca_handle;
++	eq_handle = shca->eq.ipz_eq_handle;
++	cq_handle_ref = &my_cq->ipz_cq_handle;
++
++	do {
++		if (!idr_pre_get(&ehca_cq_idr, GFP_KERNEL)) {
++			cq = ERR_PTR(-ENOMEM);
++			EDEB_ERR(4,
++				 "Can't reserve idr resources. "
++				 "device=%p", device);
++			goto create_cq_exit1;
 +		}
 +
-+		sleep_msecs = getLongBusyTimeSecs(ret);
-+		EDEB(7, "Got LongBusy return code from phype. "
-+		       "Sleep %dmsecs and retry...", sleep_msecs);
-+		msleep_interruptible(sleep_msecs);
-+		hcall = hcall_in;
-+	}			/* eof for */
-+	EDEB_ERR(4, "HCALL77_OUT ret=H_Busy");
-+	return H_Busy;
-+}
++		down_write(&ehca_cq_idr_sem);
++		ret = idr_get_new(&ehca_cq_idr, my_cq, &my_cq->token);
++		up_write(&ehca_cq_idr_sem);
 +
-+inline static long plpar_hcall_9arg_9ret(unsigned long opcode,
-+					 unsigned long arg1,	/* <R4  */
-+					 unsigned long arg2,	/* <R5  */
-+					 unsigned long arg3,	/* <R6  */
-+					 unsigned long arg4,	/* <R7  */
-+					 unsigned long arg5,	/* <R8  */
-+					 unsigned long arg6,	/* <R9  */
-+					 unsigned long arg7,	/* <R10 */
-+					 unsigned long arg8,	/* <R11 */
-+					 unsigned long arg9,	/* <R12 */
-+					 unsigned long *out1,	/* <R4  */
-+					 unsigned long *out2,	/* <R5  */
-+					 unsigned long *out3,	/* <R6  */
-+					 unsigned long *out4,	/* <R7  */
-+					 unsigned long *out5,	/* <R8  */
-+					 unsigned long *out6,	/* <R9  */
-+					 unsigned long *out7,	/* <R10 */
-+					 unsigned long *out8,	/* <R11 */
-+					 unsigned long *out9	/* <R12 */
-+    )
-+{
-+	struct hcall hcall_in = {
-+		.regs[0] = opcode,
-+		.regs[1] = arg1,
-+		.regs[2] = arg2,
-+		.regs[3] = arg3,
-+		.regs[4] = arg4,
-+		.regs[5] = arg5,
-+		.regs[6] = arg6,
-+		.regs[7] = arg7,
-+		.regs[8] = arg8,
-+		.regs[9] = arg9,
-+	};
-+	struct hcall hcall = hcall_in;
-+	int i;
-+	long ret;
-+	int sleep_msecs;
-+	EDEB(7,"HCALL99_IN  r3=%lx r4=%lx r5=%lx r6=%lx r7=%lx r8=%lx r9=%lx"
-+	     " r10=%lx r11=%lx r12=%lx",
-+	     hcall.regs[0], hcall.regs[1], hcall.regs[2], hcall.regs[3],
-+	     hcall.regs[4], hcall.regs[5], hcall.regs[6], hcall.regs[7],
-+	     hcall.regs[8], hcall.regs[9]);
++	} while (ret == -EAGAIN);
 +
-+	/* if phype returns LongBusyXXX, we retry several times, but not forever */
-+	for (i = 0; i < 5; i++) {
-+		__asm__ __volatile__("mr 3,%10\n"
-+				     "mr 4,%11\n"
-+				     "mr 5,%12\n"
-+				     "mr 6,%13\n"
-+				     "mr 7,%14\n"
-+				     "mr 8,%15\n"
-+				     "mr 9,%16\n"
-+				     "mr 10,%17\n"
-+				     "mr 11,%18\n"
-+				     "mr 12,%19\n"
-+				     ".long 0x44000022\n"
-+				     "mr %0,3\n"
-+				     "mr %1,4\n"
-+				     "mr %2,5\n"
-+				     "mr %3,6\n"
-+				     "mr %4,7\n"
-+				     "mr %5,8\n"
-+				     "mr %6,9\n"
-+				     "mr %7,10\n"
-+				     "mr %8,11\n"
-+				     "mr %9,12\n":"=r"(hcall.regs[0]),
-+				     "=r"(hcall.regs[1]), "=r"(hcall.regs[2]),
-+				     "=r"(hcall.regs[3]), "=r"(hcall.regs[4]),
-+				     "=r"(hcall.regs[5]), "=r"(hcall.regs[6]),
-+				     "=r"(hcall.regs[7]), "=r"(hcall.regs[8]),
-+				     "=r"(hcall.regs[9])
-+				     :"r"(hcall.regs[0]), "r"(hcall.regs[1]),
-+				     "r"(hcall.regs[2]), "r"(hcall.regs[3]),
-+				     "r"(hcall.regs[4]), "r"(hcall.regs[5]),
-+				     "r"(hcall.regs[6]), "r"(hcall.regs[7]),
-+				     "r"(hcall.regs[8]), "r"(hcall.regs[9])
-+				     :"r0", "r2", "r3", "r4", "r5", "r6", "r7",
-+				     "r8", "r9", "r10", "r11", "r12", "cc",
-+				     "xer", "ctr", "lr", "cr0", "cr1", "cr5",
-+				     "cr6", "cr7");
++	if (ret) {
++		cq = ERR_PTR(-ENOMEM);
++		EDEB_ERR(4,
++			 "Can't allocate new idr entry. "
++			 "device=%p", device);
++		goto create_cq_exit1;
++	}
 +
-+		EDEB(7,"HCALL99_OUT r3=%lx r4=%lx r5=%lx r6=%lx r7=%lx r8=%lx "
-+		     "r9=%lx r10=%lx r11=%lx r12=%lx", hcall.regs[0],
-+		     hcall.regs[1], hcall.regs[2], hcall.regs[3], hcall.regs[4],
-+		     hcall.regs[5], hcall.regs[6], hcall.regs[7], hcall.regs[8],
-+		     hcall.regs[9]);
-+		ret = hcall.regs[0];
-+		*out1 = hcall.regs[1];
-+		*out2 = hcall.regs[2];
-+		*out3 = hcall.regs[3];
-+		*out4 = hcall.regs[4];
-+		*out5 = hcall.regs[5];
-+		*out6 = hcall.regs[6];
-+		*out7 = hcall.regs[7];
-+		*out8 = hcall.regs[8];
-+		*out9 = hcall.regs[9];
++	hipz_rc = hipz_h_alloc_resource_cq(adapter_handle,
++					   &my_cq->pf,
++					   eq_handle,
++					   my_cq->token,
++					   number_of_entries,
++					   cq_handle_ref,
++					   &act_nr_of_entries,
++					   &act_pages,
++					   &my_cq->ehca_cq_core.galpas);
++	if (hipz_rc != H_Success) {
++		EDEB_ERR(4,
++			 "hipz_h_alloc_resource_cq() failed "
++			 "hipz_rc=%lx device=%p", hipz_rc, device);
++		cq = ERR_PTR(ehca2ib_return_code(hipz_rc));
++		goto create_cq_exit2;
++	}
 +
-+		if (!H_isLongBusy(ret)) {
-+			if (ret<0) {
-+				EDEB_ERR(4, "HCALL99_IN r3=%lx r4=%lx r5=%lx r6=%lx "
-+					 "r7=%lx r8=%lx r9=%lx r10=%lx "
-+					 "r11=%lx r12=%lx",
-+					 opcode, arg1, arg2, arg3,
-+					 arg4, arg5, arg6, arg7,
-+					 arg8, arg9);
-+				EDEB_ERR(4,
-+					 "HCALL99_OUT r3=%lx r4=%lx r5=%lx "
-+					 "r6=%lx r7=%lx r8=%lx r9=%lx r10=%lx "
-+					 "r11=%lx r12=lx",
-+					 hcall.regs[0], hcall.regs[1],
-+					 hcall.regs[2], hcall.regs[3],
-+					 hcall.regs[4], hcall.regs[5],
-+					 hcall.regs[6], hcall.regs[7],
-+					 hcall.regs[8]);
-+			}
-+			return ret;
++	ipz_rc =
++		ipz_queue_ctor(&my_cq->ehca_cq_core.ipz_queue, act_pages,
++			       EHCA_PAGESIZE, sizeof(struct ehca_cqe), 0);
++	if (!ipz_rc) {
++		EDEB_ERR(4,
++			 "ipz_queue_ctor() failed "
++			 "ipz_rc=%x device=%p", ipz_rc, device);
++		cq = ERR_PTR(-EINVAL);
++		goto create_cq_exit3;
++	}
++
++	for (counter = 0; counter < act_pages; counter++) {
++		vpage = ipz_QPageit_get_inc(&my_cq->ehca_cq_core.ipz_queue);
++		if (!vpage) {
++			EDEB_ERR(4, "ipz_QPageit_get_inc() "
++				 "returns NULL device=%p", device);
++			cq = ERR_PTR(-EAGAIN);
++			goto create_cq_exit4;
 +		}
-+		sleep_msecs = getLongBusyTimeSecs(ret);
-+		EDEB(7, "Got LongBusy return code from phype. "
-+		     "Sleep %dmsecs and retry...", sleep_msecs);
-+		msleep_interruptible(sleep_msecs);
-+		hcall = hcall_in;
-+	}			/* eof for */
-+	EDEB_ERR(4, "HCALL99_OUT ret=H_Busy");
-+	return H_Busy;
++		rpage = ehca_kv_to_g(vpage);
++
++		hipz_rc = hipz_h_register_rpage_cq(adapter_handle,
++						   my_cq->ipz_cq_handle,
++						   &my_cq->pf,
++						   0,
++						   HIPZ_CQ_REGISTER_ORIG,
++						   rpage,
++						   1,
++						   my_cq->ehca_cq_core.galpas.
++						   kernel);
++
++		if (hipz_rc < H_Success) {
++			EDEB_ERR(4, "hipz_h_register_rpage_cq() failed "
++				 "ehca_cq=%p cq_num=%x hipz_rc=%lx "
++				 "counter=%i act_pages=%i",
++				 my_cq, my_cq->cq_number,
++				 hipz_rc, counter, act_pages);
++			cq = ERR_PTR(-EINVAL);
++			goto create_cq_exit4;
++		}
++
++		if (counter == (act_pages - 1)) {
++			vpage = ipz_QPageit_get_inc(
++				&my_cq->ehca_cq_core.ipz_queue);
++			if ((hipz_rc != H_Success) || (vpage != 0)) {
++				EDEB_ERR(4, "Registration of pages not "
++					 "complete ehca_cq=%p cq_num=%x "
++					 "hipz_rc=%lx",
++					 my_cq, my_cq->cq_number, hipz_rc);
++				cq = ERR_PTR(-EAGAIN);
++				goto create_cq_exit4;
++			}
++		} else {
++			if (hipz_rc != H_PAGE_REGISTERED) {
++				EDEB_ERR(4, "Registration of page failed "
++					 "ehca_cq=%p cq_num=%x hipz_rc=%lx"
++					 "counter=%i act_pages=%i",
++					 my_cq, my_cq->cq_number,
++					 hipz_rc, counter, act_pages);
++				cq = ERR_PTR(-ENOMEM);
++				goto create_cq_exit4;
++			}
++		}
++	}
++
++	ipz_QEit_reset(&my_cq->ehca_cq_core.ipz_queue);
++
++	gal = my_cq->ehca_cq_core.galpas.kernel;
++	CQx_FEC = hipz_galpa_load(gal, CQTEMM_OFFSET(CQx_FEC));
++	EDEB(8, "ehca_cq=%p cq_num=%x CQx_FEC=%lx",
++	     my_cq, my_cq->cq_number, CQx_FEC);
++
++	my_cq->ib_cq.cqe = my_cq->nr_of_entries =
++		act_nr_of_entries-additional_cqe;
++	my_cq->cq_number = (my_cq->ipz_cq_handle.handle) & 0xffff;
++
++	for (i=0; i<QP_HASHTAB_LEN; i++) {
++		INIT_LIST_HEAD(&my_cq->qp_hashtab[i]);
++	}
++
++	if (context) {
++		struct ehca_create_cq_resp resp;
++		struct vm_area_struct * vma;
++		resp.cq_number = my_cq->cq_number;
++		resp.token = my_cq->token;
++		resp.ehca_cq_core = my_cq->ehca_cq_core;
++
++		ehca_mmap_nopage(((u64) (my_cq->token) << 32) | 0x12000000,
++				 my_cq->ehca_cq_core.ipz_queue.queue_length,
++				 ((void**)&resp.ehca_cq_core.ipz_queue.queue),
++				 &vma);
++		my_cq->uspace_queue = (u64)resp.ehca_cq_core.ipz_queue.queue;
++		ehca_mmap_register(my_cq->ehca_cq_core.galpas.user.fw_handle,
++				   ((void**)&resp.ehca_cq_core.galpas.kernel.fw_handle),
++				   &vma);
++		my_cq->uspace_fwh = (u64)resp.ehca_cq_core.galpas.kernel.fw_handle;
++		if (ib_copy_to_udata(udata, &resp, sizeof(resp))) {
++			EDEB_ERR(4,  "Copy to udata failed.");
++			goto create_cq_exit4;
++		}
++	}
++
++	EDEB_EX(7,"retcode=%p ehca_cq=%p cq_num=%x cq_size=%x",
++		cq, my_cq, my_cq->cq_number, act_nr_of_entries);
++	return cq;
++
++ create_cq_exit4:
++	ipz_queue_dtor(&my_cq->ehca_cq_core.ipz_queue);
++
++ create_cq_exit3:
++	hipz_rc = hipz_h_destroy_cq(adapter_handle, my_cq, 1);
++	EDEB(3, "hipz_h_destroy_cq() failed ehca_cq=%p cq_num=%x hipz_rc=%lx",
++	     my_cq, my_cq->cq_number, hipz_rc);
++
++ create_cq_exit2:
++	/* dereg idr */
++	down_write(&ehca_cq_idr_sem);
++	idr_remove(&ehca_cq_idr, my_cq->token);
++	up_write(&ehca_cq_idr_sem);
++
++ create_cq_exit1:
++	/* free cq struct */
++	ehca_cq_delete(my_cq);
++
++ create_cq_exit0:
++	EDEB_EX(7,  "An error has occured retcode=%p ", cq);
++	return cq;
 +}
 +
-+#endif
++int ehca_destroy_cq(struct ib_cq *cq)
++{
++	u64 hipz_rc = H_Success;
++	int retcode = 0;
++	struct ehca_cq *my_cq = NULL;
++	int cq_num = 0;
++	struct ib_device *device = NULL;
++	struct ehca_shca *shca = NULL;
++	struct ipz_adapter_handle adapter_handle;
++
++	EHCA_CHECK_CQ(cq);
++	my_cq = container_of(cq, struct ehca_cq, ib_cq);
++	cq_num = my_cq->cq_number;
++	device = cq->device;
++	EHCA_CHECK_DEVICE(device);
++	shca = container_of(device, struct ehca_shca, ib_device);
++	adapter_handle = shca->ipz_hca_handle;
++	EDEB_EN(7, "ehca_cq=%p cq_num=%x",
++		my_cq, my_cq->cq_number);
++
++	down_write(&ehca_cq_idr_sem);
++	idr_remove(&ehca_cq_idr, my_cq->token);
++	up_write(&ehca_cq_idr_sem);
++
++	/* un-mmap if vma alloc */
++	if (my_cq->uspace_queue!=0) {
++		struct ehca_cq_core *cq_core = &my_cq->ehca_cq_core;
++		retcode = ehca_munmap(my_cq->uspace_queue,
++				      cq_core->ipz_queue.queue_length);
++		retcode = ehca_munmap(my_cq->uspace_fwh, 4096);
++	}
++
++	hipz_rc = hipz_h_destroy_cq(adapter_handle, my_cq, 0);
++	if (hipz_rc == H_R_STATE) {
++		/* cq in err: read err data and destroy it forcibly */
++		EDEB(4, "ehca_cq=%p cq_num=%x ressource=%lx in err state. "
++		     "Try to delete it forcibly.",
++		     my_cq, my_cq->cq_number, my_cq->ipz_cq_handle.handle);
++		ehca_error_data(shca, my_cq->ipz_cq_handle.handle);
++		hipz_rc = hipz_h_destroy_cq(adapter_handle, my_cq, 1);
++		if (hipz_rc == H_Success) {
++			EDEB(4, "ehca_cq=%p cq_num=%x deleted successfully.",
++			     my_cq, my_cq->cq_number);
++		}
++	}
++	if (hipz_rc != H_Success) {
++		EDEB_ERR(4,"hipz_h_destroy_cq() failed "
++			 "hipz_rc=%lx ehca_cq=%p cq_num=%x",
++			 hipz_rc, my_cq, my_cq->cq_number);
++		retcode = ehca2ib_return_code(hipz_rc);
++		goto destroy_cq_exit0;/*@TODO*/
++	}
++	ipz_queue_dtor(&my_cq->ehca_cq_core.ipz_queue);
++	ehca_cq_delete(my_cq);
++
++ destroy_cq_exit0:
++	EDEB_EX(7, "ehca_cq=%p cq_num=%x retcode=%x ",
++		my_cq, cq_num, retcode);
++	return retcode;
++}
++
++int ehca_resize_cq(struct ib_cq *cq, int cqe)
++{
++	int retcode = 0;
++	struct ehca_cq *my_cq = NULL;
++
++	if (unlikely(NULL == cq)) {
++		EDEB_ERR(4, "cq is NULL");
++		return -EFAULT;
++	}
++
++	my_cq = container_of(cq, struct ehca_cq, ib_cq);
++	EDEB_EN(7, "ehca_cq=%p cq_num=%x",
++		my_cq, my_cq->cq_number);
++	/*TODO proper resize still needs to be done*/
++	if (cqe > cq->cqe) {
++		retcode = -EINVAL;
++	}
++	EDEB_EX(7, "ehca_cq=%p cq_num=%x",
++		my_cq, my_cq->cq_number);
++	return retcode;
++}
++
++/* eof ehca_cq.c */

@@ -1,87 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbWBRTaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWBRTuR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932118AbWBRTaO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 14:30:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWBRTaO
+	id S932129AbWBRTuR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 14:50:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWBRTuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 14:30:14 -0500
-Received: from master.altlinux.org ([62.118.250.235]:20998 "EHLO
-	master.altlinux.org") by vger.kernel.org with ESMTP id S932118AbWBRTaM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 14:30:12 -0500
-Date: Sat, 18 Feb 2006 22:29:46 +0300
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Brian Hall <brihall@pcisys.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       shemminger@osdl.org
-Subject: Re: Help: DGE-560T not recognized by Linux
-Message-Id: <20060218222946.4da27618.vsu@altlinux.ru>
-In-Reply-To: <20060218100126.198d86c3.brihall@pcisys.net>
-References: <20060217222720.a08a2bc1.brihall@pcisys.net>
-	<20060217222428.3cf33f25.akpm@osdl.org>
-	<20060218003622.30a2b501.brihall@pcisys.net>
-	<20060217234841.5f2030ec.akpm@osdl.org>
-	<20060218100126.198d86c3.brihall@pcisys.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i586-alt-linux-gnu)
+	Sat, 18 Feb 2006 14:50:16 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60063 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932129AbWBRTuP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 14:50:15 -0500
+Date: Sat, 18 Feb 2006 19:50:05 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+Cc: Alasdair G Kergon <agk@redhat.com>, Neil Brown <neilb@suse.de>,
+       Lars Marowsky-Bree <lmb@suse.de>,
+       device-mapper development <dm-devel@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] sysfs representation of stacked devices (dm/md common)
+Message-ID: <20060218195005.GT12169@agk.surrey.redhat.com>
+Mail-Followup-To: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>,
+	Alasdair G Kergon <agk@redhat.com>, Neil Brown <neilb@suse.de>,
+	Lars Marowsky-Bree <lmb@suse.de>,
+	device-mapper development <dm-devel@redhat.com>,
+	linux-kernel@vger.kernel.org
+References: <43F60F31.1030507@ce.jp.nec.com> <43F60F8C.8090207@ce.jp.nec.com> <20060217184435.GM12169@agk.surrey.redhat.com> <43F67274.80509@ce.jp.nec.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Sat__18_Feb_2006_22_29_46_+0300_PfMNxkCWixPDpoo1"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F67274.80509@ce.jp.nec.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Sat__18_Feb_2006_22_29_46_+0300_PfMNxkCWixPDpoo1
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, Feb 17, 2006 at 08:03:48PM -0500, Jun'ichi Nomura wrote:
+> I moved the sysfs_add_link() to the last part of dm_resume().
 
-On Sat, 18 Feb 2006 10:01:26 -0700 Brian Hall wrote:
+Test with trees of devices too - where a whole tree is suspended -
+I don't think you can allocate anywhere in dm_swap_table()
+without PF_MEMALLOC (which I recently removed and am reluctant
+to reinstate).
 
-> On Fri, 17 Feb 2006 23:48:41 -0800
-> Andrew Morton <akpm@osdl.org> wrote:
-> > Brian Hall <brihall@pcisys.net> wrote:
-> > >  I see that the sky2 driver in 2.6.16rc4 lists my card, but for some
-> > >  reason it fails to access the card, maybe because I have an ULi
-> > > chipset?
-> > >=20
-> > >  Feb 17 23:18:46 syrinx sky2 0000:02:00.0: can't access PCI config
-> > > space
-> >=20
-> > Looks like something died way down in the PCI bus config space
-> > read/write operations.  I don't know what would cause that.  You
-> > could perhaps play with `pci=3Dconf1', `pci=3Dconf2', etc as per
-> > Documentation/kernel-parameters.txt.
->=20
-> OK, I tried all these pci=3D options, plus acpi=3Doff, to no effect:
-> conf1, conf2, nommconf, biosirq, noacpi, routeirq, nosort, rom,
-> lastbus=3D2, assign-busses, usepirqmask acpi=3Doff
->=20
-> Also tried adjusting PCIe-related stuff in the BIOS (underclocking PCIe
-> from 100 to 70 and adjusting Northbridge options). No change.
+Have you considered if anything is feasible based around bd_claim()?
+Doesn't it make more sense for the links to be set up at table
+load time - i.e. superset of both tables if present?
 
-Most likely it fails here:
-
-		err =3D pci_write_config_dword(hw->pdev, PEX_UNC_ERR_STAT,
-						 0xffffffffUL);
-		if (err)
-			goto pci_err;
-
-PEX_UNC_ERR_STAT is 0x104; this register is outside of the standard
-256-byte PCI configuration space, and is reachable only via the MMCONFIG
-access mechanism.  Seems that kernel is not using MMCONFIG for some
-reason; you mentioned that you have CONFIG_PCI_MMCONFIG=3Dy in kernel
-config, so it looks like your BIOS does not provide proper MCFG table.
-Full dmesg output might give some clues.
-
---Signature=_Sat__18_Feb_2006_22_29_46_+0300_PfMNxkCWixPDpoo1
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.17 (GNU/Linux)
-
-iD8DBQFD93WuW82GfkQfsqIRAuxnAJwLclAj2H2Jh7ThZSpBMGDQhw0aVgCfUXBa
-npmIhimG75v8RZv8uSd6ykU=
-=+2pm
------END PGP SIGNATURE-----
-
---Signature=_Sat__18_Feb_2006_22_29_46_+0300_PfMNxkCWixPDpoo1--
+Alasdair
+-- 
+agk@redhat.com

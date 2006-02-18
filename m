@@ -1,94 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWBRQwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751453AbWBRQyO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751443AbWBRQwa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 11:52:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbWBRQwa
+	id S1751453AbWBRQyO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 11:54:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751457AbWBRQyO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 11:52:30 -0500
-Received: from mail.tmr.com ([64.65.253.246]:52637 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S1751443AbWBRQw3 (ORCPT
+	Sat, 18 Feb 2006 11:54:14 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:64433 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751453AbWBRQyN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 11:52:29 -0500
-Message-ID: <43F751B0.1040101@tmr.com>
-Date: Sat, 18 Feb 2006 11:56:16 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Sat, 18 Feb 2006 11:54:13 -0500
+Message-ID: <43F7636B.2181435A@tv-sign.ru>
+Date: Sat, 18 Feb 2006 21:11:55 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "D. Hazelton" <dhazelton@enter.net>
-CC: Daniel Barkalow <barkalow@iabervon.org>, Greg KH <greg@kroah.com>,
-       Nix <nix@esperi.org.uk>, Jens Axboe <axboe@suse.de>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <43D7AF56.nailDFJ882IWI@burner> <Pine.LNX.4.64.0602131339140.6773@iabervon.org> <43F641A2.50200@tmr.com> <200602171902.11631.dhazelton@enter.net>
-In-Reply-To: <200602171902.11631.dhazelton@enter.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "Paul E. McKenney" <paulmck@us.ibm.com>, Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] introduce lock_task_sighand() helper
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-D. Hazelton wrote:
+This patch adds lock_task_sighand() helper and converts
+group_send_sig_info() to use it. Hopefully we will have
+more users soon.
 
->On Friday 17 February 2006 16:35, Bill Davidsen wrote:
->  
->
->>Daniel Barkalow wrote:
->>    
->>
->>>I don't think it needs to be a class, but I think that there should be a
->>>single place with a directory for each device that could be what you
->>>want, with a file that tells you if it is. That's why I was looking at
->>>block/; these things must be block devices, and there aren't an huge
->>>number of block devices.
->>>
->>>I suppose "grep 1 /sys/block/*/device/dvdwriter" is just as good; I
->>>hadn't dug far enough in to realize that the reason I wasn't seeing
->>>anything informative in /sys/block/*/device/ was that I didn't have any
->>>devices with informative drivers, not that it was actually supposed to
->>>only have links to other things.
->>>      
->>>
->>It would be nice to have one place to go to find burners, and to have
->>the model information in that place. I would logically think that place
->>is sysfs, and I know the kernel has the information because if I root
->>through /proc/bus/usb and /proc/scsi/scsi, and /proc/ide/hd?/model I can
->>eventually find out what the system has connected.
->>
->>I not entirely sure about having classes other than cdrom, just because
->>we already have CD, DVD, DVD-DL, and are about to add blue-ray and
->>HD-DVD, so if I can tell that it's a removable device which can read
->>CDs, the applications have a fighting chance to looking at the device to
->>see what it is. As a human I would like the model information because
->>the kernel has done the work, why should people have to chase it when it
->>could be in one place?
->>    
->>
->
->The problem is that drives don't always cleanly report what they are in a 
->simple to access format. All SCSI and ATAPI drives provide a model, 
->manufacturer and serial number but usually the type of drive is buried within 
->the Model field, and that has a lot of variations.
->
->(I have personally seen CD/CDRW, CD-ROM, CD-RW, CDR, CDRW and DVD/CDROM)
->
->Now what could be done is that said information could be exported to sysfs. 
->Given the time I could probably manage the patch myself, but I'm currently 
->overextended with the number of projects I have underway.
->
-I would think that the model, manufacturer and serial would be useful, 
-and just the indication that the device was CD capable would be a huge 
-gain. There are at least two more type of drive coming soon in the 25GB 
-media race, so identification could legitimately be left to the 
-application as long as all CD-like devices can easily be identified for 
-examination.
+This patch also removes '!sighand->count' and '!p->usage'
+checks, I think they both are bogus, racy and unneeded
+(but probably it makes sense to restore them as BUG_ON()s).
 
-Does that fit with your level of available time (and interest in 
-resolving this issue)?
+->sighand is cleared and it's ->count is decremented in
+release_task() with sighand->siglock held, so it is a bug
+to have '!p->usage || !->count' after we already locked and
+verified it is the same. On the other hand, an already dead
+task without ->sighand can have a non-zero ->usage due to
+ptrace, for example.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
+If we read the stale value of ->sighand we must see the change
+after spin_lock(), because that change was done while holding
+that same old ->sighand.siglock.
 
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- 2.6.16-rc3/include/linux/sched.h~2_LTS	2006-02-18 00:05:20.000000000 +0300
++++ 2.6.16-rc3/include/linux/sched.h	2006-02-18 22:13:44.000000000 +0300
+@@ -1217,6 +1217,15 @@ static inline void task_unlock(struct ta
+ 	spin_unlock(&p->alloc_lock);
+ }
+ 
++extern struct sighand_struct *lock_task_sighand(struct task_struct *tsk,
++							unsigned long *flags);
++
++static inline void unlock_task_sighand(struct task_struct *tsk,
++						unsigned long *flags)
++{
++	spin_unlock_irqrestore(&tsk->sighand->siglock, *flags);
++}
++
+ #ifndef __HAVE_THREAD_FUNCTIONS
+ 
+ #define task_thread_info(task) (task)->thread_info
+--- 2.6.16-rc3/kernel/signal.c~2_LTS	2006-02-18 00:07:37.000000000 +0300
++++ 2.6.16-rc3/kernel/signal.c	2006-02-18 22:34:22.000000000 +0300
+@@ -1120,31 +1120,41 @@ void zap_other_threads(struct task_struc
+ /*
+  * Must be called under rcu_read_lock() or with tasklist_lock read-held.
+  */
+-int group_send_sig_info(int sig, struct siginfo *info, struct task_struct *p)
+-{
+-	unsigned long flags;
+-	struct sighand_struct *sp;
+-	int ret;
+-
+-retry:
+-	ret = check_kill_permission(sig, info, p);
+-	if (!ret && sig && (sp = rcu_dereference(p->sighand))) {
+-		spin_lock_irqsave(&sp->siglock, flags);
+-		if (p->sighand != sp) {
+-			spin_unlock_irqrestore(&sp->siglock, flags);
+-			goto retry;
+-		}
+-		if ((atomic_read(&sp->count) == 0) ||
+-				(atomic_read(&p->usage) == 0)) {
+-			spin_unlock_irqrestore(&sp->siglock, flags);
+-			return -ESRCH;
+-		}
+-		ret = __group_send_sig_info(sig, info, p);
+-		spin_unlock_irqrestore(&sp->siglock, flags);
+-	}
+-
+-	return ret;
+-}
++struct sighand_struct *lock_task_sighand(struct task_struct *tsk, unsigned long *flags)
++{
++	struct sighand_struct *sighand;
++
++	for (;;) {
++		sighand = rcu_dereference(tsk->sighand);
++		if (unlikely(sighand == NULL))
++			break;
++
++		spin_lock_irqsave(&sighand->siglock, *flags);
++		if (likely(sighand == tsk->sighand))
++			break;
++		spin_unlock_irqrestore(&sighand->siglock, *flags);
++	}
++
++	return sighand;
++}
++
++int group_send_sig_info(int sig, struct siginfo *info, struct task_struct *p)
++{
++	unsigned long flags;
++	int ret;
++
++	ret = check_kill_permission(sig, info, p);
++
++	if (!ret && sig) {
++		ret = -ESRCH;
++		if (lock_task_sighand(p, &flags)) {
++			ret = __group_send_sig_info(sig, info, p);
++			unlock_task_sighand(p, &flags);
++		}
++	}
++
++	return ret;
++}
+ 
+ /*
+  * kill_pg_info() sends a signal to a process group: this is what the tty

@@ -1,152 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWBRCD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWBRCFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbWBRCD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 21:03:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWBRCD7
+	id S1750723AbWBRCFc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 21:05:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWBRCFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 21:03:59 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:52103 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750726AbWBRCDz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 21:03:55 -0500
-Date: Fri, 17 Feb 2006 18:04:21 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] convert sighand_cache to use SLAB_DESTROY_BY_RCU
-Message-ID: <20060218020421.GG1291@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <43F62B96.C54704D1@tv-sign.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43F62B96.C54704D1@tv-sign.ru>
-User-Agent: Mutt/1.4.1i
+	Fri, 17 Feb 2006 21:05:18 -0500
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:34397 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1750723AbWBRCFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 21:05:01 -0500
+To: Greg KH <greg@kroah.com>
+Cc: Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, openib-general@openib.org,
+       SCHICKHJ@de.ibm.com, RAISCH@de.ibm.com, HNGUYEN@de.ibm.com,
+       MEDER@de.ibm.com
+Subject: Re: [PATCH 02/22] Firmware interface code for IB device.
+X-Message-Flag: Warning: May contain useful information
+References: <20060218005532.13620.79663.stgit@localhost.localdomain>
+	<20060218005707.13620.20538.stgit@localhost.localdomain>
+	<20060218015808.GB17653@kroah.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Fri, 17 Feb 2006 18:04:56 -0800
+In-Reply-To: <20060218015808.GB17653@kroah.com> (Greg KH's message of "Fri,
+ 17 Feb 2006 17:58:08 -0800")
+Message-ID: <aday809bewn.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 18 Feb 2006 02:04:56.0968 (UTC) FILETIME=[B747C880:01C6342F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 17, 2006 at 11:01:26PM +0300, Oleg Nesterov wrote:
-> This patch borrows a clever Hugh's 'struct anon_vma' trick.
-> 
-> Without tasklist_lock held we can't trust task->sighand until we
-> locked it and re-checked that it is still the same.
-> 
-> But this means we don't need to defer 'kmem_cache_free(sighand)'.
-> We can return the memory to slab immediately, all we need is to
-> be sure that sighand->siglock can't dissapear inside rcu protected
-> section.
-> 
-> To do so we need to initialize ->siglock inside ctor function,
-> SLAB_DESTROY_BY_RCU does the rest.
+    Greg> Roland, your comments are fine, but what about the original
+    Greg> author's descriptions of what each patch are?
 
-Looks good to me by inspection, firing off some steamroller tests on it.
+This is actually me breaking up a giant driver into pieces small
+enough to post to lkml without hitting the 100 KB limit.
 
-						Thanx, Paul
+This is just an RFC -- I assume the driver is going to get merged in
+the end as one big git changeset with a changelog like "add driver for
+IBM eHCA InfiniBand adapters".
 
->  include/linux/sched.h |    8 --------
->  kernel/fork.c         |   21 +++++++++++----------
->  kernel/signal.c       |    2 +-
->  fs/exec.c             |    3 +--
->  4 files changed, 13 insertions(+), 21 deletions(-)
-> 
-> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-> 
-> --- 2.6.16-rc3/include/linux/sched.h~1_DBR	2006-02-16 22:04:46.000000000 +0300
-> +++ 2.6.16-rc3/include/linux/sched.h	2006-02-18 00:05:20.000000000 +0300
-> @@ -353,16 +353,8 @@ struct sighand_struct {
->  	atomic_t		count;
->  	struct k_sigaction	action[_NSIG];
->  	spinlock_t		siglock;
-> -	struct rcu_head		rcu;
->  };
->  
-> -extern void sighand_free_cb(struct rcu_head *rhp);
-> -
-> -static inline void sighand_free(struct sighand_struct *sp)
-> -{
-> -	call_rcu(&sp->rcu, sighand_free_cb);
-> -}
-> -
->  /*
->   * NOTE! "signal_struct" does not have it's own
->   * locking, because a shared signal_struct always
-> --- 2.6.16-rc3/kernel/fork.c~1_DBR	2006-02-16 23:15:23.000000000 +0300
-> +++ 2.6.16-rc3/kernel/fork.c	2006-02-18 01:11:59.000000000 +0300
-> @@ -784,14 +784,6 @@ int unshare_files(void)
->  
->  EXPORT_SYMBOL(unshare_files);
->  
-> -void sighand_free_cb(struct rcu_head *rhp)
-> -{
-> -	struct sighand_struct *sp;
-> -
-> -	sp = container_of(rhp, struct sighand_struct, rcu);
-> -	kmem_cache_free(sighand_cachep, sp);
-> -}
-> -
->  static inline int copy_sighand(unsigned long clone_flags, struct task_struct * tsk)
->  {
->  	struct sighand_struct *sig;
-> @@ -804,7 +796,6 @@ static inline int copy_sighand(unsigned 
->  	rcu_assign_pointer(tsk->sighand, sig);
->  	if (!sig)
->  		return -ENOMEM;
-> -	spin_lock_init(&sig->siglock);
->  	atomic_set(&sig->count, 1);
->  	memcpy(sig->action, current->sighand->action, sizeof(sig->action));
->  	return 0;
-> @@ -1345,11 +1336,21 @@ long do_fork(unsigned long clone_flags,
->  #define ARCH_MIN_MMSTRUCT_ALIGN 0
->  #endif
->  
-> +static void sighand_ctor(void *data, kmem_cache_t *cachep, unsigned long flags)
-> +{
-> +	struct sighand_struct *sighand = data;
-> +
-> +	if ((flags & (SLAB_CTOR_VERIFY | SLAB_CTOR_CONSTRUCTOR)) ==
-> +					SLAB_CTOR_CONSTRUCTOR)
-> +		spin_lock_init(&sighand->siglock);
-> +}
-> +
->  void __init proc_caches_init(void)
->  {
->  	sighand_cachep = kmem_cache_create("sighand_cache",
->  			sizeof(struct sighand_struct), 0,
-> -			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
-> +			SLAB_HWCACHE_ALIGN|SLAB_PANIC|SLAB_DESTROY_BY_RCU,
-> +			sighand_ctor, NULL);
->  	signal_cachep = kmem_cache_create("signal_cache",
->  			sizeof(struct signal_struct), 0,
->  			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
-> --- 2.6.16-rc3/kernel/signal.c~1_DBR	2006-02-13 21:47:19.000000000 +0300
-> +++ 2.6.16-rc3/kernel/signal.c	2006-02-18 00:07:37.000000000 +0300
-> @@ -330,7 +330,7 @@ void __exit_sighand(struct task_struct *
->  	/* Ok, we're done with the signal handlers */
->  	tsk->sighand = NULL;
->  	if (atomic_dec_and_test(&sighand->count))
-> -		sighand_free(sighand);
-> +		kmem_cache_free(sighand_cachep, sighand);
->  }
->  
->  void exit_sighand(struct task_struct *tsk)
-> --- 2.6.16-rc3/fs/exec.c~1_DBR	2006-02-16 22:34:59.000000000 +0300
-> +++ 2.6.16-rc3/fs/exec.c	2006-02-18 01:12:36.000000000 +0300
-> @@ -751,7 +751,6 @@ no_thread_group:
->  		/*
->  		 * Move our state over to newsighand and switch it in.
->  		 */
-> -		spin_lock_init(&newsighand->siglock);
->  		atomic_set(&newsighand->count, 1);
->  		memcpy(newsighand->action, oldsighand->action,
->  		       sizeof(newsighand->action));
-> @@ -768,7 +767,7 @@ no_thread_group:
->  		write_unlock_irq(&tasklist_lock);
->  
->  		if (atomic_dec_and_test(&oldsighand->count))
-> -			sighand_free(oldsighand);
-> +			kmem_cache_free(sighand_cachep, oldsighand);
->  	}
->  
->  	BUG_ON(!thread_group_leader(current));
-> 
+    Greg> Come on, IBM allows developers to post code to lkml, just
+    Greg> look at the archives for proof.  For them to use a proxy
+    Greg> like this is very strange, and also, there is no
+    Greg> Signed-off-by: record from the original authors, which is
+    Greg> not ok.
+
+Well, the eHCA guys tell me that they can't post patches to lkml.
+
+You're right that the final merge will have to have an IBM
+Signed-off-by: line but as I said this is just an RFC.  There are many
+reasons beyond patch format issues that make this stuff unmergeable as-is.
+
+    Greg> And why aren't you using the standard firmware interface in
+    Greg> the kernel?
+
+This is actually stuff to talk to the firmware that sits below the
+kernel on IBM ppc64 machines, not an interface to load device firmware
+from userspace.
+
+ - R.

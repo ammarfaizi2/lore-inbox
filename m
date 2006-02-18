@@ -1,77 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751610AbWBQX4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751805AbWBRAB4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751610AbWBQX4e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 18:56:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751802AbWBQX4e
+	id S1751805AbWBRAB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 19:01:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751808AbWBRAB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 18:56:34 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:42763 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751610AbWBQX4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 18:56:34 -0500
-Date: Sat, 18 Feb 2006 00:56:33 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, len.brown@intel.com,
-       Paul Bristow <paul@paulbristow.net>, mpm@selenic.com,
-       B.Zolnierkiewicz@elka.pw.edu.pl, dtor_core@ameritech.net, kkeil@suse.de,
-       linux-dvb-maintainer@linuxtv.org, philb@gnu.org, gregkh@suse.de,
-       dwmw2@infradead.org
-Subject: Re: kbuild: Section mismatch warnings
-Message-ID: <20060217235633.GO4422@stusta.de>
-References: <20060217214855.GA5563@mars.ravnborg.org> <20060217224702.GA25761@mars.ravnborg.org> <20060217233253.GN4422@stusta.de> <20060217233848.GA26630@mars.ravnborg.org>
+	Fri, 17 Feb 2006 19:01:56 -0500
+Received: from smtp.enter.net ([216.193.128.24]:54795 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S1751805AbWBRAB4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 19:01:56 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Date: Fri, 17 Feb 2006 19:02:10 -0500
+User-Agent: KMail/1.8.1
+Cc: Daniel Barkalow <barkalow@iabervon.org>, Greg KH <greg@kroah.com>,
+       Nix <nix@esperi.org.uk>, Jens Axboe <axboe@suse.de>,
+       Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       linux-kernel@vger.kernel.org
+References: <43D7AF56.nailDFJ882IWI@burner> <Pine.LNX.4.64.0602131339140.6773@iabervon.org> <43F641A2.50200@tmr.com>
+In-Reply-To: <43F641A2.50200@tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060217233848.GA26630@mars.ravnborg.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200602171902.11631.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 18, 2006 at 12:38:48AM +0100, Sam Ravnborg wrote:
-> Hi Adrian
-> 
-> > > I did not find a way to look up the offending symbol but maybe some elf
-> > > expert can help?
-> > >...
-> >  
-> > I'm not an ELF expert, but simply checking all __init functions in this 
-> > files finds that this seems to be the following:
-> > 
-> > <--  snip  -->
-> > 
-> > ...
-> > static struct acpi_driver asus_hotk_driver = {
-> >         .name = ACPI_HOTK_NAME,
-> >         .class = ACPI_HOTK_CLASS,
-> >         .ids = ACPI_HOTK_HID,
-> >         .ops = {
-> >                 .add = asus_hotk_add,
-> >                 .remove = asus_hotk_remove,
-> >                 },
-> > };
-> > ...
-> > static int __init asus_hotk_add(struct acpi_device *device)
-> > ...
-> > 
-> Correct.
-> What I wanted was modpost to tell that the symbol being referenced in
-> the .data section was 'asus_hotk_add' and not just an offset after
-> asus_hotk_driver.
-> 
-> What is needed is a link from the RELOCATION RECORD to the symbol table.
+On Friday 17 February 2006 16:35, Bill Davidsen wrote:
+> Daniel Barkalow wrote:
+> > I don't think it needs to be a class, but I think that there should be a
+> > single place with a directory for each device that could be what you
+> > want, with a file that tells you if it is. That's why I was looking at
+> > block/; these things must be block devices, and there aren't an huge
+> > number of block devices.
+> >
+> > I suppose "grep 1 /sys/block/*/device/dvdwriter" is just as good; I
+> > hadn't dug far enough in to realize that the reason I wasn't seeing
+> > anything informative in /sys/block/*/device/ was that I didn't have any
+> > devices with informative drivers, not that it was actually supposed to
+> > only have links to other things.
+>
+> It would be nice to have one place to go to find burners, and to have
+> the model information in that place. I would logically think that place
+> is sysfs, and I know the kernel has the information because if I root
+> through /proc/bus/usb and /proc/scsi/scsi, and /proc/ide/hd?/model I can
+> eventually find out what the system has connected.
+>
+> I not entirely sure about having classes other than cdrom, just because
+> we already have CD, DVD, DVD-DL, and are about to add blue-ray and
+> HD-DVD, so if I can tell that it's a removable device which can read
+> CDs, the applications have a fighting chance to looking at the device to
+> see what it is. As a human I would like the model information because
+> the kernel has done the work, why should people have to chase it when it
+> could be in one place?
 
-Ah sorry, I misunderstood your question.
+The problem is that drives don't always cleanly report what they are in a 
+simple to access format. All SCSI and ATAPI drives provide a model, 
+manufacturer and serial number but usually the type of drive is buried within 
+the Model field, and that has a lot of variations.
 
-> 	Sam
+(I have personally seen CD/CDRW, CD-ROM, CD-RW, CDR, CDRW and DVD/CDROM)
 
-cu
-Adrian
+Now what could be done is that said information could be exported to sysfs. 
+Given the time I could probably manage the patch myself, but I'm currently 
+overextended with the number of projects I have underway.
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+DRH

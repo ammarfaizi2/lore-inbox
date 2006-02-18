@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWBRXsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbWBRXsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbWBRXsb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 18:48:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbWBRXsb
+	id S932343AbWBRXsR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 18:48:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbWBRXsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 18:48:31 -0500
-Received: from mail.gmx.net ([213.165.64.20]:16860 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932353AbWBRXs2 (ORCPT
+	Sat, 18 Feb 2006 18:48:17 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21123 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932343AbWBRXsR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 18:48:28 -0500
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: Rob Slifkin <rob@slifkin.net>
-Subject: Re: contact linus
-Date: Sun, 19 Feb 2006 00:48:25 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <B1230493D2E7D31189C40050DA7BC2B42B3A28@LDSDATA>
-In-Reply-To: <B1230493D2E7D31189C40050DA7BC2B42B3A28@LDSDATA>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Feb 2006 18:48:17 -0500
+Date: Sun, 19 Feb 2006 00:48:05 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: ghrt <ghrt@dial.kappa.ro>
+Cc: kernel list <linux-kernel@vger.kernel.org>, perex@suse.cz, tiwai@suse.de
+Subject: Re: No sound from SB live!
+Message-ID: <20060218234805.GA3235@elf.ucw.cz>
+References: <20060218231419.GA3219@elf.ucw.cz> <200602190127.27862.ghrt@dial.kappa.ro>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602190048.25535.dominik.karall@gmx.net>
-X-Y-GMX-Trusted: 0
+In-Reply-To: <200602190127.27862.ghrt@dial.kappa.ro>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 19. February 2006 00:06, Rob Slifkin wrote:
-> is there any particular reason Linus doesn't answer email sent to
-> torvalds@osdl.org
+Hi!
 
-I think Linus gets about >1000 mails a day and I don't think that he has the 
-time to read all of them.
-If you have any questions about linux, try to use this mailinglist or any 
-other sub project related one.
+> > root@hobit:~# uname -a
+> > Linux hobit 2.6.16-rc4 #1 SMP PREEMPT Sat Feb 18 23:53:41 CET 2006
+> > i686 GNU/Linux
+> >
+> Same problem here some time ago. See below forwarded message.
 
-dominik
+Thanks.
+
+> > First check /proc/asound/cards to see whether the emu10k1 model is
+> > detected properly.  If '[Unknown]' is shown, your model is not
+> > listed in the whitelist.
+> 
+> Seems ok (see below). But i came to the conclusion that it might be
+> KMix as well, because alsa-mixer (console) works fine.
+> Maybe if the name of the output (or input) device (now both are
+> "Wave") is changed to be different from the other names the problem
+> will dissapear. I didn't have time to do this (i am not a programmer
+> also).
+
+I tried enabled everything I could in alsamixer, but still could not
+get it to produce some sound :-(.
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

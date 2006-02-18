@@ -1,79 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751505AbWBRBU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751816AbWBRBZf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751505AbWBRBU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 20:20:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751820AbWBRBU1
+	id S1751816AbWBRBZf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 20:25:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751820AbWBRBZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 20:20:27 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:14060 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751816AbWBRBU0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 20:20:26 -0500
-Message-ID: <43F6769C.5010505@ce.jp.nec.com>
-Date: Fri, 17 Feb 2006 20:21:32 -0500
-From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 17 Feb 2006 20:25:35 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:64679 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751816AbWBRBZe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 20:25:34 -0500
+Message-ID: <43F6775C.8030208@jp.fujitsu.com>
+Date: Sat, 18 Feb 2006 10:24:44 +0900
+From: Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: Alasdair G Kergon <agk@redhat.com>
-CC: Neil Brown <neilb@suse.de>, Lars Marowsky-Bree <lmb@suse.de>,
-       device-mapper development <dm-devel@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] sysfs representation of stacked devices (dm/md)
-References: <43F60F31.1030507@ce.jp.nec.com> <20060217194249.GO12169@agk.surrey.redhat.com>
-In-Reply-To: <20060217194249.GO12169@agk.surrey.redhat.com>
+To: Greg KH <gregkh@suse.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Yasunori Goto <y-goto@jp.fujitsu.com>,
+       lhms <lhms-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] change memoryX->phys_device from number to symlink [1/2]
+ generic func
+References: <43F570B1.7050302@jp.fujitsu.com> <20060217222430.GA14847@suse.de>
+In-Reply-To: <20060217222430.GA14847@suse.de>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Alasdair G Kergon wrote:
-> I can't speak for the 'mount' code base, but I don't think it'll
-> make any significant difference to LVM2 - we'd still have to do 
-> all the same device scanning as we do now because we have to be
-> aware of md devices defined in on-disk metadata regardless of 
-> whether or not the kernel knows about them at the time the 
-> command is run.
-
-Actually, as you say, LVM2 already does the relationship analysis
-correctly by itself. So it's not 'good' example...
-The point was that dm and md have similar dependency
-structure but currently we have to scan all devices to
-find out the upward relationship using different method
-for dm and md.
-
->>thus we only need to check "holders" directory of the device
->>to decide whether the device is used by dm/md.
->>Also we can walk down the "slaves" directories to collect
->>the devices conposing the given dm/md device.
+Greg KH wrote:
 > 
-> For device-mapper devices, 'dmsetup deps' and ls --tree already
-> gives you this information reasonably efficiently.
+> You should bring this up on the acpi mailing list, as I know Pat Mochel
+> has redone the whole "acpi in sysfs" thing, so this patch will break
+> those patches (or his will break yours.)
+> 
+> I suggest you discuss this with him.
+> 
 
-Speaking about the efficiency, 'dmsetup ls --tree' works well.
-However, I haven't yet found a efficient way to implement
-'dmsetup info --tree -o inverted dm-0', for example.
+Thanks, I'll go acpi-list first.
+--Kame
 
-Deps ioctl provides downward information for a given dm device
-but there is no method for upward information.
-
-Providing reverse-deps ioctl in dm may be alternative solution.
-But it still doesn't provide the holders of non-dm devices.
-So I feel sysfs solution is appealing.
-
-> Would others find the proposal useful for non-dm devices?
-
-I would appreciate comments from others as well.
-
-> And rather than adding code just to dm and md, would it be better 
-> to implement it by enhancing bd_claim()?
-
-It may be possible if I can extend the bd_claim to accept
-additional parameter because all dm devices use same 'holder'
-signature for bd_claim but actual owner of the claim should
-be determined to create symlinks.
-
--- 
-Jun'ichi Nomura, NEC Solutions (America), Inc.

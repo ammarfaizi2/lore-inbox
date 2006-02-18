@@ -1,64 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbWBRGGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWBRGLd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750856AbWBRGGT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 01:06:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWBRGGT
+	id S1750877AbWBRGLd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 01:11:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbWBRGLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 01:06:19 -0500
-Received: from smtpout.mac.com ([17.250.248.72]:35024 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1750849AbWBRGGT (ORCPT
+	Sat, 18 Feb 2006 01:11:33 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:60381 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750875AbWBRGLc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 01:06:19 -0500
-In-Reply-To: <20060217194249.GO12169@agk.surrey.redhat.com>
-References: <43F60F31.1030507@ce.jp.nec.com> <20060217194249.GO12169@agk.surrey.redhat.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <DEEF4650-99AF-4905-A291-453C2664A1B5@mac.com>
-Cc: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>, Neil Brown <neilb@suse.de>,
-       Lars Marowsky-Bree <lmb@suse.de>,
-       device-mapper development <dm-devel@redhat.com>,
-       linux-kernel@vger.kernel.org
+	Sat, 18 Feb 2006 01:11:32 -0500
+Date: Fri, 17 Feb 2006 22:10:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: greg@kroah.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-pm@osdl.org
+Subject: Re: [PATCH 2/5] [pm] Add state field to pm_message_t (to hold
+ actual state device is in)
+Message-Id: <20060217221009.30f29aa2.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.50.0602172136240.6792-100000@monsoon.he.net>
+References: <Pine.LNX.4.50.0602171757360.30811-100000@monsoon.he.net>
+	<20060217210900.514b5f4c.akpm@osdl.org>
+	<Pine.LNX.4.50.0602172136240.6792-100000@monsoon.he.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH 0/3] sysfs representation of stacked devices (dm/md)
-Date: Sat, 18 Feb 2006 01:06:01 -0500
-To: Alasdair G Kergon <agk@redhat.com>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 17, 2006, at 14:42, Alasdair G Kergon wrote:
-> On Fri, Feb 17, 2006 at 01:00:17PM -0500, Jun'ichi Nomura wrote:
->> Though md0, dm-0, dm-1 and sd[a-d] contain same LVM2 meta data,  
->> LVM2 should pick up md0 as PV, not dm-0, dm-1 and sdXs. mdadm  
->> should build md0 from dm-0 and dm-1, not from sdXs. Similar things  
->> will happen on 'mount' and 'fsck' if we use file system labels  
->> instead of LVM2.
+Patrick Mochel <mochel@digitalimplant.org> wrote:
 >
-> I can't speak for the 'mount' code base, but I don't think it'll  
-> make any significant difference to LVM2 - we'd still have to do all  
-> the same device scanning as we do now because we have to be aware  
-> of md devices defined in on-disk metadata regardless of whether or  
-> not the kernel knows about them at the time the command is run.
+> 
+> On Fri, 17 Feb 2006, Andrew Morton wrote:
+> 
+> > Patrick Mochel <mochel@digitalimplant.org> wrote:
+> > >
+> > >
+> > > Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+> > >
+> > > ---
+> > >
+> > >  include/linux/pm.h |    1 +
+> > >  1 files changed, 1 insertions(+), 0 deletions(-)
+> > >
+> > > applies-to: 1ac50ba99ca37c65bdf3643c4056c246e401c18a
+> > > 63b8e7f0896ce93834ac60c15df954b1e6d45e56
+> > > diff --git a/include/linux/pm.h b/include/linux/pm.h
+> > > index 5be87ba..a7324ea 100644
+> > > --- a/include/linux/pm.h
+> > > +++ b/include/linux/pm.h
+> > > @@ -140,6 +140,7 @@ struct device;
+> > >
+> > >  typedef struct pm_message {
+> > >  	int event;
+> > > +	u32 state;
+> > >  } pm_message_t;
+> >
+> > I don't quite understand.  This is a message which is sent to a driver
+> > saying "go into this state", isn't it?
+> 
+> .event is one of these:
+> 
+> #define PM_EVENT_ON 0
+> #define PM_EVENT_FREEZE 1
+> #define PM_EVENT_SUSPEND 2
+> 
+> Which only says what to do - turn on or off (AFAICT, FREEZE and SUSPEND
+> are synonymous). They are designed to work when the entire system is being
+> suspended or resumed, since every device is most likely going into its
+> lowest power state.
+> 
+> However, some devices support >1 low-power state which can be used to save
+> power while the system is otherwise fully up and running. Devices that are
+> not being used will most likely use the lowest power state, but devices
+> that are idle (and that support >1 low power state) can use the other
+> states even when idle.
+> 
+> In reality, there aren't many devices or drivers that support >1 low-power
+> state. But, there are some and likely to be more. And, the interface had
+> always supported it until some time in the 2.6.16 development cycle.
+> 
+> Does that help?
+> 
 
-Aha!  This is a very valid reason why we should export partition  
-types from the kernel to userspace:  Partitions/devices that appear  
-to have 2 different filesystems/formats.  The _kernel_ cannot  
-reliably tell which to use.  On the other hand, a properly configured  
-_userspace_ initramfs could use configured partition-type  
-information, a small config file, and a user-configurable detection  
-algorithm to figure out that the device is _actually_ the first  
-segment of an ext3-on-LVM-on-RAID1, instead of a raw ext3, and mount  
-it appropriately.  Now, this requires that the admin correctly  
-specify the partition types, but that seems a bit more reliable than  
-depending on the probe-order to get things right.
+It does, thanks.
 
-Cheers,
-Kyle Moffett
+Would it make sense to enumerate these low-power states, rather than a bare
+u32?
 
---
-Unix was not designed to stop people from doing stupid things,  
-because that would also stop them from doing clever things.
-   -- Doug Gwyn
+How, from the above message, is the driver to know that it's being asked
+for a low-power state rather than an `off' state?   Via `state' I guess.
 
-
+I can see that the kernel would have trouble asking a device to go into a
+particular low-power state because of the variation in capabilities between
+devices.  Perhaps the kernel should send the driver some higher-level piece
+of information informing it what's going on, let the driver choose an
+appropriate power state?

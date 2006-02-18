@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWBRRBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWBRRB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbWBRRBs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 12:01:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWBRRBr
+	id S932080AbWBRRB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 12:01:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWBRRB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 12:01:47 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:20658 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932078AbWBRRBq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 12:01:46 -0500
-Message-ID: <43F76538.16BBA317@tv-sign.ru>
-Date: Sat, 18 Feb 2006 21:19:36 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: paulmck@us.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Roland McGrath <roland@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2/2] fix kill_proc_info() vs fork() theoretical race
-References: <43E77D3C.C967A275@tv-sign.ru> <20060214223214.GG1400@us.ibm.com> <43F3352C.E2D8F998@tv-sign.ru> <43F37D56.2D7AB32F@tv-sign.ru> <20060216192617.GF1296@us.ibm.com> <43F4E6EC.3B9F91C4@tv-sign.ru> <20060216195341.GG1296@us.ibm.com> <43F4EC88.D8B2DEE5@tv-sign.ru> <20060218020659.GH1291@us.ibm.com>
-Content-Type: text/plain; charset=koi8-r
+	Sat, 18 Feb 2006 12:01:26 -0500
+Received: from krusty.pcisys.net ([216.229.32.178]:27553 "EHLO
+	krusty.pcisys.net") by vger.kernel.org with ESMTP id S932080AbWBRRBZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 12:01:25 -0500
+Date: Sat, 18 Feb 2006 10:01:26 -0700
+From: Brian Hall <brihall@pcisys.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, shemminger@osdl.org
+Subject: Re: Help: DGE-560T not recognized by Linux
+Message-Id: <20060218100126.198d86c3.brihall@pcisys.net>
+In-Reply-To: <20060217234841.5f2030ec.akpm@osdl.org>
+References: <20060217222720.a08a2bc1.brihall@pcisys.net>
+	<20060217222428.3cf33f25.akpm@osdl.org>
+	<20060218003622.30a2b501.brihall@pcisys.net>
+	<20060217234841.5f2030ec.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.2.0beta8 (GTK+ 2.8.12; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Paul E. McKenney" wrote:
+On Fri, 17 Feb 2006 23:48:41 -0800
+Andrew Morton <akpm@osdl.org> wrote:
+> Brian Hall <brihall@pcisys.net> wrote:
+> >  I see that the sky2 driver in 2.6.16rc4 lists my card, but for some
+> >  reason it fails to access the card, maybe because I have an ULi
+> > chipset?
+> > 
+> >  Feb 17 23:18:46 syrinx sky2 0000:02:00.0: can't access PCI config
+> > space
 > 
-> On Fri, Feb 17, 2006 at 12:20:08AM +0300, Oleg Nesterov wrote:
-> > "Paul E. McKenney" wrote:
-> > >
-> > > The other thing to think through is tkill on a thread/process while it
-> > > is being created.  I believe that this is OK, since thread-specific
-> > > kill must target a specific thread, so does not do the traversal.
-> >
-> > Also, tkill was not converted to use rcu_read_lock yet, it still
-> > takes tasklist_lock, so I think it is safe.
-> 
-> I suspect that tkill will eventually need to avoid tasklist_lock...  ;-)
+> Looks like something died way down in the PCI bus config space
+> read/write operations.  I don't know what would cause that.  You
+> could perhaps play with `pci=conf1', `pci=conf2', etc as per
+> Documentation/kernel-parameters.txt.
 
-Ok, I am sending a couple of preparation patches for this.
+OK, I tried all these pci= options, plus acpi=off, to no effect:
+conf1, conf2, nommconf, biosirq, noacpi, routeirq, nosort, rom,
+lastbus=2, assign-busses, usepirqmask acpi=off
 
-Paul, I didn't beleive you when you started this work. Now I think
-we can avoid tasklist AND cleanup the code in many places. I am glad
-I was wrong.
+Also tried adjusting PCIe-related stuff in the BIOS (underclocking PCIe
+from 100 to 70 and adjusting Northbridge options). No change.
 
-Btw,
->
-> firing off some steamroller tests on it.
+Unfortunately this is the only PCIe card I have (my video is a AGP
+Radeon 9200). Do I need to force this card to be enabled somehow with a
+setpci command?
 
-Could you point me to these tests?
-
-Oleg.
+--
+Brian Hall
+Linux Consultant
+http://pcisys.net/~brihall

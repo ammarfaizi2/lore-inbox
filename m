@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWBRR6L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWBRSLh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932087AbWBRR6L (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 12:58:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932103AbWBRR6L
+	id S932105AbWBRSLh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 13:11:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWBRSLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 12:58:11 -0500
-Received: from secure.htb.at ([195.69.104.11]:50954 "EHLO pop3.htb.at")
-	by vger.kernel.org with ESMTP id S932087AbWBRR6K (ORCPT
+	Sat, 18 Feb 2006 13:11:37 -0500
+Received: from xproxy.gmail.com ([66.249.82.205]:59916 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932105AbWBRSLg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 12:58:10 -0500
-Date: Sat, 18 Feb 2006 18:57:59 +0100
-From: Richard Mittendorfer <delist@gmx.net>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [swsusp] not enough memory
-Message-Id: <20060218185759.248208f9.delist@gmx.net>
-In-Reply-To: <20060218151115.GC5658@openzaurus.ucw.cz>
-References: <20060218005814.6548092d.delist@gmx.net>
-	<20060218151115.GC5658@openzaurus.ucw.cz>
-X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
+	Sat, 18 Feb 2006 13:11:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=ZQipNNDUS+yfgLohtHGOeJL8qRinLXWrHF15gqQQddp9VCLUymYV/JkGpt/R+jj3OVbUf+mibTwEg3ysNKaFVa7ZiVF4fDLepQGvp/oepCRdsLhU5jzk5f0F3f6zoLgZYX+1eXUthQN4uTF4fanFI75TaG6wYIpazFLXU3Xl0Jk=
+Date: Sat, 18 Feb 2006 16:11:22 -0300
+From: Davi Arnaut <davi.arnaut@gmail.com>
+To: David Howells <dhowells@redhat.com>
+Cc: akpm@osdl.org, dhowells@redhat.com, vsu@altlinux.ru,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] strndup_user (v3), convert (keyctl)
+Message-Id: <20060218161122.f9d588fb.davi.arnaut@gmail.com>
+In-Reply-To: <3487.1140281089@warthog.cambridge.redhat.com>
+References: <20060218113602.edc06ce5.davi.arnaut@gmail.com>
+	<3487.1140281089@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Scanner: exiscan *1FAWLK-0003Ud-00*jx9z96RFeRc*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also sprach Pavel Machek <pavel@suse.cz> (Sat, 18 Feb 2006 16:11:16
-+0100):
-> On Sat 18-02-06 00:58:14, Richard Mittendorfer wrote:
-> > If I end all apps but the XServer it works. I've allready added some
-> > more swapspace, but that didn't help. So, how much memory will I
-> > need for a successful suspend or better (since i can't stuff any
-> > more into  it) is there a way to minimize the amount needed?
+On Sat, 18 Feb 2006 16:44:49 +0000
+David Howells <dhowells@redhat.com> wrote:
+
 > 
-> 128MB should be enough for you. 
+> Davi Arnaut <davi.arnaut@gmail.com> wrote:
+> 
+> > Convert security/keys/keyctl.c string duplication to strdup_user()
+> 
+> Can you redo this on top of hose patches I submitted yesterday please?
+> 
+> David
 
-Swap? 128M was my first attempt -- OOM when the box was heavily loaded.
-IIRC no effect on swsusp - there are 64M Ram + 2M Video + Kernel + X?. 
-The reason I did it were some google results talking about free pages.
-There were some solutions talking about adding swap.
- 
-(Ram? Would be the way to go, but it's fully loaded.)
+I think you should just tell Andrew to drop
+keys-deal-properly-with-strnlen_user.patch
+in favor of mine... :-)
 
-> Or try modifying try_to_free memory
-> routine to retry shrink_all_mem few more times, with schedule()  in
-> between...
-
-Uhh. I don't think this will be a good idea /me ha[ck|rm]ing good ol'
-linux source. ;-)
-
-sl ritch
+--
+Davi Arnaut

@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbWBRF76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbWBRGGT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750852AbWBRF76 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 00:59:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750849AbWBRF76
+	id S1750856AbWBRGGT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 01:06:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWBRGGT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 00:59:58 -0500
-Received: from mail2.genealogia.fi ([194.100.116.229]:1223 "EHLO
-	mail2.genealogia.fi") by vger.kernel.org with ESMTP
-	id S1750838AbWBRF76 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 00:59:58 -0500
-Date: Fri, 17 Feb 2006 21:57:36 -0800
-From: Jouni Malinen <jkmaline@cc.hut.fi>
-To: Mark Lord <lkml@rtr.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: TKIP: replay detected:  WTF?
-Message-ID: <20060218055736.GE8579@jm.kir.nu>
-References: <43F65F03.1080001@rtr.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43F65F03.1080001@rtr.ca>
-User-Agent: Mutt/1.5.11
-X-Spam-Score: -2.6 (--)
+	Sat, 18 Feb 2006 01:06:19 -0500
+Received: from smtpout.mac.com ([17.250.248.72]:35024 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1750849AbWBRGGT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 01:06:19 -0500
+In-Reply-To: <20060217194249.GO12169@agk.surrey.redhat.com>
+References: <43F60F31.1030507@ce.jp.nec.com> <20060217194249.GO12169@agk.surrey.redhat.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <DEEF4650-99AF-4905-A291-453C2664A1B5@mac.com>
+Cc: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>, Neil Brown <neilb@suse.de>,
+       Lars Marowsky-Bree <lmb@suse.de>,
+       device-mapper development <dm-devel@redhat.com>,
+       linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH 0/3] sysfs representation of stacked devices (dm/md)
+Date: Sat, 18 Feb 2006 01:06:01 -0500
+To: Alasdair G Kergon <agk@redhat.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 17, 2006 at 06:40:51PM -0500, Mark Lord wrote:
+On Feb 17, 2006, at 14:42, Alasdair G Kergon wrote:
+> On Fri, Feb 17, 2006 at 01:00:17PM -0500, Jun'ichi Nomura wrote:
+>> Though md0, dm-0, dm-1 and sd[a-d] contain same LVM2 meta data,  
+>> LVM2 should pick up md0 as PV, not dm-0, dm-1 and sdXs. mdadm  
+>> should build md0 from dm-0 and dm-1, not from sdXs. Similar things  
+>> will happen on 'mount' and 'fsck' if we use file system labels  
+>> instead of LVM2.
+>
+> I can't speak for the 'mount' code base, but I don't think it'll  
+> make any significant difference to LVM2 - we'd still have to do all  
+> the same device scanning as we do now because we have to be aware  
+> of md devices defined in on-disk metadata regardless of whether or  
+> not the kernel knows about them at the time the command is run.
 
-> Lately I've been seeing my kernel logs spammed by these events:
-> 
-> Feb 17 18:38:48 localhost kernel: TKIP: replay detected: 
-> STA=00:13:46:16:96:b8 previous TSC ffff80723500 received TSC 000000000001
+Aha!  This is a very valid reason why we should export partition  
+types from the kernel to userspace:  Partitions/devices that appear  
+to have 2 different filesystems/formats.  The _kernel_ cannot  
+reliably tell which to use.  On the other hand, a properly configured  
+_userspace_ initramfs could use configured partition-type  
+information, a small config file, and a user-configurable detection  
+algorithm to figure out that the device is _actually_ the first  
+segment of an ext3-on-LVM-on-RAID1, instead of a raw ext3, and mount  
+it appropriately.  Now, this requires that the admin correctly  
+specify the partition types, but that seems a bit more reliable than  
+depending on the probe-order to get things right.
 
-netdev could be better mailing list for this kind of issue. Anyway, it
-looks like something managed to set the last packet number to very high
-number which will make all future frames dropped as replays.
+Cheers,
+Kyle Moffett
 
-> This is with the various 2.6.16-rc*-git* kernels, and possibly older 2.6.15 
-> series as well.
-> They always seem to arrive in large bursts, like the bunch shown above.  
-> Using wifi
-> over ipw2200 to a WPA2 AP.
+--
+Unix was not designed to stop people from doing stupid things,  
+because that would also stop them from doing clever things.
+   -- Doug Gwyn
 
-Are you using wpa_supplicant to take care of the WPA2 handshake? If yes,
-it would be interesting to see debug log from it for the key handshake
-that happened just prior to this replay issue occurring.
 
-> Either this is "normal" behaviour, in which case the code should NOT be 
-> spamming me,
-> or something is broken, in which case.. what?
-
-This is not normal behavior, i.e., something is indeed broken
-(driver/supplicant/AP). Though, the those messages could be disabled by
-default if there were a useful counter for detecting this kind of issues
-easily. Anyway, these debug messages are quite useful in figuring out
-what could have caused the "replays".
-
--- 
-Jouni Malinen                                            PGP id EFC895FA

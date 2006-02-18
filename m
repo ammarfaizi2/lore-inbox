@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWBRC1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWBRCmq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbWBRC1P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 21:27:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWBRC1P
+	id S1750727AbWBRCmq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 21:42:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWBRCmq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 21:27:15 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:50362 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751032AbWBRC1I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 21:27:08 -0500
-Date: Fri, 17 Feb 2006 18:26:47 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: stelian@popies.net, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: HG kernel repo (was: Re: 2.6.16-rc2-mm1 patches don't apply)
-Message-Id: <20060217182647.ccb558ef.pj@sgi.com>
-In-Reply-To: <20060212171337.GA10467@waste.org>
-References: <20060208194359.bd1c1a4b.pj@sgi.com>
-	<20060208201644.568379d6.akpm@osdl.org>
-	<20060208213025.ef61a679.pj@sgi.com>
-	<20060209055638.GV13729@waste.org>
-	<1139690253.1801.15.camel@deep-space-9.dsnet>
-	<20060212171337.GA10467@waste.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Fri, 17 Feb 2006 21:42:46 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:48559 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750727AbWBRCmp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 21:42:45 -0500
+Subject: Re: Re[2]: 2.6.16 serious consequences / GPL_EXPORT_SYMBOL / USB
+	drivers of major vendor excluded
+From: Lee Revell <rlrevell@joe-job.com>
+To: s.schmidt@avm.de
+Cc: Greg KH <greg@kroah.com>, torvalds@osdl.org, kkeil@suse.de,
+       linux-kernel@vger.kernel.org, opensuse-factory@opensuse.org,
+       libusb-devel@lists.sourceforge.net
+In-Reply-To: <OFED05BE20.31E2BACE-ONC1257115.005DE6CA-C1257117.004F2C48@avm.de>
+References: <OFED05BE20.31E2BACE-ONC1257115.005DE6CA-C1257117.004F2C48@avm.de>
+Content-Type: text/plain
+Date: Fri, 17 Feb 2006 21:42:43 -0500
+Message-Id: <1140230563.2733.171.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.5.91 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Sorry folks, I've been in meetings all weekend.
+On Thu, 2006-02-16 at 15:24 +0100, s.schmidt@avm.de wrote:
+> Only the kernel offers low latency and timeline processing
+> which is required for soft DSP alike processing. 
 
-Any progress yet, Matt, on hg kernel repository?
+Sorry, but this set off my hyperbole detector.  Ever hear of a VST
+plugin?  On Linux, people do realtime DSP stuff with JACK in user space
+all the time that (no offense) makes a soft modem look like a toy in
+comparison, like process 32 channels of 24 bit audio at 96KHz through a
+reverb, amp modelers, equalizers, pitch correction, etc.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+http://jackit.sourceforge.net/apps/
+http://www.ardour.org/
+
+On a recent kernel you don't even need to be root to get reliable RT
+scheduling ;-)
+
+Lee
+

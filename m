@@ -1,35 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWBRK7u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWBRLB2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751109AbWBRK7u (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 05:59:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWBRK7u
+	id S1750997AbWBRLB2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 06:01:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWBRLB2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 05:59:50 -0500
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:21568 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751088AbWBRK7t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 05:59:49 -0500
-Date: Sat, 18 Feb 2006 11:59:36 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, openib-general@openib.org,
-       SCHICKHJ@de.ibm.com, RAISCH@de.ibm.com, HNGUYEN@de.ibm.com,
-       MEDER@de.ibm.com
-Subject: Re: [PATCH 02/22] Firmware interface code for IB device.
-Message-ID: <20060218105936.GD9216@osiris.boeblingen.de.ibm.com>
-References: <20060218005532.13620.79663.stgit@localhost.localdomain> <20060218005707.13620.20538.stgit@localhost.localdomain> <20060218015808.GB17653@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060218015808.GB17653@kroah.com>
-User-Agent: mutt-ng/devel-r781 (Linux)
+	Sat, 18 Feb 2006 06:01:28 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:14236 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750997AbWBRLB1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 06:01:27 -0500
+Date: Sat, 18 Feb 2006 02:59:21 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Adam Tla/lka <atlka@pg.gda.pl>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH]console:UTF-8 mode compatibility fixes
+Message-Id: <20060218025921.7456e168.akpm@osdl.org>
+In-Reply-To: <20060217233333.GA5208@sunrise.pg.gda.pl>
+References: <20060217233333.GA5208@sunrise.pg.gda.pl>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Come on, IBM allows developers to post code to lkml, just look at the
-> archives for proof.  For them to use a proxy like this is very strange,
+Adam Tla/lka <atlka@pg.gda.pl> wrote:
+>
+> 
+> This patch applies to 2.6.15.3 kernel sources to drivers/char/vt.c file.
+> It should work with other versions too.
+> 
+> Changed console behaviour so in UTF-8 mode vt100 alternate character
+> sequences work as described in terminfo/termcap linux terminal definition.
+> Programs can use vt100 control seqences - smacs, rmacs and acsc  characters
+> in UTF-8 mode in the same way as in normal mode so one definition is always
+> valid - current behaviour make these seqences not working in UTF-8 mode.
+> 
+> Added reporting malformed UTF-8 seqences as replacement glyphs.
+> I think that terminal should always display something rather then ignoring
+> these kind of data as it does now. Also it sticks to Unicode standards
+> saying that every wrong byte should be reported. It is more human readable
+> too in case of Latin subsets including ASCII chars.
+> 
+> ...
+>
+> -		} else if (vc->vc_utf) {
+> +		} else if (vc->vc_utf && !vc->vc_disp_ctrl) {
+>  		    /* Combine UTF-8 into Unicode */
+> -		    /* Incomplete characters silently ignored */
+> +		    /* Malformed sequence represented as replacement glyphs */
+> +rescan_last_byte:
+>  		    if(c > 0x7f) {
+>
+> ...
+>
+> +					if (vc->vc_npar) {
+> +						c = orig;
+> +						goto rescan_last_byte;
+> +					}
+>
+> ...
+>
+> +				}
+> +				vc->vc_utf_count = 0;
+> +				c = orig;
+> +				goto rescan_last_byte;
+> +			}
+>  			continue;
+>  		}
 
-Things aren't always that easy at IBM. You should know best :)
-
-Heiko
+I spent some time trying to work out why this cannot cause an infinite loop
+and gave up.  Can you explain?

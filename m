@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWBRSxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWBRSzR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWBRSxF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 13:53:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWBRSxF
+	id S932120AbWBRSzR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 13:55:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWBRSzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 13:53:05 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:9853 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S932113AbWBRSxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 13:53:04 -0500
-X-IronPort-AV: i="4.02,127,1139212800"; 
-   d="scan'208"; a="407065025:sNHT35020288"
-To: Greg KH <greg@kroah.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Muli Ben-Yehuda <mulix@mulix.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, openib-general@openib.org,
-       SCHICKHJ@de.ibm.com, RAISCH@de.ibm.com, HNGUYEN@de.ibm.com,
-       MEDER@de.ibm.com
-Subject: Re: [PATCH 02/22] Firmware interface code for IB device.
-X-Message-Flag: Warning: May contain useful information
-References: <20060218005532.13620.79663.stgit@localhost.localdomain>
-	<20060218005707.13620.20538.stgit@localhost.localdomain>
-	<20060218015808.GB17653@kroah.com> <aday809bewn.fsf@cisco.com>
-	<20060218122011.GE911@infradead.org>
-	<20060218122631.GA30535@granada.merseine.nu>
-	<1140265955.4035.19.camel@laptopd505.fenrus.org>
-	<adazmkoaaqr.fsf@cisco.com> <20060218181509.GA892@kroah.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Sat, 18 Feb 2006 10:52:58 -0800
-In-Reply-To: <20060218181509.GA892@kroah.com> (Greg KH's message of "Sat, 18
- Feb 2006 10:15:09 -0800")
-Message-ID: <adavevca48l.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Sat, 18 Feb 2006 13:55:17 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:49630 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932120AbWBRSzP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 13:55:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=uHkInEP1NlMeM/bmXxBngPJbJ4saJMylJhI9ndZeeUmnxLHuiLs4cLHU8f/C/hZnGDITTiybUXfLFXvIAKo+iXOhsjMlwCGy0gpDKbc16z7Mr32vbXXSeua+i1F54DhM+rB4lG5NmyYixsAcEVWHPxWT2cE+wPqZmTtNuzhgaX8=
+Message-ID: <a36005b50602181055n454c446aoed83ea21baaf1a67@mail.gmail.com>
+Date: Sat, 18 Feb 2006 10:55:14 -0800
+From: "Ulrich Drepper" <drepper@gmail.com>
+To: "Bernd Eckenfels" <be-news06@lina.inka.de>
+Subject: Re: How to find the CPU usage of a process
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E1FAX4Z-0000zv-00@calista.inka.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 18 Feb 2006 18:52:59.0410 (UTC) FILETIME=[89A00720:01C634BC]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060218174209.4376.qmail@web32607.mail.mud.yahoo.com>
+	 <E1FAX4Z-0000zv-00@calista.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Greg> Checking stuff into a private svn tree is vastly different
-    Greg> from posting to lkml in public.  In fact, it looks like the
-    Greg> svn tree is so far ahead of the in-kernel stuff, that most
-    Greg> people are just using it instead of the in-kernel code.
+On 2/18/06, Bernd Eckenfels <be-news06@lina.inka.de> wrote:
+> You can use the result wof wait3(2) if you are the parent:
+> [...]
 
-It's not a private svn tree -- the IBM ehca development is available
-to anyone via svn at https://openib.org/svn/gen2/trunk/src/linux-kernel/infiniband/hw/ehca
+That's after the fact.  Programs which want to get the information
+while running can use the CPU clocks:
 
-    Greg> I know at least one company has asked a distro to just
-    Greg> accept the svn snapshot over the in-kernel IB code, which
-    Greg> makes me wonder if the in-kernel stuff is even useful to
-    Greg> people?  Why have it, if companies insist on using the
-    Greg> out-of-tree stuff instead?
+  struct timespec ts;
+  if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts) != 0)
+    fatal("cannot get CPU time");
+  /* result is in TS */
 
-The IB driver stack is still in its early stages, so although I'm
-pushing for things to be merged as fast as possible, the unfortunate
-fact is that lots of things that people want to use (including the IBM
-ehca driver) are not upstream and are not ready to go upstream yet.
-But that doesn't mean we should give up on merging them.
+It's also possible to get a thread's CPU consumption.  Use
+CLOCK_THREAD_CPUTIME_ID in that case.
 
-Distro politics are just distro politics -- and there will always be
-pressure on distros to ship stuff that's not upstream yet.
-
- - R.
+All this works as it should ever since Roland's clock patches landed,
+in early 2.6 kernels.  Before that the time returned did not discount
+the time the process wasn't scheduled.

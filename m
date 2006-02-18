@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751807AbWBRAgf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751809AbWBRAlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751807AbWBRAgf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 19:36:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751809AbWBRAgf
+	id S1751809AbWBRAlG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 19:41:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751810AbWBRAlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 19:36:35 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:44955
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751807AbWBRAge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 19:36:34 -0500
-Date: Fri, 17 Feb 2006 16:36:25 -0800
-From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Nathan Lynch <ntl@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: sysfs-related oops during module unload (2.6.16-rc2)
-Message-ID: <20060218003625.GB474@kroah.com>
-References: <20060211220351.GA3293@localhost.localdomain> <20060212053849.GA27587@kroah.com> <20060216215023.GA30417@kroah.com> <200602162253.45621.dtor_core@ameritech.net>
+	Fri, 17 Feb 2006 19:41:06 -0500
+Received: from secure.htb.at ([195.69.104.11]:4358 "EHLO pop3.htb.at")
+	by vger.kernel.org with ESMTP id S1751809AbWBRAlF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 19:41:05 -0500
+Date: Sat, 18 Feb 2006 01:40:54 +0100
+From: Richard Mittendorfer <delist@gmx.net>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [swsusp] not enough memory
+Message-Id: <20060218014054.15bfc4f5.delist@gmx.net>
+In-Reply-To: <200602181008.02801.ncunningham@cyclades.com>
+References: <20060218005814.6548092d.delist@gmx.net>
+	<200602181008.02801.ncunningham@cyclades.com>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602162253.45621.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanner: exiscan *1FAG9g-0006r1-00*bGEBy.COSMY*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 16, 2006 at 10:53:45PM -0500, Dmitry Torokhov wrote:
-> On Thursday 16 February 2006 16:50, Greg KH wrote:
-> > +???????mod->modinfo_attrs = kzalloc((sizeof(struct module_attribute) *
-> > +???????????????????????????????????????(ARRAY_SIZE(modinfo_attrs) + 1)),
-> > +???????????????????????????????????????GFP_KERNEL);
-> > 
+Also sprach Nigel Cunningham <ncunningham@cyclades.com> (Sat, 18 Feb
+2006 10:07:58 +1000):
+> Hi Richard.
+
+Hello Nigel,
+ 
+> On Saturday 18 February 2006 09:58, Richard Mittendorfer wrote:
+> > swsusp: Need to copy 15526 pages
+> > swsusp: Not enough free memory
+> > Error -12 suspending
+> > [...]
+> swsusp needs to be able to free half your memory to be able to
+> suspend. I  don't know it intimately, but you may well be failing to
+> do this. Being  completely biased (and not unwilling to admit it!),
+> I'd suggest you try  Suspend2 (www.suspend2.net). It doesn't have such
+> a limitation.
+
+Thanks for this hint. However, I'm using ck's patches and having errors 
+compiling sched.c. Just took a quick look: I don't think I can get them 
+working together. The  rest of the suspend2 patch (for 2.6.15.1) seems 
+to apply fine to 2.6.15.4 also (Not much changes IIRC).  
+
+> Regards,
 > 
-> kcalloc() perhaps? Here you explecitely create n elements of a given size...
+> Nigel
 
-Heh, sure, the one time I actually are creating n elements :)
-
-I'll go change that.
-
-thanks for pointing it out.
-
-greg k-h
+sl ritch

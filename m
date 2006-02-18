@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751810AbWBRBBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161160AbWBRBBU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751810AbWBRBBV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 20:01:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751831AbWBRA6W
+	id S1161160AbWBRBBU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 20:01:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751843AbWBRA62
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 19:58:22 -0500
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:47881 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1751845AbWBRA6E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 19:58:04 -0500
+	Fri, 17 Feb 2006 19:58:28 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:59775 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S1751822AbWBRA54 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 19:57:56 -0500
 From: Roland Dreier <rolandd@cisco.com>
-Subject: [PATCH 16/22] ehca post send/receive and poll CQ
-Date: Fri, 17 Feb 2006 16:57:48 -0800
+Subject: [PATCH 18/22] ehca address vectors, multicast groups, protection domains
+Date: Fri, 17 Feb 2006 16:57:52 -0800
 To: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
        openib-general@openib.org
 Cc: SCHICKHJ@de.ibm.com, RAISCH@de.ibm.com, HNGUYEN@de.ibm.com,
        MEDER@de.ibm.com
-Message-Id: <20060218005748.13620.45620.stgit@localhost.localdomain>
+Message-Id: <20060218005752.13620.3255.stgit@localhost.localdomain>
 In-Reply-To: <20060218005532.13620.79663.stgit@localhost.localdomain>
 References: <20060218005532.13620.79663.stgit@localhost.localdomain>
-X-OriginalArrivalTime: 18 Feb 2006 00:57:48.0273 (UTC) FILETIME=[55FDB610:01C63426]
+X-OriginalArrivalTime: 18 Feb 2006 00:57:53.0008 (UTC) FILETIME=[58D03700:01C63426]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Roland Dreier <rolandd@cisco.com>
 
-There are an awful lot of magic numbers scattered around.  Probably
-they should become enums somewhere.
 
-The compatibility defines for using the kernel file in userspace
-shouldn't go into the kernel.
 ---
 
- drivers/infiniband/hw/ehca/ehca_reqs.c      |  401 ++++++++++++++++++++++++++
- drivers/infiniband/hw/ehca/ehca_reqs_core.c |  420 +++++++++++++++++++++++++++
- 2 files changed, 821 insertions(+), 0 deletions(-)
+ drivers/infiniband/hw/ehca/ehca_av.c    |  258 +++++++++++++++++++++++++++++++
+ drivers/infiniband/hw/ehca/ehca_mcast.c |  194 +++++++++++++++++++++++
+ drivers/infiniband/hw/ehca/ehca_pd.c    |  100 ++++++++++++
+ 3 files changed, 552 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/infiniband/hw/ehca/ehca_reqs.c b/drivers/infiniband/hw/ehca/ehca_reqs.c
+diff --git a/drivers/infiniband/hw/ehca/ehca_av.c b/drivers/infiniband/hw/ehca/ehca_av.c
 new file mode 100644
-index 0000000..659e6ba
+index 0000000..f5382c2
 --- /dev/null
-+++ b/drivers/infiniband/hw/ehca/ehca_reqs.c
-@@ -0,0 +1,401 @@
++++ b/drivers/infiniband/hw/ehca/ehca_av.c
+@@ -0,0 +1,258 @@
 +/*
 + *  IBM eServer eHCA Infiniband device driver for Linux on POWER
 + *
-+ *  post_send/recv, poll_cq, req_notify
++ *  adress vector functions
 + *
-+ *  Authors: Waleri Fomin <fomin@de.ibm.com>
-+ *           Reinhard Ernst <rernst@de.ibm.com>
-+ *           Hoang-Nam Nguyen <hnguyen@de.ibm.com>
++ *  Authors: Reinhard Ernst <rernst@de.ibm.com>
++ *           Christoph Raisch <raisch@de.ibm.com>
 + *
 + *  Copyright (c) 2005 IBM Corporation
 + *
@@ -83,384 +79,436 @@ index 0000000..659e6ba
 + * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 + * POSSIBILITY OF SUCH DAMAGE.
 + *
-+ *  $Id: ehca_reqs.c,v 1.41 2006/02/06 10:17:34 schickhj Exp $
++ *  $Id: ehca_av.c,v 1.28 2006/02/06 10:17:34 schickhj Exp $
 + */
 +
 +
-+#define DEB_PREFIX "reqs"
++#define DEB_PREFIX "ehav"
++
++#include "ehca_kernel.h"
++#include "ehca_tools.h"
++#include "ehca_iverbs.h"
++#include "hcp_if.h"
++
++struct ib_ah *ehca_create_ah(struct ib_pd *pd, struct ib_ah_attr *ah_attr)
++{
++	extern int ehca_static_rate;
++	int retcode = 0;
++	struct ehca_av *av = NULL;
++
++	EHCA_CHECK_PD_P(pd);
++	EHCA_CHECK_ADR_P(ah_attr);
++
++	EDEB_EN(7,"pd=%p ah_attr=%p", pd, ah_attr);
++
++	av = ehca_av_new();
++	if (!av) {
++		EDEB_ERR(4,"Out of memory pd=%p ah_attr=%p", pd, ah_attr);
++		retcode = -ENOMEM;
++		goto create_ah_exit0;
++	}
++
++	av->av.sl = ah_attr->sl;
++	av->av.dlid = ntohs(ah_attr->dlid);
++	av->av.slid_path_bits = ah_attr->src_path_bits;
++
++	if (ehca_static_rate < 0) {
++	        av->av.ipd = ah_attr->static_rate;
++	} else {
++	        av->av.ipd = ehca_static_rate;
++	}
++
++	av->av.lnh = ah_attr->ah_flags;
++	av->av.grh.word_0 |= EHCA_BMASK_SET(GRH_IPVERSION_MASK, 6);
++	av->av.grh.word_0 |= EHCA_BMASK_SET(GRH_TCLASS_MASK,
++					    ah_attr->grh.traffic_class);
++	av->av.grh.word_0 |= EHCA_BMASK_SET(GRH_FLOWLABEL_MASK,
++					    ah_attr->grh.flow_label);
++	av->av.grh.word_0 |= EHCA_BMASK_SET(GRH_HOPLIMIT_MASK,
++					    ah_attr->grh.hop_limit);
++	av->av.grh.word_0 |= EHCA_BMASK_SET(GRH_NEXTHEADER_MASK, 0x1B);
++	/* IB transport */
++	av->av.grh.word_0 = be64_to_cpu(av->av.grh.word_0);
++	/* set sgid in grh.word_1 */
++	if (ah_attr->ah_flags & IB_AH_GRH) {
++		int rc = 0;
++		struct ib_port_attr port_attr;
++		union ib_gid gid;
++		memset(&port_attr, 0, sizeof(port_attr));
++		rc = ehca_query_port(pd->device, ah_attr->port_num,
++				     &port_attr);
++		if (rc != 0) { /* invalid port number */
++			retcode = -EINVAL;
++			EDEB_ERR(4, "Invalid port number "
++				 "ehca_query_port() returned %x "
++				 "pd=%p ah_attr=%p", rc, pd, ah_attr);
++			goto create_ah_exit1;
++		}
++		memset(&gid, 0, sizeof(gid));
++		rc = ehca_query_gid(pd->device,
++				    ah_attr->port_num,
++				    ah_attr->grh.sgid_index, &gid);
++		if (rc != 0) {
++			retcode = -EINVAL;
++			EDEB_ERR(4, "Failed to retrieve sgid "
++				 "ehca_query_gid() returned %x "
++				 "pd=%p ah_attr=%p", rc, pd, ah_attr);
++			goto create_ah_exit1;
++		}
++		memcpy(&av->av.grh.word_1, &gid, sizeof(gid));
++	}
++	/* for the time beeing we use a hard coded PMTU of 2048 Bytes */
++	av->av.pmtu = 4; /* TODO */
++
++	/* dgid comes in grh.word_3 */
++	memcpy(&av->av.grh.word_3, &ah_attr->grh.dgid,
++	       sizeof(ah_attr->grh.dgid));
++
++	EHCA_REGISTER_AV(device, pd);
++
++	EDEB_EX(7,"pd=%p ah_attr=%p av=%p", pd, ah_attr, av);
++	return (&av->ib_ah);
++
++ create_ah_exit1:
++	ehca_av_delete(av);
++
++ create_ah_exit0:
++	EDEB_EX(7,"retcode=%x pd=%p ah_attr=%p", retcode, pd, ah_attr);
++	return ERR_PTR(retcode);
++}
++
++int ehca_modify_ah(struct ib_ah *ah, struct ib_ah_attr *ah_attr)
++{
++	struct ehca_av *av = NULL;
++	struct ehca_ud_av new_ehca_av;
++	int ret = 0;
++
++	EHCA_CHECK_AV(ah);
++	EHCA_CHECK_ADR(ah_attr);
++
++	EDEB_EN(7,"ah=%p ah_attr=%p", ah, ah_attr);
++
++	memset(&new_ehca_av, 0, sizeof(new_ehca_av));
++	new_ehca_av.sl = ah_attr->sl;
++	new_ehca_av.dlid = ntohs(ah_attr->dlid);
++	new_ehca_av.slid_path_bits = ah_attr->src_path_bits;
++	new_ehca_av.ipd = ah_attr->static_rate;
++	new_ehca_av.lnh = EHCA_BMASK_SET(GRH_FLAG_MASK,
++					 ((ah_attr->ah_flags & IB_AH_GRH) > 0));
++	new_ehca_av.grh.word_0 = EHCA_BMASK_SET(GRH_TCLASS_MASK,
++						ah_attr->grh.traffic_class);
++	new_ehca_av.grh.word_0 |= EHCA_BMASK_SET(GRH_FLOWLABEL_MASK,
++						 ah_attr->grh.flow_label);
++	new_ehca_av.grh.word_0 |= EHCA_BMASK_SET(GRH_HOPLIMIT_MASK,
++						 ah_attr->grh.hop_limit);
++	new_ehca_av.grh.word_0 |= EHCA_BMASK_SET(GRH_NEXTHEADER_MASK, 0x1b);
++	new_ehca_av.grh.word_0 = be64_to_cpu(new_ehca_av.grh.word_0);
++
++	/* set sgid in grh.word_1 */
++	if (ah_attr->ah_flags & IB_AH_GRH) {
++		int rc = 0;
++		struct ib_port_attr port_attr;
++		union ib_gid gid;
++		memset(&port_attr, 0, sizeof(port_attr));
++		rc = ehca_query_port(ah->device, ah_attr->port_num,
++				     &port_attr);
++		if (rc != 0) { /* invalid port number */
++			ret = -EINVAL;
++			EDEB_ERR(4, "Invalid port number "
++				 "ehca_query_port() returned %x "
++				 "ah=%p ah_attr=%p port_num=%x",
++				 rc, ah, ah_attr, ah_attr->port_num);
++			goto modify_ah_exit1;
++		}
++		memset(&gid, 0, sizeof(gid));
++		rc = ehca_query_gid(ah->device,
++				    ah_attr->port_num,
++				    ah_attr->grh.sgid_index, &gid);
++		if (rc != 0) {
++			ret = -EINVAL;
++			EDEB_ERR(4,
++				 "Failed to retrieve sgid "
++				 "ehca_query_gid() returned %x "
++				 "ah=%p ah_attr=%p port_num=%x "
++				 "sgid_index=%x",
++				 rc, ah, ah_attr, ah_attr->port_num,
++				 ah_attr->grh.sgid_index);
++			goto modify_ah_exit1;
++		}
++		memcpy(&new_ehca_av.grh.word_1, &gid, sizeof(gid));
++	}
++
++	new_ehca_av.pmtu = 4; /* TODO: see comment in create_ah() */
++
++	memcpy(&new_ehca_av.grh.word_3, &ah_attr->grh.dgid,
++	       sizeof(ah_attr->grh.dgid));
++
++	av = container_of(ah, struct ehca_av, ib_ah);
++	av->av = new_ehca_av;
++
++ modify_ah_exit1:
++	EDEB_EX(7,"ret=%x ah=%p ah_attr=%p", ret, ah, ah_attr);
++
++	return ret;
++}
++
++int ehca_query_ah(struct ib_ah *ah, struct ib_ah_attr *ah_attr)
++{
++	int ret = 0;
++	struct ehca_av *av = NULL;
++
++	EHCA_CHECK_AV(ah);
++	EHCA_CHECK_ADR(ah_attr);
++
++	EDEB_EN(7,"ah=%p ah_attr=%p", ah, ah_attr);
++
++	av = container_of(ah, struct ehca_av, ib_ah);
++	memcpy(&ah_attr->grh.dgid, &av->av.grh.word_3,
++	       sizeof(ah_attr->grh.dgid));
++	ah_attr->sl = av->av.sl;
++
++	ah_attr->dlid = av->av.dlid;
++
++	ah_attr->src_path_bits = av->av.slid_path_bits;
++	ah_attr->static_rate = av->av.ipd;
++	ah_attr->ah_flags = EHCA_BMASK_GET(GRH_FLAG_MASK, av->av.lnh);
++	ah_attr->grh.traffic_class = EHCA_BMASK_GET(GRH_TCLASS_MASK,
++						    av->av.grh.word_0);
++	ah_attr->grh.hop_limit = EHCA_BMASK_GET(GRH_HOPLIMIT_MASK,
++						av->av.grh.word_0);
++	ah_attr->grh.flow_label = EHCA_BMASK_GET(GRH_FLOWLABEL_MASK,
++						 av->av.grh.word_0);
++
++	EDEB_EX(7,"ah=%p ah_attr=%p ret=%x", ah, ah_attr, ret);
++	return ret;
++}
++
++int ehca_destroy_ah(struct ib_ah *ah)
++{
++	int ret = 0;
++
++	EHCA_CHECK_AV(ah);
++	EHCA_DEREGISTER_AV(ah);
++
++	EDEB_EN(7,"ah=%p", ah);
++
++	ehca_av_delete(container_of(ah, struct ehca_av, ib_ah));
++
++	EDEB_EX(7,"ret=%x ah=%p", ret, ah);
++	return ret;
++}
+diff --git a/drivers/infiniband/hw/ehca/ehca_mcast.c b/drivers/infiniband/hw/ehca/ehca_mcast.c
+new file mode 100644
+index 0000000..b49bcf6
+--- /dev/null
++++ b/drivers/infiniband/hw/ehca/ehca_mcast.c
+@@ -0,0 +1,194 @@
++
++/*
++ *  IBM eServer eHCA Infiniband device driver for Linux on POWER
++ *
++ *  mcast  functions
++ *
++ *  Authors: Waleri Fomin <fomin@de.ibm.com>
++ *           Reinhard Ernst <rernst@de.ibm.com>
++ *           Hoang-Nam Nguyen <hnguyen@de.ibm.com>
++ *           Heiko J Schick <schickhj@de.ibm.com>
++ *
++ *  Copyright (c) 2005 IBM Corporation
++ *
++ *  All rights reserved.
++ *
++ *  This source code is distributed under a dual license of GPL v2.0 and OpenIB
++ *  BSD.
++ *
++ * OpenIB BSD License
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *
++ * Redistributions of source code must retain the above copyright notice, this
++ * list of conditions and the following disclaimer.
++ *
++ * Redistributions in binary form must reproduce the above copyright notice,
++ * this list of conditions and the following disclaimer in the documentation
++ * and/or other materials
++ * provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
++ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
++ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ *
++ *  $Id: ehca_mcast.c,v 1.20 2006/02/06 10:17:34 schickhj Exp $
++ */
++
++#define DEB_PREFIX "mcas"
 +
 +#include "ehca_kernel.h"
 +#include "ehca_classes.h"
 +#include "ehca_tools.h"
 +#include "hcp_if.h"
 +#include "ehca_qes.h"
++#include <linux/module.h>
++#include <linux/err.h>
 +#include "ehca_iverbs.h"
 +
-+/* include some inline service routines */
-+#include "ehca_asm.h"
-+#include "ehca_reqs_core.c"
++#define MAX_MC_LID 0xFFFE
++#define MIN_MC_LID 0xC000	/* Multicast limits */
++#define EHCA_VALID_MULTICAST_GID(gid)  ((gid)[0] == 0xFF)
++#define EHCA_VALID_MULTICAST_LID(lid)  (((lid) >= MIN_MC_LID) && ((lid) <= MIN_MC_LID))
 +
-+int ehca_post_send(struct ib_qp *qp,
-+		   struct ib_send_wr *send_wr,
-+		   struct ib_send_wr **bad_send_wr)
++int ehca_attach_mcast(struct ib_qp *ibqp, union ib_gid *gid, u16 lid)
 +{
 +	struct ehca_qp *my_qp = NULL;
-+	struct ib_send_wr *cur_send_wr = NULL;
-+	struct ehca_wqe *wqe_p = NULL;
-+	int wqe_cnt = 0;
++	struct ehca_shca *shca = NULL;
++	union ib_gid my_gid;
++	u64 hipz_rc = H_Success;
 +	int retcode = 0;
-+	unsigned long spl_flags = 0;
 +
-+	EHCA_CHECK_ADR(qp);
-+	my_qp = container_of(qp, struct ehca_qp, ib_qp);
++	EHCA_CHECK_ADR(ibqp);
++	EHCA_CHECK_ADR(gid);
++
++	my_qp = container_of(ibqp, struct ehca_qp, ib_qp);
++
 +	EHCA_CHECK_QP(my_qp);
-+	EHCA_CHECK_ADR(send_wr);
-+	EDEB_EN(7, "ehca_qp=%p qp_num=%x send_wr=%p bad_send_wr=%p",
-+		my_qp, qp->qp_num, send_wr, bad_send_wr);
++	if (ibqp->qp_type != IB_QPT_UD) {
++		EDEB_ERR(4, "invalid qp_type %x gid, retcode=%x",
++			 ibqp->qp_type, EINVAL);
++		return (-EINVAL);
++	}
 +
-+	/* LOCK the QUEUE */
-+	spin_lock_irqsave(&my_qp->spinlock_s, spl_flags);
++	shca = container_of(ibqp->pd->device, struct ehca_shca, ib_device);
++	EHCA_CHECK_ADR(shca);
 +
-+	/* loop processes list of send reqs */
-+	for (cur_send_wr = send_wr; cur_send_wr != NULL;
-+	     cur_send_wr = cur_send_wr->next) {
-+		void *start_addr =
-+			&my_qp->ehca_qp_core.ipz_squeue.current_q_addr;
-+		/* get pointer next to free WQE */
-+		wqe_p = ipz_QEit_get_inc(&my_qp->ehca_qp_core.ipz_squeue);
-+		if (unlikely(wqe_p == NULL)) {
-+			/* too many posted work requests: queue overflow */
-+			if (bad_send_wr != NULL) {
-+				*bad_send_wr = cur_send_wr;
-+			}
-+			if (wqe_cnt==0) {
-+				retcode = -ENOMEM;
-+				EDEB_ERR(4, "Too many posted WQEs qp_num=%x",
-+					 qp->qp_num);
-+			}
-+			goto post_send_exit0;
-+		}
-+		/* write a SEND WQE into the QUEUE */
-+		retcode = ehca_write_swqe(&my_qp->ehca_qp_core,
-+					  wqe_p, cur_send_wr);
-+		/* if something failed,
-+		   reset the free entry pointer to the start value
-+		*/
-+		if (unlikely(retcode != 0)) {
-+			my_qp->ehca_qp_core.ipz_squeue.current_q_addr =
-+				start_addr;
-+			*bad_send_wr = cur_send_wr;
-+			if (wqe_cnt==0) {
-+				retcode = -EINVAL;
-+				EDEB_ERR(4, "Could not write WQE qp_num=%x",
-+					 qp->qp_num);
-+			}
-+			goto post_send_exit0;
-+		}
-+		wqe_cnt++;
-+		EDEB(7, "ehca_qp=%p qp_num=%x wqe_cnt=%d",
-+		     my_qp, qp->qp_num, wqe_cnt);
-+	} /* eof for cur_send_wr */
++	if (!(EHCA_VALID_MULTICAST_GID(gid->raw))) {
++		EDEB_ERR(4, "gid is not valid mulitcast gid retcode=%x",
++			 EINVAL);
++		return (-EINVAL);
++	} else if ((lid < MIN_MC_LID) || (lid > MAX_MC_LID)) {
++		EDEB_ERR(4, "lid=%x is not valid mulitcast lid retcode=%x",
++			 lid, EINVAL);
++		return (-EINVAL);
++	}
 +
-+ post_send_exit0:
-+	/* UNLOCK the QUEUE */
-+	spin_unlock_irqrestore(&my_qp->spinlock_s, spl_flags);
-+	iosync(); /* serialize GAL register access */
-+	hipz_update_SQA(&my_qp->ehca_qp_core, wqe_cnt);
-+	EDEB_EX(7, "ehca_qp=%p qp_num=%x ret=%x wqe_cnt=%d",
-+		my_qp, qp->qp_num, retcode, wqe_cnt);
++	memcpy(&my_gid.raw, gid->raw, sizeof(union ib_gid));
++
++	hipz_rc = hipz_h_attach_mcqp(shca->ipz_hca_handle,
++				     my_qp->ipz_qp_handle,
++				     my_qp->ehca_qp_core.galpas.kernel,
++				     lid, my_gid);
++	if (H_Success != hipz_rc) {
++		EDEB_ERR(4,
++			 "ehca_qp=%p qp_num=%x hipz_h_attach_mcqp() failed "
++			 "hipz_rc=%lx", my_qp, ibqp->qp_num, hipz_rc);
++	}
++	retcode = ehca2ib_return_code(hipz_rc);
++
++	EDEB_EX(7, "mcast attach retcode=%x\n"
++		   "ehca_qp=%p qp_num=%x  lid=%x\n"
++		   "my_gid=  %x %x %x %x\n"
++		   "         %x %x %x %x\n"
++		   "         %x %x %x %x\n"
++		   "         %x %x %x %x\n",
++		   retcode, my_qp, ibqp->qp_num, lid,
++		   my_gid.raw[0], my_gid.raw[1],
++		   my_gid.raw[2], my_gid.raw[3],
++		   my_gid.raw[4], my_gid.raw[5],
++		   my_gid.raw[6], my_gid.raw[7],
++		   my_gid.raw[8], my_gid.raw[9],
++		   my_gid.raw[10], my_gid.raw[11],
++		   my_gid.raw[12], my_gid.raw[13],
++		   my_gid.raw[14], my_gid.raw[15]);
++
 +	return retcode;
 +}
 +
-+int ehca_post_recv(struct ib_qp *qp,
-+		   struct ib_recv_wr *recv_wr,
-+		   struct ib_recv_wr **bad_recv_wr)
++int ehca_detach_mcast(struct ib_qp *ibqp, union ib_gid *gid, u16 lid)
 +{
 +	struct ehca_qp *my_qp = NULL;
-+	struct ib_recv_wr *cur_recv_wr = NULL;
-+	struct ehca_wqe *wqe_p = NULL;
-+	int wqe_cnt = 0;
++	struct ehca_shca *shca = NULL;
++	union ib_gid my_gid;
++	u64 hipz_rc = H_Success;
 +	int retcode = 0;
-+	unsigned long spl_flags = 0;
 +
-+	EHCA_CHECK_ADR(qp);
-+	my_qp = container_of(qp, struct ehca_qp, ib_qp);
++	EHCA_CHECK_ADR(ibqp);
++	EHCA_CHECK_ADR(gid);
++
++	my_qp = container_of(ibqp, struct ehca_qp, ib_qp);
++
 +	EHCA_CHECK_QP(my_qp);
-+	EHCA_CHECK_ADR(recv_wr);
-+	EDEB_EN(7, "ehca_qp=%p qp_num=%x recv_wr=%p bad_recv_wr=%p",
-+		my_qp, qp->qp_num, recv_wr, bad_recv_wr);
++	if (ibqp->qp_type != IB_QPT_UD) {
++		EDEB_ERR(4, "invalid qp_type %x gid, retcode=%x",
++			 ibqp->qp_type, EINVAL);
++		return (-EINVAL);
++	}
 +
-+	/* LOCK the QUEUE */
-+	spin_lock_irqsave(&my_qp->spinlock_r, spl_flags);
++	shca = container_of(ibqp->pd->device, struct ehca_shca, ib_device);
++	EHCA_CHECK_ADR(shca);
 +
-+	/* loop processes list of send reqs */
-+	for (cur_recv_wr = recv_wr; cur_recv_wr != NULL;
-+	     cur_recv_wr = cur_recv_wr->next) {
-+		void *start_addr =
-+			&my_qp->ehca_qp_core.ipz_rqueue.current_q_addr;
-+		/* get pointer next to free WQE */
-+		wqe_p = ipz_QEit_get_inc(&my_qp->ehca_qp_core.ipz_rqueue);
-+		if (unlikely(wqe_p == NULL)) {
-+			/* too many posted work requests: queue overflow */
-+			if (bad_recv_wr != NULL) {
-+				*bad_recv_wr = cur_recv_wr;
-+			}
-+			if (wqe_cnt==0) {
-+				retcode = -ENOMEM;
-+				EDEB_ERR(4, "Too many posted WQEs qp_num=%x",
-+					 qp->qp_num);
-+			}
-+			goto post_recv_exit0;
-+		}
-+		/* write a RECV WQE into the QUEUE */
-+		retcode =
-+			ehca_write_rwqe(&my_qp->ehca_qp_core, wqe_p, cur_recv_wr);
-+		/* if something failed,
-+		   reset the free entry pointer to the start value
-+		*/
-+		if (unlikely(retcode != 0)) {
-+			my_qp->ehca_qp_core.ipz_rqueue.current_q_addr =
-+				start_addr;
-+			*bad_recv_wr = cur_recv_wr;
-+			if (wqe_cnt==0) {
-+				retcode = -EINVAL;
-+				EDEB_ERR(4, "Could not write WQE qp_num=%x",
-+					 qp->qp_num);
-+			}
-+			goto post_recv_exit0;
-+		}
-+		wqe_cnt++;
-+		EDEB(7, "ehca_qp=%p qp_num=%x wqe_cnt=%d",
-+		     my_qp, qp->qp_num, wqe_cnt);
-+	} /* eof for cur_recv_wr */
++	if (!(EHCA_VALID_MULTICAST_GID(gid->raw))) {
++		EDEB_ERR(4, "gid is not valid mulitcast gid retcode=%x",
++			 EINVAL);
++		return (-EINVAL);
++	} else if ((lid < MIN_MC_LID) || (lid > MAX_MC_LID)) {
++		EDEB_ERR(4, "lid=%x is not valid mulitcast lid retcode=%x",
++			 lid, EINVAL);
++		return (-EINVAL);
++	}
 +
-+ post_recv_exit0:
-+	spin_unlock_irqrestore(&my_qp->spinlock_r, spl_flags);
-+	iosync(); /* serialize GAL register access */
-+	hipz_update_RQA(&my_qp->ehca_qp_core, wqe_cnt);
-+	EDEB_EX(7, "ehca_qp=%p qp_num=%x ret=%x wqe_cnt=%d",
-+		my_qp, qp->qp_num, retcode, wqe_cnt);
++	EDEB_EN(7, "dgid=%p qp_numl=%x lid=%x",
++		gid, ibqp->qp_num, lid);
++
++	memcpy(&my_gid.raw, gid->raw, sizeof(union ib_gid));
++
++	hipz_rc = hipz_h_detach_mcqp(shca->ipz_hca_handle,
++				     my_qp->ipz_qp_handle,
++				     my_qp->ehca_qp_core.galpas.kernel,
++				     lid, my_gid);
++	if (H_Success != hipz_rc) {
++		EDEB_ERR(4,
++			 "ehca_qp=%p qp_num=%x hipz_h_detach_mcqp() failed "
++			 "hipz_rc=%lx", my_qp, ibqp->qp_num, hipz_rc);
++	}
++	retcode = ehca2ib_return_code(hipz_rc);
++
++	EDEB_EX(7, "mcast detach retcode=%x\n"
++		"ehca_qp=%p qp_num=%x  lid=%x\n"
++		"my_gid=  %x %x %x %x\n"
++		"         %x %x %x %x\n"
++		"         %x %x %x %x\n"
++		"         %x %x %x %x\n",
++		retcode, my_qp, ibqp->qp_num, lid,
++		my_gid.raw[0], my_gid.raw[1],
++		my_gid.raw[2], my_gid.raw[3],
++		my_gid.raw[4], my_gid.raw[5],
++		my_gid.raw[6], my_gid.raw[7],
++		my_gid.raw[8], my_gid.raw[9],
++		my_gid.raw[10], my_gid.raw[11],
++		my_gid.raw[12], my_gid.raw[13],
++		my_gid.raw[14], my_gid.raw[15]);
++
 +	return retcode;
 +}
-+
-+/**
-+ * Table converts ehca wc opcode to ib
-+ * Since we use zero to indicate invalid opcode, the actual ib opcode must
-+ * be decremented!!!
-+ */
-+static const u8 ib_wc_opcode[255] = {
-+	[0x01] = IB_WC_RECV+1,
-+	[0x02] = IB_WC_RECV_RDMA_WITH_IMM+1,
-+	[0x04] = IB_WC_BIND_MW+1,
-+	[0x08] = IB_WC_FETCH_ADD+1,
-+	[0x10] = IB_WC_COMP_SWAP+1,
-+	[0x20] = IB_WC_RDMA_WRITE+1,
-+	[0x40] = IB_WC_RDMA_READ+1,
-+	[0x80] = IB_WC_SEND+1
-+};
-+
-+/** @brief internal function to poll one entry of cq
-+ */
-+static inline int ehca_poll_cq_one(struct ib_cq *cq, struct ib_wc *wc)
-+{
-+	int retcode = 0;
-+	struct ehca_cq *my_cq = container_of(cq, struct ehca_cq, ib_cq);
-+	struct ehca_cqe *cqe = NULL;
-+	int cqe_count = 0;
-+
-+	EDEB_EN(7, "ehca_cq=%p cq_num=%x wc=%p", my_cq, my_cq->cq_number, wc);
-+
-+ poll_cq_one_read_cqe:
-+	cqe = (struct ehca_cqe *)
-+		ipz_QEit_get_inc_valid(&my_cq->ehca_cq_core.ipz_queue);
-+	if (cqe == NULL) {
-+		retcode = -EAGAIN;
-+		EDEB(7, "Completion queue is empty ehca_cq=%p cq_num=%x "
-+		     "retcode=%x", my_cq, my_cq->cq_number, retcode);
-+		goto  poll_cq_one_exit0;
-+	}
-+	cqe_count++;
-+	if (unlikely(cqe->status & 0x10)) { /* purge bit set */
-+		struct ehca_qp *qp=ehca_cq_get_qp(my_cq, cqe->local_qp_number);
-+		int purgeflag = 0;
-+		unsigned long spl_flags = 0;
-+		if (qp==NULL) { /* should not happen */
-+			EDEB_ERR(4, "cq_num=%x qp_num=%x "
-+				 "could not find qp -> ignore cqe",
-+				 my_cq->cq_number, cqe->local_qp_number);
-+			EDEB_DMP(4, cqe, 64, "cq_num=%x qp_num=%x",
-+				 my_cq->cq_number, cqe->local_qp_number);
-+			/* ignore this purged cqe */
-+			goto poll_cq_one_read_cqe;
-+		}
-+		spin_lock_irqsave(&qp->spinlock_s, spl_flags);
-+		purgeflag = qp->sqerr_purgeflag;
-+		spin_unlock_irqrestore(&qp->spinlock_s, spl_flags);
-+		if (purgeflag!=0) {
-+			EDEB(6, "Got CQE with purged bit qp_num=%x src_qp=%x",
-+			     cqe->local_qp_number, cqe->remote_qp_number);
-+			EDEB_DMP(6, cqe, 64, "qp_num=%x src_qp=%x",
-+				 cqe->local_qp_number, cqe->remote_qp_number);
-+			/* ignore this to avoid double cqes of bad wqe
-+			   that caused sqe and turn off purge flag */
-+			qp->sqerr_purgeflag = 0;
-+			goto poll_cq_one_read_cqe;
-+		}
-+	}
-+
-+	/* tracing cqe */
-+	if (IS_EDEB_ON(7)) {
-+		EDEB(7, "Received COMPLETION ehca_cq=%p cq_num=%x -----",
-+		     my_cq, my_cq->cq_number);
-+		EDEB_DMP(7, cqe, 64, "ehca_cq=%p cq_num=%x",
-+			 my_cq, my_cq->cq_number);
-+		EDEB(7, "ehca_cq=%p cq_num=%x -------------------------",
-+		     my_cq, my_cq->cq_number);
-+	}
-+
-+	/* we got a completion! */
-+	wc->wr_id = cqe->work_request_id;
-+
-+	/* eval ib_wc_opcode */
-+	wc->opcode = ib_wc_opcode[cqe->optype]-1;
-+	if (unlikely(wc->opcode == -1)) {
-+		EDEB_ERR(4, "Invalid cqe->OPType=%x cqe->status=%x "
-+			 "ehca_cq=%p cq_num=%x",
-+			 cqe->optype, cqe->status, my_cq, my_cq->cq_number);
-+		/* dump cqe for other infos */
-+		EDEB_DMP(4, cqe, 64, "ehca_cq=%p cq_num=%x", my_cq, my_cq->cq_number);
-+		/* update also queue adder to throw away this entry!!! */
-+		goto poll_cq_one_exit0;
-+	}
-+	/* eval ib_wc_status */
-+	if (unlikely(cqe->status & 0x80000000)) { /* complete with errors */
-+		map_ib_wc_status(cqe->status, &wc->status);
-+		wc->vendor_err = wc->status;
-+	} else {
-+		wc->status = IB_WC_SUCCESS;
-+	}
-+
-+	wc->qp_num = cqe->local_qp_number;
-+	wc->byte_len = ntohl(cqe->nr_bytes_transferred);
-+	wc->pkey_index = cqe->pkey_index;
-+	wc->slid = cqe->rlid;
-+	wc->dlid_path_bits = cqe->dlid;
-+	wc->src_qp = cqe->remote_qp_number;
-+	wc->wc_flags = cqe->w_completion_flags;
-+	wc->imm_data = cqe->immediate_data;
-+	wc->sl = cqe->service_level;
-+
-+	if (wc->status != IB_WC_SUCCESS) {
-+		EDEB(6, "ehca_cq=%p cq_num=%x WARNING unsuccessful cqe "
-+		     "OPType=%x status=%x qp_num=%x src_qp=%x wr_id=%lx cqe=%p",
-+		     my_cq, my_cq->cq_number, cqe->optype, cqe->status,
-+		     cqe->local_qp_number, cqe->remote_qp_number,
-+		     cqe->work_request_id, cqe);
-+	}
-+
-+ poll_cq_one_exit0:
-+	if (cqe_count>0) {
-+		hipz_update_FECA(&my_cq->ehca_cq_core, cqe_count);
-+	}
-+
-+	EDEB_EX(7, "retcode=%x ehca_cq=%p cq_number=%x wc=%p "
-+		"status=%x opcode=%x qp_num=%x byte_len=%x",
-+		retcode, my_cq, my_cq->cq_number, wc, wc->status,
-+		wc->opcode, wc->qp_num, wc->byte_len);
-+	return (retcode);
-+}
-+
-+int ehca_poll_cq(struct ib_cq *cq, int num_entries, struct ib_wc *wc)
-+{
-+	struct ehca_cq *my_cq = NULL;
-+	int nr = 0;
-+	struct ib_wc *current_wc = NULL;
-+	int retcode = 0;
-+	unsigned long spl_flags = 0;
-+
-+	EHCA_CHECK_CQ(cq);
-+	EHCA_CHECK_ADR(wc);
-+
-+	my_cq = container_of(cq, struct ehca_cq, ib_cq);
-+	EHCA_CHECK_CQ(my_cq);
-+
-+	EDEB_EN(7, "ehca_cq=%p cq_num=%x num_entries=%d wc=%p",
-+		my_cq, my_cq->cq_number, num_entries, wc);
-+
-+	if (num_entries < 1) {
-+		EDEB_ERR(4, "Invalid num_entries=%d ehca_cq=%p cq_num=%x",
-+			 num_entries, my_cq, my_cq->cq_number);
-+		retcode = -EINVAL;
-+		goto poll_cq_exit0;
-+	}
-+
-+	current_wc = wc;
-+	spin_lock_irqsave(&my_cq->spinlock, spl_flags);
-+	for (nr = 0; nr < num_entries; nr++) {
-+		retcode = ehca_poll_cq_one(cq, current_wc);
-+		if (0 != retcode) {
-+			break;
-+		}
-+		current_wc++;
-+	} /* eof for nr */
-+	spin_unlock_irqrestore(&my_cq->spinlock, spl_flags);
-+	if (-EAGAIN == retcode || 0 == retcode) {
-+		retcode = nr;
-+	}
-+
-+ poll_cq_exit0:
-+	EDEB_EX(7, "ehca_cq=%p cq_num=%x retcode=%x wc=%p nr_entries=%d",
-+		my_cq, my_cq->cq_number, retcode, wc, nr);
-+	return (retcode);
-+}
-+
-+int ehca_req_notify_cq(struct ib_cq *cq, enum ib_cq_notify cq_notify)
-+{
-+	struct ehca_cq *my_cq = NULL;
-+	int retcode = 0;
-+
-+	EHCA_CHECK_CQ(cq);
-+	my_cq = container_of(cq, struct ehca_cq, ib_cq);
-+	EHCA_CHECK_CQ(my_cq);
-+	EDEB_EN(7, "ehca_cq=%p cq_num=%x cq_notif=%x",
-+		my_cq, my_cq->cq_number, cq_notify);
-+
-+	switch (cq_notify) {
-+	case IB_CQ_SOLICITED:
-+		hipz_set_CQx_N0(&my_cq->ehca_cq_core, 1);
-+		break;
-+	case IB_CQ_NEXT_COMP:
-+		hipz_set_CQx_N1(&my_cq->ehca_cq_core, 1);
-+		break;
-+	default:
-+		retcode = -EINVAL;
-+	}
-+
-+	EDEB_EX(7, "ehca_cq=%p cq_num=%x retcode=%x",
-+		my_cq, my_cq->cq_number, retcode);
-+
-+	return (retcode);
-+}
-+
-+/* eof ehca_reqs.c */
-diff --git a/drivers/infiniband/hw/ehca/ehca_reqs_core.c b/drivers/infiniband/hw/ehca/ehca_reqs_core.c
+diff --git a/drivers/infiniband/hw/ehca/ehca_pd.c b/drivers/infiniband/hw/ehca/ehca_pd.c
 new file mode 100644
-index 0000000..c0b7281
+index 0000000..e110320
 --- /dev/null
-+++ b/drivers/infiniband/hw/ehca/ehca_reqs_core.c
-@@ -0,0 +1,420 @@
++++ b/drivers/infiniband/hw/ehca/ehca_pd.c
+@@ -0,0 +1,100 @@
 +/*
 + *  IBM eServer eHCA Infiniband device driver for Linux on POWER
 + *
-+ *  post_send/recv, poll_cq, req_notify
-+ *  Common code to be included statically in respective user/kernel
-+ *  modules, i.e. ehca_ureqs.c/ehca_reqs.c
-+ *  This module contains C code only. Including modules must include
-+ *  all required header files.
++ *  PD functions
 + *
-+ *  Authors: Waleri Fomin <fomin@de.ibm.com>
-+ *           Reinhard Ernst <rernst@de.ibm.com>
-+ *           Hoang-Nam Nguyen <hnguyen@de.ibm.com>
++ *  Authors: Christoph Raisch <raisch@de.ibm.com>
 + *
 + *  Copyright (c) 2005 IBM Corporation
 + *
@@ -494,378 +542,64 @@ index 0000000..c0b7281
 + * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 + * POSSIBILITY OF SUCH DAMAGE.
 + *
-+ *  $Id: ehca_reqs_core.c,v 1.40 2006/02/06 10:17:34 schickhj Exp $
++ *  $Id: ehca_pd.c,v 1.25 2006/02/06 10:17:34 schickhj Exp $
 + */
 +
-+/** THIS following block of defines
-+ * replaces ib types of kernel space to corresponding ones in user space,
-+ * so that the implemented inline functions below can be compiled and
-+ * work in both user and kernel space.
-+ * However this ASSUMES that there is no functional differences between ib
-+ * types in kernel e.g. ib_send_wr and user space e.g. ibv_send_wr.
-+ */
 +
-+#ifndef __KERNEL__
-+#define ib_recv_wr ibv_recv_wr
-+#define ib_send_wr ibv_send_wr
-+#define ehca_av ehcau_av
-+/* ib_wr_opcode */
-+#define IB_WR_SEND IBV_WR_SEND
-+#define IB_WR_SEND_WITH_IMM IBV_WR_SEND_WITH_IMM
-+#define IB_WR_RDMA_WRITE IBV_WR_RDMA_WRITE
-+#define IB_WR_RDMA_WRITE_WITH_IMM IBV_WR_RDMA_WRITE_WITH_IMM
-+#define IB_WR_RDMA_READ IBV_WR_RDMA_READ
-+/* ib_qp_type */
-+#define IB_QPT_RC IBV_QPT_RC
-+#define IB_QPT_UC IBV_QPT_UC
-+#define IB_QPT_UD IBV_QPT_UD
-+/* ib_wc_opcode */
-+#define ib_wc_opcode ibv_wc_opcode
-+#define IB_WC_SEND IBV_WC_SEND
-+#define IB_WC_RDMA_WRITE IBV_WC_RDMA_WRITE
-+#define IB_WC_RDMA_READ IBV_WC_RDMA_READ
-+#define IB_WC_COMP_SWAP IBV_WC_COMP_SWAP
-+#define IB_WC_FETCH_ADD IBV_WC_FETCH_ADD
-+#define IB_WC_BIND_MW IBV_WC_BIND_MW
-+#define IB_WC_RECV IBV_WC_RECV
-+#define IB_WC_RECV_RDMA_WITH_IMM IBV_WC_RECV_RDMA_WITH_IMM
-+/* ib_wc_status */
-+#define ib_wc_status ibv_wc_status
-+#define IB_WC_LOC_LEN_ERR IBV_WC_LOC_LEN_ERR
-+#define IB_WC_LOC_QP_OP_ERR IBV_WC_LOC_QP_OP_ERR
-+#define IB_WC_LOC_EEC_OP_ERR IBV_WC_LOC_EEC_OP_ERR
-+#define IB_WC_LOC_PROT_ERR IBV_WC_LOC_PROT_ERR
-+#define IB_WC_WR_FLUSH_ERR IBV_WC_WR_FLUSH_ERR
-+#define IB_WC_MW_BIND_ERR IBV_WC_MW_BIND_ERR
-+#define IB_WC_GENERAL_ERR IBV_WC_GENERAL_ERR
-+#define IB_WC_REM_INV_REQ_ERR IBV_WC_REM_INV_REQ_ERR
-+#define IB_WC_REM_ACCESS_ERR IBV_WC_REM_ACCESS_ERR
-+#define IB_WC_REM_OP_ERR IBV_WC_REM_OP_ERR
-+#define IB_WC_REM_INV_RD_REQ_ERR IBV_WC_REM_INV_RD_REQ_ERR
-+#define IB_WC_RETRY_EXC_ERR IBV_WC_RETRY_EXC_ERR
-+#define IB_WC_RNR_RETRY_EXC_ERR IBV_WC_RNR_RETRY_EXC_ERR
-+#define IB_WC_REM_ABORT_ERR IBV_WC_REM_ABORT_ERR
-+#define IB_WC_INV_EECN_ERR IBV_WC_INV_EECN_ERR
-+#define IB_WC_INV_EEC_STATE_ERR IBV_WC_INV_EEC_STATE_ERR
-+#define IB_WC_BAD_RESP_ERR IBV_WC_BAD_RESP_ERR
-+#define IB_WC_FATAL_ERR IBV_WC_FATAL_ERR
-+#define IB_WC_SUCCESS IBV_WC_SUCCESS
-+/* ib_send_flags */
-+#define IB_SEND_FENCE IBV_SEND_FENCE
-+#define IB_SEND_SIGNALED IBV_SEND_SIGNALED
-+#define IB_SEND_SOLICITED IBV_SEND_SOLICITED
-+#define IB_SEND_INLINE IBV_SEND_INLINE
-+#endif
++#define DEB_PREFIX "vpd "
 +
-+static inline int ehca_write_rwqe(struct ehca_qp_core *qp_core,
-+				  struct ehca_wqe *wqe_p,
-+				  struct ib_recv_wr *recv_wr)
++#include "ehca_kernel.h"
++#include "ehca_tools.h"
++#include "ehca_iverbs.h"
++
++struct ib_pd *ehca_alloc_pd(struct ib_device *device,
++			    struct ib_ucontext *context, struct ib_udata *udata)
 +{
-+	u8 cnt_ds;
-+	if (unlikely((recv_wr->num_sge < 0) ||
-+		     (recv_wr->num_sge > qp_core->ipz_rqueue.act_nr_of_sg))) {
-+		EDEB_ERR(4, "Invalid number of WQE SGE. "
-+			 "num_sqe=%x max_nr_of_sg=%x",
-+			 recv_wr->num_sge, qp_core->ipz_rqueue.act_nr_of_sg);
-+		return (-EINVAL); /* invalid SG list length */
++	struct ib_pd *mypd = NULL;
++	struct ehca_pd *pd = NULL;
++
++	EDEB_EN(7, "device=%p context=%p udata=%p", device, context, udata);
++
++	EHCA_CHECK_DEVICE_P(device);
++
++	pd = ehca_pd_new();
++	if (!pd) {
++		EDEB_ERR(4, "ERROR device=%p context=%p pd=%p "
++			 "out of memory", device, context, mypd);
++		return ERR_PTR(-ENOMEM);
 +	}
 +
-+	clear_cacheline(wqe_p);
-+	clear_cacheline((u8 *) wqe_p + 32);
-+	clear_cacheline((u8 *) wqe_p + 64);
-+
-+	wqe_p->work_request_id = be64_to_cpu(recv_wr->wr_id);
-+	wqe_p->nr_of_data_seg = recv_wr->num_sge;
-+
-+	for (cnt_ds = 0; cnt_ds < recv_wr->num_sge; cnt_ds++) {
-+		wqe_p->u.all_rcv.sg_list[cnt_ds].vaddr =
-+		    be64_to_cpu(recv_wr->sg_list[cnt_ds].addr);
-+		wqe_p->u.all_rcv.sg_list[cnt_ds].lkey =
-+		    ntohl(recv_wr->sg_list[cnt_ds].lkey);
-+		wqe_p->u.all_rcv.sg_list[cnt_ds].length =
-+		    ntohl(recv_wr->sg_list[cnt_ds].length);
-+	}
-+
-+	if (IS_EDEB_ON(7)) {
-+		EDEB(7, "RECEIVE WQE written into queue qp_core=%p", qp_core);
-+		EDEB_DMP(7, wqe_p, 16*(6 + wqe_p->nr_of_data_seg),
-+			 "qp_core=%p", qp_core);
-+	}
-+
-+	return (0);
-+}
-+
-+/* internal use only
-+   uncomment this line to enable trace output of GSI send wr */
-+/* #define DEBUG_GSI_SEND_WR 1 */
-+#if defined(__KERNEL__) && defined(DEBUG_GSI_SEND_WR)
-+
-+/* need ib_mad struct */
-+#include <rdma/ib_mad.h>
-+
-+static void trace_send_wr_ud(const struct ib_send_wr *send_wr)
-+{
-+	int idx = 0;
-+	int j = 0;
-+	while (send_wr != NULL) {
-+		struct ib_mad_hdr *mad_hdr = send_wr->wr.ud.mad_hdr;
-+		struct ib_sge *sge = send_wr->sg_list;
-+		EDEB(4, "send_wr#%x wr_id=%lx num_sge=%x "
-+		     "send_flags=%x opcode=%x",idx, send_wr->wr_id,
-+		     send_wr->num_sge, send_wr->send_flags, send_wr->opcode);
-+		if (mad_hdr != NULL) {
-+			EDEB(4, "send_wr#%x mad_hdr base_version=%x "
-+			     "mgmt_class=%x class_version=%x method=%x "
-+			     "status=%x class_specific=%x tid=%lx attr_id=%x "
-+			     "resv=%x attr_mod=%x",
-+			     idx, mad_hdr->base_version, mad_hdr->mgmt_class,
-+			     mad_hdr->class_version, mad_hdr->method,
-+			     mad_hdr->status, mad_hdr->class_specific,
-+			     mad_hdr->tid, mad_hdr->attr_id, mad_hdr->resv,
-+			     mad_hdr->attr_mod);
-+		}
-+		for (j = 0; j < send_wr->num_sge; j++) {
-+#ifdef EHCA_USERDRIVER
-+			u8 *data = (u8 *) sge->addr;
-+#else
-+			u8 *data = (u8 *) abs_to_virt(sge->addr);
-+#endif
-+			EDEB(4, "send_wr#%x sge#%x addr=%p length=%x lkey=%x",
-+			     idx, j, data, sge->length, sge->lkey);
-+			/* assume length is n*16 */
-+			EDEB_DMP(4, data, sge->length, "send_wr#%x sge#%x", idx, j);
-+			sge++;
-+		} /* eof for j */
-+		idx++;
-+		send_wr = send_wr->next;
-+	} /* eof while send_wr */
-+}
-+
-+#endif /* __KERNEL__ && DEBUG_GSI_SEND_WR */
-+
-+static inline int ehca_write_swqe(struct ehca_qp_core *qp_core,
-+				  struct ehca_wqe *wqe_p,
-+				  const struct ib_send_wr *send_wr)
-+{
-+	u32 idx;
-+	u64 dma_length;
-+	struct ehca_av *my_av;
-+	u32 remote_qkey = send_wr->wr.ud.remote_qkey;
-+
-+	clear_cacheline(wqe_p);
-+	clear_cacheline((u8 *) wqe_p + 32);
-+
-+	if (unlikely((send_wr->num_sge < 0) ||
-+		     (send_wr->num_sge > qp_core->ipz_squeue.act_nr_of_sg))) {
-+		EDEB_ERR(4, "Invalid number of WQE SGE. "
-+			 "num_sqe=%x max_nr_of_sg=%x",
-+			 send_wr->num_sge, qp_core->ipz_rqueue.act_nr_of_sg);
-+		return (-EINVAL); /* invalid SG list length */
-+	}
-+
-+	wqe_p->work_request_id = be64_to_cpu(send_wr->wr_id);
-+
-+	switch (send_wr->opcode) {
-+	case IB_WR_SEND:
-+	case IB_WR_SEND_WITH_IMM:
-+		wqe_p->optype = WQE_OPTYPE_SEND;
-+		break;
-+	case IB_WR_RDMA_WRITE:
-+	case IB_WR_RDMA_WRITE_WITH_IMM:
-+		wqe_p->optype = WQE_OPTYPE_RDMAWRITE;
-+		break;
-+	case IB_WR_RDMA_READ:
-+		wqe_p->optype = WQE_OPTYPE_RDMAREAD;
-+		break;
-+	default:
-+		EDEB_ERR(4, "Invalid opcode=%x", send_wr->opcode);
-+		return (-EINVAL); /* invalid opcode */
-+	}
-+
-+	wqe_p->wqef = (send_wr->opcode) & 0xF0;
-+
-+	wqe_p->wr_flag = 0;
-+	if (send_wr->send_flags & IB_SEND_SIGNALED) {
-+		wqe_p->wr_flag |= WQE_WRFLAG_REQ_SIGNAL_COM;
-+	}
-+
-+	if (send_wr->opcode == IB_WR_SEND_WITH_IMM ||
-+	    send_wr->opcode == IB_WR_RDMA_WRITE_WITH_IMM) {
-+		/* this might not work as long as HW does not support it */
-+		wqe_p->immediate_data = send_wr->imm_data;
-+		wqe_p->wr_flag |= WQE_WRFLAG_IMM_DATA_PRESENT;
-+	}
-+
-+	wqe_p->nr_of_data_seg = send_wr->num_sge;
-+
-+	switch (qp_core->qp_type) {
-+#ifdef __KERNEL__
-+	case IB_QPT_SMI:
-+	case IB_QPT_GSI:
-+#endif /* __KERNEL__ */
-+		/* no break is intential here */
-+	case IB_QPT_UD:
-+		/* IB 1.2 spec C10-15 compliance */
-+		if (send_wr->wr.ud.remote_qkey & 0x80000000) {
-+			remote_qkey = qp_core->qkey;
-+		}
-+		wqe_p->destination_qp_number =
-+		    ntohl(send_wr->wr.ud.remote_qpn << 8);
-+		wqe_p->local_ee_context_qkey = ntohl(remote_qkey);
-+		if (send_wr->wr.ud.ah==NULL) {
-+			EDEB_ERR(4, "wr.ud.ah is NULL. qp_core=%p", qp_core);
-+			return (-EINVAL);
-+		}
-+		my_av = container_of(send_wr->wr.ud.ah, struct ehca_av, ib_ah);
-+		wqe_p->u.ud_av.ud_av = my_av->av;
-+
-+		/* omitted check of IB_SEND_INLINE
-+		   since HW does not support it */
-+		for (idx = 0; idx < send_wr->num_sge; idx++) {
-+			wqe_p->u.ud_av.sg_list[idx].vaddr =
-+			    be64_to_cpu(send_wr->sg_list[idx].addr);
-+			wqe_p->u.ud_av.sg_list[idx].lkey =
-+			    ntohl(send_wr->sg_list[idx].lkey);
-+			wqe_p->u.ud_av.sg_list[idx].length =
-+			    ntohl(send_wr->sg_list[idx].length);
-+		} /* eof for idx */
-+#ifdef __KERNEL__
-+		if (qp_core->qp_type == IB_QPT_SMI ||
-+		    qp_core->qp_type == IB_QPT_GSI) {
-+			wqe_p->u.ud_av.ud_av.pmtu = 1;
-+		}
-+		if (qp_core->qp_type == IB_QPT_GSI) {
-+			wqe_p->pkeyi =
-+			    ntohs(send_wr->wr.ud.pkey_index);
-+#ifdef DEBUG_GSI_SEND_WR
-+			trace_send_wr_ud(send_wr);
-+#endif /* DEBUG_GSI_SEND_WR */
-+		}
-+#endif /* __KERNEL__ */
-+		break;
-+
-+	case IB_QPT_UC:
-+		if (send_wr->send_flags & IB_SEND_FENCE) {
-+			wqe_p->wr_flag |= WQE_WRFLAG_FENCE;
-+		}
-+		/* no break is intential here */
-+	case IB_QPT_RC:
-+		/*@@TODO atomic???*/
-+		wqe_p->u.nud.remote_virtual_adress =
-+		    be64_to_cpu(send_wr->wr.rdma.remote_addr);
-+		wqe_p->u.nud.rkey = ntohl(send_wr->wr.rdma.rkey);
-+
-+		/* omitted checking of IB_SEND_INLINE
-+		   since HW does not support it */
-+		dma_length = 0;
-+		for (idx = 0; idx < send_wr->num_sge; idx++) {
-+			wqe_p->u.nud.sg_list[idx].vaddr =
-+			    be64_to_cpu(send_wr->sg_list[idx].addr);
-+			wqe_p->u.nud.sg_list[idx].lkey =
-+			    ntohl(send_wr->sg_list[idx].lkey);
-+			wqe_p->u.nud.sg_list[idx].length =
-+			    ntohl(send_wr->sg_list[idx].length);
-+			dma_length += send_wr->sg_list[idx].length;
-+		} /* eof idx */
-+		wqe_p->u.nud.atomic_1st_op_dma_len = be64_to_cpu(dma_length);
-+
-+		break;
-+
-+	default:
-+		EDEB_ERR(4, "Invalid qptype=%x", qp_core->qp_type);
-+		return (-EINVAL);
-+	}
-+
-+	if (IS_EDEB_ON(7)) {
-+		EDEB(7, "SEND WQE written into queue qp_core=%p ", qp_core);
-+		EDEB_DMP(7, wqe_p, 16*(6 + wqe_p->nr_of_data_seg),
-+			 "qp_core=%p", qp_core);
-+	}
-+	return (0);
-+}
-+
-+/** @brief convert cqe_status to ib_wc_status
-+ */
-+static inline void map_ib_wc_status(u32 cqe_status,
-+				    enum ib_wc_status *wc_status)
-+{
-+	if (unlikely(cqe_status & 0x80000000)) { /* complete with errors */
-+		switch (cqe_status & 0x0000003F) {
-+		case 0x01:
-+		case 0x21:
-+			*wc_status = IB_WC_LOC_LEN_ERR;
-+			break;
-+		case 0x02:
-+		case 0x22:
-+			*wc_status = IB_WC_LOC_QP_OP_ERR;
-+			break;
-+		case 0x03:
-+		case 0x23:
-+			*wc_status = IB_WC_LOC_EEC_OP_ERR;
-+			break;
-+		case 0x04:
-+		case 0x24:
-+			*wc_status = IB_WC_LOC_PROT_ERR;
-+			break;
-+		case 0x05:
-+		case 0x25:
-+			*wc_status = IB_WC_WR_FLUSH_ERR;
-+			break;
-+		case 0x06:
-+			*wc_status = IB_WC_MW_BIND_ERR;
-+			break;
-+		case 0x07: /* remote error - look into bits 20:24 */
-+			switch ((cqe_status & 0x0000F800) >> 11) {
-+			case 0x0:
-+				/* PSN Sequence Error!
-+				   couldn't find a matching VAPI status! */
-+				*wc_status = IB_WC_GENERAL_ERR;
-+				break;
-+			case 0x1:
-+				*wc_status = IB_WC_REM_INV_REQ_ERR;
-+				break;
-+			case 0x2:
-+				*wc_status = IB_WC_REM_ACCESS_ERR;
-+				break;
-+			case 0x3:
-+				*wc_status = IB_WC_REM_OP_ERR;
-+				break;
-+			case 0x4:
-+				*wc_status = IB_WC_REM_INV_RD_REQ_ERR;
-+				break;
-+			}
-+			break;
-+		case 0x08:
-+			*wc_status = IB_WC_RETRY_EXC_ERR;
-+			break;
-+		case 0x09:
-+			*wc_status = IB_WC_RNR_RETRY_EXC_ERR;
-+			break;
-+		case 0x0A:
-+		case 0x2D:
-+			*wc_status = IB_WC_REM_ABORT_ERR;
-+			break;
-+		case 0x0B:
-+		case 0x2E:
-+			*wc_status = IB_WC_INV_EECN_ERR;
-+			break;
-+		case 0x0C:
-+		case 0x2F:
-+			*wc_status = IB_WC_INV_EEC_STATE_ERR;
-+			break;
-+		case 0x0D:
-+			*wc_status = IB_WC_BAD_RESP_ERR;
-+			break;
-+		case 0x10:
-+			/* WQE purged */
-+			*wc_status = IB_WC_WR_FLUSH_ERR;
-+			break;
-+		default:
-+			*wc_status = IB_WC_FATAL_ERR;
-+
-+		}
++	/* kernel pd when (device,-1,0)
++	 * user pd only if context != -1  */
++	if (context == NULL) {
++		/* kernel pds after init reuses always
++		 * the one created in ehca_shca_reopen()
++		 */
++		struct ehca_shca *shca = container_of(device, struct ehca_shca,
++						      ib_device);
++		pd->fw_pd.value = shca->pd->fw_pd.value;
 +	} else {
-+		*wc_status = IB_WC_SUCCESS;
++		pd->fw_pd.value = (u64)pd;
 +	}
++
++	mypd = &pd->ib_pd;
++
++	EHCA_REGISTER_PD(device, pd);
++
++	EDEB_EX(7, "device=%p context=%p pd=%p", device, context, mypd);
++
++	return (mypd);
 +}
 +
++int ehca_dealloc_pd(struct ib_pd *pd)
++{
++	int ret = 0;
++	EDEB_EN(7, "pd=%p", pd);
++
++	EHCA_CHECK_PD(pd);
++	EHCA_DEREGISTER_PD(pd);
++	ehca_pd_delete(container_of(pd, struct ehca_pd, ib_pd));
++
++	EDEB_EX(7, "pd=%p", pd);
++	return ret;
++}

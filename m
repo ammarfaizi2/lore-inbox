@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWBRRF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWBRRMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbWBRRF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 12:05:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWBRRF7
+	id S932084AbWBRRMs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 12:12:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWBRRMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 12:05:59 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:65472 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932083AbWBRRF6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 12:05:58 -0500
-Subject: Re: [PATCH 02/22] Firmware interface code for IB device.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: Muli Ben-Yehuda <mulix@mulix.org>, Christoph Hellwig <hch@infradead.org>,
-       Greg KH <greg@kroah.com>, Roland Dreier <rolandd@cisco.com>,
-       linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       openib-general@openib.org, SCHICKHJ@de.ibm.com, RAISCH@de.ibm.com,
-       HNGUYEN@de.ibm.com, MEDER@de.ibm.com
-In-Reply-To: <adazmkoaaqr.fsf@cisco.com>
-References: <20060218005532.13620.79663.stgit@localhost.localdomain>
-	 <20060218005707.13620.20538.stgit@localhost.localdomain>
-	 <20060218015808.GB17653@kroah.com> <aday809bewn.fsf@cisco.com>
-	 <20060218122011.GE911@infradead.org>
-	 <20060218122631.GA30535@granada.merseine.nu>
-	 <1140265955.4035.19.camel@laptopd505.fenrus.org>
-	 <adazmkoaaqr.fsf@cisco.com>
-Content-Type: text/plain
-Date: Sat, 18 Feb 2006 18:02:42 +0100
-Message-Id: <1140282163.6514.7.camel@laptopd505.fenrus.org>
+	Sat, 18 Feb 2006 12:12:48 -0500
+Received: from mail.gmx.net ([213.165.64.20]:63886 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932084AbWBRRMs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 12:12:48 -0500
+X-Authenticated: #5039886
+Date: Sat, 18 Feb 2006 18:12:43 +0100
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: herbert@13thfloor.at, akpm@osdl.org, viro@ftp.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Cc: ebiederm@xmission.com, torvalds@osdl.org
+Subject: Re: kjournald keeps reference to namespace
+Message-ID: <20060218171243.GA23640@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	herbert@13thfloor.at, akpm@osdl.org, viro@ftp.linux.org.uk,
+	linux-kernel@vger.kernel.org, ebiederm@xmission.com,
+	torvalds@osdl.org
+References: <20060218013547.GA32706@MAIL.13thfloor.at> <20060218133647.GA9332@atjola.homenet> <20060218163227.GA23344@atjola.homenet>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060218163227.GA23344@atjola.homenet>
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-02-18 at 08:32 -0800, Roland Dreier wrote:
->     Arjan> The bigger issue is: if people can't be bothered to do
->     Arjan> those steps, why would they be bothered to do this for
->     Arjan> maintenance and bugfixes etc etc?  Basically it's now
->     Arjan> already a de-facto unmaintained driver....
+On 2006.02.18 17:32:27 +0100, Björn Steinbrink wrote:
+> > In daemonize() a new thread gets cleaned up and 'merged' with init_task.
+> > The current fs_struct is handled there, but not the current namespace.
+> > The following patch adds the namespace part.
+> > 
+> > Signed-off-by: Björn Steinbrink <B.Steinbrink@gmx.de>
+> > ---
 > 
-> I don't think that's really a fair statement.
+> Oops, forgot the increment the namespace usage count...
 
-It's a concern at least; if they're just having trouble posting really
-big files that's one thing.. if they're not allowed to post at all
-that's another.
-
-> IBM people: can you clarify the restrictions you have?  Why do you
-> feel you can't post your own driver for review?  Will you be able to
-> post smaller patches to lkml in the future if the driver is merged?
-
-And can you respond to questions and user questions on lkml?
+Ok, this time with the get_namespace wrapper, thanks to Eric Biederman
+for pointing that out to me.
+---
 
 
+diff -NurpP --minimal linux-2.6.16-rc4/kernel/exit.c linux-2.6.16-rc4-ns/kernel/exit.c
+--- linux-2.6.16-rc4/kernel/exit.c	2006-02-18 13:59:59.000000000 +0100
++++ linux-2.6.16-rc4-ns/kernel/exit.c	2006-02-18 17:57:21.000000000 +0100
+@@ -360,6 +360,9 @@ void daemonize(const char *name, ...)
+ 	fs = init_task.fs;
+ 	current->fs = fs;
+ 	atomic_inc(&fs->count);
++	exit_namespace(current);
++	current->namespace = init_task.namespace;
++	get_namespace(current->namespace);
+  	exit_files(current);
+ 	current->files = init_task.files;
+ 	atomic_inc(&current->files->count);

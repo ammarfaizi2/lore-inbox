@@ -1,85 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbWBRFds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWBRFgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750821AbWBRFds (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 00:33:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWBRFds
+	id S1750822AbWBRFgW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 00:36:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbWBRFgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 00:33:48 -0500
-Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:5058 "EHLO
-	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750821AbWBRFdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 00:33:47 -0500
-Date: Sat, 18 Feb 2006 00:29:54 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch] i386: another possible singlestep fix
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200602180031_MC3-1-B8B2-E328@compuserve.com>
+	Sat, 18 Feb 2006 00:36:22 -0500
+Received: from mtiwmhc12.worldnet.att.net ([204.127.131.116]:31382 "EHLO
+	mtiwmhc12.worldnet.att.net") by vger.kernel.org with ESMTP
+	id S1750822AbWBRFgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 00:36:21 -0500
+Message-ID: <43F6B24E.9080007@lwfinger.net>
+Date: Fri, 17 Feb 2006 23:36:14 -0600
+From: Larry Finger <Larry.Finger@lwfinger.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: TKIP: replay detected: WTF?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <Pine.LNX.4.64.0602171412210.916@g5.osdl.org>
+ > Feb 17 18:39:36 localhost kernel: TKIP: replay detected: STA=00:13:46:16:96:b8 previous TSC
+ > ffff80723500 received TSC 000000000019
+ >
+ > This is with the various 2.6.16-rc*-git* kernels, and possibly older 2.6.15 series as well.
+ > They always seem to arrive in large bursts, like the bunch shown above. Using wifi
+ > over ipw2200 to a WPA2 AP.
+ >
+ > Either this is "normal" behaviour, in which case the code should NOT be spamming me,
+ > or something is broken, in which case.. what?
 
-On Fri, 17 Feb 2006 at 14:14:06 -0800, Linus Torvalds wrote:
+I have been getting similar messages; however, my previous TSC is almost always equal to the 
+received TSC. I'm using the alpha bcm43xx driver with softmac, and thought it was a problem with the 
+new code. Maybe not. Hmm.
 
-> On Fri, 17 Feb 2006, Chuck Ebbert wrote:
-> >
-> > When entering kernel via int80, TIF_SINGLESTEP is not set
-> > when TF has been set in eflags by the user.  This patch
-> > does that.
-> ...
-> So afaik, this won't actually do anything (except make _the_ most 
-> timing-critical path in the kernel slower). Have you actually seen any 
-> effects of it?
+Larry
 
-No, because every time I try to write a test program I find new things
-that keep me from testing what I started out to test.  (Last time it was
-syscalls turning off singlestep.)
-
-Now I'm using PTRACE_SINGLESTEP to trace a program that is setting
-TF while being traced.  This works; TF starts showing as set after
-the popf that sets it but then I tried to forward the SIGTRAP on
-to the child so its signal handler could run when TF was set:
-
-        waitpid(child, &status, 0);
-        if (WIFSTOPPED(status)) {
-                int signo = WSTOPSIG(status);
-                ptrace(PTRACE_GETREGS, child, 0, &regs);
-                if (signo !=5 || !(regs.eflags & TF_MASK))
-                        signo = 0
-                ptrace(PTRACE_SINGLESTEP, child, NULL, (void *)signo);
-        }
-
-Now I can trace the signal handler, but when it returns TF is never
-again seen as set in the child program when the tracer gets control.
-This kernel patch fixes that (but doesn't handle errors properly):
-
---- 2.6.16-rc3-nb.orig/arch/i386/kernel/signal.c
-+++ 2.6.16-rc3-nb/arch/i386/kernel/signal.c
-@@ -145,6 +145,9 @@ restore_sigcontext(struct pt_regs *regs,
- 	{
- 		unsigned int tmpflags;
- 		err |= __get_user(tmpflags, &sc->eflags);
-+		/* user setting TF? */
-+		if (tmpflags & X86_EFLAGS_TF)
-+			current->ptrace &= ~PT_DTRACE;
- 		regs->eflags = (regs->eflags & ~FIX_EFLAGS) | (tmpflags & FIX_EFLAGS);
- 		regs->orig_eax = -1;		/* disable syscall checks */
- 	}
-
-
-But now the program goes into an infinite loop because the same trap
-keeps getting delivered over and over.  It's almost like after the
-child actually handles the signal it gets recycled somehow, the tracer
-gets it, sends it to the child again and so on...  So I modified the
-test program to only start forwarding SIGTRAP after two in a row with
-TF set have been delivered, but that shouldn't be necessary, should it?
-
--- 
-Chuck
-"Equations are the Devil's sentences."  --Stephen Colbert

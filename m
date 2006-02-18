@@ -1,104 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWBRCEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWBRCD7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbWBRCEF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 21:04:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWBRCEC
+	id S1750726AbWBRCD7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 21:03:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWBRCD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 21:04:02 -0500
-Received: from digitalimplant.org ([64.62.235.95]:7364 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S1750723AbWBRCDz
+	Fri, 17 Feb 2006 21:03:59 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:52103 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750726AbWBRCDz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 17 Feb 2006 21:03:55 -0500
-Date: Fri, 17 Feb 2006 18:03:49 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: greg@kroah.com, "" <torvalds@osdl.org>, "" <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, "" <linux-pm@osdl.org>
-Subject: [PATCH 5/5] [pci pm] Make pci_choose_state() use the real device
- state requested
-Message-ID: <Pine.LNX.4.50.0602171759190.30811-100000@monsoon.he.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Fri, 17 Feb 2006 18:04:21 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] convert sighand_cache to use SLAB_DESTROY_BY_RCU
+Message-ID: <20060218020421.GG1291@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <43F62B96.C54704D1@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F62B96.C54704D1@tv-sign.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 17, 2006 at 11:01:26PM +0300, Oleg Nesterov wrote:
+> This patch borrows a clever Hugh's 'struct anon_vma' trick.
+> 
+> Without tasklist_lock held we can't trust task->sighand until we
+> locked it and re-checked that it is still the same.
+> 
+> But this means we don't need to defer 'kmem_cache_free(sighand)'.
+> We can return the memory to slab immediately, all we need is to
+> be sure that sighand->siglock can't dissapear inside rcu protected
+> section.
+> 
+> To do so we need to initialize ->siglock inside ctor function,
+> SLAB_DESTROY_BY_RCU does the rest.
 
-- Look at pm_message_t::state (along with the message event type) to
-determine the PCI power state to return. This allows all of the PCI
-power states to be used with this helper (and with the sysfs runtime
-PM interface).
+Looks good to me by inspection, firing off some steamroller tests on it.
 
-[ Previously, the returned value was limited to PCI_D0 or PCI_D3hot
-depending on whether PM_EVENT_ON or PM_EVENT_{FREEZE,SUSPEND} were
-specified. ]
+						Thanx, Paul
 
-- Print an error w/ device info when we get an invalid state; use
-  WARN_ON() instead of BUG(), so we don't needlessly crash a machine.
-
-- Print state translation when debug is enabled.
-
-Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
-
----
-
- drivers/pci/pci.c |   29 +++++++++++++++++++----------
- 1 files changed, 19 insertions(+), 10 deletions(-)
-
-applies-to: 7b4d08b2816a4aefc2b9891091e6a790526ea15e
-8a658ba724d1f1e71fc951745e091aa1afa4ff6f
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index d2d1879..2f160aa 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -404,30 +404,39 @@ int (*platform_pci_choose_state)(struct
-  * message.
-  */
-
--pci_power_t pci_choose_state(struct pci_dev *dev, pm_message_t state)
-+pci_power_t pci_choose_state(struct pci_dev *dev, pm_message_t msg)
- {
-+	pci_power_t state = PCI_D3hot;
- 	int ret;
-
- 	if (!pci_find_capability(dev, PCI_CAP_ID_PM))
- 		return PCI_D0;
-
- 	if (platform_pci_choose_state) {
--		ret = platform_pci_choose_state(dev, state);
-+		ret = platform_pci_choose_state(dev, msg);
- 		if (ret >= 0)
--			state.event = ret;
-+			msg.state = ret;
- 	}
-
--	switch (state.event) {
-+	switch (msg.event) {
- 	case PM_EVENT_ON:
--		return PCI_D0;
-+		state = PCI_D0;
-+		break;
- 	case PM_EVENT_FREEZE:
- 	case PM_EVENT_SUSPEND:
--		return PCI_D3hot;
-+		if (msg.state && msg.state <= PCI_D3hot)
-+			state = msg.state;
-+		break;
- 	default:
--		printk("They asked me for state %d\n", state.event);
--		BUG();
--	}
--	return PCI_D0;
-+		dev_err(&dev->dev, "PCI: Invalid PM Event [Event %d] [State %u]\n",
-+			msg.event, msg.state);
-+		WARN_ON(1);
-+		state = PCI_D0;
-+		break;
-+	}
-+	dev_dbg(&dev->dev, "PCI: Translated Power Message %d/%u -> %u\n",
-+		msg.event, msg.state, state);
-+	return state;
- }
-
- EXPORT_SYMBOL(pci_choose_state);
----
-0.99.9.GIT
+>  include/linux/sched.h |    8 --------
+>  kernel/fork.c         |   21 +++++++++++----------
+>  kernel/signal.c       |    2 +-
+>  fs/exec.c             |    3 +--
+>  4 files changed, 13 insertions(+), 21 deletions(-)
+> 
+> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+> 
+> --- 2.6.16-rc3/include/linux/sched.h~1_DBR	2006-02-16 22:04:46.000000000 +0300
+> +++ 2.6.16-rc3/include/linux/sched.h	2006-02-18 00:05:20.000000000 +0300
+> @@ -353,16 +353,8 @@ struct sighand_struct {
+>  	atomic_t		count;
+>  	struct k_sigaction	action[_NSIG];
+>  	spinlock_t		siglock;
+> -	struct rcu_head		rcu;
+>  };
+>  
+> -extern void sighand_free_cb(struct rcu_head *rhp);
+> -
+> -static inline void sighand_free(struct sighand_struct *sp)
+> -{
+> -	call_rcu(&sp->rcu, sighand_free_cb);
+> -}
+> -
+>  /*
+>   * NOTE! "signal_struct" does not have it's own
+>   * locking, because a shared signal_struct always
+> --- 2.6.16-rc3/kernel/fork.c~1_DBR	2006-02-16 23:15:23.000000000 +0300
+> +++ 2.6.16-rc3/kernel/fork.c	2006-02-18 01:11:59.000000000 +0300
+> @@ -784,14 +784,6 @@ int unshare_files(void)
+>  
+>  EXPORT_SYMBOL(unshare_files);
+>  
+> -void sighand_free_cb(struct rcu_head *rhp)
+> -{
+> -	struct sighand_struct *sp;
+> -
+> -	sp = container_of(rhp, struct sighand_struct, rcu);
+> -	kmem_cache_free(sighand_cachep, sp);
+> -}
+> -
+>  static inline int copy_sighand(unsigned long clone_flags, struct task_struct * tsk)
+>  {
+>  	struct sighand_struct *sig;
+> @@ -804,7 +796,6 @@ static inline int copy_sighand(unsigned 
+>  	rcu_assign_pointer(tsk->sighand, sig);
+>  	if (!sig)
+>  		return -ENOMEM;
+> -	spin_lock_init(&sig->siglock);
+>  	atomic_set(&sig->count, 1);
+>  	memcpy(sig->action, current->sighand->action, sizeof(sig->action));
+>  	return 0;
+> @@ -1345,11 +1336,21 @@ long do_fork(unsigned long clone_flags,
+>  #define ARCH_MIN_MMSTRUCT_ALIGN 0
+>  #endif
+>  
+> +static void sighand_ctor(void *data, kmem_cache_t *cachep, unsigned long flags)
+> +{
+> +	struct sighand_struct *sighand = data;
+> +
+> +	if ((flags & (SLAB_CTOR_VERIFY | SLAB_CTOR_CONSTRUCTOR)) ==
+> +					SLAB_CTOR_CONSTRUCTOR)
+> +		spin_lock_init(&sighand->siglock);
+> +}
+> +
+>  void __init proc_caches_init(void)
+>  {
+>  	sighand_cachep = kmem_cache_create("sighand_cache",
+>  			sizeof(struct sighand_struct), 0,
+> -			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
+> +			SLAB_HWCACHE_ALIGN|SLAB_PANIC|SLAB_DESTROY_BY_RCU,
+> +			sighand_ctor, NULL);
+>  	signal_cachep = kmem_cache_create("signal_cache",
+>  			sizeof(struct signal_struct), 0,
+>  			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
+> --- 2.6.16-rc3/kernel/signal.c~1_DBR	2006-02-13 21:47:19.000000000 +0300
+> +++ 2.6.16-rc3/kernel/signal.c	2006-02-18 00:07:37.000000000 +0300
+> @@ -330,7 +330,7 @@ void __exit_sighand(struct task_struct *
+>  	/* Ok, we're done with the signal handlers */
+>  	tsk->sighand = NULL;
+>  	if (atomic_dec_and_test(&sighand->count))
+> -		sighand_free(sighand);
+> +		kmem_cache_free(sighand_cachep, sighand);
+>  }
+>  
+>  void exit_sighand(struct task_struct *tsk)
+> --- 2.6.16-rc3/fs/exec.c~1_DBR	2006-02-16 22:34:59.000000000 +0300
+> +++ 2.6.16-rc3/fs/exec.c	2006-02-18 01:12:36.000000000 +0300
+> @@ -751,7 +751,6 @@ no_thread_group:
+>  		/*
+>  		 * Move our state over to newsighand and switch it in.
+>  		 */
+> -		spin_lock_init(&newsighand->siglock);
+>  		atomic_set(&newsighand->count, 1);
+>  		memcpy(newsighand->action, oldsighand->action,
+>  		       sizeof(newsighand->action));
+> @@ -768,7 +767,7 @@ no_thread_group:
+>  		write_unlock_irq(&tasklist_lock);
+>  
+>  		if (atomic_dec_and_test(&oldsighand->count))
+> -			sighand_free(oldsighand);
+> +			kmem_cache_free(sighand_cachep, oldsighand);
+>  	}
+>  
+>  	BUG_ON(!thread_group_leader(current));
+> 

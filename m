@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWBRQy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWBRQze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbWBRQy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 11:54:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWBRQy0
+	id S932077AbWBRQze (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 11:55:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWBRQze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 11:54:26 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:946 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932073AbWBRQyZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 11:54:25 -0500
-Message-ID: <43F76374.EDA3ED9D@tv-sign.ru>
-Date: Sat, 18 Feb 2006 21:12:04 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Sat, 18 Feb 2006 11:55:34 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:43999 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP id S932077AbWBRQzd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 11:55:33 -0500
+Date: Sat, 18 Feb 2006 17:55:49 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: omkar lagu <omkarlagu@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel hook...
+Message-ID: <20060218165549.GA5791@stiffy.osknowledge.org>
+References: <20060218145152.85941.qmail@web50309.mail.yahoo.com>
 MIME-Version: 1.0
-To: "Paul E. McKenney" <paulmck@us.ibm.com>, Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] introduce sig_needs_tasklist() helper
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060218145152.85941.qmail@web50309.mail.yahoo.com>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.16-rc4-marc-dirty
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In my opinion this patch cleanups the code. Please
-say 'nack' if you think differently.
+* omkar lagu <omkarlagu@yahoo.com> [2006-02-18 06:51:52 -0800]:
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+> hi all,
+> 
+> help needed.. 
+> we want to call a function from the kernel code which
+> is defined in our module and the function should be
+> only called when we insert our module in the kernel.
+> we are really struggling with this..can anyone suggest
+> a solution for this with a example.
+> 
+> thanks in advance 
 
---- 2.6.16-rc3/kernel/signal.c~4_SNT	2006-02-18 23:26:51.000000000 +0300
-+++ 2.6.16-rc3/kernel/signal.c	2006-02-18 23:43:23.000000000 +0300
-@@ -147,6 +147,9 @@ static kmem_cache_t *sigqueue_cachep;
- #define sig_kernel_stop(sig) \
- 		(((sig) < SIGRTMIN)  && T(sig, SIG_KERNEL_STOP_MASK))
- 
-+#define sig_needs_tasklist(sig) \
-+		(((sig) < SIGRTMIN)  && T(sig, SIG_KERNEL_STOP_MASK | M(SIGCONT)))
-+
- #define sig_user_defined(t, signr) \
- 	(((t)->sighand->action[(signr)-1].sa.sa_handler != SIG_DFL) &&	\
- 	 ((t)->sighand->action[(signr)-1].sa.sa_handler != SIG_IGN))
-@@ -1202,7 +1205,7 @@ kill_proc_info(int sig, struct siginfo *
- 	struct task_struct *p;
- 
- 	rcu_read_lock();
--	if (unlikely(sig_kernel_stop(sig) || sig == SIGCONT)) {
-+	if (unlikely(sig_needs_tasklist(sig))) {
- 		read_lock(&tasklist_lock);
- 		acquired_tasklist_lock = 1;
- 	}
+static int __init init_my_module (void) {
+	call_function();
+
+	return 0;
+}
+EXPORT_SYMBOL(init_my_module);
+
+Marc

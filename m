@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWBRRmM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWBRSAl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932100AbWBRRmM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 12:42:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWBRRmL
+	id S932103AbWBRSAl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 13:00:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWBRSAl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 12:42:11 -0500
-Received: from web32607.mail.mud.yahoo.com ([68.142.207.234]:16062 "HELO
-	web32607.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932100AbWBRRmK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 12:42:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=HHlFUFjVWwEtYB8zgP2BKxk8R9GO6aqg3w/tWQpyEOhALUNucH7ksAthT6U70u2/kVSZ6Z6YoJP1ZBmvHwnvJEWiB39NIVIxeVFMp10RJA60CIxtsQMsFTrPEg4msa2vv3uLICA0toPAyr2QL3u5aCI6+5FvxgbuD0Jzk2hviL4=  ;
-Message-ID: <20060218174209.4376.qmail@web32607.mail.mud.yahoo.com>
-Date: Sat, 18 Feb 2006 09:42:09 -0800 (PST)
-From: Irfan Habib <irfanhab@yahoo.com>
-Subject: How to find the CPU usage of a process
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 18 Feb 2006 13:00:41 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13442 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932103AbWBRSAl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 13:00:41 -0500
+Date: Sat, 18 Feb 2006 19:00:29 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Richard Mittendorfer <delist@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [swsusp] not enough memory
+Message-ID: <20060218180029.GH1776@elf.ucw.cz>
+References: <20060218005814.6548092d.delist@gmx.net> <20060218151115.GC5658@openzaurus.ucw.cz> <20060218185759.248208f9.delist@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060218185759.248208f9.delist@gmx.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On So 18-02-06 18:57:59, Richard Mittendorfer wrote:
+> Also sprach Pavel Machek <pavel@suse.cz> (Sat, 18 Feb 2006 16:11:16
+> +0100):
+> > On Sat 18-02-06 00:58:14, Richard Mittendorfer wrote:
+> > > If I end all apps but the XServer it works. I've allready added some
+> > > more swapspace, but that didn't help. So, how much memory will I
+> > > need for a successful suspend or better (since i can't stuff any
+> > > more into  it) is there a way to minimize the amount needed?
+> > 
+> > 128MB should be enough for you. 
+> 
+> Swap? 128M was my first attempt -- OOM when the box was heavily loaded.
+> IIRC no effect on swsusp - there are 64M Ram + 2M Video + Kernel + X?. 
+> The reason I did it were some google results talking about free pages.
+> There were some solutions talking about adding swap.
+>  
+> (Ram? Would be the way to go, but it's fully loaded.)
 
-I'm a research student, working on self-organizing
-grids. 
-I wanted to ask how can I find the cpu usage of a
-process, as opposed to runtime, with cpu usage I mean
-actually how many time slices were awarded to a
-specific process, like the runtime of job may be 4 s,
-but this also includes time it was suspended by some
-interrupt, or had to wait for the scheduler etc..
+RAM. No ammount of swap will help you.
 
-Thanks in advance
+> > Or try modifying try_to_free memory
+> > routine to retry shrink_all_mem few more times, with schedule()  in
+> > between...
+> 
+> Uhh. I don't think this will be a good idea /me ha[ck|rm]ing good ol'
+> linux source. ;-)
 
-Irfan Habib
+It should be easy. It is quite hard to loose much data this way ;-).
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

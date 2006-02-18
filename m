@@ -1,73 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWBRLB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWBRL0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750997AbWBRLB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 06:01:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWBRLB2
+	id S1751088AbWBRL0S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 06:26:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750998AbWBRL0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 06:01:28 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:14236 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750997AbWBRLB1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 06:01:27 -0500
-Date: Sat, 18 Feb 2006 02:59:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Adam Tla/lka <atlka@pg.gda.pl>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH]console:UTF-8 mode compatibility fixes
-Message-Id: <20060218025921.7456e168.akpm@osdl.org>
-In-Reply-To: <20060217233333.GA5208@sunrise.pg.gda.pl>
-References: <20060217233333.GA5208@sunrise.pg.gda.pl>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Feb 2006 06:26:18 -0500
+Received: from vms044pub.verizon.net ([206.46.252.44]:10233 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1750805AbWBRL0R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 06:26:17 -0500
+Date: Sat, 18 Feb 2006 06:26:16 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Linux 2.6.16-rc4
+In-reply-to: <200602182120.30950.kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Message-id: <200602180626.16115.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org>
+ <200602180419.41253.gene.heskett@verizon.net>
+ <200602182120.30950.kernel@kolivas.org>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Tla/lka <atlka@pg.gda.pl> wrote:
+On Saturday 18 February 2006 05:20, Con Kolivas wrote:
+>On Saturday 18 February 2006 20:19, Gene Heskett wrote:
+>> On Saturday 18 February 2006 03:59, Edmondo Tommasina wrote:
+>> >Hi
+>> >
+>> >Compiles, boots, scales cpu frequencies and runs everything else
+>> >without issues on x86_64.
+>> >
+>> >ciao
+>> >edmondo
+>>
+>> I'm not running it on exotic x86_64 stuff, just an ageing athlon,
+>> but generally speaking the only thing I noted so far in about 4
+>> hours uptime was a failed, several times, effort to download a file
+>> via http. But I left the browser sitting there for 20 minutes while
+>> I caught up on the mail, and when I tried it the next time it came
+>> in at about 90% of my dsl line speed, so it was probably an internet
+>> glitch unique to that site.
 >
-> 
-> This patch applies to 2.6.15.3 kernel sources to drivers/char/vt.c file.
-> It should work with other versions too.
-> 
-> Changed console behaviour so in UTF-8 mode vt100 alternate character
-> sequences work as described in terminfo/termcap linux terminal definition.
-> Programs can use vt100 control seqences - smacs, rmacs and acsc  characters
-> in UTF-8 mode in the same way as in normal mode so one definition is always
-> valid - current behaviour make these seqences not working in UTF-8 mode.
-> 
-> Added reporting malformed UTF-8 seqences as replacement glyphs.
-> I think that terminal should always display something rather then ignoring
-> these kind of data as it does now. Also it sticks to Unicode standards
-> saying that every wrong byte should be reported. It is more human readable
-> too in case of Latin subsets including ASCII chars.
-> 
-> ...
+>Maybe but I wonder if this is similar to the flash player having
+> trouble connecting as in the email thread "Re: 2.6.16-rc3 macromedia
+> flash regression..."
 >
-> -		} else if (vc->vc_utf) {
-> +		} else if (vc->vc_utf && !vc->vc_disp_ctrl) {
->  		    /* Combine UTF-8 into Unicode */
-> -		    /* Incomplete characters silently ignored */
-> +		    /* Malformed sequence represented as replacement glyphs */
-> +rescan_last_byte:
->  		    if(c > 0x7f) {
->
-> ...
->
-> +					if (vc->vc_npar) {
-> +						c = orig;
-> +						goto rescan_last_byte;
-> +					}
->
-> ...
->
-> +				}
-> +				vc->vc_utf_count = 0;
-> +				c = orig;
-> +				goto rescan_last_byte;
-> +			}
->  			continue;
->  		}
+Don't know off hand Dr. Con, but I'll sure keep an eye on it.  Mail, 
+including spam, seems to be flowing at the usual pace though, but thats 
+a local server only 100 miles away.  And I'll pay attention to the next 
+site I visit that uses flash, I have it installed.  Thanks for the 
+tip-off.
 
-I spent some time trying to work out why this cannot cause an infinite loop
-and gave up.  Can you explain?
+
+>Cheers,
+>Con
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Cheers, Gene
+People having trouble with vz bouncing email to me should add the word
+'online' between the 'verizon', and the dot which bypasses vz's
+stupid bounce rules.  I do use spamassassin too. :-)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

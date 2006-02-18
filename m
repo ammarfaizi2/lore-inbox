@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWBRRPc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWBRR32@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932091AbWBRRPc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 12:15:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWBRRPc
+	id S932097AbWBRR32 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 12:29:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWBRR31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 12:15:32 -0500
-Received: from vms048pub.verizon.net ([206.46.252.48]:56740 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932091AbWBRRPb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 12:15:31 -0500
-Date: Sat, 18 Feb 2006 12:15:30 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-In-reply-to: <20060218120617.GA911@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>, Bill Davidsen <davidsen@tmr.com>,
-       Daniel Barkalow <barkalow@iabervon.org>, Greg KH <greg@kroah.com>,
-       Nix <nix@esperi.org.uk>, Jens Axboe <axboe@suse.de>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       linux-kernel@vger.kernel.org
-Message-id: <200602181215.30277.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <878xt3rfjc.fsf@amaterasu.srvr.nix> <43F641A2.50200@tmr.com>
- <20060218120617.GA911@infradead.org>
-User-Agent: KMail/1.7
+	Sat, 18 Feb 2006 12:29:27 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12704 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932097AbWBRR31 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 12:29:27 -0500
+Date: Sat, 18 Feb 2006 18:29:08 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Phillip Susi <psusi@cfl.rr.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Alon Bar-Lev <alon.barlev@gmail.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Flames over -- Re: Which is simpler?
+Message-ID: <20060218172908.GD1776@elf.ucw.cz>
+References: <Pine.LNX.4.44L0.0602131601220.4754-100000@iolanthe.rowland.org> <43F11A9D.5010301@cfl.rr.com> <20060217210445.GR3490@openzaurus.ucw.cz> <43F74C89.1080606@cfl.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F74C89.1080606@cfl.rr.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 18 February 2006 07:06, Christoph Hellwig wrote:
+On So 18-02-06 11:34:17, Phillip Susi wrote:
+> Pavel Machek wrote:
+> >You are missing this. In 1st case, no data is actually lost, because of
+> >sync in suspend code;
+> >while second case is "goodbye, filesystem".
+> 
+> Provided that you sync before suspending, and there are no open files on 
+> the filesystem, then yes, no data will be lost.  If there are open files 
+> on the fs, such as a half saved document, or a running binary, or say, 
+> the whole root fs, then you're going to loose data and even panic the 
+> kernel, sync or no sync.  From the user perspective, this is
+>unacceptable.
 
-cat /proc/sys/dev/cdrom/info
-CD-ROM information, Id: cdrom.c 3.20 2003/12/17
+While with your solution, you do not loose one open file, you loose
+whole filesystem. Which is unacceptable.
 
-drive name:             hdc
-drive speed:            48
-drive # of slots:       1
-Can close tray:         1
-Can open tray:          1
-Can lock tray:          1
-Can change speed:       1
-Can select disk:        0
-Can read multisession:  1
-Can read MCN:           1
-Reports media changed:  1
-Can play audio:         1
-Can write CD-R:         1
-Can write CD-RW:        1
-Can read DVD:           1
-Can write DVD-R:        1
-Can write DVD-RAM:      0
-Can read MRW:           1
-Can write MRW:          1
-Can write RAM:          1
+> Why should the user give up such functionality just because the 
+> connection to the drive thy are using is USB?  Every other type of drive 
+> and interface does not suffer from this problem.
 
-But I fail to see where this would help to 'find' the right device to 
-write to, other than the obvious prefixing of '/dev/' to $drive name.  
-We already knew that, and in fact it works very well. Please explain to 
-Joerg in one syllable words he might, if he wanted to, understand.
+Because it is okay to unplug usb disk on runtime, while it is not okay
+to unplug ATA disk on runtime. And because alternatives suck even more.
 
-Also, I'm fuzzy about the last 3, so defining those might help me 
-understand.
+> Maybe Linux should take a page from windows' playbook here.  I believe 
+> windows handles this scenario with a USB drive the same way it does when 
+> you eject a floppy and reinsert it.  The driver detects that the 
+> media/drive _may_ have changed and so it fails requests from the 
+> filesystem with an error code indicating this.  The filesystem then sets 
+> an override flag so it can send down some reads to verify the media. 
+> Generally the FS reads the super block and compares it with the in 
+> memory one to make sure it appears to be the same media, and if so, 
+> continues normal access without data loss.
+
+Feel free to implement that.
+								Pavel
 
 -- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

@@ -1,26 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWBRGLd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbWBRG0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbWBRGLd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 01:11:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbWBRGLd
+	id S1750828AbWBRG0F (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 01:26:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbWBRG0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 01:11:33 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:60381 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750875AbWBRGLc (ORCPT
+	Sat, 18 Feb 2006 01:26:05 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:44000 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750828AbWBRG0D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 01:11:32 -0500
-Date: Fri, 17 Feb 2006 22:10:09 -0800
+	Sat, 18 Feb 2006 01:26:03 -0500
+Date: Fri, 17 Feb 2006 22:24:28 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Patrick Mochel <mochel@digitalimplant.org>
-Cc: greg@kroah.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-pm@osdl.org
-Subject: Re: [PATCH 2/5] [pm] Add state field to pm_message_t (to hold
- actual state device is in)
-Message-Id: <20060217221009.30f29aa2.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.50.0602172136240.6792-100000@monsoon.he.net>
-References: <Pine.LNX.4.50.0602171757360.30811-100000@monsoon.he.net>
-	<20060217210900.514b5f4c.akpm@osdl.org>
-	<Pine.LNX.4.50.0602172136240.6792-100000@monsoon.he.net>
+To: Brian Hall <brihall@pcisys.net>
+Cc: linux-kernel@vger.kernel.org, linux@syskonnect.de
+Subject: Re: Help: DGE-560T not recognized by Linux
+Message-Id: <20060217222428.3cf33f25.akpm@osdl.org>
+In-Reply-To: <20060217222720.a08a2bc1.brihall@pcisys.net>
+References: <20060217222720.a08a2bc1.brihall@pcisys.net>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -28,71 +24,53 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel <mochel@digitalimplant.org> wrote:
+Brian Hall <brihall@pcisys.net> wrote:
 >
+> I have just built a new system, based on an Asrock 939Dual-Sata
+>  motherboard. It only has 100MB built-in networking (uli526x), so I
+>  purchased a D-Link DGE-560T PCI-e gigabit NIC ($81 at Newegg) thinking
+>  it was supported by Linux. Looking at the card, it appears to be a
+>  Marvell chip, but neither the sk98lin or skge drivers worked. I tried
+>  other GBe drivers as well, they didn't recognize it either.
 > 
-> On Fri, 17 Feb 2006, Andrew Morton wrote:
+>  Is there a place where I can just add this card's ID and use one of the
+>  sk* drivers? I paged through the source but didn't see an obvious place
+>  to add a card ID, but it must be in there somewhere.
 > 
-> > Patrick Mochel <mochel@digitalimplant.org> wrote:
-> > >
-> > >
-> > > Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
-> > >
-> > > ---
-> > >
-> > >  include/linux/pm.h |    1 +
-> > >  1 files changed, 1 insertions(+), 0 deletions(-)
-> > >
-> > > applies-to: 1ac50ba99ca37c65bdf3643c4056c246e401c18a
-> > > 63b8e7f0896ce93834ac60c15df954b1e6d45e56
-> > > diff --git a/include/linux/pm.h b/include/linux/pm.h
-> > > index 5be87ba..a7324ea 100644
-> > > --- a/include/linux/pm.h
-> > > +++ b/include/linux/pm.h
-> > > @@ -140,6 +140,7 @@ struct device;
-> > >
-> > >  typedef struct pm_message {
-> > >  	int event;
-> > > +	u32 state;
-> > >  } pm_message_t;
-> >
-> > I don't quite understand.  This is a message which is sent to a driver
-> > saying "go into this state", isn't it?
+>  I'm not subscribed to linux-kernel, please CC: me on replies, thanks.
 > 
-> .event is one of these:
+>  Here's the info from the card:
+>  big M on the chip (Marvell I assume)
+>  88E8052-NNC
+>  GMAA17011A1
+>  0442 A2P
 > 
-> #define PM_EVENT_ON 0
-> #define PM_EVENT_FREEZE 1
-> #define PM_EVENT_SUSPEND 2
+>  and on the back of the card:
 > 
-> Which only says what to do - turn on or off (AFAICT, FREEZE and SUSPEND
-> are synonymous). They are designed to work when the entire system is being
-> suspended or resumed, since every device is most likely going into its
-> lowest power state.
+>  00005A708649 0592
+>  DLink
+>  531CL00467 DGE-560T 70-13-001-001
 > 
-> However, some devices support >1 low-power state which can be used to save
-> power while the system is otherwise fully up and running. Devices that are
-> not being used will most likely use the lowest power state, but devices
-> that are idle (and that support >1 low power state) can use the other
-> states even when idle.
+>  from lspci:
 > 
-> In reality, there aren't many devices or drivers that support >1 low-power
-> state. But, there are some and likely to be more. And, the interface had
-> always supported it until some time in the 2.6.16 development cycle.
-> 
-> Does that help?
-> 
+>  02:00.0 0200: 1186:4b00 (rev 11)
+>  	Subsystem: 1186:4b00
 
-It does, thanks.
+See drivers/net/sk98lin/skge.c:skge_pci_tbl[]:
 
-Would it make sense to enumerate these low-power states, rather than a bare
-u32?
+/* DLink card does not have valid VPD so this driver gags
+ *	{ PCI_VENDOR_ID_DLINK, 0x4c00, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
+ */
 
-How, from the above message, is the driver to know that it's being asked
-for a low-power state rather than an `off' state?   Via `state' I guess.
+That's your card, except yours is 0x4b00.
 
-I can see that the kernel would have trouble asking a device to go into a
-particular low-power state because of the variation in capabilities between
-devices.  Perhaps the kernel should send the driver some higher-level piece
-of information informing it what's going on, let the driver choose an
-appropriate power state?
+You can try it, but it might gag...
+
+Also see drivers/net/skge.c:skge_id_table[]:
+
+	{ PCI_DEVICE(PCI_VENDOR_ID_DLINK, PCI_DEVICE_ID_DLINK_DGE510T), },
+
+That's the same device as in sk98lin/skge.c.  Try adding a line
+
+	{ PCI_DEVICE(PCI_VENDOR_ID_DLINK, 0x4b00), },
+

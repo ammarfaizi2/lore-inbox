@@ -1,42 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751008AbWBRIuc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751063AbWBRI7f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751008AbWBRIuc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 03:50:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWBRIuc
+	id S1751063AbWBRI7f (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 03:59:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbWBRI7f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 03:50:32 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:1415 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750996AbWBRIuc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 03:50:32 -0500
-Date: Sat, 18 Feb 2006 00:50:11 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: stelian@popies.net, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: HG kernel repo (was: Re: 2.6.16-rc2-mm1 patches don't apply)
-Message-Id: <20060218005011.a3eba65c.pj@sgi.com>
-In-Reply-To: <20060218083323.GA31512@waste.org>
-References: <20060208194359.bd1c1a4b.pj@sgi.com>
-	<20060208201644.568379d6.akpm@osdl.org>
-	<20060208213025.ef61a679.pj@sgi.com>
-	<20060209055638.GV13729@waste.org>
-	<1139690253.1801.15.camel@deep-space-9.dsnet>
-	<20060212171337.GA10467@waste.org>
-	<20060217182647.ccb558ef.pj@sgi.com>
-	<20060218083323.GA31512@waste.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 18 Feb 2006 03:59:35 -0500
+Received: from 80-219-222-138.dclient.hispeed.ch ([80.219.222.138]:14279 "EHLO
+	mx.eriadon.com") by vger.kernel.org with ESMTP id S1751063AbWBRI7f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 03:59:35 -0500
+From: Edmondo Tommasina <edmondo@eriadon.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux 2.6.16-rc4
+Date: Sat, 18 Feb 2006 09:59:30 +0100
+User-Agent: KMail/1.9.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602180959.30769.edmondo@eriadon.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> it's been fixed for several days now
 
-good - thanks.
+Hi
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Compiles, boots, scales cpu frequencies and runs everything else
+without issues on x86_64.
+
+ciao
+edmondo

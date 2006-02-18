@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWBRUvR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWBRVE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932155AbWBRUvR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 15:51:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWBRUvR
+	id S932161AbWBRVE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 16:04:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWBRVE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 15:51:17 -0500
-Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:36235 "HELO
-	smtp111.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932155AbWBRUvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 15:51:15 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Greg KH <gregkh@suse.de>
-Subject: Re: kbuild: Section mismatch warnings
-Date: Sat, 18 Feb 2006 12:32:13 -0800
-User-Agent: KMail/1.7.1
-Cc: Sam Ravnborg <sam@ravnborg.org>, LKML <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, Paul Bristow <paul@paulbristow.net>,
-       mpm@selenic.com, B.Zolnierkiewicz@elka.pw.edu.pl,
-       dtor_core@ameritech.net, kkeil@suse.de,
-       linux-dvb-maintainer@linuxtv.org, philb@gnu.org, dwmw2@infradead.org
-References: <20060217214855.GA5563@mars.ravnborg.org> <200602171648.38003.david-b@pacbell.net> <20060218005713.GA11197@suse.de>
-In-Reply-To: <20060218005713.GA11197@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Feb 2006 16:04:27 -0500
+Received: from albireo.ucw.cz ([84.242.65.108]:26756 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S932161AbWBRVE1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 16:04:27 -0500
+Date: Sat, 18 Feb 2006 22:04:28 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, nix@esperi.org.uk,
+       linux-kernel@vger.kernel.org, greg@kroah.com, axboe@suse.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <mj+md-20060218.210213.17059.albireo@ucw.cz>
+References: <878xt3rfjc.fsf@amaterasu.srvr.nix> <43ED005F.5060804@tmr.com> <20060210235654.GA22512@kroah.com> <43F0891E.nailKUSCGC52G@burner> <871wy6sy7y.fsf@hades.wkstn.nix> <43F1BE96.nailMY212M61V@burner> <87d5hpr2ct.fsf@hades.wkstn.nix> <43F46B91.nail20W817IPJ@burner> <mj+md-20060216.123601.20797.atrey@ucw.cz> <43F746B8.6080607@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602181232.13913.david-b@pacbell.net>
+In-Reply-To: <43F746B8.6080607@tmr.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 February 2006 4:57 pm, Greg KH wrote:
+Hello!
 
-> > > And if so, we should mark the bind functions __init also, to prevent
-> > > this from being flagged in the future.
-> > 
-> > And the unbind functions __exit/__exit_p()?  Smaller runtime footprints
-> > are good.  I don't like leaving the driver->init() method invalid, which
-> > is I think why I didn't do that before, but saving space is the right
-> > thing to do.
+> MO, WORM, {ZIP,ls120} drives if you are using the full capabilities, IDE 
+> tape drives, etc.
 > 
-> Ok, care to create a patch for these?
+> Sorry, I don't remember what capability the ls120 was using, but as of 
+> 2.6.12 it didn't work through the ide-floppy interface.
 
-Done; the Ethernet driver had another patch pending in that area, which
-I've also forwarded to you.
+Then it's a bug in ide-floppy which should be fixed.
 
-- Dave
-
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Immanuel doesn't pun, he Kant.

@@ -1,75 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWBRMXS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWBRMZS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751178AbWBRMXS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 07:23:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWBRMXS
+	id S1751188AbWBRMZS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 07:25:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWBRMZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 07:23:18 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:20942 "EHLO
+	Sat, 18 Feb 2006 07:25:18 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:24270 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751178AbWBRMXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 07:23:18 -0500
-Date: Sat, 18 Feb 2006 12:23:17 +0000
+	id S1751188AbWBRMZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 07:25:17 -0500
+Date: Sat, 18 Feb 2006 12:25:12 +0000
 From: Christoph Hellwig <hch@infradead.org>
-To: Roland Dreier <rolandd@cisco.com>
-Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       openib-general@openib.org, SCHICKHJ@de.ibm.com, RAISCH@de.ibm.com,
-       HNGUYEN@de.ibm.com, MEDER@de.ibm.com
-Subject: Re: [PATCH 03/22] pHype specific stuff
-Message-ID: <20060218122317.GF911@infradead.org>
+To: T?r?k Edwin <edwin.torok@level7.ro>
+Cc: netfilter-devel@lists.netfilter.org, fireflier-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, martinmaurer@gmx.at
+Subject: Re: [PATCH 2.6.15.4 1/1][RFC] ipt_owner: inode match supporting both incoming and outgoing packets
+Message-ID: <20060218122512.GG911@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
-	linuxppc64-dev@ozlabs.org, openib-general@openib.org,
-	SCHICKHJ@de.ibm.com, RAISCH@de.ibm.com, HNGUYEN@de.ibm.com,
-	MEDER@de.ibm.com
-References: <20060218005532.13620.79663.stgit@localhost.localdomain> <20060218005709.13620.77409.stgit@localhost.localdomain>
+	T?r?k Edwin <edwin.torok@level7.ro>,
+	netfilter-devel@lists.netfilter.org,
+	fireflier-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+	martinmaurer@gmx.at
+References: <200602181410.59757.edwin.torok@level7.ro>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060218005709.13620.77409.stgit@localhost.localdomain>
+In-Reply-To: <200602181410.59757.edwin.torok@level7.ro>
 User-Agent: Mutt/1.4.2.1i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +u64 hipz_galpa_load(struct h_galpa galpa, u32 offset)
-> +{
-> +	u64 addr = galpa.fw_handle + offset;
-> +	u64 out;
-> +	EDEB_EN(7, "addr=%lx offset=%x ", addr, offset);
-> +	out = *(u64 *) addr;
+> - I need to lock the task_list
+> 	- task_list lock export might be gone some day?
 
-why does this cast an u64 to a pointer?
+yes.  in exactly half a year from now, and no new users are not allowed.
 
-> +#ifndef EHCA_USERDRIVER
-> +inline static int hcall_map_page(u64 physaddr, u64 * mapaddr)
-> +{
-> +	*mapaddr = (u64)(ioremap(physaddr, 4096));
-> +
-> +	EDEB(7, "ioremap physaddr=%lx mapaddr=%lx", physaddr, *mapaddr);
-> +	return 0;
+> 	- is locking tasklist when inside a softirq allowed?
 
-ioremap returns void __iomem * and casting that to any integer type is
-wrong.
-
-> +inline static int hcall_unmap_page(u64 mapaddr)
-> +{
-> +	EDEB(7, "mapaddr=%lx", mapaddr);
-> +	iounmap((void *)(mapaddr));
-> +	return 0;
-
-dito for iounmap and casting back.
-
-guys, please run this driver through sparse, thanks.
-
-> +	/* if phype returns LongBusyXXX,
-> +	 * we retry several times, but not forever */
-> +	for (i = 0; i < 5; i++) {
-> +		__asm__ __volatile__("mr 3,%10\n"
-> +				     "mr 4,%11\n"
-> +				     "mr 5,%12\n"
-
-assembly code under drivers/ is not acceptable.  please create
-and <asm/ehca.h> for it or something similar.
+no.  for that reason we already removed a broken match from ipt_owner.
 

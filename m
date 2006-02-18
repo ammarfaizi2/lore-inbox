@@ -1,79 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWBROQN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbWBRO2u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751255AbWBROQN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 09:16:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWBROQM
+	id S1751170AbWBRO2u (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 09:28:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751272AbWBRO2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 09:16:12 -0500
-Received: from 216.255.188.82-custblock.intercage.com ([216.255.188.82]:61578
-	"EHLO main.astronetworks.net") by vger.kernel.org with ESMTP
-	id S1751255AbWBROQM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 09:16:12 -0500
-From: =?iso-8859-2?q?T=F6r=F6k_Edwin?= <edwin@gurde.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [PATCH 2.6.15.4 1/1][RFC] ipt_owner: inode match supporting both incoming and outgoing packets
-Date: Sat, 18 Feb 2006 16:15:30 +0200
-User-Agent: KMail/1.9.1
-Cc: Christoph Hellwig <hch@infradead.org>, netfilter-devel@lists.netfilter.org,
-       fireflier-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       martinmaurer@gmx.at
-References: <200602181410.59757.edwin.torok@level7.ro> <200602181447.31592.edwin@gurde.com> <1140268203.4698.7.camel@laptopd505.fenrus.org>
-In-Reply-To: <1140268203.4698.7.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602181615.31004.edwin@gurde.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - main.astronetworks.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - gurde.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Sat, 18 Feb 2006 09:28:50 -0500
+Received: from igw2.watson.ibm.com ([129.34.20.6]:63946 "EHLO
+	igw2.watson.ibm.com") by vger.kernel.org with ESMTP
+	id S1751170AbWBRO2t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 09:28:49 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix race condition in hvc console.
+Message-Id: <E1FAT5z-0004nt-V8@heater.watson.ibm.com>
+From: Michal Ostrowski <mostrows@watson.ibm.com>
+Date: Sat, 18 Feb 2006 09:29:59 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 18 February 2006 15:10, Arjan van de Ven wrote:
-> >  As a last resort, I'll try to maintain this as separate patch to be
-> > applied to the kernel, but that is something I'd really try to avoid,
-> > because:
->
-> the problem is this: The export is going away for a reason and not "just
-> because". 
-I understand that, I didn't say there wasn't a reason for it going away.
-> And that reason is that the implementation is going to be 
-> radically redone such that this isn't possible anymore. At all.
-Could you tell me on which thread is this reimplementation being discussed? 
-I'd like to get a more clear picture of what exports I can use, and which 
-ones I can't.
 
-Is the sk_sleep field of struct socket going to remain? If yes what am I 
-allowed to do with it inside ipt_owner.c?
+tty_schedule_flip() would schedule a thread that would call flush_to_ldisc().
+If tty_buffer_request_room() gets called prior to that thread running --
+which is likely in this loop in hvc_poll(), it would set the active flag
+in the tty buffer and consequently flush_to_ldisc() would ignore it.
 
-Can you provide a function (in the new implementation) that at least gives me 
-a list of pids that are going to be woken up by data being received on a 
-socket? (for the moment it doesn't matter if that function will take some 
-time to complete its job, it's still going to be faster, than doing all this 
-from userspace). Then I could do the rest of the checking in userspace.
+The result is that input on the hvc console is not processed.
 
-Or if that is not possible, could you tell me what kind of information am I 
-going to be able to obtain from the wait_queue_t of the socket?
+This fix calls tty_flip_buffer_push (and flags the tty as
+"low_latency").  The push to the ldisc thus happens synchronously.
 
-> No amount of patching can fix that ;)
-That is why I started this thread in the first place. I want to implement the 
-inode match in such a way that it will use only functions/structures it is 
-supposed to, (and not some functions/structures that are going away).
+Signed-off-by: Michal Ostrowski <mostrows@watson.ibm.com>
 
-Could you please help me, and tell me _how_  I can implement this, _without_ 
-doing something that won't be possible in the (near) future. 
+---
 
-P.S.: This is my first attempt at modifying the kernel. If I ask something 
-that is obvious, just point me where the documentation for that is, or to the 
-thread where that has been already discussed.
+ drivers/char/hvc_console.c |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
 
-Thanks,
-Edwin
+1d719e2972f0c02d62a428aa84ca60793ad79666
+diff --git a/drivers/char/hvc_console.c b/drivers/char/hvc_console.c
+index 1994a92..67f368f 100644
+--- a/drivers/char/hvc_console.c
++++ b/drivers/char/hvc_console.c
+@@ -335,6 +335,8 @@ static int hvc_open(struct tty_struct *t
+ 	} /* else count == 0 */
+ 
+ 	tty->driver_data = hp;
++	tty->low_latency = 1; /* Makes flushes to ldisc synchronous. */
++
+ 	hp->tty = tty;
+ 	/* Save for request_irq outside of spin_lock. */
+ 	irq = hp->irq;
+@@ -633,9 +635,6 @@ static int hvc_poll(struct hvc_struct *h
+ 			tty_insert_flip_char(tty, buf[i], 0);
+ 		}
+ 
+-		if (count)
+-			tty_schedule_flip(tty);
+-
+ 		/*
+ 		 * Account for the total amount read in one loop, and if above
+ 		 * 64 bytes, we do a quick schedule loop to let the tty grok
+@@ -656,6 +655,10 @@ static int hvc_poll(struct hvc_struct *h
+  bail:
+ 	spin_unlock_irqrestore(&hp->lock, flags);
+ 
++	if (read_total) {
++		tty_flip_buffer_push(tty);
++	}
++	
+ 	return poll_mask;
+ }
+ 
+-- 
+1.1.4.g0b63-dirty
 

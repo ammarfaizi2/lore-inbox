@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWBRXlV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWBRXms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932318AbWBRXlV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 18:41:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWBRXlV
+	id S932336AbWBRXms (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 18:42:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbWBRXms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 18:41:21 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:25612 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932318AbWBRXlV (ORCPT
+	Sat, 18 Feb 2006 18:42:48 -0500
+Received: from pat.uio.no ([129.240.130.16]:13011 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932336AbWBRXmr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 18:41:21 -0500
-Date: Sun, 19 Feb 2006 00:41:03 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andi Kleen <ak@suse.de>
+	Sat, 18 Feb 2006 18:42:47 -0500
+Subject: Re: Missed error checking for intent's filp in open_namei in 2.6.15
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Oleg Drokin <green@linuxhacker.ru>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: kbuild:
-Message-ID: <20060218234103.GA9091@mars.ravnborg.org>
-References: <20060217214855.GA5563@mars.ravnborg.org> <p73y80848qb.fsf@verdi.suse.de> <20060218223835.GA21068@mars.ravnborg.org>
+In-Reply-To: <20060218231153.GA32003@linuxhacker.ru>
+References: <20060218231153.GA32003@linuxhacker.ru>
+Content-Type: text/plain
+Date: Sat, 18 Feb 2006 18:42:36 -0500
+Message-Id: <1140306156.7869.1.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060218223835.GA21068@mars.ravnborg.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.359, required 12,
+	autolearn=disabled, AWL 1.45, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 18, 2006 at 11:38:36PM +0100, Sam Ravnborg wrote:
-> On Sat, Feb 18, 2006 at 11:12:28PM +0100, Andi Kleen wrote:
-> > Sam Ravnborg <sam@ravnborg.org> writes:
-> > 
-> > > I have moved the functionality of reference_init + reference_discarded
-> > > to modpost to secure a much wider use of this check.
-> > 
-> > How much does that slow the build down?
-> It obviously depends on number of modules / size of vmlinux.
-> With x86_64 and defconfig + all oss drivers configured as modules the
-> modpost stage takes around 0.2 sec in total. So this is down in the
-> noise level. Building allmodconfig kernel atm and if I see > 2 sec
-> difference with and without the check I will do a follow-up post.
+On Sun, 2006-02-19 at 01:11 +0200, Oleg Drokin wrote:
+> Hello!
 > 
-> Obviously the more modules with problems the longer time. So I will
-> skip the warning messages in the measurements since I assume they will
-> be taken care of.
+>    It seems there is error check missing in open_namei for errors returned
+>    through intent.open.file (from lookup_instantiate_filp).
+>    If there is plain open performed, then such a check done inside
+>    __path_lookup_intent_open called from path_lookup_open(), but
+>    when the open is performed with O_CREAT flag set, then
+>    __path_lookup_intent_open is only called with LOOKUP_PARENT set where no file
+>    opening can occur yet. Later on lookup_hash is called where exact opening
+>    might take place and intent.open.file may be filled. If it is filled
+>    with error value of some sort, then we get kernel attempting to dereference
+>    this error value as address (and corresponding oops) in nameidata_to_filp()
+>    called from filp_open().
+>    While this is relatively simple to workaround in ->lookup() method by just
+>    checking lookup_instantiate_filp() return value and returning error as
+>    needed, this is not so easy in ->d_revalidate(), where we can only return
+>    "yes, dentry is valid" or "no, dentry is invalid, perform full lookup again",
+>    and just returning 0 on error would cause extra lookup (with potential
+>    extra costly RPCs).
+>    So in short, I believe that there should be no difference in error handling
+>    for opening a file and creating a file in open_namei() and propose
+>    this simple patch as a solution.
+>    What do you think?
 
-Have figures for an allmodconfig now - this is a bit more than 1500
-modules.
-Running modpost alone takes 8,1 seconds without the checks and 8,9
-seconds with the checks enabled (output disabled).
+You're going to have to convert that semaphore call to a mutex call if
+you want to apply it to 2.6.16 too, but otherwise it looks good.
 
-Considering that a a make allmodconfig with no updates takes
-roughly 33 seconds the added overhead of 0,8 seconds is acceptable.
+Cheers,
+  Trond
 
-	Sam
+> --- fs/namei.c.orig	2006-02-19 00:33:24.000000000 +0200
+> +++ fs/namei.c	2006-02-19 00:46:28.000000000 +0200
+> @@ -1575,6 +1575,12 @@ do_last:
+>  		goto exit;
+>  	}
+>  
+> +        if (IS_ERR(nd->intent.open.file)) {
+> +		up(&dir->d_inode->i_sem);
+> +		error = PTR_ERR(nd->intent.open.file);
+> +		goto exit_dput;
+> +	}
+> +
+>  	/* Negative dentry, just create the file */
+>  	if (!path.dentry->d_inode) {
+>  		if (!IS_POSIXACL(dir->d_inode))
+> 
+> Bye,
+>     Oleg
+

@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbWBRUvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWBRUvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932159AbWBRUvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 15:51:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWBRUvQ
+	id S932155AbWBRUvR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 15:51:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWBRUvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 15:51:16 -0500
-Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:38283 "HELO
+	Sat, 18 Feb 2006 15:51:17 -0500
+Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:36235 "HELO
 	smtp111.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932159AbWBRUvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932155AbWBRUvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 18 Feb 2006 15:51:15 -0500
 From: David Brownell <david-b@pacbell.net>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Flames over -- Re: Which is simpler?
-Date: Sat, 18 Feb 2006 12:51:09 -0800
+To: Greg KH <gregkh@suse.de>
+Subject: Re: kbuild: Section mismatch warnings
+Date: Sat, 18 Feb 2006 12:32:13 -0800
 User-Agent: KMail/1.7.1
-Cc: Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org
-References: <200602131116.41964.david-b@pacbell.net> <43F0E724.6000807@cfl.rr.com> <20060215234317.GC3490@openzaurus.ucw.cz>
-In-Reply-To: <20060215234317.GC3490@openzaurus.ucw.cz>
+Cc: Sam Ravnborg <sam@ravnborg.org>, LKML <linux-kernel@vger.kernel.org>,
+       len.brown@intel.com, Paul Bristow <paul@paulbristow.net>,
+       mpm@selenic.com, B.Zolnierkiewicz@elka.pw.edu.pl,
+       dtor_core@ameritech.net, kkeil@suse.de,
+       linux-dvb-maintainer@linuxtv.org, philb@gnu.org, dwmw2@infradead.org
+References: <20060217214855.GA5563@mars.ravnborg.org> <200602171648.38003.david-b@pacbell.net> <20060218005713.GA11197@suse.de>
+In-Reply-To: <20060218005713.GA11197@suse.de>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200602181251.09865.david-b@pacbell.net>
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602181232.13913.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 February 2006 3:43 pm, Pavel Machek wrote:
+On Friday 17 February 2006 4:57 pm, Greg KH wrote:
+
+> > > And if so, we should mark the bind functions __init also, to prevent
+> > > this from being flagged in the future.
+> > 
+> > And the unbind functions __exit/__exit_p()?  Smaller runtime footprints
+> > are good.  I don't like leaving the driver->init() method invalid, which
+> > is I think why I didn't do that before, but saving space is the right
+> > thing to do.
 > 
-> > Are you quite certain about that?  This is not 
-> > the case for SCSI disks, but for USB, maybe it 
-> > can provide sufficient information to the 
-> > kernel about state changes without having to do 
-> > a full rescan.  If that is the case, and the 
-> > hardware is erroneously reporting that all 
+> Ok, care to create a patch for these?
 
-Hardware is CORRECTLY reporting electrical disconnects,
-but Philip is wanting Linux to ignore those reports.
+Done; the Ethernet driver had another patch pending in that area, which
+I've also forwarded to you.
 
-
-> > devices were disconnected and reconnected after 
-> > an ACPI suspend to disk, then such hardware is 
-> > broken and the kernel should be patched to work 
-> > around it. 
-> 
-> No patch was attached...
-
-No patch possible.  Reading the other messages in that
-thread, Philip is advocating Linux ignore the USB spec.
-(Which is what _he_ appears to have been doing...)
-
-What he has to do is more than submit a patch.  He first
-needs to lobby the USB-IF to change the USB spec, and
-get every peripheral vendor to stop shipping USB devices
-and instead switch over to "Philip-USB".  Then get all
-the billions of USB peripherals to go into the recycle
-bin and be replaced with products conforming to his
-new variant.  It all seems highly unlikely.  ;)
-
-
-But yes, you're right ... if he's serious about
-changing all that stuff, he also needs stop being a
-member of the "never submitted a USB patch" club.
-Ideally, starting with small things.
+- Dave
 

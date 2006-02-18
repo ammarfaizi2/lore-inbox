@@ -1,44 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWBROvz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbWBROz1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751339AbWBROvz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 09:51:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWBROvz
+	id S1751272AbWBROz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 09:55:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWBROz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 09:51:55 -0500
-Received: from web50309.mail.yahoo.com ([206.190.38.242]:10579 "HELO
-	web50309.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1751339AbWBROvz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 09:51:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=ij6GKKuMQqbrYl0TFoxqygaQhkq0/x32QcPOm/ItBnNzBMZO25j/IjH75z4TVtbCQb4W0tBcSasAEmhHzeOx92rpKCzPYOd957kM6IKA3uwYEvxR4o3Lw9kHJkyyhLbeBqpJnvR5EOzYfp57STDRp+8s2Feo0OAZsJkjia7bWBw=  ;
-Message-ID: <20060218145152.85941.qmail@web50309.mail.yahoo.com>
-Date: Sat, 18 Feb 2006 06:51:52 -0800 (PST)
-From: omkar lagu <omkarlagu@yahoo.com>
-Subject: kernel hook...
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 18 Feb 2006 09:55:27 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:36289 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1751272AbWBROz0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 09:55:26 -0500
+Date: Sat, 18 Feb 2006 15:55:25 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Bastian Blank <bastian@waldi.eu.org>,
+       Arthur Othieno <apgo@patchbomb.org>, Jean Delvare <khali@linux-fr.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [PATCH/RFC] remove duplicate #includes, take II
+Message-ID: <20060218145525.GA32618@MAIL.13thfloor.at>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>,
+	Bastian Blank <bastian@waldi.eu.org>,
+	Arthur Othieno <apgo@patchbomb.org>,
+	Jean Delvare <khali@linux-fr.org>,
+	Russell King <rmk+lkml@arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
 
-help needed.. 
-we want to call a function from the kernel code which
-is defined in our module and the function should be
-only called when we insert our module in the kernel.
-we are really struggling with this..can anyone suggest
-a solution for this with a example.
+Andrew! Folks!
 
-thanks in advance 
+after the response to the first (cruel?) approach
+here is a different one (probably as incomplete
+and imperfect as the previous, but it seems that
+there is a solution in reach)
 
-plz cc to omkarlagu@yahoo.com
+this time I utilized the checkincludes.pl script
+to identify and automatically remove duplicates. 
+this was done with the following command sequence:
 
+find . -type f -name '*.[hcS]' \
+	-exec scripts/checkincludes.pl {} \; \
+	| gawk -F"[: ]" '
+	  { printf "egrep -nH \"#\\W*include\\W*<%s>\" %s\n",$3,$1 }' \
+	| sh \
+	| gawk -F: '{ X[$1]=$2; } 
+          END { for (i in X) printf "%s %d\n",i, X[i] }' \
+	| gawk '{ printf "mv %s %s.orig && sed -ne \"%dd;p\" %s.orig >%s && echo %s\n",$1,$1,$2,$1,$1,$1; }' \
+	| sh
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+which basically executes checkincludes.pl on all
+.c, .h and .S files, then greps for '<'*'>' type
+includes (to avoid the "*" type ones, which are
+usually local includes) and then removes the last
+occurence of the identified include from the file
+
+I then splitted it into three categories:
+
+ A) probably correct
+ B) probably wrong
+ C) definitely wrong 
+
+so if folks want to cherry pick and/or comment on
+the first two categories, please do so, I will
+collect all the feedback and produce a patch to
+get rid of the duplicates later ...
+
+best,
+Herbert
+

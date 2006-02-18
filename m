@@ -1,191 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWBRFOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWBRF1B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750815AbWBRFOc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 00:14:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbWBRFOc
+	id S1750834AbWBRF1B (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 00:27:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWBRF04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 00:14:32 -0500
-Received: from holly.skynet.ie ([136.201.105.4]:12467 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1750815AbWBRFOc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 00:14:32 -0500
-Date: Sat, 18 Feb 2006 05:13:20 +0000 (GMT)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [git tree] drm fixes for 2.6.16
-Message-ID: <Pine.LNX.4.58.0602180510030.25458@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 18 Feb 2006 00:26:56 -0500
+Received: from marsha.pcisys.net ([216.229.32.146]:22670 "EHLO
+	marsha.pcisys.net") by vger.kernel.org with ESMTP id S1750821AbWBRF04
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 00:26:56 -0500
+Date: Fri, 17 Feb 2006 22:27:20 -0700
+From: Brian Hall <brihall@pcisys.net>
+To: linux-kernel@vger.kernel.org
+Cc: linux@syskonnect.de
+Subject: Help: DGE-560T not recognized by Linux
+Message-Id: <20060217222720.a08a2bc1.brihall@pcisys.net>
+X-Mailer: Sylpheed version 2.2.0beta8 (GTK+ 2.8.12; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Linus,
-	Can you pull the drm-patches branch from
-git://git.kernel.org/pub/scm/linux/kernel/git/airlied/drm-2.6.git
+I have just built a new system, based on an Asrock 939Dual-Sata
+motherboard. It only has 100MB built-in networking (uli526x), so I
+purchased a D-Link DGE-560T PCI-e gigabit NIC ($81 at Newegg) thinking
+it was supported by Linux. Looking at the card, it appears to be a
+Marvell chip, but neither the sk98lin or skge drivers worked. I tried
+other GBe drivers as well, they didn't recognize it either.
 
-It just contains some minor changes to the r300 DRM to add bitblt needed
-to make the previous texture rectangle work, and a fix for a i915
-interrupt issue..
+Is there a place where I can just add this card's ID and use one of the
+sk* drivers? I paged through the source but didn't see an obvious place
+to add a card ID, but it must be in there somewhere.
 
-Dave.
+I'm not subscribed to linux-kernel, please CC: me on replies, thanks.
 
- drivers/char/drm/i915_irq.c    |    5 ++++
- drivers/char/drm/r300_cmdbuf.c |   50 +++++++++++++++++++++++++++++++++++++++++
- drivers/char/drm/r300_reg.h    |    3 ++
- drivers/char/drm/radeon_drv.h  |    3 +-
- 4 files changed, 60 insertions(+), 1 deletion(-)
-diff-tree 4e5e2e2... (from 91e3738...)
-Author: Dave Airlie <airlied@linux.ie>
-Date:   Sat Feb 18 15:51:35 2006 +1100
+Here's the info from the card:
+big M on the chip (Marvell I assume)
+88E8052-NNC
+GMAA17011A1
+0442 A2P
 
-    drm: radeon add r300 TX_CNTL and verify bitblt packets
+and on the back of the card:
 
-    The Xgl on r300 doesn't work unless you add a verify bitblt function to the
-    DRM, and we need to pass TX_CNTL to flush texture caches.
+00005A708649 0592
+DLink
+531CL00467 DGE-560T 70-13-001-001
 
-    Signed-off-by: Dave Airlie <airlied@linux.ie>
+from lspci:
 
-:100644 100644 291dbf4... 6dd2175... M	drivers/char/drm/r300_cmdbuf.c
-:100644 100644 a0ed20e... d1e1995... M	drivers/char/drm/r300_reg.h
-:100644 100644 498b19b... 1f7d2ab... M	drivers/char/drm/radeon_drv.h
+02:00.0 0200: 1186:4b00 (rev 11)
+	Subsystem: 1186:4b00
 
-diff-tree 91e3738... (from bd71c2b...)
-Author: Dave Airlie <airlied@linux.ie>
-Date:   Sat Feb 18 15:17:04 2006 +1100
+02:00.0 Ethernet controller: D-Link System Inc Unknown device 4b00 (rev
+11) Subsystem: D-Link System Inc Unknown device 4b00
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR+ FastB2B- Status: Cap+ 66MHz- UDF- FastB2B-
+ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR+ <PERR- Latency:
+0, Cache Line Size 10 Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at ff3fc000 (64-bit, non-prefetchable)
+[size=16K] Region 2: I/O ports at 9800 [size=256]
+	Expansion ROM at 50000000 [disabled] [size=128K]
+	Capabilities: [48] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1
++,D2+,D3hot+,D3cold+) Status: D0 PME-Enable- DSel=0 DScale=1 PME-
+	Capabilities: [50] Vital Product Data
+	Capabilities: [5c] Message Signalled Interrupts: 64bit+
+Queue=0/1 Enable- Address: 0000000000000000  Data: 0000
+	Capabilities: [e0] Express Legacy Endpoint IRQ 0
+		Device: Supported: MaxPayload 128 bytes, PhantFunc 0,
+ExtTag- Device: Latency L0s unlimited, L1 unlimited
+		Device: AtnBtn- AtnInd- PwrInd-
+		Device: Errors: Correctable- Non-Fatal- Fatal-
+Unsupported- Device: RlxdOrd- ExtTag- PhantFunc- AuxPwr+ NoSnoop-
+		Device: MaxPayload 128 bytes, MaxReadReq 512 bytes
+		Link: Supported Speed 2.5Gb/s, Width x1, ASPM L0s, Port
+214 Link: Latency L0s <256ns, L1 unlimited
+		Link: ASPM Disabled RCB 128 bytes CommClk- ExtSynch-
+		Link: Speed 2.5Gb/s, Width x1
 
-    drm: fixup i915 interrupt on X server exit
 
-    Fixes: IRQ disabled (i915?) when switchig between gnome themes (gnome-theme-manager)
-
-    Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-:100644 100644 a1381c6... d3879ac... M	drivers/char/drm/i915_irq.c
-diff --git a/drivers/char/drm/i915_irq.c b/drivers/char/drm/i915_irq.c
-index a1381c6..d3879ac 100644
---- a/drivers/char/drm/i915_irq.c
-+++ b/drivers/char/drm/i915_irq.c
-@@ -202,10 +202,15 @@ void i915_driver_irq_postinstall(drm_dev
- void i915_driver_irq_uninstall(drm_device_t * dev)
- {
- 	drm_i915_private_t *dev_priv = (drm_i915_private_t *) dev->dev_private;
-+	u16 temp;
-+
- 	if (!dev_priv)
- 		return;
-
- 	I915_WRITE16(I915REG_HWSTAM, 0xffff);
- 	I915_WRITE16(I915REG_INT_MASK_R, 0xffff);
- 	I915_WRITE16(I915REG_INT_ENABLE_R, 0x0);
-+
-+	temp = I915_READ16(I915REG_INT_IDENTITY_R);
-+	I915_WRITE16(I915REG_INT_IDENTITY_R, temp);
- }
-diff --git a/drivers/char/drm/r300_cmdbuf.c b/drivers/char/drm/r300_cmdbuf.c
-index 291dbf4..6dd2175 100644
---- a/drivers/char/drm/r300_cmdbuf.c
-+++ b/drivers/char/drm/r300_cmdbuf.c
-@@ -161,6 +161,7 @@ void r300_init_reg_flags(void)
- 	ADD_RANGE(R300_VAP_PVS_CNTL_1, 3);
- 	ADD_RANGE(R300_GB_ENABLE, 1);
- 	ADD_RANGE(R300_GB_MSPOS0, 5);
-+	ADD_RANGE(R300_TX_CNTL, 1);
- 	ADD_RANGE(R300_TX_ENABLE, 1);
- 	ADD_RANGE(0x4200, 4);
- 	ADD_RANGE(0x4214, 1);
-@@ -489,6 +490,52 @@ static __inline__ int r300_emit_3d_load_
-
- 	return 0;
- }
-+static __inline__ int r300_emit_bitblt_multi(drm_radeon_private_t *dev_priv,
-+					     drm_radeon_kcmd_buffer_t *cmdbuf)
-+{
-+	u32 *cmd = (u32 *) cmdbuf->buf;
-+	int count, ret;
-+	RING_LOCALS;
-+
-+	count=(cmd[0]>>16) & 0x3fff;
-+
-+	if (cmd[0] & 0x8000) {
-+		u32 offset;
-+
-+		if (cmd[1] & (RADEON_GMC_SRC_PITCH_OFFSET_CNTL
-+			      | RADEON_GMC_DST_PITCH_OFFSET_CNTL)) {
-+			offset = cmd[2] << 10;
-+			ret = r300_check_offset(dev_priv, offset);
-+			if (ret)
-+			{
-+				DRM_ERROR("Invalid bitblt first offset is %08X\n", offset);
-+				return DRM_ERR(EINVAL);
-+			}
-+		}
-+
-+		if ((cmd[1] & RADEON_GMC_SRC_PITCH_OFFSET_CNTL) &&
-+		    (cmd[1] & RADEON_GMC_DST_PITCH_OFFSET_CNTL)) {
-+			offset = cmd[3] << 10;
-+			ret = r300_check_offset(dev_priv, offset);
-+			if (ret)
-+			{
-+				DRM_ERROR("Invalid bitblt second offset is %08X\n", offset);
-+				return DRM_ERR(EINVAL);
-+			}
-+
-+		}
-+	}
-+
-+	BEGIN_RING(count+2);
-+	OUT_RING(cmd[0]);
-+	OUT_RING_TABLE((int *)(cmdbuf->buf + 4), count + 1);
-+	ADVANCE_RING();
-+
-+	cmdbuf->buf += (count+2)*4;
-+	cmdbuf->bufsz -= (count+2)*4;
-+
-+	return 0;
-+}
-
- static __inline__ int r300_emit_raw_packet3(drm_radeon_private_t *dev_priv,
- 					    drm_radeon_kcmd_buffer_t *cmdbuf)
-@@ -527,6 +574,9 @@ static __inline__ int r300_emit_raw_pack
- 	case RADEON_3D_LOAD_VBPNTR:	/* load vertex array pointers */
- 		return r300_emit_3d_load_vbpntr(dev_priv, cmdbuf, header);
-
-+	case RADEON_CNTL_BITBLT_MULTI:
-+		return r300_emit_bitblt_multi(dev_priv, cmdbuf);
-+
- 	case RADEON_CP_3D_DRAW_IMMD_2:	/* triggers drawing using in-packet vertex data */
- 	case RADEON_CP_3D_DRAW_VBUF_2:	/* triggers drawing of vertex buffers setup elsewhere */
- 	case RADEON_CP_3D_DRAW_INDX_2:	/* triggers drawing using indices to vertex buffer */
-diff --git a/drivers/char/drm/r300_reg.h b/drivers/char/drm/r300_reg.h
-index a0ed20e..d1e1995 100644
---- a/drivers/char/drm/r300_reg.h
-+++ b/drivers/char/drm/r300_reg.h
-@@ -451,6 +451,9 @@ I am fairly certain that they are correc
- /* END */
-
- /* gap */
-+/* Zero to flush caches. */
-+#define R300_TX_CNTL                        0x4100
-+
- /* The upper enable bits are guessed, based on fglrx reported limits. */
- #define R300_TX_ENABLE                      0x4104
- #       define R300_TX_ENABLE_0                  (1 << 0)
-diff --git a/drivers/char/drm/radeon_drv.h b/drivers/char/drm/radeon_drv.h
-index 498b19b..1f7d2ab 100644
---- a/drivers/char/drm/radeon_drv.h
-+++ b/drivers/char/drm/radeon_drv.h
-@@ -90,9 +90,10 @@
-  * 1.19- Add support for gart table in FB memory and PCIE r300
-  * 1.20- Add support for r300 texrect
-  * 1.21- Add support for card type getparam
-+ * 1.22- Add support for texture cache flushes (R300_TX_CNTL)
-  */
- #define DRIVER_MAJOR		1
--#define DRIVER_MINOR		21
-+#define DRIVER_MINOR		22
- #define DRIVER_PATCHLEVEL	0
-
- /*
-
+--
+Brian Hall, Linux Consultant       http://pcisys.net/~brihall
+"Smoke may indicate you have exceeded maximum performance levels."

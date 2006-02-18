@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWBRMZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWBRM0l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbWBRMZS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 07:25:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWBRMZS
+	id S1751160AbWBRM0l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 07:26:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbWBRM0l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 07:25:18 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:24270 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751188AbWBRMZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 07:25:17 -0500
-Date: Sat, 18 Feb 2006 12:25:12 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: T?r?k Edwin <edwin.torok@level7.ro>
-Cc: netfilter-devel@lists.netfilter.org, fireflier-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, martinmaurer@gmx.at
-Subject: Re: [PATCH 2.6.15.4 1/1][RFC] ipt_owner: inode match supporting both incoming and outgoing packets
-Message-ID: <20060218122512.GG911@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	T?r?k Edwin <edwin.torok@level7.ro>,
-	netfilter-devel@lists.netfilter.org,
-	fireflier-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-	martinmaurer@gmx.at
-References: <200602181410.59757.edwin.torok@level7.ro>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602181410.59757.edwin.torok@level7.ro>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 18 Feb 2006 07:26:41 -0500
+Received: from mtaout3.012.net.il ([84.95.2.7]:51417 "EHLO mtaout3.012.net.il")
+	by vger.kernel.org with ESMTP id S1751160AbWBRM0k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 07:26:40 -0500
+Date: Sat, 18 Feb 2006 14:26:31 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+Subject: Re: [PATCH 02/22] Firmware interface code for IB device.
+In-reply-to: <20060218122011.GE911@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>, Roland Dreier <rdreier@cisco.com>,
+       Greg KH <greg@kroah.com>, Roland Dreier <rolandd@cisco.com>,
+       linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       openib-general@openib.org, SCHICKHJ@de.ibm.com, RAISCH@de.ibm.com,
+       HNGUYEN@de.ibm.com, MEDER@de.ibm.com
+Message-id: <20060218122631.GA30535@granada.merseine.nu>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+References: <20060218005532.13620.79663.stgit@localhost.localdomain>
+ <20060218005707.13620.20538.stgit@localhost.localdomain>
+ <20060218015808.GB17653@kroah.com> <aday809bewn.fsf@cisco.com>
+ <20060218122011.GE911@infradead.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> - I need to lock the task_list
-> 	- task_list lock export might be gone some day?
+On Sat, Feb 18, 2006 at 12:20:11PM +0000, Christoph Hellwig wrote:
 
-yes.  in exactly half a year from now, and no new users are not allowed.
+> > Well, the eHCA guys tell me that they can't post patches to lkml.
+> 
+> Then they lie.  And not posting to lkml is a good reason not to merge
+> an otherwise perfect driver.  (which this one is far from)
 
-> 	- is locking tasklist when inside a softirq allowed?
+I don't speak for IBM or the authors, but there are perfectly
+reasonable reasons to ask someone else to post a patch on your behalf
+- including but not limited to to only being able to use Lotus Notes
+with one's IBM email. I'm sure you've all seen the travesties that
+Notes inflicts on inline patches.
 
-no.  for that reason we already removed a broken match from ipt_owner.
+Cheers,
+Muli
+-- 
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
 

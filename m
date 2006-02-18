@@ -1,73 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbWBRAPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbWBRART@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751065AbWBRAPP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 19:15:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWBRAPP
+	id S1751073AbWBRART (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 19:17:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751796AbWBRART
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 19:15:15 -0500
-Received: from sccrmhc11.comcast.net ([63.240.77.81]:59122 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1751065AbWBRAPN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 19:15:13 -0500
-Subject: Re: kbuild: Section mismatch warnings
-From: Nicholas Miell <nmiell@comcast.net>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Adrian Bunk <bunk@stusta.de>, LKML <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, Paul Bristow <paul@paulbristow.net>,
-       mpm@selenic.com, B.Zolnierkiewicz@elka.pw.edu.pl,
-       dtor_core@ameritech.net, kkeil@suse.de,
-       linux-dvb-maintainer@linuxtv.org, philb@gnu.org, gregkh@suse.de,
-       dwmw2@infradead.org
-In-Reply-To: <20060217233848.GA26630@mars.ravnborg.org>
-References: <20060217214855.GA5563@mars.ravnborg.org>
-	 <20060217224702.GA25761@mars.ravnborg.org>
-	 <20060217233253.GN4422@stusta.de>
-	 <20060217233848.GA26630@mars.ravnborg.org>
-Content-Type: text/plain
-Date: Fri, 17 Feb 2006 16:14:59 -0800
-Message-Id: <1140221699.2907.5.camel@entropy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4.njm.1) 
+	Fri, 17 Feb 2006 19:17:19 -0500
+Received: from mail.gmx.net ([213.165.64.20]:4065 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751073AbWBRARS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 19:17:18 -0500
+X-Authenticated: #31060655
+Message-ID: <43F6678C.5080001@gmx.net>
+Date: Sat, 18 Feb 2006 01:17:16 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.12) Gecko/20050921
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: oops during boot of 2.6.16-rc3-git7 on AMD64
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-02-18 at 00:38 +0100, Sam Ravnborg wrote:
-> Hi Adrian
-> 
-> > > I did not find a way to look up the offending symbol but maybe some elf
-> > > expert can help?
-> > >...
-> >  
-> > I'm not an ELF expert, but simply checking all __init functions in this 
-> > files finds that this seems to be the following:
-> > 
-> > <--  snip  -->
-> > 
-> > ...
-> > static struct acpi_driver asus_hotk_driver = {
-> >         .name = ACPI_HOTK_NAME,
-> >         .class = ACPI_HOTK_CLASS,
-> >         .ids = ACPI_HOTK_HID,
-> >         .ops = {
-> >                 .add = asus_hotk_add,
-> >                 .remove = asus_hotk_remove,
-> >                 },
-> > };
-> > ...
-> > static int __init asus_hotk_add(struct acpi_device *device)
-> > ...
-> > 
-> Correct.
-> What I wanted was modpost to tell that the symbol being referenced in
-> the .data section was 'asus_hotk_add' and not just an offset after
-> asus_hotk_driver.
-> 
-> What is needed is a link from the RELOCATION RECORD to the symbol table.
+Hi,
 
-The r_info field of Elf{32,64}_Rel{,a} contains an index into the symbol
-table which can be extracted using the ELF{32,64}_R_SYM() macro.
+vanilla 2.6.16-rc3-git7 gives me the following oops during boot (most
+of the time while mounting all filesystems) on my amd64 machine:
 
+(hand-written, no serial interface available)
+Unable to handle kernel NULL pointer dereference at 00000008
+rip: run_timer_softirq+322
+process udev
+Call trace:
+__do_softirq+68
+call_softirq+30
+do_softirq+46
+do_IRQ+61
+ret_from_intr+0
+EOI
+
+Since the oops happens in an interrupt every time I got it, it
+locked the machine hard with a kernel panic message.
+
+The same machine runs fine with 2.6.15-git1 and previous kernels.
+switch:~ # cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 15
+model           : 31
+model name      : AMD Athlon(tm) 64 Processor 3200+
+stepping        : 0
+cpu MHz         : 1000.000
+cache size      : 512 KB
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext fxsr_opt lm 3dnowext 3dnow lahf_lm
+bogomips        : 2012.44
+TLB size        : 1024 4K pages
+clflush size    : 64
+cache_alignment : 64
+address sizes   : 40 bits physical, 48 bits virtual
+power management: ts fid vid ttp
+
+Modules loaded:
+cls_u32 sch_htb ipt_physdev iptable_filter ip_tables ebtable_filter
+ebt_arpreply ebt_arp ebt_ip ebtable_nat ebtables bridge cpufreq_userspace
+powernow_k8 freq_table thermal processor fan button battery ac ipv6
+floppy snd_pcm_oss snd_mixer_oss twofish cryptoloop edd joydev st sr_mod
+video1394 raw1394 capability commoncap sg ohci1394 ieee1394 sky2 ehci_hcd
+snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd soundcore
+snd_page_alloc forcedeth ohci_hcd usbcore parport_pc lp parport reiserfs
+ide_cd cdrom ide_disk dm_snapshot dm_mod sata_sil sata_nv libata amd74xx
+ide_core sd_mod scsi_mod
+
+
+Regards,
+Carl-Daniel
 -- 
-Nicholas Miell <nmiell@comcast.net>
-
+http://www.hailfinger.org/

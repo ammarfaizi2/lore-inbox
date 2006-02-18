@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWBRLmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWBRMFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751110AbWBRLmH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 06:42:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWBRLmH
+	id S1751128AbWBRMFa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 07:05:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWBRMFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 06:42:07 -0500
-Received: from mail.gmx.de ([213.165.64.20]:2467 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751110AbWBRLmB (ORCPT
+	Sat, 18 Feb 2006 07:05:30 -0500
+Received: from pcpool00.mathematik.uni-freiburg.de ([132.230.30.150]:31159
+	"EHLO pcpool00.mathematik.uni-freiburg.de") by vger.kernel.org
+	with ESMTP id S1751128AbWBRMFa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 06:42:01 -0500
-X-Authenticated: #31060655
-Message-ID: <43F70807.9020504@gmx.net>
-Date: Sat, 18 Feb 2006 12:41:59 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.12) Gecko/20050921
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Intermittent 5-second stalls during boot on AMD64
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Sat, 18 Feb 2006 07:05:30 -0500
+Date: Sat, 18 Feb 2006 13:05:29 +0100
+From: "Bernhard R. Link" <brlink@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] register sysfs device for lp devices
+Message-ID: <20060218120528.GA30567@pcpool00.mathematik.uni-freiburg.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060217113836.GA26254@pcpool00.mathematik.uni-freiburg.de> <20060217094326.0ae35311@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Disposition: inline
+In-Reply-To: <20060217094326.0ae35311@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+* Stephen Hemminger <shemminger@osdl.org> [060217 19:17]:
+> O
+> > +	parport_set_dev (p, &dev->dev);
+> >  	parport_announce_port (p);
+> 
+> Why does the parallel port code use a different whitespace style than
+> the rest of the kernel. It is incorrect and potentially confusing to
+> put a blank between the function name and the arguments. It is like
+> reading, english, with commas in the wrong spot.
 
-during boot, my AMD64 machine repeatedly stalls for a few seconds
-(no sysrq possible), then it proceeds normally until the next
-stall. After the stall, it begins to handle the events during the
-stall, so any sysrq will be handled once the stall is over.
-I have the suspicion that this has to do with SATA as the stalls
-happen during times of high disk activity, sometimes also after
-boot.
+What is the policy for patches of such code? Should patches adhere to
+the style of the specific file or that of the whole kernel?
 
-Are there any tricks to get a backtrace during these stalls?
-Softlockup watchdog? NMI watchdog? The stalls usually take less
-than 10 seconds, so I'd probably have to modify the timeouts as
-well. Will the machine continue to work even after one of the
-watchdogs has triggered?
-
-Any help is appreciated.
-
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
+Hochachtungsvoll,
+	Bernhard R. Link

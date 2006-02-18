@@ -1,85 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWBRSum@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWBRSxF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWBRSum (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 13:50:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWBRSum
+	id S932113AbWBRSxF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 13:53:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWBRSxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 13:50:42 -0500
-Received: from smtp.blackdown.de ([213.239.206.42]:15497 "EHLO
-	smtp.blackdown.de") by vger.kernel.org with ESMTP id S932117AbWBRSul
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 13:50:41 -0500
-From: Juergen Kreileder <jk@blackdown.de>
-To: alsa-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [patch] Fix snd-usb-audio in 32-bit compat environemt
-X-PGP-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0x730A28A5
-X-PGP-Fingerprint: 7C19 D069 9ED5 DC2E 1B10  9859 C027 8D5B 730A 28A5
-Mail-Followup-To: alsa-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-Date: Sat, 18 Feb 2006 19:50:37 +0100
-Message-ID: <878xs85wn6.fsf@blackdown.de>
-Organization: Blackdown Java-Linux Team
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Sat, 18 Feb 2006 13:53:05 -0500
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:9853 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S932113AbWBRSxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 13:53:04 -0500
+X-IronPort-AV: i="4.02,127,1139212800"; 
+   d="scan'208"; a="407065025:sNHT35020288"
+To: Greg KH <greg@kroah.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Muli Ben-Yehuda <mulix@mulix.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, openib-general@openib.org,
+       SCHICKHJ@de.ibm.com, RAISCH@de.ibm.com, HNGUYEN@de.ibm.com,
+       MEDER@de.ibm.com
+Subject: Re: [PATCH 02/22] Firmware interface code for IB device.
+X-Message-Flag: Warning: May contain useful information
+References: <20060218005532.13620.79663.stgit@localhost.localdomain>
+	<20060218005707.13620.20538.stgit@localhost.localdomain>
+	<20060218015808.GB17653@kroah.com> <aday809bewn.fsf@cisco.com>
+	<20060218122011.GE911@infradead.org>
+	<20060218122631.GA30535@granada.merseine.nu>
+	<1140265955.4035.19.camel@laptopd505.fenrus.org>
+	<adazmkoaaqr.fsf@cisco.com> <20060218181509.GA892@kroah.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Sat, 18 Feb 2006 10:52:58 -0800
+In-Reply-To: <20060218181509.GA892@kroah.com> (Greg KH's message of "Sat, 18
+ Feb 2006 10:15:09 -0800")
+Message-ID: <adavevca48l.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 18 Feb 2006 18:52:59.0410 (UTC) FILETIME=[89A00720:01C634BC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+    Greg> Checking stuff into a private svn tree is vastly different
+    Greg> from posting to lkml in public.  In fact, it looks like the
+    Greg> svn tree is so far ahead of the in-kernel stuff, that most
+    Greg> people are just using it instead of the in-kernel code.
 
-I'm getting oopses with snd-usb-audio in 32-bit compat environments:
-control_compat.c:get_ctl_type() doesn't initialize 'info', so
-'itemlist[uinfo->value.enumerated.item]' in
-usbmixer.c:mixer_ctl_selector_info() might access random memory
-(The 'if ((int)uinfo->value.enumerated.item >= cval->max)' doesn't fix
-all problems because of the unsigned -> signed conversion.)
+It's not a private svn tree -- the IBM ehca development is available
+to anyone via svn at https://openib.org/svn/gen2/trunk/src/linux-kernel/infiniband/hw/ehca
 
-Here's a fix:
+    Greg> I know at least one company has asked a distro to just
+    Greg> accept the svn snapshot over the in-kernel IB code, which
+    Greg> makes me wonder if the in-kernel stuff is even useful to
+    Greg> people?  Why have it, if companies insist on using the
+    Greg> out-of-tree stuff instead?
 
-Signed-off-by: Juergen Kreileder <jk@blackdown.de>
+The IB driver stack is still in its early stages, so although I'm
+pushing for things to be merged as fast as possible, the unfortunate
+fact is that lots of things that people want to use (including the IBM
+ehca driver) are not upstream and are not ready to go upstream yet.
+But that doesn't mean we should give up on merging them.
 
---- linux-mm-vanilla/sound/core/control_compat.c	2006-02-18 17:00:17.000000000 +0100
-+++ linux-mm/sound/core/control_compat.c	2006-02-18 19:17:45.000000000 +0100
-@@ -167,7 +167,7 @@ static int get_ctl_type(struct snd_card 
- 			int *countp)
- {
- 	struct snd_kcontrol *kctl;
--	struct snd_ctl_elem_info info;
-+	struct snd_ctl_elem_info *info;
- 	int err;
- 
- 	down_read(&card->controls_rwsem);
-@@ -176,13 +176,19 @@ static int get_ctl_type(struct snd_card 
- 		up_read(&card->controls_rwsem);
- 		return -ENXIO;
- 	}
--	info.id = *id;
--	err = kctl->info(kctl, &info);
-+	info = kzalloc(sizeof(*info), GFP_KERNEL);
-+	if (info == NULL) {
-+		up_read(&card->controls_rwsem);
-+		return -ENOMEM;
-+	}
-+	info->id = *id;
-+	err = kctl->info(kctl, info);
- 	up_read(&card->controls_rwsem);
- 	if (err >= 0) {
--		err = info.type;
--		*countp = info.count;
-+		err = info->type;
-+		*countp = info->count;
- 	}
-+	kfree(info);
- 	return err;
- }
- 
-=
+Distro politics are just distro politics -- and there will always be
+pressure on distros to ship stuff that's not upstream yet.
 
-Tested on ppc64.
-
-
-        Juergen
-
--- 
-Juergen Kreileder, Blackdown Java-Linux Team
-http://blog.blackdown.de/
+ - R.

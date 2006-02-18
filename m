@@ -1,92 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWBRBy3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWBRBzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbWBRBy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 20:54:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWBRBy3
+	id S1750719AbWBRBzz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 20:55:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWBRBzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 20:54:29 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:9604 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S1750745AbWBRBy2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 20:54:28 -0500
-Date: Fri, 17 Feb 2006 17:54:13 -0800
-From: Greg KH <greg@kroah.com>
-To: Roland Dreier <rolandd@cisco.com>
-Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       openib-general@openib.org, SCHICKHJ@de.ibm.com, RAISCH@de.ibm.com,
-       HNGUYEN@de.ibm.com, MEDER@de.ibm.com
-Subject: Re: [PATCH 04/22] OF adapter probing
-Message-ID: <20060218015413.GA17653@kroah.com>
-References: <20060218005532.13620.79663.stgit@localhost.localdomain> <20060218005712.13620.82908.stgit@localhost.localdomain>
+	Fri, 17 Feb 2006 20:55:55 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:7089 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750719AbWBRBzy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Feb 2006 20:55:54 -0500
+Date: Fri, 17 Feb 2006 17:54:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: kjournald keeps reference to namespace
+Message-Id: <20060217175428.7ce7b26f.akpm@osdl.org>
+In-Reply-To: <20060218013547.GA32706@MAIL.13thfloor.at>
+References: <20060218013547.GA32706@MAIL.13thfloor.at>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060218005712.13620.82908.stgit@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 17, 2006 at 04:57:14PM -0800, Roland Dreier wrote:
-> +int hipz_count_adapters(void)
-> +{
-> +	int num = 0;
-> +	struct device_node *dn = NULL;
+Herbert Poetzl <herbert@13thfloor.at> wrote:
+>
+> 
+> Hi Folks!
+> 
+> when creating a private namespace (CLONE_NS) and
+> then mounting an ext3 filesystem, a new kernel
+> thread (kjournald) is created, which keeps a
+> reference to the namespace, which after the the
+> process exits, remains and blocks access to the
+> block device, as it is still bd_claim-ed.
+
+There are numerous ways in which user processes can parent kernel threads.
+
+bix:/usr/src/linux-2.6.16-rc4> grep -rl kernel_thread drivers net fs | wc
+     64      64    1657
+
+> this leaves a private namespace behind and a
+> block device which cannot be opened exclusively.
+> unmount is not an option, as the namespace is
+> not longer reachable.
+> 
+> this behaviour seems to be there since ever,
+> well since namespaces and kjournald exists :)
+> 
+> the following 'cruel' hack 'solves' this issue
+> 
+> best,
+> Herbert
+> 
+> 
+> --- fs/jbd/journal.c.orig	2006-01-03 17:29:56 +0100
+> +++ fs/jbd/journal.c	2006-02-18 02:23:21 +0100
+> @@ -33,6 +33,7 @@
+>  #include <linux/mm.h>
+>  #include <linux/suspend.h>
+>  #include <linux/pagemap.h>
+> +#include <linux/namespace.h>
+>  #include <asm/uaccess.h>
+>  #include <asm/page.h>
+>  #include <linux/proc_fs.h>
+> @@ -116,6 +117,13 @@ static int kjournald(void *arg)
+>  	struct timer_list timer;
+>  
+>  	daemonize("kjournald");
+> +	{
+> +		struct namespace *ns = current->namespace;
 > +
-> +	EDEB_EN(7, "");
-> +
-> +	while ((dn = of_find_node_by_name(dn, "lhca"))) {
-> +		num++;
+> +		current->namespace = NULL;
+> +		put_namespace(ns);
 > +	}
+> +
+>  
 
-The { } are not needed here.
+I think it'd be better to convert ext3 to use the kthread API which appears
+to accidentally not have this problem, because such threads are parented by
+keventd, which were parented by init.
 
-> +
-> +	of_node_put(dn);
-> +
-> +	if (num == 0) {
-> +		EDEB_ERR(4, "No lhca node name was found in the"
-> +			 " Open Firmware device tree.");
-> +		return -ENODEV;
-> +	}
-> +
-> +	EDEB(6, " ... found %x adapter(s)", num);
-> +
-> +	EDEB_EX(7, "num=%x", num);
-> +
-> +	return num;
-> +}
-> +
-> +int hipz_probe_adapters(char **adapter_list)
-> +{
-> +	int ret = 0;
-> +	int num = 0;
-> +	struct device_node *dn = NULL;
-> +	char *loc;
-> +
-> +	EDEB_EN(7, "adapter_list=%p", adapter_list);
-> +
-> +	while ((dn = of_find_node_by_name(dn, "lhca"))) {
-> +		loc = get_property(dn, "ibm,loc-code", NULL);
-> +		if (loc == NULL) {
-> +			EDEB_ERR(4, "No ibm,loc-code property for"
-> +				 " lhca Open Firmware device tree node.");
-> +			ret = -ENODEV;
-> +			goto probe_adapters0;
-> +		}
-> +
-> +		adapter_list[num] = loc;
-> +		EDEB(6, " ... found adapter[%x] with loc-code: %s", num, loc);
-> +		num++;
-> +	}
-> +
-> +      probe_adapters0:
-> +	of_node_put(dn);
+That being said, perhaps we should do a put_namespace() in kernel_thread(),
+too.
 
-Please use tabs everywhere.
+I'm kinda surprised that your patch didn't oops over a NULL ->namespace
+when the kernel internally mounted the root filesystem.
 
-Hm, wait, that's a label.  Put it where it belongs, over on the left
-please.
-
-thanks,
-
-greg k-h

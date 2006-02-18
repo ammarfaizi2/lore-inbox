@@ -1,74 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWBRNfR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWBRNgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751226AbWBRNfR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 08:35:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWBRNfQ
+	id S1751253AbWBRNgv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 08:36:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWBRNgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 08:35:16 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59146 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751226AbWBRNfP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 08:35:15 -0500
-Date: Sat, 18 Feb 2006 13:34:59 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, rusty@rustcorp.com.au,
-       LKML <linux-kernel@vger.kernel.org>, len.brown@intel.com,
-       Paul Bristow <paul@paulbristow.net>, mpm@selenic.com,
-       B.Zolnierkiewicz@elka.pw.edu.pl, kkeil@suse.de,
-       linux-dvb-maintainer@linuxtv.org, philb@gnu.org, gregkh@suse.de,
-       dwmw2@infradead.org
-Subject: Re: kbuild: Section mismatch warnings
-Message-ID: <20060218133459.GA14141@flint.arm.linux.org.uk>
-Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
-	Dmitry Torokhov <dtor_core@ameritech.net>, rusty@rustcorp.com.au,
-	LKML <linux-kernel@vger.kernel.org>, len.brown@intel.com,
-	Paul Bristow <paul@paulbristow.net>, mpm@selenic.com,
-	B.Zolnierkiewicz@elka.pw.edu.pl, kkeil@suse.de,
-	linux-dvb-maintainer@linuxtv.org, philb@gnu.org, gregkh@suse.de,
-	dwmw2@infradead.org
-References: <20060217214855.GA5563@mars.ravnborg.org> <20060217224702.GA25761@mars.ravnborg.org> <200602171949.27532.dtor_core@ameritech.net> <20060218121414.GA5273@mars.ravnborg.org>
+	Sat, 18 Feb 2006 08:36:51 -0500
+Received: from mail.gmx.de ([213.165.64.20]:32949 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751253AbWBRNgu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 08:36:50 -0500
+X-Authenticated: #5039886
+Date: Sat, 18 Feb 2006 14:36:47 +0100
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: herbert@13thfloor.at
+Cc: akpm@osdl.org, viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: kjournald keeps reference to namespace
+Message-ID: <20060218133647.GA9332@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	herbert@13thfloor.at, akpm@osdl.org, viro@ftp.linux.org.uk,
+	linux-kernel@vger.kernel.org
+References: <20060218013547.GA32706@MAIL.13thfloor.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060218121414.GA5273@mars.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060218013547.GA32706@MAIL.13thfloor.at>
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 18, 2006 at 01:14:14PM +0100, Sam Ravnborg wrote:
-> It hits only arrays - so I took a look into moduleparam.h.
-> Looks like an __initdata tag is missing?
+On 2006.02.18 02:35:47 +0100, Herbert Poetzl wrote:
 > 
-> diff --git a/include/linux/moduleparam.h b/include/linux/moduleparam.h
-> index b5c98c4..e67eafd 100644
-> --- a/include/linux/moduleparam.h
-> +++ b/include/linux/moduleparam.h
-> @@ -147,6 +147,7 @@ extern int param_get_invbool(char *buffe
->  /* Comma-separated array: *nump is set to number they actually specified. */
->  #define module_param_array_named(name, array, type, nump, perm)		\
->  	static struct kparam_array __param_arr_##name			\
-> +	__initdata							\
->  	= { ARRAY_SIZE(array), nump, param_set_##type, param_get_##type,\
->  	    sizeof(array[0]), array };					\
->  	module_param_call(name, param_array_set, param_array_get, 	\
+> Hi Folks!
 > 
+> when creating a private namespace (CLONE_NS) and
+> then mounting an ext3 filesystem, a new kernel
+> thread (kjournald) is created, which keeps a
+> reference to the namespace, which after the the
+> process exits, remains and blocks access to the
+> block device, as it is still bd_claim-ed.
 > 
-> With this change static struct kparam_array __param_arr_##name is placed
-> in .init.data.
-> This made the warnings in drivers/input/joystick/db9 disappear.
+> this leaves a private namespace behind and a
+> block device which cannot be opened exclusively.
+> unmount is not an option, as the namespace is
+> not longer reachable.
 > 
-> And with db9 marked __initdata there should be nothing wrong in
-> using __initdata for __param_arr_##name as I see it.
+> this behaviour seems to be there since ever,
+> well since namespaces and kjournald exists :)
+> 
+> the following 'cruel' hack 'solves' this issue
 
-What happens to /sys/module/*/parameters/foo if you read/write it?
-Probably worth checking to ensure there isn't an oops lurking as a
-result of this change.
+In daemonize() a new thread gets cleaned up and 'merged' with init_task.
+The current fs_struct is handled there, but not the current namespace.
+The following patch adds the namespace part.
 
-(Maybe we need to poison the free'd init sections at boot time just
-to make sure we catch possible errors like this.)
+Signed-off-by: Björn Steinbrink <B.Steinbrink@gmx.de>
+---
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+
+diff -NurpP --minimal linux-2.6.16-rc4/kernel/exit.c linux-2.6.16-rc4-ns/kernel/exit.c
+--- linux-2.6.16-rc4/kernel/exit.c	2006-02-18 13:59:59.000000000 +0100
++++ linux-2.6.16-rc4-ns/kernel/exit.c	2006-02-18 14:04:26.000000000 +0100
+@@ -360,6 +360,8 @@ void daemonize(const char *name, ...)
+ 	fs = init_task.fs;
+ 	current->fs = fs;
+ 	atomic_inc(&fs->count);
++	exit_namespace(current);
++	current->namespace = init_task.namespace;
+  	exit_files(current);
+ 	current->files = init_task.files;
+ 	atomic_inc(&current->files->count);

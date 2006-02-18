@@ -1,96 +1,259 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWBRUnc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWBRUuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbWBRUnc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 15:43:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWBRUnc
+	id S932157AbWBRUuY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 15:50:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWBRUuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 15:43:32 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:60238 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S932140AbWBRUnb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 15:43:31 -0500
-Date: Sat, 18 Feb 2006 21:43:40 +0100
-From: Sander <sander@humilis.net>
-To: Mark Lord <lkml@rtr.ca>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Justin Piszcz <jpiszcz@lucidpixels.com>,
-       linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>
-Subject: Re: LibPATA code issues / 2.6.15.4
-Message-ID: <20060218204340.GA2984@favonius>
-Reply-To: sander@humilis.net
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F1EE4A.3050107@rtr.ca> <43F58D29.3040608@pobox.com> <200602170959.40286.lkml@rtr.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602170959.40286.lkml@rtr.ca>
-X-Uptime: 21:31:23 up 18 days, 13:10, 28 users,  load average: 3.15, 2.87, 2.73
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sat, 18 Feb 2006 15:50:24 -0500
+Received: from perninha.conectiva.com.br ([200.140.247.100]:22215 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S932153AbWBRUuX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 15:50:23 -0500
+Date: Sat, 18 Feb 2006 18:50:35 -0200
+From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+To: davem <davem@davemloft.net>, lkml <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org, robert.olsson@its.uu.se
+Subject: [PATCH] pktgen: Ports the if_list to the in-kernel implementation.
+Message-ID: <20060218185035.5573b574@home.brethil>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-mandriva-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote (ao):
-> On Friday 17 February 2006 03:45, Jeff Garzik wrote:
-> >Submit a patch... 
-> 
-> You mean, something like this one?
-> Untested at present, as I was hoping to hear
-> back from one of the original problem reporters
-> after they tested it.
 
-Not the original reporter, but your patch Works For Me.
-I get these:
+ Hi!
 
-[  633.449961] md: md1: sync done.
-[  633.456070] RAID5 conf printout:
-[  633.456117]  --- rd:9 wd:9 fd:0
-[  633.456164]  disk 0, o:1, dev:sda2
-[  633.456208]  disk 1, o:1, dev:sdb2
-[  633.456250]  disk 2, o:1, dev:sdc2
-[  633.456298]  disk 3, o:1, dev:sdd2
-[  633.456340]  disk 4, o:1, dev:sde2
-[  633.456383]  disk 5, o:1, dev:sdf2
-[  633.456427]  disk 6, o:1, dev:sdg2
-[  633.456470]  disk 7, o:1, dev:sdh2
-[  633.456514]  disk 8, o:1, dev:sdi2
-[  787.639858] kjournald starting.  Commit interval 5 seconds
-[  787.657991] EXT3 FS on md1, internal journal
-[  787.658023] EXT3-fs: mounted filesystem with writeback data mode.
-[ 1872.338185] ata6: translated op=0x2a ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-[ 1872.338239] ata6: status=0xd0 { Busy }
-[ 5749.285084] ata8: translated op=0x2a ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-[ 5749.285138] ata8: status=0xd0 { Busy }
-[ 5906.008461] ata6: translated op=0x2a ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-[ 5906.008515] ata6: status=0xd0 { Busy }
-[ 9892.904205] ata6: translated op=0x2a ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-[ 9892.904259] ata6: status=0xd0 { Busy }
-[10146.084687] ata5: translated op=0x2a ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-[10146.084740] ata5: status=0xd0 { Busy }
-[10293.949040] ata5: translated op=0x2a ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-[10293.949093] ata5: status=0xd0 { Busy }
+ This patch ports the per-thread interface list to the in-kernel linked
+list implementation. In general, the resulting code is a bit simpler.
 
-Can you tell from this what they mean?
+ I've tested it with QEMU emulating a four CPU machine with four NICs.
 
-This is with 2.6.16-rc3, your patch, and running nine Maxtors disks
-over onboard nForce4 and MV88SX6081 8-port SATA II PCI-X Controller (rev 09).
+ Note that this patch has been made in the top of my previous pktgen
+patches.
 
-for i in `seq 10`
-do dd if=/dev/zero of=bigfile.$i bs=1024k count=10000
-done
-md5sum bigfile.*
+Signed-off-by: Luiz Capitulino <lcapitulino@mandriva.com.br>
 
-The errors mostly seem to happen during the md5sum (not during the dd).
+---
 
-I do not see data corruption or slowdown.
+ net/core/pktgen.c |   79 +++++++++++++++++++++++++----------------------------
+ 1 files changed, 37 insertions(+), 42 deletions(-)
 
-I do need a chunksize of 512k for the raid5. With anything lower (I tried
-the default 64k, 128k, 256k, 512k and 4096k) I get data corruption and
-the errors reported in:
-http://marc.theaimsgroup.com/?l=linux-ide&m=114016903530007&w=2
+923450c2ba06160ba72fd17ccb2def142c1a5093
+diff --git a/net/core/pktgen.c b/net/core/pktgen.c
+index 3806068..f110214 100644
+--- a/net/core/pktgen.c
++++ b/net/core/pktgen.c
+@@ -209,7 +209,7 @@ struct pktgen_dev {
+ 	char result[512];
+ 
+ 	struct pktgen_thread *pg_thread;	/* the owner */
+-	struct pktgen_dev *next;	/* Used for chaining in the thread's run-queue */
++	struct list_head list;		/* Used for chaining in the thread's run-queue */
+ 
+ 	int running;		/* if this changes to false, the test will stop */
+ 
+@@ -327,7 +327,7 @@ struct pktgen_hdr {
+ 
+ struct pktgen_thread {
+ 	spinlock_t if_lock;
+-	struct pktgen_dev *if_list;	/* All device here */
++	struct list_head if_list;	/* All device here */
+ 	struct list_head th_list;
+ 	int removed;
+ 	char name[32];
+@@ -1377,7 +1377,7 @@ static struct file_operations pktgen_if_
+ static int pktgen_thread_show(struct seq_file *seq, void *v)
+ {
+ 	struct pktgen_thread *t = seq->private;
+-	struct pktgen_dev *pkt_dev = NULL;
++	struct pktgen_dev *pkt_dev;
+ 
+ 	BUG_ON(!t);
+ 
+@@ -1387,13 +1387,13 @@ static int pktgen_thread_show(struct seq
+ 	seq_printf(seq, "Running: ");
+ 
+ 	if_lock(t);
+-	for (pkt_dev = t->if_list; pkt_dev; pkt_dev = pkt_dev->next)
++	list_for_each_entry(pkt_dev, &t->if_list, list)
+ 		if (pkt_dev->running)
+ 			seq_printf(seq, "%s ", pkt_dev->ifname);
+ 
+ 	seq_printf(seq, "\nStopped: ");
+ 
+-	for (pkt_dev = t->if_list; pkt_dev; pkt_dev = pkt_dev->next)
++	list_for_each_entry(pkt_dev, &t->if_list, list)
+ 		if (!pkt_dev->running)
+ 			seq_printf(seq, "%s ", pkt_dev->ifname);
+ 
+@@ -2388,13 +2388,13 @@ static void pktgen_clear_counters(struct
+ 
+ static void pktgen_run(struct pktgen_thread *t)
+ {
+-	struct pktgen_dev *pkt_dev = NULL;
++	struct pktgen_dev *pkt_dev;
+ 	int started = 0;
+ 
+ 	PG_DEBUG(printk("pktgen: entering pktgen_run. %p\n", t));
+ 
+ 	if_lock(t);
+-	for (pkt_dev = t->if_list; pkt_dev; pkt_dev = pkt_dev->next) {
++	list_for_each_entry(pkt_dev, &t->if_list, list) {
+ 
+ 		/*
+ 		 * setup odev and create initial packet.
+@@ -2435,15 +2435,14 @@ static void pktgen_stop_all_threads_ifs(
+ 
+ static int thread_is_running(struct pktgen_thread *t)
+ {
+-	struct pktgen_dev *next;
++	struct pktgen_dev *pkt_dev;
+ 	int res = 0;
+ 
+-	for (next = t->if_list; next; next = next->next) {
+-		if (next->running) {
++	list_for_each_entry(pkt_dev, &t->if_list, list)
++		if (pkt_dev->running) {
+ 			res = 1;
+ 			break;
+ 		}
+-	}
+ 	return res;
+ }
+ 
+@@ -2570,17 +2569,17 @@ static int pktgen_stop_device(struct pkt
+ 
+ static struct pktgen_dev *next_to_run(struct pktgen_thread *t)
+ {
+-	struct pktgen_dev *next, *best = NULL;
++	struct pktgen_dev *pkt_dev, *best = NULL;
+ 
+ 	if_lock(t);
+ 
+-	for (next = t->if_list; next; next = next->next) {
+-		if (!next->running)
++	list_for_each_entry(pkt_dev, &t->if_list, list) {
++		if (!pkt_dev->running)
+ 			continue;
+ 		if (best == NULL)
+-			best = next;
+-		else if (next->next_tx_us < best->next_tx_us)
+-			best = next;
++			best = pkt_dev;
++		else if (pkt_dev->next_tx_us < best->next_tx_us)
++			best = pkt_dev;
+ 	}
+ 	if_unlock(t);
+ 	return best;
+@@ -2588,28 +2587,29 @@ static struct pktgen_dev *next_to_run(st
+ 
+ static void pktgen_stop(struct pktgen_thread *t)
+ {
+-	struct pktgen_dev *next = NULL;
++	struct pktgen_dev *pkt_dev;
+ 
+ 	PG_DEBUG(printk("pktgen: entering pktgen_stop.\n"));
+ 
+ 	if_lock(t);
+ 
+-	for (next = t->if_list; next; next = next->next)
+-		pktgen_stop_device(next);
++	list_for_each_entry(pkt_dev, &t->if_list, list)
++		pktgen_stop_device(pkt_dev);
+ 
+ 	if_unlock(t);
+ }
+ 
+ static void pktgen_rem_all_ifs(struct pktgen_thread *t)
+ {
+-	struct pktgen_dev *cur, *next = NULL;
++	struct list_head *q, *n;
++	struct pktgen_dev *cur;
+ 
+ 	/* Remove all devices, free mem */
+ 
+ 	if_lock(t);
+ 
+-	for (cur = t->if_list; cur; cur = next) {
+-		next = cur->next;
++	list_for_each_safe(q, n, &t->if_list) {
++		cur = list_entry(q, struct pktgen_dev, list);
+ 		pktgen_remove_device(t, cur);
+ 	}
+ 
+@@ -2880,14 +2880,14 @@ static void pktgen_thread_worker(struct 
+ static struct pktgen_dev *pktgen_find_dev(struct pktgen_thread *t,
+ 					  const char *ifname)
+ {
+-	struct pktgen_dev *pkt_dev = NULL;
++	struct pktgen_dev *p, *pkt_dev = NULL;
+ 	if_lock(t);
+ 
+-	for (pkt_dev = t->if_list; pkt_dev; pkt_dev = pkt_dev->next) {
+-		if (strncmp(pkt_dev->ifname, ifname, IFNAMSIZ) == 0) {
++	list_for_each_entry(p, &t->if_list, list)
++		if (strncmp(p->ifname, ifname, IFNAMSIZ) == 0) {
++			pkt_dev = p;
+ 			break;
+ 		}
+-	}
+ 
+ 	if_unlock(t);
+ 	PG_DEBUG(printk("pktgen: find_dev(%s) returning %p\n", ifname, pkt_dev));
+@@ -2910,8 +2910,8 @@ static int add_dev_to_thread(struct pktg
+ 		rv = -EBUSY;
+ 		goto out;
+ 	}
+-	pkt_dev->next = t->if_list;
+-	t->if_list = pkt_dev;
++
++	list_add(&pkt_dev->list, &t->if_list);
+ 	pkt_dev->pg_thread = t;
+ 	pkt_dev->running = 0;
+ 
+@@ -3037,6 +3037,8 @@ static int __init pktgen_create_thread(c
+ 	pe->proc_fops = &pktgen_thread_fops;
+ 	pe->data = t;
+ 
++	INIT_LIST_HEAD(&t->if_list);
++
+ 	list_add_tail(&t->th_list, &pktgen_threads);
+ 
+ 	t->removed = 0;
+@@ -3060,20 +3062,13 @@ static int __init pktgen_create_thread(c
+ static void _rem_dev_from_if_list(struct pktgen_thread *t,
+ 				  struct pktgen_dev *pkt_dev)
+ {
+-	struct pktgen_dev *i, *prev = NULL;
+-
+-	i = t->if_list;
++	struct list_head *q, *n;
++	struct pktgen_dev *p;
+ 
+-	while (i) {
+-		if (i == pkt_dev) {
+-			if (prev)
+-				prev->next = i->next;
+-			else
+-				t->if_list = NULL;
+-			break;
+-		}
+-		prev = i;
+-		i = i->next;
++	list_for_each_safe(q, n, &t->if_list) {
++		p = list_entry(q, struct pktgen_dev, list);
++		if (p == pkt_dev)
++			list_del(&p->list);
+ 	}
+ }
+ 
+-- 
+1.2.1.g3397f9
 
-Thanks!
 
-	Sander
 
 -- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+Luiz Fernando N. Capitulino

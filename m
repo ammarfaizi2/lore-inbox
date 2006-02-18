@@ -1,115 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWBRXVD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWBRXaE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbWBRXVD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 18:21:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWBRXVB
+	id S932279AbWBRXaE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 18:30:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbWBRXaD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 18:21:01 -0500
-Received: from [141.85.221.189] ([141.85.221.189]:65235 "EHLO ghrt.acasa.ro")
-	by vger.kernel.org with ESMTP id S932279AbWBRXVA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 18:21:00 -0500
-From: ghrt <ghrt@dial.kappa.ro>
-Reply-To: ghrt@dial.kappa.ro
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: No sound from SB live!
-Date: Sun, 19 Feb 2006 01:27:26 +0200
-User-Agent: KMail/1.9
-References: <20060218231419.GA3219@elf.ucw.cz>
-In-Reply-To: <20060218231419.GA3219@elf.ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>, perex@suse.cz, tiwai@suse.de
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+	Sat, 18 Feb 2006 18:30:03 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:46542
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S932279AbWBRXaB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 18:30:01 -0500
+Date: Sat, 18 Feb 2006 15:29:34 -0800
+From: Greg KH <greg@kroah.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Muli Ben-Yehuda <mulix@mulix.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, openib-general@openib.org,
+       SCHICKHJ@de.ibm.com, RAISCH@de.ibm.com, HNGUYEN@de.ibm.com,
+       MEDER@de.ibm.com
+Subject: Re: [PATCH 02/22] Firmware interface code for IB device.
+Message-ID: <20060218232934.GA2624@kroah.com>
+References: <20060218015808.GB17653@kroah.com> <aday809bewn.fsf@cisco.com> <20060218122011.GE911@infradead.org> <20060218122631.GA30535@granada.merseine.nu> <1140265955.4035.19.camel@laptopd505.fenrus.org> <adazmkoaaqr.fsf@cisco.com> <20060218181509.GA892@kroah.com> <adavevca48l.fsf@cisco.com> <20060218195327.GA1382@kroah.com> <adar7609wvr.fsf@cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602190127.27862.ghrt@dial.kappa.ro>
+In-Reply-To: <adar7609wvr.fsf@cisco.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pe data de Dum 19 Feb 2006 01:14, a-ţi scris:
-> Hi!
->
-> I have SB Live! here. I remember it worked long time ago. Now I
-> can't get it to produce any sound :-(.
->
-> root@hobit:~# cat /proc/asound/cards
->  0 [Live           ]: EMU10K1 - SBLive! Value [CT4830]
->                       SBLive! Value [CT4830] (rev.7,
-> serial:0x80261102) at 0x3000, irq 20
->  1 [Bt878          ]: Bt87x - Brooktree Bt878
->                       Brooktree Bt878 at 0xd0001000, irq 17
->
-> root@hobit:~# uname -a
-> Linux hobit 2.6.16-rc4 #1 SMP PREEMPT Sat Feb 18 23:53:41 CET 2006
-> i686 GNU/Linux
->
-Same problem here some time ago. See below forwarded message.
+On Sat, Feb 18, 2006 at 01:31:52PM -0800, Roland Dreier wrote:
+>     Greg> Sorry, I didn't mean to say "private", but rather,
+>     Greg> "seperate".  Doing kernel development in a seperate
+>     Greg> development tree from the mainline kernel is very
+>     Greg> problematic, as has been documented many times in the past.
+> 
+> As a general rule I agree with that.  However, the openib svn tree
+> we're talking about is not some project that is off in space never
+> merging with the kernel; as Christoph said, it's really just a staging
+> area for stuff that isn't ready for upstream yet.n
+> 
+> Perhaps it would be more politically correct to use git to develop
+> kernel code, but in the end that's really just a technical difference
+> that shouldn't matter.
 
+Yes, that doesn't matter.  But it seems that the svn tree is vastly
+different from the in-kernel code.  So much so that some companies feel
+that the in-kernel stuff just isn't worth running at all.
 
-Subject: Re: Fw: PROBLEM: SB Live! 5.1 (emu10k1, rev. 0a) doesn't work 
-with 2.6.15
-Date: Lun 13 Feb 2006 23:52
-From: ghrt <ghrt@dial.kappa.ro>
-To: Takashi Iwai <tiwai@suse.de>
+>     Roland> Distro politics are just distro politics -- and there will
+>     Roland> always be pressure on distros to ship stuff that's not
+>     Roland> upstream yet.
+> 
+>     Greg> Luckily the distros know better than to accept this anymore,
+>     Greg> as they have been burned too many times in the past...
+> 
+> OK, that's great.  But now I don't understand your original point.
+> You say there are people putting pressure on distros to ship what's in
+> openib svn rather than the upstream kernel, but if the distros are
+> going to ignore them, what does it matter?
 
-Pe data de Lun 13 Feb 2006 17:08, a-ţi scris:
-> At Mon, 13 Feb 2006 04:09:00 -0800,
->
-> Andrew Morton wrote:
-> > Begin forwarded message:
-> >
-> > Date: Sat, 14 Jan 2006 00:03:48 +0200
-> > From: ghrt <ghrt@dial.kappa.ro>
-> > To: linux-kernel@vger.kernel.org
-> > Subject: PROBLEM: SB Live! 5.1 (emu10k1, rev. 0a) doesn't work
-> > with 2.6.15
-> >
-> >
-> > hello
-> >
-> > i've compiled vanilla 2.6.15 and my sound card doesn't work
-> > anymore. i can see it in kmix (and adjust the volumes, too), it
-> > appears in dmesg (at ALSA devices), xmms & mplayer doesn't say
-> > anything about errors, but it doesn't make any sound.
-> > the onboard soundcard, via8233, works well with the same 2.6.15.
-> > sb live! works well with 2.6.14.2 and previous.
-> > i'm using an updated Slackware.
-> >
-> > if you have any questions i'll answer.
->
-> First check /proc/asound/cards to see whether the emu10k1 model is
-> detected properly.  If '[Unknown]' is shown, your model is not
-> listed in the whitelist.
+It takes a _lot_ of effort to ignore them, as it's very difficult to do
+so.  Especially when companies try to play the different distros off of
+each other, but that's not an issue that the mainline kernel developers
+need to worry about :)
 
-Seems ok (see below). But i came to the conclusion that it might be
-KMix as well, because alsa-mixer (console) works fine.
-Maybe if the name of the output (or input) device (now both are
-"Wave") is changed to be different from the other names the problem
-will dissapear. I didn't have time to do this (i am not a programmer
-also).
-When i unmute in KMix input->Wave it works (sounds) perfectly. The
-problem is that KMix is wrongly linking input->Wave as output->Wave,
-as far as i can see.
-Giving these channels diff. names in kernel will prevent this
- problem.
+> And this thread started with me trying to help the IBM people make
+> progress towards merging a big chunk of that svn tree upstream.  That
+> should make you happy, right?
 
-root@ghrt:~# cat  /proc/asound/cards
-0 [V8233          ]: VIA8233 - VIA 8233
-                     VIA 8233 with VIA1612A at 0xe000, irq 5
-1 [Live           ]: EMU10K1 - SB Live 5.1 [SB0220]
-                     SB Live 5.1 [SB0220] (rev.10, serial:0x80651102)
-at 0xe800, irq 12
+Yes, that does make me happy.  But it doesn't make me happy to see IBM
+not being able to participate in kernel development by posting and
+defending their own code to lkml.  I thought IBM knew better than
+that...
 
-> There was a bug that the front control conflicts with ac97 and
-> emu10k1 dsp which was already fixed in the latest version (at least
-> on 2.6.16-rc3).
+thanks,
 
-i saw (already in 2.6.15.1 as well) and i will try it in weekend
-(sooner if it's urgent).
-
-tia
---
-ghrt
-
-> Takashi
+greg k-h

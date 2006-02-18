@@ -1,116 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbWBRGj7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbWBRG5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750888AbWBRGj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 01:39:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWBRGj7
+	id S1750946AbWBRG5E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 01:57:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbWBRG5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 01:39:59 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:63623 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750865AbWBRGj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 01:39:58 -0500
-Date: Sat, 18 Feb 2006 15:38:47 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH: 003/012] Memory hotplug for new nodes v.2. (Wait table and zonelists initalization)
-Cc: Andrew Morton <akpm@osdl.org>, "Luck, Tony" <tony.luck@intel.com>,
-       Andi Kleen <ak@suse.de>,
-       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
-       Joel Schopp <jschopp@austin.ibm.com>, linux-ia64@vger.kernel.org,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       x86-64 Discuss <discuss@x86-64.org>
-In-Reply-To: <1140191398.21383.75.camel@localhost.localdomain>
-References: <20060217211336.406E.Y-GOTO@jp.fujitsu.com> <1140191398.21383.75.camel@localhost.localdomain>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060218134351.105B.Y-GOTO@jp.fujitsu.com>
+	Sat, 18 Feb 2006 01:57:03 -0500
+Received: from digitalimplant.org ([64.62.235.95]:31406 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S1750946AbWBRG5C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 01:57:02 -0500
+Date: Fri, 17 Feb 2006 22:56:52 -0800 (PST)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Andrew Morton <akpm@osdl.org>
+cc: greg@kroah.com, "" <torvalds@osdl.org>, "" <linux-kernel@vger.kernel.org>,
+       "" <linux-pm@osdl.org>
+Subject: Re: [PATCH 2/5] [pm] Add state field to pm_message_t (to hold actual
+ state device is in)
+In-Reply-To: <20060217221009.30f29aa2.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.50.0602172239570.30097-100000@monsoon.he.net>
+References: <Pine.LNX.4.50.0602171757360.30811-100000@monsoon.he.net>
+ <20060217210900.514b5f4c.akpm@osdl.org> <Pine.LNX.4.50.0602172136240.6792-100000@monsoon.he.net>
+ <20060217221009.30f29aa2.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >  Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
-> 
-> I have _not_ signed off on these patches.  I understand you based the
-> initial code from one of my patches, but please remove my signed-off-by,
-> as I think they code has diverged sufficiently from mine.
 
-I see.
+On Fri, 17 Feb 2006, Andrew Morton wrote:
 
-> > Index: pgdat3/mm/page_alloc.c
-> > ===================================================================
-> > --- pgdat3.orig/mm/page_alloc.c	2006-02-17 16:52:50.000000000 +0900
-> > +++ pgdat3/mm/page_alloc.c	2006-02-17 18:41:52.000000000 +0900
-> > @@ -37,6 +37,7 @@
-> >  #include <linux/nodemask.h>
-> >  #include <linux/vmalloc.h>
-> >  #include <linux/mempolicy.h>
-> > +#include <linux/stop_machine.h>
-> >  
-> >  #include <asm/tlbflush.h>
-> >  #include "internal.h"
-> > @@ -2077,18 +2078,35 @@ void __init setup_per_cpu_pageset(void)
-> >  static __meminit
-> >  void zone_wait_table_init(struct zone *zone, unsigned long zone_size_pages)
-> >  {
-> > -	int i;
-> > +	int i, hotadd = (system_state == SYSTEM_RUNNING);
-> >  	struct pglist_data *pgdat = zone->zone_pgdat;
-> >  
-> >  	/*
-> >  	 * The per-page waitqueue mechanism uses hashed waitqueues
-> >  	 * per zone.
-> >  	 */
-> > -	zone->wait_table_size = wait_table_size(zone_size_pages);
-> > -	zone->wait_table_bits =	wait_table_bits(zone->wait_table_size);
-> > -	zone->wait_table = (wait_queue_head_t *)
-> > -		alloc_bootmem_node(pgdat, zone->wait_table_size
-> > -					* sizeof(wait_queue_head_t));
-> > +	if (hotadd){
-> > +		unsigned long size = 4096UL; /* Max size */
-> 
-> Where does this come from?
+> Would it make sense to enumerate these low-power states, rather than a bare
+> u32?
 
-This comes from in wait_table_size().
+The number, name, and meaning of the power states differ on a bus-by-bus
+basis. PCI has D0-D3, which are well defined by the PCI spec. ACPI defines
+states of the same name, but less rigidly defined, for various devices.
+I believe USB has only "on" and "off".
 
-1656         /*
-1657          * Once we have dozens or even hundreds of threads sleeping
-1658          * on IO we've got bigger problems than wait queue collision.
-1659          * Limit the size of the wait table to a reasonable size.
-1660          */
-1661         size = min(size, 4096UL);
-1662 
+One generality in all buses that I've seen so far consider state '0' to be
+on and functioning. The low-power states increment from there - the higher
+the number, the less power is being consumed and the longer it takes to
+bring the device back to a functioning state. Even buses with 2 states
+fall into this category, since "on" maps to 0, and "off" maps to anything
+non-zero.
 
-> > +		wait_queue_head_t *p;
-> > +
-> > +		while (size){
-> > +			p = kmalloc(size * sizeof(wait_queue_head_t),
-> > +				    GFP_ATOMIC);
-> > +			if (p)
-> > +				break;
-> > +			size >>= 1;
-> > +		}
-> 
-> Huh?  Trying to allocate the largest wait queue that kmalloc will let
-> you?
-> 
-> Don't we want to base the wait queue size on something devised at
-> runtime?  If we make a bad guess here, how is it fixed later?
+To answer your question: yes, it would make sense to enumerate the number,
+but only on a per-bus basis. Ideally, the bus would export the states that
+it supports, either directly to userspace or via the driver core and the
+per-device state file in sysfs.
 
-At least, could you mention how bad is biggest size?
-I don't think I understand how you mind it... :-(.
-Is it performance? 
+But, we're not to that point yet. For now, the writer of the file needs to
+know what range of values the bus and/or device is expecting. It would be
+nice to have a silly little program that could make this easier on a
+user..
 
-The comment of wait_table_size() says that 4096 is enough size.
-And I think even if one section size is 16MB, user would like to add
-more memory like over 4GB. Because memory hotplug is feature for 
-mission critical system. In other words, DB will require much memory.
+> How, from the above message, is the driver to know that it's being asked
+> for a low-power state rather than an `off' state?   Via `state' I guess.
 
-Even if wait_table_size become variable dynamically, it doen't have
-much value I think......
+For PCI drivers at least, each driver's suspend function calls
+pci_choose_state() to let the PCI core decide what the actual PCI power
+state is that the device should enter. Before these patches, the PCI core
+would always return PCI_D3hot on a suspend request. Now, it looks at
+'state' and uses that as a hint - if it's set and within range, then it's
+treated as a PCI D state; otherwise, the driver gets back PCI_D3hot.
 
--- 
-Yasunori Goto 
+> I can see that the kernel would have trouble asking a device to go into a
+> particular low-power state because of the variation in capabilities between
+> devices.  Perhaps the kernel should send the driver some higher-level piece
+> of information informing it what's going on, let the driver choose an
+> appropriate power state?
+
+The kernel only chooses the state on a system suspend transition, and
+that's exactly what happens - the driver maps a SUSPEND request,
+regardless of what .state will be to the lowest power state it supports.
+
+However, these patches are for device power transitions initated from
+sysfs. With these, there is a user/utility/daemon on the other side that
+knows what power states the device supports and when a good time to enter
+them is. IOW, it's a policy decision that uses the sysfs interface (and
+this plumbing) as the mechanism for implementing it.
 
 
+	Pat

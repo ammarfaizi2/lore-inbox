@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWBRMcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWBRMcs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbWBRMcl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 07:32:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbWBRMcl
+	id S1751198AbWBRMcs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 07:32:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbWBRMcs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 07:32:41 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:1260 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751195AbWBRMck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 07:32:40 -0500
-Subject: Re: [PATCH 02/22] Firmware interface code for IB device.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Roland Dreier <rdreier@cisco.com>,
-       Greg KH <greg@kroah.com>, Roland Dreier <rolandd@cisco.com>,
-       linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       openib-general@openib.org, SCHICKHJ@de.ibm.com, RAISCH@de.ibm.com,
-       HNGUYEN@de.ibm.com, MEDER@de.ibm.com
-In-Reply-To: <20060218122631.GA30535@granada.merseine.nu>
-References: <20060218005532.13620.79663.stgit@localhost.localdomain>
-	 <20060218005707.13620.20538.stgit@localhost.localdomain>
-	 <20060218015808.GB17653@kroah.com> <aday809bewn.fsf@cisco.com>
-	 <20060218122011.GE911@infradead.org>
-	 <20060218122631.GA30535@granada.merseine.nu>
-Content-Type: text/plain
-Date: Sat, 18 Feb 2006 13:32:35 +0100
-Message-Id: <1140265955.4035.19.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sat, 18 Feb 2006 07:32:48 -0500
+Received: from 216.255.188.82-custblock.intercage.com ([216.255.188.82]:60626
+	"EHLO main.astronetworks.net") by vger.kernel.org with ESMTP
+	id S1751198AbWBRMcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 07:32:47 -0500
+From: =?iso-8859-1?q?T=F6r=F6k_Edwin?= <edwin@gurde.com>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 2.6.15.4 1/1][RFC] ipt_owner: inode match supporting both incoming and outgoing packets
+Date: Sat, 18 Feb 2006 14:32:14 +0200
+User-Agent: KMail/1.9.1
+Cc: netfilter-devel@lists.netfilter.org, fireflier-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, martinmaurer@gmx.at
+References: <200602181410.59757.edwin.torok@level7.ro> <20060218122512.GG911@infradead.org>
+In-Reply-To: <20060218122512.GG911@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200602181432.14483.edwin@gurde.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - main.astronetworks.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - gurde.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-02-18 at 14:26 +0200, Muli Ben-Yehuda wrote:
-> On Sat, Feb 18, 2006 at 12:20:11PM +0000, Christoph Hellwig wrote:
-> 
-> > > Well, the eHCA guys tell me that they can't post patches to lkml.
-> > 
-> > Then they lie.  And not posting to lkml is a good reason not to merge
-> > an otherwise perfect driver.  (which this one is far from)
-> 
-> I don't speak for IBM or the authors, but there are perfectly
-> reasonable reasons to ask someone else to post a patch on your behalf
-> - including but not limited to to only being able to use Lotus Notes
-> with one's IBM email. I'm sure you've all seen the travesties that
-> Notes inflicts on inline patches.
-
-there are ways around that with webmail etc.
-
-The bigger issue is: if people can't be bothered to do those steps, why
-would they be bothered to do this for maintenance and bugfixes etc etc?
-Basically it's now already a de-facto unmaintained driver....
+On Saturday 18 February 2006 14:25, Christoph Hellwig wrote:
+> > - I need to lock the task_list
+> > 	- task_list lock export might be gone some day?
+>
+> yes.  in exactly half a year from now, and no new users are not allowed.
+So I'll have to remove all code that relies on the task_list. Is 
+proc_check_exe_fown() the only function that is affected by this?
+>
+> > 	- is locking tasklist when inside a softirq allowed?
+>
+> no.  for that reason we already removed a broken match from ipt_owner.
+Is there an alternative for locking the tasklist, and iterating through all 
+the threads to: find out the struct task*  given a struct fown_struct*. Or is 
+there any other way to find out the inode, and mountpoint of that process?
 
 
+Thanks,
+Edwin

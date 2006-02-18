@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWBRUPc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWBRUPG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932141AbWBRUPc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 15:15:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWBRUPc
+	id S932139AbWBRUPG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 15:15:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWBRUPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 15:15:32 -0500
-Received: from mx1.rowland.org ([192.131.102.7]:20228 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S932141AbWBRUPb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 15:15:31 -0500
-Date: Sat, 18 Feb 2006 15:15:28 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Patrick Mochel <mochel@digitalimplant.org>
-cc: Pavel Machek <pavel@suse.cz>, <akpm@osdl.org>, <torvalds@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       <linux-pm@osdl.org>
-Subject: Re: [linux-pm] [PATCH 2/5] [pm] Add state field to pm_message_t (to
- hold actual state device is in)
-In-Reply-To: <20060218155104.GD5658@openzaurus.ucw.cz>
-Message-ID: <Pine.LNX.4.44L0.0602181510510.4115-100000@netrider.rowland.org>
+	Sat, 18 Feb 2006 15:15:06 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:1324 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932139AbWBRUPF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 15:15:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=k9z0zKQZ1bsyX5drdCHzAVVh0ooGwupryUaDxvQ80q7ZsLU9XJ1CtHrDaKWu/qsgneX4vryPVMpAkyZ+TgmfraBCj1lTjxqONmx8wQMnaSHbO/yr5EvlYi1QoyhmhRGl4ZxbiGMBno1IOL9zGQcgp1Sgq3Yu4IPNa+JxiLMKsYw=
+Message-ID: <a36005b50602181215u73d73336m34f6a1cbbabd2236@mail.gmail.com>
+Date: Sat, 18 Feb 2006 12:15:03 -0800
+From: "Ulrich Drepper" <drepper@gmail.com>
+To: "Bernd Eckenfels" <be-news06@lina.inka.de>
+Subject: Re: How to find the CPU usage of a process
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E1FAXjn-0001V7-00@calista.inka.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <a36005b50602181055n454c446aoed83ea21baaf1a67@mail.gmail.com>
+	 <E1FAXjn-0001V7-00@calista.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Feb 2006, Pavel Machek wrote:
+On 2/18/06, Bernd Eckenfels <be-news06@lina.inka.de> wrote:
+> But thats only for yourself, right?
 
-> Hi!
-> 
-> 
-> > diff --git a/include/linux/pm.h b/include/linux/pm.h
-> > index 5be87ba..a7324ea 100644
-> > --- a/include/linux/pm.h
-> > +++ b/include/linux/pm.h
-> > @@ -140,6 +140,7 @@ struct device;
-> > 
-> >  typedef struct pm_message {
-> >  	int event;
-> > +	u32 state;
-> >  } pm_message_t;
-> 
-> We have had enough problems with u32s before... What about
-> char *, and pass real state names?
+In that abbreviated form, yes.
 
-Hear, hear!  Exactly what I was going to say.  Now that you want to add a 
-field describing an actual device state, make it meaningful.
+To get an arbitrary process' time use
 
-BTW, you might want to look here:
+  clockid_t cl;
+  clock_getcpuclockid(pid, &cl);
+  struct timespec ts;
+  clock_gettime(cl, &ts);
 
-http://lists.osdl.org/pipermail/linux-pm/2005-September/001422.html
-
-for an example of an early implementation of just this idea.  (I still 
-have the original patch file if you'd prefer to see it in plain text, 
-non-html format.)
-
-Alan Stern
-
+This is all documented in POSIX.

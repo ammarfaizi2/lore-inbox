@@ -1,33 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWBRWMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWBRWR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932242AbWBRWMc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 17:12:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWBRWMc
+	id S932209AbWBRWR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 17:17:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWBRWR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 17:12:32 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:58080 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932242AbWBRWMb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 17:12:31 -0500
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kbuild:
-References: <20060217214855.GA5563@mars.ravnborg.org>
-From: Andi Kleen <ak@suse.de>
-Date: 18 Feb 2006 23:12:28 +0100
-In-Reply-To: <20060217214855.GA5563@mars.ravnborg.org>
-Message-ID: <p73y80848qb.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 18 Feb 2006 17:17:28 -0500
+Received: from bay104-f18.bay104.hotmail.com ([65.54.175.28]:28297 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S932209AbWBRWR1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 17:17:27 -0500
+Message-ID: <BAY104-F1839F2D6FF3DAC247F1677C0F90@phx.gbl>
+X-Originating-IP: [137.207.140.83]
+X-Originating-Email: [kamrankarimi@hotmail.com]
+In-Reply-To: <36BEEFA2DF192944BF71E072F7A5F465228B92@xchange1.phage.bcgsc.ca>
+From: "Kamran Karimi" <kamrankarimi@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: DIPC alpha3 for 2.6.x kernels: Now works on a single computer
+Date: Sat, 18 Feb 2006 16:17:26 -0600
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 18 Feb 2006 22:17:26.0821 (UTC) FILETIME=[19926550:01C634D9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg <sam@ravnborg.org> writes:
+Hello everybody,
 
-> I have moved the functionality of reference_init + reference_discarded
-> to modpost to secure a much wider use of this check.
+DIPC (Distributed IPC) is a system software that provides distributed access
+to messages, semaphores, and shared memory segments. It can be used to
+transparently exchange data between distributed applications.
 
-How much does that slow the build down?
+As another step in porting DIPC to Linux 2.6.x, the example programmes in 
+2.1-alpha3 version of DIPC now work on a single machine (they haven't been 
+tried over a network). Please let me know of your experience if you 
+installed and tested DIPC, especially in a distributed environment.
 
--Andi
+You can download this version of DIPC from: 
+http://cs.uwindsor.ca/~kamran/downloads.html
+
+-Kamran
+
+

@@ -1,86 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWBRCDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWBRCDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWBRCDj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Feb 2006 21:03:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbWBRCDj
+	id S1750701AbWBRCDg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Feb 2006 21:03:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbWBRCDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Feb 2006 21:03:39 -0500
-Received: from digitalimplant.org ([64.62.235.95]:62403 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S1750706AbWBRCDi
+	Fri, 17 Feb 2006 21:03:36 -0500
+Received: from digitalimplant.org ([64.62.235.95]:59331 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S1750701AbWBRCDf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Feb 2006 21:03:38 -0500
-Date: Fri, 17 Feb 2006 18:03:30 -0800 (PST)
+	Fri, 17 Feb 2006 21:03:35 -0500
+Date: Fri, 17 Feb 2006 18:03:26 -0800 (PST)
 From: Patrick Mochel <mochel@digitalimplant.org>
 X-X-Sender: mochel@monsoon.he.net
 To: greg@kroah.com, "" <torvalds@osdl.org>, "" <akpm@osdl.org>
 cc: linux-kernel@vger.kernel.org, "" <linux-pm@osdl.org>
-Subject: [PATCH 1/5] [pm] Fix locking of device suspend/resume functions
-Message-ID: <Pine.LNX.4.50.0602171756520.30811-100000@monsoon.he.net>
+Subject: [PATCH 0/5] Fix device suspend/resume
+Message-ID: <Pine.LNX.4.50.0602171745410.30811-100000@monsoon.he.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch removes the unneeded down()/up() calls from
-suspend_device() and resume_device(). Those functions
-are already called under the dpm_sem, making this code
-unconditionally deadlock in SMP kernels.
+Hi there,
 
-Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+Following is a small series of patches to fix up the changes recently made
+to the runtime suspend/resume functionality.
 
----
+The sysfs interface was changed so that it dropped the actual state that
+the device was requested to enter. These patches add a state field to
+pm_message_t, so that the bus and device drivers can the use value written
+to the sysfs file to choose the proper state to enter.
 
- drivers/base/power/resume.c  |    3 ---
- drivers/base/power/suspend.c |    2 --
- 2 files changed, 0 insertions(+), 5 deletions(-)
+pci_choose_state() is fixed up to check for a non-zero value when the
+request is for a PM_EVENT_SUSPEND message and return the appropriate D
+state. This allows D1 and D2 to be used once again (though there are few
+drivers that currently support it). The BUG() is also converted to a more
+friendly WARN_ON(1) when an invalid state is entered.
 
-applies-to: 55ce8c6305fc70b1b544ce7365abd6054e9b5f61
-1bf4a2adaa1588c3d68038f56e1f7c9cb96a3af9
-diff --git a/drivers/base/power/resume.c b/drivers/base/power/resume.c
-index 317edbf..478e116 100644
---- a/drivers/base/power/resume.c
-+++ b/drivers/base/power/resume.c
-@@ -23,7 +23,6 @@ int resume_device(struct device * dev)
- {
- 	int error = 0;
+Finally, the device suspend/resume code is now liberated from an
+unconditional deadlock when SMP is enabled.
 
--	down(&dev->sem);
- 	if (dev->power.pm_parent
- 			&& dev->power.pm_parent->power.power_state.event) {
- 		dev_err(dev, "PM: resume from %d, parent %s still %d\n",
-@@ -35,12 +34,10 @@ int resume_device(struct device * dev)
- 		dev_dbg(dev,"resuming\n");
- 		error = dev->bus->resume(dev);
- 	}
--	up(&dev->sem);
- 	return error;
- }
+Please apply. Thanks,
 
 
--
- void dpm_resume(void)
- {
- 	down(&dpm_list_sem);
-diff --git a/drivers/base/power/suspend.c b/drivers/base/power/suspend.c
-index 8660779..a59158c 100644
---- a/drivers/base/power/suspend.c
-+++ b/drivers/base/power/suspend.c
-@@ -38,7 +38,6 @@ int suspend_device(struct device * dev,
- {
- 	int error = 0;
+	Pat
 
--	down(&dev->sem);
- 	if (dev->power.power_state.event) {
- 		dev_dbg(dev, "PM: suspend %d-->%d\n",
- 			dev->power.power_state.event, state.event);
-@@ -58,7 +57,6 @@ int suspend_device(struct device * dev,
- 		dev_dbg(dev, "suspending\n");
- 		error = dev->bus->suspend(dev, state);
- 	}
--	up(&dev->sem);
- 	return error;
- }
-
----
-0.99.9.GIT

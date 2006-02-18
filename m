@@ -1,48 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWBRWL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWBRWMc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbWBRWL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 17:11:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWBRWL2
+	id S932242AbWBRWMc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 17:12:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWBRWMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 17:11:28 -0500
-Received: from mx2.suse.de ([195.135.220.15]:51680 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932233AbWBRWL1 (ORCPT
+	Sat, 18 Feb 2006 17:12:32 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:58080 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932242AbWBRWMb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 17:11:27 -0500
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
+	Sat, 18 Feb 2006 17:12:31 -0500
+To: Sam Ravnborg <sam@ravnborg.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: oops during boot of 2.6.16-rc3-git7 on AMD64
-References: <43F6678C.5080001@gmx.net>
+Subject: Re: kbuild:
+References: <20060217214855.GA5563@mars.ravnborg.org>
 From: Andi Kleen <ak@suse.de>
-Date: 18 Feb 2006 23:11:23 +0100
-In-Reply-To: <43F6678C.5080001@gmx.net>
-Message-ID: <p734q2w5nck.fsf@verdi.suse.de>
+Date: 18 Feb 2006 23:12:28 +0100
+In-Reply-To: <20060217214855.GA5563@mars.ravnborg.org>
+Message-ID: <p73y80848qb.fsf@verdi.suse.de>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net> writes:
+Sam Ravnborg <sam@ravnborg.org> writes:
 
-> Hi,
-> 
-> vanilla 2.6.16-rc3-git7 gives me the following oops during boot (most
-> of the time while mounting all filesystems) on my amd64 machine:
-> 
-> (hand-written, no serial interface available)
-> Unable to handle kernel NULL pointer dereference at 00000008
-> rip: run_timer_softirq+322
-> process udev
-> Call trace:
-> __do_softirq+68
+> I have moved the functionality of reference_init + reference_discarded
+> to modpost to secure a much wider use of this check.
 
-
-
-Looks like someone is corrupting the timer list. Nasty. Can you do
-a binary search?
-
-Or alternatively remove as many drivers as possible and narrow down
-which one is to blame.
+How much does that slow the build down?
 
 -Andi

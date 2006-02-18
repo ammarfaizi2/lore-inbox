@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWBRXfT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWBRXlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbWBRXfT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 18:35:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWBRXfT
+	id S932318AbWBRXlV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 18:41:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWBRXlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 18:35:19 -0500
-Received: from 69-172-25-214.clvdoh.adelphia.net ([69.172.25.214]:8675 "EHLO
-	ever.mine.nu") by vger.kernel.org with ESMTP id S932286AbWBRXfT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 18:35:19 -0500
-Date: Sat, 18 Feb 2006 18:35:15 -0500
-Message-Id: <200602182335.k1INZFoi012487@rhodes.mine.nu>
-To: petero2@telia.com
-CC: linux-kernel@vger.kernel.org
-From: linuxer@ever.mine.nu
-In-reply-to: <m3r760cntz.fsf@telia.com> (message from Peter Osterlund on 18
-	Feb 2006 23:19:04 +0100)
-Subject: Re: pktcdvd DVD+RW always writes at max drive speed (not media speed)
-References: <200602182023.k1IKNNuI012372@rhodes.mine.nu> <m3r760cntz.fsf@telia.com>
+	Sat, 18 Feb 2006 18:41:21 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:25612 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932318AbWBRXlV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 18:41:21 -0500
+Date: Sun, 19 Feb 2006 00:41:03 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kbuild:
+Message-ID: <20060218234103.GA9091@mars.ravnborg.org>
+References: <20060217214855.GA5563@mars.ravnborg.org> <p73y80848qb.fsf@verdi.suse.de> <20060218223835.GA21068@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060218223835.GA21068@mars.ravnborg.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Feb 18, 2006 at 11:38:36PM +0100, Sam Ravnborg wrote:
+> On Sat, Feb 18, 2006 at 11:12:28PM +0100, Andi Kleen wrote:
+> > Sam Ravnborg <sam@ravnborg.org> writes:
+> > 
+> > > I have moved the functionality of reference_init + reference_discarded
+> > > to modpost to secure a much wider use of this check.
+> > 
+> > How much does that slow the build down?
+> It obviously depends on number of modules / size of vmlinux.
+> With x86_64 and defconfig + all oss drivers configured as modules the
+> modpost stage takes around 0.2 sec in total. So this is down in the
+> noise level. Building allmodconfig kernel atm and if I see > 2 sec
+> difference with and without the check I will do a follow-up post.
+> 
+> Obviously the more modules with problems the longer time. So I will
+> skip the warning messages in the measurements since I assume they will
+> be taken care of.
 
-Peter Osterlund <petero2@telia.com> writes:
-  > 
-  > linuxer@ever.mine.nu writes:
-  > 
-  > > In drivers/block/pktcdvd.c it appears that in the case of DVD
-  > > rewriting, pkt_open_write always sets the write speed to pkt_get_max_speed
-  > > (the maximum writing speed reported by the drive). 
-  > > 
-  > > In my case, I have a new drive capable of 8x re-writing. However, all of
-  > > my existing media is rated for only 4x rewrite speed. 
-  > > 
-  > > When attempting to rw mount these disks, pktcdvd reports:
-  > > 
-  > > Feb 18 00:09:52 ever kernel: pktcdvd: write speed 11080kB/s
-  > > Feb 18 00:09:54 ever kernel: pktcdvd: 54 01 00 00 00 00 00 00 00 00 00 00 -
-  > > sense 00.54.9c (No sense)
-  > > Feb 18 00:09:54 ever kernel: pktcdvd: pktcdvd0 Optimum Power Calibration failed
-  > > 
-  > > And then of course a huge heap of I/O errors on the disk. 
-  > 
-  > Have you verified that this is caused by the speed setting, ie does it
-  > work correctly if you hack the driver to write at 4x speed?
-  > 
+Have figures for an allmodconfig now - this is a bit more than 1500
+modules.
+Running modpost alone takes 8,1 seconds without the checks and 8,9
+seconds with the checks enabled (output disabled).
 
-Correct. Adding a hard-coded manual setting of write_speed = 5540 to
-pkt_open_write results in functional operation (at least with 4x rated
-DVD+RW media).
+Considering that a a make allmodconfig with no updates takes
+roughly 33 seconds the added overhead of 0,8 seconds is acceptable.
 
-Obviously, this particular drive is perfectly happy to try to write at over
-the rated media speed if it is asked to. I can't fault the manufacturer for
-this, for I generally like the idea of letting the user decide instead of
-imposing hardware/firmware fixed limits. 
+	Sam

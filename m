@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWBSGeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWBSGrG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751045AbWBSGeK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 01:34:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbWBSGeJ
+	id S1751077AbWBSGrG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 01:47:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWBSGrG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 01:34:09 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:47749 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751045AbWBSGeI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 01:34:08 -0500
-Date: Sat, 18 Feb 2006 22:32:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: stern@rowland.harvard.edu, pavel@suse.cz, torvalds@osdl.org,
-       mrmacman_g4@mac.com, alon.barlev@gmail.com,
-       linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org
-Subject: Re: Flames over -- Re: Which is simpler?
-Message-Id: <20060218223221.6df891d3.akpm@osdl.org>
-In-Reply-To: <43F80A06.2090209@cfl.rr.com>
-References: <20060217210445.GR3490@openzaurus.ucw.cz>
-	<Pine.LNX.4.44L0.0602181531290.4115-100000@netrider.rowland.org>
-	<20060218160242.7d2b5754.akpm@osdl.org>
-	<43F80A06.2090209@cfl.rr.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 19 Feb 2006 01:47:06 -0500
+Received: from 69-172-25-214.clvdoh.adelphia.net ([69.172.25.214]:45811 "EHLO
+	ever.mine.nu") by vger.kernel.org with ESMTP id S1751077AbWBSGrE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 01:47:04 -0500
+Date: Sun, 19 Feb 2006 01:46:49 -0500
+Message-Id: <200602190646.k1J6knG8012818@rhodes.mine.nu>
+To: psusi@cfl.rr.com
+CC: linux-kernel@vger.kernel.org
+From: linuxer@ever.mine.nu
+In-reply-to: <43F80C15.4090409@cfl.rr.com> (message from Phillip Susi on Sun,
+	19 Feb 2006 01:11:33 -0500)
+Subject: Re: pktcdvd DVD+RW always writes at max drive speed (not media speed)
+References: <200602182023.k1IKNNuI012372@rhodes.mine.nu> <43F80C15.4090409@cfl.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Phillip Susi <psusi@cfl.rr.com> wrote:
->
-> > But I suspect we could do an even better job if we did that in userspace.
->  > 
->  > The logic to determine whether the new device is the same as the old device
->  > can be arbitrarily complex, with increasing levels of success.  Various
->  > heuristics can be applied, some of which will involve knowledge of
->  > filesystem layout, etc.
->  > 
->  > So would it not be possible to optionally punt the device naming decision
->  > up to the hotplug scripts?  So code up there can go do direct-IO reads of
->  > the newly-present blockdev, use filesytem layout knowledge, peek at UUIDs,
->  > superblocks, disk labels, partition tables, inode numbering, etc?  Go look
->  > up a database, work out what that filesystem was doing last time we saw it,
->  > etc?
->  > 
->  > We could of course add things to the filesystems to help this process, but
->  > it'd be good if all the state tracking and magic didn't have to be locked
->  > up in the kernel.
-> 
-> 
->  Hrm... interesting but sounds like that could be sticky.  For instance, 
->  what if the user script that does the verifying happens to be ON the 
->  volume to be verified?
 
-Well that would be a bug.  Solutions would be a) don't put the scripts on a
-removable/power-downable device or b) use tmpfs.
+  > 
+  > I thought that the code asked the drive for the max supported speed _for 
+  > the loaded media_.  I know I've been using pktcdvd without problem on 
+  > cdrw media that is only rated for 4x on drives that support 12x or 16x, 
+  > and based on the performance I've been seeing, it is only burning at 4x. 
+  >   Maybe your drive isn't reporting properly?
+  > 
+
+As I stated clearly before, I am having this problem with DVD+RW media. The
+relevant code in pktcdvd.c (in function pkt_open_write) is:
+
+	if ((ret = pkt_get_max_speed(pd, &write_speed)))
+		write_speed = 16 * 177;
+	switch (pd->mmc3_profile) {
+		case 0x13: /* DVD-RW */
+		case 0x1a: /* DVD+RW */
+		case 0x12: /* DVD-RAM */
+			DPRINTK("pktcdvd: write speed %ukB/s\n", write_speed);
+			break;
+		default:
+			if ((ret = pkt_media_speed(pd, &media_write_speed)))
+				media_write_speed = 16;
+			write_speed = min(write_speed, media_write_speed * 177);
+			DPRINTK("pktcdvd: write speed %ux\n", write_speed / 176);
+			break;
+	}
+	read_speed = write_speed;
+
+	if ((ret = pkt_set_speed(pd, write_speed, read_speed))) {
+		DPRINTK("pktcdvd: %s couldn't set write speed\n", pd->name);
+		return -EIO;
+	}
+
+As you can see, in the case of DVD+RW, the speed is set to the value stored
+to write_speed by the function pkt_get_max_speed, whose documented purpose
+(according to comments) is to return the drives reported maximum rewrite
+speed capability. pkt_media_speed is only called in the case of CD-RW's. In
+fact, it returns an error if the media is not CD-RW.
+

@@ -1,45 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWBSI3Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbWBSI4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWBSI3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 03:29:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWBSI3Y
+	id S932374AbWBSI4p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 03:56:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWBSI4o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 03:29:24 -0500
-Received: from c-66-31-106-233.hsd1.ma.comcast.net ([66.31.106.233]:47330 "EHLO
-	nwo.kernelslacker.org") by vger.kernel.org with ESMTP
-	id S1751204AbWBSI3Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 03:29:24 -0500
-Date: Sun, 19 Feb 2006 03:29:16 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: don't bother users with unimportant messages.
-Message-ID: <20060219082916.GA19903@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060219010910.GA18841@redhat.com> <20060219081523.GA9668@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	Sun, 19 Feb 2006 03:56:44 -0500
+Received: from fed1rmmtao12.cox.net ([68.230.241.27]:14546 "EHLO
+	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
+	id S932364AbWBSI4o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 03:56:44 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: [ANNOUNCE] GIT 1.2.2
+cc: linux-kernel@vger.kernel.org
+Date: Sun, 19 Feb 2006 00:56:42 -0800
+Message-ID: <7v4q2vload.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060219081523.GA9668@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 19, 2006 at 08:15:23AM +0000, Russell King wrote:
- > On Sat, Feb 18, 2006 at 08:09:10PM -0500, Dave Jones wrote:
- > > When users see these printed to the console, they think
- > > something is wrong.  As it's just informational and something
- > > that only developers care about, lower the printk level.
- > 
- > If you're getting complaints about this, wouldn't it be better to
- > forward them here so that they can be fixed up?
+The latest maintenance release GIT 1.2.2 is available at the
+usual places:
 
-w83627hf, and probably other drivers from drivers/hwmon/
+	http://www.kernel.org/pub/software/scm/git/
 
- > The thing about this particular message is that if you see it, the
- > driver will _not_ work properly, so it's actually more than a
- > "debugging" message.  It's telling you why driver FOO doesn't work.
+	git-1.2.2.tar.{gz,bz2}			(tarball)
+	RPMS/$arch/git-*-1.2.2-1.$arch.rpm	(RPM)
 
-I'm pretty certain this driver _was_ working fine before this change.
+Carl Worth fixed a longstanding annoyance of failed clone
+leaving a half-built cloned directory.  Contributions from
+people new to the list are much appreciated.  Long timers have
+just leaned to live with these inconveniences, but I expect such
+rough edges will be rounded out quickly as we gain more wider
+user base.
 
-		Dave
+The much talked about pack performance enhancement is not in
+this release.  In principle, 1.2.X series are supposed to be
+bugfix only, so I can justifiably be lazy and keep things that
+way, but we _could_ argue that the old pack-object had a
+performance bug ;-).  
+
+We will decide what to do after it hits the master branch.  I
+think pack-object is important enough to be conservative about,
+but at the same time its performance is veriy critical for the
+public git server, so as it proves stable we probably would want
+to have it on kernel.org.
+
+----------------------------------------------------------------
+
+Changes since v1.2.1 are as follows:
+
+Carl Worth:
+      Trap exit to clean up created directory if clone fails.
+      Abstract test_create_repo out for use in tests.
+      Prevent git-upload-pack segfault if object cannot be found
+
+Eric Wong:
+      archimport: remove files from the index before adding/updating
+
+Jonas Fonseca:
+      git-rev-parse: Fix --short= option parsing
+      Document --short and --git-dir in git-rev-parse(1)
+
+Martin Mares:
+      Fix retries in git-cvsimport
+
+Shawn Pearce:
+      Make git-reset delete empty directories
+
+

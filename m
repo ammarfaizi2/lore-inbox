@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWBSXEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWBSXX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751136AbWBSXEp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 18:04:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWBSXEp
+	id S932283AbWBSXX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 18:23:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbWBSXX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 18:04:45 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:40385 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751136AbWBSXEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 18:04:45 -0500
+	Sun, 19 Feb 2006 18:23:26 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.7]:25103 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S932283AbWBSXXZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 18:23:25 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Lee Revell <rlrevell@joe-job.com>
 Subject: Re: No sound from SB live!
-From: Lee Revell <rlrevell@joe-job.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Nishanth Aravamudan <nacc@us.ibm.com>, Nick Warne <nick@linicks.net>,
-       Jesper Juhl <jesper.juhl@gmail.com>, tiwai@suse.de, ghrt@dial.kappa.ro,
-       perex@suse.cz, kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1140388095.2733.406.camel@mindpipe>
-References: <20060218231419.GA3219@elf.ucw.cz>
-	 <9a8748490602190304w43c32ae6m5b610f2ec9ad46f2@mail.gmail.com>
-	 <7c3341450602190318o1c60e9b5w@mail.gmail.com>
-	 <20060219205157.GA5976@us.ibm.com> <1140384638.2733.389.camel@mindpipe>
-	 <20060219214934.GO15311@elf.ucw.cz> <1140386075.2733.399.camel@mindpipe>
-	 <20060219222533.GB15608@elf.ucw.cz>  <1140388095.2733.406.camel@mindpipe>
-Content-Type: text/plain
-Date: Sun, 19 Feb 2006 18:04:40 -0500
-Message-Id: <1140390280.2733.421.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.91 
+Date: Sun, 19 Feb 2006 23:23:08 +0000
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@suse.cz>, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Nick Warne <nick@linicks.net>, Jesper Juhl <jesper.juhl@gmail.com>,
+       tiwai@suse.de, ghrt@dial.kappa.ro, perex@suse.cz,
+       kernel list <linux-kernel@vger.kernel.org>
+References: <20060218231419.GA3219@elf.ucw.cz> <20060219214702.GM15311@elf.ucw.cz> <1140385837.2733.394.camel@mindpipe>
+In-Reply-To: <1140385837.2733.394.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602192323.08169.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-19 at 17:28 -0500, Lee Revell wrote:
-> On Sun, 2006-02-19 at 23:25 +0100, Pavel Machek wrote:
-> > I'm using static /dev... snddevices script indeed fixed that, but it
-> > still does not work. (Is earphone in green connector enough?)
-> > 
-> 
-> No idea.  There are like 50 varieties of this card.
-> 
-> > Ouch and that device should be still listed in devices.txt, no? 
-> 
-> Probably...
+On Sunday 19 February 2006 21:50, Lee Revell wrote:
+> On Sun, 2006-02-19 at 22:47 +0100, Pavel Machek wrote:
+> > On Ne 19-02-06 16:30:37, Lee Revell wrote:
+> > > On Sun, 2006-02-19 at 12:51 -0800, Nishanth Aravamudan wrote:
+> > > > I run Ubuntu Breezy, which has:
+> > > >
+> > > > alsa-utils = 1.0.9a-4ubuntu5
+> > >
+> > > The alsa-utils version should not matter, it's alsa-lib that must be
+> > > kept in sync with the ALSA version in the kernel.
+> >
+> > Ugh, not a good news.
+>
+> This has been the case for ages (distros still get it wrong).  It is not
+> an ideal situation.
+>
+> >  How do I tell if my alsa libs are recent enough?
+>
+> 1.0.10 should be OK
 
-Hmm, OK - try *reverting* the emu10k1 fix that was in 2.6.15.4.  This
-was needed to get sound on some newer SBLive! varieties but may have
-broken yours.  Typical...
+I'm still using 1.0.9 on 2.6.16-rc4 with no problems, Audigy 2 (one that uses 
+emu10k1).
 
-Lee
+-- 
+Cheers,
+Alistair.
 
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

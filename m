@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWBSS1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWBSShs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbWBSS1w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 13:27:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWBSS1w
+	id S932191AbWBSShs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 13:37:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWBSShs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 13:27:52 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:38796 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932170AbWBSS1v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 13:27:51 -0500
-Date: Sun, 19 Feb 2006 10:27:27 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: cat@zip.com.au, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, wolfgang@iksw-muees.de,
-       martinmaurer@gmx.at, zaitcev@redhat.com
-Subject: Re: [linux-usb-devel] Re: 2.6.15: usb storage device not detected
-Message-Id: <20060219102727.32523b69.zaitcev@redhat.com>
-In-Reply-To: <Pine.LNX.4.44L0.0602191113430.9165-100000@netrider.rowland.org>
-References: <20060218224924.737bd36b.zaitcev@redhat.com>
-	<Pine.LNX.4.44L0.0602191113430.9165-100000@netrider.rowland.org>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.12; i386-redhat-linux-gnu)
+	Sun, 19 Feb 2006 13:37:48 -0500
+Received: from c-66-31-106-233.hsd1.ma.comcast.net ([66.31.106.233]:40864 "EHLO
+	nwo.kernelslacker.org") by vger.kernel.org with ESMTP
+	id S932191AbWBSShr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 13:37:47 -0500
+Date: Sun, 19 Feb 2006 13:37:25 -0500
+From: Dave Jones <davej@redhat.com>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: don't bother users with unimportant messages.
+Message-ID: <20060219183725.GC32492@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060219010910.GA18841@redhat.com> <20060219081523.GA9668@flint.arm.linux.org.uk> <20060219082916.GA19903@redhat.com> <20060219175745.GB2674@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060219175745.GB2674@kroah.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Feb 2006 11:14:57 -0500 (EST), Alan Stern <stern@rowland.harvard.edu> wrote:
+On Sun, Feb 19, 2006 at 09:57:45AM -0800, Greg Kroah-Hartman wrote:
 
-> Perhaps the device doesn't like the way you do GetMaxLUN after doing TEST 
-> UNIT READY.
+ > >  > If you're getting complaints about this, wouldn't it be better to
+ > >  > forward them here so that they can be fixed up?
+ > > 
+ > > w83627hf, and probably other drivers from drivers/hwmon/
+ > 
+ > With 2.6.16-rc4?  I thought I just sent a patch in for -rc3 to fix this.
 
-Quite possible. However, CaT is not a ub user normally, so we may never know.
-Also, it leaves Martin's K7S5A. It seems that it may be easier to have the
-old ZIP-100 locked to usb-storage with libusual. I am also concerned that
-the old ZIP may require a manual spin-up, which ub does not do (my drive
-spins up automatically).
+Yep, user was running an older kernel.
+Much ado about nothing..
 
--- Pete
+Thanks,
+
+		Dave
+

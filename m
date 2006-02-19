@@ -1,86 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWBSHOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWBSHlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbWBSHOO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 02:14:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWBSHOO
+	id S932144AbWBSHlm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 02:41:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWBSHlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 02:14:14 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:23136 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S1751171AbWBSHON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 02:14:13 -0500
-Date: Sun, 19 Feb 2006 08:14:15 +0100
-From: Sander <sander@humilis.net>
-To: Mark Lord <lkml@rtr.ca>
-Cc: sander@humilis.net, Jeff Garzik <jgarzik@pobox.com>,
-       Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>
-Subject: Re: LibPATA code issues / 2.6.15.4
-Message-ID: <20060219071414.GA31299@favonius>
-Reply-To: sander@humilis.net
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F1EE4A.3050107@rtr.ca> <43F58D29.3040608@pobox.com> <200602170959.40286.lkml@rtr.ca> <20060218204340.GA2984@favonius> <43F794D8.7000406@rtr.ca>
+	Sun, 19 Feb 2006 02:41:42 -0500
+Received: from zproxy.gmail.com ([64.233.162.204]:1562 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932144AbWBSHll convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 02:41:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ZcytyEZS9BYcQuGjR3iWHBxV72XJgWSifo5TG4RSPCBG1dKylplUYNU9LtkPNlw33WPxIZKCVpUv29lirN5n/jqkD01mby2idNTuUaDhHi1issqZWKBG2Lro9aKpOWtWzZzpl3fB+pHM1DR5tcfznU7+56/wTYUNWwy1aNzxeyY=
+Message-ID: <5a2cf1f60602182341i50098d4av365a8caf96b272df@mail.gmail.com>
+Date: Sun, 19 Feb 2006 08:41:41 +0100
+From: "jerome lacoste" <jerome.lacoste@gmail.com>
+To: "Brian Hall" <brihall@pcisys.net>
+Subject: Re: Help: DGE-560T not recognized by Linux
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060218195512.6bed967b.brihall@pcisys.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <43F794D8.7000406@rtr.ca>
-X-Uptime: 07:46:36 up 18 days, 23:28, 28 users,  load average: 3.22, 2.73, 2.52
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <20060217222720.a08a2bc1.brihall@pcisys.net>
+	 <20060217222428.3cf33f25.akpm@osdl.org>
+	 <20060218003622.30a2b501.brihall@pcisys.net>
+	 <20060217234841.5f2030ec.akpm@osdl.org>
+	 <20060218195512.6bed967b.brihall@pcisys.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote (ao):
-> Sander wrote:
-> >Mark Lord wrote (ao):
-> >>On Friday 17 February 2006 03:45, Jeff Garzik wrote:
-> >>>Submit a patch... 
-> >>You mean, something like this one?
-> ...
-> >[  633.449961] md: md1: sync done.
-> >[  633.456070] RAID5 conf printout:
-> >[  633.456117]  --- rd:9 wd:9 fd:0
-> ...
-> >[ 1872.338185] ata6: translated op=0x2a ATA stat/err 0xd0/00 to SCSI 
-> >SK/ASC/ASCQ 0xb/47/00
-> >[ 1872.338239] ata6: status=0xd0 { Busy }
-> >[ 5749.285084] ata8: translated op=0x2a ATA stat/err 0xd0/00 to SCSI 
-> >SK/ASC/ASCQ 0xb/47/00
-> >[ 5749.285138] ata8: status=0xd0 { Busy }
-> >[ 5906.008461] ata6: translated op=0x2a ATA stat/err 0xd0/00 to SCSI 
-> >SK/ASC/ASCQ 0xb/47/00
-> >[ 5906.008515] ata6: status=0xd0 { Busy }
-> ...
-> >This is with 2.6.16-rc3, your patch, and running nine Maxtors disks
-> >over onboard nForce4 and MV88SX6081 8-port SATA II PCI-X Controller (rev 
-> >09).
-> >
-> >for i in `seq 10`
-> >do dd if=/dev/zero of=bigfile.$i bs=1024k count=10000
-> >done
-> >md5sum bigfile.*
-> >
-> >The errors mostly seem to happen during the md5sum (not during the dd).
-> 
-> SCSI opcode 0x2a is WRITE_10, so the errors are being reported
-> in response to the writes to bigfile.$i.
+On 2/19/06, Brian Hall <brihall@pcisys.net> wrote:
+> For the benefit of anyone searching later:
+>
+> The problem was the current linux Marvell drivers (2.6.15/16rc4) not
+> detecting my Dlink card. After trying and failing to compile with the
+> linux driver (2.6.13-based) supplied on the retail CD (suprised, didn't
+> even think to look there at first!), I went to the Marvell site
+> directly and downloaded their version of the sk98lin driver, which
+> comes with a script to create a patch against whatever your current
+> linux version is in /usr/src/linux. That was found at:
+>
+> http://www.marvell.com/drivers/driverDisplay.do?dId=107&pId=10
 
-Ah, my bad then.
+Interesting. First time I see a vendor distribute a GPL kernel source
+patch. It could be interesting to diff this with what is in the
+current kernel.
 
-> But these are different from the previously reported error status
-> values -- I wonder why it's getting "Busy" back as a status here ??
-
-Well, as I wrote, I am not the original reporter whoms thread you
-responded to with your patch. I just thought I could use it to get
-better errors messages for my bug reports.
-
-I am using the sata_mv driver, which is beta. That might explain why it
-behaves not totally as expected in your eyes. I have no clue anyway :-)
-
-I hope my reports are of any use to Jeff wrt the sata_mv driver.
-
-Thank you for your response.
-
-	Sander
-
--- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+J

@@ -1,127 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWBSRkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWBSRk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932169AbWBSRkB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 12:40:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWBSRkB
+	id S932164AbWBSRk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 12:40:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWBSRk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 12:40:01 -0500
-Received: from ns1.suse.de ([195.135.220.2]:34506 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932169AbWBSRkA (ORCPT
+	Sun, 19 Feb 2006 12:40:27 -0500
+Received: from smtpout07-01.prod.mesa1.secureserver.net ([64.202.165.230]:50338
+	"HELO smtpout07-04.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S932164AbWBSRkZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 12:40:00 -0500
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SUSE LINUX Products GMBH
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] Modules with old-style parameters won't load
-Date: Sun, 19 Feb 2006 18:39:59 +0100
+	Sun, 19 Feb 2006 12:40:25 -0500
+From: hackmiester / Hunter Fuller <hackmiester@hackmiester.com>
+Reply-To: hackmiester@hackmiester.com
+Organization: hackmiester.com, Ltd.
+To: Rob Slifkin <rob@slifkin.net>, linux-kernel@vger.kernel.org
+Subject: Re: contact linus
+Date: Sun, 19 Feb 2006 11:40:03 -0600
 User-Agent: KMail/1.8
+References: <B1230493D2E7D31189C40050DA7BC2B42B3A28@LDSDATA>
+In-Reply-To: <B1230493D2E7D31189C40050DA7BC2B42B3A28@LDSDATA>
+X-Face: #pm4uI.4%U/S1i<i'(UPkahbf^inZ;WOH{EKM,<n/P;R5m8#`2&`HN`hB;ht_>=?utf-8?q?oJYRGD3o=0A=09?=)AM
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_v1K+DNWidvZjCQ1"
-Message-Id: <200602191839.59667.agruen@suse.de>
+Content-Type: multipart/signed;
+  boundary="nextPart1402563.H2VmySmaPm";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200602191140.06483.hackmiester@hackmiester.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_v1K+DNWidvZjCQ1
+--nextPart1402563.H2VmySmaPm
 Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-Modules may define static variables as old-style MODULE_PARM() parameters. If
-those variables are not actually used the compiler may optimize them out,
-which currently leads to a `module: falsely claims to have parameter param'
-error, and the module won't load.
+On Saturday 18 February 2006 17:06, Rob Slifkin wrote:
+> is there any particular reason Linus doesn't answer email sent to
+> torvalds@osdl.org
+Probably because he is a very busy man.
+>
+> sorry for the disturbance
+>
+> -rob
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Just ignore old-style parameter definitions for parameters that aren't 
-actually there.
+=2D-=20
+=2D-hackmiester
+If you can read this, you don't need glasses.
 
-Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+--nextPart1402563.H2VmySmaPm
+Content-Type: application/pgp-signature
 
----
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-Note: currently the CONFIG_OBSOLETE_MODPARM option is hardwired to y. I don't 
-know when old-style module parameters are expected to go away, but until then 
-we should make sure that they actually work.
+iD8DBQBD+K123ApzN91C7BcRAs9iAJ4tG/JA1RZ286xv9fsL72kep1ZlxACgxMYf
+nzO6nPVAIdX2ViLIy3Bigh0=
+=Yzo/
+-----END PGP SIGNATURE-----
 
-Andreas
-
-Index: linux-2.6.15/kernel/module.c
-===================================================================
---- linux-2.6.15.orig/kernel/module.c
-+++ linux-2.6.15/kernel/module.c
-@@ -763,6 +763,10 @@ static int set_obsolete(const char *val,
- 		max = simple_strtol(p, &endp, 10);
- 	} else
- 		max = min;
-+	if (!obsparm->addr) {
-+		/* Assume the compiler optimized out an unused parameter. */
-+		return 0;
-+	}
- 	switch (*endp) {
- 	case 'b':
- 		return param_array(kp->name, val, min, max, obsparm->addr,
-@@ -834,12 +838,6 @@ static int obsolete_params(const char *n
- 		obsparm[i].addr
- 			= (void *)find_local_symbol(sechdrs, symindex, strtab,
- 						    sym_name);
--		if (!obsparm[i].addr) {
--			printk("%s: falsely claims to have parameter %s\n",
--			       name, obsparm[i].name);
--			ret = -EINVAL;
--			goto out;
--		}
- 		kp[i].arg = &obsparm[i];
- 	}
-
---Boundary-00=_v1K+DNWidvZjCQ1
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="module-obsparm.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="module-obsparm.diff"
-
-From: Andreas Gruenbacher <agruen@suse.de>
-Subject: Modules with old-style parameters won't load
-References: 148245
-
-Modules may define static variables as old-style MODULE_PARM()
-parameters. If those variables are not actually used, the compiler
-may optimize them out, which currently leads to a `module: falsely
-claims to have parameter param' error, and the module won't load.
-Just ignore parameter definitions for parameters that aren't
-actually there.
-
-Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
-
-Index: linux-2.6.15/kernel/module.c
-===================================================================
---- linux-2.6.15.orig/kernel/module.c
-+++ linux-2.6.15/kernel/module.c
-@@ -763,6 +763,10 @@ static int set_obsolete(const char *val,
- 		max = simple_strtol(p, &endp, 10);
- 	} else
- 		max = min;
-+	if (!obsparm->addr) {
-+		/* Assume the compiler optimized out an unused parameter. */
-+		return 0;
-+	}
- 	switch (*endp) {
- 	case 'b':
- 		return param_array(kp->name, val, min, max, obsparm->addr,
-@@ -834,12 +838,6 @@ static int obsolete_params(const char *n
- 		obsparm[i].addr
- 			= (void *)find_local_symbol(sechdrs, symindex, strtab,
- 						    sym_name);
--		if (!obsparm[i].addr) {
--			printk("%s: falsely claims to have parameter %s\n",
--			       name, obsparm[i].name);
--			ret = -EINVAL;
--			goto out;
--		}
- 		kp[i].arg = &obsparm[i];
- 	}
- 
-
---Boundary-00=_v1K+DNWidvZjCQ1--
+--nextPart1402563.H2VmySmaPm--

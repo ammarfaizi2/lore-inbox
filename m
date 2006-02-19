@@ -1,263 +1,192 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbWBSXfG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWBSXf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932441AbWBSXfG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 18:35:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWBSXer
+	id S932443AbWBSXf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 18:35:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWBSXf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 18:34:47 -0500
-Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:5058 "EHLO
-	linux") by vger.kernel.org with ESMTP id S932413AbWBSXeo (ORCPT
+	Sun, 19 Feb 2006 18:35:28 -0500
+Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:4034 "EHLO
+	linux") by vger.kernel.org with ESMTP id S932419AbWBSXep (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 18:34:44 -0500
-Message-Id: <20060219232211.761694000@towertech.it>
+	Sun, 19 Feb 2006 18:34:45 -0500
+Message-Id: <20060219232212.253270000@towertech.it>
 References: <20060219232211.368740000@towertech.it>
 User-Agent: quilt/0.43-1
-Date: Mon, 20 Feb 2006 00:22:13 +0100
+Date: Mon, 20 Feb 2006 00:22:15 +0100
 From: Alessandro Zummo <a.zummo@towertech.it>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 02/11] RTC subsystem, ARM cleanup
-Content-Disposition: inline; filename=rtc-arm-cleanup.patch
+Subject: [PATCH 04/11] RTC subsystem, sysfs interface
+Content-Disposition: inline; filename=rtc-intf-sysfs.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes from the ARM subsytem some of the
-rtc-related functions that have been included in
-the RTC subsystem.
+This patch adds the sysfs interface to the
+RTC subsystem.
 
-ARM Kconfig is modified to include the RTC subsystem.
+Each RTC client will have his own entry
+under /sys/classs/rtc/rtcN .
+
+Within this entry some attributes are
+exported by the subsystem, like date and time.
 
 Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
 --
 
- arch/arm/Kconfig          |    2 
- arch/arm/common/rtctime.c |  107 +++++-----------------------------------------
- drivers/char/Kconfig      |    2 
- include/asm-arm/rtc.h     |    3 -
- 4 files changed, 15 insertions(+), 99 deletions(-)
+ drivers/rtc/Kconfig     |   11 ++++
+ drivers/rtc/Makefile    |    2 
+ drivers/rtc/rtc-sysfs.c |  120 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 132 insertions(+), 1 deletion(-)
 
---- linux-rtc.orig/arch/arm/Kconfig	2006-02-13 19:34:30.000000000 +0100
-+++ linux-rtc/arch/arm/Kconfig	2006-02-13 19:35:30.000000000 +0100
-@@ -817,6 +817,8 @@ source "drivers/usb/Kconfig"
- 
- source "drivers/mmc/Kconfig"
- 
-+source "drivers/rtc/Kconfig"
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-rtc/drivers/rtc/rtc-sysfs.c	2006-02-19 23:49:10.000000000 +0100
+@@ -0,0 +1,120 @@
++/*
++ * RTC subsystem, sysfs interface
++ *
++ * Copyright (C) 2005 Tower Technologies
++ * Author: Alessandro Zummo <a.zummo@towertech.it>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; version 2 of the License.
++*/
 +
- endmenu
++#include <linux/module.h>
++#include <linux/rtc.h>
++
++/* device attributes */
++
++static ssize_t rtc_sysfs_show_name(struct class_device *dev, char *buf)
++{
++	return sprintf(buf, "%s\n", to_rtc_device(dev)->name);
++}
++static CLASS_DEVICE_ATTR(name, S_IRUGO, rtc_sysfs_show_name, NULL);
++
++static ssize_t rtc_sysfs_show_date(struct class_device *dev, char *buf)
++{
++	ssize_t retval;
++	struct rtc_time tm;
++
++	if ((retval = rtc_read_time(dev, &tm)) == 0) {
++		retval = sprintf(buf, "%04d-%02d-%02d\n",
++			tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
++	}
++
++	return retval;
++}
++static CLASS_DEVICE_ATTR(date, S_IRUGO, rtc_sysfs_show_date, NULL);
++
++static ssize_t rtc_sysfs_show_time(struct class_device *dev, char *buf)
++{
++	ssize_t retval;
++	struct rtc_time tm;
++
++	if ((retval = rtc_read_time(dev, &tm)) == 0) {
++		retval = sprintf(buf, "%02d:%02d:%02d\n",
++			tm.tm_hour, tm.tm_min, tm.tm_sec);
++	}
++
++	return retval;
++}
++static CLASS_DEVICE_ATTR(time, S_IRUGO, rtc_sysfs_show_time, NULL);
++
++static ssize_t rtc_sysfs_show_since_epoch(struct class_device *dev, char *buf)
++{
++	ssize_t retval;
++	struct rtc_time tm;
++
++	if ((retval = rtc_read_time(dev, &tm)) == 0) {
++		unsigned long time;
++		rtc_tm_to_time(&tm, &time);
++		retval = sprintf(buf, "%lu\n", time);
++	}
++
++	return retval;
++}
++static CLASS_DEVICE_ATTR(since_epoch, S_IRUGO, rtc_sysfs_show_since_epoch, NULL);
++
++static struct attribute *rtc_attrs[] = {
++        &class_device_attr_name.attr,
++        &class_device_attr_date.attr,
++        &class_device_attr_time.attr,
++        &class_device_attr_since_epoch.attr,
++        NULL,
++};
++
++static struct attribute_group rtc_attr_group = {
++        .attrs  = rtc_attrs,
++};
++
++static int __devinit rtc_sysfs_add_device(struct class_device *class_dev,
++					   struct class_interface *class_intf)
++{
++	int err;
++
++	dev_info(class_dev->dev, "rtc intf: sysfs\n");
++
++	if ((err = sysfs_create_group(&class_dev->kobj, &rtc_attr_group)) != 0)
++		dev_err(class_dev->dev,
++			"failed to create sysfs attributes\n");
++
++	return err;
++}
++
++static void rtc_sysfs_remove_device(struct class_device *class_dev,
++				      struct class_interface *class_intf)
++{
++	sysfs_remove_group(&class_dev->kobj, &rtc_attr_group);
++}
++
++/* interface registration */
++
++struct class_interface rtc_sysfs_interface = {
++	.add = &rtc_sysfs_add_device,
++	.remove = &rtc_sysfs_remove_device,
++};
++
++static int __init rtc_sysfs_init(void)
++{
++	return rtc_interface_register(&rtc_sysfs_interface);
++}
++
++static void __exit rtc_sysfs_exit(void)
++{
++	class_interface_unregister(&rtc_sysfs_interface);
++}
++
++module_init(rtc_sysfs_init);
++module_exit(rtc_sysfs_exit);
++
++MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
++MODULE_DESCRIPTION("RTC class sysfs interface");
++MODULE_LICENSE("GPL");
+--- linux-rtc.orig/drivers/rtc/Kconfig	2006-02-19 23:48:02.000000000 +0100
++++ linux-rtc/drivers/rtc/Kconfig	2006-02-19 23:48:06.000000000 +0100
+@@ -36,6 +36,17 @@ config RTC_HCTOSYS_DEVICE
+ comment "RTC interfaces"
+ 	depends on RTC_CLASS
  
- source "fs/Kconfig"
---- linux-rtc.orig/arch/arm/common/rtctime.c	2006-02-13 19:34:30.000000000 +0100
-+++ linux-rtc/arch/arm/common/rtctime.c	2006-02-13 19:35:30.000000000 +0100
-@@ -42,89 +42,6 @@ static struct rtc_ops *rtc_ops;
++config RTC_INTF_SYSFS
++	tristate "sysfs"
++	depends on RTC_CLASS && SYSFS
++	default RTC_CLASS
++	help
++	  Say yes here if you want to use your RTC using the sysfs
++	  interface, /sys/class/rtc/rtcX .
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-sysfs.
++
+ comment "RTC drivers"
+ 	depends on RTC_CLASS
  
- #define rtc_epoch 1900UL
- 
--static const unsigned char days_in_month[] = {
--	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
--};
+--- linux-rtc.orig/drivers/rtc/Makefile	2006-02-19 23:48:02.000000000 +0100
++++ linux-rtc/drivers/rtc/Makefile	2006-02-19 23:48:06.000000000 +0100
+@@ -6,4 +6,4 @@ obj-y				+= utils.o
+ obj-$(CONFIG_RTC_HCTOSYS)	+= hctosys.o
+ obj-$(CONFIG_RTC_CLASS)		+= rtc-core.o
+ rtc-core-y			:= class.o interface.o
 -
--#define LEAPS_THRU_END_OF(y) ((y)/4 - (y)/100 + (y)/400)
--#define LEAP_YEAR(year) ((!(year % 4) && (year % 100)) || !(year % 400))
--
--static int month_days(unsigned int month, unsigned int year)
--{
--	return days_in_month[month] + (LEAP_YEAR(year) && month == 1);
--}
--
--/*
-- * Convert seconds since 01-01-1970 00:00:00 to Gregorian date.
-- */
--void rtc_time_to_tm(unsigned long time, struct rtc_time *tm)
--{
--	int days, month, year;
--
--	days = time / 86400;
--	time -= days * 86400;
--
--	tm->tm_wday = (days + 4) % 7;
--
--	year = 1970 + days / 365;
--	days -= (year - 1970) * 365
--	        + LEAPS_THRU_END_OF(year - 1)
--	        - LEAPS_THRU_END_OF(1970 - 1);
--	if (days < 0) {
--		year -= 1;
--		days += 365 + LEAP_YEAR(year);
--	}
--	tm->tm_year = year - 1900;
--	tm->tm_yday = days + 1;
--
--	for (month = 0; month < 11; month++) {
--		int newdays;
--
--		newdays = days - month_days(month, year);
--		if (newdays < 0)
--			break;
--		days = newdays;
--	}
--	tm->tm_mon = month;
--	tm->tm_mday = days + 1;
--
--	tm->tm_hour = time / 3600;
--	time -= tm->tm_hour * 3600;
--	tm->tm_min = time / 60;
--	tm->tm_sec = time - tm->tm_min * 60;
--}
--EXPORT_SYMBOL(rtc_time_to_tm);
--
--/*
-- * Does the rtc_time represent a valid date/time?
-- */
--int rtc_valid_tm(struct rtc_time *tm)
--{
--	if (tm->tm_year < 70 ||
--	    tm->tm_mon >= 12 ||
--	    tm->tm_mday < 1 ||
--	    tm->tm_mday > month_days(tm->tm_mon, tm->tm_year + 1900) ||
--	    tm->tm_hour >= 24 ||
--	    tm->tm_min >= 60 ||
--	    tm->tm_sec >= 60)
--		return -EINVAL;
--
--	return 0;
--}
--EXPORT_SYMBOL(rtc_valid_tm);
--
--/*
-- * Convert Gregorian date to seconds since 01-01-1970 00:00:00.
-- */
--int rtc_tm_to_time(struct rtc_time *tm, unsigned long *time)
--{
--	*time = mktime(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
--		       tm->tm_hour, tm->tm_min, tm->tm_sec);
--
--	return 0;
--}
--EXPORT_SYMBOL(rtc_tm_to_time);
--
- /*
-  * Calculate the next alarm time given the requested alarm time mask
-  * and the current time.
-@@ -143,13 +60,13 @@ void rtc_next_alarm_time(struct rtc_time
- 	next->tm_sec = alrm->tm_sec;
- }
- 
--static inline int rtc_read_time(struct rtc_ops *ops, struct rtc_time *tm)
-+static inline int rtc_arm_read_time(struct rtc_ops *ops, struct rtc_time *tm)
- {
- 	memset(tm, 0, sizeof(struct rtc_time));
- 	return ops->read_time(tm);
- }
- 
--static inline int rtc_set_time(struct rtc_ops *ops, struct rtc_time *tm)
-+static inline int rtc_arm_set_time(struct rtc_ops *ops, struct rtc_time *tm)
- {
- 	int ret;
- 
-@@ -160,7 +77,7 @@ static inline int rtc_set_time(struct rt
- 	return ret;
- }
- 
--static inline int rtc_read_alarm(struct rtc_ops *ops, struct rtc_wkalrm *alrm)
-+static inline int rtc_arm_read_alarm(struct rtc_ops *ops, struct rtc_wkalrm *alrm)
- {
- 	int ret = -EINVAL;
- 	if (ops->read_alarm) {
-@@ -170,7 +87,7 @@ static inline int rtc_read_alarm(struct 
- 	return ret;
- }
- 
--static inline int rtc_set_alarm(struct rtc_ops *ops, struct rtc_wkalrm *alrm)
-+static inline int rtc_arm_set_alarm(struct rtc_ops *ops, struct rtc_wkalrm *alrm)
- {
- 	int ret = -EINVAL;
- 	if (ops->set_alarm)
-@@ -258,7 +175,7 @@ static int rtc_ioctl(struct inode *inode
- 
- 	switch (cmd) {
- 	case RTC_ALM_READ:
--		ret = rtc_read_alarm(ops, &alrm);
-+		ret = rtc_arm_read_alarm(ops, &alrm);
- 		if (ret)
- 			break;
- 		ret = copy_to_user(uarg, &alrm.time, sizeof(tm));
-@@ -280,11 +197,11 @@ static int rtc_ioctl(struct inode *inode
- 		alrm.time.tm_wday = -1;
- 		alrm.time.tm_yday = -1;
- 		alrm.time.tm_isdst = -1;
--		ret = rtc_set_alarm(ops, &alrm);
-+		ret = rtc_arm_set_alarm(ops, &alrm);
- 		break;
- 
- 	case RTC_RD_TIME:
--		ret = rtc_read_time(ops, &tm);
-+		ret = rtc_arm_read_time(ops, &tm);
- 		if (ret)
- 			break;
- 		ret = copy_to_user(uarg, &tm, sizeof(tm));
-@@ -302,7 +219,7 @@ static int rtc_ioctl(struct inode *inode
- 			ret = -EFAULT;
- 			break;
- 		}
--		ret = rtc_set_time(ops, &tm);
-+		ret = rtc_arm_set_time(ops, &tm);
- 		break;
- 
- 	case RTC_EPOCH_SET:
-@@ -333,11 +250,11 @@ static int rtc_ioctl(struct inode *inode
- 			ret = -EFAULT;
- 			break;
- 		}
--		ret = rtc_set_alarm(ops, &alrm);
-+		ret = rtc_arm_set_alarm(ops, &alrm);
- 		break;
- 
- 	case RTC_WKALM_RD:
--		ret = rtc_read_alarm(ops, &alrm);
-+		ret = rtc_arm_read_alarm(ops, &alrm);
- 		if (ret)
- 			break;
- 		ret = copy_to_user(uarg, &alrm, sizeof(alrm));
-@@ -427,7 +344,7 @@ static int rtc_read_proc(char *page, cha
- 	struct rtc_time tm;
- 	char *p = page;
- 
--	if (rtc_read_time(ops, &tm) == 0) {
-+	if (rtc_arm_read_time(ops, &tm) == 0) {
- 		p += sprintf(p,
- 			"rtc_time\t: %02d:%02d:%02d\n"
- 			"rtc_date\t: %04d-%02d-%02d\n"
-@@ -437,7 +354,7 @@ static int rtc_read_proc(char *page, cha
- 			rtc_epoch);
- 	}
- 
--	if (rtc_read_alarm(ops, &alrm) == 0) {
-+	if (rtc_arm_read_alarm(ops, &alrm) == 0) {
- 		p += sprintf(p, "alrm_time\t: ");
- 		if ((unsigned int)alrm.time.tm_hour <= 24)
- 			p += sprintf(p, "%02d:", alrm.time.tm_hour);
---- linux-rtc.orig/include/asm-arm/rtc.h	2006-01-03 04:21:10.000000000 +0100
-+++ linux-rtc/include/asm-arm/rtc.h	2006-02-13 19:35:30.000000000 +0100
-@@ -25,9 +25,6 @@ struct rtc_ops {
- 	int		(*proc)(char *buf);
- };
- 
--void rtc_time_to_tm(unsigned long, struct rtc_time *);
--int rtc_tm_to_time(struct rtc_time *, unsigned long *);
--int rtc_valid_tm(struct rtc_time *);
- void rtc_next_alarm_time(struct rtc_time *, struct rtc_time *, struct rtc_time *);
- void rtc_update(unsigned long, unsigned long);
- int register_rtc(struct rtc_ops *);
---- linux-rtc.orig/drivers/char/Kconfig	2006-02-13 19:34:36.000000000 +0100
-+++ linux-rtc/drivers/char/Kconfig	2006-02-13 19:35:30.000000000 +0100
-@@ -695,7 +695,7 @@ config NVRAM
- 
- config RTC
- 	tristate "Enhanced Real Time Clock Support"
--	depends on !PPC32 && !PARISC && !IA64 && !M68K && (!SPARC || PCI) && !FRV
-+	depends on !PPC32 && !PARISC && !IA64 && !M68K && (!SPARC || PCI) && !FRV && !ARM
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you
++obj-$(CONFIG_RTC_INTF_SYSFS)	+= rtc-sysfs.o
 
 --

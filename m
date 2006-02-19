@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWBSKhd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbWBSKqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932390AbWBSKhd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 05:37:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWBSKhd
+	id S932393AbWBSKqp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 05:46:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbWBSKqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 05:37:33 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:19872 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S932390AbWBSKhb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 05:37:31 -0500
-To: Dave Jones <davej@redhat.com>
-From: Jiri Slaby <jirislaby@gmail.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: dvb breakage
-In-reply-to: <20060219020847.GA5412@redhat.com>
-Message-Id: <E1FAlwT-0007O3-00@decibel.fi.muni.cz>
-Date: Sun, 19 Feb 2006 11:37:25 +0100
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: xslaby@informatics.muni.cz
-X-Muni-Virus-Test: Clean
+	Sun, 19 Feb 2006 05:46:45 -0500
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:5776 "EHLO sunrise.pg.gda.pl")
+	by vger.kernel.org with ESMTP id S932393AbWBSKqo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 05:46:44 -0500
+Date: Sun, 19 Feb 2006 11:45:25 +0100
+From: Adam Tla/lka <atlka@pg.gda.pl>
+To: Thomas Dickey <dickey@his.com>
+Cc: "Alexander E. Patrakov" <patrakov@ums.usu.ru>, torvalds@osdl.org,
+       bug-ncurses@gnu.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]console:UTF-8 mode compatibility fixes
+Message-ID: <20060219104525.GC862@sunrise.pg.gda.pl>
+References: <20060217233333.GA5208@sunrise.pg.gda.pl> <43F72A1E.1090707@ums.usu.ru> <43F7310E.4070109@pg.gda.pl> <20060218204040.B36972@mail101.his.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060218204040.B36972@mail101.his.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
->On Thu, Jan 12, 2006 at 12:08:43AM -0800, Linux Kernel wrote:
-> > tree 735e941317b10973cd06bf63bdcf1140d2ef7412
-> > parent d4437d3fada351d7f40bcc48a62c12b92e2ad9d8
-> > author Jiri Slaby <xslaby@fi.muni.cz> Wed, 11 Jan 2006 23:41:13 -0200
-> > committer Mauro Carvalho Chehab <mchehab@brturbo.com.br> Wed, 11 Jan 2006 23:41:13 -0200
-> > 
-> > V4L/DVB (3344c): Pci probing for stradis driver
-> > 
-> > - Pci probing functions added, some functions were rewritten.
-> > 
-> > - Use PCI_DEVICE macro.
-> > 
-> > - dev_ used for printing when pci_dev available.
-> > 
-> > Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
-> > Signed-off-by: Andrew Morton <akpm@osdl.org>
-> > Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
->
->Jiri,
-> I'm not sure if this the exact cset that broke it, but 
->one of our users reports that since around this time,
->udev stopped creating a /dev/dvb/adaptor0
->
->Did this inadvertantly change how things look in sysfs?
->
->https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181063
-Went through changes once more time, but with any result, I have really no
-idea. Will see, what he'll reply.
+On Sat, Feb 18, 2006 at 08:43:56PM -0500, Thomas Dickey wrote:
+> On Sat, 18 Feb 2006, Adam TlaÅ~Bka wrote:
+> >one proper definition of the linux console. Maybe kernel developers should 
+> >prepare some most compatible and acceptable one.
+> >I can post the one I am using today:
+> 
+> ...of course, this one isn't like any of the variations I've seen.
+> But you knew that.  (Aside from the acs/enacs/rmacs/smacs changes,
+> I'm curious what happened to ich/ich1).
 
-thanks,
---
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+They were removed because of possible incompatibility warning.
+Maybe they should stay - I posted only currently used by me linux terminal
+definition. As I said before there should be the official linux terminal
+definition and description included with kernel sources because vt.c
+in sources defines console behaviour.
+
+Anyway acs, enacs, smacs and rmacs sequences are defined here 
+to stick to the controls interpretation used in vt.c 
+do_con_trol function and to get desired behaviour.
+
+Regards
+-- 
+Adam Tla³ka      mailto:atlka@pg.gda.pl    ^v^ ^v^ ^v^
+System  & Network Administration Group           ~~~~~~
+Computer Center,  Gdañsk University of Technology, Poland
+PGP public key:   finger atlka@sunrise.pg.gda.pl

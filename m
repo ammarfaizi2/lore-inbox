@@ -1,107 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWBSFoH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWBSFxA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750932AbWBSFoH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 00:44:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbWBSFoH
+	id S932067AbWBSFxA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 00:53:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750942AbWBSFxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 00:44:07 -0500
-Received: from vms042pub.verizon.net ([206.46.252.42]:52459 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1750932AbWBSFoF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 00:44:05 -0500
-Date: Sun, 19 Feb 2006 00:44:03 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-In-reply-to: <200602181941.40093.dhazelton@enter.net>
-To: linux-kernel@vger.kernel.org
-Message-id: <200602190044.03914.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <878xt3rfjc.fsf@amaterasu.srvr.nix>
- <200602181215.30277.gene.heskett@verizon.net>
- <200602181941.40093.dhazelton@enter.net>
-User-Agent: KMail/1.7
+	Sun, 19 Feb 2006 00:53:00 -0500
+Received: from ms-smtp-01-smtplb.tampabay.rr.com ([65.32.5.131]:37264 "EHLO
+	ms-smtp-01.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S1750936AbWBSFw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 00:52:59 -0500
+Message-ID: <43F807AD.6080008@cfl.rr.com>
+Date: Sun, 19 Feb 2006 00:52:45 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Mail/News 1.5 (X11/20060119)
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Alan Stern <stern@rowland.harvard.edu>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Alon Bar-Lev <alon.barlev@gmail.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Flames over -- Re: Which is simpler?
+References: <Pine.LNX.4.44L0.0602131601220.4754-100000@iolanthe.rowland.org> <43F11A9D.5010301@cfl.rr.com> <20060217210445.GR3490@openzaurus.ucw.cz> <43F74C89.1080606@cfl.rr.com> <20060218172908.GD1776@elf.ucw.cz>
+In-Reply-To: <20060218172908.GD1776@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 18 February 2006 19:41, D. Hazelton wrote:
->On Saturday 18 February 2006 12:15, Gene Heskett wrote:
->> On Saturday 18 February 2006 07:06, Christoph Hellwig wrote:
->>
->> cat /proc/sys/dev/cdrom/info
->> CD-ROM information, Id: cdrom.c 3.20 2003/12/17
->>
->> drive name:             hdc
->> drive speed:            48
->> drive # of slots:       1
->> Can close tray:         1
->> Can open tray:          1
->> Can lock tray:          1
->> Can change speed:       1
->> Can select disk:        0
->> Can read multisession:  1
->> Can read MCN:           1
->> Reports media changed:  1
->> Can play audio:         1
->> Can write CD-R:         1
->> Can write CD-RW:        1
->> Can read DVD:           1
->> Can write DVD-R:        1
->> Can write DVD-RAM:      0
->> Can read MRW:           1
->> Can write MRW:          1
->> Can write RAM:          1
->
->Ah, so it does already exist. Only thing left might be to stick the
->manufacturer, serial and misc. data into sysfs
->
->> But I fail to see where this would help to 'find' the right device
->> to write to, other than the obvious prefixing of '/dev/' to $drive
->> name. We already knew that, and in fact it works very well. Please
->> explain to Joerg in one syllable words he might, if he wanted to,
->> understand.
->
->Well, in this case I'm actually trying to work with Joerg to produce a
-> patch that unifies the ATAPI and SCSI busses inside his program. One
-> thing this does is help to locate available drives. Negates the need
-> to scan the entire ATA/ATAPI bus for drives. However, since, as Joerg
-> has pointed out, libscg is a generic SCSI system, it doesn't negate
-> it's need to scan the entire SCSI bus. It's use as a backend to
-> cdrecord is incidental in this case.
+Pavel Machek wrote:
+>> Provided that you sync before suspending, and there are no open files on 
+>> the filesystem, then yes, no data will be lost.  If there are open files 
+>> on the fs, such as a half saved document, or a running binary, or say, 
+>> the whole root fs, then you're going to loose data and even panic the 
+>> kernel, sync or no sync.  From the user perspective, this is
+>> unacceptable.
+> 
+> While with your solution, you do not loose one open file, you loose
+> whole filesystem. Which is unacceptable.
+> 
 
-Working with Joerg?  sigh
+Only if the user is foolish enough to modify the media somehow while the 
+system is suspended and replace it, which is exactly how non USB disks 
+currently behave.
 
->> Also, I'm fuzzy about the last 3, so defining those might help me
->> understand.
->
->I've seen the "MRW" stuff in some of the specs, but had to check the
-> net to find out what it was. MRW is the Mt. Rainier format - basic
-> support was added by Jens back in 2.4.19 according to the archives.
->(http://www.ussg.iu.edu/hypermail/linux/kernel/0203.2/1214.html)
->
->I'm not positive, but the "Can Read RAM" line might refer to DVD-RAM
-> type discs
+>> Why should the user give up such functionality just because the 
+>> connection to the drive thy are using is USB?  Every other type of drive 
+>> and interface does not suffer from this problem.
+> 
+> Because it is okay to unplug usb disk on runtime, while it is not okay
+> to unplug ATA disk on runtime. And because alternatives suck even more.
+> 
 
-That sounds like it makes sense, thanks.  I bought a spindle of 
-rewritable dvd's, thinking about doing backups, but a 200GB drive and 
-vtapes got in the way and its beaucoupe more convienient and speedy 
-that the dvd's will ever be.  Once setup, it Just Works(TM).
+Actually, no, it is not okay to unplug a usb disk at runtime while it is 
+mounted.  It never has been and it never will be.  Also we aren't 
+talking about runtime, we're talking about while the system is 
+suspended, when there is no way for the kernel to know whether or not 
+the device was unplugged, since it _allways_ appears to have been 
+unplugged.  The alternative in the uncommon case ( where the user 
+modifies the media while suspended ) does not suck any worse than it 
+currently does on non usb media, and the common case ( where the user 
+doesn't ) sucks worse currently with usb than others.
 
-That drive has since went belly up & been replaced with another that 
-seems even more solid, liteon of course.
+>> Maybe Linux should take a page from windows' playbook here.  I believe 
+>> windows handles this scenario with a USB drive the same way it does when 
+>> you eject a floppy and reinsert it.  The driver detects that the 
+>> media/drive _may_ have changed and so it fails requests from the 
+>> filesystem with an error code indicating this.  The filesystem then sets 
+>> an override flag so it can send down some reads to verify the media. 
+>> Generally the FS reads the super block and compares it with the in 
+>> memory one to make sure it appears to be the same media, and if so, 
+>> continues normal access without data loss.
+> 
+> Feel free to implement that.
+> 								Pavel
+> 
 
->DRH
-
-Thanks
-
--- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

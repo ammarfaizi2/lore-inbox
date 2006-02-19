@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbWBSWE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751033AbWBSWH7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751037AbWBSWE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 17:04:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWBSWE5
+	id S1751033AbWBSWH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 17:07:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbWBSWH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 17:04:57 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:43905 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750788AbWBSWE5 (ORCPT
+	Sun, 19 Feb 2006 17:07:59 -0500
+Received: from secure.htb.at ([195.69.104.11]:62225 "EHLO pop3.htb.at")
+	by vger.kernel.org with ESMTP id S1751049AbWBSWH6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 17:04:57 -0500
-From: Neil Brown <neilb@suse.de>
-To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-Date: Mon, 20 Feb 2006 09:04:27 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 19 Feb 2006 17:07:58 -0500
+Date: Sun, 19 Feb 2006 23:07:48 +0100
+From: Richard Mittendorfer <delist@gmx.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: No sound from SB live!
+Message-Id: <20060219230748.318c42f3.delist@gmx.net>
+In-Reply-To: <20060219214229.GK15311@elf.ucw.cz>
+References: <20060218231419.GA3219@elf.ucw.cz>
+	<200602190127.27862.ghrt@dial.kappa.ro>
+	<20060218234805.GA3235@elf.ucw.cz>
+	<20060219013313.17e91b04.delist@gmx.net>
+	<20060219214229.GK15311@elf.ucw.cz>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <17400.60267.923268.861047@cse.unsw.edu.au>
-Cc: Alasdair Kergon <agk@redhat.com>, Lars Marowsky-Bree <lmb@suse.de>,
-       device-mapper development <dm-devel@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] sysfs representation of stacked devices (dm/md)
-In-Reply-To: message from Jun'ichi Nomura on Friday February 17
-References: <43F60F31.1030507@ce.jp.nec.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-Scanner: exiscan *1FAwid-0008AA-00*YwuiN.ae6KY*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday February 17, j-nomura@ce.jp.nec.com wrote:
-> Hello,
+Also sprach Pavel Machek <pavel@ucw.cz> (Sun, 19 Feb 2006 22:42:29
++0100):
+> Hi!
+
+hi!
+ 
+> > >[...]
+> > 
+> aplay complains about nonexisting /dev/ files:
 > 
-> These patches provide common representation of dependencies
-> between stacked devices (dm and md) in sysfs.
-> For example, if dm-0 maps to sda, we have the following symlinks;
->    /sys/block/dm-0/slaves/sda --> /sys/block/sda
->    /sys/block/sda/holders/dm-0 --> /sys/block/dm-0
+> root@hobit:~#  aplay
+> /usr/share/xemacs21/xemacs-packages/etc/sounds/hammer.wav
+> aplay: main:533: audio open error: No such file or directory
+> root@hobit:~#
+> 
+> ...I'll try to fix it.
 
-I happy with the idea of having these links.
-I agree that it would be nice to have this very strongly based on the
-bd_claim infrastructure.
+I think this is just to due missing oss (emulation) drivers. It's
+snd_pcm_oss and snd_mixer_oss IIRC.
 
-It would be really nice if bd_claim took a "kobject *" rather than a 
-"void *" and put a link in there.  This would be easy for dm and md,
-but awkward for other claimers like filesystems and open file
-descriptors as they don't currently have kobjects.
+Anyway that "sounds" :) weired: There might be a mixer be muted or some
+bobo with the driver.
 
-Possibly an extra flag that says if the 'holder' is a kobject or not,
-and if it is, appropriate symlinks are created...??
+I just looked into /proc/asound/cardX/pcm0p/sub0/status and it shows
+progress when playing -- This _might_ mean that alsa is working. Did the
+same on the box with the Live! now and got little bit lost by the amount
+of channels, but it seems to be the same /pcm0p/sub0/status there.
 
-NeilBrown
+> 								Pavel
+
+sl ritch

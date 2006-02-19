@@ -1,34 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbWBSWJZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWBSWJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751054AbWBSWJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 17:09:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751066AbWBSWJY
+	id S1751052AbWBSWJd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 17:09:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751062AbWBSWJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 17:09:24 -0500
-Received: from smtp.andrew.cmu.edu ([128.2.10.83]:36490 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id S1751052AbWBSWJY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 17:09:24 -0500
-Message-ID: <55342.128.237.252.29.1140386963.squirrel@128.237.252.29>
-Date: Sun, 19 Feb 2006 17:09:23 -0500 (EST)
-Subject: tcp_protocol no longer exported? depracated?
-From: "George P Nychis" <gnychis@cmu.edu>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.5.1 [CVS]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Sun, 19 Feb 2006 17:09:33 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:40064 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751052AbWBSWJc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 17:09:32 -0500
+Date: Sun, 19 Feb 2006 22:09:29 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Paul Mundt <lethal@linux-sh.org>, Dave Jones <davej@redhat.com>,
+       Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
+       zanussi@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] relayfs: Convert to generic relay API.
+Message-ID: <20060219220929.GA14245@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Paul Mundt <lethal@linux-sh.org>, Dave Jones <davej@redhat.com>,
+	Greg KH <greg@kroah.com>, zanussi@us.ibm.com,
+	linux-kernel@vger.kernel.org
+References: <20060219210733.GA3682@linux-sh.org> <20060219212122.GA7974@redhat.com> <20060219212748.GA4690@linux-sh.org> <20060219215432.GB4690@linux-sh.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060219215432.GB4690@linux-sh.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Feb 19, 2006 at 11:54:32PM +0200, Paul Mundt wrote:
+> This strips down relayfs to a minimum, removing everything already
+> provided by CONFIG_RELAY. This leaves a userspace API compatible
+> implementation on top of the new framework.
 
-I have a module from the 2.6.9 kernel that uses tcp_protocol which is no longer exported.  To use it I can EXPORT_SYMBOL(tcp_protocol) in ipv4/af_inet.c
-
-However, I'd like to modify the module and post it for people with new kernels to also use without having to modify their ipv4 support in the kernel.  Has something else come along and deprecated tcp_protocol that I should use instead?
-
-Thanks!
-George
+not needed given there's no user yet.
 

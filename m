@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbWBSTPy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWBSTSK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbWBSTPy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 14:15:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbWBSTPy
+	id S932224AbWBSTSK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 14:18:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWBSTSJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 14:15:54 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:12045 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932219AbWBSTPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 14:15:54 -0500
-Date: Sun, 19 Feb 2006 20:15:52 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: George P Nychis <gnychis@cmu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel panic with unloadable module support... SMP
-Message-ID: <20060219191552.GB4971@stusta.de>
-References: <1174.128.237.252.29.1140376277.squirrel@128.237.252.29>
+	Sun, 19 Feb 2006 14:18:09 -0500
+Received: from ms-smtp-03-smtplb.tampabay.rr.com ([65.32.5.133]:21745 "EHLO
+	ms-smtp-03.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S932224AbWBSTSI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 14:18:08 -0500
+Message-ID: <43F8C464.3000509@cfl.rr.com>
+Date: Sun, 19 Feb 2006 14:17:56 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Mail/News 1.5 (X11/20060119)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1174.128.237.252.29.1140376277.squirrel@128.237.252.29>
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Alan Stern <stern@rowland.harvard.edu>
+CC: Pavel Machek <pavel@suse.cz>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Alon Bar-Lev <alon.barlev@gmail.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Flames over -- Re: Which is simpler?
+References: <Pine.LNX.4.44L0.0602191138470.9165-100000@netrider.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0602191138470.9165-100000@netrider.rowland.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 19, 2006 at 02:11:17PM -0500, George P Nychis wrote:
-
-> Hi,
-
-Hi George,
-
-> Whenever I compiled unloadable module support into my 2.6.15-r1 kernel, my kernel panic's when booting up when it tries to load a module for the first time.
+Alan Stern wrote:
 > 
-> I had this problem back with the 2.6.14 kernel, but figured it may have been solved since then so I tried it... and still fails.
-> 
-> Unloadable module support would be very helpful to me.
-> 
-> I am using an intel p4 3.0ghz with SMP support built into the kernel.
->...
+> I'm confused.  Weren't you arguing, only a few days ago, that it _should_
+> be okay to unplug a USB drive while the system is suspended?  After all,
 
-What is 2.6.15-r1 for a kernel?
-Is your problem present in an unmodified 2.6.16-rc4 kernel from 
-ftp.kernel.org?
+No, I wasn't arguing that it should be okay to unplug a usb drive while 
+the system is suspended, I was saying that it is better for the kernel 
+to assume you did not when it can't really tell, since you aren't 
+supposed to do that anyhow.
 
-If yes, please send the exact error messages.
-You might capture the messages with a digital camera and send a link to 
-the photograph.
+> since there's no difference (as far as the kernel can see) between power
+> loss on the bus and an actual unplug, you can hardly say that one should
+> be allowed and the other not.
 
-> Thanks!
-> George
+   But there _IS_ a difference between power loss and actual unplug, so 
+I very well can say one is allowed and the other is not.  The fact that 
+the kernel can not tell the difference is simply a limitation that must 
+be dealt with.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

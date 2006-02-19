@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbWBSNac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbWBSNwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932434AbWBSNac (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 08:30:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbWBSNab
+	id S932442AbWBSNwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 08:52:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWBSNwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 08:30:31 -0500
-Received: from allen.werkleitz.de ([80.190.251.108]:32645 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932434AbWBSNab
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 08:30:31 -0500
-Date: Sun, 19 Feb 2006 14:30:39 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, len.brown@intel.com,
-       Paul Bristow <paul@paulbristow.net>, mpm@selenic.com,
-       B.Zolnierkiewicz@elka.pw.edu.pl, dtor_core@ameritech.net, kkeil@suse.de,
-       linux-dvb-maintainer@linuxtv.org, philb@gnu.org, gregkh@suse.de,
-       dwmw2@infradead.org, rusty@rustcorp.com.au
-Message-ID: <20060219133039.GA11946@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	LKML <linux-kernel@vger.kernel.org>, len.brown@intel.com,
-	Paul Bristow <paul@paulbristow.net>, mpm@selenic.com,
-	B.Zolnierkiewicz@elka.pw.edu.pl, dtor_core@ameritech.net,
-	kkeil@suse.de, linux-dvb-maintainer@linuxtv.org, philb@gnu.org,
-	gregkh@suse.de, dwmw2@infradead.org, rusty@rustcorp.com.au
-References: <20060217214855.GA5563@mars.ravnborg.org> <20060217224702.GA25761@mars.ravnborg.org> <20060219113630.GA5032@mars.ravnborg.org> <20060219125924.GB5896@linuxtv.org> <20060219131953.GA9744@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060219131953.GA9744@mars.ravnborg.org>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-SA-Exim-Connect-IP: 84.189.198.33
-Subject: Re: [v4l-dvb-maintainer] Re: kbuild: Section mismatch warnings
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+	Sun, 19 Feb 2006 08:52:16 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:63130 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932442AbWBSNwP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 08:52:15 -0500
+Subject: Re: [linux-usb-devel] Re: Linux 2.6.16-rc3
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Jens Axboe <axboe@suse.de>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       "Brown, Len" <len.brown@intel.com>,
+       "David S. Miller" <davem@davemloft.net>, linux-acpi@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net,
+       "Yu, Luming" <luming.yu@intel.com>, Ben Castricum <lk@bencastricum.nl>,
+       sanjoy@mrao.cam.ac.uk, Helge Hafting <helgehaf@aitel.hist.no>,
+       "Carlo E. Prelz" <fluido@fluido.as>,
+       Gerrit Bruchh?user <gbruchhaeuser@gmx.de>, Nicolas.Mailhot@LaPoste.net,
+       Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>,
+       Patrizio Bassi <patrizio.bassi@gmail.com>,
+       Bj?rn Nilsson <bni.swe@gmail.com>, Andrey Borzenkov <arvidjaar@mail.ru>,
+       "P. Christeas" <p_christ@hol.gr>, ghrt <ghrt@dial.kappa.ro>,
+       jinhong hu <jinhong.hu@gmail.com>,
+       Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-scsi@vger.kernel.org,
+       Benjamin LaHaise <bcrl@kvack.org>
+In-Reply-To: <Pine.LNX.4.44L0.0602181515350.4115-100000@netrider.rowland.org>
+References: <Pine.LNX.4.44L0.0602181515350.4115-100000@netrider.rowland.org>
+Content-Type: text/plain
+Date: Sun, 19 Feb 2006 07:51:17 -0600
+Message-Id: <1140357077.3103.0.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 19, 2006 at 02:19:53PM +0100, Sam Ravnborg wrote:
-> On Sun, Feb 19, 2006 at 01:59:24PM +0100, Johannes Stezenbach wrote:
-> > ...
-> > > WARNING: drivers/media/dvb/ttpci/dvb-ttpci.o - Section mismatch: reference to .init.text:av7110_ir_init from .text between 'av7110_attach' (at offset 0xcaa6) and 'av7110_detach'
-> > > WARNING: drivers/media/dvb/ttpci/dvb-ttpci.o - Section mismatch: reference to .exit.text:av7110_ir_exit from .text between 'av7110_detach' (at offset 0xcbc5) and 'av7110_irq'
-> > 
-> > These seem to be legitimate and point to the right place.
-> > Patch attached.
-> 
-> Thanks Johannes.
-> I assume you will carry the patch in the dvb tree and push to linus.
+On Sat, 2006-02-18 at 15:16 -0500, Alan Stern wrote:
+> The test should be in_atomic(), not in_interrupt().
 
-Sure, after I corrected it (av7110_ir_init shouldn't be __devexit)
+There's a long prior discussion of why it has to be in_interrupt()
 
-Johannes
+James
+
+

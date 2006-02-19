@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWBSVul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWBSVwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750830AbWBSVul (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 16:50:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbWBSVuk
+	id S1750711AbWBSVwE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 16:52:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbWBSVwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 16:50:40 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:55484 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751029AbWBSVuk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 16:50:40 -0500
-Subject: Re: No sound from SB live!
-From: Lee Revell <rlrevell@joe-job.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Nishanth Aravamudan <nacc@us.ibm.com>, Nick Warne <nick@linicks.net>,
-       Jesper Juhl <jesper.juhl@gmail.com>, tiwai@suse.de, ghrt@dial.kappa.ro,
-       perex@suse.cz, kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060219214702.GM15311@elf.ucw.cz>
-References: <20060218231419.GA3219@elf.ucw.cz>
-	 <9a8748490602190304w43c32ae6m5b610f2ec9ad46f2@mail.gmail.com>
-	 <7c3341450602190318o1c60e9b5w@mail.gmail.com>
-	 <20060219205157.GA5976@us.ibm.com> <1140384638.2733.389.camel@mindpipe>
-	 <20060219214702.GM15311@elf.ucw.cz>
-Content-Type: text/plain
-Date: Sun, 19 Feb 2006 16:50:36 -0500
-Message-Id: <1140385837.2733.394.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.91 
+	Sun, 19 Feb 2006 16:52:04 -0500
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:50905 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S1750711AbWBSVwD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 16:52:03 -0500
+Message-ID: <43F8E87C.1000409@kalifornia.com>
+Date: Sun, 19 Feb 2006 13:51:56 -0800
+From: Ben Ford <ben@kalifornia.com>
+User-Agent: Mail/News 1.5 (X11/20060206)
+MIME-Version: 1.0
+To: George P Nychis <gnychis@cmu.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel panic with unloadable module support... SMP
+References: <1174.128.237.252.29.1140376277.squirrel@128.237.252.29>    <20060219191552.GB4971@stusta.de> <46653.128.237.252.29.1140384421.squirrel@128.237.252.29>
+In-Reply-To: <46653.128.237.252.29.1140384421.squirrel@128.237.252.29>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-19 at 22:47 +0100, Pavel Machek wrote:
-> On Ne 19-02-06 16:30:37, Lee Revell wrote:
-> > On Sun, 2006-02-19 at 12:51 -0800, Nishanth Aravamudan wrote:
-> > > I run Ubuntu Breezy, which has:
-> > > 
-> > > alsa-utils = 1.0.9a-4ubuntu5 
-> > 
-> > The alsa-utils version should not matter, it's alsa-lib that must be
-> > kept in sync with the ALSA version in the kernel.
-> 
-> Ugh, not a good news.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This has been the case for ages (distros still get it wrong).  It is not
-an ideal situation.
+George P Nychis wrote:
+> Okay, I downloaded the 2.6.16-r4 kernel and left it unmodified and I do
+not get the panic.
+>
+> Can you suggest anything for me so that I can find what is causing the
+panic with the gentoo vanilla sources?
 
->  How do I tell if my alsa libs are recent enough?
+Gentoo doesn't understand the concept of "vanilla" packages.  Make a
+practice of downloading your kernel directly from kernel.org and
+building it yourself.
 
-1.0.10 should be OK
+Out of 10+ boxes that I've run on Gentoo, only one has worked using
+the Gentoo kernel.
 
-> It should at least warn, no?
 
-Yes.
+- -b
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.1 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-Lee
+iD8DBQFD+Oh6InEozL1f7FIRAroHAJ4wofnOlA9ZvaWCsayVVWVPK6KBAwCfZTek
+jrMGs3ZvBIrczj32xHhEjLM=
+=9OUS
+-----END PGP SIGNATURE-----
 

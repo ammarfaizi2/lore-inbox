@@ -1,80 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbWBSMto@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWBSMwA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932422AbWBSMto (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 07:49:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWBSMto
+	id S932415AbWBSMwA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 07:52:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbWBSMwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 07:49:44 -0500
-Received: from 213-140-2-68.ip.fastwebnet.it ([213.140.2.68]:22982 "EHLO
-	aa001msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S932422AbWBSMtn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 07:49:43 -0500
-Date: Sun, 19 Feb 2006 13:50:37 +0100
-From: Mattia Dongili <malattia@linux.it>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Sam Ravnborg <sam@mars.ravnborg.org>
-Subject: [kbuild,-mm] [PATCH] workaround a cscope bug (make cscope segfaults)
-Message-ID: <20060219125037.GA29662@inferi.kami.home>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Sam Ravnborg <sam@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.16-rc2-mm1-3 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sun, 19 Feb 2006 07:52:00 -0500
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:56594 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932415AbWBSMv7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 07:51:59 -0500
+Date: Sun, 19 Feb 2006 13:52:24 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Chris Boot <bootc@bootc.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Driver 'w83627hf' needs updating - please use bus_type methods
+Message-Id: <20060219135224.cf5ccce0.khali@linux-fr.org>
+In-Reply-To: <0BF2E785-CC6D-4E4D-BDCF-AD21AEA10D36@bootc.net>
+References: <0BF2E785-CC6D-4E4D-BDCF-AD21AEA10D36@bootc.net>
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Chris,
 
-Workaround a cscope bug where a trailing ':' in VPATH makes it segfault
-and let it build the cross-reference succesfully.
+> Just noticed the above message in my kernel log on my machine running  
+> 2.6.16-rc2-ide2. I know there's a 2.6.16-rc4 now... I'm waiting to  
+> upgrade until Alan comes up with new -ide patches or ATAPI over  
+> libata/PATA starts working in -mm.
+> 
+> On another machine I also get:
+> 
+> Driver 'via686a' needs updating - please use bus_type methods
 
-VPATH=/home/mattia/devel/kernel/git/linux-2.6: cscope -b
-[1]    17555 segmentation fault VPATH=/home/mattia/devel/kernel/git/linux-2.6: cscope -b
+Already fixed in 2.6.16-rc4:
+  http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=41d9c98fe76298cebc5907bcebfb2db28017a277
 
-Signed-off-by: Mattia Dongili <malattia@linux.it>
----
-
-'make cscope' segfaults with current kbuild.git (I'm using -rc3-mm1 actually
-and the same problem appears in some previous versions too).
-I'm running Debian's cscope-15.5+cvs20050816-1 (cscope --version says
-16.0a).
-
-I think it would be nice to have this workaround as cscope CVS doesn't
-show much activity and its latest release dates somewhen in 2003.
-
-As shown above, to reproduce the segfault here I just need to run
-VPATH=/home/mattia/devel/kernel/git/linux-2.6: cscope -b
-in the kernel source tree with the previously generated cscope.files,
-the trailing ':' is what makes cscope die.
-
- Makefile |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
-
-77d1a8a386df409709ad0b4f48a8b09ce08d990d
-diff --git a/Makefile b/Makefile
-index 111a699..e0f9108 100644
---- a/Makefile
-+++ b/Makefile
-@@ -138,7 +138,11 @@ objtree		:= $(CURDIR)
- src		:= $(srctree)
- obj		:= $(objtree)
- 
-+ifeq ($(KBUILD_EXTMOD),)
-+VPATH		:= $(srctree)
-+else
- VPATH		:= $(srctree):$(KBUILD_EXTMOD)
-+endif
- 
- export srctree objtree VPATH TOPDIR
- 
--- 
-1.2.1-dirty
+Thanks for reporting though.
 
 -- 
-mattia
-:wq!
-
+Jean Delvare

@@ -1,80 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbWBSGLh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWBSGeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751002AbWBSGLh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 01:11:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWBSGLh
+	id S1751045AbWBSGeK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 01:34:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbWBSGeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 01:11:37 -0500
-Received: from ms-smtp-02-smtplb.tampabay.rr.com ([65.32.5.132]:6611 "EHLO
-	ms-smtp-02.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S1750998AbWBSGLg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 01:11:36 -0500
-Message-ID: <43F80C15.4090409@cfl.rr.com>
-Date: Sun, 19 Feb 2006 01:11:33 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Mail/News 1.5 (X11/20060119)
-MIME-Version: 1.0
-To: linuxer@ever.mine.nu
-CC: linux-kernel@vger.kernel.org
-Subject: Re: pktcdvd DVD+RW always writes at max drive speed (not media speed)
-References: <200602182023.k1IKNNuI012372@rhodes.mine.nu>
-In-Reply-To: <200602182023.k1IKNNuI012372@rhodes.mine.nu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 19 Feb 2006 01:34:09 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:47749 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751045AbWBSGeI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 01:34:08 -0500
+Date: Sat, 18 Feb 2006 22:32:21 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Phillip Susi <psusi@cfl.rr.com>
+Cc: stern@rowland.harvard.edu, pavel@suse.cz, torvalds@osdl.org,
+       mrmacman_g4@mac.com, alon.barlev@gmail.com,
+       linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org
+Subject: Re: Flames over -- Re: Which is simpler?
+Message-Id: <20060218223221.6df891d3.akpm@osdl.org>
+In-Reply-To: <43F80A06.2090209@cfl.rr.com>
+References: <20060217210445.GR3490@openzaurus.ucw.cz>
+	<Pine.LNX.4.44L0.0602181531290.4115-100000@netrider.rowland.org>
+	<20060218160242.7d2b5754.akpm@osdl.org>
+	<43F80A06.2090209@cfl.rr.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I thought that the code asked the drive for the max supported speed _for 
-the loaded media_.  I know I've been using pktcdvd without problem on 
-cdrw media that is only rated for 4x on drives that support 12x or 16x, 
-and based on the performance I've been seeing, it is only burning at 4x. 
-  Maybe your drive isn't reporting properly?
+Phillip Susi <psusi@cfl.rr.com> wrote:
+>
+> > But I suspect we could do an even better job if we did that in userspace.
+>  > 
+>  > The logic to determine whether the new device is the same as the old device
+>  > can be arbitrarily complex, with increasing levels of success.  Various
+>  > heuristics can be applied, some of which will involve knowledge of
+>  > filesystem layout, etc.
+>  > 
+>  > So would it not be possible to optionally punt the device naming decision
+>  > up to the hotplug scripts?  So code up there can go do direct-IO reads of
+>  > the newly-present blockdev, use filesytem layout knowledge, peek at UUIDs,
+>  > superblocks, disk labels, partition tables, inode numbering, etc?  Go look
+>  > up a database, work out what that filesystem was doing last time we saw it,
+>  > etc?
+>  > 
+>  > We could of course add things to the filesystems to help this process, but
+>  > it'd be good if all the state tracking and magic didn't have to be locked
+>  > up in the kernel.
+> 
+> 
+>  Hrm... interesting but sounds like that could be sticky.  For instance, 
+>  what if the user script that does the verifying happens to be ON the 
+>  volume to be verified?
 
-linuxer@ever.mine.nu wrote:
-> In drivers/block/pktcdvd.c it appears that in the case of DVD
-> rewriting, pkt_open_write always sets the write speed to pkt_get_max_speed
-> (the maximum writing speed reported by the drive). 
-> 
-> In my case, I have a new drive capable of 8x re-writing. However, all of
-> my existing media is rated for only 4x rewrite speed. 
-> 
-> When attempting to rw mount these disks, pktcdvd reports:
-> 
-> Feb 18 00:09:52 ever kernel: pktcdvd: write speed 11080kB/s
-> Feb 18 00:09:54 ever kernel: pktcdvd: 54 01 00 00 00 00 00 00 00 00 00 00 -
-> sense 00.54.9c (No sense)
-> Feb 18 00:09:54 ever kernel: pktcdvd: pktcdvd0 Optimum Power Calibration failed
-> 
-> And then of course a huge heap of I/O errors on the disk. 
-> 
-> 
-> pktcdvd.c only calls pkt_media_speed for CD drives, not DVD
-> drives. dvd+rw-tools has a program, dvd+rw-mediainfo, that is able to derive
-> the information of the rated media speed successfully. Code from this should
-> be integrated into the pktcdvd driver so as to avoid this pitfall. 
-> 
-> However, as I don't necessarily expect someone to do this for me right
-> away, I have a second question:
-> 
-> Although migrating sensing code from dvd+rw-mediatype would be by far the
-> more elegant solution, it occurs to me that an easier hack would be to add
-> a new case to pkt_ctl_ioctl, something along the lines of
-> PKT_CTRL_CMD_FORCESPEED or similar, and patch pktsetup.c (simple user mode
-> pktcdvd setup/teardown utility, a component provided in udftools) likewise
-> to allow the user to specify the write speed. I would also have to add an
-> additional member to struct pktcdvd_device in order to store this setting
-> on a per device context, however. Would this work, or am I too naive about
-> kernel programming?
-> 
-> Also, would this be a welcome or useful addition anyways (regardless of
-> possible future media-speed autodetection), to allow the user to override
-> and write faster/slower than drive reports media speed, to allow the user
-> more flexibility in overspeed/underspeed writing based on individual media
-> performance? 
-> 
-> Thank you for taking the time to read this, and I would appreciate any of
-> your thoughts.
-> 
-> PS: Please CC me, as I am not currently subscribed to the list. 
-> 
-
+Well that would be a bug.  Solutions would be a) don't put the scripts on a
+removable/power-downable device or b) use tmpfs.

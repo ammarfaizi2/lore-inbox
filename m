@@ -1,57 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWBSC5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWBSCzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWBSC5R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 21:57:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWBSC5R
+	id S1750742AbWBSCzG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 21:55:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbWBSCzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 21:57:17 -0500
-Received: from zproxy.gmail.com ([64.233.162.197]:62158 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750746AbWBSC5Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 21:57:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=N7JRuTWm4qWArfoZ7XK9YotdRnxdlW9Oo1M03S0Cn2UJxykyEiuoPrGBsW7euvW4SCEOPbKV3RcZmrWMgPh34b1k7g3nhkkO1RPXeoSrolQVC56T20jnfIm/rkXX8x7XAGtizlvgJ2Rpj/1eWgO38wlnLPqUCzOTXj1GAOqjd28=
-Date: Sun, 19 Feb 2006 06:57:16 +0200
-From: Sasha Khapyorsky <sashakh@gmail.com>
-To: s.schmidt@avm.de
-Cc: Greg KH <greg@kroah.com>, torvalds@osdl.org, kkeil@suse.de,
-       linux-kernel@vger.kernel.org, opensuse-factory@opensuse.org,
-       libusb-devel@lists.sourceforge.net
-Subject: Re: 2.6.16 serious consequences / GPL_EXPORT_SYMBOL / USB drivers of major vendor excluded
-Message-ID: <20060219045716.GA9880@khap>
-References: <20060205205313.GA9188@kroah.com> <OFED05BE20.31E2BACE-ONC1257115.005DE6CA-C1257117.004F2C48@avm.de>
+	Sat, 18 Feb 2006 21:55:06 -0500
+Received: from krusty.pcisys.net ([216.229.32.178]:50333 "EHLO
+	krusty.pcisys.net") by vger.kernel.org with ESMTP id S1750742AbWBSCzF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 21:55:05 -0500
+Date: Sat, 18 Feb 2006 19:55:12 -0700
+From: Brian Hall <brihall@pcisys.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Help: DGE-560T not recognized by Linux
+Message-Id: <20060218195512.6bed967b.brihall@pcisys.net>
+In-Reply-To: <20060217234841.5f2030ec.akpm@osdl.org>
+References: <20060217222720.a08a2bc1.brihall@pcisys.net>
+	<20060217222428.3cf33f25.akpm@osdl.org>
+	<20060218003622.30a2b501.brihall@pcisys.net>
+	<20060217234841.5f2030ec.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.2.0beta8 (GTK+ 2.8.12; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OFED05BE20.31E2BACE-ONC1257115.005DE6CA-C1257117.004F2C48@avm.de>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15:24 Thu 16 Feb     , s.schmidt@avm.de wrote:
-> We are pleased to note that the GPL_EXPORT_SYMBOL fix has been withdrawn.
-> This is particularly important for customers who have been relying on good
-> driver coverage for ISDN/DSL devices with SUSE distributions over the past
-> few years. However, as we understand the ongoing discussion, a number of
-> people are tending towards a position of enforcement of USB GPL drivers
-> only. We would like to take this opportunity to clarify where we see the
-> differences between AVM and other devices and the difficulties regarding a
-> possible move towards user mode.
-> 
-> The user space does not ensure the reliability of time critical analog
-> services like Fax G3 or analog modem emulations. This quality of service
-> can only be guaranteed within the kernel space.
+For the benefit of anyone searching later:
 
-Soft modems may work pretty well in userspace - slmodem is example.
+The problem was the current linux Marvell drivers (2.6.15/16rc4) not
+detecting my Dlink card. After trying and failing to compile with the
+linux driver (2.6.13-based) supplied on the retail CD (suprised, didn't
+even think to look there at first!), I went to the Marvell site
+directly and downloaded their version of the sk98lin driver, which
+comes with a script to create a patch against whatever your current
+linux version is in /usr/src/linux. That was found at:
 
-Real-time requirement for V.34 is 40ms response time and only once during
-the session when echo canceller parameters are negotiatiated (so you may
-decrease "buffer size" before and increase after - there are enouph
-silence places for such manipulations). Fax itself does not require any
-"realtime" AFAIK, other place is almost unused today V.32 - 26ms, also
-for echo canceller setup.
+http://www.marvell.com/drivers/driverDisplay.do?dId=107&pId=10
 
-Regards,
-Sasha.
+Yukon GigE Linux driver, Jan 12 2006, install-8_30.tar.bz2
+
+After applying the generated patch against 2.6.15-ck4, I now have a
+version of sk98lin that works with my DGE-560T.
+
+Feb 18 16:59:31 syrinx sk98lin: Network Device Driver v8.30.2.3
+Feb 18 16:59:31 syrinx (C)Copyright 1999-2005 Marvell(R).
+Feb 18 16:59:31 syrinx ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 30
+(level, low) -> IRQ 19 
+Feb 18 16:59:31 syrinx PCI: Setting latency timer of device
+0000:02:00.0 to 64 Feb 18 16:59:31 syrinx eth0: DGE-560T Gigabit
+PCI-Express Ethernet Adapter 
+Feb 18 16:59:31 syrinx PrefPort:A RlmtMode:Check Link State
+Feb 18 16:59:35 syrinx eth0: network connection up using port A
+Feb 18 16:59:35 syrinx speed:           1000
+Feb 18 16:59:35 syrinx autonegotiation: yes
+Feb 18 16:59:35 syrinx duplex mode:     full
+Feb 18 16:59:35 syrinx flowctrl:        symmetric
+Feb 18 16:59:35 syrinx role:            slave
+Feb 18 16:59:35 syrinx irq moderation:  disabled
+Feb 18 16:59:35 syrinx tcp offload:     enabled
+Feb 18 16:59:35 syrinx scatter-gather:  enabled
+Feb 18 16:59:35 syrinx tx-checksum:     enabled
+Feb 18 16:59:35 syrinx rx-checksum:     enabled
+Feb 18 16:59:35 syrinx rx-polling:      enabled
+
+I'll try the kernel sk* drivers again when >=2.6.16 is released.
+
+A further note, neither the Yukon DOS diagnostics that came with the
+card (v6.27.1.3), nor the newer diagnostics that I downloaded from
+Marvell (v6.30.x.y) could properly detect my card. Kept getting the
+error "Board register check failed". Just in case anyone might think
+that would indicate a bad card, in my case it didn't. This was with an
+Opteron 165 on an Asrock 939Dual-SATA2.
+
+--
+Brian Hall
+Linux Consultant
+http://pcisys.net/~brihall

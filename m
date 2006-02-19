@@ -1,85 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbWBSUEt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbWBSUQu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750962AbWBSUEt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 15:04:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbWBSUEt
+	id S1750994AbWBSUQu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 15:16:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbWBSUQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 15:04:49 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:21421 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750959AbWBSUEs (ORCPT
+	Sun, 19 Feb 2006 15:16:50 -0500
+Received: from quechua.inka.de ([193.197.184.2]:31106 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S1750992AbWBSUQu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 15:04:48 -0500
-Date: Sun, 19 Feb 2006 12:02:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: psusi@cfl.rr.com, pavel@suse.cz, torvalds@osdl.org, mrmacman_g4@mac.com,
-       alon.barlev@gmail.com, linux-kernel@vger.kernel.org,
-       linux-pm@lists.osdl.org
+	Sun, 19 Feb 2006 15:16:50 -0500
+From: be-news06@lina.inka.de (Bernd Eckenfels)
+To: linux-kernel@vger.kernel.org
 Subject: Re: Flames over -- Re: Which is simpler?
-Message-Id: <20060219120221.1d11cee0.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44L0.0602191142290.9165-100000@netrider.rowland.org>
-References: <43F89F55.5070808@cfl.rr.com>
-	<Pine.LNX.4.44L0.0602191142290.9165-100000@netrider.rowland.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <43F8C464.3000509@cfl.rr.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
+Message-Id: <E1FAuzA-0003OM-00@calista.inka.de>
+Date: Sun, 19 Feb 2006 21:16:48 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern <stern@rowland.harvard.edu> wrote:
->
-> On Sun, 19 Feb 2006, Phillip Susi wrote:
-> 
-> > Andrew Morton wrote:
-> > >>
-> > >>  Hrm... interesting but sounds like that could be sticky.  For instance, 
-> > >>  what if the user script that does the verifying happens to be ON the 
-> > >>  volume to be verified?
-> > > 
-> > > Well that would be a bug.  Solutions would be a) don't put the scripts on a
-> > > removable/power-downable device or b) use tmpfs.
-> > > 
-> > 
-> > I don't see how it could be a bug, just think of the root on usb case. 
-> > Keeping the program locked in ram would sidestep that issue, but tmpfs 
-> > is pagable right?  Swap on usb?
-> > 
-> > Also, this user space program isn't going to be able to keep fully up to 
-> > date on what the disk looks like.  Imagine a filesystem that keeps a 
-> > generation counter in the super block and increments it every time it 
-> > writes to the disk.  The user space daemon might read that, then the fs 
-> > changes it, you suspend, and when you wake up, the daemon thinks the 
-> > media changed because it wasn't fully up to date.
-> 
-> There are other, harder problems associated with doing this is userspace.
-> 
-> Really, the device needs to be considered separately at each level of
-> driver processing.  At the USB level it may still appear to be the same,
-> but at the SCSI level it may appear different.  Or at the SCSI level it
-> may be the same, but at the gendisk level it may be different (different
-> media, partition table changed).  Or at the gendisk level it may be the
-> same, but at the filesystem level one or more of the partitions may be
-> different (superblock changed).
-> 
-> Each level would need its own way of checking for changes and recreating 
-> the appropriate data structures.  And while making the determinations, we 
-> would need to temporarily set the device to read-only.  Yes, userspace 
-> could do _some_ of the work, but it would need a lot of help from the 
-> kernel.
-> 
+Phillip Susi <psusi@cfl.rr.com> wrote:
+> No, I wasn't arguing that it should be okay to unplug a usb drive while 
+> the system is suspended, I was saying that it is better for the kernel 
+> to assume you did not when it can't really tell, since you aren't 
+> supposed to do that anyhow.
 
-There are two things here: a) identifying the device and b) putting it into
-the correct place in the various data structures.  I suspect these can (and
-should) be separated out.
+I wonder if this problem can be solved with a generic multi-path layer.
+Every time a new Device shows up, it is tested for known volumnes and
+re-attached. That way the USB layer can still generate new devices, and the
+filesystem layer will not lose the connection to the devices. 
 
-For a), the current kernel behaviour is what we want - make the thing
-appear at a new place in the namespace and in the hierarchy.  Then
-userspace can do whatever needs to be done to identify the device, and
-apply some sort of policy decision to the result.
+(with the addtional benefit that it also works cleaner for real multipath
+server environments)
 
-It's what comes next that we're missing: the ability for userspace to tell
-the krnrel what the decice's naming and positioning _should_ be.  The
-kernel will then atomically tear down what it currently has and will then
-set everything up as desired.
-
+Gruss
+Bernd

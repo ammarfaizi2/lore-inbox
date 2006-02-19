@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWBSWig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWBSWmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751105AbWBSWig (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 17:38:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWBSWig
+	id S1751113AbWBSWmE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 17:42:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWBSWmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 17:38:36 -0500
-Received: from ozlabs.org ([203.10.76.45]:61877 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751105AbWBSWif (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 17:38:35 -0500
-Subject: Re: kbuild: Section mismatch warnings
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060219113630.GA5032@mars.ravnborg.org>
-References: <20060217214855.GA5563@mars.ravnborg.org>
-	 <20060217224702.GA25761@mars.ravnborg.org>
-	 <20060219113630.GA5032@mars.ravnborg.org>
-Content-Type: text/plain
-Date: Mon, 20 Feb 2006 09:38:35 +1100
-Message-Id: <1140388715.2418.42.camel@localhost.localdomain>
+	Sun, 19 Feb 2006 17:42:04 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:47575
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751113AbWBSWmD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 17:42:03 -0500
+Date: Sun, 19 Feb 2006 14:41:42 -0800
+From: Greg KH <greg@kroah.com>
+To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: don't bother users with unimportant messages.
+Message-ID: <20060219224142.GA3766@kroah.com>
+References: <20060219010910.GA18841@redhat.com> <20060219081523.GA9668@flint.arm.linux.org.uk> <20060219082916.GA19903@redhat.com> <20060219175745.GB2674@kroah.com> <20060219183725.GC32492@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060219183725.GC32492@redhat.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-19 at 12:36 +0100, Sam Ravnborg wrote:
-> The module parameter warning are still pending - I hope Rusty will
-> comment on yhe suggested patch to use __initdata in the moduleparam
-> macro.
+On Sun, Feb 19, 2006 at 01:37:25PM -0500, Dave Jones wrote:
+> On Sun, Feb 19, 2006 at 09:57:45AM -0800, Greg Kroah-Hartman wrote:
+> 
+>  > >  > If you're getting complaints about this, wouldn't it be better to
+>  > >  > forward them here so that they can be fixed up?
+>  > > 
+>  > > w83627hf, and probably other drivers from drivers/hwmon/
+>  > 
+>  > With 2.6.16-rc4?  I thought I just sent a patch in for -rc3 to fix this.
+> 
+> Yep, user was running an older kernel.
+> Much ado about nothing..
 
-kernel/params.c's param_sysfs_setup will have to make a copy if you do
-this.  At the moment it keeps the original structure around.
+Great, thanks for checking up on this.
 
-Hope that helps!
-Rusty.
--- 
- ccontrol: http://ozlabs.org/~rusty/ccontrol
-
+greg k-h

@@ -1,73 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWBSTSy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbWBSTU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932226AbWBSTSy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 14:18:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWBSTSy
+	id S932228AbWBSTU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 14:20:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWBSTU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 14:18:54 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:5654 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932226AbWBSTSx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 14:18:53 -0500
-Date: Sun, 19 Feb 2006 20:18:59 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Ariel Garcia <garcia@iwr.fzk.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc4 libata + AHCI patched for suspend fails on ICH6
-Message-ID: <20060219191859.GJ8852@suse.de>
-References: <200602191958.38219.garcia@iwr.fzk.de>
+	Sun, 19 Feb 2006 14:20:57 -0500
+Received: from mailgw.aecom.yu.edu ([129.98.1.16]:29925 "EHLO
+	mailgw.aecom.yu.edu") by vger.kernel.org with ESMTP id S932228AbWBSTU5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 14:20:57 -0500
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602191958.38219.garcia@iwr.fzk.de>
+Message-Id: <a0623090bc01e747f2f5b@[129.98.90.227]>
+Date: Sun, 19 Feb 2006 14:20:54 -0500
+To: drbd-user@linbit.com
+From: Maurice Volaski <mvolaski@aecom.yu.edu>
+Subject: drbd-0.7.15 crashed doing a full sync under 2.6.13
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 19 2006, Ariel Garcia wrote:
-> Hi Jens,
-> 
-> regarding your suspend support patch for libata:
-> 
-> > author  Jens Axboe <axboe@suse.de>
-> >    Fri, 6 Jan 2006 08:28:07 +0000 (09:28 +0100)
-> > commit  9b847548663ef1039dd49f0eb4463d001e596bc3
-> 
-> >  [PATCH] Suspend support for libata
-> >  This patch adds suspend patch to libata, and ata_piix in particular.
-> > For most low level drivers, they should just need to add the 4 hooks to
-> > work. As I can only test ata_piix, I didn't enable it for more though.
-> 
-> i tested the trivial "4-hooks" patch on kernel 2.6.16-rc4, on my laptop 
-> (i915, ICH6 chipset, sata hd - a Fujitsu-Siemens 7020)
-> but it doesn't work as it should:
->    after resume the drive fails to respond to the commands so it
->    ends up remounted read-only.
-> 
-> I am attaching:
->    - the trivial patch i used
->    - the output of lsmod (lsmod-clean.txt)
->    - the output of lspci -vv  before (lspci-clean.txt) 
->         and after resuming (lspci-resume.txt)
->    - the output of dmesg (glueing the full boot + resuming messages)
-> 
-> All this was done running in single mode. I also tried suspending after 
-> removing all unnecessary modules (usb, snd,ide,...), same result.
-> 
-> BTW, running a    'diff lspci-clean.txt lspci-resume.txt'
-> i also noticed that after resume some pci devices get a different 
-> "BusMaster" polarity, but the SATA controller doesn't.
-> 
-> I would be glad to test patches/debug other things, feel free to ask.
+First posted to drbd mailing list on 2/6 with no reply. It hasn't 
+happened since, but once is enough to mean something is wrong 
+somewhere.....
 
-The first thing to try is to add the acpi addon from Randy and see if
-that helps at all. Looking at the log, the first command we issue after
-resume times out which smells a lot like an unlock command missing
-(which is typically in the GTF list from acpi).
+I did a resize of all the underlying LVMs and that proceeded very
+nicely since drbd automatically recognized the new sizes and
+resize2fs automatically figured out the new size, too.
 
-So try this patch on 2.6.16-rc3 (or -rc4, if it applies, haven't
-checked) and make sure to keep the ahci patch you have that adds the 4
-needed hooks as well.
+Anyway, bringing up the secondary automatically caused the primary to
+start a fully sync. The performance this time was very nice,
+averaging 50-55 MB per second across a total of 8 drbd resources, all
+syncing simultaneously. Each resource is an underlying logical volume
+and is assigned its own TCP port in drbd.conf. The primary has dual
+bonded gigabit in active load balancing mode and secondary is single
+gigabit.
 
+A total of 5600 GB has to be moved. I am estimating the resources
+were between 1/3 and 1/2 finished when the kernel panicked.
+
+The secondary, which is running the same kernel and drbd, did not
+panic. The drives in both systems are attached via LSI Logic SCSI
+cards and on the primary the driver is mptscsih; on the secondary it
+is sym53c8xx.
+
+Unfortunately, I never gotten an easy way to capture the text of a
+panic, and apparently attachments are excluded if the message exceeds
+40K, so I typed out the whole thing:
+
+ne_endio+243}
+<ffffffff8029460b.{__end_that_request_first+283}
+<ffffffff802d297c.{scsi_end_request+60}
+<ffffffff802d2d7b>{scsi_io_completion+651}
+<ffffffff802e1eb1>{sd_rw_intr+721}
+<ffffffff802d25cf>{scsi_device_unbusy+95}
+<ffffffff802cd722>{scsi_softirq+258}
+<ffffffff8013b111>{__do_softirq+113}
+<ffffffff8010ee63>{call_softirq+31}
+<ffffffff80110a55>{do_softirq+53} <ffffffff80119a0f>{do_IRQ+79}
+<ffffffff8010e20a>{ret_from_intr+0} <EOI>
+<ffffffff880bda221>{:drbd:drbd_bm_clear_bit+497}
+<ffffffff880bda21>{:drbd:drbd_bm_clear_bit+497}
+<ffffffff880ccc21>{:drbd:__drbd_set_in_sync+545}
+<ffffffff880c9140>{:drbd:got_BlockAck+96}
+<ffffffff880c9a99>{:drbd:drbd_asender+1081}
+<ffffffff880ce526>{:drbd:drbd_thread_setup+190}
+<ffffffff8010e91a>{child_rip+8}
+<ffffffff880ce460>{:drbd:drbd_thread_setup+0>
+<ffffffff8010e912>{child_rip+0}
+
+Code: 80 3b 00 7e f9 e9 89 fb ff ff e8 40 27 ef ff e9 01 fc ff ff
+console shuts up...
+   <0>Kernel panic --not syncing:Aiee, killing interrupt handler!
+
+keywords: crash, freeze, freezing, hang, hung, panic, locked up,
+scsi, thread, threads, interrupt handler, bug, race condition.
 -- 
-Jens Axboe
 
+Maurice Volaski, mvolaski@aecom.yu.edu
+Computing Support, Rose F. Kennedy Center
+Albert Einstein College of Medicine of Yeshiva University

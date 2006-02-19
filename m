@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbWBSW2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbWBSW34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751116AbWBSW2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 17:28:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWBSW2Y
+	id S932335AbWBSW34 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 17:29:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbWBSW34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 17:28:24 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:17087 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751113AbWBSW2Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 17:28:24 -0500
-Subject: Re: No sound from SB live!
-From: Lee Revell <rlrevell@joe-job.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Nishanth Aravamudan <nacc@us.ibm.com>, Nick Warne <nick@linicks.net>,
-       Jesper Juhl <jesper.juhl@gmail.com>, tiwai@suse.de, ghrt@dial.kappa.ro,
-       perex@suse.cz, kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060219222533.GB15608@elf.ucw.cz>
-References: <20060218231419.GA3219@elf.ucw.cz>
-	 <9a8748490602190304w43c32ae6m5b610f2ec9ad46f2@mail.gmail.com>
-	 <7c3341450602190318o1c60e9b5w@mail.gmail.com>
-	 <20060219205157.GA5976@us.ibm.com> <1140384638.2733.389.camel@mindpipe>
-	 <20060219214934.GO15311@elf.ucw.cz> <1140386075.2733.399.camel@mindpipe>
-	 <20060219222533.GB15608@elf.ucw.cz>
-Content-Type: text/plain
-Date: Sun, 19 Feb 2006 17:28:15 -0500
-Message-Id: <1140388095.2733.406.camel@mindpipe>
+	Sun, 19 Feb 2006 17:29:56 -0500
+Received: from c-66-31-106-233.hsd1.ma.comcast.net ([66.31.106.233]:36284 "EHLO
+	nwo.kernelslacker.org") by vger.kernel.org with ESMTP
+	id S932335AbWBSW3z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 17:29:55 -0500
+Date: Sun, 19 Feb 2006 17:29:43 -0500
+From: Dave Jones <davej@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>, Paul Mundt <lethal@linux-sh.org>,
+       Greg KH <greg@kroah.com>, zanussi@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] relay: Migrate from relayfs to a generic relay API.
+Message-ID: <20060219222943.GD7974@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Paul Mundt <lethal@linux-sh.org>, Greg KH <greg@kroah.com>,
+	zanussi@us.ibm.com, linux-kernel@vger.kernel.org
+References: <20060219210733.GA3682@linux-sh.org> <20060219212122.GA7974@redhat.com> <20060219220840.GA14153@infradead.org> <20060219221330.GC7974@redhat.com> <20060219221724.GA14408@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.91 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060219221724.GA14408@infradead.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-19 at 23:25 +0100, Pavel Machek wrote:
-> I'm using static /dev... snddevices script indeed fixed that, but it
-> still does not work. (Is earphone in green connector enough?)
-> 
+On Sun, Feb 19, 2006 at 10:17:24PM +0000, Christoph Hellwig wrote:
+ > On Sun, Feb 19, 2006 at 05:13:30PM -0500, Dave Jones wrote:
+ > > On Sun, Feb 19, 2006 at 10:08:40PM +0000, Christoph Hellwig wrote:
+ > > 
+ > >  > > What about the userspace visible API for things already using relayfs,
+ > >  > There's no existing in-tree user of relayfs.
+ > > 
+ > > wtf ? since when has userspace been 'in-tree' ?
+ > 
+ > relayfs is a kernel component.  to create any user-visible thing in relayfs
+ > some kernel components needs to use it.  no single kernel component does
+ > currently
 
-No idea.  There are like 50 varieties of this card.
+systemtap uses kprobes to export data through relayfs.
 
-> Ouch and that device should be still listed in devices.txt, no? 
-
-Probably...
-
-Lee
+		Dave
 

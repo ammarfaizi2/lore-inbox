@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbWBSX43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbWBSX5U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932458AbWBSX43 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 18:56:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbWBSX43
+	id S932461AbWBSX5U (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 18:57:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbWBSX5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 18:56:29 -0500
-Received: from smtp.bulldogdsl.com ([212.158.248.8]:15629 "EHLO
-	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S932458AbWBSX42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 18:56:28 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: No sound from SB live!
-Date: Sun, 19 Feb 2006 23:56:39 +0000
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@suse.cz>, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Nick Warne <nick@linicks.net>, Jesper Juhl <jesper.juhl@gmail.com>,
-       tiwai@suse.de, ghrt@dial.kappa.ro, perex@suse.cz,
-       kernel list <linux-kernel@vger.kernel.org>
-References: <20060218231419.GA3219@elf.ucw.cz> <200602192323.08169.s0348365@sms.ed.ac.uk> <1140391929.2733.430.camel@mindpipe>
-In-Reply-To: <1140391929.2733.430.camel@mindpipe>
+	Sun, 19 Feb 2006 18:57:20 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:63452 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932461AbWBSX5T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 18:57:19 -0500
+Message-ID: <43F9063A.9090700@jp.fujitsu.com>
+Date: Mon, 20 Feb 2006 08:58:50 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Jim Duchek <jim.duchek@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: page_order private bit causes problems with dma_alloc_coherent?
+References: <dead81ad0602190139t20b3805bt@mail.gmail.com>
+In-Reply-To: <dead81ad0602190139t20b3805bt@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602192356.39834.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 19 February 2006 23:32, Lee Revell wrote:
-> On Sun, 2006-02-19 at 23:23 +0000, Alistair John Strachan wrote:
-> > I'm still using 1.0.9 on 2.6.16-rc4 with no problems, Audigy 2 (one
-> > that uses
-> > emu10k1).
->
-> It's a specific change to the SBLive! that did not affect the Audigy
-> that causes alsa-lib 1.0.10+ to be required on 2.6.14 and up.  These
-> types of incompatible changes should be rare.
->
-> It was a necessary precursor to fixing the well known "master volume
-> only controls front speakers" bug.
+Jim Duchek wrote:
+> I'm attempting to debug a problem where pci_free_consistent causes a spewage
+> of bad_page's due to the LG_private bit being set.  The remove goes through
+> free_pages_ok, which does the free_page_check (which errors on the private
+> bit) _BEFORE_ free_pages_bulk (which removes the private bit)
+> 
 
-Thanks for this info Lee, and understand I don't hold anybody specifically in 
-the alsa team responsible but *deep breath*:
+When page is free , page_count(page) == 0. But this just means page is 'free'.
+To show page is a head of buddy (contiguous pages of 2^order pages), order is
+stored into page->private. To show page->private has a valid 'order', PG_private
+is used.
 
-Please let everybody know about incompatible changes to alsa-lib know about it 
-prior to making the change mandatory.
+See page_is_buddy() function.
 
-This means immediately update http://www.alsa-project.org/ with the 
-information. I do not mean add a one-liner to the changelog.
+> I'm not entirely sure why the pages are getting this bit -- this is a DRI
+> driver and the bits don't get added during the whole time I'm running an
+> application -- they get added shortly before I kill the GL client.  Any
+> hints?  Is there a way to force pages never to use the page_order stuff?
+> Should free_pages_check not consider the private bit such a bad thing?
+> Should I just hack in something where I remove all the bits right before I
+> do my free? :)
+> 
+I think removing PG_private before freeing is sane.
+The page is free, so it's needless to use PG_private bit when free_pages() is called.
 
-ALSA's great and I wholeheartedly support it, but this sort of thing cannot 
-happen without informing people about the requirement. Expecting people to 
-"just upgrade" is frankly not acceptable. At all. We're not using Rawhide.
+Thanks,
+-- Kame
 
--- 
-Cheers,
-Alistair.
-
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.

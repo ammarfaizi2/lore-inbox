@@ -1,657 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWBSVJT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWBSVMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbWBSVJT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 16:09:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWBSVJS
+	id S932178AbWBSVMh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 16:12:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWBSVMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 16:09:18 -0500
-Received: from smtp2.pp.htv.fi ([213.243.153.35]:12956 "EHLO smtp2.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S932194AbWBSVJP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 16:09:15 -0500
-Date: Sun, 19 Feb 2006 23:09:14 +0200
-From: Paul Mundt <lethal@linux-sh.org>
-To: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
-       zanussi@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: [PATCH 5/5] relay: relay header cleanup.
-Message-ID: <20060219210914.GF3682@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
-	zanussi@us.ibm.com, linux-kernel@vger.kernel.org
-References: <20060219210733.GA3682@linux-sh.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060219210733.GA3682@linux-sh.org>
-User-Agent: Mutt/1.5.11
+	Sun, 19 Feb 2006 16:12:37 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:33428 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S932178AbWBSVMg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 16:12:36 -0500
+From: Nigel Cunningham <nigel@suspend2.net>
+Organization: Suspend2.net
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Date: Mon, 20 Feb 2006 07:09:14 +1000
+User-Agent: KMail/1.9.1
+Cc: Matthias Hensler <matthias@wspse.de>, Sebastian Kgler <sebas@kde.org>,
+       kernel list <linux-kernel@vger.kernel.org>, rjw@sisk.pl
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060211104130.GA28282@kobayashi-maru.wspse.de> <20060218142610.GT3490@openzaurus.ucw.cz>
+In-Reply-To: <20060218142610.GT3490@openzaurus.ucw.cz>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1329192.vK9RiKkKQV";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200602200709.17955.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rename relayfs_fs.h to relay.h, drop some left over relayfs cruft, and
-update the various users of it.
+--nextPart1329192.vK9RiKkKQV
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Signed-off-by: Paul Mundt <lethal@linux-sh.org>
+Hi.
 
----
+On Sunday 19 February 2006 00:26, Pavel Machek wrote:
+> Hi!
+>
+> Thanks for a fresh air in this flamewar...
+>
+> > I have to completly agree with Sebastian here. 16 months ago I was in
+> > the need to have a suspend mode running on my new notebook. Back then
+> > Suspend 2 was the only choice, and while it had still problems it was
+> > surprisingly well behaving (in contrast to S3 mode and the mainline
+> > swsusp). The support of the community was, as said above, very good, and
+> > most issues very fixed fast.
+>
+> Can you test recent swsusp?
+>
+> > Since it worked good for me, I started to contribute by supplying Fedora
+> > patched kernels, helper packages and some documentation. Today on
+> > Fedora, it is as easy as installing 4 RPM-packages and adding the
+> > "resume2=3D" parameter to the kernel commandline, and I know that it wo=
+rks
+> > this well on several other distributions too.
+>
+> ...well, thanks for your good work.
+>
+> > Some more numbers: judging from my access logs and the feedback I get, I
+> > suspect at least 2000 Fedora users using Suspend 2 on a regular basis
+> > with success. Listening to the IRC channel and reading the forums and
+> > wikis, I see a huge bunch of people using Suspend 2 on nearly every
+> > distribution. The problems are incredible low, mostly minor things that
+> > get fixed nearly instantly.
+>
+> Well, at least Fedora and SuSE ship swsusp by default. So it is getting
+> huge ammount of testing, too.
+>
+> > Some pros of Suspend 2 from my view:
+> > - it is reliable and stable (really!)
+> > - it is fast (10-30 seconds on my notebook with 1280 MB ram, depending
+> >   on how much caches are saved)
+> > - it can save all buffers and caches and the system is instantly
+> >   responsible after resume (even Windows cannot do this and is very slow
+> >   the first minute after resume)
+> > - it works on all major platforms (x86, SMP, x86_64, there were success
+> >   reports for PPC, and I believe even ARM works)
+> > - and the most important thing, as already said, it is available _today_
+>
+> swsusp is also available today, and works better than you think. It is
+> slightly slower, but has all the other
+> features you listed in 2.6.16-rc3.
 
- fs/sysfs/relay.c           |    2 
- include/linux/relay.h      |  281 +++++++++++++++++++++++++++++++++++++++++++
- include/linux/relayfs_fs.h |  290 --------------------------------------------
- kernel/relay.c             |    2 
- 4 files changed, 283 insertions(+), 292 deletions(-)
- create mode 100644 include/linux/relay.h
- delete mode 100644 include/linux/relayfs_fs.h
+It is a lot slower because it does all it's I/O synchronously, doesn't=20
+compress the image and throws away memory until at least half is free.
 
-0d40ecc14733fa6f46dd4aa7f9de4e5a9a484d0e
-diff --git a/fs/sysfs/relay.c b/fs/sysfs/relay.c
-index 965965b..f40de18 100644
---- a/fs/sysfs/relay.c
-+++ b/fs/sysfs/relay.c
-@@ -7,7 +7,7 @@
-  * License.  See the file "COPYING" in the main directory of this archive
-  * for more details.
-  */
--#include <linux/relayfs_fs.h>
-+#include <linux/relay.h>
- #include <linux/namei.h>
- #include <linux/module.h>
- #include "sysfs.h"
-diff --git a/include/linux/relay.h b/include/linux/relay.h
-new file mode 100644
-index 0000000..4bcc153
---- /dev/null
-+++ b/include/linux/relay.h
-@@ -0,0 +1,281 @@
-+/*
-+ * linux/include/linux/relay.h
-+ *
-+ * Copyright (C) 2002, 2003 - Tom Zanussi (zanussi@us.ibm.com), IBM Corp
-+ * Copyright (C) 1999, 2000, 2001, 2002 - Karim Yaghmour (karim@opersys.com)
-+ *
-+ * CONFIG_RELAY definitions and declarations
-+ */
-+
-+#ifndef _LINUX_RELAY_H
-+#define _LINUX_RELAY_H
-+
-+#include <linux/config.h>
-+#include <linux/types.h>
-+#include <linux/sched.h>
-+#include <linux/wait.h>
-+#include <linux/list.h>
-+#include <linux/fs.h>
-+#include <linux/poll.h>
-+#include <linux/kref.h>
-+
-+/* Needs a _much_ better name... */
-+#define FIX_SIZE(x) ((((x) - 1) & PAGE_MASK) + PAGE_SIZE)
-+
-+/*
-+ * Tracks changes to rchan/rchan_buf structs
-+ */
-+#define RELAYFS_CHANNEL_VERSION		6
-+
-+/*
-+ * Per-cpu relay channel buffer
-+ */
-+struct rchan_buf
-+{
-+	void *start;			/* start of channel buffer */
-+	void *data;			/* start of current sub-buffer */
-+	size_t offset;			/* current offset into sub-buffer */
-+	size_t subbufs_produced;	/* count of sub-buffers produced */
-+	size_t subbufs_consumed;	/* count of sub-buffers consumed */
-+	struct rchan *chan;		/* associated channel */
-+	wait_queue_head_t read_wait;	/* reader wait queue */
-+	struct work_struct wake_readers; /* reader wake-up work struct */
-+	struct dentry *dentry;		/* channel file dentry */
-+	struct kref kref;		/* channel buffer refcount */
-+	struct page **page_array;	/* array of current buffer pages */
-+	unsigned int page_count;	/* number of current buffer pages */
-+	unsigned int finalized;		/* buffer has been finalized */
-+	size_t *padding;		/* padding counts per sub-buffer */
-+	size_t prev_padding;		/* temporary variable */
-+	size_t bytes_consumed;		/* bytes consumed in cur read subbuf */
-+	unsigned int cpu;		/* this buf's cpu */
-+} ____cacheline_aligned;
-+
-+/*
-+ * Relay channel data structure
-+ */
-+struct rchan
-+{
-+	u32 version;			/* the version of this struct */
-+	size_t subbuf_size;		/* sub-buffer size */
-+	size_t n_subbufs;		/* number of sub-buffers per buffer */
-+	size_t alloc_size;		/* total buffer size allocated */
-+	struct rchan_callbacks *cb;	/* client callbacks */
-+	struct kref kref;		/* channel refcount */
-+	void *private_data;		/* for user-defined data */
-+	size_t last_toobig;		/* tried to log event > subbuf size */
-+	struct rchan_buf *buf[NR_CPUS]; /* per-cpu channel buffers */
-+};
-+
-+/*
-+ * Relay channel client callbacks
-+ */
-+struct rchan_callbacks
-+{
-+	/*
-+	 * subbuf_start - called on buffer-switch to a new sub-buffer
-+	 * @buf: the channel buffer containing the new sub-buffer
-+	 * @subbuf: the start of the new sub-buffer
-+	 * @prev_subbuf: the start of the previous sub-buffer
-+	 * @prev_padding: unused space at the end of previous sub-buffer
-+	 *
-+	 * The client should return 1 to continue logging, 0 to stop
-+	 * logging.
-+	 *
-+	 * NOTE: subbuf_start will also be invoked when the buffer is
-+	 *       created, so that the first sub-buffer can be initialized
-+	 *       if necessary.  In this case, prev_subbuf will be NULL.
-+	 *
-+	 * NOTE: the client can reserve bytes at the beginning of the new
-+	 *       sub-buffer by calling subbuf_start_reserve() in this callback.
-+	 */
-+	int (*subbuf_start) (struct rchan_buf *buf,
-+			     void *subbuf,
-+			     void *prev_subbuf,
-+			     size_t prev_padding);
-+
-+	/*
-+	 * buf_mapped - relay buffer mmap notification
-+	 * @buf: the channel buffer
-+	 * @filp: relay file pointer
-+	 *
-+	 * Called when a relay file is successfully mmapped
-+	 */
-+        void (*buf_mapped)(struct rchan_buf *buf,
-+			   struct file *filp);
-+
-+	/*
-+	 * buf_unmapped - relay buffer unmap notification
-+	 * @buf: the channel buffer
-+	 * @filp: relay file pointer
-+	 *
-+	 * Called when a relay file is successfully unmapped
-+	 */
-+        void (*buf_unmapped)(struct rchan_buf *buf,
-+			     struct file *filp);
-+	/*
-+	 * create_buf_file - create file to represent a relay channel buffer
-+	 * @filename: the name of the file to create
-+	 * @parent: the parent of the file to create
-+	 * @mode: the mode of the file to create
-+	 * @buf: the channel buffer
-+	 * @is_global: outparam - set non-zero if the buffer should be global
-+	 *
-+	 * Called during relay_open(), once for each per-cpu buffer,
-+	 * to allow the client to create a file to be used to
-+	 * represent the corresponding channel buffer.  If the file is
-+	 * created outside of relay, the parent must also exist in
-+	 * that filesystem.
-+	 *
-+	 * The callback should return the dentry of the file created
-+	 * to represent the relay buffer.
-+	 *
-+	 * Setting the is_global outparam to a non-zero value will
-+	 * cause relay_open() to create a single global buffer rather
-+	 * than the default set of per-cpu buffers.
-+	 *
-+	 * See Documentation/filesystems/relayfs.txt for more info.
-+	 */
-+	struct dentry *(*create_buf_file)(const char *filename,
-+					  struct dentry *parent,
-+					  int mode,
-+					  struct rchan_buf *buf,
-+					  int *is_global);
-+
-+	/*
-+	 * remove_buf_file - remove file representing a relay channel buffer
-+	 * @dentry: the dentry of the file to remove
-+	 *
-+	 * Called during relay_close(), once for each per-cpu buffer,
-+	 * to allow the client to remove a file used to represent a
-+	 * channel buffer.
-+	 *
-+	 * The callback should return 0 if successful, negative if not.
-+	 */
-+	int (*remove_buf_file)(struct dentry *dentry);
-+};
-+
-+/*
-+ * CONFIG_RELAY kernel API, kernel/relay.c
-+ */
-+
-+struct rchan *relay_open(const char *base_filename,
-+			 struct dentry *parent,
-+			 size_t subbuf_size,
-+			 size_t n_subbufs,
-+			 struct rchan_callbacks *cb);
-+extern void relay_close(struct rchan *chan);
-+extern void relay_flush(struct rchan *chan);
-+extern void relay_subbufs_consumed(struct rchan *chan,
-+				   unsigned int cpu,
-+				   size_t consumed);
-+extern void relay_reset(struct rchan *chan);
-+extern int relay_buf_full(struct rchan_buf *buf);
-+
-+extern size_t relay_switch_subbuf(struct rchan_buf *buf,
-+				  size_t length);
-+
-+/**
-+ *	relay_write - write data into the channel
-+ *	@chan: relay channel
-+ *	@data: data to be written
-+ *	@length: number of bytes to write
-+ *
-+ *	Writes data into the current cpu's channel buffer.
-+ *
-+ *	Protects the buffer by disabling interrupts.  Use this
-+ *	if you might be logging from interrupt context.  Try
-+ *	__relay_write() if you know you	won't be logging from
-+ *	interrupt context.
-+ */
-+static inline void relay_write(struct rchan *chan,
-+			       const void *data,
-+			       size_t length)
-+{
-+	unsigned long flags;
-+	struct rchan_buf *buf;
-+
-+	local_irq_save(flags);
-+	buf = chan->buf[smp_processor_id()];
-+	if (unlikely(buf->offset + length > chan->subbuf_size))
-+		length = relay_switch_subbuf(buf, length);
-+	memcpy(buf->data + buf->offset, data, length);
-+	buf->offset += length;
-+	local_irq_restore(flags);
-+}
-+
-+/**
-+ *	__relay_write - write data into the channel
-+ *	@chan: relay channel
-+ *	@data: data to be written
-+ *	@length: number of bytes to write
-+ *
-+ *	Writes data into the current cpu's channel buffer.
-+ *
-+ *	Protects the buffer by disabling preemption.  Use
-+ *	relay_write() if you might be logging from interrupt
-+ *	context.
-+ */
-+static inline void __relay_write(struct rchan *chan,
-+				 const void *data,
-+				 size_t length)
-+{
-+	struct rchan_buf *buf;
-+
-+	buf = chan->buf[get_cpu()];
-+	if (unlikely(buf->offset + length > buf->chan->subbuf_size))
-+		length = relay_switch_subbuf(buf, length);
-+	memcpy(buf->data + buf->offset, data, length);
-+	buf->offset += length;
-+	put_cpu();
-+}
-+
-+/**
-+ *	relay_reserve - reserve slot in channel buffer
-+ *	@chan: relay channel
-+ *	@length: number of bytes to reserve
-+ *
-+ *	Returns pointer to reserved slot, NULL if full.
-+ *
-+ *	Reserves a slot in the current cpu's channel buffer.
-+ *	Does not protect the buffer at all - caller must provide
-+ *	appropriate synchronization.
-+ */
-+static inline void *relay_reserve(struct rchan *chan, size_t length)
-+{
-+	void *reserved;
-+	struct rchan_buf *buf = chan->buf[smp_processor_id()];
-+
-+	if (unlikely(buf->offset + length > buf->chan->subbuf_size)) {
-+		length = relay_switch_subbuf(buf, length);
-+		if (!length)
-+			return NULL;
-+	}
-+	reserved = buf->data + buf->offset;
-+	buf->offset += length;
-+
-+	return reserved;
-+}
-+
-+/**
-+ *	subbuf_start_reserve - reserve bytes at the start of a sub-buffer
-+ *	@buf: relay channel buffer
-+ *	@length: number of bytes to reserve
-+ *
-+ *	Helper function used to reserve bytes at the beginning of
-+ *	a sub-buffer in the subbuf_start() callback.
-+ */
-+static inline void subbuf_start_reserve(struct rchan_buf *buf,
-+					size_t length)
-+{
-+	BUG_ON(length >= buf->chan->subbuf_size - 1);
-+	buf->offset = length;
-+}
-+
-+/*
-+ * exported relay file operations, kernel/relay.c
-+ */
-+extern struct file_operations relay_file_operations;
-+
-+#endif /* _LINUX_RELAY_H */
-+
-diff --git a/include/linux/relayfs_fs.h b/include/linux/relayfs_fs.h
-deleted file mode 100644
-index 435ebb1..0000000
---- a/include/linux/relayfs_fs.h
-+++ /dev/null
-@@ -1,290 +0,0 @@
--/*
-- * linux/include/linux/relayfs_fs.h
-- *
-- * Copyright (C) 2002, 2003 - Tom Zanussi (zanussi@us.ibm.com), IBM Corp
-- * Copyright (C) 1999, 2000, 2001, 2002 - Karim Yaghmour (karim@opersys.com)
-- *
-- * RelayFS definitions and declarations
-- */
--
--#ifndef _LINUX_RELAYFS_FS_H
--#define _LINUX_RELAYFS_FS_H
--
--#include <linux/config.h>
--#include <linux/types.h>
--#include <linux/sched.h>
--#include <linux/wait.h>
--#include <linux/list.h>
--#include <linux/fs.h>
--#include <linux/poll.h>
--#include <linux/kref.h>
--
--/* Needs a _much_ better name... */
--#define FIX_SIZE(x) ((((x) - 1) & PAGE_MASK) + PAGE_SIZE)
--
--/*
-- * Tracks changes to rchan/rchan_buf structs
-- */
--#define RELAYFS_CHANNEL_VERSION		6
--
--/*
-- * Per-cpu relay channel buffer
-- */
--struct rchan_buf
--{
--	void *start;			/* start of channel buffer */
--	void *data;			/* start of current sub-buffer */
--	size_t offset;			/* current offset into sub-buffer */
--	size_t subbufs_produced;	/* count of sub-buffers produced */
--	size_t subbufs_consumed;	/* count of sub-buffers consumed */
--	struct rchan *chan;		/* associated channel */
--	wait_queue_head_t read_wait;	/* reader wait queue */
--	struct work_struct wake_readers; /* reader wake-up work struct */
--	struct dentry *dentry;		/* channel file dentry */
--	struct kref kref;		/* channel buffer refcount */
--	struct page **page_array;	/* array of current buffer pages */
--	unsigned int page_count;	/* number of current buffer pages */
--	unsigned int finalized;		/* buffer has been finalized */
--	size_t *padding;		/* padding counts per sub-buffer */
--	size_t prev_padding;		/* temporary variable */
--	size_t bytes_consumed;		/* bytes consumed in cur read subbuf */
--	unsigned int cpu;		/* this buf's cpu */
--} ____cacheline_aligned;
--
--/*
-- * Relay channel data structure
-- */
--struct rchan
--{
--	u32 version;			/* the version of this struct */
--	size_t subbuf_size;		/* sub-buffer size */
--	size_t n_subbufs;		/* number of sub-buffers per buffer */
--	size_t alloc_size;		/* total buffer size allocated */
--	struct rchan_callbacks *cb;	/* client callbacks */
--	struct kref kref;		/* channel refcount */
--	void *private_data;		/* for user-defined data */
--	size_t last_toobig;		/* tried to log event > subbuf size */
--	struct rchan_buf *buf[NR_CPUS]; /* per-cpu channel buffers */
--};
--
--/*
-- * Relay channel client callbacks
-- */
--struct rchan_callbacks
--{
--	/*
--	 * subbuf_start - called on buffer-switch to a new sub-buffer
--	 * @buf: the channel buffer containing the new sub-buffer
--	 * @subbuf: the start of the new sub-buffer
--	 * @prev_subbuf: the start of the previous sub-buffer
--	 * @prev_padding: unused space at the end of previous sub-buffer
--	 *
--	 * The client should return 1 to continue logging, 0 to stop
--	 * logging.
--	 *
--	 * NOTE: subbuf_start will also be invoked when the buffer is
--	 *       created, so that the first sub-buffer can be initialized
--	 *       if necessary.  In this case, prev_subbuf will be NULL.
--	 *
--	 * NOTE: the client can reserve bytes at the beginning of the new
--	 *       sub-buffer by calling subbuf_start_reserve() in this callback.
--	 */
--	int (*subbuf_start) (struct rchan_buf *buf,
--			     void *subbuf,
--			     void *prev_subbuf,
--			     size_t prev_padding);
--
--	/*
--	 * buf_mapped - relayfs buffer mmap notification
--	 * @buf: the channel buffer
--	 * @filp: relayfs file pointer
--	 *
--	 * Called when a relayfs file is successfully mmapped
--	 */
--        void (*buf_mapped)(struct rchan_buf *buf,
--			   struct file *filp);
--
--	/*
--	 * buf_unmapped - relayfs buffer unmap notification
--	 * @buf: the channel buffer
--	 * @filp: relayfs file pointer
--	 *
--	 * Called when a relayfs file is successfully unmapped
--	 */
--        void (*buf_unmapped)(struct rchan_buf *buf,
--			     struct file *filp);
--	/*
--	 * create_buf_file - create file to represent a relayfs channel buffer
--	 * @filename: the name of the file to create
--	 * @parent: the parent of the file to create
--	 * @mode: the mode of the file to create
--	 * @buf: the channel buffer
--	 * @is_global: outparam - set non-zero if the buffer should be global
--	 *
--	 * Called during relay_open(), once for each per-cpu buffer,
--	 * to allow the client to create a file to be used to
--	 * represent the corresponding channel buffer.  If the file is
--	 * created outside of relayfs, the parent must also exist in
--	 * that filesystem.
--	 *
--	 * The callback should return the dentry of the file created
--	 * to represent the relay buffer.
--	 *
--	 * Setting the is_global outparam to a non-zero value will
--	 * cause relay_open() to create a single global buffer rather
--	 * than the default set of per-cpu buffers.
--	 *
--	 * See Documentation/filesystems/relayfs.txt for more info.
--	 */
--	struct dentry *(*create_buf_file)(const char *filename,
--					  struct dentry *parent,
--					  int mode,
--					  struct rchan_buf *buf,
--					  int *is_global);
--
--	/*
--	 * remove_buf_file - remove file representing a relayfs channel buffer
--	 * @dentry: the dentry of the file to remove
--	 *
--	 * Called during relay_close(), once for each per-cpu buffer,
--	 * to allow the client to remove a file used to represent a
--	 * channel buffer.
--	 *
--	 * The callback should return 0 if successful, negative if not.
--	 */
--	int (*remove_buf_file)(struct dentry *dentry);
--};
--
--/*
-- * relayfs kernel API, fs/relayfs/relay.c
-- */
--
--struct rchan *relay_open(const char *base_filename,
--			 struct dentry *parent,
--			 size_t subbuf_size,
--			 size_t n_subbufs,
--			 struct rchan_callbacks *cb);
--extern void relay_close(struct rchan *chan);
--extern void relay_flush(struct rchan *chan);
--extern void relay_subbufs_consumed(struct rchan *chan,
--				   unsigned int cpu,
--				   size_t consumed);
--extern void relay_reset(struct rchan *chan);
--extern int relay_buf_full(struct rchan_buf *buf);
--
--extern size_t relay_switch_subbuf(struct rchan_buf *buf,
--				  size_t length);
--extern struct dentry *relayfs_create_dir(const char *name,
--					 struct dentry *parent);
--extern int relayfs_remove_dir(struct dentry *dentry);
--extern struct dentry *relayfs_create_file(const char *name,
--					  struct dentry *parent,
--					  int mode,
--					  struct file_operations *fops,
--					  void *data);
--extern int relayfs_remove_file(struct dentry *dentry);
--
--/**
-- *	relay_write - write data into the channel
-- *	@chan: relay channel
-- *	@data: data to be written
-- *	@length: number of bytes to write
-- *
-- *	Writes data into the current cpu's channel buffer.
-- *
-- *	Protects the buffer by disabling interrupts.  Use this
-- *	if you might be logging from interrupt context.  Try
-- *	__relay_write() if you know you	won't be logging from
-- *	interrupt context.
-- */
--static inline void relay_write(struct rchan *chan,
--			       const void *data,
--			       size_t length)
--{
--	unsigned long flags;
--	struct rchan_buf *buf;
--
--	local_irq_save(flags);
--	buf = chan->buf[smp_processor_id()];
--	if (unlikely(buf->offset + length > chan->subbuf_size))
--		length = relay_switch_subbuf(buf, length);
--	memcpy(buf->data + buf->offset, data, length);
--	buf->offset += length;
--	local_irq_restore(flags);
--}
--
--/**
-- *	__relay_write - write data into the channel
-- *	@chan: relay channel
-- *	@data: data to be written
-- *	@length: number of bytes to write
-- *
-- *	Writes data into the current cpu's channel buffer.
-- *
-- *	Protects the buffer by disabling preemption.  Use
-- *	relay_write() if you might be logging from interrupt
-- *	context.
-- */
--static inline void __relay_write(struct rchan *chan,
--				 const void *data,
--				 size_t length)
--{
--	struct rchan_buf *buf;
--
--	buf = chan->buf[get_cpu()];
--	if (unlikely(buf->offset + length > buf->chan->subbuf_size))
--		length = relay_switch_subbuf(buf, length);
--	memcpy(buf->data + buf->offset, data, length);
--	buf->offset += length;
--	put_cpu();
--}
--
--/**
-- *	relay_reserve - reserve slot in channel buffer
-- *	@chan: relay channel
-- *	@length: number of bytes to reserve
-- *
-- *	Returns pointer to reserved slot, NULL if full.
-- *
-- *	Reserves a slot in the current cpu's channel buffer.
-- *	Does not protect the buffer at all - caller must provide
-- *	appropriate synchronization.
-- */
--static inline void *relay_reserve(struct rchan *chan, size_t length)
--{
--	void *reserved;
--	struct rchan_buf *buf = chan->buf[smp_processor_id()];
--
--	if (unlikely(buf->offset + length > buf->chan->subbuf_size)) {
--		length = relay_switch_subbuf(buf, length);
--		if (!length)
--			return NULL;
--	}
--	reserved = buf->data + buf->offset;
--	buf->offset += length;
--
--	return reserved;
--}
--
--/**
-- *	subbuf_start_reserve - reserve bytes at the start of a sub-buffer
-- *	@buf: relay channel buffer
-- *	@length: number of bytes to reserve
-- *
-- *	Helper function used to reserve bytes at the beginning of
-- *	a sub-buffer in the subbuf_start() callback.
-- */
--static inline void subbuf_start_reserve(struct rchan_buf *buf,
--					size_t length)
--{
--	BUG_ON(length >= buf->chan->subbuf_size - 1);
--	buf->offset = length;
--}
--
--/*
-- * exported relay file operations, fs/relayfs/inode.c
-- */
--extern struct file_operations relay_file_operations;
--
--#endif /* _LINUX_RELAYFS_FS_H */
--
-diff --git a/kernel/relay.c b/kernel/relay.c
-index 7dd674b..8356b8c 100644
---- a/kernel/relay.c
-+++ b/kernel/relay.c
-@@ -15,7 +15,7 @@
- #include <linux/slab.h>
- #include <linux/module.h>
- #include <linux/string.h>
--#include <linux/relayfs_fs.h>
-+#include <linux/relay.h>
- #include <linux/vmalloc.h>
- #include <linux/mm.h>
- 
--- 
-1.2.0.geb68
+> > The only con I see is the complexity of the code, but then again, Nigel
+>
+> ..but thats a big con.
 
+It's fud. Hopefully as I post more suspend2 patches to LKML, people will se=
+e=20
+that Suspend2 is simpler than what you are planning.
+
+> > Again, you said the code is complex, it might be, but still most part of
+> > the code is completly seperate from the rest of the kernel, and only
+> > touches minor things (and Nigel is still working on that). I believe it
+> > would not hurt.
+>
+> It would hurt at least me, Andrew and Linus... It would make lot
+> of suspend2 users very happy...
+
+Pavel, you're very good at making general hand waving statements, but terri=
+ble=20
+at backing them up with facts, specifics or technical arguments. Could you=
+=20
+please do some more of the later?
+
+> > From a user, and contributor, point of view, I really do not understand
+> > why not even trying to push a working implementation into mainline (I
+> > know that you cannot just apply the Suspend 2 patches and shipping it,
+>
+> It is less work to port suspend2's features into userspace than to make
+> suspend2 acceptable to mainline. Both will mean big changes, and may
+> cause some short-term problems, but it will be less pain than
+> maintaining suspend2 forever. Please help with the former...
+
+That's not true. I've taken time to look at what would be involved in makin=
+g=20
+suspend2 match the changes you're doing, and I've decided it's just not wor=
+th=20
+the effort.
+
+Let's be clear. uswsusp is not really moving suspend-to-disk to userspace.=
+=20
+What it is doing is leaving everything but some code for writing the image =
+in=20
+kernel space, and implementing ioctls to give a userspace program the abili=
+ty=20
+to request that other processes be frozen, the snapshot prepared and so on.=
+=20
+Pages in the snapshot are copied to userspace, possibly compressed or=20
+encrypted there in future, then fed back to kernel space so it can use the=
+=20
+swap routines to do the writing. Very little of substance is being done in=
+=20
+userspace. In short, all it's doing is adding the complexity of always=20
+requiring a userspace program, an initrd/ramfs, kernel routines to (1) expo=
+rt=20
+the snapshot to userspace  (2) receive pages to be written, and (3) let=20
+userspace initiate the real work. It adds the complexity you complain about=
+,=20
+but with no addition in functionality or usability.
+
+Regards,
+
+Nigel
+
+=2D-=20
+See our web page for Howtos, FAQs, the Wiki and mailing list info.
+http://www.suspend2.net                IRC: #suspend2 on Freenode
+
+--nextPart1329192.vK9RiKkKQV
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBD+N59N0y+n1M3mo0RAltUAJ4t5+G47dCwuEJ9O2rY+UxuxV3u+ACfQTBc
+d0YUTa2joQBJePvq+jBWYPk=
+=95qS
+-----END PGP SIGNATURE-----
+
+--nextPart1329192.vK9RiKkKQV--

@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWBSR7A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbWBSSWo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbWBSR7A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 12:59:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWBSR7A
+	id S1750904AbWBSSWo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 13:22:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbWBSSWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 12:59:00 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:3760 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S932186AbWBSR7A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 12:59:00 -0500
-Date: Sun, 19 Feb 2006 09:58:41 -0800
-From: Greg KH <greg@kroah.com>
-To: Chris Boot <bootc@bootc.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Driver 'w83627hf' needs updating - please use bus_type methods
-Message-ID: <20060219175841.GC2674@kroah.com>
-References: <0BF2E785-CC6D-4E4D-BDCF-AD21AEA10D36@bootc.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 19 Feb 2006 13:22:44 -0500
+Received: from smtprelay02.ispgateway.de ([80.67.18.14]:48819 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1750882AbWBSSWn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 13:22:43 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Modules with old-style parameters won't load
+Date: Sun, 19 Feb 2006 19:22:32 +0100
+User-Agent: KMail/1.7.2
+Cc: Andreas Gruenbacher <agruen@suse.de>, akpm@osdl.org
+References: <200602191839.59667.agruen@suse.de>
+In-Reply-To: <200602191839.59667.agruen@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <0BF2E785-CC6D-4E4D-BDCF-AD21AEA10D36@bootc.net>
-User-Agent: Mutt/1.5.11
+Message-Id: <200602191922.33107.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 19, 2006 at 10:56:25AM +0000, Chris Boot wrote:
-> Hi all,
-> 
-> Just noticed the above message in my kernel log on my machine running  
-> 2.6.16-rc2-ide2. I know there's a 2.6.16-rc4 now... I'm waiting to  
-> upgrade until Alan comes up with new -ide patches or ATAPI over  
-> libata/PATA starts working in -mm.
+On Sunday 19 February 2006 18:39, Andreas Gruenbacher wrote:
+> Just ignore old-style parameter definitions for parameters that aren't 
+> actually there.
+ 
+But please tell the user, that his settings are going to be ignored via
+printk, instead of silently ignoring him.
 
-Should be fixed in -rc4.  If not, please let us know.
+Regards
 
-thanks,
 
-greg k-h
+Ingo Oeser
+

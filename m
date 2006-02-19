@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWBSBJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWBSBJM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964799AbWBSBJp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 20:09:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbWBSBJp
+	id S964791AbWBSBJM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 20:09:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbWBSBJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 20:09:45 -0500
-Received: from smtp.enter.net ([216.193.128.24]:45065 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S964799AbWBSBJo (ORCPT
+	Sat, 18 Feb 2006 20:09:12 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:64742 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964791AbWBSBJL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 20:09:44 -0500
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Sat, 18 Feb 2006 20:10:01 -0500
-User-Agent: KMail/1.8.1
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, mj@ucw.cz,
-       nix@esperi.org.uk, linux-kernel@vger.kernel.org, chris@gnome-de.org,
-       axboe@suse.de
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <43F0A319.nailKUSXT33MZ@burner> <43F7257D.80400@tmr.com>
-In-Reply-To: <43F7257D.80400@tmr.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Feb 2006 20:09:11 -0500
+Date: Sat, 18 Feb 2006 20:09:10 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: don't bother users with unimportant messages.
+Message-ID: <20060219010910.GA18841@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602182010.02468.dhazelton@enter.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 18 February 2006 08:47, Bill Davidsen wrote:
-> Joerg Schilling wrote:
-> >Martin Mares <mj@ucw.cz> wrote:
-> >>Hello!
-> >>
-> >>>The main problem is that there is no grant that a new model will survive
-> >>>a time frame that makes sense to implement support.
-> >>
-> >>I bet that it would take less time to implement this support than what
-> >>you spend here by arguing and trying to prove you are the only sane
-> >>person in the world. Unsuccessfully, of course.
-> >
-> >If memory serves me correctly, the current model is the 3rd incompatible
-> > one offerend within less than 5 years.
->
-> With that I agree. Not only does the interface change, the details
-> within a given interface must change.
+When users see these printed to the console, they think
+something is wrong.  As it's just informational and something
+that only developers care about, lower the printk level.
 
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-At this point I seem to have stumbled across a document that has what Joerg 
-might be looking for Linux to introduce. It's available at t10.org and is a 
-translation layer specification for OS's to use if they want to access ATA 
-devices like SCSI ones.
-
-Seems to me this wouldn't be a good or bad thing to add to the kernel. The 
-problem is that introducing the layer and thereby unifying the SCSI and ATA 
-busses into one namespace is a big task. I know I couldn't manage it, and 
-don't think there are any people willing to take it on.
-
-Introducing it would provide a standard interface, however.
-
-DRH
+--- linux-2.6.15.noarch/drivers/base/driver.c~	2006-02-18 19:52:36.000000000 -0500
++++ linux-2.6.15.noarch/drivers/base/driver.c	2006-02-18 20:07:51.000000000 -0500
+@@ -174,7 +174,7 @@ int driver_register(struct device_driver
+ 	if ((drv->bus->probe && drv->probe) ||
+ 	    (drv->bus->remove && drv->remove) ||
+ 	    (drv->bus->shutdown && drv->shutdown)) {
+-		printk(KERN_WARNING "Driver '%s' needs updating - please use bus_type methods\n", drv->name);
++		printk(KERN_DEBUG "Driver '%s' needs updating - please use bus_type methods\n", drv->name);
+ 	}
+ 	klist_init(&drv->klist_devices, klist_devices_get, klist_devices_put);
+ 	init_completion(&drv->unloaded);

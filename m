@@ -1,92 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWBSW0c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWBSW1P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbWBSW0c (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 17:26:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWBSW0c
+	id S1751104AbWBSW1P (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 17:27:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWBSW1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 17:26:32 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:41867 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751103AbWBSW0b (ORCPT
+	Sun, 19 Feb 2006 17:27:15 -0500
+Received: from mx0.towertech.it ([213.215.222.73]:25319 "HELO mx0.towertech.it")
+	by vger.kernel.org with SMTP id S1751104AbWBSW1O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 17:26:31 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH -mm] swsusp/pm: refuse to suspend devices if wrong console is active
-Date: Sun, 19 Feb 2006 23:26:35 +0100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Sun, 19 Feb 2006 17:27:14 -0500
+Date: Sun, 19 Feb 2006 23:26:43 +0100
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Alessandro Zummo <azummo-vger@towertech.it>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 04/11] RTC subsystem, sysfs interface
+Message-ID: <20060219232643.122b4aab@inspiron>
+In-Reply-To: <200602132247.17653.dtor_core@ameritech.net>
+References: <20060213225416.865078000@towertech.it>
+	<20060213225417.706366000@towertech.it>
+	<200602132247.17653.dtor_core@ameritech.net>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602192326.37265.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1) Remove the console-switching code from the suspend part of the swsusp
-userland interface and let the userland tools switch the console.
+On Mon, 13 Feb 2006 22:47:17 -0500
+Dmitry Torokhov <dtor_core@ameritech.net> wrote:
 
-2) It is unsafe to suspend devices if the hardware is controlled by X.  Add
-an extra check to prevent this from happening.
+> > +	struct rtc_time tm;
+> > +
+> > +	if ((retval = rtc_read_time(dev, &tm)) == 0) {
+> 
+> Retval is set unconditionally here so there is no point in initializing
+> it to -ENODEV above.
 
+> > +static int __devinit rtc_sysfs_add_device(struct class_device *class_dev,
+> > +					   struct class_interface *class_intf)
+> > +{
+> > +	class_device_create_file(class_dev, &class_device_attr_name);
+> > +	class_device_create_file(class_dev, &class_device_attr_date);
+> > +	class_device_create_file(class_dev, &class_device_attr_time);
+> > +	class_device_create_file(class_dev, &class_device_attr_since_epoch);
+> 
+> Maybe using attribute group here will help and also allow easier error
+> hanling?
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-Acked-by: Pavel Machek <pavel@suse.cz>
----
- drivers/base/power/suspend.c |    9 +++++++++
- kernel/power/user.c          |    3 ---
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ done, thanks.
 
-Index: linux-2.6.16-rc3-mm1/kernel/power/user.c
-===================================================================
---- linux-2.6.16-rc3-mm1.orig/kernel/power/user.c
-+++ linux-2.6.16-rc3-mm1/kernel/power/user.c
-@@ -138,12 +138,10 @@ static int snapshot_ioctl(struct inode *
- 		if (data->frozen)
- 			break;
- 		down(&pm_sem);
--		pm_prepare_console();
- 		disable_nonboot_cpus();
- 		if (freeze_processes()) {
- 			thaw_processes();
- 			enable_nonboot_cpus();
--			pm_restore_console();
- 			error = -EBUSY;
- 		}
- 		up(&pm_sem);
-@@ -157,7 +155,6 @@ static int snapshot_ioctl(struct inode *
- 		down(&pm_sem);
- 		thaw_processes();
- 		enable_nonboot_cpus();
--		pm_restore_console();
- 		up(&pm_sem);
- 		data->frozen = 0;
- 		break;
-Index: linux-2.6.16-rc3-mm1/drivers/base/power/suspend.c
-===================================================================
---- linux-2.6.16-rc3-mm1.orig/drivers/base/power/suspend.c
-+++ linux-2.6.16-rc3-mm1/drivers/base/power/suspend.c
-@@ -8,6 +8,9 @@
-  *
-  */
- 
-+#include <linux/vt_kern.h>
-+#include <linux/kbd_kern.h>
-+#include <linux/console.h>
- #include <linux/device.h>
- #include "../base.h"
- #include "power.h"
-@@ -82,6 +85,12 @@ int device_suspend(pm_message_t state)
- {
- 	int error = 0;
- 
-+	/* It is unsafe to suspend devices while X has control of the
-+	 * hardware. Make sure we are running on a kernel-controlled console.
-+	 */
-+	if (vc_cons[fg_console].d->vc_mode != KD_TEXT)
-+		return -EINVAL;
-+
- 	down(&dpm_sem);
- 	down(&dpm_list_sem);
- 	while (!list_empty(&dpm_active) && error == 0) {
+-- 
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
+

@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932576AbWBSOe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932588AbWBSOyo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932576AbWBSOe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 09:34:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbWBSOe3
+	id S932588AbWBSOyo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 09:54:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932590AbWBSOyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 09:34:29 -0500
-Received: from mail-a02.ithnet.com ([217.64.83.97]:40118 "HELO ithnet.com")
-	by vger.kernel.org with SMTP id S932576AbWBSOe2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 09:34:28 -0500
-X-Sender-Authentication: net64
-Date: Sun, 19 Feb 2006 15:34:26 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Greg KH <greg@kroah.com>
-Cc: s.schmidt@avm.de, torvalds@osdl.org, kkeil@suse.de,
-       linux-kernel@vger.kernel.org, opensuse-factory@opensuse.org,
-       libusb-devel@lists.sourceforge.net
-Subject: Re: 2.6.16 serious consequences / GPL_EXPORT_SYMBOL / USB drivers
- of major vendor excluded
-Message-Id: <20060219153426.17a26d2b.skraw@ithnet.com>
-In-Reply-To: <20060217230004.GA15492@kroah.com>
-References: <20060205205313.GA9188@kroah.com>
-	<OFED05BE20.31E2BACE-ONC1257115.005DE6CA-C1257117.004F2C48@avm.de>
-	<20060217230004.GA15492@kroah.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 19 Feb 2006 09:54:44 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20747 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932588AbWBSOyn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 09:54:43 -0500
+Date: Sun, 19 Feb 2006 15:54:42 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Pekka Enberg <penberg@cs.helsinki.fi>, Robert Love <rml@novell.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       John Stultz <johnstul@us.ibm.com>, gregkh@suse.de
+Subject: Re: 2.6.16-rc4: known regressions
+Message-ID: <20060219145442.GA4971@stusta.de>
+References: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org> <20060217231444.GM4422@stusta.de> <84144f020602190306o3149d51by82b8ccc6108af012@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <84144f020602190306o3149d51by82b8ccc6108af012@mail.gmail.com>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Feb 2006 15:00:04 -0800
-Greg KH <greg@kroah.com> wrote:
+On Sun, Feb 19, 2006 at 01:06:45PM +0200, Pekka Enberg wrote:
+> On 2/18/06, Adrian Bunk <bunk@stusta.de> wrote:
+> > Subject    : gnome-volume-manager broken on powerpc since 2.6.16-rc1
+> > References : http://bugzilla.kernel.org/show_bug.cgi?id=6021
+> > Submitter  : John Stultz <johnstul@us.ibm.com>
+> > Status     : still present in -git two days ago
+> 
+> This is not ppc only. I have the exact same problem on Gentoo
+> Linux/x86. No ipod events on 2.6.16-rc1, whereas 2.6.15 works fine.
+> Haven't had the time to investigate further yet, sorry.
 
-> On Thu, Feb 16, 2006 at 03:24:44PM +0100, s.schmidt@avm.de wrote:
-> > As a private corporation our primary focus is market relevance. AVM
-> > invested more than 10 years of work to make analog services like Fax G3 and
-> > analog modem emulation available to users of the digital ISDN network. The
-> > situation is similar for the DSL part of the driver with very complex DSP
-> > algorithms. To anticipate any "open vs. closed source" discussion:Only a
-> > handful of companies worldwide have such know-how. With regard to our
-> > competitive situation, we have to protect our hard-won intellectual
-> > property and therefore cannot open the closed source part of the driver.
+Thanks for this information.
 
-I am fine with that. I prefer stable GPL-drivers anyway, no need to use
-yours...
+Robert, can you look at this problem?
 
-Regards,
-Stephan
+>                           Pekka
 
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWBSWoa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWBSWsY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbWBSWoa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 17:44:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbWBSWoa
+	id S1751118AbWBSWsY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 17:48:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWBSWsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 17:44:30 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:31496 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751114AbWBSWoa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 17:44:30 -0500
-Date: Sun, 19 Feb 2006 23:44:17 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: kbuild: Section mismatch warnings
-Message-ID: <20060219224417.GA9101@mars.ravnborg.org>
-References: <20060217214855.GA5563@mars.ravnborg.org> <20060217224702.GA25761@mars.ravnborg.org> <20060219113630.GA5032@mars.ravnborg.org> <1140388715.2418.42.camel@localhost.localdomain>
+	Sun, 19 Feb 2006 17:48:24 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:30653 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751118AbWBSWsY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 17:48:24 -0500
+Date: Sun, 19 Feb 2006 22:48:20 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Dave Jones <davej@redhat.com>, Christoph Hellwig <hch@infradead.org>,
+       Paul Mundt <lethal@linux-sh.org>, Greg KH <greg@kroah.com>,
+       zanussi@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] relay: Migrate from relayfs to a generic relay API.
+Message-ID: <20060219224820.GA14820@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Dave Jones <davej@redhat.com>, Paul Mundt <lethal@linux-sh.org>,
+	Greg KH <greg@kroah.com>, zanussi@us.ibm.com,
+	linux-kernel@vger.kernel.org
+References: <20060219210733.GA3682@linux-sh.org> <20060219212122.GA7974@redhat.com> <20060219220840.GA14153@infradead.org> <20060219221330.GC7974@redhat.com> <20060219221724.GA14408@infradead.org> <20060219222943.GD7974@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1140388715.2418.42.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060219222943.GD7974@redhat.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 20, 2006 at 09:38:35AM +1100, Rusty Russell wrote:
-> On Sun, 2006-02-19 at 12:36 +0100, Sam Ravnborg wrote:
-> > The module parameter warning are still pending - I hope Rusty will
-> > comment on yhe suggested patch to use __initdata in the moduleparam
-> > macro.
-> 
-> kernel/params.c's param_sysfs_setup will have to make a copy if you do
-> this.  At the moment it keeps the original structure around.
-Was afraid something like this was needed. Will take a look what to do.
-I will drop you a copy of any potential patch for review.
+On Sun, Feb 19, 2006 at 05:29:43PM -0500, Dave Jones wrote:
+> systemtap uses kprobes to export data through relayfs.
 
-	Sam
+systemtap has never been anywhere near mainline despit me telling the
+ibm folks to get the non-braindead parts in, so it simply doesn't matter.
+

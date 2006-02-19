@@ -1,83 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWBSJCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWBSJ1W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbWBSJCt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 04:02:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWBSJCt
+	id S932378AbWBSJ1W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 04:27:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbWBSJ1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 04:02:49 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:17585 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932371AbWBSJCs (ORCPT
+	Sun, 19 Feb 2006 04:27:21 -0500
+Received: from mail.gmx.de ([213.165.64.20]:44433 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932378AbWBSJ1V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 04:02:48 -0500
-Date: Sun, 19 Feb 2006 10:02:34 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Alon Bar-Lev <alon.barlev@gmail.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Flames over -- Re: Which is simpler?
-Message-ID: <20060219090234.GB3235@elf.ucw.cz>
-References: <Pine.LNX.4.44L0.0602131601220.4754-100000@iolanthe.rowland.org> <43F11A9D.5010301@cfl.rr.com> <20060217210445.GR3490@openzaurus.ucw.cz> <43F74C89.1080606@cfl.rr.com> <20060218172908.GD1776@elf.ucw.cz> <43F807AD.6080008@cfl.rr.com>
-Mime-Version: 1.0
+	Sun, 19 Feb 2006 04:27:21 -0500
+X-Authenticated: #428038
+Date: Sun, 19 Feb 2006 10:27:13 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: "D. Hazelton" <dhazelton@enter.net>
+Cc: Gene Heskett <gene.heskett@verizon.net>,
+       Christoph Hellwig <hch@infradead.org>, Bill Davidsen <davidsen@tmr.com>,
+       Daniel Barkalow <barkalow@iabervon.org>, Greg KH <greg@kroah.com>,
+       Nix <nix@esperi.org.uk>, Jens Axboe <axboe@suse.de>,
+       Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060219092713.GB21626@merlin.emma.line.org>
+Mail-Followup-To: "D. Hazelton" <dhazelton@enter.net>,
+	Gene Heskett <gene.heskett@verizon.net>,
+	Christoph Hellwig <hch@infradead.org>,
+	Bill Davidsen <davidsen@tmr.com>,
+	Daniel Barkalow <barkalow@iabervon.org>, Greg KH <greg@kroah.com>,
+	Nix <nix@esperi.org.uk>, Jens Axboe <axboe@suse.de>,
+	Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	linux-kernel@vger.kernel.org
+References: <878xt3rfjc.fsf@amaterasu.srvr.nix> <20060218120617.GA911@infradead.org> <200602181215.30277.gene.heskett@verizon.net> <200602181941.40093.dhazelton@enter.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43F807AD.6080008@cfl.rr.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <200602181941.40093.dhazelton@enter.net>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Ne 19-02-06 00:52:45, Phillip Susi wrote:
-> Pavel Machek wrote:
-> >>Provided that you sync before suspending, and there are no open files on 
-> >>the filesystem, then yes, no data will be lost.  If there are open files 
-> >>on the fs, such as a half saved document, or a running binary, or say, 
-> >>the whole root fs, then you're going to loose data and even panic the 
-> >>kernel, sync or no sync.  From the user perspective, this is
-> >>unacceptable.
-> >
-> >While with your solution, you do not loose one open file, you loose
-> >whole filesystem. Which is unacceptable.
+On Sat, 18 Feb 2006, D. Hazelton wrote:
+
+> Well, in this case I'm actually trying to work with Joerg to produce a patch 
+> that unifies the ATAPI and SCSI busses inside his program.
+
+This patch already exists, see:
+<http://www.ussg.iu.edu/hypermail/linux/kernel/0602.0/1103.html>
+
+It's a proof of concept and needs to be polished (I'll look into that
+again in March).
+
+Only it still probes all /dev/hd and /dev/sg and /dev/pg in a dumb way,
+rather than looking at sysfs or reading through /dev/.
+
+> I've seen the "MRW" stuff in some of the specs, but had to check the net to 
+> find out what it was. MRW is the Mt. Rainier format - basic support was added 
+> by Jens back in 2.4.19 according to the archives. 
+> (http://www.ussg.iu.edu/hypermail/linux/kernel/0203.2/1214.html)
 > 
-> Only if the user is foolish enough to modify the media somehow while the 
-> system is suspended and replace it, which is exactly how non USB disks 
-> currently behave.
+> I'm not positive, but the "Can Read RAM" line might refer to DVD-RAM type 
+> discs
 
-"Foolish enough"? Multiple users told you that they consider that use
-case okay for hotpluggable drives.
+That's probably not it, since there's a separate DVD-RAM line here:
 
-> >>connection to the drive thy are using is USB?  Every other type of drive 
-> >>and interface does not suffer from this problem.
-> >
-> >Because it is okay to unplug usb disk on runtime, while it is not okay
-> >to unplug ATA disk on runtime. And because alternatives suck even more.
-> >
-> 
-> Actually, no, it is not okay to unplug a usb disk at runtime while it is 
-> mounted.  It never has been and it never will be.  Also we aren't 
+CD-ROM information, Id: cdrom.c 3.20 2003/12/17
 
-Ever heard about "journalling"?
+drive name:             hdd     hdc     sr0
+drive speed:            40      48      1
+drive # of slots:       1       1       1
+Can close tray:         1       1       1
+Can open tray:          1       1       1
+Can lock tray:          1       1       1
+Can change speed:       1       1       0
+Can select disk:        0       0       0
+Can read multisession:  1       1       1
+Can read MCN:           1       1       1
+Reports media changed:  1       1       1
+Can play audio:         1       1       1
+Can write CD-R:         1       1       0
+Can write CD-RW:        1       1       0
+Can read DVD:           0       1       0
+Can write DVD-R:        0       1       0
+Can write DVD-RAM:      0       1       0
+Can read MRW:           1       1       1
+Can write MRW:          1       1       1
+Can write RAM:          1       1       1
 
-> talking about runtime, we're talking about while the system is 
-> suspended, when there is no way for the kernel to know whether or
-> not 
+hdd = Plextor PX-W4824TA
+hdc = NEC ND-4550A
+sr0 = Plextor PX-32TS
 
-If it is okay during runtime, it should be okay while suspended. Don't
-expect users to know about power on USB buses. You may call any system
-that does not support standby power on USB broken if you wish... 
+(Now NEC only needs to teach their drives to be more error tolerant when
+reading and adjust their read speed to the actual sustained transfer
+rate as Toshiba drives have been doing for ages...)
 
-> the device was unplugged, since it _allways_ appears to have been 
-> unplugged.  The alternative in the uncommon case ( where the user 
-> modifies the media while suspended ) does not suck any worse than it 
-> currently does on non usb media, and the common case ( where the user 
-> doesn't ) sucks worse currently with usb than others.
-
-"Does not such any worse than non-usb" does not cut it here. USB disks
-are too easy to unplug/replug.
-
-Anyway, your mail came without a patch, again. That's useless; if you
-implement layer above floppies/usb sticks that can recognize same
-disk, maybe we can talk about that.
-								Pavel
 -- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+Matthias Andree

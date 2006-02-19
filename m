@@ -1,77 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbWBSUwD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbWBSVEb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932192AbWBSUwD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 15:52:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWBSUwD
+	id S1750943AbWBSVEb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 16:04:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750942AbWBSVEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 15:52:03 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:8589 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932192AbWBSUwB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 15:52:01 -0500
-Date: Sun, 19 Feb 2006 12:51:57 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Nick Warne <nick@linicks.net>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, Pavel Machek <pavel@suse.cz>,
-       tiwai@suse.de, ghrt@dial.kappa.ro, perex@suse.cz,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: No sound from SB live!
-Message-ID: <20060219205157.GA5976@us.ibm.com>
-References: <20060218231419.GA3219@elf.ucw.cz> <9a8748490602190304w43c32ae6m5b610f2ec9ad46f2@mail.gmail.com> <7c3341450602190318o1c60e9b5w@mail.gmail.com>
+	Sun, 19 Feb 2006 16:04:31 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:56758 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750756AbWBSVEa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 16:04:30 -0500
+Date: Sun, 19 Feb 2006 13:02:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: stern@rowland.harvard.edu, psusi@cfl.rr.com, pavel@suse.cz,
+       torvalds@osdl.org, mrmacman_g4@mac.com, alon.barlev@gmail.com,
+       linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org
+Subject: Re: Flames over -- Re: Which is simpler?
+Message-Id: <20060219130243.52af0782.akpm@osdl.org>
+In-Reply-To: <200602192144.57748.oliver@neukum.org>
+References: <43F89F55.5070808@cfl.rr.com>
+	<Pine.LNX.4.44L0.0602191142290.9165-100000@netrider.rowland.org>
+	<20060219120221.1d11cee0.akpm@osdl.org>
+	<200602192144.57748.oliver@neukum.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7c3341450602190318o1c60e9b5w@mail.gmail.com>
-X-Operating-System: Linux 2.6.16-rc3-git3 (x86_64)
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19.02.2006 [11:18:04 +0000], Nick Warne wrote:
-> There is definately something going on with these cards.
+Oliver Neukum <oliver@neukum.org> wrote:
+>
+> Am Sonntag, 19. Februar 2006 21:02 schrieb Andrew Morton:
+> > For a), the current kernel behaviour is what we want - make the thing
+> > appear at a new place in the namespace and in the hierarchy.  Then
+> > userspace can do whatever needs to be done to identify the device, and
+> > apply some sort of policy decision to the result.
 > 
-> Ref. my LKML thread here:
-> 
-> http://lkml.org/lkml/2006/2/11/25
-> 
-> My card as reported in dmesg:
-> 
-> PCI: Found IRQ 12 for device 0000:00:0f.0
-> ALSA device list:
->   #0: SBLive 5.1 [SB0060] (rev.7, serial:0x80611102) at 0xe000, irq 12
+> How? If you have a running user space the connection to the open files
+> is already severed, as any access in that time window must fail.
 
-I also have a SBLive 5.1 card, seems to be the same rev/serial and I
-have no problems using it (I haven't check any of the non-speaker ports,
-though).
+That's a separate issue, which we haven't discussed yet.  We have a device
+which has gone away and which might come back later on.  Presently we will
+return an I/O error if I/O is attempted in that window.  Obviously we'll
+need to do something different, such as block reads and block or defer writes.
 
-[   55.007817] Advanced Linux Sound Architecture Driver Version 1.0.11rc2 (Wed Jan 04 08:57:20 2006 UTC).
-[   55.022668] ALSA device list:
-[   55.022672]   #0: SBLive 5.1 [SB0060] (rev.7, serial:0x80611102) at 0xac00, irq 209
+So an overall picture would be something like:
 
-> lspci:
-> 
-> 00:0f.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 07)
-> 00:0f.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 07)
+- When device is not present, reads block and writes are deferred or block
 
-0000:01:06.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 07)
-0000:01:06.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 07)
+- When device appears (at a new point in the namespace) the hotplug
+  scripts will go off and will identify it and will apply some policy based
+  upon that identification.  That policy could be one of:
 
-/proc/asound/cards:
+  a) accept device at its new address
 
+  b) accept device at its new address, abandon the old address (all
+     those blocked reads and writes suddenly return -EIO).
 
- 0 [Live           ]: EMU10K1 - SBLive 5.1 [SB0060]
-                      SBLive 5.1 [SB0060] (rev.7, serial:0x80611102) at 0xac00, irq 209
+  c) remove device from its new address, splice it back to where it
+     used to be, permit those blocked reads and writes to proceed.
 
-> Now, I built and installed latest:
-> 
-> alsa-utils-1.0.11rc2
-> alsa-lib-1.0.11rc3
+- For devices which are absent-and-blocked, provide some ability for both
+  a timeout and manual cancellation, to unblock all those readers and
+  writers, make them get -EIO.
 
-I run Ubuntu Breezy, which has:
-
-alsa-utils = 1.0.9a-4ubuntu5
-
-This is all from 2.6.16-rc4, btw.
-
-Thanks,
-Nish
+The number of potential races is, of course, huge.

@@ -1,167 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbWBSKQ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWBSKhd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932382AbWBSKQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 05:16:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWBSKQ2
+	id S932390AbWBSKhd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 05:37:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWBSKhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 05:16:28 -0500
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:5281 "EHLO sunrise.pg.gda.pl")
-	by vger.kernel.org with ESMTP id S932382AbWBSKQ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 05:16:27 -0500
-Date: Sun, 19 Feb 2006 11:15:12 +0100
-From: Adam Tla/lka <atlka@pg.gda.pl>
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Cc: torvalds@osdl.org, bug-ncurses@gnu.org,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]console:UTF-8 mode compatibility fixes
-Message-ID: <20060219101512.GB862@sunrise.pg.gda.pl>
-References: <20060217233333.GA5208@sunrise.pg.gda.pl> <43F72C7A.8010709@ums.usu.ru> <43F8054E.1000805@ums.usu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43F8054E.1000805@ums.usu.ru>
-User-Agent: Mutt/1.4.1i
+	Sun, 19 Feb 2006 05:37:33 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:19872 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S932390AbWBSKhb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 05:37:31 -0500
+To: Dave Jones <davej@redhat.com>
+From: Jiri Slaby <jirislaby@gmail.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: dvb breakage
+In-reply-to: <20060219020847.GA5412@redhat.com>
+Message-Id: <E1FAlwT-0007O3-00@decibel.fi.muni.cz>
+Date: Sun, 19 Feb 2006 11:37:25 +0100
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: xslaby@informatics.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 19, 2006 at 10:42:38AM +0500, Alexander E. Patrakov wrote:
-> Sorry, that my non-true statement was due to the less-than-perfect 
-> description of the patch. After patching, this produces a horizontal line:
-> 
-> echo -e '\x0eqqqq\x0f'
-> 
-> So please correct the description and the first (comment) hunk of the 
-> patch, so that it doesn't mention "smacs" and similar words with meaning 
-> that may vary, and so that it mentions the exact control codes.
-> 
+Dave Jones wrote:
+>On Thu, Jan 12, 2006 at 12:08:43AM -0800, Linux Kernel wrote:
+> > tree 735e941317b10973cd06bf63bdcf1140d2ef7412
+> > parent d4437d3fada351d7f40bcc48a62c12b92e2ad9d8
+> > author Jiri Slaby <xslaby@fi.muni.cz> Wed, 11 Jan 2006 23:41:13 -0200
+> > committer Mauro Carvalho Chehab <mchehab@brturbo.com.br> Wed, 11 Jan 2006 23:41:13 -0200
+> > 
+> > V4L/DVB (3344c): Pci probing for stradis driver
+> > 
+> > - Pci probing functions added, some functions were rewritten.
+> > 
+> > - Use PCI_DEVICE macro.
+> > 
+> > - dev_ used for printing when pci_dev available.
+> > 
+> > Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+> > Signed-off-by: Andrew Morton <akpm@osdl.org>
+> > Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+>
+>Jiri,
+> I'm not sure if this the exact cset that broke it, but 
+>one of our users reports that since around this time,
+>udev stopped creating a /dev/dvb/adaptor0
+>
+>Did this inadvertantly change how things look in sysfs?
+>
+>https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181063
+Went through changes once more time, but with any result, I have really no
+idea. Will see, what he'll reply.
 
-Ok, you are right.
-Here is the corrected description and the new patch:
-
-Fixed UTF-8 mode so alternate charset modes always work according
-to control sequences interpreted in do_con_trol function:
-smacs = '\x0e', rmacs = '\x0f' if vt100 translation map for alternate
-charset is active which means enacs = '\e)0' which preserves
-backward US-ASCII and VT100 semigraphics compatibility,
-malformed UTF sequences represented as sequences of replacement glyphs
-or original codes if replacement glyph is undefined
-Signed-off-by: Adam Tla/lka <atlka@pg.gda.pl>
-
---- drivers/char/vt_orig.c	2006-02-13 11:33:54.000000000 +0100
-+++ drivers/char/vt.c	2006-02-19 10:59:27.000000000 +0100
-@@ -63,6 +63,15 @@
-  *
-  * Removed console_lock, enabled interrupts across all console operations
-  * 13 March 2001, Andrew Morton
-+ *
-+ * Fixed UTF-8 mode so alternate charset modes always work according
-+ * to control sequences interpreted in do_con_trol function:
-+ * smacs = '\x0e', rmacs = '\x0f' if vt100 translation map for alternate
-+ * charset is active which means enacs = '\e)0'
-+ * preserving backward US-ASCII and VT100 semigraphics compatibility,
-+ * malformed UTF sequences represented as sequences of replacement glyphs
-+ * or original codes if replacement glyph is undefined
-+ * by Adam Tla/lka <atlka@pg.gda.pl>, Feb 2006
-  */
- 
- #include <linux/module.h>
-@@ -1991,17 +2000,26 @@ static int do_con_write(struct tty_struc
- 		/* Do no translation at all in control states */
- 		if (vc->vc_state != ESnormal) {
- 			tc = c;
--		} else if (vc->vc_utf) {
-+		} else if (vc->vc_utf && !vc->vc_disp_ctrl) {
- 		    /* Combine UTF-8 into Unicode */
--		    /* Incomplete characters silently ignored */
-+		    /* Malformed sequence represented as replacement glyphs */
-+rescan_last_byte:
- 		    if(c > 0x7f) {
--			if (vc->vc_utf_count > 0 && (c & 0xc0) == 0x80) {
--				vc->vc_utf_char = (vc->vc_utf_char << 6) | (c & 0x3f);
--				vc->vc_utf_count--;
--				if (vc->vc_utf_count == 0)
--				    tc = c = vc->vc_utf_char;
--				else continue;
-+			if (vc->vc_utf_count) {
-+			       if ((c & 0xc0) == 0x80) {
-+				       vc->vc_utf_char = (vc->vc_utf_char << 6) | (c & 0x3f);
-+       				       if (--vc->vc_utf_count) {
-+					       vc->vc_par[vc->vc_utf_count] = c;
-+					       vc->vc_npar++;
-+				   	       continue;
-+       				       }
-+				       tc = c = vc->vc_utf_char;
-+			       } else {
-+				       c = vc->vc_par[vc->vc_utf_count + vc->vc_npar];
-+				       goto insert_replacement_glyph;
-+			       }
- 			} else {
-+				vc->vc_npar = 0;
- 				if ((c & 0xe0) == 0xc0) {
- 				    vc->vc_utf_count = 1;
- 				    vc->vc_utf_char = (c & 0x1f);
-@@ -2018,12 +2036,16 @@ static int do_con_write(struct tty_struc
- 				    vc->vc_utf_count = 5;
- 				    vc->vc_utf_char = (c & 0x01);
- 				} else
--				    vc->vc_utf_count = 0;
-+	    			    goto insert_replacement_glyph;
-+				vc->vc_par[vc->vc_utf_count] = c;
- 				continue;
- 			      }
- 		    } else {
-+		      if (vc->vc_utf_count) {
-+			      c = vc->vc_par[vc->vc_utf_count + vc->vc_npar];
-+	  		      goto insert_replacement_glyph;
-+		      }
- 		      tc = c;
--		      vc->vc_utf_count = 0;
- 		    }
- 		} else {	/* no utf */
- 		  tc = vc->vc_translate[vc->vc_toggle_meta ? (c | 0x80) : c];
-@@ -2040,8 +2062,8 @@ static int do_con_write(struct tty_struc
-                  * direct-to-font zone in UTF-8 mode.
-                  */
-                 ok = tc && (c >= 32 ||
--			    (!vc->vc_utf && !(((vc->vc_disp_ctrl ? CTRL_ALWAYS
--						: CTRL_ACTION) >> c) & 1)))
-+			    !(vc->vc_disp_ctrl ? (CTRL_ALWAYS >> c) & 1 :
-+				  vc->vc_utf || ((CTRL_ACTION >> c) & 1)))
- 			&& (c != 127 || vc->vc_disp_ctrl)
- 			&& (c != 128+27);
- 
-@@ -2051,6 +2073,7 @@ static int do_con_write(struct tty_struc
- 			if ( tc == -4 ) {
-                                 /* If we got -4 (not found) then see if we have
-                                    defined a replacement character (U+FFFD) */
-+insert_replacement_glyph:
-                                 tc = conv_uni_to_pc(vc, 0xfffd);
- 
- 				/* One reason for the -4 can be that we just
-@@ -2063,7 +2086,7 @@ static int do_con_write(struct tty_struc
-                                 tc = c;
-                         }
- 			if (tc & ~charmask)
--                                continue; /* Conversion failed */
-+				goto check_malformed_sequence;
- 
- 			if (vc->vc_need_wrap || vc->vc_decim)
- 				FLUSH
-@@ -2088,6 +2111,16 @@ static int do_con_write(struct tty_struc
- 				vc->vc_x++;
- 				draw_to = (vc->vc_pos += 2);
- 			}
-+check_malformed_sequence:
-+			if (vc->vc_utf_count) {
-+				if (vc->vc_npar) {
-+					c = vc->vc_par[vc->vc_utf_count + --vc->vc_npar];
-+					goto insert_replacement_glyph;
-+				}
-+				vc->vc_utf_count = 0;
-+				c = orig;
-+				goto rescan_last_byte;
-+			}
- 			continue;
- 		}
- 		FLUSH
+thanks,
+--
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E

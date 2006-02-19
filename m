@@ -1,80 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWBSWZz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWBSW0c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751100AbWBSWZz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 17:25:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWBSWZz
+	id S1751103AbWBSW0c (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 17:26:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWBSW0c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 17:25:55 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10183 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751100AbWBSWZy (ORCPT
+	Sun, 19 Feb 2006 17:26:32 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:41867 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751103AbWBSW0b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 17:25:54 -0500
-Date: Sun, 19 Feb 2006 23:25:33 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Nishanth Aravamudan <nacc@us.ibm.com>, Nick Warne <nick@linicks.net>,
-       Jesper Juhl <jesper.juhl@gmail.com>, tiwai@suse.de, ghrt@dial.kappa.ro,
-       perex@suse.cz, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: No sound from SB live!
-Message-ID: <20060219222533.GB15608@elf.ucw.cz>
-References: <20060218231419.GA3219@elf.ucw.cz> <9a8748490602190304w43c32ae6m5b610f2ec9ad46f2@mail.gmail.com> <7c3341450602190318o1c60e9b5w@mail.gmail.com> <20060219205157.GA5976@us.ibm.com> <1140384638.2733.389.camel@mindpipe> <20060219214934.GO15311@elf.ucw.cz> <1140386075.2733.399.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 19 Feb 2006 17:26:31 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH -mm] swsusp/pm: refuse to suspend devices if wrong console is active
+Date: Sun, 19 Feb 2006 23:26:35 +0100
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1140386075.2733.399.camel@mindpipe>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200602192326.37265.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Ne 19-02-06 16:54:34, Lee Revell wrote:
-> On Sun, 2006-02-19 at 22:49 +0100, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > > I run Ubuntu Breezy, which has:
-> > > > 
-> > > > alsa-utils = 1.0.9a-4ubuntu5 
-> > > 
-> > > The alsa-utils version should not matter, it's alsa-lib that must be
-> > > kept in sync with the ALSA version in the kernel.
-> > 
-> > I tried to play with mpg123 using OSS emulation, so that it does not
-> > have anything to do with ALSA. No luck. Trying aplay:
-> > 
-> > root@hobit:/dev/snd#  aplay
-> > /usr/share/xemacs21/xemacs-packages/etc/sounds/hammer.wav
-> > aplay: main:533: audio open error: No such file or directory
-> > 
-> > while stracing:
-> > 
-> > open("/dev/snd/pcmC0D0p", O_RDWR)       = -1 ENOENT (No such file or
-> > directory)
-> > close(3)                                = 0
-> > write(2, "aplay: main:533: ", 17aplay: main:533: )       = 17
-> > write(2, "audio open error: No such file o"..., 43audio open error: No
-> > such file or directory) = 43
-> > write(2, "\n", 1
-> > 
-> > ... but pcmC0D0p is not described in devices.txt...?
-> 
-> Hmm, that's a udev problem or something.  If you have a static dev the
-> snddevices script that comes with ALSA will create the device files.
+1) Remove the console-switching code from the suspend part of the swsusp
+userland interface and let the userland tools switch the console.
 
-I'm using static /dev... snddevices script indeed fixed that, but it
-still does not work. (Is earphone in green connector enough?)
+2) It is unsafe to suspend devices if the hardware is controlled by X.  Add
+an extra check to prevent this from happening.
 
-Ouch and that device should be still listed in devices.txt, no?
 
-root@hobit:/dev/snd#  aplay
-/usr/share/xemacs21/xemacs-packages/etc/sounds/hammer.wav
-Playing WAVE
-'/usr/share/xemacs21/xemacs-packages/etc/sounds/hammer.wav' : Unsigned
-8 bit, Rate 8000 Hz, Mono
-root@hobit:/dev/snd#
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+Acked-by: Pavel Machek <pavel@suse.cz>
+---
+ drivers/base/power/suspend.c |    9 +++++++++
+ kernel/power/user.c          |    3 ---
+ 2 files changed, 9 insertions(+), 3 deletions(-)
 
-Actually, in a quiet room I think I can hear *something*. Too faint to
-recognize :-(.
-								Pavel
-
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+Index: linux-2.6.16-rc3-mm1/kernel/power/user.c
+===================================================================
+--- linux-2.6.16-rc3-mm1.orig/kernel/power/user.c
++++ linux-2.6.16-rc3-mm1/kernel/power/user.c
+@@ -138,12 +138,10 @@ static int snapshot_ioctl(struct inode *
+ 		if (data->frozen)
+ 			break;
+ 		down(&pm_sem);
+-		pm_prepare_console();
+ 		disable_nonboot_cpus();
+ 		if (freeze_processes()) {
+ 			thaw_processes();
+ 			enable_nonboot_cpus();
+-			pm_restore_console();
+ 			error = -EBUSY;
+ 		}
+ 		up(&pm_sem);
+@@ -157,7 +155,6 @@ static int snapshot_ioctl(struct inode *
+ 		down(&pm_sem);
+ 		thaw_processes();
+ 		enable_nonboot_cpus();
+-		pm_restore_console();
+ 		up(&pm_sem);
+ 		data->frozen = 0;
+ 		break;
+Index: linux-2.6.16-rc3-mm1/drivers/base/power/suspend.c
+===================================================================
+--- linux-2.6.16-rc3-mm1.orig/drivers/base/power/suspend.c
++++ linux-2.6.16-rc3-mm1/drivers/base/power/suspend.c
+@@ -8,6 +8,9 @@
+  *
+  */
+ 
++#include <linux/vt_kern.h>
++#include <linux/kbd_kern.h>
++#include <linux/console.h>
+ #include <linux/device.h>
+ #include "../base.h"
+ #include "power.h"
+@@ -82,6 +85,12 @@ int device_suspend(pm_message_t state)
+ {
+ 	int error = 0;
+ 
++	/* It is unsafe to suspend devices while X has control of the
++	 * hardware. Make sure we are running on a kernel-controlled console.
++	 */
++	if (vc_cons[fg_console].d->vc_mode != KD_TEXT)
++		return -EINVAL;
++
+ 	down(&dpm_sem);
+ 	down(&dpm_list_sem);
+ 	while (!list_empty(&dpm_active) && error == 0) {

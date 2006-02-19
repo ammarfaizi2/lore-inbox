@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbWBSX5U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbWBSX55@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932461AbWBSX5U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 18:57:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbWBSX5U
+	id S932464AbWBSX55 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 18:57:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWBSX54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 18:57:20 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:63452 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932461AbWBSX5T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 18:57:19 -0500
-Message-ID: <43F9063A.9090700@jp.fujitsu.com>
-Date: Mon, 20 Feb 2006 08:58:50 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Sun, 19 Feb 2006 18:57:56 -0500
+Received: from digitalimplant.org ([64.62.235.95]:4296 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S932464AbWBSX54
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 18:57:56 -0500
+Date: Sun, 19 Feb 2006 15:57:43 -0800 (PST)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Pavel Machek <pavel@suse.cz>
+cc: greg@kroah.com, "" <torvalds@osdl.org>, "" <akpm@osdl.org>,
+       "" <linux-pm@osdl.org>, "" <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [PATCH 2/5] [pm] Add state field to pm_message_t (to
+ hold actual state device is in)
+In-Reply-To: <20060218155104.GD5658@openzaurus.ucw.cz>
+Message-ID: <Pine.LNX.4.50.0602191554560.8676-100000@monsoon.he.net>
+References: <Pine.LNX.4.50.0602171757360.30811-100000@monsoon.he.net>
+ <20060218155104.GD5658@openzaurus.ucw.cz>
 MIME-Version: 1.0
-To: Jim Duchek <jim.duchek@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: page_order private bit causes problems with dma_alloc_coherent?
-References: <dead81ad0602190139t20b3805bt@mail.gmail.com>
-In-Reply-To: <dead81ad0602190139t20b3805bt@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Duchek wrote:
-> I'm attempting to debug a problem where pci_free_consistent causes a spewage
-> of bad_page's due to the LG_private bit being set.  The remove goes through
-> free_pages_ok, which does the free_page_check (which errors on the private
-> bit) _BEFORE_ free_pages_bulk (which removes the private bit)
-> 
 
-When page is free , page_count(page) == 0. But this just means page is 'free'.
-To show page is a head of buddy (contiguous pages of 2^order pages), order is
-stored into page->private. To show page->private has a valid 'order', PG_private
-is used.
+On Sat, 18 Feb 2006, Pavel Machek wrote:
 
-See page_is_buddy() function.
+> Hi!
+>
+>
+> > diff --git a/include/linux/pm.h b/include/linux/pm.h
+> > index 5be87ba..a7324ea 100644
+> > --- a/include/linux/pm.h
+> > +++ b/include/linux/pm.h
+> > @@ -140,6 +140,7 @@ struct device;
+> >
+> >  typedef struct pm_message {
+> >  	int event;
+> > +	u32 state;
+> >  } pm_message_t;
+>
+> We have had enough problems with u32s before... What about
+> char *, and pass real state names?
 
-> I'm not entirely sure why the pages are getting this bit -- this is a DRI
-> driver and the bits don't get added during the whole time I'm running an
-> application -- they get added shortly before I kill the GL client.  Any
-> hints?  Is there a way to force pages never to use the page_order stuff?
-> Should free_pages_check not consider the private bit such a bad thing?
-> Should I just hack in something where I remove all the bits right before I
-> do my free? :)
-> 
-I think removing PG_private before freeing is sane.
-The page is free, so it's needless to use PG_private bit when free_pages() is called.
+I certainly agree that is better in an ideal implementation. But, the
+intent of the patches was not to fix the infrastructure; it was to fix the
+interface to be compatible with previous behavior (while accounting for
+changes made in the area that happened in the process of breaking it).
 
 Thanks,
--- Kame
+
+
+	Pat
 

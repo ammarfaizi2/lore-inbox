@@ -1,90 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWBSA3Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbWBSAc2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbWBSA3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 19:29:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWBSA3Y
+	id S932370AbWBSAc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 19:32:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbWBSAc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 19:29:24 -0500
-Received: from smtp.enter.net ([216.193.128.24]:13841 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S932369AbWBSA3X (ORCPT
+	Sat, 18 Feb 2006 19:32:28 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:16065 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932370AbWBSAc2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 19:29:23 -0500
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Sat, 18 Feb 2006 19:29:30 -0500
-User-Agent: KMail/1.8.1
-Cc: Daniel Barkalow <barkalow@iabervon.org>, Greg KH <greg@kroah.com>,
-       Nix <nix@esperi.org.uk>, Jens Axboe <axboe@suse.de>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	Sat, 18 Feb 2006 19:32:28 -0500
+Date: Sat, 18 Feb 2006 16:35:55 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Sergey Vlasov <vsu@altlinux.ru>
+Cc: Brian Hall <brihall@pcisys.net>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-References: <43D7AF56.nailDFJ882IWI@burner> <200602171902.11631.dhazelton@enter.net> <43F751B0.1040101@tmr.com>
-In-Reply-To: <43F751B0.1040101@tmr.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Subject: Re: Help: DGE-560T not recognized by Linux
+Message-ID: <20060218163555.39fa3b4a@localhost.localdomain>
+In-Reply-To: <20060218222946.4da27618.vsu@altlinux.ru>
+References: <20060217222720.a08a2bc1.brihall@pcisys.net>
+	<20060217222428.3cf33f25.akpm@osdl.org>
+	<20060218003622.30a2b501.brihall@pcisys.net>
+	<20060217234841.5f2030ec.akpm@osdl.org>
+	<20060218100126.198d86c3.brihall@pcisys.net>
+	<20060218222946.4da27618.vsu@altlinux.ru>
+X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602181929.32026.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 18 February 2006 11:56, Bill Davidsen wrote:
-> D. Hazelton wrote:
-> >On Friday 17 February 2006 16:35, Bill Davidsen wrote:
-> >>Daniel Barkalow wrote:
-> >>>I don't think it needs to be a class, but I think that there should be a
-> >>>single place with a directory for each device that could be what you
-> >>>want, with a file that tells you if it is. That's why I was looking at
-> >>>block/; these things must be block devices, and there aren't an huge
-> >>>number of block devices.
-> >>>
-> >>>I suppose "grep 1 /sys/block/*/device/dvdwriter" is just as good; I
-> >>>hadn't dug far enough in to realize that the reason I wasn't seeing
-> >>>anything informative in /sys/block/*/device/ was that I didn't have any
-> >>>devices with informative drivers, not that it was actually supposed to
-> >>>only have links to other things.
-> >>
-> >>It would be nice to have one place to go to find burners, and to have
-> >>the model information in that place. I would logically think that place
-> >>is sysfs, and I know the kernel has the information because if I root
-> >>through /proc/bus/usb and /proc/scsi/scsi, and /proc/ide/hd?/model I can
-> >>eventually find out what the system has connected.
-> >>
-> >>I not entirely sure about having classes other than cdrom, just because
-> >>we already have CD, DVD, DVD-DL, and are about to add blue-ray and
-> >>HD-DVD, so if I can tell that it's a removable device which can read
-> >>CDs, the applications have a fighting chance to looking at the device to
-> >>see what it is. As a human I would like the model information because
-> >>the kernel has done the work, why should people have to chase it when it
-> >>could be in one place?
-> >
-> >The problem is that drives don't always cleanly report what they are in a
-> >simple to access format. All SCSI and ATAPI drives provide a model,
-> >manufacturer and serial number but usually the type of drive is buried
-> > within the Model field, and that has a lot of variations.
-> >
-> >(I have personally seen CD/CDRW, CD-ROM, CD-RW, CDR, CDRW and DVD/CDROM)
-> >
-> >Now what could be done is that said information could be exported to
-> > sysfs. Given the time I could probably manage the patch myself, but I'm
-> > currently overextended with the number of projects I have underway.
->
-> I would think that the model, manufacturer and serial would be useful,
-> and just the indication that the device was CD capable would be a huge
-> gain. There are at least two more type of drive coming soon in the 25GB
-> media race, so identification could legitimately be left to the
-> application as long as all CD-like devices can easily be identified for
-> examination.
->
-> Does that fit with your level of available time (and interest in
-> resolving this issue)?
+On Sat, 18 Feb 2006 22:29:46 +0300
+Sergey Vlasov <vsu@altlinux.ru> wrote:
 
-seems straightforward enough. May take me a bit, since I'll need to see what 
-has to be done in order to make the information necessary, but I think it 
-could all be resolved with calls to the routines the ioctl's normally access.
+> On Sat, 18 Feb 2006 10:01:26 -0700 Brian Hall wrote:
+> 
+> > On Fri, 17 Feb 2006 23:48:41 -0800
+> > Andrew Morton <akpm@osdl.org> wrote:
+> > > Brian Hall <brihall@pcisys.net> wrote:
+> > > >  I see that the sky2 driver in 2.6.16rc4 lists my card, but for some
+> > > >  reason it fails to access the card, maybe because I have an ULi
+> > > > chipset?
+> > > > 
+> > > >  Feb 17 23:18:46 syrinx sky2 0000:02:00.0: can't access PCI config
+> > > > space
+> > > 
+> > > Looks like something died way down in the PCI bus config space
+> > > read/write operations.  I don't know what would cause that.  You
+> > > could perhaps play with `pci=conf1', `pci=conf2', etc as per
+> > > Documentation/kernel-parameters.txt.
+> > 
+> > OK, I tried all these pci= options, plus acpi=off, to no effect:
+> > conf1, conf2, nommconf, biosirq, noacpi, routeirq, nosort, rom,
+> > lastbus=2, assign-busses, usepirqmask acpi=off
+> > 
+> > Also tried adjusting PCIe-related stuff in the BIOS (underclocking PCIe
+> > from 100 to 70 and adjusting Northbridge options). No change.
+> 
+> Most likely it fails here:
+> 
+> 		err = pci_write_config_dword(hw->pdev, PEX_UNC_ERR_STAT,
+> 						 0xffffffffUL);
+> 		if (err)
+> 			goto pci_err;
+> 
+> PEX_UNC_ERR_STAT is 0x104; this register is outside of the standard
+> 256-byte PCI configuration space, and is reachable only via the MMCONFIG
+> access mechanism.  Seems that kernel is not using MMCONFIG for some
+> reason; you mentioned that you have CONFIG_PCI_MMCONFIG=y in kernel
+> config, so it looks like your BIOS does not provide proper MCFG table.
+> Full dmesg output might give some clues.
 
-DRH
+The problem can also be caused by buggy BIOS's that don't report
+proper values for mmconfig space. There is some code in mmconfig.c that
+tries to handle that. It might not handle what ever your system is reporting.
+Andi Kleen seems to be the last person involved and might be able to help.
 
-(and I think that theres even more information available, from the 
-capabilities mode page, but I'm unsure as to how to access that)
+It would be useful to add some printk's to mmconfig to dump out the table
+after it discovers the table.

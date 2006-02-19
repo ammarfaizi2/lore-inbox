@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbWBSQO7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWBSQSF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750846AbWBSQO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 11:14:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWBSQO7
+	id S1750844AbWBSQSF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 11:18:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWBSQSF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 11:14:59 -0500
-Received: from mx1.rowland.org ([192.131.102.7]:35079 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S1750789AbWBSQO7 (ORCPT
+	Sun, 19 Feb 2006 11:18:05 -0500
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:7662 "EHLO sunrise.pg.gda.pl")
+	by vger.kernel.org with ESMTP id S1750844AbWBSQSE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 11:14:59 -0500
-Date: Sun, 19 Feb 2006 11:14:57 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Pete Zaitcev <zaitcev@redhat.com>
-cc: CaT <cat@zip.com.au>, <linux-kernel@vger.kernel.org>,
-       <linux-usb-devel@lists.sourceforge.net>,
-       Wolfgang =?UTF-8?B?TcO8ZXM=?= <wolfgang@iksw-muees.de>,
-       <martinmaurer@gmx.at>
-Subject: Re: [linux-usb-devel] Re: 2.6.15: usb storage device not detected
-In-Reply-To: <20060218224924.737bd36b.zaitcev@redhat.com>
-Message-ID: <Pine.LNX.4.44L0.0602191113430.9165-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 19 Feb 2006 11:18:04 -0500
+Date: Sun, 19 Feb 2006 17:16:43 +0100
+From: Adam Tla/lka <atlka@pg.gda.pl>
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH]console:UTF-8 mode compatibility fixes
+Message-ID: <20060219161643.GA15459@sunrise.pg.gda.pl>
+References: <20060217233333.GA5208@sunrise.pg.gda.pl> <20060218025921.7456e168.akpm@osdl.org> <43F744C6.8020209@pg.gda.pl> <43F7F2FA.2060102@ums.usu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43F7F2FA.2060102@ums.usu.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Feb 2006, Pete Zaitcev wrote:
-
-> On Sun, 19 Feb 2006 16:19:15 +1100, CaT <cat@zip.com.au> wrote:
+On Sun, Feb 19, 2006 at 09:24:26AM +0500, Alexander E. Patrakov wrote:
+> Adam TlaÅ‚ka wrote:
 > 
-> Thanks for the trace, CaT!
+> >Maybe I should remember all bytes of the UTF-sequence to use their 
+> >values as a last resort char in case of malformed sequence and 0xfffd
+> >not defined?
 > 
-> > c31f414c 744561726 S Bo:005:02 -115 31 = 55534243 00000000 00000000 00000600 00000000 00000000 00000000 000000
-> > c31f414c 744561854 C Bo:005:02 0 31 >
-> > c31f414c 744561863 S Bi:005:01 -115 13 <
-> > c31f414c 745057444 C Bi:005:01 0 13 = 55534253 00000000 00000000 00
-> > c31f414c 745057463 S Ci:005:00 s a1 fe 0000 0000 0001 1 <
-> > c31f414c 745057691 C Ci:005:00 -32 0
-> > c31f414c 745057750 S Co:005:00 s 02 01 0000 0081 0000 0
-> > c31f414c 745058065 C Co:005:00 0 0
-> > c31f414c 745058072 S Co:005:00 s 02 01 0000 0002 0000 0
-> > c31f414c 745058314 C Co:005:00 0 0
-> > c31f414c 745058386 S Bo:005:02 -115 31 = 55534243 01000000 00000000 00000600 00000000 00000000 00000000 000000
-> > c31f414c 745058437 C Bo:005:02 0 31 >
-> > c31f414c 745058444 S Bi:005:01 -115 13 <
-> > c31f414c 750057024 C Bi:005:01 -104 0
+> Please don't do that. Display question marks instead in the case when 
+> 0xfffd is not defined.
 
-Perhaps the device doesn't like the way you do GetMaxLUN after doing TEST 
-UNIT READY.
+Look at the original code. If conv_uni_to_pc fails and there is no replacement
+char (after a clear_unimap for example) and we using US-ASCII we rather
+should see something then sequences of '?' chars.
+Maybe I could change this to:
 
-Alan Stern
+if (tc == -4) {
+	if (c < 128)
+		tc = c;
+	else
+		tc = '?';
+}
 
+What about that?
+
+Remembering of original bytes is needed if we could then remember
+them in a way so paste from screen gives us the same sequence as it was
+in input. With current console design it is impossible is case
+of correct UTF-8 sequences containing undisplayable glyphs or malformed
+sequences. So I can remove that part of patch and it will wait until
+this functionality will be implemented - not so easy but can
+be done IMHO and worth it to obtain properly working selection
+and copying in UTF-8 mode.
+
+Regards
+-- 
+Adam Tla³ka      mailto:atlka@pg.gda.pl    ^v^ ^v^ ^v^
+System  & Network Administration Group           ~~~~~~
+Computer Center,  Gdañsk University of Technology, Poland
+PGP public key:   finger atlka@sunrise.pg.gda.pl

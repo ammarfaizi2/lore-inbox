@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbWBSXwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWBSXwI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932452AbWBSXwA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 18:52:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbWBSXwA
+	id S932454AbWBSXwI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 18:52:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWBSXwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 18:52:00 -0500
-Received: from lucidpixels.com ([66.45.37.187]:10690 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S932452AbWBSXv6 (ORCPT
+	Sun, 19 Feb 2006 18:52:08 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:39300 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S932455AbWBSXwH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 18:51:58 -0500
-Date: Sun, 19 Feb 2006 18:51:57 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34
-To: Lee Revell <rlrevell@joe-job.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Intel CSA Gigabit Bug in IC7-G Motherboards- Affects Windows/Linux
-In-Reply-To: <1140392860.2733.433.camel@mindpipe>
-Message-ID: <Pine.LNX.4.64.0602191848230.7212@p34>
-References: <Pine.LNX.4.64.0602191807001.7212@p34> <1140392860.2733.433.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 19 Feb 2006 18:52:07 -0500
+Date: Sun, 19 Feb 2006 18:47:13 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Bastian Blank <bastian@waldi.eu.org>,
+       Arthur Othieno <apgo@patchbomb.org>, Jean Delvare <khali@linux-fr.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [PATCH/RFC] remove duplicate #includes, take II
+Message-ID: <20060219234713.GA3192@kvack.org>
+References: <20060218145525.GA32618@MAIL.13thfloor.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060218145525.GA32618@MAIL.13thfloor.at>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Essentially, when you copy large amounts of data across the NIC it will 
-"freeze" the box in Linux (any 2.6.x kernel, have not tried 2.4.x) or 
-Windows XP SP2.
+On Sat, Feb 18, 2006 at 03:55:25PM +0100, Herbert Poetzl wrote:
+> so if folks want to cherry pick and/or comment on
+> the first two categories, please do so, I will
+> collect all the feedback and produce a patch to
+> get rid of the duplicates later ...
 
-If you checkout the thread, it occurs for multiple people under various 
-OS' but in *some* cases if they use ABIT's IC7-G CSA/INTEL driver, they 
-their problems go away.
+This sort of patch isn't as interesting as actually fixing the mess 
+known as include/linux/sched.h and include/linux/sched.h...  Most places 
+in the kernel don't actually need the majority of sched.h, just a handful 
+of functions like set_task_state().  fs.h is another tangled web of 
+dependancies.  I did some experimenting back in the 2.2 days and it was 
+possible to cut something like 10-20% off the kernel build time.
 
-In Linux when I used to use the onboard NIC, it froze the box, I did not 
-have sysrq enabled at the time when this happened but frozen I mean screen 
-is frozen, no ping, box is inoperative.
+That said, it's a big job.
 
-Nothing pecuilar was ever found in any of the logs or dmesg output 
-regarding the crash.
-
-Basically its the first revision of CSA gigabit on a motherboard from what 
-I read in the forums and unless you use ABIT's specially crafted driver, 
-it will crash the machine when you copy either:
-
-a) large amounts of data over a gigabit link
-or
-b) that death.zip file (unzipped of course) which contains the bad "bits" 
-that are probably seen/repeated when copying large amounts of data
-
-Justin.
-
-On Sun, 19 Feb 2006, Lee Revell wrote:
-
-> On Sun, 2006-02-19 at 18:17 -0500, Justin Piszcz wrote:
->>
->> The author has a "death.zip" file, in which if you copy the file over
->> the
->> LAN it causes an instant crash.
->
-> Windows and Linux?  What kind of "crash"?  An Oops?  Lockup?  Reboot?
-> Anything in the logs?
->
-> Your report is way too vague to be actionable.
->
-> Lee
->
+		-ben
+-- 
+"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
+and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.

@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbWBSELs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbWBSEXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750805AbWBSELs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Feb 2006 23:11:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWBSELs
+	id S1750879AbWBSEXg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Feb 2006 23:23:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750887AbWBSEXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Feb 2006 23:11:48 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:5568 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750805AbWBSELs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Feb 2006 23:11:48 -0500
-Date: Sat, 18 Feb 2006 20:11:26 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: Robust futexes
-Message-Id: <20060218201126.7dd9f1e2.pj@sgi.com>
-In-Reply-To: <1140234812.2418.13.camel@localhost.localdomain>
-References: <1140152271.25078.42.camel@localhost.localdomain>
-	<20060216224207.98526b40.pj@sgi.com>
-	<1140160371.25078.81.camel@localhost.localdomain>
-	<20060216232950.efa39e13.pj@sgi.com>
-	<20060217091307.GB22718@elte.hu>
-	<1140234812.2418.13.camel@localhost.localdomain>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Feb 2006 23:23:36 -0500
+Received: from relay4.usu.ru ([194.226.235.39]:46034 "EHLO relay4.usu.ru")
+	by vger.kernel.org with ESMTP id S1750879AbWBSEXg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Feb 2006 23:23:36 -0500
+Message-ID: <43F7F2FA.2060102@ums.usu.ru>
+Date: Sun, 19 Feb 2006 09:24:26 +0500
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "=?UTF-8?B?QWRhbSBUbGHFgmth?=" <atlka@pg.gda.pl>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH]console:UTF-8 mode compatibility fixes
+References: <20060217233333.GA5208@sunrise.pg.gda.pl> <20060218025921.7456e168.akpm@osdl.org> <43F744C6.8020209@pg.gda.pl>
+In-Reply-To: <43F744C6.8020209@pg.gda.pl>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.33.1.0; VDF: 6.33.1.5; host: usu2.usu.ru)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As an added bonus, the tone of the first response I received (not
-> yours!) reminded me why I am not subscribed to lkml...
+Adam Tlałka wrote:
 
-Oh dear.  Now I have on my conscious reminding Rusty why
-he keeps off lkml.
+> Maybe I should remember all bytes of the UTF-sequence to use their 
+> values as a last resort char in case of malformed sequence and 0xfffd
+> not defined?
 
-I'm not sure quite how I did that, but I wish I hadn't.
-
-I for one found your lkml posts, Rusty, to be delightful.
-
-Take good care of yourself, Rusty.
+Please don't do that. Display question marks instead in the case when 
+0xfffd is not defined.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Alexander E. Patrakov

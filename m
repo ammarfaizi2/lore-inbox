@@ -1,108 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWBSXxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbWBSXzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932453AbWBSXxo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 18:53:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWBSXxo
+	id S932455AbWBSXzf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 18:55:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWBSXzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 18:53:44 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:43461 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932453AbWBSXxo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 18:53:44 -0500
-Subject: Re: No sound from SB live!
-From: Lee Revell <rlrevell@joe-job.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Nishanth Aravamudan <nacc@us.ibm.com>, Nick Warne <nick@linicks.net>,
-       Jesper Juhl <jesper.juhl@gmail.com>, tiwai@suse.de, ghrt@dial.kappa.ro,
-       perex@suse.cz, kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060219234644.GD15608@elf.ucw.cz>
-References: <20060218231419.GA3219@elf.ucw.cz>
-	 <20060219214702.GM15311@elf.ucw.cz> <1140385837.2733.394.camel@mindpipe>
-	 <200602192323.08169.s0348365@sms.ed.ac.uk>
-	 <1140391929.2733.430.camel@mindpipe>  <20060219234644.GD15608@elf.ucw.cz>
-Content-Type: multipart/mixed; boundary="=-UjEe+XwyqdGUeaF92T0U"
-Date: Sun, 19 Feb 2006 18:53:41 -0500
-Message-Id: <1140393222.2733.438.camel@mindpipe>
+	Sun, 19 Feb 2006 18:55:35 -0500
+Received: from proof.pobox.com ([207.106.133.28]:15047 "EHLO proof.pobox.com")
+	by vger.kernel.org with ESMTP id S932455AbWBSXze (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 18:55:34 -0500
+Date: Sun, 19 Feb 2006 17:58:26 -0600
+From: Nathan Lynch <ntl@pobox.com>
+To: linux-kernel@vger.kernel.org
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Subject: i386 cpu hotplug bug - instant reboot when onlining secondary
+Message-ID: <20060219235826.GF3293@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.91 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi-
 
---=-UjEe+XwyqdGUeaF92T0U
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+On a dual P3 Xeon machine, offlining and then onlining a cpu makes the
+box instantly reboot.  I've been seeing this throughout the 2.6.16-rc
+series, but wasn't able to collect more information until now.  Not
+sure when this last worked, unfortunately.
 
-On Mon, 2006-02-20 at 00:46 +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > > I'm still using 1.0.9 on 2.6.16-rc4 with no problems, Audigy 2 (one
-> > > that uses 
-> > > emu10k1). 
-> > 
-> > It's a specific change to the SBLive! that did not affect the Audigy
-> > that causes alsa-lib 1.0.10+ to be required on 2.6.14 and up.  These
-> > types of incompatible changes should be rare.
-> 
-> Do you have that patch somewhere handy?
-> 
+With the debugging patch below, I get this on serial console:
 
-Attached
+[17179681.704000] CPU 1 is now offline
+[17179686.908000] Booting processor 1/1 eip 3000
+[17179686.912000] CPU 1 irqstacks, hard=78383000 soft=7837b000
+[17179686.920000] Setting warm reset code and vector.
+[17179686.924000] 1.
+[17179686.924000] 2.
+[17179686.928000] 3.
+[17179686.928000] Asserting INIT.
+[17179686.932000] Waiting for send to finish...
+[17179686.936000] +<7>Deasserting INIT.
+[17179686.952000] Waiting for send to finish...
+[17179686.956000] +<7>#startup loops: 2.
+[17179686.960000] Sending STARTUP #1.
+[17179686.960000] After apic_write.
+[17179686.964000] Doing apic_write_around for target chip...
+[17179686.972000] Doing apic_write_around to kick the second...
 
-> How do I tell alsa-lib version?
-> 
-
-Check your distro's package manager.
-
-> Does alsa-lib bug still affect me when I'm using oss emulation?
-> 
-
-No.
-
-> > It was a necessary precursor to fixing the well known "master volume
-> > only controls front speakers" bug.
-> 
-> 								Pavel
-
---=-UjEe+XwyqdGUeaF92T0U
-Content-Disposition: attachment; filename=emu10k1-fix-the-confliction-of-front-control.patch
-Content-Type: text/x-patch; name=emu10k1-fix-the-confliction-of-front-control.patch; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
--stable review patch.  If anyone has any objections, please let us know.
-------------------
-
-Fix the confliction of 'Front' controls on models with STAC9758 codec.
-
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
----
-
- sound/pci/emu10k1/emumixer.c |    2 ++
- 1 files changed, 2 insertions(+)
-
-Index: linux-2.6.15.3/sound/pci/emu10k1/emumixer.c
-===================================================================
---- linux-2.6.15.3.orig/sound/pci/emu10k1/emumixer.c
-+++ linux-2.6.15.3/sound/pci/emu10k1/emumixer.c
-@@ -750,6 +750,8 @@ int __devinit snd_emu10k1_mixer(emu10k1_
- 		"Master Mono Playback Volume",
- 		"PCM Out Path & Mute",
- 		"Mono Output Select",
-+		"Front Playback Switch",
-+		"Front Playback Volume",
- 		"Surround Playback Switch",
- 		"Surround Playback Volume",
- 		"Center Playback Switch",
-
---
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Any suggestions?
 
 
---=-UjEe+XwyqdGUeaF92T0U--
-
+diff --git a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
+index fb00ab7..85aff00 100644
+--- a/arch/i386/kernel/smpboot.c
++++ b/arch/i386/kernel/smpboot.c
+@@ -801,10 +801,12 @@ wakeup_secondary_cpu(int phys_apicid, un
+ 		 */
+ 
+ 		/* Target chip */
++		Dprintk("Doing apic_write_around for target chip...\n");
+ 		apic_write_around(APIC_ICR2, SET_APIC_DEST_FIELD(phys_apicid));
+ 
+ 		/* Boot on the stack */
+ 		/* Kick the second */
++		Dprintk("Doing apic_write_around to kick the second...\n");
+ 		apic_write_around(APIC_ICR, APIC_DM_STARTUP
+ 					| (start_eip >> 12));
+ 
+diff --git a/include/asm-i386/apic.h b/include/asm-i386/apic.h
+index d30b857..2c8dcfa 100644
+--- a/include/asm-i386/apic.h
++++ b/include/asm-i386/apic.h
+@@ -8,7 +8,7 @@
+ #include <asm/processor.h>
+ #include <asm/system.h>
+ 
+-#define Dprintk(x...)
++#define Dprintk(fmt,arg...) printk(KERN_DEBUG fmt,##arg)
+ 
+ /*
+  * Debugging macros

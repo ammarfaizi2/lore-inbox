@@ -1,90 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbWBSOP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932519AbWBSOSm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932565AbWBSOP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 09:15:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbWBSOP2
+	id S932519AbWBSOSm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 09:18:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbWBSOSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 09:15:28 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:18135 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932505AbWBSOP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 09:15:27 -0500
-Date: Sun, 19 Feb 2006 14:15:18 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Ian Kent <raven@themaw.net>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       autofs mailing list <autofs@linux.kernel.org>
-Subject: Re: [PATCH] autofs4 - fix comms packet struct size
-Message-ID: <20060219141517.GA7942@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ian Kent <raven@themaw.net>, Andrew Morton <akpm@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-	autofs mailing list <autofs@linux.kernel.org>
-References: <Pine.LNX.4.64.0602192206440.24506@eagle.themaw.net>
+	Sun, 19 Feb 2006 09:18:42 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:50185 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932519AbWBSOSl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 09:18:41 -0500
+Date: Sun, 19 Feb 2006 15:18:08 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: LKML <linux-kernel@vger.kernel.org>, len.brown@intel.com,
+       Paul Bristow <paul@paulbristow.net>, mpm@selenic.com,
+       B.Zolnierkiewicz@elka.pw.edu.pl, dtor_core@ameritech.net, kkeil@suse.de,
+       linux-dvb-maintainer@linuxtv.org, philb@gnu.org, gregkh@suse.de,
+       dwmw2@infradead.org, rusty@rustcorp.com.au
+Subject: Re: kbuild: Section mismatch warnings
+Message-ID: <20060219141808.GA30857@mars.ravnborg.org>
+References: <20060217214855.GA5563@mars.ravnborg.org> <20060217224702.GA25761@mars.ravnborg.org> <20060219113630.GA5032@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0602192206440.24506@eagle.themaw.net>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20060219113630.GA5032@mars.ravnborg.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 19, 2006 at 10:11:31PM +0800, Ian Kent wrote:
+On Sun, Feb 19, 2006 at 12:36:30PM +0100, Sam Ravnborg wrote:
 > 
-> Set userspace communication struct fields to fixed size.
-> 
-> Signed-off-by: Ian Kent <raven@themaw.net>
-> 
-> --- linux-2.6.16-rc3-mm1/include/linux/auto_fs4.h.fix-v5-packet-size	2006-02-17 19:15:49.000000000 +0800
-> +++ linux-2.6.16-rc3-mm1/include/linux/auto_fs4.h	2006-02-17 19:12:09.000000000 +0800
-> @@ -65,10 +65,10 @@ struct autofs_v5_packet {
->  	autofs_wqt_t wait_queue_token;
+> Question: Several modules contains init_module() cleanup_module() -
+> for example floppy.o. I cannot see they are used anymore and subject for
+> deletion - correct?
 
-Hiding types in user visible structures behind typedefs is bad.
-What type is behind this?  If this is not an __u32 you have
-a padding issue.
+Digged a bit further into this.
+In init.h the module_init() / module_exit() macros are defined.
+They define an alias from the supplied function to
+init_module() / cleanup_module().
 
->  	__u32 dev;
->  	__u64 ino;
-> -	uid_t uid;
-> -	gid_t gid;
-> -	pid_t pid;
-> -	pid_t tgid;
-> +	__u64 uid;
-> +	__u64 gid;
-> +	__u64 pid;
-> +	__u64 tgid;
+Users of init_module() / cleanup_module() do have a ifdef section like
+this:
 
-These should be 32bit values.
+#ifdef MODULE
+init_module() ...
+cleanup_module() ...
+#else
+module_init(modulename_init);
+module_exit(modulename_exit);
+#endif
 
->  	int len;
+So this seems to be modules that just needs a bit more
+porting to the new module structure if I get it right.
 
-this should become a fixed-size type aswell.
+What I missed when I asked the question was the #ifdef MODULE part.
 
->  	char name[NAME_MAX+1];
->  };
-> --- linux-2.6.16-rc3-mm1/fs/autofs4/autofs_i.h.fix-v5-packet-size	2006-02-17 19:17:03.000000000 +0800
-> +++ linux-2.6.16-rc3-mm1/fs/autofs4/autofs_i.h	2006-02-17 19:17:25.000000000 +0800
-> @@ -79,10 +79,10 @@ struct autofs_wait_queue {
->  	char *name;
->  	u32 dev;
->  	u64 ino;
-> -	uid_t uid;
-> -	gid_t gid;
-> -	pid_t pid;
-> -	pid_t tgid;
-> +	u64 uid;
-> +	u64 gid;
-> +	u64 pid;
-> +	u64 tgid;
->  	/* This is for status reporting upon return */
->  	int status;
->  	atomic_t notified;
-
-This is an in-kernel structure, isn't it?  No need to use u64 here.
-
+	Sam

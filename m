@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbWBSKqp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWBSK43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932393AbWBSKqp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 05:46:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbWBSKqp
+	id S932395AbWBSK43 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 05:56:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWBSK43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 05:46:45 -0500
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:5776 "EHLO sunrise.pg.gda.pl")
-	by vger.kernel.org with ESMTP id S932393AbWBSKqo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 05:46:44 -0500
-Date: Sun, 19 Feb 2006 11:45:25 +0100
-From: Adam Tla/lka <atlka@pg.gda.pl>
-To: Thomas Dickey <dickey@his.com>
-Cc: "Alexander E. Patrakov" <patrakov@ums.usu.ru>, torvalds@osdl.org,
-       bug-ncurses@gnu.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]console:UTF-8 mode compatibility fixes
-Message-ID: <20060219104525.GC862@sunrise.pg.gda.pl>
-References: <20060217233333.GA5208@sunrise.pg.gda.pl> <43F72A1E.1090707@ums.usu.ru> <43F7310E.4070109@pg.gda.pl> <20060218204040.B36972@mail101.his.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060218204040.B36972@mail101.his.com>
-User-Agent: Mutt/1.4.1i
+	Sun, 19 Feb 2006 05:56:29 -0500
+Received: from baldrick.bootc.net ([83.142.228.48]:30664 "EHLO
+	baldrick.bootc.net") by vger.kernel.org with ESMTP id S932395AbWBSK42
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 05:56:28 -0500
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Transfer-Encoding: 7bit
+Message-Id: <0BF2E785-CC6D-4E4D-BDCF-AD21AEA10D36@bootc.net>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+To: linux-kernel@vger.kernel.org
+From: Chris Boot <bootc@bootc.net>
+Subject: Driver 'w83627hf' needs updating - please use bus_type methods
+Date: Sun, 19 Feb 2006 10:56:25 +0000
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 18, 2006 at 08:43:56PM -0500, Thomas Dickey wrote:
-> On Sat, 18 Feb 2006, Adam TlaÅ~Bka wrote:
-> >one proper definition of the linux console. Maybe kernel developers should 
-> >prepare some most compatible and acceptable one.
-> >I can post the one I am using today:
-> 
-> ...of course, this one isn't like any of the variations I've seen.
-> But you knew that.  (Aside from the acs/enacs/rmacs/smacs changes,
-> I'm curious what happened to ich/ich1).
+Hi all,
 
-They were removed because of possible incompatibility warning.
-Maybe they should stay - I posted only currently used by me linux terminal
-definition. As I said before there should be the official linux terminal
-definition and description included with kernel sources because vt.c
-in sources defines console behaviour.
+Just noticed the above message in my kernel log on my machine running  
+2.6.16-rc2-ide2. I know there's a 2.6.16-rc4 now... I'm waiting to  
+upgrade until Alan comes up with new -ide patches or ATAPI over  
+libata/PATA starts working in -mm.
 
-Anyway acs, enacs, smacs and rmacs sequences are defined here 
-to stick to the controls interpretation used in vt.c 
-do_con_trol function and to get desired behaviour.
+On another machine I also get:
 
-Regards
+Driver 'via686a' needs updating - please use bus_type methods
+
+HTH,
+Chris
+
 -- 
-Adam Tla³ka      mailto:atlka@pg.gda.pl    ^v^ ^v^ ^v^
-System  & Network Administration Group           ~~~~~~
-Computer Center,  Gdañsk University of Technology, Poland
-PGP public key:   finger atlka@sunrise.pg.gda.pl
+Chris Boot
+bootc@bootc.net
+http://www.bootc.net/
+
+

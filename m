@@ -1,69 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWBSUel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWBSUgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751048AbWBSUel (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 15:34:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbWBSUel
+	id S932111AbWBSUgS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 15:36:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWBSUgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 15:34:41 -0500
-Received: from vms048pub.verizon.net ([206.46.252.48]:10180 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751041AbWBSUek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 15:34:40 -0500
-Date: Sun, 19 Feb 2006 15:34:38 -0500
+	Sun, 19 Feb 2006 15:36:17 -0500
+Received: from vms046pub.verizon.net ([206.46.252.46]:51955 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932111AbWBSUgR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 15:36:17 -0500
+Date: Sun, 19 Feb 2006 15:36:16 -0500
 From: Gene Heskett <gene.heskett@verizon.net>
 Subject: Re: don't bother users with unimportant messages.
-In-reply-to: <20060219082916.GA19903@redhat.com>
-To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Message-id: <200602191534.38761.gene.heskett@verizon.net>
+In-reply-to: <20060219175745.GB2674@kroah.com>
+To: linux-kernel@vger.kernel.org
+Message-id: <200602191536.16119.gene.heskett@verizon.net>
 Organization: Organization? Absolutely zip.
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii
 Content-transfer-encoding: 7bit
 Content-disposition: inline
 References: <20060219010910.GA18841@redhat.com>
- <20060219081523.GA9668@flint.arm.linux.org.uk>
- <20060219082916.GA19903@redhat.com>
+ <20060219082916.GA19903@redhat.com> <20060219175745.GB2674@kroah.com>
 User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 19 February 2006 03:29, Dave Jones wrote:
->On Sun, Feb 19, 2006 at 08:15:23AM +0000, Russell King wrote:
-> > On Sat, Feb 18, 2006 at 08:09:10PM -0500, Dave Jones wrote:
-> > > When users see these printed to the console, they think
-> > > something is wrong.  As it's just informational and something
-> > > that only developers care about, lower the printk level.
-> >
-> > If you're getting complaints about this, wouldn't it be better to
-> > forward them here so that they can be fixed up?
+On Sunday 19 February 2006 12:57, Greg KH wrote:
+>On Sun, Feb 19, 2006 at 03:29:16AM -0500, Dave Jones wrote:
+>> On Sun, Feb 19, 2006 at 08:15:23AM +0000, Russell King wrote:
+>>  > On Sat, Feb 18, 2006 at 08:09:10PM -0500, Dave Jones wrote:
+>>  > > When users see these printed to the console, they think
+>>  > > something is wrong.  As it's just informational and something
+>>  > > that only developers care about, lower the printk level.
+>>  >
+>>  > If you're getting complaints about this, wouldn't it be better to
+>>  > forward them here so that they can be fixed up?
+>>
+>> w83627hf, and probably other drivers from drivers/hwmon/
 >
->w83627hf, and probably other drivers from drivers/hwmon/
+>With 2.6.16-rc4?  I thought I just sent a patch in for -rc3 to fix
+> this.
 >
-> > The thing about this particular message is that if you see it, the
-> > driver will _not_ work properly, so it's actually more than a
-> > "debugging" message.  It's telling you why driver FOO doesn't work.
+It must be in rc4 Greg, I didn't see that error on the rc4 bootup.
+
+>thanks,
 >
->I'm pretty certain this driver _was_ working fine before this change.
->
->  Dave
-I got an advisory about w83627hf in my logs, but not from the rc4 
-reboot.  The previous ones were:
-Feb 13 00:31:18 coyote kernel: Driver 'w83627hf' needs updating - please 
-use bus_type methods
-Feb 13 00:36:20 coyote kernel: Driver 'w83627hf' needs updating - please 
-use bus_type methods
-
-Two quick reboots there, the first one would have been rc2, I forgot to 
-update grub.conf :(
-
-which would have been booted to rc2 and 3, not rc4. I believe they 
-started at rc1 but I won't swear to that.  gkrellm and sensors are both 
-working albeit sensors is saying C for the diode in the cpu when it 
-should be F
-
-gkrellm-2.28 is displaying it correctly though.
-
-So apparently something has been updated with rc4?
+>greg k-h
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
 Cheers, Gene

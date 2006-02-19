@@ -1,85 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWBSHGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWBSHOO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751106AbWBSHGv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 02:06:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWBSHGv
+	id S932076AbWBSHOO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 02:14:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWBSHOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 02:06:51 -0500
-Received: from multivac.one-eyed-alien.net ([64.169.228.101]:8597 "EHLO
-	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S1751106AbWBSHGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 02:06:50 -0500
-Date: Sat, 18 Feb 2006 23:06:31 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net,
-       Wolfgang =?iso-8859-1?Q?M=FCes?= <wolfgang@iksw-muees.de>,
-       martinmaurer@gmx.at
-Subject: Re: [linux-usb-devel] Re: 2.6.15: usb storage device not detected
-Message-ID: <20060219070631.GA6943@one-eyed-alien.net>
-Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>, CaT <cat@zip.com.au>,
-	linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-	Wolfgang =?iso-8859-1?Q?M=FCes?= <wolfgang@iksw-muees.de>,
-	martinmaurer@gmx.at
-References: <20060109130540.GB2035@zip.com.au> <20060109101713.469d3a7f.zaitcev@redhat.com> <20060219051915.GA1888@zip.com.au> <20060218224924.737bd36b.zaitcev@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
+	Sun, 19 Feb 2006 02:14:14 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:23136 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S1751171AbWBSHON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 02:14:13 -0500
+Date: Sun, 19 Feb 2006 08:14:15 +0100
+From: Sander <sander@humilis.net>
+To: Mark Lord <lkml@rtr.ca>
+Cc: sander@humilis.net, Jeff Garzik <jgarzik@pobox.com>,
+       Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>
+Subject: Re: LibPATA code issues / 2.6.15.4
+Message-ID: <20060219071414.GA31299@favonius>
+Reply-To: sander@humilis.net
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F1EE4A.3050107@rtr.ca> <43F58D29.3040608@pobox.com> <200602170959.40286.lkml@rtr.ca> <20060218204340.GA2984@favonius> <43F794D8.7000406@rtr.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060218224924.737bd36b.zaitcev@redhat.com>
-User-Agent: Mutt/1.4.1i
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2006 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+In-Reply-To: <43F794D8.7000406@rtr.ca>
+X-Uptime: 07:46:36 up 18 days, 23:28, 28 users,  load average: 3.22, 2.73, 2.52
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mark Lord wrote (ao):
+> Sander wrote:
+> >Mark Lord wrote (ao):
+> >>On Friday 17 February 2006 03:45, Jeff Garzik wrote:
+> >>>Submit a patch... 
+> >>You mean, something like this one?
+> ...
+> >[  633.449961] md: md1: sync done.
+> >[  633.456070] RAID5 conf printout:
+> >[  633.456117]  --- rd:9 wd:9 fd:0
+> ...
+> >[ 1872.338185] ata6: translated op=0x2a ATA stat/err 0xd0/00 to SCSI 
+> >SK/ASC/ASCQ 0xb/47/00
+> >[ 1872.338239] ata6: status=0xd0 { Busy }
+> >[ 5749.285084] ata8: translated op=0x2a ATA stat/err 0xd0/00 to SCSI 
+> >SK/ASC/ASCQ 0xb/47/00
+> >[ 5749.285138] ata8: status=0xd0 { Busy }
+> >[ 5906.008461] ata6: translated op=0x2a ATA stat/err 0xd0/00 to SCSI 
+> >SK/ASC/ASCQ 0xb/47/00
+> >[ 5906.008515] ata6: status=0xd0 { Busy }
+> ...
+> >This is with 2.6.16-rc3, your patch, and running nine Maxtors disks
+> >over onboard nForce4 and MV88SX6081 8-port SATA II PCI-X Controller (rev 
+> >09).
+> >
+> >for i in `seq 10`
+> >do dd if=/dev/zero of=bigfile.$i bs=1024k count=10000
+> >done
+> >md5sum bigfile.*
+> >
+> >The errors mostly seem to happen during the md5sum (not during the dd).
+> 
+> SCSI opcode 0x2a is WRITE_10, so the errors are being reported
+> in response to the writes to bigfile.$i.
 
---pf9I7BMVVzbSWLtt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ah, my bad then.
 
-On Sat, Feb 18, 2006 at 10:49:24PM -0800, Pete Zaitcev wrote:
->=20
-> I see... This is a device which dislikes the stall clear when called after
-> a stall on the control pipe.
->=20
-> I knew this was inevitable ever since Wolfgang pointed me at it when we
-> debugged Martin's Elitegroup K7S5A.
->=20
-> I'm going to send the attached patch to Greg to get it into 2.6.17
-> (this way it will be separated from all the reset machinery which goes
-> into 2.6.16). I have tested it on my honest to goodness ZIP-100, and
-> yes, it stalls the control pipe at the GetMaxLUN, and yes, it works
-> after that. Here's the hope that it is some kind of an urban legend.
+> But these are different from the previously reported error status
+> values -- I wonder why it's getting "Busy" back as a status here ??
 
-It's not an urban legend.  There are several different devices which were
-all marketed as ZIP-100.  The early generation ones had this problem.
+Well, as I wrote, I am not the original reporter whoms thread you
+responded to with your patch. I just thought I could use it to get
+better errors messages for my bug reports.
 
-Matt
+I am using the sata_mv driver, which is beta. That might explain why it
+behaves not totally as expected in your eyes. I have no clue anyway :-)
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+I hope my reports are of any use to Jeff wrt the sata_mv driver.
 
-E:  You run this ship with Windows?!  YOU IDIOT!
-L:  Give me a break, it came bundled with the computer!
-					-- ESR and Lan Solaris
-User Friendly, 12/8/1998
+Thank you for your response.
 
---pf9I7BMVVzbSWLtt
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+	Sander
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFD+Bj3HL9iwnUZqnkRAqePAKCbLIJFutm9mNxGYN/+9Kv2kas3pQCgp7xb
-tr2BQ1xcY5oHja2ZrJmQ2Jo=
-=USA/
------END PGP SIGNATURE-----
-
---pf9I7BMVVzbSWLtt--
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

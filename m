@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWBSVuc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbWBSVuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbWBSVuc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 16:50:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWBSVuc
+	id S1751018AbWBSVuA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 16:50:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWBSVt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 16:50:32 -0500
-Received: from mail.gmx.de ([213.165.64.20]:20930 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750809AbWBSVub (ORCPT
+	Sun, 19 Feb 2006 16:49:59 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15849 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932102AbWBSVt7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 16:50:31 -0500
-X-Authenticated: #704063
-Subject: triggering BUGs in 2.6.15-rt16
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Sun, 19 Feb 2006 22:50:28 +0100
-Message-Id: <1140385829.5057.6.camel@alice>
+	Sun, 19 Feb 2006 16:49:59 -0500
+Date: Sun, 19 Feb 2006 22:49:34 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Nishanth Aravamudan <nacc@us.ibm.com>, Nick Warne <nick@linicks.net>,
+       Jesper Juhl <jesper.juhl@gmail.com>, tiwai@suse.de, ghrt@dial.kappa.ro,
+       perex@suse.cz, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: No sound from SB live!
+Message-ID: <20060219214934.GO15311@elf.ucw.cz>
+References: <20060218231419.GA3219@elf.ucw.cz> <9a8748490602190304w43c32ae6m5b610f2ec9ad46f2@mail.gmail.com> <7c3341450602190318o1c60e9b5w@mail.gmail.com> <20060219205157.GA5976@us.ibm.com> <1140384638.2733.389.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1140384638.2733.389.camel@mindpipe>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-while fooling around with 2.6.15-rt16 i got a couple ( ~330 ) of BUG()s,
-which i caught via netconsole
+Hi!
 
-http://www.snake-basket.de/linux-2.6.15-rt16_bug_party.log
+> > I run Ubuntu Breezy, which has:
+> > 
+> > alsa-utils = 1.0.9a-4ubuntu5 
+> 
+> The alsa-utils version should not matter, it's alsa-lib that must be
+> kept in sync with the ALSA version in the kernel.
 
-A grep shows the BUG()s fall into these categories:
+I tried to play with mpg123 using OSS emulation, so that it does not
+have anything to do with ALSA. No luck. Trying aplay:
 
-BUG: scheduling with  irqs disabled: insmod/0x00000000/8370
-BUG: sleeping function called from invalid context insmod(8370) at mm/slab.c:2134
-insmod/7573[CPU#0]: BUG in up_mutex at kernel/rt.c:2246
-insmod/7573[CPU#0]: BUG in ____up_mutex at kernel/rt.c:1583
-BUG: lock wait_list not initialized?
+root@hobit:/dev/snd#  aplay
+/usr/share/xemacs21/xemacs-packages/etc/sounds/hammer.wav
+aplay: main:533: audio open error: No such file or directory
 
-i was trying to fuzz the ioctl() interface, and assumed it might
-be a good idea to load as many modules as possible, so i did a
+while stracing:
 
-	"for file in */*.ko; do insmod $file; done"
+open("/dev/snd/pcmC0D0p", O_RDWR)       = -1 ENOENT (No such file or
+directory)
+close(3)                                = 0
+write(2, "aplay: main:533: ", 17aplay: main:533: )       = 17
+write(2, "audio open error: No such file o"..., 43audio open error: No
+such file or directory) = 43
+write(2, "\n", 1
 
-When i noticed the number of BUG()s i did a
-
-	"lsmod | cut -f1 -d " " | xargs rmmod"
-
-which finally switched the box off. In case .config is of
-interest just let me know.
-
-Greetings, Eric Sesterhenn
-
+... but pcmC0D0p is not described in devices.txt...?
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

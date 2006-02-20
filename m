@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161038AbWBTRIH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161048AbWBTRKc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161038AbWBTRIH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 12:08:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161039AbWBTRIH
+	id S1161048AbWBTRKc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 12:10:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161050AbWBTRKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 12:08:07 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:40975 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1161038AbWBTRIF convert rfc822-to-8bit (ORCPT
+	Mon, 20 Feb 2006 12:10:32 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3741 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1161048AbWBTRKb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 12:08:05 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-x-originalarrivaltime: 20 Feb 2006 17:08:03.0870 (UTC) FILETIME=[36045BE0:01C63640]
-Content-class: urn:content-classes:message
-Subject: Missing file
-Date: Mon, 20 Feb 2006 12:08:03 -0500
-Message-ID: <Pine.LNX.4.61.0602201201200.4888@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Missing file
-Thread-Index: AcY2QDYj1Wi/vIetSPyf86KU5CPikg==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Mon, 20 Feb 2006 12:10:31 -0500
+Date: Mon, 20 Feb 2006 18:10:00 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Olivier Galibert <galibert@pobox.com>,
+       Nigel Cunningham <nigel@suspend2.net>,
+       Matthias Hensler <matthias@wspse.de>, Sebastian Kgler <sebas@kde.org>,
+       kernel list <linux-kernel@vger.kernel.org>, rjw@sisk.pl
+Subject: Re: suspend2 review [was Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)]
+Message-ID: <20060220171000.GF19156@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602200709.17955.nigel@suspend2.net> <20060219234212.GA1762@elf.ucw.cz> <200602201210.58362.nigel@suspend2.net> <20060220124937.GB16165@elf.ucw.cz> <20060220170537.GB33155@dspnet.fr.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060220170537.GB33155@dspnet.fr.eu.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Po 20-02-06 18:05:37, Olivier Galibert wrote:
+> On Mon, Feb 20, 2006 at 01:49:37PM +0100, Pavel Machek wrote:
+> > > > Yep, if you do it all in userspace, this vanishes. 340 lines down.
+> > > 
+> > > And you gain? Let's try not to be too biased :).
+> > 
+> > I gain 340 less lines to review. For me to review, for akpm to review,
+> > and for Linus to review. That's important.
+> 
+> Pavel, if you mean that the userspace code will not be reviewed to
+> standards the kernel code is, kill uswsusp _NOW_ before it does too
+> much damage.  Unreliable suspend eats filesystems for breakfast.  The
+> other userspace components of the kernels services are either optional
+> (udev) or not that important (alsa).
 
+At least it will be only me reviewing it, and not akpm and Linus.
 
-Hello,
-Linux-2.6.15.4 fails to contain the file:
- 	/usr/src/linux-2.6.15.4/drivers/pci/devlist.h
+suspend2 received no such review, and still people claim it is
+reliable. "I wish they'd kill suspend2 project, it already did enough
+damage." (Half joking here, but suspend2 split user/development
+community, and that's not good).
 
-This contains product NAMES used to identity various PCI
-devices when they are installed. What replaces this file?
-
-The file existed up until at least linux-2.6.13.4 and
-should not have been removed just because some audit
-may have determined that it's "not in use." It is in
-use by vendors which need to convert "Computerese" to
-"Customer readable" stuff.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.49 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

@@ -1,94 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161060AbWBTW6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWBTXE7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161060AbWBTW6M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 17:58:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbWBTW6M
+	id S964810AbWBTXE7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 18:04:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbWBTXE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 17:58:12 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:50304 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S964810AbWBTW6M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 17:58:12 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.16-rc4-mm1 kernel crash at bootup. parport trouble?
-Date: Mon, 20 Feb 2006 23:58:21 +0100
-User-Agent: KMail/1.9.1
-Cc: MIke Galbraith <efault@gmx.de>,
-       Helge Hafting <helge.hafting@aitel.hist.no>,
-       linux-kernel@vger.kernel.org
-References: <20060220042615.5af1bddc.akpm@osdl.org> <43F9DB1D.4090305@aitel.hist.no> <1140449123.7563.2.camel@homer>
-In-Reply-To: <1140449123.7563.2.camel@homer>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Mon, 20 Feb 2006 18:04:59 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:39852 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S964810AbWBTXE6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 18:04:58 -0500
+Subject: Re: [PATCH 0/3] map multiple blocks in get_block() and
+	mpage_readpages()
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Nathan Scott <nathans@sgi.com>
+Cc: christoph <hch@lst.de>, mcao@us.ibm.com, akpm@osdl.org,
+       lkml <linux-kernel@vger.kernel.org>, jeremy@sgi.com,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>
+In-Reply-To: <20060221085953.H9484650@wobbly.melbourne.sgi.com>
+References: <1140470487.22756.12.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060221085953.H9484650@wobbly.melbourne.sgi.com>
+Content-Type: text/plain
+Date: Mon, 20 Feb 2006 15:06:11 -0800
+Message-Id: <1140476772.22756.28.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602202358.22732.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 February 2006 16:25, MIke Galbraith wrote:
-> On Mon, 2006-02-20 at 16:07 +0100, Helge Hafting wrote:
-> > pentium IV single processor, gcc (GCC) 4.0.3 20060128
+On Tue, 2006-02-21 at 08:59 +1100, Nathan Scott wrote:
+> On Mon, Feb 20, 2006 at 01:21:27PM -0800, Badari Pulavarty wrote:
+> > Hi,
+> 
+> Hi Badari,
+> 
+> > Following patches add support to map multiple blocks in ->get_block().
+> > This is will allow us to handle mapping of multiple disk blocks for
+> > mpage_readpages() and mpage_writepages() etc. Instead of adding new
+> > argument, I use "b_size" to indicate the amount of disk mapping needed
+> > for get_block(). And also, on success get_block() actually indicates
+> > the amount of disk mapping it did.
+> 
+> Thanks for doing this work!
+> 
+> > Now that get_block() can handle multiple blocks, there is no need
+> > for ->get_blocks() which was added for DIO. 
 > > 
-> > During boot, I normally get:
-> > parport0: irq 7 detected
-> > lp0: using parport0 (polling).
+> > [PATCH 1/3] pass b_size to ->get_block()
 > > 
-> > Instead, I got this, written by hand:
+> > [PATCH 2/3] map multiple blocks for mpage_readpages()
+> > 
+> > [PATCH 3/3] remove ->get_blocks() support
+> > 
+> > I noticed decent improvements (reduced sys time) on JFS, XFS and ext3. 
+> > (on simple "dd" read tests).
+> > 	
+> >          (rc3.mm1)	(rc3.mm1 + patches)
+> > real    0m18.814s	0m18.482s
+> > user    0m0.000s	0m0.004s
+> > sys     0m3.240s	0m2.912s
+> > 
+> > Andrew, Could you include it in -mm tree ?
+> > 
+> > Comments ?
 > 
-> ........
+> I've been running these patches in my development tree for awhile
+> and have not seen any problems.  My one (possibly minor) concern
+> is that we pass get_block a size in units of bytes, e.g....
 > 
-> > This oops is simplified. I can get the exact text if
-> > that really matters.  It is much more to write down and
-> > I don't usually have my camera at work.
+> 	bh->b_size = 1 << inode->i_blkbits;
+> 	err = get_block(inode, block, bh, 1);
 > 
-> I get the same, and already have the serial console hooked up.
+> And b_size is a u32.  We have had the situation in the past where
+> people (I'm looking at you, Jeremy ;) have been issuing multiple-
+> gigabyte direct reads/writes through XFS.  The syscall interface
+> takes an (s)size_t in bytes, which on 64 bit platforms is a 64 bit
+> byte count.
 
-Similar thing on x86-64 (Asus L5D), but less drastic.  I can boot, but get:
+> I wonder if this change will end up ruining things for the lunatic
+> fringe issuing these kinds of IOs?  Maybe the get_block call could
+> take a block count rather than a byte count?  
 
-Unable to handle kernel NULL pointer dereference at 00000000000001bc RIP: 
-<ffffffff8024f7dc>{kref_get+12}
-PGD 2c788067 PUD 2c796067 PMD 0 
-Oops: 0000 [1] PREEMPT 
-last sysfs file: /block/hdc/range
-CPU 0 
-Modules linked in: parport_pc lp parport dm_mod
-Pid: 1452, comm: modprobe Not tainted 2.6.16-rc4-mm1 #56
-RIP: 0010:[<ffffffff8024f7dc>] <ffffffff8024f7dc>{kref_get+12}
-RSP: 0018:ffff81002c7bbca8  EFLAGS: 00010292
-RAX: ffff81002acd8970 RBX: 00000000000001bc RCX: ffff81002acd8000
-RDX: ffff81002acd8977 RSI: ffffffff803af6a6 RDI: 00000000000001bc
-RBP: ffff81002c7bbcb8 R08: 0000000000000000 R09: ffff81002acd8970
-R10: 0000000000000001 R11: 2222222222222222 R12: ffffffff803af69f
-R13: ffff81002c7641f0 R14: 00000000fffffff4 R15: ffff81002a574160
-FS:  00002b1185fabb00(0000) GS:ffffffff8058a000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: 00000000000001bc CR3: 000000002de28000 CR4: 00000000000006e0
-Process modprobe (pid: 1452, threadinfo ffff81002c7ba000, task ffff81002fecf830)
-Stack: ffff81002c7bbcd8 00000000000001a0 ffff81002c7bbcd8 ffffffff8024eb4a 
-       ffff81002c7641f0 ffff81002acd89a8 ffff81002c7bbd18 ffffffff801c442d 
-       00000000000001a0 ffff81002e76c5b0 
-Call Trace: <ffffffff8024eb4a>{kobject_get+26} <ffffffff801c442d>{sysfs_create_link+173}
-       <ffffffff802b6b76>{class_device_add+550} <ffffffff802b6cb9>{class_device_register+25}
-       <ffffffff802b6dc2>{class_device_create+258} <ffffffff88016ce2>{:parport:parport_device_proc_register+242}
-       <ffffffff88014207>{:parport:parport_register_device+663}
-       <ffffffff88021040>{:lp:lp_preempt+0} <ffffffff88013abc>{:parport:parport_register_driver+44}
-       <ffffffff8802174e>{:lp:lp_register+158} <ffffffff880217db>{:lp:lp_attach+75}
-       <ffffffff88013adf>{:parport:parport_register_driver+79}
-       <ffffffff880262a3>{:lp:lp_init_module+675} <ffffffff8014b9a4>{sys_init_module+212}
-       <ffffffff80109cca>{system_call+126}
+Yes. I thought about it too.. I wanted to pass "block count" instead
+of "byte count". Right now it does ..
 
-Code: 8b 07 85 c0 75 24 48 c7 c1 50 f3 37 80 ba 20 00 00 00 48 c7 
-RIP <ffffffff8024f7dc>{kref_get+12} RSP <ffff81002c7bbca8>
-CR2: 00000000000001bc
- BUG: modprobe/1452, lock held at task exit time!
- [ffffffff8801eb20] {registration_lock}
-.. held by:          modprobe: 1452 [ffff81002fecf830, 116]
-... acquired at:               parport_register_driver+0x2c/0x90 [parport]
+	bh->b_size = 1 << inode->i_blkbits;
+	call get_block();
 
-and the thing called /sbin/udevstart ends up in the D state because of this.
+First thing get_block() does is
+	blocks = bh->b_size >> inode->i_blkbits;
 
-Greetings,
-Rafael
+All, the unnecessary shifting around for nothing :(
+
+But, I ended up doing "byte count" just to avoid confusion of
+asking in "blocks" getting back in "bytes".
+
+I have no problem making b_size as "size_t" to handle 64-bit.
+But again, if we are fiddling with buffer_head - may be its time
+to look at alternative to "buffer_head" with the information exactly 
+we need for getblock() ?
+
+Thanks,
+Badari
+

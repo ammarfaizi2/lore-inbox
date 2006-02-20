@@ -1,73 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932657AbWBTToe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932659AbWBTTpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932657AbWBTToe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 14:44:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932660AbWBTTod
+	id S932659AbWBTTpN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 14:45:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932660AbWBTTpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 14:44:33 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63109 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932657AbWBTToc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 14:44:32 -0500
-Date: Mon, 20 Feb 2006 20:43:56 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Olivier Galibert <galibert@pobox.com>,
+	Mon, 20 Feb 2006 14:45:13 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:18081 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932659AbWBTTpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 14:45:11 -0500
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10]
+	[Suspend2] Modules support.)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: dtor_core@ameritech.net, Mark Lord <lkml@rtr.ca>,
        Nigel Cunningham <nigel@suspend2.net>,
        Matthias Hensler <matthias@wspse.de>, Sebastian Kgler <sebas@kde.org>,
        kernel list <linux-kernel@vger.kernel.org>, rjw@sisk.pl
-Subject: Re: suspend2 review [was Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)]
-Message-ID: <20060220194356.GK19156@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602200709.17955.nigel@suspend2.net> <20060219234212.GA1762@elf.ucw.cz> <200602201210.58362.nigel@suspend2.net> <20060220124937.GB16165@elf.ucw.cz> <20060220170537.GB33155@dspnet.fr.eu.org> <20060220171000.GF19156@elf.ucw.cz> <20060220183136.GE33155@dspnet.fr.eu.org>
+In-Reply-To: <20060220145405.GD1673@atrey.karlin.mff.cuni.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain>
+	 <20060220103329.GE21817@kobayashi-maru.wspse.de>
+	 <1140434146.3429.17.camel@mindpipe> <200602202124.30560.nigel@suspend2.net>
+	 <20060220132333.GB23277@atrey.karlin.mff.cuni.cz> <43F9D0DC.5080302@rtr.ca>
+	 <20060220143041.GB1673@atrey.karlin.mff.cuni.cz>
+	 <d120d5000602200641i136d9778uf9049355c39451a9@mail.gmail.com>
+	 <20060220145405.GD1673@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Date: Mon, 20 Feb 2006 14:45:04 -0500
+Message-Id: <1140464704.6722.8.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060220183136.GE33155@dspnet.fr.eu.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.5.91 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 20-02-06 19:31:36, Olivier Galibert wrote:
-> On Mon, Feb 20, 2006 at 06:10:00PM +0100, Pavel Machek wrote:
-> > On Po 20-02-06 18:05:37, Olivier Galibert wrote:
-> > > On Mon, Feb 20, 2006 at 01:49:37PM +0100, Pavel Machek wrote:
-> > suspend2 received no such review, and still people claim it is
-> > reliable.
+On Mon, 2006-02-20 at 15:54 +0100, Pavel Machek wrote:
+> > I know I am bad for not reporting that earlier but swsusp was
+> working
+> > OK for me till about 3 month ago when I started getting "soft lockup
+> > detected on CPU0" with no useable backtrace 3 times out of 4. I
+> > somehow suspect that having automounted nfs helps it to fail
+> > somehow...
 > 
-> Plain numbers.  Just count the "suspend2 works for me which swsusp
-> doesn't".  I doubt it's purely luck, even if simply moving code around
-> can change behaviours.
+> Disable soft lockup watchdog :-). 
 
-Well, people with broken swsusp tend to try suspend2... that's why you
-see so many reports. if you merged suspend2 and dropped swsusp, it
-would be the other way around. 
+You do know that message is harmless and doesn't actually do anything
+right?  It's just warning you that the kernel allowed something to hog
+the CPU without rescheduling for a LONG time.
 
-> > "I wish they'd kill suspend2 project, it already did enough
-> > damage." (Half joking here, but suspend2 split user/development
-> > community, and that's not good).
-> 
-> Yes, that's annoying.  But be careful, you seem to be automatically
-> rejecting everything Nigel at that point, or at least that's what it
-> looks like.
+Lee
 
-I'm not rejecting _everything_ Nigel does, but I have seen very little
-acceptable kernel patches from him.
-
-> You do what you want, obivously, but I suspect your reviews of the
-> suspend2 code would be way more interesting if you accepted it's not
-> uswsusp.  Right now, they look more religious/political than really
-> technical.
-
-Feel free to review suspend2 yourself. You are likely to find many
-small issues, and Nigel is likely to fix them; but that's useless: as
-long as big issues are not fixed, code is not suitable for mainline
-merge.
-
-(And it is going to be easier to do it in userspace using existing -mm
-infrastructure then to clean suspend2 patches).
-
-Feel free to review suspend.sf.net code if you want to help; testing
-would be useful at this point, too.
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

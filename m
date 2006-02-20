@@ -1,126 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932610AbWBTEdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932617AbWBTFAH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932610AbWBTEdW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 23:33:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932611AbWBTEdW
+	id S932617AbWBTFAH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 00:00:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932618AbWBTFAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 23:33:22 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:26088 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S932610AbWBTEdW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 23:33:22 -0500
-Date: Mon, 20 Feb 2006 15:32:26 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: apgo@patchbomb.org, linuxppc64-dev@ozlabs.org,
-       Paul Mackerras <paulus@samba.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       LKML <linux-kernel@vger.kernel.org>, trond.myklebust@fys.uio.no
-Subject: [PATCH] Fix compile for CONFIG_SYSVIPC=n or CONFIG_SYSCTL=n
-Message-Id: <20060220153226.30ee4b13.sfr@canb.auug.org.au>
-In-Reply-To: <17400.23551.904754.47979@cargo.ozlabs.ibm.com>
-References: <20060218100849.GA1869@krypton>
-	<17400.23551.904754.47979@cargo.ozlabs.ibm.com>
-X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Mon__20_Feb_2006_15_32_26_+1100_qotKnBzPXZAVYPoN"
+	Mon, 20 Feb 2006 00:00:07 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:31390 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932617AbWBTFAF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 00:00:05 -0500
+From: Tom Zanussi <zanussi@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17401.21427.568297.830492@tut.ibm.com>
+Date: Sun, 19 Feb 2006 23:29:23 -0600
+To: Paul Mundt <lethal@linux-sh.org>
+Cc: Greg KH <greg@kroah.com>, zanussi@us.ibm.com, linux-kernel@vger.kernel.org,
+       axboe@suse.de, karim@opersys.com, compudj@krystal.dyndns.org
+Subject: Re: [PATCH, RFC] sysfs: relay channel buffers as sysfs attributes
+In-Reply-To: <20060219185254.GA13391@linux-sh.org>
+References: <20060219171748.GA13068@linux-sh.org>
+	<20060219175623.GA2674@kroah.com>
+	<20060219185254.GA13391@linux-sh.org>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Mon__20_Feb_2006_15_32_26_+1100_qotKnBzPXZAVYPoN
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Paul Mundt writes:
+ > On Sun, Feb 19, 2006 at 09:56:23AM -0800, Greg KH wrote:
+ > 
 
-The compat syscalls are added to sys_ni.c since they are not defined
-if the above CONFIG options are off. Also, nfs would not build with
-CONFIG_SYSCTL off.
+[...]
 
-Noticed by Arthur Othieno.
+ > > And I agree with Christoph, with this change, you don't need a separate
+ > > relayfs mount anymore.
+ > > 
+ > Yes, that's where I was going with this, but I figured I'd give the
+ > relayfs people a chance to object to it going away first.
+ > 
+ > If with this in sysfs and simple handling through debugfs people are
+ > content with the relay interface for whatever need, then getting rid of
+ > relayfs entirely is certainly the best option. We certainly don't need
+ > more pointless virtual file systems.
+ > 
+ > I'll work up a patch set for doing this as per Cristoph's kernel/relay.c
+ > suggestion. Thanks for the feedback.
 
-Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
----
+Considering that I recently offered to post a patch that would do
+essentially the same thing, I can't have any objections to this. ;-)
 
- include/linux/nfs_fs.h |    2 +-
- kernel/sys_ni.c        |    2 ++
- 2 files changed, 3 insertions(+), 1 deletions(-)
+But just to make sure I'm not missing anything in the patches, please
+let me know if any of the following is incorrect.  What they do is
+remove the fs part of relayfs and move the remaining code into a
+single file, while leaving everthing else basically intact i.e. the
+relayfs kernel API remains the same and existing clients would only
+need to make relatively minor changes:
 
-On Sun, 19 Feb 2006 22:52:31 +1100 Paul Mackerras <paulus@samba.org> wrote:
->
-> Arthur Othieno writes:
->=20
-> > --- a/arch/powerpc/kernel/sys_ppc32.c
-> > +++ b/arch/powerpc/kernel/sys_ppc32.c
-> > @@ -440,7 +440,13 @@ long compat_sys_ipc(u32 call, u32 first,
-> > =20
-> >  	return -ENOSYS;
-> >  }
-> > -#endif
-> > +#else
-> > +long compat_sys_ipc(u32 call, u32 first, u32 second, u32 third, compat=
-_uptr_t ptr,
-> > +	       u32 fifth)
-> > +{
-> > +	return -ENOSYS;
-> > +}
-> > +#endif /* CONFIG_SYSVIPC */
->=20
-> Can't we just add a couple of cond_syscall lines to kernel/sys_ni.c
-> instead?
+- find a new home for their relay files i.e. sysfs, debufs or procfs.
 
-Linus, can we have this applied for 2.6.16.  It presumably affects sparc64
-(at least for CONFIG_SYSVIPC) as well as powerpc.  The NFS fix would
-affect all architectures, I think?
+- replace any relayfs-specific code with their counterparts in the new
+  filesystem i.e. directory creation/removal, non-relay ('control')
+  file creation/removal.
 
-This has been compile tested with the CONFIG options on and off for powerpc.
+- change userspace apps to look for the relay files in the new
+  filesystem instead of relayfs e.g. change /relay/* to /sys/*
+  in the relay file pathnames.
 
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Although I personally don't have any problems with doing this, I've
+added some of the authors of current relayfs applications to the cc:
+list in case they might have any objections to it.  The major relayfs
+applications I'm aware of are:
 
-c1a27bc400a1412c7c758775bb695e8b98d1c0c3
-diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
-index 547d649..b4dc6e2 100644
---- a/include/linux/nfs_fs.h
-+++ b/include/linux/nfs_fs.h
-@@ -398,7 +398,7 @@ extern struct inode_operations nfs_symli
- extern int nfs_register_sysctl(void);
- extern void nfs_unregister_sysctl(void);
- #else
--#define nfs_register_sysctl() do { } while(0)
-+#define nfs_register_sysctl() 0
- #define nfs_unregister_sysctl() do { } while(0)
- #endif
-=20
-diff --git a/kernel/sys_ni.c b/kernel/sys_ni.c
-index 17313b9..1067090 100644
---- a/kernel/sys_ni.c
-+++ b/kernel/sys_ni.c
-@@ -104,6 +104,8 @@ cond_syscall(sys_setreuid16);
- cond_syscall(sys_setuid16);
- cond_syscall(sys_vm86old);
- cond_syscall(sys_vm86);
-+cond_syscall(compat_sys_ipc);
-+cond_syscall(compat_sys_sysctl);
-=20
- /* arch-specific weak syscall entries */
- cond_syscall(sys_pciconfig_read);
---=20
-1.2.1
+- blktrace, currently in the -mm tree.  This could probably move its
+  relayfs files to sysfs using your new interface.
+
+- LTT, not sure where LTT would want to move.
+
+- systemtap.  sytemtap uses relayfs as one possible transport.  The
+  other is a proc-based transport, so logically it would make sense
+  for systemtap to move its relay files to /proc.
 
 
---Signature=_Mon__20_Feb_2006_15_32_26_+1100_qotKnBzPXZAVYPoN
-Content-Type: application/pgp-signature
+Tom
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
 
-iD8DBQFD+UZaFdBgD/zoJvwRAhUcAJwLauf5ZXKgi7hkdTC9OofcuD1fCQCeKvo/
-08JkqBfA7JjSJ3PX9Vw5Rz8=
-=XgGe
------END PGP SIGNATURE-----
-
---Signature=_Mon__20_Feb_2006_15_32_26_+1100_qotKnBzPXZAVYPoN--

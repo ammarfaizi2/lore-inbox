@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWBTTee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932642AbWBTTgm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932334AbWBTTee (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 14:34:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbWBTTee
+	id S932642AbWBTTgm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 14:36:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932649AbWBTTgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 14:34:34 -0500
-Received: from lugor.de ([212.112.242.222]:58824 "EHLO solar.mylinuxtime.de")
-	by vger.kernel.org with ESMTP id S932334AbWBTTee (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 14:34:34 -0500
-From: "Hesse, Christian" <mail@earthworm.de>
-To: linux-kernel@vger.kernel.org
-Subject: hald in status D with 2.6.16-rc4
-Date: Mon, 20 Feb 2006 20:34:29 +0100
-User-Agent: KMail/1.9.1
-X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
+	Mon, 20 Feb 2006 14:36:42 -0500
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:28312
+	"EHLO pinky.shadowen.org") by vger.kernel.org with ESMTP
+	id S932642AbWBTTgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 14:36:41 -0500
+Date: Mon, 20 Feb 2006 19:36:16 +0000
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] remove ccache from top level Makefile and make configurable
+Message-ID: <20060220193616.GA16407@shadowen.org>
+References: <43F9B8A9.4000506@reub.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1526017.8WyjHSFxB2";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602202034.29413.mail@earthworm.de>
-X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0 (solar.mylinuxtime.de [10.5.1.1]); Mon, 20 Feb 2006 20:34:31 +0100 (CET)
-X-Spam-Flag: NO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+InReply-To: <43F9B8A9.4000506@reub.net>
+User-Agent: Mutt/1.5.11
+From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1526017.8WyjHSFxB2
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+remove ccache from top level Makefile and make configurable
 
-Hello everybody,
+[Here is the patch I used to fix this for out nightly testing.
+It seems that if it were something we could configure from outside
+the source we'd avoid this occuring again.]
 
-since using kernel version 2.6.16-rc4 the hal daemon is in status D after=20
-resume. I use suspend2 2.2.0.1 for 2.6.16-rc3. Any hints what could be the=
-=20
-problem? It worked perfectly with 2.6.15.x and suspend2 2.2.
-=2D-=20
-Regards,
-Christian
+Remove errant ccache from top-level makefile and make it configurable on
+the kernel build line.
 
---nextPart1526017.8WyjHSFxB2
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.20 (GNU/Linux)
-
-iD8DBQBD+hnFlZfG2c8gdSURAj8YAKDTgmThE4a+8OIK9W/R+kcKhWanwACgq40b
-VGqEyBdPuj2scImULmoviqg=
-=Cv8z
------END PGP SIGNATURE-----
-
---nextPart1526017.8WyjHSFxB2--
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+---
+ Makefile |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletion(-)
+diff -upN reference/Makefile current/Makefile
+--- reference/Makefile
++++ current/Makefile
+@@ -171,9 +171,11 @@ SUBARCH := $(shell uname -m | sed -e s/i
+ # Alternatively CROSS_COMPILE can be set in the environment.
+ # Default value for CROSS_COMPILE is not to prefix executables
+ # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
++# CCACHE specifies the name of a ccache binary to use with gcc.
+ 
+ ARCH		?= $(SUBARCH)
+ CROSS_COMPILE	?=
++CCACHE		?=
+ 
+ # Architecture as present in compile.h
+ UTS_MACHINE := $(ARCH)
+@@ -274,7 +276,7 @@ include  $(srctree)/scripts/Kbuild.inclu
+ 
+ AS		= $(CROSS_COMPILE)as
+ LD		= $(CROSS_COMPILE)ld
+-CC		= ccache $(CROSS_COMPILE)gcc
++CC		= $(CCACHE) $(CROSS_COMPILE)gcc
+ CPP		= $(CC) -E
+ AR		= $(CROSS_COMPILE)ar
+ NM		= $(CROSS_COMPILE)nm

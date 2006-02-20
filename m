@@ -1,120 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbWBTBLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932494AbWBTBLi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932513AbWBTBLE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 20:11:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932499AbWBTBLE
+	id S932494AbWBTBLi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 20:11:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932499AbWBTBLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 20:11:04 -0500
-Received: from mx0.towertech.it ([213.215.222.73]:48078 "HELO mx0.towertech.it")
-	by vger.kernel.org with SMTP id S932494AbWBTBLB (ORCPT
+	Sun, 19 Feb 2006 20:11:38 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:14217 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932494AbWBTBLg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 20:11:01 -0500
-Date: Mon, 20 Feb 2006 02:10:40 +0100
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, dtor_core@ameritech.net
-Subject: Re: [PATCH 00/11] RTC subsystem
-Message-ID: <20060220021040.094284b6@inspiron>
-In-Reply-To: <20060219165845.09eb4183.akpm@osdl.org>
-References: <20060219232211.368740000@towertech.it>
-	<20060219165845.09eb4183.akpm@osdl.org>
-Organization: Tower Technologies
-X-Mailer: Sylpheed
+	Sun, 19 Feb 2006 20:11:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=O5cDZwyBFSJ6A/Wp2ZOqq6mBOCuNV26YUIUuZF85yClxzxja9oXK3aw26v7cQm6KDW1vcibqVikp14zjd3P2uQ1bpADAXAYOh4AociRAESQI6kjDxvkuZHBkSZ3os7Mkpgx5nKOH8zUfcGHLUi11kvbzDRUOF9x4t+Nh24LtiRg=
+Date: Mon, 20 Feb 2006 05:11:30 +0200
+From: Sasha Khapyorsky <sashakh@gmail.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: s.schmidt@avm.de, Greg KH <greg@kroah.com>, torvalds@osdl.org,
+       kkeil@suse.de, LKML <linux-kernel@vger.kernel.org>,
+       opensuse-factory@opensuse.org, libusb-devel@lists.sourceforge.net,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: 2.6.16 serious consequences / GPL_EXPORT_SYMBOL / USB drivers of major vendor excluded
+Message-ID: <20060220031130.GA9929@khap>
+References: <20060205205313.GA9188@kroah.com> <OFED05BE20.31E2BACE-ONC1257115.005DE6CA-C1257117.004F2C48@avm.de> <20060219045716.GA9880@khap> <Pine.LNX.4.58.0602191158410.12662@gandalf.stny.rr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0602191158410.12662@gandalf.stny.rr.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Feb 2006 16:58:45 -0800
-Andrew Morton <akpm@osdl.org> wrote:
-
-> > 
+On 12:02 Sun 19 Feb     , Steven Rostedt wrote:
 > 
-> This is nowhere near a sufficient explanation for such a patchset.
+> > > differences between AVM and other devices and the difficulties regarding a
+> > > possible move towards user mode.
+> > >
+> > > The user space does not ensure the reliability of time critical analog
+> > > services like Fax G3 or analog modem emulations. This quality of service
+> > > can only be guaranteed within the kernel space.
+> >
+> > Soft modems may work pretty well in userspace - slmodem is example.
+> >
+> > Real-time requirement for V.34 is 40ms response time and only once during
+> > the session when echo canceller parameters are negotiatiated (so you may
+> > decrease "buffer size" before and increase after - there are enouph
+> > silence places for such manipulations). Fax itself does not require any
+> > "realtime" AFAIK, other place is almost unused today V.32 - 26ms, also
+> > for echo canceller setup.
+> >
 > 
-> What does it all do, how does it do it and, importantly, _why_ does it do
-> it?
+> Disclaimer:  This is in no way a push to get the -rt patch into mainline
+> at the moment.  The patch is still young and is not ready yet.
 
- Sorry Andrew, it was meant as an update to my original email
- with full description. I've reported here as it is still valid.
+Hmm, it was not about -rt patch - 40 millisecond response time is
+realistic for userspace even without -rt patch. There is no guarantee,
+but in practice this may work very well and keep low percents of failures
+(much lower than permitted by standards).
 
-
- Hello,
-
-  this is a proposal for the implementation of a kernel-wide
- RTC subsystem.
-
-  The current state of RTCs under linux is that each one
- of the current drivers is actually self-contained and
- has a lot of redundant functions [1].
- 
-  The lack of a kernel-wide subsystem is particulary important
- on embedded devices, where the RTC is usually implemented
- on an I2C chip.
-
-  Of the current I2C RTC drivers, no-one actually interfaces
- with the kernel [2]: the driver is actually useless
- without further patches that are probably provided as part
- of an external project.
-
-  When new driver are to be implemented [3], I've noticed
- authors are often confused on how to do it, resulting
- in drivers that will not work on different architectures
- and that will probably never be merged in the kernel.
-
-  They also happen to use ioctls over (struct i2c_client *)->command,
- which has recently been deprecated [4].
-
-  The architecture is quite simple. Each RTC device should
- register to the RTC class, providing a set of pointers
- to functions. The class will provide access to the RTC
- to the whole kernel and userspace.
-
-  For this purpose, the class supports multiple interfaces,
- like sysfs, proc and dev.
-
-  The user has complete control over which interfaces
- gets added using the standard Kconfig mechanism.
-
-  proc and dev, due to their nature, will only expose
- the first RTC that registers to the subsystem.
-
-  The RTC code is derived from the one of the ARM subsystem.
-
-  This patchset has been verify to properly work under Linux/ARM
- on several NSLU2s (http://www.linux-nslu2.org) and applies
- successfully on the 2.6.15-rc6 kernel . If this is the right
- way to go, I will port the x86 rtc driver in order to get
- broader testing.
-
-  I'd appreciate receiving feedback on this proposal.
-
-  Thanks in advance.
-
---
-
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Turin, Italy
-
-  http://www.towertech.it
-
-
-[1]
-	http://lkml.org/lkml/2005/11/17/180
-
-[2]
-	drivers/i2c/chips/m41t00.c
-	drivers/i2c/chips/rtc8564.c
-	drivers/i2c/chips/ds1337.c
-	drivers/i2c/chips/ds1374.c
-
-[3]
-	http://lists.lm-sensors.org/pipermail/lm-sensors/2005-November/014428.html
-	http://lists.lm-sensors.org/pipermail/lm-sensors/2005-November/014386.html
-
-[4]
-	http://lists.lm-sensors.org/pipermail/lm-sensors/2005-December/014688.html
-	http://lists.lm-sensors.org/pipermail/lm-sensors/2005-November/014369.html
+Sasha.

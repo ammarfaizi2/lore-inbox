@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWBTK0i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbWBTK12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbWBTK0i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 05:26:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbWBTK0i
+	id S964852AbWBTK12 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 05:27:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWBTK12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 05:26:38 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:14379 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S964845AbWBTK0h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 05:26:37 -0500
-Message-ID: <43F99586.9050308@sw.ru>
-Date: Mon, 20 Feb 2006 13:10:14 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
-MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Herbert Poetzl <herbert@13thfloor.at>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       vserver@list.linux-vserver.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: (pspace,pid) vs true pid virtualization
-References: <20060215145942.GA9274@sergelap.austin.ibm.com>	 <m11wy4s24i.fsf@ebiederm.dsl.xmission.com>	 <20060216143030.GA27585@MAIL.13thfloor.at> <1140111692.21383.2.camel@localhost.localdomain>
-In-Reply-To: <1140111692.21383.2.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Feb 2006 05:27:28 -0500
+Received: from [217.147.92.49] ([217.147.92.49]:5030 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S964847AbWBTK11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 05:27:27 -0500
+Date: Mon, 20 Feb 2006 10:26:39 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: jayakumar.acpi@gmail.com
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.15.3 1/1] ACPI: Atlas ACPI driver
+Message-ID: <20060220102639.GA4342@srcf.ucam.org>
+References: <200602200213.k1K2DrDW013988@ns1.clipsalportal.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602200213.k1K2DrDW013988@ns1.clipsalportal.com>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>this is mandatory, as it is required to kill any process
->>from the host (admin) context, without entering the pid
->>space (which would lead to all kind of security issues) 
-> 
-> 
-> Giving admin processes the ability to enter pid spaces seems like it
-> solves an entire class of problems, right?.  Could you explain a bit
-> what kinds of security issues it introduces?
-Enter is not always possible.
-For example when you have exhausted your resources in VPS.
-(e.g. hit process limit inside).
-And you can't make enter without resource limitations, since it will be 
-a security hole then.
+On Mon, Feb 20, 2006 at 10:13:53AM +0800, jayakumar.acpi@gmail.com wrote:
 
-Kirill
+> +	/* setup proc entry to set and get lcd brightness */
+> +	proc = create_proc_read_entry("lcd", S_IFREG | S_IRUGO | S_IWUSR,
+> +			atlas_proc_dir, atlas_read_proc_lcd, atlas_dev);
 
+For basic sanity, could this please be a standard backlight driver 
+rather than sticking yet another backlight control under yet another 
+directory in /proc? It makes userspace much, much easier. 
+drivers/video/backlight/corgi_bl.c is an example, but also see my posts 
+to acpi-devel with patches that add it to existing acpi drivers.
+
+> +		return atlas_acpi_button_add(device);
+
+What buttons does the hardware have? Would it make more sense for it to 
+be an input driver rather than (or as well as) just dropping stuff in 
+acpi/events?
+
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932695AbWBTIBB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbWBTIFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932695AbWBTIBB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 03:01:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932696AbWBTIBB
+	id S964772AbWBTIFK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 03:05:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWBTIFJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 03:01:01 -0500
-Received: from xproxy.gmail.com ([66.249.82.202]:36207 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932695AbWBTIBA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 03:01:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VuM8gVixa653raqW5dNLNcP0d4wca7ERl7T69gOiXB4jK2C9O3tEdg2PB6Wtr0yZcscysbaDwUwgx0ggqzlNGQ3z9UcFaIiq5EA9MThGTs5yLrpeM/Xli3o9HeOF2nJFJHg+hcJqBU92p4q5A0arSI44WKv/7k9j6bNYA0OMZFg=
-Message-ID: <4807377b0602200000u6c7216a6pfd66aef0e6956054@mail.gmail.com>
-Date: Mon, 20 Feb 2006 00:00:57 -0800
-From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
-To: "Justin Piszcz" <jpiszcz@lucidpixels.com>
-Subject: Re: Intel CSA Gigabit Bug in IC7-G Motherboards- Affects Windows/Linux
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0602191835460.7212@p34>
+	Mon, 20 Feb 2006 03:05:09 -0500
+Received: from zaqd3876b0c.zaq.ne.jp ([211.135.107.12]:10767 "HELO
+	zaqd3876b0c.zaq.ne.jp") by vger.kernel.org with SMTP
+	id S964772AbWBTIFI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 03:05:08 -0500
+Date: Mon, 20 Feb 2006 08:32:03 +0000
+From: Mary Hollingsworth <news@eml.cc>
+X-Mailer: The Bat! (v2.12.00) CD5BF9353B3B7091
+Reply-To: Mary Hollingsworth <news@eml.cc>
+X-Priority: 3 (Normal)
+Message-ID: <550994803.1140424323@eml.cc>
+To: linux-kernel@vger.kernel.org
+Subject: Forgot about us? profligate Check Our New Software list now!
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0602191807001.7212@p34>
-	 <Pine.LNX.4.64.0602191835460.7212@p34>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/19/06, Justin Piszcz <jpiszcz@lucidpixels.com> wrote:
-> /usr/src/linux/Documentation//networking/e1000.txt:the issue to
-> linux.nics@intel.com.
->
-> ^^ That e-mail is invalid, someone should make a diff/patch to remove it
-> and update it if there is a correct one or just remove it entirely.
->
-> Justin.
->
-> As of 2.6.15.3 source.
+Our Dearest linux-kernel!
+Thanks for dropping in at our Cheap Soft holyoke  Store again!?
 
-Agreed, I have an update pending in my queue but got lost in git-land
+We always care for those who care for our products!
+
+ Only Today and Only for our Clients:
+Macromedia Flash MX Pro V.8.0 $49.95
+
+* Discounts on most popular Top Software
+* 300 New Software items added
+* Immediate download of any product
+
+http://www.buydotsmart.com 
+
+The Same Good Store. 
+The Same Cheapest Quotes.
+The Newest Brand Name Software. 
+
+ Come In and Make Your Choice!
+
+But don't get it twisted; it's not a plea that I'm coppin' I'm supposed to be the soldier who never blows his composure
+Maybe i'll love you one day!
+
+
+Your Mary
+

@@ -1,68 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbWBTN2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030219AbWBTN3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030210AbWBTN2g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 08:28:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030211AbWBTN2g
+	id S1030219AbWBTN3R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 08:29:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbWBTN3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 08:28:36 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:15367 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030210AbWBTN2f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 08:28:35 -0500
-Date: Mon, 20 Feb 2006 14:28:32 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Samuel Masham <samuel.masham@gmail.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       linux-input@atrey.karlin.mff.cuni.cz
-Subject: Re: [2.6 patch] make INPUT a bool
-Message-ID: <20060220132832.GF4971@stusta.de>
-References: <20060214152218.GI10701@stusta.de> <Pine.LNX.4.61.0602141912580.32490@yvahk01.tjqt.qr> <20060214182238.GB3513@stusta.de> <Pine.LNX.4.61.0602171655530.27452@yvahk01.tjqt.qr> <20060217163802.GI4422@stusta.de> <93564eb70602191933x2a20ce0m@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <93564eb70602191933x2a20ce0m@mail.gmail.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 20 Feb 2006 08:29:17 -0500
+Received: from mx0.towertech.it ([213.215.222.73]:2195 "HELO mx0.towertech.it")
+	by vger.kernel.org with SMTP id S1030219AbWBTN3P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 08:29:15 -0500
+Date: Mon, 20 Feb 2006 14:22:58 +0100
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: David Vrabel <dvrabel@cantab.net>, Adrian Bunk <bunk@stusta.de>,
+       Martin Michlmayr <tbm@cyrius.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, John Bowler <jbowler@acm.org>
+Subject: Re: [RFC] [PATCH 1/2] Driver to remember ethernet MAC values:
+ maclist
+Message-ID: <20060220142258.7299170c@inspiron>
+In-Reply-To: <20060220130203.GA22147@flint.arm.linux.org.uk>
+References: <20060220010113.GA19309@deprecation.cyrius.com>
+	<20060220014735.GD4971@stusta.de>
+	<20060220030146.11f418dc@inspiron>
+	<43F9B32B.3090203@cantab.net>
+	<20060220135718.038b675b@inspiron>
+	<20060220130203.GA22147@flint.arm.linux.org.uk>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 20, 2006 at 12:33:55PM +0900, Samuel Masham wrote:
+On Mon, 20 Feb 2006 13:02:03 +0000
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-> Hi Adrian,
-
-Hi Samuel,
-
-> > And I've already given numbers why CONFIG_EMBEDDED=y and
-> > CONFIG_MODULES=y at the same time is insane.
+> >  for this driver which we are working on.. for example,
+> >  some Cirrus Logic ARM based chips (ep93xx) have an ethernet device
+> >  that could benefit from that.
 > 
-> >From your numbers this sounds true ... but actually you might want the
-> modules to delay the init of the various hardware bits...
+> An alternative solution (suggested in the past) would be to have a
+> generic kernel command line option such as: mac=<netdev>,<macaddr>
 > 
-> Sometime boot-time is king and you just try and get back as much of
-> the size costs as it takes...
+> It nicely solves the "no mac address" issue in a lot (if not all)
+> of the cases.
 
-this is irrelevant since CONFIG_INPUT alone does not init any hardware.
+ That would help, but it can't easily be implemented when you are
+ targeting consumer devices like nas, routers et al which already
+ have been widely deployed.
 
-> I think for EMBEDDED and MODULES is actually a very common case ... if
-> somewhat odd.
+ I know that the solution would be to fix the bootloader, but
+ Joe Average is a little bit scared of reflashing it.
 
-You are misunderstanding EMBEDDED.
-
-It does _not_ mean "this is an embedded device".
-It does mean "offer additional options for additional space savings".
-
-For an embedded system with relaxed space limits, EMBEDDED=n is the 
-right choice.
-
-> Samuel
-
-cu
-Adrian
+ A maclist-alike system could help to solve that situation.
 
 -- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
 

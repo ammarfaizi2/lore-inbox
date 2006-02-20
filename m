@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbWBTAEb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbWBTAFl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932462AbWBTAEb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 19:04:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWBTAEb
+	id S932466AbWBTAFl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 19:05:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWBTAFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 19:04:31 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:27581 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932462AbWBTAEa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 19:04:30 -0500
-Date: Sun, 19 Feb 2006 16:04:26 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Pavel Machek <pavel@suse.cz>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+	Sun, 19 Feb 2006 19:05:41 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:29382 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932466AbWBTAFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 19:05:41 -0500
+Subject: Re: No sound from SB live!
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Pavel Machek <pavel@suse.cz>, Nishanth Aravamudan <nacc@us.ibm.com>,
        Nick Warne <nick@linicks.net>, Jesper Juhl <jesper.juhl@gmail.com>,
        tiwai@suse.de, ghrt@dial.kappa.ro, perex@suse.cz,
        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: No sound from SB live!
-Message-ID: <20060220000426.GB5976@us.ibm.com>
-References: <20060218231419.GA3219@elf.ucw.cz> <20060219214702.GM15311@elf.ucw.cz> <1140385837.2733.394.camel@mindpipe> <200602192323.08169.s0348365@sms.ed.ac.uk> <1140391929.2733.430.camel@mindpipe> <20060219234644.GD15608@elf.ucw.cz> <1140393222.2733.438.camel@mindpipe>
+In-Reply-To: <200602192356.39834.s0348365@sms.ed.ac.uk>
+References: <20060218231419.GA3219@elf.ucw.cz>
+	 <200602192323.08169.s0348365@sms.ed.ac.uk>
+	 <1140391929.2733.430.camel@mindpipe>
+	 <200602192356.39834.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain
+Date: Sun, 19 Feb 2006 19:05:28 -0500
+Message-Id: <1140393928.2733.441.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1140393222.2733.438.camel@mindpipe>
-X-Operating-System: Linux 2.6.16-rc4 (x86_64)
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.5.91 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19.02.2006 [18:53:41 -0500], Lee Revell wrote:
-> On Mon, 2006-02-20 at 00:46 +0100, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > > I'm still using 1.0.9 on 2.6.16-rc4 with no problems, Audigy 2
-> > > > (one that uses emu10k1). 
-> > > 
-> > > It's a specific change to the SBLive! that did not affect the
-> > > Audigy that causes alsa-lib 1.0.10+ to be required on 2.6.14 and
-> > > up.  These types of incompatible changes should be rare.
-> > 
-> > Do you have that patch somewhere handy?
-> > 
+On Sun, 2006-02-19 at 23:56 +0000, Alistair John Strachan wrote:
+> Thanks for this info Lee, and understand I don't hold anybody
+> specifically in 
+> the alsa team responsible but *deep breath*:
 > 
-> Attached
-> 
-> > How do I tell alsa-lib version?
-> > 
-> 
-> Check your distro's package manager.
+> Please let everybody know about incompatible changes to alsa-lib know
+> about it 
+> prior to making the change mandatory. 
 
-Hrm, I didn't mention any alsalib version, because this is what apt told
-me:
+I thought it was already common knowledge that alsa-lib should be
+upgraded when upgrading the kernel.
 
-root@arkanoid:/home/nacc# aptitude search alsa | grep ^i
-i   alsa-base                       - ALSA driver configuration files
-i   alsa-utils                      - ALSA utilities
-root@arkanoid:/home/nacc# aptitude search alsa | grep lib
-v   alsalib                         -
-v   alsalib0.1.3                    -
-v   alsalib0.3.0                    -
-v   alsalib0.3.0-dev                -
-v   alsalib0.3.2                    -
-v   alsalib0.3.2-dev                -
+Each ALSA driver has both a userspace and a kernel component so alsa-lib
+has to be upgraded to get new drivers anyway.
 
-Am I missing something?
+Lee
 
-Thanks,
-Nish

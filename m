@@ -1,112 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161005AbWBTQ1z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWBTQaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161005AbWBTQ1z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 11:27:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161007AbWBTQ1y
+	id S1161008AbWBTQaP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 11:30:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161009AbWBTQaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 11:27:54 -0500
-Received: from main.gmane.org ([80.91.229.2]:59025 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1161005AbWBTQ1y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 11:27:54 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andreas Happe <andreashappe@snikt.net>
+	Mon, 20 Feb 2006 11:30:15 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:28029 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161008AbWBTQaN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 11:30:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KtGUHqMRhFipm+ZO5s/Evwe60fnScAIm0ZDiPQFjDEXy8/oImo1QdCAElZzCyyIM68sDTErBbTxRBdRo+4RpOIgY9oxOzyJnDJANk5sbksmsN1jvbl+uwTZQIscTsbTxch7zbDwtfna+B0eO2NbYySzPwqrsJsyS/MYFgmRiGWI=
+Message-ID: <d120d5000602200830m190874f5jf253b106b6821049@mail.gmail.com>
+Date: Mon, 20 Feb 2006 11:30:12 -0500
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
 Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Mon, 20 Feb 2006 16:27:24 +0000 (UTC)
-Message-ID: <slrndvjrfb.2o0.andreashappe@localhost.localdomain>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <1140437152.3429.20.camel@mindpipe> <20060220123122.GA6086@dspnet.fr.eu.org> <200602201513.23849.rjw@sisk.pl> <20060220153922.GA17362@dspnet.fr.eu.org>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: client068.9220.easyline.at
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+Cc: "Pavel Machek" <pavel@ucw.cz>, "Mark Lord" <lkml@rtr.ca>,
+       "Nigel Cunningham" <nigel@suspend2.net>,
+       "Lee Revell" <rlrevell@joe-job.com>,
+       "Matthias Hensler" <matthias@wspse.de>,
+       "Sebastian Kgler" <sebas@kde.org>,
+       "kernel list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <200602201722.09442.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060201113710.6320.68289.stgit@localhost.localdomain>
+	 <20060220145405.GD1673@atrey.karlin.mff.cuni.cz>
+	 <d120d5000602200708n2984fda9j62c3d7ba21b3e8ae@mail.gmail.com>
+	 <200602201722.09442.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-02-20, Olivier Galibert <galibert@pobox.com> wrote:
-> On Mon, Feb 20, 2006 at 03:13:23PM +0100, Rafael J. Wysocki wrote:
->> Actually a lot of the code that we use _has_ _been_ tested and debugged,
->> because it _is_ used on a daily basis by many people, like eg.:
->> - MD5 from the coreutils package,
->> - libLZF (the original one)
->> (openSSL wil be used soon for the image encryption).
->> 
->> And I'm not trying to redo suspend2 in the user space.  Instead I'm trying
->> to use the code that's _already_ _available_ in the user space to obtain
->> the functionality that suspend2 implements in the kernel space.
+On 2/20/06, Rafael J. Wysocki <rjw@sisk.pl> wrote:
+> On Monday 20 February 2006 16:08, Dmitry Torokhov wrote:
+> > On 2/20/06, Pavel Machek <pavel@ucw.cz> wrote:
+> > > >
+> > > > I know I am bad for not reporting that earlier but swsusp was working
+> > > > OK for me till about 3 month ago when I started getting "soft lockup
+> > > > detected on CPU0" with no useable backtrace 3 times out of 4. I
+> > > > somehow suspect that having automounted nfs helps it to fail
+> > > > somehow...
+> > >
+> > > Disable soft lockup watchdog :-).
+> >
+> > Ok, I will try, but is this the permanent solution you are proposing?
 >
-> "obtaining the functionality that suspend2 implements" means "redoing
-> suspend2".  Don't play on words, please.
-
-through using the userspace helper he is able to use existing maintained
-libaries, something that isn't possible with kernelspace suspend. This
-is real code reduction.
-
-> md5 is already in the kernel (twice).  lzf is already in suspend2 (and
-> arguably useful for more things than only suspending),
-
-Why (when LZF would be useful for other stuff) nobody proposed inclusion
-of it?
-
->> The problem is to merge suspend2 we'd have to clean it up first and
->> actually solve some problems that it works around.  That, arguably,
->> would be more work than just implementing some _easy_ stuff in the
->> user space.
+> Certainly not.
 >
-> Stuff that is _already_ _done_ and working.
-
-While reading this 'discussion' I get the expression that swsusp isn't
-working. But this isn't true: it works for me since I can't remember
-when. The only problems were with some modules (ieee1394 had to be
-unloaded before suspending) and minor glinches (writing the image
-sometimes _very_ slow when suspending from a powersave cpufreq
-governor..).
-
-> 1- will uswsusp solve problems suspend2 doesn't?  Real, currently
->    encountered problems, not philosophical problems about
->    kernel/userspace code positions[2].
-
-swsusp works for me (TM), no problems at all, siree
-
->    In particular, since according
->    to Pavel 90+% of the problems are driver issues, why aren't you
->    concentrating on drivers?
-
-so submit driver specific patches through the driver's maintainer? Where
-does Pavel enter the picture?
-
-> 3- if the main problem is really that some parts of suspend2 should be
->    in userspace instead of kernelspace, why aren't you working from the
->    appropriate parts of the suspend2 code to port them to userspace use
->    instead of going to coreutils/libLZF/etc?
-
-code dupplication?
-
-> 4- why aren't you actively working at pushing the parts of suspend2
->    that actually are good and potentially useful to uswsusp in the
->    mainline kernel.  Do you really think nothing is worthwhile in there?
-
-Maybe the mentioned problems with bitmaps and the module infrastructure
-could explain that. Even Nigel said that the problem with evolutionary
-patches is that suspend2 changes some fundamentals.
-
-> Are you really, really sure you're not rejecting suspend2 in bulk
-> because you didn't write it?  Do we need a John W. Linville as suspend
-> maintainer for things to go better?
-
-Are you really threatening Pavel's position as maintainer? how subtle.
-
-> Please tell me what is wrong in my perception of what is going on.
+> The problem is the soft lockup watchdog tends to produce false-positives
+> related to the clock resume vs timer interrupt dependencies that are
+> hard to trace.
 >
->   OG, not even a suspend2 user.
+> I used to get those on a regular basis until the timer resume on x86-64
+> got fixed a month ago or so.
+>
+> Please try the latest -mm and see if it's not fixed there.  If not, please
+> file a bug report with bugzilla (with Cc to me).
+>
 
-andy, a long time swsusp user.
+Latest -mm is way too big a target. Do you have a specific patches in
+mind? Again my working kernel is based off tip of Linus's tree plus my
+patches, not -mm.
 
-> [2] Otherwise you can start net5 in userspace just because it doesn't
-> absolutely need to be in kernelspace.
-
-it seems like "Van Jacobson's network channels" [0] would move some
-stuff to userspace. Are you volunteering? (dislaimer: I have just
-glimpsed at the article).
-
-[0] http://lwn.net/Articles/169961/
-
+--
+Dmitry

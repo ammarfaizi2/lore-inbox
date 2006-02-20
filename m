@@ -1,102 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWBTKDB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWBTKFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932435AbWBTKDB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 05:03:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWBTKDA
+	id S964818AbWBTKFe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 05:05:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbWBTKFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 05:03:00 -0500
-Received: from mail10.syd.optusnet.com.au ([211.29.132.191]:459 "EHLO
-	mail10.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932435AbWBTKC6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 05:02:58 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [PATCH] sched: Consolidated and improved smpnice patch
-Date: Mon, 20 Feb 2006 21:02:11 +1100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, npiggin@suse.de,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <43F94D71.1040109@bigpond.net.au>
-In-Reply-To: <43F94D71.1040109@bigpond.net.au>
+	Mon, 20 Feb 2006 05:05:34 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:25699 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S964818AbWBTKFc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 05:05:32 -0500
+Message-ID: <43F994C3.9080403@sw.ru>
+Date: Mon, 20 Feb 2006 13:06:59 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart6636442.AOlyCEIZkl";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       vserver@list.linux-vserver.org, Herbert Poetzl <herbert@13thfloor.at>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: (pspace,pid) vs true pid virtualization
+References: <20060215145942.GA9274@sergelap.austin.ibm.com>	<m11wy4s24i.fsf@ebiederm.dsl.xmission.com>	<20060216142928.GA22358@sergelap.austin.ibm.com> <m17j7vqmy1.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m17j7vqmy1.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602202102.14003.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart6636442.AOlyCEIZkl
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+>>This is to support using pidspaces for vservers, and creating
+>>migrateable sub-pidspaces in each vserver.
+> 
+> 
+> Agreed.
+> 
+> Now this case is very interesting, because supporting it creates
+> interesting restrictions on the rest of the problem, and
+> unless I miss something this is where the OpenVZ implementation
+> currently falls down.
+why do you think so? VPIDs approach supports nested pspaces easily. 
+Moreover it can be used in any configuration. See below.
 
-On Monday 20 February 2006 16:02, Peter Williams wrote:
-[snip description]
+> Which names does the intermediate pidspace (vserver) see the child
+> pidspace with
+options:
+- all pspaces except for host system can live fully with virtual pids
+- you can restrict what parent pspace can see from it's child. and as in 
+your case you can see only "init".
+- you can make fully isolated pspaces, where these problems doesn't 
+arise at all.
 
-Hi peter, I've had a good look and have just a couple of comments:
 
-=2D--
- #endif
-        int prio, static_prio;
-+#ifdef CONFIG_SMP
-+       int load_weight;        /* for load balancing purposes */
-+#endif
-=2D--
+> Which names does the initial pidspace see the child pid space with?
+initial pidspace always sees "global" pids.
 
-Can this be moved up to be part of the other ifdef CONFIG_SMP? Not highly=20
-significant since it's in a .h file but looks a tiny bit nicer.
+>>>- Do we need to be able to be able to ptrace/kill individual processes
+>>>  in a pid space, from the outside, and why?
+>>
+>>I think this is completely unnecessary so long as a process can enter a
+>>pidspace.
+See my other emails. This is required.
+1. Enter doesn't always work. e.g. due to resource limitations.
+2. you may don't want to install some apps inside, especiall taking into 
+account that libs in VPS can be broken.
 
-=2D--
-+/*
-+ * Priority weight for load balancing ranges from 1/20 (nice=3D=3D19) to 4=
-59/20=20
-(RT
-+ * priority of 100).
-+ */
-+#define NICE_TO_LOAD_PRIO(nice) \
-+       ((nice >=3D 0) ? (20 - (nice)) : (20 + (nice) * (nice)))
-+#define LOAD_WEIGHT(lp) \
-+       (((lp) * SCHED_LOAD_SCALE) / NICE_TO_LOAD_PRIO(0))
-+#define NICE_TO_LOAD_WEIGHT(nice)      LOAD_WEIGHT(NICE_TO_LOAD_PRIO(nice))
-+#define PRIO_TO_LOAD_WEIGHT(prio)     =20
-NICE_TO_LOAD_WEIGHT(PRIO_TO_NICE(prio))
-+#define RTPRIO_TO_LOAD_WEIGHT(rp) \
-+       LOAD_WEIGHT(NICE_TO_LOAD_PRIO(-20) + (rp))
-=2D--
+>>But you have, haven't you?  Namely, how can openvz provide it's
+>>customers with a global view of all processes without putting 5 years of
+>>work into a new sysadmin interface?
+> Well I think we can reuse most of the old sysadmin interfaces yes.
+Doesn't look so.
 
-The weighting seems not related to anything in particular apart from saying=
-=20
-that -nice values are more heavily weighted. Since you only do this when=20
-setting the priority of tasks can you link it to the scale of (SCHED_NORMAL=
-)=20
-tasks' timeslice instead even though that will take a fraction more=20
-calculation? RTPRIO_TO_LOAD_WEIGHT is fine since there isn't any obvious cp=
-u=20
-proportion relationship to rt_prio level.
+Kirill
 
-Otherwise, good work, thanks!
 
-> Signed-off-by: Peter Williams <pwil3058@bigpond.com.au>
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
-
-Cheers,
-Con
-
---nextPart6636442.AOlyCEIZkl
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD+ZOlZUg7+tp6mRURArXXAKCCQhvji9YzAfWVRiUJQEZXGqDShQCeOqEw
-O6hDJ5b5IHUb6zqGsCPRxM8=
-=CF96
------END PGP SIGNATURE-----
-
---nextPart6636442.AOlyCEIZkl--

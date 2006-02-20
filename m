@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932654AbWBTTnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932655AbWBTToJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932654AbWBTTnn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 14:43:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932655AbWBTTnn
+	id S932655AbWBTToJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 14:44:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932659AbWBTToI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 14:43:43 -0500
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:3172 "EHLO
-	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S932654AbWBTTnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 14:43:42 -0500
-Date: Mon, 20 Feb 2006 14:43:39 -0500
-From: Jeff Mahoney <jeffm@suse.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Michael Chan <mchan@broadcom.com>, Jeff Garzik <jgarzik@pobox.com>
-Subject: [PATCH] tg3: netif_carrier_off runs too early; could still be queued when init fails
-Message-ID: <20060220194337.GA21719@locomotive.unixthugs.org>
+	Mon, 20 Feb 2006 14:44:08 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:24207
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932655AbWBTToH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 14:44:07 -0500
+Subject: Re: RT and pci_lock while reading or writing pci bus configuration.
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Serge Noiraud <serge.noiraud@bull.net>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <200602201542.19857.Serge.Noiraud@bull.net>
+References: <200602201542.19857.Serge.Noiraud@bull.net>
+Content-Type: text/plain
+Date: Mon, 20 Feb 2006 20:45:06 +0100
+Message-Id: <1140464706.2480.762.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux 2.6.5-7.201-smp (i686)
-X-GPG-Fingerprint: A16F A946 6C24 81CC 99BB  85AF 2CF5 B197 2B93 0FB2
-X-GPG-Key: http://www.csh.rit.edu/~jeffm/jeffm.gpg
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.5.5 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- This patch moves the netif_carrier_off() call from tg3_init_one()->
- tg3_init_link_config() to tg3_open() as is the convention for most
- other network drivers.
+On Mon, 2006-02-20 at 15:42 +0100, Serge Noiraud wrote:
+> Hi,
+> I have one question :
+> In drivers/pci/access.c we have a global lock for pci configuration access.
+> In pci_bus_read_config_* or pci_bus_write_config_* functions, we acquire a lock.
+> When we call spin_lock_irqsave, we obtain the following message :
+> BUG: scheduling while atomic: IRQ 137/0x00000001/6431
+> caller is schedule+0x43/0x120
+>  [<c01050ec>] dump_stack+0x1c/0x20 (20)
+>  [<c03e7144>] __schedule+0xf44/0x1240 (236)
+>  [<c03e7483>] schedule+0x43/0x120 (12)
+>  [<c03e855b>] __down_mutex+0x2bb/0x5f0 (112)
+>  [<c03ea08c>] _spin_lock_irqsave+0x1c/0x40 (24)
+>  [<c023670d>] pci_bus_read_config_word+0x2d/0x70 (24)
+>  
+> Do I miss something or is it a BUG ?
 
- I was getting a panic after a tg3 device failed to initialize due to DMA
- failure. The oops pointed to the link watch queue with spinlock debugging
- enabled. Without spinlock debugging, the Oops didn't occur.
+Yeah, you missed to paste the full backtrace :)
 
- I suspect that the link event was getting queued but not executed until
- after the DMA test had failed and the device was freed. The link event
- was then operating on freed memory, which could contain anything. With this
- patch applied, the Oops no longer occurs. 
+Preempt count is 1, so you are calling pci_bus_read_config_word() from a
+non preemptible context.
 
- I believe this to be correct, but since I'm not a network guru, perhaps
- someone who is could comment?
+	tglx
 
-Signed-off-by: Jeff Mahoney <jeffm@suse.com>
 
-diff -ruNpX dontdiff linux-2.6.16-rc4/drivers/net/tg3.c linux-2.6.16-rc4.tg3/drivers/net/tg3.c
---- linux-2.6.16-rc4/drivers/net/tg3.c	2006-02-20 13:52:40.000000000 -0500
-+++ linux-2.6.16-rc4.tg3/drivers/net/tg3.c	2006-02-20 13:54:20.000000000 -0500
-@@ -6443,6 +6443,8 @@ static int tg3_open(struct net_device *d
- 	struct tg3 *tp = netdev_priv(dev);
- 	int err;
- 
-+	netif_carrier_off(tp->dev);
-+
- 	tg3_full_lock(tp, 0);
- 
- 	tg3_disable_ints(tp);
-@@ -10430,7 +10432,6 @@ static void __devinit tg3_init_link_conf
- 	tp->link_config.speed = SPEED_INVALID;
- 	tp->link_config.duplex = DUPLEX_INVALID;
- 	tp->link_config.autoneg = AUTONEG_ENABLE;
--	netif_carrier_off(tp->dev);
- 	tp->link_config.active_speed = SPEED_INVALID;
- 	tp->link_config.active_duplex = DUPLEX_INVALID;
- 	tp->link_config.phy_is_low_power = 0;
--- 
-Jeff Mahoney
-SuSE Labs

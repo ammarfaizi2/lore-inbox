@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbWBTBVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932500AbWBTB0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932502AbWBTBVa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 20:21:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWBTBVa
+	id S932500AbWBTB0V (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 20:26:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbWBTB0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 20:21:30 -0500
-Received: from smtp102.his.com ([216.194.200.182]:36551 "EHLO smtp102.his.com")
-	by vger.kernel.org with ESMTP id S932502AbWBTBV3 (ORCPT
+	Sun, 19 Feb 2006 20:26:21 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:51466 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S932500AbWBTB0V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 20:21:29 -0500
-Date: Sun, 19 Feb 2006 20:20:49 -0500 (EST)
-From: Thomas Dickey <dickey@his.com>
-To: Adam Tla/lka <atlka@pg.gda.pl>
-cc: "Alexander E. Patrakov" <patrakov@ums.usu.ru>, torvalds@osdl.org,
-       Ncurses Mailing List <bug-ncurses@gnu.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]console:UTF-8 mode compatibility fixes
-In-Reply-To: <20060219114736.GD862@sunrise.pg.gda.pl>
-Message-ID: <20060219201811.D62691@mail101.his.com>
-References: <20060217233333.GA5208@sunrise.pg.gda.pl> <43F72C7A.8010709@ums.usu.ru>
- <20060218204407.L36972@mail101.his.com> <20060219114736.GD862@sunrise.pg.gda.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 19 Feb 2006 20:26:21 -0500
+Date: Mon, 20 Feb 2006 02:26:20 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Phillip Susi <psusi@cfl.rr.com>, Alan Stern <stern@rowland.harvard.edu>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Alon Bar-Lev <alon.barlev@gmail.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Flames over -- Re: Which is simpler?
+Message-ID: <20060220012619.GA27899@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Pavel Machek <pavel@ucw.cz>, Phillip Susi <psusi@cfl.rr.com>,
+	Alan Stern <stern@rowland.harvard.edu>,
+	Kyle Moffett <mrmacman_g4@mac.com>,
+	Alon Bar-Lev <alon.barlev@gmail.com>,
+	Kernel development list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L0.0602191138470.9165-100000@netrider.rowland.org> <43F8C464.3000509@cfl.rr.com> <20060219194343.GA15311@elf.ucw.cz> <20060220005617.GB90469@dspnet.fr.eu.org> <20060220010102.GB15965@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060220010102.GB15965@elf.ucw.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Feb 2006, Adam Tla/lka wrote:
+On Mon, Feb 20, 2006 at 02:01:02AM +0100, Pavel Machek wrote:
+> Actually, if you really want to do this, it would probably make sense
+> to do at blockdevice level -- with device mapper magic or something.
+> 
+> That way you could prompt user "return that flash driver, I still want
+> to write to it" after surprise unplug, etc. And suspend is special
+> case of surprise unplug, then replug.
 
-> On Sat, Feb 18, 2006 at 08:53:38PM -0500, Thomas Dickey wrote: OK but my 
-> fix is for all not only curses programs. Anyway from my point of view 
-> programs should be written in a way so they are easy to use and work 
-> correctly without user special intervention and knowledge. So ncurses 
-> hack is not
+I'm not sure.  Suspend is not a surprise, so you can do things so that
+you don't lose anything (what I described is pretty much unmounting
+while keeping file references).  Surprise unplug, there is no way you
+can make the filesystem clean if it wasn't already.
 
-of course (which is why I have xterm doing the same thing).
+I also think that USB flash and this kind of things should go back to
+clean state as soon as possible even whe mountd, but that's a
+different issue.
 
-> a desired way IMHO. Generally saying products should be designed with 
-> customers comfort and not developers/producers comfort in mind. But this 
-> is just a wish of course in current world and off topic.
+  OG.
 
-;-)
-
--- 
-Thomas E. Dickey
-http://invisible-island.net
-ftp://invisible-island.net

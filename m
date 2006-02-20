@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932642AbWBTTgm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932651AbWBTThB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932642AbWBTTgm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 14:36:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932649AbWBTTgm
+	id S932651AbWBTThB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 14:37:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932653AbWBTTg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 14:36:42 -0500
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:28312
-	"EHLO pinky.shadowen.org") by vger.kernel.org with ESMTP
-	id S932642AbWBTTgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 14:36:41 -0500
-Date: Mon, 20 Feb 2006 19:36:16 +0000
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] remove ccache from top level Makefile and make configurable
-Message-ID: <20060220193616.GA16407@shadowen.org>
-References: <43F9B8A9.4000506@reub.net>
-MIME-Version: 1.0
+	Mon, 20 Feb 2006 14:36:56 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:941 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932649AbWBTTgz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 14:36:55 -0500
+Date: Mon, 20 Feb 2006 20:36:28 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Olivier Galibert <galibert@pobox.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Message-ID: <20060220193628.GJ19156@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602201513.23849.rjw@sisk.pl> <20060220153922.GA17362@dspnet.fr.eu.org> <200602201816.56232.rjw@sisk.pl> <20060220181657.GD33155@dspnet.fr.eu.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-InReply-To: <43F9B8A9.4000506@reub.net>
-User-Agent: Mutt/1.5.11
-From: Andy Whitcroft <apw@shadowen.org>
+In-Reply-To: <20060220181657.GD33155@dspnet.fr.eu.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-remove ccache from top level Makefile and make configurable
+On Po 20-02-06 19:16:57, Olivier Galibert wrote:
+> On Mon, Feb 20, 2006 at 06:16:55PM +0100, Rafael J. Wysocki wrote:
+> > On Monday 20 February 2006 16:39, Olivier Galibert wrote:
+> > > On Mon, Feb 20, 2006 at 03:13:23PM +0100, Rafael J. Wysocki wrote:
+> > > Stuff that is _already_ _done_ and working.
+> > 
+> > Functionality-wise, your right.  The problem is how it's done, I think, and
+> > that is not so obvious.
+> 
+> Heh.  It obviously has been way too long out of mainline.  Pavel's
+> reviews being 90% "you should do all that in userspace" are a little
+> tiring after a while though.
 
-[Here is the patch I used to fix this for out nightly testing.
-It seems that if it were something we could configure from outside
-the source we'd avoid this occuring again.]
+That does not make them wrong... having to review code that does not
+need to be in kernel in the first place is tiring, too.
 
-Remove errant ccache from top-level makefile and make it configurable on
-the kernel build line.
-
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
----
- Makefile |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
-diff -upN reference/Makefile current/Makefile
---- reference/Makefile
-+++ current/Makefile
-@@ -171,9 +171,11 @@ SUBARCH := $(shell uname -m | sed -e s/i
- # Alternatively CROSS_COMPILE can be set in the environment.
- # Default value for CROSS_COMPILE is not to prefix executables
- # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
-+# CCACHE specifies the name of a ccache binary to use with gcc.
- 
- ARCH		?= $(SUBARCH)
- CROSS_COMPILE	?=
-+CCACHE		?=
- 
- # Architecture as present in compile.h
- UTS_MACHINE := $(ARCH)
-@@ -274,7 +276,7 @@ include  $(srctree)/scripts/Kbuild.inclu
- 
- AS		= $(CROSS_COMPILE)as
- LD		= $(CROSS_COMPILE)ld
--CC		= ccache $(CROSS_COMPILE)gcc
-+CC		= $(CCACHE) $(CROSS_COMPILE)gcc
- CPP		= $(CC) -E
- AR		= $(CROSS_COMPILE)ar
- NM		= $(CROSS_COMPILE)nm
+Feel free to review that code yourself, and clean it up with Nigel;
+but it is useless as long as it contains stuff such as "press 'C' to
+continue, or any other key to reboot".
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

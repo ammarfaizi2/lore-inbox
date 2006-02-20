@@ -1,93 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161126AbWBTUaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161128AbWBTUhM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161126AbWBTUaU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 15:30:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161166AbWBTUaU
+	id S1161128AbWBTUhM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 15:37:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161161AbWBTUhM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 15:30:20 -0500
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:52195 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1161126AbWBTUaT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 15:30:19 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: dtor_core@ameritech.net
+	Mon, 20 Feb 2006 15:37:12 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62884 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1161128AbWBTUhL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 15:37:11 -0500
+Date: Mon, 20 Feb 2006 21:36:34 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Theodore Ts'o" <tytso@mit.edu>, Sebastian K?gler <sebas@kde.org>,
+       nigel@suspend2.net, Matthias Hensler <matthias@wspse.de>, rjw@sisk.pl,
+       kernel list <linux-kernel@vger.kernel.org>,
+       suspend2-devel@lists.suspend2.net
 Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Tue, 21 Feb 2006 06:27:06 +1000
-User-Agent: KMail/1.9.1
-Cc: "Lee Revell" <rlrevell@joe-job.com>,
-       "Matthias Hensler" <matthias@wspse.de>, "Pavel Machek" <pavel@suse.cz>,
-       "Sebastian Kgler" <sebas@kde.org>,
-       "kernel list" <linux-kernel@vger.kernel.org>, rjw@sisk.pl
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <1140429758.3429.1.camel@mindpipe> <d120d5000602200601l31382264i7c0ef5bdf3d3829a@mail.gmail.com>
-In-Reply-To: <d120d5000602200601l31382264i7c0ef5bdf3d3829a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2083947.KDYajHR66p";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602210627.12183.nigel@suspend2.net>
+Message-ID: <20060220203634.GA21605@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060218142610.GT3490@openzaurus.ucw.cz> <20060220093911.GB19293@kobayashi-maru.wspse.de> <200602201105.35378.sebas@kde.org> <20060220130125.GA17627@elf.ucw.cz> <20060220191242.GB8512@osgiliath.brixandersen.dk> <20060220195155.GB7444@thunk.org> <20060220200807.GB21557@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060220200807.GB21557@elf.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2083947.KDYajHR66p
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Po 20-02-06 21:08:07, Pavel Machek wrote:
+> On Po 20-02-06 14:51:55, Theodore Ts'o wrote:
+> > On Mon, Feb 20, 2006 at 08:12:42PM +0100, Henrik Brix Andersen wrote:
+> > > > I'd love to have Nigel helping me and kernel, but he's not
+> > > > interested. He wants suspend2 merged, he does not want better suspend
+> > > > in kernel.
+> > > 
+> > > If you made comments like that about me on a public mailing list I
+> > > would feel it would be very difficult trying to cooperate with you.
+> > > 
+> > > Please reconsider your public replies regarding this already delicate
+> > > issue a bit more before you criticize people who has spent a great
+> > > deal of time trying to get a working solution.
+> > 
+> > I'm going to have to second Henrik here.  Pavel, there are times when
+> > you are starting to sound almost as strident as our cdrecord
+> > "friend".
+> 
+> Heh, I hope I'm not that bad.
+> 
+> > Maybe you feel you are in a power position because your code happened
+> > to enter the kernel first, so you few you can have veto power over all
+> > other contenders.  It sometimes works that way, but only up to a
+> 
+> Unfortunately, I do not need to veto suspend2. It is so complex that
+> it vetoes itself. Last time akpm stopped it, IIRC.
 
-Hi Dimitry.
+...BTW... here's how you could help. Part of the problem is that Nigel
+does not trust me. When I tell him that something is not acceptable
+for kernel, he tends to ignore it (probably thinking it is me hating
+his code or something like that).
 
-On Tuesday 21 February 2006 00:01, Dmitry Torokhov wrote:
-> On 2/20/06, Lee Revell <rlrevell@joe-job.com> wrote:
-> > On Mon, 2006-02-20 at 10:39 +0100, Matthias Hensler wrote:
-> > > > It is slightly slower,
-> > >
-> > > Sorry, but that is just unacceptable.
-> >
-> > Um... suspend2 puts extra tests into really hot paths like fork(), which
-> > is equally unacceptable to many people.
->
-> How bad is it really? From what I saw marking that swsuspend2 branch
-> with "unlikely" should help the hot path.
->
-> > Why can't people understand that arguing "it works" without any
-> > consideration of possible performance tradeoffs is not a good enough
-> > argument for merging?
->
-> Many of Pavel's arguments are not about performance tradeoffs but
-> about perceived complexity of the code. I think if Nigel could run a
-> clean up on his implementation and split it into couple of largish
-> (not for inclusion but for general overview) pieces, like separate
-> arch support, generally useful bits and the rest it would allow seeing
-> more clearly how big and invasive swsuspend2 core is.
+If you could take a look at the patches before they go to me, and
+either tell him what is wrong with them, or tell me that you consider
+them okay... I guess that would help a lot.
 
-I'm working on doing that right now. I was starting on it with the plugins=
-=20
-patches a few weeks ago, and intended to follow it up pretty quickly with t=
-he=20
-rest. Unfortunately I've gotten sidetracked and overwhelmed by email :) and=
- a=20
-lot of other things, so it's taking a lot longer than I wanted.=20
-Never-the-less, I'm working towards precisely this.
-
-Regards,
-
-Nigel
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
-
---nextPart2083947.KDYajHR66p
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD+iYgN0y+n1M3mo0RAg5dAJ0bgBcD9SbEq7OPgN/vbl7Jy7SkRwCgqdLA
-ImpBYb8awevljogYe4/ccU8=
-=0xdV
------END PGP SIGNATURE-----
-
---nextPart2083947.KDYajHR66p--
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

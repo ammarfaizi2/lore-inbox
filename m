@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbWBTVUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWBTVVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932200AbWBTVUR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 16:20:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbWBTVUQ
+	id S1750953AbWBTVVu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 16:21:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWBTVVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 16:20:16 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:62377 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932200AbWBTVUN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 16:20:13 -0500
-Subject: [PATCH 0/3] map multiple blocks in get_block() and
-	mpage_readpages()
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: christoph <hch@lst.de>, mcao@us.ibm.com, akpm@osdl.org
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>, pbadari@us.ibm.com
-Content-Type: text/plain
-Date: Mon, 20 Feb 2006 13:21:27 -0800
-Message-Id: <1140470487.22756.12.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Mon, 20 Feb 2006 16:21:50 -0500
+Received: from mail.linicks.net ([217.204.244.146]:17329 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S1750730AbWBTVVt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 16:21:49 -0500
+From: Nick Warne <nick@linicks.net>
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Subject: Re: i386 AT keyboard LED question.
+Date: Mon, 20 Feb 2006 21:21:43 +0000
+User-Agent: KMail/1.9.1
+Cc: "Vojtech Pavlik" <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+References: <200602202003.26642.nick@linicks.net> <200602202051.51882.nick@linicks.net> <Pine.LNX.4.61.0602201608420.1577@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0602201608420.1577@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602202121.43436.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Monday 20 February 2006 20:57, Vojtech Pavlik wrote:
 
-Following patches add support to map multiple blocks in ->get_block().
-This is will allow us to handle mapping of multiple disk blocks for
-mpage_readpages() and mpage_writepages() etc. Instead of adding new
-argument, I use "b_size" to indicate the amount of disk mapping needed
-for get_block(). And also, on success get_block() actually indicates
-the amount of disk mapping it did.
+> The 'setleds' command in boot.local might be the fix you're looking for.
 
-Now that get_block() can handle multiple blocks, there is no need
-for ->get_blocks() which was added for DIO. 
+On Monday 20 February 2006 21:12, linux-os (Dick Johnson) wrote:
+>
+> In .. /etc/rc.d/rc.local
+>  	/usr/bin/setleds -num /dev/tty0 (or whatever)
 
-[PATCH 1/3] pass b_size to ->get_block()
+I must have made the dork post of the month - sorry for the noise.
 
-[PATCH 2/3] map multiple blocks for mpage_readpages()
+setleds +num
 
-[PATCH 3/3] remove ->get_blocks() support
+is indeed what I needed in rc.local.
 
-I noticed decent improvements (reduced sys time) on JFS, XFS and ext3. 
-(on simple "dd" read tests).
-	
-         (rc3.mm1)	(rc3.mm1 + patches)
-real    0m18.814s	0m18.482s
-user    0m0.000s	0m0.004s
-sys     0m3.240s	0m2.912s
+Still, at least I learnt a lot about initialising keyboard by reading the 
+code.
 
-Andrew, Could you include it in -mm tree ?
+Thank you!
 
-Comments ?
-
-Thanks,
-Badari
-
-
+Nick
+-- 
+"Person who say it cannot be done should not interrupt person doing it."
+-Chinese Proverb

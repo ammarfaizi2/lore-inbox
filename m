@@ -1,82 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932624AbWBTFIE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932627AbWBTFUp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932624AbWBTFIE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 00:08:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932625AbWBTFID
+	id S932627AbWBTFUp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 00:20:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932628AbWBTFUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 00:08:03 -0500
-Received: from web32107.mail.mud.yahoo.com ([68.142.207.121]:29311 "HELO
-	web32107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932624AbWBTFID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 00:08:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=sun/evuH669qBloxcLXJHpIDr3wVAxVZz4roxkbKORPXeGkn101YEhiTharAJu2POjPe08On/nwMS+QnC+Wqbr31847XdiZJwAFq+GR8rVpCSFBT3ngtK0vFdCoZCikFQWj/Mtie1HMIJOzYipO7pTX6naigOeue3+5uu91pUAA=  ;
-Message-ID: <20060220050800.4596.qmail@web32107.mail.mud.yahoo.com>
-Date: Sun, 19 Feb 2006 21:08:00 -0800 (PST)
-From: shivani kirubanandan <k_shivanii@yahoo.com>
-Subject: error in compiling ml300 kernel for powerpc-plzzz help another bizzare error
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Mon, 20 Feb 2006 00:20:45 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:11173 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932627AbWBTFUo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 00:20:44 -0500
+Date: Sun, 19 Feb 2006 21:18:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alex Riesen <fork0@users.sourceforge.net>
+Cc: acpi-devel@lists.sourceforge.net, torvalds@osdl.org, mail@hboeck.de,
+       len.brown@intel.com, Greek0@gmx.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Work around asus_acpi driver oopses on Samsung P30s and
+ the like due to the ACPI implicit return
+Message-Id: <20060219211852.05d08f55.akpm@osdl.org>
+In-Reply-To: <20060219125258.GB6041@steel.home>
+References: <F7DC2337C7631D4386A2DF6E8FB22B300580F140@hdsmsx401.amr.corp.intel.com>
+	<20051222174226.GB20051@hell.org.pl>
+	<20060219125258.GB6041@steel.home>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+Alex Riesen <fork0@users.sourceforge.net> wrote:
+>
+> FWIW, I need the patch below to stop ACPI freezing at boot on Asus S1300N.
+> There is a BIOS update from Asus, but no mention of any fixes in ACPI,
+> so as I have no means to backup the BIOS in case something goes wrong
+> I didn't do the update.
 
-thanks a ton ..due to ur help i was able to
-sucessfully run the make dep on my comuter..if u
-remember it cud not find the path then..well now wen i
-run my 
-make zImage
+I think it'd be worth trying the update anyway please.  Normally those
+updating programs are pretty careful to not give you a dead box.
 
-this is the error i encounter-jus remindin u am tryin
-to build a powerpc405 kernel for xilinx ml300
+> I found out (by putting printks in the initialization code) that a
+> call to INI (whatever it is) of VGA_ (whatever this is) immediately
+> freezes the notebook and the fan goes on shortly afterwards.
+> 
 
-make[3]: Entering directory
-`/home/shivani/downloads/linux-2.4.26/drivers/char'
-/opt/crosstool/gcc-3.3.2-glibc-2.3.2/powerpc-405-linux-gnu/bin/powerpc-405-linux-gnu-gcc
--D__KERNEL__
--I/home/shivani/downloads/linux-2.4.26/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2
--fno-strict-aliasing -fno-common -fomit-frame-pointer
--I/home/shivani/downloads/linux-2.4.26/arch/ppc
--fsigned-char -msoft-float -pipe -ffixed-r2
--Wno-uninitialized -mmultiple -mstring -Wa,-m405  
--nostdinc -iwithprefix include
--DKBUILD_BASENAME=serial  -DEXPORT_SYMTAB -c serial.c
-serial.c: In function `start_pci_pnp_board':
-serial.c:4039: error: `XPAR_UARTNS550_0_CLOCK_FREQ_HZ'
-undeclared (first use in this function)
-serial.c:4039: error: (Each undeclared identifier is
-reported only once
-serial.c:4039: error: for each function it appears
-in.)
-make[3]: *** [serial.o] Error 1
-make[3]: Leaving directory
-`/home/shivani/downloads/linux-2.4.26/drivers/char'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory
-`/home/shivani/downloads/linux-2.4.26/drivers/char'
-make[1]: *** [_subdir_char] Error 2
-make[1]: Leaving directory
-`/home/shivani/downloads/linux-2.4.26/drivers'
-make: *** [_dir_drivers] Error 2
+Is this a recent problem, or did earlier 2.6.x kernels also fail?
 
-I dont understand by what it means by 'undeclared' as
-this parameter has alredy been declared in
-/home/arch/ppc/platforms/xilinx_ocp/xparameters_ml300.h
 
-file
-
-plzzz help its urgent
-
-regards and thanks in advance
-shivani
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+> diff --git a/drivers/acpi/asus_acpi.c b/drivers/acpi/asus_acpi.c
+> index f4c8775..d415b30 100644
+> --- a/drivers/acpi/asus_acpi.c
+> +++ b/drivers/acpi/asus_acpi.c
+> @@ -352,8 +352,8 @@ static struct model_data model_conf[END_
+>  	 .lcd_status = "\\BKLT",
+>  	 .brightness_set = "SPLV",
+>  	 .brightness_get = "GPLV",
+> -	 .display_set = "SDSP",
+> -	 .display_get = "\\ADVG"}
+> +	 /* .display_set = "SDSP",
+> +	 .display_get = "\\ADVG" */}
+>  };
+>  
+>  /* procdir we use */
+> diff --git a/drivers/acpi/namespace/nsinit.c b/drivers/acpi/namespace/nsinit.c
+> index 9f929e4..79fa2ec 100644
+> --- a/drivers/acpi/namespace/nsinit.c
+> +++ b/drivers/acpi/namespace/nsinit.c
+> @@ -384,7 +384,12 @@ acpi_ns_init_one_device(acpi_handle obj_
+>  	pinfo.parameters = NULL;
+>  	pinfo.parameter_type = ACPI_PARAM_ARGS;
+>  
+> -	status = acpi_ut_execute_STA(pinfo.node, &flags);
+> +	/* workaround Asus S1300N freeze at INI */
+> +	if ( memcmp(pinfo.node->name.ascii, "VGA_",4)==0 ) {
+> +	    printk(KERN_ERR "acpi: VGA_ ignored\n");
+> +	    status = AE_NOT_FOUND;
+> +	} else
+> +	    status = acpi_ut_execute_STA(pinfo.node, &flags);
+>  	if (ACPI_FAILURE(status)) {
+>  		/* Ignore error and move on to next device */
+>  

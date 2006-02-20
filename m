@@ -1,72 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932638AbWBTTZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932648AbWBTTbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932638AbWBTTZT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 14:25:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbWBTTZT
+	id S932648AbWBTTbW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 14:31:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932649AbWBTTbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 14:25:19 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:30226 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932638AbWBTTZR (ORCPT
+	Mon, 20 Feb 2006 14:31:22 -0500
+Received: from smtp.enter.net ([216.193.128.24]:37136 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S932648AbWBTTbV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 14:25:17 -0500
-Date: Mon, 20 Feb 2006 20:25:00 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH -mm HOT-FIX] fix build on ia64 (modpost.c)
-Message-ID: <20060220192500.GA17003@mars.ravnborg.org>
-References: <20060220042615.5af1bddc.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Feb 2006 14:31:21 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Nick Warne <nick@linicks.net>
+Subject: Re: No sound from SB live!
+Date: Mon, 20 Feb 2006 14:31:35 -0500
+User-Agent: KMail/1.8.1
+Cc: Lee Revell <rlrevell@joe-job.com>, ghrt@dial.kappa.ro, perex@suse.cz,
+       kernel list <linux-kernel@vger.kernel.org>
+References: <20060218231419.GA3219@elf.ucw.cz> <1140381117.2733.374.camel@mindpipe> <200602201918.57087.nick@linicks.net>
+In-Reply-To: <200602201918.57087.nick@linicks.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060220042615.5af1bddc.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Message-Id: <200602201431.36229.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> - This kernel won't compile on ia64 (and possibly other architectures)
->   because the kbuild tree is using Elf_Rela in scripts/mod/modpost.c.  Is OK
->   on x86, x86_64 and powerpc.  Sam might send a hotfix?
+On Monday 20 February 2006 14:18, Nick Warne wrote:
+<snip>
+> Loading ALSA mixer settings:  /usr/sbin/alsactl restore
+> /usr/sbin/alsactl: set_control:894: warning: name mismatch (Mic Select/3D
+> Control Sigmatel - Depth) for control #74
+> /usr/sbin/alsactl: set_control:896: warning: index mismatch (0/0) for
+> control #74
+> /usr/sbin/alsactl: set_control:994: bad control.74.value type
+>
+> Heh.  Every reboot I get a different control error.  But why it all works
+> OK before a reboot with the same very /etc/asound.state file I don't know.
 
-Attached is a real hot-fix. It disables the new check entirely.
+I had a similar problem, but solved that with an upgrade of alsa-lib.
 
-I like to learn:
-1) Why IA64 is missing Elf64_Rela. Can someone drop me a copy of elf.h -
-and include gcc + binutils version in the mail - thanks.
+I've been following this thread, because apparently my SB Live! isn't 
+supported by ALSA either. I need to use the gnome mixer to affect any change 
+in sound levels... Apparently none of the numerous controls offered by 
+alsamixer and kmix work.
 
-2) I also like to know if other architectures broke - so I can figure
-out how to fix this.
+Attached is the lspci output for the card.
 
-I have tested this on X86_64/amd64 (gentoo based) only.
+0000:00:10.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 
+07)
+        Subsystem: Creative Labs CT4780 SBLive! Value
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (500ns min, 5000ns max)
+        Interrupt: pin A routed to IRQ 9
+        Region 0: I/O ports at 1460
+        Capabilities: [dc] Power Management version 1
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-	Sam
+0000:00:10.1 Input device controller: Creative Labs SB Live! MIDI/Game Port 
+(rev 07)
+        Subsystem: Creative Labs Gameport Joystick
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64
+        Region 0: I/O ports at 14a8
+        Capabilities: [dc] Power Management version 1
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-	
-diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-index 844f84b..b87070a 100644
---- a/scripts/mod/modpost.c
-+++ b/scripts/mod/modpost.c
-@@ -451,6 +451,7 @@ static char *get_modinfo(void *modinfo, 
- 	return NULL;
- }
- 
-+#if 0
- /**
-  * Find symbol based on relocation record info.
-  * In some cases the symbol supplied is a valid symbol so
-@@ -616,7 +617,12 @@ static void check_sec_ref(struct module 
- 		}
- 	}
- }
--
-+#endif
-+static void check_sec_ref(struct module *mod, const char *modname,
-+			  struct elf_info *elf,
-+			  int section(const char*),
-+			  int section_ref_ok(const char *))
-+{}
- /**
-  * Functions used only during module init is marked __init and is stored in
-  * a .init.text section. Likewise data is marked __initdata and stored in
+Alsa reports it as "unknown" but functions well. To my knowledge the card came 
+as OEM equipment on a Dell XPS-T850r, so I told ALSA to use the "Dell OEM" 
+driver in the kernel. Before updating alsa-lib I had the problem with the 
+controls. Now all I have is the fact that it seems nothing allows me to 
+change the sound level programatically except the gnome mixer.
+
+DRH

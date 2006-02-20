@@ -1,186 +1,208 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbWBTQMt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030301AbWBTQOF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030300AbWBTQMt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 11:12:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030302AbWBTQMt
+	id S1030301AbWBTQOF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 11:14:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030302AbWBTQOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 11:12:49 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:19428 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1030300AbWBTQMs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 11:12:48 -0500
-Date: Mon, 20 Feb 2006 17:12:47 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Linus Torvalds <torvalds@osdl.org>, Rik van Riel <riel@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       devel@openvz.org, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrey Savochkin <saw@sawoct.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Stanislav Protassov <st@sw.ru>,
-       serue@us.ibm.com, frankeh@watson.ibm.com, clg@fr.ibm.com,
-       haveblue@us.ibm.com, mrmacman_g4@mac.com, alan@lxorguk.ukuu.org.uk,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Which of the virtualization approaches is more suitable for kernel?
-Message-ID: <20060220161247.GE18841@MAIL.13thfloor.at>
-Mail-Followup-To: Kirill Korotaev <dev@sw.ru>,
-	Linus Torvalds <torvalds@osdl.org>, Rik van Riel <riel@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	devel@openvz.org, "Eric W. Biederman" <ebiederm@xmission.com>,
-	Andrey Savochkin <saw@sawoct.com>,
-	Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-	Stanislav Protassov <st@sw.ru>, serue@us.ibm.com,
-	frankeh@watson.ibm.com, clg@fr.ibm.com, haveblue@us.ibm.com,
-	mrmacman_g4@mac.com, alan@lxorguk.ukuu.org.uk,
-	Andrew Morton <akpm@osdl.org>
-References: <43F9E411.1060305@sw.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+	Mon, 20 Feb 2006 11:14:05 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:743 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1030301AbWBTQOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 11:14:03 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Mishin Dmitry <dim@openvz.org>
+Subject: Re: [PATCH 1/2] iptables 32bit compat layer
+Date: Mon, 20 Feb 2006 16:55:26 +0100
+User-Agent: KMail/1.9.1
+Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, rusty@rustcorp.com.au,
+       akpm@osdl.org, devel@openvz.org
+References: <200602201110.39092.dim@openvz.org>
+In-Reply-To: <200602201110.39092.dim@openvz.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <43F9E411.1060305@sw.ru>
-User-Agent: Mutt/1.5.6i
+Content-Disposition: inline
+Message-Id: <200602201655.27093.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 20, 2006 at 06:45:21PM +0300, Kirill Korotaev wrote:
-> Linus, Andrew,
-> 
-> We need your help on what virtualization approach you would accept to
-> mainstream (if any) and where we should go.
-> 
-> If to drop VPID virtualization which caused many disputes, we actually
-> have the one virtualization solution, but 2 approaches for it. Which
-> one will go depends on the goals and your approval any way.
-> 
-> So what are the approaches?
-> 
-> 1. namespaces for all types of resources (Eric W. Biederman)
-> 
-> The proposed solution is similar to fs namespaces. This approach
-> introduces namespaces for IPC, IPv4 networking, IPv6 networking, pids
-> etc. It also adds to task_struct a set of pointers to namespaces which
-> task belongs to, i.e. current->ipv4_ns, current->ipc_ns etc.
-> 
-> Benefits:
-> - fine grained namespaces
-> - task_struct points directly to a structure describing the namespace
->   and it's data (not to container)
-> - maybe a bit more logical/clean implementation, since no effective
->   container is involved unlike a second approach.
+On Monday 20 February 2006 09:10, Mishin Dmitry wrote:
+> --- ./include/linux/netfilter/x_tables.h.iptcompat      2006-02-15 16:16:02.000000000 +0300
+> +++ ./include/linux/netfilter/x_tables.h        2006-02-15 18:53:09.000000000 +0300
+>  struct xt_match
+>  {
+>         struct list_head list;
+> @@ -118,6 +125,10 @@ struct xt_match
+>         /* Called when entry of this type deleted. */
+>         void (*destroy)(void *matchinfo, unsigned int matchinfosize);
+>  
+> +#ifdef CONFIG_COMPAT
+> +       /* Called when userspace align differs from kernel space one */
+> +       int (*compat)(void *match, void **dstptr, int *size, int convert);
+> +#endif
+>         /* Set this to THIS_MODULE if you are a module, otherwise NULL */
+>         struct module *me;
+>  };
 
-> Disadvantages:
-> - it is only proof of concept code right now. nothing more.
+Is CONFIG_COMPAT the right conditional here? If the code is only used
+for architectures that have different aligments, it should not need be
+compiled in for the other architectures.
 
-sorry, but that is no disadvantage in my book ...
+> @@ -154,6 +165,10 @@ struct xt_target
+>         /* Called when entry of this type deleted. */
+>         void (*destroy)(void *targinfo, unsigned int targinfosize);
+>  
+> +#ifdef CONFIG_COMPAT
+> +       /* Called when userspace align differs from kernel space one */
+> +       int (*compat)(void *target, void **dstptr, int *size, int convert);
+> +#endif
+>         /* Set this to THIS_MODULE if you are a module, otherwise NULL */
+>         struct module *me;
+>  };
+> @@ -233,6 +248,34 @@ extern void xt_proto_fini(int af);
+>  extern struct xt_table_info *xt_alloc_table_info(unsigned int size);
+>  extern void xt_free_table_info(struct xt_table_info *info);
+>  
+> +#ifdef CONFIG_COMPAT
+> +#include <net/compat.h>
+> +
+> +/* FIXME: this works only on 32 bit tasks
+> + * need to change whole approach in order to calculate align as function of
+> + * current task alignment */
+> +
+> +struct compat_xt_counters
+> +{
+> +       u_int32_t cnt[4];
+> +};
 
-> - such an approach requires adding of additional argument to many
->  functions (e.g. Eric's patch for networking is 1.5 bigger than openvz).
+Hmm, maybe we should have something like
 
-hmm? last time I checked OpenVZ was quite bloated
-compared to Linux-VServer, and Eric's network part
-isn't even there yet ...
+typedef u64 __attribute__((aligned(4))) compat_u64;
 
-> it also adds code for getting namespace from objects. e.g.
-> skb->sk->namespace.
+in order to get the right alignment on the architectures
+where it makes a difference. Do all compiler versions
+get that right?
 
-> - so it increases stack usage
+> --- ./include/linux/netfilter_ipv4/ip_tables.h.iptcompat        2006-02-15 16:06:41.000000000 +0300
+> +++ ./include/linux/netfilter_ipv4/ip_tables.h  2006-02-15 16:37:12.000000000 +0300
+> @@ -364,5 +365,62 @@ extern unsigned int ipt_do_table(struct 
+>                                  void *userdata);
+>  
+>  #define IPT_ALIGN(s) XT_ALIGN(s)
+> +
+> +#ifdef CONFIG_COMPAT
+> +#include <net/compat.h>
+> +
+> +struct compat_ipt_getinfo
+> +{
+> +       char name[IPT_TABLE_MAXNAMELEN];
+> +       compat_uint_t valid_hooks;
+> +       compat_uint_t hook_entry[NF_IP_NUMHOOKS];
+> +       compat_uint_t underflow[NF_IP_NUMHOOKS];
+> +       compat_uint_t num_entries;
+> +       compat_uint_t size;
+> +};
 
-> - it can't efficiently compile to the same not virtualized kernel,
->   which can be undesired for embedded linux.
+This structure looks like it does not need any
+conversions. You should probably just use 
+struct ipt_getinfo then.
 
-while OpenVZ does?
+> +
+> +struct compat_ipt_entry_match
+> +{
+> +       union {
+> +               struct {
+> +                       u_int16_t match_size;
+> +                       char name[IPT_FUNCTION_MAXNAMELEN];
+> +               } user;
+> +               u_int16_t match_size;
+> +       } u;
+> +       unsigned char data[0];
+> +};
+> +
+> +struct compat_ipt_entry_target
+> +{
+> +       union {
+> +               struct {
+> +                       u_int16_t target_size;
+> +                       char name[IPT_FUNCTION_MAXNAMELEN];
+> +               } user;
+> +               u_int16_t target_size;
+> +       } u;
+> +       unsigned char data[0];
+> +};
 
-> - fine grained namespaces are actually an obfuscation, since kernel
->   subsystems are tightly interconnected. e.g. network -> sysctl -> proc,
->   mqueues -> netlink, ipc -> fs and most often can be used only as a
->   whole container.
+Dito
 
-I think a lot of _strange_ interconnects there could
-use some cleanup, and after that the interconenctions
-would be very small
+> +#define COMPAT_IPT_ALIGN(s)    COMPAT_XT_ALIGN(s)
+> +
+> +extern int ipt_match_align_compat(void *match, void **dstptr,
+> +               int *size, int off, int convert);
+> +extern int ipt_target_align_compat(void *target, void **dstptr,
+> +               int *size, int off, int convert);
+> +
+> +#endif /* CONFIG_COMPAT */
+>  #endif /*__KERNEL__*/
+>  #endif /* _IPTABLES_H */
+> --- ./include/net/compat.h.iptcompat    2006-01-03 06:21:10.000000000 +0300
+> +++ ./include/net/compat.h      2006-02-15 18:45:49.000000000 +0300
+> @@ -23,6 +23,14 @@ struct compat_cmsghdr {
+>         compat_int_t    cmsg_type;
+>  };
+>  
+> +#if defined(CONFIG_X86_64)
+> +#define is_current_32bits() (current_thread_info()->flags & _TIF_IA32)
+> +#elif defined(CONFIG_IA64)
+> +#define is_current_32bits() (IS_IA32_PROCESS(ia64_task_regs(current)))
+> +#else
+> +#define is_current_32bits()    0
+> +#endif
+> +
 
-> - it involves a bit more complicated procedure of a container
->   create/enter which requires exec or something like this, since 
->   there is no effective container which could be simply triggered.
+This definition looks very wrong to me. For x86_64, the right thing to check
+should be TS_COMPAT, no _TIF_IA32, since you can also call the 64 bit
+syscall entry point from a i386 task running on x86_64. For most other
+architectures, is_current_32bits returns something that is not reflected
+in the name. I would e.g. expect the function to return '1' on i386 and
+the correct task state on other compat platforms, instead of a bogus '0'.
 
-I don't understand this argument ...
+There have been long discussions about the inclusions of the 'is_compat_task'
+macro. Let's at least not define a second function that does almost the
+same but gets it wrong.
 
-> 2. containers (OpenVZ.org/linux-vserver.org)
+I would much rather have either an extra 'compat' argument to to
+sock_setsockopt and proto_ops->setsockopt than to spread the use
+of is_compat_task further.
 
-please do not generalize here, Linux-VServer does 
-not use a single container structure as you might
-think ...
+>  #else /* defined(CONFIG_COMPAT) */
+>  #define compat_msghdr  msghdr          /* to avoid compiler warnings */
+>  #endif /* defined(CONFIG_COMPAT) */
+> --- ./net/compat.c.iptcompat    2006-01-03 06:21:10.000000000 +0300
+> +++ ./net/compat.c      2006-02-15 16:38:45.000000000 +0300
+> @@ -308,107 +308,6 @@ void scm_detach_fds_compat(struct msghdr
+>  }
+>  
+>  /*
+> - * For now, we assume that the compatibility and native version
+> - * of struct ipt_entry are the same - sfr.  FIXME
+> - */
+> -struct compat_ipt_replace {
+> -       char                    name[IPT_TABLE_MAXNAMELEN];
+> -       u32                     valid_hooks;
+> -       u32                     num_entries;
+> -       u32                     size;
+> -       u32                     hook_entry[NF_IP_NUMHOOKS];
+> -       u32                     underflow[NF_IP_NUMHOOKS];
+> -       u32                     num_counters;
+> -       compat_uptr_t           counters;       /* struct ipt_counters * */
+> -       struct ipt_entry        entries[0];
+> -};
 
-> Container solution was discussed before, and actually it is also
-> namespace solution, but as a whole total namespace, with a single 
-> kernel structure describing it.
+Is the FIXME above the only reason that the code needs to be changed?
+What is the reason that you did not just address this in the 
+compat_sys_setsockopt implementation?
 
-that might be true for OpenVZ, but it is not for
-Linux-VServer, as we have structures for network
-and process contexts as well as different ones for
-disk limits
-
-> Every task has two cotnainer pointers: container and effective
-> container. The later is used to temporarily switch to other 
-> contexts, e.g. when handling IRQs, TCP/IP etc.
-
-this doesn't look very cool to me, as IRQs should
-be handled in the host context and TCP/IP in the
-proper network space ...
-
-> Benefits:
-> - clear logical bounded container, it is clear when container 
->   is alive and when not.
-
-how does that handle the issues you described with
-sockets in wait state which have very long timeouts?
-
-> - it doesn't introduce additional args for most functions,
->   no additional stack usage.
-
-a single additional arg here and there won't hurt,
-and I'm pretty sure most of them will be in inlined
-code, where it doesn't really matter 
-
-> - it compiles to old good kernel when virtualization if off, 
->   so doesn't disturb other configurations.
-
-the question here is, do we really want to turn it 
-off at all? IMHO the design and implementation 
-should be sufficiently good so that it does neither
-impose unnecessary overhead nor change the default
-behaviour ...
-
-> - Eric brought an interesting idea about introducing interface like
->   DEFINE_CPU_VAR(), which could potentially allow to create virtualized
->   variables automagically and access them via econtainer().
-
-how is that an advantage of the container approach?
-
-> - mature working code exists which is used in production for years, 
->   so first working version can be done much quicker
-
-from the OpenVZ/Virtuozzo(tm) page:
-
- Specific benefits of Virtuozzo(tm) compared to OpenVZ can be 
- found below:
-
- - Higher VPS density. Virtuozzo(tm) provides efficient memory 
-   and file sharing mechanisms enabling higher VPS density and 
-   better performance of VPSs.
-
- - Improved Stability, Scalability, and Performance. Virtuozzo(tm)
-   is designed to run 24×7 environments with production workloads
-   on hosts with up-to 32 CPUs.
-
-so I conclude, OpenVZ does not contain the code which
-provides all this ...
-
-> Disadvantages:
-> - one additional pointer dereference when accessing virtualized
->   resources, e.g. current->econtainer->shm_ids
-
-best,
-Herbert
-
-> Kirill
+	Arnd <><

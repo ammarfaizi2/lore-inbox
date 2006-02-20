@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932606AbWBTL1z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964847AbWBTL27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932606AbWBTL1z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 06:27:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932609AbWBTL1z
+	id S964847AbWBTL27 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 06:28:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932611AbWBTL27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 06:27:55 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:65236 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S932606AbWBTL1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 06:27:54 -0500
-Date: Mon, 20 Feb 2006 12:27:53 +0100
-From: Jan Kara <jack@suse.cz>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Small cleanup in quota.h
-Message-ID: <20060220112752.GD23302@atrey.karlin.mff.cuni.cz>
+	Mon, 20 Feb 2006 06:28:59 -0500
+Received: from [217.147.92.49] ([217.147.92.49]:42660 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S932609AbWBTL26 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 06:28:58 -0500
+Date: Mon, 20 Feb 2006 11:28:19 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Jaya Kumar <jayakumar.acpi@gmail.com>
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.15.3 1/1] ACPI: Atlas ACPI driver
+Message-ID: <20060220112819.GA4837@srcf.ucam.org>
+References: <200602200213.k1K2DrDW013988@ns1.clipsalportal.com> <20060220102639.GA4342@srcf.ucam.org> <756b48450602200249k1b79b108u42bfef68e1e9dba8@mail.gmail.com> <20060220110145.GB4489@srcf.ucam.org> <756b48450602200325v28f0300cu8b4845ab9dba9a4c@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="OwLcNYc0lM97+oe1"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <756b48450602200325v28f0300cu8b4845ab9dba9a4c@mail.gmail.com>
 User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 20, 2006 at 07:25:26PM +0800, Jaya Kumar wrote:
 
---OwLcNYc0lM97+oe1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> I have some questions then.
+> 1. Are Patrick's acpi driver model changes considered to be a more
+> final approach that standardize everyone to some sysfs based interface
+> to userspace?
 
-  Hello,
+I don't believe so. Backlight drivers will still need to register as 
+such independently. It's just somewhat orthogonal.
 
-  attached patch just removes unused quota flag (it has been
-there for quite some time - I just discovered it when I was fixing
-the problem with invalidate_dquots() :)). Patch is against
-2.6.16-rc4. Please apply.
+> Ok. I wish I'd known before. I scanned the mailing list before
+> mbarking on this to see if any issues were raised with toshiba and
+> asus driver code and didn't see anything. FWIW, my powers of mind
+> reading only work on Fridays. :-)
 
-							Honza
+I started sending patches a couple of weeks ago, but I need to tidy them 
+up to apply against latest -mm.
 
 -- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
-
---OwLcNYc0lM97+oe1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="quota-2.6.16-rc4-2-dq_flags_cleanup.diff"
-
-Remove unused quota flag.
-
-Signed-off-by: Jan Kara <jack@suse.cz>
-
-diff -rupX /home/jack/.kerndiffexclude linux-2.6.16-rc4-1-invalidate_dquots/include/linux/quota.h linux-2.6.16-rc4-2-dq_flags_cleanup/include/linux/quota.h
---- linux-2.6.16-rc4-1-invalidate_dquots/include/linux/quota.h	2006-01-28 09:00:17.000000000 +0100
-+++ linux-2.6.16-rc4-2-dq_flags_cleanup/include/linux/quota.h	2006-02-23 18:01:10.000000000 +0100
-@@ -208,7 +208,6 @@ extern struct dqstats dqstats;
- #define DQ_FAKE_B	3	/* no limits only usage */
- #define DQ_READ_B	4	/* dquot was read into memory */
- #define DQ_ACTIVE_B	5	/* dquot is active (dquot_release not called) */
--#define DQ_WAITFREE_B	6	/* dquot being waited (by invalidate_dquots) */
- 
- struct dquot {
- 	struct hlist_node dq_hash;	/* Hash list in memory */
-
---OwLcNYc0lM97+oe1--
+Matthew Garrett | mjg59@srcf.ucam.org

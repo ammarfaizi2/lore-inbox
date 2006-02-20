@@ -1,91 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161084AbWBTRzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161086AbWBTRzv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161084AbWBTRzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 12:55:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161085AbWBTRzQ
+	id S1161086AbWBTRzv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 12:55:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161088AbWBTRzv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 12:55:16 -0500
-Received: from digitalimplant.org ([64.62.235.95]:19689 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S1161084AbWBTRzP
+	Mon, 20 Feb 2006 12:55:51 -0500
+Received: from build.arklinux.osuosl.org ([140.211.166.26]:25738 "EHLO
+	mail.arklinux.org") by vger.kernel.org with ESMTP id S1161086AbWBTRzu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 12:55:15 -0500
-Date: Mon, 20 Feb 2006 09:55:00 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Pavel Machek <pavel@suse.cz>
-cc: greg@kroah.com, "" <torvalds@osdl.org>, "" <akpm@osdl.org>,
-       "" <linux-pm@osdl.org>, "" <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [PATCH 3/5] [pm] Respect the actual device power
- states in sysfs interface
-In-Reply-To: <20060220004142.GI15608@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.50.0602200938320.12708-100000@monsoon.he.net>
-References: <Pine.LNX.4.50.0602171758160.30811-100000@monsoon.he.net>
- <20060218155543.GE5658@openzaurus.ucw.cz> <Pine.LNX.4.50.0602191557520.8676-100000@monsoon.he.net>
- <20060220000907.GE15608@elf.ucw.cz> <Pine.LNX.4.50.0602191611130.8676-100000@monsoon.he.net>
- <20060220002053.GF15608@elf.ucw.cz> <Pine.LNX.4.50.0602191628270.8676-100000@monsoon.he.net>
- <20060220004142.GI15608@elf.ucw.cz>
+	Mon, 20 Feb 2006 12:55:50 -0500
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.16-rc4-mm1
+Date: Mon, 20 Feb 2006 18:54:00 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <20060220042615.5af1bddc.akpm@osdl.org>
+In-Reply-To: <20060220042615.5af1bddc.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602201854.01047.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday, 20. February 2006 13:26, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc4/2.
+>6.16-rc4-mm1/
 
-On Mon, 20 Feb 2006, Pavel Machek wrote:
+Doesn't compile on boxes without ccache -- patch below:
 
-> On Ne 19-02-06 16:36:34, Patrick Mochel wrote:
-> >
-> > On Mon, 20 Feb 2006, Pavel Machek wrote:
-> >
-> > > On Ne 19-02-06 16:17:01, Patrick Mochel wrote:
-> >
-> > > > I really fail to see what your fundamental objection is. This restores
-> > > > compatability, makes the core simpler, and adds the ability to use the
-> > > > additional states, should drivers choose to implement them; all for
-> > > > relatively little code. It seems a like a good thing to me..
-> > >
-> > > Compatibility is already restored.
-> >
-> > No, the interface is currently broken. The driver core does not
-> > dictate
->
-> There were two different interfaces, one accepted 0 and 2, everything
-> else was invalid, and second accepted 0, 1, 2, 3.
->
-> If you enter D2 on echo 2, you are breaking compatibility with 2.6.15
-> or something like that.
+Don't depend on ccache, but use it if it's there
 
-I don't see how this is true. If a process writes "2" to a PCI device's
-state file, what else are sane things to do?
+Signed-off-by: Bernhard Rosenkraenzer <bero@arklinux.org>
 
-You dropped the fundamental point, and I don't understand why you disagree
-with it - the driver core should not be dictating policy to the downstream
-drivers. It is currently doing this by filtering the power state that is
-passed in via the "state" file.
-
-> Please let this interface die and create new one. (And notice that
-> this is exactly same advice you gave me month ago).
-
-And I was sort of wrong. I think an ideal interface would allow the bus
-drivers to export the states that they support, and would allow a state
-name of any format to be written to that file.
-
-One way to do that is to have each bus driver export its equivalent of a
-"state" file for each device. But, a better solution is to leverage the
-infrastructure that is already in place and export things through the
-existing "state" file.
-
-These patches are steps along that path. They prevent the core from
-filtering the state value passed in. It's still an integer value, but it
-allows any possible state to be used.
-
-We could just as easily leave it as a string, and have the buses parse the
-value to their expectations. Eventually we might want to do something like
-that, or have them export a list of string states that they support.
-Regardless, that is all in the future, and is completely orthogonal to
-letting a device support more than just "on" or "off".
-
-Thanks,
-
-
-	Pat
-
+--- linux-2.6.15/Makefile.ark	2006-02-20 18:09:54.000000000 +0100
++++ linux-2.6.15/Makefile	2006-02-20 18:15:37.000000000 +0100
+@@ -274,7 +274,7 @@
+ 
+ AS		= $(CROSS_COMPILE)as
+ LD		= $(CROSS_COMPILE)ld
+-CC		= ccache $(CROSS_COMPILE)gcc
++CC		= $(shell ccache --version &>/dev/null && echo ccache) 
+$(CROSS_COMPILE)gcc
+ CPP		= $(CC) -E
+ AR		= $(CROSS_COMPILE)ar
+ NM		= $(CROSS_COMPILE)nm

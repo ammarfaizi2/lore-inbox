@@ -1,95 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbWBTKt4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWBTKue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964872AbWBTKt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 05:49:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWBTKt4
+	id S964874AbWBTKue (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 05:50:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964876AbWBTKud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 05:49:56 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:38258 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964873AbWBTKtz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 05:49:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lc9ocbSJqFMeM28nF7HYAg9kf3Oqve5D0Vd5tjU/KJhqOIw7lm4lpS2tM+U3LQ0Nfclqp1BJhqngtPAuy1c0d+Ub/HaQExCx+A4rPM7BqmvEi4X37G/AoP+cNtjPoiyN3t5ST4lFqUgzjgHx0PS15yOD4kkQ2AFgEeHJFdFseyg=
-Message-ID: <756b48450602200249k1b79b108u42bfef68e1e9dba8@mail.gmail.com>
-Date: Mon, 20 Feb 2006 18:49:54 +0800
-From: "Jaya Kumar" <jayakumar.acpi@gmail.com>
-To: "Matthew Garrett" <mjg59@srcf.ucam.org>
-Subject: Re: [PATCH 2.6.15.3 1/1] ACPI: Atlas ACPI driver
-Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060220102639.GA4342@srcf.ucam.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 20 Feb 2006 05:50:33 -0500
+Received: from canadatux.org ([81.169.162.242]:36765 "EHLO
+	zoidberg.canadatux.org") by vger.kernel.org with ESMTP
+	id S964874AbWBTKuc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 05:50:32 -0500
+Date: Mon, 20 Feb 2006 11:50:16 +0100
+From: Matthias Hensler <matthias@wspse.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Nigel Cunningham <nigel@suspend2.net>, Sebastian Kgler <sebas@kde.org>,
+       kernel list <linux-kernel@vger.kernel.org>, rjw@sisk.pl
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Message-ID: <20060220105016.GA22552@kobayashi-maru.wspse.de>
+Reply-To: Matthias Hensler <matthias@wspse.de>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060211104130.GA28282@kobayashi-maru.wspse.de> <20060218142610.GT3490@openzaurus.ucw.cz> <200602200709.17955.nigel@suspend2.net> <20060219212952.GI15311@elf.ucw.cz> <20060220094300.GC19293@kobayashi-maru.wspse.de> <20060220103616.GC16042@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-References: <200602200213.k1K2DrDW013988@ns1.clipsalportal.com>
-	 <20060220102639.GA4342@srcf.ucam.org>
+In-Reply-To: <20060220103616.GC16042@elf.ucw.cz>
+Organization: WSPse (http://www.wspse.de/)
+X-Gummibears: Bouncing here and there and everywhere
+X-Face: &Tv]9SsNpb/$w8\G-O%>W02aApFW^P>[x+Upv9xQB!2;iD9Y1-Lz'qlc{+lL2Y>J(u76Jk,cJ@$tP2-M%y?^'jn2J]3C'ss_~"u?kA^X&{]h?O?@*VwgSGob73I9r}&S%ktup0k2!neScg3'HO}PU#Ac>jwNL|P@f|f*sz*cP'hi)/<JQC4|Q[$D@aQ"C{$>a=6.rc-P1vXarjVXlzClmNfcSy/$4tQz
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/20/06, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
-> On Mon, Feb 20, 2006 at 10:13:53AM +0800, jayakumar.acpi@gmail.com wrote:
->
-> > +     /* setup proc entry to set and get lcd brightness */
-> > +     proc = create_proc_read_entry("lcd", S_IFREG | S_IRUGO | S_IWUSR,
-> > +                     atlas_proc_dir, atlas_read_proc_lcd, atlas_dev);
->
-> For basic sanity, could this please be a standard backlight driver
-> rather than sticking yet another backlight control under yet another
-> directory in /proc? It makes userspace much, much easier.
+Hi.
 
-I'm not sure how standard that is. For example, I looked at the asus
-and toshiba drivers. These ACPI board drivers use
-/proc/acpi/somedevice/lcd. For example,
+On Mon, Feb 20, 2006 at 11:36:16AM +0100, Pavel Machek wrote:
+> On Po 20-02-06 10:43:00, Matthias Hensler wrote:
+> > Linux has a whole crypto API in the kernel, so why is it a problem
+> > to have LZF there too?
+> 
+> Because it is not needed there?
 
-asus_acpi.c
-894                 asus_proc_add(PROC_LCD, &proc_write_lcd,
-&proc_read_lcd, mode,
-895                               device);
+Hmmm, I think it makes totally sense there. While it is useful in the
+suspend case, it would also be useful to the current implementation that
+use the crypto API. Think about creating a compressed volume with
+cryptoloop of dm-crypt.
 
-toshiba_acpi.c
-472         {"lcd", read_lcd, write_lcd},
+> > About the progress bar: this is already implemented in userspace,
+> > the kernel just forwards the progress via netlink to it. Not
+> > necessarily ugly I think.
+> 
+> Look at the code.
 
-So, that's why I chose to do the same in my implementation. I'd have
-much rather used a generic sysfs entry but that's not what any ACPI
-drivers appear to do. Further, I see that Patrick Mochel is rewriting
-the whole acpi driver model (and incorporating sysfs) anyway so I
-figured I'd go with the flow of existing drivers. Perhaps someone
-could clarify what the consensus is. I'd be happy to make any desired
-adjustments.
+OK, could you point me to the ugly thinks. I see message passing between
+the userspace application and the kernel, for which I think that netlink
+is a good choice.
 
-> drivers/video/backlight/corgi_bl.c is an example, but also see my posts
-> to acpi-devel with patches that add it to existing acpi drivers.
+What has to be done to make the code not ugly? Is there a way to fix it
+to become acceptable?
 
-I'll go take a look at that. I didn't look for an acpi driver outside
-of the drivers/acpi directory. But if that's the consensus, shouldn't
-someone also mod the toshiba and asus drivers?
-
->
-> > +             return atlas_acpi_button_add(device);
->
-> What buttons does the hardware have? Would it make more sense for it to
-
-Standard wallmount stuff. There's 8 buttons on the one I'm using for
-testing. Vol up/down. Brightness up/down. Then several buttons for
-miscellaneous usage by people who customize the chassis. Most apps for
-this type of board are custom written and tend to just select on
-/proc/acpi/event.
-
-> be an input driver rather than (or as well as) just dropping stuff in
-> acpi/events?
-
-I would have loved to make it an input driver. But looking at the
-mailing list archives, that seems to be a bone of contention and hence
-I chose to go with the flow. I'll be happy to switch it over to an
-input driver if there is consensus around that. Please do let me know.
-
-Thanks,
-jayakumar
-
->
-> --
-> Matthew Garrett | mjg59@srcf.ucam.org
->
+Regards,
+Matthias

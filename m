@@ -1,114 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932688AbWBTWjL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932684AbWBTWlz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932688AbWBTWjL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 17:39:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161182AbWBTWhL
+	id S932684AbWBTWlz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 17:41:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932687AbWBTWly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 17:37:11 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:1037 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161060AbWBTWgz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 17:36:55 -0500
-Date: Mon, 20 Feb 2006 23:36:54 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove the CONFIG_CC_ALIGN_* options
-Message-ID: <20060220223654.GR4661@stusta.de>
+	Mon, 20 Feb 2006 17:41:54 -0500
+Received: from mail12.syd.optusnet.com.au ([211.29.132.193]:45221 "EHLO
+	mail12.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932684AbWBTWlx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 17:41:53 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [PATCH] sched: Consolidated and improved smpnice patch
+Date: Tue, 21 Feb 2006 09:41:22 +1100
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, npiggin@suse.de,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <43F94D71.1040109@bigpond.net.au> <200602202102.14003.kernel@kolivas.org> <43FA444B.20903@bigpond.net.au>
+In-Reply-To: <43FA444B.20903@bigpond.net.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200602210941.23352.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't see any use case for the CONFIG_CC_ALIGN_* options:
-- they are only available if EMBEDDED
-- people using EMBEDDED will most likely also enable 
-  CC_OPTIMIZE_FOR_SIZE
-- the default for -Os is to disable alignment
+On Tuesday 21 February 2006 09:35, Peter Williams wrote:
+> Con Kolivas wrote:
+> > On Monday 20 February 2006 16:02, Peter Williams wrote:
+> > [snip description]
+> >
+> > Hi peter, I've had a good look and have just a couple of comments:
+> >
+> > ---
+> >  #endif
+> >         int prio, static_prio;
+> > +#ifdef CONFIG_SMP
+> > +       int load_weight;        /* for load balancing purposes */
+> > +#endif
+> > ---
+> >
+> > Can this be moved up to be part of the other ifdef CONFIG_SMP? Not highly
+> > significant since it's in a .h file but looks a tiny bit nicer.
+>
+> I originally put it where it is to be near prio and static_prio which
+> are referenced at the same time as it BUT that doesn't happen often
+> enough to justify it anymore so I guess it can be moved.
 
-In case someone is doing performance comparisons and discovers that the
-default settings gcc chooses aren't good, the only sane thing is to
-discuss whether it makes sense to change this, not through offering 
-options to change this locally.
+Well it is just before prio instead of just after it now and I understand the 
+legacy of the position.
 
+> > ---
+> > +/*
+> > + * Priority weight for load balancing ranges from 1/20 (nice==19) to
+> > 459/20 (RT
+> > + * priority of 100).
+> > + */
+> > +#define NICE_TO_LOAD_PRIO(nice) \
+> > +       ((nice >= 0) ? (20 - (nice)) : (20 + (nice) * (nice)))
+> > +#define LOAD_WEIGHT(lp) \
+> > +       (((lp) * SCHED_LOAD_SCALE) / NICE_TO_LOAD_PRIO(0))
+> > +#define NICE_TO_LOAD_WEIGHT(nice)     
+> > LOAD_WEIGHT(NICE_TO_LOAD_PRIO(nice)) +#define PRIO_TO_LOAD_WEIGHT(prio)
+> > NICE_TO_LOAD_WEIGHT(PRIO_TO_NICE(prio))
+> > +#define RTPRIO_TO_LOAD_WEIGHT(rp) \
+> > +       LOAD_WEIGHT(NICE_TO_LOAD_PRIO(-20) + (rp))
+> > ---
+> >
+> > The weighting seems not related to anything in particular apart from
+> > saying that -nice values are more heavily weighted.
+>
+> The idea (for the change from the earlier model) was to actually give
+> equal weight to negative and positive nices.  Under the old (purely
+> linear) model a nice=19 task has 1/20th the weight of a nice==0 task but
+> a nice==-20 task only has twice the weight of a nice==0 so that system
+> is heavily weighted against negative nices.  With this new mapping a
+> nice=19 has 1/20th and a nice==-19 has 20 times the weight of a nice==0
+> task and to me that is symmetric.  Does that make sense to you?
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Yes but what I meant is it's still an arbitrary algorithm which is why I 
+suggested proportional to tasks' timeslice because then it should scale with 
+the theoretically allocated cpu resource.
 
----
+> Should I add a comment to explain the mapping?
+>
+> > Since you only do this when
+> > setting the priority of tasks can you link it to the scale of
+> > (SCHED_NORMAL) tasks' timeslice instead even though that will take a
+> > fraction more calculation? RTPRIO_TO_LOAD_WEIGHT is fine since there
+> > isn't any obvious cpu proportion relationship to rt_prio level.
+>
+> Interesting idea.  I'll look at this more closely.
 
-This patch was already sent on:
-- 12 Feb 2006
+Would be just a matter of using task_timeslice(p) and making it proportional 
+to some baseline ensuring the baseline works at any HZ.
 
- Makefile     |    7 -------
- init/Kconfig |   37 -------------------------------------
- 2 files changed, 44 deletions(-)
-
---- linux-2.6.16-rc2-mm1-full/init/Kconfig.old	2006-02-12 15:30:08.000000000 +0100
-+++ linux-2.6.16-rc2-mm1-full/init/Kconfig	2006-02-12 15:30:53.000000000 +0100
-@@ -353,45 +353,8 @@
- 	  to userspace as tmpfs if TMPFS is enabled. Disabling this
- 	  option replaces shmem and tmpfs with the much simpler ramfs code,
- 	  which may be appropriate on small systems without swap.
- 
--config CC_ALIGN_FUNCTIONS
--	int "Function alignment" if EMBEDDED
--	default 0
--	help
--	  Align the start of functions to the next power-of-two greater than n,
--	  skipping up to n bytes.  For instance, 32 aligns functions
--	  to the next 32-byte boundary, but 24 would align to the next
--	  32-byte boundary only if this can be done by skipping 23 bytes or less.
--	  Zero means use compiler's default.
--
--config CC_ALIGN_LABELS
--	int "Label alignment" if EMBEDDED
--	default 0
--	help
--	  Align all branch targets to a power-of-two boundary, skipping
--	  up to n bytes like ALIGN_FUNCTIONS.  This option can easily
--	  make code slower, because it must insert dummy operations for
--	  when the branch target is reached in the usual flow of the code.
--	  Zero means use compiler's default.
--
--config CC_ALIGN_LOOPS
--	int "Loop alignment" if EMBEDDED
--	default 0
--	help
--	  Align loops to a power-of-two boundary, skipping up to n bytes.
--	  Zero means use compiler's default.
--
--config CC_ALIGN_JUMPS
--	int "Jump alignment" if EMBEDDED
--	default 0
--	help
--	  Align branch targets to a power-of-two boundary, for branch
--	  targets where the targets can only be reached by jumping,
--	  skipping up to n bytes like ALIGN_FUNCTIONS.  In this case,
--	  no dummy operations need be executed.
--	  Zero means use compiler's default.
--
- config SLAB
- 	default y
- 	bool "Use full SLAB allocator" if EMBEDDED
- 	help
---- linux-2.6.16-rc2-mm1-full/Makefile.old	2006-02-12 15:30:59.000000000 +0100
-+++ linux-2.6.16-rc2-mm1-full/Makefile	2006-02-12 15:31:24.000000000 +0100
-@@ -473,15 +473,8 @@
- else
- CFLAGS		+= -O2
- endif
- 
--#Add align options if CONFIG_CC_* is not equal to 0
--add-align = $(if $(filter-out 0,$($(1))),$(cc-option-align)$(2)=$($(1)))
--CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_FUNCTIONS,-functions)
--CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_LABELS,-labels)
--CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_LOOPS,-loops)
--CFLAGS		+= $(call add-align,CONFIG_CC_ALIGN_JUMPS,-jumps)
--
- ifdef CONFIG_FRAME_POINTER
- CFLAGS		+= -fno-omit-frame-pointer $(call cc-option,-fno-optimize-sibling-calls,)
- else
- CFLAGS		+= -fomit-frame-pointer
-
+Cheers,
+Con

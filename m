@@ -1,51 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWBTKgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbWBTKic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbWBTKgc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 05:36:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWBTKgc
+	id S964859AbWBTKic (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 05:38:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWBTKic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 05:36:32 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51861 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964857AbWBTKgb (ORCPT
+	Mon, 20 Feb 2006 05:38:32 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:23447 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964859AbWBTKib (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 05:36:31 -0500
-Date: Mon, 20 Feb 2006 11:36:16 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Matthias Hensler <matthias@wspse.de>
-Cc: Nigel Cunningham <nigel@suspend2.net>, Sebastian Kgler <sebas@kde.org>,
-       kernel list <linux-kernel@vger.kernel.org>, rjw@sisk.pl
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060220103616.GC16042@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060211104130.GA28282@kobayashi-maru.wspse.de> <20060218142610.GT3490@openzaurus.ucw.cz> <200602200709.17955.nigel@suspend2.net> <20060219212952.GI15311@elf.ucw.cz> <20060220094300.GC19293@kobayashi-maru.wspse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060220094300.GC19293@kobayashi-maru.wspse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 20 Feb 2006 05:38:31 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <4993.1140431092@warthog.cambridge.redhat.com> 
+References: <4993.1140431092@warthog.cambridge.redhat.com>  <20060218161122.f9d588fb.davi.arnaut@gmail.com> <20060218113602.edc06ce5.davi.arnaut@gmail.com> <3487.1140281089@warthog.cambridge.redhat.com> 
+To: David Howells <dhowells@redhat.com>
+Cc: Davi Arnaut <davi.arnaut@gmail.com>, akpm@osdl.org, vsu@altlinux.ru,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] strndup_user (v3), convert (keyctl) 
+X-Mailer: MH-E 7.91+cvs; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Mon, 20 Feb 2006 10:38:16 +0000
+Message-ID: <5378.1140431896@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 20-02-06 10:43:00, Matthias Hensler wrote:
-> Hi.
+David Howells <dhowells@redhat.com> wrote:
+
+> > I think you should just tell Andrew to drop
+> > keys-deal-properly-with-strnlen_user.patch
+> > in favor of mine... :-)
 > 
-> On Sun, Feb 19, 2006 at 10:29:52PM +0100, Pavel Machek wrote:
-> > Maybe very little of substance is being done in userspace, but all the
-> > uglyness can stay there. I no longer need LZF in kernel, special
-> > netlink API for progress bar (progress bar naturally lives in
-> > userland), no plugin infrastructure needed, etc.
-> 
-> Linux has a whole crypto API in the kernel, so why is it a problem to
-> have LZF there too?
+> No... you've taken out all the checks on lengths on NUL-terminated strings.
 
-Because it is not needed there?
+I take that back... strndup not strdup.
 
-> About the progress bar: this is already implemented in userspace, the
-> kernel just forwards the progress via netlink to it. Not necessarily
-> ugly I think.
+However, the check on the length of the type is wrong with your patch (and in
+the unpatched kernel). Can you pull in that bit from my patch?
 
-Look at the code.
-							Pavel
-
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+David

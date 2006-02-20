@@ -1,69 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWBTJZs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbWBTJgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964809AbWBTJZs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 04:25:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964807AbWBTJZs
+	id S964812AbWBTJgX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 04:36:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964814AbWBTJgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 04:25:48 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:43720 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S964808AbWBTJZr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 04:25:47 -0500
-Date: Mon, 20 Feb 2006 10:25:46 +0100
-From: Jan Kara <jack@suse.cz>
-To: Maurice Volaski <mvolaski@aecom.yu.edu>
-Cc: ext3-users@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: ext3 involved in kernel panic in 2.6.13?
-Message-ID: <20060220092546.GA12208@atrey.karlin.mff.cuni.cz>
-References: <a06230908c01e6d2b77b3@[129.98.90.227]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a06230908c01e6d2b77b3@[129.98.90.227]>
-User-Agent: Mutt/1.5.9i
+	Mon, 20 Feb 2006 04:36:23 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:17033 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S964812AbWBTJgX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 04:36:23 -0500
+Message-ID: <43F98DD5.40107@sw.ru>
+Date: Mon, 20 Feb 2006 12:37:25 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+CC: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
+       vserver@list.linux-vserver.org, Herbert Poetzl <herbert@13thfloor.at>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: (pspace,pid) vs true pid virtualization
+References: <20060215145942.GA9274@sergelap.austin.ibm.com> <m11wy4s24i.fsf@ebiederm.dsl.xmission.com> <20060216142928.GA22358@sergelap.austin.ibm.com>
+In-Reply-To: <20060216142928.GA22358@sergelap.austin.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Dual Opteron system running ext3 atop drbd (network RAID) devices, 
-> which, in turn, are atop LVM logical volumes. The underlying device 
-> is hardware SCSI RAID via a LSILogic HBA. The kernel is vanilla 
-> 2.6.13 on a Gentoo-based system.
+>>- Should the pids in a pid space be visible from the outside?
 > 
-> A panic occurred, which contains references to ext3 code.
+> Again, the openvz guys say yes.
 > 
-> I'm not sure how others manage to get these typed out, but I'm 
-> manually typing it from what's on the monitor:
-
-  There should be more in the logs (just before the Call Trace:). Didn't
-you capture also that information? Without it it is rather hard to find
-out what was happening.
-
-> Call Trace: <IRQ> <ffffffff802820df>{i8042_interrupt+111} 
-> <ffffffff80200080>{commit_timeout+0}
-> <ffffffff8013f143>{run_timer_softirq+387} 
-> <ffffffff8013b111>{__do_softirq+113}
-> <ffffffff8010ee63>{call_softirq+31} <ffffffff80110a55>{do_softirq+53}
-> <ffffffff8010e5c8>{apic_timer_interrupt+132} <EOI> 
-> <ffffffff801fb8a6>{do_get_write_access+118}
-> <ffffffff801fb88e>{do_get_write_access+94} <ffffffff80185d1f>{__getblk+47}
-> <ffffffff80195170>{filldir+0} 
-> <ffffffff801fbf69>{journal_get_write_access+41}
-> <ffffffff801ec41c>{ext3_reserve_inode+write+76} 
-> <ffffffff80195170>{filldir+0}
-> <ffffffff801ec4d8>{ext3_mark_inode_dirty+56} 
-> <ffffffff801fa9e5>{journal_start_229}
-> <ffffffff801ee571>{ext3_dirty_inode+113} 
-> <ffffffff801a5604>{__mark_inode_dirty+52}
-> <ffffffff8019bd2b>{update_atime+123} <ffffffff80195016>{vfs_readdir+166}
-> <ffffffff801952e2>{syst_getdents+130} <ffffffff8019465e>{sys_fcntl+830}
-> <ffffffff8010dc46>{system_call+126}
+> I think it should be acceptable if a pidspace is visible in all it's
+> ancestor pidspaces.  I.e. if I create pspace2 and pspace3 from pid 234
+> in pspace1, then pspace2 doesn't need to be able to address pspace3
+> and vice versa.
 > 
-> Code: 8b 40 18 48 c1 e0 07 48 8b 98 08 58 5b 80 4c 01 e3 48 89 df
-> RIP <ffffffff8012f369>{try_to_wake_up+57} RSP <ffff810004827e88>
-> <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
+> Kirill, is that acceptable?
+yes, acceptable.
+once, again, believe me, this is very required feature for 
+troubleshouting and management (as Eric likes to take about maintanance :) )
 
-								Bye
-									Honza
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+>>- Should the parent of pid 1 be able to wait for it for it's 
+>>  children?
+> Yes.
+why? any reason?
+
+>>- Should a process not in the default pid space be able to create 
+>>  another pid space?
+> 
+> 
+> Yes.
+> 
+> This is to support using pidspaces for vservers, and creating
+> migrateable sub-pidspaces in each vserver.
+this doesn't help to create migratable sub-pidspaces.
+for example, will you share IPCs in your pid parent and child pspaces?
+if yes, then it won't be migratable;
+if no, then you need to create fully isolated spaces to the end and 
+again you end up with a question, why nested pspaces are required at all?
+
+>>- Should we be able to monitor a pid space from the outside?
+> To some extent, yes.
+SURE! :)
+
+>>- Should we be able to have processes enter a pid space?
+> IMO that is crucial.
+required.
+
+>>- Do we need to be able to be able to ptrace/kill individual processes
+>>  in a pid space, from the outside, and why?
+> I think this is completely unnecessary so long as a process can enter a
+> pidspace.
+No. This is required.
+Because, container can be limited with some resource limitations. You 
+may be unable to enter inside. For example, if container forked() many 
+threads up to its limit, you won't be able to enter it.
+
+>>- After migration what identifiers should the tasks have?
+> So this is irrelevant, as the openvz approach can just virtualize the
+> old pid, while (pspace, pid) will be able to create a new container and
+> use the old pid values, which are then guaranteed to not be in use.
+agreed. irrelevant.
+
+>>If we can answer these kinds of questions we can likely focus in
+>>on what the implementation should look like.  So far I have not
+>>seen a question that could not be implemented with a (pspace, pid)/pid
+>>or a vpid/pid implementation.
+> But you have, haven't you?  Namely, how can openvz provide it's
+> customers with a global view of all processes without putting 5 years of
+> work into a new sysadmin interface?
+it is not only about OpenVz. This is about manageability.
+This is the feature our users like _very_ much, when administrator can 
+fix the problems. Have you ever tried to fix broken VM in VMWare/Xen?
+On the other hand, VPID approach can fully isolate containers if needed 
+for security reasons.
+
+Kirill
+

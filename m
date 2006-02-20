@@ -1,178 +1,435 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750900AbWBTIP6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWBTI0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750900AbWBTIP6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 03:15:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbWBTIP6
+	id S932293AbWBTI0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 03:26:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWBTI0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 03:15:58 -0500
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:11775 "EHLO
-	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP id S1750837AbWBTIP5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 03:15:57 -0500
-Date: Mon, 20 Feb 2006 09:14:38 +0100
-From: Adam Tla/lka <atlka@pg.gda.pl>
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Cc: torvalds@osdl.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]console:UTF-8 mode compatibility fixes - new version #1
-Message-ID: <20060220081438.GA24824@sunrise.pg.gda.pl>
-References: <20060217233333.GA5208@sunrise.pg.gda.pl> <43F72C7A.8010709@ums.usu.ru> <43F8054E.1000805@ums.usu.ru> <20060219101512.GB862@sunrise.pg.gda.pl> <20060219231934.GB15459@sunrise.pg.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060219231934.GB15459@sunrise.pg.gda.pl>
-User-Agent: Mutt/1.4.1i
+	Mon, 20 Feb 2006 03:26:25 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:20913 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932253AbWBTI0Y convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 03:26:24 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 2.6.15.3 1/1] ACPI: Atlas ACPI driver
+Date: Mon, 20 Feb 2006 16:26:12 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F840AFD43B9@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.6.15.3 1/1] ACPI: Atlas ACPI driver
+thread-index: AcY1xIBa4ZOHMoeqQ62VHMY/JxOjdQAMidhA
+From: "Yu, Luming" <luming.yu@intel.com>
+To: <jayakumar.acpi@gmail.com>, <linux-acpi@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 20 Feb 2006 08:26:13.0968 (UTC) FILETIME=[4FDC7500:01C635F7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hope the last version applaying to current console design. 
-What do you think?
+I found _BCM, _BCL ... which are reserved methods for
+ACPI video extension device. If the vendor follows
+ACPI video extension spec, this proposed driver is
+NOT needed. Because, we do have acpi video driver
+in kernel today.  Could you please show me acpidump 
+output?
 
-Description:
+Thanks,
+Luming
 
-Fixed UTF-8 mode so alternate charset modes always work according
-to control sequences interpreted in do_con_trol function:
-smacs = '\x0e', rmacs = '\x0f' if vt100 translation map for alternate
-charset is active which means enacs = '\e)0'
-preserving backward US-ASCII and VT100 semigraphics compatibility.
-
-Malformed UTF sequences are represented as sequences of replacement glyphs,
-original codes or '?' as a last resort if replacement glyph is undefined
-and  UCS-2 code does not fit in 0-127 code range.
-
-Signed-off-by: Adam Tla/lka <atlka@pg.gda.pl>
-
---- drivers/char/vt_orig.c	2006-02-13 11:33:54.000000000 +0100
-+++ drivers/char/vt.c	2006-02-20 08:53:59.000000000 +0100
-@@ -63,6 +63,16 @@
-  *
-  * Removed console_lock, enabled interrupts across all console operations
-  * 13 March 2001, Andrew Morton
-+ *
-+ * Fixed UTF-8 mode so alternate charset modes always work according
-+ * to control sequences interpreted in do_con_trol function:
-+ * smacs = '\x0e', rmacs = '\x0f' if vt100 translation map for alternate
-+ * charset is active which means enacs = '\e)0'
-+ * preserving backward US-ASCII and VT100 semigraphics compatibility,
-+ * malformed UTF sequences represented as sequences of replacement glyphs,
-+ * original codes or '?' as a last resort if replacement glyph is undefined
-+ * and  UCS-2 code does not fit in 0-127 code range
-+ * by Adam Tla/lka <atlka@pg.gda.pl>, Feb 2006
-  */
- 
- #include <linux/module.h>
-@@ -1991,17 +2001,23 @@ static int do_con_write(struct tty_struc
- 		/* Do no translation at all in control states */
- 		if (vc->vc_state != ESnormal) {
- 			tc = c;
--		} else if (vc->vc_utf) {
-+		} else if (vc->vc_utf && !vc->vc_disp_ctrl) {
- 		    /* Combine UTF-8 into Unicode */
--		    /* Incomplete characters silently ignored */
-+		    /* Malformed sequence represented as replacement glyphs */
-+rescan_last_byte:
- 		    if(c > 0x7f) {
--			if (vc->vc_utf_count > 0 && (c & 0xc0) == 0x80) {
--				vc->vc_utf_char = (vc->vc_utf_char << 6) | (c & 0x3f);
--				vc->vc_utf_count--;
--				if (vc->vc_utf_count == 0)
--				    tc = c = vc->vc_utf_char;
--				else continue;
-+			if (vc->vc_utf_count) {
-+			       if ((c & 0xc0) == 0x80) {
-+				       vc->vc_utf_char = (vc->vc_utf_char << 6) | (c & 0x3f);
-+       				       if (--vc->vc_utf_count) {
-+					       vc->vc_npar++;
-+				   	       continue;
-+       				       }
-+				       tc = c = vc->vc_utf_char;
-+			       } else
-+				       goto insert_replacement_glyph;
- 			} else {
-+				vc->vc_npar = 0;
- 				if ((c & 0xe0) == 0xc0) {
- 				    vc->vc_utf_count = 1;
- 				    vc->vc_utf_char = (c & 0x1f);
-@@ -2018,12 +2034,13 @@ static int do_con_write(struct tty_struc
- 				    vc->vc_utf_count = 5;
- 				    vc->vc_utf_char = (c & 0x01);
- 				} else
--				    vc->vc_utf_count = 0;
-+	    			    goto insert_replacement_glyph;
- 				continue;
- 			      }
- 		    } else {
-+		      if (vc->vc_utf_count)
-+	  		      goto insert_replacement_glyph;
- 		      tc = c;
--		      vc->vc_utf_count = 0;
- 		    }
- 		} else {	/* no utf */
- 		  tc = vc->vc_translate[vc->vc_toggle_meta ? (c | 0x80) : c];
-@@ -2040,31 +2057,41 @@ static int do_con_write(struct tty_struc
-                  * direct-to-font zone in UTF-8 mode.
-                  */
-                 ok = tc && (c >= 32 ||
--			    (!vc->vc_utf && !(((vc->vc_disp_ctrl ? CTRL_ALWAYS
--						: CTRL_ACTION) >> c) & 1)))
-+			    !(vc->vc_disp_ctrl ? (CTRL_ALWAYS >> c) & 1 :
-+				  vc->vc_utf || ((CTRL_ACTION >> c) & 1)))
- 			&& (c != 127 || vc->vc_disp_ctrl)
- 			&& (c != 128+27);
- 
- 		if (vc->vc_state == ESnormal && ok) {
- 			/* Now try to find out how to display it */
- 			tc = conv_uni_to_pc(vc, tc);
--			if ( tc == -4 ) {
-+			if ( tc & ~charmask ) {
-+				if ( tc == -4 ) {
-                                 /* If we got -4 (not found) then see if we have
-                                    defined a replacement character (U+FFFD) */
--                                tc = conv_uni_to_pc(vc, 0xfffd);
-+insert_replacement_glyph:
-+					tc = conv_uni_to_pc(vc, 0xfffd);
- 
- 				/* One reason for the -4 can be that we just
- 				   did a clear_unimap();
- 				   try at least to show something. */
--				if (tc == -4)
--				     tc = c;
--                        } else if ( tc == -3 ) {
-+					if (tc & ~charmask) {
-+						if ( c & ~0x7f )
-+							tc = '?';
-+						else
-+							tc = c;
-+					}
-+                     	  	 } else if ( tc == -3 ) {
-                                 /* Bad hash table -- hope for the best */
--                                tc = c;
-+					if ( c & ~0x7f )
-+						tc = '?';
-+					else
-+						tc = c;
-+				 } else
-+                                	continue; /* Conversion failed */
-                         }
--			if (tc & ~charmask)
--                                continue; /* Conversion failed */
- 
-+repeat_replacement_glyph:	
- 			if (vc->vc_need_wrap || vc->vc_decim)
- 				FLUSH
- 			if (vc->vc_need_wrap) {
-@@ -2088,6 +2115,15 @@ static int do_con_write(struct tty_struc
- 				vc->vc_x++;
- 				draw_to = (vc->vc_pos += 2);
- 			}
-+			if (vc->vc_utf_count) {
-+				if (vc->vc_npar) {
-+					vc->vc_npar--;
-+					goto repeat_replacement_glyph;
-+				}
-+				vc->vc_utf_count = 0;
-+				c = orig;
-+				goto rescan_last_byte;
-+			}
- 			continue;
- 		}
- 		FLUSH
+>Hi Len, ACPI, and kernel folk,
+>
+>Appended is my patch adding an ACPI driver for Atlas boards. I've
+>done this patch against 2.6.15.3. 
+>
+>Please let me know if it looks okay so far and if you have any 
+>feedback 
+>or suggestions.
+>
+>Thanks,
+>Jaya Kumar
+>
+>Signed-off-by: Jaya Kumar <jayakumar.acpi@gmail.com>
+>
+>---
+>
+> MAINTAINERS               |    5 
+> drivers/acpi/Kconfig      |   11 +
+> drivers/acpi/Makefile     |    1 
+> drivers/acpi/atlas_acpi.c |  279 
+>++++++++++++++++++++++++++++++++++++++++++++++
+> 4 files changed, 296 insertions(+)
+>
+>---
+>
+>diff -X linux-2.6.15.3/Documentation/dontdiff -uprN 
+>linux-2.6.15.3-vanilla/drivers/acpi/atlas_acpi.c 
+>linux-2.6.15.3/drivers/acpi/atlas_acpi.c
+>--- linux-2.6.15.3-vanilla/drivers/acpi/atlas_acpi.c	
+>1970-01-01 07:30:00.000000000 +0730
+>+++ linux-2.6.15.3/drivers/acpi/atlas_acpi.c	2006-02-20 
+>10:00:19.000000000 +0800
+>@@ -0,0 +1,279 @@
+>+/*
+>+ *  atlas_acpi.c - Atlas Wallmount Touchscreen ACPI Extras
+>+ *
+>+ *  Copyright (C) 2006 Jaya Kumar
+>+ *  Based on Toshiba ACPI by John Belmonte and ASUS ACPI
+>+ *  This work was sponsored by CIS(M) Sdn Bhd.
+>+ *
+>+ *  This program is free software; you can redistribute it 
+>and/or modify
+>+ *  it under the terms of the GNU General Public License as 
+>published by
+>+ *  the Free Software Foundation; either version 2 of the License, or
+>+ *  (at your option) any later version.
+>+ *
+>+ *  This program is distributed in the hope that it will be useful,
+>+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+>+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+>+ *  GNU General Public License for more details.
+>+ *
+>+ *  You should have received a copy of the GNU General Public License
+>+ *  along with this program; if not, write to the Free Software
+>+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  
+>02111-1307  USA
+>+ *
+>+ */
+>+
+>+#include <linux/kernel.h>
+>+#include <linux/module.h>
+>+#include <linux/init.h>
+>+#include <linux/types.h>
+>+#include <linux/proc_fs.h>
+>+#include <asm/uaccess.h>
+>+#include <acpi/acpi_drivers.h>
+>+
+>+#define PROC_ATLAS				"atlas"
+>+#define ACPI_ATLAS_NAME 			"Atlas ACPI"
+>+#define ACPI_ATLAS_CLASS			"Atlas"
+>+#define ACPI_ATLAS_BUTTON_HID			"ASIM0000"
+>+#define ACPI_ATLAS_BRIGHTNESS_HID		"ACPILCD00"
+>+
+>+struct atlas_device {
+>+	struct acpi_device *dev;
+>+	u8 brightness;
+>+	u8 max_brightness;
+>+};
+>+
+>+static struct proc_dir_entry *atlas_proc_dir;
+>+static struct atlas_device *atlas_dev;
+>+
+>+/* based on acpi_memory_powerdown_device */
+>+static int atlas_set_brightness(struct acpi_device *device, u16 value)
+>+{
+>+	acpi_status status;
+>+	struct acpi_object_list arg_list; 
+>+	union acpi_object arg;
+>+
+>+	arg_list.count = 1;
+>+	arg_list.pointer = &arg;
+>+	arg.type = ACPI_TYPE_INTEGER;
+>+	arg.integer.value = value;
+>+	status = acpi_evaluate_object(device->handle, "_BCM", 
+>&arg_list, NULL);
+>+	if (ACPI_FAILURE(status)) {
+>+		printk(KERN_ERR "%s:  ACPI set failed\n", __FUNCTION__);
+>+		return -ENODEV;
+>+	} 
+>+
+>+	return status ;
+>+}
+>+	
+>+/* based on ibm_get_table_from_acpi */
+>+static int acpi_read_max_brightness(struct acpi_device *device)
+>+{
+>+	union acpi_object *package;
+>+	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
+>+	acpi_status status;
+>+	union acpi_object *obj = NULL;
+>+ 
+>+	status = acpi_evaluate_object(device->handle, "_BCL", 
+>NULL, &buffer);
+>+	if (ACPI_FAILURE(status)) {
+>+		printk(KERN_ERR "%s:  ACPI evaluation 
+>failed\n", __FUNCTION__);
+>+		return -ENODEV;
+>+	} 
+>+
+>+	package = (union acpi_object *) buffer.pointer;
+>+	obj = &(package->package.elements[0]);
+>+	return obj->integer.value;
+>+}
+>+	
+>+/* based on drivers/usb/media/vicam.c:vicam_write_proc_gain */
+>+static int atlas_write_proc_lcd(struct file *file, const char *buffer,
+>+				unsigned long count, void *data)
+>+{
+>+	u16 gtmp;
+>+	char kbuf[8];
+>+	struct atlas_device *dev = (struct atlas_device *) data;
+>+
+>+	if (count > 4)
+>+		return -EINVAL;
+>+
+>+	if (copy_from_user(kbuf, buffer, count))
+>+		return -EFAULT;
+>+
+>+	gtmp = (u16) simple_strtoul(kbuf, NULL, 10);
+>+	if (gtmp > dev->max_brightness)
+>+		return -EINVAL;
+>+
+>+	atlas_set_brightness(dev->dev, gtmp);
+>+	dev->brightness = gtmp;
+>+
+>+	return count;
+>+}
+>+
+>+/* based on drivers/mca/mca-proc.c:get_mca_machine_info */
+>+static int atlas_read_proc_lcd(char* page, char **start, off_t off,
+>+					int count, int *eof, void *data)
+>+{
+>+	struct atlas_device *dev = (struct atlas_device *) data;
+>+	int len;
+>+	
+>+	len = sprintf(page,	"brightness:              %d\n"
+>+				"brightness_levels:     0,%d\n",
+>+				dev->brightness,dev->max_brightness);
+>+
+>+	if (len <= off + count) 
+>+		*eof = 1;
+>+	*start = page + off;
+>+	len -= off;
+>+	if (len > count) 
+>+		len = count;
+>+	if (len < 0) 
+>+		len = 0;
+>+	return len;
+>+}
+>+
+>+/* button handling code */
+>+static acpi_status acpi_atlas_button_setup(acpi_handle region_handle,
+>+		    u32 function, void *handler_context, void 
+>**return_context)
+>+{
+>+	*return_context = 
+>+		(function != ACPI_REGION_DEACTIVATE) ?  
+>handler_context : NULL;
+>+
+>+	return AE_OK;
+>+}
+>+
+>+static acpi_status acpi_atlas_button_handler(u32 function,
+>+		      acpi_physical_address address,
+>+		      u32 bit_width, acpi_integer * value,
+>+		      void *handler_context, void *region_context)
+>+{
+>+	acpi_status status;
+>+	struct acpi_device *dev;
+>+
+>+	dev = (struct acpi_device *) handler_context;
+>+	if (function == ACPI_WRITE)
+>+		status = acpi_bus_generate_event(dev, 0x80, address);
+>+	else {
+>+		printk(KERN_WARNING "atlas: shrugged on 
+>unexpected function"
+>+			":function=%x,address=%x,value=%x\n",
+>+			function, (u32)address, (u32)*value);
+>+		status = -EINVAL;
+>+	}
+>+
+>+	return status ;
+>+}
+>+
+>+static int atlas_acpi_button_add(struct acpi_device *device)
+>+{
+>+
+>+	/* hookup button handler */
+>+	return acpi_install_address_space_handler(device->handle,
+>+				0x81, &acpi_atlas_button_handler,
+>+				&acpi_atlas_button_setup, device);
+>+}
+>+
+>+static int atlas_acpi_lcd_add(struct acpi_device *device)
+>+{
+>+	acpi_status status;
+>+	struct proc_dir_entry *proc;
+>+
+>+	atlas_dev = (struct atlas_device *) 
+>+			kmalloc(sizeof(struct atlas_device), 
+>GFP_KERNEL);
+>+	if (!atlas_dev)
+>+		return -ENOMEM;
+>+
+>+	/* get max brightness for /proc read use */
+>+	atlas_dev->max_brightness = acpi_read_max_brightness(device);
+>+	atlas_dev->dev = device;
+>+	acpi_driver_data(device) = atlas_dev;
+>+
+>+	/* setup proc entry to set and get lcd brightness */
+>+	proc = create_proc_read_entry("lcd", S_IFREG | S_IRUGO 
+>| S_IWUSR,
+>+			atlas_proc_dir, atlas_read_proc_lcd, atlas_dev);
+>+	if (!proc) {
+>+		printk(KERN_ERR "atlas: couldn't alloc proc entry\n");
+>+		kfree(atlas_dev);
+>+		status = -ENOMEM;
+>+	} else {
+>+		proc->owner = THIS_MODULE;
+>+		proc->write_proc = atlas_write_proc_lcd;
+>+		status = AE_OK;
+>+	}
+>+	return status ;
+>+}
+>+
+>+static int atlas_acpi_add(struct acpi_device *device)
+>+{
+>+
+>+	if (!strcmp(acpi_device_hid(device), ACPI_ATLAS_BUTTON_HID))
+>+		return atlas_acpi_button_add(device);
+>+	else 
+>+		return atlas_acpi_lcd_add(device);
+>+}
+>+
+>+static int atlas_acpi_remove(struct acpi_device *device, int type)
+>+{
+>+	acpi_status status;
+>+	
+>+	if (!device || !acpi_driver_data(device))
+>+		return -EINVAL;
+>+
+>+	if (!strcmp(acpi_device_hid(device), ACPI_ATLAS_BUTTON_HID)) {
+>+		status = 
+>acpi_remove_address_space_handler(device->handle,
+>+				0x81, &acpi_atlas_button_handler);
+>+		if (ACPI_FAILURE(status))
+>+			printk(KERN_ERR 
+>+				"Atlas: Error removing addr spc 
+>handler\n");
+>+	} else {
+>+		if (atlas_proc_dir)
+>+			remove_proc_entry("lcd", atlas_proc_dir);
+>+
+>+		kfree(atlas_dev);
+>+		status = AE_OK;
+>+	}
+>+
+>+	return status;
+>+}
+>+
+>+static struct acpi_driver atlas_acpi_driver = {
+>+	.name 	= ACPI_ATLAS_NAME,
+>+	.class 	= ACPI_ATLAS_CLASS,
+>+	.ids 	= ACPI_ATLAS_BUTTON_HID "," ACPI_ATLAS_BRIGHTNESS_HID,
+>+	.ops = {
+>+		.add = atlas_acpi_add,
+>+		.remove = atlas_acpi_remove,
+>+		},
+>+};
+>+
+>+static int __init atlas_acpi_init(void)
+>+{
+>+	int result;
+>+
+>+	atlas_proc_dir = proc_mkdir(PROC_ATLAS, acpi_root_dir);
+>+	if (!atlas_proc_dir) {
+>+		printk(KERN_ERR "Atlas ACPI: Unable to create 
+>/proc dir\n");
+>+		return -ENODEV;
+>+	}
+>+	atlas_proc_dir->owner = THIS_MODULE;
+>+
+>+	result = acpi_bus_register_driver(&atlas_acpi_driver);
+>+	if (result < 0) {
+>+		printk(KERN_ERR "Atlas ACPI: Unable to register 
+>driver\n");
+>+		remove_proc_entry(PROC_ATLAS, acpi_root_dir);
+>+		return -ENODEV;
+>+	}
+>+
+>+	return 0;
+>+}
+>+
+>+static void __exit atlas_acpi_exit(void)
+>+{
+>+	acpi_bus_unregister_driver(&atlas_acpi_driver);
+>+	if (atlas_proc_dir) 
+>+		remove_proc_entry(PROC_ATLAS, acpi_root_dir);
+>+}
+>+
+>+module_init(atlas_acpi_init);
+>+module_exit(atlas_acpi_exit);
+>+
+>+MODULE_AUTHOR("Jaya Kumar");
+>+MODULE_LICENSE("GPL");
+>+MODULE_DESCRIPTION("Atlas ACPI");
+>+MODULE_SUPPORTED_DEVICE("Atlas ACPI");
+>diff -X linux-2.6.15.3/Documentation/dontdiff -uprN 
+>linux-2.6.15.3-vanilla/drivers/acpi/Kconfig 
+>linux-2.6.15.3/drivers/acpi/Kconfig
+>--- linux-2.6.15.3-vanilla/drivers/acpi/Kconfig	
+>2006-02-19 13:31:11.000000000 +0800
+>+++ linux-2.6.15.3/drivers/acpi/Kconfig	2006-02-19 
+>19:29:04.000000000 +0800
+>@@ -194,6 +194,17 @@ config ACPI_ASUS
+>           something works not quite as expected, please use 
+>the mailing list
+>           available on the above page 
+>(acpi4asus-user@lists.sourceforge.net)
+>           
+>+config ACPI_ATLAS
+>+        tristate "Atlas Wallmount Touchscreen Extras"
+>+	depends on X86
+>+	default n
+>+	---help---
+>+	  This driver is intended for Atlas wallmount touchscreens. 
+>+	  The button events will show up in /proc/acpi/events 
+>and the lcd
+>+	  brightness control is at /proc/acpi/atlas/lcd
+>+
+>+	  If you have an Atlas wallmount touchscreen, say Y or M here.
+>+         
+> config ACPI_IBM
+> 	tristate "IBM ThinkPad Laptop Extras"
+> 	depends on X86
+>diff -X linux-2.6.15.3/Documentation/dontdiff -uprN 
+>linux-2.6.15.3-vanilla/drivers/acpi/Makefile 
+>linux-2.6.15.3/drivers/acpi/Makefile
+>--- linux-2.6.15.3-vanilla/drivers/acpi/Makefile	
+>2006-02-19 13:31:11.000000000 +0800
+>+++ linux-2.6.15.3/drivers/acpi/Makefile	2006-02-19 
+>14:23:59.000000000 +0800
+>@@ -53,6 +53,7 @@ obj-$(CONFIG_ACPI_SYSTEM)	+= system.o ev
+> obj-$(CONFIG_ACPI_DEBUG)	+= debug.o
+> obj-$(CONFIG_ACPI_NUMA)		+= numa.o
+> obj-$(CONFIG_ACPI_ASUS)		+= asus_acpi.o
+>+obj-$(CONFIG_ACPI_ATLAS)	+= atlas_acpi.o
+> obj-$(CONFIG_ACPI_IBM)		+= ibm_acpi.o
+> obj-$(CONFIG_ACPI_TOSHIBA)	+= toshiba_acpi.o
+> obj-y				+= scan.o motherboard.o
+>diff -X linux-2.6.15.3/Documentation/dontdiff -uprN 
+>linux-2.6.15.3-vanilla/MAINTAINERS linux-2.6.15.3/MAINTAINERS
+>--- linux-2.6.15.3-vanilla/MAINTAINERS	2006-02-19 
+>13:30:48.000000000 +0800
+>+++ linux-2.6.15.3/MAINTAINERS	2006-02-20 09:44:12.000000000 +0800
+>@@ -366,6 +366,11 @@ M:	ecashin@coraid.com
+> W:	http://www.coraid.com/support/linux
+> S:	Supported
+> 
+>+ATLAS ACPI EXTRAS DRIVER
+>+P:	Jaya Kumar
+>+M:	jayakumar.acpi@gmail.com
+>+S:	Maintained
+>+
+> ATM
+> P:	Chas Williams
+> M:	chas@cmf.nrl.navy.mil
+>-
+>To unsubscribe from this list: send the line "unsubscribe 
+>linux-acpi" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>

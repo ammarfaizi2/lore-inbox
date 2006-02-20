@@ -1,96 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030232AbWBTWg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161069AbWBTWhQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030232AbWBTWg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 17:36:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030259AbWBTWg3
+	id S1161069AbWBTWhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 17:37:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161194AbWBTWhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 17:36:29 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:62732 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932694AbWBTWgT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 17:36:19 -0500
-Date: Mon, 20 Feb 2006 23:36:17 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] remove kernel/power/pm.c:pm_unregister()
-Message-ID: <20060220223617.GM4661@stusta.de>
-MIME-Version: 1.0
+	Mon, 20 Feb 2006 17:37:15 -0500
+Received: from linuxhacker.ru ([217.76.32.60]:46486 "EHLO shrek.linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S1161055AbWBTWgz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 17:36:55 -0500
+Date: Tue, 21 Feb 2006 00:19:48 +0200
+From: Oleg Drokin <green@linuxhacker.ru>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: FMODE_EXEC or alike?
+Message-ID: <20060220221948.GC5733@linuxhacker.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since the last user is removed in -mm, we can now remove this long 
-deprecated function.
+Hello!
 
+   We are working on a lustre client that would not require any patches
+   to linux kernel. And there are few things that would be nice to have
+   that I'd like your input on.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+   One of those is FMODE_EXEC - to correctly detect cross-node situations with
+   executing a file that is opened for write or the other way around, we need
+   something like this extra file mode to be present (and used as a file open
+   mode when opening files for exection, e.g. in fs/exec.c)
+   Do you think there is a chance this can be included into vanilla kernel,
+   or is there a better solution I oversee?
+   I am just thinking about something as simple as this
+   (with some suitable FMODE_EXEC define, of course):
 
----
-
- include/linux/pm_legacy.h |    7 -------
- kernel/power/pm.c         |   20 --------------------
- 2 files changed, 27 deletions(-)
-
---- linux-2.6.16-rc4-mm1-full/include/linux/pm_legacy.h.old	2006-02-20 19:40:14.000000000 +0100
-+++ linux-2.6.16-rc4-mm1-full/include/linux/pm_legacy.h	2006-02-20 19:40:24.000000000 +0100
-@@ -16,11 +16,6 @@
- pm_register(pm_dev_t type, unsigned long id, pm_callback callback);
+--- linux/fs/exec.c.orig	2006-02-21 00:11:47.000000000 +0200
++++ linux/fs/exec.c	2006-02-21 00:12:24.000000000 +0200
+@@ -127,7 +127,7 @@ asmlinkage long sys_uselib(const char __
+ 	struct nameidata nd;
+ 	int error;
  
- /*
-- * Unregister a device with power management
-- */
--void __deprecated pm_unregister(struct pm_dev *dev);
--
--/*
-  * Unregister all devices with matching callback
-  */
- void __deprecated pm_unregister_all(pm_callback callback);
-@@ -41,8 +36,6 @@
- 	return NULL;
- }
+-	error = __user_path_lookup_open(library, LOOKUP_FOLLOW, &nd, FMODE_READ);
++	error = __user_path_lookup_open(library, LOOKUP_FOLLOW, &nd, FMODE_READ|FMODE_EXEC);
+ 	if (error)
+ 		goto out;
  
--static inline void pm_unregister(struct pm_dev *dev) {}
--
- static inline void pm_unregister_all(pm_callback callback) {}
+@@ -477,7 +477,7 @@ struct file *open_exec(const char *name)
+ 	int err;
+ 	struct file *file;
  
- static inline int pm_send_all(pm_request_t rqst, void *data)
---- linux-2.6.16-rc4-mm1-full/kernel/power/pm.c.old	2006-02-20 19:40:32.000000000 +0100
-+++ linux-2.6.16-rc4-mm1-full/kernel/power/pm.c	2006-02-20 19:40:50.000000000 +0100
-@@ -75,25 +75,6 @@
- 	return dev;
- }
+-	err = path_lookup_open(name, LOOKUP_FOLLOW, &nd, FMODE_READ);
++	err = path_lookup_open(name, LOOKUP_FOLLOW, &nd, FMODE_READ|FMODE_EXEC);
+ 	file = ERR_PTR(err);
  
--/**
-- *	pm_unregister -  unregister a device with power management
-- *	@dev: device to unregister
-- *
-- *	Remove a device from the power management notification lists. The
-- *	dev passed must be a handle previously returned by pm_register.
-- */
-- 
--void pm_unregister(struct pm_dev *dev)
--{
--	if (dev) {
--		mutex_lock(&pm_devs_lock);
--		list_del(&dev->entry);
--		mutex_unlock(&pm_devs_lock);
--
--		kfree(dev);
--	}
--}
--
- static void __pm_unregister(struct pm_dev *dev)
- {
- 	if (dev) {
-@@ -258,7 +239,6 @@
- }
- 
- EXPORT_SYMBOL(pm_register);
--EXPORT_SYMBOL(pm_unregister);
- EXPORT_SYMBOL(pm_unregister_all);
- EXPORT_SYMBOL(pm_send_all);
- EXPORT_SYMBOL(pm_active);
+ 	if (!err) {
 
+   Thanks.
+
+Bye,
+    Oleg

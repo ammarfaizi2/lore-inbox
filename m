@@ -1,94 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161161AbWBTWzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161060AbWBTW6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161161AbWBTWzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 17:55:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbWBTWzQ
+	id S1161060AbWBTW6M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 17:58:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbWBTW6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 17:55:16 -0500
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:16299 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S964810AbWBTWzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 17:55:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:MIME-Version:Content-Disposition:Cc:Content-Type:Content-Transfer-Encoding:Message-Id;
-  b=2eGCnjq2a3osau8mOAc3Mc843tItje5eC0JQHnAtv4uueNxWHhu6fqNeOqKsP+l36V8/4Ui4FEjp/ssACIR1x76kDV2IunLCbAsuFDrzuvId8eSvnVlHAUivJrJDxaMkVr4S7e5Qk9B8XetFfT1IqWAEHctBr5bruRcCE7EId/o=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: linux-mm <linux-mm@kvack.org>
-Subject: remap_file_pages - Bug with _PAGE_PROTNONE - is it used in current kernels?
-Date: Mon, 20 Feb 2006 23:54:48 +0100
-User-Agent: KMail/1.8.3
+	Mon, 20 Feb 2006 17:58:12 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:50304 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S964810AbWBTW6M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 17:58:12 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.16-rc4-mm1 kernel crash at bootup. parport trouble?
+Date: Mon, 20 Feb 2006 23:58:21 +0100
+User-Agent: KMail/1.9.1
+Cc: MIke Galbraith <efault@gmx.de>,
+       Helge Hafting <helge.hafting@aitel.hist.no>,
+       linux-kernel@vger.kernel.org
+References: <20060220042615.5af1bddc.akpm@osdl.org> <43F9DB1D.4090305@aitel.hist.no> <1140449123.7563.2.camel@homer>
+In-Reply-To: <1140449123.7563.2.camel@homer>
 MIME-Version: 1.0
-Content-Disposition: inline
-Cc: LKML <linux-kernel@vger.kernel.org>
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602202354.48851.blaisorblade@yahoo.it>
+Content-Disposition: inline
+Message-Id: <200602202358.22732.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been hitting a bug on a patch I'm working on and have considered (and 
-more or less tested with good results) doing this change:
+On Monday 20 February 2006 16:25, MIke Galbraith wrote:
+> On Mon, 2006-02-20 at 16:07 +0100, Helge Hafting wrote:
+> > pentium IV single processor, gcc (GCC) 4.0.3 20060128
+> > 
+> > During boot, I normally get:
+> > parport0: irq 7 detected
+> > lp0: using parport0 (polling).
+> > 
+> > Instead, I got this, written by hand:
+> 
+> ........
+> 
+> > This oops is simplified. I can get the exact text if
+> > that really matters.  It is much more to write down and
+> > I don't usually have my camera at work.
+> 
+> I get the same, and already have the serial console hooked up.
 
--#define pte_present(x)  ((x).pte_low & (_PAGE_PRESENT | _PAGE_PROTNONE))
-+#define pte_present(x)  ((x).pte_low & (_PAGE_PRESENT))
+Similar thing on x86-64 (Asus L5D), but less drastic.  I can boot, but get:
 
-(and the corresponding thing on other architecture).
+Unable to handle kernel NULL pointer dereference at 00000000000001bc RIP: 
+<ffffffff8024f7dc>{kref_get+12}
+PGD 2c788067 PUD 2c796067 PMD 0 
+Oops: 0000 [1] PREEMPT 
+last sysfs file: /block/hdc/range
+CPU 0 
+Modules linked in: parport_pc lp parport dm_mod
+Pid: 1452, comm: modprobe Not tainted 2.6.16-rc4-mm1 #56
+RIP: 0010:[<ffffffff8024f7dc>] <ffffffff8024f7dc>{kref_get+12}
+RSP: 0018:ffff81002c7bbca8  EFLAGS: 00010292
+RAX: ffff81002acd8970 RBX: 00000000000001bc RCX: ffff81002acd8000
+RDX: ffff81002acd8977 RSI: ffffffff803af6a6 RDI: 00000000000001bc
+RBP: ffff81002c7bbcb8 R08: 0000000000000000 R09: ffff81002acd8970
+R10: 0000000000000001 R11: 2222222222222222 R12: ffffffff803af69f
+R13: ffff81002c7641f0 R14: 00000000fffffff4 R15: ffff81002a574160
+FS:  00002b1185fabb00(0000) GS:ffffffff8058a000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 00000000000001bc CR3: 000000002de28000 CR4: 00000000000006e0
+Process modprobe (pid: 1452, threadinfo ffff81002c7ba000, task ffff81002fecf830)
+Stack: ffff81002c7bbcd8 00000000000001a0 ffff81002c7bbcd8 ffffffff8024eb4a 
+       ffff81002c7641f0 ffff81002acd89a8 ffff81002c7bbd18 ffffffff801c442d 
+       00000000000001a0 ffff81002e76c5b0 
+Call Trace: <ffffffff8024eb4a>{kobject_get+26} <ffffffff801c442d>{sysfs_create_link+173}
+       <ffffffff802b6b76>{class_device_add+550} <ffffffff802b6cb9>{class_device_register+25}
+       <ffffffff802b6dc2>{class_device_create+258} <ffffffff88016ce2>{:parport:parport_device_proc_register+242}
+       <ffffffff88014207>{:parport:parport_register_device+663}
+       <ffffffff88021040>{:lp:lp_preempt+0} <ffffffff88013abc>{:parport:parport_register_driver+44}
+       <ffffffff8802174e>{:lp:lp_register+158} <ffffffff880217db>{:lp:lp_attach+75}
+       <ffffffff88013adf>{:parport:parport_register_driver+79}
+       <ffffffff880262a3>{:lp:lp_init_module+675} <ffffffff8014b9a4>{sys_init_module+212}
+       <ffffffff80109cca>{system_call+126}
 
-In general, the question is whether __P000 and __S000 in protection_map are 
-ever used except for MAP_POPULATE, and even then if they work well.
+Code: 8b 07 85 c0 75 24 48 c7 c1 50 f3 37 80 ba 20 00 00 00 48 c7 
+RIP <ffffffff8024f7dc>{kref_get+12} RSP <ffff81002c7bbca8>
+CR2: 00000000000001bc
+ BUG: modprobe/1452, lock held at task exit time!
+ [ffffffff8801eb20] {registration_lock}
+.. held by:          modprobe: 1452 [ffff81002fecf830, 116]
+... acquired at:               parport_register_driver+0x2c/0x90 [parport]
 
-I'm seeking for objections to this change and/or anything I'm missing.
+and the thing called /sbin/udevstart ends up in the D state because of this.
 
-This bug showed up while porting remap_file_pages protection support to 
-2.6.16-rc3. It always existed but couldn't trigger before the PageReserved 
-changes.
-
-Consider a _PAGE_PROTNONE pte, which has then pte_pfn(pte) == 0 (with 
-remap_file_pages you need them to exist). Obviously pte_pfn(pte) on such a PTE 
-doesn't make sense, but since pte_present(pte) gives true the code doesn't 
-know that.
-
-Consider a call to munmap on this range. We get to zap_pte_range() which (in 
-condensed source code):
-
-zap_pte_range() 
-...
-                if (pte_present(ptent)) {
-//This test is passed
-                        struct page *page = vm_normal_page(vma, addr, ptent);
-//Now page points to page 0 - which is wrong, page should be NULL
-                        page_remove_rmap(page);
-//Which doesn't make any sense.
-//If mem_map[0] wasn't mapped we hit a BUG now, if it was we'll hit it later - 
-//i.e. negative page_mapcount().
-
-Now, since this code doesn't work in this situation, I wonder whether PROTNONE 
-is indeed used anywhere in the code *at the moment*, since faults on pages 
-mapped as such are handled with SIGSEGV.
-
-The only possible application, which is only possible in 2.6 and not in 2.4 
-where _PAGE_PROTNONE still exists, is mmap(MAP_POPULATE) with prot == 
-PROT_NONE.
-
-Instead I need to make use of PROTNONE, so the handling of it may need 
-changes. In particular, I wonder about why:
-
-#define pte_present(x)  ((x).pte_low & (_PAGE_PRESENT | _PAGE_PROTNONE))
-
-I see why that _PAGE_PROTNONE can make sense, but in the above code it 
-doesn't.
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
-
-
-	
-
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+Greetings,
+Rafael

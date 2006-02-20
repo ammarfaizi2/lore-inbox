@@ -1,55 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbWBTOm4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030260AbWBTOoF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030257AbWBTOm4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 09:42:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030258AbWBTOm4
+	id S1030260AbWBTOoF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 09:44:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030259AbWBTOoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 09:42:56 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:8681 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1030257AbWBTOmz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 09:42:55 -0500
-Date: Mon, 20 Feb 2006 15:42:54 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Harald Arnesen <harald@skogtun.org>
-Cc: Matthias Hensler <matthias@wspse.de>, Lee Revell <rlrevell@joe-job.com>,
-       Sebastian Kgler <sebas@kde.org>,
-       kernel list <linux-kernel@vger.kernel.org>, nigel@suspend2.net,
-       rjw@sisk.pl
-Subject: Re: Which is simpler?
-Message-ID: <20060220144254.GC1673@atrey.karlin.mff.cuni.cz>
-References: <20060218142610.GT3490@openzaurus.ucw.cz> <20060220093911.GB19293@kobayashi-maru.wspse.de> <1140430002.3429.4.camel@mindpipe> <20060220101532.GB21817@kobayashi-maru.wspse.de> <1140431058.3429.15.camel@mindpipe> <20060220103329.GE21817@kobayashi-maru.wspse.de> <1140434146.3429.17.camel@mindpipe> <20060220122443.GB3495@kobayashi-maru.wspse.de> <20060220132842.GC23277@atrey.karlin.mff.cuni.cz> <8764nagm2b.fsf@basilikum.skogtun.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8764nagm2b.fsf@basilikum.skogtun.org>
-User-Agent: Mutt/1.5.9i
+	Mon, 20 Feb 2006 09:44:05 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:42393 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1030260AbWBTOoC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 09:44:02 -0500
+Message-ID: <43F9D5DF.6030009@sw.ru>
+Date: Mon, 20 Feb 2006 17:44:47 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: Herbert Poetzl <herbert@13thfloor.at>
+CC: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       vserver@list.linux-vserver.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: (pspace,pid) vs true pid virtualization
+References: <20060215145942.GA9274@sergelap.austin.ibm.com> <m11wy4s24i.fsf@ebiederm.dsl.xmission.com> <20060216143030.GA27585@MAIL.13thfloor.at> <43F990CA.5080102@sw.ru> <20060220130020.GD17478@MAIL.13thfloor.at>
+In-Reply-To: <20060220130020.GD17478@MAIL.13thfloor.at>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Pavel Machek <pavel@ucw.cz> writes:
+>>fine, agreed on this finally, same for OpenVZ.
+> hey we have soemthing :)
+:)
+
+>>>definitely, we (Linux-VServer) added this some time ago
+>>>and it helps to maintain/restart a guest.
+>>but why sys_waitpid? we can make it in many other ways,
 > 
-> >> Ah, and now the part I really like, some hard numbers:
-> >> swsusp takes between 26 and 30 seconds to suspend (in my four tries: 26,
-> >> 30, 28, 26) and between 35 and 45 seconds to resume (35, 45, 39, 37).
-> >> 
-> >> Suspend 2 does suspend in around 14-16 seconds, and resume in 18 to 21.
-> >> 
-> >> That is factor 2!
-> >
-> > Does that include time to boot resume kernel? It will not be that
-> > dramatic with that time included, and it is only fair to include
-> > it. Anyway uswsusp solves that issue.
-> 
-> On my old ThinkPad, the difference is more like a factor of 3 to 4 -
-> from the moment I press the power button until X is up and running.
+> yes, we currently have a syscall switch command 
+> to wait for the guest, but, of course, it is
+> very similar to the 'normal' unix waitpid()
+this is more logically clean to me, since containers/namespaces are not 
+tasks.
+If someone wants to use more unix-like semantics, he can obtain fd for 
+namespace and call select/poll on it :))))
 
-Well, yep, it really depends on CPU/harddisk.
+>>And we had issues in OpenVZ, that very fast VPS stop/start can fail due 
+>>to not freed resources yet.
+> this is a design problem, if your design allows
+> to have _more_ than one pid space with the same
+> identifier/properties, but with only one active
+> and thus reachable space, it is no problem to 
+> create a new one right after the old one did send
+> the event (which doesn't mean that it was destroyed
+> just that the last process left the space)
+see my another email about sockets.
 
-Can you try code from suspend.sf.net? It should be as fast as
-suspend2.
+>>How about third party apps?
+> I don't think we care about third party apps when
+> adding new kernel functionality, especially not
+> proprietary ones which cannot be modified easily
+Even if we don't take into account proprietary apps, there too many 
+opensource control panels, management tools etc.
+So this doesn't look good to me anyhow.
 
-								Pavel
+>>agreed. Though I don't like a backdoor name :) 
+>>It is just a way to get access to VPS.
 
--- 
-Thanks, Sharp!
+> well, it is often a way to get access to the VPS
+> without the 'owner' of that VPS even knowing, so
+> IMHO it's a backdoor, access would be via sshd or
+> console :)
+When you have a physical box there are many ways to get access to it 
+without knowing passwords etc. This is the same.
+
+Kirill
+

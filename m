@@ -1,84 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030285AbWBTPX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030286AbWBTP1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030285AbWBTPX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 10:23:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030286AbWBTPX2
+	id S1030286AbWBTP1f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 10:27:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbWBTP1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 10:23:28 -0500
-Received: from mail.gmx.de ([213.165.64.20]:63664 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030285AbWBTPX2 (ORCPT
+	Mon, 20 Feb 2006 10:27:35 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:3812 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1030286AbWBTP1e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 10:23:28 -0500
-X-Authenticated: #14349625
-Subject: Re: 2.6.16-rc4-mm1 kernel crash at bootup. parport trouble?
-From: MIke Galbraith <efault@gmx.de>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <43F9DB1D.4090305@aitel.hist.no>
-References: <20060220042615.5af1bddc.akpm@osdl.org>
-	 <43F9DB1D.4090305@aitel.hist.no>
-Content-Type: text/plain
-Date: Mon, 20 Feb 2006 16:25:23 +0100
-Message-Id: <1140449123.7563.2.camel@homer>
+	Mon, 20 Feb 2006 10:27:34 -0500
+Date: Mon, 20 Feb 2006 16:27:33 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: (pspace,pid) vs true pid virtualization
+Message-ID: <20060220152732.GC18841@MAIL.13thfloor.at>
+Mail-Followup-To: Kirill Korotaev <dev@sw.ru>,
+	"Serge E. Hallyn" <serue@us.ibm.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Dave Hansen <haveblue@us.ibm.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+	Hubertus Franke <frankeh@watson.ibm.com>,
+	Cedric Le Goater <clg@fr.ibm.com>,
+	Kyle Moffett <mrmacman_g4@mac.com>, Greg <gkurz@fr.ibm.com>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Greg KH <greg@kroah.com>, Rik van Riel <riel@redhat.com>,
+	Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+	Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+	Andi Kleen <ak@suse.de>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Jes Sorensen <jes@sgi.com>
+References: <20060215145942.GA9274@sergelap.austin.ibm.com> <m11wy4s24i.fsf@ebiederm.dsl.xmission.com> <20060216142928.GA22358@sergelap.austin.ibm.com> <43F98DD5.40107@sw.ru> <20060220124745.GC17478@MAIL.13thfloor.at> <43F9D379.5000803@sw.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F9D379.5000803@sw.ru>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-20 at 16:07 +0100, Helge Hafting wrote:
-> pentium IV single processor, gcc (GCC) 4.0.3 20060128
+On Mon, Feb 20, 2006 at 05:34:33PM +0300, Kirill Korotaev wrote:
+>>> yes, acceptable.
+>>> once, again, believe me, this is very required feature for
+>>> troubleshouting and management (as Eric likes to take about
+>>> maintanance :) )
 > 
-> During boot, I normally get:
-> parport0: irq 7 detected
-> lp0: using parport0 (polling).
-> 
-> Instead, I got this, written by hand:
+>> IMHO there are certain things which _are_ required
+>> and others which are nice to have but not strictly
+>> required, just think "ptrace across pid spaces"
+> these "nice to have" features often make one solution more usable than
+> another.
 
-........
+agreed, but do you really have to strace the OpenVZ
+tools so often, as I don't see any other purpose 
+for cross space strace. usually you strace either
+inside or outside the space, as the transition is
+not that well defined anyway ...
 
-> This oops is simplified. I can get the exact text if
-> that really matters.  It is much more to write down and
-> I don't usually have my camera at work.
+>>>> This is to support using pidspaces for vservers, and creating
+>>>> migrateable sub-pidspaces in each vserver.
 
-I get the same, and already have the serial console hooked up.
+>>> this doesn't help to create migratable sub-pidspaces.
+>>> for example, will you share IPCs in your pid parent and child pspaces?
+>>> if yes, then it won't be migratable;
 
-BUG: unable to handle kernel NULL pointer dereference at virtual address 000000e8
- printing eip:
-c0295414
-*pde = 00000000
-Oops: 0000 1]
-PREEMPT SMP 
-last sysfs file: 
-Modules linked in:
-CPU:    1
-EIP:    0060:[<c0295414>]    Not tainted VLI
-EFLAGS: 00010282   (2.6.16-rc4-mm17) 
-EIP is at kref_get+0x9/0x43
-eax: 000000e8   ebx: 000000e8   ecx: c1923a00   edx: 000000d0
-esi: c04d87ab   edi: dfccfce7   ebp: c1910d68   esp: c1910d54
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 1, threadinfo=c1910000 task=c190faa0)
-Stack: <0>dfcdf5c8 00008124 dfccfd40 00000286 000000d0 c1910d74 c0294964 dfccfd00 
-       c1910da0 c019e308 dfcdf5c0 dfccfd40 000000d0 dfce04d0 fffffff4 dfcd2d74 
-       00000048 dfcdf5c0 00000000 c1910dd8 c031f953 dfcdf5c8 c04dd2e1 dfcdf640 
-Call Trace:
- <c0103e8c> show_stack_log_lvl+0xb7/0xfd   <c0104064> show_registers+0x192/0x228
- <c0104347> die+0x119/0x24a   <c011387f> do_page_fault+0x2ff/0x57a
- <c0103837> error_code+0x4f/0x54   <c0294964> kobject_get+0x12/0x17
- <c019e308> sysfs_create_link+0x91/0x103   <c031f953> class_device_add+0x13c/0x2b1
- <c031fada> class_device_register+0x12/0x15   <c031fb59> class_device_create+0x7c/0x9e
- <c0306e20> lp_register+0xa8/0xef   <c0306e93> lp_attach+0x2c/0x73
- <c0314c4f> attach_driver_chain+0x14/0x2d   <c0314d1e> parport_announce_port+0x89/0xb9
- <c031b94e> parport_pc_probe_port+0x6d9/0xeb2   <c031c1d9> parport_pc_pnp_probe+0xb2/0x108
- <c02ef096> pnp_device_probe+0x47/0x93   <c031eae2> driver_probe_device+0x3e/0xb6
- <c031ec29> __driver_attach+0x68/0x6a   <c031e198> bus_for_each_dev+0x40/0x5e
- <c031e9cd> driver_attach+0x19/0x1b   <c031e474> bus_add_driver+0x6c/0x119
- <c031efa2> driver_register+0x76/0xaa   <c02eeecd> pnp_register_driver+0x1d/0x47
- <c062bc92> parport_pc_init+0x26b/0x295   <c0100427> init+0x124/0x365
- <c0100e25> kernel_thread_helper+0x5/0xb  
-Code: dc 12 00 e9 79 fe ff ff 0f 0b 33 03 03 28 4b c0 e9 54 fe ff ff 90 90 55 89 e5 c7 00 01 00 00 00 5d c3 55 89 e5 53 83 ec 10 89 c3 <8b> 00 85 c0 74 09 f0 ff 03 83 c4 10 5b 5d c3 c7 44 24 0c 88 d3 
- <0>Kernel panic - not syncing: Attempted to kill init!
+>> well, not the child pspace, but the parent, no?
 
+> if IPC objects are shared between them, then they can only be migrated 
+> together.
 
+not all spaces will be done fur the purpose of
+migration, some of them might have other purposes
+
+>>> if no, then you need to create fully isolated spaces to the end and
+>>> again you end up with a question, why nested pspaces are required at
+>>> all?
+>> because we are not trying to implement a VPS only
+>> solution for mainline, we are trying to provide
+>> building blocks for many different uses, including
+>> the VPS approach ...
+> nice! do you think I'm against building blocks? no :) 
+
+> I'm just trying to get out from you how this can be used in real 
+> life and how will it work.
+
+ah, I'm glad to share my experience here ...
+
+the linux-vserver.org wiki shows some of those
+real world usage scenarios, which include, but are
+not limited to:
+
+ - Administrative Separation
+ - Service Separation
+ - Enhancing Security (better chroot)
+ - Easy Maintenance (hardware independance)
+ - Testing
+
+most application scenarios do not require a complete
+VPS or Guest to make them usable, often only a single
+* space would suffice to accomplish the goal ...
+
+best,
+Herbert
+
+> Kirill

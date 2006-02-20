@@ -1,84 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbWBTJUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWBTJWS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964796AbWBTJUR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 04:20:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWBTJUR
+	id S964800AbWBTJWS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 04:22:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWBTJWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 04:20:17 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:4684 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964796AbWBTJUP (ORCPT
+	Mon, 20 Feb 2006 04:22:18 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:53290 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S964800AbWBTJWR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 04:20:15 -0500
-Date: Mon, 20 Feb 2006 10:20:09 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Tom Zanussi <zanussi@us.ibm.com>
-Cc: Paul Mundt <lethal@linux-sh.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, karim@opersys.com,
-       compudj@krystal.dyndns.org
-Subject: Re: [PATCH, RFC] sysfs: relay channel buffers as sysfs attributes
-Message-ID: <20060220092008.GZ8852@suse.de>
-References: <20060219171748.GA13068@linux-sh.org> <20060219175623.GA2674@kroah.com> <20060219185254.GA13391@linux-sh.org> <17401.21427.568297.830492@tut.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17401.21427.568297.830492@tut.ibm.com>
+	Mon, 20 Feb 2006 04:22:17 -0500
+Message-ID: <43F9882C.3060501@sw.ru>
+Date: Mon, 20 Feb 2006 12:13:16 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       vserver@list.linux-vserver.org, Herbert Poetzl <herbert@13thfloor.at>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: (pspace,pid) vs true pid virtualization
+References: <20060215145942.GA9274@sergelap.austin.ibm.com> <m11wy4s24i.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m11wy4s24i.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 19 2006, Tom Zanussi wrote:
-> Paul Mundt writes:
->  > On Sun, Feb 19, 2006 at 09:56:23AM -0800, Greg KH wrote:
->  > 
-> 
-> [...]
-> 
->  > > And I agree with Christoph, with this change, you don't need a separate
->  > > relayfs mount anymore.
->  > > 
->  > Yes, that's where I was going with this, but I figured I'd give the
->  > relayfs people a chance to object to it going away first.
->  > 
->  > If with this in sysfs and simple handling through debugfs people are
->  > content with the relay interface for whatever need, then getting rid of
->  > relayfs entirely is certainly the best option. We certainly don't need
->  > more pointless virtual file systems.
->  > 
->  > I'll work up a patch set for doing this as per Cristoph's kernel/relay.c
->  > suggestion. Thanks for the feedback.
-> 
-> Considering that I recently offered to post a patch that would do
-> essentially the same thing, I can't have any objections to this. ;-)
-> 
-> But just to make sure I'm not missing anything in the patches, please
-> let me know if any of the following is incorrect.  What they do is
-> remove the fs part of relayfs and move the remaining code into a
-> single file, while leaving everthing else basically intact i.e. the
-> relayfs kernel API remains the same and existing clients would only
-> need to make relatively minor changes:
-> 
-> - find a new home for their relay files i.e. sysfs, debufs or procfs.
-> 
-> - replace any relayfs-specific code with their counterparts in the new
->   filesystem i.e. directory creation/removal, non-relay ('control')
->   file creation/removal.
-> 
-> - change userspace apps to look for the relay files in the new
->   filesystem instead of relayfs e.g. change /relay/* to /sys/*
->   in the relay file pathnames.
-> 
-> Although I personally don't have any problems with doing this, I've
-> added some of the authors of current relayfs applications to the cc:
-> list in case they might have any objections to it.  The major relayfs
-> applications I'm aware of are:
-> 
-> - blktrace, currently in the -mm tree.  This could probably move its
->   relayfs files to sysfs using your new interface.
+Hello,
 
-blktrace just needs minor file location changes to work with this
-scheme, so no problem for me.
+> With respect to pids lets not get caught up in the implementation
+> details.  Let's first get clear on what the semantics should be.
+> 
+> - Should the first pid in a pid space have pid 1?
+yup.
 
-I think the patch is a good idea, it's a lot nicer than a separate fs.
+> - Should pid == 1 ignore signals, it doesn't have a handler for?
+yup.
 
--- 
-Jens Axboe
+> - Should any children of pid 1 be allowed to live when pid == 1 is killed?
+nope. you have this problem in your code, when child_reaper references 
+freed task.
+
+> - Should a process have some sort of global (on the machine identifier)?
+yep. otherwise it is imposible to manage (ptrace, kill, ...) it, without 
+introducing new syscalls.
+
+> - Should the pids in a pid space be visible from the outside?
+This can be done tunable, but this is VERY highly desired.
+This also makes introducing many new syscalls unneeded.
+
+> - Should the parent of pid 1 be able to wait for it for it's 
+>   children?
+What for? This doesn't guarantee any completion of the container destroy.
+
+> - Is a completely disjoin pid space acceptable to anyone?
+no, not acceptable for us :)
+
+> - What should the parent of pid == 1 see?
+if pidspaces are fully isolated it should see nothing (otherwise, it is 
+still weak isolation, as host admin will be able to get access to the 
+container).
+if pidspaces are weak isolated it should see the whole process tree.
+
+> - Should a process not in the default pid space be able to create 
+>   another pid space?
+optional. I really can hardly see it's usecases, if any...
+Yes, I remember some talks about checkpointing of group of processes, 
+but this doesn't help it, believe me (ask Kuznetsov :) )...
+
+> - Should we be able to monitor a pid space from the outside?
+Yes. We strongly beleive we need it.
+
+> - Should we be able to have processes enter a pid space?
+Yes. The same.
+
+> - Do we need to be able to be able to ptrace/kill individual processes
+>   in a pid space, from the outside, and why?
+Yes. This is very helpful management feature. Otherwise you won't be 
+able to resolve issues with containers. Why it stuck? For example, after 
+checkpoint/restore how do plan to debug it?
+
+> - After migration what identifiers should the tasks have?
+pids? in pspace it should the same pids which were assigned to them on 
+fork(). in host they can have any other pid allocated.
+
+> If we can answer these kinds of questions we can likely focus in
+> on what the implementation should look like.  So far I have not
+> seen a question that could not be implemented with a (pspace, pid)/pid
+> or a vpid/pid implementation.
+It seems to me that we still talk too much about PID spaces, while this 
+is not the most problematic thing. This can be out of tree for some time 
+if required.
+
+> I think it is safe to say that from the inside things should look to
+> processes just as they do now.  Which answers a lot of those
+> questions.  But it still leaves a lot open.
+
+Kirill
 

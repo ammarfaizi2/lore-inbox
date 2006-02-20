@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030295AbWBTQDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030298AbWBTQG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030295AbWBTQDW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 11:03:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030297AbWBTQDW
+	id S1030298AbWBTQG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 11:06:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030299AbWBTQG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 11:03:22 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:49591 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030295AbWBTQDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 11:03:21 -0500
-Date: Mon, 20 Feb 2006 16:03:13 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Dave Jones <davej@redhat.com>, Christoph Hellwig <hch@infradead.org>,
-       Paul Mundt <lethal@linux-sh.org>, Greg KH <greg@kroah.com>,
-       zanussi@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] relay: Migrate from relayfs to a generic relay API.
-Message-ID: <20060220160313.GA31846@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dave Jones <davej@redhat.com>, Paul Mundt <lethal@linux-sh.org>,
-	Greg KH <greg@kroah.com>, zanussi@us.ibm.com,
-	linux-kernel@vger.kernel.org
-References: <20060219210733.GA3682@linux-sh.org> <20060219212122.GA7974@redhat.com> <20060219220840.GA14153@infradead.org> <20060219221330.GC7974@redhat.com> <20060219221724.GA14408@infradead.org> <20060219222943.GD7974@redhat.com> <20060219224820.GA14820@infradead.org> <20060219225437.GE7974@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060219225437.GE7974@redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 20 Feb 2006 11:06:59 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:59540 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1030298AbWBTQG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 11:06:58 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Mon, 20 Feb 2006 17:05:22 +0100
+To: schilling@fokus.fraunhofer.de, davidsen@tmr.com
+Cc: nix@esperi.org.uk, mj@ucw.cz, linux-kernel@vger.kernel.org,
+       chris@gnome-de.org, axboe@suse.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43F9E8C2.nail4ALB11DH3@burner>
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
+ <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
+ <20060125144543.GY4212@suse.de>
+ <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
+ <20060125153057.GG4212@suse.de> <43ED005F.5060804@tmr.com>
+ <1139615496.10395.36.camel@localhost.localdomain>
+ <43F088AB.nailKUSB18RM0@burner>
+ <mj+md-20060213.135336.28566.atrey@ucw.cz>
+ <43F0A319.nailKUSXT33MZ@burner> <43F7257D.80400@tmr.com>
+In-Reply-To: <43F7257D.80400@tmr.com>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 19, 2006 at 05:54:37PM -0500, Dave Jones wrote:
-> On Sun, Feb 19, 2006 at 10:48:20PM +0000, Christoph Hellwig wrote:
->  > On Sun, Feb 19, 2006 at 05:29:43PM -0500, Dave Jones wrote:
->  > > systemtap uses kprobes to export data through relayfs.
->  > 
->  > systemtap has never been anywhere near mainline despit me telling the
->  > ibm folks to get the non-braindead parts in, so it simply doesn't matter.
-> 
-> the kernel bits that matter are generated at runtime.
-> I don't see anything particularly interesting in the source tree
-> that is worthwhile submitting.
+Bill Davidsen <davidsen@tmr.com> wrote:
 
-Various helpers to write kprobes in C, instead of the funky limited
-functionality scripting language of the day.
+> >If you did ever try to write reliable code that has to deal with this kind of
+> >oddities, you would understand that it is sometimes better to wait and to inform
+> >related people about the problems they caused.
+> >  
+> >
+> This ground has been covered. And at least in the case of filtering 
+> commands, that had to be done quickly and you know it.
 
-But anyway, if systemtap folks really need a relayfs filesystem type
-they're totally free under the gpl to grab the code Paul posted to
-recreate relayfs ontop of kernel/relay.c and include it in their codebase,
-no need to bloat the kernel tree with unused code.
+We all know that filtering is not needeed to fix a bug. It could have been
+implemented completely relaxed and without any time pressure as the bug
+that needed fixing could have been fixed by just requiring a R/W FD to allow
+SG_IO. 
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

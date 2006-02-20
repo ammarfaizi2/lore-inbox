@@ -1,75 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWBTAVI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWBTA1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751141AbWBTAVI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 19:21:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWBTAVI
+	id S932481AbWBTA1K (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 19:27:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWBTA1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 19:21:08 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40590 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751125AbWBTAVH (ORCPT
+	Sun, 19 Feb 2006 19:27:09 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:16063 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751125AbWBTA1I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 19:21:07 -0500
-Date: Mon, 20 Feb 2006 01:20:53 +0100
+	Sun, 19 Feb 2006 19:27:08 -0500
+Date: Mon, 20 Feb 2006 01:26:28 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: Patrick Mochel <mochel@digitalimplant.org>
-Cc: greg@kroah.com, torvalds@osdl.org, akpm@osdl.org, linux-pm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-pm] [PATCH 3/5] [pm] Respect the actual device power states in sysfs interface
-Message-ID: <20060220002053.GF15608@elf.ucw.cz>
-References: <Pine.LNX.4.50.0602171758160.30811-100000@monsoon.he.net> <20060218155543.GE5658@openzaurus.ucw.cz> <Pine.LNX.4.50.0602191557520.8676-100000@monsoon.he.net> <20060220000907.GE15608@elf.ucw.cz> <Pine.LNX.4.50.0602191611130.8676-100000@monsoon.he.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Nishanth Aravamudan <nacc@us.ibm.com>, Nick Warne <nick@linicks.net>,
+       Jesper Juhl <jesper.juhl@gmail.com>, tiwai@suse.de, ghrt@dial.kappa.ro,
+       perex@suse.cz, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: No sound from SB live!
+Message-ID: <20060220002628.GG15608@elf.ucw.cz>
+References: <20060218231419.GA3219@elf.ucw.cz> <20060219214702.GM15311@elf.ucw.cz> <1140385837.2733.394.camel@mindpipe> <200602192323.08169.s0348365@sms.ed.ac.uk> <1140391929.2733.430.camel@mindpipe> <20060219234644.GD15608@elf.ucw.cz> <1140393222.2733.438.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0602191611130.8676-100000@monsoon.he.net>
+In-Reply-To: <1140393222.2733.438.camel@mindpipe>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Ne 19-02-06 16:17:01, Patrick Mochel wrote:
-> 
-> On Mon, 20 Feb 2006, Pavel Machek wrote:
-> 
-> > On Ne 19-02-06 15:59:25, Patrick Mochel wrote:
-> > >
-> > > On Sat, 18 Feb 2006, Pavel Machek wrote:
-> > >
-> > > > Hi!
-> > > >
-> > > > > Fix the per-device state file to respect the actual state that
-> > > > > is reported by the device, or written to the file.
-> > > >
-> > > > Can we let "state" file die? You actually suggested that at one point.
-> > > >
-> > > > I do not think passing states in u32 is good idea. New interface that passes
-> > > > state as string would probably be better.
-> > >
-> > > Yup, in the future that will be better. For now, let's work with what we
-> > > got and fix 2.6.16 to be compatible with previous versions..
-> >
-> > It already is. It accepts "0" and "2" and "3". That's all values that
-> > used to work.
-> 
-> The core should not dictate the valid range of values. The bus drivers
-> should decide, since they are their states. "1" also used to work.
+Hi!
 
-We are talking about hotfix. Maybe "1" used to work year ago, but not
-in recent history. 0/2/3 seems to do for a hotfix.
-
-> > If you add u32 into pm_message_t, it will be impossible to remove in
-> > future.
+> > > > I'm still using 1.0.9 on 2.6.16-rc4 with no problems, Audigy 2 (one
+> > > > that uses 
+> > > > emu10k1). 
+> > > 
+> > > It's a specific change to the SBLive! that did not affect the Audigy
+> > > that causes alsa-lib 1.0.10+ to be required on 2.6.14 and up.  These
+> > > types of incompatible changes should be rare.
+> > 
+> > Do you have that patch somewhere handy?
+> > 
 > 
-> I don't follow this argument either.
+> Attached
+
+Thanks, I tried that. No change, AFAICT.
+
+> > How do I tell alsa-lib version?
+> > 
 > 
-> I really fail to see what your fundamental objection is. This restores
-> compatability, makes the core simpler, and adds the ability to use the
-> additional states, should drivers choose to implement them; all for
-> relatively little code. It seems a like a good thing to me..
+> Check your distro's package manager.
 
-Compatibility is already restored.
+Heh..
 
-Introducing additional states should be done in right way, something
-we can keep long-term.
-								Pavel
+root@hobit:~# apt-cache show libasound1
+Package: libasound1
+Status: install ok installed
+Priority: optional
+Section: libs
+Installed-Size: 148
+Maintainer: Masato Taruishi <taru@debian.org>
+Source: alsa-lib-0.5
+Version: 0.5.10b-1
+~~~~~~~~~~~~~~~~~~
+:-(
+
+...but if I launch plain old aumix, I should be able to unmute it and
+use normally... and that is not the case :-(.
+
+> > > It was a necessary precursor to fixing the well known "master volume
+> > > only controls front speakers" bug.
+> > 
+> > 								Pavel
+
+> -stable review patch.  If anyone has any objections, please let us know.
+> ------------------
+> 
+> Fix the confliction of 'Front' controls on models with STAC9758 codec.
+> 
+> Signed-off-by: Takashi Iwai <tiwai@suse.de>
+> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+> ---
+> 
+>  sound/pci/emu10k1/emumixer.c |    2 ++
+>  1 files changed, 2 insertions(+)
+> 
+> Index: linux-2.6.15.3/sound/pci/emu10k1/emumixer.c
+> ===================================================================
+> --- linux-2.6.15.3.orig/sound/pci/emu10k1/emumixer.c
+> +++ linux-2.6.15.3/sound/pci/emu10k1/emumixer.c
+> @@ -750,6 +750,8 @@ int __devinit snd_emu10k1_mixer(emu10k1_
+>  		"Master Mono Playback Volume",
+>  		"PCM Out Path & Mute",
+>  		"Mono Output Select",
+> +		"Front Playback Switch",
+> +		"Front Playback Volume",
+>  		"Surround Playback Switch",
+>  		"Surround Playback Volume",
+>  		"Center Playback Switch",
+> 
+> --
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
 -- 
 Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

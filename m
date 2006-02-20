@@ -1,84 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932634AbWBTWDp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932636AbWBTWFL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932634AbWBTWDp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 17:03:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932633AbWBTWDp
+	id S932636AbWBTWFL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 17:05:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932639AbWBTWFL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 17:03:45 -0500
-Received: from smtp.andrew.cmu.edu ([128.2.10.82]:17061 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S932634AbWBTWDo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 17:03:44 -0500
-Message-ID: <55990.128.237.252.29.1140472824.squirrel@128.237.252.29>
-In-Reply-To: <1140472618.29789.12.camel@lycan.lan>
-References: <1174.128.237.252.29.1140376277.squirrel@128.237.252.29> 
-    <20060219191552.GB4971@stusta.de>
-    <1140472618.29789.12.camel@lycan.lan>
-Date: Mon, 20 Feb 2006 17:00:24 -0500 (EST)
-Subject: Re: kernel panic with unloadable module support... SMP
-From: "George P Nychis" <gnychis@cmu.edu>
-To: azarah@nosferatu.za.org
-Cc: "Adrian Bunk" <bunk@stusta.de>, linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.5.1 [CVS]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Mon, 20 Feb 2006 17:05:11 -0500
+Received: from mail.kroah.org ([69.55.234.183]:47277 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932636AbWBTWFJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 17:05:09 -0500
+Date: Mon, 20 Feb 2006 14:04:04 -0800
+From: Greg KH <greg@kroah.com>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: Pavel Machek <pavel@suse.cz>, torvalds@osdl.org, akpm@osdl.org,
+       linux-pm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [linux-pm] [PATCH 3/5] [pm] Respect the actual device power states in sysfs interface
+Message-ID: <20060220220404.GA25746@kroah.com>
+References: <Pine.LNX.4.50.0602171758160.30811-100000@monsoon.he.net> <20060218155543.GE5658@openzaurus.ucw.cz> <Pine.LNX.4.50.0602191557520.8676-100000@monsoon.he.net> <20060220004635.GA22576@kroah.com> <Pine.LNX.4.50.0602200955030.12708-100000@monsoon.he.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0602200955030.12708-100000@monsoon.he.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-actually, what I am stating is correct, and yes there is 2.6.15-r_ in portage for vanilla-sources:
-
-monster hedpe # emerge -pv vanilla-sources
-
-These are the packages that I would merge, in order:
-
-Calculating dependencies ...done!
-[ebuild   R   ] sys-kernel/vanilla-sources-2.6.15.1  -build -doc -symlink 0 kB 
-
-Total size of downloads: 0 kB
-
-That is using ~x86 keyword.
-
-- George
-
-
-> On Sun, 2006-02-19 at 20:15 +0100, Adrian Bunk wrote:
->> On Sun, Feb 19, 2006 at 02:11:17PM -0500, George P Nychis wrote:
->> 
->>> Hi,
->> 
->> Hi George,
->> 
->>> Whenever I compiled unloadable module support into my 2.6.15-r1
->>> kernel, my kernel panic's when booting up when it tries to load a
->>> module for the first time.
->>> 
->>> I had this problem back with the 2.6.14 kernel, but figured it may
->>> have been solved since then so I tried it... and still fails.
->>> 
->>> Unloadable module support would be very helpful to me.
->>> 
->>> I am using an intel p4 3.0ghz with SMP support built into the kernel.
->>>  ...
->> 
->> What is 2.6.15-r1 for a kernel? Is your problem present in an unmodified
->> 2.6.16-rc4 kernel from ftp.kernel.org?
->> 
+On Mon, Feb 20, 2006 at 09:58:27AM -0800, Patrick Mochel wrote:
 > 
-> If it was gentoo's vanilla-sources (which is just that - vanilla 
-> kernel.org sources), then no 2.6.x version ever packaged by Gentoo, so 
-> either he had gentoo-sources, which is something totally different (and 
-> not vanilla sources as he specified), or there is a naming issue ...
+> On Sun, 19 Feb 2006, Greg KH wrote:
 > 
+> > On Sun, Feb 19, 2006 at 03:59:25PM -0800, Patrick Mochel wrote:
+> > >
+> > > On Sat, 18 Feb 2006, Pavel Machek wrote:
+> > >
+> > > > Hi!
+> > > >
+> > > > > Fix the per-device state file to respect the actual state that
+> > > > > is reported by the device, or written to the file.
+> > > >
+> > > > Can we let "state" file die? You actually suggested that at one point.
+> > > >
+> > > > I do not think passing states in u32 is good idea. New interface that passes
+> > > > state as string would probably be better.
+> > >
+> > > Yup, in the future that will be better. For now, let's work with what we
+> > > got and fix 2.6.16 to be compatible with previous versions..
+> >
+> > It's _way_ too late in the 2.6.16 cycle for this series of patches, if
+> > that is what you are proposing.
 > 
-> Regards,
+> Would you mind commmenting on why, as well as your opinion on the validity
+> of the patches themselves?
 > 
-> -- Martin Schlemmer
-> 
-> 
+> This static, hardcoded policy was introduced into the core ~2 weeks ago,
+> and it doesn't seem like it belongs there at all.
 
+That patch was accepted as it fixed a oops.  It also went in for
+2.6.16-rc2, which is much earlier than 2.6.16-rc4, and it had been in
+the -mm tree for quite a while for people to test it out and verify that
+it didn't break anything.  I didn't hear any complaints about it, so
+that is why it went in.
 
--- 
+In contrast, this patch series creates a new api and doesn't necessarily
+fix any reported bugs.  It also has not had the time to be tested in the
+-mm tree, and there is quite a lot of disagreement about the patches on
+the lists.  All of that combinded makes it not acceptable for so late in
+the -rc cycle (remember, -rc4 means only serious bug fixes.)
 
+> This seems like the easiest way to fixing it, but I'm open to
+> alternative suggestions..
+
+Care to resend the series based on all of the comments you have
+addressed so far?  I'll be glad to review it then.
+
+thanks,
+
+greg k-h

@@ -1,55 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbWBTWTj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932505AbWBTWWk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030218AbWBTWTj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 17:19:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbWBTWTj
+	id S932505AbWBTWWk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 17:22:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932629AbWBTWWk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 17:19:39 -0500
-Received: from xenotime.net ([66.160.160.81]:40097 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030218AbWBTWTi (ORCPT
+	Mon, 20 Feb 2006 17:22:40 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:6125 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932505AbWBTWWj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 17:19:38 -0500
-Date: Mon, 20 Feb 2006 14:20:35 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Nish Aravamudan" <nish.aravamudan@gmail.com>
-Cc: adobriyan@gmail.com, linux-kernel@vger.kernel.org
+	Mon, 20 Feb 2006 17:22:39 -0500
+Message-ID: <43FA412A.9090808@pobox.com>
+Date: Mon, 20 Feb 2006 17:22:34 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rene Herman <rene.herman@keyaccess.nl>
+CC: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org
 Subject: Re: Mozilla Thunderbird posting instructions wanted
-Message-Id: <20060220142035.6ccbe6d9.rdunlap@xenotime.net>
-In-Reply-To: <29495f1d0602201330i78d5538bwe4c771593f09ea97@mail.gmail.com>
-References: <20060220210349.GA29791@mipter.zuzino.mipt.ru>
-	<29495f1d0602201330i78d5538bwe4c771593f09ea97@mail.gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <20060220210349.GA29791@mipter.zuzino.mipt.ru> <43FA33DF.1050200@keyaccess.nl>
+In-Reply-To: <43FA33DF.1050200@keyaccess.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Feb 2006 13:30:59 -0800 Nish Aravamudan wrote:
+Rene Herman wrote:
+> Personally I'd simply advocate plain text attachments. One thing though; 
+> if you are going to, please make note of the long (long) standing bug in 
+> TB that has it send all attachments (including plaintext ones) Base64 
+> encoded when the outgoing encoding is set to UTF-8.
 
-> On 2/20/06, Alexey Dobriyan <adobriyan@gmail.com> wrote:
-> > This  POS is pretty popular among kernel janitors, so, can someone who
-> > is successfully using it, please, post crystally clear step-by-step
-> > instructions on how to send a foo.patch:
-> >         inline
-> >         with tabs preserved
-> >         with long lines preserved
-> >
-> > Sending plain text attachments is OK with me, but, heh, people do post
-> > patches inline and screw themselves.
-> 
-> Randy D. eventually agreed that there was a way, IIRC:
-> 
-> http://lkml.org/lkml/2005/12/27/191
-> 
-> Probably can work your way through the thread to figure out how (I use mutt :)
+No attachments at all, please...
 
-Yep, the odd part is not to disable html email.
-Then when composing a message, there is a drop-down box for a format
-selection.  While the cursor is in the body area, change the format
-from default "Body text" to Preformat, and then copy-n-paste the patch.
-At least that's what worked for me.
+	Jeff
 
----
-~Randy
+

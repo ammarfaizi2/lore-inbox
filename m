@@ -1,81 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161021AbWBTQdc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161011AbWBTQiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161021AbWBTQdc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 11:33:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161025AbWBTQda
+	id S1161011AbWBTQiS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 11:38:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161022AbWBTQiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 11:33:30 -0500
-Received: from dvhart.com ([64.146.134.43]:58275 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1161021AbWBTQdJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 11:33:09 -0500
-Message-ID: <43F9EF43.3020709@mbligh.org>
-Date: Mon, 20 Feb 2006 08:33:07 -0800
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Mon, 20 Feb 2006 11:38:18 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:12041 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161011AbWBTQiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 11:38:18 -0500
+Date: Mon, 20 Feb 2006 17:38:16 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Brian Marete <bgmarete@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: ver_linux slightly broken (Re: Oops in Kernel 2.6.16-rc4 on Modprobe of saa7134.ko)
+Message-ID: <20060220163816.GC4661@stusta.de>
+References: <6dd519ae0602200504n7d89dcb9j4685f1f0939f9c53@mail.gmail.com> <20060220162049.GA8052@mipter.zuzino.mipt.ru>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] some fixups for the X86_NUMAQ dependencies
-References: <20060219232621.GC4971@stusta.de>
-In-Reply-To: <20060219232621.GC4971@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060220162049.GA8052@mipter.zuzino.mipt.ru>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> You must always ensure to fulfill the dependencies of what you are 
-> select'ing.
+On Mon, Feb 20, 2006 at 07:20:49PM +0300, Alexey Dobriyan wrote:
+> On Mon, Feb 20, 2006 at 01:04:24PM +0000, Brian Marete wrote:
+> > Linux C Library        14 02:33 /lib/libc.so.6
 > 
+> Please, run
 > 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 	ldd /bin/sh
+> and
+> 	ls -l /lib/libc*
 > 
-> ---
-> 
->  arch/i386/Kconfig |    7 +++----
->  1 file changed, 3 insertions(+), 4 deletions(-)
-> 
-> --- linux-2.6.16-rc3-mm1-full/arch/i386/Kconfig.old	2006-02-20 00:12:50.000000000 +0100
-> +++ linux-2.6.16-rc3-mm1-full/arch/i386/Kconfig	2006-02-20 00:17:57.000000000 +0100
-> @@ -84,6 +84,7 @@
->  
->  config X86_NUMAQ
->  	bool "NUMAQ (IBM/Sequent)"
-> +	select SMP
->  	select NUMA
->  	help
->  	  This option is used for getting Linux to run on a (IBM/Sequent) NUMA
-> @@ -419,6 +420,7 @@
+> and post full output. ver_linux needs updating.
 
-Surely NUMA should select SMP, not NUMA-Q?
+Your statement might be true, but I don't see this specific information 
+being as relevant for debugging this Oops.
 
->  config NOHIGHMEM
->  	bool "off"
-> +	depends on !X86_NUMAQ
->  	---help---
->  	  Linux can use up to 64 Gigabytes of physical memory on x86 systems.
->  	  However, the address space of 32-bit x86 processors is only 4
-> @@ -455,6 +457,7 @@
->  
->  config HIGHMEM4G
->  	bool "4GB"
-> +	depends on !X86_NUMAQ
->  	help
->  	  Select this if you have a 32-bit processor and between 1 and 4
->  	  gigabytes of physical RAM.
-> @@ -522,10 +525,6 @@
->  	default n if X86_PC
->  	default y if (X86_NUMAQ || X86_SUMMIT)
->  
-> -# Need comments to help the hapless user trying to turn on NUMA support
-> -comment "NUMA (NUMA-Q) requires SMP, 64GB highmem support"
-> -	depends on X86_NUMAQ && (!HIGHMEM64G || !SMP)
-> -
+cu
+Adrian
 
-Hmm. ISTR the reason we put that in there in the first place was that
-NUMA-Q got mysteriously hidden by other deps before, and it wasn't clear 
-how to select it. Perhaps we just had some of the deps backwards.
+-- 
 
-M.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,87 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWBTKFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbWBTKGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964818AbWBTKFe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 05:05:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbWBTKFe
+	id S964823AbWBTKGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 05:06:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWBTKGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 05:05:34 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:25699 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S964818AbWBTKFc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 05:05:32 -0500
-Message-ID: <43F994C3.9080403@sw.ru>
-Date: Mon, 20 Feb 2006 13:06:59 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Mon, 20 Feb 2006 05:06:24 -0500
+Received: from multi.science.ru.nl ([131.174.16.159]:19609 "EHLO
+	multi.science.ru.nl") by vger.kernel.org with ESMTP id S964823AbWBTKGY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 05:06:24 -0500
+From: Sebastian =?iso-8859-15?q?K=FCgler?= <sebas@kde.org>
+To: Matthias Hensler <matthias@wspse.de>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Date: Mon, 20 Feb 2006 11:05:34 +0100
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       nigel@suspend2.net, rjw@sisk.pl, suspend2-devel@lists.suspend2.net
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060218142610.GT3490@openzaurus.ucw.cz> <20060220093911.GB19293@kobayashi-maru.wspse.de>
+In-Reply-To: <20060220093911.GB19293@kobayashi-maru.wspse.de>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       vserver@list.linux-vserver.org, Herbert Poetzl <herbert@13thfloor.at>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: (pspace,pid) vs true pid virtualization
-References: <20060215145942.GA9274@sergelap.austin.ibm.com>	<m11wy4s24i.fsf@ebiederm.dsl.xmission.com>	<20060216142928.GA22358@sergelap.austin.ibm.com> <m17j7vqmy1.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m17j7vqmy1.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart3400338.lA2512bLnK";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200602201105.35378.sebas@kde.org>
+X-Spam-Score: -1.665 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>This is to support using pidspaces for vservers, and creating
->>migrateable sub-pidspaces in each vserver.
-> 
-> 
-> Agreed.
-> 
-> Now this case is very interesting, because supporting it creates
-> interesting restrictions on the rest of the problem, and
-> unless I miss something this is where the OpenVZ implementation
-> currently falls down.
-why do you think so? VPIDs approach supports nested pspaces easily. 
-Moreover it can be used in any configuration. See below.
+--nextPart3400338.lA2512bLnK
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Which names does the intermediate pidspace (vserver) see the child
-> pidspace with
-options:
-- all pspaces except for host system can live fully with virtual pids
-- you can restrict what parent pspace can see from it's child. and as in 
-your case you can see only "init".
-- you can make fully isolated pspaces, where these problems doesn't 
-arise at all.
+On Monday 20 February 2006 10:39, Matthias Hensler wrote:
+> > > The only con I see is the complexity of the code, but then again,
+> > > Nigel
+> >
+> > ..but thats a big con.
+>
+> So why is that? From what I see, most of the code is completly independ
+> of the rest of the kernel, and just does not affect if it is disabled.
+>
+> It won't do any harm to the kernel, and again, Nigel is constantly
+> improving that situation, so for sure, that is no _big_ con.
+
+I might add that you'd drag a devoted developer into the kernel team more=20
+closely, which probably makes up for the 'added complexity' anyway.
+
+The gain in working *together* on suspend2 is worth much more than the 'add=
+ed=20
+complexity' Pavel complains about. Nigel has stated more than once that he'=
+d=20
+be happy to maintain suspend2, and he's done so for quite some time already=
+,=20
+which proves his point. Nigel is paid to work on suspend2, so it's not like=
+ly=20
+to go away once he has a new hobby (and again, he's been doing great work f=
+or=20
+some time already).=20
+
+So what about working on merging suspend2 finally? Having a proven, stable =
+and=20
+feature-rich implemenation available quickly, *and* someone who maintains=20
+*and* support it actively does not sound like a bad deal to me.
+
+One should not underestimate the gains that a suspend2 merge has on the=20
+development merely by stating 'added complexity', that pays off _any_day_.
+
+By the way, does 'working on uswsusp' mean that Pavel and will put less wor=
+k=20
+in maintaining swsusp? That does not sound too promising to my sore ears.
+
+Personally, to work with, I'd prefer a developer who's responsibly dealing=
+=20
+with users' questions and problems any day to one who rejects 99% of emails=
+=20
+that don't contain a patch and 95% of those that contain one, stating 'WTF,=
+ I=20
+don't like that'.
+
+Bottom line: Judging developer resources only by lines of code added does n=
+ot=20
+make too much sense.
+=2D-=20
+sebas
+
+ http://www.kde.org | http://vizZzion.org |  GPG Key ID: 9119 0EF9=20
+=2D - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -=
+ -
+Accident, n.:	A condition in which presence of mind is good, but absence of=
+=20
+body is better.  - Foolish Dictionary
 
 
-> Which names does the initial pidspace see the child pid space with?
-initial pidspace always sees "global" pids.
+--nextPart3400338.lA2512bLnK
+Content-Type: application/pgp-signature
 
->>>- Do we need to be able to be able to ptrace/kill individual processes
->>>  in a pid space, from the outside, and why?
->>
->>I think this is completely unnecessary so long as a process can enter a
->>pidspace.
-See my other emails. This is required.
-1. Enter doesn't always work. e.g. due to resource limitations.
-2. you may don't want to install some apps inside, especiall taking into 
-account that libs in VPS can be broken.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
->>But you have, haven't you?  Namely, how can openvz provide it's
->>customers with a global view of all processes without putting 5 years of
->>work into a new sysadmin interface?
-> Well I think we can reuse most of the old sysadmin interfaces yes.
-Doesn't look so.
+iQEVAwUAQ/mUb2dNh9WRGQ75AQI0swgA2qN2rIXqZJiVfgTjx0EVG5QEjGZmerUa
+bJUByBc5Wfptox6ry2jWDOFnJxthYFh7huv6XdGALgUueEzb7DHuj12SM7i+zl7s
+lan3yJBu6rSKxNzBWgGIgLD73dxNmfOF/Ur9fp/VVTOk7vOEt1rOvZxDQMAKkhR4
+MQWM7uPTtf+SIRI5BujdAB5iWTUXcBwxC/QisVqdPlwmre8ra+0UD855y6Uzpwet
+AFzFRS/iKQzbCpO1ZyRB+OVbwrZ8Rp7uLNRlQVoOTHkl0cMpoSwOOf/L3KPiywhR
+jZaa1Gt3kbY22o1Wj6i3WriPiSN8yBIe5bYNN3MQaXPeVxHtOtuwWw==
+=758N
+-----END PGP SIGNATURE-----
 
-Kirill
-
-
+--nextPart3400338.lA2512bLnK--

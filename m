@@ -1,95 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030309AbWBTQXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161004AbWBTQ1B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030309AbWBTQXw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 11:23:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbWBTQXv
+	id S1161004AbWBTQ1B (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 11:27:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161005AbWBTQ1B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 11:23:51 -0500
-Received: from relay01.roc.ny.frontiernet.net ([66.133.182.164]:10149 "EHLO
-	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S1030304AbWBTQXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 11:23:50 -0500
-Reply-To: <jbowler@acm.org>
-From: John Bowler <jbowler@acm.org>
-To: "'Adrian Bunk'" <bunk@stusta.de>
-Cc: "'Martin Michlmayr'" <tbm@cyrius.com>,
-       "'Alessandro Zummo'" <alessandro.zummo@towertech.it>,
-       <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>
-Subject: RE: [RFC] [PATCH 1/2] Driver to remember ethernet MAC values: maclist
-Date: Mon, 20 Feb 2006 08:23:41 -0800
-Message-ID: <000201c6363a$042a1e30$1001a8c0@kalmiopsis>
+	Mon, 20 Feb 2006 11:27:01 -0500
+Received: from mail7.sea5.speakeasy.net ([69.17.117.9]:62375 "EHLO
+	mail7.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1161004AbWBTQ1A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 11:27:00 -0500
+Date: Mon, 20 Feb 2006 11:26:56 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@excalibur.intercode
+To: =?iso-8859-1?q?T=F6r=F6k_Edwin?= <edwin.torok@level7.ro>
+cc: netfilter-devel@lists.netfilter.org, fireflier-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, martinmaurer@gmx.at,
+       Patrick McHardy <kaber@trash.net>
+Subject: Re: [PATCH 2.6.15.4 1/1][RFC] ipt_owner: inode match supporting both
+ incoming and outgoing packets
+In-Reply-To: <200602181410.59757.edwin.torok@level7.ro>
+Message-ID: <Pine.LNX.4.64.0602201122330.21034@excalibur.intercode>
+References: <200602181410.59757.edwin.torok@level7.ro>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
-Importance: Normal
-In-Reply-To: <20060220023900.GE4971@stusta.de>
+Content-Type: MULTIPART/MIXED; BOUNDARY="537529445-1169445822-1140452646=:21034"
+Content-ID: <Pine.LNX.4.64.0602201125220.21034@excalibur.intercode>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adrian Bunk [mailto:bunk@stusta.de]
->Why can't setting MAC addresses be done from initramfs?
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-The submitted version of this code is actually an old version,
-which has some potential locking problems and doesn't document
-how to solve the problem of different drivers getting different
-MAC ids.
+--537529445-1169445822-1140452646=:21034
+Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-ID: <Pine.LNX.4.64.0602201125221.21034@excalibur.intercode>
 
-This stuff *should* be done in the board level code, that should
-load the MAC (somehow) and then set it into Ethernet driver resources
-so that the (necessarily later) init of the Ethernet device can
-pick up the correct address.
+On Sat, 18 Feb 2006, Török Edwin wrote:
 
-Unfortunately on some systems this (the use of machine level
-resources in the board init code) is not possible because the
-ethernet driver is in a module.  The *same* driver may be in kernel
-on other systems.
+> This is a patch based on Luke Kenneth Casson Leighton's patch [1] 
+> One problem with that patch was that it couldn't be used for filtering 
+> incoming packets, due to the fact that more than one process can listen on 
+> the same socket ([2],[3]).
 
-This creates a combinatorial problem - dealing with *all* the
-possibilities creates an enormous mess.  It doesn't matter where
-the solution happens - boot loader, initramfs or kernel init - the
-combinatorial problem is still there because there must be handling
-for every combination which occurs in practice.
+Have a look at my skfilter patches:
+http://people.redhat.com/jmorris/selinux/skfilter/kernel/
 
-The problem is very much one of embedded systems.  In such systems
-a generic board will have a specific manufacturing implementation
-which stores the MAC in an implementation specific way.  E.g. a
-vendor may drop the EEPROM from the Gateworks GW2348 board (that
-EEPROM costs real money!) and put the MAC in somewhere else.  Gateworks
-doesn't *document* a specific place to put the MAC (though they *do*
-put it in the EEPROM).  The lack of documentation and the certainty of
-variation in particular IHV uses of the board creates the problem.
+These implement a scheme for matching incoming packets against sockets by 
+adding a new hook in the socket layer.
 
-maclist simply breaks the problem into two pieces:
+For upstream merge, the issues are:
+- should the new socket hook be used for all incoming packets?
+- ensure IP queuing still works
 
-1) store this MAC in a linked list.
-2) read a MAC from a linked list.
+Patrick: any other issues?
 
-It's a classic "Gordian Knot" problem...
 
-I thought a linked list was pretty simple ;-)
 
-The locking in this version of the code is *wrong*, my assumptions
-were bogus and I don't think the code will work correctly on SMP
-systems.
-
-The latest version of the code includes significantly more 
-documentation in the header file and makes the whole thing fail
-safe.  Again this is an embedded system problem - the ethernet
-may be the only thing on the system!  The newer code returns an
-appropriate 'random' MAC if there isn't one available.  This makes
-debugging into a tractable problem on systems with just the
-ethernet.
-
-The implementation is still a linked list, but insertion is locked
-and checking is done to deal with the unavailable MAC case.  As in
-the simple case the advantage is that common code is in just one
-place, not replicated across multiple instances of board/driver
-code.
-
-John Bowler <jbowler@acm.org>
-
+- James
+-- 
+James Morris
+<jmorris@namei.org>
+--537529445-1169445822-1140452646=:21034--

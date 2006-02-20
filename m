@@ -1,65 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbWBTMkL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWBTMlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030191AbWBTMkL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 07:40:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbWBTMkL
+	id S1030192AbWBTMlG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 07:41:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030193AbWBTMlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 07:40:11 -0500
-Received: from tornado.reub.net ([202.89.145.182]:54503 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S1030191AbWBTMkK (ORCPT
+	Mon, 20 Feb 2006 07:41:05 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:22499 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1030192AbWBTMlE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 07:40:10 -0500
-Message-ID: <43F9B8A9.4000506@reub.net>
-Date: Tue, 21 Feb 2006 01:40:09 +1300
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Thunderbird 1.6a1 (Windows/20060213)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc4-mm1
-References: <20060220042615.5af1bddc.akpm@osdl.org>
-In-Reply-To: <20060220042615.5af1bddc.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Feb 2006 07:41:04 -0500
+Date: Mon, 20 Feb 2006 13:41:03 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Sam Vilain <sam@vilain.net>,
+       Rik van Riel <riel@redhat.com>, Kirill Korotaev <dev@openvz.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, clg@fr.ibm.com, haveblue@us.ibm.com,
+       greg@kroah.com, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
+       kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
+       Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>
+Subject: Re: The issues for agreeing on a virtualization/namespaces implementation.
+Message-ID: <20060220124103.GB17478@MAIL.13thfloor.at>
+Mail-Followup-To: Kirill Korotaev <dev@sw.ru>,
+	Hubertus Franke <frankeh@watson.ibm.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	"Serge E. Hallyn" <serue@us.ibm.com>, Sam Vilain <sam@vilain.net>,
+	Rik van Riel <riel@redhat.com>, Kirill Korotaev <dev@openvz.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, clg@fr.ibm.com, haveblue@us.ibm.com,
+	greg@kroah.com, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
+	kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
+	Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>
+References: <43E7C65F.3050609@openvz.org> <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com> <43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com> <20060207201908.GJ6931@sergelap.austin.ibm.com> <43E90716.4020208@watson.ibm.com> <m17j86dds4.fsf_-_@ebiederm.dsl.xmission.com> <43E92EDC.8040603@watson.ibm.com> <43F9B1F4.4040907@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F9B1F4.4040907@sw.ru>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 20, 2006 at 03:11:32PM +0300, Kirill Korotaev wrote:
+> >>The questions seem to break down into:
+> >>1) Where do we put the references to the different namespaces?
+> >>   - Do we put the references in a struct container that we reference 
+> >>from struct task_struct?
+> >>   - Do we put the references directly in struct task_struct?
+> >
+> >
+> >You "cache"   task_struct->container->hotsubsys   under 
+> >task_struct->hotsubsys.
+> >We don't change containers other then at clone time, so no coherency 
+> >issue here !!!!
+> >Which subsystems pointers to "cache", should be agreed by the experts,
+> >but first approach should always not to cache and go through the container.
+> agreed. I see no much reason to cache it and make tons of the same 
+> pointers in all the tasks. Only if needed.
 
+> Also, in OpenVZ container has many fields intergrated inside, so there 
+> is no additional dereference, but task->container->subsys_field
 
-On 21/02/2006 1:26 a.m., Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc4/2.6.16-rc4-mm1/
+as does Linux-VServer currently, but do you have
+any proof that putting all the fields together in
+one big structure actually has any (dis)advantage
+over separate structures?
+
+> >>2) What is the syscall interface to create these namespaces?
+> >>   - Do we add clone flags?       (Plan 9 style)
+> >Like that approach .. flexible .. particular when one has well
+> >specified namespaces.
+> mmm, how do you plan to pass additional flags to clone()?
+> e.g. strong or weak isolation of pids?
+
+do you really have to pass them at clone() time?
+would shortly after be more than enough?
+what if you want to change those properties later?
+
+> another questions:
+> how do you plan to meet the dependancies between namespaces?
+> e.g. conntracks require netfilters to be initialized.
+> network requires sysctls and proc to be initialized and so on.
+> do you propose to track all this in clone()? huh...
+
+this is missing isolation/virtualization, and I guess
+it has to be done to make those spaces useful ...
+
+> >>   - Do we add a syscall (similar to setsid) per namespace?
+> >>     (Traditional unix style)?
+> can be so...
 > 
-> - git-jfs.patch has been dropped due to its ongoing git problems.
-> 
-> - Added Al Viro's `bird' tree (what does that mean, anyway?) as
->   git-viro-bird.patch.
-> 
->   This tree had a lot of things dropped when it is merged into -mm, partly
->   because some of it appears to have been merged into other git trees.
-> 
-> - This kernel won't compile on ia64 (and possibly other architectures)
->   because the kbuild tree is using Elf_Rela in scripts/mod/modpost.c.  Is OK
->   on x86, x86_64 and powerpc.  Sam might send a hotfix?
-> 
-> - Many warnings are emitted at the link stage due to section mismatches and
->   duplicated symbol exports.  Please don't report these.  Patches are welcome,
->   but do them carefully - it's easy to make mistakes with these things.
+> >>   - Do we in addition add syscalls to manipulate containers
+> >>   generically?
+> >>
+> >>   I don't think having a single system call to create a container
+> >>   and a new instance of each namespace is reasonable as that does
+> >>   not give us a path into the future when we create yet another
+> >>   namespace.
+> >Agreed.
+> why do you think so?
 
-Time for the brown paper bag............ ;)
+> this syscalls will start handling this new namespace and that's all.
+> this is not different from many syscalls approach.
 
-[root@tornado linux-2.6-mm]# make
-/usr/src/linux/linux-2.6-mm/scripts/gcc-version.sh: line 11: ccache: command not 
-found
-/usr/src/linux/linux-2.6-mm/scripts/gcc-version.sh: line 12: ccache: command not 
-found
-make: ccache: Command not found
-   CHK     include/linux/version.h
-   CC      arch/i386/kernel/asm-offsets.s
-/bin/sh: ccache: command not found
-make[1]: *** [arch/i386/kernel/asm-offsets.s] Error 127
-make: *** [prepare0] Error 2
-[root@tornado linux-2.6-mm]#
+well, let's defer the 'how amny syscalls' issue to
+a later time, when we know what we want to implement :)
 
-Removing 'ccache' from the CC line in Makefile fixed this.
+> >>4) How do we implement each of these namespaces?
+> >>   Besides being maintainable are there other constraints?
+> >>
+> >Good question... at least with PID and FS two are there ..
+> >>
+> >>6) How do we do all of this efficiently without a noticeable impact on
+> >>   performance?
+> >>   - I have already heard concerns that I might be introducing cache
+> >>     line bounces and thus increasing tasklist_lock hold time.
+> >>     Which on big way systems can be a problem.
 
-reuben
+> this is nothing compared to hierarchy operations.
+> BTW, heirarchy also introduces complicated resource accounting, 
+> sometimes making it even impossible.
+
+well, depends how you do it ...
+
+best,
+Herbert
+
+> Kirill

@@ -1,78 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932583AbWBTLZ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWBTL0D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932583AbWBTLZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 06:25:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbWBTLZ1
+	id S964817AbWBTL0D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 06:26:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbWBTL0D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 06:25:27 -0500
-Received: from zproxy.gmail.com ([64.233.162.206]:5126 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932586AbWBTLZ1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 06:25:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JIbRTQGPRQ6jy0aI3nO55kJYrihTQeXi+kH7X+8XCRmSo67GAUbEWp1H5uneWQSE3wnXM0ncMHm2VcIBjeIMbCF3Oku45scyrAkTV5COabVBFPE1xT4i9FhZlaJHSCo+2LPf2pxpydtC6z/0OoUz6CrhgL7KSYgPndiHWHlMMl8=
-Message-ID: <756b48450602200325v28f0300cu8b4845ab9dba9a4c@mail.gmail.com>
-Date: Mon, 20 Feb 2006 19:25:26 +0800
-From: "Jaya Kumar" <jayakumar.acpi@gmail.com>
-To: "Matthew Garrett" <mjg59@srcf.ucam.org>
-Subject: Re: [PATCH 2.6.15.3 1/1] ACPI: Atlas ACPI driver
-Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060220110145.GB4489@srcf.ucam.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 20 Feb 2006 06:26:03 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:32690 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S932586AbWBTL0C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 06:26:02 -0500
+Date: Mon, 20 Feb 2006 14:26:00 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>, bjk@luxsci.net,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Bugzilla: PCI resource address mismatch
+Message-ID: <20060220142600.A25613@jurassic.park.msu.ru>
+References: <43F91283.4050307@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200602200213.k1K2DrDW013988@ns1.clipsalportal.com>
-	 <20060220102639.GA4342@srcf.ucam.org>
-	 <756b48450602200249k1b79b108u42bfef68e1e9dba8@mail.gmail.com>
-	 <20060220110145.GB4489@srcf.ucam.org>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <43F91283.4050307@gmail.com>; from adaplas@gmail.com on Mon, Feb 20, 2006 at 08:51:15AM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/20/06, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
-> On Mon, Feb 20, 2006 at 06:49:54PM +0800, Jaya Kumar wrote:
->
-> > I'm not sure how standard that is. For example, I looked at the asus
-> > and toshiba drivers. These ACPI board drivers use
-> > /proc/acpi/somedevice/lcd. For example,
->
-> And, from a userspace perspective, it sucks. I'm in the process of
-> writing patches to transition them all over, and I'd prefer not to have
-> to write one for your driver as well :)
+On Mon, Feb 20, 2006 at 08:51:15AM +0800, Antonino A. Daplas wrote:
+> Ben Kibbey reported that vesafb has stopped working for him for kernels newer than
+> 2.6.12. His display is completely blanked. After a long debugging session, we noted
+> that the address of resource 0 of his VGA controller as reported by lspci does not
+> match what is reported by the BIOS.
+> 
+> More details:
+> 
+> In the working kernel (2.6.12.x), vesafb correctly ioremap's the framebuffer memory
+> located at 0xff000000.  lspci reports the same thing:
+> 
+> PCI: Using IRQ router SIS [1039/0008] at 0000:00:01.0
+> PCI: Cannot allocate resource region 9 of bridge 0000:00:02.0
 
-I have some questions then.
-1. Are Patrick's acpi driver model changes considered to be a more
-final approach that standardize everyone to some sysfs based interface
-to userspace?
-1a. Can I assume there is consensus among the acpi community around
-his new model?
-2. Is his driver model going to maintain compatibility with the older
-existing /proc model and those userspace apps that already use that
-interface?
-3. Is his driver model going to also maintain compatibility with your
-newer model (assuming that his model is different than yours).
+There are two bogus entries in the BIOS memory map table which are
+conflicting with a prefetchable memory range of the AGP bridge:
 
->
-> > I'll go take a look at that. I didn't look for an acpi driver outside
-> > of the drivers/acpi directory. But if that's the consensus, shouldn't
-> > someone also mod the toshiba and asus drivers?
->
-> I'm doing so.
+ BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
+ BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
 
-Ok. I wish I'd known before. I scanned the mailing list before
-mbarking on this to see if any issues were raised with toshiba and
-asus driver code and didn't see anything. FWIW, my powers of mind
-reading only work on Fridays. :-)
+0000:00:02.0 PCI bridge: Silicon Integrated Systems [SiS] Virtual PCI-to-PCI bridge (AGP) (prog-if 00 [Normal decode])
+	Flags: bus master, fast devsel, latency 0
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+	I/O behind bridge: 0000c000-0000cfff
+	Memory behind bridge: e7e00000-e7efffff
+	Prefetchable memory behind bridge: fec00000-ffcfffff
+					   ^^^^^^^^^^^^^^^^^
 
-> Doing it via the input layer adds flexibility - it makes it easier for
-> non-root uesrspace to handle things, but you can still have a root-level
-> daemon that monitors /dev/input/event* and runs commands in response to
-> keycodes.
->
+Starting from 2.6.13, kernel tries to resolve that sort of conflicts,
+so that prefetch window of the bridge and the framebuffer memory behind
+it get moved to 0x10000000.
+Unfortunately, video BIOS still expects the framebuffer to be at 0xff000000,
+that's why vesafb doesn't work.
 
-Oh. I don't disagree with that.
+Booting with "mem=64M" (or what amount of RAM he has) should fix that,
+as it causes the kernel to ignore e820 entries above 64M.
 
-Thanks,
-jayakumar
+Ivan.

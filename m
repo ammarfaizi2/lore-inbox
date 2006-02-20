@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWBTAo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbWBTAqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbWBTAo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 19:44:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbWBTAo1
+	id S1751154AbWBTAqr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 19:46:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWBTAqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 19:44:27 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:64673 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751153AbWBTAo0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 19:44:26 -0500
-Date: Mon, 20 Feb 2006 01:44:07 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Nigel Cunningham <nigel@suspend2.net>,
-       Matthias Hensler <matthias@wspse.de>, Sebastian Kgler <sebas@kde.org>,
-       kernel list <linux-kernel@vger.kernel.org>, rjw@sisk.pl
-Subject: Re: suspend2 review [was Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)]
-Message-ID: <20060220004407.GK15608@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602200709.17955.nigel@suspend2.net> <20060219234212.GA1762@elf.ucw.cz> <200602191935.36844.dtor_core@ameritech.net>
+	Sun, 19 Feb 2006 19:46:47 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:11727
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751154AbWBTAqq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 19:46:46 -0500
+Date: Sun, 19 Feb 2006 16:46:35 -0800
+From: Greg KH <greg@kroah.com>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: Pavel Machek <pavel@suse.cz>, torvalds@osdl.org, akpm@osdl.org,
+       linux-pm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [linux-pm] [PATCH 3/5] [pm] Respect the actual device power states in sysfs interface
+Message-ID: <20060220004635.GA22576@kroah.com>
+References: <Pine.LNX.4.50.0602171758160.30811-100000@monsoon.he.net> <20060218155543.GE5658@openzaurus.ucw.cz> <Pine.LNX.4.50.0602191557520.8676-100000@monsoon.he.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200602191935.36844.dtor_core@ameritech.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.50.0602191557520.8676-100000@monsoon.he.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Ne 19-02-06 19:35:36, Dmitry Torokhov wrote:
-> On Sunday 19 February 2006 18:42, Pavel Machek wrote:
-> > --- linux-2.6.15-1/drivers/input/serio/serio.c  2006-01-03 15:08:26.000000000 +1000
-> > +++ build-2.6.15.1/drivers/input/serio/serio.c  2006-01-23 21:38:28.000000000 +1000
-> > @@ -314,6 +314,12 @@
-> >  
-> >                 serio_remove_duplicate_events(event);
-> >                 serio_free_event(event);
-> > +
-> > +               if (unlikely(todo_list_active())) {
-> > +                       up(&serio_sem);
-> > +                       try_todo_list();
-> > +                       down(&serio_sem);
-> > +               }
-> >         }
-> >  
-> >         up(&serio_sem);
-> > 
-> > What is this?
-> > 
+On Sun, Feb 19, 2006 at 03:59:25PM -0800, Patrick Mochel wrote:
 > 
-> I think it is a leftover from when serio and gameport cores were not
-> "swsusp friendly" and were not releasing semaphore untill all pending
-> messages have been processed. If you remember swsusp used to fail in
-> this case. It can be safely dropped now.
+> On Sat, 18 Feb 2006, Pavel Machek wrote:
 > 
-> Overall as you noted alot of changes in Nigel's patch are useable outside
-> of swsuspend2 so it's intrusiveness is not as big as you making it appear.
+> > Hi!
+> >
+> > > Fix the per-device state file to respect the actual state that
+> > > is reported by the device, or written to the file.
+> >
+> > Can we let "state" file die? You actually suggested that at one point.
+> >
+> > I do not think passing states in u32 is good idea. New interface that passes
+> > state as string would probably be better.
+> 
+> Yup, in the future that will be better. For now, let's work with what we
+> got and fix 2.6.16 to be compatible with previous versions..
 
-Yes, some of them are usaeable outside. But many of them were
-attempted outside and vetoed for whatever reason :-(.
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+It's _way_ too late in the 2.6.16 cycle for this series of patches, if
+that is what you are proposing.
+
+thanks,
+
+greg k-h

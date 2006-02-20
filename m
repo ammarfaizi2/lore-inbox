@@ -1,79 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932661AbWBTUCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932672AbWBTUDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932661AbWBTUCF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 15:02:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932672AbWBTUCF
+	id S932672AbWBTUDe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 15:03:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932674AbWBTUDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 15:02:05 -0500
-Received: from watts.utsl.gen.nz ([202.78.240.73]:21667 "EHLO mail.utsl.gen.nz")
-	by vger.kernel.org with ESMTP id S932661AbWBTUCE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 15:02:04 -0500
-Message-ID: <43FA202C.9060506@vilain.net>
-Date: Tue, 21 Feb 2006 09:01:48 +1300
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Mon, 20 Feb 2006 15:03:34 -0500
+Received: from mail.linicks.net ([217.204.244.146]:60621 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S932672AbWBTUDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 15:03:33 -0500
+From: Nick Warne <nick@linicks.net>
+To: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: i386 AT keyboard LED question.
+Date: Mon, 20 Feb 2006 20:03:26 +0000
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: (pspace,pid) vs true pid virtualization
-References: <20060215145942.GA9274@sergelap.austin.ibm.com> <43F3B820.8030907@vilain.net> <43F98933.2020703@sw.ru>
-In-Reply-To: <43F98933.2020703@sw.ru>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602202003.26642.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev wrote:
-> I think the first thing we have to do, is not to decide which pids we 
-> want to see, but what and how we want to virtualize.
+Hi Vojtech,
 
-No, let's not even decide on that :).
+I wondered why numlock LED goes off during boot process, even though I ask 
+BIOS to turn on;
 
-I think where we've come to, is that there is no *important* difference
-between virtualising on a per-process or a per-process family basis, so
-long as you can suitably arrange arbitrary families it is equivalent to
-the "pure" method of strict per-process virtualisation as Eric has been
-implementing.
+atkbd.c
 
->> Depending on the flags on the XID, we can incorporate all the approaches
->> being tabled.  You want virtualised pids?  Well, that'll hurt a little,
->> but suit yourself - set a flag on your container and inside the
->> container you get virtualised PIDs.  You want a flat view for all your
->> vservers?  Fine, just use an XID without the virtualisation flag and
->> with the "all seeing eye" property set.  Or you use an XID _with_ the
->> virtualisation flag set, and then call a tuple-endowed API to find the
->> information you're after.
-> This sounds good. But pspaces are also used for access controls. So this 
-> should be incorparated there as well.
+/*
+ * If the get ID command failed, we check if we can at least set the LEDs on
+ * the keyboard. This should work on every keyboard out there. It also turns
+ * the LEDs off, which we want anyway.
+ */
+                param[0] = 0;
+                if (ps2_command(ps2dev, param, ATKBD_CMD_SETLEDS))
+                        return -1;
 
-Yes, and I'm hoping that with the central structure there it should be
-easy to start re-basing the Linux VServer patch as well as openvz and
-any other similar technology people have.
 
-Then we can cherry-pick features from any of the 'competing' solutions
-in this space.
+What is the rationale *why* we want LEDS off anyway?
 
-I have a preliminary patch, and hope to have a public submission this
-week.
+Thanks,
 
-Sam.
+Nick
+-- 
+"Person who say it cannot be done should not interrupt person doing it."
+-Chinese Proverb

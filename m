@@ -1,144 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWBTNwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030231AbWBTNzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030225AbWBTNwE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 08:52:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbWBTNwE
+	id S1030231AbWBTNzU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 08:55:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030232AbWBTNzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 08:52:04 -0500
-Received: from canadatux.org ([81.169.162.242]:64223 "EHLO
-	zoidberg.canadatux.org") by vger.kernel.org with ESMTP
-	id S1030225AbWBTNwC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 08:52:02 -0500
-Date: Mon, 20 Feb 2006 14:51:45 +0100
-From: Matthias Hensler <matthias@wspse.de>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Lee Revell <rlrevell@joe-job.com>, Sebastian Kgler <sebas@kde.org>,
-       kernel list <linux-kernel@vger.kernel.org>, nigel@suspend2.net,
-       rjw@sisk.pl
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060220135145.GA5534@kobayashi-maru.wspse.de>
-Reply-To: Matthias Hensler <matthias@wspse.de>
-References: <20060211104130.GA28282@kobayashi-maru.wspse.de> <20060218142610.GT3490@openzaurus.ucw.cz> <20060220093911.GB19293@kobayashi-maru.wspse.de> <1140430002.3429.4.camel@mindpipe> <20060220101532.GB21817@kobayashi-maru.wspse.de> <1140431058.3429.15.camel@mindpipe> <20060220103329.GE21817@kobayashi-maru.wspse.de> <1140434146.3429.17.camel@mindpipe> <20060220122443.GB3495@kobayashi-maru.wspse.de> <20060220132842.GC23277@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+	Mon, 20 Feb 2006 08:55:20 -0500
+Received: from mail13.bluewin.ch ([195.186.18.62]:4736 "EHLO mail13.bluewin.ch")
+	by vger.kernel.org with ESMTP id S1030231AbWBTNzS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 08:55:18 -0500
+Date: Mon, 20 Feb 2006 08:53:15 -0500
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Linus <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       apgo@patchbomb.org, linuxppc64-dev@ozlabs.org,
+       Paul Mackerras <paulus@samba.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       LKML <linux-kernel@vger.kernel.org>, trond.myklebust@fys.uio.no
+Subject: Re: [PATCH] Fix compile for CONFIG_SYSVIPC=n or CONFIG_SYSCTL=n
+Message-ID: <20060220135315.GA24943@krypton>
+References: <20060218100849.GA1869@krypton> <17400.23551.904754.47979@cargo.ozlabs.ibm.com> <20060220153226.30ee4b13.sfr@canb.auug.org.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060220132842.GC23277@atrey.karlin.mff.cuni.cz>
-Organization: WSPse (http://www.wspse.de/)
-X-Gummibears: Bouncing here and there and everywhere
-X-Face: &Tv]9SsNpb/$w8\G-O%>W02aApFW^P>[x+Upv9xQB!2;iD9Y1-Lz'qlc{+lL2Y>J(u76Jk,cJ@$tP2-M%y?^'jn2J]3C'ss_~"u?kA^X&{]h?O?@*VwgSGob73I9r}&S%ktup0k2!neScg3'HO}PU#Ac>jwNL|P@f|f*sz*cP'hi)/<JQC4|Q[$D@aQ"C{$>a=6.rc-P1vXarjVXlzClmNfcSy/$4tQz
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060220153226.30ee4b13.sfr@canb.auug.org.au>
+User-Agent: Mutt/1.5.11+cvs20060126
+From: apgo@patchbomb.org (Arthur Othieno)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mon, Feb 20, 2006 at 03:32:26PM +1100, Stephen Rothwell wrote:
+> The compat syscalls are added to sys_ni.c since they are not defined
+> if the above CONFIG options are off. Also, nfs would not build with
+> CONFIG_SYSCTL off.
+> 
+> Noticed by Arthur Othieno.
+> 
+> Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
 
-On Mon, Feb 20, 2006 at 02:28:42PM +0100, Pavel Machek wrote:
-> > On Mon, Feb 20, 2006 at 06:15:46AM -0500, Lee Revell wrote:
-> > > But we have not established that the current implementation does
-> > > not work!  That's a pretty strong assertion to make with zero
-> > > evidence.
+Looks good, thanks ;-)
+
+Acked-by: Arthur Othieno <apgo@patchbomb.org>
+
+> ---
+> 
+>  include/linux/nfs_fs.h |    2 +-
+>  kernel/sys_ni.c        |    2 ++
+>  2 files changed, 3 insertions(+), 1 deletions(-)
+> 
+> On Sun, 19 Feb 2006 22:52:31 +1100 Paul Mackerras <paulus@samba.org> wrote:
+> >
+> > Arthur Othieno writes:
 > > 
-> > As I said, it did not work. Efforts to make it work just started
-> > recently, at a time when Suspend 2 already was stable and reliable
-> > to me.
-> 
-> That is not true.
-
-What? That Suspend 2 was stable for me that time? Yes, it definitly
-was. The same time when swsusp failed dramatically here, if there was
-progress I could not see it that time.
-
-> > The first try was a desaster, partly my own fault, partly because
-> > swsusp does not allow abortion (remember what I said about having a
-> > least some basic stuff in the kernel). However, I rebooted, fscked,
-> > no filesystem corruption *phew*.
-> 
-> Abortion can be done in userspace. Perhaps even as easily as ^c during
-> the suspend script.
-
-Actually this was on resume, while the kernel was in full control. With
-Suspend 2 I could have pressed escape (that is the ugly stuff you
-complained about), while I had to fully restart the system with sysrq+b
-with swsusp.
-
-> > The second try worked, with ugly messages scrolling over the
-> > console, but ok, Suspend 2 already fixes some drivers which has not
-> > yet been merged to mainline. The system resumed, which is fine.
-> 
-> Submit driver fixes, then.
-
-Nigel did, that is why the patch is so huge.
-
-> > Third try sound was gone. On the fourth try the system hanged after
-> > starting ppracer (to test GLX/DRI on my i855).
-> 
-> Submit AGP fixes, then.
-
-I think no such fixes are in Suspend 2, but still it works there.
-
-> > This is a much more recent kernel, than the ones I used with Suspend
-> > 2 for the last 1.5 problems. Problems discovered have been no issue
-> > with Suspend 2 for at least 7 or 8 months (no single crash or driver
-> > problems). This is mostly a driver issue and undoubtly can be
-> > solved, but I still do not see how this can be done when all efforts
-> > are put into just another suspend implementation (uswsusp).
-> 
-> uswsusp & swsusp & suspend2 share underlying drivers. If Nigel has
-> some fixes he had not propagated upstream... that is not *my* fault.
-
-Read again, I already said that this are some driver problems, and I
-think that most of them are already submitted.
-
-But then again, this was about work/not work, and there are still
-problems, so there is still efford needed. In this situation it is not
-good to just start over, but take the things that are already there and
-work with it.
-
-> > Ah, and now the part I really like, some hard numbers: swsusp takes
-> > between 26 and 30 seconds to suspend (in my four tries: 26, 30, 28,
-> > 26) and between 35 and 45 seconds to resume (35, 45, 39, 37).
+> > > --- a/arch/powerpc/kernel/sys_ppc32.c
+> > > +++ b/arch/powerpc/kernel/sys_ppc32.c
+> > > @@ -440,7 +440,13 @@ long compat_sys_ipc(u32 call, u32 first,
+> > >  
+> > >  	return -ENOSYS;
+> > >  }
+> > > -#endif
+> > > +#else
+> > > +long compat_sys_ipc(u32 call, u32 first, u32 second, u32 third, compat_uptr_t ptr,
+> > > +	       u32 fifth)
+> > > +{
+> > > +	return -ENOSYS;
+> > > +}
+> > > +#endif /* CONFIG_SYSVIPC */
 > > 
-> > Suspend 2 does suspend in around 14-16 seconds, and resume in 18 to
-> > 21.
-> > 
-> > That is factor 2!
+> > Can't we just add a couple of cond_syscall lines to kernel/sys_ni.c
+> > instead?
 > 
-> Does that include time to boot resume kernel? It will not be that
-> dramatic with that time included, and it is only fair to include it.
-
-Actually it is, yes. This time is dramatic and includes the full time I
-see from a user point of view.
-
-Time for suspend was measured from the time I started hibernate (Suspend
-2)/echoed disk into /sys/power/state (swsusp) until the moment the
-notebook powered down.
-
-Time for resume was measured from the time I pressed enter in grub and
-the system was back will full X and drivers and ready to work.
-
-I think this is a fair time comparision, and it is a dramatic factor of
-2. (BTW: the time from powering on the notebook until the grub-menu
-comes up takes 3 seconds, so feel free to add this. It would not make a
-huge difference.)
-
-However, this test was made with very empty caches, I suspect after some
-more work when the caches get filled, this will change even more
-dramatically, thanks to LZF compression (which might be in uswsusp, but
-is not in swsusp).
-
-> Anyway uswsusp solves that issue.
-
-Maybe it will, but when?
-
-I looks like that we are at the same point we started from: swsusp had a
-lot of problems in the past and is still not working so great and also
-very slow. Suspend 2 has proved to be stable and reliable for nearly a
-year. Work on uswsusp has just started and needs a lot of time to become
-mature.
-
-And here is my point again: take the easiest way to make hibernation
-working fast, and when that is done start to work on any new
-implementation.
-
-Regards,
-Matthias
+> Linus, can we have this applied for 2.6.16.  It presumably affects sparc64
+> (at least for CONFIG_SYSVIPC) as well as powerpc.  The NFS fix would
+> affect all architectures, I think?
+> 
+> This has been compile tested with the CONFIG options on and off for powerpc.
+> 
+> -- 
+> Cheers,
+> Stephen Rothwell                    sfr@canb.auug.org.au
+> http://www.canb.auug.org.au/~sfr/
+> 
+> c1a27bc400a1412c7c758775bb695e8b98d1c0c3
+> diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
+> index 547d649..b4dc6e2 100644
+> --- a/include/linux/nfs_fs.h
+> +++ b/include/linux/nfs_fs.h
+> @@ -398,7 +398,7 @@ extern struct inode_operations nfs_symli
+>  extern int nfs_register_sysctl(void);
+>  extern void nfs_unregister_sysctl(void);
+>  #else
+> -#define nfs_register_sysctl() do { } while(0)
+> +#define nfs_register_sysctl() 0
+>  #define nfs_unregister_sysctl() do { } while(0)
+>  #endif
+>  
+> diff --git a/kernel/sys_ni.c b/kernel/sys_ni.c
+> index 17313b9..1067090 100644
+> --- a/kernel/sys_ni.c
+> +++ b/kernel/sys_ni.c
+> @@ -104,6 +104,8 @@ cond_syscall(sys_setreuid16);
+>  cond_syscall(sys_setuid16);
+>  cond_syscall(sys_vm86old);
+>  cond_syscall(sys_vm86);
+> +cond_syscall(compat_sys_ipc);
+> +cond_syscall(compat_sys_sysctl);
+>  
+>  /* arch-specific weak syscall entries */
+>  cond_syscall(sys_pciconfig_read);
+> -- 
+> 1.2.1

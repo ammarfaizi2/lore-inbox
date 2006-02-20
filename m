@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWBTJnF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbWBTJpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932407AbWBTJnF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 04:43:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWBTJnF
+	id S932408AbWBTJpF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 04:45:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWBTJpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 04:43:05 -0500
-Received: from canadatux.org ([81.169.162.242]:36241 "EHLO
-	zoidberg.canadatux.org") by vger.kernel.org with ESMTP
-	id S932407AbWBTJnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 04:43:04 -0500
-Date: Mon, 20 Feb 2006 10:43:00 +0100
-From: Matthias Hensler <matthias@wspse.de>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Nigel Cunningham <nigel@suspend2.net>, Sebastian Kgler <sebas@kde.org>,
-       kernel list <linux-kernel@vger.kernel.org>, rjw@sisk.pl
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060220094300.GC19293@kobayashi-maru.wspse.de>
-Reply-To: Matthias Hensler <matthias@wspse.de>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060211104130.GA28282@kobayashi-maru.wspse.de> <20060218142610.GT3490@openzaurus.ucw.cz> <200602200709.17955.nigel@suspend2.net> <20060219212952.GI15311@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+	Mon, 20 Feb 2006 04:45:05 -0500
+Received: from nproxy.gmail.com ([64.233.182.194]:13910 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932408AbWBTJpE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 04:45:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LUTzlKovowm8kfuI714LBg4g5J0Aub0e4ZuoVTTa22wowhE+Zp5IeSesHqNMRhJ89+b4Yh5y5qT2VeROcHRCF9vdbVhxfHhyvk2Y0CB4eHQUuN9vCv4hdJCe9JxTaKxX09apBWkMkgiuy9nMwXQ1lYK4U2j3RSHTdFVsFGxRbz8=
+Message-ID: <81b0412b0602200145r77e99ddbvea55ce9aff07b575@mail.gmail.com>
+Date: Mon, 20 Feb 2006 10:45:02 +0100
+From: "Alex Riesen" <raa.lkml@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [PATCH] Work around asus_acpi driver oopses on Samsung P30s and the like due to the ACPI implicit return
+Cc: "Alex Riesen" <fork0@users.sourceforge.net>,
+       acpi-devel@lists.sourceforge.net, torvalds@osdl.org, mail@hboeck.de,
+       len.brown@intel.com, Greek0@gmx.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20060219211852.05d08f55.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060219212952.GI15311@elf.ucw.cz>
-Organization: WSPse (http://www.wspse.de/)
-X-Gummibears: Bouncing here and there and everywhere
-X-Face: &Tv]9SsNpb/$w8\G-O%>W02aApFW^P>[x+Upv9xQB!2;iD9Y1-Lz'qlc{+lL2Y>J(u76Jk,cJ@$tP2-M%y?^'jn2J]3C'ss_~"u?kA^X&{]h?O?@*VwgSGob73I9r}&S%ktup0k2!neScg3'HO}PU#Ac>jwNL|P@f|f*sz*cP'hi)/<JQC4|Q[$D@aQ"C{$>a=6.rc-P1vXarjVXlzClmNfcSy/$4tQz
-User-Agent: Mutt/1.5.11
+References: <F7DC2337C7631D4386A2DF6E8FB22B300580F140@hdsmsx401.amr.corp.intel.com>
+	 <20051222174226.GB20051@hell.org.pl>
+	 <20060219125258.GB6041@steel.home>
+	 <20060219211852.05d08f55.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On 2/20/06, Andrew Morton <akpm@osdl.org> wrote:
+> Alex Riesen <fork0@users.sourceforge.net> wrote:
+> >
+> > FWIW, I need the patch below to stop ACPI freezing at boot on Asus S1300N.
+> > There is a BIOS update from Asus, but no mention of any fixes in ACPI,
+> > so as I have no means to backup the BIOS in case something goes wrong
+> > I didn't do the update.
+>
+> I think it'd be worth trying the update anyway please.  Normally those
+> updating programs are pretty careful to not give you a dead box.
 
-On Sun, Feb 19, 2006 at 10:29:52PM +0100, Pavel Machek wrote:
-> Maybe very little of substance is being done in userspace, but all the
-> uglyness can stay there. I no longer need LZF in kernel, special
-> netlink API for progress bar (progress bar naturally lives in
-> userland), no plugin infrastructure needed, etc.
+You think? ... Still, it'll have to wait till the next weekend. I really
+cannot afford a "dead box" midweek.
 
-Linux has a whole crypto API in the kernel, so why is it a problem to
-have LZF there too?
+> > I found out (by putting printks in the initialization code) that a
+> > call to INI (whatever it is) of VGA_ (whatever this is) immediately
+> > freezes the notebook and the fan goes on shortly afterwards.
+> >
+>
+> Is this a recent problem, or did earlier 2.6.x kernels also fail?
 
-About the progress bar: this is already implemented in userspace, the
-kernel just forwards the progress via netlink to it. Not necessarily
-ugly I think.
-
-Regards,
-Matthias
+Yes. I think I got the notebook around 2.6.9, and it already had the problem.
+I don't remember what I did back than, probably run it with ACPI disabled,
+or maybe I made that workaround immediately (there were some sound
+problems without ACPI, I recall).

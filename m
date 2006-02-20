@@ -1,82 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932623AbWBTVyf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932632AbWBTWAT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932623AbWBTVyf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 16:54:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932625AbWBTVyf
+	id S932632AbWBTWAT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 17:00:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932631AbWBTWAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 16:54:35 -0500
-Received: from ctb-mesg5.saix.net ([196.25.240.75]:4003 "EHLO
-	ctb-mesg5.saix.net") by vger.kernel.org with ESMTP id S932623AbWBTVyf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 16:54:35 -0500
-Subject: Re: kernel panic with unloadable module support... SMP
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Adrian Bunk <bunk@stusta.de>
-Cc: George P Nychis <gnychis@cmu.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060219191552.GB4971@stusta.de>
-References: <1174.128.237.252.29.1140376277.squirrel@128.237.252.29>
-	 <20060219191552.GB4971@stusta.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-MAmXFff5IOREQgX27hJk"
-Date: Mon, 20 Feb 2006 23:56:58 +0200
-Message-Id: <1140472618.29789.12.camel@lycan.lan>
+	Mon, 20 Feb 2006 17:00:19 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:54195 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932629AbWBTWAR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 17:00:17 -0500
+Date: Tue, 21 Feb 2006 08:59:53 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: christoph <hch@lst.de>, mcao@us.ibm.com, akpm@osdl.org,
+       lkml <linux-kernel@vger.kernel.org>, jeremy@sgi.com,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>
+Subject: Re: [PATCH 0/3] map multiple blocks in get_block() and mpage_readpages()
+Message-ID: <20060221085953.H9484650@wobbly.melbourne.sgi.com>
+References: <1140470487.22756.12.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.91 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1140470487.22756.12.camel@dyn9047017100.beaverton.ibm.com>; from pbadari@us.ibm.com on Mon, Feb 20, 2006 at 01:21:27PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 20, 2006 at 01:21:27PM -0800, Badari Pulavarty wrote:
+> Hi,
 
---=-MAmXFff5IOREQgX27hJk
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hi Badari,
 
-On Sun, 2006-02-19 at 20:15 +0100, Adrian Bunk wrote:
-> On Sun, Feb 19, 2006 at 02:11:17PM -0500, George P Nychis wrote:
->=20
-> > Hi,
->=20
-> Hi George,
->=20
-> > Whenever I compiled unloadable module support into my 2.6.15-r1 kernel,=
- my kernel panic's when booting up when it tries to load a module for the f=
-irst time.
-> >=20
-> > I had this problem back with the 2.6.14 kernel, but figured it may have=
- been solved since then so I tried it... and still fails.
-> >=20
-> > Unloadable module support would be very helpful to me.
-> >=20
-> > I am using an intel p4 3.0ghz with SMP support built into the kernel.
-> >...
->=20
-> What is 2.6.15-r1 for a kernel?
-> Is your problem present in an unmodified 2.6.16-rc4 kernel from=20
-> ftp.kernel.org?
->=20
+> Following patches add support to map multiple blocks in ->get_block().
+> This is will allow us to handle mapping of multiple disk blocks for
+> mpage_readpages() and mpage_writepages() etc. Instead of adding new
+> argument, I use "b_size" to indicate the amount of disk mapping needed
+> for get_block(). And also, on success get_block() actually indicates
+> the amount of disk mapping it did.
 
-If it was gentoo's vanilla-sources (which is just that - vanilla
-kernel.org sources), then no 2.6.x version ever packaged by Gentoo, so
-either he had gentoo-sources, which is something totally different (and
-not vanilla sources as he specified), or there is a naming issue ...
+Thanks for doing this work!
 
+> Now that get_block() can handle multiple blocks, there is no need
+> for ->get_blocks() which was added for DIO. 
+> 
+> [PATCH 1/3] pass b_size to ->get_block()
+> 
+> [PATCH 2/3] map multiple blocks for mpage_readpages()
+> 
+> [PATCH 3/3] remove ->get_blocks() support
+> 
+> I noticed decent improvements (reduced sys time) on JFS, XFS and ext3. 
+> (on simple "dd" read tests).
+> 	
+>          (rc3.mm1)	(rc3.mm1 + patches)
+> real    0m18.814s	0m18.482s
+> user    0m0.000s	0m0.004s
+> sys     0m3.240s	0m2.912s
+> 
+> Andrew, Could you include it in -mm tree ?
+> 
+> Comments ?
 
-Regards,
+I've been running these patches in my development tree for awhile
+and have not seen any problems.  My one (possibly minor) concern
+is that we pass get_block a size in units of bytes, e.g....
 
---=20
-Martin Schlemmer
+	bh->b_size = 1 << inode->i_blkbits;
+	err = get_block(inode, block, bh, 1);
 
+And b_size is a u32.  We have had the situation in the past where
+people (I'm looking at you, Jeremy ;) have been issuing multiple-
+gigabyte direct reads/writes through XFS.  The syscall interface
+takes an (s)size_t in bytes, which on 64 bit platforms is a 64 bit
+byte count.
 
---=-MAmXFff5IOREQgX27hJk
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+I wonder if this change will end up ruining things for the lunatic
+fringe issuing these kinds of IOs?  Maybe the get_block call could
+take a block count rather than a byte count?  (I guess that would
+equate to dropping get_block_t rather than get_blocks_t... which is
+kinda the alternate direction to what you took here).  On the other
+hand, maybe it'd be simpler to change b_size to be a size_t instead
+of u32?  Although, since we are now mapping multiple blocks at once,
+"get_blocks_t" does seem an appropriate name.  *shrug*, whatever ...
+the main thing that'd be good to see addressed is the 32 bit size.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
+cheers.
 
-iD8DBQBD+jsqqburzKaJYLYRArLXAJ47Q4j+0B6DZ7JKLPTyqXxlmsiKIgCglDEf
-4k3t4Y4bNsaVW19930Irenc=
-=zSn0
------END PGP SIGNATURE-----
-
---=-MAmXFff5IOREQgX27hJk--
-
+-- 
+Nathan

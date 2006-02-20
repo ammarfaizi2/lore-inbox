@@ -1,110 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWBTBGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbWBTBLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbWBTBGq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 20:06:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbWBTBGq
+	id S932513AbWBTBLE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 20:11:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932499AbWBTBLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 20:06:46 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:32271 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S932491AbWBTBGp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 20:06:45 -0500
-Date: Mon, 20 Feb 2006 09:05:59 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       autofs mailing list <autofs@linux.kernel.org>
-Subject: Re: [PATCH] autofs4 - fix comms packet struct size
-In-Reply-To: <20060219141517.GA7942@infradead.org>
-Message-ID: <Pine.LNX.4.64.0602200856300.2355@eagle.themaw.net>
-References: <Pine.LNX.4.64.0602192206440.24506@eagle.themaw.net>
- <20060219141517.GA7942@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-themaw-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-1.896,
-	required 5, autolearn=not spam, BAYES_00 -2.60,
-	DATE_IN_PAST_12_24 0.70)
-X-themaw-MailScanner-From: raven@themaw.net
+	Sun, 19 Feb 2006 20:11:04 -0500
+Received: from mx0.towertech.it ([213.215.222.73]:48078 "HELO mx0.towertech.it")
+	by vger.kernel.org with SMTP id S932494AbWBTBLB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 20:11:01 -0500
+Date: Mon, 20 Feb 2006 02:10:40 +0100
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, dtor_core@ameritech.net
+Subject: Re: [PATCH 00/11] RTC subsystem
+Message-ID: <20060220021040.094284b6@inspiron>
+In-Reply-To: <20060219165845.09eb4183.akpm@osdl.org>
+References: <20060219232211.368740000@towertech.it>
+	<20060219165845.09eb4183.akpm@osdl.org>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Feb 2006, Christoph Hellwig wrote:
+On Sun, 19 Feb 2006 16:58:45 -0800
+Andrew Morton <akpm@osdl.org> wrote:
 
-> On Sun, Feb 19, 2006 at 10:11:31PM +0800, Ian Kent wrote:
 > > 
-> > Set userspace communication struct fields to fixed size.
-> > 
-> > Signed-off-by: Ian Kent <raven@themaw.net>
-> > 
-> > --- linux-2.6.16-rc3-mm1/include/linux/auto_fs4.h.fix-v5-packet-size	2006-02-17 19:15:49.000000000 +0800
-> > +++ linux-2.6.16-rc3-mm1/include/linux/auto_fs4.h	2006-02-17 19:12:09.000000000 +0800
-> > @@ -65,10 +65,10 @@ struct autofs_v5_packet {
-> >  	autofs_wqt_t wait_queue_token;
 > 
-> Hiding types in user visible structures behind typedefs is bad.
-> What type is behind this?  If this is not an __u32 you have
-> a padding issue.
-
-This has been an occassion problem for a long time.
-Since it dates back to way before version 4 I have always been reluctant 
-to change it. I'd rather leave it as is unless you really can't accept it.
-
+> This is nowhere near a sufficient explanation for such a patchset.
 > 
-> >  	__u32 dev;
-> >  	__u64 ino;
-> > -	uid_t uid;
-> > -	gid_t gid;
-> > -	pid_t pid;
-> > -	pid_t tgid;
-> > +	__u64 uid;
-> > +	__u64 gid;
-> > +	__u64 pid;
-> > +	__u64 tgid;
-> 
-> These should be 32bit values.
+> What does it all do, how does it do it and, importantly, _why_ does it do
+> it?
 
-OK. But will they be 32 bit for the life of this struct?
+ Sorry Andrew, it was meant as an update to my original email
+ with full description. I've reported here as it is still valid.
 
-Once userspace programs are using this it can't ever change.
 
-> 
-> >  	int len;
-> 
-> this should become a fixed-size type aswell.
+ Hello,
 
-OK. That shouldn't cause a problem. I'll change that also.
+  this is a proposal for the implementation of a kernel-wide
+ RTC subsystem.
 
-> 
-> >  	char name[NAME_MAX+1];
-> >  };
-> > --- linux-2.6.16-rc3-mm1/fs/autofs4/autofs_i.h.fix-v5-packet-size	2006-02-17 19:17:03.000000000 +0800
-> > +++ linux-2.6.16-rc3-mm1/fs/autofs4/autofs_i.h	2006-02-17 19:17:25.000000000 +0800
-> > @@ -79,10 +79,10 @@ struct autofs_wait_queue {
-> >  	char *name;
-> >  	u32 dev;
-> >  	u64 ino;
-> > -	uid_t uid;
-> > -	gid_t gid;
-> > -	pid_t pid;
-> > -	pid_t tgid;
-> > +	u64 uid;
-> > +	u64 gid;
-> > +	u64 pid;
-> > +	u64 tgid;
-> >  	/* This is for status reporting upon return */
-> >  	int status;
-> >  	atomic_t notified;
-> 
-> This is an in-kernel structure, isn't it?  No need to use u64 here.
+  The current state of RTCs under linux is that each one
+ of the current drivers is actually self-contained and
+ has a lot of redundant functions [1].
+ 
+  The lack of a kernel-wide subsystem is particulary important
+ on embedded devices, where the RTC is usually implemented
+ on an I2C chip.
 
-Yes, I was thinking the same thing when I did it.
-I'll fix that.
+  Of the current I2C RTC drivers, no-one actually interfaces
+ with the kernel [2]: the driver is actually useless
+ without further patches that are probably provided as part
+ of an external project.
 
-Thanks Christoph.
+  When new driver are to be implemented [3], I've noticed
+ authors are often confused on how to do it, resulting
+ in drivers that will not work on different architectures
+ and that will probably never be merged in the kernel.
 
-Ian
+  They also happen to use ioctls over (struct i2c_client *)->command,
+ which has recently been deprecated [4].
 
+  The architecture is quite simple. Each RTC device should
+ register to the RTC class, providing a set of pointers
+ to functions. The class will provide access to the RTC
+ to the whole kernel and userspace.
+
+  For this purpose, the class supports multiple interfaces,
+ like sysfs, proc and dev.
+
+  The user has complete control over which interfaces
+ gets added using the standard Kconfig mechanism.
+
+  proc and dev, due to their nature, will only expose
+ the first RTC that registers to the subsystem.
+
+  The RTC code is derived from the one of the ARM subsystem.
+
+  This patchset has been verify to properly work under Linux/ARM
+ on several NSLU2s (http://www.linux-nslu2.org) and applies
+ successfully on the 2.6.15-rc6 kernel . If this is the right
+ way to go, I will port the x86 rtc driver in order to get
+ broader testing.
+
+  I'd appreciate receiving feedback on this proposal.
+
+  Thanks in advance.
+
+--
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
+
+
+[1]
+	http://lkml.org/lkml/2005/11/17/180
+
+[2]
+	drivers/i2c/chips/m41t00.c
+	drivers/i2c/chips/rtc8564.c
+	drivers/i2c/chips/ds1337.c
+	drivers/i2c/chips/ds1374.c
+
+[3]
+	http://lists.lm-sensors.org/pipermail/lm-sensors/2005-November/014428.html
+	http://lists.lm-sensors.org/pipermail/lm-sensors/2005-November/014386.html
+
+[4]
+	http://lists.lm-sensors.org/pipermail/lm-sensors/2005-December/014688.html
+	http://lists.lm-sensors.org/pipermail/lm-sensors/2005-November/014369.html

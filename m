@@ -1,87 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161113AbWBTSdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161108AbWBTSbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161113AbWBTSdO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 13:33:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161112AbWBTSdO
+	id S1161108AbWBTSbp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 13:31:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161110AbWBTSbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 13:33:14 -0500
-Received: from smtp.enter.net ([216.193.128.24]:40461 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S1161113AbWBTSdN (ORCPT
+	Mon, 20 Feb 2006 13:31:45 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:24582 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1161108AbWBTSbo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 13:33:13 -0500
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Mon, 20 Feb 2006 13:33:33 -0500
-User-Agent: KMail/1.8.1
-Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org
-References: <43EB7BBA.nailIFG412CGY@burner> <200602171545.21867.dhazelton@enter.net> <43F9D95C.nail4AL61JSZG@burner>
-In-Reply-To: <43F9D95C.nail4AL61JSZG@burner>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Feb 2006 13:31:44 -0500
+Date: Mon, 20 Feb 2006 19:31:36 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Nigel Cunningham <nigel@suspend2.net>,
+       Matthias Hensler <matthias@wspse.de>, Sebastian Kgler <sebas@kde.org>,
+       kernel list <linux-kernel@vger.kernel.org>, rjw@sisk.pl
+Subject: Re: suspend2 review [was Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)]
+Message-ID: <20060220183136.GE33155@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Pavel Machek <pavel@ucw.cz>, Nigel Cunningham <nigel@suspend2.net>,
+	Matthias Hensler <matthias@wspse.de>,
+	Sebastian Kgler <sebas@kde.org>,
+	kernel list <linux-kernel@vger.kernel.org>, rjw@sisk.pl
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602200709.17955.nigel@suspend2.net> <20060219234212.GA1762@elf.ucw.cz> <200602201210.58362.nigel@suspend2.net> <20060220124937.GB16165@elf.ucw.cz> <20060220170537.GB33155@dspnet.fr.eu.org> <20060220171000.GF19156@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602201333.34109.dhazelton@enter.net>
+In-Reply-To: <20060220171000.GF19156@elf.ucw.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 February 2006 09:59, Joerg Schilling wrote:
-> "D. Hazelton" <dhazelton@enter.net> wrote:
-> > > The namne space split is a Linux kernel bug
-> >
-> > Then why have I been talking about a unification with you?
-> >
-> > I would quote your comments on it, but since that was a private mail I
-> > will not do so.
->
-> ????
->
-> I did not get any proposal for working on making ide-scsi work nor did
-> I get a useful proposal that would explain how it might be done without
-> ide-scsi.
+On Mon, Feb 20, 2006 at 06:10:00PM +0100, Pavel Machek wrote:
+> On Po 20-02-06 18:05:37, Olivier Galibert wrote:
+> > On Mon, Feb 20, 2006 at 01:49:37PM +0100, Pavel Machek wrote:
+> > > > > Yep, if you do it all in userspace, this vanishes. 340 lines down.
+> > > > 
+> > > > And you gain? Let's try not to be too biased :).
+> > > 
+> > > I gain 340 less lines to review. For me to review, for akpm to review,
+> > > and for Linus to review. That's important.
+> > 
+> > Pavel, if you mean that the userspace code will not be reviewed to
+> > standards the kernel code is, kill uswsusp _NOW_ before it does too
+> > much damage.  Unreliable suspend eats filesystems for breakfast.  The
+> > other userspace components of the kernels services are either optional
+> > (udev) or not that important (alsa).
+> 
+> At least it will be only me reviewing it, and not akpm and Linus.
 
-Don't even start. In a private exchange you stated that you had been thinking 
-of mapping ATA/ATAPI devices into a "middle" bus slot to remove the need for 
-the "ATA" and "ATAPI" host identifiers and to allow libscg to scan the 
-ATA/ATAPI bus at the same time it scans the SCSI bus on Linux systems.
+Ok, your answer was saying the contrary (that you wouldn't review it
+either).  Frankly, you may want akpm or Linus to do reviews of even
+userspace code when appropriate, and others too like Al Viro.  They
+have a freakingly good eye at detecting crap code.
 
-I asked about using the numbers provided by Linux - ie. /dev/hda = 6,3,0 - and 
-you said it was wrong and not useful. I've since asked you in another private 
-mail if you have another solution I could code into the patch and don't 
-expect a reply until tomorrow.
 
-For the record, I am trying to work with you to resolve these problems, but at 
-the moment the problem of unifying the scannign of the SCSI and ATA/ATAPI 
-busses inside libscg in order to workaround the Kernel not providing access 
-to ATA/ATAPI devices via /dev/sg* is stopped because of the problem of how to 
-uniquely identify said devices and the problem with the kernel munging SCSI 
-CDB's for certain devices is stopped because I don't have access to the 
-hardware to see exactly what gets munged.
+> suspend2 received no such review, and still people claim it is
+> reliable.
 
-And since you've stated that the machine on which you could reproduce the 
-problem died 3 years ago, I have to assume that the problem may have been 
-fixed in the ensuing time period.
+Plain numbers.  Just count the "suspend2 works for me which swsusp
+doesn't".  I doubt it's purely luck, even if simply moving code around
+can change behaviours.
 
-> > > > Bogus warnings about Linux are unfixed in said version.
-> > >
-> > > Warnings related to Linux kernel bugs
-> >
-> > From what I can tell a lot of the warnings are bogus. You even go to
-> > great lengths to "scare" people into only using "official" versions of
-> > cdrtools.
->
-> They are related to serious problems.
 
-Really? From what I've seen you mark sections "You cannot change this" to stop 
-people from removing those warnings. In fact, there is code in cdrecord that 
-relates to "bugs" in distribution patched versions that most likely do not 
-exist anymore. "Serious problems", though? Seems you just love SCSI, fell in 
-love with ide-scsi and can't let it go. I've been using cdrecord for more 
-than six years now, the last two on a system without _ide-scsi_ and have yet 
-to have a problem - so either the problems you call serious are not serious 
-enough or I was lucky to build a system from spare parts that managed to 
-dodge all those problems. By applying Occams razor, I find that the first is 
-likely true.
+> "I wish they'd kill suspend2 project, it already did enough
+> damage." (Half joking here, but suspend2 split user/development
+> community, and that's not good).
 
-DRH
+Yes, that's annoying.  But be careful, you seem to be automatically
+rejecting everything Nigel at that point, or at least that's what it
+looks like.
+
+You do what you want, obivously, but I suspect your reviews of the
+suspend2 code would be way more interesting if you accepted it's not
+uswsusp.  Right now, they look more religious/political than really
+technical.
+
+Can you try doing a review where you temporarily accept suspend2's
+kernel/userspace separation in the background, and review the code as
+is?  That way you'll even have a chance to find out where the
+differences in reliability are coming from.
+
+  OG.
+

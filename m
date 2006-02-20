@@ -1,91 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932643AbWBTTTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932638AbWBTTZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932643AbWBTTTN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 14:19:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbWBTTTM
+	id S932638AbWBTTZT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 14:25:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbWBTTZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 14:19:12 -0500
-Received: from mail.linicks.net ([217.204.244.146]:16274 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S932643AbWBTTTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 14:19:12 -0500
-From: Nick Warne <nick@linicks.net>
-To: Lee Revell <rlrevell@joe-job.com>, ghrt@dial.kappa.ro, perex@suse.cz,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: No sound from SB live!
-Date: Mon, 20 Feb 2006 19:18:56 +0000
-User-Agent: KMail/1.9.1
-References: <20060218231419.GA3219@elf.ucw.cz> <200602192020.36343.nick@linicks.net> <1140381117.2733.374.camel@mindpipe>
-In-Reply-To: <1140381117.2733.374.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Feb 2006 14:25:19 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:30226 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932638AbWBTTZR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 14:25:17 -0500
+Date: Mon, 20 Feb 2006 20:25:00 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH -mm HOT-FIX] fix build on ia64 (modpost.c)
+Message-ID: <20060220192500.GA17003@mars.ravnborg.org>
+References: <20060220042615.5af1bddc.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602201918.57087.nick@linicks.net>
+In-Reply-To: <20060220042615.5af1bddc.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 19 February 2006 20:31, you wrote:
-> On Sun, 2006-02-19 at 20:20 +0000, Nick Warne wrote:
-> > On Sunday 19 February 2006 19:29, Lee Revell wrote:
-> > > > And now the confusing bit.  If I run alsamixer but DO NOT DO
-> > > > ANYTHING, exit, then issue 'alsactl store', then 'alsactl restore'
-> > > > works again OK - until next reboot...
-> > >
-> > > Sounds like you have 2 different alsactls installed.  The ALSA default
-> > > one saves the mixer state in /etc/asound.state but lots of distros hack
-> > > it up to save the state somewhere under /var.
-> > >
-> > > Use "alsactl -f" to force a restore of mixer state even if the mixer
-> > > controls have changed (distros should do this by default but don't).
-> >
-> > Lee,
-> >
-> > Everybody here keeps saying that to me - I _don't_ have two alsactl's, I
-> > _don't_ have 2 asound.states (or more/any other alsactl files).
-> >
-> > My base is Slackware 10 - a pretty clean distro.
-> >
-> > Tonight my MIC is not working again from a reboot, and I can't get it
-> > going like I did before (??)...
-> >
-> > Every reboot 'alsactl restore' breaks on one control or another now.
-> >
-> > You mean -F too?  I don't understand why I should have to use --force.
-> >
-> > It's a mystery?
->
-> Sorry, no idea.  You'll have to do a binary search with ALSA CVS to find
-> out exactly when it broke.
+> 
+> - This kernel won't compile on ia64 (and possibly other architectures)
+>   because the kbuild tree is using Elf_Rela in scripts/mod/modpost.c.  Is OK
+>   on x86, x86_64 and powerpc.  Sam might send a hotfix?
 
-I have a mystery here guys.
+Attached is a real hot-fix. It disables the new check entirely.
 
-Tonight I tested.  I set up my system so that both sudo and root could 
-`alsactl store/restore' using -f to explicitly use /etc/asound.state.
+I like to learn:
+1) Why IA64 is missing Elf64_Rela. Can someone drop me a copy of elf.h -
+and include gcc + binutils version in the mail - thanks.
 
-Once both user and root could store/restore with no errors, and all my apps 
-work (midi, mic, KDE sound etc. etc.) I made /etc/asound.state immutable:
+2) I also like to know if other architectures broke - so I can figure
+out how to fix this.
 
-nick@linuxamd:nick$ lsattr /etc/asound.state
-----i-------- /etc/asound.state
+I have tested this on X86_64/amd64 (gentoo based) only.
 
-I then edited /etc/rc.d/rc/alsa to use the -f and expilicity point 
-to /etc/asound.state
+	Sam
 
-Rebooted...
-
-Loading ALSA mixer settings:  /usr/sbin/alsactl restore
-/usr/sbin/alsactl: set_control:894: warning: name mismatch (Mic Select/3D 
-Control Sigmatel - Depth) for control #74
-/usr/sbin/alsactl: set_control:896: warning: index mismatch (0/0) for control 
-#74
-/usr/sbin/alsactl: set_control:994: bad control.74.value type
-
-Heh.  Every reboot I get a different control error.  But why it all works OK 
-before a reboot with the same very /etc/asound.state file I don't know.
-
-Nick
--- 
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb
+	
+diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+index 844f84b..b87070a 100644
+--- a/scripts/mod/modpost.c
++++ b/scripts/mod/modpost.c
+@@ -451,6 +451,7 @@ static char *get_modinfo(void *modinfo, 
+ 	return NULL;
+ }
+ 
++#if 0
+ /**
+  * Find symbol based on relocation record info.
+  * In some cases the symbol supplied is a valid symbol so
+@@ -616,7 +617,12 @@ static void check_sec_ref(struct module 
+ 		}
+ 	}
+ }
+-
++#endif
++static void check_sec_ref(struct module *mod, const char *modname,
++			  struct elf_info *elf,
++			  int section(const char*),
++			  int section_ref_ok(const char *))
++{}
+ /**
+  * Functions used only during module init is marked __init and is stored in
+  * a .init.text section. Likewise data is marked __initdata and stored in

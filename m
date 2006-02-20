@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932676AbWBTG5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932671AbWBTG7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932676AbWBTG5y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 01:57:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932675AbWBTG5y
+	id S932671AbWBTG7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 01:59:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932672AbWBTG7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 01:57:54 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:23021 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S932674AbWBTG5y convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 01:57:54 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Flames over -- Re: Which is simpler?
-Date: Mon, 20 Feb 2006 07:55:57 +0100
-User-Agent: KMail/1.8
-Cc: stern@rowland.harvard.edu, psusi@cfl.rr.com, pavel@suse.cz,
-       torvalds@osdl.org, mrmacman_g4@mac.com, alon.barlev@gmail.com,
-       linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org
-References: <43F89F55.5070808@cfl.rr.com> <200602192144.57748.oliver@neukum.org> <20060219130243.52af0782.akpm@osdl.org>
-In-Reply-To: <20060219130243.52af0782.akpm@osdl.org>
+	Mon, 20 Feb 2006 01:59:16 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:21436 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932671AbWBTG7Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 01:59:16 -0500
+Date: Mon, 20 Feb 2006 01:58:36 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Sasha Khapyorsky <sashakh@gmail.com>
+cc: s.schmidt@avm.de, Greg KH <greg@kroah.com>, torvalds@osdl.org,
+       kkeil@suse.de, LKML <linux-kernel@vger.kernel.org>,
+       opensuse-factory@opensuse.org, libusb-devel@lists.sourceforge.net,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: 2.6.16 serious consequences / GPL_EXPORT_SYMBOL / USB drivers
+ of major vendor excluded
+In-Reply-To: <20060220031130.GA9929@khap>
+Message-ID: <Pine.LNX.4.58.0602200152340.29913@gandalf.stny.rr.com>
+References: <20060205205313.GA9188@kroah.com>
+ <OFED05BE20.31E2BACE-ONC1257115.005DE6CA-C1257117.004F2C48@avm.de>
+ <20060219045716.GA9880@khap> <Pine.LNX.4.58.0602191158410.12662@gandalf.stny.rr.com>
+ <20060220031130.GA9929@khap>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200602200755.57699.oliver@neukum.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 19. Februar 2006 22:02 schrieb Andrew Morton:
-> Oliver Neukum <oliver@neukum.org> wrote:
+
+On Mon, 20 Feb 2006, Sasha Khapyorsky wrote:
+
+> On 12:02 Sun 19 Feb     , Steven Rostedt wrote:
 > >
-> > Am Sonntag, 19. Februar 2006 21:02 schrieb Andrew Morton:
-> > > For a), the current kernel behaviour is what we want - make the thing
-> > > appear at a new place in the namespace and in the hierarchy.  Then
-> > > userspace can do whatever needs to be done to identify the device, and
-> > > apply some sort of policy decision to the result.
-> > 
-> > How? If you have a running user space the connection to the open files
-> > is already severed, as any access in that time window must fail.
-> 
-> That's a separate issue, which we haven't discussed yet.  We have a device
-> which has gone away and which might come back later on.  Presently we will
-> return an I/O error if I/O is attempted in that window.  Obviously we'll
-> need to do something different, such as block reads and block or defer writes.
+> > Disclaimer:  This is in no way a push to get the -rt patch into mainline
+> > at the moment.  The patch is still young and is not ready yet.
+>
+> Hmm, it was not about -rt patch - 40 millisecond response time is
+> realistic for userspace even without -rt patch. There is no guarantee,
+> but in practice this may work very well and keep low percents of failures
+> (much lower than permitted by standards).
+>
 
-But how do you handle memory management?
-If you simply block writes, the system will stall random tasks laundering
-pages, including those needed to make progress. Even syncing before
-suspend won't help you, as a running user space may dirty pages.
-And what about the rootfs?
+No the thread was not about the -rt patch, but I just wanted to spread a
+little light that it exists.  In fact, besides the current problem with
+the SMP scheduler balancing latency (that exists also in mainline) you
+should be able to get at least 100us response time on a modest machine.
+Even when the IDE wants to hog the CPU.
 
-	Oliver
+-- Steve

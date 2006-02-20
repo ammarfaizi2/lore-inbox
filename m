@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161022AbWBTQwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161032AbWBTQyT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161022AbWBTQwF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 11:52:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161029AbWBTQwF
+	id S1161032AbWBTQyT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 11:54:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161030AbWBTQyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 11:52:05 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:57868 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1161028AbWBTQwE (ORCPT
+	Mon, 20 Feb 2006 11:54:19 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60615 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1161033AbWBTQyT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 11:52:04 -0500
-Date: Mon, 20 Feb 2006 17:51:53 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Flames over -- Re: Which is simpler?
-Message-ID: <20060220165153.GA33155@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	linux-kernel@vger.kernel.org
-References: <200602131116.41964.david-b@pacbell.net> <200602181251.09865.david-b@pacbell.net> <43F80ACC.20704@cfl.rr.com> <200602192150.05567.david-b@pacbell.net> <43F9E95A.6080103@cfl.rr.com>
+	Mon, 20 Feb 2006 11:54:19 -0500
+Date: Mon, 20 Feb 2006 17:53:53 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Michael_E_Brown@Dell.com
+Cc: mjg59@srcf.ucam.org, akpm@osdl.org, Matt_Domsch@Dell.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [RESEND] Add Dell laptop backlight brightness display
+Message-ID: <20060220165353.GD19156@elf.ucw.cz>
+References: <35C9A9D68AB3FA4AB63692802656D9EC927875@ausx3mps303.aus.amer.dell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43F9E95A.6080103@cfl.rr.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <35C9A9D68AB3FA4AB63692802656D9EC927875@ausx3mps303.aus.amer.dell.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 20, 2006 at 11:07:54AM -0500, Phillip Susi wrote:
-> Again, the hardware is perfectly free to power off the usb bus during 
-> suspend to ram.  Most systems choose not to because they allow wake from 
-> usb, but not all do.
+Hi!
 
-USB has this additional problem that devices lose their addresses when
-the power is removed (it's very agressively hotplug).  So you can have
-the devices moving around under your feet between poweroff and poweron
-just because the devices happened to have enumerated in a different
-order at boot time.
+> 	Matthew has shown up on the libsmbios-devel mailing list. I sent
+> all the
+> info needed to do a test of Dell LCD brightness control. The main thing
+> left
+> would be to make one utility out of the current separate, unsupported,
+> test 
+> utils. 
+> 
+> 	As for fixing i8k, I don't have the slightest clue where to
+> begin. You 
+> either have to split initialization with userspace to parse and send in
+> the 
+> correct io/magic ports to do SMI, or you have to put Dell-specific SMI
+> token 
+> parsing in the kernel.
 
-  OG.
+What is wrong with Dell-specific SMI parsing in kernel? Is it _that_
+much code?
 
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

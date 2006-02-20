@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWBTAkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbWBTAmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751150AbWBTAkB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 19:40:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWBTAkA
+	id S932482AbWBTAmR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 19:42:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWBTAmQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 19:40:00 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47246 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751150AbWBTAkA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 19:40:00 -0500
-Date: Mon, 20 Feb 2006 01:39:40 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: ghrt <ghrt@dial.kappa.ro>, kernel list <linux-kernel@vger.kernel.org>,
-       perex@suse.cz, tiwai@suse.de
-Subject: Re: No sound from SB live!
-Message-ID: <20060220003939.GH15608@elf.ucw.cz>
-References: <20060218231419.GA3219@elf.ucw.cz> <200602190127.27862.ghrt@dial.kappa.ro> <20060218234805.GA3235@elf.ucw.cz> <1140310710.2733.315.camel@mindpipe> <20060219214408.GL15311@elf.ucw.cz> <1140395634.2733.450.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 19 Feb 2006 19:42:16 -0500
+Received: from nproxy.gmail.com ([64.233.182.200]:33696 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751154AbWBTAmP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 19:42:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qpBKFMYO4gO56npJf7eChnoD5p1ZG6uVxrIFji2y+g7GWBXgEPFdm3mtaq7Ebg5w4W1kg+pM3DMJRJjeV4ATHBFFBZpzbDriEjiiPQsp7iOHUY64HkBAaamzLLfa5HyXdkHOS83JPOydrhed1otjWKcgjifTWfvyHlpN0EtnzIE=
+Message-ID: <3420082f0602191642s4e18f32auddcc3b45a449e774@mail.gmail.com>
+Date: Mon, 20 Feb 2006 05:42:13 +0500
+From: "Irfan Habib" <irfan.habib@gmail.com>
+To: "Chris Wedgwood" <cw@f00f.org>, linux-kernel@vger.kernel.org
+Subject: Re: How to find the CPU usage of a process
+In-Reply-To: <20060219190640.GA4929@taniwha.stupidest.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1140395634.2733.450.camel@mindpipe>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+References: <20060218174229.76852.qmail@web32603.mail.mud.yahoo.com>
+	 <20060219190640.GA4929@taniwha.stupidest.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Ne 19-02-06 19:33:54, Lee Revell wrote:
-> On Sun, 2006-02-19 at 22:44 +0100, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > > I tried enabled everything I could in alsamixer, but still could not
-> > > > get it to produce some sound :-(. 
-> > > 
-> > > Is 2.6.15.4 also broken?
-> > 
-> > 2.6.15.4 does not have support for my SATA controller, so it would be
-> > quite complex to test that... I may have something wrong with
-> > userspace, but alsamixer all to max, then cat /bin/bash > /dev/dsp
-> > should produce some sound, no?
-> 
-> So this isn't necessarily a regression - it's possible this device never
-> worked?
-> 
-> Creative has been known in the past to release 2 devices with identical
-> serial numbers and different AC97 codecs.  Stuff like this is why it's
-> almot impossible to prevent all driver regressions unless you can test
-> every supported card...
+thank you very much for every one who replied.
+It really helped me big times :)
 
-It did work _long_ time ago, and in different machine. Definitely not
-in 2.6.15... maybe in 2.6.5.
-								Pavel
-
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+On 2/20/06, Chris Wedgwood <cw@f00f.org> wrote:
+> On Sat, Feb 18, 2006 at 09:42:29AM -0800, Irfan Habib wrote:
+>
+> > I wanted to ask how can I find the cpu usage of a process, as
+> > opposed to runtime, with cpu usage I mean actually how many time
+> > slices were awarded to a specific process, like the runtime of job
+> > may be 4 s, but this also includes time it was suspended by some
+> > interrupt, or had to wait for the scheduler etc..
+>
+> getrusage(2) or if it's not a child then grovel through /proc (i think
+> there is an argument for a better interface)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

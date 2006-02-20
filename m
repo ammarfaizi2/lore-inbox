@@ -1,92 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161052AbWBTRP6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161056AbWBTRRD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161052AbWBTRP6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 12:15:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161060AbWBTRP5
+	id S1161056AbWBTRRD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 12:17:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161062AbWBTRRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 12:15:57 -0500
-Received: from dsl092-073-214.bos1.dsl.speakeasy.net ([66.92.73.214]:34435
-	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
-	id S1161052AbWBTRP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 12:15:56 -0500
-Date: Mon, 20 Feb 2006 12:11:20 -0500
-From: Sonny Rao <sonny@burdell.org>
-To: Hans Reiser <reiser@namesys.com>, Chris Mason <mason@suse.com>,
-       Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com, Vitaly Fertman <vetalf@inbox.ru>
-Subject: Re: kernel oops: trying to mount a corrupted xfs partition (2.6.16-rc3)
-Message-ID: <20060220171120.GA24542@kevlar.burdell.org>
-Mail-Followup-To: Sonny Rao <sonny@burdell.org>,
-	Hans Reiser <reiser@namesys.com>, Chris Mason <mason@suse.com>,
-	Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com, Vitaly Fertman <vetalf@inbox.ru>
-References: <20060216183629.GA5672@skyscraper.unix9.prv> <20060217063157.B9349752@wobbly.melbourne.sgi.com> <Pine.LNX.4.61.0602171753590.27452@yvahk01.tjqt.qr> <20060220082946.A9478997@wobbly.melbourne.sgi.com> <20060219215209.GB7974@redhat.com> <20060220070916.GA8101@kevlar.burdell.org> <43F96DE9.7070209@namesys.com> <20060220164120.GA24077@kevlar.burdell.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Feb 2006 12:17:03 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:22162 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1161067AbWBTRQ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 12:16:56 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Olivier Galibert <galibert@pobox.com>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Date: Mon, 20 Feb 2006 18:16:55 +0100
+User-Agent: KMail/1.9.1
+Cc: kernel list <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602201513.23849.rjw@sisk.pl> <20060220153922.GA17362@dspnet.fr.eu.org>
+In-Reply-To: <20060220153922.GA17362@dspnet.fr.eu.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060220164120.GA24077@kevlar.burdell.org>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200602201816.56232.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 20, 2006 at 11:41:20AM -0500, Sonny Rao wrote:
-> (trimmed the cc list a bit since this is all Reiserfs specific)
-> 
-> On Sun, Feb 19, 2006 at 11:21:13PM -0800, Hans Reiser wrote:
-> > Thanks kindly Sonny, Chris is this bug known/fixed?
-> 
-> Hi, I'm still seeing the issue on 2.6.16-rc4 so I don't think it's
-> fixed yet. 
-> 
-> Here's some output :
-> 
-> Feb 20 10:36:25 localhost kernel: ReiserFS: loop0: found reiserfs format "3.6" with standard journal
-> Feb 20 10:36:25 localhost kernel: ReiserFS: loop0: using ordered data mode
-> Feb 20 10:36:25 localhost kernel: ReiserFS: loop0: journal params: device loop0, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
-> Feb 20 10:36:25 localhost kernel: ReiserFS: loop0: checking transaction log (loop0)
-> Feb 20 10:36:27 localhost kernel: __find_get_block_slow() failed. block=18446744072887476243, b_blocknr=3472891923
-> Feb 20 10:36:27 localhost kernel: b_state=0x00000020, b_size=4096
-> Feb 20 10:36:27 localhost kernel: device blocksize: 4096
-> Feb 20 10:36:27 localhost kernel: __find_get_block_slow() failed. block=18446744072887476243, b_blocknr=3472891923
-> Feb 20 10:36:27 localhost kernel: b_state=0x00000020, b_size=4096
-> Feb 20 10:36:27 localhost kernel: device blocksize: 4096
-> Feb 20 10:36:27 localhost kernel: __find_get_block_slow() failed. block=18446744072887476243, b_blocknr=3472891923
-> Feb 20 10:36:27 localhost kernel: b_state=0x00000020, b_size=4096
-> Feb 20 10:36:27 localhost kernel: device blocksize: 4096
-> Feb 20 10:36:27 localhost kernel: __find_get_block_slow() failed. block=18446744072887476243, b_blocknr=3472891923
-> Feb 20 10:36:27 localhost kernel: b_state=0x00000020, b_size=4096
-> Feb 20 10:36:27 localhost kernel: device blocksize: 4096
-> ...
-> ad infinitum
-> 
-> I'll try and add a dump_stack() to the code that prints this stuff later today
+On Monday 20 February 2006 16:39, Olivier Galibert wrote:
+> On Mon, Feb 20, 2006 at 03:13:23PM +0100, Rafael J. Wysocki wrote:
+}-- snip --{
+> From what I see of the messages in this thread, at that point you're
+> just trying to play catchup with suspend2.
 
-Ok, didn't take as long as I thought :)
+Well, I don't think I am.  Or maybe a little.  Still, are you trying to say that
+GNOME developers should give up because KDE is more advanced in some
+respects or vice versa?
 
-Feb 20 11:03:57 localhost kernel: device blocksize: 4096
-Feb 20 11:03:57 localhost kernel:  [<b01042dd>] show_trace+0xd/0x10
-Feb 20 11:03:57 localhost kernel:  [<b01042f7>] dump_stack+0x17/0x20
-Feb 20 11:03:57 localhost kernel:  [<b0166973>] __find_get_block_slow+0x143/0x180
-Feb 20 11:03:57 localhost kernel:  [<b0168b72>] __find_get_block+0xf2/0x210
-Feb 20 11:03:57 localhost kernel:  [<b0168e59>] __getblk+0x1c9/0x280
-Feb 20 11:03:57 localhost kernel:  [<f1209125>] search_by_key+0xb5/0x1330 [reiserfs]
-Feb 20 11:03:57 localhost kernel:  [<f11f4130>] reiserfs_read_locked_inode+0x60/0x5e0 [reiserfs]
-Feb 20 11:03:57 localhost kernel:  [<f120207c>] reiserfs_fill_super+0xfec/0x1430 [reiserfs]
-Feb 20 11:03:57 localhost kernel:  [<b016b8f9>] get_sb_bdev+0xd9/0x107
-Feb 20 11:03:57 localhost kernel:  [<f11ff0eb>] get_super_block+0x1b/0x30 [reiserfs]
-Feb 20 11:03:57 localhost kernel:  [<b016ad1b>] do_kern_mount+0xbb/0x160
-Feb 20 11:03:57 localhost kernel:  [<b0182fcd>] do_mount+0x2bd/0x6f0
-Feb 20 11:03:57 localhost kernel:  [<b018346f>] sys_mount+0x6f/0xb0
-Feb 20 11:03:57 localhost kernel:  [<b0102f97>] sysenter_past_esp+0x54/0x75
+> Don't that feel a little strange to you?  You know you have working GPL code
+> handy, tested with happy users, with a maintainer who would be happy to have
+> it in the kernel, and instead of making it better you spend your talents redoing
+> the same functionality only slightly differently.  Why?
 
-So, search_by_key isn't terminating.
+_I_ am doing it as a proof of concept.  Many people said it didn't make sense
+to implement this in the user space and that it wouldn't work, and it would
+take ages to do this etc.  I don't agree with that and I want to show I'm right.
+Is that wrong?
 
-Also, fwiw I don't see this bug on ppc64, I get this message instead:
+> > > Right now it really looks like they're only 
+> > > trying to redo what's already in suspend2, tested and debugged, only
+> > > different and new, hence untested and undebugged.
+> > 
+> > Actually a lot of the code that we use _has_ _been_ tested and debugged,
+> > because it _is_ used on a daily basis by many people, like eg.:
+> > - MD5 from the coreutils package,
+> > - libLZF (the original one)
+> > (openSSL wil be used soon for the image encryption).
+> > 
+> > And I'm not trying to redo suspend2 in the user space.  Instead I'm trying
+> > to use the code that's _already_ _available_ in the user space to obtain
+> > the functionality that suspend2 implements in the kernel space.
+> 
+> "obtaining the functionality that suspend2 implements" means "redoing
+> suspend2".
 
-ReiserFS: loop0: found reiserfs format "3.6" with standard journal
-ReiserFS: loop0: using ordered data mode
-ReiserFS: loop0: journal params: device loop0, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
-ReiserFS: loop0: checking transaction log (loop0)
-attempt to access beyond end of device
-loop0: rw=0, want=18446744067132948640, limit=70000
-ReiserFS: loop0: warning: vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find stat data of [1 2 0x0 SD]
+No, it doesn't.  By the same token you could say writing another mail
+client is redoing Mozilla Thunderbird.
+
+> Don't play on words, please.
+
+I don't.  I really _think_ it's not the same. :-)
+
+> md5 is already in the kernel (twice).  lzf is already in suspend2 (and
+> arguably useful for more things than only suspending),
+
+Now seriously.  Nigel already _had_ submitted the LZF patch, but it 
+was not accepted by the cryptoAPI maintainers.  Neither me, nor Pavel
+took part in that.  The same applies to many things in suspend2,
+just browse the LKML archives for the record.
+
+> so suspend2's implementation has been tested for use in a suspend context,
+> while libLZF hasn't.  You _will_ have bugs putting things together, that's a
+> given.
+
+You're probably right.
+
+> Now explain me why you're tying together code from coreutils and other
+> sources when you have the same code, only already tested in a suspend
+> context (memory management, etc), in suspend2.
+
+Sorry, it's not like that.  The memory management is not done by the
+userland part, it's done by the kernel.  The role of the userland part
+is to read the image from the kernel, transform it (compress/encrypt/whatever)
+if needed and save to disk.  All that.
+
+> Why, for the image save, did you port the code from swsusp with for instance
+> its lack of async i/o, instead of porting the suspend2 code?
+
+Because suspend2 code is incompatible with what's in the kernel now.
+
+To use the suspend2 code I'd have to modify the kernel code substantially, and
+that's what Pavel didn't want.  OTOH the swsusp code was known to work
+and I used it to test the new code, too.
+
+> > The problem is to merge suspend2 we'd have to clean it up first and
+> > actually solve some problems that it works around.  That, arguably,
+> > would be more work than just implementing some _easy_ stuff in the
+> > user space.
+> 
+> Stuff that is _already_ _done_ and working.
+
+Functionality-wise, your right.  The problem is how it's done, I think, and
+that is not so obvious.
+
+> Be careful though, you're awfully close to saying that userspace code
+> is easier because it isn't reviewed[1] while kernel code has higher
+> standards.
+
+Oh, come on.  You can review it, everybody can.  Moreover, you're welcome to
+do this. :-)
+
+}-- snip --{
+>    The constraints on userland suspend code are rather close to RT kernel
+>    code, so  technically it would be a much better base.
+
+Can you please tell me why do you think so?
+
+> 4- why aren't you actively working at pushing the parts of suspend2
+>    that actually are good and potentially useful to uswsusp in the
+>    mainline kernel.  Do you really think nothing is worthwhile in there?
+
+Because there are no patches to work on?  I'd _really_ love to work on patches
+that modify the current kernel code _gradually_ instead of just trying to
+replace it top-down with something else in one big shot.
+
+For example, I'd really appreciate it if Nigel could prepare a patch against
+the current -mm implementing the freezing of bdevs he was talking about,
+and there are more things like that.
+
+> Are you really, really sure you're not rejecting suspend2 in bulk
+> because you didn't write it?
+
+Oh, _I_ am not rejecting it.  I've never said so.  I just don't think there's
+a chance it will be merged in the short run, for various reasons, so
+I'm working on an alternative.
+
+}-- snip --{ 
+> Please tell me what is wrong in my perception of what is going on.
+
+I think you are assuming I'm doing this to prevent suspend2 from being merged.
+It is not so, as I've tried to explain above.  If you don't accept my point of view,
+I'll respect that.
+
+Greetings,
+Rafael
+
+PS
+I didn't write s2ram, so I can't comment your observations wrt it.

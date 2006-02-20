@@ -1,106 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161031AbWBTQpG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161026AbWBTQp6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161031AbWBTQpG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 11:45:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161023AbWBTQpF
+	id S1161026AbWBTQp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 11:45:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161022AbWBTQp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 11:45:05 -0500
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:30574 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S1161029AbWBTQpD convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 11:45:03 -0500
-DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=zKPdrExsFQ9lXoPB7bRu83Ts+/AAzEd7ADvMG/+VmfLhQcq4fs/VIsD1gXdaLawyeQAonJcvYsVSTtu0MveHFnzo4RYtj70EeM++RTMg50aUgA3UfWE2T8Ky0sNperzb;
-X-IronPort-AV: i="4.02,131,1139205600"; 
-   d="scan'208"; a="47537952:sNHT210071818"
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] [RESEND] Add Dell laptop backlight brightness display
-Date: Mon, 20 Feb 2006 10:45:02 -0600
-Message-ID: <35C9A9D68AB3FA4AB63692802656D9EC927875@ausx3mps303.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] [RESEND] Add Dell laptop backlight brightness display
-Thread-Index: AcY0iozPf3b1SoksTCGFxEivPtaC3QBsPImQ
-From: <Michael_E_Brown@Dell.com>
-To: <pavel@ucw.cz>
-Cc: <mjg59@srcf.ucam.org>, <akpm@osdl.org>, <Matt_Domsch@Dell.com>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 20 Feb 2006 16:45:03.0047 (UTC) FILETIME=[FEFB7D70:01C6363C]
+	Mon, 20 Feb 2006 11:45:57 -0500
+Received: from dsl092-073-214.bos1.dsl.speakeasy.net ([66.92.73.214]:44495
+	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
+	id S1161026AbWBTQp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 11:45:56 -0500
+Date: Mon, 20 Feb 2006 11:41:20 -0500
+From: Sonny Rao <sonny@burdell.org>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Chris Mason <mason@suse.com>, Dave Jones <davej@redhat.com>,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+       Vitaly Fertman <vetalf@inbox.ru>
+Subject: Re: kernel oops: trying to mount a corrupted xfs partition (2.6.16-rc3)
+Message-ID: <20060220164120.GA24077@kevlar.burdell.org>
+Mail-Followup-To: Sonny Rao <sonny@burdell.org>,
+	Hans Reiser <reiser@namesys.com>, Chris Mason <mason@suse.com>,
+	Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
+	reiserfs-list@namesys.com, Vitaly Fertman <vetalf@inbox.ru>
+References: <20060216183629.GA5672@skyscraper.unix9.prv> <20060217063157.B9349752@wobbly.melbourne.sgi.com> <Pine.LNX.4.61.0602171753590.27452@yvahk01.tjqt.qr> <20060220082946.A9478997@wobbly.melbourne.sgi.com> <20060219215209.GB7974@redhat.com> <20060220070916.GA8101@kevlar.burdell.org> <43F96DE9.7070209@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43F96DE9.7070209@namesys.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel,
-	Matthew has shown up on the libsmbios-devel mailing list. I sent
-all the
-info needed to do a test of Dell LCD brightness control. The main thing
-left
-would be to make one utility out of the current separate, unsupported,
-test 
-utils. 
+(trimmed the cc list a bit since this is all Reiserfs specific)
 
-	As for fixing i8k, I don't have the slightest clue where to
-begin. You 
-either have to split initialization with userspace to parse and send in
-the 
-correct io/magic ports to do SMI, or you have to put Dell-specific SMI
-token 
-parsing in the kernel.
+On Sun, Feb 19, 2006 at 11:21:13PM -0800, Hans Reiser wrote:
+> Thanks kindly Sonny, Chris is this bug known/fixed?
 
-	If somebody wants to discuss the design, I can definetly
-discuss. I 
-even have a _very_ rough mockup of userspace code to do this. Did not
-take
-it further because I don't know enough about lmsensors or how to fix
-i8k.
---
-Michael
+Hi, I'm still seeing the issue on 2.6.16-rc4 so I don't think it's
+fixed yet. 
 
-PS> sorry for top-posting, my non-broken email client at home for some
-reason 
-could not see your msg, so I could not reply from there.
+Here's some output :
 
------Original Message-----
-From: Pavel Machek [mailto:pavel@ucw.cz] 
-Sent: Sunday, February 12, 2006 11:26 AM
-To: Brown, Michael E
-Cc: mjg59@srcf.ucam.org; akpm@osdl.org; Domsch, Matt;
-linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [RESEND] Add Dell laptop backlight brightness
-display
+Feb 20 10:36:25 localhost kernel: ReiserFS: loop0: found reiserfs format "3.6" with standard journal
+Feb 20 10:36:25 localhost kernel: ReiserFS: loop0: using ordered data mode
+Feb 20 10:36:25 localhost kernel: ReiserFS: loop0: journal params: device loop0, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
+Feb 20 10:36:25 localhost kernel: ReiserFS: loop0: checking transaction log (loop0)
+Feb 20 10:36:27 localhost kernel: __find_get_block_slow() failed. block=18446744072887476243, b_blocknr=3472891923
+Feb 20 10:36:27 localhost kernel: b_state=0x00000020, b_size=4096
+Feb 20 10:36:27 localhost kernel: device blocksize: 4096
+Feb 20 10:36:27 localhost kernel: __find_get_block_slow() failed. block=18446744072887476243, b_blocknr=3472891923
+Feb 20 10:36:27 localhost kernel: b_state=0x00000020, b_size=4096
+Feb 20 10:36:27 localhost kernel: device blocksize: 4096
+Feb 20 10:36:27 localhost kernel: __find_get_block_slow() failed. block=18446744072887476243, b_blocknr=3472891923
+Feb 20 10:36:27 localhost kernel: b_state=0x00000020, b_size=4096
+Feb 20 10:36:27 localhost kernel: device blocksize: 4096
+Feb 20 10:36:27 localhost kernel: __find_get_block_slow() failed. block=18446744072887476243, b_blocknr=3472891923
+Feb 20 10:36:27 localhost kernel: b_state=0x00000020, b_size=4096
+Feb 20 10:36:27 localhost kernel: device blocksize: 4096
+...
+ad infinitum
 
-Hi!
+I'll try and add a dump_stack() to the code that prints this stuff later today
 
-> You can get and set laptop brighness on Dell with the proper SMI call.
+Sonny
+
+
+
+
 > 
-> To do the proper SMI call requires parsing SMBIOS structure 0xDA, a 
-> vendor-proprietary structure, and getting the SMI index and io port 
-> and magic values. Then, you need to know how to setup the registers 
-> and input/output buffers for the call. All of this is already present 
-> in libsmbios.
-
-Perhaps authors of libsmbios could help here?
-
-> Reading nvram is not a valid way to get brighness unless you also do 
-> similar work (parse specific vendor-proprietary SMBIOS structures) to 
-> ensure that you are reading the correct location. This location is 
-> subject to change from BIOS to BIOS and machine to machine. The fact 
-> that you may have observed it in the same location on a few laptops 
-> does not change this fact.
-
-Well, folks reverse-engineering your machines had no idea until now...
-
-> In fact, I have the same objection to the I8K driver in the kernel. It
-
-> has hardcoded SMI calls, that are subject to change. There is a proper
-
-> way to get the correct IO ports to make this safe, but it is not 
-> currently being done.
-
-Could you or someone at Dell submit patches to correct this?
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms
+> Sonny Rao wrote:
+> 
+> >On Sun, Feb 19, 2006 at 04:52:09PM -0500, Dave Jones wrote:
+> ><snip> 
+> >  
+> >
+> >>Just for kicks, I just hacked this up..
+> >>
+> >>#!/bin/bash
+> >>wget http://www.digitaldwarf.be/products/mangle.c
+> >>gcc mangle.c -o mangle
+> >>
+> >>dd if=/dev/zero of=data.img count=70000
+> >>
+> >>while [ 1 ];
+> >>do
+> >>        mkfs.xfs -f data.img >/dev/null
+> >>		./mangle data.img $RANDOM
+> >>        sudo mount -t xfs data.img mntpt -o loop
+> >>        sudo ls -R mntpt
+> >>        sudo umount mntpt
+> >>done
+> >>    
+> >>
+> >
+> >Cool script, you might want to multiply $RANDOM by some factor (I used
+> >8) to catch some more stuff, I know JFS, for example, doesn't put
+> >anything in the first 32k, so the first time I ran it on JFS it did
+> >nothing ;-) 
+> >
+> >
+> >Reiserfs folks, 
+> >
+> >I also found an infinte loop in Reiserfs on 2.6.15, if the Reiser
+> >folks are interested, I've gziped the fs and put it here:
+> >
+> >http://burdell.org/~sonny/data.img.breaks.reiserfs.gz
+> >
+> >The fs is only 52k when zipped, so its not too bad to download.
+> >
+> >This is under stock 2.6.15, sorry I can't post dmesg output because I
+> >end up having to reboot when it happens and don't have time to debug
+> >right now.  It looks like it's in the journal replay code where it
+> >keeps trying to grab some block with a ridiculously large offset. 
+> >
+> >
+> >  
+> >
+> >>xfs wins the award for 'noisiest fs in the face of corruption' :-)
+> >>After a few dozen backtraces from xfs_corruption_error,
+> >>this fell out...
+> >>
+> >>divide error: 0000 [1] SMP
+> >>    
+> >>
+> ><snip trace>
+> > 
+> >  
+> >
+> >>(The kernel is based on 2.6.16rc4)
+> >>    
+> >>
+> >
+> >I see a similar breakage (divide error) on x86 using 2.6.15
+> >
+> >Sonny
+> >
+> >
+> >  
+> >

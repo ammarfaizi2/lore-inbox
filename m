@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932404AbWBTVer@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932618AbWBTVju@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932404AbWBTVer (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 16:34:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932577AbWBTVer
+	id S932618AbWBTVju (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 16:39:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932674AbWBTVju
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 16:34:47 -0500
-Received: from smtp.bulldogdsl.com ([212.158.248.7]:58641 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S932404AbWBTVeq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 16:34:46 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Sam Vilain <sam@vilain.net>
-Subject: Re: Mozilla Thunderbird posting instructions wanted
-Date: Mon, 20 Feb 2006 21:34:46 +0000
-User-Agent: KMail/1.9.1
-Cc: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
-       dev-apps-thunderbird@lists.mozilla.org
-References: <20060220210349.GA29791@mipter.zuzino.mipt.ru> <43FA30D1.4020701@vilain.net>
-In-Reply-To: <43FA30D1.4020701@vilain.net>
+	Mon, 20 Feb 2006 16:39:50 -0500
+Received: from zcars04e.nortel.com ([47.129.242.56]:53706 "EHLO
+	zcars04e.nortel.com") by vger.kernel.org with ESMTP id S932618AbWBTVjt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 16:39:49 -0500
+Message-ID: <43FA3706.5080401@nortel.com>
+Date: Mon, 20 Feb 2006 15:39:18 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andy Whitcroft <apw@shadowen.org>
+CC: Reuben Farrelly <reuben-lkml@reub.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove ccache from top level Makefile and make configurable
+References: <43F9B8A9.4000506@reub.net> <20060220193616.GA16407@shadowen.org>
+In-Reply-To: <20060220193616.GA16407@shadowen.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602202134.46693.s0348365@sms.ed.ac.uk>
+X-OriginalArrivalTime: 20 Feb 2006 21:39:22.0000 (UTC) FILETIME=[1C89E100:01C63666]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 February 2006 21:12, Sam Vilain wrote:
-> Alexey Dobriyan wrote:
-> > This  POS is pretty popular among kernel janitors, so, can someone who
-> > is successfully using it, please, post crystally clear step-by-step
-> > instructions on how to send a foo.patch:
-> > 	inline
-> > 	with tabs preserved
-> > 	with long lines preserved
-> >
-> > Sending plain text attachments is OK with me, but, heh, people do post
-> > patches inline and screw themselves.
-> >
-> > I'll put instructions somewhere on -kj website and point every
-> > unsuspecting new guy to them.
->
-> Evolution has an option for setting the Content-Disposition: inline
-> header on individual attachments; I haven't seen the same option in
-> thunderbird.
+Andy Whitcroft wrote:
+> remove ccache from top level Makefile and make configurable
 
-Many clients have this feature, although it does not end up being presented by 
-the client as quotable text. Read: any form of attachment is suboptimal.
+Isn't it already configurable?
 
--- 
-Cheers,
-Alistair.
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+> diff -upN reference/Makefile current/Makefile
+> --- reference/Makefile
+> +++ current/Makefile
+> @@ -171,9 +171,11 @@ SUBARCH := $(shell uname -m | sed -e s/i
+>  # Alternatively CROSS_COMPILE can be set in the environment.
+>  # Default value for CROSS_COMPILE is not to prefix executables
+>  # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
+> +# CCACHE specifies the name of a ccache binary to use with gcc.
+>  
+>  ARCH		?= $(SUBARCH)
+>  CROSS_COMPILE	?=
+> +CCACHE		?=
+
+This sets it to nothing if it isn't already set--seems like you should 
+be able to set it on the commandline or else it has no effect.
+
+Chris

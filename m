@@ -1,53 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbWBTOR0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964931AbWBTOU1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964932AbWBTOR0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 09:17:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbWBTORZ
+	id S964931AbWBTOU1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 09:20:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030235AbWBTOU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 09:17:25 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:59305 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964932AbWBTORY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 09:17:24 -0500
-Date: Mon, 20 Feb 2006 14:17:14 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-Cc: Tom Zanussi <zanussi@us.ibm.com>, Paul Mundt <lethal@linux-sh.org>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, axboe@suse.de,
-       karim@opersys.com
-Subject: Re: [PATCH, RFC] sysfs: relay channel buffers as sysfs attributes
-Message-ID: <20060220141713.GA29479@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Mathieu Desnoyers <compudj@krystal.dyndns.org>,
-	Tom Zanussi <zanussi@us.ibm.com>, Paul Mundt <lethal@linux-sh.org>,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-	axboe@suse.de, karim@opersys.com
-References: <20060219171748.GA13068@linux-sh.org> <20060219175623.GA2674@kroah.com> <20060219185254.GA13391@linux-sh.org> <17401.21427.568297.830492@tut.ibm.com> <20060220130555.GA29405@Krystal>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Feb 2006 09:20:26 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:14675 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964933AbWBTOU0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 09:20:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=n9Kgz5RAucu1dbQcmpfDzR5+A8unJ8uBcs5KJESFO21qRE4iBgwVG5b97u5ccLeriSxsX1T4oi32NPOSa6VnnR2atYKHuIUaiqLv2yIXJ3b5bxtT0wNKa14uj2EKx9xnXNUprTpEZevotZ2oYTzfihu0F6smMb4og2zydFH2o88=
+Message-ID: <39e6f6c70602200620i750b022an4c544072ff51f080@mail.gmail.com>
+Date: Mon, 20 Feb 2006 11:20:24 -0300
+From: "Arnaldo Carvalho de Melo" <acme@ghostprotocols.net>
+To: "Patrick McHardy" <kaber@trash.net>
+Subject: Re: 2.6.16-rc4-mm1
+Cc: "Reuben Farrelly" <reuben-lkml@reub.net>, "Andrew Morton" <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       "Netfilter Development Mailinglist" 
+	<netfilter-devel@lists.netfilter.org>,
+       dccp@vger.kernel.org
+In-Reply-To: <43F9CE18.10709@trash.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060220130555.GA29405@Krystal>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <20060220042615.5af1bddc.akpm@osdl.org> <43F9BDDA.1060508@reub.net>
+	 <43F9CE18.10709@trash.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 20, 2006 at 08:05:56AM -0500, Mathieu Desnoyers wrote:
-> * LTTng does have its own ltt_poll and ltt_ioctl that are all what is needed to
->   control the interaction with the file (along with the relayfs mmap/unmap).
-> 
-> In this scenario, the sysfs relay attribute creation would look like :
-> 
-> - create an empty attr
-> - fill some of attr members
-> - sysfs_create_relay_file(kobj, attr);
->   (it will overwrite some attr members : kobj, rchan, rchan_buf)
->   * set specific LTTng file operations on the inode
+On 2/20/06, Patrick McHardy <kaber@trash.net> wrote:
+> Reuben Farrelly wrote:
+> > Minor dependency issue:
+> >
+> > My compile failed with this..
+> >
+> >   CC [M]  net/netfilter/xt_dccp.o
+> > In file included from net/netfilter/xt_dccp.c:15:
+> > include/linux/dccp.h:341:2: error: #error "At least one CCID must be
+> > built as the default"
+> > make[2]: *** [net/netfilter/xt_dccp.o] Error 1
+> > make[1]: *** [net/netfilter] Error 2
+> > make: *** [net] Error 2
+> > [root@tornado linux-2.6-mm]#
+> >
+> > [I have no idea what a CCID is]
+> >
+> > But it was caused by this:
+> >
+> > CONFIG_NETFILTER_XT_MATCH_DCCP=m
+> >
+> > and maybe this below had an impact:
+> >
+> > #
+> > # DCCP Configuration (EXPERIMENTAL)
+> > #
+> > # CONFIG_IP_DCCP is not set
+> >
+> > After unsetting the option to build the DCCP Netfilter module, I was
+> > able to compile through to completion.
+>
+> Ideally this dependency should be enforced by Kconfig. I'm not sure
+> if it is possible to express something like "IP_DCCP_CCID2 and
+> IP_DCCP_CCID3 depend on DCCP, DCCP requires at least one of both
+> to be enabled". Can someone more familiar with Kconfig than me
+> comment on this? Otherwise the #error should be moved to
+> net/dccp/options.c to keep dccp.h usable without dccp enabled.
 
-defintily not on sysfs.  sysfs doesn't allow drivers to modify the
-file operations for good reasons.  it'll probably work the same as-is
-when you use the rely file operations on debugfs or a custom filesystem,
-although you're code will have zero chance to get merged when it modifies
-an existing file operations struct or adds an ioctl.
+oops, I think I'll move the #error to options.c, thanks for forwarding
+this report
+to dccp@vger.kernel.org.
 
+- Arnaldo

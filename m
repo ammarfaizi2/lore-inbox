@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbWBTAFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbWBTAJV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932466AbWBTAFl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 19:05:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWBTAFl
+	id S932469AbWBTAJV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 19:09:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbWBTAJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 19:05:41 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:29382 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932466AbWBTAFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 19:05:41 -0500
-Subject: Re: No sound from SB live!
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Pavel Machek <pavel@suse.cz>, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Nick Warne <nick@linicks.net>, Jesper Juhl <jesper.juhl@gmail.com>,
-       tiwai@suse.de, ghrt@dial.kappa.ro, perex@suse.cz,
-       kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200602192356.39834.s0348365@sms.ed.ac.uk>
-References: <20060218231419.GA3219@elf.ucw.cz>
-	 <200602192323.08169.s0348365@sms.ed.ac.uk>
-	 <1140391929.2733.430.camel@mindpipe>
-	 <200602192356.39834.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain
-Date: Sun, 19 Feb 2006 19:05:28 -0500
-Message-Id: <1140393928.2733.441.camel@mindpipe>
+	Sun, 19 Feb 2006 19:09:21 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5008 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932469AbWBTAJU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 19:09:20 -0500
+Date: Mon, 20 Feb 2006 01:09:07 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: greg@kroah.com, torvalds@osdl.org, akpm@osdl.org, linux-pm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-pm] [PATCH 3/5] [pm] Respect the actual device power states in sysfs interface
+Message-ID: <20060220000907.GE15608@elf.ucw.cz>
+References: <Pine.LNX.4.50.0602171758160.30811-100000@monsoon.he.net> <20060218155543.GE5658@openzaurus.ucw.cz> <Pine.LNX.4.50.0602191557520.8676-100000@monsoon.he.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.91 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0602191557520.8676-100000@monsoon.he.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-19 at 23:56 +0000, Alistair John Strachan wrote:
-> Thanks for this info Lee, and understand I don't hold anybody
-> specifically in 
-> the alsa team responsible but *deep breath*:
+On Ne 19-02-06 15:59:25, Patrick Mochel wrote:
 > 
-> Please let everybody know about incompatible changes to alsa-lib know
-> about it 
-> prior to making the change mandatory. 
+> On Sat, 18 Feb 2006, Pavel Machek wrote:
+> 
+> > Hi!
+> >
+> > > Fix the per-device state file to respect the actual state that
+> > > is reported by the device, or written to the file.
+> >
+> > Can we let "state" file die? You actually suggested that at one point.
+> >
+> > I do not think passing states in u32 is good idea. New interface that passes
+> > state as string would probably be better.
+> 
+> Yup, in the future that will be better. For now, let's work with what we
+> got and fix 2.6.16 to be compatible with previous versions..
 
-I thought it was already common knowledge that alsa-lib should be
-upgraded when upgrading the kernel.
+It already is. It accepts "0" and "2" and "3". That's all values that
+used to work. Other values used to trigger BUG() in pci.c (and we do
+not want to re-introduce _that_ behaviour, right?).
 
-Each ALSA driver has both a userspace and a kernel component so alsa-lib
-has to be upgraded to get new drivers anyway.
-
-Lee
-
+If you add u32 into pm_message_t, it will be impossible to remove in
+future.
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

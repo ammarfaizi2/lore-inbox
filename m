@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161027AbWBTQmb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161025AbWBTQn5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161027AbWBTQmb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 11:42:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161026AbWBTQmb
+	id S1161025AbWBTQn5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 11:43:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161022AbWBTQn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 11:42:31 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:40112 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1161027AbWBTQma (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 11:42:30 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 20 Feb 2006 17:41:02 +0100
-To: matthias.andree@gmx.de, dhazelton@enter.net
-Cc: schilling@fokus.fraunhofer.de, nix@esperi.org.uk, mj@ucw.cz,
-       linux-kernel@vger.kernel.org, davidsen@tmr.com, chris@gnome-de.org,
-       axboe@suse.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F9F11E.nail5BM21M01Q@burner>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
- <200602182010.02468.dhazelton@enter.net>
- <20060219092059.GA21626@merlin.emma.line.org>
- <200602192053.25767.dhazelton@enter.net>
-In-Reply-To: <200602192053.25767.dhazelton@enter.net>
-User-Agent: nail 11.2 8/15/04
+	Mon, 20 Feb 2006 11:43:57 -0500
+Received: from stinky.trash.net ([213.144.137.162]:29658 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S1161025AbWBTQn5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 11:43:57 -0500
+Message-ID: <43F9F16D.4060802@trash.net>
+Date: Mon, 20 Feb 2006 17:42:21 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: James Morris <jmorris@namei.org>
+CC: =?ISO-8859-1?Q?T=F6r=F6k_Edwin?= <edwin.torok@level7.ro>,
+       netfilter-devel@lists.netfilter.org,
+       fireflier-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       martinmaurer@gmx.at
+Subject: Re: [PATCH 2.6.15.4 1/1][RFC] ipt_owner: inode match supporting both
+ incoming and outgoing packets
+References: <200602181410.59757.edwin.torok@level7.ro> <Pine.LNX.4.64.0602201122330.21034@excalibur.intercode>
+In-Reply-To: <Pine.LNX.4.64.0602201122330.21034@excalibur.intercode>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"D. Hazelton" <dhazelton@enter.net> wrote:
+James Morris wrote:
+> Have a look at my skfilter patches:
+> http://people.redhat.com/jmorris/selinux/skfilter/kernel/
+> 
+> These implement a scheme for matching incoming packets against sockets by 
+> adding a new hook in the socket layer.
+> 
+> For upstream merge, the issues are:
+> - should the new socket hook be used for all incoming packets?
+> - ensure IP queuing still works
+> 
+> Patrick: any other issues?
 
-> > Part of the problem is Jörg's expecting a solution the day before
-> > yesterday.
->
-> Well, from some comments he made in private mails he seems to think he was 
-> promised (by Linus, no less) that the DMA problems in ide-scsi were going to 
-> be fixed. Instead the module was deprecated and SG_IO was introduced - this 
-> seems to be one of the things he's been angry about.
+Confirmation of conntrack entries. They shouldn't be confirmed before
+packets have passed the socket hooks. This is the tricky part because
+we don't know if packets will be delivered to a raw socket or not
+when calling the regular LOCAL_IN hook. The only way to solve this
+seems to be to use the socket hooks for all incoming packets, that
+way we can defer confirmation unconditionally. The nicest way would
+be to just move the regular LOCAL_IN hook to the socket hooks, but
+this doesn't work with SNAT in LOCAL_IN because the socket lookup
+needs the already NATed address.
 
-Even you have become a victim of the trolls :-(
-
-SG_IO was used in ide-scsi a long time before it was needlessly introduced 
-on top of /dev/hd*
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+I'll probably continue to work on this soon unless someone beats
+me to the punch.

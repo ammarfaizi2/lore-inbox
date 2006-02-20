@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWBSVbO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWBSViq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbWBSVbO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 16:31:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWBSVbO
+	id S932272AbWBSViq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 16:38:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWBSViq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 16:31:14 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:64395 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932278AbWBSVa6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 16:30:58 -0500
-Date: Mon, 20 Feb 2006 08:30:46 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [RT, OOPS] 2.6.15.3-rt16 + XFS on USB => OOPS
-Message-ID: <20060220083045.B9478997@wobbly.melbourne.sgi.com>
-References: <Pine.LNX.4.60.0602192117530.3700@poirot.grange>
-Mime-Version: 1.0
+	Sun, 19 Feb 2006 16:38:46 -0500
+Received: from smtp3.netcabo.pt ([212.113.174.30]:61377 "EHLO
+	exch01smtp12.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S932272AbWBSViq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 16:38:46 -0500
+From: yadira Ayyuce <fuupirgcjt@payperclicktools.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Make Bigg Mo6ney Onn Thyis Pick! parson
+Date: Sun, 19 Feb 2006 21:24:29 -0700
+Reply-To: <fuupirgcjt@payperclicktools.com>
+MIME-Version: 1.0
+Message-ID: <18321100989.3276572038.5460156@vagrancy-lp8.payperclicktools.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.60.0602192117530.3700@poirot.grange>; from g.liakhovetski@gmx.de on Sun, Feb 19, 2006 at 09:26:06PM +0100
+Content-Transfer-Encoding: plain
+X-OriginalArrivalTime: 19 Feb 2006 21:38:32.0496 (UTC) FILETIME=[D49E6B00:01C6359C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 19, 2006 at 09:26:06PM +0100, Guennadi Liakhovetski wrote:
-> Hi
-> 
-> Got the following Oops while trying to mount an XFS partition on a USB 
-> disk under 2.6.15.3-rt16:
+Dear_yadira,
 
-This is fixed in 2.6.15.4.
+A rare opportunity to get in a good
+company and make 4x your investment
+or more. This is one of them! This is
+a strong solid company that produces
+money and is on the go. A huge promotion
+is expected all weekend with great news
+next week as well get in on it monday
+for great profits all next week.
+Don't Miss This One, Get CTKR.
 
-cheers.
+Company: CLIENT TRACK CORP
+Symb0l : CTKR . PK
+Current-Price:  .12
+3 to 5 Day Projected Price:.45 to.75
 
--- 
-Nathan
+Client Track Corporation Announces New
+Acquisition on the Education Market.
+
+       Read The Full Release:
+http://finance.yahoo.com/q?s=CTKR.PK
+
+
+*** Get CTKR *** Get CTKR *** Get CTKR ***
+
+
+
+sparing innovator
+

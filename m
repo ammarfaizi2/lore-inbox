@@ -1,77 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWBTARx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbWBTASF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932424AbWBTARx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 19:17:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbWBTARx
+	id S932480AbWBTASF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 19:18:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWBTASE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 19:17:53 -0500
-Received: from gate.crashing.org ([63.228.1.57]:47761 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932424AbWBTARw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 19:17:52 -0500
-Subject: [PATCH] powermac: Fix loss of ethernet PHY on sleep
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>
+	Sun, 19 Feb 2006 19:18:04 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:2759 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751125AbWBTASC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 19:18:02 -0500
+Subject: Re: No sound from SB live!
+From: Lee Revell <rlrevell@joe-job.com>
+To: David Lang <dlang@digitalinsight.com>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Pavel Machek <pavel@suse.cz>, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Nick Warne <nick@linicks.net>, Jesper Juhl <jesper.juhl@gmail.com>,
+       tiwai@suse.de, ghrt@dial.kappa.ro, perex@suse.cz,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.62.0602191608330.10888@qynat.qvtvafvgr.pbz>
+References: <20060218231419.GA3219@elf.ucw.cz>
+	 <200602192323.08169.s0348365@sms.ed.ac.uk>
+	 <1140391929.2733.430.camel@mindpipe>
+	 <200602192356.39834.s0348365@sms.ed.ac.uk>
+	 <1140393928.2733.441.camel@mindpipe>
+	 <Pine.LNX.4.62.0602191608330.10888@qynat.qvtvafvgr.pbz>
 Content-Type: text/plain
-Date: Mon, 20 Feb 2006 11:17:30 +1100
-Message-Id: <1140394650.32374.48.camel@localhost.localdomain>
+Date: Sun, 19 Feb 2006 19:17:56 -0500
+Message-Id: <1140394676.2733.445.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.5.91 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some recent PowerBook models tend to lose the ethernet PHY on
-suspend/resume. It -seems- that they use a combo ethernet-firewire PHY
-chip and the firewire PHY seems to die the same way when that happens.
-Not trying to toggle the firewire cable power appears to fix it. So this
-patch disables changes to the firewire cable power control GPIO on those
-models. Please apply for 2.6.16.
+On Sun, 2006-02-19 at 16:12 -0800, David Lang wrote:
+> 
+> it's not (at least among general Linux users, it probably is among
+> alsa 
+> developers).
+> 
+> Especially after the comments that Linus made a few months ago about
+> how 
+> important it is to not break userspace interfaces. 
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+In the future this will be the case, this change occured before that
+statement from Linus.
 
-Index: linux-work/arch/powerpc/platforms/powermac/feature.c
-===================================================================
---- linux-work.orig/arch/powerpc/platforms/powermac/feature.c	2006-02-20 11:10:07.000000000 +1100
-+++ linux-work/arch/powerpc/platforms/powermac/feature.c	2006-02-20 11:13:25.000000000 +1100
-@@ -1648,10 +1648,10 @@
- 		  KL0_SCC_CELL_ENABLE);
- 
- 	MACIO_BIC(KEYLARGO_FCR1,
--		  /*KL1_USB2_CELL_ENABLE |*/
- 		KL1_I2S0_CELL_ENABLE | KL1_I2S0_CLK_ENABLE_BIT |
- 		KL1_I2S0_ENABLE | KL1_I2S1_CELL_ENABLE |
--		KL1_I2S1_CLK_ENABLE_BIT | KL1_I2S1_ENABLE);
-+		KL1_I2S1_CLK_ENABLE_BIT | KL1_I2S1_ENABLE |
-+		KL1_EIDE0_ENABLE);
- 	if (pmac_mb.board_flags & PMAC_MB_MOBILE)
- 		MACIO_BIC(KEYLARGO_FCR1, KL1_UIDE_RESET_N);
- 
-@@ -2185,7 +2185,7 @@
- 	},
- 	{	"PowerMac10,1",			"Mac mini",
- 		PMAC_TYPE_UNKNOWN_INTREPID,	intrepid_features,
--		PMAC_MB_MAY_SLEEP | PMAC_MB_HAS_FW_POWER,
-+		PMAC_MB_MAY_SLEEP,
- 	},
- 	{	"iMac,1",			"iMac (first generation)",
- 		PMAC_TYPE_ORIG_IMAC,		paddington_features,
-@@ -2297,11 +2297,11 @@
- 	},
- 	{	"PowerBook5,8",			"PowerBook G4 15\"",
- 		PMAC_TYPE_UNKNOWN_INTREPID,	intrepid_features,
--		PMAC_MB_MAY_SLEEP | PMAC_MB_HAS_FW_POWER | PMAC_MB_MOBILE,
-+		PMAC_MB_MAY_SLEEP  | PMAC_MB_MOBILE,
- 	},
- 	{	"PowerBook5,9",			"PowerBook G4 17\"",
- 		PMAC_TYPE_UNKNOWN_INTREPID,	intrepid_features,
--		PMAC_MB_MAY_SLEEP | PMAC_MB_HAS_FW_POWER | PMAC_MB_MOBILE,
-+		PMAC_MB_MAY_SLEEP | PMAC_MB_MOBILE,
- 	},
- 	{	"PowerBook6,1",			"PowerBook G4 12\"",
- 		PMAC_TYPE_UNKNOWN_INTREPID,	intrepid_features,
-
+Lee
 

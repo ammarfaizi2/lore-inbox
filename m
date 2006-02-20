@@ -1,65 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbWBTJGI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWBTJIX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932383AbWBTJGI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 04:06:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWBTJGI
+	id S932396AbWBTJIX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 04:08:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWBTJIX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 04:06:08 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52949 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932383AbWBTJGG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 04:06:06 -0500
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org, B.Steinbrink@gmx.de, viro@ftp.linux.org.uk
-Subject: Re: + daemonize-detach-from-current-namespace.patch added to -mm
- tree
-References: <200602200438.k1K4ct5n013388@shell0.pdx.osdl.net>
-	<1140425218.2979.14.camel@laptopd505.fenrus.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 20 Feb 2006 02:04:27 -0700
-In-Reply-To: <1140425218.2979.14.camel@laptopd505.fenrus.org> (Arjan van de
- Ven's message of "Mon, 20 Feb 2006 09:46:57 +0100")
-Message-ID: <m1ek1ymmec.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 20 Feb 2006 04:08:23 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:26275 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932396AbWBTJIW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 04:08:22 -0500
+Date: Mon, 20 Feb 2006 10:06:39 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: Robust futexes
+Message-ID: <20060220090639.GC22445@elte.hu>
+References: <1140152271.25078.42.camel@localhost.localdomain> <20060216224207.98526b40.pj@sgi.com> <1140160371.25078.81.camel@localhost.localdomain> <20060216232950.efa39e13.pj@sgi.com> <20060217091307.GB22718@elte.hu> <1140234812.2418.13.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1140234812.2418.13.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.3
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.3 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@infradead.org> writes:
 
->> diff -puN kernel/exit.c~daemonize-detach-from-current-namespace kernel/exit.c
->> --- devel/kernel/exit.c~daemonize-detach-from-current-namespace 2006-02-19
-> 20:36:58.000000000 -0800
->> +++ devel-akpm/kernel/exit.c	2006-02-19 20:36:58.000000000 -0800
->> @@ -360,6 +360,9 @@ void daemonize(const char *name, ...)
->>  	fs = init_task.fs;
->>  	current->fs = fs;
->>  	atomic_inc(&fs->count);
->> +	exit_namespace(current);
->> +	current->namespace = init_task.namespace;
->> +	get_namespace(current->namespace);
->>   	exit_files(current);
->
-> not that it'll matter much here, but this is normally the wrong order of
-> refcounting ;) First take the count, then start using it ;)
+* Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-Well what would need in a general case situation here would be task_lock,
-for the two tasks.  Having that as long as all of the operations happened
-under the lock it wouldn't matter.  In this case the init_task is known
-not to change, and no one else should be messing with current.
+> > the fundamental problem i see here: how do you 'declare' a TID as dead?  
+> > 32-bit TIDs can be reused, quite fundamentally.
+> 
+> Yes.  I was asking of we actually need prefect robustness. [...]
 
-I am beginning to suspect that we will want to fix kernel_thread so it
-creates copies of the init_task rather than copies of whatever random
-user space process we happen to be a member of at the time.  With an
-enhanced kernel_thread this problem could more easily avoided, as
-we add additional namespaces to the kernel.
+yes - we need at a minimum robustness that will work for all sane 
+workloads. If we make applications rely on it, we should offer an 
+implementation that works under well-specified circumstances. "The 
+feature might not work if some other, unrelated application happens 
+churn more than 32768 threads" is not well-specified. [not to talk about 
+the problems with the upcoming POSIX specification: we certainly wont be 
+able to claim to support the feature, if it doesnt reliably work under 
+an easily reproducible, normal workload.]
 
-The problem with a kernel thread running in a private namespace like this
-is that you can't kill the kernel thread and when it is the last user
-of a private namespace.  So you can never free up your mounts etc.
+> [...] I'm fairly confident that this approach would work well in 
+> practice, since if tids are being churned, the thread with wrapped TID 
+> will exit soon anyway.
 
-As for this patch in particular matching the style that is already there for
-a bug fix seems to make a lot of sense :)
+we cannot assume that - e.g. if there are two unrelated apps, one a 
+fast-churner, and another one relying on robust mutexes.
 
-Eric
+> As an added bonus, the tone of the first response I received (not 
+> yours!) reminded me why I am not subscribed to lkml...
+
+hey, if that response is deemed as too confrontational, then i'd have to 
+discard 97% of the lkml responses i get to patches ;-) Another thing is 
+that this particular topic was pretty hotly discussed from the onset, 
+which could easily have carried over into other replies as well. So i'd 
+really not take it personal.
+
+	Ingo

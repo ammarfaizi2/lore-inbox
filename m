@@ -1,106 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932605AbWBTM4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932609AbWBTM5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932605AbWBTM4v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 07:56:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932611AbWBTM4u
+	id S932609AbWBTM5p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 07:57:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932613AbWBTM5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 07:56:50 -0500
-Received: from mivlgu.ru ([81.18.140.87]:16556 "EHLO master.mivlgu.local")
-	by vger.kernel.org with ESMTP id S932605AbWBTM4u (ORCPT
+	Mon, 20 Feb 2006 07:57:45 -0500
+Received: from mx0.towertech.it ([213.215.222.73]:2540 "HELO mx0.towertech.it")
+	by vger.kernel.org with SMTP id S932611AbWBTM5o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 07:56:50 -0500
-Date: Mon, 20 Feb 2006 15:56:38 +0300
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Greg KH <greg@kroah.com>, Stephen Hemminger <shemminger@osdl.org>,
-       Brian Hall <brihall@pcisys.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Help: DGE-560T not recognized by Linux
-Message-ID: <20060220125638.GA26440@master.mivlgu.local>
-References: <20060217222720.a08a2bc1.brihall@pcisys.net> <20060217222428.3cf33f25.akpm@osdl.org> <20060218003622.30a2b501.brihall@pcisys.net> <20060217234841.5f2030ec.akpm@osdl.org> <20060218100126.198d86c3.brihall@pcisys.net> <20060218222946.4da27618.vsu@altlinux.ru> <20060218163555.39fa3b4a@localhost.localdomain> <20060219010441.GA5810@kroah.com> <20060220114341.GA7710@w.ods.org>
+	Mon, 20 Feb 2006 07:57:44 -0500
+Date: Mon, 20 Feb 2006 13:57:18 +0100
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: David Vrabel <dvrabel@cantab.net>
+Cc: Adrian Bunk <bunk@stusta.de>, Martin Michlmayr <tbm@cyrius.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       John Bowler <jbowler@acm.org>
+Subject: Re: [RFC] [PATCH 1/2] Driver to remember ethernet MAC values:
+ maclist
+Message-ID: <20060220135718.038b675b@inspiron>
+In-Reply-To: <43F9B32B.3090203@cantab.net>
+References: <20060220010113.GA19309@deprecation.cyrius.com>
+	<20060220014735.GD4971@stusta.de>
+	<20060220030146.11f418dc@inspiron>
+	<43F9B32B.3090203@cantab.net>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
-Content-Disposition: inline
-In-Reply-To: <20060220114341.GA7710@w.ods.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 20 Feb 2006 12:16:43 +0000
+David Vrabel <dvrabel@cantab.net> wrote:
 
---dDRMvlgZJXvWKvBx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> >>>Some Ethernet hardware implementations have no built-in storage for
+> >>>allocated MAC values - an example is the Intel IXP420 chip which has
+> >>>support for Ethernet but no defined way of storing allocated MAC values.
+> >>>With such hardware different board level implementations store the
+> >>>allocated MAC (or MACs) in different ways.  Rather than put board level
+> >>>code
+ 
+> For those not familar with the IXP4xx, the Ethernet drivers are
+> proprietary and given that there are no other proposed users of this
+> maclist code there's no need for it in the kernel at this time.
 
-On Mon, Feb 20, 2006 at 12:43:41PM +0100, Willy Tarreau wrote:
-> Today, I had the *exact* same problem on one server equipped with the same
-> card. I tried the patch above which did not change anything. However, I
-> finally fixed it by simply enabling ACPI. Then it always works with and
-> without the patch above. I could not test marvell's driver because it does
-> not build on 2.6.16-rc4, but strangely my previous kernel on this machine
-> was a 2.6.12-rc4-mm2 patched with marvell's driver and with ACPI disabled.
->=20
-> So it seems that marvell's driver on 2.6.12 was able to access config spa=
-ce
-> even without ACPI while sky2 on 2.6.16-rc4 cannot. I have no idea why,
-> unfortunately.
+> >>Why can't this be implemented in user space using the SIOCSIFHWADDR 
+> >>ioctl?
+ 
+> I'm with Adrian on this -- it's a job for userspace.  The storage of the
+> MAC address isn't something that's necessarily board specific anyway but
+> could depend on which bootloader is used and/or the bootloader version.
 
-Apparently Marvell's driver accesses PCIE configuration registers through
-I/O ports specific to their hardware:
+> >  Because sometimes you need to have networking available
+> >  well before userspace.
+> 
+> In the specific case of the IXP4xx, you presumably have some userspace
+> available because you've just loaded the NPE firmware from it, yes?
 
-/*
- *	Macro PCI_C()
- *
- *	Use this macro to access PCI config register from the I/O space.
- *
- * para:
- *	pAC		Pointer to adapter context
- *	Addr	PCI configuration register to access.
- *			Values:	PCI_VENDOR_ID ... PCI_VPD_ADR_REG,
- *
- * usage	SK_IN16(IoC, PCI_C(pAC, PCI_VENDOR_ID), pVal);
- */
-#define PCI_C(p, Addr)		\
-	(((CHIP_ID_YUKON_2(p)) ? Y2_CFG_SPC : B7_CFG_SPC) + (Addr))
+ Hi David,
+  
+  you're certainly right on the ixp4xx, but the are other uses
+ for this driver which we are working on.. for example,
+ some Cirrus Logic ARM based chips (ep93xx) have an ethernet device
+ that could benefit from that.
 
-=2E..
+  I'm pretty sure that there are and will be more devices
+ with such requirements, with either proprietary or
+ open source drivers. My opinion is that a maclist alike
+ facility can clean some of the mess in that area.
 
-			/* clear any PEX errors */
-			SK_OUT32(IoC, PCI_C(pAC, PEX_UNC_ERR_STAT), 0xffffffffUL);
+  If we implement such a thing in userspace every distribution
+ will need to be aware of a specific trick for a specific
+ board. If we have a clean facility in the kernel, userspace
+ will not need to care.
 
-			SK_IN16(IoC, PCI_C(pAC, PEX_LNK_STAT), &Word);
+-- 
 
-			pAC->GIni.GIPexWidth =3D (SK_U8)((Word & PEX_LS_LINK_WI_MSK) >> 4);
+ Best regards,
 
-=2E..
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
 
-			SK_OUT8(IoC, B2_TST_CTRL1, TST_CFG_WRITE_ON);
+  http://www.towertech.it
 
-			SK_OUT16(IoC, PCI_C(pAC, PEX_DEV_CTRL), Word);
-
-			SK_OUT8(IoC, B2_TST_CTRL1, TST_CFG_WRITE_OFF);
-
-=2E..
-
-		/* clear the interrupt */
-		SK_OUT32(IoC, B2_TST_CTRL1, TST_CFG_WRITE_ON);
-		SK_OUT32(IoC, PCI_C(pAC, PEX_UNC_ERR_STAT), 0xffffffffUL);
-		SK_OUT32(IoC, B2_TST_CTRL1, TST_CFG_WRITE_OFF);
-
-But sky2 uses standard pci_read_config_*, pci_write_config_* functions,
-which require working MMCONFIG access.  Maybe sky2 should be changed to
-use I/O space for access to PCIE-specific configuration registers.
-
---dDRMvlgZJXvWKvBx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFD+byGW82GfkQfsqIRAn7BAJ48ul6EbvmdW0vS+IFlg9bWzp/gCgCeJSqC
-8ZZVQ36F7eyAAmNYEcmoD3I=
-=Mccn
------END PGP SIGNATURE-----
-
---dDRMvlgZJXvWKvBx--

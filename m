@@ -1,63 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWBTAP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWBTARI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932451AbWBTAP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 19:15:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWBTAP7
+	id S932093AbWBTARI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 19:17:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbWBTARI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 19:15:59 -0500
-Received: from smtp.bulldogdsl.com ([212.158.248.7]:47626 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S932451AbWBTAP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 19:15:59 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: David Lang <dlang@digitalinsight.com>
-Subject: Re: No sound from SB live!
-Date: Mon, 20 Feb 2006 00:16:11 +0000
-User-Agent: KMail/1.9.1
-Cc: Lee Revell <rlrevell@joe-job.com>, Pavel Machek <pavel@suse.cz>,
-       Nishanth Aravamudan <nacc@us.ibm.com>, Nick Warne <nick@linicks.net>,
-       Jesper Juhl <jesper.juhl@gmail.com>, tiwai@suse.de, ghrt@dial.kappa.ro,
-       perex@suse.cz, kernel list <linux-kernel@vger.kernel.org>
-References: <20060218231419.GA3219@elf.ucw.cz> <1140393928.2733.441.camel@mindpipe> <Pine.LNX.4.62.0602191608330.10888@qynat.qvtvafvgr.pbz>
-In-Reply-To: <Pine.LNX.4.62.0602191608330.10888@qynat.qvtvafvgr.pbz>
+	Sun, 19 Feb 2006 19:17:08 -0500
+Received: from digitalimplant.org ([64.62.235.95]:46031 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S932093AbWBTARH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 19:17:07 -0500
+Date: Sun, 19 Feb 2006 16:17:01 -0800 (PST)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Pavel Machek <pavel@suse.cz>
+cc: greg@kroah.com, "" <torvalds@osdl.org>, "" <akpm@osdl.org>,
+       "" <linux-pm@osdl.org>, "" <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [PATCH 3/5] [pm] Respect the actual device power
+ states in sysfs interface
+In-Reply-To: <20060220000907.GE15608@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.50.0602191611130.8676-100000@monsoon.he.net>
+References: <Pine.LNX.4.50.0602171758160.30811-100000@monsoon.he.net>
+ <20060218155543.GE5658@openzaurus.ucw.cz> <Pine.LNX.4.50.0602191557520.8676-100000@monsoon.he.net>
+ <20060220000907.GE15608@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602200016.11971.s0348365@sms.ed.ac.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 February 2006 00:12, David Lang wrote:
-> On Sun, 19 Feb 2006, Lee Revell wrote:
-> > On Sun, 2006-02-19 at 23:56 +0000, Alistair John Strachan wrote:
-> >> Thanks for this info Lee, and understand I don't hold anybody
-> >> specifically in
-> >> the alsa team responsible but *deep breath*:
-> >>
-> >> Please let everybody know about incompatible changes to alsa-lib know
-> >> about it
-> >> prior to making the change mandatory.
+
+On Mon, 20 Feb 2006, Pavel Machek wrote:
+
+> On Ne 19-02-06 15:59:25, Patrick Mochel wrote:
 > >
-> > I thought it was already common knowledge that alsa-lib should be
-> > upgraded when upgrading the kernel.
+> > On Sat, 18 Feb 2006, Pavel Machek wrote:
+> >
+> > > Hi!
+> > >
+> > > > Fix the per-device state file to respect the actual state that
+> > > > is reported by the device, or written to the file.
+> > >
+> > > Can we let "state" file die? You actually suggested that at one point.
+> > >
+> > > I do not think passing states in u32 is good idea. New interface that passes
+> > > state as string would probably be better.
+> >
+> > Yup, in the future that will be better. For now, let's work with what we
+> > got and fix 2.6.16 to be compatible with previous versions..
 >
-> it's not (at least among general Linux users, it probably is among alsa
-> developers).
+> It already is. It accepts "0" and "2" and "3". That's all values that
+> used to work.
 
-I agree, and should I not have had an SBLive Version Voodoo with Problem X, I 
-wouldn't need to upgrade, would I?
+The core should not dictate the valid range of values. The bus drivers
+should decide, since they are their states. "1" also used to work.
 
-This isn't an acceptable solution. Upgrades that aren't subsuming an existing, 
-working codebase need to be explained. And I'll read that explanation and 
-decide whether to upgrade. That's how it should be, period.
+> Other values used to trigger BUG() in pci.c (and we do not want to
+> re-introduce _that_ behaviour, right?).
 
--- 
-Cheers,
-Alistair.
+I don't follow - the BUG() call was introduced recently for reasons
+unknown. The interface had never triggered that previously.
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+> If you add u32 into pm_message_t, it will be impossible to remove in
+> future.
+
+I don't follow this argument either.
+
+I really fail to see what your fundamental objection is. This restores
+compatability, makes the core simpler, and adds the ability to use the
+additional states, should drivers choose to implement them; all for
+relatively little code. It seems a like a good thing to me..
+
+Thanks,
+
+
+	Pat
+

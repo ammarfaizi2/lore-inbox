@@ -1,73 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161083AbWBTSLJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161097AbWBTSL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161083AbWBTSLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 13:11:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161097AbWBTSLI
+	id S1161097AbWBTSL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 13:11:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161101AbWBTSL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 13:11:08 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37563 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161083AbWBTSLH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 13:11:07 -0500
-Date: Mon, 20 Feb 2006 19:10:40 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Patrick Mochel <mochel@digitalimplant.org>
-Cc: greg@kroah.com, torvalds@osdl.org, akpm@osdl.org, linux-pm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-pm] [PATCH 3/5] [pm] Respect the actual device power states in sysfs interface
-Message-ID: <20060220181040.GI19156@elf.ucw.cz>
-References: <20060218155543.GE5658@openzaurus.ucw.cz> <Pine.LNX.4.50.0602191557520.8676-100000@monsoon.he.net> <20060220000907.GE15608@elf.ucw.cz> <Pine.LNX.4.50.0602191611130.8676-100000@monsoon.he.net> <20060220002053.GF15608@elf.ucw.cz> <Pine.LNX.4.50.0602191628270.8676-100000@monsoon.he.net> <20060220004142.GI15608@elf.ucw.cz> <Pine.LNX.4.50.0602200938320.12708-100000@monsoon.he.net> <20060220175842.GH19156@elf.ucw.cz> <Pine.LNX.4.50.0602201006230.12708-100000@monsoon.he.net>
+	Mon, 20 Feb 2006 13:11:26 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:150 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1161100AbWBTSLY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 13:11:24 -0500
+Subject: Re: Areca RAID driver remaining items?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       billion.wu@areca.com.tw, alan@lxorguk.ukuu.org.uk, akpm@osdl.org,
+       erich@areca.com.tw, oliver@neukum.org
+In-Reply-To: <1140458552.3495.26.camel@mentorng.gurulabs.com>
+References: <1140458552.3495.26.camel@mentorng.gurulabs.com>
+Content-Type: text/plain
+Date: Mon, 20 Feb 2006 19:11:19 +0100
+Message-Id: <1140459079.2979.70.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0602201006230.12708-100000@monsoon.he.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 20-02-06 10:08:36, Patrick Mochel wrote:
-> 
-> On Mon, 20 Feb 2006, Pavel Machek wrote:
-> 
-> > Hi!
-> >
-> > > > > > Compatibility is already restored.
-> > > > >
-> > > > > No, the interface is currently broken. The driver core does not
-> > > > > dictate
-> > > >
-> > > > There were two different interfaces, one accepted 0 and 2, everything
-> > > > else was invalid, and second accepted 0, 1, 2, 3.
-> > > >
-> > > > If you enter D2 on echo 2, you are breaking compatibility with 2.6.15
-> > > > or something like that.
-> > >
-> > > I don't see how this is true. If a process writes "2" to a PCI device's
-> > > state file, what else are sane things to do?
-> >
-> > In some kernel version (2.6.15, iirc), device entered D3 if you wrote
-> > "2" to state file, and there are programs out there that depend on
-> > it.
-> 
-> Like what?
 
-Search archives. Some PCMCIA, IIRC.
-
-> > > You dropped the fundamental point, and I don't understand why you disagree
-> > > with it - the driver core should not be dictating policy to the downstream
-> > > drivers. It is currently doing this by filtering the power state that is
-> > > passed in via the "state" file.
-> >
-> > That's best we can do to stay compatible. Please introduce new file,
-> > and make states string-based.
+> "There's lots of architectural problems.  It's doing it's own queueing,
+> it's stuffing kernel structures into memory on the hardware and so on.
+> Basically someone knowledgeable about the hardware needs to start from
+> scratch on it."
 > 
-> You are still overlooking the point - the core should not be filtering the
-> values. It currently is, but it's trivial to fix. What is your issue with
-> that?
+> What are the show stoppers that prevents a merge into the Linus tree?
 
-That you are breaking compatibility in middle of 2.6 series. And very
-close to 2.6.16 at that.
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+own queueing for sure is a show stopper; 
+stuffing kernel structures into the hw is also very much evil
+
+

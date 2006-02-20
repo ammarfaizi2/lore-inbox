@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbWBTORx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbWBTOR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030239AbWBTORx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 09:17:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbWBTORw
+	id S964932AbWBTOR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 09:17:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbWBTORZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 09:17:52 -0500
-Received: from pproxy.gmail.com ([64.233.166.179]:56405 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964921AbWBTORv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 09:17:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=izTXCTMyMlSMbqqe8zeFpG0YLW4F2hW6TDUfn1N1rbQSYAMIM9BdJhqPaj7kP2uGV3uJW0kWYpO8D0Uz+bt5lu/ZR2TWohindbM25XJ4BqIaL3ujlJwzebGHWNylTCIXol/xgV2rpHvi0GaQEjFz+izES/5SMMAw7zMj2g9X0LQ=
-Message-ID: <43F9CF85.1020500@gmail.com>
-Date: Mon, 20 Feb 2006 23:17:41 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jfeise@feise.com
-CC: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
-       Andrew Morton <akpm@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>
-Subject: Re: Kernel oops: 2.6.16-rc3-mm1 dvd mount
-References: <43F4A5FE.3080601@feise.com> <43F96743.9050103@gmail.com>
-In-Reply-To: <43F96743.9050103@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Feb 2006 09:17:25 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:59305 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964932AbWBTORY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 09:17:24 -0500
+Date: Mon, 20 Feb 2006 14:17:14 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+Cc: Tom Zanussi <zanussi@us.ibm.com>, Paul Mundt <lethal@linux-sh.org>,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, axboe@suse.de,
+       karim@opersys.com
+Subject: Re: [PATCH, RFC] sysfs: relay channel buffers as sysfs attributes
+Message-ID: <20060220141713.GA29479@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Mathieu Desnoyers <compudj@krystal.dyndns.org>,
+	Tom Zanussi <zanussi@us.ibm.com>, Paul Mundt <lethal@linux-sh.org>,
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+	axboe@suse.de, karim@opersys.com
+References: <20060219171748.GA13068@linux-sh.org> <20060219175623.GA2674@kroah.com> <20060219185254.GA13391@linux-sh.org> <17401.21427.568297.830492@tut.ibm.com> <20060220130555.GA29405@Krystal>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060220130555.GA29405@Krystal>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> This oops happened because get_request() was invoked with NULL @q.  It 
-> seems like SCSI midlayer refcounting mixup.  I'll dig deeper and report 
-> again as soon as I can find something concrete.
+On Mon, Feb 20, 2006 at 08:05:56AM -0500, Mathieu Desnoyers wrote:
+> * LTTng does have its own ltt_poll and ltt_ioctl that are all what is needed to
+>   control the interaction with the file (along with the relayfs mmap/unmap).
+> 
+> In this scenario, the sysfs relay attribute creation would look like :
+> 
+> - create an empty attr
+> - fill some of attr members
+> - sysfs_create_relay_file(kobj, attr);
+>   (it will overwrite some attr members : kobj, rchan, rchan_buf)
+>   * set specific LTTng file operations on the inode
 
-Hello, all & James.
+defintily not on sysfs.  sysfs doesn't allow drivers to modify the
+file operations for good reasons.  it'll probably work the same as-is
+when you use the rely file operations on debugfs or a custom filesystem,
+although you're code will have zero chance to get merged when it modifies
+an existing file operations struct or adds an ioctl.
 
-I've bisected the patch series and the winner is #221 
-git-scsi-misc.patch which seems to contain eight commits. I think SCSI 
-people can hunt this down from now on. The bug happens whenever sr block 
-device is accessed - mount, cat, whatever, and now it seems like some 
-kind of data overrun.
-
-Hope it helped.
-
--- 
-tejun

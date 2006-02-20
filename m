@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161166AbWBTUjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161167AbWBTUjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161166AbWBTUjY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 15:39:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161167AbWBTUjY
+	id S1161167AbWBTUjr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 15:39:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161170AbWBTUjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 15:39:24 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:39107 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161166AbWBTUjY (ORCPT
+	Mon, 20 Feb 2006 15:39:47 -0500
+Received: from mx1.rowland.org ([192.131.102.7]:33036 "HELO mx1.rowland.org")
+	by vger.kernel.org with SMTP id S1161168AbWBTUjq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 15:39:24 -0500
-Date: Mon, 20 Feb 2006 12:37:43 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Christoph Lameter <christoph@lameter.com>
-Subject: Re: [PATCH] mm/mempolicy.c: fix 'if ();' typo
-Message-Id: <20060220123743.00adf162.akpm@osdl.org>
-In-Reply-To: <20060220145703.GA8200@mipter.zuzino.mipt.ru>
-References: <20060220145703.GA8200@mipter.zuzino.mipt.ru>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Feb 2006 15:39:46 -0500
+Date: Mon, 20 Feb 2006 15:39:45 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Patrick Mochel <mochel@digitalimplant.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Greg KH <greg@kroah.com>
+cc: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Driver core: race between remove device and register driver
+Message-ID: <Pine.LNX.4.44L0.0602201456170.28136-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan <adobriyan@gmail.com> wrote:
->
-> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-> ---
-> 
->  mm/mempolicy.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> --- a/mm/mempolicy.c
-> +++ b/mm/mempolicy.c
-> @@ -587,7 +587,7 @@ redo:
->  		}
->  		list_add(&page->lru, &newlist);
->  		nr_pages++;
-> -		if (nr_pages > MIGRATE_CHUNK_SIZE);
-> +		if (nr_pages > MIGRATE_CHUNK_SIZE)
->  			break;
->  	}
->  	err = migrate_pages(pagelist, &newlist, &moved, &failed);
+Pat, James, and Greg:
 
-rofl.  That should speed things up a bit, thanks.
+There's an obvious race in the driver core when a device is removed at the
+same time a new driver is registered.  The core has to guarantee that the
+device isn't somehow bound to the driver when the device_del() call
+returns.
+
+Right now we handle it by making bus_remove_device() call klist_remove(),
+which doesn't return until the device's entry is completely gone from the
+bus's klist of all registered devices.  This works okay, but it's contrary
+to the principles of the reference-counting approach.  I'm sure that James 
+at least would much prefer to have the code avoid waiting for the 
+klist_node's refcount to go to 0.
+
+The problem is that we have no way of telling when a struct device has
+been unregistered other than to check whether it is still on the bus's
+klist.  Adding a single "is_registered" bitflag to struct device would
+solve the problem and allow us to get rid of one of the few callers of
+klist_remove().  The other callers can be removed in similar ways,
+allowing us eventually to get rid of klist_remove() altogether -- and
+thereby also get rid of the struct completion embedded in every
+klist_node.
+
+Does this seems like a good way to go?
+
+By the way, there's also the converse race: adding a new device while
+unregistering a driver.  This race is also solved by waiting, but here it
+doesn't matter so much.  Unregistering a driver necessarily involves
+waiting, since the driver's code can't be unloaded until no more threads 
+are executing it.
+
+Alan Stern
+
+P.S.: James, klist_del() and klist_next() both call klist_dec_and_del() 
+(which does a kref_put()) while holding a spinlock.  This may be a good 
+place to use execute_in_process_context().
+

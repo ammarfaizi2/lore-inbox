@@ -1,158 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161056AbWBTRRD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161065AbWBTRSm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161056AbWBTRRD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 12:17:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161062AbWBTRRD
+	id S1161065AbWBTRSm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 12:18:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161066AbWBTRSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 12:17:03 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:22162 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1161067AbWBTRQ4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 12:16:56 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Olivier Galibert <galibert@pobox.com>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Mon, 20 Feb 2006 18:16:55 +0100
-User-Agent: KMail/1.9.1
-Cc: kernel list <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602201513.23849.rjw@sisk.pl> <20060220153922.GA17362@dspnet.fr.eu.org>
-In-Reply-To: <20060220153922.GA17362@dspnet.fr.eu.org>
+	Mon, 20 Feb 2006 12:18:42 -0500
+Received: from smtpq2.tilbu1.nb.home.nl ([213.51.146.201]:60043 "EHLO
+	smtpq2.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
+	id S1161065AbWBTRSk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 12:18:40 -0500
+Message-ID: <43F9F9F2.4070203@keyaccess.nl>
+Date: Mon, 20 Feb 2006 18:18:42 +0100
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602201816.56232.rjw@sisk.pl>
+To: Takashi Iwai <tiwai@suse.de>
+CC: Adam Belay <ambx1@neo.rr.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       alsa-devel@alsa-project.org
+Subject: snd-cs4236 (possibly all isa-pnp cards or all alsa isa-pnp cards)
+ broken in 2.6.16-rc4
+Content-Type: multipart/mixed;
+ boundary="------------030103030307050204040103"
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 February 2006 16:39, Olivier Galibert wrote:
-> On Mon, Feb 20, 2006 at 03:13:23PM +0100, Rafael J. Wysocki wrote:
-}-- snip --{
-> From what I see of the messages in this thread, at that point you're
-> just trying to play catchup with suspend2.
+This is a multi-part message in MIME format.
+--------------030103030307050204040103
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Well, I don't think I am.  Or maybe a little.  Still, are you trying to say that
-GNOME developers should give up because KDE is more advanced in some
-respects or vice versa?
+Hi Takashi.
 
-> Don't that feel a little strange to you?  You know you have working GPL code
-> handy, tested with happy users, with a maintainer who would be happy to have
-> it in the kernel, and instead of making it better you spend your talents redoing
-> the same functionality only slightly differently.  Why?
+[ Takashi: Adam's wonderful provider is again not accepting mail from my 
+wonderful provider. Could you forward? Also added alsa-devel ]
 
-_I_ am doing it as a proof of concept.  Many people said it didn't make sense
-to implement this in the user space and that it wouldn't work, and it would
-take ages to do this etc.  I don't agree with that and I want to show I'm right.
-Is that wrong?
+I noticed on 2.6.16-rc4 that my MPU-401 wasn't functional, due to a
+simple copy & paste error in sound/isa/cs423x/cs4236.c:
 
-> > > Right now it really looks like they're only 
-> > > trying to redo what's already in suspend2, tested and debugged, only
-> > > different and new, hence untested and undebugged.
-> > 
-> > Actually a lot of the code that we use _has_ _been_ tested and debugged,
-> > because it _is_ used on a daily basis by many people, like eg.:
-> > - MD5 from the coreutils package,
-> > - libLZF (the original one)
-> > (openSSL wil be used soon for the image encryption).
-> > 
-> > And I'm not trying to redo suspend2 in the user space.  Instead I'm trying
-> > to use the code that's _already_ _available_ in the user space to obtain
-> > the functionality that suspend2 implements in the kernel space.
-> 
-> "obtaining the functionality that suspend2 implements" means "redoing
-> suspend2".
+Index: local/sound/isa/cs423x/cs4236.c
+===================================================================
+--- local.orig/sound/isa/cs423x/cs4236.c        2006-02-11
+00:34:12.000000000 +0100
++++ local/sound/isa/cs423x/cs4236.c     2006-02-20 04:01:29.000000000 +0100
+@@ -414,7 +414,7 @@ static int __devinit snd_card_cs423x_pnp
+          }
+          /* MPU initialization */
+          if (acard->mpu && mpu_port[dev] > 0) {
+-               if (snd_cs423x_pnp_init_mpu(dev, acard->ctrl, cfg) < 0)
++               if (snd_cs423x_pnp_init_mpu(dev, acard->mpu, cfg) < 0)
+                          goto error;
+          }
+          kfree(cfg);
 
-No, it doesn't.  By the same token you could say writing another mail
-client is redoing Mozilla Thunderbird.
+Please apply. However, when I tested it (mpu works fine again after
+this) I noticed that modprobe -r snd-cs4236 didn't release things --
+specifically that the fixed index=1 I have for the card failed on a
+subsequent modprobe since ALSA believes that index is still taken.
 
-> Don't play on words, please.
+I stuck a few printks in cs4236.c. From "snd_cs423x_unregister_all",
+"pnp_unregister_card_driver(&cs423x_pnpc_driver)" is indeed being called
+but the card driver's own remove method, snd_cs423x_pnpc_remove, is not.
 
-I don't.  I really _think_ it's not the same. :-)
+I started looking, but ran into the next issue again -- when snd-cs4236
+is not card1 but card0, modprobe -r oopses in snd_timer_free (attached)
+meaning debugging this wants someone with more of an overview of recent
+damage done^W^Wchanges made.
 
-> md5 is already in the kernel (twice).  lzf is already in suspend2 (and
-> arguably useful for more things than only suspending),
+Given that calling pnp_unregister_card_driver() is not cs4236 specific,
+I assume the problem is more general. Possibly all ALSA ISA-PnP drivers.
+Or, given that pnp_unregister_card_driver is not an ALSA function, maybe
+even all ISA-PnP drivers using the card_driver interface.
 
-Now seriously.  Nigel already _had_ submitted the LZF patch, but it 
-was not accepted by the cryptoAPI maintainers.  Neither me, nor Pavel
-took part in that.  The same applies to many things in suspend2,
-just browse the LKML archives for the record.
+The more general this problem turns out, the more reason there would be
+for fixing this pre 2.6.16, obviously. I can test patches...
 
-> so suspend2's implementation has been tested for use in a suspend context,
-> while libLZF hasn't.  You _will_ have bugs putting things together, that's a
-> given.
+Rene.
 
-You're probably right.
 
-> Now explain me why you're tying together code from coreutils and other
-> sources when you have the same code, only already tested in a suspend
-> context (memory management, etc), in suspend2.
 
-Sorry, it's not like that.  The memory management is not done by the
-userland part, it's done by the kernel.  The role of the userland part
-is to read the image from the kernel, transform it (compress/encrypt/whatever)
-if needed and save to disk.  All that.
 
-> Why, for the image save, did you port the code from swsusp with for instance
-> its lack of async i/o, instead of porting the suspend2 code?
+--------------030103030307050204040103
+Content-Type: text/plain;
+ name="oops"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="oops"
 
-Because suspend2 code is incompatible with what's in the kernel now.
-
-To use the suspend2 code I'd have to modify the kernel code substantially, and
-that's what Pavel didn't want.  OTOH the swsusp code was known to work
-and I used it to test the new code, too.
-
-> > The problem is to merge suspend2 we'd have to clean it up first and
-> > actually solve some problems that it works around.  That, arguably,
-> > would be more work than just implementing some _easy_ stuff in the
-> > user space.
-> 
-> Stuff that is _already_ _done_ and working.
-
-Functionality-wise, your right.  The problem is how it's done, I think, and
-that is not so obvious.
-
-> Be careful though, you're awfully close to saying that userspace code
-> is easier because it isn't reviewed[1] while kernel code has higher
-> standards.
-
-Oh, come on.  You can review it, everybody can.  Moreover, you're welcome to
-do this. :-)
-
-}-- snip --{
->    The constraints on userland suspend code are rather close to RT kernel
->    code, so  technically it would be a much better base.
-
-Can you please tell me why do you think so?
-
-> 4- why aren't you actively working at pushing the parts of suspend2
->    that actually are good and potentially useful to uswsusp in the
->    mainline kernel.  Do you really think nothing is worthwhile in there?
-
-Because there are no patches to work on?  I'd _really_ love to work on patches
-that modify the current kernel code _gradually_ instead of just trying to
-replace it top-down with something else in one big shot.
-
-For example, I'd really appreciate it if Nigel could prepare a patch against
-the current -mm implementing the freezing of bdevs he was talking about,
-and there are more things like that.
-
-> Are you really, really sure you're not rejecting suspend2 in bulk
-> because you didn't write it?
-
-Oh, _I_ am not rejecting it.  I've never said so.  I just don't think there's
-a chance it will be merged in the short run, for various reasons, so
-I'm working on an alternative.
-
-}-- snip --{ 
-> Please tell me what is wrong in my perception of what is going on.
-
-I think you are assuming I'm doing this to prevent suspend2 from being merged.
-It is not so, as I've tried to explain above.  If you don't accept my point of view,
-I'll respect that.
-
-Greetings,
-Rafael
-
-PS
-I didn't write s2ram, so I can't comment your observations wrt it.
+cG5wOiBEZXZpY2UgMDE6MDEuMDMgZGlzYWJsZWQuCnBucDogRGV2aWNlIDAxOjAxLjAyIGRp
+c2FibGVkLgpBTFNBIHNvdW5kL2lzYS9jczQyM3gvY3M0MjMxX2xpYi5jOjIwODogaW46IGF1
+dG8gY2FsaWJyYXRpb24gdGltZSBvdXQgLSByZWcgPSAweDE4CkFMU0Egc291bmQvaXNhL2Nz
+NDIzeC9jczQyMzFfbGliLmM6MTg3OiBvdXQ6IGF1dG8gY2FsaWJyYXRpb24gdGltZSBvdXQg
+LSByZWcgPSAweDEwLCB2YWx1ZSA9IDB4ODAKQUxTQSBzb3VuZC9pc2EvY3M0MjN4L2NzNDIz
+MV9saWIuYzoxNDk6IG91dG06IGF1dG8gY2FsaWJyYXRpb24gdGltZSBvdXQgLSByZWcgPSAw
+eDE4LCB2YWx1ZSA9IDB4MApwbnA6IERldmljZSAwMTowMS4wMCBkaXNhYmxlZC4KcG5wOiB0
+aGUgZHJpdmVyICdjczQyMzZfaXNhcG5wJyBoYXMgYmVlbiB1bnJlZ2lzdGVyZWQKQUxTQSBz
+b3VuZC9jb3JlL3NlcS9zZXFfZGV2aWNlLmM6NTc0OiBkcml2ZXJzIG5vdCByZWxlYXNlZCAo
+MikKVW5hYmxlIHRvIGhhbmRsZSBrZXJuZWwgcGFnaW5nIHJlcXVlc3QgYXQgdmlydHVhbCBh
+ZGRyZXNzIGYwOWM2MDU4CiBwcmludGluZyBlaXA6CmYwOWM2MDU4CipwZGUgPSAwMTZkNjA2
+NwoqcHRlID0gMDAwMDAwMDAKT29wczogMDAwMCBbIzFdClBSRUVNUFQgCk1vZHVsZXMgbGlu
+a2VkIGluOiBzbmRfdGltZXIgc25kIHNvdW5kY29yZSBzbmRfcGFnZV9hbGxvYyBtZ2EgYW1k
+X2s3X2FncCBkcm0gYWdwZ2FydCBuZnNkIGV4cG9ydGZzIGxvY2tkIHN1bnJwYyBubHNfaXNv
+ODg1OV8xIG5sc19jcDQzNyB2ZmF0IGZhdCBubHNfYmFzZQpDUFU6ICAgIDAKRUlQOiAgICAw
+MDYwOls8ZjA5YzYwNTg+XSAgICBOb3QgdGFpbnRlZCBWTEkKRUZMQUdTOiAwMDAxMDI4MiAg
+ICgyLjYuMTYtcmM0LWxvY2FsICM4KSAKRUlQIGlzIGF0IDB4ZjA5YzYwNTgKZWF4OiBlYzIw
+ZjQwMCAgIGVieDogZWMyMGY0MDAgICBlY3g6IGVjMjBmNGU4ICAgZWR4OiBmMDljNjA1OApl
+c2k6IGI3ZjA0MTdjICAgZWRpOiAwMDAwMDAwMCAgIGVicDogZTYyN2EwMDAgICBlc3A6IGU2
+MjdhZjU0CmRzOiAwMDdiICAgZXM6IDAwN2IgICBzczogMDA2OApQcm9jZXNzIG1vZHByb2Jl
+IChwaWQ6IDEzNTksIHRocmVhZGluZm89ZTYyN2EwMDAgdGFzaz1lODI5MWFkMCkKU3RhY2s6
+IDwwPmYwOWIyMGYyIGU2MjYxMGU4IGYwOWIzYzIwIGYwOWI1YmMwIGMwMTI2NTI5IDAwMDAw
+MDAwIDVmNjQ2ZTczIDY1NmQ2OTc0IAogICAgICAgYzAxMzAwNzIgZmZmZmZmZmYgZTY1ZDMy
+MmMgYjdmMTQwMDAgYzAxMzdmNmMgYjdmMTMwMDAgYjdmMTQwMDAgYjdmMTQwMDAgCiAgICAg
+ICBlNjVkMzNlNCBlZjEyY2FlMCBlZjEyY2IxMCBmZmZmMDAwMSAwMDI3YTAwMCBjMDEzN2Zh
+ZSAwODA1YzNmOCBiN2YwNDE3YyAKQ2FsbCBUcmFjZToKIFs8ZjA5YjIwZjI+XSBzbmRfdGlt
+ZXJfZnJlZSsweDNiLzB4NDYgW3NuZF90aW1lcl0KIFs8ZjA5YjNjMjA+XSBhbHNhX3RpbWVy
+X2V4aXQrMHgyNy8weDQyIFtzbmRfdGltZXJdCiBbPGMwMTI2NTI5Pl0gc3lzX2RlbGV0ZV9t
+b2R1bGUrMHgxMmIvMHgxNTUKIFs8YzAxMzAwNzI+XSBfX3BkZmx1c2grMHgxOTYvMHgxYWMK
+IFs8YzAxMzdmNmM+XSBkb19tdW5tYXArMHhlMi8weGVmCiBbPGMwMTM3ZmFlPl0gc3lzX211
+bm1hcCsweDM1LzB4NGQKIFs8YzAxMDI1NTE+XSBzeXNjYWxsX2NhbGwrMHg3LzB4YgpDb2Rl
+OiAgQmFkIEVJUCB2YWx1ZS4K
+--------------030103030307050204040103--

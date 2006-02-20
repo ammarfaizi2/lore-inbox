@@ -1,75 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161076AbWBTRsF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161078AbWBTRtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161076AbWBTRsF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 12:48:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161078AbWBTRsF
+	id S1161078AbWBTRtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 12:49:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161082AbWBTRtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 12:48:05 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:4106 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161076AbWBTRsD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 12:48:03 -0500
-Date: Mon, 20 Feb 2006 18:48:02 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] some fixups for the X86_NUMAQ dependencies
-Message-ID: <20060220174802.GF4661@stusta.de>
-References: <20060219232621.GC4971@stusta.de> <43F9EF43.3020709@mbligh.org> <20060220170827.GD4661@stusta.de> <43F9FEDA.3030205@mbligh.org>
-MIME-Version: 1.0
+	Mon, 20 Feb 2006 12:49:16 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:50112 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161078AbWBTRtP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 12:49:15 -0500
+Date: Mon, 20 Feb 2006 09:49:11 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Roland McGrath <roland@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/2] fix kill_proc_info() vs fork() theoretical race
+Message-ID: <20060220174911.GE1480@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <43E77D3C.C967A275@tv-sign.ru> <20060214223214.GG1400@us.ibm.com> <43F3352C.E2D8F998@tv-sign.ru> <43F37D56.2D7AB32F@tv-sign.ru> <20060216192617.GF1296@us.ibm.com> <43F4E6EC.3B9F91C4@tv-sign.ru> <20060216195341.GG1296@us.ibm.com> <43F4EC88.D8B2DEE5@tv-sign.ru> <20060218020659.GH1291@us.ibm.com> <43F76538.16BBA317@tv-sign.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43F9FEDA.3030205@mbligh.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <43F76538.16BBA317@tv-sign.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 20, 2006 at 09:39:38AM -0800, Martin J. Bligh wrote:
-> >>>config X86_NUMAQ
-> >>>	bool "NUMAQ (IBM/Sequent)"
-> >>>+	select SMP
-> >>>	select NUMA
-> >>>	help
-> >>>	  This option is used for getting Linux to run on a (IBM/Sequent) 
-> >>>	  NUMA
-> >>>@@ -419,6 +420,7 @@
-> >>
-> >>Surely NUMA should select SMP, not NUMA-Q?
-> >
-> >NUMA depends on SMP.
-> >
-> >Therefore, if you select NUMA, you have to ensure that SMP is enabled.
+On Sat, Feb 18, 2006 at 09:19:36PM +0300, Oleg Nesterov wrote:
+> "Paul E. McKenney" wrote:
+> > 
+> > On Fri, Feb 17, 2006 at 12:20:08AM +0300, Oleg Nesterov wrote:
+> > > "Paul E. McKenney" wrote:
+> > > >
+> > > > The other thing to think through is tkill on a thread/process while it
+> > > > is being created.  I believe that this is OK, since thread-specific
+> > > > kill must target a specific thread, so does not do the traversal.
+> > >
+> > > Also, tkill was not converted to use rcu_read_lock yet, it still
+> > > takes tasklist_lock, so I think it is safe.
+> > 
+> > I suspect that tkill will eventually need to avoid tasklist_lock...  ;-)
 > 
-> Yes. but that should link SMP -> NUMA -> NUMA-Q, not SMP directly to 
-> NUMA-Q, surely?
-
-The problem is that a select bypasses the dependencies of the select'ed 
-symbol.
-
-> >NUMAQ can't be hidden since it doesn't has any dependencies.
-> >And this isn't what this comment is talking about (note the the 
-> >comment is only shown if NUMAQ was already select'ed).
-> >
-> >NUMAQ didn't fulfill the contract that when select'ing NUMA, it has to 
-> >ensure the dependencies of NUMA are fulfilled. My patch solves this 
-> >properly instead of telling the user through a comment that he ran into 
-> >this bug.
+> Ok, I am sending a couple of preparation patches for this.
 > 
-> Yes, if that works, it's much cleaner. Perhaps we just had insufficient
-> config-fu to figure it out ... it looks good - I suppose I'd better test 
-> it, and make sure we don't hit the same thing we did before.
+> Paul, I didn't beleive you when you started this work. Now I think
+> we can avoid tasklist AND cleanup the code in many places. I am glad
+> I was wrong.
 
-:-)
+And I am very glad that you are working this -- you have found some
+approaches that are much better than those I would have come up with!
 
-> m.
+> Btw,
+> >
+> > firing off some steamroller tests on it.
+> 
+> Could you point me to these tests?
 
-cu
-Adrian
+http://www.rdrop.com/users/paulmck/projects/steamroller/
 
--- 
+Contributions of additional tests very welcome!
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+							Thanx, Paul

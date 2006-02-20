@@ -1,42 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWBTAxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWBTA4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751168AbWBTAxp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 19:53:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWBTAxp
+	id S1751167AbWBTA4T (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 19:56:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWBTA4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 19:53:45 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:18650 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751168AbWBTAxo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 19:53:44 -0500
-Subject: Re: Driver 'w83627hf' needs updating - please use bus_type methods
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Chris Boot <bootc@bootc.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <0BF2E785-CC6D-4E4D-BDCF-AD21AEA10D36@bootc.net>
-References: <0BF2E785-CC6D-4E4D-BDCF-AD21AEA10D36@bootc.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sun, 19 Feb 2006 15:00:21 +0000
-Message-Id: <1140361221.19213.1.camel@localhost.localdomain>
+	Sun, 19 Feb 2006 19:56:19 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:6927 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1751167AbWBTA4S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 19:56:18 -0500
+Date: Mon, 20 Feb 2006 01:56:17 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Phillip Susi <psusi@cfl.rr.com>, Alan Stern <stern@rowland.harvard.edu>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Alon Bar-Lev <alon.barlev@gmail.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Flames over -- Re: Which is simpler?
+Message-ID: <20060220005617.GB90469@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Pavel Machek <pavel@ucw.cz>, Phillip Susi <psusi@cfl.rr.com>,
+	Alan Stern <stern@rowland.harvard.edu>,
+	Kyle Moffett <mrmacman_g4@mac.com>,
+	Alon Bar-Lev <alon.barlev@gmail.com>,
+	Kernel development list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L0.0602191138470.9165-100000@netrider.rowland.org> <43F8C464.3000509@cfl.rr.com> <20060219194343.GA15311@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060219194343.GA15311@elf.ucw.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2006-02-19 at 10:56 +0000, Chris Boot wrote:
-> Hi all,
+On Sun, Feb 19, 2006 at 08:43:44PM +0100, Pavel Machek wrote:
+> Kernel can not tell the diference, and just because you don't like the
+> behaviour does not mean we have to work around hardware limitation.
 > 
-> Just noticed the above message in my kernel log on my machine running  
-> 2.6.16-rc2-ide2. I know there's a 2.6.16-rc4 now... I'm waiting to  
-> upgrade until Alan comes up with new -ide patches or ATAPI over  
-> libata/PATA starts working in -mm.
+> You deal with it. Post a patch.
+
+It would take more than one patch, but it could be done:
+
+Suspend time:
+
+  1- Freeze all processes enough that no filesystem activity happens
+  anymore.
+
+  2- Do a map of the currently-opened files.  That is, for each opened
+  file, find a workable path to it.  If you have the dentry, you have
+  it.  Otherwise, on a filesystem that supports inodes, just
+  sillyrename them to something in /.suspend.  For the non-inode
+  filesystems, require not dropping the dentries for reliable suspend.
+  They probably need to keep them in some form anyway for handling
+  multiple opens of the same file.
+
+  3- Sync the filesystems to the point that they're in clean state.
+
+  4- Add the path mapping from (2) to the suspend image.
+
+  5- Allow userspace to pick up any information it finds relevant
+  about the filesystems/devices and put that info in the image too.
 
 
-There is a patch v -rc3 on the web site and I wouldn't be suprisd if it
-applied easily to -rc4. I'll put out a new diff tomorrow some time,
-which will also add the first bits of a promise 2024x/2026x driver for
-the older boards.
+Resume time:
 
-Alan
+  6- Resume userspace checks the existing devices, find a mapping (or
+  a lack of) using the information from (5) and the paths from (4)
+
+  7- Rebuild the userspace from the image.
+
+  8- Re-open/remap the files from the paths, sillyrenamed entries are
+  unlinked once reopened.  Paths not found and filesystems not found
+  are send to a virtual file on a virtual filesystem that just -EIOs
+  or SEGVs mmaps.
+
+
+Pros:
+- You never lose filesystems or files, ever.  Only thing you can lose
+  is processes.
+
+- You can touch files in the suspended filesystems (device plugging,
+  restart on the wrong kernel) without damage.
+
+- You can remount the filesystems ro after 3, which allows access to
+  whatever files the chrome may like.
+
+- You only have to save the anonymous pages and the metadata.
+
+Cons:
+- Suspend may be slower since the write patterns are more dispersed
+  than just swap.  OTOH, it will be no slower than sync(1).
+
+
+There are probably things I haven't thought of, but I think it's the
+kind of approach you need to be sure to be reliable no matter what.
+
+  OG.
 

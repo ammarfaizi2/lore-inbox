@@ -1,57 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030298AbWBTQG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbWBTQJJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030298AbWBTQG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 11:06:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030299AbWBTQG7
+	id S1030299AbWBTQJJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 11:09:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030300AbWBTQJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 11:06:59 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:59540 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1030298AbWBTQG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 11:06:58 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 20 Feb 2006 17:05:22 +0100
-To: schilling@fokus.fraunhofer.de, davidsen@tmr.com
-Cc: nix@esperi.org.uk, mj@ucw.cz, linux-kernel@vger.kernel.org,
-       chris@gnome-de.org, axboe@suse.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43F9E8C2.nail4ALB11DH3@burner>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
- <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
- <20060125144543.GY4212@suse.de>
- <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
- <20060125153057.GG4212@suse.de> <43ED005F.5060804@tmr.com>
- <1139615496.10395.36.camel@localhost.localdomain>
- <43F088AB.nailKUSB18RM0@burner>
- <mj+md-20060213.135336.28566.atrey@ucw.cz>
- <43F0A319.nailKUSXT33MZ@burner> <43F7257D.80400@tmr.com>
-In-Reply-To: <43F7257D.80400@tmr.com>
-User-Agent: nail 11.2 8/15/04
+	Mon, 20 Feb 2006 11:09:09 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:49880 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1030299AbWBTQJI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 11:09:08 -0500
+Message-ID: <43F9E95A.6080103@cfl.rr.com>
+Date: Mon, 20 Feb 2006 11:07:54 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: David Brownell <david-b@pacbell.net>
+CC: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Flames over -- Re: Which is simpler?
+References: <200602131116.41964.david-b@pacbell.net> <200602181251.09865.david-b@pacbell.net> <43F80ACC.20704@cfl.rr.com> <200602192150.05567.david-b@pacbell.net>
+In-Reply-To: <200602192150.05567.david-b@pacbell.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Feb 2006 16:11:01.0006 (UTC) FILETIME=[3DD4C2E0:01C63638]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14279.000
+X-TM-AS-Result: No--10.100000-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen <davidsen@tmr.com> wrote:
+David Brownell wrote:
+> 
+> Exactly:  ignore those disconnects in "some" cases.  Suspend-to-RAM
+> will typically never report disconnects without a real unplug.  You
+> want to add special casing for hibernate/swsusp.  (A point in favor
+> of someone's claim that hibernate/swsusp is structurally harder.)
+> 
 
-> >If you did ever try to write reliable code that has to deal with this kind of
-> >oddities, you would understand that it is sometimes better to wait and to inform
-> >related people about the problems they caused.
-> >  
-> >
-> This ground has been covered. And at least in the case of filtering 
-> commands, that had to be done quickly and you know it.
+Typical != always.  It may be more common for suspend to maintain usb 
+power, but both suspend and hibernate may or may not maintain usb power, 
+so the kernel needs to be prepared to deal with that in both cases.
 
-We all know that filtering is not needeed to fix a bug. It could have been
-implemented completely relaxed and without any time pressure as the bug
-that needed fixing could have been fixed by just requiring a R/W FD to allow
-SG_IO. 
+> 
+> Now with /dev/input/mice, the driver stack above USB is able to mask
+> such disconnects.  It's not like mice maintain state that matters.
+> The "ignore" is in stack layers way above USB, which can know a very
+> important thing about mice:  they are stateless.
+> 
+> But with storage media, there is no such mechanism ... and there's
+> significant state involved.  Adding a "reconnect" mechanism, and
+> getting it wrong for storage, likely means corrupted file systems.
+> And where even if it _is_ the same physical disk, there's no good
+> reason to expect it hasn't been modified on some other usb host.
+> (Toss hardware in bag, reuse as needed...)
+> 
 
-Jörg
+And this is exactly how non USB hardware has behaved for eons, and it 
+hasn't been a problem.  If you want to add some verification to make 
+reasonably sure that the media has not been modified, that is great, but 
+you can't just automatically dump the filesystem and kill running 
+processes and loose data just because something bad _may_ have happened.
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+> No thanks, I prefer data integrity.  And for that matter, re $SUBJECT,
+> the much simpler approach of working _with_ the hardware architecture,
+> not against it.
+> 
+
+Again, the hardware is perfectly free to power off the usb bus during 
+suspend to ram.  Most systems choose not to because they allow wake from 
+usb, but not all do.
+
+> 
+>>> But yes, you're right ... if he's serious about
+>>> changing all that stuff, he also needs stop being a
+>>> member of the "never submitted a USB patch" club.
+>>> Ideally, starting with small things.
+>> You're moving off into left field.
+> 
+> Not hardly.  Unless all you're doing here is flaming?
+> One point of $SUBJECT was that flames were _over_ ...
+> 
+
+Left field is where flames are, which is what the comment was that I was 
+replying to -- a flame.
+
+

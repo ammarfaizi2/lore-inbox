@@ -1,90 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161174AbWBTUo7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161175AbWBTUrs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161174AbWBTUo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 15:44:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161178AbWBTUo7
+	id S1161175AbWBTUrs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 15:47:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161180AbWBTUrs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 15:44:59 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:47627 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161177AbWBTUo6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 15:44:58 -0500
-Date: Mon, 20 Feb 2006 21:44:56 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Patrick McHardy <kaber@trash.net>, acme@mandriva.com
-Cc: Reuben Farrelly <reuben-lkml@reub.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>,
-       dccp@vger.kernel.org
-Subject: Re: 2.6.16-rc4-mm1
-Message-ID: <20060220204456.GG4661@stusta.de>
-References: <20060220042615.5af1bddc.akpm@osdl.org> <43F9BDDA.1060508@reub.net> <43F9CE18.10709@trash.net>
+	Mon, 20 Feb 2006 15:47:48 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:61326 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S1161175AbWBTUrr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 15:47:47 -0500
+From: Nigel Cunningham <nigel@suspend2.net>
+Organization: Suspend2.net
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Date: Tue, 21 Feb 2006 06:44:34 +1000
+User-Agent: KMail/1.9.1
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Sebastian K?gler <sebas@kde.org>,
+       Matthias Hensler <matthias@wspse.de>, rjw@sisk.pl,
+       kernel list <linux-kernel@vger.kernel.org>,
+       suspend2-devel@lists.suspend2.net
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060220195155.GB7444@thunk.org> <20060220200807.GB21557@elf.ucw.cz>
+In-Reply-To: <20060220200807.GB21557@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43F9CE18.10709@trash.net>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: multipart/signed;
+  boundary="nextPart1301344.YYu0FPb7Nn";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200602210644.38538.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 20, 2006 at 03:11:36PM +0100, Patrick McHardy wrote:
-> Reuben Farrelly wrote:
-> > Minor dependency issue:
-> > 
-> > My compile failed with this..
-> > 
-> >   CC [M]  net/netfilter/xt_dccp.o
-> > In file included from net/netfilter/xt_dccp.c:15:
-> > include/linux/dccp.h:341:2: error: #error "At least one CCID must be
-> > built as the default"
-> > make[2]: *** [net/netfilter/xt_dccp.o] Error 1
-> > make[1]: *** [net/netfilter] Error 2
-> > make: *** [net] Error 2
-> > [root@tornado linux-2.6-mm]#
-> > 
-> > [I have no idea what a CCID is]
-> > 
-> > But it was caused by this:
-> > 
-> > CONFIG_NETFILTER_XT_MATCH_DCCP=m
-> > 
-> > and maybe this below had an impact:
-> > 
-> > #
-> > # DCCP Configuration (EXPERIMENTAL)
-> > #
-> > # CONFIG_IP_DCCP is not set
-> > 
-> > After unsetting the option to build the DCCP Netfilter module, I was
-> > able to compile through to completion.
-> 
-> Ideally this dependency should be enforced by Kconfig. I'm not sure
-> if it is possible to express something like "IP_DCCP_CCID2 and
-> IP_DCCP_CCID3 depend on DCCP, DCCP requires at least one of both
-> to be enabled". Can someone more familiar with Kconfig than me
-> comment on this? Otherwise the #error should be moved to
-> net/dccp/options.c to keep dccp.h usable without dccp enabled.
+--nextPart1301344.YYu0FPb7Nn
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I can try to do it, but I need the exact semantics.
+Hi.
 
-Should all of the following stay allowed configurations?
+On Tuesday 21 February 2006 06:08, Pavel Machek wrote:
+> > Maybe you feel you are in a power position because your code happened
+> > to enter the kernel first, so you few you can have veto power over all
+> > other contenders.  It sometimes works that way, but only up to a
+>
+> Unfortunately, I do not need to veto suspend2. It is so complex that
+> it vetoes itself. Last time akpm stopped it, IIRC.
 
-CONFIG_IP_DCCP=y
-CONFIG_IP_DCCP_CCID2=m
-CONFIG_IP_DCCP_CCID3=n
+I'm going to let most of the last 8 hours' emails float by without reply, b=
+ut=20
+think I should comment here.
 
-CONFIG_IP_DCCP=y
-CONFIG_IP_DCCP_CCID2=y
-CONFIG_IP_DCCP_CCID3=m
+I don't believe I've ever seen an email from Andrew stopping a merge, and I=
+=20
+shouldn't have, because I've never asked him to merge it. Being the=20
+perfectionist that I am, I've sought to get it as stable, reliable and=20
+comment-clean as I reasonably could before merging.
 
-cu
-Adrian
+Regards,
 
--- 
+Nigel
+=2D-=20
+See our web page for Howtos, FAQs, the Wiki and mailing list info.
+http://www.suspend2.net                IRC: #suspend2 on Freenode
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--nextPart1301344.YYu0FPb7Nn
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBD+io2N0y+n1M3mo0RApv+AJ0QrDzvWDV26ZJE/o0qeY9B9cCzBQCgtC9X
+SPGpNiJbHSfi+2nxp8+H7zw=
+=Ztme
+-----END PGP SIGNATURE-----
+
+--nextPart1301344.YYu0FPb7Nn--

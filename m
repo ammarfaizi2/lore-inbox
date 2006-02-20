@@ -1,78 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWBTSjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbWBTSkL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932229AbWBTSjY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 13:39:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWBTSjY
+	id S932409AbWBTSkL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 13:40:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932622AbWBTSkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 13:39:24 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:50439 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932229AbWBTSjX convert rfc822-to-8bit
+	Mon, 20 Feb 2006 13:40:10 -0500
+Received: from smtp.enter.net ([216.193.128.24]:58895 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S932409AbWBTSkI convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 13:39:23 -0500
+	Mon, 20 Feb 2006 13:40:08 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Date: Mon, 20 Feb 2006 13:40:29 -0500
+User-Agent: KMail/1.8.1
+Cc: matthias.andree@gmx.de, nix@esperi.org.uk, mj@ucw.cz,
+       linux-kernel@vger.kernel.org, davidsen@tmr.com, chris@gnome-de.org,
+       axboe@suse.de
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <200602192053.25767.dhazelton@enter.net> <43F9F11E.nail5BM21M01Q@burner>
+In-Reply-To: <43F9F11E.nail5BM21M01Q@burner>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <1140456505.2979.66.camel@laptopd505.fenrus.org>
-x-originalarrivaltime: 20 Feb 2006 18:39:21.0584 (UTC) FILETIME=[F6FD2F00:01C6364C]
-Content-class: urn:content-classes:message
-Subject: Re: Missing file
-Date: Mon, 20 Feb 2006 13:39:21 -0500
-Message-ID: <Pine.LNX.4.61.0602201333360.5440@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Missing file
-Thread-Index: AcY2TPcj2CBKN8FyRyuPVGNuRJvycA==
-References: <Pine.LNX.4.61.0602201201200.4888@chaos.analogic.com> <1140456505.2979.66.camel@laptopd505.fenrus.org>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200602201340.30484.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 20 Feb 2006, Arjan van de Ven wrote:
-
-> On Mon, 2006-02-20 at 12:08 -0500, linux-os (Dick Johnson) wrote:
->>
->> Hello,
->> Linux-2.6.15.4 fails to contain the file:
->>  	/usr/src/linux-2.6.15.4/drivers/pci/devlist.h
->>
->> This contains product NAMES used to identity various PCI
->> devices when they are installed. What replaces this file?
->>
->> The file existed up until at least linux-2.6.13.4 and
->> should not have been removed just because some audit
->> may have determined that it's "not in use." It is in
->> use by vendors which need to convert "Computerese" to
->> "Customer readable" stuff.
+On Monday 20 February 2006 11:41, Joerg Schilling wrote:
+> "D. Hazelton" <dhazelton@enter.net> wrote:
+> > > Part of the problem is Jörg's expecting a solution the day before
+> > > yesterday.
+> >
+> > Well, from some comments he made in private mails he seems to think he
+> > was promised (by Linus, no less) that the DMA problems in ide-scsi were
+> > going to be fixed. Instead the module was deprecated and SG_IO was
+> > introduced - this seems to be one of the things he's been angry about.
 >
->
-> actually an entirely different file is used for that;
-> /usr/share/hwdata/pci.ids
->
-> which comes from the pci id repo on sourceforge (same as the file you
-> want to look at). Distributions at least tend to update pci.ids file
-> more frequent than the kernel updated devlist.h...
+> Even you have become a victim of the trolls :-(
 
-Thanks. Changes like that make tons of work! Great, there will
-always be something for us to do. Now all I have to do is
-modify a tool to be Linux version-specific so I get the right
-ASCII put into driver(s). The drivers don't run in anything
-that has a shell or anything like that. They need to "know"
-the vendor-name of some interface chips so the name(s) were
-compiled in, based upon OS headers.
+Never a victim. I stick my nose where I choose - in this case I stuck it in 
+here because I had hoped to turn a discussion I saw descending into a 
+flamewar into something productive.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.49 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-_
-
+> SG_IO was used in ide-scsi a long time before it was needlessly introduced
+> on top of /dev/hd*
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+Needlessly? Not true. It was missing from the layer, as all modern ATA devices 
+do support some form of ATAPI, which is, as you've so frequently pointed out, 
+a form of SCSI. So why is an unneeded thing to introduce the ability to use 
+that full capacity?
 
-Thank you.
+And here I must parrot Martin Mares - you complain about problems when not 
+using ide-scsi but almost all the bugs you've mentioned only occur when using 
+ide-scsi. Now, I'll go and finish replying to all the other mails that have 
+come into my inbox (on this thread) and not been sorted down because they 
+were directly to me.
+
+DRH

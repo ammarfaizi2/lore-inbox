@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbWBTNPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbWBTNUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030205AbWBTNPT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 08:15:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbWBTNPT
+	id S1030206AbWBTNUr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 08:20:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbWBTNUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 08:15:19 -0500
-Received: from mx04.cybersurf.com ([209.197.145.108]:39901 "EHLO
-	mx04.cybersurf.com") by vger.kernel.org with ESMTP id S1030200AbWBTNPR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 08:15:17 -0500
-Subject: Re: [RFC] [PATCH 1/2] Driver to remember ethernet MAC values:
-	maclist
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: Lennert Buytenhek <buytenh@wantstofly.org>
-Cc: Alessandro Zummo <alessandro.zummo@towertech.it>,
-       David Vrabel <dvrabel@cantab.net>, Adrian Bunk <bunk@stusta.de>,
-       Martin Michlmayr <tbm@cyrius.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, John Bowler <jbowler@acm.org>
-In-Reply-To: <20060220130712.GA24784@xi.wantstofly.org>
-References: <20060220010113.GA19309@deprecation.cyrius.com>
-	 <20060220014735.GD4971@stusta.de> <20060220030146.11f418dc@inspiron>
-	 <43F9B32B.3090203@cantab.net> <20060220135718.038b675b@inspiron>
-	 <20060220130712.GA24784@xi.wantstofly.org>
-Content-Type: text/plain
-Organization: unknown
-Date: Mon, 20 Feb 2006 08:15:07 -0500
-Message-Id: <1140441307.6083.108.camel@localhost.localdomain>
+	Mon, 20 Feb 2006 08:20:47 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:41440 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1030206AbWBTNUr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 08:20:47 -0500
+Date: Mon, 20 Feb 2006 14:20:46 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: Matthias Hensler <matthias@wspse.de>, Sebastian Kgler <sebas@kde.org>,
+       kernel list <linux-kernel@vger.kernel.org>, rjw@sisk.pl
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Message-ID: <20060220132046.GA23277@atrey.karlin.mff.cuni.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060220094728.GD19293@kobayashi-maru.wspse.de> <20060220105617.GF16042@elf.ucw.cz> <200602202104.26730.nigel@suspend2.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602202104.26730.nigel@suspend2.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-20-02 at 14:07 +0100, Lennert Buytenhek wrote:
-> On Mon, Feb 20, 2006 at 01:57:18PM +0100, Alessandro Zummo wrote:
+> Hi.
 > 
-
-> Or just pass the MAC along in platform device style.  What I did in
-> drivers/net/ixp2000/ was to have enp2611.c (board-specific code) read
-> the MAC from the board, and pass it to ixpdev.c (generic code) in the
-> net_device structure.
+> On Monday 20 February 2006 20:56, Pavel Machek wrote:
+> > On Po 20-02-06 10:47:28, Matthias Hensler wrote:
+> > > On Mon, Feb 20, 2006 at 01:53:33AM +0100, Pavel Machek wrote:
+> > > > Only feature I can't do is "save whole pagecache"... and 14000 lines
+> > > > of code for _that_ is a bit too much. I could probably patch my kernel
+> > > > to dump pagecache to userspace, but I do not think it is worth the
+> > > > effort.
+> > >
+> > > I do not think that Suspend 2 needs 14000 lines for that, the core is
+> > > much smaller. But besides, _not_ saving the pagecache is a really _bad_
+> > > idea. I expect to have my system back after resume, in the same state I
+> > > had left it prior to suspend. I really do not like it how it is done by
+> > > Windows, it is just ugly to have a slowly responding system after
+> > > resume, because all caches and buffers are gone.
+> >
+> > That's okay, swsusp already saves configurable ammount of pagecache.
 > 
+> Really? How is it configured?
 
-yep, this is what i have seen done in a lot of embedded boards
-containing switching chips (If i am not mistaken there is a 4 port
-switch in the IXP4xx)
 
-cheers,
-jamal
+If you want to limit the suspend image size to N bytes, do
 
+echo N > /sys/power/image_size
+
+before suspend (it is limited to 500 MB by default).
+
+								Pavel
+-- 
+Thanks, Sharp!

@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161181AbWBTVAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161184AbWBTVEE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161181AbWBTVAF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 16:00:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161182AbWBTVAF
+	id S1161184AbWBTVEE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 16:04:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161185AbWBTVEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 16:00:05 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12718 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161181AbWBTVAE (ORCPT
+	Mon, 20 Feb 2006 16:04:04 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:53308 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161184AbWBTVED (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 16:00:04 -0500
-Date: Mon, 20 Feb 2006 21:59:32 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Sebastian K?gler <sebas@kde.org>,
-       Matthias Hensler <matthias@wspse.de>, rjw@sisk.pl,
-       kernel list <linux-kernel@vger.kernel.org>,
-       suspend2-devel@lists.suspend2.net
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060220205932.GD21557@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060220195155.GB7444@thunk.org> <20060220200807.GB21557@elf.ucw.cz> <200602210644.38538.nigel@suspend2.net>
+	Mon, 20 Feb 2006 16:04:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=TMIr8cOe3sPtPBA+ocAVTXdgl2faK1T/SjiCrH0BdUAGDbCRxNiIdJPUysUIjk6kn0GsxCSB2P5wpZIvkJEPf4Ar8OwEFtfMrnex/oKD06nXeu0vOw+x6LLCtSy6UuoF5/4pZ+sRbH5ex/B3jtrMfie1oZ13ozn2js8iE2fMCt4=
+Date: Tue, 21 Feb 2006 00:03:49 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Mozilla Thunderbird posting instructions wanted
+Message-ID: <20060220210349.GA29791@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200602210644.38538.nigel@suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Út 21-02-06 06:44:34, Nigel Cunningham wrote:
-> Hi.
-> 
-> On Tuesday 21 February 2006 06:08, Pavel Machek wrote:
-> > > Maybe you feel you are in a power position because your code happened
-> > > to enter the kernel first, so you few you can have veto power over all
-> > > other contenders.  It sometimes works that way, but only up to a
-> >
-> > Unfortunately, I do not need to veto suspend2. It is so complex that
-> > it vetoes itself. Last time akpm stopped it, IIRC.
-> 
-> I'm going to let most of the last 8 hours' emails float by without reply, but 
-> think I should comment here.
+This  POS is pretty popular among kernel janitors, so, can someone who
+is successfully using it, please, post crystally clear step-by-step
+instructions on how to send a foo.patch:
+	inline
+	with tabs preserved
+	with long lines preserved
 
-Thanks.
+Sending plain text attachments is OK with me, but, heh, people do post
+patches inline and screw themselves.
 
-> I don't believe I've ever seen an email from Andrew stopping a merge, and I 
-> shouldn't have, because I've never asked him to merge it. Being the 
-> perfectionist that I am, I've sought to get it as stable, reliable and 
-> comment-clean as I reasonably could before merging.
+I'll put instructions somewhere on -kj website and point every
+unsuspecting new guy to them.
 
-I believe I seen reply to that effect (saying "it is working and fast
-is not enough for merge", or something like that.
-
-Anyway, please Cc me on merge attempts...
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

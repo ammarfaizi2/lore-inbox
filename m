@@ -1,85 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161108AbWBTSbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161110AbWBTSdB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161108AbWBTSbp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 13:31:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161110AbWBTSbp
+	id S1161110AbWBTSdB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 13:33:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161113AbWBTSdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 13:31:45 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:24582 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1161108AbWBTSbo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 13:31:44 -0500
-Date: Mon, 20 Feb 2006 19:31:36 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Nigel Cunningham <nigel@suspend2.net>,
-       Matthias Hensler <matthias@wspse.de>, Sebastian Kgler <sebas@kde.org>,
-       kernel list <linux-kernel@vger.kernel.org>, rjw@sisk.pl
-Subject: Re: suspend2 review [was Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)]
-Message-ID: <20060220183136.GE33155@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Pavel Machek <pavel@ucw.cz>, Nigel Cunningham <nigel@suspend2.net>,
-	Matthias Hensler <matthias@wspse.de>,
-	Sebastian Kgler <sebas@kde.org>,
-	kernel list <linux-kernel@vger.kernel.org>, rjw@sisk.pl
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602200709.17955.nigel@suspend2.net> <20060219234212.GA1762@elf.ucw.cz> <200602201210.58362.nigel@suspend2.net> <20060220124937.GB16165@elf.ucw.cz> <20060220170537.GB33155@dspnet.fr.eu.org> <20060220171000.GF19156@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Feb 2006 13:33:01 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:63714 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1161110AbWBTSdA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 13:33:00 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Heiko J Schick <schihei@de.ibm.com>
+Subject: Re: [openib-general] Re: [PATCH 21/22] ehca main file
+Date: Mon, 20 Feb 2006 19:32:31 +0100
+User-Agent: KMail/1.9.1
+Cc: Anton Blanchard <anton@samba.org>, Roland Dreier <rolandd@cisco.com>,
+       SCHICKHJ@de.ibm.com, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, RAISCH@de.ibm.com, HNGUYEN@de.ibm.com,
+       MEDER@de.ibm.com, linuxppc64-dev@ozlabs.org
+References: <20060218005532.13620.79663.stgit@localhost.localdomain> <20060220152213.GD19895@krispykreme> <43FA7677.3040901@de.ibm.com>
+In-Reply-To: <43FA7677.3040901@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-In-Reply-To: <20060220171000.GF19156@elf.ucw.cz>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200602201932.31739.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 20, 2006 at 06:10:00PM +0100, Pavel Machek wrote:
-> On Po 20-02-06 18:05:37, Olivier Galibert wrote:
-> > On Mon, Feb 20, 2006 at 01:49:37PM +0100, Pavel Machek wrote:
-> > > > > Yep, if you do it all in userspace, this vanishes. 340 lines down.
-> > > > 
-> > > > And you gain? Let's try not to be too biased :).
-> > > 
-> > > I gain 340 less lines to review. For me to review, for akpm to review,
-> > > and for Linus to review. That's important.
-> > 
-> > Pavel, if you mean that the userspace code will not be reviewed to
-> > standards the kernel code is, kill uswsusp _NOW_ before it does too
-> > much damage.  Unreliable suspend eats filesystems for breakfast.  The
-> > other userspace components of the kernels services are either optional
-> > (udev) or not that important (alsa).
+On Tuesday 21 February 2006 03:09, Heiko J Schick wrote:
+>  >>+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,12)
+>  >>+#define EHCA_RESOURCE_ATTR_H(name)                                         \
+>  >>+static ssize_t  ehca_show_##name(struct device *dev,                       \
+>  >>+                             struct device_attribute *attr,            \
+>  >>+                             char *buf)
+>  >>+#else
+>  >>+#define EHCA_RESOURCE_ATTR_H(name)                                         \
+>  >>+static ssize_t  ehca_show_##name(struct device *dev,                       \
+>  >>+                             char *buf)
+>  >>+#endif
+>  >
+>  >
+>  > No need for kernel version ifdefs.
 > 
-> At least it will be only me reviewing it, and not akpm and Linus.
+> The point is that our module have to run on Linux 2.6.5-7.244 (SuSE SLES 9 SP3), too.
+> This was the reason why we've included the ifdefs. We can change the ifdefs to
+> #if LINUX_VERSION_CODE >= KERNEL_VERSION(2.6.5) to mark that this code is used for
+> Linux 2.6.5 compatibility.
 
-Ok, your answer was saying the contrary (that you wouldn't review it
-either).  Frankly, you may want akpm or Linus to do reviews of even
-userspace code when appropriate, and others too like Al Viro.  They
-have a freakingly good eye at detecting crap code.
+That only makes sense as long as you have a common source code for both
+that also is under your control. As soon as the driver enters the mainline
+kernel, it is no longer helpful to have these checks in it, because other
+people will start making changes to the driver that you don't want to
+have in the 2.6.5 version.
 
+You cannot avoid forking the code in the long term, but fortunately the
+need to backport fixes to the old version should also decrease over time.
 
-> suspend2 received no such review, and still people claim it is
-> reliable.
-
-Plain numbers.  Just count the "suspend2 works for me which swsusp
-doesn't".  I doubt it's purely luck, even if simply moving code around
-can change behaviours.
-
-
-> "I wish they'd kill suspend2 project, it already did enough
-> damage." (Half joking here, but suspend2 split user/development
-> community, and that's not good).
-
-Yes, that's annoying.  But be careful, you seem to be automatically
-rejecting everything Nigel at that point, or at least that's what it
-looks like.
-
-You do what you want, obivously, but I suspect your reviews of the
-suspend2 code would be way more interesting if you accepted it's not
-uswsusp.  Right now, they look more religious/political than really
-technical.
-
-Can you try doing a review where you temporarily accept suspend2's
-kernel/userspace separation in the background, and review the code as
-is?  That way you'll even have a chance to find out where the
-differences in reliability are coming from.
-
-  OG.
-
+	Arnd <><

@@ -1,56 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161016AbWBTQcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161020AbWBTQeP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161016AbWBTQcz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 11:32:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161023AbWBTQcp
+	id S1161020AbWBTQeP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 11:34:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161017AbWBTQcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 11:32:45 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:909 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161022AbWBTQcl (ORCPT
+	Mon, 20 Feb 2006 11:32:55 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:64396 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1161015AbWBTQcY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 11:32:41 -0500
-Date: Mon, 20 Feb 2006 14:03:44 +0100
+	Mon, 20 Feb 2006 11:32:24 -0500
+Date: Mon, 20 Feb 2006 14:01:25 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Matthias Hensler <matthias@wspse.de>
-Cc: Lee Revell <rlrevell@joe-job.com>, Sebastian Kgler <sebas@kde.org>,
+To: Sebastian =?iso-8859-1?Q?K=FCgler?= <sebas@kde.org>
+Cc: Matthias Hensler <matthias@wspse.de>,
        kernel list <linux-kernel@vger.kernel.org>, nigel@suspend2.net,
-       rjw@sisk.pl
+       rjw@sisk.pl, suspend2-devel@lists.suspend2.net
 Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060220130344.GB17627@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602091926.38666.nigel@suspend2.net> <20060209232453.GC3389@elf.ucw.cz> <200602110116.57639.sebas@kde.org> <20060211104130.GA28282@kobayashi-maru.wspse.de> <20060218142610.GT3490@openzaurus.ucw.cz> <20060220093911.GB19293@kobayashi-maru.wspse.de> <1140430269.3429.8.camel@mindpipe> <20060220102052.GC21817@kobayashi-maru.wspse.de>
+Message-ID: <20060220130125.GA17627@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060218142610.GT3490@openzaurus.ucw.cz> <20060220093911.GB19293@kobayashi-maru.wspse.de> <200602201105.35378.sebas@kde.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060220102052.GC21817@kobayashi-maru.wspse.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200602201105.35378.sebas@kde.org>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 20-02-06 11:20:52, Matthias Hensler wrote:
-> Hi.
+On Po 20-02-06 11:05:34, Sebastian Kügler wrote:
+> On Monday 20 February 2006 10:39, Matthias Hensler wrote:
+> > > > The only con I see is the complexity of the code, but then again,
+> > > > Nigel
+> > >
+> > > ..but thats a big con.
+> >
+> > So why is that? From what I see, most of the code is completly independ
+> > of the rest of the kernel, and just does not affect if it is disabled.
+> >
+> > It won't do any harm to the kernel, and again, Nigel is constantly
+> > improving that situation, so for sure, that is no _big_ con.
 > 
-> On Mon, Feb 20, 2006 at 05:11:09AM -0500, Lee Revell wrote:
-> > On Mon, 2006-02-20 at 10:39 +0100, Matthias Hensler wrote:
-> > > These "big changes" is something I have a problem with, since it
-> > > means to delay a working suspend/resume in Linux for another
-> > > "short-term" (so what does it mean: 1 month? six? twelve?). 
-> > 
-> > If you have a big problem with this then ask the developer why he
-> > didn't submit it 1 or 6 or 12 months sooner, don't complain to the
-> > kernel developers.
+> I might add that you'd drag a devoted developer into the kernel team more 
+> closely, which probably makes up for the 'added complexity' anyway.
+
+I'd love to have Nigel helping me and kernel, but he's not
+interested. He wants suspend2 merged, he does not want better suspend
+in kernel.
+
+> The gain in working *together* on suspend2 is worth much more than the 'added 
+> complexity' Pavel complains about. Nigel has stated more than once that he'd 
+> be happy to maintain suspend2, and he's done so for quite some time already, 
+> which proves his point. Nigel is paid to work on suspend2, so it's not likely 
+> to go away once he has a new hobby (and again, he's been doing great work for 
+> some time already). 
+
+I do not think he's paid for suspend2 any more.
+
+> So what about working on merging suspend2 finally? Having a proven, stable and 
+> feature-rich implemenation available quickly, *and* someone who maintains 
+> *and* support it actively does not sound like a bad deal to me.
+
+Nigel is not really maintaining it. He's willing to solve small
+problems, but not the big ones.
+
+> One should not underestimate the gains that a suspend2 merge has on the 
+> development merely by stating 'added complexity', that pays off _any_day_.
 > 
-> Well, that is up to Nigel, but he did spend a lot of time to make
-> Suspend 2 clean and acceptable for the mainline first.
+> By the way, does 'working on uswsusp' mean that Pavel and will put less work 
+> in maintaining swsusp? That does not sound too promising to my sore ears.
 
-As I said.. Nigel is fixing small problems but not the big ones.
+uswsusp and swsusp share most of the important code (go take a
+look). No, in-kernel swap writing is not going to be improved too
+much, just the bugs fixed. That means very stable swsusp in kernel...
 
-> I do not complain that the patch is not inserted as it is. I too see
-> the problems and open issues. But that is nothing that cannot be solved.
+> Personally, to work with, I'd prefer a developer who's responsibly dealing 
+> with users' questions and problems any day to one who rejects 99% of emails 
+> that don't contain a patch and 95% of those that contain one, stating 'WTF, I 
+> don't like that'.
 
-Nigel is unviling to solve that. I pointed out 8000 lines of code
-(>50% of his patch) that can better be done in userspace. I do not
-think he's willing to address that.
-								Pavel
+Fine, feel free to help with answering users mails.
+									Pavel
 -- 
 Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

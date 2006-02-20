@@ -1,160 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWBTKqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbWBTKt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964870AbWBTKqn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 05:46:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbWBTKqn
+	id S964872AbWBTKt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 05:49:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWBTKt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 05:46:43 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:34512 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S964870AbWBTKqn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 05:46:43 -0500
-Date: Mon, 20 Feb 2006 11:46:41 +0100
-From: Jan Kara <jack@suse.cz>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix oops in invalidate_dquots()
-Message-ID: <20060220104641.GA23302@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="5vNYLRcllDrimb99"
+	Mon, 20 Feb 2006 05:49:56 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:38258 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964873AbWBTKtz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 05:49:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lc9ocbSJqFMeM28nF7HYAg9kf3Oqve5D0Vd5tjU/KJhqOIw7lm4lpS2tM+U3LQ0Nfclqp1BJhqngtPAuy1c0d+Ub/HaQExCx+A4rPM7BqmvEi4X37G/AoP+cNtjPoiyN3t5ST4lFqUgzjgHx0PS15yOD4kkQ2AFgEeHJFdFseyg=
+Message-ID: <756b48450602200249k1b79b108u42bfef68e1e9dba8@mail.gmail.com>
+Date: Mon, 20 Feb 2006 18:49:54 +0800
+From: "Jaya Kumar" <jayakumar.acpi@gmail.com>
+To: "Matthew Garrett" <mjg59@srcf.ucam.org>
+Subject: Re: [PATCH 2.6.15.3 1/1] ACPI: Atlas ACPI driver
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060220102639.GA4342@srcf.ucam.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+References: <200602200213.k1K2DrDW013988@ns1.clipsalportal.com>
+	 <20060220102639.GA4342@srcf.ucam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2/20/06, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+> On Mon, Feb 20, 2006 at 10:13:53AM +0800, jayakumar.acpi@gmail.com wrote:
+>
+> > +     /* setup proc entry to set and get lcd brightness */
+> > +     proc = create_proc_read_entry("lcd", S_IFREG | S_IRUGO | S_IWUSR,
+> > +                     atlas_proc_dir, atlas_read_proc_lcd, atlas_dev);
+>
+> For basic sanity, could this please be a standard backlight driver
+> rather than sticking yet another backlight control under yet another
+> directory in /proc? It makes userspace much, much easier.
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I'm not sure how standard that is. For example, I looked at the asus
+and toshiba drivers. These ACPI board drivers use
+/proc/acpi/somedevice/lcd. For example,
 
-  Hello,
+asus_acpi.c
+894                 asus_proc_add(PROC_LCD, &proc_write_lcd,
+&proc_read_lcd, mode,
+895                               device);
 
-  attached patch fixes oops (actually assertion failure) in
-invalidate_dquots(). The problem was that we expected no one can hold a
-reference of a dquot when we removed all references from inodes and
-turned quotas off. Sadly we could miss some inodes when removing
-references - inodes just being deleted are not in superblock's inodes
-list. So I changed invalidate_dquots() to wait for the users of dquots
-to drop their references (we are guaranteed to succeed as no new
-references can be acquired). The patch is against 2.6.16-rc4.
+toshiba_acpi.c
+472         {"lcd", read_lcd, write_lcd},
 
-								Honza
+So, that's why I chose to do the same in my implementation. I'd have
+much rather used a generic sysfs entry but that's not what any ACPI
+drivers appear to do. Further, I see that Patrick Mochel is rewriting
+the whole acpi driver model (and incorporating sysfs) anyway so I
+figured I'd go with the flow of existing drivers. Perhaps someone
+could clarify what the consensus is. I'd be happy to make any desired
+adjustments.
 
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+> drivers/video/backlight/corgi_bl.c is an example, but also see my posts
+> to acpi-devel with patches that add it to existing acpi drivers.
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="quota-2.6.16-rc4-1-invalidate_dquots.diff"
+I'll go take a look at that. I didn't look for an acpi driver outside
+of the drivers/acpi directory. But if that's the consensus, shouldn't
+someone also mod the toshiba and asus drivers?
 
-When quota is being turned off we assumed that all the references to dquots
-were already dropped. That need not be true as inodes being deleted are not on
-superblock's inodes list and hence we need not reach it when removing quota
-references from inodes. So invalidate_dquots() has to wait for all the users
-of dquots (as quota is already marked as turned off, no new references can
-be acquired and so this is bound to happen rather early). When we do this,
-we can also remove the iprune_sem locking as it was protecting us against
-exactly the same problem when freeing inodes icache memory.
+>
+> > +             return atlas_acpi_button_add(device);
+>
+> What buttons does the hardware have? Would it make more sense for it to
 
-Signed-off-by: Jan Kara <jack@suse.cz>
+Standard wallmount stuff. There's 8 buttons on the one I'm using for
+testing. Vol up/down. Brightness up/down. Then several buttons for
+miscellaneous usage by people who customize the chassis. Most apps for
+this type of board are custom written and tend to just select on
+/proc/acpi/event.
 
-diff -rupX /home/jack/.kerndiffexclude linux-2.6.16-rc4/fs/dquot.c linux-2.6.16-rc4-1-invalidate_dquots/fs/dquot.c
---- linux-2.6.16-rc4/fs/dquot.c	2006-02-22 23:45:53.000000000 +0100
-+++ linux-2.6.16-rc4-1-invalidate_dquots/fs/dquot.c	2006-02-23 17:34:34.000000000 +0100
-@@ -118,8 +118,7 @@
-  * spinlock to internal buffers before writing.
-  *
-  * Lock ordering (including related VFS locks) is the following:
-- *   i_mutex > dqonoff_sem > iprune_sem > journal_lock > dqptr_sem >
-- *   > dquot->dq_lock > dqio_sem
-+ *   i_mutex > dqonoff_sem > journal_lock > dqptr_sem > dquot->dq_lock > dqio_sem
-  * i_mutex on quota files is special (it's below dqio_sem)
-  */
- 
-@@ -407,22 +406,44 @@ out_dqlock:
- 
- /* Invalidate all dquots on the list. Note that this function is called after
-  * quota is disabled and pointers from inodes removed so there cannot be new
-- * quota users. Also because we hold dqonoff_sem there can be no quota users
-- * for this sb+type at all. */
-+ * quota users. There can still be some users of quotas due to inodes being
-+ * just deleted or pruned by prune_icache() (those are not attached to any
-+ * list). We have to wait for such users.
-+ */
- static void invalidate_dquots(struct super_block *sb, int type)
- {
- 	struct dquot *dquot, *tmp;
- 
-+restart:
- 	spin_lock(&dq_list_lock);
- 	list_for_each_entry_safe(dquot, tmp, &inuse_list, dq_inuse) {
- 		if (dquot->dq_sb != sb)
- 			continue;
- 		if (dquot->dq_type != type)
- 			continue;
--#ifdef __DQUOT_PARANOIA
--		if (atomic_read(&dquot->dq_count))
--			BUG();
--#endif
-+		/* Wait for dquot users */
-+		if (atomic_read(&dquot->dq_count)) {
-+			DEFINE_WAIT(wait);
-+
-+			atomic_inc(&dquot->dq_count);
-+			prepare_to_wait(&dquot->dq_wait_unused, &wait, TASK_UNINTERRUPTIBLE);
-+			spin_unlock(&dq_list_lock);
-+			/* Once dqput() wakes us up, we know it's time to free
-+			 * the dquot.
-+			 * IMPORTANT: we rely on the fact that there is always
-+			 * at most one process waiting for dquot to free.
-+			 * Otherwise dq_count would be > 1 and we would never
-+			 * wake up.
-+			 */
-+			if (atomic_read(&dquot->dq_count) > 1)
-+				schedule();
-+			finish_wait(&dquot->dq_wait_unused, &wait);
-+			dqput(dquot);
-+			/* At this moment dquot() need not exist (it could be
-+			 * reclaimed by prune_dqcache(). Hence we must
-+			 * restart. */
-+			goto restart;
-+		}
- 		/* Quota now has no users and it has been written on last dqput() */
- 		remove_dquot_hash(dquot);
- 		remove_free_dquot(dquot);
-@@ -540,6 +561,10 @@ we_slept:
- 	if (atomic_read(&dquot->dq_count) > 1) {
- 		/* We have more than one user... nothing to do */
- 		atomic_dec(&dquot->dq_count);
-+		/* Releasing dquot during quotaoff phase? */
-+		if (!sb_has_quota_enabled(dquot->dq_sb, dquot->dq_type) &&
-+		    atomic_read(&dquot->dq_count) == 1)
-+			wake_up(&dquot->dq_wait_unused);
- 		spin_unlock(&dq_list_lock);
- 		return;
- 	}
-@@ -581,6 +606,7 @@ static struct dquot *get_empty_dquot(str
- 	INIT_LIST_HEAD(&dquot->dq_inuse);
- 	INIT_HLIST_NODE(&dquot->dq_hash);
- 	INIT_LIST_HEAD(&dquot->dq_dirty);
-+	init_waitqueue_head(&dquot->dq_wait_unused);
- 	dquot->dq_sb = sb;
- 	dquot->dq_type = type;
- 	atomic_set(&dquot->dq_count, 1);
-@@ -732,13 +758,9 @@ static void drop_dquot_ref(struct super_
- {
- 	LIST_HEAD(tofree_head);
- 
--	/* We need to be guarded against prune_icache to reach all the
--	 * inodes - otherwise some can be on the local list of prune_icache */
--	down(&iprune_sem);
- 	down_write(&sb_dqopt(sb)->dqptr_sem);
- 	remove_dquot_ref(sb, type, &tofree_head);
- 	up_write(&sb_dqopt(sb)->dqptr_sem);
--	up(&iprune_sem);
- 	put_dquot_list(&tofree_head);
- }
- 
+> be an input driver rather than (or as well as) just dropping stuff in
+> acpi/events?
 
---5vNYLRcllDrimb99--
+I would have loved to make it an input driver. But looking at the
+mailing list archives, that seems to be a bone of contention and hence
+I chose to go with the flow. I'll be happy to switch it over to an
+input driver if there is consensus around that. Please do let me know.
+
+Thanks,
+jayakumar
+
+>
+> --
+> Matthew Garrett | mjg59@srcf.ucam.org
+>

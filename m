@@ -1,49 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932567AbWBTLUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932583AbWBTLZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932567AbWBTLUt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 06:20:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbWBTLUt
+	id S932583AbWBTLZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 06:25:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbWBTLZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 06:20:49 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4048 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932567AbWBTLUt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 06:20:49 -0500
-Date: Mon, 20 Feb 2006 12:20:32 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Matthias Hensler <matthias@wspse.de>
-Cc: Nigel Cunningham <nigel@suspend2.net>, Sebastian Kgler <sebas@kde.org>,
-       kernel list <linux-kernel@vger.kernel.org>, rjw@sisk.pl
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060220112032.GG16042@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602200709.17955.nigel@suspend2.net> <20060219212952.GI15311@elf.ucw.cz> <200602201025.01823.nigel@suspend2.net> <20060220005333.GL15608@elf.ucw.cz> <20060220094728.GD19293@kobayashi-maru.wspse.de> <20060220105617.GF16042@elf.ucw.cz> <20060220111756.GC22552@kobayashi-maru.wspse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Feb 2006 06:25:27 -0500
+Received: from zproxy.gmail.com ([64.233.162.206]:5126 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932586AbWBTLZ1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 06:25:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JIbRTQGPRQ6jy0aI3nO55kJYrihTQeXi+kH7X+8XCRmSo67GAUbEWp1H5uneWQSE3wnXM0ncMHm2VcIBjeIMbCF3Oku45scyrAkTV5COabVBFPE1xT4i9FhZlaJHSCo+2LPf2pxpydtC6z/0OoUz6CrhgL7KSYgPndiHWHlMMl8=
+Message-ID: <756b48450602200325v28f0300cu8b4845ab9dba9a4c@mail.gmail.com>
+Date: Mon, 20 Feb 2006 19:25:26 +0800
+From: "Jaya Kumar" <jayakumar.acpi@gmail.com>
+To: "Matthew Garrett" <mjg59@srcf.ucam.org>
+Subject: Re: [PATCH 2.6.15.3 1/1] ACPI: Atlas ACPI driver
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060220110145.GB4489@srcf.ucam.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060220111756.GC22552@kobayashi-maru.wspse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+References: <200602200213.k1K2DrDW013988@ns1.clipsalportal.com>
+	 <20060220102639.GA4342@srcf.ucam.org>
+	 <756b48450602200249k1b79b108u42bfef68e1e9dba8@mail.gmail.com>
+	 <20060220110145.GB4489@srcf.ucam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 20-02-06 12:17:56, Matthias Hensler wrote:
-> Hi.
-> 
-> On Mon, Feb 20, 2006 at 11:56:17AM +0100, Pavel Machek wrote:
-> > On Po 20-02-06 10:47:28, Matthias Hensler wrote:
-> > > I do not think that Suspend 2 needs 14000 lines for that, the core
-> > > is much smaller. But besides, _not_ saving the pagecache is a really
-> > > _bad_ idea. I expect to have my system back after resume, in the
-> > > same state I had left it prior to suspend. I really do not like it
-> > > how it is done by Windows, it is just ugly to have a slowly
-> > > responding system after resume, because all caches and buffers are
-> > > gone.
-> > 
-> > That's okay, swsusp already saves configurable ammount of pagecache.
-> 
-> What about uswsusp?
+On 2/20/06, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+> On Mon, Feb 20, 2006 at 06:49:54PM +0800, Jaya Kumar wrote:
+>
+> > I'm not sure how standard that is. For example, I looked at the asus
+> > and toshiba drivers. These ACPI board drivers use
+> > /proc/acpi/somedevice/lcd. For example,
+>
+> And, from a userspace perspective, it sucks. I'm in the process of
+> writing patches to transition them all over, and I'd prefer not to have
+> to write one for your driver as well :)
 
-Same code is used for that.
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+I have some questions then.
+1. Are Patrick's acpi driver model changes considered to be a more
+final approach that standardize everyone to some sysfs based interface
+to userspace?
+1a. Can I assume there is consensus among the acpi community around
+his new model?
+2. Is his driver model going to maintain compatibility with the older
+existing /proc model and those userspace apps that already use that
+interface?
+3. Is his driver model going to also maintain compatibility with your
+newer model (assuming that his model is different than yours).
+
+>
+> > I'll go take a look at that. I didn't look for an acpi driver outside
+> > of the drivers/acpi directory. But if that's the consensus, shouldn't
+> > someone also mod the toshiba and asus drivers?
+>
+> I'm doing so.
+
+Ok. I wish I'd known before. I scanned the mailing list before
+mbarking on this to see if any issues were raised with toshiba and
+asus driver code and didn't see anything. FWIW, my powers of mind
+reading only work on Fridays. :-)
+
+> Doing it via the input layer adds flexibility - it makes it easier for
+> non-root uesrspace to handle things, but you can still have a root-level
+> daemon that monitors /dev/input/event* and runs commands in response to
+> keycodes.
+>
+
+Oh. I don't disagree with that.
+
+Thanks,
+jayakumar

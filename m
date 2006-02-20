@@ -1,75 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932693AbWBTH7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932691AbWBTH7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932693AbWBTH7s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 02:59:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932694AbWBTH7s
+	id S932691AbWBTH7i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 02:59:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbWBTH7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 02:59:48 -0500
-Received: from xproxy.gmail.com ([66.249.82.196]:32086 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932693AbWBTH7r convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 02:59:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VsW9j1YDh1kZNakVp0FwUKxnLcwDVmXKlaYZ8kYdfWG4+eo0gYQ0wrlhk1dBDtvhkr/65hmGV37Je1QC+/bziZJvQ8vnEdYeyFdmxfMXGvXX1XOE1Lq46iHQH6vwHuD4IsDu6RuHcHb+H/8Fr7O1lzRDmp8G2ozFHnOrCMdgqxQ=
-Message-ID: <4807377b0602192359g39c3a2fbnffaead2694788783@mail.gmail.com>
-Date: Sun, 19 Feb 2006 23:59:46 -0800
-From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
-To: "Justin Piszcz" <jpiszcz@lucidpixels.com>
-Subject: Re: Intel CSA Gigabit Bug in IC7-G Motherboards- Affects Windows/Linux
-Cc: "Lee Revell" <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       "Jesse Brandeburg" <jesse.brandeburg@intel.com>
-In-Reply-To: <Pine.LNX.4.64.0602191848230.7212@p34>
-MIME-Version: 1.0
+	Mon, 20 Feb 2006 02:59:38 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:33739 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932691AbWBTH7h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 02:59:37 -0500
+Date: Sun, 19 Feb 2006 23:57:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: oliver@neukum.org, stern@rowland.harvard.edu, psusi@cfl.rr.com,
+       pavel@suse.cz, torvalds@osdl.org, mrmacman_g4@mac.com,
+       alon.barlev@gmail.com, linux-kernel@vger.kernel.org,
+       linux-pm@lists.osdl.org
+Subject: Re: Flames over -- Re: Which is simpler?
+Message-Id: <20060219235752.2d6e252c.akpm@osdl.org>
+In-Reply-To: <20060219232926.256665d6.akpm@osdl.org>
+References: <43F89F55.5070808@cfl.rr.com>
+	<200602192144.57748.oliver@neukum.org>
+	<20060219130243.52af0782.akpm@osdl.org>
+	<200602200755.57699.oliver@neukum.org>
+	<20060219232926.256665d6.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0602191807001.7212@p34>
-	 <1140392860.2733.433.camel@mindpipe>
-	 <Pine.LNX.4.64.0602191848230.7212@p34>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/19/06, Justin Piszcz <jpiszcz@lucidpixels.com> wrote:
-> Essentially, when you copy large amounts of data across the NIC it will
-> "freeze" the box in Linux (any 2.6.x kernel, have not tried 2.4.x) or
-> Windows XP SP2.
-
-I've heard isolated reports about issues with the CSA connected NIC,
-but we've not been able to reproduce much in our labs and (mostly)
-people haven't been complaining about it.
-
-> If you checkout the thread, it occurs for multiple people under various
-> OS' but in *some* cases if they use ABIT's IC7-G CSA/INTEL driver, they
-> their problems go away.
-
-> In Linux when I used to use the onboard NIC, it froze the box, I did not
-> have sysrq enabled at the time when this happened but frozen I mean screen
-> is frozen, no ping, box is inoperative.
-
-Have you tried running without NAPI? (disable it in your config in the
-e1000 section)
-
-> Nothing pecuilar was ever found in any of the logs or dmesg output
-> regarding the crash.
+Andrew Morton <akpm@osdl.org> wrote:
 >
-> Basically its the first revision of CSA gigabit on a motherboard from what
-> I read in the forums and unless you use ABIT's specially crafted driver,
-> it will crash the machine when you copy either:
->
-> a) large amounts of data over a gigabit link
-> or
-> b) that death.zip file (unzipped of course) which contains the bad "bits"
-> that are probably seen/repeated when copying large amounts of data
+>  > If you simply block writes, the system will stall random tasks laundering
+>  > pages, including those needed to make progress. Even syncing before
+>  > suspend won't help you, as a running user space may dirty pages.
+> 
+>  Well of _course_ that will happen.
 
-I'll have our lab attempt to reproduce the bug (again) this time using
-the special file.  I can't speak to the windows crash, sorry.
+Actually, it won't happen.  There's already logic in there to help pdflush,
+kswapd and memory-allocating tasks avoid blocking on congested queues. 
+It's trivial to extend that to avoidance of hotunplugged queues.
 
-please send your .config, cat /proc/interrupts, dmesg after driver is
-up, whether NAPI is on, what exact steps you use to reproduce the
-problem, what your environment is (i.e. copying to a windows server,
-etc) pretty much follow the instructions in
-http://www.kernel.org/pub/linux/docs/lkml/reporting-bugs.html
+Things like sync(), fsync(), O_SYNC and reads will necessarily block.
 
-Jesse
+We may or may not decide to block on page-dirtyings.  Again, that's trivial
+to do in balance_dirty_pages().
+
+Race conditions are pretty much unavoidable - if someone goes and disables
+a device when we're partway through and committed to I/O submission then
+things will get very sticky.  But we can have a pretty successful solution
+to all of this without a ton of effort.
+
+But this is all the easy part.

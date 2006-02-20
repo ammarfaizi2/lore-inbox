@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161087AbWBTSBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWBTSCO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161087AbWBTSBK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 13:01:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161092AbWBTSBK
+	id S932241AbWBTSCO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 13:02:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932622AbWBTSCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 13:01:10 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:25299 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1161087AbWBTSBI (ORCPT
+	Mon, 20 Feb 2006 13:02:14 -0500
+Received: from mail.gurulabs.com ([67.137.148.7]:38817 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S932241AbWBTSCL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 13:01:08 -0500
-Date: Mon, 20 Feb 2006 19:01:01 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Ian Kent <raven@themaw.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: autofs kconfig text misleading
-Message-ID: <Pine.LNX.4.61.0602201859160.24598@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Feb 2006 13:02:11 -0500
+Subject: Areca RAID driver remaining items?
+From: Dax Kelson <dax@gurulabs.com>
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: billion.wu@areca.com.tw, alan@lxorguk.ukuu.org.uk, akpm@osdl.org,
+       erich@areca.com.tw, arjan@infradead.org, oliver@neukum.org
+Content-Type: text/plain
+Date: Mon, 20 Feb 2006 11:02:32 -0700
+Message-Id: <1140458552.3495.26.camel@mentorng.gurulabs.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This appears to be the most current version of the driver:
 
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc4/2.6.16-rc4-mm1/broken-out/areca-raid-linux-scsi-driver.patch
 
-currently (2.6.16-rc1 and possible -rcX), the Kconfig help text for autofs4 
-reads as follows:
+Is this the current TODO list?
 
-    The automounter is a tool to automatically mount remote file
-    systems on demand. This implementation is partially kernel-based to
-    reduce overhead in the already-mounted case; this is unlike the BSD
-    automounter (amd), which is a pure user space daemon.
+=================
+Issues not yet patched:
 
-But obviously I can use autofs4 with local filesystems,
-that is, CDROM, too.
+13. uintNN_t int types:  use kernel types except for userspace
+interfaces
+14. use kernel-doc
+18. Put arcmsr.txt in Documentation/scsi/, not in scsi/arcmsr/.
+19. Maybe use sysfs (/sys) instead of /proc.
+20. check stack usage, init/exit sections;
+=================
+   
+At one point this comment was made:
 
+"There's lots of architectural problems.  It's doing it's own queueing,
+it's stuffing kernel structures into memory on the hardware and so on.
+Basically someone knowledgeable about the hardware needs to start from
+scratch on it."
 
+What are the show stoppers that prevents a merge into the Linus tree?
 
-Jan Engelhardt
--- 
+Dax Kelson
+

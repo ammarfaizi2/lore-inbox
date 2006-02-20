@@ -1,76 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWBTARI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWBTARx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932093AbWBTARI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Feb 2006 19:17:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbWBTARI
+	id S932424AbWBTARx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Feb 2006 19:17:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbWBTARx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Feb 2006 19:17:08 -0500
-Received: from digitalimplant.org ([64.62.235.95]:46031 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S932093AbWBTARH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Feb 2006 19:17:07 -0500
-Date: Sun, 19 Feb 2006 16:17:01 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Pavel Machek <pavel@suse.cz>
-cc: greg@kroah.com, "" <torvalds@osdl.org>, "" <akpm@osdl.org>,
-       "" <linux-pm@osdl.org>, "" <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [PATCH 3/5] [pm] Respect the actual device power
- states in sysfs interface
-In-Reply-To: <20060220000907.GE15608@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.50.0602191611130.8676-100000@monsoon.he.net>
-References: <Pine.LNX.4.50.0602171758160.30811-100000@monsoon.he.net>
- <20060218155543.GE5658@openzaurus.ucw.cz> <Pine.LNX.4.50.0602191557520.8676-100000@monsoon.he.net>
- <20060220000907.GE15608@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 19 Feb 2006 19:17:53 -0500
+Received: from gate.crashing.org ([63.228.1.57]:47761 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932424AbWBTARw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Feb 2006 19:17:52 -0500
+Subject: [PATCH] powermac: Fix loss of ethernet PHY on sleep
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>
+Content-Type: text/plain
+Date: Mon, 20 Feb 2006 11:17:30 +1100
+Message-Id: <1140394650.32374.48.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.91 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Some recent PowerBook models tend to lose the ethernet PHY on
+suspend/resume. It -seems- that they use a combo ethernet-firewire PHY
+chip and the firewire PHY seems to die the same way when that happens.
+Not trying to toggle the firewire cable power appears to fix it. So this
+patch disables changes to the firewire cable power control GPIO on those
+models. Please apply for 2.6.16.
 
-On Mon, 20 Feb 2006, Pavel Machek wrote:
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-> On Ne 19-02-06 15:59:25, Patrick Mochel wrote:
-> >
-> > On Sat, 18 Feb 2006, Pavel Machek wrote:
-> >
-> > > Hi!
-> > >
-> > > > Fix the per-device state file to respect the actual state that
-> > > > is reported by the device, or written to the file.
-> > >
-> > > Can we let "state" file die? You actually suggested that at one point.
-> > >
-> > > I do not think passing states in u32 is good idea. New interface that passes
-> > > state as string would probably be better.
-> >
-> > Yup, in the future that will be better. For now, let's work with what we
-> > got and fix 2.6.16 to be compatible with previous versions..
->
-> It already is. It accepts "0" and "2" and "3". That's all values that
-> used to work.
+Index: linux-work/arch/powerpc/platforms/powermac/feature.c
+===================================================================
+--- linux-work.orig/arch/powerpc/platforms/powermac/feature.c	2006-02-20 11:10:07.000000000 +1100
++++ linux-work/arch/powerpc/platforms/powermac/feature.c	2006-02-20 11:13:25.000000000 +1100
+@@ -1648,10 +1648,10 @@
+ 		  KL0_SCC_CELL_ENABLE);
+ 
+ 	MACIO_BIC(KEYLARGO_FCR1,
+-		  /*KL1_USB2_CELL_ENABLE |*/
+ 		KL1_I2S0_CELL_ENABLE | KL1_I2S0_CLK_ENABLE_BIT |
+ 		KL1_I2S0_ENABLE | KL1_I2S1_CELL_ENABLE |
+-		KL1_I2S1_CLK_ENABLE_BIT | KL1_I2S1_ENABLE);
++		KL1_I2S1_CLK_ENABLE_BIT | KL1_I2S1_ENABLE |
++		KL1_EIDE0_ENABLE);
+ 	if (pmac_mb.board_flags & PMAC_MB_MOBILE)
+ 		MACIO_BIC(KEYLARGO_FCR1, KL1_UIDE_RESET_N);
+ 
+@@ -2185,7 +2185,7 @@
+ 	},
+ 	{	"PowerMac10,1",			"Mac mini",
+ 		PMAC_TYPE_UNKNOWN_INTREPID,	intrepid_features,
+-		PMAC_MB_MAY_SLEEP | PMAC_MB_HAS_FW_POWER,
++		PMAC_MB_MAY_SLEEP,
+ 	},
+ 	{	"iMac,1",			"iMac (first generation)",
+ 		PMAC_TYPE_ORIG_IMAC,		paddington_features,
+@@ -2297,11 +2297,11 @@
+ 	},
+ 	{	"PowerBook5,8",			"PowerBook G4 15\"",
+ 		PMAC_TYPE_UNKNOWN_INTREPID,	intrepid_features,
+-		PMAC_MB_MAY_SLEEP | PMAC_MB_HAS_FW_POWER | PMAC_MB_MOBILE,
++		PMAC_MB_MAY_SLEEP  | PMAC_MB_MOBILE,
+ 	},
+ 	{	"PowerBook5,9",			"PowerBook G4 17\"",
+ 		PMAC_TYPE_UNKNOWN_INTREPID,	intrepid_features,
+-		PMAC_MB_MAY_SLEEP | PMAC_MB_HAS_FW_POWER | PMAC_MB_MOBILE,
++		PMAC_MB_MAY_SLEEP | PMAC_MB_MOBILE,
+ 	},
+ 	{	"PowerBook6,1",			"PowerBook G4 12\"",
+ 		PMAC_TYPE_UNKNOWN_INTREPID,	intrepid_features,
 
-The core should not dictate the valid range of values. The bus drivers
-should decide, since they are their states. "1" also used to work.
-
-> Other values used to trigger BUG() in pci.c (and we do not want to
-> re-introduce _that_ behaviour, right?).
-
-I don't follow - the BUG() call was introduced recently for reasons
-unknown. The interface had never triggered that previously.
-
-> If you add u32 into pm_message_t, it will be impossible to remove in
-> future.
-
-I don't follow this argument either.
-
-I really fail to see what your fundamental objection is. This restores
-compatability, makes the core simpler, and adds the ability to use the
-additional states, should drivers choose to implement them; all for
-relatively little code. It seems a like a good thing to me..
-
-Thanks,
-
-
-	Pat
 

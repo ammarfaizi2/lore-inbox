@@ -1,65 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161003AbWBTQYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030309AbWBTQXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161003AbWBTQYX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 11:24:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161004AbWBTQYX
+	id S1030309AbWBTQXw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 11:23:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbWBTQXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 11:24:23 -0500
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:42346 "EHLO
-	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1161003AbWBTQYV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 11:24:21 -0500
-Message-ID: <43FA7677.3040901@de.ibm.com>
-Date: Tue, 21 Feb 2006 03:09:59 +0100
-From: Heiko J Schick <schihei@de.ibm.com>
-Organization: IBM Deutschland Entwicklung GmbH
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 20 Feb 2006 11:23:51 -0500
+Received: from relay01.roc.ny.frontiernet.net ([66.133.182.164]:10149 "EHLO
+	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S1030304AbWBTQXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 11:23:50 -0500
+Reply-To: <jbowler@acm.org>
+From: John Bowler <jbowler@acm.org>
+To: "'Adrian Bunk'" <bunk@stusta.de>
+Cc: "'Martin Michlmayr'" <tbm@cyrius.com>,
+       "'Alessandro Zummo'" <alessandro.zummo@towertech.it>,
+       <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>
+Subject: RE: [RFC] [PATCH 1/2] Driver to remember ethernet MAC values: maclist
+Date: Mon, 20 Feb 2006 08:23:41 -0800
+Message-ID: <000201c6363a$042a1e30$1001a8c0@kalmiopsis>
 MIME-Version: 1.0
-To: Anton Blanchard <anton@samba.org>
-CC: Roland Dreier <rolandd@cisco.com>, SCHICKHJ@de.ibm.com,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       RAISCH@de.ibm.com, HNGUYEN@de.ibm.com, MEDER@de.ibm.com,
-       linuxppc64-dev@ozlabs.org
-Subject: Re: [openib-general] Re: [PATCH 21/22] ehca main file
-References: <20060218005532.13620.79663.stgit@localhost.localdomain>	<20060218005759.13620.10968.stgit@localhost.localdomain> <20060220152213.GD19895@krispykreme>
-In-Reply-To: <20060220152213.GD19895@krispykreme>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+Importance: Normal
+In-Reply-To: <20060220023900.GE4971@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Anton,
+From: Adrian Bunk [mailto:bunk@stusta.de]
+>Why can't setting MAC addresses be done from initramfs?
 
-thanks for your help!
+The submitted version of this code is actually an old version,
+which has some potential locking problems and doesn't document
+how to solve the problem of different drivers getting different
+MAC ids.
 
- >>+#include "hcp_sense.h"		/* TODO: later via hipz_* header file */
- >>+#include "hcp_if.h"		/* TODO: later via hipz_* header file */
- >
- >
- > I count 88 TODOs in the driver, it would be nice to get rid of some of
- > them like the two above, so we can concentrate on the important TODOs :)
+This stuff *should* be done in the board level code, that should
+load the MAC (somehow) and then set it into Ethernet driver resources
+so that the (necessarily later) init of the Ethernet device can
+pick up the correct address.
 
-We will remove the TODOs soon as possible.
+Unfortunately on some systems this (the use of machine level
+resources in the board init code) is not possible because the
+ethernet driver is in a module.  The *same* driver may be in kernel
+on other systems.
 
- >>+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,12)
- >>+#define EHCA_RESOURCE_ATTR_H(name)                                         \
- >>+static ssize_t  ehca_show_##name(struct device *dev,                       \
- >>+				 struct device_attribute *attr,            \
- >>+				 char *buf)
- >>+#else
- >>+#define EHCA_RESOURCE_ATTR_H(name)                                         \
- >>+static ssize_t  ehca_show_##name(struct device *dev,                       \
- >>+				 char *buf)
- >>+#endif
- >
- >
- > No need for kernel version ifdefs.
+This creates a combinatorial problem - dealing with *all* the
+possibilities creates an enormous mess.  It doesn't matter where
+the solution happens - boot loader, initramfs or kernel init - the
+combinatorial problem is still there because there must be handling
+for every combination which occurs in practice.
 
-The point is that our module have to run on Linux 2.6.5-7.244 (SuSE SLES 9 SP3), too.
-This was the reason why we've included the ifdefs. We can change the ifdefs to
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2.6.5) to mark that this code is used for
-Linux 2.6.5 compatibility.
+The problem is very much one of embedded systems.  In such systems
+a generic board will have a specific manufacturing implementation
+which stores the MAC in an implementation specific way.  E.g. a
+vendor may drop the EEPROM from the Gateworks GW2348 board (that
+EEPROM costs real money!) and put the MAC in somewhere else.  Gateworks
+doesn't *document* a specific place to put the MAC (though they *do*
+put it in the EEPROM).  The lack of documentation and the certainty of
+variation in particular IHV uses of the board creates the problem.
 
-Regards,
-	Heiko
+maclist simply breaks the problem into two pieces:
+
+1) store this MAC in a linked list.
+2) read a MAC from a linked list.
+
+It's a classic "Gordian Knot" problem...
+
+I thought a linked list was pretty simple ;-)
+
+The locking in this version of the code is *wrong*, my assumptions
+were bogus and I don't think the code will work correctly on SMP
+systems.
+
+The latest version of the code includes significantly more 
+documentation in the header file and makes the whole thing fail
+safe.  Again this is an embedded system problem - the ethernet
+may be the only thing on the system!  The newer code returns an
+appropriate 'random' MAC if there isn't one available.  This makes
+debugging into a tractable problem on systems with just the
+ethernet.
+
+The implementation is still a linked list, but insertion is locked
+and checking is done to deal with the unavailable MAC case.  As in
+the simple case the advantage is that common code is in just one
+place, not replicated across multiple instances of board/driver
+code.
+
+John Bowler <jbowler@acm.org>
+

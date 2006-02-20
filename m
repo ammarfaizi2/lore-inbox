@@ -1,107 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932612AbWBTHVU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932683AbWBTHbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932612AbWBTHVU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 02:21:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932678AbWBTHVU
+	id S932683AbWBTHbm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 02:31:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932684AbWBTHbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 02:21:20 -0500
-Received: from rwcrmhc13.comcast.net ([216.148.227.153]:63724 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S932612AbWBTHVU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 02:21:20 -0500
-Message-ID: <43F96DE9.7070209@namesys.com>
-Date: Sun, 19 Feb 2006 23:21:13 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sonny Rao <sonny@burdell.org>, Chris Mason <mason@suse.com>
-CC: Dave Jones <davej@redhat.com>, Nathan Scott <nathans@sgi.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, bjd <bjdouma@xs4all.nl>,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com,
-       reiserfs-list@namesys.com, Vitaly Fertman <vetalf@inbox.ru>
-Subject: Re: kernel oops: trying to mount a corrupted xfs partition (2.6.16-rc3)
-References: <20060216183629.GA5672@skyscraper.unix9.prv> <20060217063157.B9349752@wobbly.melbourne.sgi.com> <Pine.LNX.4.61.0602171753590.27452@yvahk01.tjqt.qr> <20060220082946.A9478997@wobbly.melbourne.sgi.com> <20060219215209.GB7974@redhat.com> <20060220070916.GA8101@kevlar.burdell.org>
-In-Reply-To: <20060220070916.GA8101@kevlar.burdell.org>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Feb 2006 02:31:41 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:11460 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932683AbWBTHbl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 02:31:41 -0500
+Date: Sun, 19 Feb 2006 23:29:26 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: stern@rowland.harvard.edu, psusi@cfl.rr.com, pavel@suse.cz,
+       torvalds@osdl.org, mrmacman_g4@mac.com, alon.barlev@gmail.com,
+       linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org
+Subject: Re: Flames over -- Re: Which is simpler?
+Message-Id: <20060219232926.256665d6.akpm@osdl.org>
+In-Reply-To: <200602200755.57699.oliver@neukum.org>
+References: <43F89F55.5070808@cfl.rr.com>
+	<200602192144.57748.oliver@neukum.org>
+	<20060219130243.52af0782.akpm@osdl.org>
+	<200602200755.57699.oliver@neukum.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks kindly Sonny, Chris is this bug known/fixed?
-
-Hans
-
-Sonny Rao wrote:
-
->On Sun, Feb 19, 2006 at 04:52:09PM -0500, Dave Jones wrote:
-><snip> 
->  
+Oliver Neukum <oliver@neukum.org> wrote:
 >
->>Just for kicks, I just hacked this up..
->>
->>#!/bin/bash
->>wget http://www.digitaldwarf.be/products/mangle.c
->>gcc mangle.c -o mangle
->>
->>dd if=/dev/zero of=data.img count=70000
->>
->>while [ 1 ];
->>do
->>        mkfs.xfs -f data.img >/dev/null
->>		./mangle data.img $RANDOM
->>        sudo mount -t xfs data.img mntpt -o loop
->>        sudo ls -R mntpt
->>        sudo umount mntpt
->>done
->>    
->>
->
->Cool script, you might want to multiply $RANDOM by some factor (I used
->8) to catch some more stuff, I know JFS, for example, doesn't put
->anything in the first 32k, so the first time I ran it on JFS it did
->nothing ;-) 
->
->
->Reiserfs folks, 
->
->I also found an infinte loop in Reiserfs on 2.6.15, if the Reiser
->folks are interested, I've gziped the fs and put it here:
->
->http://burdell.org/~sonny/data.img.breaks.reiserfs.gz
->
->The fs is only 52k when zipped, so its not too bad to download.
->
->This is under stock 2.6.15, sorry I can't post dmesg output because I
->end up having to reboot when it happens and don't have time to debug
->right now.  It looks like it's in the journal replay code where it
->keeps trying to grab some block with a ridiculously large offset. 
->
->
->  
->
->>xfs wins the award for 'noisiest fs in the face of corruption' :-)
->>After a few dozen backtraces from xfs_corruption_error,
->>this fell out...
->>
->>divide error: 0000 [1] SMP
->>    
->>
-><snip trace>
+> Am Sonntag, 19. Februar 2006 22:02 schrieb Andrew Morton:
+> > Oliver Neukum <oliver@neukum.org> wrote:
+> > >
+> > > Am Sonntag, 19. Februar 2006 21:02 schrieb Andrew Morton:
+> > > > For a), the current kernel behaviour is what we want - make the thing
+> > > > appear at a new place in the namespace and in the hierarchy.  Then
+> > > > userspace can do whatever needs to be done to identify the device, and
+> > > > apply some sort of policy decision to the result.
+> > > 
+> > > How? If you have a running user space the connection to the open files
+> > > is already severed, as any access in that time window must fail.
+> > 
+> > That's a separate issue, which we haven't discussed yet.  We have a device
+> > which has gone away and which might come back later on.  Presently we will
+> > return an I/O error if I/O is attempted in that window.  Obviously we'll
+> > need to do something different, such as block reads and block or defer writes.
 > 
->  
->
->>(The kernel is based on 2.6.16rc4)
->>    
->>
->
->I see a similar breakage (divide error) on x86 using 2.6.15
->
->Sonny
->
->
->  
->
+> But how do you handle memory management?
+> If you simply block writes, the system will stall random tasks laundering
+> pages, including those needed to make progress. Even syncing before
+> suspend won't help you, as a running user space may dirty pages.
+
+Well of _course_ that will happen.  If we have dirty pages we need to
+either keep them in memory or lose them.  If someone wants to run a massive
+memory stresstest, unplug the disks in the middle of it and have the
+machine serenely sail along as if nothing happened then they're being
+unreasonable.
+
+> And what about the rootfs?
+
+If you disconnect that then everything stops until you reconnect it, provided
+all the tools needed to handle the reconnect are in the correct place - if
+the system providers got that wrong then the machine is obviously toast.
+
+Your questions boil down to "what if the user is crazy or the implementation
+is buggy?".   Let's assume neither is true, OK?
 

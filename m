@@ -1,90 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932632AbWBTWAT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932631AbWBTWCM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932632AbWBTWAT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 17:00:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932631AbWBTWAT
+	id S932631AbWBTWCM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 17:02:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932633AbWBTWCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 17:00:19 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:54195 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932629AbWBTWAR (ORCPT
+	Mon, 20 Feb 2006 17:02:12 -0500
+Received: from styx.suse.cz ([82.119.242.94]:2470 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S932631AbWBTWCK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 17:00:17 -0500
-Date: Tue, 21 Feb 2006 08:59:53 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: christoph <hch@lst.de>, mcao@us.ibm.com, akpm@osdl.org,
-       lkml <linux-kernel@vger.kernel.org>, jeremy@sgi.com,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>
-Subject: Re: [PATCH 0/3] map multiple blocks in get_block() and mpage_readpages()
-Message-ID: <20060221085953.H9484650@wobbly.melbourne.sgi.com>
-References: <1140470487.22756.12.camel@dyn9047017100.beaverton.ibm.com>
+	Mon, 20 Feb 2006 17:02:10 -0500
+Date: Mon, 20 Feb 2006 23:02:17 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: linux-kernel@vger.kernel.org, dtor_core@ameritech.net
+Subject: Re: pc keyboard driver spewing "Unknown key released"
+Message-ID: <20060220220217.GA31968@suse.cz>
+References: <20060220210240.GA15408@kvack.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1140470487.22756.12.camel@dyn9047017100.beaverton.ibm.com>; from pbadari@us.ibm.com on Mon, Feb 20, 2006 at 01:21:27PM -0800
+In-Reply-To: <20060220210240.GA15408@kvack.org>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 20, 2006 at 01:21:27PM -0800, Badari Pulavarty wrote:
-> Hi,
+On Mon, Feb 20, 2006 at 04:02:40PM -0500, Benjamin LaHaise wrote:
 
-Hi Badari,
-
-> Following patches add support to map multiple blocks in ->get_block().
-> This is will allow us to handle mapping of multiple disk blocks for
-> mpage_readpages() and mpage_writepages() etc. Instead of adding new
-> argument, I use "b_size" to indicate the amount of disk mapping needed
-> for get_block(). And also, on success get_block() actually indicates
-> the amount of disk mapping it did.
-
-Thanks for doing this work!
-
-> Now that get_block() can handle multiple blocks, there is no need
-> for ->get_blocks() which was added for DIO. 
+> With 2.6.16-rc4 on my laptop, I seem to be getting a lot of the following 
+> spewed onto the console.  It's not reproducible on demand, but seems to be 
+> related to multi-key press/release sequences when banging away a bit too 
+> quickly...
 > 
-> [PATCH 1/3] pass b_size to ->get_block()
+> 		-ben
 > 
-> [PATCH 2/3] map multiple blocks for mpage_readpages()
-> 
-> [PATCH 3/3] remove ->get_blocks() support
-> 
-> I noticed decent improvements (reduced sys time) on JFS, XFS and ext3. 
-> (on simple "dd" read tests).
-> 	
->          (rc3.mm1)	(rc3.mm1 + patches)
-> real    0m18.814s	0m18.482s
-> user    0m0.000s	0m0.004s
-> sys     0m3.240s	0m2.912s
-> 
-> Andrew, Could you include it in -mm tree ?
-> 
-> Comments ?
+> atkbd.c: Unknown key released (translated set 2, code 0x7f on isa0060/serio0).
+> atkbd.c: Use 'setkeycodes 7f <keycode>' to make it known.
+ 
+Interesting. This is the '0xff' code sent by the keyboard (meaning "I'm
+confused, someone pressed too many keys or is banging on me way too
+quickly - I don't guarantee to send all keypresses or keyreleases
+anymore") and is interpreted incorrectly by atkbd.c.
 
-I've been running these patches in my development tree for awhile
-and have not seen any problems.  My one (possibly minor) concern
-is that we pass get_block a size in units of bytes, e.g....
+It should spew a different message ("Too many keys pressed") to your
+console. 
 
-	bh->b_size = 1 << inode->i_blkbits;
-	err = get_block(inode, block, bh, 1);
+If you can, please enable debugging for i8042, using
 
-And b_size is a u32.  We have had the situation in the past where
-people (I'm looking at you, Jeremy ;) have been issuing multiple-
-gigabyte direct reads/writes through XFS.  The syscall interface
-takes an (s)size_t in bytes, which on 64 bit platforms is a 64 bit
-byte count.
+	echo -n 1 > /sys/module/i8042/parameters/debug
 
-I wonder if this change will end up ruining things for the lunatic
-fringe issuing these kinds of IOs?  Maybe the get_block call could
-take a block count rather than a byte count?  (I guess that would
-equate to dropping get_block_t rather than get_blocks_t... which is
-kinda the alternate direction to what you took here).  On the other
-hand, maybe it'd be simpler to change b_size to be a size_t instead
-of u32?  Although, since we are now mapping multiple blocks at once,
-"get_blocks_t" does seem an appropriate name.  *shrug*, whatever ...
-the main thing that'd be good to see addressed is the 32 bit size.
-
-cheers.
+then try to reproduce it, and send your 'dmesg' to me.
 
 -- 
-Nathan
+Vojtech Pavlik
+Director SuSE Labs

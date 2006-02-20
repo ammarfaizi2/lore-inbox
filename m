@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161203AbWBTXf6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161201AbWBTXgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161203AbWBTXf6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 18:35:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161201AbWBTXf5
+	id S1161201AbWBTXgv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 18:36:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161205AbWBTXgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 18:35:57 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:21124 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161200AbWBTXf4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 18:35:56 -0500
-Date: Mon, 20 Feb 2006 15:34:19 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: kiran@scalex86.org, linux-kernel@vger.kernel.org, shai@scalex86.org
-Subject: Re: [patch] Cache align futex hash buckets
-Message-Id: <20060220153419.5ea8dd89.akpm@osdl.org>
-In-Reply-To: <20060220153320.793b6a7d.akpm@osdl.org>
-References: <20060220233242.GC3594@localhost.localdomain>
-	<20060220153320.793b6a7d.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 20 Feb 2006 18:36:51 -0500
+Received: from 83-64-96-243.bad-voeslau.xdsl-line.inode.at ([83.64.96.243]:29316
+	"EHLO mognix.dark-green.com") by vger.kernel.org with ESMTP
+	id S1161200AbWBTXgu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 18:36:50 -0500
+Message-ID: <43FA5293.4070807@ed-soft.at>
+Date: Tue, 21 Feb 2006 00:36:51 +0100
+From: Edgar Hucek <hostmaster@ed-soft.at>
+User-Agent: Mail/News 1.5 (X11/20060206)
+MIME-Version: 1.0
+To: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/1] EFI iounpam fix for acpi_os_unmap_memory
+X-Enigmail-Version: 0.93.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
-> >
-> > Following change places each element of the futex_queues hashtable on a 
-> > different cacheline.  Spinlocks of adjacent hash buckets lie on the same 
-> > cacheline otherwise.
-> > 
-> > Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
-> > Signed-off-by: Shai Fultheim <shai@scalex86.org>
-> > 
-> > Index: linux-2.6.16-rc2/kernel/futex.c
-> > ===================================================================
-> > --- linux-2.6.16-rc2.orig/kernel/futex.c	2006-02-07 23:14:04.000000000 -0800
-> > +++ linux-2.6.16-rc2/kernel/futex.c	2006-02-09 14:04:22.000000000 -0800
-> > @@ -100,9 +100,10 @@ struct futex_q {
-> >  struct futex_hash_bucket {
-> >         spinlock_t              lock;
-> >         struct list_head       chain;
-> > -};
-> > +} ____cacheline_internodealigned_in_smp;
-> >  
-> > -static struct futex_hash_bucket futex_queues[1<<FUTEX_HASHBITS];
-> > +static struct futex_hash_bucket futex_queues[1<<FUTEX_HASHBITS] 
-> > +				__cacheline_aligned_in_smp;
-> >  
-> 
-> How much memory does that thing end up consuming?
+When EFI is enabled acpi_os_unmap_memory trys to unmap memory
+which was not mapped by acpi_os_map_memory.
 
-I think a megabyte?
+This patch for it.
+
+Signed-off-by: Edgar Hucek <hostmaster@ed-soft.at>
+
+diff -uNr linux-2.6.16-rc4.orig/drivers/acpi/osl.c
+linux-2.6.16-rc4/drivers/acpi/osl.c
+--- linux-2.6.16-rc4.orig/drivers/acpi/osl.c    2006-02-19
+18:48:58.000000000 +0100
++++ linux-2.6.16-rc4/drivers/acpi/osl.c 2006-02-20 15:31:44.000000000 +0100
+@@ -208,7 +208,13 @@
+
+ void acpi_os_unmap_memory(void __iomem * virt, acpi_size size)
+ {
+-       iounmap(virt);
++       if(efi_enabled) {
++               if (!(EFI_MEMORY_WB &
+efi_mem_attributes(virt_to_phys(virt)))) {
++                       iounmap(virt);
++               }
++       } else {
++               iounmap(virt);
++       }
+ }
+ EXPORT_SYMBOL_GPL(acpi_os_unmap_memory);

@@ -1,130 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWBTMlG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbWBTMoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030192AbWBTMlG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 07:41:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030193AbWBTMlF
+	id S1030196AbWBTMoT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 07:44:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030197AbWBTMoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 07:41:05 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:22499 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1030192AbWBTMlE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 07:41:04 -0500
-Date: Mon, 20 Feb 2006 13:41:03 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Hubertus Franke <frankeh@watson.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, Sam Vilain <sam@vilain.net>,
-       Rik van Riel <riel@redhat.com>, Kirill Korotaev <dev@openvz.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, clg@fr.ibm.com, haveblue@us.ibm.com,
-       greg@kroah.com, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
-       kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
-       Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>
-Subject: Re: The issues for agreeing on a virtualization/namespaces implementation.
-Message-ID: <20060220124103.GB17478@MAIL.13thfloor.at>
-Mail-Followup-To: Kirill Korotaev <dev@sw.ru>,
-	Hubertus Franke <frankeh@watson.ibm.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	"Serge E. Hallyn" <serue@us.ibm.com>, Sam Vilain <sam@vilain.net>,
-	Rik van Riel <riel@redhat.com>, Kirill Korotaev <dev@openvz.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, clg@fr.ibm.com, haveblue@us.ibm.com,
-	greg@kroah.com, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
-	kuznet@ms2.inr.ac.ru, saw@sawoct.com, devel@openvz.org,
-	Dmitry Mishin <dim@sw.ru>, Andi Kleen <ak@suse.de>
-References: <43E7C65F.3050609@openvz.org> <m1bqxju9iu.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.63.0602062239020.26192@cuia.boston.redhat.com> <43E83E8A.1040704@vilain.net> <43E8D160.4040803@watson.ibm.com> <20060207201908.GJ6931@sergelap.austin.ibm.com> <43E90716.4020208@watson.ibm.com> <m17j86dds4.fsf_-_@ebiederm.dsl.xmission.com> <43E92EDC.8040603@watson.ibm.com> <43F9B1F4.4040907@sw.ru>
+	Mon, 20 Feb 2006 07:44:19 -0500
+Received: from mipsfw.mips-uk.com ([194.74.144.146]:21785 "EHLO
+	bacchus.dhis.org") by vger.kernel.org with ESMTP id S1030196AbWBTMoS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 07:44:18 -0500
+Date: Mon, 20 Feb 2006 12:41:55 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, ysato@users.sourceforge.jp
+Subject: [H8/300] CONFIG_CONFIG_ doesn't fly.
+Message-ID: <20060220124155.GA10763@linux-mips.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43F9B1F4.4040907@sw.ru>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 20, 2006 at 03:11:32PM +0300, Kirill Korotaev wrote:
-> >>The questions seem to break down into:
-> >>1) Where do we put the references to the different namespaces?
-> >>   - Do we put the references in a struct container that we reference 
-> >>from struct task_struct?
-> >>   - Do we put the references directly in struct task_struct?
-> >
-> >
-> >You "cache"   task_struct->container->hotsubsys   under 
-> >task_struct->hotsubsys.
-> >We don't change containers other then at clone time, so no coherency 
-> >issue here !!!!
-> >Which subsystems pointers to "cache", should be agreed by the experts,
-> >but first approach should always not to cache and go through the container.
-> agreed. I see no much reason to cache it and make tons of the same 
-> pointers in all the tasks. Only if needed.
+All actual uses of the symbol refer to CONFIG_SH_STANDARD_BIOS so this
+option could never be activated on H8/300.
 
-> Also, in OpenVZ container has many fields intergrated inside, so there 
-> is no additional dereference, but task->container->subsys_field
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
 
-as does Linux-VServer currently, but do you have
-any proof that putting all the fields together in
-one big structure actually has any (dis)advantage
-over separate structures?
+ arch/h8300/Kconfig.debug |    2 +-
+ arch/h8300/defconfig     |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-> >>2) What is the syscall interface to create these namespaces?
-> >>   - Do we add clone flags?       (Plan 9 style)
-> >Like that approach .. flexible .. particular when one has well
-> >specified namespaces.
-> mmm, how do you plan to pass additional flags to clone()?
-> e.g. strong or weak isolation of pids?
-
-do you really have to pass them at clone() time?
-would shortly after be more than enough?
-what if you want to change those properties later?
-
-> another questions:
-> how do you plan to meet the dependancies between namespaces?
-> e.g. conntracks require netfilters to be initialized.
-> network requires sysctls and proc to be initialized and so on.
-> do you propose to track all this in clone()? huh...
-
-this is missing isolation/virtualization, and I guess
-it has to be done to make those spaces useful ...
-
-> >>   - Do we add a syscall (similar to setsid) per namespace?
-> >>     (Traditional unix style)?
-> can be so...
-> 
-> >>   - Do we in addition add syscalls to manipulate containers
-> >>   generically?
-> >>
-> >>   I don't think having a single system call to create a container
-> >>   and a new instance of each namespace is reasonable as that does
-> >>   not give us a path into the future when we create yet another
-> >>   namespace.
-> >Agreed.
-> why do you think so?
-
-> this syscalls will start handling this new namespace and that's all.
-> this is not different from many syscalls approach.
-
-well, let's defer the 'how amny syscalls' issue to
-a later time, when we know what we want to implement :)
-
-> >>4) How do we implement each of these namespaces?
-> >>   Besides being maintainable are there other constraints?
-> >>
-> >Good question... at least with PID and FS two are there ..
-> >>
-> >>6) How do we do all of this efficiently without a noticeable impact on
-> >>   performance?
-> >>   - I have already heard concerns that I might be introducing cache
-> >>     line bounces and thus increasing tasklist_lock hold time.
-> >>     Which on big way systems can be a problem.
-
-> this is nothing compared to hierarchy operations.
-> BTW, heirarchy also introduces complicated resource accounting, 
-> sometimes making it even impossible.
-
-well, depends how you do it ...
-
-best,
-Herbert
-
-> Kirill
+diff --git a/arch/h8300/Kconfig.debug b/arch/h8300/Kconfig.debug
+index 55034d0..e0e9bcb 100644
+--- a/arch/h8300/Kconfig.debug
++++ b/arch/h8300/Kconfig.debug
+@@ -34,7 +34,7 @@ config GDB_DEBUG
+ 	help
+ 	  gdb stub exception support
+ 
+-config CONFIG_SH_STANDARD_BIOS
++config SH_STANDARD_BIOS
+ 	bool "Use gdb protocol serial console"
+ 	depends on (!H8300H_SIM && !H8S_SIM)
+ 	help
+diff --git a/arch/h8300/defconfig b/arch/h8300/defconfig
+index 9d9b491..8f1ec32 100644
+--- a/arch/h8300/defconfig
++++ b/arch/h8300/defconfig
+@@ -328,7 +328,7 @@ CONFIG_FULLDEBUG=y
+ CONFIG_NO_KERNEL_MSG=y
+ # CONFIG_SYSCALL_PRINT is not set
+ # CONFIG_GDB_DEBUG is not set
+-# CONFIG_CONFIG_SH_STANDARD_BIOS is not set
++# CONFIG_SH_STANDARD_BIOS is not set
+ # CONFIG_DEFAULT_CMDLINE is not set
+ # CONFIG_BLKDEV_RESERVE is not set
+ 

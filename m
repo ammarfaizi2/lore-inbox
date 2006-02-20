@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161167AbWBTUjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161172AbWBTUkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161167AbWBTUjr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 15:39:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161170AbWBTUjr
+	id S1161172AbWBTUkb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 15:40:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161173AbWBTUkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 15:39:47 -0500
-Received: from mx1.rowland.org ([192.131.102.7]:33036 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S1161168AbWBTUjq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 15:39:46 -0500
-Date: Mon, 20 Feb 2006 15:39:45 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Patrick Mochel <mochel@digitalimplant.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Greg KH <greg@kroah.com>
-cc: Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Driver core: race between remove device and register driver
-Message-ID: <Pine.LNX.4.44L0.0602201456170.28136-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Feb 2006 15:40:31 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:23973 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1161172AbWBTUka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 15:40:30 -0500
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10]
+	[Suspend2] Modules support.)
+From: Lee Revell <rlrevell@joe-job.com>
+To: dtor_core@ameritech.net
+Cc: Pavel Machek <pavel@ucw.cz>, Mark Lord <lkml@rtr.ca>,
+       Nigel Cunningham <nigel@suspend2.net>,
+       Matthias Hensler <matthias@wspse.de>, Sebastian Kgler <sebas@kde.org>,
+       kernel list <linux-kernel@vger.kernel.org>, rjw@sisk.pl
+In-Reply-To: <d120d5000602201215p61aa676bx21a85adfa7c76816@mail.gmail.com>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain>
+	 <20060220103329.GE21817@kobayashi-maru.wspse.de>
+	 <1140434146.3429.17.camel@mindpipe> <200602202124.30560.nigel@suspend2.net>
+	 <20060220132333.GB23277@atrey.karlin.mff.cuni.cz> <43F9D0DC.5080302@rtr.ca>
+	 <20060220143041.GB1673@atrey.karlin.mff.cuni.cz>
+	 <d120d5000602200641i136d9778uf9049355c39451a9@mail.gmail.com>
+	 <20060220145405.GD1673@atrey.karlin.mff.cuni.cz>
+	 <1140464704.6722.8.camel@mindpipe>
+	 <d120d5000602201215p61aa676bx21a85adfa7c76816@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 20 Feb 2006 15:40:27 -0500
+Message-Id: <1140468027.6722.35.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.91 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pat, James, and Greg:
+On Mon, 2006-02-20 at 15:15 -0500, Dmitry Torokhov wrote:
+> Well, if that is harmless I am not sure what you'd call harmful ;) 
+> because right after this message the box hangs solid and I have to
+> push and hold power button to power it off and start again.
+> 
 
-There's an obvious race in the driver core when a device is removed at the
-same time a new driver is registered.  The core has to guarantee that the
-device isn't somehow bound to the driver when the device_del() call
-returns.
+I don't think the watchdog does this.  Probably the machine would have
+locked up anyway.  If you disable the watchdog does the machine keep
+going?
 
-Right now we handle it by making bus_remove_device() call klist_remove(),
-which doesn't return until the device's entry is completely gone from the
-bus's klist of all registered devices.  This works okay, but it's contrary
-to the principles of the reference-counting approach.  I'm sure that James 
-at least would much prefer to have the code avoid waiting for the 
-klist_node's refcount to go to 0.
-
-The problem is that we have no way of telling when a struct device has
-been unregistered other than to check whether it is still on the bus's
-klist.  Adding a single "is_registered" bitflag to struct device would
-solve the problem and allow us to get rid of one of the few callers of
-klist_remove().  The other callers can be removed in similar ways,
-allowing us eventually to get rid of klist_remove() altogether -- and
-thereby also get rid of the struct completion embedded in every
-klist_node.
-
-Does this seems like a good way to go?
-
-By the way, there's also the converse race: adding a new device while
-unregistering a driver.  This race is also solved by waiting, but here it
-doesn't matter so much.  Unregistering a driver necessarily involves
-waiting, since the driver's code can't be unloaded until no more threads 
-are executing it.
-
-Alan Stern
-
-P.S.: James, klist_del() and klist_next() both call klist_dec_and_del() 
-(which does a kref_put()) while holding a spinlock.  This may be a good 
-place to use execute_in_process_context().
+Lee
 

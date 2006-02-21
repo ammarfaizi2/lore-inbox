@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161214AbWBUALj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161216AbWBUAOJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161214AbWBUALj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 19:11:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161216AbWBUALj
+	id S1161216AbWBUAOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 19:14:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161217AbWBUAOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 19:11:39 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:38286 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161214AbWBUALj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 19:11:39 -0500
-Date: Mon, 20 Feb 2006 16:09:55 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: efault@gmx.de, helge.hafting@aitel.hist.no, linux-kernel@vger.kernel.org,
-       brlink@debian.org
-Subject: Re: 2.6.16-rc4-mm1 kernel crash at bootup. parport trouble?
-Message-Id: <20060220160955.3f0c4671.akpm@osdl.org>
-In-Reply-To: <200602210102.47371.rjw@sisk.pl>
-References: <20060220042615.5af1bddc.akpm@osdl.org>
-	<200602210036.30836.rjw@sisk.pl>
-	<20060220154025.0b547085.akpm@osdl.org>
-	<200602210102.47371.rjw@sisk.pl>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 20 Feb 2006 19:14:09 -0500
+Received: from simmts7.bellnexxia.net ([206.47.199.165]:56788 "EHLO
+	simmts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1161216AbWBUAOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 19:14:08 -0500
+Message-ID: <43FA5B47.3070703@ns.sympatico.ca>
+Date: Mon, 20 Feb 2006 20:13:59 -0400
+From: Kevin Winchester <kwin@ns.sympatico.ca>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: x86_64 ACPI Error in 2.6.16-rc4-mm1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
->
-> > > An unrelated problem is that USB host drivers (ohci-hcd, ehci-hcd) refuse to
-> > > suspend.  [Investigating ...]
-> > 
-> > Me too.
-> > 
-> > Try reverting reset-pci-device-state-to-unknown-after-disabled.patch.
-> 
-> Heh, that actually helps. :-)  Still I have no idea why is that so ...
 
-Because some PCI drivers do pci_disable_device() before
-pci_set_power_state().  pci_set_power_state() sees PCI_UNKNOWN and runs
-away in terror.
+I have the following little message in my log with rc4-mm1 that I don't 
+have with vanilla rc4, running on a single processor athlon 64 box:
 
-Whether those drivers _should_ be setting the power state of a disabled
-device is an open question...
+ACPI Error (acpi_processor-0488): Getting cpuindex for acpiid 0x1 [20060210]
+
+It apparently gets printed here (in drivers/acpi/processor_core.c):
+
+        /*
+         *  Extra Processor objects may be enumerated on MP systems with
+         *  less than the max # of CPUs. They should be ignored _iff
+         *  they are physically not present.
+         */
+        if (cpu_index >= NR_CPUS) {
+                if (ACPI_FAILURE
+                    (acpi_processor_hotadd_init(pr->handle, &pr->id))) {
+                        ACPI_ERROR((AE_INFO,
+                                    "Getting cpuindex for acpiid 0x%x",
+                                    pr->acpi_id));
+                        return_VALUE(-ENODEV);
+                }
+        }
+
+It doesn't seem to cause anything not to work, but I thought I'd mention 
+it anyway.  If it is obvious to anyone why I get the message, I won't 
+have to try to bisect the patches.
+
+I can send my config if anyone wants to see it, and I can also test 
+patches.  I'm not subscribed to the list, so please CC me.
+
+Thanks,
+Kevin Winchester
+
+

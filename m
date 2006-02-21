@@ -1,64 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161475AbWBULDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWBULMi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161475AbWBULDi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 06:03:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161476AbWBULDi
+	id S932211AbWBULMi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 06:12:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWBULMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 06:03:38 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:35210 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1161475AbWBULDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 06:03:38 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Tue, 21 Feb 2006 12:01:14 +0100
-To: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de
-Cc: linux-kernel@vger.kernel.org, dhazelton@enter.net
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43FAF2FA.nailD12BW90DH@burner>
-References: <43EB7BBA.nailIFG412CGY@burner>
- <200602171502.20268.dhazelton@enter.net>
- <43F9D771.nail4AL36GWSG@burner>
- <200602201302.05347.dhazelton@enter.net>
- <43FAE10F.nailD121QL6LN@burner>
- <20060221101644.GA19643@merlin.emma.line.org>
-In-Reply-To: <20060221101644.GA19643@merlin.emma.line.org>
-User-Agent: nail 11.2 8/15/04
+	Tue, 21 Feb 2006 06:12:38 -0500
+Received: from digitalimplant.org ([64.62.235.95]:19616 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S932211AbWBULMi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 06:12:38 -0500
+Date: Tue, 21 Feb 2006 03:12:32 -0800 (PST)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Pavel Machek <pavel@suse.cz>
+cc: Greg KH <greg@kroah.com>, "" <torvalds@osdl.org>, "" <akpm@osdl.org>,
+       "" <linux-pm@osdl.org>, "" <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [PATCH 3/5] [pm] Respect the actual device power
+ states in sysfs interface
+In-Reply-To: <20060221105711.GK21557@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.50.0602210312020.10683-100000@monsoon.he.net>
+References: <Pine.LNX.4.50.0602171758160.30811-100000@monsoon.he.net>
+ <20060218155543.GE5658@openzaurus.ucw.cz> <Pine.LNX.4.50.0602191557520.8676-100000@monsoon.he.net>
+ <20060220004635.GA22576@kroah.com> <Pine.LNX.4.50.0602200955030.12708-100000@monsoon.he.net>
+ <20060220220404.GA25746@kroah.com> <Pine.LNX.4.50.0602201655580.21145-100000@monsoon.he.net>
+ <20060221105711.GK21557@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree <matthias.andree@gmx.de> wrote:
 
-> Joerg Schilling schrieb am 2006-02-21:
+
+
+On Tue, 21 Feb 2006, Pavel Machek wrote:
+
+> On Po 20-02-06 17:09:26, Patrick Mochel wrote:
+> >
+> > On Mon, 20 Feb 2006, Greg KH wrote:
+> >
+> > > On Mon, Feb 20, 2006 at 09:58:27AM -0800, Patrick Mochel wrote:
+> >
+> > > > Would you mind commmenting on why, as well as your opinion on the validity
+> > > > of the patches themselves?
+> > > >
+> > > > This static, hardcoded policy was introduced into the core ~2 weeks ago,
+> > > > and it doesn't seem like it belongs there at all.
+> > >
+> > > That patch was accepted as it fixed a oops.  It also went in for
+> > > 2.6.16-rc2, which is much earlier than 2.6.16-rc4, and it had been in
+> > > the -mm tree for quite a while for people to test it out and verify that
+> > > it didn't break anything.  I didn't hear any complaints about it, so
+> > > that is why it went in.
+> > >
+> > > In contrast, this patch series creates a new api and doesn't necessarily
+> > > fix any reported bugs.  It also has not had the time to be tested in the
+> > > -mm tree, and there is quite a lot of disagreement about the patches on
+> > > the lists.  All of that combinded makes it not acceptable for so late in
+> > > the -rc cycle (remember, -rc4 means only serious bug fixes.)
+> >
+> > Thanks.
+> >
+> > However, there are a couple of things to note:
+> >
+> > - These patches don't create a new API; they fix the semantics of an
+> >   existing API by restoring them to its originally designed semantics.
 >
-> > Try to use my smake to find out whether you use non-portable constructs.
-> > Smake warns you about the most common problems in makefiles.
+> They may reintroduce "original" semantics, but they'll break
+> applications needing 2.6.15 semantic (where 2 meant D3hot).
+
+Like what?
+
+> > - The BUG() still exists and is relatively easily triggerable (by calling
+> >   pci_choose_state() with the wrong value). The fact that the BUG() was
+> >   allowed into the kernel is surprising - the mantra for a long time has
+> >   been that no new BUG()s should be added. This one is easily made nicer
+> >   (see patch 4/4 in the next series), so I don't see why it wasn't
+> >   targeted before..
 >
-> To complement this, running Solaris' /usr/{ccs,xpg4}/bin/make and BSD's
-> portable make (just bootstrap www.pkgsrc.org to obtain "bmake" on Linux)
-> is probably a much better approach since it tests real-world make
-> implementations rather than an artificial and not widely available local
-> flavor.
+> I don't know what you are talking about here. "No new BUGs"?! It is
+> bad to have bug triggerable from userspace, but that was fixed.
 
-Thank you for proving that you are completely uninformed!
+http://article.gmane.org/gmane.linux.usb.devel/5411/match=no+new+bug
 
-Smake is able to compile a _lot_ more real world applications than BSD make.
+Thanks,
 
-This is because smake is POSIX compliant while BSD make is not.
 
-Smake is even able to compile more free software that depends on non-portable
-GNU make extensions than Sun make does.
+	Pat
 
-And smake warns about makefiles that only work because they depend on Bugs
-found in Sun make or GNU make (e.g. because they try to expand '$*' or '$<'
-in explicit target rules).
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

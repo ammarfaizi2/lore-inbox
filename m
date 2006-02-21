@@ -1,169 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161399AbWBUGWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161400AbWBUG3F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161399AbWBUGWU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 01:22:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161455AbWBUGWM
+	id S1161400AbWBUG3F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 01:29:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161407AbWBUG3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 01:22:12 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:49065 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161434AbWBUGVs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 01:21:48 -0500
-Date: Mon, 20 Feb 2006 23:21:46 -0700
-From: john stultz <johnstul@us.ibm.com>
-To: akpm@osdl.org
-Cc: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org,
-       johnstul@us.ibm.com
-Message-Id: <20060221062146.13304.76302.sendpatchset@cog.beaverton.ibm.com>
-In-Reply-To: <20060221062102.13304.81613.sendpatchset@cog.beaverton.ibm.com>
-References: <20060221062102.13304.81613.sendpatchset@cog.beaverton.ibm.com>
-Subject: [-mm PATCH 7/11] Time: generic timekeeping infrastructure - wall_offset helper cleanup
+	Tue, 21 Feb 2006 01:29:04 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:33505 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1161400AbWBUG3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 01:29:03 -0500
+Message-ID: <43FAB283.8090206@jp.fujitsu.com>
+Date: Tue, 21 Feb 2006 15:26:11 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       akpm@osdl.org, greg@kroah.com
+CC: ak@suse.de, rmk+lkml@arm.linux.org.uk,
+       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Subject: [PATCH 0/6] PCI legacy I/O port free driver (take2)
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cleans up some of the wall_time offset manipulations
-with a  __set_wall_time_offset() helper.
+Hi,
 
-Also fixes some whitespaces.
+Here is an updated set of patches for PCI legacy I/O port free drivers
+which incorporates feedbacks. Summary of changes from the previous
+version are:
 
-Signed-off-by: John Stultz <johnstul@us.ibm.com>
+   - Added the no_ioport field into struct pci_dev.
+   - Added the device_flags field into struct pci_device_id, which is
+     used to pass the flags to the kernel through ID table.
+   - Removed pci_set_bar_mask() which was introduced in the previous
+     version of patch.
+   - Removed the bar_mask field from struct pci_dev which was
+     introduced in the previous version of patch.
+   - Updated the document.
+   - Updated the patch for e1000 and lpfc in order to follow the
+     above-mentioned change.
 
- Documentation/timekeeping.txt   |    2 
- include/asm-generic/timeofday.h |    2 
- include/linux/time.h            |    7 --
- kernel/time/clocksource.c       |    1 
- kernel/time/timeofday.c         |   97 +++++++++++++++++++---------------------
- kernel/timer.c                  |    1 
- 6 files changed, 53 insertions(+), 57 deletions(-)
+I'm attaching the following six patches:
 
-Index: mm-merge/kernel/timer.c
-===================================================================
---- mm-merge.orig/kernel/timer.c
-+++ mm-merge/kernel/timer.c
-@@ -882,7 +882,6 @@ void ntp_advance(unsigned long interval_
- 	write_sequnlock_irqrestore(&ntp_lock, flags);
- }
- 
--
- #ifdef CONFIG_GENERIC_TIME
- # define update_wall_time(x) do { } while (0)
- #else
-Index: mm-merge/kernel/time/clocksource.c
-===================================================================
---- mm-merge.orig/kernel/time/clocksource.c
-+++ mm-merge/kernel/time/clocksource.c
-@@ -155,6 +155,7 @@ int register_clocksource(struct clocksou
- 	spin_unlock_irqrestore(&clocksource_lock, flags);
- 	return ret;
- }
-+
- EXPORT_SYMBOL(register_clocksource);
- 
- /**
-Index: mm-merge/kernel/time/timeofday.c
-===================================================================
---- mm-merge.orig/kernel/time/timeofday.c
-+++ mm-merge/kernel/time/timeofday.c
-@@ -338,6 +338,35 @@ void do_gettimeofday(struct timeval *tv)
- EXPORT_SYMBOL(do_gettimeofday);
- 
- /**
-+ * __increment_system_time - Increments system time
-+ * @delta:	nanosecond delta to add to the time variables
-+ *
-+ * Private helper that increments system_time and related
-+ * timekeeping variables.
-+ */
-+static void __increment_system_time(s64 delta)
-+{
-+	system_time = ktime_add_ns(system_time, delta);
-+	timespec_add_ns(&wall_time_ts, delta);
-+	timespec_add_ns(&mono_time_ts, delta);
-+}
-+
-+/**
-+ * __set_wall_time_offset - Sets the wall time offset
-+ * @delta:	nanosecond delta to adjust to the time variables
-+ *
-+ * Private helper that adjusts wall_time_offset and related
-+ * timekeeping variables.
-+ */
-+static void __set_wall_time_offset(ktime_t val)
-+{
-+	wall_time_offset = val;
-+	wall_time_ts = ktime_to_timespec(ktime_add(system_time,
-+						wall_time_offset));
-+	monotonic_time_offset_ts = ktime_to_timespec(wall_time_offset);
-+}
-+
-+/**
-  * do_settimeofday - Sets the time of day
-  * @tv:		pointer to the timespec variable containing the new time
-  *
-@@ -356,12 +385,7 @@ int do_settimeofday(struct timespec *tv)
- 	write_seqlock_irqsave(&system_time_lock, flags);
- 
- 	/* calculate the new offset from the monotonic clock */
--	wall_time_offset = ktime_sub(newtime, __get_monotonic_clock());
--
--	/* update the internal timespec variables */
--	wall_time_ts = ktime_to_timespec(ktime_add(system_time,
--						wall_time_offset));
--	monotonic_time_offset_ts = ktime_to_timespec(wall_time_offset);
-+	__set_wall_time_offset(ktime_sub(newtime, __get_monotonic_clock()));
- 
- 	ntp_clear();
- 	update_legacy_time_values();
-@@ -377,20 +401,6 @@ int do_settimeofday(struct timespec *tv)
- EXPORT_SYMBOL(do_settimeofday);
- 
- /**
-- * __increment_system_time - Increments system time
-- * @delta:	nanosecond delta to add to the time variables
-- *
-- * Private helper that increments system_time and related
-- * timekeeping variables.
-- */
--static void __increment_system_time(nsec_t delta)
--{
--	system_time = ktime_add_ns(system_time, delta);
--	timespec_add_ns(&wall_time_ts, delta);
--	timespec_add_ns(&mono_time_ts, delta);
--}
--
--/**
-  * timeofday_suspend_hook - allows the timeofday subsystem to be shutdown
-  * @dev:	unused
-  * @state:	unused
-@@ -539,12 +549,9 @@ static void timeofday_periodic_hook(unsi
- 	if (second_check >= NSEC_PER_SEC) {
- 		/* do ntp leap second processing: */
- 		leapsecond = ntp_leapsecond(wall_time_ts);
--		if (leapsecond) {
--			wall_time_offset = ktime_add_ns(wall_time_offset,
--						leapsecond * NSEC_PER_SEC);
--			wall_time_ts.tv_sec += leapsecond;
--			monotonic_time_offset_ts.tv_sec += leapsecond;
--		}
-+		if (leapsecond)
-+			__set_wall_time_offset(ktime_add_ns(wall_time_offset,
-+						leapsecond * NSEC_PER_SEC));
- 		second_check -= NSEC_PER_SEC;
- 	}
- 	/* sync the persistent clock: */
-@@ -662,13 +669,8 @@ void __init timeofday_init(void)
- 
- 	/* initialize wall_time_offset to now: */
- 	/* XXX - this should be something like ns_to_ktime() */
--	wall_time_offset = ktime_add_ns(wall_time_offset,
--					read_persistent_clock());
--
--	/* initialize timespec values: */
--	wall_time_ts = ktime_to_timespec(ktime_add(system_time,
--						wall_time_offset));
--	monotonic_time_offset_ts = ktime_to_timespec(wall_time_offset);
-+	__set_wall_time_offset(ktime_add_ns(wall_time_offset,
-+					read_persistent_clock()));
- 
- 	/* clear NTP scaling factor & state machine: */
- 	ntp_adj = 0;
+    [patch 1/6] Add no_ioport flag into pci_dev
+    [patch 2/6] Fix minor bug in store_new_id()
+    [patch 3/6] Add device_flags into pci_device_id
+    [patch 4/6] Update Documentation/pci.txt
+    [patch 5/6] Make Intel e1000 driver legacy I/O port free
+    [patch 6/6] Make Emulex lpfc driver legacy I/O port free
+
+I'm attaching the brief description below about what the problem I'm
+trying to solve is.
+
+Thanks,
+Kenji Kaneshige
+
+
+Brief description of the problem
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I encountered a problem that some PCI devices don't work on my system
+which have huge number of PCI devices.
+
+It is mandatory for all PCI device drivers to enable the device by
+calling pci_enable_device() which enables all regions probed from the
+device's BARs. If pci_enable_device() failes to enable any regions
+probed from BARs, it returns as error. On the large servers, I/O port
+resource could not be assigned to all PCI devices because it is
+limited (64KB on Intel Architecture[1]) and it would be fragmented
+(I/O base register of PCI-to-PCI bridge will usually be aligned to a
+4KB boundary[2]). In this case, the devices which have no I/O port
+resource assigned don't work because pci_enable_device() for those
+devices failes. This is what happened on my machine.
+---
+[1]: Some machines support 64KB I/O port space per PCI segment.
+[2]: Some P2P bridges support optional 1KB aligned I/O base.
+
+Here, there are many PCI devices that provide both I/O port and MMIO
+interface, and some of those devices can be handled without using I/O
+port interface. The reason why such devices provide I/O port interface
+is for compatibility to legacy OSs. So this kind of devices should
+work even if enough I/O port resources are not assigned. The "PCI
+Local Bus Specification Revision 3.0" also mentions about this topic
+(Please see p.44, "IMPLEMENTATION NOTE"). On the current linux,
+unfortunately, this kind of devices don't work if I/O port resources
+are not assigned, because pci_enable_device() for those devices fails.
+
+

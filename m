@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWBUXjS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWBUXlD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbWBUXjS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 18:39:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWBUXjS
+	id S932238AbWBUXlD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 18:41:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWBUXlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 18:39:18 -0500
-Received: from pcls2.std.com ([192.74.137.142]:31196 "EHLO TheWorld.com")
-	by vger.kernel.org with ESMTP id S932175AbWBUXjQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 18:39:16 -0500
-From: Alan Curry <pacman@TheWorld.com>
-Message-Id: <200602212339.SAA1138491@shell.TheWorld.com>
-Subject: [PATCH] powerpc: fix altivec_unavailable_exception Oopses
-To: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Date: Tue, 21 Feb 2006 18:39:03 -0500 (EST)
-X-Mailer: ELM [version 2.5 PL2]
+	Tue, 21 Feb 2006 18:41:01 -0500
+Received: from tomts36.bellnexxia.net ([209.226.175.93]:17897 "EHLO
+	tomts36-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S932175AbWBUXlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 18:41:00 -0500
+Message-ID: <43FBA4CD.6000505@torque.net>
+Date: Tue, 21 Feb 2006 18:39:57 -0500
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-scsi@vger.kernel.org
+CC: linux-kernel@vger.kernel.org, taggart@debian.org
+Subject: lsscsi-0.17 released
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-altivec_unavailable_exception is called without setting r3... it looks like
-the r3 that actually gets passed in as struct pt_regs *regs is the
-undisturbed value of r3 at the time the altivec instruction was encountered.
-The user actually gets to choose the pt_regs printed in the Oops!
+lsscsi is a utility that uses sysfs in linux 2.6 series kernels
+to list information about SCSI devices and SCSI hosts. Both a
+compact format (default) which is one line per device and a
+"classic" format (like the output of 'cat /proc/scsi/scsi') are
+supported.
 
-After applying the following patch to 2.6.16-rc4, I can no longer cause an
-Oops by executing an altivec instruction with CONFIG_ALTIVEC=n. The same
-change would probably also be good for arch/ppc/kernel/head.S to fix the same
-Oops in 2.6.15.4, though I haven't tested that.
+Version 0.17 is available at
+http://www.torque.net/scsi/lsscsi.html
+More information can be found on that page including examples
+and a Download section for tarballs and rpms.
+This version will be required for lsscsi to work properly
+when lk 2.6.16 is released.
 
---- arch/powerpc/kernel/head_32.S.orig	2006-02-21 15:58:18.000000000 -0500
-+++ arch/powerpc/kernel/head_32.S	2006-02-21 15:59:23.000000000 -0500
-@@ -714,6 +714,7 @@
- #ifdef CONFIG_ALTIVEC
- 	bne	load_up_altivec		/* if from user, just load it up */
- #endif /* CONFIG_ALTIVEC */
-+	addi	r3,r1,STACK_FRAME_OVERHEAD
- 	EXC_XFER_EE_LITE(0xf20, altivec_unavailable_exception)
- 
- PerformanceMonitor:
+ChangeLog:
+Version 0.17 2006/2/6
+  - fix disappearance of block device names in lk 2.6.16-rc1
+
+Doug Gilbert

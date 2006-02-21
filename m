@@ -1,188 +1,174 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbWBUXIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbWBUXO3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751208AbWBUXIs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 18:08:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWBUXIs
+	id S1750778AbWBUXO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 18:14:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbWBUXO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 18:08:48 -0500
-Received: from liaag1ac.mx.compuserve.com ([149.174.40.29]:36058 "EHLO
-	liaag1ac.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751208AbWBUXIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 18:08:47 -0500
-Date: Tue, 21 Feb 2006 18:03:25 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch] i386: another possible singlestep fix
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200602211806_MC3-1-B8F2-C8A7@compuserve.com>
+	Tue, 21 Feb 2006 18:14:29 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:26080 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750749AbWBUXO2 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 18:14:28 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [RFC: 2.6 patch] drivers/acpi/utilities/utmisc.c: remove 3 unused global functions
+Date: Tue, 21 Feb 2006 15:14:20 -0800
+Message-ID: <971FCB6690CD0E4898387DBF7552B90E046E49C8@orsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC: 2.6 patch] drivers/acpi/utilities/utmisc.c: remove 3 unused global functions
+Thread-Index: AcY2bnO9dMuTM7ZdS0WtWlZV/nxzlAAzZnIQ
+From: "Moore, Robert" <robert.moore@intel.com>
+To: "Adrian Bunk" <bunk@stusta.de>, "Brown, Len" <len.brown@intel.com>
+Cc: <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 21 Feb 2006 23:14:21.0716 (UTC) FILETIME=[8C3F4540:01C6373C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <Pine.LNX.4.64.0602171412210.916@g5.osdl.org>
+Acpi_ut_strupr is used by the iASL compiler. I am probably going to put
+a conditional compile around it.
 
-On Fri, 17 Feb 2006 at 14:14:06 -0800, Linus Torvalds wrote:
+The two report functions are obsolete, but may still be used by some of
+the drivers. They will be removed soon.
+
+> -----Original Message-----
+> From: linux-acpi-owner@vger.kernel.org [mailto:linux-acpi-
+> owner@vger.kernel.org] On Behalf Of Adrian Bunk
+> Sent: Monday, February 20, 2006 2:36 PM
+> To: Brown, Len
+> Cc: linux-acpi@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: [RFC: 2.6 patch] drivers/acpi/utilities/utmisc.c: remove 3
+unused
+> global functions
 > 
-> On Fri, 17 Feb 2006, Chuck Ebbert wrote:
-> >
-> > When entering kernel via int80, TIF_SINGLESTEP is not set
-> > when TF has been set in eflags by the user.  This patch
-> > does that.
+> This patch removes the following four unused global functions from
+> drivers/acpi/utilities/utmisc.c:
+> - acpi_ut_strupr()
+> - acpi_ut_report_warning()
+> - acpi_ut_report_info()
 > 
-> This really shouldn't matter.
+> Is this patch OK or is future usage planned or are they still used on
+> other operating systems?
 > 
-> When we enter the kernel through "int 0x80", we don't need to do anything 
-> about TIF_SINGLESTEP, because unlike the "sysenter" path, the "int" 
-> instruction will automatically do the right thing (save old eflags on the 
-> stack).
 > 
-> So afaik, this won't actually do anything (except make _the_ most 
-> timing-critical path in the kernel slower). Have you actually seen any 
-> effects of it?
-
-OK, I found what I was looking for.  If TIF_SINGLESTEP is not set and
-someone is ptracing us, do_syscall_trace() never gets called on syscall
-exit [see entry.S::syscall_exit_work] and thus send_sigtrap() doesn't get
-called [ptrace.c line 699].  The result is some missed SIGTRAPS and in
-the case of returning from signal handlers, tracing just stops.
-
-Here is output from the below test program before and after applying the patch.
-(I used i386-allow-disabling-x86_feature_sep-at-boot.patch from -mm and booted
-with the 'nosep' option for these tests.)
-
-Here is the program's output before patching:
-
-child stopped @ ffffe402, signal 10, eflags 00000246 [syscall ret = 0]
-Passing signal 10 to child...
-child stopped @ 0804854c, signal 5, eflags 00000246
-child stopped @ 0804854d, signal 5, eflags 00000246
-child stopped @ 0804854f, signal 5, eflags 00000246
-child stopped @ 08048554, signal 5, eflags 00000246
-child stopped @ ffffe400, signal 5, eflags 00000246 [syscall #20]
-child stopped @ 0804855a, signal 5, eflags 00000246
-child stopped @ 0804855b, signal 5, eflags 00000246
-child stopped @ ffffe440, signal 5, eflags 00000246 [sigreturn]
-child stopped @ ffffe445, signal 5, eflags 00000246
-child exited with retcode 0
-
-
-And here is output afterward.  Note the signal delivery upon
-syscall exit and much more output.  Also you can see the final
-syscall made by the child [sys_exit_group]:
-
-child stopped @ ffffe402, signal 10, eflags 00000246 [syscall ret = 0]
-Passing signal 10 to child...
-child stopped @ 0804854c, signal 5, eflags 00000246
-child stopped @ 0804854d, signal 5, eflags 00000246
-child stopped @ 0804854f, signal 5, eflags 00000246
-child stopped @ 08048554, signal 5, eflags 00000246
-child stopped @ ffffe400, signal 5, eflags 00000246 [syscall #20]
-child stopped @ ffffe402, signal 5, eflags 00000246 [syscall ret = 1855]
-child stopped @ 0804855a, signal 5, eflags 00000246
-child stopped @ 0804855b, signal 5, eflags 00000246
-child stopped @ ffffe440, signal 5, eflags 00000246 [sigreturn]
-child stopped @ ffffe445, signal 5, eflags 00000246
-child stopped @ ffffe402, signal 5, eflags 00000246 [syscall ret = 0]
-child stopped @ 080485b4, signal 5, eflags 00000217
-<..................... 29 lines skipped .......................>
-child stopped @ ffffe400, signal 5, eflags 00000246 [syscall #252]
-child exited with retcode 0
-
-
-/* ptrace test program 
- */
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/ptrace.h>
-#include <sys/wait.h>
-#include <sys/mman.h>
-#include <asm/user.h>
-
-#define GETPID	20
-//#define ENTER_KERNEL "int $0x80\n\t"
-#define ENTER_KERNEL "call *vsyscall_addr\n\t"
-
-static int parent, child, status;
-static struct user_regs_struct regs;
-static struct sigaction sa;
-static void * const vsyscall_addr = (void *)0xffffe400;
-
-static void handler(int nr, siginfo_t *si, void *vuc)
-{
-	asm (ENTER_KERNEL : : "a" (GETPID));
-}
-
-void do_child()
-{
-	child = getpid();
-
-	sa.sa_sigaction = handler;
-	sa.sa_flags     = SA_SIGINFO;
-	sigaction(SIGUSR1, &sa, NULL);
-
-	ptrace(PTRACE_TRACEME, 0, 0, 0);
-	kill(child, SIGUSR1);
-}
-
-void do_parent()
-{
-	unsigned long eip;
-again:
-	waitpid(child, &status, 0);
-	if (WIFEXITED(status)) {
-		fprintf(stderr, "child exited with retcode %d\n",
-				WEXITSTATUS(status));
-		return;
-	}
-	if (WIFSIGNALED(status)) {
-		fprintf(stderr, "child exited on unhandled signal %d\n",
-				WTERMSIG(status));
-		return;
-	}
-	if (WIFSTOPPED(status)) {
-		int signo = WSTOPSIG(status);
-		ptrace(PTRACE_GETREGS, child, 0, &regs);
-
-		eip = regs.eip;
-		if (eip >> 24 != 0x08 && eip >> 8 != 0xffffe4)
-			goto skip_print;
-
-		fprintf(stderr, "child stopped @ %08x, signal %d, eflags %08x",
-				eip, signo, (unsigned long)regs.eflags);
-		if (eip == 0xffffe400)
-			fprintf(stderr, " [syscall #%d]", (int)regs.eax);
-		/* vsyscall-int80 returns to 0xffffe402 and there is a 'ret' there */
-		if (eip == 0xffffe410 || (eip == 0xffffe402 && *(unsigned char *)eip == 0xc3))
-			fprintf(stderr, " [syscall ret = %d]", (int)regs.eax);
-		if (eip == 0xffffe420 || eip == 0xffffe440)
-			fprintf(stderr, " [sigreturn]");
-		fprintf(stderr, "\n");
-	skip_print:
-		if (signo == SIGTRAP) signo = 0;
-		if (signo)
-			fprintf(stderr, "Passing signal %d to child...\n", signo);
-		ptrace(PTRACE_SINGLESTEP, child, NULL, (void *)signo);
-	}
-	goto again;
-}
-
-
-int main(int argc, char * const argv[])
-{
-	parent = getpid();
-	child  = fork();
-
-	if (child) do_parent();
-	else	   do_child();
-
-	return 0;
-}
--- 
-Chuck
-"Equations are the Devil's sentences."  --Stephen Colbert
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> ---
+> 
+>  drivers/acpi/utilities/utmisc.c |   44
+--------------------------------
+>  include/acpi/acutils.h          |    6 ----
+>  2 files changed, 50 deletions(-)
+> 
+> --- linux-2.6.16-rc1-mm5-full/include/acpi/acutils.h.old
+2006-02-03
+> 19:28:37.000000000 +0100
+> +++ linux-2.6.16-rc1-mm5-full/include/acpi/acutils.h	2006-02-03
+> 19:29:42.000000000 +0100
+> @@ -279,10 +279,6 @@
+> 
+>  void acpi_ut_report_error(char *module_name, u32 line_number);
+> 
+> -void acpi_ut_report_info(char *module_name, u32 line_number);
+> -
+> -void acpi_ut_report_warning(char *module_name, u32 line_number);
+> -
+>  /* Error and message reporting interfaces */
+> 
+>  void ACPI_INTERNAL_VAR_XFACE
+> @@ -454,8 +450,6 @@
+>  			  void *target_object,
+>  			  acpi_pkg_callback walk_callback, void
+*context);
+> 
+> -void acpi_ut_strupr(char *src_string);
+> -
+>  void acpi_ut_print_string(char *string, u8 max_length);
+> 
+>  u8 acpi_ut_valid_acpi_name(u32 name);
+> --- linux-2.6.16-rc1-mm5-full/drivers/acpi/utilities/utmisc.c.old
+2006-02-
+> 03 19:28:53.000000000 +0100
+> +++ linux-2.6.16-rc1-mm5-full/drivers/acpi/utilities/utmisc.c	2006-02-
+> 03 19:30:04.000000000 +0100
+> @@ -217,39 +217,6 @@
+> 
+> 
+>
+/***********************************************************************
+**
+> ******
+>   *
+> - * FUNCTION:    acpi_ut_strupr (strupr)
+> - *
+> - * PARAMETERS:  src_string      - The source string to convert
+> - *
+> - * RETURN:      None
+> - *
+> - * DESCRIPTION: Convert string to uppercase
+> - *
+> - * NOTE: This is not a POSIX function, so it appears here, not in
+> utclib.c
+> - *
+> -
+>
+************************************************************************
+**
+> ****/
+> -
+> -void acpi_ut_strupr(char *src_string)
+> -{
+> -	char *string;
+> -
+> -	ACPI_FUNCTION_ENTRY();
+> -
+> -	if (!src_string) {
+> -		return;
+> -	}
+> -
+> -	/* Walk entire string, uppercasing the letters */
+> -
+> -	for (string = src_string; *string; string++) {
+> -		*string = (char)ACPI_TOUPPER(*string);
+> -	}
+> -
+> -	return;
+> -}
+> -
+> -
+>
+/***********************************************************************
+**
+> ******
+> - *
+>   * FUNCTION:    acpi_ut_print_string
+>   *
+>   * PARAMETERS:  String          - Null terminated ASCII string
+> @@ -922,14 +864,3 @@
+>  	acpi_os_printf("ACPI Error (%s-%04d): ", module_name,
+line_number);
+>  }
+> 
+> -void acpi_ut_report_warning(char *module_name, u32 line_number)
+> -{
+> -
+> -	acpi_os_printf("ACPI Warning (%s-%04d): ", module_name,
+> line_number);
+> -}
+> -
+> -void acpi_ut_report_info(char *module_name, u32 line_number)
+> -{
+> -
+> -	acpi_os_printf("ACPI (%s-%04d): ", module_name, line_number);
+> -}
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-acpi"
+in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

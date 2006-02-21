@@ -1,64 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWBTXzm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161211AbWBUAC3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbWBTXzm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 18:55:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964853AbWBTXzm
+	id S1161211AbWBUAC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 19:02:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161212AbWBUAC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 18:55:42 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52367 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964835AbWBTXzm (ORCPT
+	Mon, 20 Feb 2006 19:02:29 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:19585 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1161211AbWBUAC2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 18:55:42 -0500
-Date: Tue, 21 Feb 2006 00:55:04 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Lee Revell <rlrevell@joe-job.com>, ghrt <ghrt@dial.kappa.ro>,
-       kernel list <linux-kernel@vger.kernel.org>, perex@suse.cz,
-       tiwai@suse.de
-Subject: Re: No sound from SB live!
-Message-ID: <20060220235504.GI21557@elf.ucw.cz>
-References: <20060218231419.GA3219@elf.ucw.cz> <1140395634.2733.450.camel@mindpipe> <20060220003939.GH15608@elf.ucw.cz> <200602200133.26293.s0348365@sms.ed.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Feb 2006 19:02:28 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.16-rc4-mm1 kernel crash at bootup. parport trouble?
+Date: Tue, 21 Feb 2006 01:02:46 +0100
+User-Agent: KMail/1.9.1
+Cc: efault@gmx.de, helge.hafting@aitel.hist.no, linux-kernel@vger.kernel.org,
+       "Bernhard R. Link" <brlink@debian.org>
+References: <20060220042615.5af1bddc.akpm@osdl.org> <200602210036.30836.rjw@sisk.pl> <20060220154025.0b547085.akpm@osdl.org>
+In-Reply-To: <20060220154025.0b547085.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200602200133.26293.s0348365@sms.ed.ac.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200602210102.47371.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 20-02-06 01:33:26, Alistair John Strachan wrote:
-> On Monday 20 February 2006 00:39, Pavel Machek wrote:
-> > On Ne 19-02-06 19:33:54, Lee Revell wrote:
-> > > On Sun, 2006-02-19 at 22:44 +0100, Pavel Machek wrote:
-> > > > Hi!
-> > > >
-> > > > > > I tried enabled everything I could in alsamixer, but still could
-> > > > > > not get it to produce some sound :-(.
-> > > > >
-> > > > > Is 2.6.15.4 also broken?
-> > > >
-> > > > 2.6.15.4 does not have support for my SATA controller, so it would be
-> > > > quite complex to test that... I may have something wrong with
-> > > > userspace, but alsamixer all to max, then cat /bin/bash > /dev/dsp
-> > > > should produce some sound, no?
-> > >
-> > > So this isn't necessarily a regression - it's possible this device never
-> > > worked?
-> > >
-> > > Creative has been known in the past to release 2 devices with identical
-> > > serial numbers and different AC97 codecs.  Stuff like this is why it's
-> > > almot impossible to prevent all driver regressions unless you can test
-> > > every supported card...
+On Tuesday 21 February 2006 00:40, Andrew Morton wrote:
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 > >
-> > It did work _long_ time ago, and in different machine. Definitely not
-> > in 2.6.15... maybe in 2.6.5.
+> > On Monday 20 February 2006 21:41, Andrew Morton wrote:
+> > > MIke Galbraith <efault@gmx.de> wrote:
+> > > >
+> > > > On Mon, 2006-02-20 at 16:07 +0100, Helge Hafting wrote:
+> > > >  > pentium IV single processor, gcc (GCC) 4.0.3 20060128
+> > > >  > 
+> > > >  > During boot, I normally get:
+> > > >  > parport0: irq 7 detected
+> > > >  > lp0: using parport0 (polling).
+> > > >  > 
+> > > >  > Instead, I got this, written by hand:
+> > > > 
+> > > >  ........
+> > > > 
+> > > >  > This oops is simplified. I can get the exact text if
+> > > >  > that really matters.  It is much more to write down and
+> > > >  > I don't usually have my camera at work.
+> > > > 
+> > > >  I get the same, and already have the serial console hooked up.
+> > > > 
+> > > >  BUG: unable to handle kernel NULL pointer dereference at virtual address 000000e8
+> > > 
+> > > Thanks.  Could someone try reverting
+> > > register-sysfs-device-for-lp-devices.patch?
+> > 
+> > That helps on my system.
 > 
-> With ALSA? Any chance the card is physically damaged? Try using the OSS driver 
-> if it's still around, then you'll have a solid case to take up with Takashi.
+> OK, thanks.  I'll drop it.
+> 
+> > An unrelated problem is that USB host drivers (ohci-hcd, ehci-hcd) refuse to
+> > suspend.  [Investigating ...]
+> 
+> Me too.
+> 
+> Try reverting reset-pci-device-state-to-unknown-after-disabled.patch.
 
-I tried OSS driver, no luck. Vojtech reports card from same batch
-failed for him.... He still has one more working...
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+Heh, that actually helps. :-)  Still I have no idea why is that so ...

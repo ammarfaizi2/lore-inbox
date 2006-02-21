@@ -1,46 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161204AbWBULZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161221AbWBULaz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161204AbWBULZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 06:25:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161219AbWBULZ4
+	id S1161221AbWBULaz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 06:30:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161222AbWBULaz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 06:25:56 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:6544 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161204AbWBULZz (ORCPT
+	Tue, 21 Feb 2006 06:30:55 -0500
+Received: from linuxhacker.ru ([217.76.32.60]:1190 "EHLO shrek.linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S1161221AbWBULax (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 06:25:55 -0500
-Date: Tue, 21 Feb 2006 12:25:25 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@digitalimplant.org>
-Cc: Greg KH <greg@kroah.com>, torvalds@osdl.org, akpm@osdl.org,
-       linux-pm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [linux-pm] [PATCH 3/5] [pm] Respect the actual device power states in sysfs interface
-Message-ID: <20060221112525.GA22068@elf.ucw.cz>
-References: <Pine.LNX.4.50.0602171758160.30811-100000@monsoon.he.net> <20060218155543.GE5658@openzaurus.ucw.cz> <Pine.LNX.4.50.0602191557520.8676-100000@monsoon.he.net> <20060220004635.GA22576@kroah.com> <Pine.LNX.4.50.0602200955030.12708-100000@monsoon.he.net> <20060220220404.GA25746@kroah.com> <Pine.LNX.4.50.0602201655580.21145-100000@monsoon.he.net> <20060221105711.GK21557@elf.ucw.cz> <Pine.LNX.4.50.0602210312020.10683-100000@monsoon.he.net>
+	Tue, 21 Feb 2006 06:30:53 -0500
+Date: Tue, 21 Feb 2006 13:30:26 +0200
+From: Oleg Drokin <green@linuxhacker.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Request for export of truncate_complete_page
+Message-ID: <20060221113026.GE5733@linuxhacker.ru>
+References: <20060220223810.GD5733@linuxhacker.ru> <20060220215410.5990c612.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0602210312020.10683-100000@monsoon.he.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060220215410.5990c612.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello!
 
-> > > However, there are a couple of things to note:
-> > >
-> > > - These patches don't create a new API; they fix the semantics of an
-> > >   existing API by restoring them to its originally designed semantics.
-> >
-> > They may reintroduce "original" semantics, but they'll break
-> > applications needing 2.6.15 semantic (where 2 meant D3hot).
-> 
-> Like what?
+On Mon, Feb 20, 2006 at 09:54:10PM -0800, Andrew Morton wrote:
+> >    Can I ask for truncate_complete_page() to be exported?
+> >    For Lustre filesystem it is necessary to poke out pages in the middle of
+> >    a file, but truncate_inode_pages() is not very suitable, because we
+> >    poke those pages one at a time when locks on those pages are cancelled, but
+> >    we cannot kill entire set of pages as a group, because there might be some
+> >    other lock that covers a subset of those pages, so we still need to iterate
+> >    through all of them, and while we are at it, it is easier to kill pages
+> >    as we check them one by one.
+> Isn't truncate_inode_pages_range() suitable?
 
-Like:
+No, for the reason I specified above. We still walk entire region on page by
+page basis, checking that page is not covered by other locks that might warrant
+its exclusion from truncating, pushing writing of the page if it is still dirty
+and needs to be written (or clearing its dirty flag if it needs to be
+discarded).
+So we have sort of reimplemented truncate_inode_pages_range() with extra logic
+specific to Lustre and calling truncate_inode_pages_range() for every page
+we want to get rid of is overkill.
 
-http://article.gmane.org/gmane.linux.kernel/364195/match=pavel+2+sys+power+state+pcmcia
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+> > +EXPORT_SYMBOL(truncate_complete_page);
+> _GPL would be nicer.   Plus a comment to keep people from "cleaning it up".
+
+Not that I mind if it is GPL or not, but currently truncate_complete_page()
+can be reimplemented with EXPORT_SYMBOL stuff only. Here's how:
+
+static inline void ll_remove_from_page_cache(struct page *page)
+{
+        struct address_space *mapping = page->mapping;
+
+        BUG_ON(!PageLocked(page));
+
+        write_lock_irq(&mapping->tree_lock);
+        radix_tree_delete(&mapping->page_tree, page->index);
+        page->mapping = NULL;
+        mapping->nrpages--;
+        atomic_add(-1, &nr_pagecache); // XXX pagecache_acct(-1);
+        write_unlock_irq(&mapping->tree_lock);
+}
+
+static inline void
+truncate_complete_page(struct address_space *mapping, struct page *page)
+{
+        if (page->mapping != mapping)
+                return;
+
+        if (PagePrivate(page))
+                page->mapping->a_ops->invalidatepage(page, 0);
+
+        clear_page_dirty(page);
+        ClearPageUptodate(page);
+        ClearPageMappedToDisk(page);
+        ll_remove_from_page_cache(page);
+        page_cache_release(page);       /* pagecache ref */
+}
+
+Bye,
+    Oleg

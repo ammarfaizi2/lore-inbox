@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161228AbWBUAY7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161200AbWBUAcI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161228AbWBUAY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 19:24:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161227AbWBUAY7
+	id S1161200AbWBUAcI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 19:32:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161209AbWBUAcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 19:24:59 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:34194 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161228AbWBUAY6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 19:24:58 -0500
-Date: Mon, 20 Feb 2006 16:23:17 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: linux-kernel@vger.kernel.org, shai@scalex86.org
-Subject: Re: [patch] Cache align futex hash buckets
-Message-Id: <20060220162317.5c7b9778.akpm@osdl.org>
-In-Reply-To: <20060221000924.GD3594@localhost.localdomain>
-References: <20060220233242.GC3594@localhost.localdomain>
-	<20060220153320.793b6a7d.akpm@osdl.org>
-	<20060220153419.5ea8dd89.akpm@osdl.org>
-	<20060221000924.GD3594@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Feb 2006 19:32:08 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5599 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1161200AbWBUAcH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 19:32:07 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: arjan@infradead.org, linux-kernel@vger.kernel.org, B.Steinbrink@gmx.de,
+       viro@ftp.linux.org.uk
+Subject: Re: + daemonize-detach-from-current-namespace.patch added to -mm
+ tree
+References: <200602200438.k1K4ct5n013388@shell0.pdx.osdl.net>
+	<1140425218.2979.14.camel@laptopd505.fenrus.org>
+	<m1ek1ymmec.fsf@ebiederm.dsl.xmission.com>
+	<20060220020943.1d9eac25.akpm@osdl.org>
+	<m13bidnbni.fsf@ebiederm.dsl.xmission.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Mon, 20 Feb 2006 17:30:42 -0700
+In-Reply-To: <m13bidnbni.fsf@ebiederm.dsl.xmission.com> (Eric W. Biederman's
+ message of "Mon, 20 Feb 2006 11:11:13 -0700")
+Message-ID: <m1irr94kp9.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
->
-> On Mon, Feb 20, 2006 at 03:34:19PM -0800, Andrew Morton wrote:
-> > Andrew Morton <akpm@osdl.org> wrote:
-> > >
-> > > > @@ -100,9 +100,10 @@ struct futex_q {
-> > > >  struct futex_hash_bucket {
-> > > >         spinlock_t              lock;
-> > > >         struct list_head       chain;
-> > > > -};
-> > > > +} ____cacheline_internodealigned_in_smp;
-> > > >  
-> > > > -static struct futex_hash_bucket futex_queues[1<<FUTEX_HASHBITS];
-> > > > +static struct futex_hash_bucket futex_queues[1<<FUTEX_HASHBITS] 
-> > > > +				__cacheline_aligned_in_smp;
-> > > >  
-> > > 
-> > > How much memory does that thing end up consuming?
-> > 
-> > I think a megabyte?
-> 
-> On most machines it would be 256 * 128 = 32k. or 16k on arches with 64B 
-> cachelines.  This looked like a simpler solution for spinlocks falling on
-> the same cacheline.  So is 16/32k unreasonable?
-> 
+ebiederm@xmission.com (Eric W. Biederman) writes:
 
-CONFIG_X86_VSMP enables 4096-byte padding for
-____cacheline_internodealigned_in_smp.    It's a megabyte.
+> Andrew Morton <akpm@osdl.org> writes:
+>
+>
+> Thanks.  This sounds worth investigating.
+
+Ok I after looking I agree that the kthread API is the way to go long term.
+If no one beats me to it I will look at this after I get some of pending
+patches merged.
+
+I am still concerned that we might want to launch user space processes
+in non-default namespace but it is almost certainly not guaranteed to
+be the namespace from where we see the event happen, so inheriting the
+namespace in the wrong thing in all cases I can think of.
+
+Eric

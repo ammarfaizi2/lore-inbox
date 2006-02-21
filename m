@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161469AbWBUKip@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161461AbWBUKsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161469AbWBUKip (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 05:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161471AbWBUKip
+	id S1161461AbWBUKsq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 05:48:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161472AbWBUKsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 05:38:45 -0500
-Received: from xproxy.gmail.com ([66.249.82.201]:8982 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161470AbWBUKio convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 05:38:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=DljqgKKOz037E69USHu/UZVVEk8zIhl3IHR1Um+V7b+qJMBw+d+2guDsVj0FfEB9qYLDbpoNch/aqebGvYVqE0Bihi7xLW/kAvQ6DzGFIhB9+bH+lhZnKipPEmzXBemXEQOd3EvX6GK7iP6qL/NfHIuB4R3gFkpzxfpbdFd8IH0=
-Message-ID: <5b7f8a0d0602210238y46bdcfb9i4189331abfdec280@mail.gmail.com>
-Date: Tue, 21 Feb 2006 16:08:43 +0530
-From: nkml00 <nkml00@gmail.com>
-To: trivial@kernel.org
-Subject: Re: [PATCH] trivial: unneeded zero adding to per_cpu_pages->count
-Cc: linux-kernel@vger.kernel.org, nkml00@gmail.com
-In-Reply-To: <5b7f8a0d0602210215p60039c6fp5f7c7f94daed891b@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 21 Feb 2006 05:48:46 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:63431 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1161461AbWBUKsp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 05:48:45 -0500
+Date: Tue, 21 Feb 2006 10:48:41 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>, maule@sgi.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] altix:  export sn_pcidev_info_get
+Message-ID: <20060221104841.GE19349@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, maule@sgi.com,
+	linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20060214162337.GA16954@sgi.com> <20060220201713.GA4992@infradead.org> <20060220133956.01b59562.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <5b7f8a0d0602210215p60039c6fp5f7c7f94daed891b@mail.gmail.com>
+In-Reply-To: <20060220133956.01b59562.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/21/06, nkml00 <nkml00@gmail.com> wrote:
-> Unneeded addition (of zero). Compiler could optimize this, but "looks" illogical
->
+On Mon, Feb 20, 2006 at 01:39:56PM -0800, Andrew Morton wrote:
+> Christoph Hellwig <hch@infradead.org> wrote:
+> >
+> >  On Tue, Feb 14, 2006 at 10:23:37AM -0600, Mark Maule wrote:
+> >  > Export sn_pcidev_info_get.
+> > 
+> >  Tony or Andrew please back this out again.
+> 
+> Please send a patch.
 
-Sorry, patch was not in patch -p1 format.
 
---- l1/mm/page_alloc.c-orig	2006-02-21 12:03:52.000000000 -0800
-+++ l2/mm/page_alloc.c	2006-02-21 12:49:45.000000000 -0800
-@@ -774,7 +774,7 @@ again:
- 		pcp = &zone_pcp(zone, cpu)->pcp[cold];
- 		local_irq_save(flags);
- 		if (!pcp->count) {
--			pcp->count += rmqueue_bulk(zone, 0,
-+			pcp->count = rmqueue_bulk(zone, 0,
- 						pcp->batch, &pcp->list);
- 			if (unlikely(!pcp->count))
- 				goto failed;
-
-Signed-off-by: nkml00 <nkml00@gmail.com>
+--- a/arch/ia64/sn/kernel/io_init.c	20 Feb 2006 14:29:08 -0000	1.11
++++ b/arch/ia64/sn/kernel/io_init.c	21 Feb 2006 10:47:10 -0000
+@@ -716,4 +716,3 @@ EXPORT_SYMBOL(sn_pci_unfixup_slot);
+ EXPORT_SYMBOL(sn_pci_controller_fixup);
+ EXPORT_SYMBOL(sn_bus_store_sysdata);
+ EXPORT_SYMBOL(sn_bus_free_sysdata);
+-EXPORT_SYMBOL(sn_pcidev_info_get);

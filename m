@@ -1,32 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbWBUUsT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWBUUx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964777AbWBUUsT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 15:48:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932717AbWBUUsT
+	id S932551AbWBUUx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 15:53:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932716AbWBUUx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 15:48:19 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:15267 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932716AbWBUUsT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 15:48:19 -0500
-Date: Tue, 21 Feb 2006 15:49:10 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [PATCH 0/6] UML little patches for 2.6.16
-Message-ID: <20060221204910.GA6988@ccure.user-mode-linux.org>
-References: <20060221171535.509.28286.stgit@zion.home.lan>
+	Tue, 21 Feb 2006 15:53:56 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:12503
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932551AbWBUUx4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 15:53:56 -0500
+Date: Tue, 21 Feb 2006 12:50:33 -0800 (PST)
+Message-Id: <20060221.125033.34277159.davem@davemloft.net>
+To: davej@redhat.com
+Cc: ak@suse.de, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: softlockup interaction with slow consoles
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060221202757.GB24159@redhat.com>
+References: <200602212105.38075.ak@suse.de>
+	<20060221.121948.60060362.davem@davemloft.net>
+	<20060221202757.GB24159@redhat.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060221171535.509.28286.stgit@zion.home.lan>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 21, 2006 at 06:15:35PM +0100, Paolo 'Blaisorblade' Giarrusso wrote:
-> I'm sending some little fixups for inclusion 2.6.16. I've held some other
-> fixes which need wider testing. Please merge now.
+From: Dave Jones <davej@redhat.com>
+Date: Tue, 21 Feb 2006 15:27:57 -0500
 
-Acked-by: Jeff Dike <jdike@addtoit.com>
+> On Tue, Feb 21, 2006 at 12:19:48PM -0800, David S. Miller wrote:
+>  > From: Andi Kleen <ak@suse.de>
+>  > Date: Tue, 21 Feb 2006 21:05:37 +0100
+>  > 
+>  > > The classic way is to just use touch_nmi_watchdog() somewhere
+>  > > in the loop that does work. That touches the softwatchdog too
+>  > > these days.
+>  > 
+>  > "jiffies" aren't advancing, since interrupts are disabled by
+>  > release_console_sem(), so that doesn't work.
+>  > 
+>  > I tried that already :-)
+> 
+> Where did you put it?  I hit a similar problem a few months back,
+> and this patch did the trick for me..
+
+Not the NMI watchdog, the softlockup watchdog.

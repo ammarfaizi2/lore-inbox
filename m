@@ -1,67 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWBULWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161204AbWBULZ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932215AbWBULWq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 06:22:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWBULWq
+	id S1161204AbWBULZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 06:25:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161219AbWBULZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 06:22:46 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:32746 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S932215AbWBULWp (ORCPT
+	Tue, 21 Feb 2006 06:25:56 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:6544 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1161204AbWBULZz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 06:22:45 -0500
-Date: Tue, 21 Feb 2006 12:22:44 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: David Lang <dlang@digitalinsight.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Jesper Juhl <jesper.juhl@gmail.com>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: pid_t range question
-Message-ID: <20060221112244.GB30135@MAIL.13thfloor.at>
-Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
-	David Lang <dlang@digitalinsight.com>,
-	Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	Jesper Juhl <jesper.juhl@gmail.com>,
-	"linux-os (Dick Johnson)" <linux-os@analogic.com>,
-	Linux kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.61.0602071122520.327@chaos.analogic.com> <m1pslystkz.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.61.0602091751220.30108@yvahk01.tjqt.qr> <m1r76c2yhf.fsf@ebiederm.dsl.xmission.com> <9a8748490602091213p2e020355ue516d59b7d0b6c81@mail.gmail.com> <Pine.LNX.4.61.0602101420550.31246@yvahk01.tjqt.qr> <Pine.LNX.4.62.0602151238520.5446@qynat.qvtvafvgr.pbz> <Pine.LNX.4.61.0602171737530.27452@yvahk01.tjqt.qr> <Pine.LNX.4.62.0602171201020.8348@qynat.qvtvafvgr.pbz> <m17j7toeac.fsf@ebiederm.dsl.xmission.com>
+	Tue, 21 Feb 2006 06:25:55 -0500
+Date: Tue, 21 Feb 2006 12:25:25 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: Greg KH <greg@kroah.com>, torvalds@osdl.org, akpm@osdl.org,
+       linux-pm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [linux-pm] [PATCH 3/5] [pm] Respect the actual device power states in sysfs interface
+Message-ID: <20060221112525.GA22068@elf.ucw.cz>
+References: <Pine.LNX.4.50.0602171758160.30811-100000@monsoon.he.net> <20060218155543.GE5658@openzaurus.ucw.cz> <Pine.LNX.4.50.0602191557520.8676-100000@monsoon.he.net> <20060220004635.GA22576@kroah.com> <Pine.LNX.4.50.0602200955030.12708-100000@monsoon.he.net> <20060220220404.GA25746@kroah.com> <Pine.LNX.4.50.0602201655580.21145-100000@monsoon.he.net> <20060221105711.GK21557@elf.ucw.cz> <Pine.LNX.4.50.0602210312020.10683-100000@monsoon.he.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m17j7toeac.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <Pine.LNX.4.50.0602210312020.10683-100000@monsoon.he.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 17, 2006 at 02:39:55PM -0700, Eric W. Biederman wrote:
-> David Lang <dlang@digitalinsight.com> writes:
-> 
-> > I agree that the mojority of users don't hit this limit, but I've
-> > got a couple of boxes that push it (they run out of ram before that,
-> > but more ram is on order).
+Hi!
+
+> > > However, there are a couple of things to note:
+> > >
+> > > - These patches don't create a new API; they fix the semantics of an
+> > >   existing API by restoring them to its originally designed semantics.
 > >
-> > however it sounds like switching to a 64 bit kernel will avoid this
-> > limit, so I'll put my efforts into configuring a box to do that.
->
-> That is what I would recommend. Unless you do something weird an
-> painful like configure a kernel doing the 4G/4G split a 32bit box is
-> going to have memory problems with more than 32K tasks.
-
-or configure the newly introduced 2.13/1.87 (or 1/3 split)
-
-I don't think low memory is really the issue here, the
-scheduling of 32k+ tasks is much more a problem ...
-
-best,
-Herbert
-
-> Just remember you need push up /proc/sys/kernel/pid-max to raise the
-> default on a 64bit box.
+> > They may reintroduce "original" semantics, but they'll break
+> > applications needing 2.6.15 semantic (where 2 meant D3hot).
 > 
-> Eric
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Like what?
+
+Like:
+
+http://article.gmane.org/gmane.linux.kernel/364195/match=pavel+2+sys+power+state+pcmcia
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

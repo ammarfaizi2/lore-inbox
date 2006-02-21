@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932766AbWBUVAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932767AbWBUVAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932766AbWBUVAF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 16:00:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932767AbWBUVAF
+	id S932767AbWBUVAL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 16:00:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932768AbWBUVAL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 16:00:05 -0500
-Received: from ns.suse.de ([195.135.220.2]:53933 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932766AbWBUVAC (ORCPT
+	Tue, 21 Feb 2006 16:00:11 -0500
+Received: from mail.suse.de ([195.135.220.2]:54957 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932767AbWBUVAJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 16:00:02 -0500
+	Tue, 21 Feb 2006 16:00:09 -0500
 From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@davemloft.net>
-Subject: Re: softlockup interaction with slow consoles
-Date: Tue, 21 Feb 2006 21:43:46 +0100
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 3/6] PCI legacy I/O port free driver (take2) - Add device_flags into pci_device_id
+Date: Tue, 21 Feb 2006 21:59:51 +0100
 User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-References: <p73mzgk4y9u.fsf@verdi.suse.de> <200602212105.38075.ak@suse.de> <20060221.121948.60060362.davem@davemloft.net>
-In-Reply-To: <20060221.121948.60060362.davem@davemloft.net>
+Cc: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       akpm@osdl.org, rmk+lkml@arm.linux.org.uk
+References: <43FAB283.8090206@jp.fujitsu.com> <43FAB375.2020007@jp.fujitsu.com> <20060221205640.GA12423@kroah.com>
+In-Reply-To: <20060221205640.GA12423@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200602212143.46721.ak@suse.de>
+Message-Id: <200602212159.52106.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 February 2006 21:19, David S. Miller wrote:
-> From: Andi Kleen <ak@suse.de>
-> Date: Tue, 21 Feb 2006 21:05:37 +0100
-> 
-> > The classic way is to just use touch_nmi_watchdog() somewhere
-> > in the loop that does work. That touches the softwatchdog too
-> > these days.
-> 
-> "jiffies" aren't advancing, since interrupts are disabled by
-> release_console_sem(), so that doesn't work.
-> 
-> I tried that already :-)
+On Tuesday 21 February 2006 21:56, Greg KH wrote:
 
-Ah I see the problem I guess. When you restart then your 
-timer interrupt catches up the missing jiffies very quickly
-and that triggers the softwatchdog. 
+> I don't think you can add fields here, after the driver_data field.  It
+> might mess up userspace tools a lot, as you are changing a userspace
+> api.
 
-Nasty. Perhaps it needs to look at xtime instead and 
-let touch_softlockup_watchdog() update that.  But that could
-break with NTP then. Perhaps using monotonic_clock() ? 
+User space should look at the ASCII files (modules.*), not the binary
+As long as the code to generate these files still works it should be ok.
+
+> Do you _really_ need to pass this information back from userspace to the
+> driver in this manner?
+
+Well driver_data wouldn't be needed then either. Obviously it's for more
+than just userspace.
 
 -Andi
+
  

@@ -1,207 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161210AbWBUXtB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbWBUXsM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161210AbWBUXtB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 18:49:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161132AbWBUXtB
+	id S1030251AbWBUXsM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 18:48:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030216AbWBUXsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 18:49:01 -0500
-Received: from gold.veritas.com ([143.127.12.110]:26020 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1030222AbWBUXs7 (ORCPT
+	Tue, 21 Feb 2006 18:48:11 -0500
+Received: from fnord.at ([217.160.110.113]:4105 "HELO iwoars.net")
+	by vger.kernel.org with SMTP id S1030178AbWBUXsJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 18:48:59 -0500
-X-IronPort-AV: i="4.02,135,1139212800"; 
-   d="scan'208"; a="55824217:sNHT32900172"
-Date: Tue, 21 Feb 2006 23:49:47 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Robin Holt <holt@sgi.com>, Brent Casavant <bcasavan@sgi.com>,
-       Christoph Rohland <cr@sap.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] tmpfs: fix mount mpol nodelist parsing
-Message-ID: <Pine.LNX.4.61.0602212341160.5390@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 21 Feb 2006 23:48:59.0370 (UTC) FILETIME=[62A01CA0:01C63741]
+	Tue, 21 Feb 2006 18:48:09 -0500
+Date: Wed, 22 Feb 2006 00:48:07 +0100
+From: Thomas Ogrisegg <tom-lkml@lkml.fnord.at>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] netdev/uevent
+Message-ID: <20060221234807.GA27776@rescue.iwoars.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="Nq2Wo0NMKNjxTN9z"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been dissatisfied with the mpol_nodelist mount option which was
-added to tmpfs earlier in -rc.  Replace it by mpol=policy:nodelist.
 
-And it was broken: a nodelist is a comma-separated list of numbers and
-ranges; the mount options are a comma-separated list of token=values.
-Whoops, blindly strsep'ing on commas doesn't work so well: since we've
-no numeric tokens, and unlikely to add them, use that to distinguish.
+--Nq2Wo0NMKNjxTN9z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Move the mpol= parsing to shmem_parse_mpol under CONFIG_NUMA, reject
-all its options as invalid if not NUMA.  /proc shows MPOL_PREFERRED
-as "prefer", so use that name for the policy instead of "preferred".
+This patch adds userspace notification for register/unregister and
+plug/unplug events for netdevices. It calls kobject_uevent to let
+userspace applications (via netlink-interface) know that e.g. the
+ethernet-cable was plugged in (or plugged out) and thus the ethernet
+device may have to be reconfigured.
 
-Enforce that mpol=default has no nodelist; that mpol=prefer has one
-node only; that mpol=bind has a nodelist; but let mpol=interleave use
-node_online_map if no nodelist given.  Describe this in tmpfs.txt.
+Common scenario:
+A userspace application is notified that the ethernet cable was plugged
+out and later plugged in. It now checks whether the ethernet card is now
+connected to an other network and reassigns it's IP-Address via DHCP.
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
-Acked-by: Robin Holt <holt@sgi.com>
----
+BTW: Of course I know that the constant KOBJ_ONLINE actually has an other
+meaning than what I used it for. I just didn't want to introduce a new
+constant and it just seems perfect for my purpose.
 
- Documentation/filesystems/tmpfs.txt |   23 +++++-----
- mm/shmem.c                          |   81 ++++++++++++++++++++++++++++++------
- 2 files changed, 82 insertions(+), 22 deletions(-)
+Signed-off-by: Thomas Ogrisegg <tom-lkml@lkml.fnord.at>
 
---- 2.6.16-rc4/Documentation/filesystems/tmpfs.txt	2006-02-18 12:27:18.000000000 +0000
-+++ linux/Documentation/filesystems/tmpfs.txt	2006-02-19 19:49:36.000000000 +0000
-@@ -79,15 +79,18 @@ that instance in a system with many cpus
- 
- 
- tmpfs has a mount option to set the NUMA memory allocation policy for
--all files in that instance:
--mpol=interleave		prefers to allocate memory from each node in turn
--mpol=default		prefers to allocate memory from the local node
--mpol=bind		prefers to allocate from mpol_nodelist
--mpol=preferred		prefers to allocate from first node in mpol_nodelist
--
--The following mount option is used in conjunction with mpol=interleave,
--mpol=bind or mpol=preferred:
--mpol_nodelist:	nodelist suitable for parsing with nodelist_parse.
-+all files in that instance (if CONFIG_NUMA is enabled) - which can be
-+adjusted on the fly via 'mount -o remount ...'
-+
-+mpol=default             prefers to allocate memory from the local node
-+mpol=prefer:Node         prefers to allocate memory from the given Node
-+mpol=bind:NodeList       allocates memory only from nodes in NodeList
-+mpol=interleave          prefers to allocate from each node in turn
-+mpol=interleave:NodeList allocates from each node of NodeList in turn
-+
-+NodeList format is a comma-separated list of decimal numbers and ranges,
-+a range being two hyphen-separated decimal numbers, the smallest and
-+largest node numbers in the range.  For example, mpol=bind:0-3,5,7,9-15
- 
- 
- To specify the initial root directory you can use the following mount
-@@ -109,4 +112,4 @@ RAM/SWAP in 10240 inodes and it is only 
- Author:
-    Christoph Rohland <cr@sap.com>, 1.12.01
- Updated:
--   Hugh Dickins <hugh@veritas.com>, 13 March 2005
-+   Hugh Dickins <hugh@veritas.com>, 19 February 2006
---- 2.6.16-rc4/mm/shmem.c	2006-02-18 12:28:19.000000000 +0000
-+++ linux/mm/shmem.c	2006-02-19 19:49:36.000000000 +0000
-@@ -45,6 +45,7 @@
- #include <linux/swapops.h>
- #include <linux/mempolicy.h>
- #include <linux/namei.h>
-+#include <linux/ctype.h>
- #include <asm/uaccess.h>
- #include <asm/div64.h>
- #include <asm/pgtable.h>
-@@ -874,6 +875,51 @@ redirty:
+--Nq2Wo0NMKNjxTN9z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="netdev_uevent.diff"
+
+diff -uNr -X linux-2.6.15/Documentation/dontdiff linux-2.6.15/net/core/dev.c linux-2.6.15.4/net/core/dev.c
+--- linux-2.6.15/net/core/dev.c	2006-01-03 04:21:10.000000000 +0100
++++ linux-2.6.15.4/net/core/dev.c	2006-02-21 20:14:27.000000000 +0100
+@@ -104,6 +104,7 @@
+ #include <linux/highmem.h>
+ #include <linux/init.h>
+ #include <linux/kmod.h>
++#include <linux/kobject_uevent.h>
+ #include <linux/module.h>
+ #include <linux/kallsyms.h>
+ #include <linux/netpoll.h>
+@@ -742,6 +743,34 @@
  }
  
- #ifdef CONFIG_NUMA
-+static int shmem_parse_mpol(char *value, int *policy, nodemask_t *policy_nodes)
+ /**
++ *	netdev_uevent - notify userspace of netdev events
++ *	@dev: device
++ *	@event: event for device
++ *
++ *	Called to notify userspace of (de-)registering and status events
++ *	of netdevices
++ */
++static inline void
++netdev_uevent(struct net_device *dev, int event)
 +{
-+	char *nodelist = strchr(value, ':');
-+	int err = 1;
++	kobject_action_t action = 0;
 +
-+	if (nodelist) {
-+		/* NUL-terminate policy string */
-+		*nodelist++ = '\0';
-+		if (nodelist_parse(nodelist, *policy_nodes))
-+			goto out;
++	switch (event) {
++	case NETDEV_CHANGE:
++		action = netif_carrier_ok (dev) ? KOBJ_ONLINE : KOBJ_OFFLINE;
++		break;
++	case NETDEV_REGISTER:
++		action = KOBJ_ADD;
++		break;
++	case NETDEV_UNREGISTER:
++		action = KOBJ_REMOVE;
++		break;
 +	}
-+	if (!strcmp(value, "default")) {
-+		*policy = MPOL_DEFAULT;
-+		/* Don't allow a nodelist */
-+		if (!nodelist)
-+			err = 0;
-+	} else if (!strcmp(value, "prefer")) {
-+		*policy = MPOL_PREFERRED;
-+		/* Insist on a nodelist of one node only */
-+		if (nodelist) {
-+			char *rest = nodelist;
-+			while (isdigit(*rest))
-+				rest++;
-+			if (!*rest)
-+				err = 0;
-+		}
-+	} else if (!strcmp(value, "bind")) {
-+		*policy = MPOL_BIND;
-+		/* Insist on a nodelist */
-+		if (nodelist)
-+			err = 0;
-+	} else if (!strcmp(value, "interleave")) {
-+		*policy = MPOL_INTERLEAVE;
-+		/* Default to nodes online if no nodelist */
-+		if (!nodelist)
-+			*policy_nodes = node_online_map;
-+		err = 0;
-+	}
-+out:
-+	/* Restore string for error message */
-+	if (nodelist)
-+		*--nodelist = ':';
-+	return err;
++	if (action)
++		kobject_uevent (&dev->class_dev.kobj, action, NULL);
 +}
 +
- static struct page *shmem_swapin_async(struct shared_policy *p,
- 				       swp_entry_t entry, unsigned long idx)
++/**
+  *	netdev_features_change - device changes fatures
+  *	@dev: device to cause notification
+  *
+@@ -765,6 +794,7 @@
  {
-@@ -926,6 +972,11 @@ shmem_alloc_page(gfp_t gfp, struct shmem
- 	return page;
+ 	if (dev->flags & IFF_UP) {
+ 		notifier_call_chain(&netdev_chain, NETDEV_CHANGE, dev);
++		netdev_uevent(dev, NETDEV_CHANGE);
+ 		rtmsg_ifinfo(RTM_NEWLINK, dev, 0);
+ 	}
  }
- #else
-+static inline int shmem_parse_mpol(char *value, int *policy, nodemask_t *policy_nodes)
-+{
-+	return 1;
-+}
-+
- static inline struct page *
- shmem_swapin(struct shmem_inode_info *info,swp_entry_t entry,unsigned long idx)
- {
-@@ -1859,7 +1910,23 @@ static int shmem_parse_options(char *opt
- {
- 	char *this_char, *value, *rest;
+@@ -2937,6 +2967,7 @@
+ 			if (err)
+ 				printk(KERN_ERR "%s: failed sysfs registration (%d)\n",
+ 				       dev->name, err);
++			netdev_uevent (dev, NETDEV_REGISTER);
+ 			dev->reg_state = NETREG_REGISTERED;
+ 			break;
  
--	while ((this_char = strsep(&options, ",")) != NULL) {
-+	while (options != NULL) {
-+		this_char = options;
-+		for (;;) {
-+			/*
-+			 * NUL-terminate this option: unfortunately,
-+			 * mount options form a comma-separated list,
-+			 * but mpol's nodelist may also contain commas.
-+			 */
-+			options = strchr(options, ',');
-+			if (options == NULL)
-+				break;
-+			options++;
-+			if (!isdigit(*options)) {
-+				options[-1] = '\0';
-+				break;
-+			}
-+		}
- 		if (!*this_char)
- 			continue;
- 		if ((value = strchr(this_char,'=')) != NULL) {
-@@ -1910,18 +1977,8 @@ static int shmem_parse_options(char *opt
- 			if (*rest)
- 				goto bad_val;
- 		} else if (!strcmp(this_char,"mpol")) {
--			if (!strcmp(value,"default"))
--				*policy = MPOL_DEFAULT;
--			else if (!strcmp(value,"preferred"))
--				*policy = MPOL_PREFERRED;
--			else if (!strcmp(value,"bind"))
--				*policy = MPOL_BIND;
--			else if (!strcmp(value,"interleave"))
--				*policy = MPOL_INTERLEAVE;
--			else
-+			if (shmem_parse_mpol(value,policy,policy_nodes))
- 				goto bad_val;
--		} else if (!strcmp(this_char,"mpol_nodelist")) {
--			nodelist_parse(value, *policy_nodes);
- 		} else {
- 			printk(KERN_ERR "tmpfs: Bad mount option %s\n",
- 			       this_char);
+@@ -3108,6 +3139,7 @@
+ 	   this device. They should clean all the things.
+ 	*/
+ 	notifier_call_chain(&netdev_chain, NETDEV_UNREGISTER, dev);
++	netdev_uevent (dev, NETDEV_UNREGISTER);
+ 	
+ 	/*
+ 	 *	Flush the multicast chain
+
+--Nq2Wo0NMKNjxTN9z--

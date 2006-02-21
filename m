@@ -1,25 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932724AbWBUJ5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161452AbWBUKKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932724AbWBUJ5I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 04:57:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932723AbWBUJ5I
+	id S1161452AbWBUKKL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 05:10:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932725AbWBUKKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 04:57:08 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:57531 "EHLO
+	Tue, 21 Feb 2006 05:10:11 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:32967 "EHLO
 	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932724AbWBUJ5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 04:57:05 -0500
+	id S932727AbWBUKKJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 05:10:09 -0500
 From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Tue, 21 Feb 2006 10:55:07 +0100
+Date: Tue, 21 Feb 2006 11:08:38 +0100
 To: schilling@fokus.fraunhofer.de, dhazelton@enter.net
-Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org
+Cc: nix@esperi.org.uk, mj@ucw.cz, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, davidsen@tmr.com, chris@gnome-de.org,
+       axboe@suse.de
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43FAE37B.nailD12413QNY@burner>
-References: <43EB7BBA.nailIFG412CGY@burner>
- <200602171545.21867.dhazelton@enter.net>
- <43F9D95C.nail4AL61JSZG@burner>
- <200602201333.34109.dhazelton@enter.net>
-In-Reply-To: <200602201333.34109.dhazelton@enter.net>
+Message-ID: <43FAE6A6.nailD1261QRW3@burner>
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
+ <200602192053.25767.dhazelton@enter.net>
+ <43F9F11E.nail5BM21M01Q@burner>
+ <200602201340.30484.dhazelton@enter.net>
+In-Reply-To: <200602201340.30484.dhazelton@enter.net>
 User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
@@ -29,18 +31,18 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 "D. Hazelton" <dhazelton@enter.net> wrote:
 
+> > SG_IO was used in ide-scsi a long time before it was needlessly introduced
+> > on top of /dev/hd*
 >
-> Don't even start. In a private exchange you stated that you had been thinking 
-> of mapping ATA/ATAPI devices into a "middle" bus slot to remove the need for 
-> the "ATA" and "ATAPI" host identifiers and to allow libscg to scan the 
-> ATA/ATAPI bus at the same time it scans the SCSI bus on Linux systems.
->
-> I asked about using the numbers provided by Linux - ie. /dev/hda = 6,3,0 - and 
-> you said it was wrong and not useful. I've since asked you in another private 
-> mail if you have another solution I could code into the patch and don't 
-> expect a reply until tomorrow.
+> Needlessly? Not true. It was missing from the layer, as all modern ATA devices 
+> do support some form of ATAPI, which is, as you've so frequently pointed out, 
+> a form of SCSI. So why is an unneeded thing to introduce the ability to use 
+> that full capacity?
 
-And I explained you why this is inapropriate. So what is your peoblem?
+There used to be generic support, so this way of support is unneeded.
+
+The fact that people did make ide-scsi (the generic way) impossible to use
+is a bug that needs to be fixed.
 
 Jörg
 

@@ -1,69 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161224AbWBULay@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWBULeO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161224AbWBULay (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 06:30:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161222AbWBULay
+	id S932253AbWBULeO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 06:34:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932686AbWBULeO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 06:30:54 -0500
-Received: from linuxhacker.ru ([217.76.32.60]:934 "EHLO shrek.linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S1161219AbWBULax (ORCPT
+	Tue, 21 Feb 2006 06:34:14 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31980 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932253AbWBULeO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 06:30:53 -0500
-Date: Tue, 21 Feb 2006 13:30:55 +0200
-From: Oleg Drokin <green@linuxhacker.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: FMODE_EXEC or alike?
-Message-ID: <20060221113055.GF5733@linuxhacker.ru>
-References: <20060220221948.GC5733@linuxhacker.ru> <20060220215122.7aa8bbe5.akpm@osdl.org>
+	Tue, 21 Feb 2006 06:34:14 -0500
+Date: Tue, 21 Feb 2006 12:33:37 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andy Lutomirski <luto@myrealbox.com>
+Cc: Matthias Hensler <matthias@wspse.de>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <nigel@suspend2.net>, Sebastian Kgler <sebas@kde.org>,
+       rjw@sisk.pl
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Message-ID: <20060221113337.GP21557@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602200709.17955.nigel@suspend2.net> <20060219212952.GI15311@elf.ucw.cz> <200602201025.01823.nigel@suspend2.net> <20060220005333.GL15608@elf.ucw.cz> <20060220094728.GD19293@kobayashi-maru.wspse.de> <43FA97D9.4070902@myrealbox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060220215122.7aa8bbe5.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <43FA97D9.4070902@myrealbox.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Po 20-02-06 20:32:25, Andy Lutomirski wrote:
+> Matthias Hensler wrote:
+> >Hi.
+> >
+> >On Mon, Feb 20, 2006 at 01:53:33AM +0100, Pavel Machek wrote:
+> >
+> >>Only feature I can't do is "save whole pagecache"... and 14000 lines
+> >>of code for _that_ is a bit too much. I could probably patch my kernel
+> >>to dump pagecache to userspace, but I do not think it is worth the
+> >>effort.
+> >
+> >
+> >I do not think that Suspend 2 needs 14000 lines for that, the core is
+> >much smaller. But besides, _not_ saving the pagecache is a really _bad_
+> >idea. I expect to have my system back after resume, in the same state I
+> >had left it prior to suspend. I really do not like it how it is done by
+> >Windows, it is just ugly to have a slowly responding system after
+> >resume, because all caches and buffers are gone.
+> >
+> >I can only speak for myself, but I want to work with my system from the
+> >moment my desktop is back.
+> 
+> I Am Not A VM Hacker, but:
+> 
+> What's the point of saving pagecache during suspend?  This seems like a 
+> total waste.  Why don't we save a list of pages in pagecache to disk,
+> then, after resume, prefetch them all back in.  This will slow down 
+> resume (extra seeks, minimized if we sort the list, and inability
+> to compress these pages), but it will speed up suspend, and it sounds
+> a lot simpler.  There's already a patch to add swap prefetching, and 
+> this can't be much more complicated.
 
-  Introduce FMODE_EXEC file flag, to indicate that file is being opened for
-  execution. This is useful for distributed filesystems to maintain consistent
-  behavior for returning ETXTBUSY when opening for write and execution
-  happens on different nodes.
+I'd actually love to see this implemented. It would be useful for
+suspend-to-disk (obviously), but also for benchmarks.
 
-Signed-off-by: Oleg Drokin <green@linuxhacker.ru>
+> While I'm at it, here's another pie-in-the-sky idea.  If we had the 
 
---- linux-2.6.16-rc4/include/linux/fs.h.orig	2006-02-21 11:26:43.000000000 +0200
-+++ linux-2.6.16-rc4/include/linux/fs.h	2006-02-21 11:30:16.000000000 +0200
-@@ -65,6 +65,11 @@ extern int dir_notify_enable;
- #define FMODE_PREAD	8
- #define FMODE_PWRITE	FMODE_PREAD	/* These go hand in hand */
- 
-+/* File is being opened for execution. Primary users of this flag are
-+   distributed filesystems that can use it to achieve correct ETXTBUSY
-+   behavior for cross-node execution/opening_for_writing of files */
-+#define FMODE_EXEC	16
-+
- #define RW_MASK		1
- #define RWA_MASK	2
- #define READ 0
---- linux-2.6.16-rc4/fs/exec.c.orig	2006-02-19 20:34:06.000000000 +0200
-+++ linux-2.6.16-rc4/fs/exec.c	2006-02-21 13:06:42.000000000 +0200
-@@ -127,7 +127,7 @@ asmlinkage long sys_uselib(const char __
- 	struct nameidata nd;
- 	int error;
- 
--	error = __user_path_lookup_open(library, LOOKUP_FOLLOW, &nd, FMODE_READ);
-+	error = __user_path_lookup_open(library, LOOKUP_FOLLOW, &nd, FMODE_READ|FMODE_EXEC);
- 	if (error)
- 		goto out;
- 
-@@ -477,7 +477,7 @@ struct file *open_exec(const char *name)
- 	int err;
- 	struct file *file;
- 
--	err = path_lookup_open(AT_FDCWD, name, LOOKUP_FOLLOW, &nd, FMODE_READ);
-+	err = path_lookup_open(AT_FDCWD, name, LOOKUP_FOLLOW, &nd, FMODE_READ|FMODE_EXEC);
- 	file = ERR_PTR(err);
- 
- 	if (!err) {
+Yes, that's quite far in the sky :-).
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

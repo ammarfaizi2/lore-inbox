@@ -1,62 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbWBUWOF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161034AbWBUWPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932485AbWBUWOF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 17:14:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWBUWOE
+	id S1161034AbWBUWPV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 17:15:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932774AbWBUWPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 17:14:04 -0500
-Received: from zproxy.gmail.com ([64.233.162.207]:56382 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932485AbWBUWOC (ORCPT
+	Tue, 21 Feb 2006 17:15:21 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:52486 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932769AbWBUWPU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 17:14:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=c/yMqwOlFWI2MtHxTFUxfxX+DRrwQnsQrL91FnLTu6Eu0dYbW2r+UYJQtkw/Mu6cHhURoXfYiytvOR+5ZH/wLGlzoZBbGIela3cZRF6CRoKdquaOTS4lmCpQEALm4jUY0HzjkoYNiaB5rrL+xSTa5gzxevQwwhjJ5/na4jOOLi4=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] ISDN: fix copy_to_user() unused result warning in isdn_ppp
-Date: Tue, 21 Feb 2006 23:14:15 +0100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Karsten Keil <kkeil@suse.de>,
-       Kai Germaschewski <kai.germaschewski@gmx.de>,
-       isdn4linux@listserv.isdn4linux.de, Jesper Juhl <jesper.juhl@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Feb 2006 17:15:20 -0500
+Date: Tue, 21 Feb 2006 23:15:17 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: make -j with j <= 4 seems to only load a single CPU core
+Message-ID: <20060221221517.GA9629@mars.ravnborg.org>
+References: <9a8748490602211302j61c0088fp8b555860e928028e@mail.gmail.com> <9a8748490602211310j344db10evd685149a3c60b1e7@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602212314.15362.jesper.juhl@gmail.com>
+In-Reply-To: <9a8748490602211310j344db10evd685149a3c60b1e7@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jesper Juhl <jesper.juhl@gmail.com>
+On Tue, Feb 21, 2006 at 10:10:46PM +0100, Jesper Juhl wrote:
+> On 2/21/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> > This is quite odd and I've no idea where to start looking for the
+> > cause, but let me describe what I'm seeing and maybe someone can point
+> > me in the right direction.
+> >
+> > I'm running SMP 2.6.x kernels on a Athlon 64 X2 4400+
+> >
+> 
+> I should probably mention that the kernel I'm currently running and
+> observing this behaviour with is 2.6.16-rc4-mm1.
 
+Hi Jesper.
+Could you please double check that patch below has been applied to your
+tree.
 
-Fix compile warning about copy_to_user() unused result in isdn_ppp.c
-   drivers/isdn/i4l/isdn_ppp.c:785: warning: ignoring return value of `copy_to_user', declared with attribute warn_unused_result
+	Sam
 
+diff-tree 36cbbe5eb9857730768aa5f54ad94d69e0b2133d (from 9f672004ab1a8094bec1785b39ac683ab9eebebc)
+Author: Benjamin LaHaise <bcrl@kvack.org>
+Date:   Wed Feb 15 15:17:35 2006 -0800
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+    [PATCH] kbuild: revert "fix make -jN with multiple targets with O=..."
+    
+    Commit 296e0855b0f9a4ec9be17106ac541745a55b2ce1:
+    
+        "kbuild: fix make -jN with multiple targets with O=..."
+    
+    causes a ~95% increase in build time for the kernel.  Before: 4m21s
+    after: 8m1.403s.  Can we revert this until another approach is found?
+    
+    Cc: Sam Ravnborg <sam@ravnborg.org>
+    Signed-off-by: Andrew Morton <akpm@osdl.org>
+    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 
----
-
- drivers/isdn/i4l/isdn_ppp.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
-
---- linux-2.6.16-rc4-mm1-orig/drivers/isdn/i4l/isdn_ppp.c	2006-01-03 04:21:10.000000000 +0100
-+++ linux-2.6.16-rc4-mm1/drivers/isdn/i4l/isdn_ppp.c	2006-02-21 23:07:57.000000000 +0100
-@@ -782,7 +782,10 @@ isdn_ppp_read(int min, struct file *file
- 	is->first = b;
+diff --git a/Makefile b/Makefile
+index 74d67b2..48d569d 100644
+--- a/Makefile
++++ b/Makefile
+@@ -104,17 +104,16 @@ ifneq ($(KBUILD_OUTPUT),)
+ saved-output := $(KBUILD_OUTPUT)
+ KBUILD_OUTPUT := $(shell cd $(KBUILD_OUTPUT) && /bin/pwd)
+ $(if $(KBUILD_OUTPUT),, \
+      $(error output directory "$(saved-output)" does not exist))
  
- 	spin_unlock_irqrestore(&is->buflock, flags);
--	copy_to_user(buf, save_buf, count);
-+	if (copy_to_user(buf, save_buf, count)) {
-+		kfree(save_buf);
-+		return -EFAULT;
-+	}
- 	kfree(save_buf);
+-.PHONY: $(MAKECMDGOALS) cdbuilddir
+-$(MAKECMDGOALS) _all: cdbuilddir
++.PHONY: $(MAKECMDGOALS)
  
- 	return count;
-
-
+-cdbuilddir:
++$(filter-out _all,$(MAKECMDGOALS)) _all:
+ 	$(if $(KBUILD_VERBOSE:1=),@)$(MAKE) -C $(KBUILD_OUTPUT) \
+ 	KBUILD_SRC=$(CURDIR) \
+-	KBUILD_EXTMOD="$(KBUILD_EXTMOD)" -f $(CURDIR)/Makefile $(MAKECMDGOALS)
++	KBUILD_EXTMOD="$(KBUILD_EXTMOD)" -f $(CURDIR)/Makefile $@
+ 
+ # Leave processing to above invocation of make
+ skip-makefile := 1
+ endif # ifneq ($(KBUILD_OUTPUT),)
+ endif # ifeq ($(KBUILD_SRC),)

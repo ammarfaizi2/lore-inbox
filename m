@@ -1,89 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWBULMi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161182AbWBULXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbWBULMi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 06:12:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWBULMi
+	id S1161182AbWBULXP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 06:23:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932694AbWBULXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 06:12:38 -0500
-Received: from digitalimplant.org ([64.62.235.95]:19616 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S932211AbWBULMi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 06:12:38 -0500
-Date: Tue, 21 Feb 2006 03:12:32 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Pavel Machek <pavel@suse.cz>
-cc: Greg KH <greg@kroah.com>, "" <torvalds@osdl.org>, "" <akpm@osdl.org>,
-       "" <linux-pm@osdl.org>, "" <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [PATCH 3/5] [pm] Respect the actual device power
- states in sysfs interface
-In-Reply-To: <20060221105711.GK21557@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.50.0602210312020.10683-100000@monsoon.he.net>
-References: <Pine.LNX.4.50.0602171758160.30811-100000@monsoon.he.net>
- <20060218155543.GE5658@openzaurus.ucw.cz> <Pine.LNX.4.50.0602191557520.8676-100000@monsoon.he.net>
- <20060220004635.GA22576@kroah.com> <Pine.LNX.4.50.0602200955030.12708-100000@monsoon.he.net>
- <20060220220404.GA25746@kroah.com> <Pine.LNX.4.50.0602201655580.21145-100000@monsoon.he.net>
- <20060221105711.GK21557@elf.ucw.cz>
+	Tue, 21 Feb 2006 06:23:15 -0500
+Received: from jaguar.mkp.net ([192.139.46.146]:29096 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S932253AbWBULXO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 06:23:14 -0500
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Mark Maule <maule@sgi.com>, akpm@osdl.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] altix:  export sn_pcidev_info_get
+References: <20060214162337.GA16954@sgi.com>
+	<20060220201713.GA4992@infradead.org> <20060221024710.GB30226@sgi.com>
+	<20060221103633.GA19349@infradead.org>
+From: Jes Sorensen <jes@sgi.com>
+Date: 21 Feb 2006 06:23:12 -0500
+In-Reply-To: <20060221103633.GA19349@infradead.org>
+Message-ID: <yq0r75x6jmn.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Christoph" == Christoph Hellwig <hch@infradead.org> writes:
 
+Christoph> On Mon, Feb 20, 2006 at 08:47:10PM -0600, Mark Maule wrote:
+>> All I'm doing by exporting sn_pcidev_info_get is allowing a module
+>> to use the SGI SN_PCIDEV_BUSSOFT() macro which will tell a driver
+>> which piece of altix PCI hw its device is sitting behind
+>> (e.g. PCIIO_ASIC_TYPE_TIOCP et. al).
 
+Christoph> And that's absolutely not something a driver should care
+Christoph> about.  If you illegal binary driver uses it it's totally
+Christoph> broken (but then we knew that before anyway ;-))
 
-On Tue, 21 Feb 2006, Pavel Machek wrote:
+Christoph,
 
-> On Po 20-02-06 17:09:26, Patrick Mochel wrote:
-> >
-> > On Mon, 20 Feb 2006, Greg KH wrote:
-> >
-> > > On Mon, Feb 20, 2006 at 09:58:27AM -0800, Patrick Mochel wrote:
-> >
-> > > > Would you mind commmenting on why, as well as your opinion on the validity
-> > > > of the patches themselves?
-> > > >
-> > > > This static, hardcoded policy was introduced into the core ~2 weeks ago,
-> > > > and it doesn't seem like it belongs there at all.
-> > >
-> > > That patch was accepted as it fixed a oops.  It also went in for
-> > > 2.6.16-rc2, which is much earlier than 2.6.16-rc4, and it had been in
-> > > the -mm tree for quite a while for people to test it out and verify that
-> > > it didn't break anything.  I didn't hear any complaints about it, so
-> > > that is why it went in.
-> > >
-> > > In contrast, this patch series creates a new api and doesn't necessarily
-> > > fix any reported bugs.  It also has not had the time to be tested in the
-> > > -mm tree, and there is quite a lot of disagreement about the patches on
-> > > the lists.  All of that combinded makes it not acceptable for so late in
-> > > the -rc cycle (remember, -rc4 means only serious bug fixes.)
-> >
-> > Thanks.
-> >
-> > However, there are a couple of things to note:
-> >
-> > - These patches don't create a new API; they fix the semantics of an
-> >   existing API by restoring them to its originally designed semantics.
->
-> They may reintroduce "original" semantics, but they'll break
-> applications needing 2.6.15 semantic (where 2 meant D3hot).
+Leaving the issues around the specific client aside here.
 
-Like what?
+Any chance you could explain why some drivers in drivers/net use the
+arch defines to set things like optimial burst sizes then?  Drivers
+such as acenic.c, fealnx.c and starfire.c do this based on the arch
+even though it really is a property of the combination of the PCI bus,
+CPU and memory busses in the specific systems.
 
-> > - The BUG() still exists and is relatively easily triggerable (by calling
-> >   pci_choose_state() with the wrong value). The fact that the BUG() was
-> >   allowed into the kernel is surprising - the mantra for a long time has
-> >   been that no new BUG()s should be added. This one is easily made nicer
-> >   (see patch 4/4 in the next series), so I don't see why it wasn't
-> >   targeted before..
->
-> I don't know what you are talking about here. "No new BUGs"?! It is
-> bad to have bug triggerable from userspace, but that was fixed.
+Were you planning on posting a patch to remove all of those instances
+while you were at it?
 
-http://article.gmane.org/gmane.linux.usb.devel/5411/match=no+new+bug
+Point is that there are cases where tuning requires you to know what
+PCI bridge is below you in order to get the best performance out of a
+card. One can keep a PCI ID blacklist to handle tuning of the PCI
+bridge itself, but it can't handle things that needs to be tuned
+by setting the PCI device's own registers.
 
-Thanks,
+Having a generic API to export this information would be a good thing
+IMHO.
 
-
-	Pat
-
+Cheers,
+Jes

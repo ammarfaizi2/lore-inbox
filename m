@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWBUXbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWBUXcq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751215AbWBUXbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 18:31:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWBUXbJ
+	id S1750770AbWBUXcq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 18:32:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWBUXcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 18:31:09 -0500
-Received: from nevyn.them.org ([66.93.172.17]:25022 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S1751215AbWBUXbH (ORCPT
+	Tue, 21 Feb 2006 18:32:46 -0500
+Received: from pat.uio.no ([129.240.130.16]:30969 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1750770AbWBUXcp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 18:31:07 -0500
-Date: Tue, 21 Feb 2006 18:30:01 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Michael Kerrisk <mtk-manpages@gmx.net>,
-       Roland McGrath <roland@redhat.com>
-Subject: Re: PTRACE_SETOPTIONS documentantion?
-Message-ID: <20060221233001.GB3778@nevyn.them.org>
-Mail-Followup-To: Heiko Carstens <heiko.carstens@de.ibm.com>,
-	linux-kernel@vger.kernel.org,
-	Michael Kerrisk <mtk-manpages@gmx.net>,
-	Roland McGrath <roland@redhat.com>
-References: <20060217075358.GB9230@osiris.boeblingen.de.ibm.com>
+	Tue, 21 Feb 2006 18:32:45 -0500
+Subject: Re: FMODE_EXEC or alike?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: Andrew Morton <akpm@osdl.org>, Oleg Drokin <green@linuxhacker.ru>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <20060221232607.GS22042@fieldses.org>
+References: <20060220221948.GC5733@linuxhacker.ru>
+	 <20060220215122.7aa8bbe5.akpm@osdl.org>
+	 <1140530396.7864.63.camel@lade.trondhjem.org>
+	 <20060221232607.GS22042@fieldses.org>
+Content-Type: text/plain
+Date: Tue, 21 Feb 2006 18:32:31 -0500
+Message-Id: <1140564751.8088.35.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060217075358.GB9230@osiris.boeblingen.de.ibm.com>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.725, required 12,
+	autolearn=disabled, AWL 1.27, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 17, 2006 at 08:53:58AM +0100, Heiko Carstens wrote:
-> Hi all,
+On Tue, 2006-02-21 at 18:26 -0500, J. Bruce Fields wrote:
+> On Tue, Feb 21, 2006 at 08:59:56AM -0500, Trond Myklebust wrote:
+> > Hmm.... We might possibly want to use that for NFSv4 at some point in
+> > order to deny write access to the file to other clients while it is in
+> > use.
 > 
-> I'm just wondering if there is any sort of documentation for the ptrace
-> request PTRACE_SETOPTIONS and its PTRACE_O_* flags available?
-> Or is this just some sort of "if you want to use this interface, read
-> the kernel sources" ? :)
-> The same question could be asked for PTRACE_GETEVENTMSG, PTRACE_GETSIGINFO
-> and PTRACE_SETSIGINFO.
+> So on the NFS client, an open with FMODE_EXEC could be translated into
+> an NFSv4 open with a deny_write bit (since NFSv4 opens also do windows
+> share locks).
+> 
+> An NFSv4 server might also be able to translate deny mode writes into
+> FMODE_EXEC in the case where it was exporting a cluster filesystem.  It
+> wouldn't completely solve the problem of implementing cluster-coherent
+> share locks (which also let you deny reads, who knows why), but it seems
+> like it would address the case most likely to matter.
 
-Basically there's none; you're welcome to write some, and to consult
-the GDB sources for example usage.  Maybe the documentation would be
-appropriate for the man pages.
+Hmm... I don't think you want to overload write deny bits onto
+FMODE_EXEC. FMODE_EXEC is basically, a read-only mode, so it
+would mean that you could no longer do something like
 
--- 
-Daniel Jacobowitz
-CodeSourcery
+  OPEN(READ|WRITE,DENY_WRITE) 
+
+which I would assume is one of the more frequent Windoze open modes.
+
+Cheers,
+  Trond
+

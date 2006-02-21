@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbWBUUWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWBUUYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932463AbWBUUWM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 15:22:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbWBUUWM
+	id S932347AbWBUUYX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 15:24:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbWBUUYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 15:22:12 -0500
-Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:57733 "EHLO
-	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
-	id S932238AbWBUUWJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 15:22:09 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 21 Feb 2006 15:24:22 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:24050 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932347AbWBUUYW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 15:24:22 -0500
+Message-ID: <43FB76EF.9080406@de.ibm.com>
+Date: Tue, 21 Feb 2006 21:24:15 +0100
+From: Martin Peschke <mp3@de.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Problems with MSI-X on ia64
-Date: Tue, 21 Feb 2006 14:21:42 -0600
-Message-ID: <D4CFB69C345C394284E4B78B876C1CF10BAD8CA9@cceexc23.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Problems with MSI-X on ia64
-Thread-Index: AcYz/W30SdnG64fUQcK3cOXr6nYDrQDJq8ww
-From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
-To: "Grundler, Grant G" <grant.grundler@hp.com>,
-       "Luck, Tony" <tony.luck@intel.com>
-Cc: "Chris Wedgwood" <cw@f00f.org>,
-       "Grant Grundler" <grundler@parisc-linux.org>,
-       "Greg KH" <gregkh@suse.de>, <linux-kernel@vger.kernel.org>,
-       <linux-scsi@vger.kernel.org>, <linux-ia64@vger.kernel.org>,
-       <linux-pci@atrey.karlin.mff.cuni.cz>,
-       "Jesse Barnes" <jbarnes@virtuousgeek.org>,
-       "Patterson, Andrew D (Linux R&D)" <andrew.patterson@hp.com>
-X-OriginalArrivalTime: 21 Feb 2006 20:21:43.0684 (UTC) FILETIME=[6E610440:01C63724]
+To: linux-kernel@vger.kernel.org
+Subject: How to allocate per-cpu data for online CPUs only (and safely)?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Grundler, Grant G 
-> 
-> On Fri, Feb 17, 2006 at 11:52:45AM -0800, Luck, Tony wrote:
-> > > Hrm, it may be doing this.  I wonder how that works though with 
-> > > 4GB's of RAM installed?
-> > 
-> > Systems with 4G of RAM usually map part of the RAM above 4G 
-> so as to 
-> > leave a hole for i/o mapping etc.
-> 
-> exactly.
-> rx2600 physical memory map only has 1GB of RAM below 4GB 
-> address space.
+I am trying to optimize the memory footprint of some code of mine.
+It's been using per-cpu data and alloc_percpu() so far. The latter has 
+the disadvantage of getting hold of memory for CPU's which aren't there 
+(yet).
 
-So I looked at 2.6.16-rc3 which works in my lab, but phys_addr is still
-an int. How can that work? I believe Andrew saw the same thing in
-2.6.15.
+I could imagine using CPU-hotplug notifications as triggers for 
+additional allocations or for cleaning up unneeded memory. But 
+alloc_percpu() appears to conflict with that idea.
 
-mikem
+I was briefly tempted to derive some code from alloc_percpu() more to my 
+liking, until I was scared off by this comment in alloc_percpu():
+
+         /*
+          * Cannot use for_each_online_cpu since a cpu may come online
+          * and we have no way of figuring out how to fix the array
+          * that we have allocated then....
+          */
+
+Well, and then there is kernel/profile.c, for example, which boldly 
+ignors alloc_percpu()'s qualms and allocates and releases per-cpu data 
+as needed.
+
+Is that the way to go?
+If so, why alloc_percpu()'s reservations?
+Or, does that comment imply that the exploiter isn't expected to take 
+care of CPU hotplug events?
+Am I missing anything?
+
+Thank you.
+
+Martin
+

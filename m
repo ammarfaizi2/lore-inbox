@@ -1,47 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWBUVwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWBUVzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbWBUVwe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 16:52:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWBUVwe
+	id S932358AbWBUVzg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 16:55:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbWBUVzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 16:52:34 -0500
-Received: from linuxhacker.ru ([217.76.32.60]:44992 "EHLO shrek.linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S932261AbWBUVwe (ORCPT
+	Tue, 21 Feb 2006 16:55:36 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:21417 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932358AbWBUVzf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 16:52:34 -0500
-Date: Tue, 21 Feb 2006 23:53:40 +0200
-From: Oleg Drokin <green@linuxhacker.ru>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org, trond.myklebust@fys.uio.no
-Subject: [PATCH] Add lookup_instantiate_filp usage warning
-Message-ID: <20060221215340.GA5091@linuxhacker.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Tue, 21 Feb 2006 16:55:35 -0500
+Message-ID: <43FB8C4F.6070802@pobox.com>
+Date: Tue, 21 Feb 2006 16:55:27 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Greg KH <greg@kroah.com>, Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       akpm@osdl.org, rmk+lkml@arm.linux.org.uk
+Subject: Re: [PATCH 3/6] PCI legacy I/O port free driver (take2) - Add device_flags
+ into pci_device_id
+References: <43FAB283.8090206@jp.fujitsu.com> <200602212159.52106.ak@suse.de> <20060221211004.GA12784@kroah.com> <200602212231.55879.ak@suse.de>
+In-Reply-To: <200602212231.55879.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Andi Kleen wrote:
+> On Tuesday 21 February 2006 22:10, Greg KH wrote:
+> 
+>>On Tue, Feb 21, 2006 at 09:59:51PM +0100, Andi Kleen wrote:
+>>
+>>>On Tuesday 21 February 2006 21:56, Greg KH wrote:
+>>>
+>>>
+>>>>I don't think you can add fields here, after the driver_data field.  It
+>>>>might mess up userspace tools a lot, as you are changing a userspace
+>>>>api.
+>>>
+>>>User space should look at the ASCII files (modules.*), not the binary
+>>>As long as the code to generate these files still works it should be ok.
+>>
+>>Does it?  
+> 
+> 
+> I assume Kenji-San tested that.
+> 
+> 
+>>Shouldn't the tools export this information too, if it really 
+>>should belong in the pci_id structure?
+> 
+> 
+> No - is driver_data exported? 
+>  
+> 
+>>So, is _every_ pci driver going to have to be modified to support this
+>>new field if they are supposed to work on this kind of hardware? 
+> 
+> 
+> There is 100% source compatibility because fields are only added at the
+> end of the structure.
+> 
+> And the drivers will still work on this hardware even without modification.
+> 
+> It's only an optimization that can be added to selected drivers.
 
-    I think it would be nice to put an usage warning in header of
-    lookup_instantiate_filp() to indicate it is unsafe to use it on
-    anything but regular files (even that is potentially unsafe, but there
-    your ->open() is usually in your hands anyway), so that others won't
-    fall into the same trap I did.
+It doesn't matter how easily its added, it is the wrong place to add 
+such things.
 
-Signed-off-by: Oleg Drokin <green@linuxhacker.ru>
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>
+This is what the various functions called during pci_driver::probe() do...
 
---- linux-2.6.16-rc4/fs/open.c.orig	2006-02-21 23:34:42.000000000 +0200
-+++ linux-2.6.16-rc4/fs/open.c	2006-02-21 23:44:20.000000000 +0200
-@@ -890,6 +890,10 @@ EXPORT_SYMBOL(filp_open);
-  * a fully instantiated struct file to the caller.
-  * This function is meant to be called from within a filesystem's
-  * lookup method.
-+ * Beware of calling it for non-regular files! Those ->open methods might block
-+ * (e.g. in fifo_open), leaving you with parent locked (and in case of fifo,
-+ * leading to a deadlock, as nobody can open that fifo anymore, because
-+ * another process to open fifo will block on locked parent when doing lookup).
-  * Note that in case of error, nd->intent.open.file is destroyed, but the
-  * path information remains valid.
-  * If the open callback is set to NULL, then the standard f_op->open()
+	Jeff
+
+
+

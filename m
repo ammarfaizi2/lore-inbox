@@ -1,38 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932771AbWBUVEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932777AbWBUVFJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932771AbWBUVEE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 16:04:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030180AbWBUVEE
+	id S932777AbWBUVFJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 16:05:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932778AbWBUVFJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 16:04:04 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21479 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932771AbWBUVED (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 16:04:03 -0500
-Date: Tue, 21 Feb 2006 22:03:17 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH -mm] swsusp: documentation fix
-Message-ID: <20060221210317.GA22525@elf.ucw.cz>
-References: <200602212202.38010.rjw@sisk.pl>
+	Tue, 21 Feb 2006 16:05:09 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:33030 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932777AbWBUVFH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 16:05:07 -0500
+Date: Tue, 21 Feb 2006 22:00:51 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.33-pre2
+Message-ID: <20060221210051.GA13900@w.ods.org>
+References: <20060221214844.GA22561@dmt.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200602212202.38010.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060221214844.GA22561@dmt.cnet>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Út 21-02-06 22:02:37, Rafael J. Wysocki wrote:
-> Fix a sentence in the documentation that's not correct from the technical
-> point of view.
+Hi Marcelo,
 
-ACK.
-								Pavel
+On Tue, Feb 21, 2006 at 03:48:44PM -0600, Marcelo Tosatti wrote:
+> Hi,
+> 
+> Here goes the second -pre of v2.4.33, containing a small number of
+> changes.
+> 
+> Most notably three security corrections, and an overflow fix for
+> machines with large amounts of memory and inodes (which would cause the
+> system's logic to reclaim inodes with highmem pages attached to fail).
 
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+I will release -hf32.3 shortly (well, I should be careful, each time I
+expect something to be done within a few days, I lose).
+
+> Willy Tarreau:
+>       Merge branch 'master' of /data/projets/git/linux/linux-2.4
+>       Merge branch 'master' of /data/projets/git/linux/linux-2.4
+
+Sorry for this pollution, I thought it would stay local :-(
+Next time, I'll try to proceed differently. I think I first pushed the
+changes then updated the tree, while perhaps I should have updated it
+first.
+
+Regards,
+Willy
+

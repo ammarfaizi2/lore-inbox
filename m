@@ -1,137 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161407AbWBUGaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161410AbWBUGbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161407AbWBUGaO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 01:30:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161410AbWBUGaN
+	id S1161410AbWBUGbV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 01:31:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161411AbWBUGbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 01:30:13 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:45751 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1161407AbWBUGaL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 01:30:11 -0500
-Message-ID: <43FAB2F1.5030106@jp.fujitsu.com>
-Date: Tue, 21 Feb 2006 15:28:01 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
+	Tue, 21 Feb 2006 01:31:21 -0500
+Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:4693 "HELO
+	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1161410AbWBUGbU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 01:31:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=RY5v+rSc49mQ8sBlVS2+j8r8n+POJrqmI20ixHjsJTckZoQT1apliT590bwV/zBKdbAuVDp3sKeGvOu5YdddVeLvlZj1FQ8uPR8YzaLvzNRlmOUT9DyZ5VwCd6JT7GbAIniciruirvGZbWdnAaP+cSd7xH4Ahtnmp0kVBZnLLxs=  ;
+Message-ID: <43FA8938.70006@yahoo.com.au>
+Date: Tue, 21 Feb 2006 14:30:00 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       akpm@osdl.org, greg@kroah.com
-CC: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>, ak@suse.de,
-       rmk+lkml@arm.linux.org.uk
-Subject: [PATCH 1/6] PCI legacy I/O port free driver (take2) - Add no_ioport
- flag into pci_dev
-References: <43FAB283.8090206@jp.fujitsu.com>
-In-Reply-To: <43FAB283.8090206@jp.fujitsu.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>
+Subject: Re: [patch] Cache align futex hash buckets
+References: <20060220233242.GC3594@localhost.localdomain>
+In-Reply-To: <20060220233242.GC3594@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds the no_ioport field into struct pci_dev, which is used
-to tell the kernel not to touch any I/O port regions.
+Ravikiran G Thirumalai wrote:
+> Following change places each element of the futex_queues hashtable on a 
+> different cacheline.  Spinlocks of adjacent hash buckets lie on the same 
+> cacheline otherwise.
+> 
 
-Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+It does not make sense to add swaths of unused memory into a hashtable for
+this purpose, does it?
 
- drivers/pci/pci.c   |   33 +++++++++++++++++++++++++--------
- include/linux/pci.h |    1 +
- 2 files changed, 26 insertions(+), 8 deletions(-)
+For a minimal, naive solution you just increase the size of the hash table.
+This will (given a decent hash function) provide the same reduction in
+cacheline contention, while also reducing collisions.
 
-Index: linux-2.6.16-rc4/include/linux/pci.h
-===================================================================
---- linux-2.6.16-rc4.orig/include/linux/pci.h	2006-02-21 14:40:46.000000000 +0900
-+++ linux-2.6.16-rc4/include/linux/pci.h	2006-02-21 14:40:54.000000000 +0900
-@@ -152,6 +152,7 @@
- 	unsigned int	is_busmaster:1; /* device is busmaster */
- 	unsigned int	no_msi:1;	/* device may not use msi */
- 	unsigned int	block_ucfg_access:1;	/* userspace config space access is blocked */
-+	unsigned int	no_ioport:1;	/* device may not use ioport */
- 
- 	u32		saved_config_space[16]; /* config space saved at suspend time */
- 	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
-Index: linux-2.6.16-rc4/drivers/pci/pci.c
-===================================================================
---- linux-2.6.16-rc4.orig/drivers/pci/pci.c	2006-02-21 14:40:46.000000000 +0900
-+++ linux-2.6.16-rc4/drivers/pci/pci.c	2006-02-21 14:40:54.000000000 +0900
-@@ -495,9 +495,14 @@
- int
- pci_enable_device(struct pci_dev *dev)
- {
--	int err;
-+	int err, i, bars = (1 << PCI_NUM_RESOURCES) - 1;
- 
--	if ((err = pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1)))
-+	if (dev->no_ioport)
-+		for (i = 0; i < PCI_NUM_RESOURCES; i++)
-+			if (pci_resource_flags(dev, i) & IORESOURCE_IO)
-+				bars &= ~(1 << i);
-+
-+	if ((err = pci_enable_device_bars(dev, bars)))
- 		return err;
- 	pci_fixup_device(pci_fixup_enable, dev);
- 	dev->is_enabled = 1;
-@@ -617,9 +622,11 @@
- {
- 	if (pci_resource_len(pdev, bar) == 0)
- 		return;
--	if (pci_resource_flags(pdev, bar) & IORESOURCE_IO)
-+	if (pci_resource_flags(pdev, bar) & IORESOURCE_IO) {
-+		WARN_ON(pdev->no_ioport);
- 		release_region(pci_resource_start(pdev, bar),
- 				pci_resource_len(pdev, bar));
-+	}
- 	else if (pci_resource_flags(pdev, bar) & IORESOURCE_MEM)
- 		release_mem_region(pci_resource_start(pdev, bar),
- 				pci_resource_len(pdev, bar));
-@@ -645,6 +652,7 @@
- 		return 0;
- 		
- 	if (pci_resource_flags(pdev, bar) & IORESOURCE_IO) {
-+		WARN_ON(pdev->no_ioport);
- 		if (!request_region(pci_resource_start(pdev, bar),
- 			    pci_resource_len(pdev, bar), res_name))
- 			goto err_out;
-@@ -678,10 +686,13 @@
- 
- void pci_release_regions(struct pci_dev *pdev)
- {
--	int i;
-+	int i, no_ioport = pdev->no_ioport;
- 	
--	for (i = 0; i < 6; i++)
-+	for (i = 0; i < 6; i++) {
-+		if (no_ioport && (pci_resource_flags(pdev, i) & IORESOURCE_IO))
-+			continue;
- 		pci_release_region(pdev, i);
-+	}
- }
- 
- /**
-@@ -699,16 +710,22 @@
-  */
- int pci_request_regions(struct pci_dev *pdev, char *res_name)
- {
--	int i;
-+	int i, no_ioport = pdev->no_ioport;
- 	
--	for (i = 0; i < 6; i++)
-+	for (i = 0; i < 6; i++) {
-+		if (no_ioport && (pci_resource_flags(pdev, i) & IORESOURCE_IO))
-+			continue;
- 		if(pci_request_region(pdev, i, res_name))
- 			goto err_out;
-+	}
- 	return 0;
- 
- err_out:
--	while(--i >= 0)
-+	while(--i >= 0) {
-+		if (no_ioport && (pci_resource_flags(pdev, i) & IORESOURCE_IO))
-+			continue;
- 		pci_release_region(pdev, i);
-+	}
- 		
- 	return -EBUSY;
- }
+A smarter solution might have a single lock per cacheline, and multiple hash
+slots. This could make the indexing code a bit more awkward though.
+
+> Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
+> Signed-off-by: Shai Fultheim <shai@scalex86.org>
+> 
+> Index: linux-2.6.16-rc2/kernel/futex.c
+> ===================================================================
+> --- linux-2.6.16-rc2.orig/kernel/futex.c	2006-02-07 23:14:04.000000000 -0800
+> +++ linux-2.6.16-rc2/kernel/futex.c	2006-02-09 14:04:22.000000000 -0800
+> @@ -100,9 +100,10 @@ struct futex_q {
+>  struct futex_hash_bucket {
+>         spinlock_t              lock;
+>         struct list_head       chain;
+> -};
+> +} ____cacheline_internodealigned_in_smp;
+>  
+> -static struct futex_hash_bucket futex_queues[1<<FUTEX_HASHBITS];
+> +static struct futex_hash_bucket futex_queues[1<<FUTEX_HASHBITS] 
+> +				__cacheline_aligned_in_smp;
+>  
+>  /* Futex-fs vfsmount entry: */
+>  static struct vfsmount *futex_mnt;
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030306AbWBTQVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161003AbWBTQYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030306AbWBTQVu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 11:21:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030308AbWBTQVu
+	id S1161003AbWBTQYX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 11:24:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161004AbWBTQYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 11:21:50 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:27537 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1030306AbWBTQVt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 11:21:49 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: dtor_core@ameritech.net
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Mon, 20 Feb 2006 17:22:08 +0100
-User-Agent: KMail/1.9.1
-Cc: "Pavel Machek" <pavel@ucw.cz>, "Mark Lord" <lkml@rtr.ca>,
-       "Nigel Cunningham" <nigel@suspend2.net>,
-       "Lee Revell" <rlrevell@joe-job.com>,
-       "Matthias Hensler" <matthias@wspse.de>,
-       "Sebastian Kgler" <sebas@kde.org>,
-       "kernel list" <linux-kernel@vger.kernel.org>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060220145405.GD1673@atrey.karlin.mff.cuni.cz> <d120d5000602200708n2984fda9j62c3d7ba21b3e8ae@mail.gmail.com>
-In-Reply-To: <d120d5000602200708n2984fda9j62c3d7ba21b3e8ae@mail.gmail.com>
+	Mon, 20 Feb 2006 11:24:23 -0500
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:42346 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1161003AbWBTQYV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 11:24:21 -0500
+Message-ID: <43FA7677.3040901@de.ibm.com>
+Date: Tue, 21 Feb 2006 03:09:59 +0100
+From: Heiko J Schick <schihei@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Anton Blanchard <anton@samba.org>
+CC: Roland Dreier <rolandd@cisco.com>, SCHICKHJ@de.ibm.com,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       RAISCH@de.ibm.com, HNGUYEN@de.ibm.com, MEDER@de.ibm.com,
+       linuxppc64-dev@ozlabs.org
+Subject: Re: [openib-general] Re: [PATCH 21/22] ehca main file
+References: <20060218005532.13620.79663.stgit@localhost.localdomain>	<20060218005759.13620.10968.stgit@localhost.localdomain> <20060220152213.GD19895@krispykreme>
+In-Reply-To: <20060220152213.GD19895@krispykreme>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602201722.09442.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 February 2006 16:08, Dmitry Torokhov wrote:
-> On 2/20/06, Pavel Machek <pavel@ucw.cz> wrote:
-> > >
-> > > I know I am bad for not reporting that earlier but swsusp was working
-> > > OK for me till about 3 month ago when I started getting "soft lockup
-> > > detected on CPU0" with no useable backtrace 3 times out of 4. I
-> > > somehow suspect that having automounted nfs helps it to fail
-> > > somehow...
-> >
-> > Disable soft lockup watchdog :-).
-> 
-> Ok, I will try, but is this the permanent solution you are proposing?
+Hello Anton,
 
-Certainly not.
+thanks for your help!
 
-The problem is the soft lockup watchdog tends to produce false-positives
-related to the clock resume vs timer interrupt dependencies that are
-hard to trace.
+ >>+#include "hcp_sense.h"		/* TODO: later via hipz_* header file */
+ >>+#include "hcp_if.h"		/* TODO: later via hipz_* header file */
+ >
+ >
+ > I count 88 TODOs in the driver, it would be nice to get rid of some of
+ > them like the two above, so we can concentrate on the important TODOs :)
 
-I used to get those on a regular basis until the timer resume on x86-64
-got fixed a month ago or so.
+We will remove the TODOs soon as possible.
 
-Please try the latest -mm and see if it's not fixed there.  If not, please
-file a bug report with bugzilla (with Cc to me).
+ >>+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,12)
+ >>+#define EHCA_RESOURCE_ATTR_H(name)                                         \
+ >>+static ssize_t  ehca_show_##name(struct device *dev,                       \
+ >>+				 struct device_attribute *attr,            \
+ >>+				 char *buf)
+ >>+#else
+ >>+#define EHCA_RESOURCE_ATTR_H(name)                                         \
+ >>+static ssize_t  ehca_show_##name(struct device *dev,                       \
+ >>+				 char *buf)
+ >>+#endif
+ >
+ >
+ > No need for kernel version ifdefs.
 
-Greetings,
-Rafael
+The point is that our module have to run on Linux 2.6.5-7.244 (SuSE SLES 9 SP3), too.
+This was the reason why we've included the ifdefs. We can change the ifdefs to
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2.6.5) to mark that this code is used for
+Linux 2.6.5 compatibility.
+
+Regards,
+	Heiko

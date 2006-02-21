@@ -1,60 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161300AbWBUDsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161311AbWBUDsd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161300AbWBUDsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 22:48:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161309AbWBUDsJ
+	id S1161311AbWBUDsd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 22:48:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161307AbWBUDsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 22:48:09 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:3005 "EHLO
+	Mon, 20 Feb 2006 22:48:17 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:10941 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1161300AbWBUDsG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 22:48:06 -0500
-Message-Id: <20060221034749.246541000@localhost.localdomain>
+	id S1161306AbWBUDsJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 22:48:09 -0500
+Message-Id: <20060221034750.352424000@localhost.localdomain>
 References: <20060221034628.799606000@localhost.localdomain>
-Date: Tue, 21 Feb 2006 12:46:31 +0900
+Date: Tue, 21 Feb 2006 12:46:34 +0900
 From: Akinobu Mita <mita@miraclelinux.com>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, Akinobu Mita <mita@miraclelinux.com>,
-       David Howells <dhowells@redhat.com>
-Subject: [-mm patch 3/8] frv: remove unnesesary "&"
-Content-Disposition: inline; filename=frv-cleanup.patch
+       Russell King <rmk@arm.linux.org.uk>
+Subject: [-mm patch 6/8] arm: fix undefined reference to generic_fls
+Content-Disposition: inline; filename=arm-fix.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix warning messages triggered by bitops code consolidation patches.
-cxn_bitmap is the array of unsigned long.
-'&' is unnesesary for the argument of *_bit() routins.
+This patch defines constant_fls() instead of removed generic_fls().
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
-Cc: David Howells <dhowells@redhat.com>
+Cc: Russell King <rmk@arm.linux.org.uk>
 
- arch/frv/mm/mmu-context.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ include/asm-arm/bitops.h |   31 ++++++++++++++++++++++++++++++-
+ 1 files changed, 30 insertions(+), 1 deletion(-)
 
-Index: 2.6-mm/arch/frv/mm/mmu-context.c
+Index: 2.6-mm/include/asm-arm/bitops.h
 ===================================================================
---- 2.6-mm.orig/arch/frv/mm/mmu-context.c
-+++ 2.6-mm/arch/frv/mm/mmu-context.c
-@@ -54,9 +54,9 @@ static unsigned get_cxn(mm_context_t *ct
- 		/* find the first unallocated context number
- 		 * - 0 is reserved for the kernel
- 		 */
--		cxn = find_next_zero_bit(&cxn_bitmap, NR_CXN, 1);
-+		cxn = find_next_zero_bit(cxn_bitmap, NR_CXN, 1);
- 		if (cxn < NR_CXN) {
--			set_bit(cxn, &cxn_bitmap);
-+			set_bit(cxn, cxn_bitmap);
- 		}
- 		else {
- 			/* none remaining - need to steal someone else's cxn */
-@@ -138,7 +138,7 @@ void destroy_context(struct mm_struct *m
- 			cxn_pinned = -1;
+--- 2.6-mm.orig/include/asm-arm/bitops.h
++++ 2.6-mm/include/asm-arm/bitops.h
+@@ -239,13 +239,42 @@ extern int _find_next_bit_be(const unsig
  
- 		list_del_init(&ctx->id_link);
--		clear_bit(ctx->id, &cxn_bitmap);
-+		clear_bit(ctx->id, cxn_bitmap);
- 		__flush_tlb_mm(ctx->id);
- 		ctx->id = 0;
- 	}
+ #else
+ 
++static inline int constant_fls(int x)
++{
++	int r = 32;
++
++	if (!x)
++		return 0;
++	if (!(x & 0xffff0000u)) {
++		x <<= 16;
++		r -= 16;
++	}
++	if (!(x & 0xff000000u)) {
++		x <<= 8;
++		r -= 8;
++	}
++	if (!(x & 0xf0000000u)) {
++		x <<= 4;
++		r -= 4;
++	}
++	if (!(x & 0xc0000000u)) {
++		x <<= 2;
++		r -= 2;
++	}
++	if (!(x & 0x80000000u)) {
++		x <<= 1;
++		r -= 1;
++	}
++	return r;
++}
++
+ /*
+  * On ARMv5 and above those functions can be implemented around
+  * the clz instruction for much better code efficiency.
+  */
+ 
+ #define fls(x) \
+-	( __builtin_constant_p(x) ? generic_fls(x) : \
++	( __builtin_constant_p(x) ? constant_fls(x) : \
+ 	  ({ int __r; asm("clz\t%0, %1" : "=r"(__r) : "r"(x) : "cc"); 32-__r; }) )
+ #define ffs(x) ({ unsigned long __t = (x); fls(__t & -__t); })
+ #define __ffs(x) (ffs(x) - 1)
 
 --

@@ -1,69 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWBUScI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbWBUSeP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbWBUScI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 13:32:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWBUScI
+	id S932468AbWBUSeP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 13:34:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbWBUSeP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 13:32:08 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:21683 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S932337AbWBUScF (ORCPT
+	Tue, 21 Feb 2006 13:34:15 -0500
+Received: from mail.kroah.org ([69.55.234.183]:45797 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932468AbWBUSeO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 13:32:05 -0500
-Message-ID: <43FB5C5D.8040907@cfl.rr.com>
-Date: Tue, 21 Feb 2006 13:30:53 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Flames over -- Re: Which is simpler?
-References: <200602131116.41964.david-b@pacbell.net> <200602192150.05567.david-b@pacbell.net> <43F9E95A.6080103@cfl.rr.com> <200602210819.57740.david-b@pacbell.net>
-In-Reply-To: <200602210819.57740.david-b@pacbell.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Feb 2006 18:33:26.0185 (UTC) FILETIME=[4D915990:01C63715]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14281.000
-X-TM-AS-Result: No--11.450000-5.000000-31
+	Tue, 21 Feb 2006 13:34:14 -0500
+Date: Tue, 21 Feb 2006 09:57:36 -0800
+From: Greg KH <greg@kroah.com>
+To: "Mike D. Day" <ncmike@us.ibm.com>
+Cc: xen-devel@lists.xensource.com, lkml <linux-kernel@vger.kernel.org>,
+       Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [ PATCH 2.6.16-rc3-xen 2/3] sysfs: export Xen hypervisor attributes to sysfs
+Message-ID: <20060221175736.GB23075@kroah.com>
+References: <43FB25C8.1070303@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43FB25C8.1070303@us.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell wrote:
-> On Monday 20 February 2006 8:07 am, Phillip Susi wrote:
->> And this is exactly how non USB hardware has behaved for eons, and it 
->> hasn't been a problem. 
+On Tue, Feb 21, 2006 at 09:38:00AM -0500, Mike D. Day wrote:
+> # HG changeset patch
+> # User mdday@dual.silverwood.home
+> # Node ID f5f32dc60121c32fab158a814c914aae3b77ba06
+> # Parent  d296aaf07bcb4141c6dc2a1bfa7d183f919c2167
+> Add tri-state Kconfig option for building xen-sysfs module. 
 > 
-> How many billions of years exactly?  :)
+> signed-off-by: Mike D. Day <ncmike@us.ibm.com>
 > 
-
-<G>
-
-> Of course it sometimes _has_ been a problem.  Repeating your claim
-> doesn't make it true.  And the user model of USB was certainly so
-> those problems could be _prevented_ rather than continued forever
-> into new generations of hardware.
+> diff -r d296aaf07bcb -r f5f32dc60121 
+> linux-2.6-xen-sparse/drivers/xen/Kconfig
+> --- a/linux-2.6-xen-sparse/drivers/xen/Kconfig	Tue Feb 21 08:11:03 2006 
+> -0500
+> +++ b/linux-2.6-xen-sparse/drivers/xen/Kconfig	Tue Feb 21 08:12:11 2006 
+> -0500
+> @@ -173,12 +173,20 @@ config XEN_SCRUB_PAGES
+> 	  saying N.
 > 
-
-But it hasn't been prevented, just changed into a less destructive, but 
-more prevelant problem.  If you want to try to solve the problem then it 
-should be solved in such a way that it does not cause other problems ( 
-breaking mounts when you suspend ) and the solution should be 
-generalized to all disks rather than just USB.
-
-> The fact that MS-DOS did something does not make it a good idea.
+> config XEN_DISABLE_SERIAL
+> -	bool "Disable serial port drivers"
+> +	bool "Disable serial port drivers"	
+> 	default y
+> 	help
+> 	  Disable serial port drivers, allowing the Xen console driver
+> 	  to provide a serial console at ttyS0.
 > 
+> +config XEN_SYSFS
+> +	tristate "Export Xen attributes in sysfs"
+> +	depends on XEN
+> +	depends on SYSFS
+> +	default y
+> +	help
+> +		Xen hypervisor attributes will show up under 
+> /sys/hypervisor/.
+> +
+> endmenu
 > 
-> This is LKML.  Pointing out when patches are overdue
-> can't realistically be taken as a flame; it's a
-> standard way of moving beyond discussion to action.
-> (Or helping someone self-educate about issues they
-> won't see until they, too, look more deeply ...)
-> 
+> config HAVE_ARCH_ALLOC_SKB
+> diff -r d296aaf07bcb -r f5f32dc60121 
+> linux-2.6-xen-sparse/drivers/xen/Makefile
+> --- a/linux-2.6-xen-sparse/drivers/xen/Makefile	Tue Feb 21 08:11:03 
+> 2006 -0500
+> +++ b/linux-2.6-xen-sparse/drivers/xen/Makefile	Tue Feb 21 08:12:11 
+> 2006 -0500
+> @@ -19,4 +19,3 @@ obj-$(CONFIG_XEN_TPMDEV_FRONTEND)	+= tpm
+> obj-$(CONFIG_XEN_TPMDEV_FRONTEND)	+= tpmfront/
+> obj-$(CONFIG_XEN_PCIDEV_BACKEND)	+= pciback/
+> obj-$(CONFIG_XEN_PCIDEV_FRONTEND)	+= pcifront/
+> -
 
-I think you got the thread confused.  The flame was:
+This patch is line-wrapped, and nothing is changed in this file based on
+the above portion of the patch.
 
- >>> changing all that stuff, he also needs stop being a
- >>> member of the "never submitted a USB patch" club.
+Confused,
 
-> However, responding to a "request for patch" in that
-> way certainly does come across as a flame.
-
+greg k-h

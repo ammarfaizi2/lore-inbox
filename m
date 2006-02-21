@@ -1,108 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWBUJYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932719AbWBUJar@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbWBUJYf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 04:24:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932720AbWBUJYe
+	id S932719AbWBUJar (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 04:30:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932721AbWBUJar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 04:24:34 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:39004 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932281AbWBUJYe (ORCPT
+	Tue, 21 Feb 2006 04:30:47 -0500
+Received: from mail.gmx.net ([213.165.64.20]:13229 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932719AbWBUJaq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 04:24:34 -0500
-From: Dmitry Mishin <dim@sw.ru>
-Organization: SWsoft
-To: devel@openvz.org
-Subject: Re: [Devel] Re: [PATCH 1/2] iptables 32bit compat layer
-Date: Tue, 21 Feb 2006 12:24:29 +0300
-User-Agent: KMail/1.8
-Cc: Andi Kleen <ak@suse.de>, Mishin Dmitry <dim@openvz.org>, akpm@osdl.org,
-       rusty@rustcorp.com.au, netfilter-devel@lists.netfilter.org,
-       linux-kernel@vger.kernel.org, dev@openvz.org
-References: <200602201110.39092.dim@openvz.org> <p73slqd4tde.fsf@verdi.suse.de>
-In-Reply-To: <p73slqd4tde.fsf@verdi.suse.de>
+	Tue, 21 Feb 2006 04:30:46 -0500
+X-Authenticated: #428038
+Date: Tue, 21 Feb 2006 10:30:42 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060221093042.GA14325@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	linux-kernel@vger.kernel.org
+References: <43EB7BBA.nailIFG412CGY@burner> <20060216181422.GA18837@merlin.emma.line.org> <43F5A5A4.nail2VC61NOF6@burner> <200602171545.21867.dhazelton@enter.net> <43F9D95C.nail4AL61JSZG@burner>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602211224.30241.dim@sw.ru>
+In-Reply-To: <43F9D95C.nail4AL61JSZG@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 February 2006 00:23, Andi Kleen wrote:
-> Mishin Dmitry <dim@openvz.org> writes:
-> > Hello,
-> >
-> > This patch set extends current iptables compatibility layer in order to
-> > get 32bit iptables to work on 64bit kernel. Current layer is insufficient
-> > due to alignment checks both in kernel and user space tools.
-> >
-> > This patch introduces base compatibility interface for other ip_tables
-> > modules
->
-> Nice. But some issues with the implementation
->
->
-> +#if defined(CONFIG_X86_64)
-> +#define is_current_32bits() (current_thread_info()->flags & _TIF_IA32)
->
-> This should be is_compat_task(). And we don't do such ifdefs
-> in generic code.  And what you actually need here is a
-> is_compat_task_with_funny_u64_alignment() (better name sought)
->
-> So I would suggest you add macros for that to the ia64 and x86-64
-> asm/compat.hs and perhaps a ARCH_HAS_FUNNY_U64_ALIGNMENT #define in there.
-agree.
+Joerg Schilling schrieb am 2006-02-20:
 
->
-> +	ret = 0;
-> +	switch (convert) {
-> +		case COMPAT_TO_USER:
-> +			pt = (struct ipt_entry_target *)target;
->
-> etc. that looks ugly. why can't you just define different functions
-> for that?  We don't really need in kernel ioctl
-3 functions and the requirement that if defined one, than defined all of them?
+> I did not get any proposal for working on making ide-scsi work
 
->
-> +#ifdef CONFIG_COMPAT
-> +	down(&compat_ipt_mutex);
-> +#endif
->
-> Why does it need an own lock?
-Because it protects only compatibility translation. We spend a lot of time in 
-these cycles and I don't think that it is a good way to hold ipt_mutex for 
-this. The only reason of this lock is offset list - in the first iteration I 
-fill it, in the second - use it. If you know how to implement this better, 
-let me know.
+The suggestion was not to insist on it.
 
->
-> Overall the implementation looks very complicated. Are you sure
-> it wasn't possible to do this simpler?
-ughh...
-I don't like this code as well. But seems that it is due to iptables code 
-itself, which was designed with no thoughts about compatibility in minds.
+> nor did I get a useful proposal that would explain how it might be
+> done without ide-scsi.
 
-So, I see following approaches:
-1) do translation before pass data to original do_replace or get_entries.
-Disadvantage of such approach is additional 2 cycles through data.
-2) do translation in compat_do_replace and compat_get_entries. Avoidance of 
-additional cycles, but some code duplication.
-3) remove alignment checks in kernel - than we need only first time 
-translation from kernel to user. But such code will not work with both 32bit 
-and 64 bit iptables at the same time.
+The existing code works good enough for the cdrecord "consumer" of your
+libscg library when the scary warnings are dropped.
 
-Any suggestions?
+Problems with new hardware can be fixed as use cases and hardware appear
+and real problems show up. Given that the Linux device layering is
+documented as passing unknown ioctls to lower layers to see if they can
+deal with them, there shouldn't be many issues.
 
->
->
-> -Andi
->
-> _______________________________________________
-> Devel mailing list
-> Devel@openvz.org
-> https://openvz.org/mailman/listinfo/devel
+If you're unware of problems with new hardware or inventions, nobody can
+seriously blame you, just stuff "last found working with Linux 2.6.y"
+into some readme file and that's it.
+
+> > From what I can tell a lot of the warnings are bogus. You even go to great 
+> > lengths to "scare" people into only using "official" versions of cdrtools.
+> 
+> They are related to serious problems.
+
+They are related to problems that you encountered with a SUSE version
+ages ago, else your commentary in the code is insufficient.
+
+You ought to check once a year or once every two years if the problems
+you are so heftily complain about persist in supported versions; for
+instance, any SUSE warnings related to 8.X versions can be removed and
+replaced by a note that you don't intend to support operating systems
+that are no longer supported by their respective vendor. You don't have
+support contracts with distributors, so they aren't obliged to tell you
+"hey we fixed that bug" -- and if you asked, you'd probably get a useful
+answers.
+
+I'm applying the same policy to my software (no support on unsupported
+distributions) and it hasn't caused a single complaint yet, the only
+comments I received were apologies for having to use obsolete systems
+for some reasons, with people being rather modest and cooperative, like
+offering testing, accounts on those systems and so on. Pretty reasonable
+all in all IMO.
 
 -- 
-Thanks,
-Dmitry.
+Matthias Andree

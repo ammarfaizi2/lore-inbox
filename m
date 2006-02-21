@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161211AbWBUAC3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161213AbWBUAHq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161211AbWBUAC3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 19:02:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161212AbWBUAC3
+	id S1161213AbWBUAHq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 19:07:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161214AbWBUAHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 19:02:29 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:19585 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1161211AbWBUAC2 (ORCPT
+	Mon, 20 Feb 2006 19:07:46 -0500
+Received: from pproxy.gmail.com ([64.233.166.179]:51000 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161213AbWBUAHq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 19:02:28 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.16-rc4-mm1 kernel crash at bootup. parport trouble?
-Date: Tue, 21 Feb 2006 01:02:46 +0100
-User-Agent: KMail/1.9.1
-Cc: efault@gmx.de, helge.hafting@aitel.hist.no, linux-kernel@vger.kernel.org,
-       "Bernhard R. Link" <brlink@debian.org>
-References: <20060220042615.5af1bddc.akpm@osdl.org> <200602210036.30836.rjw@sisk.pl> <20060220154025.0b547085.akpm@osdl.org>
-In-Reply-To: <20060220154025.0b547085.akpm@osdl.org>
+	Mon, 20 Feb 2006 19:07:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=DqJ3KqTY6dwz/X6nHBFHC859zhCPQi+mNrtcOjj4gLY1sUkahLCWST8DPzGpozZJEoK71KtkgcwctptcfIza3BV5/ZXy03LH05doVVN8pvHnOTU/V6Q8Sz7YJi6M78OGaJrRJLiaFWirBaxyaRruVh1+5Z3AE//wvjrdLi7UjNw=
+Message-ID: <43FA59C2.8090500@gmail.com>
+Date: Tue, 21 Feb 2006 08:07:30 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Alexey Dobriyan <adobriyan@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Mozilla Thunderbird posting instructions wanted
+References: <20060220210349.GA29791@mipter.zuzino.mipt.ru>
+In-Reply-To: <20060220210349.GA29791@mipter.zuzino.mipt.ru>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602210102.47371.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 February 2006 00:40, Andrew Morton wrote:
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> >
-> > On Monday 20 February 2006 21:41, Andrew Morton wrote:
-> > > MIke Galbraith <efault@gmx.de> wrote:
-> > > >
-> > > > On Mon, 2006-02-20 at 16:07 +0100, Helge Hafting wrote:
-> > > >  > pentium IV single processor, gcc (GCC) 4.0.3 20060128
-> > > >  > 
-> > > >  > During boot, I normally get:
-> > > >  > parport0: irq 7 detected
-> > > >  > lp0: using parport0 (polling).
-> > > >  > 
-> > > >  > Instead, I got this, written by hand:
-> > > > 
-> > > >  ........
-> > > > 
-> > > >  > This oops is simplified. I can get the exact text if
-> > > >  > that really matters.  It is much more to write down and
-> > > >  > I don't usually have my camera at work.
-> > > > 
-> > > >  I get the same, and already have the serial console hooked up.
-> > > > 
-> > > >  BUG: unable to handle kernel NULL pointer dereference at virtual address 000000e8
-> > > 
-> > > Thanks.  Could someone try reverting
-> > > register-sysfs-device-for-lp-devices.patch?
-> > 
-> > That helps on my system.
+Alexey Dobriyan wrote:
+> This  POS is pretty popular among kernel janitors, so, can someone who
+> is successfully using it, please, post crystally clear step-by-step
+> instructions on how to send a foo.patch:
+> 	inline
+> 	with tabs preserved
+> 	with long lines preserved
 > 
-> OK, thanks.  I'll drop it.
+> Sending plain text attachments is OK with me, but, heh, people do post
+> patches inline and screw themselves.
 > 
-> > An unrelated problem is that USB host drivers (ohci-hcd, ehci-hcd) refuse to
-> > suspend.  [Investigating ...]
+> I'll put instructions somewhere on -kj website and point every
+> unsuspecting new guy to them.
 > 
-> Me too.
-> 
-> Try reverting reset-pci-device-state-to-unknown-after-disabled.patch.
 
-Heh, that actually helps. :-)  Still I have no idea why is that so ...
+I've been sending patches inline with thunderbird.  Most important setting
+is "wrap plain text messages at 0 characters".
+
+Getting the external editor extension makes the job much easier. It allows
+you to use your favorite editor while in the compose window.
+
+Tony

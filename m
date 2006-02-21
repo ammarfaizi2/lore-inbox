@@ -1,75 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWBUBLW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161261AbWBUBTJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932218AbWBUBLW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 20:11:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932694AbWBUBLW
+	id S1161261AbWBUBTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 20:19:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161262AbWBUBTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 20:11:22 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:13728 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932218AbWBUBLV (ORCPT
+	Mon, 20 Feb 2006 20:19:09 -0500
+Received: from stinky.trash.net ([213.144.137.162]:1156 "EHLO stinky.trash.net")
+	by vger.kernel.org with ESMTP id S1161261AbWBUBTI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 20:11:21 -0500
-Date: Mon, 20 Feb 2006 17:09:40 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: linux-kernel@vger.kernel.org, shai@scalex86.org
-Subject: Re: [patch] Cache align futex hash buckets
-Message-Id: <20060220170940.1496e1d5.akpm@osdl.org>
-In-Reply-To: <20060221010430.GE3594@localhost.localdomain>
-References: <20060220233242.GC3594@localhost.localdomain>
-	<20060220153320.793b6a7d.akpm@osdl.org>
-	<20060220153419.5ea8dd89.akpm@osdl.org>
-	<20060221000924.GD3594@localhost.localdomain>
-	<20060220162317.5c7b9778.akpm@osdl.org>
-	<20060221010430.GE3594@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 20 Feb 2006 20:19:08 -0500
+Message-ID: <43FA6A2C.8000905@trash.net>
+Date: Tue, 21 Feb 2006 02:17:32 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: linux-kernel@vger.kernel.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: 2.6.16-rc4-mm1
+References: <20060220042615.5af1bddc.akpm@osdl.org> <43F9BDDA.1060508@reub.net> <43F9CE18.10709@trash.net> <20060220204456.GG4661@stusta.de>
+In-Reply-To: <20060220204456.GG4661@stusta.de>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
->
-> On Mon, Feb 20, 2006 at 04:23:17PM -0800, Andrew Morton wrote:
-> > Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
-> > >
-> > > On Mon, Feb 20, 2006 at 03:34:19PM -0800, Andrew Morton wrote:
-> > > > Andrew Morton <akpm@osdl.org> wrote:
-> > > > >
-> > > > > > @@ -100,9 +100,10 @@ struct futex_q {
-> > > > > >  struct futex_hash_bucket {
-> > > > > >         spinlock_t              lock;
-> > > > > >         struct list_head       chain;
-> > > > > > -};
-> > > > > > +} ____cacheline_internodealigned_in_smp;
-> > > > > >  
-> > > > > > -static struct futex_hash_bucket futex_queues[1<<FUTEX_HASHBITS];
-> > > > > > +static struct futex_hash_bucket futex_queues[1<<FUTEX_HASHBITS] 
-> > > > > > +				__cacheline_aligned_in_smp;
-> > > > > >  
-> > > > > 
-> > > > > How much memory does that thing end up consuming?
-> > > > 
-> > > > I think a megabyte?
-> > > 
-> > > On most machines it would be 256 * 128 = 32k. or 16k on arches with 64B 
-> > > cachelines.  This looked like a simpler solution for spinlocks falling on
-> > > the same cacheline.  So is 16/32k unreasonable?
-> > > 
-> > 
-> > CONFIG_X86_VSMP enables 4096-byte padding for
-> > ____cacheline_internodealigned_in_smp.    It's a megabyte.
+Adrian Bunk wrote:
+> On Mon, Feb 20, 2006 at 03:11:36PM +0100, Patrick McHardy wrote:
 > 
-> Yes, only on vSMPowered systems.  Well, we have a large 
-> internode cacheline, but these machines have lots of memory too.  I 
-> thought a  simpler padding solution might be acceptable as futex_queues 
-> would be large only on our boxes.
+>>Ideally this dependency should be enforced by Kconfig. I'm not sure
+>>if it is possible to express something like "IP_DCCP_CCID2 and
+>>IP_DCCP_CCID3 depend on DCCP, DCCP requires at least one of both
+>>to be enabled". Can someone more familiar with Kconfig than me
+>>comment on this? Otherwise the #error should be moved to
+>>net/dccp/options.c to keep dccp.h usable without dccp enabled.
+> 
+> 
+> I can try to do it, but I need the exact semantics.
+> 
+> Should all of the following stay allowed configurations?
+> 
+> CONFIG_IP_DCCP=y
+> CONFIG_IP_DCCP_CCID2=m
+> CONFIG_IP_DCCP_CCID3=n
+> 
+> CONFIG_IP_DCCP=y
+> CONFIG_IP_DCCP_CCID2=y
+> CONFIG_IP_DCCP_CCID3=m
 
-Well it's your architecture...  As long as you're finding this to be a
-sufficiently large problem in testing to justify consuming a meg of memory
-then fine, let's do it.
+Arnaldo apparently wants to fix it differently, but maybe you could help
+us with conntrack :) CONFIG_IP_NF_CONNTRACK and CONFIG_NF_CONNTRACK
+should be mutually exclusive. Specifying
 
-But your initial changelog was rather benchmark-free?  It's always nice to
-see numbers accompanying a purported optimisation patch.
+CONFIG_IP_NF_CONNTRACK
+	depends on CONFIG_NF_CONNTRACK=n
 
+CONFIG_NF_CONNTRACK
+	depends on CONFIG_IP_NF_CONNTRACK=n
+
+will avoid asking for NF_CONNTRACK when IP_NF_CONNTRACK is set, but not
+the other way around.

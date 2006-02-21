@@ -1,81 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWBURE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWBURIc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbWBURE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 12:04:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWBURE5
+	id S932326AbWBURIc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 12:08:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWBURIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 12:04:57 -0500
-Received: from xenotime.net ([66.160.160.81]:206 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932313AbWBURE4 (ORCPT
+	Tue, 21 Feb 2006 12:08:32 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:33167 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932326AbWBURIc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 12:04:56 -0500
-Date: Tue, 21 Feb 2006 09:04:51 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Jens Axboe <axboe@suse.de>
-cc: Ariel Garcia <garcia@iwr.fzk.de>, linux-kernel@vger.kernel.org,
-       "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: 2.6.16-rc4 libata + AHCI patched for suspend fails on ICH6
-In-Reply-To: <20060219191859.GJ8852@suse.de>
-Message-ID: <Pine.LNX.4.58.0602210903260.8603@shark.he.net>
-References: <200602191958.38219.garcia@iwr.fzk.de> <20060219191859.GJ8852@suse.de>
+	Tue, 21 Feb 2006 12:08:32 -0500
+Message-ID: <43FB5B15.F88FF5A8@tv-sign.ru>
+Date: Tue, 21 Feb 2006 21:25:25 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: paulmck@us.ibm.com
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] introduce sig_needs_tasklist() helper
+References: <43F76374.EDA3ED9D@tv-sign.ru> <20060221021302.GR1480@us.ibm.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Feb 2006, Jens Axboe wrote:
+"Paul E. McKenney" wrote:
+> 
+> On Sat, Feb 18, 2006 at 09:12:04PM +0300, Oleg Nesterov wrote:
+> > +#define sig_needs_tasklist(sig) \
+> > +             (((sig) < SIGRTMIN)  && T(sig, SIG_KERNEL_STOP_MASK | M(SIGCONT)))
+> > +
+> 
+> Seems to me to be an improvement, but why not also encapsulate the
+> lock acquisition, something like:
+> 
+>         static inline int sig_tasklist_lock(int sig)
+>         {
+>                 if (unlikely(sig_needs_tasklist(sig)) {
+>                         read_lock(&tasklist_lock);
+>                         return 1;
+>                 }
+>                 return 0;
+>         }
+> 
+>         static inline void sig_tasklist_unlock(int acquired_tasklist_lock)
+>         {
+>                 if (acquired_tasklist_lock)
+>                         read_unlock(&tasklist_lock);
+>         }
 
-> On Sun, Feb 19 2006, Ariel Garcia wrote:
-> > Hi Jens,
-> >
-> > regarding your suspend support patch for libata:
-> >
-> > > author  Jens Axboe <axboe@suse.de>
-> > >    Fri, 6 Jan 2006 08:28:07 +0000 (09:28 +0100)
-> > > commit  9b847548663ef1039dd49f0eb4463d001e596bc3
-> >
-> > >  [PATCH] Suspend support for libata
-> > >  This patch adds suspend patch to libata, and ata_piix in particular.
-> > > For most low level drivers, they should just need to add the 4 hooks to
-> > > work. As I can only test ata_piix, I didn't enable it for more though.
-> >
-> > i tested the trivial "4-hooks" patch on kernel 2.6.16-rc4, on my laptop
-> > (i915, ICH6 chipset, sata hd - a Fujitsu-Siemens 7020)
-> > but it doesn't work as it should:
-> >    after resume the drive fails to respond to the commands so it
-> >    ends up remounted read-only.
-> >
-> > I am attaching:
-> >    - the trivial patch i used
-> >    - the output of lsmod (lsmod-clean.txt)
-> >    - the output of lspci -vv  before (lspci-clean.txt)
-> >         and after resuming (lspci-resume.txt)
-> >    - the output of dmesg (glueing the full boot + resuming messages)
-> >
-> > All this was done running in single mode. I also tried suspending after
-> > removing all unnecessary modules (usb, snd,ide,...), same result.
-> >
-> > BTW, running a    'diff lspci-clean.txt lspci-resume.txt'
-> > i also noticed that after resume some pci devices get a different
-> > "BusMaster" polarity, but the SATA controller doesn't.
-> >
-> > I would be glad to test patches/debug other things, feel free to ask.
->
-> The first thing to try is to add the acpi addon from Randy and see if
-> that helps at all. Looking at the log, the first command we issue after
-> resume times out which smells a lot like an unlock command missing
-> (which is typically in the GTF list from acpi).
+I hope we will have
 
-Ariel-
-These patches (for 2.6.16-rc3) are at
-http://www.xenotime.net/linux/SATA/2.6.16-rc3/libata-rollup-2616-rc3.patch
+	#define sig_needs_tasklist(sig)	  (sig == SIGCONT)
 
-in case you didn't find them yet.
+really soon (I planned to submit the final bits today, but
+for some stupid reasons I can't do anything till weekend),
+so I think it's better to kill 'acquired_tasklist_lock' and
+just do:
 
-> So try this patch on 2.6.16-rc3 (or -rc4, if it applies, haven't
-> checked) and make sure to keep the ahci patch you have that adds the 4
-> needed hooks as well.
+	void sig_tasklist_lock(sig)
+	{
+		if (sig_needs_tasklist(sig))
+			read_lock(&tasklist_lock);
+	}
 
--- 
-~Randy
+	void sig_tasklist_unlock(sig)
+	{
+		if (sig_needs_tasklist(sig));
+			read_unlock(&tasklist_lock);
+	}
+
+Oleg.

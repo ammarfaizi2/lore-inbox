@@ -1,43 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWBUX0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbWBUX3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750961AbWBUX0U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 18:26:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWBUX0U
+	id S1751209AbWBUX3V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 18:29:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWBUX3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 18:26:20 -0500
-Received: from mail.fieldses.org ([66.93.2.214]:39898 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP
-	id S1750961AbWBUX0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 18:26:20 -0500
-Date: Tue, 21 Feb 2006 18:26:07 -0500
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andrew Morton <akpm@osdl.org>, Oleg Drokin <green@linuxhacker.ru>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: FMODE_EXEC or alike?
-Message-ID: <20060221232607.GS22042@fieldses.org>
-References: <20060220221948.GC5733@linuxhacker.ru> <20060220215122.7aa8bbe5.akpm@osdl.org> <1140530396.7864.63.camel@lade.trondhjem.org>
-MIME-Version: 1.0
+	Tue, 21 Feb 2006 18:29:21 -0500
+Received: from nevyn.them.org ([66.93.172.17]:21680 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S1751209AbWBUX3U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 18:29:20 -0500
+Date: Tue, 21 Feb 2006 18:29:03 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: "Charles P. Wright" <cwright@cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ptrace and threads
+Message-ID: <20060221232903.GA3778@nevyn.them.org>
+Mail-Followup-To: "Charles P. Wright" <cwright@cs.sunysb.edu>,
+	linux-kernel@vger.kernel.org
+References: <1140030841.10553.9.camel@polarbear.fsl.cs.sunysb.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1140530396.7864.63.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.11+cvs20060126
-From: "J. Bruce Fields" <bfields@fieldses.org>
+In-Reply-To: <1140030841.10553.9.camel@polarbear.fsl.cs.sunysb.edu>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 21, 2006 at 08:59:56AM -0500, Trond Myklebust wrote:
-> Hmm.... We might possibly want to use that for NFSv4 at some point in
-> order to deny write access to the file to other clients while it is in
-> use.
+On Wed, Feb 15, 2006 at 02:14:01PM -0500, Charles P. Wright wrote:
+> Is there a proper, non-racy, way to hand a ptraced child off from one
+> tracing process to another tracing process?
+> 
+> Specifically, I want to architect my tracing application such that each
+> traced process is traced by a separate thread.
+> 
+> For non-threaded applications, I was adding CLONE_STOPPED to the
+> clone(2) flags of the child.  This way, when the child process started
+> up, it would be stopped and a new tracing thread could PTRACE_ATTACH to
+> it before any system calls were executed.  Unfortunately, this method
+> doesn't seem to work for threaded traced processes.  The reason is that
+> the SIGSTOP may be delivered to the traced parent instead of the traced
+> child, because signal handlers are shared.
+> 
+> My next thought was to add CLONE_PTRACE to the flags.  This way, the
+> tracing process gets signaled via wait before the child begins to
+> execute.  The problem now is that I need to the have a separate
+> monitoring thread take control of the child.  I tried using
+> ptrace(PTRACE_DETACH, ..., ..., SIGSTOP) in the original tracing process
+> to stop the process after the fork, followed by a ptrace(PTRACE_ATTACH)
+> in the new tracing process.  Again, the STOP signal doesn't seem to be
+> reliably delivered (and the man page says you can't use SIGSTOP as an
+> argument to PTRACE_CONT and that PTRACE_DETACH's semantics match those
+> of PTRACE_CONT).
 
-So on the NFS client, an open with FMODE_EXEC could be translated into
-an NFSv4 open with a deny_write bit (since NFSv4 opens also do windows
-share locks).
+You didn't say what kernel version you're concerned with.  There have
+definitely been fixes in this area in the last year.  If you're using a
+current kernel and PTRACE_DETACH can't leave the thread stopped, please
+let us know.  I'd have expected the CLONE_STOPPED approach to work too.
 
-An NFSv4 server might also be able to translate deny mode writes into
-FMODE_EXEC in the case where it was exporting a cluster filesystem.  It
-wouldn't completely solve the problem of implementing cluster-coherent
-share locks (which also let you deny reads, who knows why), but it seems
-like it would address the case most likely to matter.
+However, I also recall some trouble with having one thread running
+ptraced while another thread is not ptraced, where SIGTRAP would be
+delivered to the wrong thread.  So there may still be trouble.
 
---b.
+-- 
+Daniel Jacobowitz
+CodeSourcery

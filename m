@@ -1,86 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWBUWpO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161186AbWBUWuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751199AbWBUWpO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 17:45:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWBUWpO
+	id S1161186AbWBUWuy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 17:50:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161006AbWBUWuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 17:45:14 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:51102 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1751199AbWBUWpM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 17:45:12 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Wed, 22 Feb 2006 07:00:50 +1000
-User-Agent: KMail/1.9.1
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
-       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602202319.15018.dtor_core@ameritech.net> <200602212140.57566.rjw@sisk.pl>
-In-Reply-To: <200602212140.57566.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart27174856.oxOlyUKcOS";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Tue, 21 Feb 2006 17:50:54 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:57780 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964888AbWBUWux (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 17:50:53 -0500
+Date: Tue, 21 Feb 2006 14:49:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Hesse, Christian" <mail@earthworm.de>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: hald in status D with 2.6.16-rc4
+Message-Id: <20060221144907.1ac11799.akpm@osdl.org>
+In-Reply-To: <200602212322.48645.mail@earthworm.de>
+References: <200602202034.29413.mail@earthworm.de>
+	<20060220211909.7964d56e.akpm@osdl.org>
+	<200602212322.48645.mail@earthworm.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602220700.55207.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart27174856.oxOlyUKcOS
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-Hi Rafael.
-
-On Wednesday 22 February 2006 06:40, Rafael J. Wysocki wrote:
-> On Tuesday 21 February 2006 05:19, Dmitry Torokhov wrote:
-> > On Monday 20 February 2006 21:57, Nigel Cunningham wrote:
-> > > For the record, my thinking went: swsusp uses n (12?) bytes of meta
-> > > data for every page you save, where as using bitmaps makes that much
-> > > closer to a constant value (a small variable amount for recording whe=
-re
-> > > the image will be stored in extents). 12 bytes per page is 3MB/1GB. If
-> > > swsusp was to add support for multiple swap partitions or writing to
-> > > files, those requirements might be closer to 5MB/GB.
-> >
-> > 5MB/GB amounts to 0.5% overhead, I don't think you should be concerned
-> > here. Much more important IMHO is that IIRC swsusp requires to be able =
-to
-> > free 1/2 of the physical memory whuch is hard on low memory boxes.
+"Hesse, Christian" <mail@earthworm.de> wrote:
 >
-> I see another point in using bitmaps: we could avoid modifying page flags
-> and use bitmaps to store all of the temporary information.  I thought abo=
-ut
-> it for some time and I think it's doable.
+> On Tuesday 21 February 2006 06:19, Andrew Morton wrote:
+> > "Hesse, Christian" <mail@earthworm.de> wrote:
+> > > Hello everybody,
+> > >
+> > > since using kernel version 2.6.16-rc4 the hal daemon is in status D after
+> > > resume. I use suspend2 2.2.0.1 for 2.6.16-rc3. Any hints what could be
+> > > the problem? It worked perfectly with 2.6.15.x and suspend2 2.2.
+> >
+> > a) Look in the logs for any oopses, other nasties
+> 
+> Nothing.
+> 
+> > b) Do `echo t > /proc/sysrq-trigger', `dmesg -s 1000000 > foo' then find
+> >    the trace for `hald' in `foo', send it to this list.
+> 
+> Ok, here it is:
+> 
+> hald          D E0B50480     0  7791      1  7797   10654  7609 (NOTLB)
+> cc6cbccc e0b50480 000f4428 e0b50480 000f4428 c6c9605c c14dce00 c14dce00
+>        e0b50480 000f4428 cc3df530 dff6e5c0 cc3df530 00000296 dff6e5c8 c046f202
+>        00000001 cc3df530 c0115680 d7ea1ce0 dff6e5c8 00000003 00000001 00000000
+> Call Trace:
+>  [<c046f202>] __down+0x62/0xc0
+>  [<c0115680>] default_wake_function+0x0/0x20
+>  [<c046dd3f>] __down_failed+0x7/0xc
+>  [<c0288bbf>] .text.lock.osl+0x13/0x3c
+>  [<c0292678>] acpi_ex_system_wait_semaphore+0x34/0x48
+>  [<c028d5da>] acpi_ev_acquire_global_lock+0x67/0x6c
+>  [<c0293fdc>] acpi_ex_acquire_global_lock+0x14/0x3b
+>  [<c028f578>] acpi_ex_read_data_from_field+0x114/0x14b
+>  [<c029475b>] acpi_ex_resolve_node_to_value+0x123/0x1ac
+>  [<c028fdc2>] acpi_ex_resolve_to_value+0x5e/0x69
+>  [<c02923df>] acpi_ex_resolve_operands+0x277/0x4dc
+>  [<c028a4fd>] acpi_ds_exec_end_op+0xab/0x36e
+>  [<c0298fe6>] acpi_ps_parse_loop+0x5ba/0x8bc
+>  [<c0298881>] acpi_ps_parse_aml+0x4e/0x1f9
+>  [<c02998fb>] acpi_ps_execute_pass+0x72/0x83
+>  [<c0299824>] acpi_ps_execute_method+0x54/0x7d
+>  [<c0296c5f>] acpi_ns_execute_control_method+0x5a/0x67
+>  [<c0296bee>] acpi_ns_evaluate_by_handle+0x73/0x8a
+>  [<c0296aee>] acpi_ns_evaluate_relative+0xaa/0xc6
+>  [<c0296375>] acpi_evaluate_object+0x139/0x1fb
+>  [<c024e2e2>] copy_to_user+0x42/0x60
+>  [<c02a0107>] acpi_battery_get_status+0x6b/0x11c
+>  [<c02a056b>] acpi_battery_read_state+0x52/0x185
+>  [<c01832d8>] seq_read+0xe8/0x2f0
+>  [<c0162dba>] vfs_read+0xaa/0x1a0
+>  [<c01631d1>] sys_read+0x51/0x80
+>  [<c0102b5f>] sysenter_past_esp+0x54/0x75
+> 
+> This is with 2.6.16-rc4-git1 + suspend2 2.2.0.1.
 
-It is doable - I'm doing it now, but am thinking about reverting part of th=
-e=20
-code to use pbes again. If you're going to look at using bitmaps in place o=
-f=20
-pbes, me changing would be a waste of time. Do you want me to hold off for =
-a=20
-while? (I'll happily do that, as I have far more than enough to keep me=20
-occupied at the moment anyway).
+Hopefully suspend2 isn't involved.  People would feel more comfortable if
+you could test a vanilla mainline tree..
 
-Regards,
-
-Nigel
-
---nextPart27174856.oxOlyUKcOS
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD+3+HN0y+n1M3mo0RAumhAJ9m2XbVhCX0EJpL2sQEYXUamkGenwCg5/eV
-VzbxQV/zP9LwLsOFSL3wd40=
-=RYOc
------END PGP SIGNATURE-----
-
---nextPart27174856.oxOlyUKcOS--
+Could the ACPI team please take a look at fixing this regression?

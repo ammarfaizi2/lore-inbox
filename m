@@ -1,61 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbWBUHr7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWBUHvV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750990AbWBUHr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 02:47:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWBUHr7
+	id S1751099AbWBUHvV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 02:51:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWBUHvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 02:47:59 -0500
-Received: from mail.astral.ro ([193.230.240.11]:32928 "EHLO mail.astral.ro")
-	by vger.kernel.org with ESMTP id S1750948AbWBUHr7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 02:47:59 -0500
-Message-ID: <43FAC5AA.1030205@astral.ro>
-Date: Tue, 21 Feb 2006 09:47:54 +0200
-From: Imre Gergely <imre.gergely@astral.ro>
-Organization: Astral Telecom SA
-User-Agent: Thunderbird 1.5 (X11/20051025)
+	Tue, 21 Feb 2006 02:51:21 -0500
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:40068 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751099AbWBUHvU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 02:51:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=jQPlnaCoJPz4DCWKDYcKLU5BQXlnjtbrU+/PGPWRX4+MRKUXArR7gUo9bpcgzG0UAruTcgmzOIhvesVg7xzdm3G3qsTUX1cJQaopuJn8Li3Bbyf4mDeMlFsMiWNNbGI7YBntOU1SJ7KvxFagexbM2r4B5uTYPdmv53TE2VliPuQ=  ;
+Message-ID: <43FA94B3.4040904@yahoo.com.au>
+Date: Tue, 21 Feb 2006 15:18:59 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: irq balance problems?
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: David Gibson <dwg@au1.ibm.com>
+CC: William Lee Irwin <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Block reservation for hugetlbfs
+References: <20060221022124.GA18535@localhost.localdomain>
+In-Reply-To: <20060221022124.GA18535@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Gibson wrote:
+> These days, hugepages are demand-allocated at first fault time.
+> There's a somewhat dubious (and racy) heuristic when making a new
+> mmap() to check if there are enough available hugepages to fully
+> satisfy that mapping.
+> 
+> A particularly obvious case where the heuristic breaks down is where a
+> process maps its hugepages not as a single chunk, but as a bunch of
+> individually mmap()ed (or shmat()ed) blocks without touching and
+> instantiating the blocks in between allocations.  In this case the
+> size of each block is compared against the total number of available
+> hugepages.  It's thus easy for the process to become overcommitted,
+> because each block mapping will succeed, although the total number of
+> hugepages required by all blocks exceeds the number available.  In
+> particular, this defeats such a program which will detect a mapping
+> failure and adjust its hugepage usage downward accordingly.
+> 
+> The patch below is a draft attempt to address this problem, by
+> strictly reserving a number of physical hugepages for hugepages inodes
+> which have been mapped, but not instatiated.  MAP_SHARED mappings are
+> thus "safe" - they will fail on mmap(), not later with a SIGBUS.
+> MAP_PRIVATE mappings can still SIGBUS.
+> 
+> This patch appears to address the problem at hand - it allows DB2 to
+> start correctly, for instance, which previously suffered the failure
+> described above.  I'm almost certain I'm missing some locking or other
+> synchronization - I am entirely bewildered as to what I need to hold
+> to safely update i_blocks as below.  Corrections for my ignorance
+> solicited...
+> 
+> Signed-off-by: David Gibson <dwg@au1.ibm.com>
+> 
 
-hi
+This introduces
+tree_lock(r) -> hugetlb_lock
 
-i have kernel 2.6.9, with FC2, on an AMD64 Dual Opteron.
+And we already have
+hugetlb_lock -> lru_lock
 
-[root@btv 28]# cat /proc/interrupts
-           CPU0       CPU1
-  0:   22249515   39262513    IO-APIC-edge  timer
-  1:          0          8    IO-APIC-edge  i8042
-  2:          0          0          XT-PIC  cascade
-  8:          0          0    IO-APIC-edge  rtc
- 14:          1         13    IO-APIC-edge  ide0
- 24:         10  441422068   IO-APIC-level  ioc0, eth1
- 25:  171765170       5905   IO-APIC-level  ioc1, eth2
- 28:        921     406066   IO-APIC-level  eth0
-NMI:      16960       6317
-LOC:   61500529   61500464
-ERR:          0
-MIS:          0
+So we now have tree_lock(r) -> lru_lock, which would deadlock
+against lru_lock -> tree_lock(w), right?
 
-i was wondering, if IRQ28's (eth0) affinity is set to the default "f"
+ From a quick glance it looks safe, but I'd _really_ rather not
+introduce something like this.
 
-[root@btv 28]# cat /proc/irq/prof_cpu_mask
-f
-[root@btv 28]# cat /proc/irq/28/smp_affinity
-f
-
-
-and irqbalance is not running, why aren't the interrupts coming from eth0
-balanced between the two processors? at least that's what i understood from the
-examples in Documentation/IRQ-affinity.txt. are there any other settings/kernel
-parameters/compile option one has to set?
-
-(pls msg me in private, i'm not on the list.)
-thanks
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

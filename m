@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030283AbWBUNuB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbWBUN5v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030283AbWBUNuB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 08:50:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030296AbWBUNuB
+	id S1030296AbWBUN5v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 08:57:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbWBUN5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 08:50:01 -0500
-Received: from ns1.suse.de ([195.135.220.2]:30168 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030283AbWBUNuB (ORCPT
+	Tue, 21 Feb 2006 08:57:51 -0500
+Received: from ns2.suse.de ([195.135.220.15]:40094 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030296AbWBUN5v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 08:50:01 -0500
-To: "David S. Miller" <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: softlockup interaction with slow consoles
-References: <20060220.131847.25386315.davem@davemloft.net>
-	<Pine.LNX.4.58.0602210404330.3092@devserv.devel.redhat.com>
-	<20060221.011650.120896368.davem@davemloft.net>
+	Tue, 21 Feb 2006 08:57:51 -0500
+To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Cc: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/6] PCI legacy I/O port free driver (take2) - Add device_flags into pci_device_id
+References: <43FAB283.8090206@jp.fujitsu.com>
+	<43FAB375.2020007@jp.fujitsu.com>
 From: Andi Kleen <ak@suse.de>
-Date: 21 Feb 2006 14:49:49 +0100
-In-Reply-To: <20060221.011650.120896368.davem@davemloft.net>
-Message-ID: <p73mzgk4y9u.fsf@verdi.suse.de>
+Date: 21 Feb 2006 14:57:32 +0100
+In-Reply-To: <43FAB375.2020007@jp.fujitsu.com>
+Message-ID: <p73irr84xwz.fsf@verdi.suse.de>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@davemloft.net> writes:
+Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com> writes:
 
-> From: Ingo Molnar <mingo@redhat.com>
-> Date: Tue, 21 Feb 2006 04:09:58 -0500 (EST)
-> 
-> > i changed soft lockup detection to be turned off during bootup. That
-> > should work around any boot-time warnings.
-> 
-> Excellent.
+> This patch adds the device_flags field into struct pci_device_id to
+> enables pci device drivers to pass per device ID flags to the
+> kernel. This patch also defines the PCI_DEVICE_ID_FLAG_NOIOPOT flag of
+> the device_flags field which is used to tell the kernel whether the
+> driver need to use I/O port regions to handle the device.
 
 
-Still you could probably see problems with very slow consoles even after
-bootup, couldn't you?
+Thanks. I actually meant to use the existing driver_data field for it,
+but on second thought using a new field like you did makes sense
+because we could use that to easily enable MSI and possibly other
+advanced features in the future too.
 
-(for some reason some people still use 9600 baud serial consoles, which
-tend to trigger all kind of interesting races) 
-
+Only thing I would double check is if the generation of modules.pcimap
+(that is used by distribution installers to load the right drivers
+automatically) still works correctly.
 
 -Andi

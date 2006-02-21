@@ -1,74 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWBURIc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWBURJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932326AbWBURIc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 12:08:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWBURIc
+	id S932329AbWBURJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 12:09:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbWBURJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 12:08:32 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:33167 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932326AbWBURIc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 12:08:32 -0500
-Message-ID: <43FB5B15.F88FF5A8@tv-sign.ru>
-Date: Tue, 21 Feb 2006 21:25:25 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: paulmck@us.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] introduce sig_needs_tasklist() helper
-References: <43F76374.EDA3ED9D@tv-sign.ru> <20060221021302.GR1480@us.ibm.com>
-Content-Type: text/plain; charset=koi8-r
+	Tue, 21 Feb 2006 12:09:28 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:10939 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932329AbWBURJ1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 12:09:27 -0500
+Subject: Re: 2.6.15-rt17
+From: "Timothy R. Chavez" <tinytim@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>
+In-Reply-To: <20060221155548.GA30146@elte.hu>
+References: <20060221155548.GA30146@elte.hu>
+Content-Type: text/plain
+Organization: IBM
+Date: Tue, 21 Feb 2006 11:23:40 -0600
+Message-Id: <1140542620.21876.1.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Paul E. McKenney" wrote:
+On Tue, 2006-02-21 at 16:55 +0100, Ingo Molnar wrote:
+> i have released the 2.6.15-rt17 tree, which can be downloaded from the 
+> usual place:
 > 
-> On Sat, Feb 18, 2006 at 09:12:04PM +0300, Oleg Nesterov wrote:
-> > +#define sig_needs_tasklist(sig) \
-> > +             (((sig) < SIGRTMIN)  && T(sig, SIG_KERNEL_STOP_MASK | M(SIGCONT)))
-> > +
+>    http://redhat.com/~mingo/realtime-preempt/
 > 
-> Seems to me to be an improvement, but why not also encapsulate the
-> lock acquisition, something like:
+> lots of changes all across the map. There are several bigger changes:
 > 
->         static inline int sig_tasklist_lock(int sig)
->         {
->                 if (unlikely(sig_needs_tasklist(sig)) {
->                         read_lock(&tasklist_lock);
->                         return 1;
->                 }
->                 return 0;
->         }
+> the biggest change is the new PI code from Esben Nielsen, Thomas 
+> Gleixner and Steven Rostedt. This big rework simplifies and streamlines 
+> the PI code, and fixes a couple of bugs and races:
 > 
->         static inline void sig_tasklist_unlock(int acquired_tasklist_lock)
->         {
->                 if (acquired_tasklist_lock)
->                         read_unlock(&tasklist_lock);
->         }
+>   - only the top priority waiter on a lock is enqueued into the pi_list
+>     of the task which holds the lock. No more pi list walking in the
+>     boost case.
+> 
+>   - simpler locking rules
+> 
+>   - fast Atomic acquire for the non contended case and atomic release 
+>     for non waiter case is fully functional now
+> 
+>   - use task_t references instead of thread_info pointers
+> 
+>   - BKL handling for semaphore style locks changed so that BKL is
+>     dropped before the scheduler is entered and reaquired in the return
+>     path. This solves a possible deadlock situation in the BKL reacquire
+>     path of the scheduler.
+> 
+> another change is the reworking of the SLAB code: it now closely matches 
+> the upstream SLAB code, and it should now work on NUMA systems too 
+> (untested though).
+> 
+> the tasklet code was reworked too to be PREEMPT_RT friendly: the new PI 
+> code unearthed a fundamental livelock scenario with PREEMPT_RT, and the 
+> fix was to rework the tasklet code to get rid of the 'retrigger 
+> softirqs' approach.
+> 
+> other changes: various hrtimers fixes, latency tracer enhancements - and 
+> more. (Robust-futexes are not expected to work in this release.)
+> 
+> please report any new breakages, and re-report any old breakages as 
+> well.
+> 
+> to build a 2.6.15-rt17 tree, the following patches should be applied:
+> 
+>   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.15.tar.bz2
+>   http://redhat.com/~mingo/realtime-preempt/patch-2.6.15-rt17
 
-I hope we will have
+http://people.redhat.com/mingo/realtime-preempt/patch-2.6.16-rt17 ???
 
-	#define sig_needs_tasklist(sig)	  (sig == SIGCONT)
+-tim
 
-really soon (I planned to submit the final bits today, but
-for some stupid reasons I can't do anything till weekend),
-so I think it's better to kill 'acquired_tasklist_lock' and
-just do:
+> 
+> 	Ingo
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-	void sig_tasklist_lock(sig)
-	{
-		if (sig_needs_tasklist(sig))
-			read_lock(&tasklist_lock);
-	}
-
-	void sig_tasklist_unlock(sig)
-	{
-		if (sig_needs_tasklist(sig));
-			read_unlock(&tasklist_lock);
-	}
-
-Oleg.

@@ -1,64 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161416AbWBUGfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161418AbWBUGft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161416AbWBUGfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 01:35:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161418AbWBUGfI
+	id S1161418AbWBUGft (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 01:35:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161419AbWBUGfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 01:35:08 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:3984 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1161413AbWBUGfF convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 01:35:05 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 21 Feb 2006 01:35:48 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:55685 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1161418AbWBUGfr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 01:35:47 -0500
+Message-ID: <43FAB444.7010401@jp.fujitsu.com>
+Date: Tue, 21 Feb 2006 15:33:40 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 2.6.15.3 1/1] ACPI: Atlas ACPI driver
-Date: Tue, 21 Feb 2006 14:34:59 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F840AFD4B93@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.6.15.3 1/1] ACPI: Atlas ACPI driver
-thread-index: AcY1+QTZumb9d6e3RHms9ocp4LswwgAtmORQ
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Jaya Kumar" <jayakumar.acpi@gmail.com>
-Cc: <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 21 Feb 2006 06:35:00.0760 (UTC) FILETIME=[F0BB7980:01C636B0]
+To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       akpm@osdl.org, greg@kroah.com
+CC: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>, ak@suse.de,
+       rmk+lkml@arm.linux.org.uk
+Subject: [PATCH 6/6] PCI legacy I/O port free driver (take2) - Make Emulex
+ lpfc driver legacy I/O port free
+References: <43FAB283.8090206@jp.fujitsu.com>
+In-Reply-To: <43FAB283.8090206@jp.fujitsu.com>
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch makes lpfc driver legacy I/O port free.
 
->On 2/20/06, Yu, Luming <luming.yu@intel.com> wrote:
->> I found _BCM, _BCL ... which are reserved methods for
->> ACPI video extension device. If the vendor follows
->> ACPI video extension spec, this proposed driver is
->> NOT needed. Because, we do have acpi video driver
->> in kernel today.  Could you please show me acpidump
->> output?
->>
->> Thanks,
->> Luming
->
->Hi Luming,
->
->Thanks for your reply.
->
->Note that aside from the ACPILCD00 HID, there's also the ASIM0000 HID
->that I'm supporting in this driver. I've appended the DSDT info you
->requested. Let me know what you feel needs to be done to either make
->the current acpi video driver detect this extension device (Should I
->just try adding the ACPILCD00 HID to the video driver?).
->
-It would be better if you can merge this stuff with acpi video driver.
-If you look at video.c, there is NO HID definition for video device.
-we rely on acpi_video_bus_match to recoginize video device in ACPI
-namespace.
+Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
 
-As for hotkey stuff, please take a look at 
-http://bugzilla.kernel.org/show_bug.cgi?id=5749
+ drivers/scsi/lpfc/lpfc_init.c |   54 +++++++++++++++++++++---------------------
+ 1 files changed, 27 insertions(+), 27 deletions(-)
 
-Thanks,
-Luming
+Index: linux-2.6.16-rc4/drivers/scsi/lpfc/lpfc_init.c
+===================================================================
+--- linux-2.6.16-rc4.orig/drivers/scsi/lpfc/lpfc_init.c	2006-02-21 14:40:03.000000000 +0900
++++ linux-2.6.16-rc4/drivers/scsi/lpfc/lpfc_init.c	2006-02-21 14:40:57.000000000 +0900
+@@ -1715,59 +1715,59 @@
+ 
+ static struct pci_device_id lpfc_id_table[] = {
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_VIPER,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_FIREFLY,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_THOR,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_PEGASUS,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_CENTAUR,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_DRAGONFLY,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_SUPERFLY,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_RFLY,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_PFLY,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_NEPTUNE,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_NEPTUNE_SCSP,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_NEPTUNE_DCSP,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_HELIOS,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_HELIOS_SCSP,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_HELIOS_DCSP,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_BMID,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_BSMB,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_ZEPHYR,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_ZEPHYR_SCSP,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_ZEPHYR_DCSP,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_ZMID,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_ZSMB,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_TFLY,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_LP101,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_LP10000S,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_LP11000S,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_LPE11000S,
+-		PCI_ANY_ID, PCI_ANY_ID, },
++	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
+ 	{ 0 }
+ };
+ 
+
+

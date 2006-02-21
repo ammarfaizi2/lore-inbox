@@ -1,70 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932560AbWBUUgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932699AbWBUUg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932560AbWBUUgP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 15:36:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932649AbWBUUgP
+	id S932699AbWBUUg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 15:36:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932703AbWBUUg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 15:36:15 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:23688 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932560AbWBUUgO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 15:36:14 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Tue, 21 Feb 2006 21:36:11 +0100
-User-Agent: KMail/1.9.1
-Cc: Andy Lutomirski <luto@myrealbox.com>, Matthias Hensler <matthias@wspse.de>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <nigel@suspend2.net>, Sebastian Kgler <sebas@kde.org>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <43FA97D9.4070902@myrealbox.com> <20060221113337.GP21557@elf.ucw.cz>
-In-Reply-To: <20060221113337.GP21557@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602212136.11803.rjw@sisk.pl>
+	Tue, 21 Feb 2006 15:36:28 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:21153
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932699AbWBUUg1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 15:36:27 -0500
+Subject: Re: 2.6.15-rt17
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Esben Nielsen <simlo@phys.au.dk>, Steven Rostedt <rostedt@goodmis.org>
+In-Reply-To: <6bffcb0e0602211053y143d9049g@mail.gmail.com>
+References: <20060221155548.GA30146@elte.hu>
+	 <6bffcb0e0602210916n3ddbd50i@mail.gmail.com>
+	 <6bffcb0e0602211053y143d9049g@mail.gmail.com>
+Content-Type: multipart/mixed; boundary="=-eNd9t3ns2Gy0Y7lqUdmv"
+Date: Tue, 21 Feb 2006 21:37:29 +0100
+Message-Id: <1140554250.2480.1042.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.5 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tuesday 21 February 2006 12:33, Pavel Machek wrote:
-> On Po 20-02-06 20:32:25, Andy Lutomirski wrote:
-> > Matthias Hensler wrote:
-> > >On Mon, Feb 20, 2006 at 01:53:33AM +0100, Pavel Machek wrote:
-> > >
-> > >>Only feature I can't do is "save whole pagecache"... and 14000 lines
-> > >>of code for _that_ is a bit too much. I could probably patch my kernel
-> > >>to dump pagecache to userspace, but I do not think it is worth the
-> > >>effort.
-> > >
-> > >
-> > >I do not think that Suspend 2 needs 14000 lines for that, the core is
-> > >much smaller. But besides, _not_ saving the pagecache is a really _bad_
-> > >idea. I expect to have my system back after resume, in the same state I
-> > >had left it prior to suspend. I really do not like it how it is done by
-> > >Windows, it is just ugly to have a slowly responding system after
-> > >resume, because all caches and buffers are gone.
-> > >
-> > >I can only speak for myself, but I want to work with my system from the
-> > >moment my desktop is back.
-> > 
-> > I Am Not A VM Hacker, but:
-> > 
-> > What's the point of saving pagecache during suspend?  This seems like a 
-> > total waste.  Why don't we save a list of pages in pagecache to disk,
-> > then, after resume, prefetch them all back in.  This will slow down 
-> > resume (extra seeks, minimized if we sort the list, and inability
-> > to compress these pages), but it will speed up suspend, and it sounds
-> > a lot simpler.  There's already a patch to add swap prefetching, and 
-> > this can't be much more complicated.
+--=-eNd9t3ns2Gy0Y7lqUdmv
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Tue, 2006-02-21 at 19:53 +0100, Michal Piotrowski wrote:
+> On 21/02/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> [snip]
+> > Here is config http://www.stardust.webpages.pl/files/rt/2.6.15-rt17/rt-config
+> > Here is dmesg http://www.stardust.webpages.pl/files/rt/2.6.15-rt17/rt-dmesg
 > 
-> I'd actually love to see this implemented. It would be useful for
-> suspend-to-disk (obviously), but also for benchmarks.
+> Here is updated config
+> http://www.stardust.webpages.pl/files/rt/2.6.15-rt17/rt-config2
+> Here is updated dmesg
+> http://www.stardust.webpages.pl/files/rt/2.6.15-rt17/rt-dmesg2
+> 
+> BTW. thanks for fixing CONFIG_DEBUG_HIGHMEM=y
 
-Actually I've been thinking of something similar for some time,
-so perhaps we should add this to the todolist somewhere? ;-)
+The stack maximum messages are harmless. They just report a new
+watermark high quite verbose. You can turn them off by disabling
+DEBUG_STACKOVERFLOW.
 
-Rafael
+skge eth0: Link is up at 100 Mbps, full duplex, flow control tx and rx
+WARNING: softirq-tasklet/8 changed soft IRQ-flags.
+ [<c0103b33>] dump_stack+0x1b/0x1f (20)
+ [<c0134035>] illegal_API_call+0x41/0x46 (20)
+ [<c0134084>] local_irq_disable+0x1d/0x1f (8)
+ [<f8839bf3>] skge_extirq+0x117/0x138 [skge] (32)
+ [<c0120a73>] __tasklet_action+0xb8/0xfd (28)
+ [<c0120afc>] tasklet_action+0x44/0x4e (28)
+ [<c0120ce8>] ksoftirqd+0x10f/0x19e (32)
+ [<c012dfa6>] kthread+0x7b/0xa9 (36)
+ [<c01010dd>] kernel_thread_helper+0x5/0xb (1037991964)
+
+This one is interesting. It brought my attention to that piece of code
+which is a long standing problem on one of my boxen anyway. Patch
+attached.
+
+	tglx
+
+
+
+
+
+
+
+--=-eNd9t3ns2Gy0Y7lqUdmv
+Content-Disposition: attachment; filename=skge-fix.patch
+Content-Type: text/x-patch; name=skge-fix.patch; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+Index: linux-2.6.15/drivers/net/skge.c
+===================================================================
+--- linux-2.6.15.orig/drivers/net/skge.c
++++ linux-2.6.15/drivers/net/skge.c
+@@ -2820,10 +2820,10 @@ static void skge_extirq(unsigned long da
+ 	}
+ 	spin_unlock(&hw->phy_lock);
+ 
+-	local_irq_disable();
++	spin_lock_irq(&hw->hw_lock);
+ 	hw->intr_mask |= IS_EXT_REG;
+ 	skge_write32(hw, B0_IMSK, hw->intr_mask);
+-	local_irq_enable();
++	spin_unlock_irq(&hw->hw_lock);
+ }
+ 
+ static inline void skge_wakeup(struct net_device *dev)
+@@ -2842,6 +2842,8 @@ static irqreturn_t skge_intr(int irq, vo
+ 	if (status == 0 || status == ~0) /* hotplug or shared irq */
+ 		return IRQ_NONE;
+ 
++	spin_lock(&hw->hw_lock);
++
+ 	status &= hw->intr_mask;
+ 	if (status & IS_R1_F) {
+ 		hw->intr_mask &= ~IS_R1_F;
+@@ -2893,6 +2895,8 @@ static irqreturn_t skge_intr(int irq, vo
+ 
+ 	skge_write32(hw, B0_IMSK, hw->intr_mask);
+ 
++	spin_unlock(&hw->hw_lock);
++
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -3249,6 +3253,7 @@ static int __devinit skge_probe(struct p
+ 	}
+ 
+ 	hw->pdev = pdev;
++	spin_lock_init(&hw->hw_lock);
+ 	spin_lock_init(&hw->phy_lock);
+ 	tasklet_init(&hw->ext_tasklet, skge_extirq, (unsigned long) hw);
+ 
+Index: linux-2.6.15/drivers/net/skge.h
+===================================================================
+--- linux-2.6.15.orig/drivers/net/skge.h
++++ linux-2.6.15/drivers/net/skge.h
+@@ -2472,6 +2472,7 @@ struct skge_hw {
+ 	u16		     phy_addr;
+ 
+ 	struct tasklet_struct ext_tasklet;
++	spinlock_t	     hw_lock;
+ 	spinlock_t	     phy_lock;
+ };
+ 
+
+--=-eNd9t3ns2Gy0Y7lqUdmv--
+

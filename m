@@ -1,121 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161051AbWBUVhp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161064AbWBUVkE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161051AbWBUVhp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 16:37:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161055AbWBUVhp
+	id S1161064AbWBUVkE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 16:40:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161055AbWBUVkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 16:37:45 -0500
-Received: from fnord.at ([217.160.110.113]:14088 "HELO iwoars.net")
-	by vger.kernel.org with SMTP id S1161051AbWBUVho (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 16:37:44 -0500
-Date: Tue, 21 Feb 2006 22:37:42 +0100
-From: Thomas Ogrisegg <tom-lkml@lkml.fnord.at>
-To: linux-kernel@vger.kernel.org
-Cc: davej@codemonkey.org.uk
-Subject: [PATCH] cpufrequency change on AC-Adapter Event
-Message-ID: <20060221213742.GC26413@rescue.iwoars.net>
+	Tue, 21 Feb 2006 16:40:04 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:61869
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S964808AbWBUVkD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 16:40:03 -0500
+Date: Tue, 21 Feb 2006 13:39:47 -0800 (PST)
+Message-Id: <20060221.133947.05470613.davem@davemloft.net>
+To: mchan@broadcom.com
+Cc: jeffm@suse.com, akpm@osdl.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com, netdev@vger.kernel.org
+Subject: Re: [PATCH] tg3: netif_carrier_off runs too early; could still be
+ queued when init fails
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <1140540260.20584.6.camel@rh4>
+References: <20060220194337.GA21719@locomotive.unixthugs.org>
+	<1140540260.20584.6.camel@rh4>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="SkvwRMAIpAhPCcCJ"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: "Michael Chan" <mchan@broadcom.com>
+Date: Tue, 21 Feb 2006 08:44:20 -0800
 
---SkvwRMAIpAhPCcCJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> On Mon, 2006-02-20 at 14:43 -0500, Jeff Mahoney wrote:
+> >  This patch moves the netif_carrier_off() call from tg3_init_one()->
+> >  tg3_init_link_config() to tg3_open() as is the convention for most
+> >  other network drivers.
+> 
+> I think moving netif_carrier_off() later is the right thing to do. We
+> can also move it to the end of tg3_init_one() just before returning 0.
 
-Problem Description:
-Whenever the status of the AC-Adapter on my laptop changes, the CPU
-frequency automatically changes as well. For example, if the AC adapter
-is online my CPU has the highest frequency (3,06 GHz). When the adapter
-is unplugged, the frequency automatically decreases to 1,6 GHz. However,
-currently the Kernel simply doesn't notice. It looks like the system is
-still running at 3,06 GHz (/proc/cpuinfo and
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq both show that),
-but it doesn't like a simple test program showed.
+Agreed.
 
-My patch solves this problem: Whenever the status of the AC Adapter
-changes, it calls 'cpufreq_reinit' which in turn reinits the CPUfreq
-driver.
+> >  I was getting a panic after a tg3 device failed to initialize due to DMA
+> >  failure. The oops pointed to the link watch queue with spinlock debugging
+> >  enabled. Without spinlock debugging, the Oops didn't occur.
+> > 
+> >  I suspect that the link event was getting queued but not executed until
+> >  after the DMA test had failed and the device was freed. The link event
+> >  was then operating on freed memory, which could contain anything. With this
+> >  patch applied, the Oops no longer occurs. 
+> 
+> DMA test failed? What NIC device do you have? How did it fail?
 
-This, of course, only works if the ACPI AC driver is compiled in.
+I get this too with an old 5700 3COM card on sparc64.  I'll get
+you some more detailed info later today, hopefully.
 
-Signed-off-by: Thomas Ogrisegg <tom-lkml@lkml.fnord.at>
-
---SkvwRMAIpAhPCcCJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="cpufreq.diff"
-
-diff -uNr -X linux-2.6.15/Documentation/dontdiff linux-2.6.15/drivers/acpi/ac.c linux-2.6.15.4/drivers/acpi/ac.c
---- linux-2.6.15/drivers/acpi/ac.c	2006-01-03 04:21:10.000000000 +0100
-+++ linux-2.6.15.4/drivers/acpi/ac.c	2006-02-19 17:50:20.000000000 +0100
-@@ -29,6 +29,7 @@
- #include <linux/types.h>
- #include <linux/proc_fs.h>
- #include <linux/seq_file.h>
-+#include <linux/cpufreq.h>
- #include <acpi/acpi_bus.h>
- #include <acpi/acpi_drivers.h>
- 
-@@ -213,6 +214,8 @@
- 		break;
- 	}
- 
-+	cpufreq_reinit();
-+
- 	return_VOID;
- }
- 
-diff -uNr -X linux-2.6.15/Documentation/dontdiff linux-2.6.15/drivers/cpufreq/cpufreq.c linux-2.6.15.4/drivers/cpufreq/cpufreq.c
---- linux-2.6.15/drivers/cpufreq/cpufreq.c	2006-01-03 04:21:10.000000000 +0100
-+++ linux-2.6.15.4/drivers/cpufreq/cpufreq.c	2006-02-21 20:00:06.000000000 +0100
-@@ -863,6 +863,30 @@
- 
- 
- /**
-+ * cpufreq_reinit - reinitialize CPU frequency of all CPUs
-+ */
-+
-+int cpufreq_reinit(void)
-+{
-+	int cpu, ret;
-+	struct cpufreq_policy *policy;
-+
-+	for_each_online_cpu (cpu) {
-+		policy = cpufreq_cpu_get(cpu);
-+		if (!policy)
-+			return -EINVAL;
-+		ret = cpufreq_driver->exit(policy);
-+		if (ret)
-+			return ret;
-+		ret = cpufreq_driver->init(policy);
-+		if (ret)
-+			return ret;
-+	}
-+	return (0);
-+}
-+EXPORT_SYMBOL(cpufreq_reinit);
-+
-+/**
-  *	cpufreq_suspend - let the low level driver prepare for suspend
-  */
- 
---- linux-2.6.15/include/linux/cpufreq.h	2006-01-03 04:21:10.000000000 +0100
-+++ linux-2.6.15.4/include/linux/cpufreq.h	2006-02-21 20:37:27.000000000 +0100
-@@ -256,6 +256,11 @@
- /* query the current CPU frequency (in kHz). If zero, cpufreq couldn't detect it */
- unsigned int cpufreq_get(unsigned int cpu);
- 
-+#ifdef CONFIG_CPU_FREQ
-+int cpu_freq_reinit(void);
-+#else
-+static inline int cpu_freq_reinit(void) { return 0; }
-+#endif
- 
- /*********************************************************************
-  *                       CPUFREQ DEFAULT GOVERNOR                    *
-
---SkvwRMAIpAhPCcCJ--
+Jeff, please get some details for Michael about your failure
+case.  Thanks.

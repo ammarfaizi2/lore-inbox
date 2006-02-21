@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWBUM2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWBUM17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWBUM2A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 07:28:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWBUM2A
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 07:28:00 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59841 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751173AbWBUM17 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S1751175AbWBUM17 (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 21 Feb 2006 07:27:59 -0500
-Date: Tue, 21 Feb 2006 13:27:28 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
-       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060221122728.GA21807@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602211257.29161.ncunningham@cyclades.com> <200602202319.15018.dtor_core@ameritech.net> <200602211551.12379.ncunningham@cyclades.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200602211551.12379.ncunningham@cyclades.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWBUM17
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 21 Feb 2006 07:27:59 -0500
+Received: from mail2.designassembly.de ([217.11.62.46]:46559 "EHLO
+	mail2.designassembly.de") by vger.kernel.org with ESMTP
+	id S1751175AbWBUM16 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 07:27:58 -0500
+Message-ID: <43FB0746.5010200@designassembly.de>
+Date: Tue, 21 Feb 2006 13:27:50 +0100
+From: Michael Heyse <mhk@designassembly.de>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: kernel list <linux-kernel@vger.kernel.org>
+CC: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: which one is broken: VIA padlock aes or aes_i586?
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Út 21-02-06 15:51:08, Nigel Cunningham wrote:
-> Hi.
-> 
-> On Tuesday 21 February 2006 14:19, Dmitry Torokhov wrote:
-> > On Monday 20 February 2006 21:57, Nigel Cunningham wrote:
-> > > For the record, my thinking went: swsusp uses n (12?) bytes of meta data
-> > > for every page you save, where as using bitmaps makes that much closer to
-> > > a constant value (a small variable amount for recording where the image
-> > > will be stored in extents). 12 bytes per page is 3MB/1GB. If swsusp was
-> > > to add support for multiple swap partitions or writing to files, those
-> > > requirements might be closer to 5MB/GB.
-> >
-> > 5MB/GB amounts to 0.5% overhead, I don't think you should be concerned
-> > here. Much more important IMHO is that IIRC swsusp requires to be able to
-> > free 1/2 of the physical memory whuch is hard on low memory boxes.
-> 
-> Agreed. I'll look for related issues, and if there are none (or nothing 
-> serious), we can have one less difference between the two implementations. I 
-> may even be able to share the lowlevel code with Pavel then. That would be a 
-> good step forward.
+Hi,
 
-Yep, that would be very nice.
-									Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+after upgrading the kernel from 2.6.12.5 to 2.6.16-rc4, decryption of my disk fails. As I am using the Nehemia's Padlock and aes-cbc-essiv, I guess this is the reason:
+
+(from ChangeLog-2.6.13)
+commit 476df259cd577e20379b02a7f7ffd086ea925a83
+Author: Herbert Xu <herbert@gondor.apana.org.au>
+Date:   Wed Jul 6 13:54:09 2005 -0700
+
+    [CRYPTO] Update IV correctly for Padlock CBC encryption
+
+    When the Padlock does CBC encryption, the memory pointed to by EAX is
+    not updated at all.  Instead, it updates the value of EAX by pointing
+    it to the last block in the output.  Therefore to maintain the correct
+    semantics we need to copy the IV.
+
+    Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+    Signed-off-by: David S. Miller <davem@davemloft.net>
+
+
+This probably means, that the on-disk format has changed, and the new aes routine can't decrypt my data any more.
+
+The strange thing is: if I disable the padlock driver and use the software-only aes_i586 module, I can read my disk with 2.6.16-rc4. So obviously one of the implementations produces wrong results (they are supposed to do the same thing, right?). So before I try to re-encrypt my disk: which one is doing it right?
+
+Thanks,
+Michael
+

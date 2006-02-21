@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbWBUR46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbWBUR6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbWBUR46 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 12:56:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWBUR46
+	id S932339AbWBUR6S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 12:58:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbWBUR6S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 12:56:58 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:38162 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932332AbWBUR4y (ORCPT
+	Tue, 21 Feb 2006 12:58:18 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:14546 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932339AbWBUR6R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 12:56:54 -0500
-Date: Tue, 21 Feb 2006 18:56:40 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove the CONFIG_CC_ALIGN_* options
-Message-ID: <20060221175640.GB9070@mars.ravnborg.org>
-References: <20060220223654.GR4661@stusta.de>
+	Tue, 21 Feb 2006 12:58:17 -0500
+Subject: Re: [ PATCH 2.6.16-rc3-xen 3/3] sysfs: export Xen hypervisor
+	attributes to sysfs
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Mike D. Day" <ncmike@us.ibm.com>
+Cc: xen-devel@lists.xensource.com, lkml <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, Dave Hansen <haveblue@us.ibm.com>
+In-Reply-To: <43FB2642.7020109@us.ibm.com>
+References: <43FB2642.7020109@us.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 21 Feb 2006 18:02:03 +0000
+Message-Id: <1140544923.840.28.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060220223654.GR4661@stusta.de>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 20, 2006 at 11:36:54PM +0100, Adrian Bunk wrote:
-> I don't see any use case for the CONFIG_CC_ALIGN_* options:
-> - they are only available if EMBEDDED
-> - people using EMBEDDED will most likely also enable 
->   CC_OPTIMIZE_FOR_SIZE
-> - the default for -Os is to disable alignment
-> 
-> In case someone is doing performance comparisons and discovers that the
-> default settings gcc chooses aren't good, the only sane thing is to
-> discuss whether it makes sense to change this, not through offering 
-> options to change this locally.
+Last time I checked sizeof(char) was 1 so the kcalloc sizeof(char) is
+excessive and we als have kzalloc() which would be slightly cleaner.
+Otherwise looks sane to me
 
-I leave it to other to judge if this is wortwhile or not - I have no
-numbers to back up either with or without.
-It is though a nice cleaning effort in the Makefile.
+Alan
 
-But if we back-out this then cc-option-aling should go as well,
-including description in Documentation/kbuild/makefiles.txt
 
-	Sam
+

@@ -1,53 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWBUVfR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161051AbWBUVhp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbWBUVfR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 16:35:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWBUVfR
+	id S1161051AbWBUVhp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 16:37:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161055AbWBUVhp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 16:35:17 -0500
-Received: from styx.suse.cz ([82.119.242.94]:28391 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S964786AbWBUVfP (ORCPT
+	Tue, 21 Feb 2006 16:37:45 -0500
+Received: from fnord.at ([217.160.110.113]:14088 "HELO iwoars.net")
+	by vger.kernel.org with SMTP id S1161051AbWBUVho (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 16:35:15 -0500
-Date: Tue, 21 Feb 2006 22:35:25 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: dtor_core@ameritech.net
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-       stuart_hayes@dell.com
-Subject: Re: Suppressing softrepeat
-Message-ID: <20060221213525.GA12526@suse.cz>
-References: <20060221124308.5efd4889.zaitcev@redhat.com> <d120d5000602211315y60ad2861n4cd64535f9f4850d@mail.gmail.com>
+	Tue, 21 Feb 2006 16:37:44 -0500
+Date: Tue, 21 Feb 2006 22:37:42 +0100
+From: Thomas Ogrisegg <tom-lkml@lkml.fnord.at>
+To: linux-kernel@vger.kernel.org
+Cc: davej@codemonkey.org.uk
+Subject: [PATCH] cpufrequency change on AC-Adapter Event
+Message-ID: <20060221213742.GC26413@rescue.iwoars.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="SkvwRMAIpAhPCcCJ"
 Content-Disposition: inline
-In-Reply-To: <d120d5000602211315y60ad2861n4cd64535f9f4850d@mail.gmail.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 21, 2006 at 04:15:57PM -0500, Dmitry Torokhov wrote:
+
+--SkvwRMAIpAhPCcCJ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Problem Description:
+Whenever the status of the AC-Adapter on my laptop changes, the CPU
+frequency automatically changes as well. For example, if the AC adapter
+is online my CPU has the highest frequency (3,06 GHz). When the adapter
+is unplugged, the frequency automatically decreases to 1,6 GHz. However,
+currently the Kernel simply doesn't notice. It looks like the system is
+still running at 3,06 GHz (/proc/cpuinfo and
+/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq both show that),
+but it doesn't like a simple test program showed.
+
+My patch solves this problem: Whenever the status of the AC Adapter
+changes, it calls 'cpufreq_reinit' which in turn reinits the CPUfreq
+driver.
+
+This, of course, only works if the ACPI AC driver is compiled in.
+
+Signed-off-by: Thomas Ogrisegg <tom-lkml@lkml.fnord.at>
+
+--SkvwRMAIpAhPCcCJ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="cpufreq.diff"
+
+diff -uNr -X linux-2.6.15/Documentation/dontdiff linux-2.6.15/drivers/acpi/ac.c linux-2.6.15.4/drivers/acpi/ac.c
+--- linux-2.6.15/drivers/acpi/ac.c	2006-01-03 04:21:10.000000000 +0100
++++ linux-2.6.15.4/drivers/acpi/ac.c	2006-02-19 17:50:20.000000000 +0100
+@@ -29,6 +29,7 @@
+ #include <linux/types.h>
+ #include <linux/proc_fs.h>
+ #include <linux/seq_file.h>
++#include <linux/cpufreq.h>
+ #include <acpi/acpi_bus.h>
+ #include <acpi/acpi_drivers.h>
  
-> I see the problem but I don't think we want another module parameter
-> for it. I think if you put the following somewhere into init scripts
-> it shoudl work without any additional changes:
-> 
->         echo -n "0" > /sys/bus/serio/devices/serioX/softrepeat
-
-This should work, indeed, as an alternative to 'kbdrate -d 750'.
-
-> Of couurse one would jhave to locate proper serioX but that should be easy.
-> 
-> I also see the following in bugzilla: "... This causs a problem on
-> systems that have no real keyboard plugged in, since atkbd probes for
-> the keyboard, and won't take control of the port if it doesn't see
-> one." Usually it is OK for keyboard to be missing as long as BIOS
-> itself does not disable keyboard port - whenever there is new data
-> starts coming from the port serio core will try to find proper driver
-> for it. I wonder why this is not working on boxes in question.
+@@ -213,6 +214,8 @@
+ 		break;
+ 	}
  
-The DRAC3 doesn't respond to ANY commands, thus the atkbd probe fails.
++	cpufreq_reinit();
++
+ 	return_VOID;
+ }
+ 
+diff -uNr -X linux-2.6.15/Documentation/dontdiff linux-2.6.15/drivers/cpufreq/cpufreq.c linux-2.6.15.4/drivers/cpufreq/cpufreq.c
+--- linux-2.6.15/drivers/cpufreq/cpufreq.c	2006-01-03 04:21:10.000000000 +0100
++++ linux-2.6.15.4/drivers/cpufreq/cpufreq.c	2006-02-21 20:00:06.000000000 +0100
+@@ -863,6 +863,30 @@
+ 
+ 
+ /**
++ * cpufreq_reinit - reinitialize CPU frequency of all CPUs
++ */
++
++int cpufreq_reinit(void)
++{
++	int cpu, ret;
++	struct cpufreq_policy *policy;
++
++	for_each_online_cpu (cpu) {
++		policy = cpufreq_cpu_get(cpu);
++		if (!policy)
++			return -EINVAL;
++		ret = cpufreq_driver->exit(policy);
++		if (ret)
++			return ret;
++		ret = cpufreq_driver->init(policy);
++		if (ret)
++			return ret;
++	}
++	return (0);
++}
++EXPORT_SYMBOL(cpufreq_reinit);
++
++/**
+  *	cpufreq_suspend - let the low level driver prepare for suspend
+  */
+ 
+--- linux-2.6.15/include/linux/cpufreq.h	2006-01-03 04:21:10.000000000 +0100
++++ linux-2.6.15.4/include/linux/cpufreq.h	2006-02-21 20:37:27.000000000 +0100
+@@ -256,6 +256,11 @@
+ /* query the current CPU frequency (in kHz). If zero, cpufreq couldn't detect it */
+ unsigned int cpufreq_get(unsigned int cpu);
+ 
++#ifdef CONFIG_CPU_FREQ
++int cpu_freq_reinit(void);
++#else
++static inline int cpu_freq_reinit(void) { return 0; }
++#endif
+ 
+ /*********************************************************************
+  *                       CPUFREQ DEFAULT GOVERNOR                    *
 
--- 
-Vojtech Pavlik
-Director SuSE Labs
+--SkvwRMAIpAhPCcCJ--

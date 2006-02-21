@@ -1,113 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932746AbWBUQVj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWBUQ0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932746AbWBUQVj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 11:21:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932748AbWBUQVj
+	id S932309AbWBUQ0H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 11:26:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWBUQ0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 11:21:39 -0500
-Received: from mxsf39.cluster1.charter.net ([209.225.28.166]:3477 "EHLO
-	mxsf39.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S932746AbWBUQVi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 11:21:38 -0500
-Message-ID: <43FB3E0C.8030901@cybsft.com>
-Date: Tue, 21 Feb 2006 10:21:32 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Tue, 21 Feb 2006 11:26:07 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:28422 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932309AbWBUQ0G convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 11:26:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aitF6Sm1LDUSKhzZdB10ppQ3spEkaOhomCJDbzNrPiR6rRJrvc7iPGmd/kXtPU5YUHq9m8sxi6vq5dxU1xKBcMt08W8pAxCV+zYw2blm4L3LPY26RlBnoAuNqnX0Kl7yU3xU5mOHl2xGbwMKOxoTr6VfilTvgsZekHOt6XjMGOk=
+Message-ID: <a36005b50602210826i567effabsd4b43da9804db86d@mail.gmail.com>
+Date: Tue, 21 Feb 2006 08:26:05 -0800
+From: "Ulrich Drepper" <drepper@gmail.com>
+To: "Jakub Jelinek" <jakub@redhat.com>
+Subject: Re: [patch 0/6] lightweight robust futexes: -V4
+Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       "Ulrich Drepper" <drepper@redhat.com>, "Paul Jackson" <pj@sgi.com>,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "Andrew Morton" <akpm@osdl.org>
+In-Reply-To: <20060221092338.GV24295@devserv.devel.redhat.com>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: 2.6.15-rt17
-References: <20060221155548.GA30146@elte.hu>
-In-Reply-To: <20060221155548.GA30146@elte.hu>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/mixed;
- boundary="------------050801080303060209080503"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060221084631.GA5506@elte.hu>
+	 <20060221092338.GV24295@devserv.devel.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050801080303060209080503
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On 2/21/06, Jakub Jelinek <jakub@redhat.com> wrote:
+> TID address is registered through:
+> pid_t set_tid_address (int *tidptr)
+> syscall, so IMHO we should add a new syscall
+> pid_t set_tid_robust_addresses (int *tidptr, struct robust_list_head *robustptr)
+> which could register both tid and robust addresses.
 
-Ingo Molnar wrote:
-> i have released the 2.6.15-rt17 tree, which can be downloaded from the 
-> usual place:
-> 
->    http://redhat.com/~mingo/realtime-preempt/
-> 
-> lots of changes all across the map. There are several bigger changes:
-> 
-> the biggest change is the new PI code from Esben Nielsen, Thomas 
-> Gleixner and Steven Rostedt. This big rework simplifies and streamlines 
-> the PI code, and fixes a couple of bugs and races:
-> 
->   - only the top priority waiter on a lock is enqueued into the pi_list
->     of the task which holds the lock. No more pi list walking in the
->     boost case.
-> 
->   - simpler locking rules
-> 
->   - fast Atomic acquire for the non contended case and atomic release 
->     for non waiter case is fully functional now
-> 
->   - use task_t references instead of thread_info pointers
-> 
->   - BKL handling for semaphore style locks changed so that BKL is
->     dropped before the scheduler is entered and reaquired in the return
->     path. This solves a possible deadlock situation in the BKL reacquire
->     path of the scheduler.
-> 
-> another change is the reworking of the SLAB code: it now closely matches 
-> the upstream SLAB code, and it should now work on NUMA systems too 
-> (untested though).
-> 
-> the tasklet code was reworked too to be PREEMPT_RT friendly: the new PI 
-> code unearthed a fundamental livelock scenario with PREEMPT_RT, and the 
-> fix was to rework the tasklet code to get rid of the 'retrigger 
-> softirqs' approach.
-> 
-> other changes: various hrtimers fixes, latency tracer enhancements - and 
-> more. (Robust-futexes are not expected to work in this release.)
-> 
-> please report any new breakages, and re-report any old breakages as 
-> well.
-> 
-> to build a 2.6.15-rt17 tree, the following patches should be applied:
-> 
->   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.15.tar.bz2
->   http://redhat.com/~mingo/realtime-preempt/patch-2.6.15-rt17
-> 
-> 	Ingo
-> -
+The new syscall what certainly be used like this.  In fact, the two
+syscalls happen exactly one after the other in my sources.  So I would
+be in favor of making a change along these lines.  But instead of
+fixing the interface in this way it should be extendable.  Pass a
+structure and a flag value.  The latter specifies which elements of
+the structure are used.  The structure could even grow over time.
 
-Also would you apply the attached patch to fix the RTC_HISTOGRAM Kconfig
-option. In it's current state "tristate" it allows building as a module,
-which of course doesn't work.
 
--- 
-   kr
+> For thread creation, we can just add CLONE_CHILD_SETROBUST clone flag
+> and if that flag is set, pass struct robust_list_head * as additional
+> argument.
 
---------------050801080303060209080503
-Content-Type: text/x-patch;
- name="rtc-Kconfig.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="rtc-Kconfig.patch"
+This is not necessary.  Especially because we already reached the
+limit of parameters to clone.  A dedicated syscall to set up various
+things like the TID pointer and the robust list is fine.
 
---- linux-2.6.15/drivers/char/Kconfig.orig	2006-02-01 12:51:53.000000000 -0600
-+++ linux-2.6.15/drivers/char/Kconfig	2006-02-01 12:52:12.000000000 -0600
-@@ -712,7 +712,7 @@
- 	  module will be called rtc.
- 
- config RTC_HISTOGRAM
--	tristate "Real Time Clock Histogram Support"
-+	bool "Real Time Clock Histogram Support"
- 	default n
- 	depends on RTC
- 	---help---
 
---------------050801080303060209080503--
+> The `len' argument (or really revision of the structure if really needed)
+> can be encoded in the structure, as in:
+> struct robust_list_head {
+>        struct robust_list list;
+>        short robust_list_head_len; /* or robust_list_head_version ? */
+>        short futex_offset;
+>        struct robust_list __user *list_op_pending;
+> };
+> or with long futex_offset, but using say upper 8 bits of the field as
+> version or length.
+
+I know you want to save SPARC but this kind of overloading I don't
+really like.  If you need special treatment of the futex value make
+this explicit and arch-dependent.

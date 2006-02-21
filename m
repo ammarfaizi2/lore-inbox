@@ -1,102 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932781AbWBUVHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932782AbWBUVJ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932781AbWBUVHw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 16:07:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932782AbWBUVHw
+	id S932782AbWBUVJ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 16:09:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932780AbWBUVJ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 16:07:52 -0500
-Received: from styx.suse.cz ([82.119.242.94]:24806 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S932781AbWBUVHv (ORCPT
+	Tue, 21 Feb 2006 16:09:26 -0500
+Received: from ns1.suse.de ([195.135.220.2]:15279 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932776AbWBUVJZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 16:07:51 -0500
-Date: Tue, 21 Feb 2006 22:08:00 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org,
-       stuart_hayes@dell.com
-Subject: Re: Suppressing softrepeat
-Message-ID: <20060221210800.GA12102@suse.cz>
-References: <20060221124308.5efd4889.zaitcev@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 21 Feb 2006 16:09:25 -0500
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/1] EFI iounpam fix for acpi_os_unmap_memory
+Date: Tue, 21 Feb 2006 22:09:06 +0100
+User-Agent: KMail/1.8.2
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Matt_Domsch@dell.com, hostmaster@ed-soft.at,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>
+References: <43FA5293.4070807@ed-soft.at> <p73ek1w4x3a.fsf@verdi.suse.de> <20060221125919.5085de5f.akpm@osdl.org>
+In-Reply-To: <20060221125919.5085de5f.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060221124308.5efd4889.zaitcev@redhat.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.9i
+Message-Id: <200602212209.07586.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 21, 2006 at 12:43:08PM -0800, Pete Zaitcev wrote:
+On Tuesday 21 February 2006 21:59, Andrew Morton wrote:
+> Andi Kleen <ak@suse.de> wrote:
+> >
+> > Andrew Morton <akpm@osdl.org> writes:
+> > 
+> > >  
+> > >  void acpi_os_unmap_memory(void __iomem * virt, acpi_size size)
+> > >  {
+> > > +	/* Don't unmap memory which was not mapped by acpi_os_map_memory */
+> > > +	if (efi_enabled &&
+> > > +	    (efi_mem_attributes(virt_to_phys(virt)) & EFI_MEMORY_WB))
+> > > +		return;
+> > 
+> > 
+> > The patch is wrong because if the address came from ioremap 
+> > virt_to_phys doesn't give the real physical address. Also looking
+> > at acpi_os_map_memory it doesn't quite match the logic there.
+> > 
+> > One working way to check for ioremap memory is 
+> > virt >= VMALLOC_START  && virt < VMALLOC_END
+> > 
+> 
+> OK, thanks.  I don't think we actually know who is trying to unmap some
+> memory which acpi didn't map.
+> 
+> Edgar, can you please describe the bug which you're trying to fix?
 
-> Add the "nosoftrepeat" parameter. This is useful if a "dumb" keyboard
-> has (unswitcheable) hardware repeat, like in Dell DRAC3.
+I think the bug is clear - the logic in acpi_os_unmap_memory needs to match 
+what acpi_os_map_memory() does for EFI. In particular this means not calling
+iounmap.
 
-The softrepeat code should properly ignore all autorepeated keys from a
-'dumb' keyboard. It's rather common that a keyboard we can't communicate
-with is in autorepeat mode, because that's the mode AT keyboards wake up
-in after power on.
+He probably has a EFI system where this caused troubles.
 
-A much simpler workaround for the DRAC3 is to set the softrepeat delay
-to at least 750ms, using kbdrate(8), which will call the proper console
-ioctl, resulting in updating the softrepeat parameters.
+But think even acpi_os_miap_memory is broken - I doubt the efi_mem_attributes
+thing guarantees that  the memory is mapped. I guess this was added for
+IA64 because ioremap used to return uncached memory there and IA64 doesn't
+like this for memory accesses or something like that.
 
-I prefer workarounds for problematic hardware done outside the kernel,
-if possible.
+But Bjorn afaik recently fixed this by making ioremap handle it. So the right 
+fix probably would be to just drop all the efi_enabled gunk in acpi_os_map_memory 
+and just always use ioremap()
 
-> Signed-off-by: Pete Zaitcev <zaitcev@redhat.com>
-> 
-> ---
-> 
-> Hi, Dmitry,
-> 
-> Dell people passed on a request to add a new parameter, "nosoftrepeat",
-> to i8042 (in atkbd.c). So, if I understand right, things should work so:
-> 
->  - None set in grub.conf: Softrepeat is set by the driver as detected
->    or derived. This is the default.
->  - "softrepeat" set: Softrepeat is on, regardless
->  - "nosoftrepeat" set: Softrepeat is off, regardless
->  - Both "softrepeat" and "nosoftrepeat" are set: Do not do that.
-> 
-> The code looked confusing, but there is an good explanation in this bug:
->  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181457
-> 
-> In short words, DRAC3 "plugs into" the keyboard connector, but does not
-> emulate output, so we detect this as "dumb" keyboard and enable softrepeat.
-> But softrepeat causes double keypresses.
-> 
-> I suppose we could revamp the old softrepeat parameter to be more than
-> a boolean, but I see no point.
-> 
-> If you agree, please include the attached.
-> 
-> -- Pete
-> 
-> --- linux-2.6.16-rc2/drivers/input/keyboard/atkbd.c	2006-02-11 00:31:41.000000000 -0800
-> +++ linux-2.6.16-rc2-lem/drivers/input/keyboard/atkbd.c	2006-02-21 11:53:53.000000000 -0800
-> @@ -50,6 +50,10 @@ static int atkbd_softrepeat;
->  module_param_named(softrepeat, atkbd_softrepeat, bool, 0);
->  MODULE_PARM_DESC(softrepeat, "Use software keyboard repeat");
->  
-> +static int atkbd_nosoftrepeat;
-> +module_param_named(nosoftrepeat, atkbd_nosoftrepeat, bool, 0);
-> +MODULE_PARM_DESC(nosoftrepeat, "Do not use software keyboard repeat");
-> +
->  static int atkbd_softraw = 1;
->  module_param_named(softraw, atkbd_softraw, bool, 0);
->  MODULE_PARM_DESC(softraw, "Use software generated rawmode");
-> @@ -862,7 +866,7 @@ static int atkbd_connect(struct serio *s
->  	atkbd->softrepeat = atkbd_softrepeat;
->  	atkbd->scroll = atkbd_scroll;
->  
-> -	if (!atkbd->write)
-> +	if (!atkbd->write && !atkbd_nosoftrepeat)
->  		atkbd->softrepeat = 1;
->  
->  	if (atkbd->softrepeat)
-> 
-> 
+Also removed this ptr > ULONG_MAX check. Obvious it can never trigger.
 
--- 
-Vojtech Pavlik
-Director SuSE Labs
+<untested patch follows>
+
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+Index: linux/drivers/acpi/osl.c
+===================================================================
+--- linux.orig/drivers/acpi/osl.c
++++ linux/drivers/acpi/osl.c
+@@ -182,23 +182,10 @@ acpi_status
+ acpi_os_map_memory(acpi_physical_address phys, acpi_size size,
+ 		   void __iomem ** virt)
+ {
+-	if (efi_enabled) {
+-		if (EFI_MEMORY_WB & efi_mem_attributes(phys)) {
+-			*virt = (void __iomem *)phys_to_virt(phys);
+-		} else {
+-			*virt = ioremap(phys, size);
+-		}
+-	} else {
+-		if (phys > ULONG_MAX) {
+-			printk(KERN_ERR PREFIX "Cannot map memory that high\n");
+-			return AE_BAD_PARAMETER;
+-		}
+-		/*
+-		 * ioremap checks to ensure this is in reserved space
+-		 */
+-		*virt = ioremap((unsigned long)phys, size);
+-	}
+-
++	/*
++	 * ioremap checks to ensure this is in reserved space
++	 */
++	*virt = ioremap((unsigned long)phys, size);
+ 	if (!*virt)
+ 		return AE_NO_MEMORY;
+ 
+
+
+
+
+
+
+> 

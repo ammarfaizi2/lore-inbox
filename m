@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWBUUFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWBUUT6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbWBUUFq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 15:05:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWBUUFq
+	id S964787AbWBUUT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 15:19:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbWBUUT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 15:05:46 -0500
-Received: from ns2.suse.de ([195.135.220.15]:50891 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964778AbWBUUFq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 15:05:46 -0500
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@davemloft.net>
-Subject: Re: softlockup interaction with slow consoles
-Date: Tue, 21 Feb 2006 21:05:37 +0100
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-References: <Pine.LNX.4.58.0602210404330.3092@devserv.devel.redhat.com> <p73mzgk4y9u.fsf@verdi.suse.de> <20060221.120143.15763934.davem@davemloft.net>
-In-Reply-To: <20060221.120143.15763934.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Feb 2006 15:19:57 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:38874 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S964787AbWBUUT5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 15:19:57 -0500
+Date: Tue, 21 Feb 2006 12:20:24 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>
+Subject: Re: [patch] Cache align futex hash buckets
+Message-ID: <20060221202024.GA3635@localhost.localdomain>
+References: <20060220233242.GC3594@localhost.localdomain> <43FA8938.70006@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602212105.38075.ak@suse.de>
+In-Reply-To: <43FA8938.70006@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 February 2006 21:01, David S. Miller wrote:
-> From: Andi Kleen <ak@suse.de>
-> Date: 21 Feb 2006 14:49:49 +0100
+On Tue, Feb 21, 2006 at 02:30:00PM +1100, Nick Piggin wrote:
+> Ravikiran G Thirumalai wrote:
+> >Following change places each element of the futex_queues hashtable on a 
+> >different cacheline.  Spinlocks of adjacent hash buckets lie on the same 
+> >cacheline otherwise.
+> >
 > 
-> > Still you could probably see problems with very slow consoles even
-> > after bootup, couldn't you?
+> It does not make sense to add swaths of unused memory into a hashtable for
+> this purpose, does it?
+
+I don't know if having two (or more) spinlocks on the same cacheline is a good 
+idea.  Right now, on a 128 B cacheline we have 10 spinlocks on the
+same cacheline here!! Things get worse if two futexes from different nodes 
+hash on to adjacent, or even nearly adjacent hash buckets.
+
 > 
-> Yes, others have mentioned this too, good point.
-> 
-> Depending upon what we're really trying to achieve with the
-> softlockup stuff, we can perhaps look into increasing the
-> timeout or making it configurable.  We could even do this
-> dynamically, so when we register a serial console running
-> at some low baud rate, we scale up the softlockup timeout
-> or something like that.
+> For a minimal, naive solution you just increase the size of the hash table.
+> This will (given a decent hash function) provide the same reduction in
+> cacheline contention, while also reducing collisions.
 
-The classic way is to just use touch_nmi_watchdog() somewhere
-in the loop that does work. That touches the softwatchdog too
-these days.
+Given a decent hash function.  I am not sure the hashing function is smart 
+enough as of now.  Hashing is not a function of nodeid, and we have some 
+instrumentation results which show hashing on NUMA is not good as yet, and
+there are collisions from other nodes onto the same hashbucket; Nearby 
+buckets have high hit rates too.
 
--Andi
+I think some sort of NUMA friendly hashing, where futexes from same nodes
+hash onto a node local hash table, would be a decent solution here.
+As I mentioned earlier, we are working on that, and we can probably allocate
+the spinlock from nodelocal memory then and avoid this bloat.
+We are hoping to have this as a stop gap fix until we get there.
 
- 
+Thanks,
+Kiran
+

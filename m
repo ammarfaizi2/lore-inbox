@@ -1,101 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161229AbWBUOP5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161223AbWBUOPg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161229AbWBUOP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 09:15:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161234AbWBUOP5
+	id S1161223AbWBUOPg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 09:15:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161222AbWBUOPg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 09:15:57 -0500
-Received: from nproxy.gmail.com ([64.233.182.203]:45959 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161226AbWBUOPz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 09:15:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=L73YNhxEIhHL3xPBs0jjIlyLPVd7nyTQSG+BKzV3mGwxn8Ba1Qc/rauEb42fY1WMZV3hzjET//1Dy65KqtsbuafO6k8u+GXQY4aABNdA2z9WF5wqSHnq6qwbYWjuM+cp1gn8VZqI+KhT+goTvPrnCkkfksVUH27pZiQDEzMIsUA=
-Message-ID: <69304d110602210615m491829ccx9ba84edc8dafe1f7@mail.gmail.com>
-Date: Tue, 21 Feb 2006 15:15:53 +0100
-From: "Antonio Vargas" <windenntw@gmail.com>
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>,
-       "Andrew Morton" <akpm@osdl.org>, "Oleg Drokin" <green@linuxhacker.ru>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: FMODE_EXEC or alike?
-In-Reply-To: <1140530396.7864.63.camel@lade.trondhjem.org>
+	Tue, 21 Feb 2006 09:15:36 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:56224 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161096AbWBUOPf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 09:15:35 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Matt Domsch <Matt_Domsch@dell.com>, hostmaster@ed-soft.at
+Subject: Re: [PATCH 1/1] EFI iounpam fix for acpi_os_unmap_memory
+References: <43FA5293.4070807@ed-soft.at>
+	<20060220220219.6d82366a.akpm@osdl.org>
+From: Andi Kleen <ak@suse.de>
+Date: 21 Feb 2006 15:15:21 +0100
+In-Reply-To: <20060220220219.6d82366a.akpm@osdl.org>
+Message-ID: <p73ek1w4x3a.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060220221948.GC5733@linuxhacker.ru>
-	 <20060220215122.7aa8bbe5.akpm@osdl.org>
-	 <1140530396.7864.63.camel@lade.trondhjem.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/21/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> On Mon, 2006-02-20 at 21:51 -0800, Andrew Morton wrote:
-> > Oleg Drokin <green@linuxhacker.ru> wrote:
-> > >
-> > > Hello!
-> > >
-> > >    We are working on a lustre client that would not require any patches
-> > >    to linux kernel. And there are few things that would be nice to have
-> > >    that I'd like your input on.
-> > >
-> > >    One of those is FMODE_EXEC - to correctly detect cross-node situations with
-> > >    executing a file that is opened for write or the other way around, we need
-> > >    something like this extra file mode to be present (and used as a file open
-> > >    mode when opening files for exection, e.g. in fs/exec.c)
-> > >    Do you think there is a chance this can be included into vanilla kernel,
-> > >    or is there a better solution I oversee?
-> > >    I am just thinking about something as simple as this
-> > >    (with some suitable FMODE_EXEC define, of course):
-> > >
-> > > --- linux/fs/exec.c.orig    2006-02-21 00:11:47.000000000 +0200
-> > > +++ linux/fs/exec.c 2006-02-21 00:12:24.000000000 +0200
-> > > @@ -127,7 +127,7 @@ asmlinkage long sys_uselib(const char __
-> > >     struct nameidata nd;
-> > >     int error;
-> > >
-> > > -   error = __user_path_lookup_open(library, LOOKUP_FOLLOW, &nd, FMODE_READ);
-> > > +   error = __user_path_lookup_open(library, LOOKUP_FOLLOW, &nd, FMODE_READ|FMODE_EXEC);
-> > >     if (error)
-> > >             goto out;
-> > >
-> > > @@ -477,7 +477,7 @@ struct file *open_exec(const char *name)
-> > >     int err;
-> > >     struct file *file;
-> > >
-> > > -   err = path_lookup_open(name, LOOKUP_FOLLOW, &nd, FMODE_READ);
-> > > +   err = path_lookup_open(name, LOOKUP_FOLLOW, &nd, FMODE_READ|FMODE_EXEC);
-> > >     file = ERR_PTR(err);
-> > >
-> > >     if (!err) {
-> > >
-> >
-> > Such a patch would have zero runtime cost.  I'd have no problem carrying
-> > that if it makes things easier for lustre, personally.
-> >
-> > We would need to understand whether this is needed by other distributed
-> > filesystems and if so, whether the proposed implementation is suitable and
-> > sufficient.
->
-> Hmm.... We might possibly want to use that for NFSv4 at some point in
-> order to deny write access to the file to other clients while it is in
-> use.
+Andrew Morton <akpm@osdl.org> writes:
 
-When done with regards to failing a write if anyone has mapped the
-file for executing it, or failing the execute if it's open/mmaped for
-write, I can't really see the difference between local, remote and
-clustered filesystems...
+>  
+>  void acpi_os_unmap_memory(void __iomem * virt, acpi_size size)
+>  {
+> +	/* Don't unmap memory which was not mapped by acpi_os_map_memory */
+> +	if (efi_enabled &&
+> +	    (efi_mem_attributes(virt_to_phys(virt)) & EFI_MEMORY_WB))
+> +		return;
 
---
-Greetz, Antonio Vargas aka winden of network
 
-http://wind.codepixel.com/
-windNOenSPAMntw@gmail.com
-thesameasabove@amigascne.org
+The patch is wrong because if the address came from ioremap 
+virt_to_phys doesn't give the real physical address. Also looking
+at acpi_os_map_memory it doesn't quite match the logic there.
 
-Every day, every year
-you have to work
-you have to study
-you have to scene.
+One working way to check for ioremap memory is 
+virt >= VMALLOC_START  && virt < VMALLOC_END
+
+-Andi
+

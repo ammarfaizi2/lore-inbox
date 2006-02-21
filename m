@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932727AbWBUKUI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161453AbWBUKUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932727AbWBUKUI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 05:20:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932728AbWBUKUI
+	id S1161453AbWBUKUV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 05:20:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161457AbWBUKUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 05:20:08 -0500
-Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:29883 "EHLO
-	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932727AbWBUKUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 05:20:07 -0500
-Date: Tue, 21 Feb 2006 05:16:08 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch] i386: Don't let ptrace set the nested task bit
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200602210519_MC3-1-B8DF-2A97@compuserve.com>
+	Tue, 21 Feb 2006 05:20:21 -0500
+Received: from mail.gmx.de ([213.165.64.20]:60311 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1161453AbWBUKUT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 05:20:19 -0500
+X-Authenticated: #428038
+Date: Tue, 21 Feb 2006 11:20:16 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060221102016.GB19643@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <200602192053.25767.dhazelton@enter.net> <43F9F11E.nail5BM21M01Q@burner> <200602201340.30484.dhazelton@enter.net> <43FAE6A6.nailD1261QRW3@burner>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <43FAE6A6.nailD1261QRW3@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's no good reason for allowing ptrace to set the NT
-bit in EFLAGS, so mask it off.
+Joerg Schilling schrieb am 2006-02-21:
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+> There used to be generic support, so this way of support is unneeded.
 
---- 2.6.16-rc4-nb.orig/arch/i386/kernel/ptrace.c
-+++ 2.6.16-rc4-nb/arch/i386/kernel/ptrace.c
-@@ -34,10 +34,10 @@
- 
- /*
-  * Determines which flags the user has access to [1 = access, 0 = no access].
-- * Prohibits changing ID(21), VIP(20), VIF(19), VM(17), IOPL(12-13), IF(9).
-+ * Prohibits changing ID(21), VIP(20), VIF(19), VM(17), NT(14), IOPL(12-13), IF(9).
-  * Also masks reserved bits (31-22, 15, 5, 3, 1).
-  */
--#define FLAG_MASK 0x00054dd5
-+#define FLAG_MASK 0x00050dd5
- 
- /* set's the trap flag. */
- #define TRAP_FLAG 0x100
+It is not your business to decide what is unneeded in Linux and what
+isn't, and CD writing (still the Subject line!) doesn't require
+ide-scsi. Evidently the additional SG_IO support in ide-cd doesn't break
+your applications.
+
 -- 
-Chuck
-"Equations are the Devil's sentences."  --Stephen Colbert
+Matthias Andree

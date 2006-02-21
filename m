@@ -1,70 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbWBURCg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWBURE5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932316AbWBURCg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 12:02:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWBURCg
+	id S932313AbWBURE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 12:04:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWBURE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 12:02:36 -0500
-Received: from posthamster.phnxsoft.com ([195.227.45.4]:51723 "EHLO
-	posthamster.phnxsoft.com") by vger.kernel.org with ESMTP
-	id S932316AbWBURCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 12:02:35 -0500
-Message-ID: <43FB475A.5050108@phoenixsoftware.de>
-Date: Tue, 21 Feb 2006 18:01:14 +0100
-From: Tilman Schmidt <t.schmidt@phoenixsoftware.de>
-Organization: Phoenix Software GmbH
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de,en,fr
+	Tue, 21 Feb 2006 12:04:57 -0500
+Received: from xenotime.net ([66.160.160.81]:206 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932313AbWBURE4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 12:04:56 -0500
+Date: Tue, 21 Feb 2006 09:04:51 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Jens Axboe <axboe@suse.de>
+cc: Ariel Garcia <garcia@iwr.fzk.de>, linux-kernel@vger.kernel.org,
+       "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: 2.6.16-rc4 libata + AHCI patched for suspend fails on ICH6
+In-Reply-To: <20060219191859.GJ8852@suse.de>
+Message-ID: <Pine.LNX.4.58.0602210903260.8603@shark.he.net>
+References: <200602191958.38219.garcia@iwr.fzk.de> <20060219191859.GJ8852@suse.de>
 MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: Hansjoerg Lipp <hjlipp@web.de>, Karsten Keil <kkeil@suse.de>,
-       i4ldeveloper@listserv.isdn4linux.de,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Tilman Schmidt <tilman@imap.cc>
-Subject: advice on using dev_info(), dev_err() and friends (was: [PATCH 2/9]
- isdn4linux: Siemens Gigaset drivers - common module)
-References: <gigaset307x.2006.02.11.001.0@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.1@hjlipp.my-fqdn.de> <gigaset307x.2006.02.11.001.2@hjlipp.my-fqdn.de> <20060215032659.GB5099@suse.de>
-In-Reply-To: <20060215032659.GB5099@suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.409 () AWL,BAYES_50
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Greg,
+On Sun, 19 Feb 2006, Jens Axboe wrote:
 
-thank you for your comments. Just a few follow-up questions.
+> On Sun, Feb 19 2006, Ariel Garcia wrote:
+> > Hi Jens,
+> >
+> > regarding your suspend support patch for libata:
+> >
+> > > author  Jens Axboe <axboe@suse.de>
+> > >    Fri, 6 Jan 2006 08:28:07 +0000 (09:28 +0100)
+> > > commit  9b847548663ef1039dd49f0eb4463d001e596bc3
+> >
+> > >  [PATCH] Suspend support for libata
+> > >  This patch adds suspend patch to libata, and ata_piix in particular.
+> > > For most low level drivers, they should just need to add the 4 hooks to
+> > > work. As I can only test ata_piix, I didn't enable it for more though.
+> >
+> > i tested the trivial "4-hooks" patch on kernel 2.6.16-rc4, on my laptop
+> > (i915, ICH6 chipset, sata hd - a Fujitsu-Siemens 7020)
+> > but it doesn't work as it should:
+> >    after resume the drive fails to respond to the commands so it
+> >    ends up remounted read-only.
+> >
+> > I am attaching:
+> >    - the trivial patch i used
+> >    - the output of lsmod (lsmod-clean.txt)
+> >    - the output of lspci -vv  before (lspci-clean.txt)
+> >         and after resuming (lspci-resume.txt)
+> >    - the output of dmesg (glueing the full boot + resuming messages)
+> >
+> > All this was done running in single mode. I also tried suspending after
+> > removing all unnecessary modules (usb, snd,ide,...), same result.
+> >
+> > BTW, running a    'diff lspci-clean.txt lspci-resume.txt'
+> > i also noticed that after resume some pci devices get a different
+> > "BusMaster" polarity, but the SATA controller doesn't.
+> >
+> > I would be glad to test patches/debug other things, feel free to ask.
+>
+> The first thing to try is to add the acpi addon from Randy and see if
+> that helps at all. Looking at the log, the first command we issue after
+> resume times out which smells a lot like an unlock command missing
+> (which is typically in the GTF list from acpi).
 
-On 15.02.2006 04:27, Greg KH wrote:
-> On Sat, Feb 11, 2006 at 03:52:27PM +0100, Hansjoerg Lipp wrote:
-> 
->>--- linux-2.6.16-rc2/drivers/isdn/gigaset/gigaset.h	1970-01-01 01:00:00.000000000 +0100
->>+++ linux-2.6.16-rc2-gig/drivers/isdn/gigaset/gigaset.h	2006-02-11 15:20:26.000000000 +0100
-[...]
->>+#undef info
->>+#define info(format, arg...) printk(KERN_INFO "%s: " format "\n", THIS_MODULE ? THIS_MODULE->name : "gigaset_hw" , ## arg)
-> 
-> Care to use the dev_info(), dev_err() and other dev_* friends instead of
-> rolling your own?  It gives you a much easier and standardised way of
-> identifying the driver and individual device that the message is
-> happening for.
+Ariel-
+These patches (for 2.6.16-rc3) are at
+http://www.xenotime.net/linux/SATA/2.6.16-rc3/libata-rollup-2616-rc3.patch
 
-This turns out to be surprisingly tricky, as these macros take a device
-pointer argument which mustn't be NULL either.
+in case you didn't find them yet.
 
-Could you please advise how to use these when I do not have a device
-pointer available (ie. before the probe method has been called) or when
-there is a risk of it being no longer valid (ie. the USB device has been
-unplugged)? I can detect both cases by checking for dev==NULL, but then
-what do I do if it is? Is there a dummy device structure somewhere which
-I could then use instead? Somehow, replacing all our occurrences of
-	info("m%sg", args);
-with
-	if (cs->dev)
-		dev_info(cs->dev, "m%sg\n", args);
-	else
-		printk(KERN_INFO "gigaset: m%sg\n", args);
-doesn't really appeal to me. :-)
+> So try this patch on 2.6.16-rc3 (or -rc4, if it applies, haven't
+> checked) and make sure to keep the ahci patch you have that adds the 4
+> needed hooks as well.
 
-Thanks
-Tilman
+-- 
+~Randy

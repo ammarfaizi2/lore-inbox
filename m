@@ -1,90 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161275AbWBUCIk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161277AbWBUCMc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161275AbWBUCIk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 21:08:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161277AbWBUCIk
+	id S1161277AbWBUCMc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 21:12:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161279AbWBUCMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 21:08:40 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:4570 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1161275AbWBUCIj convert rfc822-to-8bit
+	Mon, 20 Feb 2006 21:12:32 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:37539 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161277AbWBUCMc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 21:08:39 -0500
-Date: Tue, 21 Feb 2006 13:04:47 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Sonny Rao <sonny@burdell.org>, Dave Jones <davej@redhat.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, bjd <bjdouma@xs4all.nl>,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: kernel oops: trying to mount a corrupted xfs partition (2.6.16-rc3)
-Message-ID: <20060221020447.GB1588@frodo>
-References: <20060216183629.GA5672@skyscraper.unix9.prv> <20060217063157.B9349752@wobbly.melbourne.sgi.com> <Pine.LNX.4.61.0602171753590.27452@yvahk01.tjqt.qr> <20060220082946.A9478997@wobbly.melbourne.sgi.com> <20060219215209.GB7974@redhat.com> <20060220070916.GA8101@kevlar.burdell.org>
+	Mon, 20 Feb 2006 21:12:32 -0500
+Date: Mon, 20 Feb 2006 18:13:02 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] introduce sig_needs_tasklist() helper
+Message-ID: <20060221021302.GR1480@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <43F76374.EDA3ED9D@tv-sign.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20060220070916.GA8101@kevlar.burdell.org>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <43F76374.EDA3ED9D@tv-sign.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 20, 2006 at 02:09:16AM -0500, Sonny Rao wrote:
-> On Sun, Feb 19, 2006 at 04:52:09PM -0500, Dave Jones wrote:
-> <snip> 
-> > Just for kicks, I just hacked this up..
-> > 
-> > #!/bin/bash
-> > wget http://www.digitaldwarf.be/products/mangle.c
-> > gcc mangle.c -o mangle
-> > 
-> > dd if=/dev/zero of=data.img count=70000
-> > 
-> > while [ 1 ];
-> > do
-> >         mkfs.xfs -f data.img >/dev/null
-> > 		./mangle data.img $RANDOM
-> >         sudo mount -t xfs data.img mntpt -o loop
-> >         sudo ls -R mntpt
-> >         sudo umount mntpt
-> > done
-> ...
-> > 
-> > xfs wins the award for 'noisiest fs in the face of corruption' :-)
-> > After a few dozen backtraces from xfs_corruption_error,
-> > this fell out...
-> > 
-> > divide error: 0000 [1] SMP
-> <snip trace>
->  
-> > (The kernel is based on 2.6.16rc4)
+On Sat, Feb 18, 2006 at 09:12:04PM +0300, Oleg Nesterov wrote:
+> In my opinion this patch cleanups the code. Please
+> say 'nack' if you think differently.
 > 
-> I see a similar breakage (divide error) on x86 using 2.6.15
+> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+> 
+> --- 2.6.16-rc3/kernel/signal.c~4_SNT	2006-02-18 23:26:51.000000000 +0300
+> +++ 2.6.16-rc3/kernel/signal.c	2006-02-18 23:43:23.000000000 +0300
+> @@ -147,6 +147,9 @@ static kmem_cache_t *sigqueue_cachep;
+>  #define sig_kernel_stop(sig) \
+>  		(((sig) < SIGRTMIN)  && T(sig, SIG_KERNEL_STOP_MASK))
+>  
+> +#define sig_needs_tasklist(sig) \
+> +		(((sig) < SIGRTMIN)  && T(sig, SIG_KERNEL_STOP_MASK | M(SIGCONT)))
+> +
+>  #define sig_user_defined(t, signr) \
+>  	(((t)->sighand->action[(signr)-1].sa.sa_handler != SIG_DFL) &&	\
+>  	 ((t)->sighand->action[(signr)-1].sa.sa_handler != SIG_IGN))
+> @@ -1202,7 +1205,7 @@ kill_proc_info(int sig, struct siginfo *
+>  	struct task_struct *p;
+>  
+>  	rcu_read_lock();
+> -	if (unlikely(sig_kernel_stop(sig) || sig == SIGCONT)) {
+> +	if (unlikely(sig_needs_tasklist(sig))) {
+>  		read_lock(&tasklist_lock);
+>  		acquired_tasklist_lock = 1;
+>  	}
 
->From a quick look at the image you sent me Sonny, I guess this is
-the same problem Dave was seeing too -- a divide by zero when we're
-working out some of the per-mount constants during mount(2).  There
-is probably one or two other superblock fields that could use more
-verification, but this will do for now.
+Seems to me to be an improvement, but why not also encapsulate the
+lock acquisition, something like:
 
-cheers.
+	static inline int sig_tasklist_lock(int sig)
+	{
+		if (unlikely(sig_needs_tasklist(sig)) {
+			read_lock(&tasklist_lock);
+			return 1;
+		}
+		return 0;
+	}
 
--- 
-Nathan
+	static inline void sig_tasklist_unlock(int acquired_tasklist_lock)
+	{
+		if (acquired_tasklist_lock)
+			read_unlock(&tasklist_lock);
+	}
 
+	...
 
-Index: xfs-linux/xfs_mount.c
-===================================================================
---- xfs-linux.orig/xfs_mount.c
-+++ xfs-linux/xfs_mount.c
-@@ -268,9 +268,12 @@ xfs_mount_validate_sb(
- 	    sbp->sb_blocklog > XFS_MAX_BLOCKSIZE_LOG			||
- 	    sbp->sb_inodesize < XFS_DINODE_MIN_SIZE			||
- 	    sbp->sb_inodesize > XFS_DINODE_MAX_SIZE			||
-+	    sbp->sb_inodelog < XFS_DINODE_MIN_LOG			||
-+	    sbp->sb_inodelog > XFS_DINODE_MAX_LOG			||
-+	    (sbp->sb_blocklog - sbp->sb_inodelog != sbp->sb_inopblog)	||
- 	    (sbp->sb_rextsize * sbp->sb_blocksize > XFS_MAX_RTEXTSIZE)	||
- 	    (sbp->sb_rextsize * sbp->sb_blocksize < XFS_MIN_RTEXTSIZE)	||
--	    sbp->sb_imax_pct > 100)) {
-+	    (sbp->sb_imax_pct > 100 || sbp->sb_imax_pct < 1))) {
- 		cmn_err(CE_WARN, "XFS: SB sanity check 1 failed");
- 		XFS_CORRUPTION_ERROR("xfs_mount_validate_sb(3)",
- 				     XFS_ERRLEVEL_LOW, mp, sbp);
+	rcu_read_lock();
+	acquired_tasklist_lock = sig_tasklist_lock(sig);
+
+	...
+
+	sig_tasklist_unlock(acquired_tasklist_lock);
+
+Seem reasonable?
+
+						Thanx, Paul

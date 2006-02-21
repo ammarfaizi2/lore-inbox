@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161417AbWBUH7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161421AbWBUIDt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161417AbWBUH7y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 02:59:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161421AbWBUH7y
+	id S1161421AbWBUIDt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 03:03:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161425AbWBUIDt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 02:59:54 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:2705 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161417AbWBUH7x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 02:59:53 -0500
-Subject: Re: 2.6.16-rc4-mm1
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Al Viro <viro@ftp.linux.org.uk>, reuben-lkml@reub.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060220165327.64f15bba.akpm@osdl.org>
-References: <20060220042615.5af1bddc.akpm@osdl.org>
-	 <43F9B8A9.4000506@reub.net> <20060220201506.GU27946@ftp.linux.org.uk>
-	 <20060220165327.64f15bba.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 21 Feb 2006 08:59:48 +0100
-Message-Id: <1140508788.3082.14.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 21 Feb 2006 03:03:49 -0500
+Received: from mail.astral.ro ([193.230.240.11]:38581 "EHLO mail.astral.ro")
+	by vger.kernel.org with ESMTP id S1161421AbWBUIDs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 03:03:48 -0500
+Message-ID: <43FAC963.40908@astral.ro>
+Date: Tue, 21 Feb 2006 10:03:47 +0200
+From: Imre Gergely <imre.gergely@astral.ro>
+Organization: Astral Telecom SA
+User-Agent: Thunderbird 1.5 (X11/20051025)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: irq balance problems?
+References: <43FAC5AA.1030205@astral.ro> <1140508579.3082.12.camel@laptopd505.fenrus.org>
+In-Reply-To: <1140508579.3082.12.camel@laptopd505.fenrus.org>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-20 at 16:53 -0800, Andrew Morton wrote:
-> Al Viro <viro@ftp.linux.org.uk> wrote:
-> >
-> > It really would be more useful to pick individual branches
-> >  	fixes.b8
-> >  	m32r.b0
-> >  	m68k.b8
-> >  	xfs.b8
-> >  	uml.b1
-> >  	net.b6
-> >  	frv.b8
-> >  	misc.b8
-> >  	upf.b5
-> >  	volatile.b0
-> >  	endian.b8
-> >  	net-endian.b3
-> 
-> OK...  But it looks like these are liable to be removed, renamed or added
-> to at the drop of a hat.  I don't know how to keep up with that.
 
-maybe a for-akpm branch can be made?
+
+Arjan van de Ven wrote:
+>> and irqbalance is not running, why aren't the interrupts coming from eth0
+>> balanced between the two processors? at least that's what i understood from the
+>> examples in Documentation/IRQ-affinity.txt. are there any other settings/kernel
+>> parameters/compile option one has to set?
+> 
+> it'll depend on the chipset. Some round-robin, some don't.
+> For performance it's better to not round-robin. 
+
+is there a way to see for sure? or this behaviour is proof enough that it
+doesn't do round-robin?
+
 

@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030179AbWBUTfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932555AbWBUUBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030179AbWBUTfW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 14:35:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030180AbWBUTfW
+	id S932555AbWBUUBq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 15:01:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932560AbWBUUBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 14:35:22 -0500
-Received: from smtpq1.tilbu1.nb.home.nl ([213.51.146.200]:29351 "EHLO
-	smtpq1.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
-	id S1030179AbWBUTfV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 14:35:21 -0500
-Message-ID: <43FB6B8A.6070904@keyaccess.nl>
-Date: Tue, 21 Feb 2006 20:35:38 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: Adam Belay <ambx1@neo.rr.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       alsa-devel@alsa-project.org
-Subject: Re: snd-cs4236 (possibly all isa-pnp cards or all alsa isa-pnp cards)
- broken in 2.6.16-rc4
-References: <43F9F9F2.4070203@keyaccess.nl>	<s5hu0askd7e.wl%tiwai@suse.de>	<43FB3718.6060503@keyaccess.nl> <s5hek1wk3op.wl%tiwai@suse.de>
-In-Reply-To: <s5hek1wk3op.wl%tiwai@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 21 Feb 2006 15:01:46 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:1420
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932559AbWBUUBp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 15:01:45 -0500
+Date: Tue, 21 Feb 2006 11:58:59 -0800 (PST)
+Message-Id: <20060221.115859.92015829.davem@davemloft.net>
+To: mpm@selenic.com
+Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: softlockup interaction with slow consoles
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060221192340.GO4650@waste.org>
+References: <Pine.LNX.4.58.0602210404330.3092@devserv.devel.redhat.com>
+	<20060221.011650.120896368.davem@davemloft.net>
+	<20060221192340.GO4650@waste.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai wrote:
+From: Matt Mackall <mpm@selenic.com>
+Date: Tue, 21 Feb 2006 13:23:40 -0600
 
-> Rene Herman wrote:
+> I don't like it. We should instead just have printk tickle the watchdog.
 
->> "ALSA sound/core/device.c:106: device free eee4e000 (from f099153d), not 
->> found"
+You can't, interrupts are disabled the entire time and thus
+jiffies aren't advancing.  The "touch" just sets the local
+cpu timestamp to whatever jiffies is.
 
-> This is harmless.  The opl3-oss instance was already freed but the
-> driver tries to release it again just to be sure.
-> 
-> The patch below should fix this annoyance.
+That's the problem.
 
-Ah, good. Yes, it ofcourse does. Thanks. So, only the isapnp/bustype one 
-was in fact a problem, it seems...
+I agree that it would be nice to fix this, but the desire for
+synchronous console output makes this very hard to solve.
 
-Rene.
+Like I said, maybe some local chunking in release_console_sem()
+but since interrupts will come in we can trigger more and more
+lengthy console output and eventually overflow the printk log
+buffer before the chunking loop can catch up and we'll thus
+lose messages.

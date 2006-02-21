@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161244AbWBUAzp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161245AbWBUAzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161244AbWBUAzp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 19:55:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161246AbWBUAzp
+	id S1161245AbWBUAzq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 19:55:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161247AbWBUAzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 19:55:45 -0500
-Received: from digitalimplant.org ([64.62.235.95]:6846 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S1161244AbWBUAzo
+	Mon, 20 Feb 2006 19:55:46 -0500
+Received: from digitalimplant.org ([64.62.235.95]:9918 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S1161245AbWBUAzo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 20 Feb 2006 19:55:44 -0500
-Date: Mon, 20 Feb 2006 16:55:34 -0800 (PST)
+Date: Mon, 20 Feb 2006 16:55:37 -0800 (PST)
 From: Patrick Mochel <mochel@digitalimplant.org>
 X-X-Sender: mochel@monsoon.he.net
 To: greg@kroah.com, "" <akpm@osdl.org>, "" <torvalds@osdl.org>
 cc: linux-kernel@vger.kernel.org, "" <linux-pm@osdl.org>
-Subject: [PATCH 0/4] Fix runtime device suspend/resumre interface
-Message-ID: <Pine.LNX.4.50.0602201641380.21145-100000@monsoon.he.net>
+Subject: [PATCH 1/4] [pm] Add state filed to pm_message_t (to hold actual
+ state device is in).
+Message-ID: <Pine.LNX.4.50.0602201652430.21145-100000@monsoon.he.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi there,
+Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
 
-Here is an updated version of the patches to fix the sysfs interface for
-runtime device power management by restoring the file to its originally
-designed behavior - to place devices in the power state specified by the
-user process writing to the file.
+---
 
-Recently, the interface was changed to filter out values to prevent a
-BUG() that was introduced in the PCI power management code. While a valid
-fix, it makes the driver core filter values that might otherwise be used
-by the bus/device drivers. This behavior enforces a hard-coded,
-non-configurable policy in the driver core, and prevents any other power
-state besides "on" and "off" from being used.
+ include/linux/pm.h |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-These patches implement a solution to that problem by introducing a
-"state" field to the pm_message_t structure, which is passed to the bus
-drivers for each suspend request. The sysfs interface is modified to
-forward the value written to the file in the .state field. The bus and
-device drivers can use that field as guidance for which power state to
-enter.
+applies-to: 55ce8c6305fc70b1b544ce7365abd6054e9b5f61
+7af37561812f4599841ade4abee067b808b40054
+diff --git a/include/linux/pm.h b/include/linux/pm.h
+index 5be87ba..a7324ea 100644
+--- a/include/linux/pm.h
++++ b/include/linux/pm.h
+@@ -140,6 +140,7 @@ struct device;
 
-While not the only solution to the problem, this solution should restore
-the desired functionality to the per-device "state" file with the least
-amount of impact.
+ typedef struct pm_message {
+ 	int event;
++	u32 state;
+ } pm_message_t;
 
-Thanks,
-
-
-	Pat
+ /*
+---
+0.99.9.GIT

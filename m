@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWBUXcq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWBUXhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750770AbWBUXcq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 18:32:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWBUXcq
+	id S1751218AbWBUXhU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 18:37:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWBUXhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 18:32:46 -0500
-Received: from pat.uio.no ([129.240.130.16]:30969 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1750770AbWBUXcp (ORCPT
+	Tue, 21 Feb 2006 18:37:20 -0500
+Received: from smtp.enter.net ([216.193.128.24]:33284 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S1751218AbWBUXhT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 18:32:45 -0500
-Subject: Re: FMODE_EXEC or alike?
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: "J. Bruce Fields" <bfields@fieldses.org>
-Cc: Andrew Morton <akpm@osdl.org>, Oleg Drokin <green@linuxhacker.ru>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <20060221232607.GS22042@fieldses.org>
-References: <20060220221948.GC5733@linuxhacker.ru>
-	 <20060220215122.7aa8bbe5.akpm@osdl.org>
-	 <1140530396.7864.63.camel@lade.trondhjem.org>
-	 <20060221232607.GS22042@fieldses.org>
-Content-Type: text/plain
-Date: Tue, 21 Feb 2006 18:32:31 -0500
-Message-Id: <1140564751.8088.35.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Tue, 21 Feb 2006 18:37:19 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Date: Tue, 21 Feb 2006 18:37:36 -0500
+User-Agent: KMail/1.8.1
+Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org
+References: <43EB7BBA.nailIFG412CGY@burner> <200602201302.05347.dhazelton@enter.net> <43FAE10F.nailD121QL6LN@burner>
+In-Reply-To: <43FAE10F.nailD121QL6LN@burner>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.725, required 12,
-	autolearn=disabled, AWL 1.27, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Disposition: inline
+Message-Id: <200602211837.37211.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-21 at 18:26 -0500, J. Bruce Fields wrote:
-> On Tue, Feb 21, 2006 at 08:59:56AM -0500, Trond Myklebust wrote:
-> > Hmm.... We might possibly want to use that for NFSv4 at some point in
-> > order to deny write access to the file to other clients while it is in
-> > use.
-> 
-> So on the NFS client, an open with FMODE_EXEC could be translated into
-> an NFSv4 open with a deny_write bit (since NFSv4 opens also do windows
-> share locks).
-> 
-> An NFSv4 server might also be able to translate deny mode writes into
-> FMODE_EXEC in the case where it was exporting a cluster filesystem.  It
-> wouldn't completely solve the problem of implementing cluster-coherent
-> share locks (which also let you deny reads, who knows why), but it seems
-> like it would address the case most likely to matter.
+On Tuesday 21 February 2006 04:44, Joerg Schilling wrote:
+> "D. Hazelton" <dhazelton@enter.net> wrote:
+> > > I do use autoconf in the only senseful way.
+> > >
+<snip>
+> > > The SCSI glue layer on Solaris is less than 50 kB. I did mention more
+> > > than once that a uniquely layered system could save a lot of code by
+> > > avoiding to implement things more than once.
+> >
+> > Does that glue code comprise the proposed SATL system? Recently I've come
+> > across those whitepapers and opened a discussion about it on LKML.
+>
+> ??? Solaris supports SAS decives, is this your question?
 
-Hmm... I don't think you want to overload write deny bits onto
-FMODE_EXEC. FMODE_EXEC is basically, a read-only mode, so it
-would mean that you could no longer do something like
+SAS? No. To quote you quite frequently - RTFM. SATL is an entire system, 
+similar to the old ide-scsi module, that sits on top of the SCSI and ATA 
+interfaces and provides the capacity to access any disk device on the system 
+using SCSI commands.
 
-  OPEN(READ|WRITE,DENY_WRITE) 
-
-which I would assume is one of the more frequent Windoze open modes.
-
-Cheers,
-  Trond
-
+DRH

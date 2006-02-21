@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932529AbWBUPdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932535AbWBUPen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932529AbWBUPdr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 10:33:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbWBUPdr
+	id S932535AbWBUPen (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 10:34:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbWBUPen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 10:33:47 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:49539 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932529AbWBUPdq (ORCPT
+	Tue, 21 Feb 2006 10:34:43 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:18355 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S932535AbWBUPem (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 10:33:46 -0500
-Message-ID: <43FB331F.9020104@ce.jp.nec.com>
-Date: Tue, 21 Feb 2006 10:34:55 -0500
-From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alasdair G Kergon <agk@redhat.com>
-CC: Neil Brown <neilb@suse.de>, Lars Marowsky-Bree <lmb@suse.de>,
-       device-mapper development <dm-devel@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] sysfs representation of stacked devices (dm/md)
-References: <43F60F31.1030507@ce.jp.nec.com> <20060217194249.GO12169@agk.surrey.redhat.com> <43F6769C.5010505@ce.jp.nec.com> <20060218195347.GU12169@agk.surrey.redhat.com>
-In-Reply-To: <20060218195347.GU12169@agk.surrey.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Feb 2006 10:34:42 -0500
+Date: Tue, 21 Feb 2006 10:29:49 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: David Golombek <daveg@permabit.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.31 hangs, no information on console or serial port
+Message-ID: <20060221152949.GA31273@kvack.org>
+References: <7yirr8hh0z.fsf@questionably-configured.permabit.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7yirr8hh0z.fsf@questionably-configured.permabit.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alasdair G Kergon wrote:
->>Speaking about the efficiency, 'dmsetup ls --tree' works well.
->>However, I haven't yet found a efficient way to implement
->>'dmsetup info --tree -o inverted dm-0', for example.
->  
-> Indeed - but what needs this that doesn't also need to scan
-> everything?    mount?
+On Tue, Feb 21, 2006 at 10:23:56AM -0500, David Golombek wrote:
+> Any suggestions as to how we might debug this or possible causes would
+> be greatly appreciated.
 
-mount, fsck and other blkid based tools could be optimized with it.
-However, what I had in mind was system administration like just
-using dmsetup or looking /sys to check where a device belongs.
+Have you tried turning on the NMI watchdog (nmi_watchdog=1)?  It should 
+be able to kick the machine out of the locked state, as these symptoms 
+would hint at a spinlock deadlock with interrupts disabled.  Also, try 
+to reproduce on the latest 2.4.33pre.  That said, for an io intensive 
+workload like you're running, 2.6 is much better, especially for systems 
+using highmem.
 
+		-ben
 -- 
-Jun'ichi Nomura, NEC Solutions (America), Inc.
+"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
+and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.

@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161458AbWBUKXm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161466AbWBUKgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161458AbWBUKXm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 05:23:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161460AbWBUKXm
+	id S1161466AbWBUKgi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 05:36:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161464AbWBUKgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 05:23:42 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:40801 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1161458AbWBUKXl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 05:23:41 -0500
-Date: Tue, 21 Feb 2006 11:23:42 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: dhazelton@enter.net, nix@esperi.org.uk, mj@ucw.cz,
-       linux-kernel@vger.kernel.org, davidsen@tmr.com, chris@gnome-de.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060221102342.GS8852@suse.de>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <43F7257D.80400@tmr.com> <43F9E8C2.nail4ALB11DH3@burner> <200602201354.00595.dhazelton@enter.net> <43FAE91D.nailD1271J0CE@burner>
+	Tue, 21 Feb 2006 05:36:38 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:45531 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1161463AbWBUKgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 05:36:37 -0500
+Date: Tue, 21 Feb 2006 10:36:33 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Mark Maule <maule@sgi.com>
+Cc: akpm@osdl.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] altix:  export sn_pcidev_info_get
+Message-ID: <20060221103633.GA19349@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Mark Maule <maule@sgi.com>, akpm@osdl.org,
+	linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20060214162337.GA16954@sgi.com> <20060220201713.GA4992@infradead.org> <20060221024710.GB30226@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43FAE91D.nailD1271J0CE@burner>
+In-Reply-To: <20060221024710.GB30226@sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 21 2006, Joerg Schilling wrote:
-> Write down a constitution for Linux, create clean rules, start making is 
-> possible to have useful discussions on LKML and it may become different. 
-> For now, Linux is scaring off people who know what they are doing.
+On Mon, Feb 20, 2006 at 08:47:10PM -0600, Mark Maule wrote:
+> On Mon, Feb 20, 2006 at 08:17:14PM +0000, Christoph Hellwig wrote:
+> > On Tue, Feb 14, 2006 at 10:23:37AM -0600, Mark Maule wrote:
+> > > Export sn_pcidev_info_get.
+> > 
+> > Tony or Andrew please back this out again.  The only reason SGI wants this is
+> > to support their illegal graphics driver, and no core code uses it.
+> > 
+> > And Mark, please stop submitting such patches.
+> 
+> All I'm doing by exporting sn_pcidev_info_get is allowing a module to use
+> the SGI SN_PCIDEV_BUSSOFT() macro which will tell a driver which piece of
+> altix PCI hw its device is sitting behind (e.g. PCIIO_ASIC_TYPE_TIOCP et. al).
 
-Everyone else has fruitful discussion on lkml, except you. Clearly the
-problem is with lkml and the people there, not you.
-
-Now either stop writing here or at least stop cc'ing me like I asked you
-to.
-
--- 
-Jens Axboe
+And that's absolutely not something a driver should care about.  If you
+illegal binary driver uses it it's totally broken (but then we knew that
+before anyway ;-))
 

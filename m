@@ -1,58 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWBUQPl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWBUQST@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932307AbWBUQPl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 11:15:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWBUQPl
+	id S932308AbWBUQST (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 11:18:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932744AbWBUQST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 11:15:41 -0500
-Received: from fsmlabs.com ([168.103.115.128]:32937 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S932307AbWBUQPk (ORCPT
+	Tue, 21 Feb 2006 11:18:19 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:5978 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932308AbWBUQSS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 11:15:40 -0500
-X-ASG-Debug-ID: 1140538537-6553-38-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Tue, 21 Feb 2006 08:20:10 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Nathan Lynch <ntl@pobox.com>
-cc: linux-kernel@vger.kernel.org
-X-ASG-Orig-Subj: Re: i386 cpu hotplug bug - instant reboot when onlining secondary
-Subject: Re: i386 cpu hotplug bug - instant reboot when onlining secondary
-In-Reply-To: <20060219235826.GF3293@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0602210800290.1579@montezuma.fsmlabs.com>
-References: <20060219235826.GF3293@localhost.localdomain>
+	Tue, 21 Feb 2006 11:18:18 -0500
+Message-ID: <43FB3D75.3080205@sw.ru>
+Date: Tue, 21 Feb 2006 19:19:01 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.9000
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+To: Herbert Poetzl <herbert@13thfloor.at>
+CC: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Kirill Korotaev <dev@openvz.org>, serue@us.ibm.com, arjan@infradead.org,
+       frankeh@watson.ibm.com, clg@fr.ibm.com, haveblue@us.ibm.com,
+       mrmacman_g4@mac.com, alan@lxorguk.ukuu.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, devel@openvz.org
+Subject: Re: [RFC][PATCH 2/7] VPIDs: pid/vpid conversions
+References: <43E22B2D.1040607@openvz.org> <43E23179.5010009@sw.ru> <m1irrpsifp.fsf@ebiederm.dsl.xmission.com> <43F9D8CB.8000908@sw.ru> <20060220165659.GF18841@MAIL.13thfloor.at>
+In-Reply-To: <20060220165659.GF18841@MAIL.13thfloor.at>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Feb 2006, Nathan Lynch wrote:
+>>The only correct thing you noticed is get_xpid on alpha. But this is
+>>in fact a simple bug and half a year before we didn't care much for
+>>archs others than i386/x86-64/ia64. That's it.
+> sidenote on that, maybe the various archs could
+> switch to C implementations of those 'special'
+> get_xpid() and friends, as I do not think they
+> are a) done that often (might be wrong there)
+> and b) recent gcc should get that right now anyway
+I also wonder why it was required and can't be done in normal way...
+Maybe worth trying to switch to C, really.
 
-> On a dual P3 Xeon machine, offlining and then onlining a cpu makes the
-> box instantly reboot.  I've been seeing this throughout the 2.6.16-rc
-> series, but wasn't able to collect more information until now.  Not
-> sure when this last worked, unfortunately.
-> 
-> With the debugging patch below, I get this on serial console:
+>>For example, networking is coupled with sysctl, which in turn are
+>>coupled with proc filesystem. And sysfs! You even added a piece of code
+>>in net/core/net-sysfs.c in your patch, which is a dirty hack.
+>>Another example, mqueues and other subsystems which use netlinks and 
+>>also depend on network context.
+>>shmem/IPC is dependand on file system context and so on.
+>>So it won't work when one have networking from one container and proc
+>>from another.
+> the question should be: which part of proc should be part
+> of the pid space and which not, definitely the network
+> stuff would _not_ be part of the pid space ...
+Ok, just one simple question:
+how do you propose to handle network sysctls and network 
+statistics/information in proc?
+_how_ can you imagine this namespaces should work?
+I see no elegant solution for this, do you? If there is any, I will be 
+happy with namespaces again.
 
-Does 2.6.14 work? Also i wonder if it gets out of the trampoline...
+>>So I really see no much reasons to have separate namespaces, 
+>>but it is ok for me if someone really wants it this way.
+> the reasons are, as I explained several times, that folks
+> use 'virtualization' or 'isolation' for many different
+> things, just because SWsoft only uses it for VPS doesn't
+> meant that it cannot be used for other things
+Out of curiosity, do you have any _working_ examples of other usages?
+I see only theoretical examples from you, but would like to hear from 
+anyone who _uses_/_knows_ how to use it.
 
-Index: linux-2.6.16-rc2/arch/i386/kernel/smpboot.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.16-rc2/arch/i386/kernel/smpboot.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 smpboot.c
---- linux-2.6.16-rc2/arch/i386/kernel/smpboot.c	11 Feb 2006 18:55:06 -0000	1.1.1.1
-+++ linux-2.6.16-rc2/arch/i386/kernel/smpboot.c	21 Feb 2006 16:19:22 -0000
-@@ -514,6 +514,7 @@ static void __devinit start_secondary(vo
- 	cpu_init();
- 	preempt_disable();
- 	smp_callin();
-+	Dprintk("startup_secondary\n");
- 	while (!cpu_isset(smp_processor_id(), smp_commenced_mask))
- 		rep_nop();
- 	setup_secondary_APIC_clock();
+> just consider isolating/virtualizing the network stack,
+> but leaving the processes in the same pid space, how to
+> do that in a sane way with a single reference?
+I see... Any idea why this can be required?
+(without proc? :) )
+BTW, if you have virtualized networking, but not isolated fs namespace 
+in this case, how are you going to handle unix sockets? Or maybe it's 
+another separate namespace?
+
+>>1. ask Linus about the preffered approach. I prepared an email for him
+>>with a description of approaches.
+> why do you propose, if you already did? :)
+because, the question was quite simple, isn't it?
+
+>>2. start from networking/netfilters/IPC which are essentially the same
+>>in both projects and help each other.
+> no problem with that, once Eric got there ...
+
+Kirill
+
+

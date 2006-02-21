@@ -1,137 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932741AbWBUPyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161234AbWBUP5v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932741AbWBUPyr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 10:54:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932742AbWBUPyr
+	id S1161234AbWBUP5v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 10:57:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161235AbWBUP5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 10:54:47 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:39648 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932741AbWBUPyq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 10:54:46 -0500
-Date: Tue, 21 Feb 2006 10:54:44 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Andrew Morton <akpm@osdl.org>
-cc: Chandra Seetharaman <sekharan@us.ibm.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Register atomic_notifiers in atomic context
-Message-ID: <Pine.LNX.4.44L0.0602211045490.5374-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 21 Feb 2006 10:57:51 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:52933 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1161234AbWBUP5u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 10:57:50 -0500
+Date: Tue, 21 Feb 2006 16:55:48 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Esben Nielsen <simlo@phys.au.dk>, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: 2.6.15-rt17
+Message-ID: <20060221155548.GA30146@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some atomic notifier chains require registrations to take place in atomic
-context.  An example is the die_notifier, which on some architectures may
-be accessed very early during the boot-up procedure, before task-switching
-is legal.  To accomodate these chains, this patch (as655) replaces the
-mutex in the atomic_notifier_head structure with a spinlock.
+i have released the 2.6.15-rt17 tree, which can be downloaded from the 
+usual place:
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+   http://redhat.com/~mingo/realtime-preempt/
 
----
+lots of changes all across the map. There are several bigger changes:
 
-Andrew:
+the biggest change is the new PI code from Esben Nielsen, Thomas 
+Gleixner and Steven Rostedt. This big rework simplifies and streamlines 
+the PI code, and fixes a couple of bugs and races:
 
-This ought to fix the problem you were seeing with the new notifier chains 
-on your emt64 system.
+  - only the top priority waiter on a lock is enqueued into the pi_list
+    of the task which holds the lock. No more pi list walking in the
+    boost case.
 
-Alan Stern
+  - simpler locking rules
 
+  - fast Atomic acquire for the non contended case and atomic release 
+    for non waiter case is fully functional now
 
+  - use task_t references instead of thread_info pointers
 
-Index: usb-2.6/kernel/sys.c
-===================================================================
---- usb-2.6.orig/kernel/sys.c
-+++ usb-2.6/kernel/sys.c
-@@ -155,7 +155,6 @@ static int __kprobes notifier_call_chain
-  *	@n: New entry in notifier chain
-  *
-  *	Adds a notifier to an atomic notifier chain.
-- *	Must be called in process context.
-  *
-  *	Currently always returns zero.
-  */
-@@ -163,11 +162,12 @@ static int __kprobes notifier_call_chain
- int atomic_notifier_chain_register(struct atomic_notifier_head *nh,
- 		struct notifier_block *n)
- {
-+	unsigned long flags;
- 	int ret;
- 
--	mutex_lock(&nh->mutex);
-+	spin_lock_irqsave(&nh->lock, flags);
- 	ret = notifier_chain_register(&nh->head, n);
--	mutex_unlock(&nh->mutex);
-+	spin_unlock_irqrestore(&nh->lock, flags);
- 	return ret;
- }
- 
-@@ -179,18 +179,18 @@ EXPORT_SYMBOL(atomic_notifier_chain_regi
-  *	@n: Entry to remove from notifier chain
-  *
-  *	Removes a notifier from an atomic notifier chain.
-- *	Must be called from process context.
-  *
-  *	Returns zero on success or %-ENOENT on failure.
-  */
- int atomic_notifier_chain_unregister(struct atomic_notifier_head *nh,
- 		struct notifier_block *n)
- {
-+	unsigned long flags;
- 	int ret;
- 
--	mutex_lock(&nh->mutex);
-+	spin_lock_irqsave(&nh->lock, flags);
- 	ret = notifier_chain_unregister(&nh->head, n);
--	mutex_unlock(&nh->mutex);
-+	spin_unlock_irqrestore(&nh->lock, flags);
- 	synchronize_rcu();
- 	return ret;
- }
-Index: usb-2.6/include/linux/notifier.h
-===================================================================
---- usb-2.6.orig/include/linux/notifier.h
-+++ usb-2.6/include/linux/notifier.h
-@@ -24,9 +24,9 @@
-  *		registration, or unregistration.  All locking and protection
-  *		must be provided by the caller.
-  *
-- * atomic_notifier_chain_register() and blocking_notifier_chain_register()
-- * may be called only from process context, and likewise for the
-- * corresponding _unregister() routines.
-+ * atomic_notifier_chain_register() may be called from an atomic context,
-+ * but blocking_notifier_chain_register() must be called from a process
-+ * context.  Ditto for the corresponding _unregister() routines.
-  *
-  * atomic_notifier_chain_unregister() and blocking_notifier_chain_unregister()
-  * _must not_ be called from within the call chain.
-@@ -39,7 +39,7 @@ struct notifier_block {
- };
- 
- struct atomic_notifier_head {
--	struct mutex mutex;
-+	spinlock_t lock;
- 	struct notifier_block *head;
- };
- 
-@@ -53,7 +53,7 @@ struct raw_notifier_head {
- };
- 
- #define ATOMIC_INIT_NOTIFIER_HEAD(name) do {	\
--		mutex_init(&(name)->mutex);	\
-+		spin_lock_init(&(name)->lock);	\
- 		(name)->head = NULL;		\
- 	} while (0)
- #define BLOCKING_INIT_NOTIFIER_HEAD(name) do {	\
-@@ -66,7 +66,7 @@ struct raw_notifier_head {
- 
- #define ATOMIC_NOTIFIER_HEAD(name)				\
- 	struct atomic_notifier_head name = {			\
--		.mutex = __MUTEX_INITIALIZER((name).mutex),	\
-+		.lock = SPIN_LOCK_UNLOCKED,			\
- 		.head = NULL }
- #define BLOCKING_NOTIFIER_HEAD(name)				\
- 	struct blocking_notifier_head name = {			\
+  - BKL handling for semaphore style locks changed so that BKL is
+    dropped before the scheduler is entered and reaquired in the return
+    path. This solves a possible deadlock situation in the BKL reacquire
+    path of the scheduler.
 
+another change is the reworking of the SLAB code: it now closely matches 
+the upstream SLAB code, and it should now work on NUMA systems too 
+(untested though).
+
+the tasklet code was reworked too to be PREEMPT_RT friendly: the new PI 
+code unearthed a fundamental livelock scenario with PREEMPT_RT, and the 
+fix was to rework the tasklet code to get rid of the 'retrigger 
+softirqs' approach.
+
+other changes: various hrtimers fixes, latency tracer enhancements - and 
+more. (Robust-futexes are not expected to work in this release.)
+
+please report any new breakages, and re-report any old breakages as 
+well.
+
+to build a 2.6.15-rt17 tree, the following patches should be applied:
+
+  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.15.tar.bz2
+  http://redhat.com/~mingo/realtime-preempt/patch-2.6.15-rt17
+
+	Ingo

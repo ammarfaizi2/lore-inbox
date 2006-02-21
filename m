@@ -1,68 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161232AbWBUPxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932741AbWBUPyr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161232AbWBUPxL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 10:53:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932742AbWBUPxL
+	id S932741AbWBUPyr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 10:54:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932742AbWBUPyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 10:53:11 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:64668 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932741AbWBUPxK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 10:53:10 -0500
-Date: Tue, 21 Feb 2006 15:52:48 +0000
-From: Alasdair G Kergon <agk@redhat.com>
-To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-Cc: Neil Brown <neilb@suse.de>, Lars Marowsky-Bree <lmb@suse.de>,
-       device-mapper development <dm-devel@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] sysfs representation of stacked devices (dm/md common)
-Message-ID: <20060221155248.GB12169@agk.surrey.redhat.com>
-Mail-Followup-To: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>,
-	Neil Brown <neilb@suse.de>, Lars Marowsky-Bree <lmb@suse.de>,
-	device-mapper development <dm-devel@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <43F60F31.1030507@ce.jp.nec.com> <43F60F8C.8090207@ce.jp.nec.com> <20060217184435.GM12169@agk.surrey.redhat.com> <43F67274.80509@ce.jp.nec.com> <20060218195005.GT12169@agk.surrey.redhat.com> <43FB32D4.3080101@ce.jp.nec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43FB32D4.3080101@ce.jp.nec.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 21 Feb 2006 10:54:47 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:39648 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932741AbWBUPyq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 10:54:46 -0500
+Date: Tue, 21 Feb 2006 10:54:44 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andrew Morton <akpm@osdl.org>
+cc: Chandra Seetharaman <sekharan@us.ibm.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Register atomic_notifiers in atomic context
+Message-ID: <Pine.LNX.4.44L0.0602211045490.5374-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 21, 2006 at 10:33:40AM -0500, Jun'ichi Nomura wrote:
-> Alasdair G Kergon wrote:
-> >Test with trees of devices too - where a whole tree is suspended -
-> Suspending maps in the tree and reload one of them?
+Some atomic notifier chains require registrations to take place in atomic
+context.  An example is the die_notifier, which on some architectures may
+be accessed very early during the boot-up procedure, before task-switching
+is legal.  To accomodate these chains, this patch (as655) replaces the
+mutex in the atomic_notifier_head structure with a spinlock.
 
-Reload a complete tree of devices like lvm2 does:
-It loads inactivate tables wherever it needs to in the tree,
-then suspends the devices in the correct order (according to
-the dependencies of the live tables to avoid ever 'trapping' I/O 
-between two devices), then resumes them in order.
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 
-> >I don't think you can allocate anywhere in dm_swap_table()
-> >without PF_MEMALLOC (which I recently removed and am reluctant
-> >to reinstate).
+---
 
-> I understand your reluctance and I don't want to revive it either.
-> I think moving sysfs_add_link() outside of dm_swap_table() solves
-> this. Am I right?
+Andrew:
 
-I should have said: try hard to avoid allocations in any code run 
-during the 'DM_SUSPEND' ioctl - if you really have to, your options
-include PF_MEMALLOC or a mempool, as appropriate.
+This ought to fix the problem you were seeing with the new notifier chains 
+on your emt64 system.
 
-> Or do you want to eliminate the possibility that sysfs_remove_symlink()
-> may require memory allocation in future?
+Alan Stern
 
-Either that, or:
+
+
+Index: usb-2.6/kernel/sys.c
+===================================================================
+--- usb-2.6.orig/kernel/sys.c
++++ usb-2.6/kernel/sys.c
+@@ -155,7 +155,6 @@ static int __kprobes notifier_call_chain
+  *	@n: New entry in notifier chain
+  *
+  *	Adds a notifier to an atomic notifier chain.
+- *	Must be called in process context.
+  *
+  *	Currently always returns zero.
+  */
+@@ -163,11 +162,12 @@ static int __kprobes notifier_call_chain
+ int atomic_notifier_chain_register(struct atomic_notifier_head *nh,
+ 		struct notifier_block *n)
+ {
++	unsigned long flags;
+ 	int ret;
  
-> Anyway, I'll seek for bd_claim based approach.
+-	mutex_lock(&nh->mutex);
++	spin_lock_irqsave(&nh->lock, flags);
+ 	ret = notifier_chain_register(&nh->head, n);
+-	mutex_unlock(&nh->mutex);
++	spin_unlock_irqrestore(&nh->lock, flags);
+ 	return ret;
+ }
+ 
+@@ -179,18 +179,18 @@ EXPORT_SYMBOL(atomic_notifier_chain_regi
+  *	@n: Entry to remove from notifier chain
+  *
+  *	Removes a notifier from an atomic notifier chain.
+- *	Must be called from process context.
+  *
+  *	Returns zero on success or %-ENOENT on failure.
+  */
+ int atomic_notifier_chain_unregister(struct atomic_notifier_head *nh,
+ 		struct notifier_block *n)
+ {
++	unsigned long flags;
+ 	int ret;
+ 
+-	mutex_lock(&nh->mutex);
++	spin_lock_irqsave(&nh->lock, flags);
+ 	ret = notifier_chain_unregister(&nh->head, n);
+-	mutex_unlock(&nh->mutex);
++	spin_unlock_irqrestore(&nh->lock, flags);
+ 	synchronize_rcu();
+ 	return ret;
+ }
+Index: usb-2.6/include/linux/notifier.h
+===================================================================
+--- usb-2.6.orig/include/linux/notifier.h
++++ usb-2.6/include/linux/notifier.h
+@@ -24,9 +24,9 @@
+  *		registration, or unregistration.  All locking and protection
+  *		must be provided by the caller.
+  *
+- * atomic_notifier_chain_register() and blocking_notifier_chain_register()
+- * may be called only from process context, and likewise for the
+- * corresponding _unregister() routines.
++ * atomic_notifier_chain_register() may be called from an atomic context,
++ * but blocking_notifier_chain_register() must be called from a process
++ * context.  Ditto for the corresponding _unregister() routines.
+  *
+  * atomic_notifier_chain_unregister() and blocking_notifier_chain_unregister()
+  * _must not_ be called from within the call chain.
+@@ -39,7 +39,7 @@ struct notifier_block {
+ };
+ 
+ struct atomic_notifier_head {
+-	struct mutex mutex;
++	spinlock_t lock;
+ 	struct notifier_block *head;
+ };
+ 
+@@ -53,7 +53,7 @@ struct raw_notifier_head {
+ };
+ 
+ #define ATOMIC_INIT_NOTIFIER_HEAD(name) do {	\
+-		mutex_init(&(name)->mutex);	\
++		spin_lock_init(&(name)->lock);	\
+ 		(name)->head = NULL;		\
+ 	} while (0)
+ #define BLOCKING_INIT_NOTIFIER_HEAD(name) do {	\
+@@ -66,7 +66,7 @@ struct raw_notifier_head {
+ 
+ #define ATOMIC_NOTIFIER_HEAD(name)				\
+ 	struct atomic_notifier_head name = {			\
+-		.mutex = __MUTEX_INITIALIZER((name).mutex),	\
++		.lock = SPIN_LOCK_UNLOCKED,			\
+ 		.head = NULL }
+ #define BLOCKING_NOTIFIER_HEAD(name)				\
+ 	struct blocking_notifier_head name = {			\
 
-This dodges the allocation problem because it happens in the DM_TABLE_LOAD 
-ioctl where I was able to remove the restriction recently.
-
-Alasdair
--- 
-agk@redhat.com

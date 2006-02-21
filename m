@@ -1,45 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWBUXlD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWBUXpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbWBUXlD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 18:41:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWBUXlB
+	id S932302AbWBUXpS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 18:45:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWBUXpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 18:41:01 -0500
-Received: from tomts36.bellnexxia.net ([209.226.175.93]:17897 "EHLO
-	tomts36-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S932175AbWBUXlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 18:41:00 -0500
-Message-ID: <43FBA4CD.6000505@torque.net>
-Date: Tue, 21 Feb 2006 18:39:57 -0500
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-scsi@vger.kernel.org
-CC: linux-kernel@vger.kernel.org, taggart@debian.org
-Subject: lsscsi-0.17 released
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 21 Feb 2006 18:45:18 -0500
+Received: from ozlabs.org ([203.10.76.45]:53448 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932302AbWBUXpR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 18:45:17 -0500
+Date: Wed, 22 Feb 2006 10:45:25 +1100
+From: Michael Neuling <mikey@neuling.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, klibc@zytor.com
+Cc: Al Viro <viro@ftp.linux.org.uk>, hpa@zytor.com,
+       "miltonm@bga.com" <miltonm@bga.com>
+Subject: [PATCH] initramfs: multiple CPIO unpacking fix
+Message-Id: <20060222104525.affda1df.mikey@neuling.org>
+In-Reply-To: <20060217160621.99b0ffd4.mikey@neuling.org>
+References: <20060216183745.50cc2bf6.mikey@neuling.org>
+	<20060217160621.99b0ffd4.mikey@neuling.org>
+X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.6; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lsscsi is a utility that uses sysfs in linux 2.6 series kernels
-to list information about SCSI devices and SCSI hosts. Both a
-compact format (default) which is one line per device and a
-"classic" format (like the output of 'cat /proc/scsi/scsi') are
-supported.
+The following patch unlinks (deletes) files, symlinks, FIFOs, devices
+etc before writing them when extracting CPIOs.  It doesn't delete
+directories.  This stops weird behaviour like:
+ 1) writing through symlinks created in earlier CPIOs. eg foo->bar in
+    the first CPIO.  Having foo as a non link in a subsequent CPIO,
+    results in bar being written and foo remaining as a symlink.  
+ 2) if the first version of file foo is larger than foo in a
+    subsequent CPIO, we end up with a mix of the two.  ie. neither
+    the first or second version of /foo.
+ 3) special files like devices, fifo etc can't be overwritten in
+    subsequent CPIOS.
 
-Version 0.17 is available at
-http://www.torque.net/scsi/lsscsi.html
-More information can be found on that page including examples
-and a Download section for tarballs and rpms.
-This version will be required for lsscsi to work properly
-when lk 2.6.16 is released.
+With this patch, the kernel will more closely replicate
+  for i in *.cpio; do cpio --extract --unconditional < $i ; done
 
-ChangeLog:
-Version 0.17 2006/2/6
-  - fix disappearance of block device names in lk 2.6.16-rc1
+This patch doesn't break hardlinks like my previous attempt.
 
-Doug Gilbert
+Signed-off-by: Michael Neuling <mikey@neuling.org>
+---
+ initramfs.c |    3 +++
+ 1 files changed, 3 insertions(+)
+
+Index: linux-2.6.15/init/initramfs.c
+===================================================================
+--- linux-2.6.15.orig/init/initramfs.c
++++ linux-2.6.15/init/initramfs.c
+@@ -249,6 +249,7 @@ static int __init do_name(void)
+ 	if (dry_run)
+ 		return 0;
+ 	if (S_ISREG(mode)) {
++		sys_unlink(collected);
+ 		if (maybe_link() >= 0) {
+ 			wfd = sys_open(collected, O_WRONLY|O_CREAT, mode);
+ 			if (wfd >= 0) {
+@@ -263,6 +264,7 @@ static int __init do_name(void)
+ 		sys_chmod(collected, mode);
+ 	} else if (S_ISBLK(mode) || S_ISCHR(mode) ||
+ 		   S_ISFIFO(mode) || S_ISSOCK(mode)) {
++		sys_unlink(collected);
+ 		if (maybe_link() == 0) {
+ 			sys_mknod(collected, mode, rdev);
+ 			sys_chown(collected, uid, gid);
+@@ -291,6 +293,7 @@ static int __init do_copy(void)
+ static int __init do_symlink(void)
+ {
+ 	collected[N_ALIGN(name_len) + body_len] = '\0';
++	sys_unlink(collected);
+ 	sys_symlink(collected + N_ALIGN(name_len), collected);
+ 	sys_lchown(collected, uid, gid);
+ 	state = SkipIt;
+
+

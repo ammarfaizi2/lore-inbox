@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbWBUWGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWBUWLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030202AbWBUWGp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 17:06:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbWBUWGp
+	id S932201AbWBUWLE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 17:11:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbWBUWLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 17:06:45 -0500
-Received: from cantor.suse.de ([195.135.220.2]:22710 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964792AbWBUWGo (ORCPT
+	Tue, 21 Feb 2006 17:11:04 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:27841 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S932201AbWBUWLC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 17:06:44 -0500
-From: Andi Kleen <ak@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH 3/6] PCI legacy I/O port free driver (take2) - Add device_flags into pci_device_id
-Date: Tue, 21 Feb 2006 23:06:23 +0100
-User-Agent: KMail/1.8.2
-Cc: Greg KH <greg@kroah.com>, Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       akpm@osdl.org, rmk+lkml@arm.linux.org.uk
-References: <43FAB283.8090206@jp.fujitsu.com> <200602212231.55879.ak@suse.de> <43FB8C4F.6070802@pobox.com>
-In-Reply-To: <43FB8C4F.6070802@pobox.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602212306.24342.ak@suse.de>
+	Tue, 21 Feb 2006 17:11:02 -0500
+Date: Tue, 21 Feb 2006 21:07:56 -0100
+From: "Leticia" <Dariajtqz@yahoo.co.in>
+Message-ID: <808.39e797d5.2a9UZN44@yahoo.se>
+To: linux-kernel@vger.kernel.org
+Subject: Fw:
+X-Mailer: Ximian Evolution 2.0.3 (1.0.3-6)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 February 2006 22:55, Jeff Garzik wrote:
+Hey linux-kernel@vger.kernel.org,
 
-> It doesn't matter how easily its added, it is the wrong place to add 
-> such things.
-> 
-> This is what the various functions called during pci_driver::probe() do...
+The higher the        r3sp0nse        RaT TeE.
 
-The problem is that at least on the e1000 it only applies to some of the 
-many PCI-IDs it supports. So the original patch had an long ugly switch
-with PCI IDs to check it. I suggested to use driver_data for it then,
-but Kenji-San ended up with this new field.  I actually like the idea
-of the new field because it would allow to add such things very easily
-without adding lots of code.
+Get      CA@sHhH         f0r        H0MmE        impr0vements.
 
-it's not an uncommon situation. e.g. consider driver A which supports
-a lot of PCI-IDs but MSI only works on a few of them. How do you
-handle this? Add an ugly switch that will bitrot? Or put all the 
-information into a single place which is the pci_device_id array.
 
-I prefer the later solution. 
+$340k for 330 pm, we r    Justi    Giving    away
 
-Of course there are some boundaries that shouldn't be exceeded here.
-It probably only makes sense for parameters that are simple boolean,
-nothing more complicated. But for that it's quite nice.
+******************************************************************
 
--Andi
+COPY the Address below and paste in your BROiWSER:
+
+afloat.lowestpay.net
+
+******************************************************************
+
+
+The ravening clouds shall not long be victorious,=20.
+Whosever room this is should be ashamed!.
+All of us dragged the kid into the street and Ronnie pressed the kid's=20.=
+
+Her gentle snores mingle with the static of traffic noise and,.
+Form complete is worthier far;=20.
+
+
+Thanks Alot,
+Andrew Simon

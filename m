@@ -1,37 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161310AbWBUEGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161309AbWBUELK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161310AbWBUEGy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 23:06:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161309AbWBUEGx
+	id S1161309AbWBUELK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 23:11:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161316AbWBUELK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 23:06:53 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:7119
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1161307AbWBUEGx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 23:06:53 -0500
-Date: Mon, 20 Feb 2006 20:07:03 -0800 (PST)
-Message-Id: <20060220.200703.132025777.davem@davemloft.net>
-To: kaber@trash.net
-Cc: earny@net4u.de, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       netfilter-devel@lists.netfilter.org
-Subject: Re: 2.6.16-rc4 bridge/iptables Oops
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <43FA8439.6080009@trash.net>
-References: <43FA0C02.8000909@trash.net>
-	<200602210211.22364.earny@net4u.de>
-	<43FA8439.6080009@trash.net>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Mon, 20 Feb 2006 23:11:10 -0500
+Received: from smtp.enter.net ([216.193.128.24]:50693 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S1161309AbWBUELI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 23:11:08 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Date: Mon, 20 Feb 2006 23:11:28 -0500
+User-Agent: KMail/1.8.1
+Cc: matthias.andree@gmx.de, nix@esperi.org.uk, mj@ucw.cz,
+       linux-kernel@vger.kernel.org, davidsen@tmr.com, chris@gnome-de.org,
+       axboe@suse.de
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <200602192053.25767.dhazelton@enter.net> <43F9F11E.nail5BM21M01Q@burner>
+In-Reply-To: <43F9F11E.nail5BM21M01Q@burner>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602202311.29759.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Patrick McHardy <kaber@trash.net>
-Date: Tue, 21 Feb 2006 04:08:41 +0100
+Joerg, I've been thinking about your report about Linux munging CDB's sent to 
+certian ATAPI devices. While reading the MMC-5 spec again today (my memory of 
+it was starting to fail and I felt I had best be on top of it in this 
+discussion) a statement made about sending SCSI commands to ATAPI devices 
+caught me.
 
-> Thanks for testing. Dave, please take this patch instead, it avoids
-> having to guess whether a packet originates from bridging in IP
-> netfilter by using DST_NOXFRM for bridge-netfilter's fake dst_entry.
+ATAPI command packets are fixed at a 12 byte size. Is it possible you tried to 
+send a CDB in excess of that fixed size re: those drives that get a munged 
+CDB?
 
-Applied, thanks Patrick.
+Just a thought...
+
+DRH

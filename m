@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161468AbWBUKjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161469AbWBUKip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161468AbWBUKjT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 05:39:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161471AbWBUKjT
+	id S1161469AbWBUKip (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 05:38:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161471AbWBUKip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 05:39:19 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:41601 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161470AbWBUKjS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 05:39:18 -0500
-Date: Tue, 21 Feb 2006 10:39:17 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Oleg Drokin <green@linuxhacker.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Request for export of truncate_complete_page
-Message-ID: <20060221103917.GC19349@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Oleg Drokin <green@linuxhacker.ru>, linux-kernel@vger.kernel.org
-References: <20060220223810.GD5733@linuxhacker.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 21 Feb 2006 05:38:45 -0500
+Received: from xproxy.gmail.com ([66.249.82.201]:8982 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161470AbWBUKio convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 05:38:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DljqgKKOz037E69USHu/UZVVEk8zIhl3IHR1Um+V7b+qJMBw+d+2guDsVj0FfEB9qYLDbpoNch/aqebGvYVqE0Bihi7xLW/kAvQ6DzGFIhB9+bH+lhZnKipPEmzXBemXEQOd3EvX6GK7iP6qL/NfHIuB4R3gFkpzxfpbdFd8IH0=
+Message-ID: <5b7f8a0d0602210238y46bdcfb9i4189331abfdec280@mail.gmail.com>
+Date: Tue, 21 Feb 2006 16:08:43 +0530
+From: nkml00 <nkml00@gmail.com>
+To: trivial@kernel.org
+Subject: Re: [PATCH] trivial: unneeded zero adding to per_cpu_pages->count
+Cc: linux-kernel@vger.kernel.org, nkml00@gmail.com
+In-Reply-To: <5b7f8a0d0602210215p60039c6fp5f7c7f94daed891b@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060220223810.GD5733@linuxhacker.ru>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <5b7f8a0d0602210215p60039c6fp5f7c7f94daed891b@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 21, 2006 at 12:38:10AM +0200, Oleg Drokin wrote:
-> Hello!
-> 
->    Can I ask for truncate_complete_page() to be exported?
->    For Lustre filesystem it is necessary to poke out pages in the middle of
->    a file, but truncate_inode_pages() is not very suitable, because we
->    poke those pages one at a time when locks on those pages are cancelled, but
->    we cannot kill entire set of pages as a group, because there might be some
->    other lock that covers a subset of those pages, so we still need to iterate
->    through all of them, and while we are at it, it is easier to kill pages
->    as we check them one by one.
+On 2/21/06, nkml00 <nkml00@gmail.com> wrote:
+> Unneeded addition (of zero). Compiler could optimize this, but "looks" illogical
+>
 
-Truncating around inside a file is very fishy, so this would need a review
-of cour code.  Once you submit the new lustre client we can discuss exporting
-this as _GPL, before we won't export it anyway.
+Sorry, patch was not in patch -p1 format.
 
+--- l1/mm/page_alloc.c-orig	2006-02-21 12:03:52.000000000 -0800
++++ l2/mm/page_alloc.c	2006-02-21 12:49:45.000000000 -0800
+@@ -774,7 +774,7 @@ again:
+ 		pcp = &zone_pcp(zone, cpu)->pcp[cold];
+ 		local_irq_save(flags);
+ 		if (!pcp->count) {
+-			pcp->count += rmqueue_bulk(zone, 0,
++			pcp->count = rmqueue_bulk(zone, 0,
+ 						pcp->batch, &pcp->list);
+ 			if (unlikely(!pcp->count))
+ 				goto failed;
+
+Signed-off-by: nkml00 <nkml00@gmail.com>

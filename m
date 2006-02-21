@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161041AbWBUWVc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWBUW3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161041AbWBUWVc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 17:21:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbWBUWVc
+	id S964865AbWBUW3K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 17:29:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbWBUW3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 17:21:32 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:42206 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964788AbWBUWVb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 17:21:31 -0500
-Subject: Re: suspend2 review [was Re: Which is simpler? (Was Re:
-	[Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)]
-From: Lee Revell <rlrevell@joe-job.com>
-To: dtor_core@ameritech.net
-Cc: Olivier Galibert <galibert@pobox.com>, Pavel Machek <pavel@suse.cz>,
-       Nigel Cunningham <nigel@suspend2.net>,
-       Matthias Hensler <matthias@wspse.de>, Sebastian Kgler <sebas@kde.org>,
-       kernel list <linux-kernel@vger.kernel.org>, rjw@sisk.pl
-In-Reply-To: <d120d5000602211417se24ed51w15e0c5c95b69d58c@mail.gmail.com>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain>
-	 <200602200709.17955.nigel@suspend2.net> <20060219234212.GA1762@elf.ucw.cz>
-	 <200602201210.58362.nigel@suspend2.net> <20060220124937.GB16165@elf.ucw.cz>
-	 <20060220170537.GB33155@dspnet.fr.eu.org>
-	 <1140559365.2742.80.camel@mindpipe>
-	 <d120d5000602211417se24ed51w15e0c5c95b69d58c@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 21 Feb 2006 17:21:25 -0500
-Message-Id: <1140560485.2742.86.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.91 
+	Tue, 21 Feb 2006 17:29:10 -0500
+Received: from mtagate1.uk.ibm.com ([195.212.29.134]:42294 "EHLO
+	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP id S964865AbWBUW3J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 17:29:09 -0500
+Message-ID: <43FB942E.5070309@de.ibm.com>
+Date: Tue, 21 Feb 2006 23:29:02 +0100
+From: Martin Peschke <mp3@de.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: How to allocate per-cpu data for online CPUs only (and safely)?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-21 at 17:17 -0500, Dmitry Torokhov wrote:
-> On 2/21/06, Lee Revell <rlrevell@joe-job.com> wrote:
-> > On Mon, 2006-02-20 at 18:05 +0100, Olivier Galibert wrote:
-> > > Pavel, if you mean that the userspace code will not be reviewed to
-> > > standards the kernel code is, kill uswsusp _NOW_ before it does too
-> > > much damage.  Unreliable suspend eats filesystems for breakfast.  The
-> > > other userspace components of the kernels services are either optional
-> > > (udev) or not that important (alsa).
-> > >
-> >
-> > Why is sound less important than suspending, or networking, or any other
-> > subsystem?  This is an insult to everyone who worked long and hard to
-> > get decent sound support on Linux.
-> >
-> 
-> I bet this was not meant as an insult. Quote: "Unreliable suspend eats
-> filesystems for breakfast". The worst thing mismatched ALSA library
-> could cause is noice in my speakers.
+I am trying to optimize the memory footprint of some code of mine.
+It's been using per-cpu data and alloc_percpu() so far. The latter has
+the disadvantage of getting hold of memory for CPU's which aren't there
+(yet).
 
-OK fair enough, I took that out of context.
+I could imagine using CPU-hotplug notifications as triggers for
+additional allocations or for cleaning up unneeded memory. But
+alloc_percpu() appears to conflict with that idea.
 
-Lee
+I was briefly tempted to derive some code from alloc_percpu() more to my
+liking, until I was scared off by this comment in alloc_percpu():
+
+         /*
+          * Cannot use for_each_online_cpu since a cpu may come online
+          * and we have no way of figuring out how to fix the array
+          * that we have allocated then....
+          */
+
+Well, and then there is kernel/profile.c, for example, which boldly
+ignors alloc_percpu()'s qualms and allocates and releases per-cpu data
+as needed.
+
+Is that the way to go?
+If so, why alloc_percpu()'s reservations?
+Or, does that comment imply that the exploiter isn't expected to take
+care of CPU hotplug events?
+Am I missing anything?
+
+Thank you.
+
+Martin
 

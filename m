@@ -1,130 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161418AbWBUGft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161415AbWBUHJH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161418AbWBUGft (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 01:35:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161419AbWBUGfs
+	id S1161415AbWBUHJH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 02:09:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161417AbWBUHJH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 01:35:48 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:55685 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1161418AbWBUGfr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 01:35:47 -0500
-Message-ID: <43FAB444.7010401@jp.fujitsu.com>
-Date: Tue, 21 Feb 2006 15:33:40 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
+	Tue, 21 Feb 2006 02:09:07 -0500
+Received: from liaag1ab.mx.compuserve.com ([149.174.40.28]:154 "EHLO
+	liaag1ab.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1161415AbWBUHJG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 02:09:06 -0500
+Date: Tue, 21 Feb 2006 02:03:38 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Kernel panic when compiling with SMP support
+To: Chris Largret <largret@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200602210207_MC3-1-B8DE-2105@compuserve.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       akpm@osdl.org, greg@kroah.com
-CC: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>, ak@suse.de,
-       rmk+lkml@arm.linux.org.uk
-Subject: [PATCH 6/6] PCI legacy I/O port free driver (take2) - Make Emulex
- lpfc driver legacy I/O port free
-References: <43FAB283.8090206@jp.fujitsu.com>
-In-Reply-To: <43FAB283.8090206@jp.fujitsu.com>
-Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes lpfc driver legacy I/O port free.
+In-Reply-To: <1140437271.7849.21.camel@shogun.daga.dyndns.org>
 
-Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+On Mon, 20 Feb 2006 at 04:07:51 -0800, Chris Largret wrote:
 
- drivers/scsi/lpfc/lpfc_init.c |   54 +++++++++++++++++++++---------------------
- 1 files changed, 27 insertions(+), 27 deletions(-)
+> In short, I only get these kernel panics when I enable SMP.
+> ...
+> invalid opcode: 0000 [1] SMP
+> RIP: 0010:[<ffffffff8100efa8>] <ffffffff8100efa8>{timer_interrupt+0}
+> ...
+> Code: 83 3d 7d d6 38 00 01 55 48 89 d7 48 89 e5 7f 13 e8 50 fc ff
+> --------------------------------------------------------------------
+> Unable to handle kernel NULL pointer dereference at 0000000000000001
+> RIP:
+> <ffffffff8100cfa8>{timer_interrupt+0}
+> ...
+> Code: 83 3d 7d d6 38 00 01 55 48 89 d7 48 89 e5 7f 13 e8 50 fc ff
 
-Index: linux-2.6.16-rc4/drivers/scsi/lpfc/lpfc_init.c
-===================================================================
---- linux-2.6.16-rc4.orig/drivers/scsi/lpfc/lpfc_init.c	2006-02-21 14:40:03.000000000 +0900
-+++ linux-2.6.16-rc4/drivers/scsi/lpfc/lpfc_init.c	2006-02-21 14:40:57.000000000 +0900
-@@ -1715,59 +1715,59 @@
- 
- static struct pci_device_id lpfc_id_table[] = {
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_VIPER,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_FIREFLY,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_THOR,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_PEGASUS,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_CENTAUR,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_DRAGONFLY,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_SUPERFLY,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_RFLY,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_PFLY,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_NEPTUNE,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_NEPTUNE_SCSP,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_NEPTUNE_DCSP,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_HELIOS,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_HELIOS_SCSP,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_HELIOS_DCSP,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_BMID,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_BSMB,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_ZEPHYR,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_ZEPHYR_SCSP,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_ZEPHYR_DCSP,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_ZMID,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_ZSMB,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_TFLY,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_LP101,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_LP10000S,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_LP11000S,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_LPE11000S,
--		PCI_ANY_ID, PCI_ANY_ID, },
-+	 PCI_ANY_ID, PCI_ANY_ID, .device_flags = PCI_DEVICE_ID_FLAG_NOIOPORT},
- 	{ 0 }
- };
- 
+Maybe your CPU is overheating or it's not getting enough current.
 
+Both oopses happen at the same exact address and they are complete
+nonsense.  For #1, the instruction is valid (it's
+cmpl $1,0x38d67d(%rip)) and for #2 it's the same instruction, which
+can't be referencing address 1.
+
+You can try slowing down your CPUs by doing:
+
+# echo -n "powersave" >/sys/devices/system/cpu/cpuN/cpufreq/scaling_governor
+
+for each cpu (assuming you have a driver loaded, and you should.)
+
+And please post your complete .config
+
+-- 
+Chuck
+"Equations are the Devil's sentences."  --Stephen Colbert
 

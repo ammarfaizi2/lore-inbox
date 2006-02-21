@@ -1,78 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932719AbWBUJar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161451AbWBUJqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932719AbWBUJar (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 04:30:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932721AbWBUJar
+	id S1161451AbWBUJqp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 04:46:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932722AbWBUJqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 04:30:47 -0500
-Received: from mail.gmx.net ([213.165.64.20]:13229 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932719AbWBUJaq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 04:30:46 -0500
-X-Authenticated: #428038
-Date: Tue, 21 Feb 2006 10:30:42 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 21 Feb 2006 04:46:45 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:18355 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S932721AbWBUJqp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 04:46:45 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Tue, 21 Feb 2006 10:44:47 +0100
+To: schilling@fokus.fraunhofer.de, dhazelton@enter.net
+Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060221093042.GA14325@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	linux-kernel@vger.kernel.org
-References: <43EB7BBA.nailIFG412CGY@burner> <20060216181422.GA18837@merlin.emma.line.org> <43F5A5A4.nail2VC61NOF6@burner> <200602171545.21867.dhazelton@enter.net> <43F9D95C.nail4AL61JSZG@burner>
+Message-ID: <43FAE10F.nailD121QL6LN@burner>
+References: <43EB7BBA.nailIFG412CGY@burner>
+ <200602171502.20268.dhazelton@enter.net>
+ <43F9D771.nail4AL36GWSG@burner>
+ <200602201302.05347.dhazelton@enter.net>
+In-Reply-To: <200602201302.05347.dhazelton@enter.net>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43F9D95C.nail4AL61JSZG@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-02-20:
+"D. Hazelton" <dhazelton@enter.net> wrote:
 
-> I did not get any proposal for working on making ide-scsi work
+> > I do use autoconf in the only senseful way.
+> >
+> > And if you did have a look at the schily makefile system you would know
+> > that it provides protability to more plaforms than you get from using an
+> > GNU autoconf the way the GNU people tell you.
+> >
+> > If you like best portability, you need to use my version of autoconf inside
+> > the schily makefile system and you need to use my smake instead of GNU
+> > make.
+> >
+> > So my conclusion is that you did not understand portability. All my
+> > software is using layered portability and if you did take a closer look at
+> > the few FSF people who know what they are talking about, you would find
+> > that e.g. Paul Eggert recently started to silently imitate my portability
+> > methods.....
+>
+> I have taken a second look and it does appear that you are correct. But I 
+> still have some doubts (none that I can quantify) - would it not make sense 
+> to also use automake?
 
-The suggestion was not to insist on it.
+The way autoconf should be used acording to the autoconf manual is already
+wrong and the creation of just another makefile generator, that even is 
+incorrectly called "automake", is definitely a step into the wrong direction.
 
-> nor did I get a useful proposal that would explain how it might be
-> done without ide-scsi.
+David Korn recently discovered that my makefile system basically does the same 
+as his system. But while he need to write a "make successor" "nmake", I was able 
+to do the same using "make".
 
-The existing code works good enough for the cdrecord "consumer" of your
-libscg library when the scary warnings are dropped.
+The ideas that I am sucessfully using since more than 12 years is what researchers
+did start around 1985. 
 
-Problems with new hardware can be fixed as use cases and hardware appear
-and real problems show up. Given that the Linux device layering is
-documented as passing unknown ioctls to lower layers to see if they can
-deal with them, there shouldn't be many issues.
+GNU autoconf (used the documented way) or "automake" is trying to do things in 
+a way that did look apropriate in the 1970s. 
 
-If you're unware of problems with new hardware or inventions, nobody can
-seriously blame you, just stuff "last found working with Linux 2.6.y"
-into some readme file and that's it.
+People should look at better solutions (like my makefile system) that do not 
+need to modify makefiles in place but rather implement object oriented design
+that depend on a "table like" master makefile and for this reason allow to 
+concurrently compile on _all_ supported platforms on the same source tree
+in case that the tree is mounted via NFS.
 
-> > From what I can tell a lot of the warnings are bogus. You even go to great 
-> > lengths to "scare" people into only using "official" versions of cdrtools.
-> 
-> They are related to serious problems.
 
-They are related to problems that you encountered with a SUSE version
-ages ago, else your commentary in the code is insufficient.
+> > One problem is that GNU make is not working in a useful way on many
+> > patforms that are listed to be working. GNU make is unmaintained since many
+> > years and a serious bug I reported in 1999 still has not been fixed.
+>
+> Apparently true - the version of gmake I use is four years old. Too bad almost 
+> everything on my system relies on the quirks and features of gmake...
 
-You ought to check once a year or once every two years if the problems
-you are so heftily complain about persist in supported versions; for
-instance, any SUSE warnings related to 8.X versions can be removed and
-replaced by a note that you don't intend to support operating systems
-that are no longer supported by their respective vendor. You don't have
-support contracts with distributors, so they aren't obliged to tell you
-"hey we fixed that bug" -- and if you asked, you'd probably get a useful
-answers.
+Try to use my smake to find out whether you use non-portable constructs.
+Smake warns you about the most common problems in makefiles.
 
-I'm applying the same policy to my software (no support on unsupported
-distributions) and it hasn't caused a single complaint yet, the only
-comments I received were apologies for having to use obsolete systems
-for some reasons, with people being rather modest and cooperative, like
-offering testing, accounts on those systems and so on. Pretty reasonable
-all in all IMO.
+
+> > When it turned out that the related people are not interested, all I could
+> > do was to print warnings.
+>
+> Dodged the question there, didn't you? My question here goes unanswered. 
+> Rather than putting workarounds in your code for the bugs you complain about 
+> you've just put warnings in the code. Seems that that breaks orthagonality in 
+> favor of complaining.
+
+The more rotten Linux interfaces become, the harder it is to implement work
+arounds.
+
+
+
+
+
+> > The SCSI glue layer on Solaris is less than 50 kB. I did mention more than
+> > once that a uniquely layered system could save a lot of code by avoiding to
+> > implement things more than once.
+>
+> Does that glue code comprise the proposed SATL system? Recently I've come 
+> across those whitepapers and opened a discussion about it on LKML.
+
+??? Solaris supports SAS decives, is this your question?
+
+
+> > Well, on such a system, a /dev/hd driver is not needed for the CD-ROM.
+> > A SCSI disk driver would be sufficient.
+>
+> and? The ATA/IDE drivers are more compact that requiring the _entire_ SCSI 
+> transport code and the specific SCSI driver for a device.
+
+This is an unproven statement.
+
+
+> > > I can see how the residual DMA count information might be impossible to
+> > > get at - the Linux memory allocator has been changed quite a bit over the
+> > > course of the past nine years.
+> >
+> > Most other OS provide this information.
+> >
+> > Is Linux really that underdeveloped for not being able to provide DMA
+> > residual counts?
+>
+> No idea. All I said was that with the changes to how the memory allocator 
+> works I can see where it might be impossible to get such information. I don't 
+> think it is, though. What I think is that the developers of the allocator and 
+> the DMA systems just forgot to include such a capability.
+
+It seems that Linux is not used for developing SCSI applications, otherwise
+I would not be the only person complaining about this missing feature.
+
+I am using SunOS/Solaris for my SCSI programs since 1985, so I don't have 
+problem. It seems that Linux users don't like to know if their software fails.
+
+
+
+Jörg
 
 -- 
-Matthias Andree
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

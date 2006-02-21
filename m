@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWBUXit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWBUXjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751227AbWBUXit (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 18:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWBUXit
+	id S932199AbWBUXjS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 18:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWBUXjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 18:38:49 -0500
-Received: from mms2.broadcom.com ([216.31.210.18]:4869 "EHLO mms2.broadcom.com")
-	by vger.kernel.org with ESMTP id S1751221AbWBUXis (ORCPT
+	Tue, 21 Feb 2006 18:39:18 -0500
+Received: from pcls2.std.com ([192.74.137.142]:31196 "EHLO TheWorld.com")
+	by vger.kernel.org with ESMTP id S932175AbWBUXjQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 18:38:48 -0500
-X-Server-Uuid: D9EB6F12-1469-4C1C-87A2-5E4C0D6F9D06
-Subject: Re: [PATCH] tg3: netif_carrier_off runs too early; could still
- be queued when init fails
-From: "Michael Chan" <mchan@broadcom.com>
-To: "Jeff Mahoney" <jeffm@suse.com>
-cc: "David S. Miller" <davem@davemloft.net>, akpm@osdl.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com, netdev@vger.kernel.org
-In-Reply-To: <43FB9718.4050606@suse.com>
-References: <20060220194337.GA21719@locomotive.unixthugs.org>
- <1140540260.20584.6.camel@rh4>
- <20060221.133947.05470613.davem@davemloft.net>
- <43FB9718.4050606@suse.com>
-Date: Tue, 21 Feb 2006 13:57:28 -0800
-Message-ID: <1140559048.20584.20.camel@rh4>
+	Tue, 21 Feb 2006 18:39:16 -0500
+From: Alan Curry <pacman@TheWorld.com>
+Message-Id: <200602212339.SAA1138491@shell.TheWorld.com>
+Subject: [PATCH] powerpc: fix altivec_unavailable_exception Oopses
+To: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Date: Tue, 21 Feb 2006 18:39:03 -0500 (EST)
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3)
-X-TMWD-Spam-Summary: SEV=1.1; DFV=A2006022109; IFV=2.0.6,4.0-7;
- RPD=4.00.0004;
- RPDID=303030312E30413039303230312E34334642413435442E303031372D412D;
- ENG=IBF; TS=20060221233843; CAT=NONE; CON=NONE;
-X-MMS-Spam-Filter-ID: A2006022109_4.00.0004_2.0.6,4.0-7
-X-WSS-ID: 6FE57B0836S1170469-01-01
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-21 at 17:41 -0500, Jeff Mahoney wrote:
+altivec_unavailable_exception is called without setting r3... it looks like
+the r3 that actually gets passed in as struct pt_regs *regs is the
+undisturbed value of r3 at the time the altivec instruction was encountered.
+The user actually gets to choose the pt_regs printed in the Oops!
 
-> 
-> dmesg after modprobe tg3:
-> tg3.c:v3.49 (Feb 2, 2006)
-> ACPI: PCI Interrupt 0000:0a:02.0[A] -> GSI 24 (level, low) -> IRQ 201
-> Uhhuh. NMI received for unknown reason 21 on CPU 0.
-> Dazed and confused, but trying to continue
-> Do you have a strange power saving mode enabled?
-> tg3_test_dma() Write the buffer failed -19
-> tg3: DMA engine test failed, aborting.
-> 
+After applying the following patch to 2.6.16-rc4, I can no longer cause an
+Oops by executing an altivec instruction with CONFIG_ALTIVEC=n. The same
+change would probably also be good for arch/ppc/kernel/head.S to fix the same
+Oops in 2.6.15.4, though I haven't tested that.
 
-You're getting an NMI during tg3_init_one() which means that the NIC is
-probably bad. I did a quick test on the same version of the 5701 NIC
-with the same tg3 driver and it worked fine.
-
-Please find out if the NIC is known to be bad. Thanks.
-
-
-
+--- arch/powerpc/kernel/head_32.S.orig	2006-02-21 15:58:18.000000000 -0500
++++ arch/powerpc/kernel/head_32.S	2006-02-21 15:59:23.000000000 -0500
+@@ -714,6 +714,7 @@
+ #ifdef CONFIG_ALTIVEC
+ 	bne	load_up_altivec		/* if from user, just load it up */
+ #endif /* CONFIG_ALTIVEC */
++	addi	r3,r1,STACK_FRAME_OVERHEAD
+ 	EXC_XFER_EE_LITE(0xf20, altivec_unavailable_exception)
+ 
+ PerformanceMonitor:

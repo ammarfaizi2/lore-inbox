@@ -1,92 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932740AbWBUPvi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161232AbWBUPxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932740AbWBUPvi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 10:51:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932741AbWBUPvi
+	id S1161232AbWBUPxL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 10:53:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932742AbWBUPxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 10:51:38 -0500
-Received: from smtpq1.groni1.gr.home.nl ([213.51.130.200]:55252 "EHLO
-	smtpq1.groni1.gr.home.nl") by vger.kernel.org with ESMTP
-	id S932740AbWBUPvh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 10:51:37 -0500
-Message-ID: <43FB3718.6060503@keyaccess.nl>
-Date: Tue, 21 Feb 2006 16:51:52 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: Adam Belay <ambx1@neo.rr.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       alsa-devel@alsa-project.org
-Subject: Re: snd-cs4236 (possibly all isa-pnp cards or all alsa isa-pnp cards)
- broken in 2.6.16-rc4
-References: <43F9F9F2.4070203@keyaccess.nl> <s5hu0askd7e.wl%tiwai@suse.de>
-In-Reply-To: <s5hu0askd7e.wl%tiwai@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+	Tue, 21 Feb 2006 10:53:11 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:64668 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932741AbWBUPxK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 10:53:10 -0500
+Date: Tue, 21 Feb 2006 15:52:48 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+Cc: Neil Brown <neilb@suse.de>, Lars Marowsky-Bree <lmb@suse.de>,
+       device-mapper development <dm-devel@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] sysfs representation of stacked devices (dm/md common)
+Message-ID: <20060221155248.GB12169@agk.surrey.redhat.com>
+Mail-Followup-To: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>,
+	Neil Brown <neilb@suse.de>, Lars Marowsky-Bree <lmb@suse.de>,
+	device-mapper development <dm-devel@redhat.com>,
+	linux-kernel@vger.kernel.org
+References: <43F60F31.1030507@ce.jp.nec.com> <43F60F8C.8090207@ce.jp.nec.com> <20060217184435.GM12169@agk.surrey.redhat.com> <43F67274.80509@ce.jp.nec.com> <20060218195005.GT12169@agk.surrey.redhat.com> <43FB32D4.3080101@ce.jp.nec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43FB32D4.3080101@ce.jp.nec.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai wrote:
+On Tue, Feb 21, 2006 at 10:33:40AM -0500, Jun'ichi Nomura wrote:
+> Alasdair G Kergon wrote:
+> >Test with trees of devices too - where a whole tree is suspended -
+> Suspending maps in the tree and reload one of them?
 
-> Rene Herman wrote:
+Reload a complete tree of devices like lvm2 does:
+It loads inactivate tables wherever it needs to in the tree,
+then suspends the devices in the correct order (according to
+the dependencies of the live tables to avoid ever 'trapping' I/O 
+between two devices), then resumes them in order.
 
->> I noticed on 2.6.16-rc4 that my MPU-401 wasn't functional, due to a
->> simple copy & paste error in sound/isa/cs423x/cs4236.c:
-> 
-> Thanks, I applied it to ALSA CVS tree, too.
+> >I don't think you can allocate anywhere in dm_swap_table()
+> >without PF_MEMALLOC (which I recently removed and am reluctant
+> >to reinstate).
 
-The patch Adam sent fixes the ".remove not called" issue. It _also_ 
-fixes the OOPS in snd_timer_free() I sent along, so that one wasn't 
-independent. During testing, I uncovered one more bug though.
+> I understand your reluctance and I don't want to revive it either.
+> I think moving sysfs_add_link() outside of dm_swap_table() solves
+> this. Am I right?
 
-After using aplaymidi (to test cs4236 mpu401), which pulls in 
-snd-seq-oss, modprobe -r snd-cs4236 tells me:
+I should have said: try hard to avoid allocations in any code run 
+during the 'DM_SUSPEND' ioctl - if you really have to, your options
+include PF_MEMALLOC or a mempool, as appropriate.
 
-"ALSA sound/core/device.c:106: device free eee4e000 (from f099153d), not 
-found"
+> Or do you want to eliminate the possibility that sysfs_remove_symlink()
+> may require memory allocation in future?
 
-That then stays until reboot, with a different device address each time.
+Either that, or:
+ 
+> Anyway, I'll seek for bd_claim based approach.
 
-f099153d is snd_opl3_free_seq_oss() here. For now I've stuck a 
-dump_stack() in there, which treats me to:
+This dodges the allocation problem because it happens in the DM_TABLE_LOAD 
+ioctl where I was able to remove the restriction recently.
 
-===
-  [<f099152e>] snd_opl3_free_seq_oss+0x8/0x20 [snd_opl3_synth]
-  [<f099044f>] snd_opl3_seq_delete_device+0x17/0x3c [snd_opl3_synth]
-  [<f08f06ec>] free_device+0x4b/0x8e [snd_seq_device]
-  [<f08f02da>] snd_seq_device_free+0x88/0xa9 [snd_seq_device]
-  [<f09579a2>] snd_device_free+0x8b/0xf0 [snd]
-  [<f0957ccd>] snd_device_free_all+0x67/0x7a [snd]
-  [<f0953d01>] snd_card_free+0x111/0x1f3 [snd]
-  [<c0134464>] zap_pte_range+0x1cf/0x1ec
-  [<c026a76e>] wait_for_completion+0xc4/0xdf
-  [<c010ea9b>] complete+0x2e/0x5c
-  [<c010eaa9>] complete+0x3c/0x5c
-  [<f096b7f9>] snd_cs423x_pnpc_remove+0xb/0x14 [snd_cs4236]
-  [<c01c148b>] card_remove_first+0x2f/0x4a
-  [<c01c1e3d>] pnp_device_remove+0x18/0x2d
-  [<c01e149d>] __device_release_driver+0x53/0x6b
-  [<c01e156a>] driver_detach+0x91/0xbf
-  [<c01e0fac>] bus_remove_driver+0x27/0x41
-  [<c01e181b>] driver_unregister+0xb/0x13
-  [<c01c1f46>] pnp_unregister_driver+0xb/0x1b
-  [<f096b826>] snd_cs423x_unregister_all+0x14/0x36 [snd_cs4236]
-  [<c0126529>] sys_delete_module+0x12b/0x155
-  [<c0137f6c>] do_munmap+0xe2/0xef
-  [<c0137fae>] sys_munmap+0x35/0x4d
-  [<c0102551>] syscall_call+0x7/0xb
-ALSA sound/core/device.c:106: device free eee4e000 (from f099153d), not 
-found
-pnp: Device 01:01.03 disabled.
-pnp: Device 01:01.02 disabled.
-pnp: Device 01:01.00 disabled.
-pnp: the driver 'cs4236_isapnp' has been unregistered
-===
-
-I'll try and see if I can find anything later, but if you could, please 
-beat me to it. I'm not even quite sure what that oss sequencer thing is...
-
-Rene.
+Alasdair
+-- 
+agk@redhat.com

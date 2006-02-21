@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932581AbWBUSoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932645AbWBUSpJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932581AbWBUSoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 13:44:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932639AbWBUSoJ
+	id S932645AbWBUSpJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 13:45:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932639AbWBUSpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 13:44:09 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:23303 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932581AbWBUSoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 13:44:08 -0500
-Date: Tue, 21 Feb 2006 19:44:07 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove the CONFIG_CC_ALIGN_* options
-Message-ID: <20060221184406.GZ4661@stusta.de>
-References: <20060220223654.GR4661@stusta.de> <20060221175640.GB9070@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060221175640.GB9070@mars.ravnborg.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 21 Feb 2006 13:45:09 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:3488
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932645AbWBUSpH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 13:45:07 -0500
+Subject: Re: 2.6.15-rt17
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Esben Nielsen <simlo@phys.au.dk>, Steven Rostedt <rostedt@goodmis.org>
+In-Reply-To: <1140546298.28282.3.camel@localhost.localdomain>
+References: <20060221155548.GA30146@elte.hu>
+	 <1140546298.28282.3.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 21 Feb 2006 19:46:09 +0100
+Message-Id: <1140547570.2480.998.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.5 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 21, 2006 at 06:56:40PM +0100, Sam Ravnborg wrote:
-> On Mon, Feb 20, 2006 at 11:36:54PM +0100, Adrian Bunk wrote:
-> > I don't see any use case for the CONFIG_CC_ALIGN_* options:
-> > - they are only available if EMBEDDED
-> > - people using EMBEDDED will most likely also enable 
-> >   CC_OPTIMIZE_FOR_SIZE
-> > - the default for -Os is to disable alignment
+On Tue, 2006-02-21 at 10:24 -0800, Daniel Walker wrote:
+> On Tue, 2006-02-21 at 16:55 +0100, Ingo Molnar wrote:
+> > i have released the 2.6.15-rt17 tree, which can be downloaded from the 
+> > usual place:
 > > 
-> > In case someone is doing performance comparisons and discovers that the
-> > default settings gcc chooses aren't good, the only sane thing is to
-> > discuss whether it makes sense to change this, not through offering 
-> > options to change this locally.
+> >    http://redhat.com/~mingo/realtime-preempt/
 > 
-> I leave it to other to judge if this is wortwhile or not - I have no
-> numbers to back up either with or without.
-> It is though a nice cleaning effort in the Makefile.
-> 
-> But if we back-out this then cc-option-aling should go as well,
-> including description in Documentation/kbuild/makefiles.txt
+> The patch at thie URL is patch-2.6.16-rt17 . But it doesn't look like
+> it's for 2.6.16-rc4 .
 
-My patch doesn't remove cc-option-align, and it's still used in 
-arch/i386/Makefile.cpu.
+It's agains 2.6.15
 
-The point of my patch is that there's no reason why a user should set 
-different align options (if a developer wants to benchmark different 
-align options, adding them to the CFLAGS in the Makefile is still 
-trivial).
+	tglx
 
-> 	Sam
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

@@ -1,68 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161273AbWBUCAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161275AbWBUCIk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161273AbWBUCAP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 21:00:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161278AbWBUCAP
+	id S1161275AbWBUCIk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 21:08:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161277AbWBUCIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 21:00:15 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:45070 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161277AbWBUCAN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 21:00:13 -0500
-Date: Tue, 21 Feb 2006 03:00:12 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Patrick McHardy <kaber@trash.net>
-Cc: linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: 2.6.16-rc4-mm1
-Message-ID: <20060221020012.GU4661@stusta.de>
-References: <20060220042615.5af1bddc.akpm@osdl.org> <43F9BDDA.1060508@reub.net> <43F9CE18.10709@trash.net> <20060220204456.GG4661@stusta.de> <43FA6A2C.8000905@trash.net>
-MIME-Version: 1.0
+	Mon, 20 Feb 2006 21:08:40 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:4570 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1161275AbWBUCIj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 21:08:39 -0500
+Date: Tue, 21 Feb 2006 13:04:47 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Sonny Rao <sonny@burdell.org>, Dave Jones <davej@redhat.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, bjd <bjdouma@xs4all.nl>,
+       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: kernel oops: trying to mount a corrupted xfs partition (2.6.16-rc3)
+Message-ID: <20060221020447.GB1588@frodo>
+References: <20060216183629.GA5672@skyscraper.unix9.prv> <20060217063157.B9349752@wobbly.melbourne.sgi.com> <Pine.LNX.4.61.0602171753590.27452@yvahk01.tjqt.qr> <20060220082946.A9478997@wobbly.melbourne.sgi.com> <20060219215209.GB7974@redhat.com> <20060220070916.GA8101@kevlar.burdell.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43FA6A2C.8000905@trash.net>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20060220070916.GA8101@kevlar.burdell.org>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 21, 2006 at 02:17:32AM +0100, Patrick McHardy wrote:
+On Mon, Feb 20, 2006 at 02:09:16AM -0500, Sonny Rao wrote:
+> On Sun, Feb 19, 2006 at 04:52:09PM -0500, Dave Jones wrote:
+> <snip> 
+> > Just for kicks, I just hacked this up..
+> > 
+> > #!/bin/bash
+> > wget http://www.digitaldwarf.be/products/mangle.c
+> > gcc mangle.c -o mangle
+> > 
+> > dd if=/dev/zero of=data.img count=70000
+> > 
+> > while [ 1 ];
+> > do
+> >         mkfs.xfs -f data.img >/dev/null
+> > 		./mangle data.img $RANDOM
+> >         sudo mount -t xfs data.img mntpt -o loop
+> >         sudo ls -R mntpt
+> >         sudo umount mntpt
+> > done
+> ...
+> > 
+> > xfs wins the award for 'noisiest fs in the face of corruption' :-)
+> > After a few dozen backtraces from xfs_corruption_error,
+> > this fell out...
+> > 
+> > divide error: 0000 [1] SMP
+> <snip trace>
+>  
+> > (The kernel is based on 2.6.16rc4)
 > 
-> Arnaldo apparently wants to fix it differently, but maybe you could help
-> us with conntrack :) CONFIG_IP_NF_CONNTRACK and CONFIG_NF_CONNTRACK
-> should be mutually exclusive. Specifying
-> 
-> CONFIG_IP_NF_CONNTRACK
-> 	depends on CONFIG_NF_CONNTRACK=n
-> 
-> CONFIG_NF_CONNTRACK
-> 	depends on CONFIG_IP_NF_CONNTRACK=n
-> 
-> will avoid asking for NF_CONNTRACK when IP_NF_CONNTRACK is set, but not
-> the other way around.
+> I see a similar breakage (divide error) on x86 using 2.6.15
 
+>From a quick look at the image you sent me Sonny, I guess this is
+the same problem Dave was seeing too -- a divide by zero when we're
+working out some of the per-mount constants during mount(2).  There
+is probably one or two other superblock fields that could use more
+verification, but this will do for now.
 
-Even worse, kconfig will complain about a circular dependency.
-
-
-CONFIG_IP_NF_CONNTRACK
-
-CONFIG_NF_CONNTRACK
-	depends on CONFIG_IP_NF_CONNTRACK=n
-
-
-CONFIG_IP_NF_CONNTRACK will be visible if CONFIG_NF_CONNTRACK is set, 
-but as soon as CONFIG_IP_NF_CONNTRACK is set, CONFIG_NF_CONNTRACK is 
-automatically set to n.
-
-
-cu
-Adrian
+cheers.
 
 -- 
+Nathan
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 
+Index: xfs-linux/xfs_mount.c
+===================================================================
+--- xfs-linux.orig/xfs_mount.c
++++ xfs-linux/xfs_mount.c
+@@ -268,9 +268,12 @@ xfs_mount_validate_sb(
+ 	    sbp->sb_blocklog > XFS_MAX_BLOCKSIZE_LOG			||
+ 	    sbp->sb_inodesize < XFS_DINODE_MIN_SIZE			||
+ 	    sbp->sb_inodesize > XFS_DINODE_MAX_SIZE			||
++	    sbp->sb_inodelog < XFS_DINODE_MIN_LOG			||
++	    sbp->sb_inodelog > XFS_DINODE_MAX_LOG			||
++	    (sbp->sb_blocklog - sbp->sb_inodelog != sbp->sb_inopblog)	||
+ 	    (sbp->sb_rextsize * sbp->sb_blocksize > XFS_MAX_RTEXTSIZE)	||
+ 	    (sbp->sb_rextsize * sbp->sb_blocksize < XFS_MIN_RTEXTSIZE)	||
+-	    sbp->sb_imax_pct > 100)) {
++	    (sbp->sb_imax_pct > 100 || sbp->sb_imax_pct < 1))) {
+ 		cmn_err(CE_WARN, "XFS: SB sanity check 1 failed");
+ 		XFS_CORRUPTION_ERROR("xfs_mount_validate_sb(3)",
+ 				     XFS_ERRLEVEL_LOW, mp, sbp);

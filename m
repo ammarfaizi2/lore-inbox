@@ -1,118 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWBUQJs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWBUQKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbWBUQJs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 11:09:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932743AbWBUQJs
+	id S932304AbWBUQKh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 11:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932744AbWBUQKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 11:09:48 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:50878 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932301AbWBUQJs
+	Tue, 21 Feb 2006 11:10:37 -0500
+Received: from ezoffice.mandriva.com ([84.14.106.134]:64014 "EHLO
+	office.mandriva.com") by vger.kernel.org with ESMTP id S932304AbWBUQKg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 11:09:48 -0500
-Date: Tue, 21 Feb 2006 11:09:46 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Andrew Morton <akpm@osdl.org>
-cc: Arjan van de Ven <arjan@infradead.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Export new notifier chain routines as GPL
-Message-ID: <Pine.LNX.4.44L0.0602211107370.5374-100000@iolanthe.rowland.org>
+	Tue, 21 Feb 2006 11:10:36 -0500
+From: Thierry Vignaud <tvignaud@mandriva.com>
+To: mauelshagen@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: *** Announcement: dmraid 1.0.0.rc10 ***
+Organization: Mandrakesoft
+References: <20060217210635.GA13074@redhat.com>
+X-URL: <http://www.linux-mandrake.com/
+Date: Tue, 21 Feb 2006 17:10:26 +0100
+In-Reply-To: <20060217210635.GA13074@redhat.com> (Heinz Mauelshagen's message
+	of "Fri, 17 Feb 2006 22:06:35 +0100")
+Message-ID: <m28xs4k80d.fsf@vador.mandriva.com>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan asked to have the notifier-chain API routines exported with 
-EXPORT_SYMBOL_GPL, as they are new parts of the Linux infrastructure.
-This patch (as642) carries out his wish.
+--=-=-=
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Heinz Mauelshagen <mauelshagen@redhat.com> writes:
 
----
+>                *** Announcement: dmraid 1.0.0.rc10 ***
+> 
+> dmraid 1.0.0.rc10 is available at
+> http://people.redhat.com/heinzm/sw/dmraid/ in source tarball,
+> source rpm and i386 rpm (with shared and static binary).
+> 
+> This release adds support for Adaptec HostRAID and JMicron JMB36X
+> (see CHANGELOG below for more information).
 
-Index: l2616/kernel/sys.c
-===================================================================
---- l2616.orig/kernel/sys.c
-+++ l2616/kernel/sys.c
-@@ -171,7 +171,7 @@ int atomic_notifier_chain_register(struc
- 	return ret;
- }
+you're missusing AC_ARG_ENABLE: it cannot assume whereas you want to
+default to --enable-XXX or --disable-XXX.
+
+eg passing --disable-selinux to dmraid's configures make it actually
+enable selinux support :-(
+
+the format is "AC_ARG_ENABLE(name, help, [ use given value ], [ default action ])"
+
+the following patch fixes it:
+
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: inline;
+ filename=dmraid-1.0.0.rc10-fix-autoconf.patch
+
+--- ./1.0.0.rc10/configure.in.tv2	2006-02-21 16:57:45.000000000 +0100
++++ ./1.0.0.rc10/configure.in	2006-02-21 16:58:21.000000000 +0100
+@@ -101,19 +101,19 @@
+ AC_ARG_ENABLE(jobs,  [  --enable-jobs=NUM       Number of jobs to run simultaneously], JOBS=-j$enableval, JOBS=-j1)
  
--EXPORT_SYMBOL(atomic_notifier_chain_register);
-+EXPORT_SYMBOL_GPL(atomic_notifier_chain_register);
+ dnl Enables linking to libselinux
+-AC_ARG_ENABLE(libselinux, [  --enable-libselinux     Use this to link the tools to libselinux ], LIBSELINUX=yes, LIBSELINUX=no)
++AC_ARG_ENABLE(libselinux, [  --enable-libselinux     Use this to link the tools to libselinux ], LIBSELINUX=$enableval, LIBSELINUX=no)
  
- /**
-  *	atomic_notifier_chain_unregister - Remove notifier from an atomic notifier chain
-@@ -195,7 +195,7 @@ int atomic_notifier_chain_unregister(str
- 	return ret;
- }
+ dnl Enables linking to libselinux
+-AC_ARG_ENABLE(libsepol, [  --enable-libsepol       Use this to link the tools to libsepol ], LIBSEPOL=yes, LIBSEPOL=no)
++AC_ARG_ENABLE(libsepol, [  --enable-libsepol       Use this to link the tools to libsepol ], LIBSEPOL=$enableval, LIBSEPOL=no)
  
--EXPORT_SYMBOL(atomic_notifier_chain_unregister);
-+EXPORT_SYMBOL_GPL(atomic_notifier_chain_unregister);
+ dnl Enables mini binary
+ AC_ARG_ENABLE(mini, [  --enable-mini           Use this to create a minimal binrary suitable
+-                          for early boot environments],  DMRAID_MINI=yes, DMRAID_MINI=no)
++                          for early boot environments],  DMRAID_MINI=$enableval, DMRAID_MINI=no)
  
- /**
-  *	atomic_notifier_call_chain - Call functions in an atomic notifier chain
-@@ -226,7 +226,7 @@ int atomic_notifier_call_chain(struct at
- 	return ret;
- }
+ echo $ac_n "checking whether to disable native metadata logging""... $ac_c" 1>&6
+ dnl Disable native metadata logging
+ AC_ARG_ENABLE(native_log, [  --disable-native_log    Disable native metadata logging. Default is enabled],  \
+-DMRAID_NATIVE_LOG=no, DMRAID_NATIVE_LOG=yes)
++DMRAID_NATIVE_LOG=$enableval, DMRAID_NATIVE_LOG=yes)
+ echo "$ac_t""$DMRAID_NATIVE_LOG" 1>&6
  
--EXPORT_SYMBOL(atomic_notifier_call_chain);
-+EXPORT_SYMBOL_GPL(atomic_notifier_call_chain);
- 
- /*
-  *	Blocking notifier chain routines.  All access to the chain is
-@@ -255,7 +255,7 @@ int blocking_notifier_chain_register(str
- 	return ret;
- }
- 
--EXPORT_SYMBOL(blocking_notifier_chain_register);
-+EXPORT_SYMBOL_GPL(blocking_notifier_chain_register);
- 
- /**
-  *	blocking_notifier_chain_unregister - Remove notifier from a blocking notifier chain
-@@ -278,7 +278,7 @@ int blocking_notifier_chain_unregister(s
- 	return ret;
- }
- 
--EXPORT_SYMBOL(blocking_notifier_chain_unregister);
-+EXPORT_SYMBOL_GPL(blocking_notifier_chain_unregister);
- 
- /**
-  *	blocking_notifier_call_chain - Call functions in a blocking notifier chain
-@@ -308,7 +308,7 @@ int blocking_notifier_call_chain(struct 
- 	return ret;
- }
- 
--EXPORT_SYMBOL(blocking_notifier_call_chain);
-+EXPORT_SYMBOL_GPL(blocking_notifier_call_chain);
- 
- /*
-  *	Raw notifier chain routines.  There is no protection;
-@@ -332,7 +332,7 @@ int raw_notifier_chain_register(struct r
- 	return notifier_chain_register(&nh->head, n);
- }
- 
--EXPORT_SYMBOL(raw_notifier_chain_register);
-+EXPORT_SYMBOL_GPL(raw_notifier_chain_register);
- 
- /**
-  *	raw_notifier_chain_unregister - Remove notifier from a raw notifier chain
-@@ -350,7 +350,7 @@ int raw_notifier_chain_unregister(struct
- 	return notifier_chain_unregister(&nh->head, n);
- }
- 
--EXPORT_SYMBOL(raw_notifier_chain_unregister);
-+EXPORT_SYMBOL_GPL(raw_notifier_chain_unregister);
- 
- /**
-  *	raw_notifier_call_chain - Call functions in a raw notifier chain
-@@ -376,7 +376,7 @@ int raw_notifier_call_chain(struct raw_n
- 	return notifier_call_chain(&nh->head, val, v);
- }
- 
--EXPORT_SYMBOL(raw_notifier_call_chain);
-+EXPORT_SYMBOL_GPL(raw_notifier_call_chain);
- 
- /**
-  *	register_reboot_notifier - Register function to be called at reboot time
+ dnl Enables staticly linked tools
+
+--=-=-=
+
+
+you might want to alter default values then since i guess you
+misunderstood what the arguments should have been.
+
+--=-=-=--
 

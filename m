@@ -1,154 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161246AbWBUA4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161247AbWBUBD7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161246AbWBUA4V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Feb 2006 19:56:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161253AbWBUA4O
+	id S1161247AbWBUBD7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Feb 2006 20:03:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161248AbWBUBD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Feb 2006 19:56:14 -0500
-Received: from digitalimplant.org ([64.62.235.95]:15550 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S1161243AbWBUAzs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Feb 2006 19:55:48 -0500
-Date: Mon, 20 Feb 2006 16:55:44 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: greg@kroah.com, "" <akpm@osdl.org>, "" <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org, "" <linux-pm@osdl.org>
-Subject: [PATCH 3/4] [pm] Minor updates to core suspend/resume functions
-Message-ID: <Pine.LNX.4.50.0602201653580.21145-100000@monsoon.he.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Feb 2006 20:03:59 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:64209 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1161247AbWBUBD7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Feb 2006 20:03:59 -0500
+Date: Mon, 20 Feb 2006 17:04:30 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, shai@scalex86.org
+Subject: Re: [patch] Cache align futex hash buckets
+Message-ID: <20060221010430.GE3594@localhost.localdomain>
+References: <20060220233242.GC3594@localhost.localdomain> <20060220153320.793b6a7d.akpm@osdl.org> <20060220153419.5ea8dd89.akpm@osdl.org> <20060221000924.GD3594@localhost.localdomain> <20060220162317.5c7b9778.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060220162317.5c7b9778.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 20, 2006 at 04:23:17PM -0800, Andrew Morton wrote:
+> Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
+> >
+> > On Mon, Feb 20, 2006 at 03:34:19PM -0800, Andrew Morton wrote:
+> > > Andrew Morton <akpm@osdl.org> wrote:
+> > > >
+> > > > > @@ -100,9 +100,10 @@ struct futex_q {
+> > > > >  struct futex_hash_bucket {
+> > > > >         spinlock_t              lock;
+> > > > >         struct list_head       chain;
+> > > > > -};
+> > > > > +} ____cacheline_internodealigned_in_smp;
+> > > > >  
+> > > > > -static struct futex_hash_bucket futex_queues[1<<FUTEX_HASHBITS];
+> > > > > +static struct futex_hash_bucket futex_queues[1<<FUTEX_HASHBITS] 
+> > > > > +				__cacheline_aligned_in_smp;
+> > > > >  
+> > > > 
+> > > > How much memory does that thing end up consuming?
+> > > 
+> > > I think a megabyte?
+> > 
+> > On most machines it would be 256 * 128 = 32k. or 16k on arches with 64B 
+> > cachelines.  This looked like a simpler solution for spinlocks falling on
+> > the same cacheline.  So is 16/32k unreasonable?
+> > 
+> 
+> CONFIG_X86_VSMP enables 4096-byte padding for
+> ____cacheline_internodealigned_in_smp.    It's a megabyte.
 
+Yes, only on vSMPowered systems.  Well, we have a large 
+internode cacheline, but these machines have lots of memory too.  I 
+thought a  simpler padding solution might be acceptable as futex_queues 
+would be large only on our boxes.
+Maybe we can dynamically allocate spinlocks, but it would be difficult to
+say which node the spinlock should come from as yet.
 
-- Check the real state the device and parent are in compared
-  to the the real state requested, instead of just checking
-  that the event types are the same.
-
-- Update debug and error messages to display the real states.
-
-Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
-
----
-
- drivers/base/power/resume.c  |   11 +++++++----
- drivers/base/power/runtime.c |   11 ++++++-----
- drivers/base/power/suspend.c |   31 ++++++++++++++++++-------------
- 3 files changed, 31 insertions(+), 22 deletions(-)
-
-applies-to: fbdd2cb3f266f8a55b4dd147e487b59c3f214a97
-57c9fcbb8ef7a5c52a23f44bb6037d7d99d0b170
-diff --git a/drivers/base/power/resume.c b/drivers/base/power/resume.c
-index 317edbf..7f0bd09 100644
---- a/drivers/base/power/resume.c
-+++ b/drivers/base/power/resume.c
-@@ -25,16 +25,19 @@ int resume_device(struct device * dev)
-
- 	down(&dev->sem);
- 	if (dev->power.pm_parent
--			&& dev->power.pm_parent->power.power_state.event) {
--		dev_err(dev, "PM: resume from %d, parent %s still %d\n",
--			dev->power.power_state.event,
-+	    && dev->power.pm_parent->power.power_state.state) {
-+		dev_err(dev, "PM: resume from state %u, parent %s still in state %u\n",
-+			dev->power.power_state.state,
- 			dev->power.pm_parent->bus_id,
--			dev->power.pm_parent->power.power_state.event);
-+			dev->power.pm_parent->power.power_state.state);
- 	}
- 	if (dev->bus && dev->bus->resume) {
- 		dev_dbg(dev,"resuming\n");
- 		error = dev->bus->resume(dev);
- 	}
-+	dev->power.prev_state = dev->power.power_state;
-+	dev->power.power_state.state = 0;
-+	dev->power.power_state.event = PM_EVENT_ON;
- 	up(&dev->sem);
- 	return error;
- }
-diff --git a/drivers/base/power/runtime.c b/drivers/base/power/runtime.c
-index 96370ec..d224761 100644
---- a/drivers/base/power/runtime.c
-+++ b/drivers/base/power/runtime.c
-@@ -45,19 +45,20 @@ EXPORT_SYMBOL(dpm_runtime_resume);
-  *	@state:	State to enter.
-  */
-
--int dpm_runtime_suspend(struct device * dev, pm_message_t state)
-+int dpm_runtime_suspend(struct device * dev, pm_message_t msg)
- {
- 	int error = 0;
-
- 	down(&dpm_sem);
--	if (dev->power.power_state.event == state.event)
-+	if (dev->power.power_state.event == msg.event &&
-+	    dev->power.power_state.state == msg.state)
- 		goto Done;
-
--	if (dev->power.power_state.event)
-+	if (dev->power.power_state.event != PM_EVENT_ON)
- 		runtime_resume(dev);
-
--	if (!(error = suspend_device(dev, state)))
--		dev->power.power_state = state;
-+	if (!(error = suspend_device(dev, msg)))
-+		dev->power.power_state = msg;
-  Done:
- 	up(&dpm_sem);
- 	return error;
-diff --git a/drivers/base/power/suspend.c b/drivers/base/power/suspend.c
-index 8660779..2389821 100644
---- a/drivers/base/power/suspend.c
-+++ b/drivers/base/power/suspend.c
-@@ -34,29 +34,34 @@
-  *	@state:	Power state device is entering.
-  */
-
--int suspend_device(struct device * dev, pm_message_t state)
-+int suspend_device(struct device * dev, pm_message_t msg)
- {
-+	struct device * pm_parent;
- 	int error = 0;
-
- 	down(&dev->sem);
--	if (dev->power.power_state.event) {
--		dev_dbg(dev, "PM: suspend %d-->%d\n",
--			dev->power.power_state.event, state.event);
--	}
-+	dev_dbg(dev, "Suspend [Event %d: %u --> %u]\n",
-+		msg.event dev->power.power_state.state, msg.state);
-+
-+	pm_parent = dev->power.pm_parent;
- 	if (dev->power.pm_parent
--			&& dev->power.pm_parent->power.power_state.event) {
--		dev_err(dev,
--			"PM: suspend %d->%d, parent %s already %d\n",
--			dev->power.power_state.event, state.event,
--			dev->power.pm_parent->bus_id,
--			dev->power.pm_parent->power.power_state.event);
-+	    && dev->power.pm_parent->power.power_state.state) {
-+		dev_err(dev,
-+			"Suspend [Event %d: %u --> %u], parent %s already in [State %u]\n",
-+			msg.event, dev->power.power_state.state, msg.state,
-+			pm_parent->bus_id, pm_parent->power.power_state.state);
- 	}
-
- 	dev->power.prev_state = dev->power.power_state;
-
--	if (dev->bus && dev->bus->suspend && !dev->power.power_state.event) {
-+	if (dev->bus && dev->bus->suspend) {
- 		dev_dbg(dev, "suspending\n");
--		error = dev->bus->suspend(dev, state);
-+		error = dev->bus->suspend(dev, msg);
-+	}
-+
-+	if (!error) {
-+		dev->power.prev_state = dev->power.power_state;
-+		dev->power.power_state = msg;
- 	}
- 	up(&dev->sem);
- 	return error;
----
-0.99.9.GIT

@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932743AbWBUQkl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWBUQqa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932743AbWBUQkl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 11:40:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932748AbWBUQkl
+	id S932323AbWBUQqa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 11:46:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932750AbWBUQqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 11:40:41 -0500
-Received: from iabervon.org ([66.92.72.58]:43268 "EHLO iabervon.org")
-	by vger.kernel.org with ESMTP id S932743AbWBUQkk (ORCPT
+	Tue, 21 Feb 2006 11:46:30 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:16902 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932323AbWBUQq3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 11:40:40 -0500
-Date: Tue, 21 Feb 2006 11:41:13 -0500 (EST)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-cc: Arjan van de Ven <arjan@infradead.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Missing file
-In-Reply-To: <Pine.LNX.4.61.0602211001300.4470@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.64.0602211109460.6773@iabervon.org>
-References: <Pine.LNX.4.61.0602201201200.4888@chaos.analogic.com>
- <1140456505.2979.66.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.61.0602201333360.5440@chaos.analogic.com>
- <Pine.LNX.4.64.0602201810260.6773@iabervon.org>
- <Pine.LNX.4.61.0602211001300.4470@chaos.analogic.com>
+	Tue, 21 Feb 2006 11:46:29 -0500
+Message-ID: <43FB3FDD.6030406@sw.ru>
+Date: Tue, 21 Feb 2006 19:29:17 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Herbert Poetzl <herbert@13thfloor.at>
+CC: "Serge E. Hallyn" <serue@us.ibm.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: [RFC][PATCH 04/20] pspace: Allow multiple instaces of the process
+ id namespace
+References: <m1fymwmgk0.fsf_-_@ebiederm.dsl.xmission.com> <m1bqxkmgcv.fsf_-_@ebiederm.dsl.xmission.com> <43ECF803.8080404@sw.ru> <m1psluw1jj.fsf@ebiederm.dsl.xmission.com> <43F04FD6.5090603@sw.ru> <m1wtfytri1.fsf@ebiederm.dsl.xmission.com> <43F31972.3030902@sw.ru> <20060215133131.GD28677@MAIL.13thfloor.at> <20060216134447.GA12039@sergelap.austin.ibm.com> <43F98B67.60800@sw.ru> <20060220170448.GG18841@MAIL.13thfloor.at>
+In-Reply-To: <20060220170448.GG18841@MAIL.13thfloor.at>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Feb 2006, linux-os (Dick Johnson) wrote:
+>>I would prefer:
+>>- sys_ns_create()
+>>  creates namespace and makes a task to inherit this namespace. 
+>>  If _needed_, it _can_ fork inside.
 
-> The modules were generally compiled against a compiled kernel that
-> has everything we need enabled, including PCI -- and what
-> we don't use, disabled. So, the file was available up until
-> 2.6.13.4 and disappeared by 2.6.15.4. Also, even the pci.ids
-> has now been eliminated. This means that one needs to keep
-> /usr/share/hwdata/pci.ids current if that is what we need to
-> use now, which implies that one needs a specific Linux
-> distribution NotGood(tm).
+> I don't see why not have both, the auto-created
+> *space on clone() and the ability to create empty
+> *spaces which can be populated and/or entered
+Can you give more details on what you mean by auto-created *space and 
+empty *space?
+I see no much difference...
 
-You could just include the latest pci.ids in your module, which wouldn't 
-be any worse than relying on the kernel to have an up-to-date one. For 
-that matter, if they're building the latest version of your code against 
-an old kernel, the pci.ids in the old kernel is obviously going to be at 
-least as old as the kernel, if not older. Most likely, the most current 
-files around when someone is building your code will be your code, so, if 
-it includes a pci.ids, chances are that it's the best one to use. I 
-generally haven't seen the file get installed; most packages seem to just 
-include a copy if they need it.
+>>- sys_ns_inherit()
+>>  change active namespace.
+> hmm, sounds like a misnomer to me ...
+sys_ns_change ? :)
 
-> Most embedded systems do not have any 'init', shells, or
-> anything like that. That's what makes them reliable and
-> secure. The only thing that could possibly get executed
-> is what designers designed and coded for the system. So
-> moving something that has been "in the kernel" to "outside"
-> has some considerable consequences, especially since there
-> isn't an "outside".
+>>But how should we reference namespace? by globabl ID?
+> definitely by some system-unique identifier ...
+Should it be integer or path as Eric proposes?
 
-I'm actually more used to embedded systems that don't have any way of 
-communicating a string to the user. Or having unexpected PCI devices 
-plugged into them.
+Thanks,
+Kirill
 
-Doing stuff in the kernel instead of userspace doesn't make the system any 
-more secure or reliable, either. They'd probably be better off having 
-their display code use libpci, so that, if the translation screws up, some 
-non-critical userspace program aborts instead of the kernel oopsing or 
-panicing. You don't need a shell to use a library.
-
-	-Daniel
-*This .sig left intentionally blank*

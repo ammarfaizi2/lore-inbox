@@ -1,178 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161414AbWBUGev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161416AbWBUGfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161414AbWBUGev (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 01:34:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161415AbWBUGeu
+	id S1161416AbWBUGfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 01:35:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161418AbWBUGfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 01:34:50 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:57021 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1161414AbWBUGet (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 01:34:49 -0500
-Message-ID: <43FAB3FA.1040802@jp.fujitsu.com>
-Date: Tue, 21 Feb 2006 15:32:26 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
+	Tue, 21 Feb 2006 01:35:08 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:3984 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1161413AbWBUGfF convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 01:35:05 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       akpm@osdl.org, greg@kroah.com
-CC: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>, ak@suse.de,
-       rmk+lkml@arm.linux.org.uk
-Subject: [PATCH 5/6] PCI legacy I/O port free driver (take2) - Make Intel
- e1000 driver legacy I/O port free
-References: <43FAB283.8090206@jp.fujitsu.com>
-In-Reply-To: <43FAB283.8090206@jp.fujitsu.com>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 2.6.15.3 1/1] ACPI: Atlas ACPI driver
+Date: Tue, 21 Feb 2006 14:34:59 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F840AFD4B93@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.6.15.3 1/1] ACPI: Atlas ACPI driver
+thread-index: AcY1+QTZumb9d6e3RHms9ocp4LswwgAtmORQ
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Jaya Kumar" <jayakumar.acpi@gmail.com>
+Cc: <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 21 Feb 2006 06:35:00.0760 (UTC) FILETIME=[F0BB7980:01C636B0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes e1000 driver legacy I/O port free.
 
-Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+>On 2/20/06, Yu, Luming <luming.yu@intel.com> wrote:
+>> I found _BCM, _BCL ... which are reserved methods for
+>> ACPI video extension device. If the vendor follows
+>> ACPI video extension spec, this proposed driver is
+>> NOT needed. Because, we do have acpi video driver
+>> in kernel today.  Could you please show me acpidump
+>> output?
+>>
+>> Thanks,
+>> Luming
+>
+>Hi Luming,
+>
+>Thanks for your reply.
+>
+>Note that aside from the ACPILCD00 HID, there's also the ASIM0000 HID
+>that I'm supporting in this driver. I've appended the DSDT info you
+>requested. Let me know what you feel needs to be done to either make
+>the current acpi video driver detect this extension device (Should I
+>just try adding the ACPILCD00 HID to the video driver?).
+>
+It would be better if you can merge this stuff with acpi video driver.
+If you look at video.c, there is NO HID definition for video device.
+we rely on acpi_video_bus_match to recoginize video device in ACPI
+namespace.
 
- drivers/net/e1000/e1000.h      |    4 -
- drivers/net/e1000/e1000_main.c |  105 +++++++++++++++++++++--------------------
- 2 files changed, 56 insertions(+), 53 deletions(-)
+As for hotkey stuff, please take a look at 
+http://bugzilla.kernel.org/show_bug.cgi?id=5749
 
-Index: linux-2.6.16-rc4/drivers/net/e1000/e1000.h
-===================================================================
---- linux-2.6.16-rc4.orig/drivers/net/e1000/e1000.h	2006-02-21 14:40:46.000000000 +0900
-+++ linux-2.6.16-rc4/drivers/net/e1000/e1000.h	2006-02-21 14:40:57.000000000 +0900
-@@ -77,8 +77,8 @@
- #define BAR_1		1
- #define BAR_5		5
- 
--#define INTEL_E1000_ETHERNET_DEVICE(device_id) {\
--	PCI_DEVICE(PCI_VENDOR_ID_INTEL, device_id)}
-+#define INTEL_E1000_ETHERNET_DEVICE(device_id, flags) {\
-+	PCI_DEVICE(PCI_VENDOR_ID_INTEL, device_id), .device_flags = flags}
- 
- struct e1000_adapter;
- 
-Index: linux-2.6.16-rc4/drivers/net/e1000/e1000_main.c
-===================================================================
---- linux-2.6.16-rc4.orig/drivers/net/e1000/e1000_main.c	2006-02-21 14:40:46.000000000 +0900
-+++ linux-2.6.16-rc4/drivers/net/e1000/e1000_main.c	2006-02-21 14:40:57.000000000 +0900
-@@ -115,51 +115,51 @@
-  *   {PCI_DEVICE(PCI_VENDOR_ID_INTEL, device_id)}
-  */
- static struct pci_device_id e1000_pci_tbl[] = {
--	INTEL_E1000_ETHERNET_DEVICE(0x1000),
--	INTEL_E1000_ETHERNET_DEVICE(0x1001),
--	INTEL_E1000_ETHERNET_DEVICE(0x1004),
--	INTEL_E1000_ETHERNET_DEVICE(0x1008),
--	INTEL_E1000_ETHERNET_DEVICE(0x1009),
--	INTEL_E1000_ETHERNET_DEVICE(0x100C),
--	INTEL_E1000_ETHERNET_DEVICE(0x100D),
--	INTEL_E1000_ETHERNET_DEVICE(0x100E),
--	INTEL_E1000_ETHERNET_DEVICE(0x100F),
--	INTEL_E1000_ETHERNET_DEVICE(0x1010),
--	INTEL_E1000_ETHERNET_DEVICE(0x1011),
--	INTEL_E1000_ETHERNET_DEVICE(0x1012),
--	INTEL_E1000_ETHERNET_DEVICE(0x1013),
--	INTEL_E1000_ETHERNET_DEVICE(0x1014),
--	INTEL_E1000_ETHERNET_DEVICE(0x1015),
--	INTEL_E1000_ETHERNET_DEVICE(0x1016),
--	INTEL_E1000_ETHERNET_DEVICE(0x1017),
--	INTEL_E1000_ETHERNET_DEVICE(0x1018),
--	INTEL_E1000_ETHERNET_DEVICE(0x1019),
--	INTEL_E1000_ETHERNET_DEVICE(0x101A),
--	INTEL_E1000_ETHERNET_DEVICE(0x101D),
--	INTEL_E1000_ETHERNET_DEVICE(0x101E),
--	INTEL_E1000_ETHERNET_DEVICE(0x1026),
--	INTEL_E1000_ETHERNET_DEVICE(0x1027),
--	INTEL_E1000_ETHERNET_DEVICE(0x1028),
--	INTEL_E1000_ETHERNET_DEVICE(0x105E),
--	INTEL_E1000_ETHERNET_DEVICE(0x105F),
--	INTEL_E1000_ETHERNET_DEVICE(0x1060),
--	INTEL_E1000_ETHERNET_DEVICE(0x1075),
--	INTEL_E1000_ETHERNET_DEVICE(0x1076),
--	INTEL_E1000_ETHERNET_DEVICE(0x1077),
--	INTEL_E1000_ETHERNET_DEVICE(0x1078),
--	INTEL_E1000_ETHERNET_DEVICE(0x1079),
--	INTEL_E1000_ETHERNET_DEVICE(0x107A),
--	INTEL_E1000_ETHERNET_DEVICE(0x107B),
--	INTEL_E1000_ETHERNET_DEVICE(0x107C),
--	INTEL_E1000_ETHERNET_DEVICE(0x107D),
--	INTEL_E1000_ETHERNET_DEVICE(0x107E),
--	INTEL_E1000_ETHERNET_DEVICE(0x107F),
--	INTEL_E1000_ETHERNET_DEVICE(0x108A),
--	INTEL_E1000_ETHERNET_DEVICE(0x108B),
--	INTEL_E1000_ETHERNET_DEVICE(0x108C),
--	INTEL_E1000_ETHERNET_DEVICE(0x1099),
--	INTEL_E1000_ETHERNET_DEVICE(0x109A),
--	INTEL_E1000_ETHERNET_DEVICE(0x10B5),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1000, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1001, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1004, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1008, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1009, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x100C, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x100D, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x100E, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x100F, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1010, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1011, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1012, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1013, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1014, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1015, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1016, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1017, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1018, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1019, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x101A, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x101D, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x101E, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1026, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1027, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1028, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x105E, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x105F, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1060, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1075, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1076, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1077, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1078, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1079, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x107A, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x107B, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x107C, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x107D, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x107E, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x107F, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x108A, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x108B, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x108C, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1099, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x109A, PCI_DEVICE_ID_FLAG_NOIOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x10B5, PCI_DEVICE_ID_FLAG_NOIOPORT),
- 	/* required last entry */
- 	{0,}
- };
-@@ -709,12 +709,15 @@
- 		goto err_ioremap;
- 	}
- 
--	for (i = BAR_1; i <= BAR_5; i++) {
--		if (pci_resource_len(pdev, i) == 0)
--			continue;
--		if (pci_resource_flags(pdev, i) & IORESOURCE_IO) {
--			adapter->hw.io_base = pci_resource_start(pdev, i);
--			break;
-+	if (!(ent->device_flags & PCI_DEVICE_ID_FLAG_NOIOPORT)) {
-+		for (i = BAR_1; i <= BAR_5; i++) {
-+			if (pci_resource_len(pdev, i) == 0)
-+				continue;
-+			if (pci_resource_flags(pdev, i) & IORESOURCE_IO) {
-+				adapter->hw.io_base =
-+					pci_resource_start(pdev, i);
-+				break;
-+			}
- 		}
- 	}
- 
-
-
+Thanks,
+Luming

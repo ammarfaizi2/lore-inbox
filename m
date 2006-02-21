@@ -1,115 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWBUXXG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbWBUXXS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbWBUXXG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 18:23:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWBUXXG
+	id S1750948AbWBUXXS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 18:23:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750961AbWBUXXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 18:23:06 -0500
-Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:51924 "EHLO
-	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750759AbWBUXXF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 18:23:05 -0500
-Date: Tue, 21 Feb 2006 18:19:58 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.6.16-rc4-mm1
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <200602211822_MC3-1-B8F6-689@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Tue, 21 Feb 2006 18:23:18 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:41866 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1750948AbWBUXXR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 18:23:17 -0500
+Date: Wed, 22 Feb 2006 00:23:15 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Greg <gkurz@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+       Andi Kleen <ak@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: [RFC][PATCH 04/20] pspace: Allow multiple instaces of the process id namespace
+Message-ID: <20060221232315.GC20204@MAIL.13thfloor.at>
+Mail-Followup-To: Kirill Korotaev <dev@sw.ru>,
+	"Serge E. Hallyn" <serue@us.ibm.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Dave Hansen <haveblue@us.ibm.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+	Hubertus Franke <frankeh@watson.ibm.com>,
+	Cedric Le Goater <clg@fr.ibm.com>,
+	Kyle Moffett <mrmacman_g4@mac.com>, Greg <gkurz@fr.ibm.com>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Greg KH <greg@kroah.com>, Rik van Riel <riel@redhat.com>,
+	Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+	Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
+	Andi Kleen <ak@suse.de>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Jes Sorensen <jes@sgi.com>
+References: <43ECF803.8080404@sw.ru> <m1psluw1jj.fsf@ebiederm.dsl.xmission.com> <43F04FD6.5090603@sw.ru> <m1wtfytri1.fsf@ebiederm.dsl.xmission.com> <43F31972.3030902@sw.ru> <20060215133131.GD28677@MAIL.13thfloor.at> <20060216134447.GA12039@sergelap.austin.ibm.com> <43F98B67.60800@sw.ru> <20060220170448.GG18841@MAIL.13thfloor.at> <43FB3FDD.6030406@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <43FB3FDD.6030406@sw.ru>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060221134139.11b8668b.akpm@osdl.org>
+On Tue, Feb 21, 2006 at 07:29:17PM +0300, Kirill Korotaev wrote:
+>>>I would prefer:
+>>>- sys_ns_create()
+>>> creates namespace and makes a task to inherit this namespace. 
+>>> If _needed_, it _can_ fork inside.
 
-On Tue, 21 Feb 2006 at 13:41:39 -0800, Andrew Morton wrote:
+>>I don't see why not have both, the auto-created
+>>*space on clone() and the ability to create empty
+>>*spaces which can be populated and/or entered
+>Can you give more details on what you mean by auto-created *space and 
+>empty *space?
+>I see no much difference...
 
-> None of these are must-have fixes, are they?   I had them queued for 2.6.17.
+good, in this case we can drop the empty/standalone
+*space and 'just' use the clone() one. glad that
+we finally agree here ....
 
-Well i386-allow-disabling-x86_feature_sep-at-boot.patch is for me.
-I had to backport it to -rc4 for testing differences between sysenter
-and int80 syscall paths.  I could live without it (I once forgot to apply
-it and wondered why it wasn't working), but anyway here's the backport:
+>>>- sys_ns_inherit()
+>>> change active namespace.
+>>hmm, sounds like a misnomer to me ...
+>sys_ns_change ? :)
 
+personally I prefer to see it as either enter or
+move, but change is probably fine too (except for
+the fact that it doesn't change the namespace)
 
-From: Chuck Ebbert <76306.1226@compuserve.com>
+>>>But how should we reference namespace? by globabl ID?
+>>definitely by some system-unique identifier ...
+>Should it be integer or path as Eric proposes?
+IMHO the pointer would be sufficient, of course
+this can be mapped to arbitrary names/int/etc ...
 
-Allow the x86 "sep" feature to be disabled at bootup.  This forces use of the
-int80 vsyscall.  Mainly for testing or benchmarking the int80 vsyscall code.
-
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-
----
-
- Documentation/kernel-parameters.txt |    6 +++++-
- arch/i386/kernel/cpu/common.c       |   15 ++++++++++++++-
- 2 files changed, 19 insertions(+), 2 deletions(-)
-
---- 2.6.16-rc3-nb.orig/Documentation/kernel-parameters.txt
-+++ 2.6.16-rc3-nb/Documentation/kernel-parameters.txt
-@@ -1002,7 +1002,9 @@ running once the system is up.
- 			noexec=on: enable non-executable mappings (default)
- 			noexec=off: disable nn-executable mappings
- 
--	nofxsr		[BUGS=IA-32]
-+	nofxsr		[BUGS=IA-32] Disables x86 floating point extended
-+			register save and restore. The kernel will only save
-+			legacy floating-point registers on task switch.
- 
- 	nohlt		[BUGS=ARM]
- 
-@@ -1045,6 +1047,8 @@ running once the system is up.
- 
- 	nosbagart	[IA-64]
- 
-+	nosep		[BUGS=IA-32] Disables x86 SYSENTER/SYSEXIT support.
-+
- 	nosmp		[SMP] Tells an SMP kernel to act as a UP kernel.
- 
- 	nosync		[HW,M68K] Disables sync negotiation for all devices.
---- 2.6.16-rc3-nb.orig/arch/i386/kernel/cpu/common.c
-+++ 2.6.16-rc3-nb/arch/i386/kernel/cpu/common.c
-@@ -22,8 +22,9 @@ DEFINE_PER_CPU(unsigned char, cpu_16bit_
- EXPORT_PER_CPU_SYMBOL(cpu_16bit_stack);
- 
- static int cachesize_override __devinitdata = -1;
--static int disable_x86_fxsr __devinitdata = 0;
-+static int disable_x86_fxsr __devinitdata;
- static int disable_x86_serial_nr __devinitdata = 1;
-+static int disable_x86_sep __devinitdata;
- 
- struct cpu_dev * cpu_devs[X86_VENDOR_NUM] = {};
- 
-@@ -183,6 +184,14 @@ static int __init x86_fxsr_setup(char * 
- __setup("nofxsr", x86_fxsr_setup);
- 
- 
-+static int __init x86_sep_setup(char * s)
-+{
-+	disable_x86_sep = 1;
-+	return 1;
-+}
-+__setup("nosep", x86_sep_setup);
-+
-+
- /* Standard macro to see if a specific flag is changeable */
- static inline int flag_is_changeable_p(u32 flag)
- {
-@@ -401,6 +410,10 @@ void __devinit identify_cpu(struct cpuin
- 		clear_bit(X86_FEATURE_XMM, c->x86_capability);
- 	}
- 
-+	/* SEP disabled? */
-+	if (disable_x86_sep)
-+		clear_bit(X86_FEATURE_SEP, c->x86_capability);
-+
- 	if (disable_pse)
- 		clear_bit(X86_FEATURE_PSE, c->x86_capability);
- 
--- 
-Chuck
-"Equations are the Devil's sentences."  --Stephen Colbert
+> Thanks,
+> Kirill

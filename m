@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWBUVm6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWBUVn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750880AbWBUVm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 16:42:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbWBUVm6
+	id S932089AbWBUVn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 16:43:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWBUVn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 16:42:58 -0500
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:16319
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1750880AbWBUVm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 16:42:57 -0500
-Subject: Re: make -j with j <= 4 seems to only load a single CPU core
-From: Paul Fulghum <paulkf@microgate.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <9a8748490602211310j344db10evd685149a3c60b1e7@mail.gmail.com>
-References: <9a8748490602211302j61c0088fp8b555860e928028e@mail.gmail.com>
-	 <9a8748490602211310j344db10evd685149a3c60b1e7@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 21 Feb 2006 15:42:41 -0600
-Message-Id: <1140558161.9838.8.camel@amdx2.microgate.com>
+	Tue, 21 Feb 2006 16:43:26 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:55699 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932089AbWBUVnZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 16:43:25 -0500
+Date: Tue, 21 Feb 2006 13:41:39 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc4-mm1
+Message-Id: <20060221134139.11b8668b.akpm@osdl.org>
+In-Reply-To: <200602211318_MC3-1-B8E8-E64E@compuserve.com>
+References: <200602211318_MC3-1-B8E8-E64E@compuserve.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-21 at 22:10 +0100, Jesper Juhl wrote:
+Chuck Ebbert <76306.1226@compuserve.com> wrote:
+>
+> In-Reply-To: <20060220042615.5af1bddc.akpm@osdl.org>
+> 
+> On Mon, 20 Feb 2006 at 04:26:15 -0800, Andrew Morton wrote:
+> 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc4/2.6.16-rc4-mm1/
+> 
+> Could you merge my trivial patches?
+> 
+> i386-allow-disabling-x86_feature_sep-at-boot.patch
+>         I keep having to backport this one because I need it for testing mainline.
+> 
+> i386-__devinit-should-be-__cpuinit.patch
+>         Saves a few K when HOTPLUG && !HOTPLUG_CPU
+> 
+> i386-fall-back-to-sensible-cpu-model-name.patch
+>         Rohit signed off on this one.
+> 
+> kbuild-add-fverbose-asm-to-i386-makefile.patch
+>         Nice to have and does this for all archs, not just i386.
+> 
 
-> I should probably mention that the kernel I'm currently running and
-> observing this behaviour with is 2.6.16-rc4-mm1.
-...
-> > I find this quite strange since anything from 'make -j 2' and up
-> > should be able to keep both cores resonably busy, but there seems to
-> > be a huge difference between j <= 4 and j > 4.
-
-I've seen the same thing (on Athlon 64x2 64 bit)
-but was not sure if it was a problem.
-
-The break point for me seems to be between -j 2 and -j 3
--j 2 = serialized (or the appearance of)
--j 3 = both cores mostly busy
-
-I'm pretty sure with an earlier 2.6 kernel source (but same environment)
-I did not see this. I'll start back tracking to earlier kernels
-to see if I can identify when this started.
-
--- 
-Paul Fulghum
-Microgate Systems, Ltd
-
+None of these are must-have fixes, are they?   I had them queued for 2.6.17.

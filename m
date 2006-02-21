@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161241AbWBUXxm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161248AbWBUXz4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161241AbWBUXxm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 18:53:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161252AbWBUXxm
+	id S1161248AbWBUXz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 18:55:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161252AbWBUXz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 18:53:42 -0500
-Received: from ns1.suse.de ([195.135.220.2]:39619 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161241AbWBUXxl (ORCPT
+	Tue, 21 Feb 2006 18:55:56 -0500
+Received: from main.gmane.org ([80.91.229.2]:27565 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1161248AbWBUXzz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 18:53:41 -0500
-From: Andi Kleen <ak@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH] tmpfs: fix mount mpol nodelist parsing
-Date: Wed, 22 Feb 2006 00:51:34 +0100
-User-Agent: KMail/1.8.2
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Robin Holt <holt@sgi.com>, Brent Casavant <bcasavan@sgi.com>,
-       Christoph Rohland <cr@sap.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0602212341160.5390@goblin.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.61.0602212341160.5390@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 21 Feb 2006 18:55:55 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Tristan Wibberley <maihem@maihem.org>
+Subject: Re: suspend2 review [was Re: Which is simpler? (Was Re: [Suspend2-devel]
+ Re: [ 00/10] [Suspend2] Modules support.)]
+Date: Tue, 21 Feb 2006 23:55:04 +0000
+Message-ID: <dtg98o$315$1@sea.gmane.org>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain>	 <200602200709.17955.nigel@suspend2.net>	 <20060219234212.GA1762@elf.ucw.cz>	 <200602201210.58362.nigel@suspend2.net>	 <20060220124937.GB16165@elf.ucw.cz>	 <20060220170537.GB33155@dspnet.fr.eu.org>	 <1140559365.2742.80.camel@mindpipe> <d120d5000602211417se24ed51w15e0c5c95b69d58c@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602220051.35559.ak@suse.de>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host81-151-156-100.range81-151.btcentralplus.com
+User-Agent: Mail/News 1.5 (X11/20060213)
+In-Reply-To: <d120d5000602211417se24ed51w15e0c5c95b69d58c@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 22 February 2006 00:49, Hugh Dickins wrote:
-> I've been dissatisfied with the mpol_nodelist mount option which was
-> added to tmpfs earlier in -rc.  Replace it by mpol=policy:nodelist.
+Dmitry Torokhov wrote:
+> On 2/21/06, Lee Revell <rlrevell@joe-job.com> wrote:
+>> On Mon, 2006-02-20 at 18:05 +0100, Olivier Galibert wrote:
+>>> Pavel, if you mean that the userspace code will not be reviewed to
+>>> standards the kernel code is, kill uswsusp _NOW_ before it does too
+>>> much damage.  Unreliable suspend eats filesystems for breakfast.  The
+>>> other userspace components of the kernels services are either optional
+>>> (udev) or not that important (alsa).
+>>>
+>> Why is sound less important than suspending, or networking, or any other
+>> subsystem?  This is an insult to everyone who worked long and hard to
+>> get decent sound support on Linux.
+>>
 > 
-> And it was broken: a nodelist is a comma-separated list of numbers and
-> ranges; the mount options are a comma-separated list of token=values.
-> Whoops, blindly strsep'ing on commas doesn't work so well: since we've
-> no numeric tokens, and unlikely to add them, use that to distinguish.
-> 
-> Move the mpol= parsing to shmem_parse_mpol under CONFIG_NUMA, reject
-> all its options as invalid if not NUMA.  /proc shows MPOL_PREFERRED
-> as "prefer", so use that name for the policy instead of "preferred".
-> 
-> Enforce that mpol=default has no nodelist; that mpol=prefer has one
-> node only; that mpol=bind has a nodelist; but let mpol=interleave use
-> node_online_map if no nodelist given.  Describe this in tmpfs.txt.
+> I bet this was not meant as an insult. Quote: "Unreliable suspend eats
+> filesystems for breakfast". The worst thing mismatched ALSA library
+> could cause is noice in my speakers.
 
-Looks good thanks. Best would be to get that patch into 2.6.16 so
-we don't end up with an broken interface in the release.
+If you've got a Linux powered stereo in your car, you're going like the 
+clappers and your speakers suddenly blast out white noise as loud as 
+they possibly can, you will wish you had enough seconds left to run a 
+measly fsck.
 
-> 
-> Signed-off-by: Hugh Dickins <hugh@veritas.com>
-> Acked-by: Robin Holt <holt@sgi.com>
-Acked-by: Andi Kleen <ak@suse.de>
+-- 
+Tristan Wibberley
 
--Andi

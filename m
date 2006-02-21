@@ -1,91 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWBUQKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbWBUQLd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932304AbWBUQKh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 11:10:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932744AbWBUQKh
+	id S932295AbWBUQLd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 11:11:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932743AbWBUQLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 11:10:37 -0500
-Received: from ezoffice.mandriva.com ([84.14.106.134]:64014 "EHLO
-	office.mandriva.com") by vger.kernel.org with ESMTP id S932304AbWBUQKg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 11:10:36 -0500
-From: Thierry Vignaud <tvignaud@mandriva.com>
-To: mauelshagen@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: *** Announcement: dmraid 1.0.0.rc10 ***
-Organization: Mandrakesoft
-References: <20060217210635.GA13074@redhat.com>
-X-URL: <http://www.linux-mandrake.com/
-Date: Tue, 21 Feb 2006 17:10:26 +0100
-In-Reply-To: <20060217210635.GA13074@redhat.com> (Heinz Mauelshagen's message
-	of "Fri, 17 Feb 2006 22:06:35 +0100")
-Message-ID: <m28xs4k80d.fsf@vador.mandriva.com>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
+	Tue, 21 Feb 2006 11:11:33 -0500
+Received: from mxsf16.cluster1.charter.net ([209.225.28.216]:5553 "EHLO
+	mxsf16.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S932295AbWBUQLc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 11:11:32 -0500
+X-IronPort-AV: i="4.02,135,1139202000"; 
+   d="scan'208"; a="1966986255:sNHT104899128"
+Message-ID: <43FB3BAC.6000204@cybsft.com>
+Date: Tue, 21 Feb 2006 10:11:24 -0600
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: 2.6.15-rt17
+References: <20060221155548.GA30146@elte.hu>
+In-Reply-To: <20060221155548.GA30146@elte.hu>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-
-Heinz Mauelshagen <mauelshagen@redhat.com> writes:
-
->                *** Announcement: dmraid 1.0.0.rc10 ***
+Ingo Molnar wrote:
+> i have released the 2.6.15-rt17 tree, which can be downloaded from the 
+> usual place:
 > 
-> dmraid 1.0.0.rc10 is available at
-> http://people.redhat.com/heinzm/sw/dmraid/ in source tarball,
-> source rpm and i386 rpm (with shared and static binary).
+>    http://redhat.com/~mingo/realtime-preempt/
 > 
-> This release adds support for Adaptec HostRAID and JMicron JMB36X
-> (see CHANGELOG below for more information).
+> lots of changes all across the map. There are several bigger changes:
+> 
+> the biggest change is the new PI code from Esben Nielsen, Thomas 
+> Gleixner and Steven Rostedt. This big rework simplifies and streamlines 
+> the PI code, and fixes a couple of bugs and races:
+> 
+>   - only the top priority waiter on a lock is enqueued into the pi_list
+>     of the task which holds the lock. No more pi list walking in the
+>     boost case.
+> 
+>   - simpler locking rules
+> 
+>   - fast Atomic acquire for the non contended case and atomic release 
+>     for non waiter case is fully functional now
+> 
+>   - use task_t references instead of thread_info pointers
+> 
+>   - BKL handling for semaphore style locks changed so that BKL is
+>     dropped before the scheduler is entered and reaquired in the return
+>     path. This solves a possible deadlock situation in the BKL reacquire
+>     path of the scheduler.
+> 
+> another change is the reworking of the SLAB code: it now closely matches 
+> the upstream SLAB code, and it should now work on NUMA systems too 
+> (untested though).
+> 
+> the tasklet code was reworked too to be PREEMPT_RT friendly: the new PI 
+> code unearthed a fundamental livelock scenario with PREEMPT_RT, and the 
+> fix was to rework the tasklet code to get rid of the 'retrigger 
+> softirqs' approach.
+> 
+> other changes: various hrtimers fixes, latency tracer enhancements - and 
+> more. (Robust-futexes are not expected to work in this release.)
+> 
+> please report any new breakages, and re-report any old breakages as 
+> well.
+> 
+> to build a 2.6.15-rt17 tree, the following patches should be applied:
+> 
+>   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.15.tar.bz2
+>   http://redhat.com/~mingo/realtime-preempt/patch-2.6.15-rt17
+> 
+> 	Ingo
 
-you're missusing AC_ARG_ENABLE: it cannot assume whereas you want to
-default to --enable-XXX or --disable-XXX.
+Ingo I think you fat fingered the name of the patchfile on your site. :)
 
-eg passing --disable-selinux to dmraid's configures make it actually
-enable selinux support :-(
-
-the format is "AC_ARG_ENABLE(name, help, [ use given value ], [ default action ])"
-
-the following patch fixes it:
-
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: inline;
- filename=dmraid-1.0.0.rc10-fix-autoconf.patch
-
---- ./1.0.0.rc10/configure.in.tv2	2006-02-21 16:57:45.000000000 +0100
-+++ ./1.0.0.rc10/configure.in	2006-02-21 16:58:21.000000000 +0100
-@@ -101,19 +101,19 @@
- AC_ARG_ENABLE(jobs,  [  --enable-jobs=NUM       Number of jobs to run simultaneously], JOBS=-j$enableval, JOBS=-j1)
- 
- dnl Enables linking to libselinux
--AC_ARG_ENABLE(libselinux, [  --enable-libselinux     Use this to link the tools to libselinux ], LIBSELINUX=yes, LIBSELINUX=no)
-+AC_ARG_ENABLE(libselinux, [  --enable-libselinux     Use this to link the tools to libselinux ], LIBSELINUX=$enableval, LIBSELINUX=no)
- 
- dnl Enables linking to libselinux
--AC_ARG_ENABLE(libsepol, [  --enable-libsepol       Use this to link the tools to libsepol ], LIBSEPOL=yes, LIBSEPOL=no)
-+AC_ARG_ENABLE(libsepol, [  --enable-libsepol       Use this to link the tools to libsepol ], LIBSEPOL=$enableval, LIBSEPOL=no)
- 
- dnl Enables mini binary
- AC_ARG_ENABLE(mini, [  --enable-mini           Use this to create a minimal binrary suitable
--                          for early boot environments],  DMRAID_MINI=yes, DMRAID_MINI=no)
-+                          for early boot environments],  DMRAID_MINI=$enableval, DMRAID_MINI=no)
- 
- echo $ac_n "checking whether to disable native metadata logging""... $ac_c" 1>&6
- dnl Disable native metadata logging
- AC_ARG_ENABLE(native_log, [  --disable-native_log    Disable native metadata logging. Default is enabled],  \
--DMRAID_NATIVE_LOG=no, DMRAID_NATIVE_LOG=yes)
-+DMRAID_NATIVE_LOG=$enableval, DMRAID_NATIVE_LOG=yes)
- echo "$ac_t""$DMRAID_NATIVE_LOG" 1>&6
- 
- dnl Enables staticly linked tools
-
---=-=-=
-
-
-you might want to alter default values then since i guess you
-misunderstood what the arguments should have been.
-
---=-=-=--
-
+-- 
+   kr

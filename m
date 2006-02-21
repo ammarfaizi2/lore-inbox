@@ -1,80 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWBUXpS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWBUXrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbWBUXpS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 18:45:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWBUXpS
+	id S932344AbWBUXrU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 18:47:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWBUXrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 18:45:18 -0500
-Received: from ozlabs.org ([203.10.76.45]:53448 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932302AbWBUXpR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 18:45:17 -0500
-Date: Wed, 22 Feb 2006 10:45:25 +1100
-From: Michael Neuling <mikey@neuling.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, klibc@zytor.com
-Cc: Al Viro <viro@ftp.linux.org.uk>, hpa@zytor.com,
-       "miltonm@bga.com" <miltonm@bga.com>
-Subject: [PATCH] initramfs: multiple CPIO unpacking fix
-Message-Id: <20060222104525.affda1df.mikey@neuling.org>
-In-Reply-To: <20060217160621.99b0ffd4.mikey@neuling.org>
-References: <20060216183745.50cc2bf6.mikey@neuling.org>
-	<20060217160621.99b0ffd4.mikey@neuling.org>
-X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.6; i486-pc-linux-gnu)
+	Tue, 21 Feb 2006 18:47:20 -0500
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:51869 "EHLO
+	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP id S932344AbWBUXrT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 18:47:19 -0500
+Date: Wed, 22 Feb 2006 10:39:50 +1100
+From: David Gibson <dwg@au1.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: William Lee Irwin <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Block reservation for hugetlbfs
+Message-ID: <20060221233950.GB20872@localhost.localdomain>
+Mail-Followup-To: David Gibson <dwg@au1.ibm.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	William Lee Irwin <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+References: <20060221022124.GA18535@localhost.localdomain> <43FA94B3.4040904@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43FA94B3.4040904@yahoo.com.au>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch unlinks (deletes) files, symlinks, FIFOs, devices
-etc before writing them when extracting CPIOs.  It doesn't delete
-directories.  This stops weird behaviour like:
- 1) writing through symlinks created in earlier CPIOs. eg foo->bar in
-    the first CPIO.  Having foo as a non link in a subsequent CPIO,
-    results in bar being written and foo remaining as a symlink.  
- 2) if the first version of file foo is larger than foo in a
-    subsequent CPIO, we end up with a mix of the two.  ie. neither
-    the first or second version of /foo.
- 3) special files like devices, fifo etc can't be overwritten in
-    subsequent CPIOS.
+On Tue, Feb 21, 2006 at 03:18:59PM +1100, Nick Piggin wrote:
+> David Gibson wrote:
+> >These days, hugepages are demand-allocated at first fault time.
+> >There's a somewhat dubious (and racy) heuristic when making a new
+> >mmap() to check if there are enough available hugepages to fully
+> >satisfy that mapping.
+> >
+> >A particularly obvious case where the heuristic breaks down is where a
+> >process maps its hugepages not as a single chunk, but as a bunch of
+> >individually mmap()ed (or shmat()ed) blocks without touching and
+> >instantiating the blocks in between allocations.  In this case the
+> >size of each block is compared against the total number of available
+> >hugepages.  It's thus easy for the process to become overcommitted,
+> >because each block mapping will succeed, although the total number of
+> >hugepages required by all blocks exceeds the number available.  In
+> >particular, this defeats such a program which will detect a mapping
+> >failure and adjust its hugepage usage downward accordingly.
+> >
+> >The patch below is a draft attempt to address this problem, by
+> >strictly reserving a number of physical hugepages for hugepages inodes
+> >which have been mapped, but not instatiated.  MAP_SHARED mappings are
+> >thus "safe" - they will fail on mmap(), not later with a SIGBUS.
+> >MAP_PRIVATE mappings can still SIGBUS.
+> >
+> >This patch appears to address the problem at hand - it allows DB2 to
+> >start correctly, for instance, which previously suffered the failure
+> >described above.  I'm almost certain I'm missing some locking or other
+> >synchronization - I am entirely bewildered as to what I need to hold
+> >to safely update i_blocks as below.  Corrections for my ignorance
+> >solicited...
+> >
+> >Signed-off-by: David Gibson <dwg@au1.ibm.com>
+> >
+> 
+> This introduces
+> tree_lock(r) -> hugetlb_lock
+> 
+> And we already have
+> hugetlb_lock -> lru_lock
+> 
+> So we now have tree_lock(r) -> lru_lock, which would deadlock
+> against lru_lock -> tree_lock(w), right?
+> 
+> From a quick glance it looks safe, but I'd _really_ rather not
+> introduce something like this.
 
-With this patch, the kernel will more closely replicate
-  for i in *.cpio; do cpio --extract --unconditional < $i ; done
+Urg.. good point.  I hadn't even thought of that consequence - I was
+more worried about whether I need i_lock or i_mutex to protect my
+updates to i_blocks.
 
-This patch doesn't break hardlinks like my previous attempt.
+Would hugetlb_lock -> tree_lock(r) be any preferable (I think that's a
+possible alternative).
 
-Signed-off-by: Michael Neuling <mikey@neuling.org>
----
- initramfs.c |    3 +++
- 1 files changed, 3 insertions(+)
-
-Index: linux-2.6.15/init/initramfs.c
-===================================================================
---- linux-2.6.15.orig/init/initramfs.c
-+++ linux-2.6.15/init/initramfs.c
-@@ -249,6 +249,7 @@ static int __init do_name(void)
- 	if (dry_run)
- 		return 0;
- 	if (S_ISREG(mode)) {
-+		sys_unlink(collected);
- 		if (maybe_link() >= 0) {
- 			wfd = sys_open(collected, O_WRONLY|O_CREAT, mode);
- 			if (wfd >= 0) {
-@@ -263,6 +264,7 @@ static int __init do_name(void)
- 		sys_chmod(collected, mode);
- 	} else if (S_ISBLK(mode) || S_ISCHR(mode) ||
- 		   S_ISFIFO(mode) || S_ISSOCK(mode)) {
-+		sys_unlink(collected);
- 		if (maybe_link() == 0) {
- 			sys_mknod(collected, mode, rdev);
- 			sys_chown(collected, uid, gid);
-@@ -291,6 +293,7 @@ static int __init do_copy(void)
- static int __init do_symlink(void)
- {
- 	collected[N_ALIGN(name_len) + body_len] = '\0';
-+	sys_unlink(collected);
- 	sys_symlink(collected + N_ALIGN(name_len), collected);
- 	sys_lchown(collected, uid, gid);
- 	state = SkipIt;
-
-
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson

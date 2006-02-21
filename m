@@ -1,61 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161433AbWBUGVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161405AbWBUGW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161433AbWBUGVp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 01:21:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161438AbWBUGVp
+	id S1161405AbWBUGW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 01:22:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161404AbWBUGWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 01:21:45 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:46265 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161437AbWBUGVo
+	Tue, 21 Feb 2006 01:22:31 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:63914 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161457AbWBUGWO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 01:21:44 -0500
-Date: Mon, 20 Feb 2006 23:21:40 -0700
+	Tue, 21 Feb 2006 01:22:14 -0500
+Date: Mon, 20 Feb 2006 23:22:12 -0700
 From: john stultz <johnstul@us.ibm.com>
 To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, johnstul@us.ibm.com,
-       john stultz <johnstul@us.ibm.com>
-Message-Id: <20060221062139.13304.33142.sendpatchset@cog.beaverton.ibm.com>
+Cc: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org,
+       johnstul@us.ibm.com
+Message-Id: <20060221062211.13304.10499.sendpatchset@cog.beaverton.ibm.com>
 In-Reply-To: <20060221062102.13304.81613.sendpatchset@cog.beaverton.ibm.com>
 References: <20060221062102.13304.81613.sendpatchset@cog.beaverton.ibm.com>
-Subject: [-mm PATCH 6/11] Time: generic timekeeping infrastructure - fix ntp_synced
+Subject: [-mm PATCH 11/11]Time: i386 clocksource drivers - backout pmtmr changes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Call ntp_synced() is frequently enough. This fixes a potential bug where 
-when ntp_synced is called, it isn't close enough to the second boundery 
-(which is tested inside ntp_synced()). Without this its possible that since 
-we only called it once a second, it would never sync the persistent clock.
+Sync up with changes to avoid pmtmr x86-64 collision. 
+
+In order to avoid bisection troubles, this patch must be folded into 
+its parent (time-i386-clocksource-drivers.patch) as the parent will 
+fail to build.
 
 Signed-off-by: John Stultz <johnstul@us.ibm.com>
 
- kernel/time/timeofday.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/clocksource/Makefile  |    2 +-
+ drivers/clocksource/acpi_pm.c |   13 ++++---------
+ 2 files changed, 5 insertions(+), 10 deletions(-)
 
-Index: mm-merge/kernel/time/timeofday.c
+Index: mm-merge/drivers/clocksource/acpi_pm.c
 ===================================================================
---- mm-merge.orig/kernel/time/timeofday.c
-+++ mm-merge/kernel/time/timeofday.c
-@@ -534,7 +534,7 @@ static void timeofday_periodic_hook(unsi
- 	/* advance the ntp state machine by ns interval: */
- 	ntp_advance(delta_nsec);
+--- mm-merge.orig/drivers/clocksource/acpi_pm.c
++++ mm-merge/drivers/clocksource/acpi_pm.c
+@@ -24,25 +24,20 @@
+ /* Number of PMTMR ticks expected during calibration run */
+ #define PMTMR_TICKS_PER_SEC 3579545
  
--	/* only call ntp_leapsecond and ntp_sync once a sec:  */
-+	/* only call ntp_leapsecond once a sec:  */
- 	second_check += delta_nsec;
- 	if (second_check >= NSEC_PER_SEC) {
- 		/* do ntp leap second processing: */
-@@ -545,11 +545,11 @@ static void timeofday_periodic_hook(unsi
- 			wall_time_ts.tv_sec += leapsecond;
- 			monotonic_time_offset_ts.tv_sec += leapsecond;
- 		}
--		/* sync the persistent clock: */
--		if (ntp_synced())
--			sync_persistent_clock(wall_time_ts);
- 		second_check -= NSEC_PER_SEC;
- 	}
-+	/* sync the persistent clock: */
-+	if (ntp_synced())
-+		sync_persistent_clock(wall_time_ts);
+-#if (defined(CONFIG_X86) && (!defined(CONFIG_X86_64)))
+-# include "mach_timer.h"
+-# define PMTMR_EXPECTED_RATE ((PMTMR_TICKS_PER_SEC*CALIBRATE_TIME_MSEC)/1000)
+-#endif
+-
+ /*
+  * The I/O port the PMTMR resides at.
+  * The location is detected during setup_arch(),
+  * in arch/i386/acpi/boot.c
+  */
+-extern u32 acpi_pmtmr_ioport;
+-extern int acpi_pmtmr_buggy;
++u32 pmtmr_ioport;
++int acpi_pmtmr_buggy;
  
- 	/* if necessary, switch clocksources: */
- 	next = get_next_clocksource();
+ #define ACPI_PM_MASK 0xFFFFFF /* limit it to 24 bits */
+ 
+ static inline u32 read_pmtmr(void)
+ {
+ 	/* mask the output to 24 bits */
+-	return inl(acpi_pmtmr_ioport) & ACPI_PM_MASK;
++	return inl(pmtmr_ioport) & ACPI_PM_MASK;
+ }
+ 
+ static cycle_t acpi_pm_read_verified(void)
+@@ -85,7 +80,7 @@ static int __init init_acpi_pm_clocksour
+ 	u32 value1, value2;
+ 	unsigned int i;
+ 
+-	if (!acpi_pmtmr_ioport)
++	if (!pmtmr_ioport)
+ 		return -ENODEV;
+ 
+ 	clocksource_acpi_pm.mult = clocksource_hz2mult(PMTMR_TICKS_PER_SEC,
+Index: mm-merge/drivers/clocksource/Makefile
+===================================================================
+--- mm-merge.orig/drivers/clocksource/Makefile
++++ mm-merge/drivers/clocksource/Makefile
+@@ -1,2 +1,2 @@
+ obj-$(CONFIG_X86_CYCLONE_TIMER) += cyclone.o
+-obj-$(CONFIG_ACPI) += acpi_pm.o
++obj-$(CONFIG_X86_PM_TIMER) += acpi_pm.o

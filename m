@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161385AbWBUGKp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161392AbWBUGNj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161385AbWBUGKp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 01:10:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161388AbWBUGKp
+	id S1161392AbWBUGNj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 01:13:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161391AbWBUGNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 01:10:45 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:36881 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1161385AbWBUGKo (ORCPT
+	Tue, 21 Feb 2006 01:13:39 -0500
+Received: from mail.kroah.org ([69.55.234.183]:61367 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161388AbWBUGNi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 01:10:44 -0500
-Date: Tue, 21 Feb 2006 07:10:43 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] duplicate #include check for build system
-Message-ID: <20060221061043.GA9279@mars.ravnborg.org>
-References: <20060221014824.GA19998@MAIL.13thfloor.at>
+	Tue, 21 Feb 2006 01:13:38 -0500
+Date: Mon, 20 Feb 2006 22:12:58 -0800
+From: Greg KH <greg@kroah.com>
+To: Nathan Lynch <ntl@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sysfs-related oops during module unload (2.6.16-rc2)
+Message-ID: <20060221061258.GA30274@kroah.com>
+References: <20060211220351.GA3293@localhost.localdomain> <20060211224526.GA25237@kroah.com> <20060212052751.GB3293@localhost.localdomain> <20060212053849.GA27587@kroah.com> <20060216215023.GA30417@kroah.com> <20060219004751.GE3293@localhost.localdomain> <20060219005716.GA5800@kroah.com> <20060221055039.GG3293@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060221014824.GA19998@MAIL.13thfloor.at>
+In-Reply-To: <20060221055039.GG3293@localhost.localdomain>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 21, 2006 at 02:48:24AM +0100, Herbert Poetzl wrote:
+On Mon, Feb 20, 2006 at 11:50:39PM -0600, Nathan Lynch wrote:
+> Greg KH wrote:
+> > On Sat, Feb 18, 2006 at 06:47:51PM -0600, Nathan Lynch wrote:
+> > > Sorry for the delay.
+> > > 
+> > > Tested against 2.6.16-rc4-ish, and it seems to do the right thing --
+> > > modprobe -r says the module is busy while the refcnt attribute is
+> > > open.  The module is allowed to unload once the file is closed.
+> > 
+> > Great, thanks for trying it out and letting me know.
 > 
-> Hi Sam! Folks!
+> Sure -- do you plan to push this for 2.6.16?
+
+No.
+
+> The reason I ask is that the refcnt attribute is world-readable, so a
+> malicious or silly user can keep the file open until an unwitting
+> superuser unloads a module...
 > 
-> recently had the idea to utilize cpp or sparse to
-> do some automated #include checking, and I came up
-> with the following proof of concept:
-Nice way - looks better than randomly parsing a lot of files.
- 
-> I just replaced the sparse binary by the following
-> script (basically hijacking the make C=1 system)
-Thats just fine. It is made general to support more than sparse if
-feasible.
- 
-> of course, most of it would not be required if
-> there was support in the kernel build system,
-I do not see what you think could improve things on the kbuild side.
-Please elaborate a bit more.
+> Far-fetched, I suppose, but I just wanted to make this scenario clear.
 
-> and, if there is any preference for perl over
-> bash/gawk it could be easily rewritten ...
-For tools that is run only now and then you are fine to use perl if you
-prefer. We have though until now avoided it as a strict dependency.
-Also a few more comments would be nice so even I understand the script.
+It's been like this for a number of kernel versions now, and module
+unloading is a rare thing to happen (no tools do it automatically.)  So
+I don't think it's worth 2.6.16 material.  Let it sit in -mm for a bit
+to verify that I didn't break anything else, and I'll send it in for
+2.6.17.
 
-	Sam
+thanks,
+
+greg k-h

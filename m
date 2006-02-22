@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWBVQDb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWBVQFY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbWBVQDb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 11:03:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWBVQDb
+	id S932255AbWBVQFY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 11:05:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbWBVQFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 11:03:31 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:34232 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932197AbWBVQDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 11:03:30 -0500
-Subject: Re: 2.6.16-rc4: known regressions
-From: Arjan van de Ven <arjan@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kay Sievers <kay.sievers@suse.de>, Pekka J Enberg <penberg@cs.Helsinki.FI>,
-       Greg KH <gregkh@suse.de>, Adrian Bunk <bunk@stusta.de>,
-       Robert Love <rml@novell.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       John Stultz <johnstul@us.ibm.com>
-In-Reply-To: <Pine.LNX.4.64.0602220737170.30245@g5.osdl.org>
-References: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org>
-	 <20060217231444.GM4422@stusta.de>
-	 <84144f020602190306o3149d51by82b8ccc6108af012@mail.gmail.com>
-	 <20060219145442.GA4971@stusta.de> <1140383653.11403.8.camel@localhost>
-	 <20060220010205.GB22738@suse.de> <1140562261.11278.6.camel@localhost>
-	 <20060221225718.GA12480@vrfy.org>
-	 <Pine.LNX.4.58.0602220905330.12374@sbz-30.cs.Helsinki.FI>
-	 <20060222152743.GA22281@vrfy.org>
-	 <Pine.LNX.4.64.0602220737170.30245@g5.osdl.org>
-Content-Type: text/plain
-Date: Wed, 22 Feb 2006 17:03:07 +0100
-Message-Id: <1140624187.2979.38.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 22 Feb 2006 11:05:24 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43470 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932255AbWBVQFX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 11:05:23 -0500
+Message-ID: <43FC8C00.5020600@ce.jp.nec.com>
+Date: Wed, 22 Feb 2006 11:06:24 -0500
+From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Neil Brown <neilb@suse.de>, Alasdair Kergon <agk@redhat.com>,
+       Lars Marowsky-Bree <lmb@suse.de>, Greg KH <gregkh@suse.de>
+CC: linux-kernel@vger.kernel.org,
+       device-mapper development <dm-devel@redhat.com>
+Subject: [PATCH 0/3] sysfs representation of stacked devices (dm/md) (rev.2)
+Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-02-22 at 07:44 -0800, Linus Torvalds wrote:
+Hello,
 
+This is a revised set of pathces which provides common
+representation of dependencies between stacked devices (dm and md)
+in sysfs.
 
-[snip lots of good words about that breaking userspace ABIs is really
-horrible]
+Variants of bd_claim/bd_release are added to accept a kobject
+and create symlinks between the claimed bdev and the holder.
 
-I absolutely agree with what you say. HOWEVER hal is also terminally
-broken. The thing they depend on is a *config option*. If they can't
-deal with that config option not being enabled in a graceful way, that's
-a series malfunction.
+dm/md will give a child of its gendisk kobject to bd_claim.
+For example, if dm-0 maps to sda, we have the following symlinks;
+   /sys/block/dm-0/slaves/sda --> /sys/block/sda
+   /sys/block/sda/holders/dm-0 --> /sys/block/dm-0
 
+Comments are welcome.
 
-(and no this is not an excuse for breaking userspace ABIs at all,
-although one can argue that this removing is almost the same as
-disabling the config option)
+A few points I would appreciate comments/reviews from maintainers:
+  About sysfs
+    - I confirmed sysfs_remove_symlink() and kobject_del() don't
+      allocate memory in 2.6.15 and it seems true on the git head.
+      I would like to make sure it's true in future versions of kernel
+      because they are called during device-mapper's table swapping
+      where I/O to free memory could deadlock on the dm device.
+      What is the recommended way to do that?
+      Or can I just expect these functions will not allocate memory
+      in future versions of kernel?
+  About dm
+    - To get a reference to mapped_device, table_load() do
+      dm_get() before populating table. It will dm_put() when
+      the table is being discarded or the table is being activated.
+  About md
+    - Rather than carrying mddev pointer around, bd_claim is now
+      made twice. First is not changed at lock_rdev().
+      The second is at bind_rdev_to_array() where kobject is passed
+      and symlinks are created.
 
-
+-- 
+Jun'ichi Nomura, NEC Solutions (America), Inc.

@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWBVQfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbWBVQic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751365AbWBVQfU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 11:35:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWBVQfU
+	id S964798AbWBVQic (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 11:38:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbWBVQic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 11:35:20 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:65506 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751365AbWBVQfS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 11:35:18 -0500
-Date: Wed, 22 Feb 2006 16:35:11 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: David Zeuthen <david@fubar.dk>
-Cc: Linus Torvalds <torvalds@osdl.org>, Kay Sievers <kay.sievers@suse.de>,
-       Pekka J Enberg <penberg@cs.Helsinki.FI>, Greg KH <gregkh@suse.de>,
-       Adrian Bunk <bunk@stusta.de>, Robert Love <rml@novell.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       John Stultz <johnstul@us.ibm.com>
-Subject: Re: 2.6.16-rc4: known regressions
-Message-ID: <20060222163511.GA18694@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David Zeuthen <david@fubar.dk>, Linus Torvalds <torvalds@osdl.org>,
-	Kay Sievers <kay.sievers@suse.de>,
-	Pekka J Enberg <penberg@cs.Helsinki.FI>, Greg KH <gregkh@suse.de>,
-	Adrian Bunk <bunk@stusta.de>, Robert Love <rml@novell.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	John Stultz <johnstul@us.ibm.com>
-References: <84144f020602190306o3149d51by82b8ccc6108af012@mail.gmail.com> <20060219145442.GA4971@stusta.de> <1140383653.11403.8.camel@localhost> <20060220010205.GB22738@suse.de> <1140562261.11278.6.camel@localhost> <20060221225718.GA12480@vrfy.org> <Pine.LNX.4.58.0602220905330.12374@sbz-30.cs.Helsinki.FI> <20060222152743.GA22281@vrfy.org> <Pine.LNX.4.64.0602220737170.30245@g5.osdl.org> <1140625103.21517.18.camel@daxter.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1140625103.21517.18.camel@daxter.boston.redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 22 Feb 2006 11:38:32 -0500
+Received: from xenotime.net ([66.160.160.81]:24215 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751367AbWBVQib (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 11:38:31 -0500
+Date: Wed, 22 Feb 2006 08:38:28 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Matthew Wilcox <matthew@wil.cx>
+cc: Douglas Gilbert <dougg@torque.net>,
+       Matthias Andree <matthias.andree@gmx.de>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: lsscsi-0.17 released
+In-Reply-To: <20060222163426.GG28587@parisc-linux.org>
+Message-ID: <Pine.LNX.4.58.0602220835440.8025@shark.he.net>
+References: <43FBA4CD.6000505@torque.net> <m34q2r93q2.fsf@merlin.emma.line.org>
+ <43FC7CCB.4090508@torque.net> <20060222160602.GB17473@merlin.emma.line.org>
+ <43FC90E4.10805@torque.net> <20060222163426.GG28587@parisc-linux.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 11:18:22AM -0500, David Zeuthen wrote:
-> For just one example of API breaking see
-> 
->  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=175998
-> 
-> This breaks stuff for end users in a stable distribution. Not good.
+On Wed, 22 Feb 2006, Matthew Wilcox wrote:
 
-That's not an API breakage.  The API is left untouched, the driver
-now just reports the attached device as what it is.  If HAL wasn't
-a piece of cargo-cult programming crap you'd see in the relevant
-standards what scsi device types exist, or even better stop relying
-on such low-level knowledge.  It's a disk if sd_mod attaches to it
-is a much better rule than relying on lowlevel SAM details.
+> On Wed, Feb 22, 2006 at 11:27:16AM -0500, Douglas Gilbert wrote:
+> > Matthias Andree wrote:
+> > > On Wed, 22 Feb 2006, Douglas Gilbert wrote:
+> > >>Matthias Andree wrote:
+> > >>>Does this work around new incompatibilities in the kernel
+> > >>>or does this fix lsscsi bugs?
+> > >>
+> > >>The former. In lk 2.6.16-rc1 the
+> > >>/sys/class/scsi_device/<hcil>/device/block symlink
+> > >>changed to ".../block:sd<x>" breaking lsscsi 0.16 (and
+> > >>earlier) and sg_map26 (in sg3_utils).
+> > >
+> > > Heck, what was the reason for breaking userspace again?
+> >
+> > Maybe the person responsible can answer. I'm only reacting
+> > to a change that broke two of my utilities.
+>
+> Probably better to cc the person responsible if you want an answer.
+>
+> > > Why would someone even consider using sysfs at all if it changes
+> > > incompatibly?
+> >
+> > Indeed.
+>
+> There seems to be no committment to making sysfs a stable part of the
+> kernel API.  Which is really just another way of saying "we can't be
+> bothered to design it upfront, we'll just let it evolve into a mess
+> and then try to fix it afterwards".
 
+I sorta hate to say this, but I was sitting/working a few feet
+from Pat Mochel about 4 years ago when he was beginning on sysfs,
+and I told him to watch out, it could end up a mess just like
+procfs... :(
+
+-- 
+~Randy

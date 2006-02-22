@@ -1,66 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbWBVEnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWBVFQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751322AbWBVEnR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 23:43:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWBVEnR
+	id S1750929AbWBVFQN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 00:16:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWBVFQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 23:43:17 -0500
-Received: from thunk.org ([69.25.196.29]:50869 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1751322AbWBVEnQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 23:43:16 -0500
-To: linux-kernel@vger.kernel.org
-cc: ellie@usenix.org, cat@usenix.org
-Subject: Kernel Summit 2006 planning kickoff
-From: "Theodore Ts'o" <tytso@mit.edu>
-Phone: (781) 391-3464
-Message-Id: <E1FBlqL-0003Ha-NB@think.thunk.org>
-Date: Tue, 21 Feb 2006 23:43:13 -0500
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+	Wed, 22 Feb 2006 00:16:13 -0500
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:50336 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750929AbWBVFQM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 00:16:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=GrJCKp01YwrHFd2YVveub0wEgpJ0zB53c8HnUF9Xv9MYPiEE7jr+xwgAvthI14mf07YZxHWZv2u5ID4DcCLvGD9ImwUBrqM9Asy/FxJt9XdjBI+D5AY+eJIiBxhkF8S+enG3jBDj3ONiDMD9HxGd3bYY78+qJd9P7BIOIA56WTs=  ;
+Message-ID: <43FBD5D5.5020706@yahoo.com.au>
+Date: Wed, 22 Feb 2006 14:09:09 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Gibson <dwg@au1.ibm.com>
+CC: William Lee Irwin <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Block reservation for hugetlbfs
+References: <20060221022124.GA18535@localhost.localdomain> <43FA94B3.4040904@yahoo.com.au> <20060221233950.GB20872@localhost.localdomain> <43FBB292.1000304@yahoo.com.au> <20060222021106.GB23574@localhost.localdomain>
+In-Reply-To: <20060222021106.GB23574@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+David Gibson wrote:
+> On Wed, Feb 22, 2006 at 11:38:42AM +1100, Nick Piggin wrote:
+> 
+>>David Gibson wrote:
+>>
+>>>On Tue, Feb 21, 2006 at 03:18:59PM +1100, Nick Piggin wrote:
+>>
+>>>>This introduces
+>>>>tree_lock(r) -> hugetlb_lock
+>>>>
+>>>>And we already have
+>>>>hugetlb_lock -> lru_lock
+>>>>
+>>>>So we now have tree_lock(r) -> lru_lock, which would deadlock
+>>>>against lru_lock -> tree_lock(w), right?
+>>>>
+>>>
+>>>>From a quick glance it looks safe, but I'd _really_ rather not
+>>>
+>>>>introduce something like this.
+>>>
+>>>
+>>>Urg.. good point.  I hadn't even thought of that consequence - I was
+>>>more worried about whether I need i_lock or i_mutex to protect my
+>>>updates to i_blocks.
+>>>
+>>>Would hugetlb_lock -> tree_lock(r) be any preferable (I think that's a
+>>>possible alternative).
+>>>
+>>
+>>Yes I think that should avoid the introduction of new lock dependency.
+> 
+> 
+> Err... "Yes" appears to contradict the rest of you statement, since my
+> suggestion would still introduce a lock dependency, just a different
+> one one.  It is not at all obvious to me how to avoid a lock
+> dependency entirely.
+> 
 
-	It's February, and it's time to start planning for the 2006
-Kernel Summit.  As before, it will be held in Ottawa right before OLS,
-on Monday and Tuesday, on July 17th and 18th.
+I mean a new core mm lock depenency (ie. lru_lock -> tree_lock).
 
-	The program committee this year will be composed by the
-following people, and you can send mail to them at the e-mail address
-ksummit-2006-pc@thunk.org:
+But I must have been smoking something last night: for the life
+of me I can't see why I thought there was already a hugetlb_lock
+-> lru_lock dependency in there...?!
 
-	James Bottomley
-	Jonathon Corbet
-	Gerrit Huizenga
-	Dave Jones
-	Andi Kleen
-	Greg Kroah-Hartman
-	Matthew Mackall
-	David Miller
-	Andrew Morton
-	Theodore Ts'o
+So I retract my statement. What you have there seems OK.
 
-Please give these people thanks for agreeing to volunteer for this very
-important task. 
 
-	I have also set up a mailing list, ksummit-2006-discuss@thunk.org,
-which is a public list open to all to join.  In order to give people a
-chance to join the list before discussion opens, I will wait 24 hours
-before opening up the list.  The topics for that list will include:
+> Also, any thoughts on whether I need i_lock or i_mutex or something
+> else would be handy..
+> 
 
-	* What went right last year; suggestions on what we could do
-          better this year
-	* What topics do you believe are important for us to include
-          this year.
+I'm not much of an fs guy. How come you don't use i_size?
 
-	Finally, if you have anybody in mind that you think the progam
-committee should definitely keep in mind as someone we should
-consider  inviting to the kernel summit, please send a note to the
-program committee mailing list, or to me directly.
-
-	Many thanks!!
-
-						- Ted
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

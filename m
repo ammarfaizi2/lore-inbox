@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWBVMcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWBVMdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751234AbWBVMcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 07:32:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWBVMcZ
+	id S1751248AbWBVMdA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 07:33:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWBVMdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 07:32:25 -0500
-Received: from mail2.designassembly.de ([217.11.62.46]:38022 "EHLO
-	mail2.designassembly.de") by vger.kernel.org with ESMTP
-	id S1751234AbWBVMcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 07:32:24 -0500
-Message-ID: <43FC59D4.2090208@designassembly.de>
-Date: Wed, 22 Feb 2006 13:32:20 +0100
-From: Michael Heyse <mhk@designassembly.de>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Wed, 22 Feb 2006 07:33:00 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:62361 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751248AbWBVMc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 07:32:59 -0500
+Date: Wed, 22 Feb 2006 13:32:50 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: "Mike D. Day" <ncmike@us.ibm.com>, xen-devel@lists.xensource.com,
+       lkml <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+Subject: Re: [ PATCH 2.6.16-rc3-xen 3/3] sysfs: export Xen hypervisor attributes to sysfs
+Message-ID: <20060222123250.GB9295@osiris.boeblingen.de.ibm.com>
+References: <43FB2642.7020109@us.ibm.com> <1140542130.8693.18.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-CC: kernel list <linux-kernel@vger.kernel.org>
-Subject: [SOLVED] Re: which one is broken: VIA padlock aes or aes_i586?
-References: <43FB0746.5010200@designassembly.de> <20060222013137.GA844@gondor.apana.org.au> <20060222114531.GA4170@gondor.apana.org.au>
-In-Reply-To: <20060222114531.GA4170@gondor.apana.org.au>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1140542130.8693.18.camel@localhost.localdomain>
+User-Agent: mutt-ng/devel-r781 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found the problem, it's a typo in drivers/crypto/padlock-aes.c (introduced probably in the "[CRYPTO] Use standard byte order macros wherever possible" patch) and only happens with 256 bit keys.
+> I'm wondering if this information couldn't be laid out in a slightly
+> more generic way so that other hypervisors could use the same layout.
+> Instead of:
+> 
+> +---sys
+>         +---hypervisor
+>                 +---xen
+>                         +---version
+>                         +---major
+>                         +---minor
+>                         +---extra
+> 
+> It could be:
+> 
+> +---sys
+>         +---hypervisor
+>                 +---type
+> 		+---version
+>                         +---major
+>                         +---minor
+>                         +---extra
+> 
+> Where cat /sys/hypervisor/type is 'xen'.  That way, if there are generic
+> things about hypervisors to export here, any generic tools can find them
+> without having to know exactly which hypervisor is running.
+> 
+> You can also set the standard that any other hypervisor has to
+> follow! :)
 
-it says below the "case 32:"
+I doubt that there is much that different hypervisors can share.
+Why should all this be visible for user space anyway? What's the purpose?
 
-E_KEY[4] = le32_to_cpu(in_key[4]);
-E_KEY[5] = le32_to_cpu(in_key[5]);
-E_KEY[6] = le32_to_cpu(in_key[6]);
-t = E_KEY[7] = le32_to_cpu(in_key[7]);
-
-but it should be
-
-E_KEY[4] = le32_to_cpu(key[4]);
-E_KEY[5] = le32_to_cpu(key[5]);
-E_KEY[6] = le32_to_cpu(key[6]);
-t = E_KEY[7] = le32_to_cpu(key[7]);
-
-Now it's working!
-
-Michael
+Heiko

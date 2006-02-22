@@ -1,104 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbWBVUqX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWBVUrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751423AbWBVUqX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 15:46:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbWBVUqX
+	id S1751428AbWBVUrY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 15:47:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbWBVUrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 15:46:23 -0500
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:56141 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S1751423AbWBVUqW convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 15:46:22 -0500
-DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=OxudcewF8YyupFakzb75jvj0FneF/mR9EQuN4rHiF1b8nns/BnQ0EjxNSNJ04aFNRMMlbPSu9Ef0P+qmOU00wW+hQS4c0lVtRW/I6vE8tjS1hKikas/JcwCQLVZc+81I;
-X-IronPort-AV: i="4.02,137,1139205600"; 
-   d="scan'208"; a="384649632:sNHT31724716"
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Suppressing softrepeat
-Date: Wed, 22 Feb 2006 14:46:21 -0600
-Message-ID: <B1939BC11A23AE47A0DBE89A37CB26B4F960DB@ausx3mps305.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Suppressing softrepeat
-Thread-Index: AcY38C+oAkhGptHyTLizU4O91VgeugAAKSgw
-From: <Stuart_Hayes@Dell.com>
-To: <vojtech@suse.cz>, <zaitcev@redhat.com>
-Cc: <dtor_core@ameritech.net>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 22 Feb 2006 20:46:18.0797 (UTC) FILETIME=[080725D0:01C637F1]
+	Wed, 22 Feb 2006 15:47:24 -0500
+Received: from hierophant.serpentine.com ([66.92.13.71]:41897 "EHLO
+	demesne.serpentine.com") by vger.kernel.org with ESMTP
+	id S1751428AbWBVUrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 15:47:23 -0500
+Subject: Re: 2.6.16-rc4: known regressions
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Kay Sievers <kay.sievers@suse.de>,
+       penberg@cs.helsinki.fi, gregkh@suse.de, bunk@stusta.de, rml@novell.com,
+       linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+In-Reply-To: <20060222154820.GJ16648@ca-server1.us.oracle.com>
+References: <1140383653.11403.8.camel@localhost>
+	 <20060220010205.GB22738@suse.de> <1140562261.11278.6.camel@localhost>
+	 <20060221225718.GA12480@vrfy.org> <20060221153305.5d0b123f.akpm@osdl.org>
+	 <20060222000429.GB12480@vrfy.org> <20060221162104.6b8c35b1.akpm@osdl.org>
+	 <Pine.LNX.4.64.0602211631310.30245@g5.osdl.org>
+	 <Pine.LNX.4.64.0602211700580.30245@g5.osdl.org>
+	 <20060222112158.GB26268@thunk.org>
+	 <20060222154820.GJ16648@ca-server1.us.oracle.com>
+Content-Type: text/plain
+Date: Wed, 22 Feb 2006 12:47:31 -0800
+Message-Id: <1140641251.9011.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.4 (2.5.4-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> On Wed, Feb 22, 2006 at 12:00:47PM -0800, Pete Zaitcev wrote:
->> On Tue, 21 Feb 2006 22:08:00 +0100, Vojtech Pavlik <vojtech@suse.cz>
->> wrote: 
->> 
->>> A much simpler workaround for the DRAC3 is to set the softrepeat
->>> delay to at least 750ms, using kbdrate(8), which will call the
->>> proper console ioctl, resulting in updating the softrepeat
->>> parameters. 
->>> 
->>> I prefer workarounds for problematic hardware done outside the
->>> kernel, if possible.
->> 
->> I agree with the sentiment when posed in the abstract way, but let me
->> tell you why this case is different.
->> 
->> Firstly, there's nothing "problematic" about this. It's just how it
->> is. The only problematic thing here is our code. Currently, the
->> situation 
->> is assymetric. It is possible to force softrepeat on, but not
->> possible 
->> to force softrepeat off. Isn't it broken?
->> 
->> Secondly, 750ms may be not enough. Stuart is being shy here and
->> posting explanations to Bugzilla for some reason.
->> 
->> Lastly, it's such a PITA to add these things into the userland, that
->> it's completely impractical. Console is needed the most when things
->> go wrong. In such case, that echo(1) may not be reached before the
->> single user shell. And stuffing it into the initrd is for Linux
->> weenies only, unless automated by mkinitrd. 
->> 
->> I think you're being unreasonable here. I am not asking for NFS root
->> or IP autoconfiguration and sort of complicated process which ought
->> to 
->> be done in userland indeed.
-> 
-> I'm definitely not intending to be unreasonable, and I understand
-> your need to have the keyboard working all the way from the grub/lilo
-> prompt.  
-> 
-> I just don't like adding more module options to one that already has
-> so many it's hard to understand what they're used for. 
-> 
-> How about simply this patch instead?
-> 
-> Setting autorepeat will not be possible on 'dumb' keyboards anymore
-> by default, but since these usually are special forms of hardware
-> anyway, like the DRAC3, this shouldn't be an issue for most users.
-> Using 'softrepeat' on these keyboards will restore the behavior for
-> users that need it.    
-> 
-> diff --git a/drivers/input/keyboard/atkbd.c
-> b/drivers/input/keyboard/atkbd.c --- a/drivers/input/keyboard/atkbd.c
-> +++ b/drivers/input/keyboard/atkbd.c
-> @@ -863,9 +863,6 @@ static int atkbd_connect(struct serio *s
->  	atkbd->softrepeat = atkbd_softrepeat;
->  	atkbd->scroll = atkbd_scroll;
-> 
-> -	if (!atkbd->write)
-> -		atkbd->softrepeat = 1;
-> -
->  	if (atkbd->softrepeat)
->  		atkbd->softraw = 1;
+On Wed, 2006-02-22 at 07:48 -0800, Joel Becker wrote:
 
-That seems reasonable to me, and would fix the issue with the DRAC3.
+> 	Do you mean that you are using a distro (eg, RHEL4 or something)
+> with a mainline kernel?  We've seen something similar, and what we've
+> determined is happening is that insmod is returning before the module is
+> done initializing.
 
-Shyly,
-Stuart
+Yep, we've seen this with other SCSI drivers.  Our solution was to add a
+"sleep 15" after each modprobe in the initrd, since SCSI drivers often
+take a while to pull their thumbs out.
+
+	<b
+

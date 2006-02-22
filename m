@@ -1,56 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWBVHUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWBVHU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbWBVHUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 02:20:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWBVHUJ
+	id S932190AbWBVHU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 02:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbWBVHU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 02:20:09 -0500
-Received: from pcls2.std.com ([192.74.137.142]:30336 "EHLO TheWorld.com")
-	by vger.kernel.org with ESMTP id S932189AbWBVHUI (ORCPT
+	Wed, 22 Feb 2006 02:20:56 -0500
+Received: from gold.veritas.com ([143.127.12.110]:12134 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S932190AbWBVHUz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 02:20:08 -0500
-From: Alan Curry <pacman@TheWorld.com>
-Message-Id: <200602220642.BAA1170849@shell.TheWorld.com>
-Subject: Re: [PATCH] powerpc: fix altivec_unavailable_exception Oopses
-To: galak@kernel.crashing.org (Kumar Gala)
-Date: Wed, 22 Feb 2006 01:42:37 -0500 (EST)
-Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-In-Reply-To: <4A2CF403-20CC-4AE9-B955-9BA2E92A5474@kernel.crashing.org> from "Kumar Gala" at Feb 21, 2006 06:52:16 PM
-X-Mailer: ELM [version 2.5 PL2]
+	Wed, 22 Feb 2006 02:20:55 -0500
+X-IronPort-AV: i="4.02,135,1139212800"; 
+   d="scan'208"; a="55848581:sNHT31962472"
+Date: Wed, 22 Feb 2006 07:21:41 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: torvalds@osdl.org, ak@suse.de, holt@sgi.com, bcasavan@sgi.com, cr@sap.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tmpfs: fix mount mpol nodelist parsing
+In-Reply-To: <20060221183004.72ffa011.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0602220658390.6196@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0602212341160.5390@goblin.wat.veritas.com>
+ <20060221183004.72ffa011.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 22 Feb 2006 07:20:55.0030 (UTC) FILETIME=[84D17960:01C63780]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kumar Gala writes the following:
->
->Would you mine providing a patch for arch/ppc/kernel/head.S and  
->adding a signed-off-by line.
+On Tue, 21 Feb 2006, Andrew Morton wrote:
+> Hugh Dickins <hugh@veritas.com> wrote:
+> >
+> > Move the mpol= parsing to shmem_parse_mpol under CONFIG_NUMA, reject
+> >  all its options as invalid if not NUMA.
+> 
+> That's a bit irritating, really.  It means that userspace needs to be
+> different for NUMA kernels (or more different, which is still bad).  Boot
+> into a non-NUMA kernel and whoops, no tmpfs and quite possibly no boot.
 
-OK, combined patch... applies clean to 2.6.16-rc4, applies with fuzz to
-2.6.15.4, both compiled and tested. Patch prevents Oopsing of
-CONFIG_ALTIVEC=n kernel by user executing altivec instruction in both cases.
+Well spotted.
 
-Signed-off-by: Alan Curry <pacman@TheWorld.com>
+That was a choice that gave me pause between making it and sending the
+patch.  But in the end I decided we might as well.  Repeating what I
+wrote to Robin about it...
 
---- arch/ppc/kernel/head.S.orig	2006-02-21 20:58:08.000000000 -0500
-+++ arch/ppc/kernel/head.S	2006-02-21 20:58:11.000000000 -0500
-@@ -751,6 +751,7 @@ AltiVecUnavailable:
- #ifdef CONFIG_ALTIVEC
- 	bne	load_up_altivec		/* if from user, just load it up */
- #endif /* CONFIG_ALTIVEC */
-+	addi	r3,r1,STACK_FRAME_OVERHEAD
- 	EXC_XFER_EE_LITE(0xf20, altivec_unavailable_exception)
- 
- #ifdef CONFIG_PPC64BRIDGE
---- arch/powerpc/kernel/head_32.S.orig	2006-02-21 15:58:18.000000000 -0500
-+++ arch/powerpc/kernel/head_32.S	2006-02-21 15:59:23.000000000 -0500
-@@ -714,6 +714,7 @@ AltiVecUnavailable:
- #ifdef CONFIG_ALTIVEC
- 	bne	load_up_altivec		/* if from user, just load it up */
- #endif /* CONFIG_ALTIVEC */
-+	addi	r3,r1,STACK_FRAME_OVERHEAD
- 	EXC_XFER_EE_LITE(0xf20, altivec_unavailable_exception)
- 
- PerformanceMonitor:
+I did wonder for a while whether I'd been unhelpful to make mpol= fail
+when not CONFIG_NUMA - tiresome for someone switching between NUMA and
+non-NUMA kernels.  But this is an advanced option, not something for
+everybody's /etc/fstab; and once I realized that all but the trivial
+nodelist "0" would get rejected anyway if not CONFIG_NUMA, decided it
+is best to placate the anti-bloaters with that CONFIG_NUMA after all.
+
+> But last time I whined about this Albert had a list of fairly
+> reasonable-sounding reasons why filesystems shouldn't silently accept
+> not-understood options.
+> 
+> But in this case, we _do_ understand them.  We're just not going to do
+> anything about them.
+> 
+> I just wonder if we're being as friendly as we possibly can be to admins
+> and distro-makers.
+
+I doubt the distro-makers will want to be putting "mpol=" options into
+their tmpfs lines in /etc/fstab.  I hope the admins of such systems
+that need it can cope.
+
+But perhaps I should expand the mention of CONFIG_NUMA in tmpfs.txt,
+to explain the issue, and suggest that "mpol=" be used in remounts
+rather than automatic mounts on systems where it might be a problem.
+I'll dream up some wording later.
+
+> [ Vaguely suprised that tmpfs isn't using match_token()... ]
+
+I did briefly consider that back in the days when I noticed a host of
+fs filesystems got converted.  But didn't see any point in messing
+with what was already working.  Haven't looked recently: would it
+actually be a useful change to make?
+
+Hugh

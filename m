@@ -1,36 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWBVLqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbWBVLsI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbWBVLqn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 06:46:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWBVLqn
+	id S1750886AbWBVLsI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 06:48:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbWBVLsI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 06:46:43 -0500
-Received: from ozlabs.org ([203.10.76.45]:8941 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750847AbWBVLqm (ORCPT
+	Wed, 22 Feb 2006 06:48:08 -0500
+Received: from mail.gatrixx.com ([217.111.11.44]:6582 "EHLO mail.gatrixx.com")
+	by vger.kernel.org with ESMTP id S1750958AbWBVLsH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 06:46:42 -0500
+	Wed, 22 Feb 2006 06:48:07 -0500
+Date: Wed, 22 Feb 2006 12:48:04 +0100 (CET)
+From: Oliver Joa <oliver@j-o-a.de>
+X-X-Sender: olli@majestix.gallier.de
+To: linux-kernel@vger.kernel.org
+Subject: promise sata 300 TX4 and Samsung HD (SP2004C) -> Sector errors
+Message-ID: <Pine.LNX.4.63.0602221247380.2270@majestix.gallier.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17404.20246.361572.784670@cargo.ozlabs.ibm.com>
-Date: Wed, 22 Feb 2006 22:46:30 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Alan Curry <pacman@TheWorld.com>
-Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] powerpc: fix altivec_unavailable_exception Oopses
-In-Reply-To: <200602212339.SAA1138491@shell.TheWorld.com>
-References: <200602212339.SAA1138491@shell.TheWorld.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Curry writes:
+Hi,
 
-> altivec_unavailable_exception is called without setting r3... it looks like
-> the r3 that actually gets passed in as struct pt_regs *regs is the
-> undisturbed value of r3 at the time the altivec instruction was encountered.
+i have a brandnew Promise SATA 300 TX4 Controller and 2 Samsung HD
+(SP2004C). I am using Linux 2.6.15 and also tried 2.6.15.4 with
+sata_promise-driver. I get sector-errors:
 
-Nice catch!
+ata2: PIO error
+ata2: status=0x50 { DriveReady SeekComplete }
+ata2: PIO error
+ata2: status=0x50 { DriveReady SeekComplete }
+ata2: PIO error
+ata2: status=0x50 { DriveReady SeekComplete }
+ata2: PIO error
+ata2: status=0x50 { DriveReady SeekComplete }
+hdd: ATAPI 48X DVD-ROM drive, 512kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.20
+ATA: abnormal status 0xFF on port 0xF880029C
+ata2: translated ATA stat/err 0xff/00 to SCSI SK/ASC/ASCQ 0xb/47/00
+ata2: status=0xff { Busy }
+ata2: command timeout
+ATA: abnormal status 0xFF on port 0xF880029C
+ata2: translated ATA stat/err 0xff/00 to SCSI SK/ASC/ASCQ 0xb/47/00
+ata2: status=0xff { Busy }
+sd 1:0:0:0: SCSI error: return code = 0x8000002
+sda: Current: sense key: Aborted Command
+     Additional sense: Scsi parity error
+end_request: I/O error, dev sda, sector 9482176
+Buffer I/O error on device sda, logical block 1185272
 
-Thanks,
-Paul.
+I get the error at heavy hd-usage, and also on both harddisks. So i think
+it is not a problem of the harddisks. I use softwareraid, but it does not
+work. I think it should take out the harddisk with the error, but it does
+not. The system is hanging....
+
+Do you have any idea?
+
+Thanks a lot
+
+Olli
+

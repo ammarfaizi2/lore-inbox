@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWBVSrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWBVSsy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751392AbWBVSrR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 13:47:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWBVSrR
+	id S1750810AbWBVSsy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 13:48:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWBVSsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 13:47:17 -0500
-Received: from sccrmhc13.comcast.net ([204.127.200.83]:10734 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1751393AbWBVSrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 13:47:16 -0500
-Message-ID: <43FCB1B3.8090101@acm.org>
-Date: Wed, 22 Feb 2006 12:47:15 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla Thunderbird 1.0.6-7.2.20060mdk (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Problem with NETIF_F_HIGHDMA
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Feb 2006 13:48:54 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:32903
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1750810AbWBVSsx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 13:48:53 -0500
+Date: Wed, 22 Feb 2006 10:48:53 -0800
+From: Greg KH <gregkh@suse.de>
+To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+Cc: Neil Brown <neilb@suse.de>, Alasdair Kergon <agk@redhat.com>,
+       Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org,
+       device-mapper development <dm-devel@redhat.com>
+Subject: Re: [PATCH 1/3] sysfs representation of stacked devices (common) (rev.2)
+Message-ID: <20060222184853.GB13638@suse.de>
+References: <43FC8C00.5020600@ce.jp.nec.com> <43FC8D8C.1060904@ce.jp.nec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43FC8D8C.1060904@ce.jp.nec.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was looking at a problem with a new system we are trying to get up and
-running.  It has a 32-bit only PCI network device, but is a 64-bit
-(x86_64) system.  Looking at the code for NETIF_F_HIGHDMA (which, when
-not set on a PCI network device, means that it cannot do 64-bit
-accesses) in net/core/dev.c, it seems wrong to me.
+On Wed, Feb 22, 2006 at 11:13:00AM -0500, Jun'ichi Nomura wrote:
+> +/* This is a mere directory in sysfs. No methods are needed. */
+> +static struct kobj_type bd_holder_ktype = {
+> +	.release	= NULL,
+> +	.sysfs_ops	= NULL,
+> +	.default_attrs	= NULL,
+> +};
 
-It is dependent on HIGHMEM, but HIGHMEM has nothing to do with 32/64 bit
-accesses.  On 64-bit systems, HIGHMEM is not set, thus the network code
-will pass any address (including those >32bits) to the driver.  Plus,
-highmem on 32-bit systems may very well be 32-bit accessible, possibly
-resulting in unecessary copies.  AFAICT, the current code will only work
-with i386 and PAE and is sub-optimal.
+That doesn't look right.  You always need a release function.
 
-If I am right, it is a little messy to fix, but I think doable.  I
-propose the following:
+> +static inline void add_holder_dir(struct block_device *bdev)
+> +{
+> +	struct kobject *kobj = &bdev->bd_holder_dir;
+> +
+> +	kobj->ktype = &bd_holder_ktype;
+> +	kobject_set_name(kobj, "holders");
+> +	kobj->parent = bdev_get_kobj(bdev);
+> +	kobject_init(kobj);
+> +	kobject_add(kobj);
+> +	kobject_put(kobj->parent);
+> +}
+> +
+> +static inline void del_holder_dir(struct block_device *bdev)
+> +{
+> +	/*
+> +	 * Don't kobject_unregister to avoid memory allocation
+> +	 * in kobject_hotplug.
+> +	 */
+> +	kobject_del(&bdev->bd_holder_dir);
+> +	kobject_put(&bdev->bd_holder_dir);
+> +}
 
-    * Create a new zone named ZONE_HIGHMEM32 for 32-bit HIGHMEM addresses.
-    * Modify 64-bit architectures (and i386 with HIGHMEM) to put the
-      proper pages into the new zone.
-    * Add a "PageIn32Bits()" function/macro to check for this, and use
-      it in illegal_highdma() in net/core/dev.c
-    * Allocate from ZONE_HIGHMEM32 if illegal_highdma() returns true.
+No, do it correctly please.
 
-I think this will solve the problem.  I haven't looked at other parts of
-the kernel (IDE, SCSI, etc.) to see if they have similar problems.
+thanks,
 
-Anyway, does the above change sound reasonable?  Maybe there's an easier
-way?  Maybe I've missed something?
-
-Thanks,
-
--Corey
+greg k-h

@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWBVIhy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWBVIoB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932533AbWBVIhy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 03:37:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbWBVIhx
+	id S964792AbWBVIoB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 03:44:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932571AbWBVIoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 03:37:53 -0500
-Received: from fnord.at ([217.160.110.113]:12556 "HELO iwoars.net")
-	by vger.kernel.org with SMTP id S932533AbWBVIhx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 03:37:53 -0500
-Date: Wed, 22 Feb 2006 09:37:51 +0100
-From: Thomas Ogrisegg <tom-lkml@lkml.fnord.at>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] netdev/uevent
-Message-ID: <20060222083751.GA12873@rescue.iwoars.net>
-References: <20060221234807.GA27776@rescue.iwoars.net> <20060222001707.GA31611@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060222001707.GA31611@kroah.com>
-User-Agent: Mutt/1.3.28i
+	Wed, 22 Feb 2006 03:44:00 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:29969 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S932570AbWBVIoA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 03:44:00 -0500
+Date: Wed, 22 Feb 2006 16:43:26 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Andrew Morton <akpm@osdl.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       autofs mailing list <autofs@linux.kernel.org>
+Subject: [PATCH] autofs4 - second try - set fields size for pipe packet
+Message-ID: <Pine.LNX.4.64.0602221633520.19127@eagle.themaw.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-themaw-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-1.896,
+	required 5, autolearn=not spam, BAYES_00 -2.60,
+	DATE_IN_PAST_12_24 0.70)
+X-themaw-MailScanner-From: raven@themaw.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 21, 2006 at 04:17:07PM -0800, Greg KH wrote:
-> On Wed, Feb 22, 2006 at 12:48:07AM +0100, Thomas Ogrisegg wrote:
-> > This patch adds userspace notification for register/unregister and
-> > plug/unplug events for netdevices. It calls kobject_uevent to let
-> > userspace applications (via netlink-interface) know that e.g. the
-> > ethernet-cable was plugged in (or plugged out) and thus the ethernet
-> > device may have to be reconfigured.
-[...]
-> > Signed-off-by: Thomas Ogrisegg <tom-lkml@lkml.fnord.at>
-> Hm, I thought ethtool and netlink already handled this kind of event
-> just fine.  Why would you add a uevent too?
 
-What do you mean with "ethtool and netlink"? At least the current
-release of ethtool does not seem to have any netlink support.
+I have made almost all the changes recommended by Christoph.
 
-Is there currently any possibility for a program to get notified when
-a netdevice link becomes ready (or the opposite)? I don't see any interface
-(besides polling /sys).
+I'm reluctant to change the type of autofs_wqt_t as it is part of the 
+existing autofs4 struture. While such a change shouldn't cause a problem 
+I'd rather not change what's been there for a long time just in case there 
+are unexpected side effects.
+
+Signed-off-by: Ian Kent <raven@themaw.net>
+
+--- linux-2.6.16-rc4-mm1/include/linux/auto_fs4.h.set-fields-size-for-packet	2006-02-22 16:07:57.000000000 +0800
++++ linux-2.6.16-rc4-mm1/include/linux/auto_fs4.h	2006-02-22 16:08:29.000000000 +0800
+@@ -65,11 +65,11 @@ struct autofs_v5_packet {
+ 	autofs_wqt_t wait_queue_token;
+ 	__u32 dev;
+ 	__u64 ino;
+-	uid_t uid;
+-	gid_t gid;
+-	pid_t pid;
+-	pid_t tgid;
+-	int len;
++	__u32 uid;
++	__u32 gid;
++	__u32 pid;
++	__u32 tgid;
++	__u32 len;
+ 	char name[NAME_MAX+1];
+ };
+ 

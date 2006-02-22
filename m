@@ -1,60 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWBVU6v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751455AbWBVVA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751451AbWBVU6v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 15:58:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbWBVU6v
+	id S1751455AbWBVVA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 16:00:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbWBVVA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 15:58:51 -0500
-Received: from uproxy.gmail.com ([66.249.92.204]:7381 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751451AbWBVU6u convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 15:58:50 -0500
+	Wed, 22 Feb 2006 16:00:27 -0500
+Received: from nproxy.gmail.com ([64.233.182.197]:57981 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751455AbWBVVA0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 16:00:26 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=PRPpR3HjnsdFS3FM1Fl1/pxH3B1VjVoVVMwl5Ug8BdAylIH6l6mdsjUZraUO1s6zWbzflbBNjI8+KYW6kUixmlKJD7vWNd3f0StscMFoYaZZhtSt4o5K4jBqjaYB08scPaKxL7kY2wDvWQq1T2UllgW2cPjfzk7+w666Cq1/JDU=
-Date: Wed, 22 Feb 2006 21:57:07 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Joel.Becker@oracle.com, gombasg@sztaki.hu, tytso@mit.edu,
-       torvalds@osdl.org, kay.sievers@suse.de, penberg@cs.helsinki.fi,
-       gregkh@suse.de, bunk@stusta.de, rml@novell.com,
-       linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-Subject: Re: 2.6.16-rc4: known regressions
-Message-Id: <20060222215707.701669fe.diegocg@gmail.com>
-In-Reply-To: <20060222115410.1394ff82.akpm@osdl.org>
-References: <20060221225718.GA12480@vrfy.org>
-	<20060221153305.5d0b123f.akpm@osdl.org>
-	<20060222000429.GB12480@vrfy.org>
-	<20060221162104.6b8c35b1.akpm@osdl.org>
-	<Pine.LNX.4.64.0602211631310.30245@g5.osdl.org>
-	<Pine.LNX.4.64.0602211700580.30245@g5.osdl.org>
-	<20060222112158.GB26268@thunk.org>
-	<20060222154820.GJ16648@ca-server1.us.oracle.com>
-	<20060222162533.GA30316@thunk.org>
-	<20060222173354.GJ14447@boogie.lpds.sztaki.hu>
-	<20060222185923.GL16648@ca-server1.us.oracle.com>
-	<20060222115410.1394ff82.akpm@osdl.org>
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.8.10; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+        h=received:message-id:date:from:reply-to:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=ko6UEncbYpUQyCoZJY/s7q+WuWkUk1nEdFLIVMRnQPhfb0xAWhb9SMiTNJyjEcHnKEiIJUW9sudW7o1wctDOhDIVaSx8snx41BnQuYhnNyKtbr2cZZwb8B3M9nMsotMpBH8KQH6k74l8AhEitLoscusqUvHbkUsYQPr3qWd+ipQ=
+Message-ID: <43FCD0DC.1010707@gmail.com>
+Date: Wed, 22 Feb 2006 23:00:12 +0200
+From: Yoav Etsion <etsman@gmail.com>
+Reply-To: etsman@cs.huji.ac.il
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Frank Ch. Eigler" <fche@redhat.com>
+CC: linux-kernel@vger.kernel.org, etsman@cs.huji.ac.il
+Subject: Re: Static instrumentation, was Re: RFC: klogger: kernel tracing
+ and logging tool
+References: <43FC8261.9000207@gmail.com> <y0mbqwze1p8.fsf@ton.toronto.redhat.com>
+In-Reply-To: <y0mbqwze1p8.fsf@ton.toronto.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Wed, 22 Feb 2006 11:54:10 -0800,
-Andrew Morton <akpm@osdl.org> escribió:
+Frank,
 
-> Yes, I tend to think that insmod should just block until all devices are
-> ready to be used.  insmod doesn't just "insert a module".  It runs that
-> module's init function.
+You raise two important issues:
+1. code markers/annotations for tracing/probing purposes.
+2. overhead of the kernel loggers in their inactive state
 
-However, in current systems a device is ready only iff the corresponding
-sysfs tree has been created or a hotplug event has be launched, and that's
-the one sane place where userspace can wait for "something". Drivers need to
-setup the name of the sysfs classes, so if modules could <crack smoking> 
-export some of that info to insmod maybe insmod could be taught to do wait
-for things in userspace or wait for events coming from the $FOO.ko module
+Of these, I think the first is more important, as it addresses some 
+basic defeciency of software development --- getting to know someone 
+else's code.
+In my experience, writing instrumentation for a kernel subsystem (schema 
+in Klogger lingo) requires in depth understanding of the code. This 
+sometimes tunnel tremendous efforts towards measurements that could 
+otherwise become trivial.
 
-(ok, maybe ugly but sounds somewhat cleaner than just adding a
-"sleep(magicnumber)" to insmod)
+Since no one knows the code like its coder, having developers annotate 
+their code using some semi-formal language/definitions (or even compiler 
+pragmas) can serve as the best basis for any kernel logger.
+Once such markers are in place, the second issue --- overheads (as most 
+anything else)--- becomes a technical issue. So even when incurring 
+inactive overheads, such a tool can be very useful for developers and 
+researchers alike.
+
+After all my babble, the bottom line to the community:
+will kernel developers annotate their code? can such policies be instated?
+
+Yoav
+
+
+Frank Ch. Eigler wrote:
+> Yoav Etsion <etsman@gmail.com> writes:
+> 
+> 
+>>[...]  I've developed a kernel logging tool called
+>>Klogger: http://www.cs.huji.ac.il/~etsman/klogger
+>>In some senses, it is similar to the LTT [...]
+> 
+> 
+> It seems like several projects would benefit from markers being
+> inserted into key kernel code paths for purposes of tracing / probing.
+> 
+> Both LTTng and klogger have macros that expand to largish inline
+> function calls that appear to cause a noticeable amount of work even
+> for tracing requests are not actually active.  (klogger munges
+> interrupts, gets timestamps, before ever testing whether logging was
+> requested; lttng similar; icache bloat in both cases.)
+> 
+> In other words, even in the inactive state, tracing markers like those
+> of klogger and ltt impose some performance disruption.  Assuming that
+> detailed tracing / probing would be a useful facility to have
+> available, are there any other factors that block adoption of such
+> markers in official kernels?  In other words, if they could go "fast
+> enough", especially in the inactive case, would you start placing them
+> into your code?
+> 
+> 
+> - FChE
+> 

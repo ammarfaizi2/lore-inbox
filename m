@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161267AbWBVBtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbWBVBuu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161267AbWBVBtE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 20:49:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWBVBtE
+	id S932512AbWBVBuu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 20:50:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWBVBuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 20:49:04 -0500
-Received: from uproxy.gmail.com ([66.249.92.194]:51569 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932512AbWBVBtD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 20:49:03 -0500
+	Tue, 21 Feb 2006 20:50:50 -0500
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:46504 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932512AbWBVBuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 20:50:50 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YFrAZSxw6X7HAnha4vZMQJ0YAOERjP8e80BBgifhumGjQM847sIsmz5RCmVqk/LyGMbSh33UNrc7WKXgYZiypYAlFCc3HiwENb6YXX3FE6oKhNZwIypiiOsYe38DXLY/mWCoNNHGvd8T6zwL4Ia0pwCBetIZ4LDJ5zPcnEwDjoY=
-Message-ID: <2c0942db0602211749o18ed19b1x53527b8411e1d8f0@mail.gmail.com>
-Date: Tue, 21 Feb 2006 17:49:01 -0800
-From: "Ray Lee" <madrabbit@gmail.com>
-Reply-To: ray-gmail@madrabbit.org
-To: "Martin Bligh" <mbligh@mbligh.org>
-Subject: Re: Mozilla Thunderbird posting instructions wanted
-Cc: "Alexey Dobriyan" <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
-       ray-lk@madrabbit.org
-In-Reply-To: <43FBBA99.7060707@mbligh.org>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=ARzBEcvw6vpQlEhxpiPZn11Kkff3z63ERg6nLGAx7BetWY5PKtJpZf2+5lw652nvGzRyx03vsPkDOmtgX+DrxC+0evzsl/GUDH17Yzti7ulrrl37+PbY85BWhitis14svHdCBGKeG8RgPV6kmOOnGv+0LeXBfgXJURgeaWKqSno=  ;
+Message-ID: <43FBB2E8.2020300@yahoo.com.au>
+Date: Wed, 22 Feb 2006 11:40:08 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060220210349.GA29791@mipter.zuzino.mipt.ru>
-	 <43FBBA99.7060707@mbligh.org>
+To: Christoph Lameter <clameter@engr.sgi.com>
+CC: Ravikiran G Thirumalai <kiran@scalex86.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>
+Subject: Re: [patch] Cache align futex hash buckets
+References: <20060220233242.GC3594@localhost.localdomain> <43FA8938.70006@yahoo.com.au> <Pine.LNX.4.64.0602211030240.20166@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0602211030240.20166@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/21/06, Martin Bligh <mbligh@mbligh.org> wrote:
-> http://mbligh.org/linuxdocs/Email/Clients/Thunderbird
+Christoph Lameter wrote:
+> On Tue, 21 Feb 2006, Nick Piggin wrote:
+> 
+> 
+>>Ravikiran G Thirumalai wrote:
+>>
+>>>Following change places each element of the futex_queues hashtable on a
+>>>different cacheline.  Spinlocks of adjacent hash buckets lie on the same
+>>>cacheline otherwise.
+>>>
+>>
+>>It does not make sense to add swaths of unused memory into a hashtable for
+>>this purpose, does it?
+> 
+> 
+> It does if you essentially have a 4k cacheline (because you are doing NUMA 
+> in software with multiple PCs....) and transferring control of that 
+> cacheline is comparatively expensive.
+> 
 
-Eek. I'd recommend using xclip [1] rather than using a mouse to cut
-from emacs/whatever. ( xclip <my.diff , then paste in Thunderbird.)
+Instead of 1MB hash with 256 entries in it covering 256 cachelines, you
+have a 1MB hash with 65536(ish) entries covering 256 cachelines.
 
-   [1] http://people.debian.org/~kims/xclip/
-
-Ray
+-
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

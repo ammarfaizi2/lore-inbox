@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWBVQLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWBVQMH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbWBVQLt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 11:11:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbWBVQLt
+	id S932351AbWBVQMH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 11:12:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWBVQMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 11:11:49 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:16087 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932340AbWBVQLs (ORCPT
+	Wed, 22 Feb 2006 11:12:06 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:29399 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932345AbWBVQLz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 11:11:48 -0500
-Message-ID: <43FC8D8C.1060904@ce.jp.nec.com>
-Date: Wed, 22 Feb 2006 11:13:00 -0500
+	Wed, 22 Feb 2006 11:11:55 -0500
+Message-ID: <43FC8D92.6010006@ce.jp.nec.com>
+Date: Wed, 22 Feb 2006 11:13:06 -0500
 From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
 User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
@@ -19,321 +19,238 @@ To: Neil Brown <neilb@suse.de>, Alasdair Kergon <agk@redhat.com>,
        Lars Marowsky-Bree <lmb@suse.de>, Greg KH <gregkh@suse.de>
 CC: linux-kernel@vger.kernel.org,
        device-mapper development <dm-devel@redhat.com>
-Subject: [PATCH 1/3] sysfs representation of stacked devices (common) (rev.2)
+Subject: [PATCH 2/3] sysfs representation of stacked devices (dm) (rev.2)
 References: <43FC8C00.5020600@ce.jp.nec.com>
 In-Reply-To: <43FC8C00.5020600@ce.jp.nec.com>
 Content-Type: multipart/mixed;
- boundary="------------070700030507020902080804"
+ boundary="------------020406090002080501030405"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------070700030507020902080804
+--------------020406090002080501030405
 Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
 
-This patch adds bd_claim_by_kobject and bd_release_from_kobject
-which create/remove symlinks between the claimed bdev and
-the holder.
+This patch modifies dm driver to call bd_claim_by_kobject
+and bd_release_from_kobject.
+To do that, reference to the mapped_device is added in
+dm_table.
 
 -- 
 Jun'ichi Nomura, NEC Solutions (America), Inc.
 
---------------070700030507020902080804
+--------------020406090002080501030405
 Content-Type: text/x-patch;
- name="common.patch"
+ name="dm.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="common.patch"
+ filename="dm.patch"
 
-Adding bd_claim_by_kobject/bd_release_from_kobject for use by
-stacked device drivers (dm and md)
+Exporting stacked device relationship to sysfs (dm)
 
 Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
 
---- linux-2.6.15/include/linux/fs.h	2006-01-02 22:21:10.000000000 -0500
-+++ linux-2.6.15/include/linux/fs.h	2006-02-21 19:04:46.000000000 -0500
-@@ -373,6 +373,8 @@ struct block_device {
- 	struct list_head	bd_inodes;
- 	void *			bd_holder;
- 	int			bd_holders;
-+	struct kobject		bd_holder_dir;
-+	struct list_head	bd_holder_list;
- 	struct block_device *	bd_contains;
- 	unsigned		bd_block_size;
- 	struct hd_struct *	bd_part;
-@@ -1351,6 +1353,8 @@ extern int blkdev_get(struct block_devic
- extern int blkdev_put(struct block_device *);
- extern int bd_claim(struct block_device *, void *);
- extern void bd_release(struct block_device *);
-+extern int bd_claim_by_kobject(struct block_device *, void *, struct kobject *);
-+extern void bd_release_from_kobject(struct block_device *, struct kobject *);
+--- linux-2.6.15/drivers/md/dm.h	2006-01-02 22:21:10.000000000 -0500
++++ linux-2.6.15/drivers/md/dm.h	2006-02-21 16:49:22.000000000 -0500
+@@ -102,6 +102,8 @@ int dm_table_create(struct dm_table **re
  
- /* fs/char_dev.c */
- extern int alloc_chrdev_region(dev_t *, unsigned, unsigned, const char *);
---- linux-2.6.15/include/linux/genhd.h	2006-01-02 22:21:10.000000000 -0500
-+++ linux-2.6.15/include/linux/genhd.h	2006-02-21 11:38:01.000000000 -0500
-@@ -114,6 +114,7 @@ struct gendisk {
- 	int number;			/* more of the same */
- 	struct device *driverfs_dev;
- 	struct kobject kobj;
-+	struct kobject slave_dir;
+ void dm_table_get(struct dm_table *t);
+ void dm_table_put(struct dm_table *t);
++void dm_table_set_md(struct dm_table *t, struct mapped_device *md);
++struct mapped_device *dm_table_device(struct dm_table *t);
  
- 	struct timer_rand_state *random;
- 	int policy;
---- linux-2.6.15/fs/block_dev.c	2006-01-02 22:21:10.000000000 -0500
-+++ linux-2.6.15/fs/block_dev.c	2006-02-22 09:48:37.000000000 -0500
-@@ -443,7 +443,159 @@ void bd_forget(struct inode *inode)
- 	spin_unlock(&bdev_lock);
+ int dm_table_add_target(struct dm_table *t, const char *type,
+ 			sector_t start,	sector_t len, char *params);
+--- linux-2.6.15/drivers/md/dm-ioctl.c	2006-01-02 22:21:10.000000000 -0500
++++ linux-2.6.15/drivers/md/dm-ioctl.c	2006-02-21 16:51:30.000000000 -0500
+@@ -228,6 +228,16 @@ static int dm_hash_insert(const char *na
+ 	return -EBUSY;
  }
  
--int bd_claim(struct block_device *bdev, void *holder)
-+/*
-+ * Functions for bd_claim_by_kobject / bd_release_from_kobject
-+ *
-+ *     If a kobject is passed to bd_claim_by_kobject() 
-+ *     and the kobject has a parent directory,
-+ *     following symlinks are created:
-+ *        o from the kobject to the claimed bdev
-+ *        o from "holders" directory of the bdev to the parent of the kobject
-+ *     bd_release_from_kobject() removes these symlinks.
-+ *
-+ *     Example:
-+ *        If /dev/dm-0 maps to /dev/sda, kobject corresponding to
-+ *        /sys/block/dm-0/slaves is passed to bd_claim_by_kobject(), then:
-+ *           /sys/block/dm-0/slaves/sda --> /sys/block/sda
-+ *           /sys/block/sda/holders/dm-0 --> /sys/block/dm-0
-+ */
-+
-+static inline struct kobject * bdev_get_kobj(struct block_device *bdev)
++/* called when the populated table is no longer needed */
++static void __release_new_map(struct dm_table *t)
 +{
-+	if (!bdev)
-+		return NULL;
-+	else if (bdev->bd_contains != bdev)
-+		return kobject_get(&bdev->bd_part->kobj);
-+	else
-+		return kobject_get(&bdev->bd_disk->kobj);
++	struct mapped_device *md = dm_table_device(t);
++
++	dm_table_put(t);
++	if (md)
++		dm_put(md);
 +}
 +
-+static inline void add_symlink(struct kobject *from, struct kobject *to)
-+{
-+	if (!from || !to)
-+		return;
-+	sysfs_create_link(from, to, kobject_name(to));
-+}
-+
-+static inline void del_symlink(struct kobject *from, struct kobject *to)
-+{
-+	if (!from || !to)
-+		return;
-+	sysfs_remove_link(from, kobject_name(to));
-+}
-+
-+static void link_bd_holder(struct block_device *bdev, struct kobject *holder)
-+{
-+	struct kobject *kobj;
-+
-+	if (!holder->parent)
-+		return;
-+
-+	kobj = bdev_get_kobj(bdev);
-+	add_symlink(holder, kobj);
-+	add_symlink(&bdev->bd_holder_dir, holder->parent);
-+	kobject_put(kobj);
-+}
-+
-+static void unlink_bd_holder(struct block_device *bdev, struct kobject *holder)
-+{
-+	struct kobject *kobj;
-+
-+	if (!holder->parent)
-+		return;
-+
-+	kobj = bdev_get_kobj(bdev);
-+	del_symlink(holder, kobj);
-+	del_symlink(&bdev->bd_holder_dir, holder->parent);
-+	kobject_put(kobj);
-+}
-+
-+/* This is a mere directory in sysfs. No methods are needed. */
-+static struct kobj_type bd_holder_ktype = {
-+	.release	= NULL,
-+	.sysfs_ops	= NULL,
-+	.default_attrs	= NULL,
-+};
-+
-+static inline void add_holder_dir(struct block_device *bdev)
-+{
-+	struct kobject *kobj = &bdev->bd_holder_dir;
-+
-+	kobj->ktype = &bd_holder_ktype;
-+	kobject_set_name(kobj, "holders");
-+	kobj->parent = bdev_get_kobj(bdev);
-+	kobject_init(kobj);
-+	kobject_add(kobj);
-+	kobject_put(kobj->parent);
-+}
-+
-+static inline void del_holder_dir(struct block_device *bdev)
-+{
-+	/*
-+	 * Don't kobject_unregister to avoid memory allocation
-+	 * in kobject_hotplug.
-+	 */
-+	kobject_del(&bdev->bd_holder_dir);
-+	kobject_put(&bdev->bd_holder_dir);
-+}
-+
-+/* bd_holder_list is protected by bdev_lock */
-+struct bd_holder {
-+	struct list_head list;	/* chain of holders of the bdev */
-+	int count;		/* references from the holder */
-+	struct kobject *kobj;	/* holder kobject */
-+};
-+
-+static int add_bd_holder(struct block_device *bdev, struct kobject *kobj)
-+{
-+        struct bd_holder *bo;
-+
-+	list_for_each_entry(bo, &bdev->bd_holder_list, list) {
-+		if (bo->kobj == kobj) {
-+			bo->count++;
-+			return 0;
-+		}
-+	}
-+
-+	if (list_empty(&bdev->bd_holder_list))
-+		add_holder_dir(bdev);
-+
-+	bo = kmalloc(sizeof(*bo), GFP_KERNEL);
-+	if (!bo)
-+		return -ENOMEM;
-+
-+	bo->count = 1;
-+	bo->kobj = kobj;
-+	list_add_tail(&bo->list, &bdev->bd_holder_list);
-+	link_bd_holder(bdev, kobj);
-+
-+	return 0;
-+}
-+
-+static int del_bd_holder(struct block_device *bdev, struct kobject *kobj)
-+{
-+	struct bd_holder *bo;
-+
-+	list_for_each_entry(bo, &bdev->bd_holder_list, list) {
-+		if (bo->kobj == kobj) {
-+			bo->count--;
-+			BUG_ON(bo->count < 0);
-+			if (!bo->count) {
-+				unlink_bd_holder(bdev, kobj);
-+				list_del(&bo->list);
-+				kfree(bo);
-+			}
-+			break;
-+		}
-+	}
-+
-+	if (list_empty(&bdev->bd_holder_list))
-+		del_holder_dir(bdev);
-+
-+	return 0;
-+}
-+
-+int bd_claim_by_kobject(struct block_device *bdev, void *holder, struct kobject *kobj)
+ static void __hash_remove(struct hash_cell *hc)
  {
- 	int res;
- 	spin_lock(&bdev_lock);
-@@ -464,6 +616,9 @@ int bd_claim(struct block_device *bdev, 
- 		res = 0;	 /* is a partition of an un-held device */
+ 	struct dm_table *table;
+@@ -246,7 +256,7 @@ static void __hash_remove(struct hash_ce
  
- 	/* now impose change */
-+	if (res == 0 && kobj)
-+		res = add_bd_holder(bdev, kobj);
-+
- 	if (res==0) {
- 		/* note that for a whole device bd_holders
- 		 * will be incremented twice, and bd_holder will
-@@ -478,11 +633,20 @@ int bd_claim(struct block_device *bdev, 
- 	return res;
+ 	dm_put(hc->md);
+ 	if (hc->new_map)
+-		dm_table_put(hc->new_map);
++		__release_new_map(hc->new_map);
+ 	free_cell(hc);
  }
  
-+EXPORT_SYMBOL(bd_claim_by_kobject);
-+
-+int bd_claim(struct block_device *bdev, void *holder)
-+{
-+	return bd_claim_by_kobject(bdev, holder, NULL);
-+}
-+
- EXPORT_SYMBOL(bd_claim);
+@@ -719,6 +729,7 @@ static int do_resume(struct dm_ioctl *pa
+ 	dm_get(md);
  
--void bd_release(struct block_device *bdev)
-+void bd_release_from_kobject(struct block_device *bdev, struct kobject *kobj)
- {
- 	spin_lock(&bdev_lock);
-+	if (kobj)
-+		del_bd_holder(bdev, kobj);
- 	if (!--bdev->bd_contains->bd_holders)
- 		bdev->bd_contains->bd_holder = NULL;
- 	if (!--bdev->bd_holders)
-@@ -490,6 +654,13 @@ void bd_release(struct block_device *bde
- 	spin_unlock(&bdev_lock);
- }
+ 	new_map = hc->new_map;
++	dm_put(md); /* drop reference by dm_table_set_md() */
+ 	hc->new_map = NULL;
+ 	param->flags &= ~DM_INACTIVE_PRESENT_FLAG;
  
-+EXPORT_SYMBOL(bd_release_from_kobject);
-+
-+void bd_release(struct block_device *bdev)
-+{
-+	bd_release_from_kobject(bdev, NULL);
-+}
-+
- EXPORT_SYMBOL(bd_release);
+@@ -963,9 +974,19 @@ static int table_load(struct dm_ioctl *p
+ 	if (r)
+ 		return r;
  
- /*
-@@ -578,6 +749,7 @@ static int do_open(struct block_device *
- 	if (!bdev->bd_openers) {
- 		bdev->bd_disk = disk;
- 		bdev->bd_contains = bdev;
-+		INIT_LIST_HEAD(&bdev->bd_holder_list);
- 		if (!part) {
- 			struct backing_dev_info *bdi;
- 			if (disk->fops->open) {
---- linux-2.6.15/fs/partitions/check.c	2006-01-02 22:21:10.000000000 -0500
-+++ linux-2.6.15/fs/partitions/check.c	2006-02-21 14:30:23.000000000 -0500
-@@ -293,6 +293,13 @@ struct kobj_type ktype_part = {
- 	.sysfs_ops	= &part_sysfs_ops,
++	down_read(&_hash_lock);
++	hc = __find_device_hash_cell(param);
++	if (!hc) {
++		DMWARN("device doesn't appear to be in the dev hash table.");
++		up_read(&_hash_lock);
++		return -ENXIO;
++	}
++	dm_table_set_md(t, hc->md);
++	up_read(&_hash_lock);
++
+ 	r = populate_table(t, param, param_size);
+ 	if (r) {
+-		dm_table_put(t);
++		__release_new_map(t);
+ 		return r;
+ 	}
+ 
+@@ -979,7 +1000,7 @@ static int table_load(struct dm_ioctl *p
+ 	}
+ 
+ 	if (hc->new_map)
+-		dm_table_put(hc->new_map);
++		__release_new_map(hc->new_map);
+ 	hc->new_map = t;
+ 	param->flags |= DM_INACTIVE_PRESENT_FLAG;
+ 
+@@ -1003,7 +1024,7 @@ static int table_clear(struct dm_ioctl *
+ 	}
+ 
+ 	if (hc->new_map) {
+-		dm_table_put(hc->new_map);
++		__release_new_map(hc->new_map);
+ 		hc->new_map = NULL;
+ 	}
+ 
+--- linux-2.6.15/drivers/md/dm-table.c	2006-01-02 22:21:10.000000000 -0500
++++ linux-2.6.15/drivers/md/dm-table.c	2006-02-21 19:11:03.000000000 -0500
+@@ -53,6 +53,8 @@ struct dm_table {
+ 	/* events get handed up using this callback */
+ 	void (*event_fn)(void *);
+ 	void *event_context;
++
++	struct mapped_device *md;
  };
  
-+/* This is a mere directory in sysfs. No methods are needed. */
-+static struct kobj_type slave_ktype = {
-+	.release	= NULL,
-+	.sysfs_ops	= NULL,
-+	.default_attrs	= NULL,
-+};
-+
- void delete_partition(struct gendisk *disk, int part)
+ /*
+@@ -345,7 +347,7 @@ static struct dm_dev *find_device(struct
+ /*
+  * Open a device so we can use it as a map destination.
+  */
+-static int open_dev(struct dm_dev *d, dev_t dev)
++static int open_dev(struct dm_dev *d, dev_t dev, struct mapped_device *md)
  {
- 	struct hd_struct *p = disk->part[part-1];
-@@ -343,6 +350,12 @@ static void disk_sysfs_symlinks(struct g
- 		sysfs_create_link(&disk->kobj,&target->kobj,"device");
- 		sysfs_create_link(&target->kobj,&disk->kobj,"block");
+ 	static char *_claim_ptr = "I belong to device-mapper";
+ 	struct block_device *bdev;
+@@ -358,7 +360,7 @@ static int open_dev(struct dm_dev *d, de
+ 	bdev = open_by_devnum(dev, d->mode);
+ 	if (IS_ERR(bdev))
+ 		return PTR_ERR(bdev);
+-	r = bd_claim(bdev, _claim_ptr);
++	r = bd_claim_by_kobject(bdev, _claim_ptr, &dm_disk(md)->slave_dir);
+ 	if (r)
+ 		blkdev_put(bdev);
+ 	else
+@@ -369,12 +371,12 @@ static int open_dev(struct dm_dev *d, de
+ /*
+  * Close a device that we've been using.
+  */
+-static void close_dev(struct dm_dev *d)
++static void close_dev(struct dm_dev *d, struct mapped_device *md)
+ {
+ 	if (!d->bdev)
+ 		return;
+ 
+-	bd_release(d->bdev);
++	bd_release_from_kobject(d->bdev, &dm_disk(md)->slave_dir);
+ 	blkdev_put(d->bdev);
+ 	d->bdev = NULL;
+ }
+@@ -395,7 +397,7 @@ static int check_device_area(struct dm_d
+  * careful to leave things as they were if we fail to reopen the
+  * device.
+  */
+-static int upgrade_mode(struct dm_dev *dd, int new_mode)
++static int upgrade_mode(struct dm_dev *dd, int new_mode, struct mapped_device *md)
+ {
+ 	int r;
+ 	struct dm_dev dd_copy;
+@@ -405,9 +407,9 @@ static int upgrade_mode(struct dm_dev *d
+ 
+ 	dd->mode |= new_mode;
+ 	dd->bdev = NULL;
+-	r = open_dev(dd, dev);
++	r = open_dev(dd, dev, md);
+ 	if (!r)
+-		close_dev(&dd_copy);
++		close_dev(&dd_copy, md);
+ 	else
+ 		*dd = dd_copy;
+ 
+@@ -450,7 +452,7 @@ static int __table_get_device(struct dm_
+ 		dd->mode = mode;
+ 		dd->bdev = NULL;
+ 
+-		if ((r = open_dev(dd, dev))) {
++		if ((r = open_dev(dd, dev, t->md))) {
+ 			kfree(dd);
+ 			return r;
+ 		}
+@@ -461,7 +463,7 @@ static int __table_get_device(struct dm_
+ 		list_add(&dd->list, &t->devices);
+ 
+ 	} else if (dd->mode != (mode | dd->mode)) {
+-		r = upgrade_mode(dd, mode);
++		r = upgrade_mode(dd, mode, t->md);
+ 		if (r)
+ 			return r;
  	}
-+
-+	/* create subdirectory for symlinks to underlying device */
-+	disk->slave_dir.ktype = &slave_ktype;
-+	kobject_set_name(&disk->slave_dir, "slaves");
-+	disk->slave_dir.parent = &disk->kobj;
-+	kobject_register(&disk->slave_dir);
+@@ -536,7 +538,7 @@ int dm_get_device(struct dm_target *ti, 
+ void dm_put_device(struct dm_target *ti, struct dm_dev *dd)
+ {
+ 	if (atomic_dec_and_test(&dd->count)) {
+-		close_dev(dd);
++		close_dev(dd, ti->table->md);
+ 		list_del(&dd->list);
+ 		kfree(dd);
+ 	}
+@@ -945,6 +947,22 @@ int dm_table_flush_all(struct dm_table *
+ 	return ret;
  }
  
- /* Not exported, helper to add_disk(). */
-@@ -460,6 +473,7 @@ void del_gendisk(struct gendisk *disk)
- 
- 	devfs_remove_disk(disk);
- 
-+	kobject_unregister(&disk->slave_dir);
- 	if (disk->driverfs_dev) {
- 		sysfs_remove_link(&disk->kobj, "device");
- 		sysfs_remove_link(&disk->driverfs_dev->kobj, "block");
++void dm_table_set_md(struct dm_table *t, struct mapped_device *md)
++{
++	if (t->md) {
++		dm_put(t->md);
++		t->md = NULL;
++	}
++	if (md) {
++		dm_get(md);
++		t->md = md;
++	}
++}
++struct mapped_device *dm_table_device(struct dm_table *t)
++{
++	return t->md;
++}
++
+ EXPORT_SYMBOL(dm_vcalloc);
+ EXPORT_SYMBOL(dm_get_device);
+ EXPORT_SYMBOL(dm_put_device);
 
---------------070700030507020902080804--
+--------------020406090002080501030405--

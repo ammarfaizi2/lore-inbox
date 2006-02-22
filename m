@@ -1,86 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbWBVCpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbWBVCvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750813AbWBVCpc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 21:45:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWBVCpc
+	id S1751056AbWBVCvc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 21:51:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWBVCvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 21:45:32 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:29067 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751221AbWBVCpb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 21:45:31 -0500
-Message-Id: <200602220245.k1M2jRg10282@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'David Gibson'" <david@gibson.dropbear.id.au>
-Cc: <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: IA64 non-contiguous memory space bugs
-Date: Tue, 21 Feb 2006 18:45:27 -0800
+	Tue, 21 Feb 2006 21:51:32 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:158 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751056AbWBVCvb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 21:51:31 -0500
+Message-ID: <43FBD1D3.109@jp.fujitsu.com>
+Date: Wed, 22 Feb 2006 11:52:03 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org, haveblue@us.ibm.com,
+       Christoph Lameter <christoph@lameter.com>
+Subject: Re: [PATCH] remove zone_mem_map
+References: <43FBAEBA.2020300@jp.fujitsu.com> <20060221183306.3d467d14.akpm@osdl.org>
+In-Reply-To: <20060221183306.3d467d14.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcY3V5BtNd5ajtSeSJGAHCjG2zfKnAAAdjYA
-In-Reply-To: <20060222022558.GE23574@localhost.localdomain>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson wrote on Tuesday, February 21, 2006 6:26 PM
-> Chen, Kenneth W wrote on Tuesday, February 21, 2006 5:32 PM
-> > free_pgtables() has partial crap that the check of is_hugepage_only_range()
-> > should be done on the entire vma range, not just the first hugetlb page.
-> > Though, it's not possible to have a hugetlb vma while having normal page
-> > instantiated inside that vma.  So the bug is mostly phantom.  For
-> > correctness, it should be fixed.
+Andrew Morton wrote:
+> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+>> This patch removes zone_mem_map from zone.
+>>  By this, (generic) page_to_pfn and pfn_to_page can use the same logic.
 > 
-> Actually, from ppc64's point of view, the problem with the test is
-> that the whole vma could be *less* than HPAGE_SIZE - we don't test
-> that the address is aligned before checking is_hugepage_only_range().
-> We thus can call hugetlb_free_pgd_range() on normal page VMAs - which
-> we only get away with because the ppc64 hugetlb_free_pgd_range() is
-> (so far) an alias for the normal free_pgd_range().
+> I assume this is dependent upon unify-pfn_to_page-*.patch?
 > 
-> Your patch below is insufficient, because there's a second test of
-> is_hugepage_only_range() further down.  However, instead of tweaking
-> the tested ranges, I think what we really want to do is check for
-> is_vm_hugetlb_page() instead.
+yes. sorry for forgetting to write it.
+
+>>  This modifies page_to_pfn implementation. Could anyone do performance test on NUMA ?
 > 
-> I was worried before, but now that you point out it's the 'end'
-> address which really matters, not the ceiling, that might be
-> sufficient.  Um.. except that hugepages, unlike normal pages these
-> days don't necessarily clean up all possible pagetable pages on
-> unmap...  crud.  Still the patch below ought to be an improvement.
+> Do you expect there to be NUMA performance problems?  If so, how do they
+> arise and what sort of tests should be run?
+> 
+I don't expect it. But when I posted this before (as RFC), some persons
+(Martin J. Bligh and Dave Hansen) had concerns about it.
 
+I think the heaviest users of page_to_pfn() are the page allocator and
+mk_pte(page_to_pfn(page), hogehoge).
 
-I agree.  It's an improvement with your patch.
+So, tests like  "mmap -> touch all -> unmap" will be good test.
 
-For ia64:
-Acked-by: Ken Chen <kenneth.w.chen@intel.com> 
+powerpc and ia64 is not a good test environment, because they don't use
+page_to_pfn() of generic DISCONTIG definitions.
 
+other NUMAs (i386, x86_64 etc..) will be good.
 
-
-> Index: working-2.6/mm/memory.c
-> ===================================================================
-> --- working-2.6.orig/mm/memory.c	2006-02-22 10:42:14.000000000 +1100
-> +++ working-2.6/mm/memory.c	2006-02-22 13:22:07.000000000 +1100
-> @@ -277,7 +277,7 @@ void free_pgtables(struct mmu_gather **t
->  		anon_vma_unlink(vma);
->  		unlink_file_vma(vma);
->  
-> -		if (is_hugepage_only_range(vma->vm_mm, addr, HPAGE_SIZE)) {
-> +		if (is_vm_hugetlb_page(vma)) {
->  			hugetlb_free_pgd_range(tlb, addr, vma->vm_end,
->  				floor, next? next->vm_start: ceiling);
->  		} else {
-> @@ -285,8 +285,7 @@ void free_pgtables(struct mmu_gather **t
->  			 * Optimization: gather nearby vmas into one call down
->  			 */
->  			while (next && next->vm_start <= vma->vm_end + PMD_SIZE
-> -			  && !is_hugepage_only_range(vma->vm_mm, next->vm_start,
-> -							HPAGE_SIZE)) {
-> +			       && !is_vm_hugetlb_page(vma->vm_mm)) {
->  				vma = next;
->  				next = vma->vm_next;
->  				anon_vma_unlink(vma);
+Thanks,
+-- Kame
 

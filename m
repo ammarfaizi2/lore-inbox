@@ -1,51 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbWBVVUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbWBVVXI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751282AbWBVVUF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 16:20:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWBVVUF
+	id S1750901AbWBVVXI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 16:23:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWBVVXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 16:20:05 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42765 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751282AbWBVVUE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 16:20:04 -0500
-Date: Wed, 22 Feb 2006 21:19:44 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Joel Becker <Joel.Becker@oracle.com>, gombasg@sztaki.hu, tytso@mit.edu,
-       torvalds@osdl.org, kay.sievers@suse.de, penberg@cs.helsinki.fi,
-       gregkh@suse.de, bunk@stusta.de, rml@novell.com,
-       linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-Subject: Re: 2.6.16-rc4: known regressions
-Message-ID: <20060222211943.GA2875@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Joel Becker <Joel.Becker@oracle.com>, gombasg@sztaki.hu,
-	tytso@mit.edu, torvalds@osdl.org, kay.sievers@suse.de,
-	penberg@cs.helsinki.fi, gregkh@suse.de, bunk@stusta.de,
-	rml@novell.com, linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-References: <20060222000429.GB12480@vrfy.org> <20060221162104.6b8c35b1.akpm@osdl.org> <Pine.LNX.4.64.0602211631310.30245@g5.osdl.org> <Pine.LNX.4.64.0602211700580.30245@g5.osdl.org> <20060222112158.GB26268@thunk.org> <20060222154820.GJ16648@ca-server1.us.oracle.com> <20060222162533.GA30316@thunk.org> <20060222173354.GJ14447@boogie.lpds.sztaki.hu> <20060222185923.GL16648@ca-server1.us.oracle.com> <20060222115410.1394ff82.akpm@osdl.org>
+	Wed, 22 Feb 2006 16:23:07 -0500
+Received: from ctb-mesg8.saix.net ([196.25.240.78]:36280 "EHLO
+	ctb-mesg8.saix.net") by vger.kernel.org with ESMTP id S1750901AbWBVVXG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 16:23:06 -0500
+Subject: Re: Problems with read() on /proc/devices with x86_64 system
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0602221520080.11376@chaos.analogic.com>
+References: <1140635265.26079.16.camel@lycan.lan>
+	 <Pine.LNX.4.61.0602221520080.11376@chaos.analogic.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Sg5UnrHlzxBW+z025dfA"
+Date: Wed, 22 Feb 2006 23:25:50 +0200
+Message-Id: <1140643550.26079.30.camel@lycan.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060222115410.1394ff82.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.5.91 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 11:54:10AM -0800, Andrew Morton wrote:
-> Yes, I tend to think that insmod should just block until all devices are
-> ready to be used.  insmod doesn't just "insert a module".  It runs that
-> module's init function.
 
-Not always possible.  In the case of PCMCIA, we've had to run things
-asynchronously because of the #$@$#@ driver model locking issues -
-otherwise adding a PCI (cardbus) device while we're in the probe for
-the yenta device deadlocked.
+--=-Sg5UnrHlzxBW+z025dfA
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I suspect other subsystems also suffered from this, which unfortunately
-makes your otherwise good idea a pipedream.
+On Wed, 2006-02-22 at 15:43 -0500, linux-os (Dick Johnson) wrote:
+> On Wed, 22 Feb 2006, Martin Schlemmer wrote:
+>=20
+> > Hi,
+> >
+> > Not sure when it started, but 2.6.16-rc[1234] at least have problems
+> > with unbuffered read() and /proc/devices on my x86_64 box.  I first
+> > picked it up with dmsetup that did not want to work properly built
+> > against klibc (glibc with fread() worked fine though, as it mmap()'d th=
+e
+> > file).
+> >
+> > Following code (from HPA and klibc mailing lists), when compiled and ru=
+n
+> > with /proc/devices only reads the first two lines and then exits
+> > normally, where with any other file works as expected.
+> >
+> > -----
+> > #include <stdlib.h>
+> > #include <stdio.h>
+> > #include <unistd.h>
+> > #include <fcntl.h>
+> > #include <errno.h>
+> > #include <sys/stat.h>
+> >
+> > int main(int argc, char *argv[])
+> > {
+> >  char c;
+> >  int i, fd, rv;
+> >
+> >  for ( i =3D 1 ; i < argc ; i++ ) {
+> >    fd =3D open(argv[i], O_RDONLY);
+> >    if ( fd < 0 ) {
+> >      perror(argv[i]);
+> >      exit(1);
+> >    }
+> >
+> >    while ( (rv =3D read(fd, &c, 1)) ) {
+> >      if ( rv =3D=3D -1 ) {
+> >        if ( errno =3D=3D EINTR || errno =3D=3D EAGAIN )
+> >          continue;
+> >
+> >        perror(argv[i]);
+> >        exit(1);
+> >      }
+> >      putchar(c);
+> >    }
+> >
+> >    close(fd);
+> >  }
+> >  return 0;
+> > }
+> > -----
+> >
+> > Output over here:
+> >
+> > -----
+> > # ./readbychar.klibc /proc/devices
+> > Character devices:
+> >  1 mem
+> > #
+> > -----
+> > Thanks,
+> > Martin Schlemmer
+>=20
+> If your code ever worked, it's probably because of some
+> fortuitous buffering in the 'C' runtime library.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Not my code .. I just did a minimal hack to get it to build with klibc
+(klibc do not support fscanf(), so used fread() and sscanf() ..).
+
+>  Most
+> of the 'read' code in drivers that have a /proc interface
+> is not designed for 1-character-at-a-time I/O. It's expected
+> that it will be accessed like `cat` or `more` or other
+> such tools access it, -- one read with 4096-byte buffer --
+>=20
+> read(3, "MemTotal:       773860 kB\nMemFre"..., 4096) =3D 670
+> write(1, "MemTotal:       773860 kB\nMemFre"..., 670) =3D 670
+>=20
+
+Maybe, but the same code I posted works fine with any other file
+in /proc, and works fine on my small p3 server with 2.6.14.
+
+> The read code uses sprintf to write all the parameters to
+> a buffer, then it copies the parameters to the user. The
+> next read will return 0 for EOF and reset the interface
+> for the next access.
+>=20
+> If your code read /proc without any help from the 'C' runtime
+> library, you would read the same first character, every time
+> you attempted to read a character. Don't do that! Your code
+> should do (with some error-checking):
+>=20
+>          fd =3D open(argv[1], O_RDONLY);
+>  	buffer =3D malloc(LEN);
+>          read(fd, buffer, len);
+>          puts(buffer);
+>=20
+> Also, something seems somewhat strange because it is not
+> commonplace to provide a mmap() interface to /proc file-system
+> capability in drivers and the /proc base code doesn't
+> provide memory-map capability at least on 2.6.15.4. So,
+> your reference to memory-mapping the file seems to be
+> incorrect.
+>=20
+
+Might have misread the strace there.
+
+
+
+Thanks,
+
+--=20
+Martin Schlemmer
+
+
+--=-Sg5UnrHlzxBW+z025dfA
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.1 (GNU/Linux)
+
+iD8DBQBD/NbeqburzKaJYLYRAig6AJ9Htv/64k3RN1DuVWPYIc/nOVWoAQCdFWe7
+LFDlfhQbbnonkEOPivJF3qA=
+=cFZt
+-----END PGP SIGNATURE-----
+
+--=-Sg5UnrHlzxBW+z025dfA--
+

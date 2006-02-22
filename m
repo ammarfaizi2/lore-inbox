@@ -1,75 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751520AbWBVWLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751528AbWBVWMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751520AbWBVWLu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 17:11:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751525AbWBVWLu
+	id S1751528AbWBVWMe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 17:12:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751496AbWBVWMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 17:11:50 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:59528 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751519AbWBVWLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 17:11:46 -0500
-Date: Wed, 22 Feb 2006 14:12:38 -0800
-From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
-To: lkml <linux-kernel@vger.kernel.org>, ide <linux-ide@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, jgarzik <jgarzik@pobox.com>
-Subject: [PATCH 0/13] ACPI objects for SATA/PATA
-Message-Id: <20060222141238.4d2effa8.randy_d_dunlap@linux.intel.com>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-X-Face: "}I"O`t9.W]b]8SycP0Jap#<FU!b:16h{lR\#aFEpEf\3c]wtAL|,'>)%JR<P#Yg.88}`$#
- A#bhRMP(=%<w07"0#EoCxXWD%UDdeU]>,H)Eg(FP)?S1qh0ZJRu|mz*%SKpL7rcKI3(OwmK2@uo\b2
- GB:7w&?a,*<8v[ldN`5)MXFcm'cjwRs5)ui)j
+	Wed, 22 Feb 2006 17:12:32 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44203 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751525AbWBVWM0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 17:12:26 -0500
+Date: Wed, 22 Feb 2006 23:12:00 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Thomas Ogrisegg <tom-lkml@lkml.fnord.at>
+Cc: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk
+Subject: Re: [PATCH] cpufrequency change on AC-Adapter Event
+Message-ID: <20060222221200.GA13776@elf.ucw.cz>
+References: <20060221213742.GC26413@rescue.iwoars.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060221213742.GC26413@rescue.iwoars.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch series is primarily ACPI objects support for SATA/PATA.
-It applies to 2.6.16-rc4.
+On Út 21-02-06 22:37:42, Thomas Ogrisegg wrote:
+> Problem Description:
+> Whenever the status of the AC-Adapter on my laptop changes, the CPU
+> frequency automatically changes as well. For example, if the AC adapter
+> is online my CPU has the highest frequency (3,06 GHz). When the adapter
+> is unplugged, the frequency automatically decreases to 1,6 GHz. However,
+> currently the Kernel simply doesn't notice. It looks like the system is
+> still running at 3,06 GHz (/proc/cpuinfo and
+> /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq both show that),
+> but it doesn't like a simple test program showed.
+> 
+> My patch solves this problem: Whenever the status of the AC Adapter
+> changes, it calls 'cpufreq_reinit' which in turn reinits the CPUfreq
+> driver.
+> 
+> This, of course, only works if the ACPI AC driver is compiled in.
+> 
+> Signed-off-by: Thomas Ogrisegg <tom-lkml@lkml.fnord.at>
 
-ACPI objects for SATA/PATA add support for the _GTF, _SDD,
-_GTM, and _STM ACPI methods.  ACPI methods are used to:
+> diff -uNr -X linux-2.6.15/Documentation/dontdiff linux-2.6.15/drivers/acpi/ac.c linux-2.6.15.4/drivers/acpi/ac.c
+> --- linux-2.6.15/drivers/acpi/ac.c	2006-01-03 04:21:10.000000000 +0100
+> +++ linux-2.6.15.4/drivers/acpi/ac.c	2006-02-19 17:50:20.000000000 +0100
+> @@ -29,6 +29,7 @@
+>  #include <linux/types.h>
+>  #include <linux/proc_fs.h>
+>  #include <linux/seq_file.h>
+> +#include <linux/cpufreq.h>
+>  #include <acpi/acpi_bus.h>
+>  #include <acpi/acpi_drivers.h>
+>  
+> @@ -213,6 +214,8 @@
+>  		break;
+>  	}
+>  
+> +	cpufreq_reinit();
+> +
+>  	return_VOID;
+>  }
+>  
 
-PATA:  get and set channel timings and modes and taskfiles
-SATA:  get and set drive data and taskfiles
+Perhaps we need to call some notifier chain here? I think not only
+cpufreq is going to be interested...
+								Pavel
 
-Taskfile operations are not limited.  Examples that I have
-seen are (not limited to):
-- power management:
-  . enable or disable drive-initiated power management
-- performance:
-  . enable drive cache; set transfer mode (PIO/DMA)
-- security
-  . lock the disk access password
-
-There is also an addition here to send a Standby Immediate
-command to SATA/PATA drives during shutdown.  This should be
-done (at least for some drives) to cause a safe and orderly
-shutdown of the drive heads (i.e., protect data).
-
-Caveat:  Some people are reporting good results from these
-patches.  Unfortunately I have problems with them myself.
-My test platforms usually suspend successfully but they
-don't resume successfully.  Oh, and there may be a BUG
-during sleep-shutdown processing where a sleep happens
-while a spinlock is held.
-
-These patches definitely need some time in -mm, but be
-prepared to revert them or to use
-	libata.noacpi=1
-to disable them.  Also, please use
-	libata.printk=0xff
-to enable full debug messages.
-
-If you want to test this without using -mm, you can either
-apply the patch series (13 patches) or one rolled-up
-(combined) patch.  The combined patch is available at:
-http://www.xenotime.net/linux/SATA/2.6.16-rc4/libata-rollup-2616-rc4.patch
-
-Still TBD:  more calls to ata_acpi_push_timing(), e.g.,
-during resume, to set PATA hard drive timing and mode.
-And fix the BUG above.
-
----
-~Randy
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

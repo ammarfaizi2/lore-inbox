@@ -1,105 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751585AbWBVWhD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751577AbWBVWgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751585AbWBVWhD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 17:37:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751580AbWBVWg7
+	id S1751577AbWBVWgw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 17:36:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751579AbWBVWgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 17:36:59 -0500
-Received: from lugor.de ([212.112.242.222]:40158 "EHLO solar.mylinuxtime.de")
-	by vger.kernel.org with ESMTP id S1751575AbWBVWg4 (ORCPT
+	Wed, 22 Feb 2006 17:36:51 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:65510 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751578AbWBVWgu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 17:36:56 -0500
-From: "Hesse, Christian" <mail@earthworm.de>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Subject: Re: hald in status D with 2.6.16-rc4
-Date: Wed, 22 Feb 2006 23:36:31 +0100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-References: <200602202034.29413.mail@earthworm.de> <200602221110.44813.mail@earthworm.de> <200602222109.21816.ncunningham@cyclades.com>
-In-Reply-To: <200602222109.21816.ncunningham@cyclades.com>
-X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
+	Wed, 22 Feb 2006 17:36:50 -0500
+Message-ID: <43FCE6D0.D4822B9F@tv-sign.ru>
+Date: Thu, 23 Feb 2006 01:33:52 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2813255.RpKh75hPNk";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       David Howells <dhowells@redhat.com>,
+       Christoph Lameter <clameter@engr.sgi.com>
+Subject: [PATCH 3/3] do __unhash_process() under ->siglock
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602222336.31562.mail@earthworm.de>
-X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0 (solar.mylinuxtime.de [10.5.1.1]); Wed, 22 Feb 2006 23:36:36 +0100 (CET)
-X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2813255.RpKh75hPNk
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+This patch moves __unhash_process() call from realease_task()
+to __exit_signal(), so __detach_pid() is called with ->siglock
+held.
 
-On Wednesday 22 February 2006 12:09, Nigel Cunningham wrote:
-> Hi.
+This means we don't need tasklist_lock to iterate over thread
+group anymore:
+ 
+	copy_process() was already changed to do attach_pid()
+	under ->siglock.
 
-Hi Nigel,
+	Eric's "pidhash-kill-switch_exec_pids.patch" from -mm
+	changed de_thread() so it doesn't touch PIDTYPE_TGID.
 
-> On Wednesday 22 February 2006 20:10, Hesse, Christian wrote:
-> > On Tuesday 21 February 2006 23:49, Andrew Morton wrote:
-> > > "Hesse, Christian" <mail@earthworm.de> wrote:
-> > > > On Tuesday 21 February 2006 06:19, Andrew Morton wrote:
-> > > > > "Hesse, Christian" <mail@earthworm.de> wrote:
-> > > > > > Hello everybody,
-> > > > > >
-> > > > > > since using kernel version 2.6.16-rc4 the hal daemon is in stat=
-us
-> > > > > > D after resume. I use suspend2 2.2.0.1 for 2.6.16-rc3. Any hints
-> > > > > > what could be the problem? It worked perfectly with 2.6.15.x and
-> > > > > > suspend2 2.2.
-> > > > >
-> > > > > a) Look in the logs for any oopses, other nasties
-> > > >
-> > > > Nothing.
-> > > >
-> > > > > b) Do `echo t > /proc/sysrq-trigger', `dmesg -s 1000000 > foo' th=
-en
-> > > > > find the trace for `hald' in `foo', send it to this list.
-> > > >
-> > > > Ok, here it is:
-> > > >
-> > > > [ trace snipped ]
-> > > >
-> > > > This is with 2.6.16-rc4-git1 + suspend2 2.2.0.1.
-> > >
-> > > Hopefully suspend2 isn't involved.  People would feel more comfortable
-> > > if you could test a vanilla mainline tree..
-> > >
-> > > Could the ACPI team please take a look at fixing this regression?
-> >
-> > I did two cycles with mainline suspend now and did not hit the problem.=
-=2E.
-> > I will keep an eye on it.
->
-> Could you let me know how you go? I didn't make any changes between 2.2 a=
-nd
-> 2.2.0.1 that I think could cause this, but if you can't reproduce it
-> otherwise, I'll happily look again.
+NOTE: de_thread() still needs some attention. It still changes
+task->pid lockless. Taking ->sighand.siglock here allows to do
+more tasklist_lock removals.
 
-You just missed my last mail. It happens with mainline suspend as well, so =
-it=20
-is not your fault.
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-Regards,
-=2D-=20
-Christian
-
---nextPart2813255.RpKh75hPNk
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.20 (GNU/Linux)
-
-iD8DBQBD/OdvlZfG2c8gdSURAmGWAJ9m4+BfFryXNwWpaDk1YBdqfJ7cvACgnVDO
-bpQEXcWoGYmY3b8+5Fa3ET0=
-=MJBg
------END PGP SIGNATURE-----
-
---nextPart2813255.RpKh75hPNk--
+--- 2.6.16-rc3/kernel/exit.c~3_FIN	2006-02-23 00:54:28.000000000 +0300
++++ 2.6.16-rc3/kernel/exit.c	2006-02-23 01:00:35.000000000 +0300
+@@ -110,6 +110,8 @@ static void __exit_signal(struct task_st
+ 		sig = NULL; /* Marker for below. */
+ 	}
+ 
++	__unhash_process(tsk);
++
+ 	tsk->signal = NULL;
+ 	cleanup_sighand(tsk);
+ 	spin_unlock(&sighand->siglock);
+@@ -138,8 +140,6 @@ repeat:
+ 	BUG_ON(!list_empty(&p->ptrace_list) || !list_empty(&p->ptrace_children));
+ 	__exit_signal(p);
+ 
+-	__unhash_process(p);
+-
+ 	/*
+ 	 * If we are the last non-leader member of the thread
+ 	 * group, and the leader is zombie, then notify the

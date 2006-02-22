@@ -1,118 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWBVPvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbWBVPwJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbWBVPvU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 10:51:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWBVPvU
+	id S1751358AbWBVPwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 10:52:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWBVPwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 10:51:20 -0500
-Received: from mail.aknet.ru ([82.179.72.26]:15370 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S1751320AbWBVPvT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 10:51:19 -0500
-Message-ID: <43FC8877.4020300@aknet.ru>
-Date: Wed, 22 Feb 2006 18:51:19 +0300
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Wed, 22 Feb 2006 10:52:09 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:30305 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1751358AbWBVPwI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 10:52:08 -0500
+Date: Wed, 22 Feb 2006 07:48:21 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: "Theodore Ts'o" <tytso@mit.edu>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Kay Sievers <kay.sievers@suse.de>,
+       penberg@cs.helsinki.fi, gregkh@suse.de, bunk@stusta.de, rml@novell.com,
+       linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+Subject: Re: 2.6.16-rc4: known regressions
+Message-ID: <20060222154820.GJ16648@ca-server1.us.oracle.com>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Kay Sievers <kay.sievers@suse.de>, penberg@cs.helsinki.fi,
+	gregkh@suse.de, bunk@stusta.de, rml@novell.com,
+	linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+References: <1140383653.11403.8.camel@localhost> <20060220010205.GB22738@suse.de> <1140562261.11278.6.camel@localhost> <20060221225718.GA12480@vrfy.org> <20060221153305.5d0b123f.akpm@osdl.org> <20060222000429.GB12480@vrfy.org> <20060221162104.6b8c35b1.akpm@osdl.org> <Pine.LNX.4.64.0602211631310.30245@g5.osdl.org> <Pine.LNX.4.64.0602211700580.30245@g5.osdl.org> <20060222112158.GB26268@thunk.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: 2.6.16-rc4-mm1 (bugs and lockups)
-References: <43FB5317.60501@aknet.ru> <20060221174400.4542ccbf.akpm@osdl.org>
-In-Reply-To: <20060221174400.4542ccbf.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------000608050406010107090103"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060222112158.GB26268@thunk.org>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000608050406010107090103
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, Feb 22, 2006 at 06:21:58AM -0500, Theodore Ts'o wrote:
+> with all of the kernel modules I need compiled into the kernel.  I
+> still have no idea why mptscsi fails to detect SCSI disks when loaded
+> as a module via initrd on various bits of IBM hardware (including the
+> e326 and ls-20 blade), but works fine when compiled directly into the
+> kernel....
 
-Hello.
+Ted,
+	Do you mean that you are using a distro (eg, RHEL4 or something)
+with a mainline kernel?  We've seen something similar, and what we've
+determined is happening is that insmod is returning before the module is
+done initializing.  It's not that mptscsi fails to detect the disks.
+Rather, it's still in the detection process when the boot process tries
+to mount /.  So there's no / yet, and the thing hangs.  In the case we
+see, it's some interaction between the RHEL4/SLES9 version of
+module-init-tools and the latest version of the kernel.  Our first
+attempt at fixing it was to change the linuxrc to sleep between each
+insmod.  This works, but only if the modules load and initialize
+themsleves fast enough.  Get a FC card in there, and it just doesn't
+work.  So we've taken to compiling the modules in-kernel.
 
-Andrew Morton wrote:
-> umm, actually it's wrong.  i386's smp_prepare_boot_cpu() diddles with
-> per-cpu memory, and that's not initialised at that stage.  See the call to
-> setup_per_cpu_areas() a few lines later.
-> So I'll drop that hunk.  How important is it in practice?
-It was important because it used to fix both the printk and
-(completely accidentally!) the boot problem itself.
+Joel
 
-> #ifdef CONFIG_SMP
-> 	cpu_set(smp_processor_id(), cpu_online_map);	/* comment */
-> #endif
-I don't even think #ifdef is needed. Having that for the UP
-case may be useless, yet looks consistent to me.
+-- 
 
-> right there in start_kernel()?
-This is enough for printk but not for the boot lockup.
-The attached patch is however enough. And it should be
-correct, as it is consistent with an UP case.
+"Three o'clock is always too late or too early for anything you
+ want to do."
+        - Jean-Paul Sartre
 
-> (That assumes that smp_processor_id() works at that stage.  Surely that's
-> true).
-Looking into the arch-specific code, I can see that some
-arches evaluate the boot-cpu number by some other means,
-not by the smp_processor_id(). Still I am pretty sure the
-patch won't hurt them.
-
-With this patch and with the hotfixes, I've got the -mm
-kernel working, thanks.
-
-----
-
-Register the boot-cpu in the cpu maps earlier to allow the
-early printk to work, and to fix an obscure deadlock at boot.
-
-Signed-off-by: Stas Sergeev <stsp@aknet.ru>
-
-
---------------000608050406010107090103
-Content-Type: text/x-patch;
- name="smpb.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="smpb.diff"
-
---- a/init/main.c	2006-02-21 10:36:04.000000000 +0300
-+++ b/init/main.c	2006-02-22 11:30:01.000000000 +0300
-@@ -440,6 +440,15 @@
-  *	Activate the first processor.
-  */
- 
-+static void boot_cpu_init(void)
-+{
-+	int cpu = smp_processor_id();
-+	/* Mark the boot cpu "present", "online" etc for SMP and UP case */
-+	cpu_set(cpu, cpu_online_map);
-+	cpu_set(cpu, cpu_present_map);
-+	cpu_set(cpu, cpu_possible_map);
-+}
-+
- asmlinkage void __init start_kernel(void)
- {
- 	char * command_line;
-@@ -449,17 +458,13 @@
-  * enable them
-  */
- 	lock_kernel();
-+	boot_cpu_init();
- 	page_address_init();
- 	printk(KERN_NOTICE);
- 	printk(linux_banner);
- 	setup_arch(&command_line);
- 	setup_per_cpu_areas();
--
--	/*
--	 * Mark the boot cpu "online" so that it can call console drivers in
--	 * printk() and can access its per-cpu storage.
--	 */
--	smp_prepare_boot_cpu();
-+	smp_prepare_boot_cpu();	/* arch-specific boot-cpu hooks */
- 
- 	/*
- 	 * Set up the scheduler prior starting any interrupts (such as the
-
---------------000608050406010107090103--
+Joel Becker
+Principal Software Developer
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

@@ -1,63 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422633AbWBVA0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161286AbWBVA0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422633AbWBVA0J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 19:26:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161287AbWBVA0I
+	id S1161286AbWBVA0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 19:26:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161287AbWBVA0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 19:26:08 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:62423 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161286AbWBVA0H (ORCPT
+	Tue, 21 Feb 2006 19:26:16 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:59786 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1161286AbWBVA0P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 19:26:07 -0500
-Date: Tue, 21 Feb 2006 16:21:04 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Kay Sievers <kay.sievers@suse.de>
-Cc: penberg@cs.helsinki.fi, gregkh@suse.de, bunk@stusta.de, rml@novell.com,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-Subject: Re: 2.6.16-rc4: known regressions
-Message-Id: <20060221162104.6b8c35b1.akpm@osdl.org>
-In-Reply-To: <20060222000429.GB12480@vrfy.org>
-References: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org>
-	<20060217231444.GM4422@stusta.de>
-	<84144f020602190306o3149d51by82b8ccc6108af012@mail.gmail.com>
-	<20060219145442.GA4971@stusta.de>
-	<1140383653.11403.8.camel@localhost>
-	<20060220010205.GB22738@suse.de>
-	<1140562261.11278.6.camel@localhost>
-	<20060221225718.GA12480@vrfy.org>
-	<20060221153305.5d0b123f.akpm@osdl.org>
-	<20060222000429.GB12480@vrfy.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 21 Feb 2006 19:26:15 -0500
+Date: Wed, 22 Feb 2006 01:26:13 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Daniel Barkalow <barkalow@iabervon.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] duplicate #include check for build system
+Message-ID: <20060222002613.GG20204@MAIL.13thfloor.at>
+Mail-Followup-To: "Randy.Dunlap" <rdunlap@xenotime.net>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Daniel Barkalow <barkalow@iabervon.org>,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>
+References: <20060221014824.GA19998@MAIL.13thfloor.at> <Pine.LNX.4.64.0602210149190.6773@iabervon.org> <20060221175246.GA9070@mars.ravnborg.org> <20060222001153.GF20204@MAIL.13thfloor.at> <Pine.LNX.4.58.0602211616380.12588@shark.he.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0602211616380.12588@shark.he.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kay Sievers <kay.sievers@suse.de> wrote:
->
-> > We broke back-compatibility.  The changelog _failed to tell us_ that we
-> > were breaking back-compatibility.  The patch wouldn't have been applied if
-> > we'd been told that.  At least, not without a lot of careful thought.
-> > 
-> > The fact that the changelog failed to tell us this makes one suspect that
-> > the breakage was inadvertent.
-> > 
-> > 
-> > So no, upgrading HAL is not a good answer.  Please fix the kernel.
+On Tue, Feb 21, 2006 at 04:18:57PM -0800, Randy.Dunlap wrote:
+> On Wed, 22 Feb 2006, Herbert Poetzl wrote:
 > 
-> [ bunch of special-pleading ]
->
+> > On Tue, Feb 21, 2006 at 06:52:46PM +0100, Sam Ravnborg wrote:
+> > > On Tue, Feb 21, 2006 at 02:29:12AM -0500, Daniel Barkalow wrote:
+> > > > On Tue, 21 Feb 2006, Herbert Poetzl wrote:
+> > >
+> > > > I think the kernel style is to encourage duplicate includes,
+> > > > rather than removing them. Removing duplicate includes won't
+> > > > remove any dependancies (since the includes that they duplicate
+> > > > will remain).
+> >
+> > > The style as I have understood it is that each .h file in
+> > > include/linux/ are supposed to be self-contained. So it includes
+> > > what is needs, and the 'what it needs' are kept small.
+> > >
+> > > Keeping the 'what it needs' part small is a challenge resulting
+> > > in smaller .h files. But also a good way to keep related things
+> > > together.
+> >
+> > glad that I stimulated a philosophical discussion
+> > about the kernel header files and what they should
+> > include or not ...
+> >
+> > but the idea was more to give the developers an
+> > instrument to verify that they are not including
+> > stuff several times, and that's actually in .h
+> > and .c files, because it seems that often the same
+> > header file is included twice in the _same_ file
+> >
+> > anyway, was this a positive or negative reply?
+> 
+> Hi Herbert,
+> 
+> The goal is not to remove the most possible #includes.
 
-None of that matters or is relevant.
+which I totally agree with ...
 
-You took a kernel interface which was present in 2.6.10, 2.6.11, 2.6.12,
-2.6.13, 2.6.14 and 2.6.15 and changed it in a non-compatible way, without
-telling us that it was non-compatible and without even notifying people
-that we'd gone and broken existing userspace.
+but a) how is that related to _having_ a tool to
+check for duplicate includes, and b) how is it
+related to removing duplicate includes in general?
 
-We.  Don't.  Do. That.
+let me give a simple example here:
 
-Please either restore the old events so we can have a 6-12 month transition
-period or revert the patch.
+ #include <linux/pm.h>
+ #include <linux/sched.h>
+ #include <linux/proc_fs.h>
+-#include <linux/pm.h>
 
+do you think the second one is really desired?
+
+> E.g., if sched.h already sucks in kernel.h,
+> kernel.h still should be #included if the source (.c)
+> files uses any APIs or extern data from kernel.h.
+> 
+> Does that help?
+
+no, sorry, doesn't help here ...
+
+nevertheless thanks,
+Herbert
+
+> -- 
+> ~Randy

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751531AbWBVWPf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161141AbWBVWQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751531AbWBVWPf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 17:15:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751512AbWBVWLf
+	id S1161141AbWBVWQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 17:16:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751509AbWBVWQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 17:11:35 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:34438 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751510AbWBVWLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 17:11:16 -0500
-Date: Wed, 22 Feb 2006 13:56:54 -0800
+	Wed, 22 Feb 2006 17:16:27 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:16314 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751507AbWBVWLB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 17:11:01 -0500
+Date: Wed, 22 Feb 2006 13:40:54 -0800
 From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: linux-ide@vger.kernel.org, akpm@osdl.org, jgarzik@pobox.com
-Subject: [PATCH 6/13] ATA ACPI: use correct acpi_object pointer
-Message-Id: <20060222135654.5224e86c.randy_d_dunlap@linux.intel.com>
+Subject: [PATCH 1/13] ATA ACPI: Makefile/Kconfig/doc.
+Message-Id: <20060222134054.69373431.randy_d_dunlap@linux.intel.com>
 In-Reply-To: <20060222133241.595a8509.randy_d_dunlap@linux.intel.com>
 References: <20060222133241.595a8509.randy_d_dunlap@linux.intel.com>
 X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
@@ -29,93 +29,78 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
 
-Save and free the correct acpi_object pointer.
+Add ata_acpi in Makefile and Kconfig.
+Add ACPI obj_handle.
+Add ata_acpi.c to libata kernel-doc template file.
 
 Signed-off-by: Randy Dunlap <randy_d_dunlap@linux.intel.com>
 ---
- drivers/scsi/libata-acpi.c |   14 +++++++++-----
- drivers/scsi/libata.h      |    6 ++++--
- 2 files changed, 13 insertions(+), 7 deletions(-)
+ Documentation/DocBook/libata.tmpl |    6 ++++++
+ drivers/scsi/Kconfig              |    5 +++++
+ drivers/scsi/Makefile             |    3 +++
+ include/linux/libata.h            |    6 ++++++
+ 4 files changed, 20 insertions(+)
 
---- linux-2616-rc4-ata.orig/drivers/scsi/libata-acpi.c
-+++ linux-2616-rc4-ata/drivers/scsi/libata-acpi.c
-@@ -302,7 +302,8 @@ EXPORT_SYMBOL_GPL(ata_acpi_push_id);
-  * function return value is 0.
-  */
- int do_drive_get_GTF(struct ata_port *ap, struct ata_device *atadev,
--			unsigned int *gtf_length, unsigned long *gtf_address)
-+			unsigned int *gtf_length, unsigned long *gtf_address,
-+			unsigned long *obj_loc)
- {
- 	acpi_status			status;
- 	acpi_handle			handle;
-@@ -321,6 +322,7 @@ int do_drive_get_GTF(struct ata_port *ap
+--- linux-2616-rc4-ata.orig/drivers/scsi/Makefile
++++ linux-2616-rc4-ata/drivers/scsi/Makefile
+@@ -164,6 +164,9 @@ CFLAGS_ncr53c8xx.o	:= $(ncr53c8xx-flags-
+ zalon7xx-objs	:= zalon.o ncr53c8xx.o
+ NCR_Q720_mod-objs	:= NCR_Q720.o ncr53c8xx.o
+ libata-objs	:= libata-core.o libata-scsi.o
++ifeq ($(CONFIG_SCSI_SATA_ACPI),y)
++  libata-objs	+= libata-acpi.o
++endif
+ oktagon_esp_mod-objs	:= oktagon_esp.o oktagon_io.o
  
- 	*gtf_length = 0;
- 	*gtf_address = 0UL;
-+	*obj_loc = 0UL;
+ # Files generated that shall be removed upon make clean
+--- linux-2616-rc4-ata.orig/drivers/scsi/Kconfig
++++ linux-2616-rc4-ata/drivers/scsi/Kconfig
+@@ -599,6 +599,11 @@ config SCSI_SATA_INTEL_COMBINED
+ 	depends on IDE=y && !BLK_DEV_IDE_SATA && (SCSI_SATA_AHCI || SCSI_ATA_PIIX)
+ 	default y
  
- 	if (noacpi)
- 		return 0;
-@@ -414,10 +416,11 @@ int do_drive_get_GTF(struct ata_port *ap
++config SCSI_SATA_ACPI
++	bool
++	depends on SCSI_SATA && ACPI
++	default y
++
+ config SCSI_BUSLOGIC
+ 	tristate "BusLogic SCSI support"
+ 	depends on (PCI || ISA || MCA) && SCSI && ISA_DMA_API
+--- linux-2616-rc4-ata.orig/include/linux/libata.h
++++ linux-2616-rc4-ata/include/linux/libata.h
+@@ -33,6 +33,7 @@
+ #include <asm/io.h>
+ #include <linux/ata.h>
+ #include <linux/workqueue.h>
++#include <acpi/acpi.h>
  
- 	*gtf_length = out_obj->buffer.length;
- 	*gtf_address = (unsigned long)out_obj->buffer.pointer;
-+	*obj_loc = (unsigned long)out_obj;
- 	if (ata_msg_probe(ap))
- 		printk(KERN_DEBUG "%s: returning "
--			"gtf_length=%d, gtf_address=0x%lx\n",
--			__FUNCTION__, *gtf_length, *gtf_address);
-+			"gtf_length=%d, gtf_address=0x%lx, obj_loc=0x%lx\n",
-+			__FUNCTION__, *gtf_length, *gtf_address, *obj_loc);
- 	err = 0;
- out:
- 	return err;
-@@ -558,6 +561,7 @@ int ata_acpi_exec_tfs(struct ata_port *a
- 	int ret;
- 	unsigned int gtf_length;
- 	unsigned long gtf_address;
-+	unsigned long obj_loc;
+ /*
+  * compile-time options
+@@ -318,6 +319,11 @@ struct ata_device {
+ 	u16			cylinders;	/* Number of cylinders */
+ 	u16			heads;		/* Number of heads */
+ 	u16			sectors;	/* Number of sectors per track */
++
++#ifdef CONFIG_SCSI_SATA_ACPI
++	/* ACPI objects info */
++	acpi_handle		obj_handle;
++#endif
+ };
  
- 	if (ata_msg_probe(ap))
- 		printk(KERN_DEBUG "%s: ENTER:\n", __FUNCTION__);
-@@ -570,7 +574,7 @@ int ata_acpi_exec_tfs(struct ata_port *a
- 			printk(KERN_DEBUG "%s: call get_GTF, ix=%d\n",
- 				__FUNCTION__, ix);
- 		ret = do_drive_get_GTF(ap, &ap->device[ix],
--				&gtf_length, &gtf_address);
-+				&gtf_length, &gtf_address, &obj_loc);
- 		if (ret < 0) {
- 			if (ata_msg_probe(ap))
- 				printk(KERN_DEBUG "%s: get_GTF error (%d)\n",
-@@ -583,7 +587,7 @@ int ata_acpi_exec_tfs(struct ata_port *a
- 				__FUNCTION__, ix);
- 		ret = do_drive_set_taskfiles(ap, &ap->device[ix],
- 				gtf_length, gtf_address);
--		acpi_os_free((void *)gtf_address);
-+		acpi_os_free((void *)obj_loc);
- 		if (ret < 0) {
- 			if (ata_msg_probe(ap))
- 				printk(KERN_DEBUG
---- linux-2616-rc4-ata.orig/drivers/scsi/libata.h
-+++ linux-2616-rc4-ata/drivers/scsi/libata.h
-@@ -64,7 +64,8 @@ extern unsigned int ata_exec_internal(st
- #ifdef CONFIG_SCSI_SATA_ACPI
- extern int ata_acpi_push_id(struct ata_port *ap, unsigned int ix);
- extern int do_drive_get_GTF(struct ata_port *ap, struct ata_device *atadev,
--			unsigned int *gtf_length, unsigned long *gtf_address);
-+			unsigned int *gtf_length, unsigned long *gtf_address,
-+			unsigned long *obj_loc);
- extern int do_drive_set_taskfiles(struct ata_port *ap, struct ata_device *atadev,
- 			unsigned int gtf_length, unsigned long gtf_address);
- extern int ata_acpi_exec_tfs(struct ata_port *ap);
-@@ -75,7 +76,8 @@ static inline int ata_acpi_push_id(struc
- }
- static inline int do_drive_get_GTF(struct ata_port *ap,
- 			struct ata_device *atadev,
--			unsigned int *gtf_length, unsigned long *gtf_address)
-+			unsigned int *gtf_length, unsigned long *gtf_address,
-+			unsigned long *obj_loc)
- {
- 	return 0;
- }
+ struct ata_port {
+--- linux-2616-rc4-ata.orig/Documentation/DocBook/libata.tmpl
++++ linux-2616-rc4-ata/Documentation/DocBook/libata.tmpl
+@@ -787,6 +787,12 @@ and other resources, etc.
+ !Idrivers/scsi/libata-scsi.c
+   </chapter>
+ 
++  <chapter id="libataAcpi">
++     <title>libata ACPI interfaces/methods</title>
++!Edrivers/scsi/ata_acpi.c
++!Idrivers/scsi/ata_acpi.c
++  </chapter>
++
+   <chapter id="ataExceptions">
+      <title>ATA errors &amp; exceptions</title>
+ 

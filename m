@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030316AbWBVBM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161144AbWBVBbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030316AbWBVBM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 20:12:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030315AbWBVBM7
+	id S1161144AbWBVBbl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 20:31:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161145AbWBVBbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 20:12:59 -0500
-Received: from dvhart.com ([64.146.134.43]:5285 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1030314AbWBVBM6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 20:12:58 -0500
-Message-ID: <43FBBA99.7060707@mbligh.org>
-Date: Tue, 21 Feb 2006 17:12:57 -0800
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Mozilla Thunderbird posting instructions wanted
-References: <20060220210349.GA29791@mipter.zuzino.mipt.ru>
-In-Reply-To: <20060220210349.GA29791@mipter.zuzino.mipt.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Feb 2006 20:31:41 -0500
+Received: from CyborgDefenseSystems.Corporatebeast.com ([64.62.148.172]:46862
+	"EHLO arnor.apana.org.au") by vger.kernel.org with ESMTP
+	id S1161144AbWBVBbl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 20:31:41 -0500
+Date: Wed, 22 Feb 2006 12:31:37 +1100
+To: Michael Heyse <mhk@designassembly.de>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: which one is broken: VIA padlock aes or aes_i586?
+Message-ID: <20060222013137.GA844@gondor.apana.org.au>
+References: <43FB0746.5010200@designassembly.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43FB0746.5010200@designassembly.de>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan wrote:
-> This  POS is pretty popular among kernel janitors, so, can someone who
-> is successfully using it, please, post crystally clear step-by-step
-> instructions on how to send a foo.patch:
-> 	inline
-> 	with tabs preserved
-> 	with long lines preserved
+On Tue, Feb 21, 2006 at 01:27:50PM +0100, Michael Heyse wrote:
 > 
-> Sending plain text attachments is OK with me, but, heh, people do post
-> patches inline and screw themselves.
+> after upgrading the kernel from 2.6.12.5 to 2.6.16-rc4, decryption of my disk fails. As I am using the Nehemia's Padlock and aes-cbc-essiv, I guess this is the reason:
 > 
-> I'll put instructions somewhere on -kj website and point every
-> unsuspecting new guy to them.
+> (from ChangeLog-2.6.13)
+> commit 476df259cd577e20379b02a7f7ffd086ea925a83
+> Author: Herbert Xu <herbert@gondor.apana.org.au>
+> Date:   Wed Jul 6 13:54:09 2005 -0700
+> 
+>     [CRYPTO] Update IV correctly for Padlock CBC encryption
+> 
+>     When the Padlock does CBC encryption, the memory pointed to by EAX is
+>     not updated at all.  Instead, it updates the value of EAX by pointing
+>     it to the last block in the output.  Therefore to maintain the correct
+>     semantics we need to copy the IV.
 
-http://mbligh.org/linuxdocs/Email/Clients/Thunderbird
+I don't think this patch is your problem since it's part of the multiblock
+code which doesn't exist in 2.6.12 at all.  Of course the multiblock code
+itself could be buggy.  I'll take a look.
 
-M.
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

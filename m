@@ -1,39 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWBVNnk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWBVNrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750713AbWBVNnk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 08:43:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWBVNnk
+	id S1751283AbWBVNrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 08:47:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWBVNrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 08:43:40 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:44945 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750713AbWBVNnj
+	Wed, 22 Feb 2006 08:47:08 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:40898 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751283AbWBVNrH convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 08:43:39 -0500
-Message-ID: <43FC6A86.90901@us.ibm.com>
-Date: Wed, 22 Feb 2006 08:43:34 -0500
-From: "Mike D. Day" <ncmike@us.ibm.com>
-User-Agent: Thunderbird 1.5 (Macintosh/20051201)
+	Wed, 22 Feb 2006 08:47:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lgRHkzyal+QSTWvDHl3GLTSwlh1Ey3kECxQxalKK6KzRi5MzCXGLH13dB6kM+UcPxJn3m9II3NsEsETbIW3gfuH+Uk7Ljk/EIr0GtQbsVLPMp4xkYRza+uamr/cwZKoN9MLyunDvMivFHzMxY7zqGkxAjJctg8J9J+ltiTCWSoU=
+Message-ID: <6bffcb0e0602220547o732ab502q@mail.gmail.com>
+Date: Wed, 22 Feb 2006 14:47:06 +0100
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Steven Rostedt" <rostedt@goodmis.org>
+Subject: Re: 2.6.15-rt17
+Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       "Esben Nielsen" <simlo@phys.au.dk>,
+       "Thomas Gleixner" <tglx@linutronix.de>
+In-Reply-To: <Pine.LNX.4.58.0602220715460.4164@gandalf.stny.rr.com>
 MIME-Version: 1.0
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-CC: Arjan van de Ven <arjan@infradead.org>, Dave Hansen <haveblue@us.ibm.com>,
-       xen-devel@lists.xensource.com, lkml <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: [ PATCH 2.6.16-rc3-xen 3/3] sysfs: export Xen hypervisor	attributes
- to sysfs
-References: <43FB2642.7020109@us.ibm.com> <1140542130.8693.18.camel@localhost.localdomain> <20060222123250.GB9295@osiris.boeblingen.de.ibm.com> <43FC5B1D.5040901@us.ibm.com> <1140612969.2979.20.camel@laptopd505.fenrus.org> <43FC61C4.30002@us.ibm.com> <20060222131918.GC9295@osiris.boeblingen.de.ibm.com>
-In-Reply-To: <20060222131918.GC9295@osiris.boeblingen.de.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060221155548.GA30146@elte.hu>
+	 <6bffcb0e0602210916n3ddbd50i@mail.gmail.com>
+	 <Pine.LNX.4.58.0602220715460.4164@gandalf.stny.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Heiko Carstens wrote:
-> On Wed, Feb 22, 2006 at 08:06:12AM -0500, Mike D. Day wrote:
-> 
-> If it's not needed, why include it at all?
+Hi,
 
-Sorry for not being clear. It *is* needed for control tools and agents 
-running in the privileged domain. Kernels running in unprivileged 
-domains will not use the module.
+On 22/02/06, Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> Ingo,
+>
+> Maybe the following patch is needed, so that people know that this is not
+> a bug.
+>
+> -- Steve
 
-Mike
+It will be a very useful piece of information for kernel testers (aka.
+not hackers ;).
+
+Regards,
+Michal
+
+--
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

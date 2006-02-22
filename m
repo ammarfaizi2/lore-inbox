@@ -1,61 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030335AbWBVXSB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030336AbWBVXUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030335AbWBVXSB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 18:18:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030345AbWBVXSB
+	id S1030336AbWBVXUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 18:20:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030339AbWBVXUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 18:18:01 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:24839 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030335AbWBVXSA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 18:18:00 -0500
-Date: Thu, 23 Feb 2006 00:17:57 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Enrico Weigelt <weigelt@metux.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why is 2.4.32 four times faster than 2.6.14.6??
-Message-ID: <20060222231757.GJ4661@stusta.de>
-References: <d9def9db0601072258v39ac4334kccc843838b436bba@mail.gmail.com> <E1EvUp6-0008Ni-00@calista.inka.de> <irf1s1hdoqbsf9cin627gh9tgrsb51htoe@4ax.com> <Pine.LNX.4.61.0601081303140.30148@yvahk01.tjqt.qr> <aap2s1diakl9dg7noa8a4p4kr688lhc1b5@4ax.com> <20060222192707.GB27398@nibiru.local>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060222192707.GB27398@nibiru.local>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Wed, 22 Feb 2006 18:20:08 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:3206 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030336AbWBVXUG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 18:20:06 -0500
+Date: Wed, 22 Feb 2006 15:12:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: john@johnmccutchan.com
+Cc: holt@sgi.com, linux-kernel@vger.kernel.org, rml@novell.com, arnd@arndb.de,
+       hch@lst.de
+Subject: Re: udevd is killing file write performance.
+Message-Id: <20060222151223.5c9061fd.akpm@osdl.org>
+In-Reply-To: <1140648776.1729.5.camel@localhost.localdomain>
+References: <20060222134250.GE20786@lnx-holt.americas.sgi.com>
+	<1140626903.13461.5.camel@localhost.localdomain>
+	<20060222175030.GB30556@lnx-holt.americas.sgi.com>
+	<1140648776.1729.5.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 08:27:07PM +0100, Enrico Weigelt wrote:
+John McCutchan <john@johnmccutchan.com> wrote:
+>
+> On Wed, 2006-22-02 at 11:50 -0600, Robin Holt wrote:
+> > On Wed, Feb 22, 2006 at 11:48:23AM -0500, John McCutchan wrote:
+> > > On Wed, 2006-22-02 at 07:42 -0600, Robin Holt wrote:
+> > > > 
+> > > > I know _VERY_ little about filesystems.  udevd appears to be looking
+> > > > at /etc/udev/rules.d.  This bumps inotify_watches to 1.  The file
+> > > > being written is on an xfs filesystem mounted at a different mountpoint.
+> > > > Could the inotify flag be moved from a global to a sb (or something
+> > > > finer) point and therefore avoid taking the dentry->d_lock when there
+> > > > is no possibility of a watch event being queued.
+> > > 
+> > > We could do this, and avoid the problem, but only in this specific
+> > > scenario. The file being written is on a different mountpoint but whats
+> > > to stop a different app from running inotify on that mount point?
+> > > Perhaps the program could be altered instead? 
+> > 
+> > Looking at fsnotify_access() I think we could hit the same scenario.
+> > Are you proposing we alter any appliction where multiple threads read
+> > a single data file to first make a hard link to that data file and each
+> > read from their private copy?  I don't think that is a very reasonable
+> > suggestion.
 > 
-> BTW: I had a similar problem after switching from 2.6.8.1 
-> to 2.6.15 ... the whole machine (athlon-xp) behaves extremly
-> slow and not even playing mp3 worked without hangs. 
-> 
-> So I switched back to old 2.6.8.1 for now ...
+> Listen, what I'm saying is that your suggested change will only help in
+> one specific scenario, and simply having inotify used on the 'wrong'
+> mountpoint will get you back to square one. So, your suggestion isn't
+> really a solution, but a way of avoiding the real problem. What I *am*
+> suggesting is that a real fix be found,
 
-A better solution would be if it could be determined what your problem 
-is.
+I have a bad feeling about this one.  It'd be nice to have an exact
+understanding of the problen source, but if it's just lots of traffic on
+->d_lock we're kinda stuck.  I don't expect we'll run off and RCUify
+d_parent or turn d_lock into a seq_lock or anything liek that.
 
-Could you try 2.6.16-rc4?
+Then again, maybe making d_lock an rwlock _will_ help - if this workload is
+also hitting tree_lock (Robin?) and we're not seeing suckiness due to that
+then perhaps the rwlock is magically helping.
 
-If the problem is still present, please open a bug report at the kernel 
-Bugzilla [1] with an explanation of your problem, your .config with 
-2.6.16-rc4 and the output of "dmesg -s 1000000" in both 2.6.8.1 and 
-2.6.16-rc4.
 
-We should fix regressions like yours, but this requires bug reports 
-notifying us about problems.
+> instead of your hack.
 
-> cu
-
-TIA
-Adrian
-
-[1] http://bugzilla.kernel.org/
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+It's not a terribly bad hack - it's just poor-man's hashing, and it's
+reasonably well-suited to the sorts of machines and workloads which we
+expect will hit this problem.

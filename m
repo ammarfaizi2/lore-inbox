@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWBVUrY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbWBVUs2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751428AbWBVUrY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 15:47:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbWBVUrY
+	id S1751429AbWBVUs2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 15:48:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWBVUs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 15:47:24 -0500
-Received: from hierophant.serpentine.com ([66.92.13.71]:41897 "EHLO
-	demesne.serpentine.com") by vger.kernel.org with ESMTP
-	id S1751428AbWBVUrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 15:47:23 -0500
+	Wed, 22 Feb 2006 15:48:28 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:6595 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751429AbWBVUs1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 15:48:27 -0500
+Date: Wed, 22 Feb 2006 12:44:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Joel.Becker@oracle.com, gombasg@sztaki.hu, tytso@mit.edu,
+       kay.sievers@suse.de, penberg@cs.helsinki.fi, gregkh@suse.de,
+       bunk@stusta.de, rml@novell.com, linux-kernel@vger.kernel.org,
+       johnstul@us.ibm.com
 Subject: Re: 2.6.16-rc4: known regressions
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Kay Sievers <kay.sievers@suse.de>,
-       penberg@cs.helsinki.fi, gregkh@suse.de, bunk@stusta.de, rml@novell.com,
-       linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-In-Reply-To: <20060222154820.GJ16648@ca-server1.us.oracle.com>
-References: <1140383653.11403.8.camel@localhost>
-	 <20060220010205.GB22738@suse.de> <1140562261.11278.6.camel@localhost>
-	 <20060221225718.GA12480@vrfy.org> <20060221153305.5d0b123f.akpm@osdl.org>
-	 <20060222000429.GB12480@vrfy.org> <20060221162104.6b8c35b1.akpm@osdl.org>
-	 <Pine.LNX.4.64.0602211631310.30245@g5.osdl.org>
-	 <Pine.LNX.4.64.0602211700580.30245@g5.osdl.org>
-	 <20060222112158.GB26268@thunk.org>
-	 <20060222154820.GJ16648@ca-server1.us.oracle.com>
-Content-Type: text/plain
-Date: Wed, 22 Feb 2006 12:47:31 -0800
-Message-Id: <1140641251.9011.4.camel@localhost.localdomain>
+Message-Id: <20060222124428.4808b12e.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602221205040.30245@g5.osdl.org>
+References: <20060221225718.GA12480@vrfy.org>
+	<20060221153305.5d0b123f.akpm@osdl.org>
+	<20060222000429.GB12480@vrfy.org>
+	<20060221162104.6b8c35b1.akpm@osdl.org>
+	<Pine.LNX.4.64.0602211631310.30245@g5.osdl.org>
+	<Pine.LNX.4.64.0602211700580.30245@g5.osdl.org>
+	<20060222112158.GB26268@thunk.org>
+	<20060222154820.GJ16648@ca-server1.us.oracle.com>
+	<20060222162533.GA30316@thunk.org>
+	<20060222173354.GJ14447@boogie.lpds.sztaki.hu>
+	<20060222185923.GL16648@ca-server1.us.oracle.com>
+	<20060222115410.1394ff82.akpm@osdl.org>
+	<Pine.LNX.4.64.0602221205040.30245@g5.osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 (2.5.4-2) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-02-22 at 07:48 -0800, Joel Becker wrote:
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> For example, say that you have more than just a couple of disks attached 
+>  to the system, but many of them are for non-critical stuff. You do not 
+>  necessarily want to wait for them all to spin up at all. You usually only 
+>  care about one of them - the root device.
 
-> 	Do you mean that you are using a distro (eg, RHEL4 or something)
-> with a mainline kernel?  We've seen something similar, and what we've
-> determined is happening is that insmod is returning before the module is
-> done initializing.
+Well yes, but I was suggesting that userspace be given the option - run
+insmod asynchronously if it's a problem.
 
-Yep, we've seen this with other SCSI drivers.  Our solution was to add a
-"sleep 15" after each modprobe in the initrd, since SCSI drivers often
-take a while to pull their thumbs out.
-
-	<b
-
+It all does indicate that our single module_init(no args) interface is too
+coarse...

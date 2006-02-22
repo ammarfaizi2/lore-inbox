@@ -1,60 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751593AbWBVWwv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWBVWyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751593AbWBVWwv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 17:52:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751594AbWBVWwv
+	id S932310AbWBVWyP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 17:54:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbWBVWyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 17:52:51 -0500
-Received: from d36-15-41.home1.cgocable.net ([24.36.15.41]:23429 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1751592AbWBVWwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 17:52:51 -0500
-Subject: Re: udevd is killing file write performance.
-From: John McCutchan <john@johnmccutchan.com>
-Reply-To: john@johnmccutchan.com
-To: Robin Holt <holt@sgi.com>
-Cc: linux-kernel@vger.kernel.org, rml@novell.com, arnd@arndb.de, hch@lst.de,
-       akpm@osdl.org
-In-Reply-To: <20060222175030.GB30556@lnx-holt.americas.sgi.com>
-References: <20060222134250.GE20786@lnx-holt.americas.sgi.com>
-	 <1140626903.13461.5.camel@localhost.localdomain>
-	 <20060222175030.GB30556@lnx-holt.americas.sgi.com>
-Content-Type: text/plain
+	Wed, 22 Feb 2006 17:54:15 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:50112 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S932310AbWBVWyO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 17:54:14 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: "Hesse, Christian" <mail@earthworm.de>
+Subject: Re: hald in status D with 2.6.16-rc4
+Date: Thu, 23 Feb 2006 08:51:14 +1000
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org
+References: <200602202034.29413.mail@earthworm.de> <200602222109.21816.ncunningham@cyclades.com> <200602222336.31562.mail@earthworm.de>
+In-Reply-To: <200602222336.31562.mail@earthworm.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1281268.1ObUN3SWa0";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Date: Wed, 22 Feb 2006 17:52:56 -0500
-Message-Id: <1140648776.1729.5.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+Message-Id: <200602230851.18377.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-22-02 at 11:50 -0600, Robin Holt wrote:
-> On Wed, Feb 22, 2006 at 11:48:23AM -0500, John McCutchan wrote:
-> > On Wed, 2006-22-02 at 07:42 -0600, Robin Holt wrote:
-> > > 
-> > > I know _VERY_ little about filesystems.  udevd appears to be looking
-> > > at /etc/udev/rules.d.  This bumps inotify_watches to 1.  The file
-> > > being written is on an xfs filesystem mounted at a different mountpoint.
-> > > Could the inotify flag be moved from a global to a sb (or something
-> > > finer) point and therefore avoid taking the dentry->d_lock when there
-> > > is no possibility of a watch event being queued.
-> > 
-> > We could do this, and avoid the problem, but only in this specific
-> > scenario. The file being written is on a different mountpoint but whats
-> > to stop a different app from running inotify on that mount point?
-> > Perhaps the program could be altered instead? 
-> 
-> Looking at fsnotify_access() I think we could hit the same scenario.
-> Are you proposing we alter any appliction where multiple threads read
-> a single data file to first make a hard link to that data file and each
-> read from their private copy?  I don't think that is a very reasonable
-> suggestion.
+--nextPart1281268.1ObUN3SWa0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Listen, what I'm saying is that your suggested change will only help in
-one specific scenario, and simply having inotify used on the 'wrong'
-mountpoint will get you back to square one. So, your suggestion isn't
-really a solution, but a way of avoiding the real problem. What I *am*
-suggesting is that a real fix be found, instead of your hack.
+Hi.
 
--- 
-John McCutchan <john@johnmccutchan.com>
+On Thursday 23 February 2006 08:36, Hesse, Christian wrote:
+> On Wednesday 22 February 2006 12:09, Nigel Cunningham wrote:
+> > On Wednesday 22 February 2006 20:10, Hesse, Christian wrote:
+> > > On Tuesday 21 February 2006 23:49, Andrew Morton wrote:
+> > > > "Hesse, Christian" <mail@earthworm.de> wrote:
+> > > > > On Tuesday 21 February 2006 06:19, Andrew Morton wrote:
+> > > > > > "Hesse, Christian" <mail@earthworm.de> wrote:
+> > > > > > > Hello everybody,
+> > > > > > >
+> > > > > > > since using kernel version 2.6.16-rc4 the hal daemon is in
+> > > > > > > status D after resume. I use suspend2 2.2.0.1 for 2.6.16-rc3.
+> > > > > > > Any hints what could be the problem? It worked perfectly with
+> > > > > > > 2.6.15.x and suspend2 2.2.
+> > > > > >
+> > > > > > a) Look in the logs for any oopses, other nasties
+> > > > >
+> > > > > Nothing.
+> > > > >
+> > > > > > b) Do `echo t > /proc/sysrq-trigger', `dmesg -s 1000000 > foo'
+> > > > > > then find the trace for `hald' in `foo', send it to this list.
+> > > > >
+> > > > > Ok, here it is:
+> > > > >
+> > > > > [ trace snipped ]
+> > > > >
+> > > > > This is with 2.6.16-rc4-git1 + suspend2 2.2.0.1.
+> > > >
+> > > > Hopefully suspend2 isn't involved.  People would feel more
+> > > > comfortable if you could test a vanilla mainline tree..
+> > > >
+> > > > Could the ACPI team please take a look at fixing this regression?
+> > >
+> > > I did two cycles with mainline suspend now and did not hit the
+> > > problem... I will keep an eye on it.
+> >
+> > Could you let me know how you go? I didn't make any changes between 2.2
+> > and 2.2.0.1 that I think could cause this, but if you can't reproduce it
+> > otherwise, I'll happily look again.
+>
+> You just missed my last mail. It happens with mainline suspend as well, so
+> it is not your fault.
+
+Ok. Thanks! :)
+
+Nigel
+
+--nextPart1281268.1ObUN3SWa0
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBD/OrmN0y+n1M3mo0RAovRAJwNIUFc1NTgU6rPXnG0IjZWbiFYkgCfS3x5
+CrypdpFk2fiQvq6k3DK9e3I=
+=WAHq
+-----END PGP SIGNATURE-----
+
+--nextPart1281268.1ObUN3SWa0--

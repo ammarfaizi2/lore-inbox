@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030328AbWBVXHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030331AbWBVXNb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030328AbWBVXHz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 18:07:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751538AbWBVXHy
+	id S1030331AbWBVXNb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 18:13:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030334AbWBVXNb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 18:07:54 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:40424 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1030328AbWBVXHj (ORCPT
+	Wed, 22 Feb 2006 18:13:31 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:15849 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1030331AbWBVXNa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 18:07:39 -0500
-Message-ID: <43FCEE08.7923E800@tv-sign.ru>
-Date: Thu, 23 Feb 2006 02:04:40 +0300
+	Wed, 22 Feb 2006 18:13:30 -0500
+Message-ID: <43FCEF68.BE296D49@tv-sign.ru>
+Date: Thu, 23 Feb 2006 02:10:32 +0300
 From: Oleg Nesterov <oleg@tv-sign.ru>
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
        "Eric W. Biederman" <ebiederm@xmission.com>,
        David Howells <dhowells@redhat.com>
-Subject: [PATCH 2/6] relax sig_needs_tasklist()
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [PATCH 2/3] revert "Optimize sys_times for a single threadprocess"
+References: <43FCE6AC.ED8BC108@tv-sign.ru> <Pine.LNX.4.64.0602221446080.30219@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-handle_stop_signal() does not need tasklist_lock for
-SIG_KERNEL_STOP_MASK signals anymore.
+Christoph Lameter wrote:
+> 
+> On Thu, 23 Feb 2006, Oleg Nesterov wrote:
+> 
+> > tasklist_lock in sys_times() will be eliminated completely
+> > by further patch.
+> 
+> Where is that patch? The patch would simply drop the locks?
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+Just sent it: "[PATCH 1/6] sys_times: don't take tasklist_lock"
 
---- 2.6.16-rc3/kernel/signal.c~2_RELAX	2006-02-23 00:36:49.000000000 +0300
-+++ 2.6.16-rc3/kernel/signal.c	2006-02-23 01:22:45.000000000 +0300
-@@ -146,8 +146,7 @@ static kmem_cache_t *sigqueue_cachep;
- #define sig_kernel_stop(sig) \
- 		(((sig) < SIGRTMIN)  && T(sig, SIG_KERNEL_STOP_MASK))
- 
--#define sig_needs_tasklist(sig) \
--		(((sig) < SIGRTMIN)  && T(sig, SIG_KERNEL_STOP_MASK | M(SIGCONT)))
-+#define sig_needs_tasklist(sig)	((sig) == SIGCONT)
- 
- #define sig_user_defined(t, signr) \
- 	(((t)->sighand->action[(signr)-1].sa.sa_handler != SIG_DFL) &&	\
+It only drops tasklist_lock, sighand->siglock is still needed,
+of course.
+
+Oleg.

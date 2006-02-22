@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWBVHeV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWBVHnK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbWBVHeV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 02:34:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWBVHeV
+	id S932267AbWBVHnK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 02:43:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbWBVHnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 02:34:21 -0500
-Received: from iona.labri.fr ([147.210.8.143]:21702 "EHLO iona.labri.fr")
-	by vger.kernel.org with ESMTP id S932180AbWBVHeV (ORCPT
+	Wed, 22 Feb 2006 02:43:10 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:33251 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932245AbWBVHnJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 02:34:21 -0500
-Date: Wed, 22 Feb 2006 08:34:23 +0100
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: adaplas@pol.net, linux-kernel@vger.kernel.org
-Subject: Re: Fw: [Bugme-new] [Bug 6106] New: EGA problem since 2.6.14
-Message-ID: <20060222073423.GA4367@implementation.labri.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	Andrew Morton <akpm@osdl.org>, adaplas@pol.net,
-	linux-kernel@vger.kernel.org
-References: <20060219135521.69e9c974.akpm@osdl.org> <20060222014102.GB4956@bouh.residence.ens-lyon.fr> <20060221175710.42579f44.akpm@osdl.org>
+	Wed, 22 Feb 2006 02:43:09 -0500
+Date: Tue, 21 Feb 2006 23:41:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: torvalds@osdl.org, ak@suse.de, holt@sgi.com, bcasavan@sgi.com, cr@sap.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tmpfs: fix mount mpol nodelist parsing
+Message-Id: <20060221234104.7cf4e84c.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0602220658390.6196@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0602212341160.5390@goblin.wat.veritas.com>
+	<20060221183004.72ffa011.akpm@osdl.org>
+	<Pine.LNX.4.61.0602220658390.6196@goblin.wat.veritas.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060221175710.42579f44.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hugh Dickins <hugh@veritas.com> wrote:
+>
+> But perhaps I should expand the mention of CONFIG_NUMA in tmpfs.txt,
+>  to explain the issue, and suggest that "mpol=" be used in remounts
+>  rather than automatic mounts on systems where it might be a problem.
+>  I'll dream up some wording later.
 
-Andrew Morton, le Tue 21 Feb 2006 17:57:10 -0800, a écrit :
-> Your patch was against some prehistoric kernel which didn't have the
-> vgacon_xres and vgacon_yres initialisations in vgacon_doresize().
+Yes, a remount is the way this feature should be used.
 
-Ah, yes, sorry.
+>  > [ Vaguely suprised that tmpfs isn't using match_token()... ]
+> 
+>  I did briefly consider that back in the days when I noticed a host of
+>  fs filesystems got converted.  But didn't see any point in messing
+>  with what was already working.  Haven't looked recently: would it
+>  actually be a useful change to make?
 
-> Please confirm that this is correct:
+I guess it'd be nice to do for uniformity's sake, but it's hardly pressing.
+I have a vague memory that the ext3 conversion actually increased .text
+size, which was a bit irritating.
 
-This is indeed.
-
-Regards,
-Samuel

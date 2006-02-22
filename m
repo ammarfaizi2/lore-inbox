@@ -1,97 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbWBVWKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751482AbWBVWJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751491AbWBVWKA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 17:10:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWBVWKA
+	id S1751482AbWBVWJo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 17:09:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWBVWJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 17:10:00 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:63901 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1751448AbWBVWJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 17:09:58 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: "Hesse, Christian" <mail@earthworm.de>
-Subject: Re: hald in status D with 2.6.16-rc4
-Date: Wed, 22 Feb 2006 21:09:16 +1000
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-References: <200602202034.29413.mail@earthworm.de> <20060221144907.1ac11799.akpm@osdl.org> <200602221110.44813.mail@earthworm.de>
-In-Reply-To: <200602221110.44813.mail@earthworm.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3178343.cvBiZZPuXe";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602222109.21816.ncunningham@cyclades.com>
+	Wed, 22 Feb 2006 17:09:44 -0500
+Received: from styx.suse.cz ([82.119.242.94]:8377 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1751482AbWBVWJn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 17:09:43 -0500
+Date: Wed, 22 Feb 2006 23:09:54 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: dtor_core@ameritech.net
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
+       stuart_hayes@dell.com
+Subject: Re: Suppressing softrepeat
+Message-ID: <20060222220954.GA7930@suse.cz>
+References: <20060221124308.5efd4889.zaitcev@redhat.com> <20060221210800.GA12102@suse.cz> <20060222120047.4fd9051e.zaitcev@redhat.com> <20060222204024.GA7477@suse.cz> <d120d5000602221309n58cad283q41a79e6fe013042d@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000602221309n58cad283q41a79e6fe013042d@mail.gmail.com>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3178343.cvBiZZPuXe
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-Hi.
-
-On Wednesday 22 February 2006 20:10, Hesse, Christian wrote:
-> On Tuesday 21 February 2006 23:49, Andrew Morton wrote:
-> > "Hesse, Christian" <mail@earthworm.de> wrote:
-> > > On Tuesday 21 February 2006 06:19, Andrew Morton wrote:
-> > > > "Hesse, Christian" <mail@earthworm.de> wrote:
-> > > > > Hello everybody,
-> > > > >
-> > > > > since using kernel version 2.6.16-rc4 the hal daemon is in status=
- D
-> > > > > after resume. I use suspend2 2.2.0.1 for 2.6.16-rc3. Any hints wh=
-at
-> > > > > could be the problem? It worked perfectly with 2.6.15.x and
-> > > > > suspend2 2.2.
-> > > >
-> > > > a) Look in the logs for any oopses, other nasties
-> > >
-> > > Nothing.
-> > >
-> > > > b) Do `echo t > /proc/sysrq-trigger', `dmesg -s 1000000 > foo' then
-> > > > find the trace for `hald' in `foo', send it to this list.
-> > >
-> > > Ok, here it is:
-> > >
-> > > [ trace snipped ]
-> > >
-> > > This is with 2.6.16-rc4-git1 + suspend2 2.2.0.1.
+On Wed, Feb 22, 2006 at 04:09:33PM -0500, Dmitry Torokhov wrote:
+> > How about simply this patch instead?
 > >
-> > Hopefully suspend2 isn't involved.  People would feel more comfortable =
-if
-> > you could test a vanilla mainline tree..
-> >
-> > Could the ACPI team please take a look at fixing this regression?
->
-> I did two cycles with mainline suspend now and did not hit the problem...=
- I
-> will keep an eye on it.
+> > Setting autorepeat will not be possible on 'dumb' keyboards anymore by
+> > default, but since these usually are special forms of hardware anyway,
+> > like the DRAC3, this shouldn't be an issue for most users. Using
+> > 'softrepeat' on these keyboards will restore the behavior for users that
+> > need it.
+> 
+> I am not keen on changing the default behaviour... How many dumb
+> keyboards are out there?
 
-Could you let me know how you go? I didn't make any changes between 2.2 and=
-=20
-2.2.0.1 that I think could cause this, but if you can't reproduce it=20
-otherwise, I'll happily look again.
+Apart from the DRAC3, some home-made Sun-to-PS2 converter, and a single
+non-x86 embedded box, I don't recall anything. Answer: very few.
 
-Regards,
+There may be users, though, that use this option to force the detection
+of the keyboard when not really plugged in, eg. for flaky KVMs. I've
+Googled for that usage, but found none.
 
-Nigel
+> I'd rather turn atkbd.softrepeat into a 3-state switch...
 
---nextPart3178343.cvBiZZPuXe
-Content-Type: application/pgp-signature
+We could, but the more I think about it, the stronger I'm convinced that
+the dumbkbd => softrepeat => softraw option implication chain is wrong.
+The second implication is necessary, but with dumbkbd it's quite likely
+you won't want softraw.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD/EZhN0y+n1M3mo0RAm5HAKDgGohA6w31t86TZCiveVQyc2+NJgCgzrXb
-bwVm9bb9ojNArJDGIJJ/LXY=
-=UIXM
------END PGP SIGNATURE-----
-
---nextPart3178343.cvBiZZPuXe--
+-- 
+Vojtech Pavlik
+Director SuSE Labs

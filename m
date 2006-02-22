@@ -1,62 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbWBVLsI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbWBVLtW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750886AbWBVLsI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 06:48:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbWBVLsI
+	id S1750949AbWBVLtW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 06:49:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWBVLtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 06:48:08 -0500
-Received: from mail.gatrixx.com ([217.111.11.44]:6582 "EHLO mail.gatrixx.com")
-	by vger.kernel.org with ESMTP id S1750958AbWBVLsH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 06:48:07 -0500
-Date: Wed, 22 Feb 2006 12:48:04 +0100 (CET)
-From: Oliver Joa <oliver@j-o-a.de>
-X-X-Sender: olli@majestix.gallier.de
-To: linux-kernel@vger.kernel.org
-Subject: promise sata 300 TX4 and Samsung HD (SP2004C) -> Sector errors
-Message-ID: <Pine.LNX.4.63.0602221247380.2270@majestix.gallier.de>
+	Wed, 22 Feb 2006 06:49:22 -0500
+Received: from mail2.designassembly.de ([217.11.62.46]:58752 "EHLO
+	mail2.designassembly.de") by vger.kernel.org with ESMTP
+	id S1750949AbWBVLtV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 06:49:21 -0500
+Message-ID: <43FC4FBC.7030103@designassembly.de>
+Date: Wed, 22 Feb 2006 12:49:16 +0100
+From: Michael Heyse <mhk@designassembly.de>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: which one is broken: VIA padlock aes or aes_i586?
+References: <43FB0746.5010200@designassembly.de> <20060222013137.GA844@gondor.apana.org.au>
+In-Reply-To: <20060222013137.GA844@gondor.apana.org.au>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Herbert Xu wrote:
+> I don't think this patch is your problem since it's part of the multiblock
+> code which doesn't exist in 2.6.12 at all.  Of course the multiblock code
+> itself could be buggy.  I'll take a look.
 
-i have a brandnew Promise SATA 300 TX4 Controller and 2 Samsung HD
-(SP2004C). I am using Linux 2.6.15 and also tried 2.6.15.4 with
-sata_promise-driver. I get sector-errors:
+You're right, this doesn't make sense. I tried it with 2.6.15.4, and it works, 2.6.16-rc1 doesn't. In both cases no other AES algorithm than padlock was compiled into the kernel. I hope this helps.
 
-ata2: PIO error
-ata2: status=0x50 { DriveReady SeekComplete }
-ata2: PIO error
-ata2: status=0x50 { DriveReady SeekComplete }
-ata2: PIO error
-ata2: status=0x50 { DriveReady SeekComplete }
-ata2: PIO error
-ata2: status=0x50 { DriveReady SeekComplete }
-hdd: ATAPI 48X DVD-ROM drive, 512kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.20
-ATA: abnormal status 0xFF on port 0xF880029C
-ata2: translated ATA stat/err 0xff/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-ata2: status=0xff { Busy }
-ata2: command timeout
-ATA: abnormal status 0xFF on port 0xF880029C
-ata2: translated ATA stat/err 0xff/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-ata2: status=0xff { Busy }
-sd 1:0:0:0: SCSI error: return code = 0x8000002
-sda: Current: sense key: Aborted Command
-     Additional sense: Scsi parity error
-end_request: I/O error, dev sda, sector 9482176
-Buffer I/O error on device sda, logical block 1185272
+BTW: 2.6.15 gives me a read performance increase of about 50% (hdparm -t) compared to 2.6.12, nice work!!
 
-I get the error at heavy hd-usage, and also on both harddisks. So i think
-it is not a problem of the harddisks. I use softwareraid, but it does not
-work. I think it should take out the harddisk with the error, but it does
-not. The system is hanging....
-
-Do you have any idea?
-
-Thanks a lot
-
-Olli
-
+Michael

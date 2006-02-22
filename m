@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbWBVW6F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751516AbWBVXHW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750951AbWBVW6F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 17:58:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbWBVW6E
+	id S1751516AbWBVXHW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 18:07:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751513AbWBVXHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 17:58:04 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9097 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750951AbWBVW6C (ORCPT
+	Wed, 22 Feb 2006 18:07:22 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:35560 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751512AbWBVXHO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 17:58:02 -0500
-Date: Wed, 22 Feb 2006 23:57:41 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Kristen Accardi <kristen.c.accardi@intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       pcihpd-discuss@lists.sourceforge.net, greg@kroah.com,
-       len.brown@intel.com, muneda.takahiro@jp.fujitsu.com
-Subject: Re: [patch 3/3] acpi: remove dock event handling from ibm_acpi
-Message-ID: <20060222225740.GJ13621@elf.ucw.cz>
-References: <20060222190839.268403000@intel.com> <1140636091.32574.21.camel@whizzy>
-Mime-Version: 1.0
+	Wed, 22 Feb 2006 18:07:14 -0500
+Message-ID: <43FCEDF0.15D70D0D@tv-sign.ru>
+Date: Thu, 23 Feb 2006 02:04:16 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       David Howells <dhowells@redhat.com>,
+       Christoph Lameter <clameter@engr.sgi.com>
+Subject: [PATCH 1/6] sys_times: don't take tasklist_lock
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1140636091.32574.21.camel@whizzy>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On St 22-02-06 11:21:31, Kristen Accardi wrote:
-> Remove dock station support from ibm_acpi by default.  This support has been 
-> put into acpiphp instead.  Allow ibm_acpi to continue to provide docking
-> station support via config option for laptops/docking stations that are 
-> not supported by acpiphp.
-> 
-> Signed-off-by:  Kristen Carlson Accardi <kristen.c.accardi@intel.com> 
-> 
-> ---
->  drivers/acpi/Kconfig    |   12 ++++++++++++
->  drivers/acpi/ibm_acpi.c |   13 ++++++++++---
->  2 files changed, 22 insertions(+), 3 deletions(-)
-> 
-> --- linux-dock-mm.orig/drivers/acpi/Kconfig
-> +++ linux-dock-mm/drivers/acpi/Kconfig
-> @@ -205,6 +205,18 @@ config ACPI_IBM
->  
->  	  If you have an IBM ThinkPad laptop, say Y or M here.
->  
-> +config ACPI_IBM_DOCK
-> +	bool "Legacy Docking Station Support"
-> +	depends on ACPI_IBM
-> +	default n
-> +	---help---
-> +	  Allows the ibm_acpi driver to handle docking station events.
-> +	  This support is limited and should only be enabled if the generic
-> +          docking station support driver does not support your laptop/dock
-> +	  station.
+sys_times: dont' take tasklist_lock
 
-This support is obsoleted by
-CONFIG_PCI_HOTPLUG_ACPIHP_or_how_it_is_called. It will allow
-ejecting/locking machine in dock, but will not properly connect PCI
-buses.
-								Pavel
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+--- 2.6.16-rc3/kernel/sys.c~	Thu Feb 23 00:27:27 2006
++++ 2.6.16-rc3/kernel/sys.c	Thu Feb 23 00:28:24 2006
+@@ -1018,7 +1018,7 @@ asmlinkage long sys_times(struct tms __u
+ 		struct task_struct *t;
+ 		cputime_t utime, stime, cutime, cstime;
+ 
+-		read_lock(&tasklist_lock);
++		spin_lock_irq(&tsk->sighand->siglock);
+ 		utime = tsk->signal->utime;
+ 		stime = tsk->signal->stime;
+ 		t = tsk;
+@@ -1028,20 +1028,9 @@ asmlinkage long sys_times(struct tms __u
+ 			t = next_thread(t);
+ 		} while (t != tsk);
+ 
+-		/*
+-		 * While we have tasklist_lock read-locked, no dying thread
+-		 * can be updating current->signal->[us]time.  Instead,
+-		 * we got their counts included in the live thread loop.
+-		 * However, another thread can come in right now and
+-		 * do a wait call that updates current->signal->c[us]time.
+-		 * To make sure we always see that pair updated atomically,
+-		 * we take the siglock around fetching them.
+-		 */
+-		spin_lock_irq(&tsk->sighand->siglock);
+ 		cutime = tsk->signal->cutime;
+ 		cstime = tsk->signal->cstime;
+ 		spin_unlock_irq(&tsk->sighand->siglock);
+-		read_unlock(&tasklist_lock);
+ 
+ 		tmp.tms_utime = cputime_to_clock_t(utime);
+ 		tmp.tms_stime = cputime_to_clock_t(stime);

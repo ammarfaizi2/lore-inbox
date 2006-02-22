@@ -1,47 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWBVNrX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWBVNvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751287AbWBVNrX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 08:47:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWBVNrX
+	id S1751277AbWBVNvy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 08:51:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWBVNvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 08:47:23 -0500
-Received: from relay4.usu.ru ([194.226.235.39]:30099 "EHLO relay4.usu.ru")
-	by vger.kernel.org with ESMTP id S1751285AbWBVNrV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 08:47:21 -0500
-Message-ID: <43FC6B8F.4060601@ums.usu.ru>
-Date: Wed, 22 Feb 2006 18:47:59 +0500
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.16-rc4-mm1
-References: <20060220042615.5af1bddc.akpm@osdl.org>
-In-Reply-To: <20060220042615.5af1bddc.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.33.1.0; VDF: 6.33.1.17; host: usu2.usu.ru)
+	Wed, 22 Feb 2006 08:51:54 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:57557 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751277AbWBVNvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 08:51:53 -0500
+Date: Wed, 22 Feb 2006 13:51:50 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Serge Noiraud <serge.noiraud@bull.net>
+Cc: tglx@linutronix.de, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: RT and pci_lock while reading or writing pci bus configuration.
+Message-ID: <20060222135150.GA15367@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Serge Noiraud <serge.noiraud@bull.net>, tglx@linutronix.de,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <200602201542.19857.Serge.Noiraud@bull.net> <1140464706.2480.762.camel@localhost.localdomain> <200602221016.18405.Serge.Noiraud@bull.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602221016.18405.Serge.Noiraud@bull.net>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc4/2.6.16-rc4-mm1/
-plus hotfixes
 
-Unfortunately, I lost my .config from the old kernel, so I attempted the 
-following:
+Your using the illegal and broken nvidia driver, and as usual it's doing
+stupid things.  NVidia customer support is that way ---->
 
-cd scripts
-make binoffset
-cd ..
-scripts/extract-ikconfig /boot/vmlinuz-2.6.16-rc3-mm1-home >.config
-
-This results in:
-
-zcat: stdin: decompression OK, trailing garbage ignored
-
-Note: I have not compiled this kernel yet, so there will be probably 
-another report of real issues.
-
--- 
-Alexander E. Patrakov

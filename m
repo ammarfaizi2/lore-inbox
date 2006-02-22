@@ -1,43 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbWBVDUL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWBVDYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751268AbWBVDUL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 22:20:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWBVDUL
+	id S1751275AbWBVDYV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 22:24:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWBVDYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 22:20:11 -0500
-Received: from smtp106.sbc.mail.re2.yahoo.com ([68.142.229.99]:59809 "HELO
-	smtp106.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1751268AbWBVDUJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 22:20:09 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [2.6 patch] make INPUT a bool
-Date: Tue, 21 Feb 2006 22:20:04 -0500
-User-Agent: KMail/1.9.1
-Cc: Samuel Masham <samuel.masham@gmail.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
-       linux-input@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>
-References: <20060214152218.GI10701@stusta.de> <20060222024438.GI20204@MAIL.13thfloor.at> <20060222031001.GC4661@stusta.de>
-In-Reply-To: <20060222031001.GC4661@stusta.de>
+	Tue, 21 Feb 2006 22:24:21 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:17285 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751275AbWBVDYU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 22:24:20 -0500
+Message-ID: <43FBD995.20601@jp.fujitsu.com>
+Date: Wed, 22 Feb 2006 12:25:09 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Christoph Lameter <clameter@engr.sgi.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, Dave Hansen <haveblue@us.ibm.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] remove zone_mem_map
+References: <43FBAEBA.2020300@jp.fujitsu.com> <Pine.LNX.4.64.0602211900450.23557@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0602211900450.23557@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602212220.05642.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 February 2006 22:10, Adrian Bunk wrote:
-> On Wed, Feb 22, 2006 at 03:44:38AM +0100, Herbert Poetzl wrote:
-> > 
-> >  config X86_P4_CLOCKMOD
-> > 	depends on EMBEDDED
+Christoph Lameter wrote:
+> On Wed, 22 Feb 2006, KAMEZAWA Hiroyuki wrote:
 > 
-> This one is an x86_64 only issue, and yes, it's wrong.
+>> This patch removes zone_mem_map.
+> 
+> Note that IA64 does not seem to depend on zone_mem_map...
+> 
+Oh, yes. ia64 doesn't includes asm-generic/memory_model.h when DISCONTIGMEM.
 
-That's for P4, not X86_64... And since P4 clock modulation does not provide
-almost any energy savings it was "hidden" under embedded.
+>> Index: test/include/asm-generic/memory_model.h
+>> ===================================================================
+>> --- test.orig/include/asm-generic/memory_model.h
+>> +++ test/include/asm-generic/memory_model.h
+>> @@ -47,9 +47,9 @@ extern unsigned long page_to_pfn(struct
+>>
+>>  #define page_to_pfn(pg)			\
+>>  ({	struct page *__pg = (pg);		\
+>> -	struct zone *__zone = page_zone(__pg);	\
+>> -	(unsigned long)(__pg - __zone->zone_mem_map) +	\
+>> -	 __zone->zone_start_pfn;			\
+>> +	struct pglist_data *__pgdat = NODE_DATA(page_to_nid(__pg));	\
+>> +	(unsigned long)(__pg - __pgdat->node_mem_map) +	\
+>> +	 __pgdat->node_start_pfn;			\
+>>  })
+> 
+> NODE_DATA is an arch specific lookup, If it always is a table lookup
+> then the performance will be comparable to page_zone because that also 
+> involves one table lookup.
+> 
+There are several types of NODE_DATA definitions.
+1. #define NODE_DATA(node)	(&node_data[node]) alpha,arm,
+2. #define NODE_DATA(node)      (node_data[node]) i386,powerpc,x86_64,m32r
+3. #define NODE_DATA(node)	(&node_data[node]->pgdat) parisc,mips
+4. #define NODE_DATA(node)	(per-cpu-page has node_data[nid] pointer array) ia64
 
--- 
-Dmitry
+BTW, ia64 looks very special. Does it make sensible performance gain ?
+
+-- Kame
+

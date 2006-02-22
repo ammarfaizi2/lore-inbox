@@ -1,80 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWBVHU4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWBVHeV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbWBVHU4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 02:20:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbWBVHU4
+	id S932180AbWBVHeV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 02:34:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWBVHeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 02:20:56 -0500
-Received: from gold.veritas.com ([143.127.12.110]:12134 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S932190AbWBVHUz (ORCPT
+	Wed, 22 Feb 2006 02:34:21 -0500
+Received: from iona.labri.fr ([147.210.8.143]:21702 "EHLO iona.labri.fr")
+	by vger.kernel.org with ESMTP id S932180AbWBVHeV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 02:20:55 -0500
-X-IronPort-AV: i="4.02,135,1139212800"; 
-   d="scan'208"; a="55848581:sNHT31962472"
-Date: Wed, 22 Feb 2006 07:21:41 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
+	Wed, 22 Feb 2006 02:34:21 -0500
+Date: Wed, 22 Feb 2006 08:34:23 +0100
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
 To: Andrew Morton <akpm@osdl.org>
-cc: torvalds@osdl.org, ak@suse.de, holt@sgi.com, bcasavan@sgi.com, cr@sap.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] tmpfs: fix mount mpol nodelist parsing
-In-Reply-To: <20060221183004.72ffa011.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0602220658390.6196@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0602212341160.5390@goblin.wat.veritas.com>
- <20060221183004.72ffa011.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 22 Feb 2006 07:20:55.0030 (UTC) FILETIME=[84D17960:01C63780]
+Cc: adaplas@pol.net, linux-kernel@vger.kernel.org
+Subject: Re: Fw: [Bugme-new] [Bug 6106] New: EGA problem since 2.6.14
+Message-ID: <20060222073423.GA4367@implementation.labri.fr>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	Andrew Morton <akpm@osdl.org>, adaplas@pol.net,
+	linux-kernel@vger.kernel.org
+References: <20060219135521.69e9c974.akpm@osdl.org> <20060222014102.GB4956@bouh.residence.ens-lyon.fr> <20060221175710.42579f44.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060221175710.42579f44.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Feb 2006, Andrew Morton wrote:
-> Hugh Dickins <hugh@veritas.com> wrote:
-> >
-> > Move the mpol= parsing to shmem_parse_mpol under CONFIG_NUMA, reject
-> >  all its options as invalid if not NUMA.
-> 
-> That's a bit irritating, really.  It means that userspace needs to be
-> different for NUMA kernels (or more different, which is still bad).  Boot
-> into a non-NUMA kernel and whoops, no tmpfs and quite possibly no boot.
+Hi,
 
-Well spotted.
+Andrew Morton, le Tue 21 Feb 2006 17:57:10 -0800, a écrit :
+> Your patch was against some prehistoric kernel which didn't have the
+> vgacon_xres and vgacon_yres initialisations in vgacon_doresize().
 
-That was a choice that gave me pause between making it and sending the
-patch.  But in the end I decided we might as well.  Repeating what I
-wrote to Robin about it...
+Ah, yes, sorry.
 
-I did wonder for a while whether I'd been unhelpful to make mpol= fail
-when not CONFIG_NUMA - tiresome for someone switching between NUMA and
-non-NUMA kernels.  But this is an advanced option, not something for
-everybody's /etc/fstab; and once I realized that all but the trivial
-nodelist "0" would get rejected anyway if not CONFIG_NUMA, decided it
-is best to placate the anti-bloaters with that CONFIG_NUMA after all.
+> Please confirm that this is correct:
 
-> But last time I whined about this Albert had a list of fairly
-> reasonable-sounding reasons why filesystems shouldn't silently accept
-> not-understood options.
-> 
-> But in this case, we _do_ understand them.  We're just not going to do
-> anything about them.
-> 
-> I just wonder if we're being as friendly as we possibly can be to admins
-> and distro-makers.
+This is indeed.
 
-I doubt the distro-makers will want to be putting "mpol=" options into
-their tmpfs lines in /etc/fstab.  I hope the admins of such systems
-that need it can cope.
-
-But perhaps I should expand the mention of CONFIG_NUMA in tmpfs.txt,
-to explain the issue, and suggest that "mpol=" be used in remounts
-rather than automatic mounts on systems where it might be a problem.
-I'll dream up some wording later.
-
-> [ Vaguely suprised that tmpfs isn't using match_token()... ]
-
-I did briefly consider that back in the days when I noticed a host of
-fs filesystems got converted.  But didn't see any point in messing
-with what was already working.  Haven't looked recently: would it
-actually be a useful change to make?
-
-Hugh
+Regards,
+Samuel

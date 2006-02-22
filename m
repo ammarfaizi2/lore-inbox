@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbWBVMEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWBVMFo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750936AbWBVMEN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 07:04:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWBVMEN
+	id S1751202AbWBVMFo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 07:05:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWBVMFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 07:04:13 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:7193 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750936AbWBVMEM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 07:04:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=lf51lOCX9dRSXRmrAZ8/baWAIU/d+yquKWlrqnMe6I7hZzmGRi64e763RHptI213EJaSe6XoRkwQayyaXSNXL0dkDD+dng2G/vvMUq2fNNhezw4uDMYHP5+cq5/B1BeYqaKTO2ff/OAIzggcTohpcs5uHfJ3Wk2J0c6lRkJmlXA=
-Message-ID: <7a37e95e0602220404y7b82104ch5c3cda087336aed7@mail.gmail.com>
-Date: Wed, 22 Feb 2006 17:34:11 +0530
-From: "Deven Balani" <devenbalani@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: non-PCI based libata-SATA driver
+	Wed, 22 Feb 2006 07:05:44 -0500
+Received: from mail2.designassembly.de ([217.11.62.46]:60611 "EHLO
+	mail2.designassembly.de") by vger.kernel.org with ESMTP
+	id S1751202AbWBVMFn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 07:05:43 -0500
+Message-ID: <43FC5393.3080702@designassembly.de>
+Date: Wed, 22 Feb 2006 13:05:39 +0100
+From: Michael Heyse <mhk@designassembly.de>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: which one is broken: VIA padlock aes or aes_i586?
+References: <43FB0746.5010200@designassembly.de> <20060222013137.GA844@gondor.apana.org.au> <20060222114531.GA4170@gondor.apana.org.au>
+In-Reply-To: <20060222114531.GA4170@gondor.apana.org.au>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+Herbert Xu wrote:
+> On Wed, Feb 22, 2006 at 12:31:37PM +1100, herbert wrote:
+> 
+>>I don't think this patch is your problem since it's part of the multiblock
+>>code which doesn't exist in 2.6.12 at all.  Of course the multiblock code
+>>itself could be buggy.  I'll take a look.
+> 
+> 
+> OK I can't reproduce this.  Please send me your dmcrypt setup line so
+> I can try it here.
 
-I'm working on writing a non-PCI based libata-SATA driver in
-linux-2.6.x for ARM based chipsets.
+I'm using the cryptsetup tool (from http://www.saout.de/misc/dm-crypt/):
 
-Can anybody suggest me a reference-code for a non-PCI based
-libata-SATA driver for  2.6.x kernels ?
+echo $KEY | cryptsetup -c aes-cbc-essiv:sha256 -h plain -s 256 create data /dev/vg0/data
 
-Any suggestions/comments will be of great help.
+$KEY contains 32 bytes of binary data. Do you need any other information? Here's all I can think of:
 
-Thanks in advance.
+- parition /dev/vg0/data lies on a lvm2 volume group
+- this volume group lies on a 4-disk software-raid 5 array
+- size of the partition is 300 GB
+- padlock aes works on kernel 2.6.15.4 but not on 2.6.16-rc1
+- aes_i586 works on all kernels
 
-Deven
+Thanks,
+Michael

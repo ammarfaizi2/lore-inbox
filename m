@@ -1,85 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWBVLKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWBVLWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751132AbWBVLKY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 06:10:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWBVLKX
+	id S1750702AbWBVLWN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 06:22:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWBVLWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 06:10:23 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:21438 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751132AbWBVLKV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 06:10:21 -0500
-Date: Wed, 22 Feb 2006 20:09:56 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Yasunori Goto <y-goto@jp.fujitsu.com>
-Subject: [PATCH] refine for_each_pgdat() [4/4] remove pgdat_list
-Message-Id: <20060222200956.61143076.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.7; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Feb 2006 06:22:13 -0500
+Received: from thunk.org ([69.25.196.29]:24509 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1750702AbWBVLWM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 06:22:12 -0500
+Date: Wed, 22 Feb 2006 06:21:58 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Kay Sievers <kay.sievers@suse.de>,
+       penberg@cs.helsinki.fi, gregkh@suse.de, bunk@stusta.de, rml@novell.com,
+       linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+Subject: Re: 2.6.16-rc4: known regressions
+Message-ID: <20060222112158.GB26268@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Kay Sievers <kay.sievers@suse.de>, penberg@cs.helsinki.fi,
+	gregkh@suse.de, bunk@stusta.de, rml@novell.com,
+	linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+References: <20060219145442.GA4971@stusta.de> <1140383653.11403.8.camel@localhost> <20060220010205.GB22738@suse.de> <1140562261.11278.6.camel@localhost> <20060221225718.GA12480@vrfy.org> <20060221153305.5d0b123f.akpm@osdl.org> <20060222000429.GB12480@vrfy.org> <20060221162104.6b8c35b1.akpm@osdl.org> <Pine.LNX.4.64.0602211631310.30245@g5.osdl.org> <Pine.LNX.4.64.0602211700580.30245@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0602211700580.30245@g5.osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-By modifing for_each_pgdat() to use node_online_map, pgdat_list
-is not necessary now. This patch removes it.
+On Tue, Feb 21, 2006 at 05:06:48PM -0800, Linus Torvalds wrote:
+> 
+> To some degree, /initrd was supposed to do things like that, and in 
+> theory, it still could. However, realistically, 99% of any /initrd is more 
+> about the distribution than the kernel, so right now we have to count 
+> /initrd as a distribution thing, not a kernel thing.
 
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+... and if we're truly going to be pouring more and more complexity
+into initrd (such as userspace swsusp), then (a) we probably should
+make it more of a kernel-specific thing, and not a distro-specific
+thing, since without that you can be pretty much guaranteed that more
+and more people will be using and testing swsusp2, and not uswsusp,
+and (b) we need to add _way_ better debugging provisions so that if
+something dies in early boot, you don't go pulling out your hair
+trying to figure out what went wrong, and having to spend a good 20
+minutes or so between each try-to-fix the initrd, watch the boot fail,
+reboot into a working setup, cursing Red Hat's nash, modifying the
+initrd, and trying again.
 
-Index: linux-2.6.16-rc4/mm/page_alloc.c
-===================================================================
---- linux-2.6.16-rc4.orig/mm/page_alloc.c
-+++ linux-2.6.16-rc4/mm/page_alloc.c
-@@ -49,7 +49,6 @@ nodemask_t node_online_map __read_mostly
- EXPORT_SYMBOL(node_online_map);
- nodemask_t node_possible_map __read_mostly = NODE_MASK_ALL;
- EXPORT_SYMBOL(node_possible_map);
--struct pglist_data *pgdat_list __read_mostly;
- unsigned long totalram_pages __read_mostly;
- unsigned long totalhigh_pages __read_mostly;
- long nr_swap_pages;
-@@ -2154,8 +2153,9 @@ static void *frag_start(struct seq_file 
- {
- 	pg_data_t *pgdat;
- 	loff_t node = *pos;
--
--	for (pgdat = pgdat_list; pgdat && node; pgdat = pgdat->pgdat_next)
-+	for (pgdat = first_online_pgdat();
-+	     pgdat && node;
-+	     pgdat = next_online_pgdat(pgdat))
- 		--node;
- 
- 	return pgdat;
-@@ -2166,7 +2166,7 @@ static void *frag_next(struct seq_file *
- 	pg_data_t *pgdat = (pg_data_t *)arg;
- 
- 	(*pos)++;
--	return pgdat->pgdat_next;
-+	return next_online_pgdat(pgdat);
- }
- 
- static void frag_stop(struct seq_file *m, void *arg)
-Index: linux-2.6.16-rc4/include/linux/mmzone.h
-===================================================================
---- linux-2.6.16-rc4.orig/include/linux/mmzone.h
-+++ linux-2.6.16-rc4/include/linux/mmzone.h
-@@ -308,7 +308,6 @@ typedef struct pglist_data {
- 	unsigned long node_spanned_pages; /* total size of physical page
- 					     range, including holes */
- 	int node_id;
--	struct pglist_data *pgdat_next;
- 	wait_queue_head_t kswapd_wait;
- 	struct task_struct *kswapd;
- 	int kswapd_max_order;
-@@ -325,8 +324,6 @@ typedef struct pglist_data {
- 
- #include <linux/memory_hotplug.h>
- 
--extern struct pglist_data *pgdat_list;
--
- void __get_zone_counts(unsigned long *active, unsigned long *inactive,
- 			unsigned long *free, struct pglist_data *pgdat);
- void get_zone_counts(unsigned long *active, unsigned long *inactive,
+Usually I break the loop by giving up, and ripping out whatever kernel
+feature requires initrd, such as dm, and installing on hard partitions
+with all of the kernel modules I need compiled into the kernel.  I
+still have no idea why mptscsi fails to detect SCSI disks when loaded
+as a module via initrd on various bits of IBM hardware (including the
+e326 and ls-20 blade), but works fine when compiled directly into the
+kernel....
 
+If we want more and more stuff to be poured into initrd, it's got to
+be made easier to debug and consistent across distributions, such that
+more people can test initrd configurations, and flush out the bugs,
+never mind the question of programs like udev randomly breaking
+between kernel releases.  Maybe it's time to consider moving all of
+that into the kernel source; if they wanted to be treated as part of
+the kernel, then let them liteally become part of the kernel from a
+source code and release management perspective.
+
+						- Ted

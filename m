@@ -1,93 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422669AbWBVUYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWBVU0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422669AbWBVUYa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 15:24:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422671AbWBVUY3
+	id S1750811AbWBVU0u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 15:26:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWBVU0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 15:24:29 -0500
-Received: from lugor.de ([212.112.242.222]:42634 "EHLO solar.mylinuxtime.de")
-	by vger.kernel.org with ESMTP id S1422658AbWBVUY1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 15:24:27 -0500
-From: "Hesse, Christian" <mail@earthworm.de>
+	Wed, 22 Feb 2006 15:26:49 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:7377 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S1750811AbWBVU0t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 15:26:49 -0500
+Date: Wed, 22 Feb 2006 12:26:38 -0800
+From: Greg KH <gregkh@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: hald in status D with 2.6.16-rc4
-Date: Wed, 22 Feb 2006 21:12:03 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-References: <200602202034.29413.mail@earthworm.de> <20060221144907.1ac11799.akpm@osdl.org> <200602221110.44813.mail@earthworm.de>
-In-Reply-To: <200602221110.44813.mail@earthworm.de>
-X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2171728.DpEzgh5O4M";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602222112.09567.mail@earthworm.de>
-X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0 (solar.mylinuxtime.de [10.5.1.1]); Wed, 22 Feb 2006 21:24:17 +0100 (CET)
-X-Spam-Flag: NO
+Cc: Joel Becker <Joel.Becker@oracle.com>, gombasg@sztaki.hu, tytso@mit.edu,
+       torvalds@osdl.org, kay.sievers@suse.de, penberg@cs.helsinki.fi,
+       bunk@stusta.de, rml@novell.com, linux-kernel@vger.kernel.org,
+       johnstul@us.ibm.com
+Subject: Re: 2.6.16-rc4: known regressions
+Message-ID: <20060222202638.GA16127@suse.de>
+References: <20060222000429.GB12480@vrfy.org> <20060221162104.6b8c35b1.akpm@osdl.org> <Pine.LNX.4.64.0602211631310.30245@g5.osdl.org> <Pine.LNX.4.64.0602211700580.30245@g5.osdl.org> <20060222112158.GB26268@thunk.org> <20060222154820.GJ16648@ca-server1.us.oracle.com> <20060222162533.GA30316@thunk.org> <20060222173354.GJ14447@boogie.lpds.sztaki.hu> <20060222185923.GL16648@ca-server1.us.oracle.com> <20060222115410.1394ff82.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060222115410.1394ff82.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2171728.DpEzgh5O4M
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-On Wednesday 22 February 2006 11:10, Hesse, Christian wrote:
-> On Tuesday 21 February 2006 23:49, Andrew Morton wrote:
-> > "Hesse, Christian" <mail@earthworm.de> wrote:
-> > > On Tuesday 21 February 2006 06:19, Andrew Morton wrote:
-> > > > "Hesse, Christian" <mail@earthworm.de> wrote:
-> > > > > Hello everybody,
-> > > > >
-> > > > > since using kernel version 2.6.16-rc4 the hal daemon is in status=
- D
-> > > > > after resume. I use suspend2 2.2.0.1 for 2.6.16-rc3. Any hints wh=
-at
-> > > > > could be the problem? It worked perfectly with 2.6.15.x and
-> > > > > suspend2 2.2.
-> > > >
-> > > > a) Look in the logs for any oopses, other nasties
-> > >
-> > > Nothing.
-> > >
-> > > > b) Do `echo t > /proc/sysrq-trigger', `dmesg -s 1000000 > foo' then
-> > > > find the trace for `hald' in `foo', send it to this list.
-> > >
-> > > Ok, here it is:
-> > >
-> > > [ trace snipped ]
-> > >
-> > > This is with 2.6.16-rc4-git1 + suspend2 2.2.0.1.
+On Wed, Feb 22, 2006 at 11:54:10AM -0800, Andrew Morton wrote:
+> Joel Becker <Joel.Becker@oracle.com> wrote:
 > >
-> > Hopefully suspend2 isn't involved.  People would feel more comfortable =
-if
-> > you could test a vanilla mainline tree..
-> >
-> > Could the ACPI team please take a look at fixing this regression?
->
-> I did two cycles with mainline suspend now and did not hit the problem...=
- I
-> will keep an eye on it.
+> > On Wed, Feb 22, 2006 at 06:33:54PM +0100, Gabor Gombas wrote:
+> > > I don't think isnmod is broken. It's job is to load a chunk of code into
+> > > the kernel, and it's doing just that.
+> > > 
+> > > ...
+> > >
+> > > But if your kernel has CONFIG_HOTPLUG enabled, then _you_ have asked for
+> > > this exact behavior, therefore you should better fix userspace to cope
+> > > with it. Your initrd should use the notification mechanisms provided by
+> > > the kernel to wait for the would-be root device really becoming
+> > > available; if it's not doing that, then IMHO you should not use a
+> > > CONFIG_HOTPLUG enabled kernel.
+> > 
+> >         The issue isn't so much "insmod is right" vs "insmod is wrong".
+> > It's that the behavior changed in a surprising fashion.  Red Hat's
+> > kernel for RHEL4 (in our example) has CONFIG_HOTPLUG=y, yet it Just
+> > Works.  A more recent kernel (.15 and .16 at least) with
+> > CONFIG_HOTPLUG=y doesn't work.  Same disk drivers.  Same initramfs
+> > script.
+> > 	We're discussing this very "kernel change broke userspace
+> > expectations" issue.  You don't need to convince me that
+> > 
+> >   1. Insmod loads the driver
+> >   2. Userspace initramfs sleeps waiting for hotplug
+> >   3. Hotplug completes
+> >   4. Userspace initramfs continues, using the now plugged devices.
+> 
+> Yes, I tend to think that insmod should just block until all devices are
+> ready to be used.  insmod doesn't just "insert a module".  It runs that
+> module's init function.
+> 
+> The very common case is that userspace wants to use those devices
+> immediately upon return from insmod, and the handling of these
+> not-yet-ready devices from userspace is very hard - generally people just
+> stick lame sleeps in there to get around it.
+> 
+> If, for some strange and rare reason, people _really_ want the
+> return-when-its-not-ready-yet behaviour, they can do `insmod foo &', or we
+> give insmod a fork-then-exit option.
+> 
+> But right now the default (and unalterable) behaviour is the oddball,
+> rarely-desired and hard-to-handle one.
 
-It is independent from suspend version, hald hangs with mainline suspend as=
-=20
-well.
-=2D-=20
-Christian
+But people are currently working right now to make a totally async boot
+process that takes advantage of this behavior.  It's the only way we can
+make the boot process faster.  They are working on stuff like:
+	- only when the network device is reported found by the kernel
+	  do the things that rely on networking start up
+	- only when the filesystems are found, do the things that rely
+	  on them being there (lvm, evms, dm, etc.)
 
---nextPart2171728.DpEzgh5O4M
-Content-Type: application/pgp-signature
+And as others have pointed out, for a lot of busses, we just don't know
+how long the device is going to take to be found.  For one of my boxes
+with a flaky USB controller, it takes _minutes_ for devices to be
+detected (yes, it is broken hardware, but the rest of the system works
+just fine while it is off and trying to be detected.)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.20 (GNU/Linux)
+Another point is that some busses just don't know when all the devices
+on it are found, as there is no such state.  USB is one such bus, and I
+imagine firewire is another one.  So there is no real way for us to
+delay at insmod time for all devices to be found.
 
-iD8DBQBD/MWZlZfG2c8gdSURAooFAJ9aR1/WgR6ImND4ubQlVRYKNo0HpACfcwmB
-Du5xfD8iHV92zMDo0CFlvsQ=
-=D52y
------END PGP SIGNATURE-----
+thanks,
 
---nextPart2171728.DpEzgh5O4M--
+greg k-h

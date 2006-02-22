@@ -1,89 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWBVUkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbWBVUlO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbWBVUkN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 15:40:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbWBVUkM
+	id S1751411AbWBVUlO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 15:41:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWBVUlO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 15:40:12 -0500
-Received: from styx.suse.cz ([82.119.242.94]:11958 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1751321AbWBVUkK (ORCPT
+	Wed, 22 Feb 2006 15:41:14 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:48576 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751411AbWBVUlN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 15:40:10 -0500
-Date: Wed, 22 Feb 2006 21:40:24 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org,
-       stuart_hayes@dell.com
-Subject: Re: Suppressing softrepeat
-Message-ID: <20060222204024.GA7477@suse.cz>
-References: <20060221124308.5efd4889.zaitcev@redhat.com> <20060221210800.GA12102@suse.cz> <20060222120047.4fd9051e.zaitcev@redhat.com>
+	Wed, 22 Feb 2006 15:41:13 -0500
+Date: Wed, 22 Feb 2006 12:40:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mattia Dongili <malattia@linux.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc4-mm1 console (radeonfb) not resumed after s2ram
+Message-Id: <20060222124041.0f3a8538.akpm@osdl.org>
+In-Reply-To: <20060222193922.GA4372@inferi.kami.home>
+References: <20060220042615.5af1bddc.akpm@osdl.org>
+	<20060221190031.GA3531@inferi.kami.home>
+	<20060221134323.6a5e5a95.akpm@osdl.org>
+	<17679.217.33.203.18.1140618278.squirrel@picard.linux.it>
+	<20060222193922.GA4372@inferi.kami.home>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060222120047.4fd9051e.zaitcev@redhat.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 12:00:47PM -0800, Pete Zaitcev wrote:
-> On Tue, 21 Feb 2006 22:08:00 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> 
-> > A much simpler workaround for the DRAC3 is to set the softrepeat delay
-> > to at least 750ms, using kbdrate(8), which will call the proper console
-> > ioctl, resulting in updating the softrepeat parameters.
+Mattia Dongili <malattia@linux.it> wrote:
+>
+> On Wed, Feb 22, 2006 at 03:24:38PM +0100, Mattia Dongili wrote:
+> > On Tue, February 21, 2006 10:43 pm, Andrew Morton said:
+> > > Mattia Dongili <malattia@linux.it> wrote:
+> > >>
+> > >> On Mon, Feb 20, 2006 at 04:26:15AM -0800, Andrew Morton wrote:
+> > >> >
+> > >> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc4/2.6.16-rc4-mm1/
+> > >>
+> > >> After suspend the system is fully working except it doesn't resume the
+> > >> console (I'm using radeonfb). If suspending from X the thing comes back,
+> > >> X working ok, but switching to vt1 I see the console completely garbled.
+> > >> Reverting radeonfb-resume-support-for-samsung-p35-laptops.patch (_wild_
+> > >> guess) does not help.
+> > >> Any good candidate?
+> > >
+> > > Did you apply the patches in the hot-fixes directory?
+> > > revert-reset-pci-device-state-to-unknown-after-disabled.patch might help.
 > > 
-> > I prefer workarounds for problematic hardware done outside the kernel,
-> > if possible.
+> > Sorry, this didn't help either. I'll try to revert some suspend related
+> > patches then go bisecting if still unsuccessful.
 > 
-> I agree with the sentiment when posed in the abstract way, but let me
-> tell you why this case is different.
+> Ok, reverting the same 4 patches as suggested to Rafael J. Wysocki
+> restores the correct behaviour:
 > 
-> Firstly, there's nothing "problematic" about this. It's just how it is.
-> The only problematic thing here is our code. Currently, the situation is
-> assymetric. It is possible to force softrepeat on, but not possible to
-> force softrepeat off. Isn't it broken?
+> pm-add-state-field-to-pm_message_t-to-hold-actual.patch
+> pm-respect-the-actual-device-power-states-in-sysfs.patch
+> pm-minor-updates-to-core-suspend-resume-functions.patch
+> pm-make-pci_choose_state-use-the-real-device.patch
 > 
-> Secondly, 750ms may be not enough. Stuart is being shy here and posting
-> explanations to Bugzilla for some reason.
+> Are they indipendent? Would you want me to track the exact one
+> introducing the bug?
 > 
-> Lastly, it's such a PITA to add these things into the userland, that
-> it's completely impractical. Console is needed the most when things go
-> wrong. In such case, that echo(1) may not be reached before the single
-> user shell. And stuffing it into the initrd is for Linux weenies only,
-> unless automated by mkinitrd.
-> 
-> I think you're being unreasonable here. I am not asking for NFS root
-> or IP autoconfiguration and sort of complicated process which ought to
-> be done in userland indeed.
- 
-I'm definitely not intending to be unreasonable, and I understand your
-need to have the keyboard working all the way from the grub/lilo prompt.
 
-I just don't like adding more module options to one that already has so
-many it's hard to understand what they're used for.
+Is OK, thanks - I have already passed that info on to Pat and I dropped all
+four.
 
-How about simply this patch instead?
-
-Setting autorepeat will not be possible on 'dumb' keyboards anymore by
-default, but since these usually are special forms of hardware anyway,
-like the DRAC3, this shouldn't be an issue for most users. Using
-'softrepeat' on these keyboards will restore the behavior for users that
-need it.
-
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -863,9 +863,6 @@ static int atkbd_connect(struct serio *s
- 	atkbd->softrepeat = atkbd_softrepeat;
- 	atkbd->scroll = atkbd_scroll;
- 
--	if (!atkbd->write)
--		atkbd->softrepeat = 1;
--
- 	if (atkbd->softrepeat)
- 		atkbd->softraw = 1;
-
--- 
-Vojtech Pavlik
-Director SuSE Labs

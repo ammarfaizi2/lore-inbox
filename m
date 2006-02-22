@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWBVHnK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWBVHl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932267AbWBVHnK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 02:43:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbWBVHnK
+	id S932214AbWBVHl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 02:41:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbWBVHl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 02:43:10 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:33251 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932245AbWBVHnJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 02:43:09 -0500
-Date: Tue, 21 Feb 2006 23:41:04 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: torvalds@osdl.org, ak@suse.de, holt@sgi.com, bcasavan@sgi.com, cr@sap.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] tmpfs: fix mount mpol nodelist parsing
-Message-Id: <20060221234104.7cf4e84c.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0602220658390.6196@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0602212341160.5390@goblin.wat.veritas.com>
-	<20060221183004.72ffa011.akpm@osdl.org>
-	<Pine.LNX.4.61.0602220658390.6196@goblin.wat.veritas.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 22 Feb 2006 02:41:57 -0500
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:15503 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S932214AbWBVHlz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 02:41:55 -0500
+Message-ID: <43FC1624.8090607@qazi.f2s.com>
+Date: Wed, 22 Feb 2006 07:43:32 +0000
+From: Asfand Yar Qazi <ay0106@qazi.f2s.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060217)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 'vga=' parameter wierdness
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
->
-> But perhaps I should expand the mention of CONFIG_NUMA in tmpfs.txt,
->  to explain the issue, and suggest that "mpol=" be used in remounts
->  rather than automatic mounts on systems where it might be a problem.
->  I'll dream up some wording later.
+'Scuse my noobness, but when I supply the following parameter to the arguments 
+  of my kernel through GRUB, I get an 'undefined mode' error:
 
-Yes, a remount is the way this feature should be used.
+vga=0164
 
->  > [ Vaguely suprised that tmpfs isn't using match_token()... ]
-> 
->  I did briefly consider that back in the days when I noticed a host of
->  fs filesystems got converted.  But didn't see any point in messing
->  with what was already working.  Haven't looked recently: would it
->  actually be a useful change to make?
+But then, when the prompt comes up asking me which mode I want I type in:
 
-I guess it'd be nice to do for uniformity's sake, but it's hardly pressing.
-I have a vague memory that the ext3 conversion actually increased .text
-size, which was a bit irritating.
+0164
 
+and I get the required mode!
+
+What's happening?  On 2.4 kernel, I used to boot with vga=0x0a (which is the 
+same mode as 0164) and it would boot fine.  Not anymore...
+
+Help?

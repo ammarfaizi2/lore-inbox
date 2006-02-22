@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161164AbWBVR4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422649AbWBVSAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161164AbWBVR4N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 12:56:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161165AbWBVR4N
+	id S1422649AbWBVSAe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 13:00:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422651AbWBVSAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 12:56:13 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:12207 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161164AbWBVR4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 12:56:12 -0500
-Date: Wed, 22 Feb 2006 17:56:10 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: James Yu <cyu021@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel thread removal
-Message-ID: <20060222175610.GB21080@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	James Yu <cyu021@gmail.com>, linux-kernel@vger.kernel.org
-References: <60bb95410602220900n440564d7xb459d47c8ca30997@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <60bb95410602220900n440564d7xb459d47c8ca30997@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 22 Feb 2006 13:00:34 -0500
+Received: from tomts25-srv.bellnexxia.net ([209.226.175.188]:39854 "EHLO
+	tomts25-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1422647AbWBVSAd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 13:00:33 -0500
+Message-ID: <43FCA686.5020508@torque.net>
+Date: Wed, 22 Feb 2006 12:59:34 -0500
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: lsscsi-0.17 released
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 23, 2006 at 01:00:34AM +0800, James Yu wrote:
-> How do I remove a kernel thread in kernel mode ?
-> I write a C-function in one of the Linux source files and create a
-> kernel thread by invoking kernel_thread() to run the function, like:
-> "kernel_thread(a1, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGNAL);"
-> Function a1 simply invokes printk() to output some message on console.
-> I invoke do_exit(0); at the end of a1, but a1's task_struct still
-> exists in in task_struct list after its execution.
-> How do I remove it a1's task_struct upon its completion? I thought
-> explicitly invoke do_exit() ensures the removal of task_struct?
+Greg KH wrote:
+>>/sys/class/scsi_device/<hcil>/device/block symlink
+>>changed to ".../block:sd<x>" breaking lsscsi 0.16 (and
+>>earlier) and sg_map26 (in sg3_utils).
 
-Please use the kthread_ api.  See include/linux/kthread.h and kernel/kthread.c
-for details, or grep for kthread_ to find users.
+> It was changed as there would be more than one "block" symlink in a
+> device's directory if more than one block device was attached to a
+> single struct device.  For example, ub and multi-lun devices (there were
+> other reports of this happening for scsi devices too at the time from
+> what I remember.)
+
+A "scsi_device" is a logical unit, hence the "l" at
+the end of the "<hcil>" acronym in the above path.
+So it wasn't broken. However there is some fuzziness
+in this area, for example the term "scsi_device".
+
+Doug Gilbert

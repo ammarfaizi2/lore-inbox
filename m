@@ -1,79 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWBVX5o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbWBWAAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751020AbWBVX5o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 18:57:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbWBVX5o
+	id S932465AbWBWAAG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 19:00:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWBWAAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 18:57:44 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32922 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030319AbWBVX5n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 18:57:43 -0500
-Date: Thu, 23 Feb 2006 00:56:39 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Nigel Cunningham <ncunningham@cyclades.com>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
-       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060222235639.GK13621@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602220038.18054.rjw@sisk.pl> <20060222222445.GA13796@elf.ucw.cz> <200602230031.41217.rjw@sisk.pl>
+	Wed, 22 Feb 2006 19:00:06 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:59298 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932465AbWBWAAF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 19:00:05 -0500
+Subject: [PATCH] fix the cpu_possible_map to make voyager boot again.
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 22 Feb 2006 17:58:03 -0600
+Message-Id: <1140652683.10417.11.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602230031.41217.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Right at the moment (thanks to a patch from Andrew), cpu_possible_map on
+voyager is CPU_MASK_NONE, which means the machine always thinks it has
+no CPUs.  Fix that by doing an early initialisation of the
+cpu_possible_map from the cpu_phys_present_map.
 
-> > > > It is doable - I'm doing it now, but am thinking about reverting part of the 
-> > > > code to use pbes again. If you're going to look at using bitmaps in place of 
-> > > > pbes, me changing would be a waste of time. Do you want me to hold off for a 
-> > > > while? (I'll happily do that, as I have far more than enough to keep me 
-> > > > occupied at the moment anyway).
-> > > 
-> > > Well, I'd say so. :-)
-> > > 
-> > > Frankly, I didn't think of dropping PBEs right now, but in the long run
-> > > that's worth considering, IMO.  The advantage of PBEs is that they are easy to
-> > > handle in the assembly parts, but apart from this they are a bit wasteful
-> > > (not very much, though).
-> > 
-> > Of course it will depend on what patch looks like, but changing
-> > assembly parts is hard -- you have to change all the architectures,
-> > and better not make any mistake.
-> 
-> Yes, that would be a lot of work, so it's rather a long term
-> "vision".
+Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
 
-Ok, I have no problems with visions.
+---
 
-> I think we should try to get the pagecache stuff right first anyway.
+James
 
-Are you sure it is worth doing? I mean... it only helps on small
-machines, no?
+Index: BUILD-2.6/arch/i386/mach-voyager/voyager_smp.c
+===================================================================
+--- BUILD-2.6.orig/arch/i386/mach-voyager/voyager_smp.c	2006-02-22 14:57:45.000000000 -0600
++++ BUILD-2.6/arch/i386/mach-voyager/voyager_smp.c	2006-02-22 15:38:13.000000000 -0600
+@@ -402,6 +402,7 @@
+ 	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 1) << 8;
+ 	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 2) << 16;
+ 	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 3) << 24;
++	cpu_possible_map = phys_cpu_present_map;
+ 	printk("VOYAGER SMP: phys_cpu_present_map = 0x%lx\n", cpus_addr(phys_cpu_present_map)[0]);
+ 	/* Here we set up the VIC to enable SMP */
+ 	/* enable the CPIs by writing the base vector to their register */
 
-OTOH having it for benchmarks will be nice, and perhaps we could use
-that kind it to speed up boot and similar things... 
 
-> > > The fact that we use page flags to store some suspend/resume-related
-> > > information is a big disadvantage in my view, and I'd like to get rid of that
-> > > in the future.  In principle we could use a bitmap, or rather two of them,
-> > > to store the same information independently of the page flags, and
-> > > if we use bitmaps for this purpose, we can use them also instead of
-> > > PBEs.
-> > 
-> > Well, we "only" use 2 bits... :-).
-> 
-> In my view the problem is this adds constraints that other people have to take
-> into account.  Not a good thing if avoidable IMHO.
-
-Well, I hope that swsusp development will move to userland in future
-:-).
-									Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

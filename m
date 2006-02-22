@@ -1,86 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751380AbWBVRqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWBVRri@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751380AbWBVRqE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 12:46:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751381AbWBVRqE
+	id S1750836AbWBVRri (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 12:47:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbWBVRri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 12:46:04 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:62471 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1751380AbWBVRqC convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 12:46:02 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <60bb95410602220900n440564d7xb459d47c8ca30997@mail.gmail.com>
-x-originalarrivaltime: 22 Feb 2006 17:46:01.0622 (UTC) FILETIME=[D87D3B60:01C637D7]
-Content-class: urn:content-classes:message
-Subject: Re: Kernel thread removal
-Date: Wed, 22 Feb 2006 12:45:55 -0500
-Message-ID: <Pine.LNX.4.61.0602221229280.10931@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Kernel thread removal
-Thread-Index: AcY319iEnmxPpv7yQIyh1zA55HHn3g==
-References: <60bb95410602220900n440564d7xb459d47c8ca30997@mail.gmail.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "James Yu" <cyu021@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Wed, 22 Feb 2006 12:47:38 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:31903
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1750836AbWBVRri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 12:47:38 -0500
+Date: Wed, 22 Feb 2006 09:47:29 -0800
+From: Greg KH <gregkh@suse.de>
+To: Christoph Hellwig <hch@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linus Torvalds <torvalds@osdl.org>, Kay Sievers <kay.sievers@suse.de>,
+       Pekka J Enberg <penberg@cs.Helsinki.FI>, Adrian Bunk <bunk@stusta.de>,
+       Robert Love <rml@novell.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       John Stultz <johnstul@us.ibm.com>
+Subject: Re: sysfs regressions (was: 2.6.16-rc4: known regressions)
+Message-ID: <20060222174729.GA10882@suse.de>
+References: <1140383653.11403.8.camel@localhost> <20060220010205.GB22738@suse.de> <1140562261.11278.6.camel@localhost> <20060221225718.GA12480@vrfy.org> <Pine.LNX.4.58.0602220905330.12374@sbz-30.cs.Helsinki.FI> <20060222152743.GA22281@vrfy.org> <Pine.LNX.4.64.0602220737170.30245@g5.osdl.org> <1140624187.2979.38.camel@laptopd505.fenrus.org> <20060222161133.GA18059@infradead.org> <20060222171714.GC19733@merlin.emma.line.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060222171714.GC19733@merlin.emma.line.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 22, 2006 at 06:17:14PM +0100, Matthias Andree wrote:
+> Christoph Hellwig schrieb am 2006-02-22:
+> 
+> > And to continue the rant: the broken mount uevent feature (which
+> > can't work right) got in without any serious review through the
+> > driver model tree.  just as all those break udev/etc patches that
+> > cause all these userland breakages for those people brave enough
+> > to use udev and surrounding bits.
+> > 
+> > Folks, we need to stop breaking sysfs interface all the time.  Having
+> > attributes on objects is real nice from many perspectives, but it's
+> > also a burden because the internal object model is now seen by the
+> > outside world.  That means anything involving sysfs needs a careful
+> > design not random patching as the driver model core people appear to
+> > do.
+> 
+> Oh, and while we're at it: perhaps someone should revert the patch that
+> caused Douglas Gilbert to chase incompatible sysfs changes in his
+> user-space applications. It's pretty sad to see random breakage,
+> apparently by randomly changing / to : in paths from what I discern from
+> Doug's Changelog. (No, I don't have the background handy, neither would
+> I care; I just see the application chasing sysfs changes, and that's
+> enough to complain.)
 
-On Wed, 22 Feb 2006, James Yu wrote:
+No, that fixed a real bug where sysfs would create multiple symlinks
+with the same name in the same directory.  That _had_ to be fixed, as
+even Douglas's old tools couldn't handle that properly :)
 
-> How do I remove a kernel thread in kernel mode ?
-> I write a C-function in one of the Linux source files and create a
-> kernel thread by invoking kernel_thread() to run the function, like:
-> "kernel_thread(a1, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGNAL);"
-> Function a1 simply invokes printk() to output some message on console.
-> I invoke do_exit(0); at the end of a1, but a1's task_struct still
-> exists in in task_struct list after its execution.
-> How do I remove it a1's task_struct upon its completion? I thought
-> explicitly invoke do_exit() ensures the removal of task_struct?
-> -
+thanks,
 
-This is becoming a FAQ. In the main loop that your kernel thread
-executes, you do:
-
- 		if(signal_pending(current))
-                     complete_and_exit(&struct_completion, status_value);
-
-
-In the module exit code, or wherever you want to shut down the
-kernel thread, you do:
-
- 		kill_proc(thread_pid, some_unblocked_signal, 1);
- 		wait_for_completion(&struct_completion);
-
-Remember to do init_completion(&struct_completion) in the startup
-code, and to unblock the signal the kernel thread is supposed to
-receive, SIGTERM is a good one.
-
-The secret of success is that the kernel thread needs to
-exit in the context of the kernel thread, and somebody needs to
-pick up its status. Re-parenting to `init` will not always
-work for reaping child status because `init` needs to get the
-CPU at the time that you, in the module-remove routine, may
-have the CPU. This might deadlock. The solution is above.
-
-A final word, both complete_and_exit() and wait_for_completion()
-need to be free of any spin-locks.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.54 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+greg k-h

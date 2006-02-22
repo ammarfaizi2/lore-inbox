@@ -1,48 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWBVEYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbWBVEnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751335AbWBVEYz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 23:24:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWBVEYz
+	id S1751322AbWBVEnR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 23:43:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWBVEnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 23:24:55 -0500
-Received: from gw.bendigoit.com.au ([203.16.207.254]:55258 "EHLO
-	trantor.sbss.com.au") by vger.kernel.org with ESMTP
-	id S1751335AbWBVEYy convert rfc822-to-8bit (ORCPT
+	Tue, 21 Feb 2006 23:43:17 -0500
+Received: from thunk.org ([69.25.196.29]:50869 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1751322AbWBVEnQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 23:24:54 -0500
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Subject: flawed assumption in via-rhine (or bug in skb_pad)?
-Date: Wed, 22 Feb 2006 15:24:12 +1100
-Message-ID: <AEC6C66638C05B468B556EA548C1A77DAF098F@trantor>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: flawed assumption in via-rhine (or bug in skb_pad)?
-thread-index: AcY3Z9UVkpL54wP1S+6SRU85h6STqg==
-From: "James Harper" <james.harper@bendigoit.com.au>
-To: <linux-kernel@vger.kernel.org>
+	Tue, 21 Feb 2006 23:43:16 -0500
+To: linux-kernel@vger.kernel.org
+cc: ellie@usenix.org, cat@usenix.org
+Subject: Kernel Summit 2006 planning kickoff
+From: "Theodore Ts'o" <tytso@mit.edu>
+Phone: (781) 391-3464
+Message-Id: <E1FBlqL-0003Ha-NB@think.thunk.org>
+Date: Tue, 21 Feb 2006 23:43:13 -0500
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Should the 'len' field of an skb be updated by a call to skb_pad? I'm
-guessing not...
+Hi all,
 
-The via-rhine drive does a skb_padto (which in turn calls skb_pad) to
-ensure that the skb contains enough bits to satisfy the ethernet minimum
-packet size, but then it goes and uses skb->len everywhere else, which
-seems like it is assuming that skb->len is incrememted...
+	It's February, and it's time to start planning for the 2006
+Kernel Summit.  As before, it will be held in Ottawa right before OLS,
+on Monday and Tuesday, on July 17th and 18th.
 
-The documentation in via-rhine (which I can only assume is correct)
-specifically states that the hardware does not do padding, so the driver
-would have to explicitly bump the length.
+	The program committee this year will be composed by the
+following people, and you can send mail to them at the e-mail address
+ksummit-2006-pc@thunk.org:
 
-Whatever the cause, I'm getting runt frames and I don't like it :)
+	James Bottomley
+	Jonathon Corbet
+	Gerrit Huizenga
+	Dave Jones
+	Andi Kleen
+	Greg Kroah-Hartman
+	Matthew Mackall
+	David Miller
+	Andrew Morton
+	Theodore Ts'o
 
-Thanks
+Please give these people thanks for agreeing to volunteer for this very
+important task. 
 
-James
+	I have also set up a mailing list, ksummit-2006-discuss@thunk.org,
+which is a public list open to all to join.  In order to give people a
+chance to join the list before discussion opens, I will wait 24 hours
+before opening up the list.  The topics for that list will include:
 
+	* What went right last year; suggestions on what we could do
+          better this year
+	* What topics do you believe are important for us to include
+          this year.
+
+	Finally, if you have anybody in mind that you think the progam
+committee should definitely keep in mind as someone we should
+consider  inviting to the kernel summit, please send a note to the
+program committee mailing list, or to me directly.
+
+	Many thanks!!
+
+						- Ted

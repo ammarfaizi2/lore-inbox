@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161132AbWBVReE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161140AbWBVRfb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161132AbWBVReE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 12:34:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161135AbWBVReE
+	id S1161140AbWBVRfb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 12:35:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161141AbWBVRfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 12:34:04 -0500
-Received: from boogie.lpds.sztaki.hu ([193.225.12.226]:38366 "EHLO
-	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
-	id S1161132AbWBVReC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 12:34:02 -0500
-Date: Wed, 22 Feb 2006 18:33:54 +0100
-From: Gabor Gombas <gombasg@sztaki.hu>
-To: "Theodore Ts'o" <tytso@mit.edu>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Kay Sievers <kay.sievers@suse.de>,
-       penberg@cs.helsinki.fi, gregkh@suse.de, bunk@stusta.de, rml@novell.com,
-       linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+	Wed, 22 Feb 2006 12:35:31 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:30939 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161140AbWBVRfa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 12:35:30 -0500
+Date: Wed, 22 Feb 2006 09:31:59 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Zeuthen <david@fubar.dk>
+cc: Kay Sievers <kay.sievers@suse.de>, Pekka J Enberg <penberg@cs.Helsinki.FI>,
+       Greg KH <gregkh@suse.de>, Adrian Bunk <bunk@stusta.de>,
+       Robert Love <rml@novell.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       John Stultz <johnstul@us.ibm.com>
 Subject: Re: 2.6.16-rc4: known regressions
-Message-ID: <20060222173354.GJ14447@boogie.lpds.sztaki.hu>
-References: <1140562261.11278.6.camel@localhost> <20060221225718.GA12480@vrfy.org> <20060221153305.5d0b123f.akpm@osdl.org> <20060222000429.GB12480@vrfy.org> <20060221162104.6b8c35b1.akpm@osdl.org> <Pine.LNX.4.64.0602211631310.30245@g5.osdl.org> <Pine.LNX.4.64.0602211700580.30245@g5.osdl.org> <20060222112158.GB26268@thunk.org> <20060222154820.GJ16648@ca-server1.us.oracle.com> <20060222162533.GA30316@thunk.org>
+In-Reply-To: <Pine.LNX.4.64.0602220848280.30245@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0602220915500.30245@g5.osdl.org>
+References: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org> 
+ <20060217231444.GM4422@stusta.de>  <84144f020602190306o3149d51by82b8ccc6108af012@mail.gmail.com>
+  <20060219145442.GA4971@stusta.de> <1140383653.11403.8.camel@localhost> 
+ <20060220010205.GB22738@suse.de> <1140562261.11278.6.camel@localhost> 
+ <20060221225718.GA12480@vrfy.org>  <Pine.LNX.4.58.0602220905330.12374@sbz-30.cs.Helsinki.FI>
+  <20060222152743.GA22281@vrfy.org>  <Pine.LNX.4.64.0602220737170.30245@g5.osdl.org>
+ <1140625103.21517.18.camel@daxter.boston.redhat.com>
+ <Pine.LNX.4.64.0602220848280.30245@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060222162533.GA30316@thunk.org>
-X-Copyright: Forwarding or publishing without permission is prohibited.
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 11:25:34AM -0500, Theodore Ts'o wrote:
 
-> Sounds like this is another of example of system support programs
-> (insmod in this case) breaking with modern kernels.
 
-I don't think isnmod is broken. It's job is to load a chunk of code into
-the kernel, and it's doing just that.
+On Wed, 22 Feb 2006, Linus Torvalds wrote:
+> 
+> > For just one example of API breaking see
+> > 
+> >  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=175998
+> 
+> And yes, some of it may be just HAL being a fragile mess, and some of it 
+> may end up being just user-level code that must be made to be more robust 
+> ("I see a new type I don't understand" "Ok, assume a lowest common 
+> denominator, and stop whining about it"). 
 
-The asynchronous device discovery is caused/required by hotplug. If you
-can recreate the problem with a kernel that has CONFIG_HOTPLUG disabled,
-then I agree that this is a kernel bug which should be fixed.
+Btw, having looked at that bug report some more, I have to say that this 
+particular one seems to be of the "HAL is just being an ass about things" 
+variety.
 
-But if your kernel has CONFIG_HOTPLUG enabled, then _you_ have asked for
-this exact behavior, therefore you should better fix userspace to cope
-with it. Your initrd should use the notification mechanisms provided by
-the kernel to wait for the would-be root device really becoming
-available; if it's not doing that, then IMHO you should not use a
-CONFIG_HOTPLUG enabled kernel.
+Why the hell anybody would care about what the command transport type is, 
+when all that matters is that it's a block device, I don't understand. The 
+exact details of what kind of block device it is are totally secondary, 
+and shouldn't affect basic desktop behaviour.
 
-As I see, a lot of people spent a lot of work making the kernel
-hotplug-friendly. Unfortunately a lot less work was done on the
-userspace side, that's why there are still a lot of initscripts that
-assume they can immediately access the device after insmod have
-returned, even if they are running on a hotplug-enabled kernel.
+The patch (to HAL) that the bugzilla entry points to doesn't seem to make 
+anything better either. It just adds _another_ magic case-statement. 
+Instead, it should just default to doing something sane.
 
-Gabor
-
--- 
-     ---------------------------------------------------------
-     MTA SZTAKI Computer and Automation Research Institute
-                Hungarian Academy of Sciences
-     ---------------------------------------------------------
+			Linus

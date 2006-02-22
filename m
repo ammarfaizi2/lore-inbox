@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161150AbWBVRgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422631AbWBVRnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161150AbWBVRgl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 12:36:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161143AbWBVRgl
+	id S1422631AbWBVRnd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 12:43:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422644AbWBVRnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 12:36:41 -0500
-Received: from mx1.suse.de ([195.135.220.2]:32738 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161150AbWBVRgk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 12:36:40 -0500
-To: Ramon van Alteren <ramon@vanalteren.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Writing to an NFS share truncates files on >8Tb Raid + LVM2
-References: <43FB3208.7020303@vanalteren.nl>
-From: Andi Kleen <ak@suse.de>
-Date: 22 Feb 2006 18:36:32 +0100
-In-Reply-To: <43FB3208.7020303@vanalteren.nl>
-Message-ID: <p73pslf2t3z.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Wed, 22 Feb 2006 12:43:33 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:28575
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1422631AbWBVRnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 12:43:33 -0500
+Date: Wed, 22 Feb 2006 09:43:39 -0800
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, kay.sievers@suse.de
+Subject: [GIT PATCH] Driver Core fixe for 2.6.16-rc4
+Message-ID: <20060222174339.GA11415@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ramon van Alteren <ramon@vanalteren.nl> writes:
-> 
-> Which seems to indicate that RAID + LVM + complex storage and
-> 4KSTACKS can cause problems. However I can't find the 4KSTACK symbol
-> anywhere in my config. Can't find the 8KSTACK symbol anywhere either :-(
+Here is a single changeset, backing out the umount/mount uevent removal
+from the kernel tree.  It was my fault in the first place for thinking
+that this event could be removed, as I was not aware the current version
+of HAL depended on it so much.
 
-4K stacks is unlikely to cause problems like this. If you have a stack
-overflow things crash badly, not break subtly like they do in your case.
+Please pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
+or if master.kernel.org hasn't synced up yet:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
 
-Sounds like a bad bug. Best you work with the NFS maintainers to 
-track it down. See MAINTAINERS how to reach them.
+The patch will be sent as a follow-up message for those that wish to see
+it.
 
--Andi
+thanks,
+
+greg k-h
+
+
+ Documentation/feature-removal-schedule.txt |    9 +++++++++
+ fs/super.c                                 |   15 ++++++++++++++-
+ include/linux/kobject.h                    |    6 ++++--
+ lib/kobject_uevent.c                       |    4 ++++
+ 4 files changed, 31 insertions(+), 3 deletions(-)

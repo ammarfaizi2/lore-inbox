@@ -1,48 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751449AbWBVVcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbWBVVfK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751449AbWBVVcM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 16:32:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWBVVcM
+	id S1751464AbWBVVfK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 16:35:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751465AbWBVVfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 16:32:12 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:61612
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751449AbWBVVcL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 16:32:11 -0500
-Date: Wed, 22 Feb 2006 13:32:14 -0800
-From: Greg KH <greg@kroah.com>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Mathieu Desnoyers <compudj@krystal.dyndns.org>,
-       Paul Mundt <lethal@linux-sh.org>, Tom Zanussi <zanussi@us.ibm.com>,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: [PATCH, RFC] sysfs: relay channel buffers as sysfs attributes
-Message-ID: <20060222213214.GA17155@kroah.com>
-References: <20060219175623.GA2674@kroah.com> <20060219185254.GA13391@linux-sh.org> <17401.21427.568297.830492@tut.ibm.com> <20060220130555.GA29405@Krystal> <20060220171531.GA9381@linux-sh.org> <20060220173732.GA7238@Krystal> <20060221152102.GA20835@linux-sh.org> <20060221164852.GA6489@Krystal> <20060221174318.GB23018@kroah.com> <43FCD735.2030002@opersys.com>
+	Wed, 22 Feb 2006 16:35:09 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:17880 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751464AbWBVVfH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 16:35:07 -0500
+Subject: Re: cifs hang patch idea - reduce sendtimeo on socket
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Steve French <smfrench@austin.rr.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060216205623.GA8784@stusta.de>
+References: <43F3FA4E.2050608@austin.rr.com>
+	 <20060216205623.GA8784@stusta.de>
+Content-Type: text/plain
+Date: Wed, 22 Feb 2006 15:35:00 -0600
+Message-Id: <1140644100.9942.15.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43FCD735.2030002@opersys.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 04:27:17PM -0500, Karim Yaghmour wrote:
+On Thu, 2006-02-16 at 21:56 +0100, Adrian Bunk wrote:
 > 
-> Greg KH wrote:
-> > And as a debug tool, debugfs seems like the perfict place for it, as you
-> > have just stated :)
-> 
-> So then the statement is that debugfs is for _ALL_ kinds of debugging,
-> including application debugging. IOW, anyone considering debugfs as
-> an fs exclusive to kernel-developers is WRONG. IOW2, distros should
-> _NOT_ shy away from enabling debugfs by default on their production
-> kernels.
-> 
-> Right?
+> I'm a bit lost now, but I hope this information helps you in finding 
+> what is going wrong?
 
-Sure, I don't see why not.  But if a distro doesn't include anything in
-their kernels that use debugfs, then they have no reason to enable it.
+Steve and I think we have figured this out.  In some cases, CIFSSMBRead
+was returning a recently freed buffer.
 
-thanks,
+CIFS: CIFSSMBRead was returning an invalid pointer in buf
 
-greg k-h
+Thanks to Adrian Bunk for debugging the problem
+
+Also added a fix for 64K pages we found in loosely-related testing
+
+Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+Signed-off-by: Steve French <sfrench@us.ibm.com>
+
+diff --git a/fs/cifs/cifssmb.c b/fs/cifs/cifssmb.c
+index 38ab9f6..9d7bbd2 100644
+--- a/fs/cifs/cifssmb.c
++++ b/fs/cifs/cifssmb.c
+@@ -1076,13 +1076,14 @@ CIFSSMBRead(const int xid, struct cifsTc
+ 			cifs_small_buf_release(iov[0].iov_base);
+ 		else if(resp_buf_type == CIFS_LARGE_BUFFER)
+ 			cifs_buf_release(iov[0].iov_base);
+-	} else /* return buffer to caller to free */ /* BB FIXME how do we tell caller if it is not a large buffer */ {
+-		*buf = iov[0].iov_base;
++	} else if(resp_buf_type != CIFS_NO_BUFFER) {
++		/* return buffer to caller to free */ 
++		*buf = iov[0].iov_base;		
+ 		if(resp_buf_type == CIFS_SMALL_BUFFER)
+ 			*pbuf_type = CIFS_SMALL_BUFFER;
+ 		else if(resp_buf_type == CIFS_LARGE_BUFFER)
+ 			*pbuf_type = CIFS_LARGE_BUFFER;
+-	}
++	} /* else no valid buffer on return - leave as null */
+ 
+ 	/* Note: On -EAGAIN error only caller can retry on handle based calls
+ 		since file handle passed in no longer valid */
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 0e1560a..16535b5 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -1795,10 +1795,10 @@ cifs_mount(struct super_block *sb, struc
+ 			   conjunction with 52K kvec constraint on arch with 4K
+ 			   page size  */
+ 
+-		if(cifs_sb->rsize < PAGE_CACHE_SIZE) {
+-			cifs_sb->rsize = PAGE_CACHE_SIZE; 
+-			/* Windows ME does this */
+-			cFYI(1,("Attempt to set readsize for mount to less than one page (4096)"));
++		if(cifs_sb->rsize < 2048) {
++			cifs_sb->rsize = 2048; 
++			/* Windows ME may prefer this */
++			cFYI(1,("readsize set to minimum 2048"));
+ 		}
+ 		cifs_sb->mnt_uid = volume_info.linux_uid;
+ 		cifs_sb->mnt_gid = volume_info.linux_gid;
+
+-- 
+David Kleikamp
+IBM Linux Technology Center
+

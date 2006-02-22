@@ -1,40 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbWBVNT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWBVNSh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750991AbWBVNT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 08:19:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWBVNT1
+	id S1751225AbWBVNSh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 08:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750991AbWBVNSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 08:19:27 -0500
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:50129 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750991AbWBVNT0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 08:19:26 -0500
-Date: Wed, 22 Feb 2006 14:19:18 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: "Mike D. Day" <ncmike@us.ibm.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Dave Hansen <haveblue@us.ibm.com>,
-       xen-devel@lists.xensource.com, lkml <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: [ PATCH 2.6.16-rc3-xen 3/3] sysfs: export Xen hypervisor	attributes to sysfs
-Message-ID: <20060222131918.GC9295@osiris.boeblingen.de.ibm.com>
-References: <43FB2642.7020109@us.ibm.com> <1140542130.8693.18.camel@localhost.localdomain> <20060222123250.GB9295@osiris.boeblingen.de.ibm.com> <43FC5B1D.5040901@us.ibm.com> <1140612969.2979.20.camel@laptopd505.fenrus.org> <43FC61C4.30002@us.ibm.com>
+	Wed, 22 Feb 2006 08:18:37 -0500
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:25052 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S1750829AbWBVNSh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 08:18:37 -0500
+Message-ID: <43FC6515.5010800@qazi.f2s.com>
+Date: Wed, 22 Feb 2006 13:20:21 +0000
+From: Asfand Yar Qazi <ay0106@qazi.f2s.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060217)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43FC61C4.30002@us.ibm.com>
-User-Agent: mutt-ng/devel-r781 (Linux)
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 'vga=' parameter wierdness
+References: <5IWVb-7UA-11@gated-at.bofh.it> <5IYDF-20s-3@gated-at.bofh.it> <5J0Z7-5we-13@gated-at.bofh.it> <5J18z-5HB-21@gated-at.bofh.it> <5J1iu-5TF-27@gated-at.bofh.it>
+In-Reply-To: <5J1iu-5TF-27@gated-at.bofh.it>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 08:06:12AM -0500, Mike D. Day wrote:
-> Arjan van de Ven wrote:
-> >surely those tools already talk to the hypervisor.. so they might as
-> >well ask for this information themselves... no need to bloat the kernel
-> >for this
+Asfand Yar Qazi wrote:
+> Martin Mares wrote:
 > 
-> Yes, it is an optional function. The current implementation is a module
-> that can be omitted from the configuration, built-in, or loadable.
+>> Hello!
+>>
+>>
+>>> OK, will try that.  decimal of octal(0164) = decimal(116)
+>>
+>>
+>>
+>> This won't work -- the mode numbers are hexadecimal, not octal.
+>> Use 356 (decimal).
+> 
+> 
+> You're right.  I thought '0164' was octal - 0 prefix.
 
-If it's not needed, why include it at all?
+It worked.
 
-Heiko
+<snip>
+
+>>
+>>
+>>
+>> You can also try giving 0x164 to GRUB.
+> 
+> 
+> I'll try that as well.
+> 
+
+It worked as well - obviously I'm using a newer version of GRUB.
+
+Thanks.
+

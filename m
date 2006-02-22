@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWBVNnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWBVNnk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751281AbWBVNnP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 08:43:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWBVNnP
+	id S1750713AbWBVNnk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 08:43:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWBVNnk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 08:43:15 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:20909 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751281AbWBVNnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 08:43:15 -0500
-Date: Wed, 22 Feb 2006 07:42:50 -0600
-From: Robin Holt <holt@sgi.com>
-To: linux-kernel@vger.kernel.org
-Cc: rml@novell.com, arnd@arndb.de, ttb@tentacle.dhs.org, hch@lst.de,
-       akpm@osdl.org
-Subject: udevd is killing file write performance.
-Message-ID: <20060222134250.GE20786@lnx-holt.americas.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Wed, 22 Feb 2006 08:43:40 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:44945 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750713AbWBVNnj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 08:43:39 -0500
+Message-ID: <43FC6A86.90901@us.ibm.com>
+Date: Wed, 22 Feb 2006 08:43:34 -0500
+From: "Mike D. Day" <ncmike@us.ibm.com>
+User-Agent: Thunderbird 1.5 (Macintosh/20051201)
+MIME-Version: 1.0
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+CC: Arjan van de Ven <arjan@infradead.org>, Dave Hansen <haveblue@us.ibm.com>,
+       xen-devel@lists.xensource.com, lkml <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [ PATCH 2.6.16-rc3-xen 3/3] sysfs: export Xen hypervisor	attributes
+ to sysfs
+References: <43FB2642.7020109@us.ibm.com> <1140542130.8693.18.camel@localhost.localdomain> <20060222123250.GB9295@osiris.boeblingen.de.ibm.com> <43FC5B1D.5040901@us.ibm.com> <1140612969.2979.20.camel@laptopd505.fenrus.org> <43FC61C4.30002@us.ibm.com> <20060222131918.GC9295@osiris.boeblingen.de.ibm.com>
+In-Reply-To: <20060222131918.GC9295@osiris.boeblingen.de.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Heiko Carstens wrote:
+> On Wed, Feb 22, 2006 at 08:06:12AM -0500, Mike D. Day wrote:
+> 
+> If it's not needed, why include it at all?
 
-I have a customer application which sees a significant performance
-degradation when run with udevd running.  This appears to be due to:
+Sorry for not being clear. It *is* needed for control tools and agents 
+running in the privileged domain. Kernels running in unprivileged 
+domains will not use the module.
 
-
-void inotify_dentry_parent_queue_event(struct dentry *dentry, u32 mask,
-                                       u32 cookie, const char *name)
-{
-...
-        if (!atomic_read (&inotify_watches))
-                return;
-
-        spin_lock(&dentry->d_lock);
-
-The particular application is a 512 thread application.  When run with
-udevd turned off the application finishes in about 6 seconds.  With it
-turned on, the appliction takes minutes (I think we timed it to around
-22 minutes, but we have not been patient enough to wait it through to
-the end in some time).  This is being run on a 512cpu system, but there
-is a noticable performance hit on smaller systems as well.
-
-As far as I can tell, the application has multiple threads writing
-different portions of the same file, but the customer is still working
-on providing a simplified test case.
-
-I know _VERY_ little about filesystems.  udevd appears to be looking
-at /etc/udev/rules.d.  This bumps inotify_watches to 1.  The file
-being written is on an xfs filesystem mounted at a different mountpoint.
-Could the inotify flag be moved from a global to a sb (or something
-finer) point and therefore avoid taking the dentry->d_lock when there
-is no possibility of a watch event being queued.
-
-Thanks,
-Robin Holt
+Mike

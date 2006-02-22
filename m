@@ -1,59 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbWBVBuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161294AbWBVBv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932512AbWBVBuu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 20:50:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWBVBuu
+	id S1161294AbWBVBv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 20:51:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161287AbWBVBv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 20:50:50 -0500
-Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:46504 "HELO
-	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932512AbWBVBuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 20:50:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=ARzBEcvw6vpQlEhxpiPZn11Kkff3z63ERg6nLGAx7BetWY5PKtJpZf2+5lw652nvGzRyx03vsPkDOmtgX+DrxC+0evzsl/GUDH17Yzti7ulrrl37+PbY85BWhitis14svHdCBGKeG8RgPV6kmOOnGv+0LeXBfgXJURgeaWKqSno=  ;
-Message-ID: <43FBB2E8.2020300@yahoo.com.au>
-Date: Wed, 22 Feb 2006 11:40:08 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Tue, 21 Feb 2006 20:51:56 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:41140 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932514AbWBVBvz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 20:51:55 -0500
+Message-Id: <200602220151.k1M1pqg09761@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'David Gibson'" <david@gibson.dropbear.id.au>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: IA64 non-contiguous memory space bugs
+Date: Tue, 21 Feb 2006 17:51:52 -0800
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@engr.sgi.com>
-CC: Ravikiran G Thirumalai <kiran@scalex86.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>
-Subject: Re: [patch] Cache align futex hash buckets
-References: <20060220233242.GC3594@localhost.localdomain> <43FA8938.70006@yahoo.com.au> <Pine.LNX.4.64.0602211030240.20166@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0602211030240.20166@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcY3RTV2RLzpbjZmR9yMXCkSFsznyAABvSDQAAE9GbA=
+In-Reply-To: <200602220132.k1M1Vxg09552@unix-os.sc.intel.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Tue, 21 Feb 2006, Nick Piggin wrote:
-> 
-> 
->>Ravikiran G Thirumalai wrote:
->>
->>>Following change places each element of the futex_queues hashtable on a
->>>different cacheline.  Spinlocks of adjacent hash buckets lie on the same
->>>cacheline otherwise.
->>>
->>
->>It does not make sense to add swaths of unused memory into a hashtable for
->>this purpose, does it?
-> 
-> 
-> It does if you essentially have a 4k cacheline (because you are doing NUMA 
-> in software with multiple PCs....) and transferring control of that 
-> cacheline is comparatively expensive.
-> 
+David Gibson wrote on Tuesday, February 21, 2006 4:14 PM
+> Second problem is in the hugepage logic in free_pgtables()
+> (mm/memory.c).  As far as I can tell it's complete crap, and only
+> works by accident, for different accidental reasons on ppc64 and ia64,
+> the only archs that have a non-trivial is_hugepage_only_range().
+> Except that I'm not sure it does entirely work by accident on ia64:
+> suppose a process has a hugepage mapping that begins some way after
+> the beginning of the hugepage address range.  Before
+> hugetlb_free_pgd_range() gets called on that area, it will be called
+> on the next normal page VMA down - but with an end address at the
+> beginning of the hugepage VMA and so extending into the hugepage
+> address range.  I don't really understand the ia64 pagetable mapping
+> stuff well enough to tell if that's dangerous or not.
 
-Instead of 1MB hash with 256 entries in it covering 256 cachelines, you
-have a 1MB hash with 65536(ish) entries covering 256 cachelines.
+Chen, Kenneth W wrote on Tuesday, February 21, 2006 5:32 PM
+> I don't see any problem in the ia64 code.  The start and end address is
+> what the vma specified.  Floor and ceiling is just a hint for free_pgtables()
+> to free any left over page tables between vma holes (to prev and next).
+> As far as I can tell, the code looks fine.
 
--
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+
+free_pgtables() has partial crap that the check of is_hugepage_only_range()
+should be done on the entire vma range, not just the first hugetlb page.
+Though, it's not possible to have a hugetlb vma while having normal page
+instantiated inside that vma.  So the bug is mostly phantom.  For
+correctness, it should be fixed.
+
+
+--- linux-2.6.16-rc4/mm/memory.c.orig	2006-02-21 18:33:32.427186571 -0800
++++ linux-2.6.16-rc4/mm/memory.c	2006-02-21 18:37:22.414488441 -0800
+@@ -270,6 +270,7 @@ void free_pgtables(struct mmu_gather **t
+ 	while (vma) {
+ 		struct vm_area_struct *next = vma->vm_next;
+ 		unsigned long addr = vma->vm_start;
++		unsigned long end = vma->vm_end;
+ 
+ 		/*
+ 		 * Hide vma from rmap and vmtruncate before freeing pgtables
+@@ -277,8 +278,8 @@ void free_pgtables(struct mmu_gather **t
+ 		anon_vma_unlink(vma);
+ 		unlink_file_vma(vma);
+ 
+-		if (is_hugepage_only_range(vma->vm_mm, addr, HPAGE_SIZE)) {
+-			hugetlb_free_pgd_range(tlb, addr, vma->vm_end,
++		if (is_hugepage_only_range(vma->vm_mm, addr, end - addr)) {
++			hugetlb_free_pgd_range(tlb, addr, end
+ 				floor, next? next->vm_start: ceiling);
+ 		} else {
+ 			/*
+
+
+
+

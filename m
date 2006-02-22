@@ -1,61 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161259AbWBVAL7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161260AbWBVAMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161259AbWBVAL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 19:11:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161260AbWBVAL7
+	id S1161260AbWBVAMT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 19:12:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161270AbWBVAMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 19:11:59 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:56970 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1161259AbWBVALy (ORCPT
+	Tue, 21 Feb 2006 19:12:19 -0500
+Received: from rtr.ca ([64.26.128.89]:5845 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1161260AbWBVAMR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 19:11:54 -0500
-Date: Wed, 22 Feb 2006 01:11:53 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Daniel Barkalow <barkalow@iabervon.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] duplicate #include check for build system
-Message-ID: <20060222001153.GF20204@MAIL.13thfloor.at>
-Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
-	Daniel Barkalow <barkalow@iabervon.org>,
-	Linux Kernel ML <linux-kernel@vger.kernel.org>
-References: <20060221014824.GA19998@MAIL.13thfloor.at> <Pine.LNX.4.64.0602210149190.6773@iabervon.org> <20060221175246.GA9070@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060221175246.GA9070@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6i
+	Tue, 21 Feb 2006 19:12:17 -0500
+Message-ID: <43FBAC6B.6030604@rtr.ca>
+Date: Tue, 21 Feb 2006 19:12:27 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Jens Axboe <axboe@suse.de>, Ariel Garcia <garcia@iwr.fzk.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc4 libata + AHCI patched for suspend fails on ICH6
+References: <200602191958.38219.garcia@iwr.fzk.de> <20060219191859.GJ8852@suse.de> <Pine.LNX.4.58.0602210903260.8603@shark.he.net> <43FBA907.6040906@rtr.ca> <Pine.LNX.4.58.0602211603510.8603@shark.he.net>
+In-Reply-To: <Pine.LNX.4.58.0602211603510.8603@shark.he.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 21, 2006 at 06:52:46PM +0100, Sam Ravnborg wrote:
-> On Tue, Feb 21, 2006 at 02:29:12AM -0500, Daniel Barkalow wrote:
-> > On Tue, 21 Feb 2006, Herbert Poetzl wrote:
->  
-> > I think the kernel style is to encourage duplicate includes, rather than 
-> > removing them. Removing duplicate includes won't remove any dependancies 
-> > (since the includes that they duplicate will remain).
+Randy.Dunlap wrote:
+>
+> Thanks, good to have the continued feedback.
+> It is SATA, right?  The latest patchset also includes PATA ACPI
+> objects support (using libata), but it is missing a few calls
+> to the functions that do the real work during resume.
+> Will patch that this week also.
 
-> The style as I have understood it is that each .h file in include/linux/
-> are supposed to be self-contained. So it includes what is needs, and the
-> 'what it needs' are kept small.
-> 
-> Keeping the 'what it needs' part small is a challenge resulting in
-> smaller .h files. But also a good way to keep related things together.
+It's a PATA notebook drive, attached with some kind of hidden
+bridge chip, to an Intel 82801FBM SATA ICH6M.
 
-glad that I stimulated a philosophical discussion
-about the kernel header files and what they should
-include or not ... 
+libata thinks it is pure SATA.
 
-but the idea was more to give the developers an
-instrument to verify that they are not including
-stuff several times, and that's actually in .h
-and .c files, because it seems that often the same
-header file is included twice in the _same_ file
-
-anyway, was this a positive or negative reply?
-
-TIA,
-Herbert
- 
-> 	Sam
+Cheers

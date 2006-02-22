@@ -1,71 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbWBVQMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbWBVQLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbWBVQMU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 11:12:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWBVQMJ
+	id S932324AbWBVQLl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 11:11:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWBVQLk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 11:12:09 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:31191 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932357AbWBVQL6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 11:11:58 -0500
-Message-ID: <43FC8D97.9080102@ce.jp.nec.com>
-Date: Wed, 22 Feb 2006 11:13:11 -0500
-From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Neil Brown <neilb@suse.de>, Alasdair Kergon <agk@redhat.com>,
-       Lars Marowsky-Bree <lmb@suse.de>, Greg KH <gregkh@suse.de>
-CC: linux-kernel@vger.kernel.org,
-       device-mapper development <dm-devel@redhat.com>
-Subject: [PATCH 3/3] sysfs representation of stacked devices (md) (rev.2)
-References: <43FC8C00.5020600@ce.jp.nec.com>
-In-Reply-To: <43FC8C00.5020600@ce.jp.nec.com>
-Content-Type: multipart/mixed;
- boundary="------------080802050506060906040303"
+	Wed, 22 Feb 2006 11:11:40 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:39626 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932324AbWBVQLk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 11:11:40 -0500
+Date: Wed, 22 Feb 2006 16:11:33 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Kay Sievers <kay.sievers@suse.de>,
+       Pekka J Enberg <penberg@cs.Helsinki.FI>, Greg KH <gregkh@suse.de>,
+       Adrian Bunk <bunk@stusta.de>, Robert Love <rml@novell.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       John Stultz <johnstul@us.ibm.com>
+Subject: Re: 2.6.16-rc4: known regressions
+Message-ID: <20060222161133.GA18059@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kay Sievers <kay.sievers@suse.de>,
+	Pekka J Enberg <penberg@cs.Helsinki.FI>, Greg KH <gregkh@suse.de>,
+	Adrian Bunk <bunk@stusta.de>, Robert Love <rml@novell.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	John Stultz <johnstul@us.ibm.com>
+References: <84144f020602190306o3149d51by82b8ccc6108af012@mail.gmail.com> <20060219145442.GA4971@stusta.de> <1140383653.11403.8.camel@localhost> <20060220010205.GB22738@suse.de> <1140562261.11278.6.camel@localhost> <20060221225718.GA12480@vrfy.org> <Pine.LNX.4.58.0602220905330.12374@sbz-30.cs.Helsinki.FI> <20060222152743.GA22281@vrfy.org> <Pine.LNX.4.64.0602220737170.30245@g5.osdl.org> <1140624187.2979.38.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1140624187.2979.38.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080802050506060906040303
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+On Wed, Feb 22, 2006 at 05:03:07PM +0100, Arjan van de Ven wrote:
+> On Wed, 2006-02-22 at 07:44 -0800, Linus Torvalds wrote:
+> 
+> 
+> [snip lots of good words about that breaking userspace ABIs is really
+> horrible]
+> 
+> I absolutely agree with what you say. HOWEVER hal is also terminally
+> broken. The thing they depend on is a *config option*. If they can't
+> deal with that config option not being enabled in a graceful way, that's
+> a series malfunction.
+> 
+> 
+> (and no this is not an excuse for breaking userspace ABIs at all,
+> although one can argue that this removing is almost the same as
+> disabling the config option)
 
-This patch modifies md driver to call bd_claim_by_kobject
-and bd_release_from_kobject.
+And to continue the rant: the broken mount uevent feature (which
+can't work right) got in without any serious review through the
+driver model tree.  just as all those break udev/etc patches that
+cause all these userland breakages for those people brave enough
+to use udev and surrounding bits.
 
--- 
-Jun'ichi Nomura, NEC Solutions (America), Inc.
-
---------------080802050506060906040303
-Content-Type: text/x-patch;
- name="md.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="md.patch"
-
-Exporting stacked device relationship to sysfs (md)
-
-Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
-
---- linux-2.6.15/drivers/md/md.c	2006-01-02 22:21:10.000000000 -0500
-+++ linux-2.6.15/drivers/md/md.c	2006-02-21 19:11:16.000000000 -0500
-@@ -1226,6 +1226,7 @@ static int bind_rdev_to_array(mdk_rdev_t
- 	else
- 		ko = &rdev->bdev->bd_disk->kobj;
- 	sysfs_create_link(&rdev->kobj, ko, "block");
-+	bd_claim_by_kobject(rdev->bdev, rdev, &mddev->gendisk->slave_dir);
- 	return 0;
- }
- 
-@@ -1236,6 +1237,7 @@ static void unbind_rdev_from_array(mdk_r
- 		MD_BUG();
- 		return;
- 	}
-+	bd_release_from_kobject(rdev->bdev, &rdev->mddev->gendisk->slave_dir);
- 	list_del_init(&rdev->same_set);
- 	printk(KERN_INFO "md: unbind<%s>\n", bdevname(rdev->bdev,b));
- 	rdev->mddev = NULL;
-
---------------080802050506060906040303--
+Folks, we need to stop breaking sysfs interface all the time.  Having
+attributes on objects is real nice from many perspectives, but it's
+also a burden because the internal object model is now seen by the
+outside world.  That means anything involving sysfs needs a careful
+design not random patching as the driver model core people appear to
+do.

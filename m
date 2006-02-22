@@ -1,59 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbWBVWEn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbWBVWKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751485AbWBVWEn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 17:04:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWBVWEm
+	id S1751491AbWBVWKA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 17:10:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWBVWKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 17:04:42 -0500
-Received: from mail.fieldses.org ([66.93.2.214]:60622 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP
-	id S1751468AbWBVWEl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 17:04:41 -0500
-Date: Wed, 22 Feb 2006 17:04:35 -0500
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andrew Morton <akpm@osdl.org>, Oleg Drokin <green@linuxhacker.ru>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: FMODE_EXEC or alike?
-Message-ID: <20060222220435.GJ28219@fieldses.org>
-References: <20060220221948.GC5733@linuxhacker.ru> <20060220215122.7aa8bbe5.akpm@osdl.org> <1140530396.7864.63.camel@lade.trondhjem.org> <20060221232607.GS22042@fieldses.org> <1140564751.8088.35.camel@lade.trondhjem.org> <20060222195721.GC28219@fieldses.org> <1140644216.7879.7.camel@lade.trondhjem.org>
+	Wed, 22 Feb 2006 17:10:00 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:63901 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S1751448AbWBVWJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 17:09:58 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: "Hesse, Christian" <mail@earthworm.de>
+Subject: Re: hald in status D with 2.6.16-rc4
+Date: Wed, 22 Feb 2006 21:09:16 +1000
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org
+References: <200602202034.29413.mail@earthworm.de> <20060221144907.1ac11799.akpm@osdl.org> <200602221110.44813.mail@earthworm.de>
+In-Reply-To: <200602221110.44813.mail@earthworm.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1140644216.7879.7.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.11+cvs20060126
-From: "J. Bruce Fields" <bfields@fieldses.org>
+Content-Type: multipart/signed;
+  boundary="nextPart3178343.cvBiZZPuXe";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200602222109.21816.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 04:36:56PM -0500, Trond Myklebust wrote:
-> On Wed, 2006-02-22 at 14:57 -0500, J. Bruce Fields wrote:
-> > On Tue, Feb 21, 2006 at 06:32:31PM -0500, Trond Myklebust wrote:
-> > > Hmm... I don't think you want to overload write deny bits onto
-> > > FMODE_EXEC. FMODE_EXEC is basically, a read-only mode, so it
-> > > would mean that you could no longer do something like
-> > > 
-> > >   OPEN(READ|WRITE,DENY_WRITE) 
-> > > 
-> > > which I would assume is one of the more frequent Windoze open modes.
-> > 
-> > Since exec will never use the above combination, I don't think the
-> > current proposal mandates any particular semantics in that case.
-> > 
-> > So I'm assuming that we could choose the semantics to fit nfsd's
-> > purposes.  Am I missing anything?
-> 
-> Yes. I'm saying that your mapping of the  NFSv4 DENY_WRITE share mode
-> into FMODE_EXEC will _only_ work for the specific combination
-> OPEN(READ,DENY_WRITE).
+--nextPart3178343.cvBiZZPuXe
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I understand that if FMODE_WRITE|FMODE_EXEC opens must fail, then
-FMODE_EXEC is a poor fit for DENY_WRITE.
+Hi.
 
-What I don't understand is the source of the requirement that
-FMODE_WRITE|FMODE_EXEC opens be disallowed.
+On Wednesday 22 February 2006 20:10, Hesse, Christian wrote:
+> On Tuesday 21 February 2006 23:49, Andrew Morton wrote:
+> > "Hesse, Christian" <mail@earthworm.de> wrote:
+> > > On Tuesday 21 February 2006 06:19, Andrew Morton wrote:
+> > > > "Hesse, Christian" <mail@earthworm.de> wrote:
+> > > > > Hello everybody,
+> > > > >
+> > > > > since using kernel version 2.6.16-rc4 the hal daemon is in status=
+ D
+> > > > > after resume. I use suspend2 2.2.0.1 for 2.6.16-rc3. Any hints wh=
+at
+> > > > > could be the problem? It worked perfectly with 2.6.15.x and
+> > > > > suspend2 2.2.
+> > > >
+> > > > a) Look in the logs for any oopses, other nasties
+> > >
+> > > Nothing.
+> > >
+> > > > b) Do `echo t > /proc/sysrq-trigger', `dmesg -s 1000000 > foo' then
+> > > > find the trace for `hald' in `foo', send it to this list.
+> > >
+> > > Ok, here it is:
+> > >
+> > > [ trace snipped ]
+> > >
+> > > This is with 2.6.16-rc4-git1 + suspend2 2.2.0.1.
+> >
+> > Hopefully suspend2 isn't involved.  People would feel more comfortable =
+if
+> > you could test a vanilla mainline tree..
+> >
+> > Could the ACPI team please take a look at fixing this regression?
+>
+> I did two cycles with mainline suspend now and did not hit the problem...=
+ I
+> will keep an eye on it.
 
-The only users of FMODE_EXEC introduced by Oleg's patch use a hardcoded
-FMODE_READ|FMODE_EXEC, so it doesn't seem to impose any constraints on
-the meaning of FMODE_WRITE|FMODE_EXEC.
+Could you let me know how you go? I didn't make any changes between 2.2 and=
+=20
+2.2.0.1 that I think could cause this, but if you can't reproduce it=20
+otherwise, I'll happily look again.
 
---b.
+Regards,
+
+Nigel
+
+--nextPart3178343.cvBiZZPuXe
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBD/EZhN0y+n1M3mo0RAm5HAKDgGohA6w31t86TZCiveVQyc2+NJgCgzrXb
+bwVm9bb9ojNArJDGIJJ/LXY=
+=UIXM
+-----END PGP SIGNATURE-----
+
+--nextPart3178343.cvBiZZPuXe--

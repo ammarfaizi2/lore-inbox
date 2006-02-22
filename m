@@ -1,67 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWBVMTq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWBVMWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751223AbWBVMTq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 07:19:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWBVMTq
+	id S1750710AbWBVMWj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 07:22:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWBVMWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 07:19:46 -0500
-Received: from outmail1.freedom2surf.net ([194.106.33.237]:27048 "EHLO
-	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S1751223AbWBVMTp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 07:19:45 -0500
-Message-ID: <43FC574A.4000100@qazi.f2s.com>
-Date: Wed, 22 Feb 2006 12:21:30 +0000
-From: Asfand Yar Qazi <ay0106@qazi.f2s.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060217)
-X-Accept-Language: en-us, en
+	Wed, 22 Feb 2006 07:22:39 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:29694 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750710AbWBVMWi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 07:22:38 -0500
+Date: Wed, 22 Feb 2006 07:22:26 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Esben Nielsen <simlo@phys.au.dk>, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: 2.6.15-rt17
+In-Reply-To: <6bffcb0e0602210916n3ddbd50i@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0602220715460.4164@gandalf.stny.rr.com>
+References: <20060221155548.GA30146@elte.hu> <6bffcb0e0602210916n3ddbd50i@mail.gmail.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 'vga=' parameter wierdness
-References: <43FC1624.8090607@qazi.f2s.com> <200602221130.13872.vda@ilport.com.ua> <43FC54B8.7070706@qazi.f2s.com> <mj+md-20060222.121130.6225.albireo@ucw.cz>
-In-Reply-To: <mj+md-20060222.121130.6225.albireo@ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares wrote:
-> Hello!
-> 
-> 
->>OK, will try that.  decimal of octal(0164) = decimal(116)
-> 
-> 
-> This won't work -- the mode numbers are hexadecimal, not octal.
-> Use 356 (decimal).
 
-You're right.  I thought '0164' was octal - 0 prefix.
+On Tue, 21 Feb 2006, Michal Piotrowski wrote:
 
-> 
-> 
->>When the modes come up on screen, they are numbered (0, 1, 2, ... a, b, 
->>etc.) This is what the 'a' refers to.  Hey, it worked through LILO on 2.4 
->> kernels.
-> 
-> 
-> Beware, these menu item numbers are _not_ meant to be stable across
-> kernel upgrades. Better use the "long" mode numbers like 0164 or 030c.
+> Hi,
+>
+> On 21/02/06, Ingo Molnar <mingo@elte.hu> wrote:
+> > i have released the 2.6.15-rt17 tree, which can be downloaded from the
+> > usual place:
+> [snip]
+> > to build a 2.6.15-rt17 tree, the following patches should be applied:
+> >
+> >   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.15.tar.bz2
+> >   http://redhat.com/~mingo/realtime-preempt/patch-2.6.15-rt17
+> >
+> >         Ingo
+>
+> I have noticed some bugs
+>
+> ----------------------------->
+> | new stack-footprint maximum: swapper/0, 788 bytes (out of 4044 bytes).
+> ------------|
+> {   24} [<c0135e7d>] debug_stackoverflow+0x80/0xb2
+> {   28} [<c01364e9>] __mcount+0x3b/0xb2
+> {   20} [<c010ebd8>] mcount+0x14/0x18
+> {  124} [<c01dc5cf>] number+0xe/0x204
+> {   76} [<c01dcbc3>] vsnprintf+0x3fe/0x438
+> {   28} [<c01dcc18>] vscnprintf+0x1b/0x2b
+> {  128} [<c011bd04>] vprintk+0x7a/0x23d
+> {   20} [<c011bc88>] printk+0x18/0x1a
+> {  172} [<c010ec2a>] MP_processor_info+0x4a/0x1b4
+> {   36} [<c010ee2e>] mp_register_lapic+0x9a/0xa0
+> {   24} [<c0482d5e>] acpi_parse_lapic+0x45/0x56
+> {   28} [<c048dda6>] acpi_table_parse_madt_family+0xb0/0x100
+> {   28} [<c048de10>] acpi_table_parse_madt+0x1a/0x1c
+> {   32} [<c048312a>] acpi_parse_madt_lapic_entries+0x49/0x9a
+> {    8} [<c048327d>] acpi_process_madt+0x23/0xb3
+> {   24} [<c0483540>] acpi_boot_init+0x3c/0x4c
+> {   20} [<c04805d4>] setup_arch+0x1af/0x1ed
+> {   24} [<c047c72f>] start_kernel+0x30/0x19a
+>
 
-Yep, I realise that now :-)
+Ingo,
 
-> 
-> 
->>Before I type in scan, the number for the 132x60 mode is actually 030C.  
->>After I've typed in 'scan', then it comes up as 0164.  If I enter 0164 
->>BEFORE I type in 'scan' at the vid mode, it still works.  But not if I give 
->>it as argument to GRUB.  As I said, will try giving decimal equivalent 
->>(116) as argument to GRUB.
-> 
-> 
-> You can also try giving 0x164 to GRUB.
+Maybe the following patch is needed, so that people know that this is not
+a bug.
 
-I'll try that as well.
+-- Steve
 
-> 
-> 				Have a nice fortnight
+Index: linux-2.6.15-rt17/kernel/latency.c
+===================================================================
+--- linux-2.6.15-rt17.orig/kernel/latency.c	2006-02-21 11:44:54.000000000 -0500
++++ linux-2.6.15-rt17/kernel/latency.c	2006-02-22 07:20:55.000000000 -0500
+@@ -418,6 +418,8 @@ static notrace void __print_worst_stack(
+ 	printk("| new stack-footprint maximum: %s/%d, %ld bytes (out of %ld bytes).\n",
+ 		worst_stack_comm, worst_stack_pid,
+ 		MAX_STACK-worst_stack_left, (long)MAX_STACK);
++	printk("| This is not a BUG\n");
++	printk("| turn off CONFIG_DEBUG_STACK_OVERFLOW if you don't want this\n");
+ 	printk("------------|\n");
 
-err... you too :-)
+ 	show_stackframe();

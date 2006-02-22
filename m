@@ -1,88 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWBVFQN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWBVFUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750929AbWBVFQN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 00:16:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWBVFQN
+	id S1751326AbWBVFUs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 00:20:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWBVFUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 00:16:13 -0500
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:50336 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750929AbWBVFQM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 00:16:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=GrJCKp01YwrHFd2YVveub0wEgpJ0zB53c8HnUF9Xv9MYPiEE7jr+xwgAvthI14mf07YZxHWZv2u5ID4DcCLvGD9ImwUBrqM9Asy/FxJt9XdjBI+D5AY+eJIiBxhkF8S+enG3jBDj3ONiDMD9HxGd3bYY78+qJd9P7BIOIA56WTs=  ;
-Message-ID: <43FBD5D5.5020706@yahoo.com.au>
-Date: Wed, 22 Feb 2006 14:09:09 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Gibson <dwg@au1.ibm.com>
-CC: William Lee Irwin <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Block reservation for hugetlbfs
-References: <20060221022124.GA18535@localhost.localdomain> <43FA94B3.4040904@yahoo.com.au> <20060221233950.GB20872@localhost.localdomain> <43FBB292.1000304@yahoo.com.au> <20060222021106.GB23574@localhost.localdomain>
-In-Reply-To: <20060222021106.GB23574@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Feb 2006 00:20:48 -0500
+Received: from mail.kroah.org ([69.55.234.183]:51131 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751326AbWBVFUr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 00:20:47 -0500
+Date: Tue, 21 Feb 2006 21:09:31 -0800
+From: Greg KH <gregkh@suse.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: david-b@pacbell.net, LKML <linux-kernel@vger.kernel.org>,
+       len.brown@intel.com, Paul Bristow <paul@paulbristow.net>,
+       mpm@selenic.com, B.Zolnierkiewicz@elka.pw.edu.pl,
+       dtor_core@ameritech.net, kkeil@suse.de,
+       linux-dvb-maintainer@linuxtv.org, philb@gnu.org, dwmw2@infradead.org
+Subject: Re: kbuild: Section mismatch warnings
+Message-ID: <20060222050931.GA26947@suse.de>
+References: <20060217214855.GA5563@mars.ravnborg.org> <20060217224702.GA25761@mars.ravnborg.org> <20060218000921.GA15894@suse.de> <20060219002133.GB11290@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060219002133.GB11290@mars.ravnborg.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson wrote:
-> On Wed, Feb 22, 2006 at 11:38:42AM +1100, Nick Piggin wrote:
+On Sun, Feb 19, 2006 at 01:21:33AM +0100, Sam Ravnborg wrote:
+> On Fri, Feb 17, 2006 at 04:09:21PM -0800, Greg KH wrote:
+> > On Fri, Feb 17, 2006 at 11:47:02PM +0100, Sam Ravnborg wrote:
+> > > Background:
+> > > I have introduced a build-time check for section mismatch and it showed
+> > > up a great number of warnings.
+> > > Below is the result of the run on a 2.6.16-rc1 tree (which my kbuild
+> > > tree is based upon) based on a 'make allmodconfig'
 > 
->>David Gibson wrote:
->>
->>>On Tue, Feb 21, 2006 at 03:18:59PM +1100, Nick Piggin wrote:
->>
->>>>This introduces
->>>>tree_lock(r) -> hugetlb_lock
->>>>
->>>>And we already have
->>>>hugetlb_lock -> lru_lock
->>>>
->>>>So we now have tree_lock(r) -> lru_lock, which would deadlock
->>>>against lru_lock -> tree_lock(w), right?
->>>>
->>>
->>>>From a quick glance it looks safe, but I'd _really_ rather not
->>>
->>>>introduce something like this.
->>>
->>>
->>>Urg.. good point.  I hadn't even thought of that consequence - I was
->>>more worried about whether I need i_lock or i_mutex to protect my
->>>updates to i_blocks.
->>>
->>>Would hugetlb_lock -> tree_lock(r) be any preferable (I think that's a
->>>possible alternative).
->>>
->>
->>Yes I think that should avoid the introduction of new lock dependency.
-> 
-> 
-> Err... "Yes" appears to contradict the rest of you statement, since my
-> suggestion would still introduce a lock dependency, just a different
-> one one.  It is not at all obvious to me how to avoid a lock
-> dependency entirely.
-> 
+> Greg - related to this I have thought a bit on __devinit versus __init.
+> With HOTPLUG enabled __devinit becomes empty and thus violate any checks
+> for illegal references to .init.text.
 
-I mean a new core mm lock depenency (ie. lru_lock -> tree_lock).
+I _really_ hate __devinit.  Almost everyone who uses it gets it wrong
+the first time (like pci hotplug drivers using it, which is just
+pointless...)  Now that CONFIG_HOTPLUG is always enabled (well, it's a
+lot harder to disable it now), hopefully when people get it wrong it
+will not cause problems.
 
-But I must have been smoking something last night: for the life
-of me I can't see why I thought there was already a hugetlb_lock
--> lru_lock dependency in there...?!
+> Would it make sense to create a specific set of sections for __devinit
+> and frinds so we could check that __devinit sections are not referenced from .text.
+> This is another way to do the current __init checks but with HOTPLUG
+> enabled and I like the result to be consistent with and without HOTPLUG
+> enabled.
 
-So I retract my statement. What you have there seems OK.
+That's not a bad idea.
 
+> Also I see __devinit being used in different ways. See sound/oss/mad16
+> for instance.
+> Only a few functions are marked __devinit nad I wonder if any should be
+> marked __devinit at all in that file. But due to references to
+> __initdata current checks discovered a potential bug here already today.
 
-> Also, any thoughts on whether I need i_lock or i_mutex or something
-> else would be handy..
-> 
+Like I said above, almost everyone uses it incorrectly.  I went through
+the whole tree sometime late 2.5 and fixed up everything.  It's probably
+time for another audit...
 
-I'm not much of an fs guy. How come you don't use i_size?
+thanks,
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+greg k-h

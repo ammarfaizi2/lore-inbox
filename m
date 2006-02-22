@@ -1,133 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751551AbWBVWfM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751573AbWBVWgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751551AbWBVWfM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 17:35:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751570AbWBVWfM
+	id S1751573AbWBVWgS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 17:36:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751575AbWBVWgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 17:35:12 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:34281 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751551AbWBVWfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 17:35:10 -0500
-Date: Wed, 22 Feb 2006 14:34:48 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: akpm@osdl.org
-cc: alokk@calsoftinc.com, manfred@colorfullife.com,
-       Pekka Enberg <penberg@gmail.com>, linux-kernel@vger.kernel.org
-Subject: slab: Remove SLAB_NO_REAP option
-Message-ID: <Pine.LNX.4.64.0602221428510.30219@schroedinger.engr.sgi.com>
+	Wed, 22 Feb 2006 17:36:18 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:60646 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751572AbWBVWgP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 17:36:15 -0500
+Message-ID: <43FCE6AC.ED8BC108@tv-sign.ru>
+Date: Thu, 23 Feb 2006 01:33:16 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       David Howells <dhowells@redhat.com>,
+       Christoph Lameter <clameter@engr.sgi.com>
+Subject: [PATCH 2/3] revert "Optimize sys_times for a single thread process"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SLAB_NO_REAP is documented as an option that will cause this slab
-not to be reaped under memory pressure. However, that is not what
-happens. The only thing that SLAB_NO_REAP controls at the moment
-is the reclaim of the unused slab elements that were allocated in
-batch in cache_reap(). Cache_reap() is run every few seconds
-independently of memory pressure.
+This patch reverts 'CONFIG_SMP && thread_group_empty()'
+optimization in sys_times(). The reason is that the next
+patch breaks memory ordering which is needed for that
+optimization.
 
-Could we remove the whole thing? Its only used by three slabs 
-anyways and I cannot find a reason for having this option.
+tasklist_lock in sys_times() will be eliminated completely
+by further patch.
 
-There is an additional problem with SLAB_NO_REAP. If set then
-the recovery of objects from alien caches is switched off.
-Objects not freed on the same node where they were initially
-allocated will only be reused if a certain amount of objects 
-accumulates from one alien node (not very likely) or if the cache is 
-explicitly shrunk. (Strangely __cache_shrink does not check for 
-SLAB_NO_REAP)
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-Getting rid of SLAB_NO_REAP fixes the problems with alien cache
-freeing.
-
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-
-Index: linux-2.6.16-rc4/mm/slab.c
-===================================================================
---- linux-2.6.16-rc4.orig/mm/slab.c	2006-02-17 14:23:45.000000000 -0800
-+++ linux-2.6.16-rc4/mm/slab.c	2006-02-22 14:06:23.000000000 -0800
-@@ -170,12 +170,12 @@
- #if DEBUG
- # define CREATE_MASK	(SLAB_DEBUG_INITIAL | SLAB_RED_ZONE | \
- 			 SLAB_POISON | SLAB_HWCACHE_ALIGN | \
--			 SLAB_NO_REAP | SLAB_CACHE_DMA | \
-+			 SLAB_CACHE_DMA | \
- 			 SLAB_MUST_HWCACHE_ALIGN | SLAB_STORE_USER | \
- 			 SLAB_RECLAIM_ACCOUNT | SLAB_PANIC | \
- 			 SLAB_DESTROY_BY_RCU)
- #else
--# define CREATE_MASK	(SLAB_HWCACHE_ALIGN | SLAB_NO_REAP | \
-+# define CREATE_MASK	(SLAB_HWCACHE_ALIGN | \
- 			 SLAB_CACHE_DMA | SLAB_MUST_HWCACHE_ALIGN | \
- 			 SLAB_RECLAIM_ACCOUNT | SLAB_PANIC | \
- 			 SLAB_DESTROY_BY_RCU)
-@@ -642,7 +642,7 @@ static struct kmem_cache cache_cache = {
- 	.limit = BOOT_CPUCACHE_ENTRIES,
- 	.shared = 1,
- 	.buffer_size = sizeof(struct kmem_cache),
--	.flags = SLAB_NO_REAP,
-+	.flags = 0,
- 	.spinlock = SPIN_LOCK_UNLOCKED,
- 	.name = "kmem_cache",
- #if DEBUG
-@@ -1689,9 +1689,6 @@ static inline size_t calculate_slab_orde
-  * %SLAB_RED_ZONE - Insert `Red' zones around the allocated memory to check
-  * for buffer overruns.
-  *
-- * %SLAB_NO_REAP - Don't automatically reap this cache when we're under
-- * memory pressure.
-- *
-  * %SLAB_HWCACHE_ALIGN - Align the objects in this cache to a hardware
-  * cacheline.  This can be beneficial if you're counting cycles as closely
-  * as davem.
-@@ -3487,10 +3484,6 @@ static void cache_reap(void *unused)
- 		struct slab *slabp;
+--- 2.6.16-rc3/kernel/exit.c~2_REVERT	2006-02-23 00:32:46.000000000 +0300
++++ 2.6.16-rc3/kernel/exit.c	2006-02-23 00:54:28.000000000 +0300
+@@ -137,11 +137,7 @@ repeat:
+ 	ptrace_unlink(p);
+ 	BUG_ON(!list_empty(&p->ptrace_list) || !list_empty(&p->ptrace_children));
+ 	__exit_signal(p);
+-	/*
+-	 * Note that the fastpath in sys_times depends on __exit_signal having
+-	 * updated the counters before a task is removed from the tasklist of
+-	 * the process by __unhash_process.
+-	 */
++
+ 	__unhash_process(p);
  
- 		searchp = list_entry(walk, struct kmem_cache, next);
+ 	/*
+--- 2.6.16-rc3/kernel/sys.c~2_REVERT	2006-02-13 21:47:19.000000000 +0300
++++ 2.6.16-rc3/kernel/sys.c	2006-02-23 00:55:56.000000000 +0300
+@@ -1009,69 +1009,35 @@ asmlinkage long sys_times(struct tms __u
+ 	 */
+ 	if (tbuf) {
+ 		struct tms tmp;
++		struct task_struct *tsk = current;
++		struct task_struct *t;
+ 		cputime_t utime, stime, cutime, cstime;
+ 
+-#ifdef CONFIG_SMP
+-		if (thread_group_empty(current)) {
+-			/*
+-			 * Single thread case without the use of any locks.
+-			 *
+-			 * We may race with release_task if two threads are
+-			 * executing. However, release task first adds up the
+-			 * counters (__exit_signal) before  removing the task
+-			 * from the process tasklist (__unhash_process).
+-			 * __exit_signal also acquires and releases the
+-			 * siglock which results in the proper memory ordering
+-			 * so that the list modifications are always visible
+-			 * after the counters have been updated.
+-			 *
+-			 * If the counters have been updated by the second thread
+-			 * but the thread has not yet been removed from the list
+-			 * then the other branch will be executing which will
+-			 * block on tasklist_lock until the exit handling of the
+-			 * other task is finished.
+-			 *
+-			 * This also implies that the sighand->siglock cannot
+-			 * be held by another processor. So we can also
+-			 * skip acquiring that lock.
+-			 */
+-			utime = cputime_add(current->signal->utime, current->utime);
+-			stime = cputime_add(current->signal->utime, current->stime);
+-			cutime = current->signal->cutime;
+-			cstime = current->signal->cstime;
+-		} else
+-#endif
+-		{
 -
--		if (searchp->flags & SLAB_NO_REAP)
--			goto next;
--
- 		check_irq_on();
+-			/* Process with multiple threads */
+-			struct task_struct *tsk = current;
+-			struct task_struct *t;
++		read_lock(&tasklist_lock);
++		utime = tsk->signal->utime;
++		stime = tsk->signal->stime;
++		t = tsk;
++		do {
++			utime = cputime_add(utime, t->utime);
++			stime = cputime_add(stime, t->stime);
++			t = next_thread(t);
++		} while (t != tsk);
  
- 		l3 = searchp->nodelists[numa_node_id()];
-Index: linux-2.6.16-rc4/include/linux/slab.h
-===================================================================
---- linux-2.6.16-rc4.orig/include/linux/slab.h	2006-02-17 14:23:45.000000000 -0800
-+++ linux-2.6.16-rc4/include/linux/slab.h	2006-02-22 14:05:25.000000000 -0800
-@@ -38,7 +38,6 @@ typedef struct kmem_cache kmem_cache_t;
- #define	SLAB_DEBUG_INITIAL	0x00000200UL	/* Call constructor (as verifier) */
- #define	SLAB_RED_ZONE		0x00000400UL	/* Red zone objs in a cache */
- #define	SLAB_POISON		0x00000800UL	/* Poison objects */
--#define	SLAB_NO_REAP		0x00001000UL	/* never reap from the cache */
- #define	SLAB_HWCACHE_ALIGN	0x00002000UL	/* align objs on a h/w cache lines */
- #define SLAB_CACHE_DMA		0x00004000UL	/* use GFP_DMA memory */
- #define SLAB_MUST_HWCACHE_ALIGN	0x00008000UL	/* force alignment */
-Index: linux-2.6.16-rc4/drivers/scsi/iscsi_tcp.c
-===================================================================
---- linux-2.6.16-rc4.orig/drivers/scsi/iscsi_tcp.c	2006-02-17 14:23:45.000000000 -0800
-+++ linux-2.6.16-rc4/drivers/scsi/iscsi_tcp.c	2006-02-22 14:08:46.000000000 -0800
-@@ -3639,7 +3639,7 @@ iscsi_tcp_init(void)
+-			read_lock(&tasklist_lock);
+-			utime = tsk->signal->utime;
+-			stime = tsk->signal->stime;
+-			t = tsk;
+-			do {
+-				utime = cputime_add(utime, t->utime);
+-				stime = cputime_add(stime, t->stime);
+-				t = next_thread(t);
+-			} while (t != tsk);
++		/*
++		 * While we have tasklist_lock read-locked, no dying thread
++		 * can be updating current->signal->[us]time.  Instead,
++		 * we got their counts included in the live thread loop.
++		 * However, another thread can come in right now and
++		 * do a wait call that updates current->signal->c[us]time.
++		 * To make sure we always see that pair updated atomically,
++		 * we take the siglock around fetching them.
++		 */
++		spin_lock_irq(&tsk->sighand->siglock);
++		cutime = tsk->signal->cutime;
++		cstime = tsk->signal->cstime;
++		spin_unlock_irq(&tsk->sighand->siglock);
++		read_unlock(&tasklist_lock);
  
- 	taskcache = kmem_cache_create("iscsi_taskcache",
- 			sizeof(struct iscsi_data_task), 0,
--			SLAB_HWCACHE_ALIGN | SLAB_NO_REAP, NULL, NULL);
-+			SLAB_HWCACHE_ALIGN, NULL, NULL);
- 	if (!taskcache)
- 		return -ENOMEM;
- 
-Index: linux-2.6.16-rc4/fs/ocfs2/super.c
-===================================================================
---- linux-2.6.16-rc4.orig/fs/ocfs2/super.c	2006-02-17 14:23:45.000000000 -0800
-+++ linux-2.6.16-rc4/fs/ocfs2/super.c	2006-02-22 14:08:17.000000000 -0800
-@@ -959,7 +959,7 @@ static int ocfs2_initialize_mem_caches(v
- 	ocfs2_lock_cache = kmem_cache_create("ocfs2_lock",
- 					     sizeof(struct ocfs2_journal_lock),
- 					     0,
--					     SLAB_NO_REAP|SLAB_HWCACHE_ALIGN,
-+					     SLAB_HWCACHE_ALIGN,
- 					     NULL, NULL);
- 	if (!ocfs2_lock_cache)
- 		return -ENOMEM;
+-			/*
+-			 * While we have tasklist_lock read-locked, no dying thread
+-			 * can be updating current->signal->[us]time.  Instead,
+-			 * we got their counts included in the live thread loop.
+-			 * However, another thread can come in right now and
+-			 * do a wait call that updates current->signal->c[us]time.
+-			 * To make sure we always see that pair updated atomically,
+-			 * we take the siglock around fetching them.
+-			 */
+-			spin_lock_irq(&tsk->sighand->siglock);
+-			cutime = tsk->signal->cutime;
+-			cstime = tsk->signal->cstime;
+-			spin_unlock_irq(&tsk->sighand->siglock);
+-			read_unlock(&tasklist_lock);
+-		}
+ 		tmp.tms_utime = cputime_to_clock_t(utime);
+ 		tmp.tms_stime = cputime_to_clock_t(stime);
+ 		tmp.tms_cutime = cputime_to_clock_t(cutime);

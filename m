@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWBVNrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWBVNrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751283AbWBVNrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 08:47:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWBVNrI
+	id S1751287AbWBVNrX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 08:47:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWBVNrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 08:47:08 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:40898 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751283AbWBVNrH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 08:47:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lgRHkzyal+QSTWvDHl3GLTSwlh1Ey3kECxQxalKK6KzRi5MzCXGLH13dB6kM+UcPxJn3m9II3NsEsETbIW3gfuH+Uk7Ljk/EIr0GtQbsVLPMp4xkYRza+uamr/cwZKoN9MLyunDvMivFHzMxY7zqGkxAjJctg8J9J+ltiTCWSoU=
-Message-ID: <6bffcb0e0602220547o732ab502q@mail.gmail.com>
-Date: Wed, 22 Feb 2006 14:47:06 +0100
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Steven Rostedt" <rostedt@goodmis.org>
-Subject: Re: 2.6.15-rt17
-Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       "Esben Nielsen" <simlo@phys.au.dk>,
-       "Thomas Gleixner" <tglx@linutronix.de>
-In-Reply-To: <Pine.LNX.4.58.0602220715460.4164@gandalf.stny.rr.com>
+	Wed, 22 Feb 2006 08:47:23 -0500
+Received: from relay4.usu.ru ([194.226.235.39]:30099 "EHLO relay4.usu.ru")
+	by vger.kernel.org with ESMTP id S1751285AbWBVNrV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 08:47:21 -0500
+Message-ID: <43FC6B8F.4060601@ums.usu.ru>
+Date: Wed, 22 Feb 2006 18:47:59 +0500
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060221155548.GA30146@elte.hu>
-	 <6bffcb0e0602210916n3ddbd50i@mail.gmail.com>
-	 <Pine.LNX.4.58.0602220715460.4164@gandalf.stny.rr.com>
+To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.16-rc4-mm1
+References: <20060220042615.5af1bddc.akpm@osdl.org>
+In-Reply-To: <20060220042615.5af1bddc.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.33.1.0; VDF: 6.33.1.17; host: usu2.usu.ru)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc4/2.6.16-rc4-mm1/
+plus hotfixes
 
-On 22/02/06, Steven Rostedt <rostedt@goodmis.org> wrote:
->
-> Ingo,
->
-> Maybe the following patch is needed, so that people know that this is not
-> a bug.
->
-> -- Steve
+Unfortunately, I lost my .config from the old kernel, so I attempted the 
+following:
 
-It will be a very useful piece of information for kernel testers (aka.
-not hackers ;).
+cd scripts
+make binoffset
+cd ..
+scripts/extract-ikconfig /boot/vmlinuz-2.6.16-rc3-mm1-home >.config
 
-Regards,
-Michal
+This results in:
 
---
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+zcat: stdin: decompression OK, trailing garbage ignored
+
+Note: I have not compiled this kernel yet, so there will be probably 
+another report of real issues.
+
+-- 
+Alexander E. Patrakov

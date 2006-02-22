@@ -1,57 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWBVP1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWBVP3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751337AbWBVP1r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 10:27:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWBVP1r
+	id S1751344AbWBVP3R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 10:29:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbWBVP3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 10:27:47 -0500
-Received: from soundwarez.org ([217.160.171.123]:19891 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S1751337AbWBVP1q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 10:27:46 -0500
-Date: Wed, 22 Feb 2006 16:27:43 +0100
-From: Kay Sievers <kay.sievers@suse.de>
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-Cc: Greg KH <gregkh@suse.de>, Adrian Bunk <bunk@stusta.de>,
-       Robert Love <rml@novell.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
+	Wed, 22 Feb 2006 10:29:17 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:14984 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751344AbWBVP3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 10:29:17 -0500
+To: Kir Kolyshkin <kir@openvz.org>
+Cc: devel@openvz.org, Kirill Korotaev <dev@sw.ru>,
+       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       Andrey Savochkin <saw@sawoct.com>, alan@lxorguk.ukuu.org.uk,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       John Stultz <johnstul@us.ibm.com>
-Subject: Re: 2.6.16-rc4: known regressions
-Message-ID: <20060222152743.GA22281@vrfy.org>
-References: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org> <20060217231444.GM4422@stusta.de> <84144f020602190306o3149d51by82b8ccc6108af012@mail.gmail.com> <20060219145442.GA4971@stusta.de> <1140383653.11403.8.camel@localhost> <20060220010205.GB22738@suse.de> <1140562261.11278.6.camel@localhost> <20060221225718.GA12480@vrfy.org> <Pine.LNX.4.58.0602220905330.12374@sbz-30.cs.Helsinki.FI>
-Mime-Version: 1.0
+       mrmacman_g4@mac.com, Linus Torvalds <torvalds@osdl.org>,
+       frankeh@watson.ibm.com, serue@us.ibm.com,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Subject: Re: [Devel] Re: Which of the virtualization approaches is more
+ suitable for kernel?
+References: <43F9E411.1060305@sw.ru>
+	<20060220161247.GE18841@MAIL.13thfloor.at> <43FB3937.408@sw.ru>
+	<20060221235024.GD20204@MAIL.13thfloor.at>
+	<43FC3853.9030508@openvz.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 22 Feb 2006 08:26:25 -0700
+In-Reply-To: <43FC3853.9030508@openvz.org> (Kir Kolyshkin's message of "Wed,
+ 22 Feb 2006 13:09:23 +0300")
+Message-ID: <m1zmkjjty6.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0602220905330.12374@sbz-30.cs.Helsinki.FI>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 09:06:10AM +0200, Pekka J Enberg wrote:
-> On Tue, 21 Feb 2006, Kay Sievers wrote:
-> > > 033b96fd30db52a710d97b06f87d16fc59fee0f1 is first bad commit
-> > > diff-tree 033b96fd30db52a710d97b06f87d16fc59fee0f1 (from 0f76e5acf9dc788e664056dda1e461f0bec93948)
-> > > Author: Kay Sievers <kay.sievers@suse.de>
-> > > Date:   Fri Nov 11 06:09:55 2005 +0100
-> > > 
-> > >     [PATCH] remove mount/umount uevents from superblock handling
-> 
-> On Wed, Feb 22, 2006 at 12:51:01AM +0200, Pekka Enberg wrote:
-> > Upgrade HAL, it's too old for that kernel.
-> 
-> It's what Gentoo stable is carrying. Thou shalt not break userspace!
+Kir Kolyshkin <kir@openvz.org> writes:
 
-Well, that's part of the contract by using an experimental version of HAL,
-it has nothing to do with the kernel, as long as it's under
-construction, you need to follow the latest releases. There is no
-other way to do it, cause nobody can get complex software right in the
-first place. So if that's a problem, don't depend on HAL until we
-release a 1.0 version which will give you the needed stability. Just bug
-the gentoo packager to catch up, cause there are more dependencies
-anyway, not only a specific kernel version. And we don't fix any
-bugs in any experimental version before 1.0, so please just help moving that
-project faster forward by using the latest version, if you want to use
-HAL.
+> Please stop seeding, hmm, falseness. OpenVZ patches you mention are against
+> 2.6.8 kernel, thus they contain tons of backported mainstream bugfixes and
+> driver updates; so, most of this size is not virtualization, but general
+> security/stability/drivers stuff. And yes, that size also indirectly tells how
+> much work we do to keep our users happy.
 
-Kay
+I think Herbert was trying to add some balance to the equation.
+
+> Back to the topic. If you (or somebody else) wants to see the real size of
+> things, take a look at broken-out patch set, available from
+> http://download.openvz.org/kernel/broken-out/. Here (2.6.15-025stab014.1 kernel)
+> we see that it all boils down to:
+
+Thanks.  This is the first indication I have seen that you even have broken-out 
+patches.  Why those aren't in your source rpms is beyond me.  Everything
+seems to have been posted in a 2-3 day window at the end of January and the
+beginning of February.  Is this something you are now providing?
+
+Shakes head.  You have a patch in broken-out that is 817K.  Do you really
+maintain it this way as one giant patch?
+
+> Virtualization stuff:                    diff-vemix-20060120-core   817K
+> Resource management (User Beancounters): diff-ubc-20060120          377K
+> Two-level disk quota:                    diff-vzdq-20051219-2       154K
+
+As for the size of my code, sure parts of it are big I haven't really
+measured.  Primarily this is because I'm not afraid of doing the heavy
+lifting necessary for a clean long term maintainable solution.
+
+Now while all of this is interesting.  It really is beside the point
+because neither the current vserver nor the current openvz code are
+ready for mainstream kernel inclusion.  Please let's not get side
+tracked playing whose patch is bigger.
+
+Eric

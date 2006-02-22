@@ -1,89 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbWBVQvR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbWBVQvp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030243AbWBVQvR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 11:51:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030275AbWBVQvR
+	id S1030223AbWBVQvp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 11:51:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWBVQvo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 11:51:17 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:38826 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S1030243AbWBVQvQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 11:51:16 -0500
-Date: Wed, 22 Feb 2006 17:50:53 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: 2.6.15-rt17
-In-Reply-To: <20060221155548.GA30146@elte.hu>
-Message-ID: <Pine.LNX.4.44L0.0602221621110.13737-100000@lifa03.phys.au.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 22 Feb 2006 11:51:44 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:33930 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030223AbWBVQvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 11:51:43 -0500
+Date: Wed, 22 Feb 2006 16:51:39 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: David Zeuthen <david@fubar.dk>
+Cc: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
+       Kay Sievers <kay.sievers@suse.de>,
+       Pekka J Enberg <penberg@cs.Helsinki.FI>, Greg KH <gregkh@suse.de>,
+       Adrian Bunk <bunk@stusta.de>, Robert Love <rml@novell.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       John Stultz <johnstul@us.ibm.com>
+Subject: Re: 2.6.16-rc4: known regressions
+Message-ID: <20060222165139.GA19223@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Zeuthen <david@fubar.dk>, Linus Torvalds <torvalds@osdl.org>,
+	Kay Sievers <kay.sievers@suse.de>,
+	Pekka J Enberg <penberg@cs.Helsinki.FI>, Greg KH <gregkh@suse.de>,
+	Adrian Bunk <bunk@stusta.de>, Robert Love <rml@novell.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	John Stultz <johnstul@us.ibm.com>
+References: <1140383653.11403.8.camel@localhost> <20060220010205.GB22738@suse.de> <1140562261.11278.6.camel@localhost> <20060221225718.GA12480@vrfy.org> <Pine.LNX.4.58.0602220905330.12374@sbz-30.cs.Helsinki.FI> <20060222152743.GA22281@vrfy.org> <Pine.LNX.4.64.0602220737170.30245@g5.osdl.org> <1140625103.21517.18.camel@daxter.boston.redhat.com> <20060222163511.GA18694@infradead.org> <1140626762.21517.24.camel@daxter.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1140626762.21517.24.camel@daxter.boston.redhat.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 22, 2006 at 11:46:01AM -0500, David Zeuthen wrote:
+> > you'd see in the relevant
+> > standards what scsi device types exist, or even better stop relying
+> > on such low-level knowledge.  
+> 
+> Then don't export it unless it's useful. You did break ABI, don't try to
+> make up stupid excuses.
 
-
-On Tue, 21 Feb 2006, Ingo Molnar wrote:
-
-> i have released the 2.6.15-rt17 tree, which can be downloaded from the
-> usual place:
->
->    http://redhat.com/~mingo/realtime-preempt/
->
-> lots of changes all across the map. There are several bigger changes:
->
-> the biggest change is the new PI code from Esben Nielsen, Thomas
-> Gleixner and Steven Rostedt. This big rework simplifies and streamlines
-> the PI code, and fixes a couple of bugs and races:
->
-I didn't know anyone looked at my patch! I am ofcourse happy about it :-)
-
-I switftly looked at 2.6.15-rt17 to see how it turned out. I found one
-problem in get_blocked_on(task):
-
-First the task->pi_lock is locked, lock = task->blocked_on->lock, then
-task->pi_lock is unlocked. Now lock is used. This is not safe.
-Once task->pi_lock is unlocked we can be preempted and wait for a long
-while the lock can be freed (if forinstance a driver is unloaded). You
-either have to hold task->pi_lock or lock->wait_lock while refering to
-lock. Otherwise the lock can be deallocated behind your bag. I assume that
-nobody deallocate a lock with waiters.
-
-That was why I had _reversed_ the lock ordering relative to normal in the
-original patch: First lock task->pi_lock. Assign lock. Lock
-lock->wait_lock. Then unlock task->pi_lock. Now it is safe to refer to
-lock. To avoid deadlocks I used _raw_spin_trylock() when locking the 2.
-lock.
-
-To make a long story short:
-
---- linux-2.6.15-rt17/kernel/rt.c.orig  2006-02-22 16:53:44.000000000
-+0100
-+++ linux-2.6.15-rt17/kernel/rt.c       2006-02-22 16:56:21.000000000
-+0100
-@@ -873,10 +873,17 @@
-        }
-
-        lock = task->blocked_on->lock;
-+
-+       /* Now we have to take lock->wait_lock _before_ releasing
-+          task->pi_lock. Otherwise lock can be deallocated while we are
-+          refering to it as the subsystem has no way of knowing about us
-+          hanging around in here. */
-+       if (!_raw_spin_trylock(&lock->wait_lock)) {
-+               _raw_spin_unlock(&task->pi_lock);
-+               goto try_again;
-+        }
-        _raw_spin_unlock(&task->pi_lock);
-
--       if (!_raw_spin_trylock(&lock->wait_lock))
--               goto try_again;
-
-        owner = lock_owner(lock);
-        if (owner)
-
-It compiles, but I have not tested it. I can't see why it shouldn't work.
-
-Esben
+It's _not_ and abi break.  TYPE_RBC is a valid scsi disk device that could
+happen on any SAM transport, not just firewire.  That sbp2 altered the
+device type just papered over the crappy hal code as long as none of your
+users had one of the non-firewire rbc devices.
 

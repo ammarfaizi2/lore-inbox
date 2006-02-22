@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030318AbWBVRaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161132AbWBVReE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030318AbWBVRaz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 12:30:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbWBVRaz
+	id S1161132AbWBVReE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 12:34:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161135AbWBVReE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 12:30:55 -0500
-Received: from mail.gmx.de ([213.165.64.20]:61923 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030318AbWBVRaz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 12:30:55 -0500
-X-Authenticated: #428038
-Date: Wed, 22 Feb 2006 18:30:51 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060222173051.GF19733@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	linux-kernel@vger.kernel.org
-References: <43EB7BBA.nailIFG412CGY@burner> <200602201302.05347.dhazelton@enter.net> <43FAE10F.nailD121QL6LN@burner> <200602211837.37211.dhazelton@enter.net> <43FC9B9C.nailEC7612T9Q@burner>
+	Wed, 22 Feb 2006 12:34:04 -0500
+Received: from boogie.lpds.sztaki.hu ([193.225.12.226]:38366 "EHLO
+	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
+	id S1161132AbWBVReC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 12:34:02 -0500
+Date: Wed, 22 Feb 2006 18:33:54 +0100
+From: Gabor Gombas <gombasg@sztaki.hu>
+To: "Theodore Ts'o" <tytso@mit.edu>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Kay Sievers <kay.sievers@suse.de>,
+       penberg@cs.helsinki.fi, gregkh@suse.de, bunk@stusta.de, rml@novell.com,
+       linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+Subject: Re: 2.6.16-rc4: known regressions
+Message-ID: <20060222173354.GJ14447@boogie.lpds.sztaki.hu>
+References: <1140562261.11278.6.camel@localhost> <20060221225718.GA12480@vrfy.org> <20060221153305.5d0b123f.akpm@osdl.org> <20060222000429.GB12480@vrfy.org> <20060221162104.6b8c35b1.akpm@osdl.org> <Pine.LNX.4.64.0602211631310.30245@g5.osdl.org> <Pine.LNX.4.64.0602211700580.30245@g5.osdl.org> <20060222112158.GB26268@thunk.org> <20060222154820.GJ16648@ca-server1.us.oracle.com> <20060222162533.GA30316@thunk.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43FC9B9C.nailEC7612T9Q@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+In-Reply-To: <20060222162533.GA30316@thunk.org>
+X-Copyright: Forwarding or publishing without permission is prohibited.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-02-22:
+On Wed, Feb 22, 2006 at 11:25:34AM -0500, Theodore Ts'o wrote:
 
-> "D. Hazelton" <dhazelton@enter.net> wrote:
+> Sounds like this is another of example of system support programs
+> (insmod in this case) breaking with modern kernels.
 
-> > similar to the old ide-scsi module, that sits on top of the SCSI and ATA 
-> > interfaces and provides the capacity to access any disk device on the system 
-> > using SCSI commands.
-> 
-> If this is a ide-scsi replacement, everything would be fine.
+I don't think isnmod is broken. It's job is to load a chunk of code into
+the kernel, and it's doing just that.
 
-That doesn't matter: your policy is to support older kernels, and by the
-time it will become available there will still be 2.6.13, .14, .15
-kernels around that don't have SAT, so you will need to have code that
-works well with 2.6.15 anyhow if you are to comply with your own
-intentions.
+The asynchronous device discovery is caused/required by hotplug. If you
+can recreate the problem with a kernel that has CONFIG_HOTPLUG disabled,
+then I agree that this is a kernel bug which should be fixed.
+
+But if your kernel has CONFIG_HOTPLUG enabled, then _you_ have asked for
+this exact behavior, therefore you should better fix userspace to cope
+with it. Your initrd should use the notification mechanisms provided by
+the kernel to wait for the would-be root device really becoming
+available; if it's not doing that, then IMHO you should not use a
+CONFIG_HOTPLUG enabled kernel.
+
+As I see, a lot of people spent a lot of work making the kernel
+hotplug-friendly. Unfortunately a lot less work was done on the
+userspace side, that's why there are still a lot of initscripts that
+assume they can immediately access the device after insmod have
+returned, even if they are running on a hotplug-enabled kernel.
+
+Gabor
 
 -- 
-Matthias Andree
+     ---------------------------------------------------------
+     MTA SZTAKI Computer and Automation Research Institute
+                Hungarian Academy of Sciences
+     ---------------------------------------------------------

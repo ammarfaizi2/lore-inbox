@@ -1,93 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbWBVChG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbWBVCkf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750862AbWBVChG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 21:37:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbWBVChG
+	id S1751059AbWBVCkf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 21:40:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWBVCkf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 21:37:06 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:41402 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750862AbWBVChE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 21:37:04 -0500
-Message-ID: <43FBCDB6.4090909@jp.fujitsu.com>
-Date: Wed, 22 Feb 2006 11:34:30 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
+	Tue, 21 Feb 2006 21:40:35 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:48069 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751059AbWBVCke convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 21:40:34 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       akpm@osdl.org, rmk+lkml@arm.linux.org.uk
-Subject: Re: [PATCH 3/6] PCI legacy I/O port free driver (take2) - Add device_flags
- into pci_device_id
-References: <43FAB283.8090206@jp.fujitsu.com> <200602212231.55879.ak@suse.de> <43FB8C4F.6070802@pobox.com> <200602212306.24342.ak@suse.de> <43FBABA4.7020906@pobox.com> <20060222001142.GA31605@kroah.com>
-In-Reply-To: <20060222001142.GA31605@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.16-rc4: known regressions
+Date: Wed, 22 Feb 2006 10:39:01 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F840AFD52B2@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.16-rc4: known regressions
+thread-index: AcY0GEXedeZ4agKQQlO0NaXvfi2vzwDQJBHQ
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Adrian Bunk" <bunk@stusta.de>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "John Stultz" <johnstul@us.ibm.com>, <paulus@samba.org>,
+       <linuxppc-dev@ozlabs.org>, <gregkh@suse.de>,
+       "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>,
+       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
+       "Meelis Roos" <mroos@linux.ee>,
+       "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+       <linux-input@atrey.karlin.mff.cuni.cz>
+X-OriginalArrivalTime: 22 Feb 2006 02:39:02.0842 (UTC) FILETIME=[245E61A0:01C63759]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Tue, Feb 21, 2006 at 07:09:08PM -0500, Jeff Garzik wrote:
-> 
->>Andi Kleen wrote:
->>
->>>On Tuesday 21 February 2006 22:55, Jeff Garzik wrote:
->>>
->>>
->>>
->>>>It doesn't matter how easily its added, it is the wrong place to add 
->>>>such things.
->>>>
->>>>This is what the various functions called during pci_driver::probe() do...
->>>
->>>
->>>The problem is that at least on the e1000 it only applies to some of the 
->>>many PCI-IDs it supports. So the original patch had an long ugly switch
->>>with PCI IDs to check it. I suggested to use driver_data for it then,
->>>but Kenji-San ended up with this new field.  I actually like the idea
->>>of the new field because it would allow to add such things very easily
->>>without adding lots of code.
->>>
->>>it's not an uncommon situation. e.g. consider driver A which supports
->>>a lot of PCI-IDs but MSI only works on a few of them. How do you
->>>handle this? Add an ugly switch that will bitrot? Or put all the 
->>>information into a single place which is the pci_device_id array.
->>
->>You do what tons of other drivers do, and indicate this via driver_data. 
->> An enumerated type in driver_data can be used to uniquely identify any 
->>device or set of devices.
->>
->>No need to add anything.
-> 
-> 
-> Yes, I agree, use driver_data, it's simpler, and keeps the PCI core
-> clean.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+>
+>Subject    : S3 sleep hangs the second time - 600X
+>References : http://bugzilla.kernel.org/show_bug.cgi?id=5989
+>Submitter  : Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+>Status     : problematic commit identified,
+>             further discussion is in the bug
 
-Hi,
-
-Thank you very much for all of the comments.
-
-The reason why I added the new field into struct pci_device_id is
-as follows, though these are already explained completely by Andi.
-
-    - By adding the new field instead of using driver_data, drivers
-      can pass the flags to the kernel directly. That is, drivers
-      don't need to call any new APIs to tell something to the kernel
-      after checking their own driver_data in their .probe().
-
-    - This new field can be used not only for ioport but also
-      other purpose (e.g. MSI).
-
-But according to the discussion, it doesn't look a good idea to add
-the new field into pci_device_id this time. So I'll update my patches
-to use the driver_data field instead.
+The real problem is there are some bugs hidden by ec_intr=0.
+ec_intr=1 just get these bug  just exposed, and we need to fix them. 
 
 Thanks,
-Kenji Kaneshige
+Luming

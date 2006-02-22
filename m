@@ -1,84 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWBVDFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbWBVDKE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751257AbWBVDFt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 22:05:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWBVDFt
+	id S1750950AbWBVDKE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 22:10:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWBVDKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 22:05:49 -0500
-Received: from tomts20-srv.bellnexxia.net ([209.226.175.74]:22468 "EHLO
-	tomts20-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751257AbWBVDFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 22:05:48 -0500
-Date: Tue, 21 Feb 2006 22:00:44 -0500
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org
-Subject: blktrace daemon vs LTTng lttd
-Message-ID: <20060222030044.GB17987@Krystal>
-Mime-Version: 1.0
+	Tue, 21 Feb 2006 22:10:04 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16651 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750950AbWBVDKC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 22:10:02 -0500
+Date: Wed, 22 Feb 2006 04:10:01 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Samuel Masham <samuel.masham@gmail.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
+       linux-input@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.6 patch] make INPUT a bool
+Message-ID: <20060222031001.GC4661@stusta.de>
+References: <20060214152218.GI10701@stusta.de> <Pine.LNX.4.61.0602141912580.32490@yvahk01.tjqt.qr> <20060214182238.GB3513@stusta.de> <Pine.LNX.4.61.0602171655530.27452@yvahk01.tjqt.qr> <20060217163802.GI4422@stusta.de> <93564eb70602191933x2a20ce0m@mail.gmail.com> <20060220132832.GF4971@stusta.de> <20060222013410.GH20204@MAIL.13thfloor.at> <20060222023121.GB4661@stusta.de> <20060222024438.GI20204@MAIL.13thfloor.at>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.31-grsec (i686)
-X-Uptime: 21:39:03 up 14 days, 22:53,  4 users,  load average: 0.21, 0.11, 0.08
+In-Reply-To: <20060222024438.GI20204@MAIL.13thfloor.at>
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi M. Axboe,
+On Wed, Feb 22, 2006 at 03:44:38AM +0100, Herbert Poetzl wrote:
+> On Wed, Feb 22, 2006 at 03:31:21AM +0100, Adrian Bunk wrote:
+> > On Wed, Feb 22, 2006 at 02:34:11AM +0100, Herbert Poetzl wrote:
+> > > On Mon, Feb 20, 2006 at 02:28:32PM +0100, Adrian Bunk wrote:
+> > > > On Mon, Feb 20, 2006 at 12:33:55PM +0900, Samuel Masham wrote:
+> > > > 
+> > > > > Hi Adrian,
+> > > > 
+> > > > Hi Samuel,
+> > > > 
+> > > > > > And I've already given numbers why CONFIG_EMBEDDED=y and
+> > > > > > CONFIG_MODULES=y at the same time is insane.
+> > > > > 
+> > > > > >From your numbers this sounds true ... but actually you might want the
+> > > > > modules to delay the init of the various hardware bits...
+> > > > > 
+> > > > > Sometime boot-time is king and you just try and get back as much of
+> > > > > the size costs as it takes...
+> > > > 
+> > > > this is irrelevant since CONFIG_INPUT alone does not init any hardware.
+> > > > 
+> > > > > I think for EMBEDDED and MODULES is actually a very common case ... if
+> > > > > somewhat odd.
+> > > > 
+> > > > You are misunderstanding EMBEDDED.
+> > > 
+> > > well, I suggested the following (or a similar)
+> > > change some time ago (unfortunately I could not
+> > > find it in the lkml archives, so it might have
+> > > been lost)
+> > > 
+> > > http://vserver.13thfloor.at/Stuff/embedded_to_expert.txt
+> > 
+> > That's not a good solution since EMBEDDED is really only about 
+> > additional space savings - even if you are an "expert", there's no 
+> > reason to enable EMBEDDED when building a kernel for systems 
+> > with > 50 MB RAM.
+> 
+> well, not sure everybody kows that ...
+> 
+>  config X86_P4_CLOCKMOD
+> 	depends on EMBEDDED
 
-Tom Zanussi just informed me of your work of blktrace. I think that some aspects
-of our respective projects (mine being LTTng) shows resemblances.
+This one is an x86_64 only issue, and yes, it's wrong.
 
-LTTng is a system wide tracer that aims at tracing programs/librairies and the
-kernel. There is a version currently available at http://ltt.polymtl.ca. Is has
-a viewer counterpart (LTTV) that analyses and show graphically the traces takes
-by LTTng.
+>  config VT_CONSOLE
+> 	bool "Support for console on virtual terminal" if EMBEDDED
 
-I just looked at the blktrace code, and here are some parts we share :
+Looks OK.
 
-- We both use RelayFS for data transfer to user space.
-- We both need to get highly precise timestamps.
+>  config VGA_CONSOLE
+> 	bool "VGA text console" if EMBEDDED 
 
-Where LTTng might have more constraints is on the performance and reentrancy
-side : my tracer is NMI reentrant (using atomic operations) and must be able to
-dump data at a rate high enough to sustain a loopback ping flood (with
-interrupts logged). Time precision must permit to reorder events occuring very
-closely on two different CPUs.
+Looks OK.
 
-I already developed a multithreaded daemon (lttd) that generically reads the
-RelayFS channels : it uses mmap() and 4 ioctl() to control the channel
-buffers. I just discussed it with Tom Zanussi in the following thread :
+>  config DNOTIFY
+> 	bool "Dnotify support" if EMBEDDED
 
-http://www.listserv.shafik.org/pipermail/ltt-dev/2006-February/001245.html
+Looks OK.
 
-Here is the argumentation I gave to justify the use of ioctl() for RelayFS
-channels (in the same discussion) :
+>  config DEBUG_BUGVERBOSE
+> 	bool "Verbose BUG() reporting (adds 70K)" if DEBUG_KERNEL && EMBEDDED
 
-http://www.listserv.shafik.org/pipermail/ltt-dev/2006-February/001247.html
+Looks OK.
 
-I suggest to integrate my ioctl addition to the RelayFS channels so they can be
-used very efficiently with both mmap() and ioctl() to control the reader.
+> but, the patch was just considered a starting point
+> so that folks would know _what_ EMBEDDED is currently
+> used for ...
 
-It would be trivial to use send() instead of write() to adapt lttd to the
-networked case. 
+Except for the X86_P4_CLOCKMOD case, all of your examples are correct 
+usages of EMBEDDED.
 
-Using mmap() and write() instead or read() and write() would eliminate the
-extra copy blktrace is doing when it writes to disk.
+> > The better solution is IMHO an additional option:
+> >   http://lkml.org/lkml/2006/2/7/93
+> >   http://lkml.org/lkml/2006/2/7/139
+> 
+> whatever, just get rid of the CONFIG_EMBEDDED everybody
+> get's wrong and nobody really understands ...
 
-What do you think about it ?
+No, the EMBEDDED semantics shouldn't be changed and most people get it 
+right.
 
+Naming it EXPERT as you suggested would make it even worse. We could name it 
+SHOW_OPTIONS_FOR_ADDITIONAL_SPACE_SAVINGS_IF_YOU_REALLY_KNOW_WHAT_YOU_ARE_DOING, 
+but unless someone comes up with a name that is both short and 
+significantely better than EMBEDDED I don't see a reason for changing it.
 
-On another point, I looked at your timekeeping in blktrace and I think you could
-gain precision by using a monotonic clock instead of do_gettimeofday (which is
-altered by NTP).
+cu
+Adrian
 
+-- 
 
-Mathieu
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

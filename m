@@ -1,49 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161226AbWBVSEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161099AbWBVSIN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161226AbWBVSEa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 13:04:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161263AbWBVSEa
+	id S1161099AbWBVSIN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 13:08:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161263AbWBVSIN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 13:04:30 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:48841 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161226AbWBVSE3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 13:04:29 -0500
-Date: Wed, 22 Feb 2006 18:04:23 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Zeuthen <david@fubar.dk>, Kay Sievers <kay.sievers@suse.de>,
-       Pekka J Enberg <penberg@cs.Helsinki.FI>, Greg KH <gregkh@suse.de>,
-       Adrian Bunk <bunk@stusta.de>, Robert Love <rml@novell.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       John Stultz <johnstul@us.ibm.com>
-Subject: Re: 2.6.16-rc4: known regressions
-Message-ID: <20060222180423.GD27946@ftp.linux.org.uk>
-References: <1140383653.11403.8.camel@localhost> <20060220010205.GB22738@suse.de> <1140562261.11278.6.camel@localhost> <20060221225718.GA12480@vrfy.org> <Pine.LNX.4.58.0602220905330.12374@sbz-30.cs.Helsinki.FI> <20060222152743.GA22281@vrfy.org> <Pine.LNX.4.64.0602220737170.30245@g5.osdl.org> <1140625103.21517.18.camel@daxter.boston.redhat.com> <Pine.LNX.4.64.0602220848280.30245@g5.osdl.org> <Pine.LNX.4.64.0602220915500.30245@g5.osdl.org>
+	Wed, 22 Feb 2006 13:08:13 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:43163 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1161269AbWBVSIM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 13:08:12 -0500
+Subject: [PATCH] restore superblock mount/umount uevents
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, kay.sievers@suse.de, gregkh@suse.de,
+       torvalds@osdl.org
+Date: Wed, 22 Feb 2006 20:08:09 +0200
+Message-Id: <1140631690.11447.2.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0602220915500.30245@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 09:31:59AM -0800, Linus Torvalds wrote:
-> Why the hell anybody would care about what the command transport type is, 
-> when all that matters is that it's a block device, I don't understand. The 
-> exact details of what kind of block device it is are totally secondary, 
-> and shouldn't affect basic desktop behaviour.
+From: Pekka Enberg <penberg@cs.helsinki.fi>
 
-Actually, it's not about transport, it's about command _set_.  So there
-is legitimate userland code that would want to know that (especially since
-a lot of external enclosures have incredibly brittle and crappy firmware
-and go tits-up when they see anything they don't recognize), but
-	a) the last thing that code wants is to have TYPE_RBC mislabeled
-as TYPE_DISK and
-	b) hal has nothing to do with that.
+This patch fixes an userspace regression caused by "[PATCH] remove
+mount/umount uevents from superblock handling" where gnome-volume-manager no
+longer detects plugged in devices. You can find a complete bug description
+here: http://bugzilla.kernel.org/show_bug.cgi?id=6021.
 
-The only place where _transport_ enters the picture is that RBC is very common
-in e.g. firewire-to-IDE bridges, so sbp2 had to deal with it somehow.  And
-instead of teaching sd.c to deal with those (it's very easy) it went ahead
-and just marked those as type 0 (disk).  Almost worked...
+I have tested this patch on Gentoo Linux running HAL 0.5.5.1.
+
+Cc: Kay Sievers <kay.sievers@suse.de>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
+
+diff --git a/fs/super.c b/fs/super.c
+index 3029421..e20b558 100644
+--- a/fs/super.c
++++ b/fs/super.c
+@@ -666,6 +666,16 @@ static int test_bdev_super(struct super_
+ 	return (void *)s->s_bdev == data;
+ }
+ 
++static void bdev_uevent(struct block_device *bdev, enum kobject_action action)
++{
++	if (bdev->bd_disk) {
++		if (bdev->bd_part)
++			kobject_uevent(&bdev->bd_part->kobj, action);
++		else
++			kobject_uevent(&bdev->bd_disk->kobj, action);
++	}
++}
++
+ struct super_block *get_sb_bdev(struct file_system_type *fs_type,
+ 	int flags, const char *dev_name, void *data,
+ 	int (*fill_super)(struct super_block *, void *, int))
+@@ -707,8 +717,10 @@ struct super_block *get_sb_bdev(struct f
+ 			up_write(&s->s_umount);
+ 			deactivate_super(s);
+ 			s = ERR_PTR(error);
+-		} else
++		} else {
+ 			s->s_flags |= MS_ACTIVE;
++			bdev_uevent(bdev, KOBJ_MOUNT);
++		}
+ 	}
+ 
+ 	return s;
+@@ -724,6 +736,7 @@ void kill_block_super(struct super_block
+ {
+ 	struct block_device *bdev = sb->s_bdev;
+ 
++	bdev_uevent(bdev, KOBJ_UMOUNT);
+ 	generic_shutdown_super(sb);
+ 	sync_blockdev(bdev);
+ 	close_bdev_excl(bdev);
+diff --git a/include/linux/kobject.h b/include/linux/kobject.h
+index 2a8d8da..8983f20 100644
+--- a/include/linux/kobject.h
++++ b/include/linux/kobject.h
+@@ -41,8 +41,10 @@ enum kobject_action {
+ 	KOBJ_ADD	= (__force kobject_action_t) 0x01,	/* exclusive to core */
+ 	KOBJ_REMOVE	= (__force kobject_action_t) 0x02,	/* exclusive to core */
+ 	KOBJ_CHANGE	= (__force kobject_action_t) 0x03,	/* device state change */
+-	KOBJ_OFFLINE	= (__force kobject_action_t) 0x04,	/* device offline */
+-	KOBJ_ONLINE	= (__force kobject_action_t) 0x05,	/* device online */
++	KOBJ_MOUNT	= (__force kobject_action_t) 0x04,	/* mount event for block devices */
++	KOBJ_UMOUNT	= (__force kobject_action_t) 0x05,	/* umount event for block devices */
++	KOBJ_OFFLINE	= (__force kobject_action_t) 0x06,	/* offline event for hotplug devices */
++	KOBJ_ONLINE	= (__force kobject_action_t) 0x07,	/* online event for hotplug devices */
+ };
+ 
+ struct kobject {
+diff --git a/lib/kobject_uevent.c b/lib/kobject_uevent.c
+index 1b1985c..086a0c6 100644
+--- a/lib/kobject_uevent.c
++++ b/lib/kobject_uevent.c
+@@ -38,6 +38,10 @@ static char *action_to_string(enum kobje
+ 		return "remove";
+ 	case KOBJ_CHANGE:
+ 		return "change";
++	case KOBJ_MOUNT:
++		return "mount";
++	case KOBJ_UMOUNT:
++		return "umount";
+ 	case KOBJ_OFFLINE:
+ 		return "offline";
+ 	case KOBJ_ONLINE:
+
+

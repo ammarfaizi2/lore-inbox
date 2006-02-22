@@ -1,84 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbWBVQVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWBVQZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751360AbWBVQVw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 11:21:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWBVQVw
+	id S1751364AbWBVQZv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 11:25:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWBVQZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 11:21:52 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:60620 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751360AbWBVQVw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 11:21:52 -0500
-Date: Wed, 22 Feb 2006 11:21:35 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: etsman@cs.huji.ac.il
-cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: klogger: kernel tracing and logging tool 
-In-Reply-To: <43FC8261.9000207@gmail.com>
-Message-ID: <Pine.LNX.4.58.0602221110410.4164@gandalf.stny.rr.com>
-References: <43FC8261.9000207@gmail.com>
+	Wed, 22 Feb 2006 11:25:51 -0500
+Received: from thunk.org ([69.25.196.29]:62145 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1751370AbWBVQZv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 11:25:51 -0500
+Date: Wed, 22 Feb 2006 11:25:34 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Kay Sievers <kay.sievers@suse.de>, penberg@cs.helsinki.fi,
+       gregkh@suse.de, bunk@stusta.de, rml@novell.com,
+       linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+Subject: Re: 2.6.16-rc4: known regressions
+Message-ID: <20060222162533.GA30316@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Kay Sievers <kay.sievers@suse.de>, penberg@cs.helsinki.fi,
+	gregkh@suse.de, bunk@stusta.de, rml@novell.com,
+	linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+References: <20060220010205.GB22738@suse.de> <1140562261.11278.6.camel@localhost> <20060221225718.GA12480@vrfy.org> <20060221153305.5d0b123f.akpm@osdl.org> <20060222000429.GB12480@vrfy.org> <20060221162104.6b8c35b1.akpm@osdl.org> <Pine.LNX.4.64.0602211631310.30245@g5.osdl.org> <Pine.LNX.4.64.0602211700580.30245@g5.osdl.org> <20060222112158.GB26268@thunk.org> <20060222154820.GJ16648@ca-server1.us.oracle.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060222154820.GJ16648@ca-server1.us.oracle.com>
+User-Agent: Mutt/1.5.11+cvs20060126
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 22, 2006 at 07:48:21AM -0800, Joel Becker wrote:
+> On Wed, Feb 22, 2006 at 06:21:58AM -0500, Theodore Ts'o wrote:
+> > with all of the kernel modules I need compiled into the kernel.  I
+> > still have no idea why mptscsi fails to detect SCSI disks when loaded
+> > as a module via initrd on various bits of IBM hardware (including the
+> > e326 and ls-20 blade), but works fine when compiled directly into the
+> > kernel....
+> 
+> Ted,
+> 	Do you mean that you are using a distro (eg, RHEL4 or something)
+> with a mainline kernel?  We've seen something similar, and what we've
+> determined is happening is that insmod is returning before the module is
+> done initializing.  It's not that mptscsi fails to detect the disks.
+> Rather, it's still in the detection process when the boot process tries
+> to mount /.  So there's no / yet, and the thing hangs.  
 
-YALU (Yet Another Logging Utility :)
+Yep, that's exactly what I'm doing; RHEL4U2 with a 2.6.14 or 2.6.15
+kernel.  Thanks for the tip, that should help me investigate further!
 
-On Wed, 22 Feb 2006, Yoav Etsion wrote:
+> In the case we
+> see, it's some interaction between the RHEL4/SLES9 version of
+> module-init-tools and the latest version of the kernel.  Our first
+> attempt at fixing it was to change the linuxrc to sleep between each
+> insmod.  This works, but only if the modules load and initialize
+> themsleves fast enough.  Get a FC card in there, and it just doesn't
+> work.  So we've taken to compiling the modules in-kernel.
 
-> Hi all,
->
-> This may look like a shameless plug, but it is intended as an RFC:
-> over the past few years I've developed a kernel logging tool called
-> Klogger: http://www.cs.huji.ac.il/~etsman/klogger
->
-> In some senses, it is similar to the LTT - Linux Trace Toolkit (and was
-> actually developed because LTT did not suit my needs).
-> However, Klogger is much more flexible. The two key points being:
-> 1.
-> it offers extremely low logging overhead (better than LTT and Dtrace) by
-> auto-generating the logging code from user-specified config files.
-> 2.
-> it allows new events to be defined, and more importantly shared among
-> subsystems' developers, thus allowing to understand module/subsystem
-> interactions without an all encompassing knowledge.
-> This feature can allow developers to design the performance logging
-> while designing the subsystem to be logged, allowing other
-> developers/researchers to get some insights without having to fully
-> understand a subsystem's code.
->
-> I am very interested in the community's opinion on this matter, so if
-> anyone is interested you can find the design document, a HOWTO and
-> patches against 2.6.14/2.6.9 on my website:
-> http://www.cs.huji.ac.il/~etsman/klogger
-> or
-> http://linux-klogger.sf.net
->
-> Currently, we use this tool at the the Hebrew University, but if there
-> is public interest I can work on it further so it adheres to kernel code
-> standards (the tool currently does obscene things like writing to disk
-> from kernel threads :-P --- it was written before relayfs was out there).
->
+Sounds like this is another of example of system support programs
+(insmod in this case) breaking with modern kernels.  Hopefully now
+that Linus has laid down the law about how breaking userspace is
+uncool, people will agree that it's a bug.  (That is unless Red Hat
+made some kind of incompatible change and it's Red Hat's fault, but I
+kinda doubt that.)  Anyway, I'll look into this some more and see why
+you can't use a mainline kernel with RHEL4, at least not in this
+configuration.
 
-Interesting.  I'll take a look to see how you did things.  I have my own
-little logging utility that works wonders in finding race conditions and
-was also written before relayfs. In fact, Tom Zanussi once made relayfs a
-back end for the tool.  But relayfs still has separate buffers for each
-CPU and I usually use my tool to see how the CPUs interract, and time
-stamps just don't cut it (my tool is best on a lock up, BUG or panic).
-
-You can take a look at what I did, but the documentation is a little out
-of date.  I don't think I recorded yet edprint(char *fmt,...) which
-records automatically, the cpu, function and line number as well as the
-message. Also the print format has changed on how my logread program
-prints it out.
-
-Anyway, mine's called logdev and can be found here:
-
-http://www.kihontech.com/logdev
-
-hmmph, maybe someday I'll go back to updating the documentation.
-
--- Steve
+						- Ted

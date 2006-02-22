@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbWBVAmr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbWBVAr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030222AbWBVAmr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 19:42:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbWBVAmr
+	id S1030233AbWBVAr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 19:47:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbWBVAr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 19:42:47 -0500
-Received: from xenotime.net ([66.160.160.81]:13990 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030222AbWBVAmr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 19:42:47 -0500
-Date: Tue, 21 Feb 2006 16:42:45 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Nigel Cunningham <ncunningham@cyclades.com>
-cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Jens Axboe <axboe@suse.de>,
-       Ariel Garcia <garcia@iwr.fzk.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc4 libata + AHCI patched for suspend fails on ICH6
-In-Reply-To: <200602221037.49604.ncunningham@cyclades.com>
-Message-ID: <Pine.LNX.4.58.0602211642090.12588@shark.he.net>
-References: <200602191958.38219.garcia@iwr.fzk.de> <20060219191859.GJ8852@suse.de>
- <Pine.LNX.4.58.0602210903260.8603@shark.he.net> <200602221037.49604.ncunningham@cyclades.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 21 Feb 2006 19:47:29 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:62610 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030233AbWBVAr2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 19:47:28 -0500
+Subject: [BUG -rt] cpu rlimits not enforced w/ -rt
+From: john stultz <johnstul@us.ibm.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Darren Hart <dvhltc@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>
+Content-Type: text/plain
+Date: Tue, 21 Feb 2006 16:47:23 -0800
+Message-Id: <1140569244.1271.36.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Feb 2006, Nigel Cunningham wrote:
+Hey,
+	I've been hunting an issue in 2.6.14-rt16 (also present in
+2.6.16-rt17), where the cpu rlimits were not being enforced. 
 
-> Hi Randy et al.
->
-> On Wednesday 22 February 2006 03:04, Randy.Dunlap wrote:
-> > These patches (for 2.6.16-rc3) are at
-> > http://www.xenotime.net/linux/SATA/2.6.16-rc3/libata-rollup-2616-rc3.patch
->
-> Randy, do you mind if I start including this in the suspend2 patch? I'm
-> starting to see more and more people who could probably use this.
+I tracked it down in update_process_times, where we have the following:
 
-I don't mind....
+#ifndef CONFIG_PREEMPT_RT
+ 	run_posix_cpu_timers(p);
+#endif
 
--- 
-~Randy
+Yea, that would do it. :)
+
+
+Hmm.. Looking through the archives, I came up w/ the discussion here:
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0509.3/1579.html
+
+I was just curious what folks are thinking about for a fix here? Should
+we just create a soft timer that calls run_posix_cpu_timers? 
+
+thanks
+-john
+
+
+
+

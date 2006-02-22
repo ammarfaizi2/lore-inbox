@@ -1,52 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWBVPZY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWBVPZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750779AbWBVPZY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 10:25:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbWBVPZY
+	id S1751308AbWBVPZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 10:25:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWBVPZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 10:25:24 -0500
-Received: from relay4.usu.ru ([194.226.235.39]:17309 "EHLO relay4.usu.ru")
-	by vger.kernel.org with ESMTP id S1750779AbWBVPZY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 10:25:24 -0500
-Message-ID: <43FC8290.8070408@ums.usu.ru>
-Date: Wed, 22 Feb 2006 20:26:08 +0500
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
-MIME-Version: 1.0
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.16-rc4-mm1
-References: <20060220042615.5af1bddc.akpm@osdl.org> <43FC6B8F.4060601@ums.usu.ru>
-In-Reply-To: <43FC6B8F.4060601@ums.usu.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 22 Feb 2006 10:25:27 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:24265 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751308AbWBVPZ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 10:25:26 -0500
+Subject: Dasd driver woes.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Christoph Hellwig <hch@lst.de>, Bastian Blank <bastian@waldi.eu.org>,
+       akpm@osdl.org, Horst Hummel <horst.hummel@de.ibm.com>,
+       Stefan Weinhuber <wein@de.ibm.com>, Carsten Otte <cotte@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 22 Feb 2006 16:25:29 +0100
+Message-Id: <1140621930.4820.47.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.33.1.0; VDF: 6.33.1.18; host: usu2.usu.ru)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
+Hi folks,
+seems like there has been some heated discussion about the dasd driver
+while I was away. Let me summerize as I see things.
 
-> there will be probably another report of real issues.
+Christoph spent quite some effort to create a set of patches to improve
+the dasd ioctl code because he found bugs in the old code and in
+principle doesn't like the way how ioctls are handled in the dasd
+driver. As he puts it in his unique way: "fix the dasd ioctl mess". I
+wouldn't call it a mess since the code worked for quite some time but
+there is definitly room for improvement. So lets look at the patches:
 
-It boots and doesn't oops. I have played with libata a bit (booted off 
-ext3 on LVM2 on via pata, played some CD audio tracks, and a DVD intro - 
-btw this also counts as snd-fm801 test). It is still slow because of 
-improper MWDMA2 setting (libata still doesn't know that master and slave 
-can use different DMA speeds on via pata).
+1) cleanup dasd_ioctl
+This patch calls the ioctls that are defined in dasd_ioctl.c via a
+switch statement instead of using the ioctl registration. First step
+towards the removal of the ioctl registration. The patch doesn't change
+any functionality. My quick test showed that the patch works fine.
 
-ppracer works, so this counts as r200 DRM test.
+2) add per-discipline ioctl method
+This adds an ->ioctl method to the dasd discipline structure. Good idea
+because the current method to dynamically add an ioctl on module load
+defines the ioctl for all dasd devices independent of their discipline.
+A eckd reserve/release on a fba disk doesn't work but the ioctl is
+defined for it. That doesn't make sense. The ->ioctl method does what
+was intended, restricting the discipline specific ioctls to devices that
+use the discipline. The fishy return value propagations from
+copy_to_user are bugs. A return value of -EFAULT is required if
+copy_to_user didn't return 0. Quick test showed that this patch works
+fine too.
 
-I also hit the already-known psmouse resync issue:
+3) merge dasd_cmb into dasd_mod
+Moves the channel measurement code to the main dasd module. The code
+required to suppport the cmb ioctls this is very small, having it as a
+separate module doesn't really buy us much. We should not remove the
+ioctls since they provide us with additional information that is not
+available via the sysfs.  
+As a side discussion we are thinking of a second, independent access
+method to the channel measurement data via sysfs or relayfs based on the
+ccw device. The cmb facility is not restricted to dasd devices. That it
+is only available for dasd devices is a 2.4 relict.
+Quick test showed that this patch works as well.
 
-psmouse.c: resync failed, issuing reconnect request
-input: ImExPS/2 Logitech Wheel Mouse as /class/input/input2
+4) backout dasd_eer module
+That has been done. Heiko resent the code without noticing that the
+patch has already been sent by me and got rejected. One the second sent
+the code slipped in which made Horst temporarily happy. Code that is
+disputed should never go into git, so backing it out has been the
+correct thing to do. That did frustrate Horst since we are now in the
+situation that we do not have a solution for one of our requirements. We
+need to come up with an acceptable solution, e.g. one that uses a sysfs
+files instead of a misc device and ioctls. The trick here is that we
+need to find a clean way to transfer a binary blob of data to user space
+without doing any memory allocation on the read step. All required
+memory need to be allcoated in the open step.
 
-And, because you can read this, the 8250 serial driver and the PPP 
-protocol work.
+5) kill dynamic ioctl registration
+Last step in the removal of dynamic ioctls. That interface was needed on
+2.4 for the EMC support. This support doesn't exist on 2.6 and will be
+done by the EMC folks in a clean way without using dynamic ioctls.
+Therefore the ioctl registration interface can go away and it's a good
+thing that we are rid of it.
 
-Of course the above doesn't form good testing, so I will just use this 
-kernel and report if I find more.
+Overall the only disputed code is the dasd_eer module, the other 4
+patches do make sense and survived my testing. I for my part like the
+new code since its shorter and more readable. Horst, do you still have
+any objections against pushing Christophs ioctl patches ?
 
 -- 
-Alexander E. Patrakov
+blue skies,
+   Martin
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+

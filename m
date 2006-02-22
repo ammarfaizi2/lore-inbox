@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWBVSh0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbWBVShV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbWBVSh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 13:37:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWBVShZ
+	id S1751388AbWBVShV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 13:37:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWBVShV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 13:37:25 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:41926
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751386AbWBVShX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 13:37:23 -0500
-Date: Wed, 22 Feb 2006 10:37:31 -0800
-From: Greg KH <greg@kroah.com>
-To: Douglas Gilbert <dougg@torque.net>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: lsscsi-0.17 released
-Message-ID: <20060222183731.GB12542@kroah.com>
-References: <43FCA686.5020508@torque.net>
+	Wed, 22 Feb 2006 13:37:21 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:22418 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750810AbWBVShT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 13:37:19 -0500
+Subject: Re: [PATCH 0/3] map multiple blocks in get_block() and
+	mpage_readpages()
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: christoph <hch@lst.de>, mcao@us.ibm.com, akpm@osdl.org,
+       lkml <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>, vs@namesys.com,
+       zam@namesys.com
+In-Reply-To: <1140627510.22756.81.camel@dyn9047017100.beaverton.ibm.com>
+References: <1140470487.22756.12.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060222151216.GA22946@lst.de>
+	 <1140627510.22756.81.camel@dyn9047017100.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Wed, 22 Feb 2006 12:37:17 -0600
+Message-Id: <1140633437.9912.5.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43FCA686.5020508@torque.net>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 12:59:34PM -0500, Douglas Gilbert wrote:
-> Greg KH wrote:
-> >>/sys/class/scsi_device/<hcil>/device/block symlink
-> >>changed to ".../block:sd<x>" breaking lsscsi 0.16 (and
-> >>earlier) and sg_map26 (in sg3_utils).
-> 
-> > It was changed as there would be more than one "block" symlink in a
-> > device's directory if more than one block device was attached to a
-> > single struct device.  For example, ub and multi-lun devices (there were
-> > other reports of this happening for scsi devices too at the time from
-> > what I remember.)
-> 
-> A "scsi_device" is a logical unit, hence the "l" at
-> the end of the "<hcil>" acronym in the above path.
-> So it wasn't broken. However there is some fuzziness
-> in this area, for example the term "scsi_device".
+On Wed, 2006-02-22 at 08:58 -0800, Badari Pulavarty wrote:
+> Thanks. Only current issue Nathan raised is, he wants to see
+> b_size change to u64 (instead of u32) to support really-huge-IO
+> requests. Does this sound reasonable to you ?
 
-Yes, but the block layer was not creating the proper symlink name, and
-it would create multiple symlinks with the same name, in the same
-directory, pointing to different places.  That had to be fixed, as it
-was broken.  The block layer itself, has no way to determine if it is
-using a scsi device, or another type of device, nor should it care.
+Didn't someone point out that size_t would make more sense?  There's no
+reason for a 32-bit architecture to have a 64-bit b_size.
 
-thanks,
+> Thanks,
+> Badari
 
-greg k-h
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
+

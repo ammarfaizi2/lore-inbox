@@ -1,86 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751431AbWBVUtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbWBVUtr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751431AbWBVUtD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 15:49:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWBVUtB
+	id S1751433AbWBVUtr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 15:49:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWBVUtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 15:49:01 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:7481 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751431AbWBVUtA (ORCPT
+	Wed, 22 Feb 2006 15:49:47 -0500
+Received: from nproxy.gmail.com ([64.233.182.201]:42073 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751433AbWBVUtq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 15:49:00 -0500
-Date: Wed, 22 Feb 2006 21:45:08 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Greg KH <gregkh@suse.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, Gabor Gombas <gombasg@sztaki.hu>,
-       "Theodore Ts'o" <tytso@mit.edu>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Kay Sievers <kay.sievers@suse.de>,
-       penberg@cs.helsinki.fi, bunk@stusta.de, rml@novell.com,
-       linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-Subject: Re: 2.6.16-rc4: known regressions
-Message-ID: <20060222204508.GO8852@suse.de>
-References: <Pine.LNX.4.64.0602211631310.30245@g5.osdl.org> <Pine.LNX.4.64.0602211700580.30245@g5.osdl.org> <20060222112158.GB26268@thunk.org> <20060222154820.GJ16648@ca-server1.us.oracle.com> <20060222162533.GA30316@thunk.org> <20060222173354.GJ14447@boogie.lpds.sztaki.hu> <20060222185923.GL16648@ca-server1.us.oracle.com> <20060222191832.GA14638@suse.de> <1140636588.2979.66.camel@laptopd505.fenrus.org> <20060222194024.GA15703@suse.de>
+	Wed, 22 Feb 2006 15:49:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=oR3e0rVykLrWz8r771e2eN1kqsQ3zgmN+Gvq0Iy18rw2UHoxaJ2tbxAhriuPqX8UKWEYX23SQOWVS42GKraZlf7rY7ghCQ2gcXGQiwDvNIkBGXPy2yIxZCnVJMmEz5wR7hi01HW86O9WySQKLdNcHx3j8sZ+IMRt+7izoyuI6fA=
+Date: Wed, 22 Feb 2006 23:49:38 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: kernel-janitors@lists.osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.16-rc4-kj
+Message-ID: <20060222204938.GA17230@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060222194024.GA15703@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22 2006, Greg KH wrote:
-> On Wed, Feb 22, 2006 at 08:29:48PM +0100, Arjan van de Ven wrote:
-> > On Wed, 2006-02-22 at 11:18 -0800, Greg KH wrote:
-> > > What about trying a stock 2.6.6 or so kernel?  Does that work
-> > > differently from 2.6.15?
-> > 
-> > ... however it's very much designed only for the kernel that comes with
-> > it (with "it's" I mean all the userspace infrastructure); all the
-> > changes and additions since 2.6.9 aren't incorporated so you probably
-> > really want new alsa, new initscripts, new mkinitrd, new
-> > module-init-tools. some because of abi changes since 2.6.9, others
-> > because the kernel grew capabilities that are really needed for "nice"
-> > behavior.
-> 
-> I totally agree.  Distros are changing into two different groups these
-> days:
-> 	- everything tied together and intregrated nicely for a specific
-> 	  kernel version, userspace tool versions, etc.
-> 	- flexible and works with multiple kernel versions, different
-> 	  userspace tools, etc.
-> 
-> Distros in the first category are the "enterprise" releases (RHEL, SLES,
-> etc.), as well as some consumer oriented distros (SuSE, Ubuntu, Fedora
-> possibly.)
-> 
-> More flexible distros that handle different kernel versions are Gentoo,
-> Debian, and probably Fedora.
-> 
-> And this is a natural progression as people try to provide a more
-> complete "solution" for users.
-> 
-> When people to complain that they can't run a "kernel-of-the-day" on
-> their "enterprise" distro, they are not realizing that that distro was
-> just not developed to support that kind of thing at all.
+New patchset from kernel janitors is out: http://coderock.org/kj/2.6.16-rc4-kj/
 
-I have to disagree somewhat violently to that statement, I'm afraid :-)
-At least for me, it's pretty much a requirement that I can put eg
-2.6.18-rc2 on an enterprise install. It's a must to debug problems -
-both ways, actually, testing both a new rc kernel on that enterprise
-distro but also putting a vanilla kernel on the enterprise distro to
-test something that fails with the distro kernel.
+The biggest part is BUG_ON conversion all over the tree.
 
-I'd absolutely hate if we got into a situation where you couldn't just
-put a new vanilla kernel on SLESx. Calling it a complete solution to
-just sounds like an excuse for breaking things that we don't have to.
-Please lets not make things so fragile!
+I'm thinking about moving to git, since minor quilt nuisances are almost
+at critical mass. :-\
 
-> So, in short, if you are going to do kernel development, pick a distro
-> that handles different kernel versions.  Likewise, if you are doing
-> userspace development (X.org, HAL, KDE, Gnome, etc.) you pick a distro
-> that allows you to change that level of the stack.
-
-Everything doesn't fit into those two boxes.
-
--- 
-Jens Axboe
+-wavelan_cs_c_fix_gcc__warning_large_integer_implicitly_truncated_to_unsigned_type.patch
+-usblp_use_wait_event_interruptible_timeout.patch
+-parport_serial_fmt_warning_fixes_for_64_bit_platforms.patch
+-fs_jffs_intrep_c_255_is_unsigned_char.patch
+-drivers_usb_media__remove_linux_version_code_checks.patch
+-drivers_net_tulip_uli526x_c_switch_to_module_param.patch
+-drivers_net_acenic_fix_eeprom_byte_error_value.patch
+-drivers_isdn_sc_ioctl_c_copy_from_user_size_fix.patch
+-drivers_block_use_array_size.patch
+-drivers_block_umem_c_check_pci_set_dma_mask_return_value_correctly.patch
+-bonding_fix__get_settings_error_checking.patch
+	Merged.
+-remove_drivers_parport_parport_arc_c.patch
+	Ian wants to reanimate driver.
+-remove_arch_mips_pmc-sierra_yosemite_ht-irq_c.patch
+-remove_arch_mips_arc_salone_c.patch
+	Ralf doesn't like these.
++remove_second_masking_instance_of_variable_in_reg_divide_c.patch
++remove_second_masking_instance_of_variable_in_pci_root_c.patch
++remove_second_masking_instance_of_variable_i_from_intel_cacheinfo_c.patch
+	Preparations for -Wshadow (?).
++remove_implicit_sign_bit_in_msp3400_h.patch
+	1-bit bitfield cleanups.
++readme_s_new_newer__bzip2_format.patch
+	bzip2 is not new anymore.
++printk_arch_arm_mach_footbridge_cats_pci_c.patch
++printk_arch_arm_kernel_smp_c.patch
+	KERN_* additions.
++make_storage_class_first_in_pwc_timon_h.patch
++make_storage_class_first_in_pwc_kiara_h.patch
++make_storage_class_first_in_nfs4proc_c.patch
++make_storage_class_first_in_machine_kexec_c.patch
+	Consistency in static/extern order patches.
++fix_warning_in_kernel_audit_c,_kauditd_thread.patch
+	Warning fix.
++bug-on-sound-sparc-cs4231-c.patch
++bug-on-mm-vmalloc-c.patch
++bug-on-mm-swap-c.patch
++bug-on-mm-slab-c.patch
++bug-on-mm-mmap-c.patch
++bug-on-mm-mempool-c.patch
++bug-on-mm-memory-c.patch
++bug-on-mm-highmem-c.patch
++bug-on-lib-swiotlb-c.patch
++bug-on-kernel-timer-c.patch
++bug-on-kernel-signal-c.patch
++bug-on-kernel-ptrace-c.patch
++bug-on-kernel-printk-c.patch
++bug-on-kernel-fork-c.patch
++bug-on-kernel-cpu-c.patch
++bug-on-ipc-util-c.patch
++bug-on-ipc-shm-c.patch
++bug-on-ipc-sem-c.patch
++bug-on-ipc-msg-c.patch
++bug-on-fs-udf.patch
++bug-on-fs-sysv.patch
++bug-on-fs-sysfs.patch
++bug-on-fs-smbfs.patch
++bug-on-fs-jffs2.patch
++bug-on-fs-inode-c.patch
++bug-on-fs-hfsplus.patch
++bug-on-fs-hfs.patch
++bug-on-fs-freevxfs.patch
++bug-on-fs-fcntl-c.patch
++bug-on-fs-ext2.patch
++bug-on-fs-exec-c.patch
++bug-on-fs-dquot-c.patch
++bug-on-fs-direct-io-c.patch
++bug-on-fs-dcache-c.patch
++bug-on-fs-coda.patch
++bug-on-fs-buffer-c.patch
++bug-on-fs-binfmt_elf_fdpic-c.patch
++bug-on-drivers-video.patch
++bug-on-drivers-scsi.patch
++bug-on-drivers-s390-net-lcs-c.patch
++bug-on-drivers-s390-char-tape-block-c.patch
++bug-on-drivers-s390-block-dasd-erp-c.patch
++bug-on-drivers-s390-block-dasd-devmap-c.patch
++bug-on-drivers-s390-block-dasd-c.patch
++bug-on-drivers-parisc.patch
++bug-on-drivers-net.patch
++bug-on-drivers-mtd.patch
++bug-on-drivers-media.patch
++bug-on-drivers-md-raid6main-c.patch
++bug-on-drivers-md-raid5-c.patch
++bug-on-drivers-md-raid10-c.patch
++bug-on-drivers-md-raid1-c.patch
++bug-on-drivers-md-dm-target-c.patch
++bug-on-drivers-md-dm-table-c.patch
++bug-on-drivers-md-dm-path-selector-c.patch
++bug-on-drivers-md-dm-hw-handler-c.patch
++bug-on-drivers-md-bitmap-c.patch
++bug-on-drivers-isdn.patch
++bug-on-drivers-input-serio-hp_sdc_mlc-c.patch
++bug-on-drivers-input-serio-hil_mlc-c.patch
++bug-on-drivers-ide.patch
++bug-on-drivers-char.patch
++bug-on-drivers-block.patch
++bug-on-block-elevator-c.patch
++bug-on-arch-sparc-kernel-ioport-c.patch
+	Conversion to BUG_ON().
++ide_cleanups___replace_hwgroup.patch
++ide_cleanups___remove_unneeded_bug_on.patch
++ide_cleanups___insert_bug_to___ide_set_handler.patch
+	BUG_ON() misc cleanups.
++alter_prototypes_in_it87_c.patch
++alter_prototypes_in_fscpos_c.patch
++alter_prototypes_in_adm1026_c.patch
+	Fixes from icc.
 

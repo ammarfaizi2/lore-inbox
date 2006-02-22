@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422645AbWBVC0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422642AbWBVC1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422645AbWBVC0e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 21:26:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422635AbWBVC0d
+	id S1422642AbWBVC1G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 21:27:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422640AbWBVC1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 21:26:33 -0500
-Received: from ozlabs.org ([203.10.76.45]:26318 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750843AbWBVC0b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 21:26:31 -0500
-Date: Wed, 22 Feb 2006 13:17:14 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: IA64 non-contiguous memory space bugs
-Message-ID: <20060222021714.GD23574@localhost.localdomain>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	"David S. Miller" <davem@davemloft.net>, linux-ia64@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <20060222001359.GA23574@localhost.localdomain> <20060221.163935.32626284.davem@davemloft.net>
+	Tue, 21 Feb 2006 21:27:06 -0500
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:8430 "EHLO
+	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1422647AbWBVC1A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 21:27:00 -0500
+Date: Wed, 22 Feb 2006 13:11:06 +1100
+From: David Gibson <dwg@au1.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: William Lee Irwin <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Block reservation for hugetlbfs
+Message-ID: <20060222021106.GB23574@localhost.localdomain>
+Mail-Followup-To: David Gibson <dwg@au1.ibm.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	William Lee Irwin <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+References: <20060221022124.GA18535@localhost.localdomain> <43FA94B3.4040904@yahoo.com.au> <20060221233950.GB20872@localhost.localdomain> <43FBB292.1000304@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060221.163935.32626284.davem@davemloft.net>
+In-Reply-To: <43FBB292.1000304@yahoo.com.au>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 21, 2006 at 04:39:35PM -0800, David S. Miller wrote:
-> From: David Gibson <david@gibson.dropbear.id.au>
-> Date: Wed, 22 Feb 2006 11:13:59 +1100
+On Wed, Feb 22, 2006 at 11:38:42AM +1100, Nick Piggin wrote:
+> David Gibson wrote:
+> >On Tue, Feb 21, 2006 at 03:18:59PM +1100, Nick Piggin wrote:
 > 
-> > Quite some time ago, I found (by inspection) an ia64 specific bug
-> > related to its non-contiguous user address space.  I've never done
-> > anything about it, because I don't have an ia64 to test on - but
-> > somebody should fix it.  Recently I've spotted another possible bug,
-> > also by inspection - I don't know enough about ia64 to tell if it's a
-> > real problem or not.
+> >>This introduces
+> >>tree_lock(r) -> hugetlb_lock
+> >>
+> >>And we already have
+> >>hugetlb_lock -> lru_lock
+> >>
+> >>So we now have tree_lock(r) -> lru_lock, which would deadlock
+> >>against lru_lock -> tree_lock(w), right?
+> >>
+> >>From a quick glance it looks safe, but I'd _really_ rather not
+> >>introduce something like this.
+> >
+> >
+> >Urg.. good point.  I hadn't even thought of that consequence - I was
+> >more worried about whether I need i_lock or i_mutex to protect my
+> >updates to i_blocks.
+> >
+> >Would hugetlb_lock -> tree_lock(r) be any preferable (I think that's a
+> >possible alternative).
+> >
 > 
-> Good catch David, I'll need to add similar checks on sparc64 as
-> we have a 64-bit virtual address space hole on several processors
-> there.
+> Yes I think that should avoid the introduction of new lock dependency.
 
-Ok, that patch adds all the checks in generic code anyway, so all you
-should need for sparc64 is an appropriate REGION_MAX() macro.
+Err... "Yes" appears to contradict the rest of you statement, since my
+suggestion would still introduce a lock dependency, just a different
+one one.  It is not at all obvious to me how to avoid a lock
+dependency entirely.
+
+Also, any thoughts on whether I need i_lock or i_mutex or something
+else would be handy..
 
 -- 
 David Gibson			| I'll have my music baroque, and my code

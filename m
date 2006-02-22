@@ -1,74 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbWBVPzl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWBVQDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751356AbWBVPzl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 10:55:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWBVPzl
+	id S932197AbWBVQDb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 11:03:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWBVQDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 10:55:41 -0500
-Received: from gate.crashing.org ([63.228.1.57]:58323 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751356AbWBVPzl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 10:55:41 -0500
-Date: Wed, 22 Feb 2006 09:46:02 -0600 (CST)
-From: Kumar Gala <galak@kernel.crashing.org>
-X-X-Sender: galak@gate.crashing.org
+	Wed, 22 Feb 2006 11:03:31 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:34232 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932197AbWBVQDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 11:03:30 -0500
+Subject: Re: 2.6.16-rc4: known regressions
+From: Arjan van de Ven <arjan@infradead.org>
 To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
-       <linuxppc-dev@ozlabs.org>, Randy Vinson <rvinson@mvista.com>
-Subject: [PATCH] powerpc: Enable coherency for all pages on 83xx to fix PCI
- data corruption
-Message-ID: <Pine.LNX.4.44.0602220944460.14215-100000@gate.crashing.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Kay Sievers <kay.sievers@suse.de>, Pekka J Enberg <penberg@cs.Helsinki.FI>,
+       Greg KH <gregkh@suse.de>, Adrian Bunk <bunk@stusta.de>,
+       Robert Love <rml@novell.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       John Stultz <johnstul@us.ibm.com>
+In-Reply-To: <Pine.LNX.4.64.0602220737170.30245@g5.osdl.org>
+References: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org>
+	 <20060217231444.GM4422@stusta.de>
+	 <84144f020602190306o3149d51by82b8ccc6108af012@mail.gmail.com>
+	 <20060219145442.GA4971@stusta.de> <1140383653.11403.8.camel@localhost>
+	 <20060220010205.GB22738@suse.de> <1140562261.11278.6.camel@localhost>
+	 <20060221225718.GA12480@vrfy.org>
+	 <Pine.LNX.4.58.0602220905330.12374@sbz-30.cs.Helsinki.FI>
+	 <20060222152743.GA22281@vrfy.org>
+	 <Pine.LNX.4.64.0602220737170.30245@g5.osdl.org>
+Content-Type: text/plain
+Date: Wed, 22 Feb 2006 17:03:07 +0100
+Message-Id: <1140624187.2979.38.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On the 83xx platform to ensure the PCI inbound memory is handled properly we
-have to turn on coherency for all pages in the MMU.  Otherwise we see
-corruption if inbound "prefetching/streaming" is enabled on the PCI controller.
+On Wed, 2006-02-22 at 07:44 -0800, Linus Torvalds wrote:
 
-Signed-off-by: Randy Vinson <rvinson@mvista.com>
-Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
 
----
+[snip lots of good words about that breaking userspace ABIs is really
+horrible]
 
-(For 2.6.16 if we can get it in)
+I absolutely agree with what you say. HOWEVER hal is also terminally
+broken. The thing they depend on is a *config option*. If they can't
+deal with that config option not being enabled in a graceful way, that's
+a series malfunction.
 
-commit 4b2f4b1585f15d1c30cd2eda6d5f9a2ca7dcf998
-tree 7aebf508d10127831cf92fb7ce919230924ad85d
-parent 7cfb7344aae902edfd5d51dd5f734cbf2585649c
-author Kumar Gala <galak@kernel.crashing.org> Wed, 22 Feb 2006 09:53:34 -0600
-committer Kumar Gala <galak@kernel.crashing.org> Wed, 22 Feb 2006 09:53:34 -0600
 
- include/asm-powerpc/cputable.h |    9 ++++++---
- 1 files changed, 6 insertions(+), 3 deletions(-)
+(and no this is not an excuse for breaking userspace ABIs at all,
+although one can argue that this removing is almost the same as
+disabling the config option)
 
-diff --git a/include/asm-powerpc/cputable.h b/include/asm-powerpc/cputable.h
-index 6421054..90d005b 100644
---- a/include/asm-powerpc/cputable.h
-+++ b/include/asm-powerpc/cputable.h
-@@ -159,9 +159,11 @@ extern void do_cpu_ftr_fixups(unsigned l
- #endif
- 
- /* We need to mark all pages as being coherent if we're SMP or we
-- * have a 74[45]x and an MPC107 host bridge.
-+ * have a 74[45]x and an MPC107 host bridge. Also 83xx requires
-+ * it for PCI "streaming/prefetch" to work properly.
-  */
--#if defined(CONFIG_SMP) || defined(CONFIG_MPC10X_BRIDGE)
-+#if defined(CONFIG_SMP) || defined(CONFIG_MPC10X_BRIDGE) \
-+	|| defined(CONFIG_PPC_83xx)
- #define CPU_FTR_COMMON                  CPU_FTR_NEED_COHERENT
- #else
- #define CPU_FTR_COMMON                  0
-@@ -277,7 +279,8 @@ enum {
- 	CPU_FTRS_G2_LE = CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_MAYBE_CAN_DOZE |
- 	    CPU_FTR_USE_TB | CPU_FTR_MAYBE_CAN_NAP | CPU_FTR_HAS_HIGH_BATS,
- 	CPU_FTRS_E300 = CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_MAYBE_CAN_DOZE |
--	    CPU_FTR_USE_TB | CPU_FTR_MAYBE_CAN_NAP | CPU_FTR_HAS_HIGH_BATS,
-+	    CPU_FTR_USE_TB | CPU_FTR_MAYBE_CAN_NAP | CPU_FTR_HAS_HIGH_BATS |
-+	    CPU_FTR_COMMON,
- 	CPU_FTRS_CLASSIC32 = CPU_FTR_COMMON | CPU_FTR_SPLIT_ID_CACHE |
- 	    CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE,
- 	CPU_FTRS_POWER3_32 = CPU_FTR_COMMON | CPU_FTR_SPLIT_ID_CACHE |
 

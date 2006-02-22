@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWBVRMt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbWBVROo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751375AbWBVRMt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 12:12:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWBVRMt
+	id S1751378AbWBVROo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 12:14:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWBVROn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 12:12:49 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:2237 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751140AbWBVRMs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 12:12:48 -0500
-Message-ID: <43FC9BD4.1010901@ce.jp.nec.com>
-Date: Wed, 22 Feb 2006 12:13:56 -0500
-From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alasdair G Kergon <agk@redhat.com>
-CC: Neil Brown <neilb@suse.de>, Lars Marowsky-Bree <lmb@suse.de>,
-       Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       device-mapper development <dm-devel@redhat.com>,
-       Mike Anderson <andmike@us.ibm.com>
-Subject: Re: [PATCH 2/3] sysfs representation of stacked devices (dm) (rev.2)
-References: <43FC8C00.5020600@ce.jp.nec.com> <43FC8D92.6010006@ce.jp.nec.com> <20060222163438.GC31641@agk.surrey.redhat.com>
-In-Reply-To: <20060222163438.GC31641@agk.surrey.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Feb 2006 12:14:43 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:18321
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751140AbWBVROm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 12:14:42 -0500
+Date: Wed, 22 Feb 2006 09:14:39 -0800
+From: Greg KH <greg@kroah.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Douglas Gilbert <dougg@torque.net>,
+       Matthias Andree <matthias.andree@gmx.de>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: lsscsi-0.17 released
+Message-ID: <20060222171438.GA20272@kroah.com>
+References: <43FBA4CD.6000505@torque.net> <m34q2r93q2.fsf@merlin.emma.line.org> <43FC7CCB.4090508@torque.net> <20060222160602.GB17473@merlin.emma.line.org> <43FC90E4.10805@torque.net> <20060222163426.GG28587@parisc-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060222163426.GG28587@parisc-linux.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Feb 22, 2006 at 09:34:26AM -0700, Matthew Wilcox wrote:
+> On Wed, Feb 22, 2006 at 11:27:16AM -0500, Douglas Gilbert wrote:
+> > Matthias Andree wrote:
+> > > On Wed, 22 Feb 2006, Douglas Gilbert wrote: 
+> > >>Matthias Andree wrote:
+> > >>>Does this work around new incompatibilities in the kernel
+> > >>>or does this fix lsscsi bugs?
+> > >>
+> > >>The former. In lk 2.6.16-rc1 the
+> > >>/sys/class/scsi_device/<hcil>/device/block symlink
+> > >>changed to ".../block:sd<x>" breaking lsscsi 0.16 (and
+> > >>earlier) and sg_map26 (in sg3_utils).
+> > > 
+> > > Heck, what was the reason for breaking userspace again?
+> > 
+> > Maybe the person responsible can answer. I'm only reacting
+> > to a change that broke two of my utilities.
+> 
+> Probably better to cc the person responsible if you want an answer.
 
-Alasdair G Kergon wrote:
- > This patch needs splitting up so that independent changes can be
- > considered separately.
- >
- > c.f. The proposal from Mike Anderson (repeated below) which I prefer
- > because it makes it clear that a table always belongs to exactly one md.
+It was changed as there would be more than one "block" symlink in a
+device's directory if more than one block device was attached to a
+single struct device.  For example, ub and multi-lun devices (there were
+other reports of this happening for scsi devices too at the time from
+what I remember.)
 
-I like his proposed patch.
-The interface is useful for my purpose too and moving table
-creation inside _hash_lock means I don't need dm_get() neither.
+So, in that case, your tool would have been broken anyway, so this fix
+was required to make it correct :)
 
-Is it going to be pushed to upstream?
-I'll remake my patch based on it.
+The fix was to make block devices work the same way as all other class
+devices, which had this fix a while ago.
 
--- 
-Jun'ichi Nomura, NEC Solutions (America), Inc.
+thanks,
+
+greg k-h

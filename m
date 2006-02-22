@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWBVM0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbWBVM2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751228AbWBVM0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 07:26:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWBVM0Y
+	id S1751230AbWBVM2j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 07:28:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWBVM2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 07:26:24 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:54667 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751228AbWBVM0X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 07:26:23 -0500
-Date: Wed, 22 Feb 2006 13:26:13 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: "Mike D. Day" <ncmike@us.ibm.com>
-Cc: xen-devel@lists.xensource.com, lkml <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [ PATCH 2.6.16-rc3-xen 3/3] sysfs: export Xen hypervisor attributes to sysfs
-Message-ID: <20060222122613.GA9295@osiris.boeblingen.de.ibm.com>
-References: <43FB2642.7020109@us.ibm.com>
+	Wed, 22 Feb 2006 07:28:39 -0500
+Received: from lyle.provo.novell.com ([137.65.81.174]:8649 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S1751230AbWBVM2i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 07:28:38 -0500
+From: Jan Beulich <jbeulich@novell.com>
+To: sam@ravnborg.org
+Subject: [PATCH] version.h should depend on .kernelrelease
+Date: Wed, 22 Feb 2006 13:29:04 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <43FB2642.7020109@us.ibm.com>
-User-Agent: mutt-ng/devel-r781 (Linux)
+Message-Id: <200602221329.04547.jbeulich@novell.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +static ssize_t by_show(struct kobject * kobj,
-> +		       struct attribute * attr,
-> +		       char * page)
-> +{
-> +	int err = 0;
-> +	struct xen_compile_info * info =
-> +		kmalloc(sizeof(struct xen_compile_info), GFP_KERNEL);
-> +	if (info ) {
-> +		if (0 == HYPERVISOR_xen_version(XENVER_compile_info, info))
-> +			return sprintf(page, "%s\n", info->compile_by);
-> +		kfree(info);
-> +	}
-> +	return err;
-> +}
+Rebuilding a previously built tree while using make's -j options from time to
+time results in the version.h check running at the same time as the updating
+of .kernelrelease, resulting in UTS_RELEASE remaining an empty string (and as
+a side effect causing the entire kernel to be rebuilt).
 
-Looks like you have a memory leak here. There's at least one more of the
-same kind in your code.
+Signed-Off-By: Jan Beulich <jbeulich@novell.com>
 
-Heiko
+diff -Npru /home/jbeulich/tmp/linux-2.6.16-rc4/Makefile 2.6.16-rc4-version.h-depends-on-kernelrelease/Makefile
+--- /home/jbeulich/tmp/linux-2.6.16-rc4/Makefile	2006-02-20 09:12:27.000000000 +0100
++++ 2.6.16-rc4-version.h-depends-on-kernelrelease/Makefile	2006-02-20 09:59:29.000000000 +0100
+@@ -905,7 +905,7 @@ define filechk_version.h
+ 	)
+ endef
+ 
+-include/linux/version.h: $(srctree)/Makefile .config FORCE
++include/linux/version.h: $(srctree)/Makefile .config .kernelrelease FORCE
+ 	$(call filechk,version.h)
+ 
+ # ---------------------------------------------------------------------------
+

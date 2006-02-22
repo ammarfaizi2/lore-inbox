@@ -1,103 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbWBVUWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422663AbWBVUWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751425AbWBVUWF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 15:22:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWBVUWF
+	id S1422663AbWBVUWr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 15:22:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422659AbWBVUWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 15:22:05 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:10696 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751422AbWBVUWC (ORCPT
+	Wed, 22 Feb 2006 15:22:22 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:24776 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422660AbWBVUWK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 15:22:02 -0500
-Date: Wed, 22 Feb 2006 20:21:42 GMT
+	Wed, 22 Feb 2006 15:22:10 -0500
+Date: Wed, 22 Feb 2006 20:21:46 GMT
+Message-Id: <200602222021.k1MKLkm4028349@warthog.cambridge.redhat.com>
 From: David Howells <dhowells@redhat.com>
 To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
        trond.myklebust@fys.uio.no, aviro@redhat.com
 Cc: linux-kernel@vger.kernel.org, linux-cachefs@redhat.com,
        nfsv4@linux-nfs.org, linux-fsdevel@vger.kernel.org
 Fcc: outgoing
-Subject: [PATCH 1/5] NFS: Permit filesystem to override root dentry on mount
-Message-Id: <dhowells1140639702@warthog.cambridge.redhat.com>
+Subject: [PATCH 4/5] NFS: Add dentry materialisation op
+In-Reply-To: <dhowells1140639702@warthog.cambridge.redhat.com>
+References: <dhowells1140639702@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch extends the get_sb() filesystem operation to take an extra
-argument that permits the default root dentry choice (sb->s_root) to be
-overridden by the filesystem that owns the superblock.
-
-If the dentry pointer pointed to by that argument is left unchanged, then
-do_kern_mount() will use sb->s_root as the root of the mount. If the filesystem
-sets the pointer to a dentry of its choice, then that will be used as the root
-for that particular mount.
-
-This patch permits a superblock to be implicitly shared amongst several mount
-points, such as can be done with NFS to avoid potential inode aliasing (see
-patch 5/5).
+The attached patch adds a new directory cache management function that prepares
+a disconnected anonymous function to be connected into the dentry tree. The
+anonymous dentry is transferred the name and parentage from another dentry.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
-warthog>diffstat -p1 getsb-2616rc4.diff
- Documentation/filesystems/porting |    2 +-
- fs/super.c                        |   10 +++++++---
- include/linux/fs.h                |    2 +-
- 3 files changed, 9 insertions(+), 5 deletions(-)
+warthog>diffstat -p1 materialise-dentry-2616rc4.diff
+ fs/dcache.c            |   18 ++++++++++++++++++
+ include/linux/dcache.h |    1 +
+ 2 files changed, 19 insertions(+)
 
-diff -uNrp linux-2.6.16-rc4/Documentation/filesystems/porting linux-2.6.16-rc4-getsb/Documentation/filesystems/porting
---- linux-2.6.16-rc4/Documentation/filesystems/porting	2004-06-18 13:42:30.000000000 +0100
-+++ linux-2.6.16-rc4-getsb/Documentation/filesystems/porting	2006-02-22 17:11:59.000000000 +0000
-@@ -51,7 +51,7 @@ success and negative number in case of e
- informative error value to report).  Call it foo_fill_super().  Now declare
+diff -uNrp linux-2.6.16-rc4-getsb/include/linux/dcache.h linux-2.6.16-rc4-getsb-nfs/include/linux/dcache.h
+--- linux-2.6.16-rc4-getsb/include/linux/dcache.h	2006-02-22 17:00:41.000000000 +0000
++++ linux-2.6.16-rc4-getsb-nfs/include/linux/dcache.h	2006-02-22 17:34:57.000000000 +0000
+@@ -208,6 +208,7 @@ static inline int dname_external(struct 
+ extern void d_instantiate(struct dentry *, struct inode *);
+ extern struct dentry * d_instantiate_unique(struct dentry *, struct inode *);
+ extern void d_delete(struct dentry *);
++extern void d_materialise_dentry(struct dentry *, struct dentry *);
  
- struct super_block foo_get_sb(struct file_system_type *fs_type,
--	int flags, const char *dev_name, void *data)
-+	int flags, const char *dev_name, void *data, struct dentry **_root)
- {
- 	return get_sb_bdev(fs_type, flags, dev_name, data, ext2_fill_super);
+ /* allocate/de-allocate */
+ extern struct dentry * d_alloc(struct dentry *, const struct qstr *);
+diff -uNrp linux-2.6.16-rc4-getsb/fs/dcache.c linux-2.6.16-rc4-getsb-nfs/fs/dcache.c
+--- linux-2.6.16-rc4-getsb/fs/dcache.c	2006-02-22 17:00:36.000000000 +0000
++++ linux-2.6.16-rc4-getsb-nfs/fs/dcache.c	2006-02-22 17:34:57.000000000 +0000
+@@ -1345,6 +1345,23 @@ already_unhashed:
  }
-diff -uNrp linux-2.6.16-rc4/include/linux/fs.h linux-2.6.16-rc4-getsb/include/linux/fs.h
---- linux-2.6.16-rc4/include/linux/fs.h	2006-02-22 17:00:41.000000000 +0000
-+++ linux-2.6.16-rc4-getsb/include/linux/fs.h	2006-02-22 17:08:45.000000000 +0000
-@@ -1240,7 +1240,7 @@ struct file_system_type {
- 	const char *name;
- 	int fs_flags;
- 	struct super_block *(*get_sb) (struct file_system_type *, int,
--				       const char *, void *);
-+				       const char *, void *, struct dentry **);
- 	void (*kill_sb) (struct super_block *);
- 	struct module *owner;
- 	struct file_system_type * next;
-diff -uNrp linux-2.6.16-rc4/fs/super.c linux-2.6.16-rc4-getsb/fs/super.c
---- linux-2.6.16-rc4/fs/super.c	2006-02-22 17:00:38.000000000 +0000
-+++ linux-2.6.16-rc4-getsb/fs/super.c	2006-02-22 17:08:45.000000000 +0000
-@@ -792,6 +792,7 @@ do_kern_mount(const char *fstype, int fl
- 	struct file_system_type *type = get_fs_type(fstype);
- 	struct super_block *sb = ERR_PTR(-ENOMEM);
- 	struct vfsmount *mnt;
-+	struct dentry *root;
- 	int error;
- 	char *secdata = NULL;
  
-@@ -816,15 +817,18 @@ do_kern_mount(const char *fstype, int fl
- 		}
- 	}
- 
--	sb = type->get_sb(type, flags, name, data);
-+	root = NULL;
-+	sb = type->get_sb(type, flags, name, data, &root);
- 	if (IS_ERR(sb))
- 		goto out_free_secdata;
-+	if (!root)
-+		root = dget(sb->s_root);
-  	error = security_sb_kern_mount(sb, secdata);
-  	if (error)
-  		goto out_sb;
- 	mnt->mnt_sb = sb;
--	mnt->mnt_root = dget(sb->s_root);
--	mnt->mnt_mountpoint = sb->s_root;
-+	mnt->mnt_root = root;
-+	mnt->mnt_mountpoint = root;
- 	mnt->mnt_parent = mnt;
- 	up_write(&sb->s_umount);
- 	free_secdata(secdata);
+ /**
++ * d_materialise_dentry - connect a disconnected dentry into the tree
++ * @dentry: dentry to replace
++ * @anon: dentry to place into the tree
++ *
++ * Prepare an anonymous dentry for life in the superblock's dentry tree as a
++ * named dentry in place of the dentry to be replaced.
++ */
++void d_materialise_dentry(struct dentry *dentry, struct dentry *anon)
++{
++	switch_names(dentry, anon);
++	do_switch(dentry->d_name.len, anon->d_name.len);
++	do_switch(dentry->d_name.hash, anon->d_name.hash);
++	do_switch(dentry->d_parent, anon->d_parent);
++	anon->d_flags &= ~DCACHE_DISCONNECTED;
++}
++
++/**
+  * d_path - return the path of a dentry
+  * @dentry: dentry to report
+  * @vfsmnt: vfsmnt to which the dentry belongs
+@@ -1755,6 +1772,7 @@ EXPORT_SYMBOL(d_instantiate);
+ EXPORT_SYMBOL(d_invalidate);
+ EXPORT_SYMBOL(d_lookup);
+ EXPORT_SYMBOL(d_move);
++EXPORT_SYMBOL_GPL(d_materialise_dentry);
+ EXPORT_SYMBOL(d_path);
+ EXPORT_SYMBOL(d_prune_aliases);
+ EXPORT_SYMBOL(d_rehash);

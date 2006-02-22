@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751535AbWBVWU4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751548AbWBVWZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751535AbWBVWU4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 17:20:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751536AbWBVWU4
+	id S1751548AbWBVWZK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 17:25:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751558AbWBVWZJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 17:20:56 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:34180 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751535AbWBVWUz (ORCPT
+	Wed, 22 Feb 2006 17:25:09 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:203 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751556AbWBVWZI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 17:20:55 -0500
-Message-ID: <43FCE40A.1010206@ce.jp.nec.com>
-Date: Wed, 22 Feb 2006 17:22:02 -0500
-From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: Neil Brown <neilb@suse.de>, Alasdair Kergon <agk@redhat.com>,
-       Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org,
-       device-mapper development <dm-devel@redhat.com>
-Subject: Re: [PATCH 1/3] sysfs representation of stacked devices (common)
- (rev.2)
-References: <43FC8C00.5020600@ce.jp.nec.com> <43FC8D8C.1060904@ce.jp.nec.com> <20060222184853.GB13638@suse.de>
-In-Reply-To: <20060222184853.GB13638@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Feb 2006 17:25:08 -0500
+Date: Wed, 22 Feb 2006 23:24:45 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Nigel Cunningham <ncunningham@cyclades.com>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
+       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Message-ID: <20060222222445.GA13796@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602212140.57566.rjw@sisk.pl> <200602220700.55207.ncunningham@cyclades.com> <200602220038.18054.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602220038.18054.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+Hi!
 
-Thanks for comments.
-
-Greg KH wrote:
->>+/* This is a mere directory in sysfs. No methods are needed. */
->>+static struct kobj_type bd_holder_ktype = {
->>+	.release	= NULL,
->>+	.sysfs_ops	= NULL,
->>+	.default_attrs	= NULL,
->>+};
+> > It is doable - I'm doing it now, but am thinking about reverting part of the 
+> > code to use pbes again. If you're going to look at using bitmaps in place of 
+> > pbes, me changing would be a waste of time. Do you want me to hold off for a 
+> > while? (I'll happily do that, as I have far more than enough to keep me 
+> > occupied at the moment anyway).
 > 
-> That doesn't look right.  You always need a release function.
-
-I'll move them out to gendisk/hd_struct creation with proper
-release function.
-
-I thought it's correct because NULL release function is
-just ignored in kobject_cleanup() and it let outside function
-to release the whole structure.
-But it seems wrong to embed these additional kobjects in
-the structures which are logically separate from them.
-
->>+static inline void del_holder_dir(struct block_device *bdev)
->>+{
->>+	/*
->>+	 * Don't kobject_unregister to avoid memory allocation
->>+	 * in kobject_hotplug.
->>+	 */
->>+	kobject_del(&bdev->bd_holder_dir);
->>+	kobject_put(&bdev->bd_holder_dir);
->>+}
+> Well, I'd say so. :-)
 > 
-> No, do it correctly please.
+> Frankly, I didn't think of dropping PBEs right now, but in the long run
+> that's worth considering, IMO.  The advantage of PBEs is that they are easy to
+> handle in the assembly parts, but apart from this they are a bit wasteful
+> (not very much, though).
 
-OK, I'll change them to kobject_unregister() and do it
-when gendisk/hd_struct is removed.
-Then we can avoid possible memory allocation in dm's atomic
-operation, too.
+Of course it will depend on what patch looks like, but changing
+assembly parts is hard -- you have to change all the architectures,
+and better not make any mistake.
 
+> The fact that we use page flags to store some suspend/resume-related
+> information is a big disadvantage in my view, and I'd like to get rid of that
+> in the future.  In principle we could use a bitmap, or rather two of them,
+> to store the same information independently of the page flags, and
+> if we use bitmaps for this purpose, we can use them also instead of
+> PBEs.
+
+Well, we "only" use 2 bits... :-).
+								Pavel
 -- 
-Jun'ichi Nomura, NEC Solutions (America), Inc.
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

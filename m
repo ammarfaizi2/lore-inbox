@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030342AbWBVXQj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030335AbWBVXSB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030342AbWBVXQj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 18:16:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbWBVXQj
+	id S1030335AbWBVXSB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 18:18:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030345AbWBVXSB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 18:16:39 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:21684
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1030342AbWBVXQj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 18:16:39 -0500
-Subject: Re: 2.6.15-rt17
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Steven Rostedt <rostedt@goodmis.org>
-In-Reply-To: <Pine.LNX.4.44L0.0602221621110.13737-100000@lifa03.phys.au.dk>
-References: <Pine.LNX.4.44L0.0602221621110.13737-100000@lifa03.phys.au.dk>
-Content-Type: text/plain
-Date: Thu, 23 Feb 2006 00:17:47 +0100
-Message-Id: <1140650267.6396.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.5 
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Feb 2006 18:18:01 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:24839 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030335AbWBVXSA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 18:18:00 -0500
+Date: Thu, 23 Feb 2006 00:17:57 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Enrico Weigelt <weigelt@metux.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why is 2.4.32 four times faster than 2.6.14.6??
+Message-ID: <20060222231757.GJ4661@stusta.de>
+References: <d9def9db0601072258v39ac4334kccc843838b436bba@mail.gmail.com> <E1EvUp6-0008Ni-00@calista.inka.de> <irf1s1hdoqbsf9cin627gh9tgrsb51htoe@4ax.com> <Pine.LNX.4.61.0601081303140.30148@yvahk01.tjqt.qr> <aap2s1diakl9dg7noa8a4p4kr688lhc1b5@4ax.com> <20060222192707.GB27398@nibiru.local>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060222192707.GB27398@nibiru.local>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-02-22 at 17:50 +0100, Esben Nielsen wrote:
-> I didn't know anyone looked at my patch! I am ofcourse happy about it :-)
+On Wed, Feb 22, 2006 at 08:27:07PM +0100, Enrico Weigelt wrote:
+> 
+> BTW: I had a similar problem after switching from 2.6.8.1 
+> to 2.6.15 ... the whole machine (athlon-xp) behaves extremly
+> slow and not even playing mp3 worked without hangs. 
+> 
+> So I switched back to old 2.6.8.1 for now ...
 
-Was just delayed due to other work in progress.
+A better solution would be if it could be determined what your problem 
+is.
 
-> That was why I had _reversed_ the lock ordering relative to normal in the
-> original patch: First lock task->pi_lock. Assign lock. Lock
-> lock->wait_lock. Then unlock task->pi_lock. Now it is safe to refer to
-> lock. To avoid deadlocks I used _raw_spin_trylock() when locking the 2.
-> lock.
+Could you try 2.6.16-rc4?
 
-Stupid me. I messed that one up. Should show up in the next -rt
+If the problem is still present, please open a bug report at the kernel 
+Bugzilla [1] with an explanation of your problem, your .config with 
+2.6.16-rc4 and the output of "dmesg -s 1000000" in both 2.6.8.1 and 
+2.6.16-rc4.
 
-Thanks
+We should fix regressions like yours, but this requires bug reports 
+notifying us about problems.
 
-	tglx
+> cu
 
+TIA
+Adrian
+
+[1] http://bugzilla.kernel.org/
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

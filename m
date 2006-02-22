@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751482AbWBVWJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751494AbWBVWK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751482AbWBVWJo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 17:09:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWBVWJo
+	id S1751494AbWBVWK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 17:10:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751463AbWBVWK7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 17:09:44 -0500
-Received: from styx.suse.cz ([82.119.242.94]:8377 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1751482AbWBVWJn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 17:09:43 -0500
-Date: Wed, 22 Feb 2006 23:09:54 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: dtor_core@ameritech.net
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-       stuart_hayes@dell.com
-Subject: Re: Suppressing softrepeat
-Message-ID: <20060222220954.GA7930@suse.cz>
-References: <20060221124308.5efd4889.zaitcev@redhat.com> <20060221210800.GA12102@suse.cz> <20060222120047.4fd9051e.zaitcev@redhat.com> <20060222204024.GA7477@suse.cz> <d120d5000602221309n58cad283q41a79e6fe013042d@mail.gmail.com>
+	Wed, 22 Feb 2006 17:10:59 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:52885 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751484AbWBVWK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 17:10:58 -0500
+Date: Wed, 22 Feb 2006 14:00:08 -0800
+From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: linux-ide@vger.kernel.org, akpm@osdl.org, jgarzik@pobox.com
+Subject: [PATCH 9/13] ATA ACPI: check SATA/PATA more carefully
+Message-Id: <20060222140008.3832951a.randy_d_dunlap@linux.intel.com>
+In-Reply-To: <20060222133241.595a8509.randy_d_dunlap@linux.intel.com>
+References: <20060222133241.595a8509.randy_d_dunlap@linux.intel.com>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+X-Face: "}I"O`t9.W]b]8SycP0Jap#<FU!b:16h{lR\#aFEpEf\3c]wtAL|,'>)%JR<P#Yg.88}`$#
+ A#bhRMP(=%<w07"0#EoCxXWD%UDdeU]>,H)Eg(FP)?S1qh0ZJRu|mz*%SKpL7rcKI3(OwmK2@uo\b2
+ GB:7w&?a,*<8v[ldN`5)MXFcm'cjwRs5)ui)j
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d5000602221309n58cad283q41a79e6fe013042d@mail.gmail.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 04:09:33PM -0500, Dmitry Torokhov wrote:
-> > How about simply this patch instead?
-> >
-> > Setting autorepeat will not be possible on 'dumb' keyboards anymore by
-> > default, but since these usually are special forms of hardware anyway,
-> > like the DRAC3, this shouldn't be an issue for most users. Using
-> > 'softrepeat' on these keyboards will restore the behavior for users that
-> > need it.
-> 
-> I am not keen on changing the default behaviour... How many dumb
-> keyboards are out there?
+From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
 
-Apart from the DRAC3, some home-made Sun-to-PS2 converter, and a single
-non-x86 embedded box, I don't recall anything. Answer: very few.
+Use 'legacy_mode' to check for SATA vs. PATA mode.
 
-There may be users, though, that use this option to force the detection
-of the keyboard when not really plugged in, eg. for flaky KVMs. I've
-Googled for that usage, but found none.
+Signed-off-by: Randy Dunlap <randy_d_dunlap@linux.intel.com>
+---
+ drivers/scsi/libata-acpi.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-> I'd rather turn atkbd.softrepeat into a 3-state switch...
-
-We could, but the more I think about it, the stronger I'm convinced that
-the dumbkbd => softrepeat => softraw option implication chain is wrong.
-The second implication is necessary, but with dumbkbd it's quite likely
-you won't want softraw.
-
--- 
-Vojtech Pavlik
-Director SuSE Labs
+--- linux-2616-rc4-ata.orig/drivers/scsi/libata-acpi.c
++++ linux-2616-rc4-ata/drivers/scsi/libata-acpi.c
+@@ -437,7 +437,7 @@ int do_drive_get_GTF(struct ata_port *ap
+ 
+ 	/* Don't continue if device has no _ADR method.
+ 	 * _GTF is intended for known motherboard devices. */
+-	if (ata_id_is_ata(atadev->id)) {
++	if (ap->legacy_mode) {
+ 		err = pata_get_dev_handle(dev, &dev_handle, &pcidevfn);
+ 		if (err < 0) {
+ 			if (ata_msg_probe(ap))
+@@ -459,7 +459,7 @@ int do_drive_get_GTF(struct ata_port *ap
+ 
+ 	/* Get this drive's _ADR info. if not already known. */
+ 	if (!atadev->obj_handle) {
+-		if (ata_id_is_ata(atadev->id)) {
++		if (ap->legacy_mode) {
+ 			/* get child objects of dev_handle == channel objects,
+ 	 		 * + _their_ children == drive objects */
+ 			/* channel is ap->hard_port_no */
+@@ -655,7 +655,7 @@ int do_drive_set_taskfiles(struct ata_po
+ 
+ 	if (noacpi)
+ 		return 0;
+-	if (!ata_id_is_sata(atadev->id)) {
++	if (ap->legacy_mode) {
+ 		printk(KERN_DEBUG "%s: skipping non-SATA drive\n",
+ 			__FUNCTION__);
+ 		return 0;

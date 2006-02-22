@@ -1,78 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbWBVTQ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbWBVTR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751405AbWBVTQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 14:16:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWBVTQ0
+	id S1751115AbWBVTR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 14:17:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWBVTR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 14:16:26 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:24467 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751405AbWBVTQZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 14:16:25 -0500
-Subject: [patch 1/3] acpi: export acpi_bus_trim
+	Wed, 22 Feb 2006 14:17:29 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:54733 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751115AbWBVTR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 14:17:27 -0500
+Subject: [patch 0/3] New dock patches
 From: Kristen Accardi <kristen.c.accardi@intel.com>
 To: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
        pcihpd-discuss@lists.sourceforge.net
 Cc: greg@kroah.com, len.brown@intel.com, muneda.takahiro@jp.fujitsu.com,
-       pavel@ucw.cz, Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-References: <20060222190839.268403000@intel.com>
+       pavel@ucw.cz
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Wed, 22 Feb 2006 11:21:25 -0800
-Message-Id: <1140636085.32574.19.camel@whizzy>
+Date: Wed, 22 Feb 2006 11:21:21 -0800
+Message-Id: <1140636081.32574.18.camel@whizzy>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-X-OriginalArrivalTime: 22 Feb 2006 19:16:10.0398 (UTC) FILETIME=[705EF3E0:01C637E4]
+X-OriginalArrivalTime: 22 Feb 2006 19:16:06.0570 (UTC) FILETIME=[6E16D8A0:01C637E4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Export the acpi_bus_trim function so that the pci hotplug driver can 
-use it.
+Hello, this is a new set of docking station patches which replaces
+the old docking station patches.  It applies to 2.6.16-rc4-mm1.  It
+is new and improved over the old version, in that it can now handle
+laptops which define docking stations outside of the scope of PCI.
 
-Signed-off-by:  Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+Thanks to everyone who provided feedback on the original patches, and
+especially to Pavel who is the only brave soul to test these patches
+out so far :).  As always, I would appreciate feedback on these 
+patches.
 
----
- drivers/acpi/scan.c     |    5 +++--
- include/acpi/acpi_bus.h |    1 +
- 2 files changed, 4 insertions(+), 2 deletions(-)
-
---- linux-dock-mm.orig/drivers/acpi/scan.c
-+++ linux-dock-mm/drivers/acpi/scan.c
-@@ -24,7 +24,6 @@ static LIST_HEAD(acpi_device_list);
- DEFINE_SPINLOCK(acpi_device_lock);
- LIST_HEAD(acpi_wakeup_device_list);
- 
--static int acpi_bus_trim(struct acpi_device *start, int rmdevice);
- 
- static void acpi_device_release(struct kobject *kobj)
- {
-@@ -1268,7 +1267,7 @@ int acpi_bus_start(struct acpi_device *d
- 
- EXPORT_SYMBOL(acpi_bus_start);
- 
--static int acpi_bus_trim(struct acpi_device *start, int rmdevice)
-+int acpi_bus_trim(struct acpi_device *start, int rmdevice)
- {
- 	acpi_status status;
- 	struct acpi_device *parent, *child;
-@@ -1321,6 +1320,8 @@ static int acpi_bus_trim(struct acpi_dev
- 	}
- 	return err;
- }
-+EXPORT_SYMBOL(acpi_bus_trim);
-+
- 
- static int acpi_bus_scan_fixed(struct acpi_device *root)
- {
---- linux-dock-mm.orig/include/acpi/acpi_bus.h
-+++ linux-dock-mm/include/acpi/acpi_bus.h
-@@ -330,6 +330,7 @@ int acpi_bus_register_driver(struct acpi
- int acpi_bus_unregister_driver(struct acpi_driver *driver);
- int acpi_bus_add(struct acpi_device **child, struct acpi_device *parent,
- 		 acpi_handle handle, int type);
-+int acpi_bus_trim(struct acpi_device *start, int rmdevice);
- int acpi_bus_start(struct acpi_device *device);
- 
- int acpi_match_ids(struct acpi_device *device, char *ids);
-
---
+Kristen

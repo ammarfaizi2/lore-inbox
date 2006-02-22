@@ -1,110 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbWBVUix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbWBVUjA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751072AbWBVUix (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 15:38:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWBVUix
+	id S1751117AbWBVUjA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 15:39:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWBVUjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 15:38:53 -0500
-Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:24729 "EHLO
-	liaag2aa.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751117AbWBVUix (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 15:38:53 -0500
-Date: Wed, 22 Feb 2006 15:32:09 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch] i386: fix singlestep through an int80 syscall
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200602221534_MC3-1-B90B-410F@compuserve.com>
+	Wed, 22 Feb 2006 15:39:00 -0500
+Received: from mail-relay.finepoint.com ([209.208.171.51]:36488 "EHLO
+	mail-relay.finepoint.com") by vger.kernel.org with ESMTP
+	id S1751117AbWBVUjA convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 15:39:00 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: Fork() issue
+Date: Wed, 22 Feb 2006 15:38:58 -0500
+Message-ID: <DE026503646E7F40AF97BAB98334333B0122C3AB@uss-republic.finepoint.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Fork() issue
+Thread-Index: AcY38AGEVhTXsAPTRi2ZftdfqffzeA==
+From: "Hai Wang" <hwang@finepoint.com>
+To: <linux-kernel@vger.kernel.org>
+X-Spam-Score: undef - SENDER Whitelisted (Sender hwang@finepoint.com is whitelisted)
+X-Canit-Stats-ID: Bayes signature not available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Using PTRACE_SINGLESTEP on a child that does an int80 syscall
-misses the SIGTRAP that should be delivered upon syscall exit.
-Fix that by setting TIF_SINGLESTEP when entering the kernel
-via int80 with TF set.
+Hello everyone,
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+    I encountered a problem with linux kernel, please help if you can.
 
----
+    I am writing an application which is listening to multiple sockets.
 
-Please consider for 2.6.16.  Simple test program:
+ 
 
-/* Test whether singlestep through an int80 syscall works.
- */
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/ptrace.h>
-#include <sys/wait.h>
-#include <sys/mman.h>
-#include <asm/user.h>
+    Scenario I:
+    
 
-static int child, status;
-static struct user_regs_struct regs;
+    Say, the application is listening to 6000 sockets, while a socket receives any packet, the application will close the socket and fork a child process to reopen the socket and do the packets processes and so on. But for some reasons, the application could not fork more than 1000 child processes due to fork function failure as indicated in the following kernel code
 
-static void do_child()
-{
-	ptrace(PTRACE_TRACEME, 0, 0, 0);
-	kill(getpid(), SIGUSR1);
-	asm ("int $0x80" : : "a" (20)); /* getpid */
-}
+ 
 
-static void do_parent()
-{
-	unsigned long eip, expected = 0;
-again:
-	waitpid(child, &status, 0);
-	if (WIFEXITED(status) || WIFSIGNALED(status))
-		return;
+       do_fork()->......copy_files()-> ... expand_fd_array()->...alloc_fd_array()à vmalloc ()->get_vm_area(){
 
-	if (WIFSTOPPED(status)) {
-		ptrace(PTRACE_GETREGS, child, 0, &regs);
-		eip = regs.eip;
-		if (expected)
-			fprintf(stderr, "child stop @ %08x, expected %08x %s\n",
-					eip, expected,
-					eip == expected ? "" : " <== ERROR");
+       ........
 
-		if (*(unsigned short *)eip == 0x80cd) {
-			fprintf(stderr, "int 0x80 at %08x\n", (unsigned int)eip);
-			expected = eip + 2;
-		} else
-			expected = 0;
+           if (addr > VMALLOC_END-size) {
 
-		ptrace(PTRACE_SINGLESTEP, child, NULL, NULL);
-	}
-	goto again;
-}
+                        
 
-int main(int argc, char * const argv[])
-{
-	child = fork();
-	if (child)
-		do_parent();
-	else
-		do_child();
-	return 0;
-}
+                 goto out;
 
---- 2.6.16-rc4-nb.orig/arch/i386/kernel/entry.S
-+++ 2.6.16-rc4-nb/arch/i386/kernel/entry.S
-@@ -226,6 +226,10 @@ ENTRY(system_call)
- 	pushl %eax			# save orig_eax
- 	SAVE_ALL
- 	GET_THREAD_INFO(%ebp)
-+	testl $TF_MASK,EFLAGS(%esp)
-+	jz no_singlestep
-+	orl $_TIF_SINGLESTEP,TI_flags(%ebp)
-+no_singlestep:
- 					# system call tracing in operation / emulation
- 	/* Note, _TIF_SECCOMP is bit number 8, and so it needs testw and not testb */
- 	testw $(_TIF_SYSCALL_EMU|_TIF_SYSCALL_TRACE|_TIF_SECCOMP|_TIF_SYSCALL_AUDIT),TI_flags(%ebp)
--- 
-Chuck
-"Equations are the Devil's sentences."  --Stephen Colbert
+            }
+
+       }
+
+ 
+
+    It seems to me that VMALLOC_END is out of boundary, but system still has plenty of memory left and CONFIG_HIGHMEM4G enabled
+
+ 
+
+ 
+
+    If I disabled CONFIG_HIGHMEM4G, then the application can fork more than 1000 child processes until memory exhausted.
+
+ 
+
+ 
+
+    While CONFIG_HIGHMEM4G is enabled, we reduced # of sockets to be listened, then # of child processes which can be forked will be increased, but fork still failed at the same located above before the memory exhausted.
+
+    
+
+    
+
+    My system settings:
+
+ 
+
+1.    2G memory
+
+2.    Redhat9 with kernel 2.4.25
+
+3.    file_max = 102400
+
+4.    ulimit -n
+
+   	core file size        (blocks, -c) unlimited
+
+   	data seg size         (kbytes, -d) unlimited
+
+    	file size             (blocks, -f) unlimited
+
+    	max locked memory     (kbytes, -l) unlimited
+
+    	max memory size       (kbytes, -m) unlimited
+
+    	open files                    (-n) 102398
+
+   	pipe size          (512 bytes, -p) 8
+
+  	stack size            (kbytes, -s) 8192
+
+  	cpu time             (seconds, -t) unlimited
+
+  	max user processes            (-u) 6143
+
+   	virtual memory        (kbytes, -v) unlimited
+
+ 
+
+    5. define __FD_SETSIZE      102400
+
+   
+
+ 
+
+    It seems to me that fork might take the wrong VMALLOC_END when CONFIG_HIGHMEM4G is enabled, I have no clue on where I should look into, and any help is much appreciated.
+
+ 
+
+ 
+
+Thanks!
+
+ 
+
+Hai Wang
+

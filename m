@@ -1,46 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751432AbWBVUxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWBVUxt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751432AbWBVUxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 15:53:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWBVUxQ
+	id S1751438AbWBVUxt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 15:53:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWBVUxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 15:53:16 -0500
-Received: from fed1rmmtao12.cox.net ([68.230.241.27]:54964 "EHLO
-	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
-	id S1751432AbWBVUxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 15:53:15 -0500
-Date: Wed, 22 Feb 2006 13:53:15 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>, ak@suse.de
-Subject: Re: [PATCH/RFC] arch/x86_common: more formal reuse of i386+x86_64 source code
-Message-ID: <20060222205314.GF2696@smtp.west.cox.net>
-References: <20060208225336.23539710.rdunlap@xenotime.net>
+	Wed, 22 Feb 2006 15:53:49 -0500
+Received: from master.soleranetworks.com ([67.137.28.188]:7566 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S1751438AbWBVUxs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 15:53:48 -0500
+Message-ID: <43FCDC88.7090602@wolfmountaingroup.com>
+Date: Wed, 22 Feb 2006 14:50:00 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060208225336.23539710.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Andrew Morton <akpm@osdl.org>
+Cc: Robin Holt <holt@sgi.com>, john@johnmccutchan.com,
+       linux-kernel@vger.kernel.org, rml@novell.com, arnd@arndb.de, hch@lst.de
+Subject: Re: udevd is killing file write performance.
+References: <20060222134250.GE20786@lnx-holt.americas.sgi.com>	<1140626903.13461.5.camel@localhost.localdomain>	<20060222175030.GB30556@lnx-holt.americas.sgi.com> <20060222120547.2ae23a16.akpm@osdl.org>
+In-Reply-To: <20060222120547.2ae23a16.akpm@osdl.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 08, 2006 at 10:53:36PM -0800, Randy.Dunlap wrote:
+Andrew Morton wrote:
 
-> (not completed yet)
-> (patch applies to 2.6.16-rc2)
-> 
-> Patch is 331 KB and is at
->   http://www.xenotime.net/linux/patches/x86-common1.patch
-> 
-> From: Randy Dunlap <rdunlap@xenotime.net>
-> 
-> Move lots of i386 & x86_64 common code into arch/x86_common/
-> and modify Makefiles to use it from there.
+>Robin Holt <holt@sgi.com> wrote:
+>  
+>
+>>Let me reiterate, I know _VERY_ little about filesystems.  Can the
+>> dentry->d_lock be changed to a read/write lock?
+>>    
+>>
+>
+>Well, it could, but I suspect that won't help - the hold times in there
+>will be very short so the problem is more likely acquisition frequency.
+>
+>However it's a bit strange that this function is the bottleneck.  If their
+>workload is doing large numbers of reads or writes from large numbers of
+>processes against the same file then they should be hitting heavy
+>contention on other locks, such as i_sem and/or tree_lock and/or lru_lock
+>and others.
+>
+>Can you tell us more about the kernel-visible behaviour of this app?
+>  
+>
 
-I know I'm quite late here, but perhaps it should be arch/common?  I
-remember thinking ages ago the i8259 stuff could be shared between ppc32
-and i386 (it was ages ago).  And there's possibly other stuff like that.
+I have also seen this problem, and it's hard to reproduce. What you will 
+see is udev getting spawned
+multiple times as reported by top. I have found its related to 
+intermittent failures of the hard drive and
+the hotpluger for some reason invoking udev multiple times in response 
+to this. I saw it on a Compaq
+laptop right before my hard drive croaked, and it seems BIOS specific as 
+well, since I have never seen
+it or been able to reproduce it reliably.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Jeff
+
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+

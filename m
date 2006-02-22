@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWBVHzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbWBVIQS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932250AbWBVHzF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 02:55:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbWBVHzF
+	id S932355AbWBVIQS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 03:16:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWBVIQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 02:55:05 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:63683 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932250AbWBVHzD (ORCPT
+	Wed, 22 Feb 2006 03:16:17 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:20024 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932355AbWBVIQR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 02:55:03 -0500
-Date: Wed, 22 Feb 2006 08:53:29 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Paul Jackson <pj@sgi.com>
-Cc: linux-kernel@vger.kernel.org, drepper@redhat.com, tglx@linutronix.de,
-       arjan@infradead.org, akpm@osdl.org
-Subject: Re: [patch 3/6] lightweight robust futexes: docs
-Message-ID: <20060222075329.GB18268@elte.hu>
-References: <20060221084648.GD5506@elte.hu> <20060221112652.c1ef3890.pj@sgi.com>
+	Wed, 22 Feb 2006 03:16:17 -0500
+Date: Wed, 22 Feb 2006 09:16:22 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Mark Lord <lkml@rtr.ca>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Ariel Garcia <garcia@iwr.fzk.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc4 libata + AHCI patched for suspend fails on ICH6
+Message-ID: <20060222081622.GM8852@suse.de>
+References: <200602191958.38219.garcia@iwr.fzk.de> <20060219191859.GJ8852@suse.de> <Pine.LNX.4.58.0602210903260.8603@shark.he.net> <43FBA907.6040906@rtr.ca> <Pine.LNX.4.58.0602211603510.8603@shark.he.net> <43FBAC6B.6030604@rtr.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060221112652.c1ef3890.pj@sgi.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <43FBAC6B.6030604@rtr.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Paul Jackson <pj@sgi.com> wrote:
-
-> >From this doc:
-> +	XXX I am particularly unsure of the following -pj XXX
-> +
-> +On removal:
+On Tue, Feb 21 2006, Mark Lord wrote:
+> Randy.Dunlap wrote:
+> >
+> >Thanks, good to have the continued feedback.
+> >It is SATA, right?  The latest patchset also includes PATA ACPI
+> >objects support (using libata), but it is missing a few calls
+> >to the functions that do the real work during resume.
+> >Will patch that this week also.
 > 
-> Feel free, Ingo or Ulrich or whomever knows, to clean this
-> part up (and anything else I got wrong.)
+> It's a PATA notebook drive, attached with some kind of hidden
+> bridge chip, to an Intel 82801FBM SATA ICH6M.
+> 
+> libata thinks it is pure SATA.
 
-it looks OK to me. I removed the XXX from my tree.
+Actually libata does know it's behind a bridge and limits it somewhat,
+but beyond that it's pure SATA for all it cares about.
 
-	Ingo
+-- 
+Jens Axboe
+

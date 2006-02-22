@@ -1,53 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWBVMFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWBVMIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbWBVMFo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 07:05:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWBVMFo
+	id S1751216AbWBVMIs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 07:08:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWBVMIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 07:05:44 -0500
-Received: from mail2.designassembly.de ([217.11.62.46]:60611 "EHLO
-	mail2.designassembly.de") by vger.kernel.org with ESMTP
-	id S1751202AbWBVMFn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 07:05:43 -0500
-Message-ID: <43FC5393.3080702@designassembly.de>
-Date: Wed, 22 Feb 2006 13:05:39 +0100
-From: Michael Heyse <mhk@designassembly.de>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+	Wed, 22 Feb 2006 07:08:48 -0500
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:39581 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S1750721AbWBVMIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 07:08:47 -0500
+Message-ID: <43FC54B8.7070706@qazi.f2s.com>
+Date: Wed, 22 Feb 2006 12:10:32 +0000
+From: Asfand Yar Qazi <ay0106@qazi.f2s.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060217)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-CC: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: which one is broken: VIA padlock aes or aes_i586?
-References: <43FB0746.5010200@designassembly.de> <20060222013137.GA844@gondor.apana.org.au> <20060222114531.GA4170@gondor.apana.org.au>
-In-Reply-To: <20060222114531.GA4170@gondor.apana.org.au>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 'vga=' parameter wierdness
+References: <43FC1624.8090607@qazi.f2s.com> <200602221130.13872.vda@ilport.com.ua>
+In-Reply-To: <200602221130.13872.vda@ilport.com.ua>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu wrote:
-> On Wed, Feb 22, 2006 at 12:31:37PM +1100, herbert wrote:
+Denis Vlasenko wrote:
+> On Wednesday 22 February 2006 09:43, Asfand Yar Qazi wrote:
 > 
->>I don't think this patch is your problem since it's part of the multiblock
->>code which doesn't exist in 2.6.12 at all.  Of course the multiblock code
->>itself could be buggy.  I'll take a look.
+>>'Scuse my noobness, but when I supply the following parameter to the arguments 
+>>  of my kernel through GRUB, I get an 'undefined mode' error:
+>>
+>>vga=0164
+>>
+>>But then, when the prompt comes up asking me which mode I want I type in:
+>>
+>>0164
+>>
+>>and I get the required mode!
 > 
 > 
-> OK I can't reproduce this.  Please send me your dmcrypt setup line so
-> I can try it here.
+> vga parameter is not passed to kernel itself, it is parsed by bootloader.
+> Previously, booploaders had bugs versus vga=NN specified in hex and/or octal.
+> Try entering decimal value.
 
-I'm using the cryptsetup tool (from http://www.saout.de/misc/dm-crypt/):
+OK, will try that.  decimal of octal(0164) = decimal(116)
 
-echo $KEY | cryptsetup -c aes-cbc-essiv:sha256 -h plain -s 256 create data /dev/vg0/data
+> 
+> 
+>>What's happening?  On 2.4 kernel, I used to boot with vga=0x0a (which is the 
+>>same mode as 0164) and it would boot fine.  Not anymore...
+> 
+> 
+> 0x0a != 0164, that's for sure
+> --
+> vda
+> 
 
-$KEY contains 32 bytes of binary data. Do you need any other information? Here's all I can think of:
 
-- parition /dev/vg0/data lies on a lvm2 volume group
-- this volume group lies on a 4-disk software-raid 5 array
-- size of the partition is 300 GB
-- padlock aes works on kernel 2.6.15.4 but not on 2.6.16-rc1
-- aes_i586 works on all kernels
+OK, allow me to explain:
 
-Thanks,
-Michael
+When the modes come up on screen, they are numbered (0, 1, 2, ... a, b, etc.) 
+  This is what the 'a' refers to.  Hey, it worked through LILO on 2.4 kernels.
+
+Before I type in scan, the number for the 132x60 mode is actually 030C.  After 
+I've typed in 'scan', then it comes up as 0164.  If I enter 0164 BEFORE I type 
+in 'scan' at the vid mode, it still works.  But not if I give it as argument 
+to GRUB.  As I said, will try giving decimal equivalent (116) as argument to GRUB.
+

@@ -1,68 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbWBVUlO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751427AbWBVUoF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751411AbWBVUlO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 15:41:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWBVUlO
+	id S1751427AbWBVUoF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 15:44:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWBVUoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 15:41:14 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:48576 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751411AbWBVUlN (ORCPT
+	Wed, 22 Feb 2006 15:44:05 -0500
+Received: from spirit.analogic.com ([204.178.40.4]:31243 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1751423AbWBVUoE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 15:41:13 -0500
-Date: Wed, 22 Feb 2006 12:40:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mattia Dongili <malattia@linux.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc4-mm1 console (radeonfb) not resumed after s2ram
-Message-Id: <20060222124041.0f3a8538.akpm@osdl.org>
-In-Reply-To: <20060222193922.GA4372@inferi.kami.home>
-References: <20060220042615.5af1bddc.akpm@osdl.org>
-	<20060221190031.GA3531@inferi.kami.home>
-	<20060221134323.6a5e5a95.akpm@osdl.org>
-	<17679.217.33.203.18.1140618278.squirrel@picard.linux.it>
-	<20060222193922.GA4372@inferi.kami.home>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Wed, 22 Feb 2006 15:44:04 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <1140635265.26079.16.camel@lycan.lan>
+x-originalarrivaltime: 22 Feb 2006 20:43:55.0907 (UTC) FILETIME=[B2DBDD30:01C637F0]
+Content-class: urn:content-classes:message
+Subject: Re: Problems with read() on /proc/devices with x86_64 system
+Date: Wed, 22 Feb 2006 15:43:55 -0500
+Message-ID: <Pine.LNX.4.61.0602221520080.11376@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Problems with read() on /proc/devices with x86_64 system
+Thread-Index: AcY38LLjjV60+l5fSJarpio3uKsYPg==
+References: <1140635265.26079.16.camel@lycan.lan>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Martin Schlemmer" <azarah@nosferatu.za.org>
+Cc: "Linux Kernel Mailing Lists" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mattia Dongili <malattia@linux.it> wrote:
+
+On Wed, 22 Feb 2006, Martin Schlemmer wrote:
+
+> Hi,
 >
-> On Wed, Feb 22, 2006 at 03:24:38PM +0100, Mattia Dongili wrote:
-> > On Tue, February 21, 2006 10:43 pm, Andrew Morton said:
-> > > Mattia Dongili <malattia@linux.it> wrote:
-> > >>
-> > >> On Mon, Feb 20, 2006 at 04:26:15AM -0800, Andrew Morton wrote:
-> > >> >
-> > >> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc4/2.6.16-rc4-mm1/
-> > >>
-> > >> After suspend the system is fully working except it doesn't resume the
-> > >> console (I'm using radeonfb). If suspending from X the thing comes back,
-> > >> X working ok, but switching to vt1 I see the console completely garbled.
-> > >> Reverting radeonfb-resume-support-for-samsung-p35-laptops.patch (_wild_
-> > >> guess) does not help.
-> > >> Any good candidate?
-> > >
-> > > Did you apply the patches in the hot-fixes directory?
-> > > revert-reset-pci-device-state-to-unknown-after-disabled.patch might help.
-> > 
-> > Sorry, this didn't help either. I'll try to revert some suspend related
-> > patches then go bisecting if still unsuccessful.
-> 
-> Ok, reverting the same 4 patches as suggested to Rafael J. Wysocki
-> restores the correct behaviour:
-> 
-> pm-add-state-field-to-pm_message_t-to-hold-actual.patch
-> pm-respect-the-actual-device-power-states-in-sysfs.patch
-> pm-minor-updates-to-core-suspend-resume-functions.patch
-> pm-make-pci_choose_state-use-the-real-device.patch
-> 
-> Are they indipendent? Would you want me to track the exact one
-> introducing the bug?
-> 
+> Not sure when it started, but 2.6.16-rc[1234] at least have problems
+> with unbuffered read() and /proc/devices on my x86_64 box.  I first
+> picked it up with dmsetup that did not want to work properly built
+> against klibc (glibc with fread() worked fine though, as it mmap()'d the
+> file).
+>
+> Following code (from HPA and klibc mailing lists), when compiled and run
+> with /proc/devices only reads the first two lines and then exits
+> normally, where with any other file works as expected.
+>
+> -----
+> #include <stdlib.h>
+> #include <stdio.h>
+> #include <unistd.h>
+> #include <fcntl.h>
+> #include <errno.h>
+> #include <sys/stat.h>
+>
+> int main(int argc, char *argv[])
+> {
+>  char c;
+>  int i, fd, rv;
+>
+>  for ( i = 1 ; i < argc ; i++ ) {
+>    fd = open(argv[i], O_RDONLY);
+>    if ( fd < 0 ) {
+>      perror(argv[i]);
+>      exit(1);
+>    }
+>
+>    while ( (rv = read(fd, &c, 1)) ) {
+>      if ( rv == -1 ) {
+>        if ( errno == EINTR || errno == EAGAIN )
+>          continue;
+>
+>        perror(argv[i]);
+>        exit(1);
+>      }
+>      putchar(c);
+>    }
+>
+>    close(fd);
+>  }
+>  return 0;
+> }
+> -----
+>
+> Output over here:
+>
+> -----
+> # ./readbychar.klibc /proc/devices
+> Character devices:
+>  1 mem
+> #
+> -----
+> Thanks,
+> Martin Schlemmer
 
-Is OK, thanks - I have already passed that info on to Pat and I dropped all
-four.
+If your code ever worked, it's probably because of some
+fortuitous buffering in the 'C' runtime library. Most
+of the 'read' code in drivers that have a /proc interface
+is not designed for 1-character-at-a-time I/O. It's expected
+that it will be accessed like `cat` or `more` or other
+such tools access it, -- one read with 4096-byte buffer --
 
+read(3, "MemTotal:       773860 kB\nMemFre"..., 4096) = 670
+write(1, "MemTotal:       773860 kB\nMemFre"..., 670) = 670
+
+The read code uses sprintf to write all the parameters to
+a buffer, then it copies the parameters to the user. The
+next read will return 0 for EOF and reset the interface
+for the next access.
+
+If your code read /proc without any help from the 'C' runtime
+library, you would read the same first character, every time
+you attempted to read a character. Don't do that! Your code
+should do (with some error-checking):
+
+         fd = open(argv[1], O_RDONLY);
+ 	buffer = malloc(LEN);
+         read(fd, buffer, len);
+         puts(buffer);
+
+Also, something seems somewhat strange because it is not
+commonplace to provide a mmap() interface to /proc file-system
+capability in drivers and the /proc base code doesn't
+provide memory-map capability at least on 2.6.15.4. So,
+your reference to memory-mapping the file seems to be
+incorrect.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.15.4 on an i686 machine (5589.54 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

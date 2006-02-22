@@ -1,88 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbWBVVJf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWBVVNG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751459AbWBVVJf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 16:09:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWBVVJf
+	id S1750761AbWBVVNG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 16:13:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWBVVNG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 16:09:35 -0500
-Received: from zproxy.gmail.com ([64.233.162.206]:32149 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751459AbWBVVJf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 16:09:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IdIvBha7Zl6Np+dQ/eoQ/JWeGyIgG5SgENTayhQ0dHZ250k9rF2lnYtKhfo5vM1fZNhi37H4z3XVnT3HvEGMeE+0wytMbFSnO7HlCSELrxBfoMJ1BGlcUEob2dy8/ntjV2t0DqidoTns0CXmOpm9M2ER4JrVk3O55v8Xj8QWNEQ=
-Message-ID: <d120d5000602221309n58cad283q41a79e6fe013042d@mail.gmail.com>
-Date: Wed, 22 Feb 2006 16:09:33 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Vojtech Pavlik" <vojtech@suse.cz>
-Subject: Re: Suppressing softrepeat
-Cc: "Pete Zaitcev" <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-       stuart_hayes@dell.com
-In-Reply-To: <20060222204024.GA7477@suse.cz>
+	Wed, 22 Feb 2006 16:13:06 -0500
+Received: from opersys.com ([64.40.108.71]:32530 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S1750761AbWBVVNF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 16:13:05 -0500
+Message-ID: <43FCD735.2030002@opersys.com>
+Date: Wed, 22 Feb 2006 16:27:17 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060221124308.5efd4889.zaitcev@redhat.com>
-	 <20060221210800.GA12102@suse.cz>
-	 <20060222120047.4fd9051e.zaitcev@redhat.com>
-	 <20060222204024.GA7477@suse.cz>
+To: Greg KH <greg@kroah.com>
+CC: Mathieu Desnoyers <compudj@krystal.dyndns.org>,
+       Paul Mundt <lethal@linux-sh.org>, Tom Zanussi <zanussi@us.ibm.com>,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: [PATCH, RFC] sysfs: relay channel buffers as sysfs attributes
+References: <20060219171748.GA13068@linux-sh.org> <20060219175623.GA2674@kroah.com> <20060219185254.GA13391@linux-sh.org> <17401.21427.568297.830492@tut.ibm.com> <20060220130555.GA29405@Krystal> <20060220171531.GA9381@linux-sh.org> <20060220173732.GA7238@Krystal> <20060221152102.GA20835@linux-sh.org> <20060221164852.GA6489@Krystal> <20060221174318.GB23018@kroah.com>
+In-Reply-To: <20060221174318.GB23018@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/22/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> On Wed, Feb 22, 2006 at 12:00:47PM -0800, Pete Zaitcev wrote:
-> > On Tue, 21 Feb 2006 22:08:00 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> >
-> > > A much simpler workaround for the DRAC3 is to set the softrepeat delay
-> > > to at least 750ms, using kbdrate(8), which will call the proper console
-> > > ioctl, resulting in updating the softrepeat parameters.
-> > >
-> > > I prefer workarounds for problematic hardware done outside the kernel,
-> > > if possible.
-> >
-> > I agree with the sentiment when posed in the abstract way, but let me
-> > tell you why this case is different.
-> >
-> > Firstly, there's nothing "problematic" about this. It's just how it is.
-> > The only problematic thing here is our code. Currently, the situation is
-> > assymetric. It is possible to force softrepeat on, but not possible to
-> > force softrepeat off. Isn't it broken?
-> >
-> > Secondly, 750ms may be not enough. Stuart is being shy here and posting
-> > explanations to Bugzilla for some reason.
-> >
-> > Lastly, it's such a PITA to add these things into the userland, that
-> > it's completely impractical. Console is needed the most when things go
-> > wrong. In such case, that echo(1) may not be reached before the single
-> > user shell. And stuffing it into the initrd is for Linux weenies only,
-> > unless automated by mkinitrd.
-> >
-> > I think you're being unreasonable here. I am not asking for NFS root
-> > or IP autoconfiguration and sort of complicated process which ought to
-> > be done in userland indeed.
->
-> I'm definitely not intending to be unreasonable, and I understand your
-> need to have the keyboard working all the way from the grub/lilo prompt.
->
-> I just don't like adding more module options to one that already has so
-> many it's hard to understand what they're used for.
->
-> How about simply this patch instead?
->
-> Setting autorepeat will not be possible on 'dumb' keyboards anymore by
-> default, but since these usually are special forms of hardware anyway,
-> like the DRAC3, this shouldn't be an issue for most users. Using
-> 'softrepeat' on these keyboards will restore the behavior for users that
-> need it.
->
 
-I am not keen on changing the default behaviour... How many dumb
-keybaords are out there? I'd rather turn atkbd.softrepeat into a
-3-state switch...
+Greg KH wrote:
+> And as a debug tool, debugfs seems like the perfict place for it, as you
+> have just stated :)
 
---
-Dmitry
+So then the statement is that debugfs is for _ALL_ kinds of debugging,
+including application debugging. IOW, anyone considering debugfs as
+an fs exclusive to kernel-developers is WRONG. IOW2, distros should
+_NOT_ shy away from enabling debugfs by default on their production
+kernels.
+
+Right?
+
+Just want to make sure this is clear as it has been my impression
+all along (and it seems that of others out there), and I may have
+very well been wrong, that debugfs is solely for kernel developers.
+
+Thanks,
+
+Karim
+-- 
+President  / Opersys Inc.
+Embedded Linux Training and Expertise
+www.opersys.com  /  1.866.677.4546

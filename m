@@ -1,109 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWBVQIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWBVQIU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbWBVQIj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 11:08:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWBVQIj
+	id S932291AbWBVQIU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 11:08:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbWBVQIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 11:08:39 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:7068 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932306AbWBVQIi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 11:08:38 -0500
-Date: Wed, 22 Feb 2006 11:08:35 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Andrew Morton <akpm@osdl.org>
-cc: sekharan@us.ibm.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Register atomic_notifiers in atomic context
-In-Reply-To: <20060221152811.1b065752.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44L0.0602221041490.5164-100000@iolanthe.rowland.org>
+	Wed, 22 Feb 2006 11:08:20 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:13281 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932291AbWBVQIT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 11:08:19 -0500
+Message-ID: <43FC8C6B.60002@us.ibm.com>
+Date: Wed, 22 Feb 2006 11:08:11 -0500
+From: "Mike D. Day" <ncmike@us.ibm.com>
+User-Agent: Thunderbird 1.5 (Macintosh/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Dave Hansen <haveblue@us.ibm.com>, xen-devel@lists.xensource.com,
+       lkml <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+Subject: Re: [ PATCH 2.6.16-rc3-xen 3/3] sysfs: export Xen	hypervisor	attributes
+ to sysfs
+References: <43FB2642.7020109@us.ibm.com>	 <1140542130.8693.18.camel@localhost.localdomain>	 <20060222123250.GB9295@osiris.boeblingen.de.ibm.com>	 <43FC5B1D.5040901@us.ibm.com>	 <1140612969.2979.20.camel@laptopd505.fenrus.org>	 <43FC61C4.30002@us.ibm.com>	 <20060222131918.GC9295@osiris.boeblingen.de.ibm.com>	 <43FC6A86.90901@us.ibm.com> <1140616911.2979.22.camel@laptopd505.fenrus.org>
+In-Reply-To: <1140616911.2979.22.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Feb 2006, Andrew Morton wrote:
+Arjan van de Ven wrote:
+> but again those tools and agents *already* have a way of talking to the
+> hypervisor themselves. Why can't they just first ask this info? Why does
+> that need to be in the kernel, in unswappable memory?
 
-> Alan Stern <stern@rowland.harvard.edu> wrote:
-> >
-> > Some atomic notifier chains require registrations to take place in atomic
-> >  context.  An example is the die_notifier, which on some architectures may
-> >  be accessed very early during the boot-up procedure, before task-switching
-> >  is legal.  To accomodate these chains, this patch (as655) replaces the
-> >  mutex in the atomic_notifier_head structure with a spinlock.
-> 
-> I think that's a good change, however x86_64 still crashes.
-> 
-> At great personal expense (ie: using winxp hyperterminal (I now understand
-> why some of the traces we get are so crappy)) I have a trace.  It's still
-> bugging out in the BUG_ON(!irqs_disabled());
+Currently the two ways to get this data from user space are python via 
+xend, the xen control daemon, and through a C library call.
 
-I hate to keep asking you to test this since you're so busy.  If you know
-anyone else with an x86_64 who could investigate instead, don't hesitate
-to pass this on.
+The two arguments for making some data available via sysfs are (1) to 
+support scripts and to (2) support efforts to slim down the required 
+user space tool stack.
 
-The only reason this patch set could cause interrupts to get enabled (when
-they weren't enabled before) would be if some code was using one of the
-blocking notifier chains.  If one of the down_read() or down_write() calls
-blocked, the scheduler would enable interrupts.  On the other hand, if
-there is only a single task running, how could a down_read() or
-down_write() call manage to block?
+There are alternatives for both arguments. To support scripting one 
+could add bindings (perl etc.) to the c library. Another alternative is 
+to write a succinct set of utility programs that call the c library and 
+invoke those utilities from scripts.
 
-The diagnostic patch below is a heavy-handed approach, but it ought to
-indicate the source of the problem.  Doing anything to a blocking notifier
-chain at a time when task switching is not legal should be a no-no.  
-Maybe this means that a chain got misclassified as blocking when it
-really should be atomic -- or maybe it means there has always been a more
-serious problem that has never been detected before.
+Neither of the above alternatives really help to slim down existing user 
+space tools, but on the other hand they don't materially add to the 
+problem either.
 
-Alan Stern
+Sysfs is the simplest way to expose this info to user space. As an 8k 
+module it is pretty small. It fits well with convention because Xen 
+support is driver-like in the current linux patches. I think a xen sysfs 
+module is a reasonable solution. However I understand and agree with the 
+desire to keep unnecessary code out of the kernel.
 
-P.S. (off-topic): Would it be possible to make the -mm series visible
-through the web interface at <http://www.kernel.org/git/>?
-
-
-
-Index: usb-2.6/kernel/sys.c
-===================================================================
---- usb-2.6.orig/kernel/sys.c
-+++ usb-2.6/kernel/sys.c
-@@ -249,7 +249,11 @@ int blocking_notifier_chain_register(str
- {
- 	int ret;
- 
--	down_write(&nh->rwsem);
-+	if (!down_write_trylock(&nh->rwsem)) {
-+		printk(KERN_WARNING "%s\n", __FUNCTION__);
-+		dump_stack();
-+		down_write(&nh->rwsem);
-+	}
- 	ret = notifier_chain_register(&nh->head, n);
- 	up_write(&nh->rwsem);
- 	return ret;
-@@ -272,7 +276,11 @@ int blocking_notifier_chain_unregister(s
- {
- 	int ret;
- 
--	down_write(&nh->rwsem);
-+	if (!down_write_trylock(&nh->rwsem)) {
-+		printk(KERN_WARNING "%s\n", __FUNCTION__);
-+		dump_stack();
-+		down_write(&nh->rwsem);
-+	}
- 	ret = notifier_chain_unregister(&nh->head, n);
- 	up_write(&nh->rwsem);
- 	return ret;
-@@ -302,7 +310,11 @@ int blocking_notifier_call_chain(struct 
- {
- 	int ret;
- 
--	down_read(&nh->rwsem);
-+	if (!down_read_trylock(&nh->rwsem)) {
-+		printk(KERN_WARNING "%s\n", __FUNCTION__);
-+		dump_stack();
-+		down_read(&nh->rwsem);
-+	}
- 	ret = notifier_call_chain(&nh->head, val, v);
- 	up_read(&nh->rwsem);
- 	return ret;
-
+Mike

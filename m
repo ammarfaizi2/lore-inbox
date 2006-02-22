@@ -1,56 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWBVPoY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWBVPqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932182AbWBVPoY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 10:44:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWBVPoY
+	id S1750790AbWBVPqT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 10:46:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWBVPqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 10:44:24 -0500
-Received: from mail-gw3.adaptec.com ([216.52.22.36]:12457 "EHLO
-	mail-gw3.adaptec.com") by vger.kernel.org with ESMTP
-	id S1751342AbWBVPoY convert rfc822-to-8bit (ORCPT
+	Wed, 22 Feb 2006 10:46:19 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:29861 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750790AbWBVPqT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 10:44:24 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
+	Wed, 22 Feb 2006 10:46:19 -0500
+Date: Wed, 22 Feb 2006 07:44:16 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Kay Sievers <kay.sievers@suse.de>
+cc: Pekka J Enberg <penberg@cs.Helsinki.FI>, Greg KH <gregkh@suse.de>,
+       Adrian Bunk <bunk@stusta.de>, Robert Love <rml@novell.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       John Stultz <johnstul@us.ibm.com>
+Subject: Re: 2.6.16-rc4: known regressions
+In-Reply-To: <20060222152743.GA22281@vrfy.org>
+Message-ID: <Pine.LNX.4.64.0602220737170.30245@g5.osdl.org>
+References: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org> <20060217231444.GM4422@stusta.de>
+ <84144f020602190306o3149d51by82b8ccc6108af012@mail.gmail.com>
+ <20060219145442.GA4971@stusta.de> <1140383653.11403.8.camel@localhost>
+ <20060220010205.GB22738@suse.de> <1140562261.11278.6.camel@localhost>
+ <20060221225718.GA12480@vrfy.org> <Pine.LNX.4.58.0602220905330.12374@sbz-30.cs.Helsinki.FI>
+ <20060222152743.GA22281@vrfy.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Git via a proxy server?
-Date: Wed, 22 Feb 2006 10:44:23 -0500
-Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189F022DD553@otce2k03.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Git via a proxy server?
-Thread-Index: AcY3xtn7XOPY7JXRTCWzB8RA4H7nMA==
-From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-To: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rsync protocol for git is not working for some reason when I pick up the
-trees; apparently others share my experience. So I switched to the git
-protocol. I can pick up the trees via git if I am outside Adaptec's
-network, but inside I need to go through the proxy server.
 
-Urls like:
 
-git://proxyserver:8080/?url=git://git.kernel.org/pub/scm/linux/kernel/gi
-t/jejb/
-git://proxyserver:8080/?url=tcp://git.kernel.org/pub/scm/linux/kernel/gi
-t/jejb/
-git://proxyserver:8080/?url=git.kernel.org/pub/scm/linux/kernel/git/jejb
-/
+On Wed, 22 Feb 2006, Kay Sievers wrote:
+> 
+> Well, that's part of the contract by using an experimental version of HAL,
+> it has nothing to do with the kernel
 
-Doesn't even appear to hit the proxy server. MIS had opened up the port
-directly as a test using:
+NO NO NO!
 
-git://git.kernel.org/pub/scm/linux/kernel/git/jejb/
+Dammit, if this is the logic and mode of operation of HAL people, then we 
+must stop accepting patches to the kernel from HAL people.
 
-worked fine, but it can not be a permanent arrangement. They have the
-same port on the proxy server set up as well, but the logs indicate zero
-hits.
+THIS IS NOT DEBATABLE.
 
-Any ideas?
+If you cannot maintain a stable kernel interface, then you damn well 
+should not send your patches in for inclusion in the standard kernel. Keep 
+your own "HAL-unstable" kernel and ask people to test it there.
 
-Sincerely -- Mark Salyzyn
+It really is that easy. Once a system call or other kernel interface goes 
+into the standard kernel, it stays that way. It doesn't get switched 
+around to break user space.
+
+Bugs happen, and sometimes we break user space by mistake. Sometimes it 
+really really is inevitable. But we NEVER EVER say what you say: "it's 
+your own fault". It's _our_ fault, and it's _our_ problem to work out.
+
+Guys: you now have two choices: fix it by sending me a patch and an 
+explanation of what went wrong, or see the patch that broke things be 
+reverted. And STOP THIS DAMN APOLOGIA. 
+
+I'm fed up with hearing how "breaking user space is ok because it's HAL or 
+hotplug". IT IS NOT OK. Get your damn act together, and stop blaming other 
+people. 
+
+If the interfaces were bad, we keep them around. Look in fs/stat.c some 
+day. Realize that some of those interfaces are from 1991. They were bad, 
+but that doesn't change _anything_. People used them, and we had 
+implemented them.
+
+			Linus

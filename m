@@ -1,69 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030326AbWBVWNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751496AbWBVWMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030326AbWBVWNv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 17:13:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030327AbWBVWNt
+	id S1751496AbWBVWMe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 17:12:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbWBVWLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 17:13:49 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:28280 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030319AbWBVWN2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 17:13:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=az7dNLp+s3daO+OdBcz+wZ+JzzFHqIkHXWXb8awUX/Wy4XjqL7PZ9bTQb+dNCt6y29qp/vDZpMgvasv6HoSQwdmRuRPkx7ZW9uLTGny60zPhLqqmGEtNd8cqWrmnIxsGfDCEhDsQfs6SRthW59D4HPFqCS3j7CCw29/+sDgNlyQ=
-Message-ID: <d120d5000602221413i19aac43cv43820051f2de9c7@mail.gmail.com>
-Date: Wed, 22 Feb 2006 17:13:26 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Vojtech Pavlik" <vojtech@suse.cz>
-Subject: Re: Suppressing softrepeat
-Cc: "Pete Zaitcev" <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-       stuart_hayes@dell.com
-In-Reply-To: <20060222220954.GA7930@suse.cz>
-MIME-Version: 1.0
+	Wed, 22 Feb 2006 17:11:41 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:51080 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751489AbWBVWLL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 17:11:11 -0500
+Date: Wed, 22 Feb 2006 13:58:02 -0800
+From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: linux-ide@vger.kernel.org, akpm@osdl.org, jgarzik@pobox.com
+Subject: [PATCH 7/13] ATA ACPI: more Makefile/Kconfig
+Message-Id: <20060222135802.60ab42ab.randy_d_dunlap@linux.intel.com>
+In-Reply-To: <20060222133241.595a8509.randy_d_dunlap@linux.intel.com>
+References: <20060222133241.595a8509.randy_d_dunlap@linux.intel.com>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+X-Face: "}I"O`t9.W]b]8SycP0Jap#<FU!b:16h{lR\#aFEpEf\3c]wtAL|,'>)%JR<P#Yg.88}`$#
+ A#bhRMP(=%<w07"0#EoCxXWD%UDdeU]>,H)Eg(FP)?S1qh0ZJRu|mz*%SKpL7rcKI3(OwmK2@uo\b2
+ GB:7w&?a,*<8v[ldN`5)MXFcm'cjwRs5)ui)j
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060221124308.5efd4889.zaitcev@redhat.com>
-	 <20060221210800.GA12102@suse.cz>
-	 <20060222120047.4fd9051e.zaitcev@redhat.com>
-	 <20060222204024.GA7477@suse.cz>
-	 <d120d5000602221309n58cad283q41a79e6fe013042d@mail.gmail.com>
-	 <20060222220954.GA7930@suse.cz>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/22/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> On Wed, Feb 22, 2006 at 04:09:33PM -0500, Dmitry Torokhov wrote:
-> > > How about simply this patch instead?
-> > >
-> > > Setting autorepeat will not be possible on 'dumb' keyboards anymore by
-> > > default, but since these usually are special forms of hardware anyway,
-> > > like the DRAC3, this shouldn't be an issue for most users. Using
-> > > 'softrepeat' on these keyboards will restore the behavior for users that
-> > > need it.
-> >
-> > I am not keen on changing the default behaviour... How many dumb
-> > keyboards are out there?
->
-> Apart from the DRAC3, some home-made Sun-to-PS2 converter, and a single
-> non-x86 embedded box, I don't recall anything. Answer: very few.
->
-> There may be users, though, that use this option to force the detection
-> of the keyboard when not really plugged in, eg. for flaky KVMs. I've
-> Googled for that usage, but found none.
->
-> > I'd rather turn atkbd.softrepeat into a 3-state switch...
->
-> We could, but the more I think about it, the stronger I'm convinced that
-> the dumbkbd => softrepeat => softraw option implication chain is wrong.
-> The second implication is necessary, but with dumbkbd it's quite likely
-> you won't want softraw.
->
+From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
 
-OK, then I'll schedule this change for 2.6.17 and we'll see if anyone screams.
+Simplify Makefile.
+Add Kconfig help.
 
---
-Dmitry
+Signed-off-by: Randy Dunlap <randy_d_dunlap@linux.intel.com>
+---
+ drivers/scsi/Kconfig  |   10 +++++++++-
+ drivers/scsi/Makefile |    6 ++----
+ 2 files changed, 11 insertions(+), 5 deletions(-)
+
+--- linux-2616-rc4-ata.orig/drivers/scsi/Makefile
++++ linux-2616-rc4-ata/drivers/scsi/Makefile
+@@ -163,10 +163,8 @@ ncr53c8xx-flags-$(CONFIG_SCSI_ZALON) \
+ CFLAGS_ncr53c8xx.o	:= $(ncr53c8xx-flags-y) $(ncr53c8xx-flags-m)
+ zalon7xx-objs	:= zalon.o ncr53c8xx.o
+ NCR_Q720_mod-objs	:= NCR_Q720.o ncr53c8xx.o
+-libata-objs	:= libata-core.o libata-scsi.o
+-ifeq ($(CONFIG_SCSI_SATA_ACPI),y)
+-  libata-objs	+= libata-acpi.o
+-endif
++libata-y	:= libata-core.o libata-scsi.o
++libata-$(CONFIG_SCSI_SATA_ACPI) += libata-acpi.o
+ oktagon_esp_mod-objs	:= oktagon_esp.o oktagon_io.o
+ 
+ # Files generated that shall be removed upon make clean
+--- linux-2616-rc4-ata.orig/drivers/scsi/Kconfig
++++ linux-2616-rc4-ata/drivers/scsi/Kconfig
+@@ -601,8 +601,16 @@ config SCSI_SATA_INTEL_COMBINED
+ 
+ config SCSI_SATA_ACPI
+ 	bool
+-	depends on SCSI_SATA && ACPI
++	depends on SCSI_SATA && ACPI && PCI
+ 	default y
++	help
++	  This option adds support for SATA-related ACPI objects.
++	  These ACPI objects add the ability to retrieve taskfiles
++	  from the ACPI BIOS and write them to the disk controller.
++	  These objects may be related to performance, security,
++	  power management, or other areas.
++	  You can disable this at kernel boot time by using the
++	  option 'libata.noacpi'.
+ 
+ config SCSI_BUSLOGIC
+ 	tristate "BusLogic SCSI support"

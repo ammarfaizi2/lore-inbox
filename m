@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWBVQFY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbWBVQGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932255AbWBVQFY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 11:05:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbWBVQFY
+	id S932268AbWBVQGK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 11:06:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbWBVQGK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 11:05:24 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43470 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932255AbWBVQFX (ORCPT
+	Wed, 22 Feb 2006 11:06:10 -0500
+Received: from mail.gmx.de ([213.165.64.20]:33928 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932276AbWBVQGH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 11:05:23 -0500
-Message-ID: <43FC8C00.5020600@ce.jp.nec.com>
-Date: Wed, 22 Feb 2006 11:06:24 -0500
-From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 22 Feb 2006 11:06:07 -0500
+X-Authenticated: #428038
+Date: Wed, 22 Feb 2006 17:06:02 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Douglas Gilbert <dougg@torque.net>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: lsscsi-0.17 released
+Message-ID: <20060222160602.GB17473@merlin.emma.line.org>
+Mail-Followup-To: Douglas Gilbert <dougg@torque.net>,
+	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <43FBA4CD.6000505@torque.net> <m34q2r93q2.fsf@merlin.emma.line.org> <43FC7CCB.4090508@torque.net>
 MIME-Version: 1.0
-To: Neil Brown <neilb@suse.de>, Alasdair Kergon <agk@redhat.com>,
-       Lars Marowsky-Bree <lmb@suse.de>, Greg KH <gregkh@suse.de>
-CC: linux-kernel@vger.kernel.org,
-       device-mapper development <dm-devel@redhat.com>
-Subject: [PATCH 0/3] sysfs representation of stacked devices (dm/md) (rev.2)
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43FC7CCB.4090508@torque.net>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 22 Feb 2006, Douglas Gilbert wrote:
 
-This is a revised set of pathces which provides common
-representation of dependencies between stacked devices (dm and md)
-in sysfs.
+> Matthias Andree wrote:
 
-Variants of bd_claim/bd_release are added to accept a kobject
-and create symlinks between the claimed bdev and the holder.
+> > Does this work around new incompatibilities in the kernel
+> > or does this fix lsscsi bugs?
+> 
+> The former. In lk 2.6.16-rc1 the
+> /sys/class/scsi_device/<hcil>/device/block symlink
+> changed to ".../block:sd<x>" breaking lsscsi 0.16 (and
+> earlier) and sg_map26 (in sg3_utils).
 
-dm/md will give a child of its gendisk kobject to bd_claim.
-For example, if dm-0 maps to sda, we have the following symlinks;
-   /sys/block/dm-0/slaves/sda --> /sys/block/sda
-   /sys/block/sda/holders/dm-0 --> /sys/block/dm-0
+Heck, what was the reason for breaking userspace again?
 
-Comments are welcome.
-
-A few points I would appreciate comments/reviews from maintainers:
-  About sysfs
-    - I confirmed sysfs_remove_symlink() and kobject_del() don't
-      allocate memory in 2.6.15 and it seems true on the git head.
-      I would like to make sure it's true in future versions of kernel
-      because they are called during device-mapper's table swapping
-      where I/O to free memory could deadlock on the dm device.
-      What is the recommended way to do that?
-      Or can I just expect these functions will not allocate memory
-      in future versions of kernel?
-  About dm
-    - To get a reference to mapped_device, table_load() do
-      dm_get() before populating table. It will dm_put() when
-      the table is being discarded or the table is being activated.
-  About md
-    - Rather than carrying mddev pointer around, bd_claim is now
-      made twice. First is not changed at lock_rdev().
-      The second is at bind_rdev_to_array() where kobject is passed
-      and symlinks are created.
+Why would someone even consider using sysfs at all if it changes
+incompatibly?
 
 -- 
-Jun'ichi Nomura, NEC Solutions (America), Inc.
+Matthias Andree

@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422652AbWBVSTT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWBVS0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422652AbWBVSTT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 13:19:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWBVSTT
+	id S1750773AbWBVS0M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 13:26:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWBVS0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 13:19:19 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:51855 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751387AbWBVSTS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 13:19:18 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.16-rc4-mm1 kernel crash at bootup. parport trouble?
-Date: Wed, 22 Feb 2006 19:19:23 +0100
-User-Agent: KMail/1.9.1
-Cc: efault@gmx.de, helge.hafting@aitel.hist.no, linux-kernel@vger.kernel.org,
-       brlink@debian.org
-References: <20060220042615.5af1bddc.akpm@osdl.org> <200602221244.33770.rjw@sisk.pl> <20060222035657.6d2dad1f.akpm@osdl.org>
-In-Reply-To: <20060222035657.6d2dad1f.akpm@osdl.org>
+	Wed, 22 Feb 2006 13:26:12 -0500
+Received: from tomts16.bellnexxia.net ([209.226.175.4]:32690 "EHLO
+	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1750773AbWBVS0K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 13:26:10 -0500
+Message-ID: <43FCAC84.5070901@torque.net>
+Date: Wed, 22 Feb 2006 13:25:08 -0500
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-scsi@vger.kernel.org
+CC: linux-kernel@vger.kernel.org, tomfa@debian.org, kumba@gentoo.org
+Subject: [ANNOUNCE] sdparm 0.97
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602221919.24122.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 22 February 2006 12:56, Andrew Morton wrote:
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> >
-> > > > Try reverting reset-pci-device-state-to-unknown-after-disabled.patch.
-> >  > 
-> >  > Heh, that actually helps. :-)
-> > 
-> >  Well, after reverting the reset-pci-device-state-to-unknown-after-disabled.patch
-> >  my usb controllers actually suspend, but they don't seem to resume properly
-> >  (eg. the USB mouse I am addicted to doesn't work after resume).
-> 
-> Ho hum.  Revert
-> 
-> pm-add-state-field-to-pm_message_t-to-hold-actual.patch
-> pm-respect-the-actual-device-power-states-in-sysfs.patch
-> pm-minor-updates-to-core-suspend-resume-functions.patch
-> pm-make-pci_choose_state-use-the-real-device.patch
+sdparm is a command line utility designed to get and set
+SCSI device parameters (cf hdparm for ATA disks). Apart
+from SCSI devices (e.g. disks, tapes and enclosures) sdparm
+can be used on any device that uses a SCSI command set.
+Virtually all CD/DVD drives use the SCSI MMC set irrespective
+of the transport. sdparm also can decode VPD pages including
+the device identification page. Commands to start and stop
+the media; load and unload removable media and some other
+housekeeping functions are supported. sdparm supports both
+the lk 2.4 and 2.6 series.
 
-Thanks, that helped.  Everything seems to be OK now. :-)
+For more information and downloads see:
+http://www.torque.net/sg/sdparm.html
+
+Changelog:
+http://www.torque.net/sg/p/sdparm.ChangeLog
+
+
+Doug Gilbert

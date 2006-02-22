@@ -1,59 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbWBVI24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbWBVIb3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932471AbWBVI24 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 03:28:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWBVI24
+	id S932511AbWBVIb3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 03:31:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWBVIb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 03:28:56 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:47341 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932471AbWBVI24 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 03:28:56 -0500
-Subject: Re: 2.6.16-rc4: known regressions
-From: Arjan van de Ven <arjan@infradead.org>
-To: Kay Sievers <kay.sievers@suse.de>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Greg KH <gregkh@suse.de>,
-       Adrian Bunk <bunk@stusta.de>, Robert Love <rml@novell.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       John Stultz <johnstul@us.ibm.com>
-In-Reply-To: <20060221225718.GA12480@vrfy.org>
-References: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org>
-	 <20060217231444.GM4422@stusta.de>
-	 <84144f020602190306o3149d51by82b8ccc6108af012@mail.gmail.com>
-	 <20060219145442.GA4971@stusta.de> <1140383653.11403.8.camel@localhost>
-	 <20060220010205.GB22738@suse.de> <1140562261.11278.6.camel@localhost>
-	 <20060221225718.GA12480@vrfy.org>
-Content-Type: text/plain
-Date: Wed, 22 Feb 2006 09:28:06 +0100
-Message-Id: <1140596886.2979.0.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 22 Feb 2006 03:31:29 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:39227 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932511AbWBVIb3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 03:31:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=WmkOFZLFT/m9Jq3FH1m0k8Zej9zNe5WyscJdiACOXl5xPlEF0vKFBsTz+Y852yRYlG17YBKuP+v53YiHpbHdLv+PWi2coxEfyRm5F0p6/Ztx1BMOFqrmpCpHPiENCAs2UeHVZBtqM9ep0XAMxXpiBFc+mL9eMSl3VjGWesLI/Y8=
+Date: Wed, 22 Feb 2006 17:27:32 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>,
+       Dave Miller <davem@redhat.com>, axboe@suse.de, bzolnier@gmail.com,
+       james.steward@dynamicratings.com, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, mattjreimer@gmail.com,
+       rmk+lkml@arm.linux.org.uk
+Subject: Re: [PATCHSET] block: fix PIO cache coherency bug
+Message-ID: <20060222082732.GA24320@htj.dyndns.org>
+References: <11371658562541-git-send-email-htejun@gmail.com> <1137167419.3365.5.camel@mulgrave> <20060113182035.GC25849@flint.arm.linux.org.uk> <1137177324.3365.67.camel@mulgrave> <20060113190613.GD25849@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060113190613.GD25849@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-21 at 23:57 +0100, Kay Sievers wrote:
-> On Wed, Feb 22, 2006 at 12:51:01AM +0200, Pekka Enberg wrote:
-> > On Sun, 2006-02-19 at 17:02 -0800, Greg KH wrote:
-> > > If you revert this one patch, on top of a clean 2.6.16-rc4, do things
-> > > start working for you again?
-> > 
-> > Okey dokey, bisecting with mrproper took little longer than expected but
-> > I found the bad changeset:
-> > 
-> > 033b96fd30db52a710d97b06f87d16fc59fee0f1 is first bad commit
-> > diff-tree 033b96fd30db52a710d97b06f87d16fc59fee0f1 (from 0f76e5acf9dc788e664056dda1e461f0bec93948)
-> > Author: Kay Sievers <kay.sievers@suse.de>
-> > Date:   Fri Nov 11 06:09:55 2005 +0100
-> > 
-> >     [PATCH] remove mount/umount uevents from superblock handling
+On Fri, Jan 13, 2006 at 07:06:14PM +0000, Russell King wrote:
+> On Fri, Jan 13, 2006 at 12:35:24PM -0600, James Bottomley wrote:
+> > Perhaps we should take this to linux-arch ... the audience there is well
+> > versed in these arcane problems?
 > 
-> Upgrade HAL, it's too old for that kernel.
+> I think you need to wait for Dave Miller to reply and give a definitive
+> statement on how his cache coherency model is supposed to work in this
+> regard.
+> 
 
+Hello, all.
 
-thats not a good answer ;)
+This thread has been dead for quite some time mainly because I didn't
+know what to do.  As it is a real outstanding bug bugging people and
+Matt Reimer thankfully reminded me[1], I'm giving another shot at
+resolving this.
 
+People seem to agree that it is the responsibility of the driver to
+make sure read data gets to the page cache page (or whatever kernel
+page).  Only driver knows how and when.
 
+The objection raised by James Bottomley is that although syncing the
+kernel page is the responsbility of the driver, syncing user page is
+not; thus, use of flush_dcache_page() is excessive.  James suggested
+use of flush_kernel_dcache_page().
+
+I also asked similar question[2] on lkml and Russell replied that
+depending on arch implementation it shouldn't be much of a problem[3].
+Another thing to consider is that all other drivers which currently
+manage cache coherency use flush_dcache_page().
+
+So, the questions are...
+
+q1. James, besides from the use of flush_dcache_page(), do you agree
+    with the block layer kmap/kunmap API?
+
+2. Is flush_kernel_dcache_page() the correct one?
+
+Whether or not flush_kernel_dcache_page() is the one or not, I think
+we should first go with flush_dcache_page() as that's what drivers
+have been doing upto this point.  Switching from flush_dcache_page()
+to flush_kernel_dcache_page() is very easy and should be done in a
+separate patch anyway.  No?
+
+Another thing mind is that this problem is not limited block drivers.
+All the codes that perform writes to kmap'ed pages take care of
+synchronization themselves and the popular choice seems to be
+flush_dcache_page().
+
+IMHO, kmap API should have a flag or something to tell it how the page
+is being used such that kmap API can take care of synchronization like
+dma mapping API does rather than scattering sync code all over the
+kernel.  And if that's the right thing to do, some of blk kmap
+wrappers can/should be removed.
+
+What do you guys think?
+
+Thanks.
+
+-- 
+tejun
+
+[1] http://article.gmane.org/gmane.linux.kernel/379304
+[2] http://article.gmane.org/gmane.linux.kernel/360324 (the last question)
+[3] http://article.gmane.org/gmane.linux.kernel/365607

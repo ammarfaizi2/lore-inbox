@@ -1,67 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWBVTl0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWBVTki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751312AbWBVTl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 14:41:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWBVTlZ
+	id S1750851AbWBVTki (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 14:40:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbWBVTki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 14:41:25 -0500
-Received: from 213-140-2-72.ip.fastwebnet.it ([213.140.2.72]:37065 "EHLO
-	aa005msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1751312AbWBVTlZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 14:41:25 -0500
-Date: Wed, 22 Feb 2006 20:39:23 +0100
-From: Mattia Dongili <malattia@linux.it>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc4-mm1 console (radeonfb) not resumed after s2ram
-Message-ID: <20060222193922.GA4372@inferi.kami.home>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20060220042615.5af1bddc.akpm@osdl.org> <20060221190031.GA3531@inferi.kami.home> <20060221134323.6a5e5a95.akpm@osdl.org> <17679.217.33.203.18.1140618278.squirrel@picard.linux.it>
-MIME-Version: 1.0
+	Wed, 22 Feb 2006 14:40:38 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:27873
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1750851AbWBVTkh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 14:40:37 -0500
+Date: Wed, 22 Feb 2006 11:40:24 -0800
+From: Greg KH <gregkh@suse.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Gabor Gombas <gombasg@sztaki.hu>, "Theodore Ts'o" <tytso@mit.edu>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Kay Sievers <kay.sievers@suse.de>, penberg@cs.helsinki.fi,
+       bunk@stusta.de, rml@novell.com, linux-kernel@vger.kernel.org,
+       johnstul@us.ibm.com
+Subject: Re: 2.6.16-rc4: known regressions
+Message-ID: <20060222194024.GA15703@suse.de>
+References: <20060221162104.6b8c35b1.akpm@osdl.org> <Pine.LNX.4.64.0602211631310.30245@g5.osdl.org> <Pine.LNX.4.64.0602211700580.30245@g5.osdl.org> <20060222112158.GB26268@thunk.org> <20060222154820.GJ16648@ca-server1.us.oracle.com> <20060222162533.GA30316@thunk.org> <20060222173354.GJ14447@boogie.lpds.sztaki.hu> <20060222185923.GL16648@ca-server1.us.oracle.com> <20060222191832.GA14638@suse.de> <1140636588.2979.66.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17679.217.33.203.18.1140618278.squirrel@picard.linux.it>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.16-rc4-mm1-1 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <1140636588.2979.66.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 03:24:38PM +0100, Mattia Dongili wrote:
-> On Tue, February 21, 2006 10:43 pm, Andrew Morton said:
-> > Mattia Dongili <malattia@linux.it> wrote:
-> >>
-> >> On Mon, Feb 20, 2006 at 04:26:15AM -0800, Andrew Morton wrote:
-> >> >
-> >> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc4/2.6.16-rc4-mm1/
-> >>
-> >> After suspend the system is fully working except it doesn't resume the
-> >> console (I'm using radeonfb). If suspending from X the thing comes back,
-> >> X working ok, but switching to vt1 I see the console completely garbled.
-> >> Reverting radeonfb-resume-support-for-samsung-p35-laptops.patch (_wild_
-> >> guess) does not help.
-> >> Any good candidate?
-> >
-> > Did you apply the patches in the hot-fixes directory?
-> > revert-reset-pci-device-state-to-unknown-after-disabled.patch might help.
+On Wed, Feb 22, 2006 at 08:29:48PM +0100, Arjan van de Ven wrote:
+> On Wed, 2006-02-22 at 11:18 -0800, Greg KH wrote:
+> > What about trying a stock 2.6.6 or so kernel?  Does that work
+> > differently from 2.6.15?
 > 
-> Sorry, this didn't help either. I'll try to revert some suspend related
-> patches then go bisecting if still unsuccessful.
+> ... however it's very much designed only for the kernel that comes with
+> it (with "it's" I mean all the userspace infrastructure); all the
+> changes and additions since 2.6.9 aren't incorporated so you probably
+> really want new alsa, new initscripts, new mkinitrd, new
+> module-init-tools. some because of abi changes since 2.6.9, others
+> because the kernel grew capabilities that are really needed for "nice"
+> behavior.
 
-Ok, reverting the same 4 patches as suggested to Rafael J. Wysocki
-restores the correct behaviour:
+I totally agree.  Distros are changing into two different groups these
+days:
+	- everything tied together and intregrated nicely for a specific
+	  kernel version, userspace tool versions, etc.
+	- flexible and works with multiple kernel versions, different
+	  userspace tools, etc.
 
-pm-add-state-field-to-pm_message_t-to-hold-actual.patch
-pm-respect-the-actual-device-power-states-in-sysfs.patch
-pm-minor-updates-to-core-suspend-resume-functions.patch
-pm-make-pci_choose_state-use-the-real-device.patch
+Distros in the first category are the "enterprise" releases (RHEL, SLES,
+etc.), as well as some consumer oriented distros (SuSE, Ubuntu, Fedora
+possibly.)
 
-Are they indipendent? Would you want me to track the exact one
-introducing the bug?
+More flexible distros that handle different kernel versions are Gentoo,
+Debian, and probably Fedora.
 
--- 
-mattia
-:wq!
+And this is a natural progression as people try to provide a more
+complete "solution" for users.
+
+When people to complain that they can't run a "kernel-of-the-day" on
+their "enterprise" distro, they are not realizing that that distro was
+just not developed to support that kind of thing at all.
+
+So, in short, if you are going to do kernel development, pick a distro
+that handles different kernel versions.  Likewise, if you are doing
+userspace development (X.org, HAL, KDE, Gnome, etc.) you pick a distro
+that allows you to change that level of the stack.
+
+thanks,
+
+greg k-h

@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWBVUxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWBVUyI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751438AbWBVUxt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 15:53:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWBVUxt
+	id S1751442AbWBVUyI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 15:54:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWBVUyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 15:53:49 -0500
-Received: from master.soleranetworks.com ([67.137.28.188]:7566 "EHLO
-	master.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S1751438AbWBVUxs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 15:53:48 -0500
-Message-ID: <43FCDC88.7090602@wolfmountaingroup.com>
-Date: Wed, 22 Feb 2006 14:50:00 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Wed, 22 Feb 2006 15:54:08 -0500
+Received: from zombie.ncsc.mil ([144.51.88.131]:31931 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1751442AbWBVUyG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 15:54:06 -0500
+Subject: Re: [patch 1/1] selinux: Disable automatic labeling of new inodes
+	when no policy is loaded
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Robin Holt <holt@sgi.com>, john@johnmccutchan.com,
-       linux-kernel@vger.kernel.org, rml@novell.com, arnd@arndb.de, hch@lst.de
-Subject: Re: udevd is killing file write performance.
-References: <20060222134250.GE20786@lnx-holt.americas.sgi.com>	<1140626903.13461.5.camel@localhost.localdomain>	<20060222175030.GB30556@lnx-holt.americas.sgi.com> <20060222120547.2ae23a16.akpm@osdl.org>
-In-Reply-To: <20060222120547.2ae23a16.akpm@osdl.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+Cc: linux-kernel@vger.kernel.org, jmorris@namei.org
+In-Reply-To: <20060222123949.29a5cd2e.akpm@osdl.org>
+References: <1140636986.31467.276.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060222123949.29a5cd2e.akpm@osdl.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Wed, 22 Feb 2006 15:59:33 -0500
+Message-Id: <1140641973.31467.293.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Wed, 2006-02-22 at 12:39 -0800, Andrew Morton wrote:
+> Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> >
+> > This patch disables the automatic labeling of new inodes on disk
+> >  when no policy is loaded.  Please apply.
+> >
+> 
+> What is the reason for this change, and what will its effects be?
 
->Robin Holt <holt@sgi.com> wrote:
->  
->
->>Let me reiterate, I know _VERY_ little about filesystems.  Can the
->> dentry->d_lock be changed to a read/write lock?
->>    
->>
->
->Well, it could, but I suspect that won't help - the hold times in there
->will be very short so the problem is more likely acquisition frequency.
->
->However it's a bit strange that this function is the bottleneck.  If their
->workload is doing large numbers of reads or writes from large numbers of
->processes against the same file then they should be hitting heavy
->contention on other locks, such as i_sem and/or tree_lock and/or lru_lock
->and others.
->
->Can you tell us more about the kernel-visible behaviour of this app?
->  
->
+Motivated by:
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=180296
 
-I have also seen this problem, and it's hard to reproduce. What you will 
-see is udev getting spawned
-multiple times as reported by top. I have found its related to 
-intermittent failures of the hard drive and
-the hotpluger for some reason invoking udev multiple times in response 
-to this. I saw it on a Compaq
-laptop right before my hard drive croaked, and it seems BIOS specific as 
-well, since I have never seen
-it or been able to reproduce it reliably.
+The effect is simply that if you boot with SELinux enabled but no policy
+loaded and create a file in that state, SELinux won't try to set a
+security extended attribute on the new inode on the disk.  This is the
+only sane behavior for SELinux in that state, as it cannot determine the
+right label to assign in the absence of a policy.  That state usually
+doesn't occur, but the rawhide installer seemed to be misbehaving
+temporarily so it happened to show up on a test install.
 
-Jeff
-
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+-- 
+Stephen Smalley
+National Security Agency
 

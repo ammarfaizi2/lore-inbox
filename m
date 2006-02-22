@@ -1,70 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWBVSre@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWBVSrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbWBVSre (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 13:47:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWBVSre
+	id S1751392AbWBVSrR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 13:47:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWBVSrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 13:47:34 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:43220
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751395AbWBVSrd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 13:47:33 -0500
-Date: Wed, 22 Feb 2006 10:47:29 -0800
-From: Greg KH <gregkh@suse.de>
-To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-Cc: Neil Brown <neilb@suse.de>, Alasdair Kergon <agk@redhat.com>,
-       Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org,
-       device-mapper development <dm-devel@redhat.com>
-Subject: Re: [PATCH 0/3] sysfs representation of stacked devices (dm/md) (rev.2)
-Message-ID: <20060222184729.GA13638@suse.de>
-References: <43FC8C00.5020600@ce.jp.nec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43FC8C00.5020600@ce.jp.nec.com>
-User-Agent: Mutt/1.5.11
+	Wed, 22 Feb 2006 13:47:17 -0500
+Received: from sccrmhc13.comcast.net ([204.127.200.83]:10734 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S1751393AbWBVSrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 13:47:16 -0500
+Message-ID: <43FCB1B3.8090101@acm.org>
+Date: Wed, 22 Feb 2006 12:47:15 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla Thunderbird 1.0.6-7.2.20060mdk (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Problem with NETIF_F_HIGHDMA
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 11:06:24AM -0500, Jun'ichi Nomura wrote:
-> Hello,
-> 
-> This is a revised set of pathces which provides common
-> representation of dependencies between stacked devices (dm and md)
-> in sysfs.
-> 
-> Variants of bd_claim/bd_release are added to accept a kobject
-> and create symlinks between the claimed bdev and the holder.
-> 
-> dm/md will give a child of its gendisk kobject to bd_claim.
-> For example, if dm-0 maps to sda, we have the following symlinks;
->    /sys/block/dm-0/slaves/sda --> /sys/block/sda
->    /sys/block/sda/holders/dm-0 --> /sys/block/dm-0
-> 
-> Comments are welcome.
-> 
-> A few points I would appreciate comments/reviews from maintainers:
->   About sysfs
->     - I confirmed sysfs_remove_symlink() and kobject_del() don't
->       allocate memory in 2.6.15 and it seems true on the git head.
->       I would like to make sure it's true in future versions of kernel
->       because they are called during device-mapper's table swapping
->       where I/O to free memory could deadlock on the dm device.
->       What is the recommended way to do that?
+I was looking at a problem with a new system we are trying to get up and
+running.  It has a 32-bit only PCI network device, but is a 64-bit
+(x86_64) system.  Looking at the code for NETIF_F_HIGHDMA (which, when
+not set on a PCI network device, means that it cannot do 64-bit
+accesses) in net/core/dev.c, it seems wrong to me.
 
-But it can possibly sleep.
+It is dependent on HIGHMEM, but HIGHMEM has nothing to do with 32/64 bit
+accesses.  On 64-bit systems, HIGHMEM is not set, thus the network code
+will pass any address (including those >32bits) to the driver.  Plus,
+highmem on 32-bit systems may very well be 32-bit accessible, possibly
+resulting in unecessary copies.  AFAICT, the current code will only work
+with i386 and PAE and is sub-optimal.
 
-Hm, wait, the put_device stuff can possibly sleep, the "raw"
-kobject_del() stuff looks safe.  Either way, they don't create new
-memory, unless you do something really wierd in your release callback.
+If I am right, it is a little messy to fix, but I think doable.  I
+propose the following:
 
-So you should be safe here.
+    * Create a new zone named ZONE_HIGHMEM32 for 32-bit HIGHMEM addresses.
+    * Modify 64-bit architectures (and i386 with HIGHMEM) to put the
+      proper pages into the new zone.
+    * Add a "PageIn32Bits()" function/macro to check for this, and use
+      it in illegal_highdma() in net/core/dev.c
+    * Allocate from ZONE_HIGHMEM32 if illegal_highdma() returns true.
 
-But if you want to be absolutly safe, look at the thread on lkml about
-changing the scsi code to do the final release in a non-interrupt
-context.  That looks like it might be the same thing you want to do
-here to guarantee that nothing bad happens.
+I think this will solve the problem.  I haven't looked at other parts of
+the kernel (IDE, SCSI, etc.) to see if they have similar problems.
 
-thanks,
+Anyway, does the above change sound reasonable?  Maybe there's an easier
+way?  Maybe I've missed something?
 
-greg k-h
+Thanks,
+
+-Corey

@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbWBVAr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030288AbWBVAsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030233AbWBVAr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Feb 2006 19:47:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbWBVAr3
+	id S1030288AbWBVAsl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Feb 2006 19:48:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWBVAsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Feb 2006 19:47:29 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:62610 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030233AbWBVAr2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Feb 2006 19:47:28 -0500
-Subject: [BUG -rt] cpu rlimits not enforced w/ -rt
-From: john stultz <johnstul@us.ibm.com>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Darren Hart <dvhltc@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>
-Content-Type: text/plain
-Date: Tue, 21 Feb 2006 16:47:23 -0800
-Message-Id: <1140569244.1271.36.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 21 Feb 2006 19:48:41 -0500
+Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:43404 "EHLO
+	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1030288AbWBVAsl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Feb 2006 19:48:41 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2.6.16-rc4: known regressions
+Date: Wed, 22 Feb 2006 11:46:58 +1100
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, Kay Sievers <kay.sievers@suse.de>,
+       penberg@cs.helsinki.fi, gregkh@suse.de, bunk@stusta.de, rml@novell.com,
+       linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+References: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org> <20060221162104.6b8c35b1.akpm@osdl.org> <Pine.LNX.4.64.0602211631310.30245@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602211631310.30245@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602221146.59708.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey,
-	I've been hunting an issue in 2.6.14-rt16 (also present in
-2.6.16-rt17), where the cpu rlimits were not being enforced. 
+On Wednesday 22 February 2006 11:34, Linus Torvalds wrote:
+> On Tue, 21 Feb 2006, Andrew Morton wrote:
+> > We.  Don't.  Do. That.
+> >
+> > Please either restore the old events so we can have a 6-12 month
+> > transition period or revert the patch.
+>
+> I agree.
+>
+> This stupid argument of "HAL is part of the kernel, so we can break it" is
+> _bogus_.
+>
+> The fact is, if changing the kernel breaks user-space, it's a regression.
+> IT DOES NOT MATTER WHETHER IT'S IN /sbin/hotplug OR ANYTHING ELSE. If it
+> was installed by a distribution, it's user-space. If it got installed by
+> "vmlinux", it's the kernel.
+>
+> The only piece of user-space code we ship with the kernel is the system
+> call trampoline etc that the kernel sets up. THOSE interfaces we can
+> really change, because it changes with the kernel.
 
-I tracked it down in update_process_times, where we have the following:
+Sanity.
 
-#ifndef CONFIG_PREEMPT_RT
- 	run_posix_cpu_timers(p);
-#endif
+It would be a sad day when no distribution in existence can support the 
+current kernel except for a bleeding edge source based thing upgraded daily.
 
-Yea, that would do it. :)
-
-
-Hmm.. Looking through the archives, I came up w/ the discussion here:
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0509.3/1579.html
-
-I was just curious what folks are thinking about for a fix here? Should
-we just create a soft timer that calls run_posix_cpu_timers? 
-
-thanks
--john
-
-
-
-
+Cheers,
+Con

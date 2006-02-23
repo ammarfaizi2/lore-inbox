@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbWBWAAG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751469AbWBWAFo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932465AbWBWAAG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 19:00:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWBWAAG
+	id S1751469AbWBWAFo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 19:05:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWBWAFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 19:00:06 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:59298 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932465AbWBWAAF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 19:00:05 -0500
-Subject: [PATCH] fix the cpu_possible_map to make voyager boot again.
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Wed, 22 Feb 2006 17:58:03 -0600
-Message-Id: <1140652683.10417.11.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 22 Feb 2006 19:05:44 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:46526 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750899AbWBWAFo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 19:05:44 -0500
+Message-ID: <43FCFC53.20505@zytor.com>
+Date: Wed, 22 Feb 2006 16:05:39 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: klibc@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: sys_mmap2 on different architectures
+References: <43FCDB8A.5060100@zytor.com> <20060222.135430.44726149.davem@davemloft.net>
+In-Reply-To: <20060222.135430.44726149.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Right at the moment (thanks to a patch from Andrew), cpu_possible_map on
-voyager is CPU_MASK_NONE, which means the machine always thinks it has
-no CPUs.  Fix that by doing an early initialisation of the
-cpu_possible_map from the cpu_phys_present_map.
+David S. Miller wrote:
+> 
+> Right.
+> 
+> On sparc32 we had the issue where we had a 8K page size
+> platform (sun4) and the rest were using 4K page size.
+> 
+> I can't even think why we do that fixed shift actually.  I think Jakub
+> Jalinek thought this might be a way to make applications assuming
+> 4K page size work on the 8K page size machines.
+> 
+> I'm going to say that you can feel free to fix this to use PAGE_SHIFT
+> correctly all the time.  Applications should be calling getpagesize()
+> and not assume what that value might be.
+> 
 
-Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
+Okay, what I'll do is that I'll hard-code 12 on i386, SPARC and ARM; on 
+other architectures I'll use getpagesize().  Of course, on 64-bit 
+architectures this is not an issue; there I just call sys_mmap.
 
----
-
-James
-
-Index: BUILD-2.6/arch/i386/mach-voyager/voyager_smp.c
-===================================================================
---- BUILD-2.6.orig/arch/i386/mach-voyager/voyager_smp.c	2006-02-22 14:57:45.000000000 -0600
-+++ BUILD-2.6/arch/i386/mach-voyager/voyager_smp.c	2006-02-22 15:38:13.000000000 -0600
-@@ -402,6 +402,7 @@
- 	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 1) << 8;
- 	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 2) << 16;
- 	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 3) << 24;
-+	cpu_possible_map = phys_cpu_present_map;
- 	printk("VOYAGER SMP: phys_cpu_present_map = 0x%lx\n", cpus_addr(phys_cpu_present_map)[0]);
- 	/* Here we set up the VIC to enable SMP */
- 	/* enable the CPIs by writing the base vector to their register */
-
-
+	-hpa

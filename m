@@ -1,287 +1,218 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWBWRTG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751453AbWBWRTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751443AbWBWRTG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 12:19:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751750AbWBWRTG
+	id S1751453AbWBWRTk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 12:19:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751753AbWBWRTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 12:19:06 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:3554 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751443AbWBWRTE (ORCPT
+	Thu, 23 Feb 2006 12:19:40 -0500
+Received: from [193.1.99.76] ([193.1.99.76]:44746 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1751453AbWBWRTi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 12:19:04 -0500
-Subject: Re: [PATCH] change b_size to size_t
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Andrew Morton <akpm@osdl.org>, Nathan Scott <nathans@sgi.com>,
-       christoph <hch@lst.de>, mcao@us.ibm.com,
-       lkml <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>
-In-Reply-To: <20060223163204.GA27682@kvack.org>
-References: <1140470487.22756.12.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060222151216.GA22946@lst.de>
-	 <1140627510.22756.81.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060222165942.GA25167@lst.de> <20060223014004.GA900@frodo>
-	 <20060222175923.784ce5de.akpm@osdl.org>
-	 <1140712093.22756.106.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060223163204.GA27682@kvack.org>
-Content-Type: multipart/mixed; boundary="=-af/8jhDqRWJSmxoqODIZ"
-Date: Thu, 23 Feb 2006 09:20:20 -0800
-Message-Id: <1140715220.22756.122.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Thu, 23 Feb 2006 12:19:38 -0500
+Date: Thu, 23 Feb 2006 17:19:19 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet.skynet.ie
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms-devel@lists.sourceforge.net
+Subject: Re: [PATCH 4/7] ppc64 - Specify amount of kernel memory at boot time
+In-Reply-To: <1140712969.8697.33.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0602231646530.24093@skynet.skynet.ie>
+References: <20060217141552.7621.74444.sendpatchset@skynet.csn.ul.ie> 
+ <20060217141712.7621.49906.sendpatchset@skynet.csn.ul.ie> 
+ <1140196618.21383.112.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0602211445160.4335@skynet.skynet.ie> 
+ <1140543359.8693.32.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0602221625100.2801@skynet.skynet.ie>
+ <1140712969.8697.33.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 23 Feb 2006, Dave Hansen wrote:
 
---=-af/8jhDqRWJSmxoqODIZ
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> On Wed, 2006-02-22 at 16:43 +0000, Mel Gorman wrote:
+>> Is this a bit clearer? It's built and boot tested on one ppc64 machine. I
+>> am having trouble finding a ppc64 machine that *has* memory holes to be
+>> 100% sure it's ok.
+>
+> Yeah, it looks that way.  If you need a machine, see Mike Kravetz.  I
+> think he was working on a way to automate creating memory holes.
+>
 
-On Thu, 2006-02-23 at 11:32 -0500, Benjamin LaHaise wrote:
-> On Thu, Feb 23, 2006 at 08:28:12AM -0800, Badari Pulavarty wrote:
-> > Here is the updated version of the patch, which changes
-> > buffer_head.b_size to size_t to support mapping large
-> > amount of disk blocks (for large IOs).
-> 
-> Your patch doesn't seem to be inline, so I can't quote it.  Several 
-> problems: on 64 bit platforms you introduced 4 bytes of padding into 
-> buffer_head.  atomic_t only takes up 4 byte, while size_t is 8 byte 
-> aligned.  
+Will do. If there is an automatic way of creating holes, I'll write it 
+into the current "compare two running kernels" testing script.
 
-I moved stuff around, but still see 96 bytes (8 byte increase) for 
-the structure. What am I doing wrong ? Can you check ?
+>> diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc3-mm1-103_x86coremem/arch/powerpc/mm/numa.c linux-2.6.16-rc3-mm1-104_ppc64coremem/arch/powerpc/mm/numa.c
+>> --- linux-2.6.16-rc3-mm1-103_x86coremem/arch/powerpc/mm/numa.c	2006-02-16 09:50:42.000000000 +0000
+>> +++ linux-2.6.16-rc3-mm1-104_ppc64coremem/arch/powerpc/mm/numa.c	2006-02-22 16:07:35.000000000 +0000
+>> @@ -17,10 +17,12 @@
+>>   #include <linux/nodemask.h>
+>>   #include <linux/cpu.h>
+>>   #include <linux/notifier.h>
+>> +#include <linux/sort.h>
+>>   #include <asm/sparsemem.h>
+>>   #include <asm/lmb.h>
+>>   #include <asm/system.h>
+>>   #include <asm/smp.h>
+>> +#include <asm/machdep.h>
+>
+> Is the email spacing getting screwed up here?
+>
 
-> This is a waste of memory, imo, seeing as the vast majority 
-> of systems out there will not be doing 4GB+ ios any time soon.
+Yes, mail client issue. The "real" patch is fine.
 
-Yep. I agree.  I was modifying get_block() to take b_size as the amount
-of disk mapping requested, so I can get rid of ->get_blocks() and also
-add support for mpage_readpages() and mapge_writepages() to deal with
-multiple blocks. XFS seems to be requesting >4GB IOs, but doing 4GB 
-IOs through DIO today and planning to see bigger IOs in future. 
+>> +/* Initialise the size of each zone in a node */
+>> +void __init zone_sizes_init(unsigned int nid,
+>> +		unsigned long kernelcore_pages,
+>> +		unsigned long *zones_size)
+>
+> Minor nit territory: set_zone_sizes(), maybe?
+>
 
-Since "buffer_head" is not a primary structure used for IO anymore +
-this change affect only 64-bit machines, its worth doing this ?
+In this case, the choice of name is to match an x86 function that does 
+something very similar. If one had read through the x86 code and then saw 
+this function, it would set their expectations of what the code is 
+intended to do.
 
-> Also, the cast to unsigned long long for size_t is pretty atrocious.  
-> Cast to unsigned long if anything, as size_t is unsigned long on all 
-> platforms linux runs on.
+>> +{
+>> +	unsigned int i;
+>> +	unsigned long pages_present = 0;
+>
+> pages_present_in_node?
+>
 
-Okay. Changed it to (unsigned long) instead. I was just following
-sector_t :(
+That would cause > 80 character violation without a lot of breaking up of 
+lines. I think it would end up looking worse.
 
-Thanks,
-Badari
+>> +	/* Get the number of present pages in the node */
+>> +	for (i = 0; init_node_data[i].end_pfn; i++) {
+>> +		if (init_node_data[i].nid != nid)
+>> +			continue;
+>> +
+>> +		pages_present += init_node_data[i].end_pfn -
+>> +			init_node_data[i].start_pfn;
+>> +	}
+>> +
+>> +	if (kernelcore_pages && kernelcore_pages < pages_present) {
+>> +		zones_size[ZONE_DMA] = kernelcore_pages;
+>> +		zones_size[ZONE_EASYRCLM] = pages_present - kernelcore_pages;
+>> +	} else {
+>> +		zones_size[ZONE_DMA] = pages_present;
+>> +		zones_size[ZONE_EASYRCLM] = 0;
+>> +	}
+>> +}
+>
+> I think there are a couple of buglets here.  I think the
+> kernelcore_pages is going to be applied per-zone, right?
+>
 
-Increase the size of the buffer_head b_size field for 64 bit
-platforms.  Update some old and moldy comments in and around
-the structure as well.
+per-node. A node goes no ZONE_EASYRCLM pages if it is not large enough to 
+contain kernelcore_pages. That means that on a system with 2 nodes, 
+kernelcore=512MB will results in 1024MB of ZONE_DMA in total.
 
-The b_size increase allows us to perform larger mappings and
-allocations for large I/O requests from userspace, which tie
-in with other changes allowing the get_block_t() interface to
-map multiple blocks at once.
+> Also, how do we want to distribute kernelcore memory over each node?
+> The way it is coded up for now, it will all be sliced out of the first
+> node.  I'm not sure that's a good thing.
+>
 
-Signed-off-by: Nathan Scott <nathans@sgi.com>
-Signed-off-by: Badari Pulavary <pbadari@us.ibm.com>
+It gets set in every node.
 
-Index: linux-2.6.16-rc4/include/linux/buffer_head.h
-===================================================================
---- linux-2.6.16-rc4.orig/include/linux/buffer_head.h	2006-02-17
-14:23:45.000000000 -0800
-+++ linux-2.6.16-rc4/include/linux/buffer_head.h	2006-02-23
-09:00:06.000000000 -0800
-@@ -46,20 +46,23 @@ struct address_space;
- typedef void (bh_end_io_t)(struct buffer_head *bh, int uptodate);
- 
- /*
-- * Keep related fields in common cachelines.  The most commonly
-accessed
-- * field (b_state) goes at the start so the compiler does not generate
-- * indexed addressing for it.
-+ * Historically, a buffer_head was used to map a single block
-+ * within a page, and of course as the unit of I/O through the
-+ * filesystem and block layers.  Nowadays the basic I/O unit
-+ * is the bio, and buffer_heads are used for extracting block
-+ * mappings (via a get_block_t call), for tracking state within
-+ * a page (via a page_mapping) and for wrapping bio submission
-+ * for backward compatibility reasons (e.g. submit_bh).
-  */
- struct buffer_head {
--	/* First cache line: */
- 	unsigned long b_state;		/* buffer state bitmap (see above) */
- 	struct buffer_head *b_this_page;/* circular list of page's buffers */
- 	struct page *b_page;		/* the page this bh is mapped to */
--	atomic_t b_count;		/* users using this block */
--	u32 b_size;			/* block size */
-+	char *b_data;			/* pointer to data within the page */
- 
--	sector_t b_blocknr;		/* block number */
--	char *b_data;			/* pointer to data block */
-+	size_t b_size;			/* size of mapping */
-+	sector_t b_blocknr;		/* start block number */
-+	atomic_t b_count;		/* users using this buffer_head */
- 
- 	struct block_device *b_bdev;
- 	bh_end_io_t *b_end_io;		/* I/O completion */
-Index: linux-2.6.16-rc4/fs/buffer.c
-===================================================================
---- linux-2.6.16-rc4.orig/fs/buffer.c	2006-02-17 14:23:45.000000000
--0800
-+++ linux-2.6.16-rc4/fs/buffer.c	2006-02-23 08:55:18.000000000 -0800
-@@ -432,7 +432,8 @@ __find_get_block_slow(struct block_devic
- 		printk("__find_get_block_slow() failed. "
- 			"block=%llu, b_blocknr=%llu\n",
- 			(unsigned long long)block, (unsigned long long)bh->b_blocknr);
--		printk("b_state=0x%08lx, b_size=%u\n", bh->b_state, bh->b_size);
-+		printk("b_state=0x%08lx, b_size=%lu\n", bh->b_state,
-+				(unsigned long)bh->b_size);
- 		printk("device blocksize: %d\n", 1 << bd_inode->i_blkbits);
- 	}
- out_unlock:
-Index: linux-2.6.16-rc4/fs/reiserfs/prints.c
-===================================================================
---- linux-2.6.16-rc4.orig/fs/reiserfs/prints.c	2006-02-17
-14:23:45.000000000 -0800
-+++ linux-2.6.16-rc4/fs/reiserfs/prints.c	2006-02-23 08:56:17.000000000
--0800
-@@ -143,8 +143,8 @@ static void sprintf_buffer_head(char *bu
- 	char b[BDEVNAME_SIZE];
- 
- 	sprintf(buf,
--		"dev %s, size %d, blocknr %llu, count %d, state 0x%lx, page %p, (%s,
-%s, %s)",
--		bdevname(bh->b_bdev, b), bh->b_size,
-+		"dev %s, size %ld, blocknr %llu, count %d, state 0x%lx, page %p, (%s,
-%s, %s)",
-+		bdevname(bh->b_bdev, b), (unsigned long)bh->b_size,
- 		(unsigned long long)bh->b_blocknr, atomic_read(&(bh->b_count)),
- 		bh->b_state, bh->b_page,
- 		buffer_uptodate(bh) ? "UPTODATE" : "!UPTODATE",
-Index: linux-2.6.16-rc4/fs/ocfs2/journal.c
-===================================================================
---- linux-2.6.16-rc4.orig/fs/ocfs2/journal.c	2006-02-17
-14:23:45.000000000 -0800
-+++ linux-2.6.16-rc4/fs/ocfs2/journal.c	2006-02-23 08:56:55.000000000
--0800
-@@ -377,12 +377,12 @@ int ocfs2_journal_access(struct ocfs2_jo
- 	BUG_ON(!bh);
- 	BUG_ON(!(handle->flags & OCFS2_HANDLE_STARTED));
- 
--	mlog_entry("bh->b_blocknr=%llu, type=%d (\"%s\"), bh->b_size = %hu\n",
-+	mlog_entry("bh->b_blocknr=%llu, type=%d (\"%s\"), bh->b_size = %lu\n",
- 		   (unsigned long long)bh->b_blocknr, type,
- 		   (type == OCFS2_JOURNAL_ACCESS_CREATE) ?
- 		   "OCFS2_JOURNAL_ACCESS_CREATE" :
- 		   "OCFS2_JOURNAL_ACCESS_WRITE",
--		   bh->b_size);
-+		   (unsigned long)bh->b_size);
- 
- 	/* we can safely remove this assertion after testing. */
- 	if (!buffer_uptodate(bh)) {
+> My inclination would be to completely separate out the ZONE_EASYRCLM
+> into separate code.  It makes it easier to set whatever policy you want
+> in one place.  Just a suggestion.
+>
 
+It's a possibility. My feeling is that it would be easier to understand 
+overall of all the zone-sizing code was in one place.
 
---=-af/8jhDqRWJSmxoqODIZ
-Content-Disposition: attachment; filename=increase-bsize.patch
-Content-Type: text/x-patch; name=increase-bsize.patch; charset=utf-8
-Content-Transfer-Encoding: 7bit
+>> +void __init get_zholes_size(unsigned int nid, unsigned long *zones_size,
+>> +		unsigned long *zholes_size) {
+>
+> nid_zholes_size()?  I'm not too sure about this one.  Just promise me
+> you'll think about it a bit more. ;)
+>
 
-Increase the size of the buffer_head b_size field for 64 bit
-platforms.  Update some old and moldy comments in and around
-the structure as well.
+The choice of names is again to match the name of a equivalent code from 
+the x86. I'm not saying it's a great name :)
 
-The b_size increase allows us to perform larger mappings and
-allocations for large I/O requests from userspace, which tie
-in with other changes allowing the get_block_t() interface to
-map multiple blocks at once.
+>> +	unsigned int i = 0;
+>> +	unsigned int start_easyrclm_pfn;
+>> +	unsigned long last_end_pfn, first;
+>> +
+>> +	/* Find where the PFN of the end of DMA is */
+>> +	unsigned long pages_count = zones_size[ZONE_DMA];
+>
+> <tangent> This (virtually) proves that zones_size[] needs to get a
+> different name.  Perhaps we need to make it more like the zone structure
+> itself and go to spanned and present pages? </tangent>
+>
 
-Signed-off-by: Nathan Scott <nathans@sgi.com>
-Signed-off-by: Badari Pulavary <pbadari@us.ibm.com>
+zones_size[] is what free_area_init() expects to receive so there is not a 
+lot of room to fiddle with it's meaning without causing more trouble.
 
-Index: linux-2.6.16-rc4/include/linux/buffer_head.h
-===================================================================
---- linux-2.6.16-rc4.orig/include/linux/buffer_head.h	2006-02-17 14:23:45.000000000 -0800
-+++ linux-2.6.16-rc4/include/linux/buffer_head.h	2006-02-23 09:00:06.000000000 -0800
-@@ -46,20 +46,23 @@ struct address_space;
- typedef void (bh_end_io_t)(struct buffer_head *bh, int uptodate);
- 
- /*
-- * Keep related fields in common cachelines.  The most commonly accessed
-- * field (b_state) goes at the start so the compiler does not generate
-- * indexed addressing for it.
-+ * Historically, a buffer_head was used to map a single block
-+ * within a page, and of course as the unit of I/O through the
-+ * filesystem and block layers.  Nowadays the basic I/O unit
-+ * is the bio, and buffer_heads are used for extracting block
-+ * mappings (via a get_block_t call), for tracking state within
-+ * a page (via a page_mapping) and for wrapping bio submission
-+ * for backward compatibility reasons (e.g. submit_bh).
-  */
- struct buffer_head {
--	/* First cache line: */
- 	unsigned long b_state;		/* buffer state bitmap (see above) */
- 	struct buffer_head *b_this_page;/* circular list of page's buffers */
- 	struct page *b_page;		/* the page this bh is mapped to */
--	atomic_t b_count;		/* users using this block */
--	u32 b_size;			/* block size */
-+	char *b_data;			/* pointer to data within the page */
- 
--	sector_t b_blocknr;		/* block number */
--	char *b_data;			/* pointer to data block */
-+	size_t b_size;			/* size of mapping */
-+	sector_t b_blocknr;		/* start block number */
-+	atomic_t b_count;		/* users using this buffer_head */
- 
- 	struct block_device *b_bdev;
- 	bh_end_io_t *b_end_io;		/* I/O completion */
-Index: linux-2.6.16-rc4/fs/buffer.c
-===================================================================
---- linux-2.6.16-rc4.orig/fs/buffer.c	2006-02-17 14:23:45.000000000 -0800
-+++ linux-2.6.16-rc4/fs/buffer.c	2006-02-23 08:55:18.000000000 -0800
-@@ -432,7 +432,8 @@ __find_get_block_slow(struct block_devic
- 		printk("__find_get_block_slow() failed. "
- 			"block=%llu, b_blocknr=%llu\n",
- 			(unsigned long long)block, (unsigned long long)bh->b_blocknr);
--		printk("b_state=0x%08lx, b_size=%u\n", bh->b_state, bh->b_size);
-+		printk("b_state=0x%08lx, b_size=%lu\n", bh->b_state,
-+				(unsigned long)bh->b_size);
- 		printk("device blocksize: %d\n", 1 << bd_inode->i_blkbits);
- 	}
- out_unlock:
-Index: linux-2.6.16-rc4/fs/reiserfs/prints.c
-===================================================================
---- linux-2.6.16-rc4.orig/fs/reiserfs/prints.c	2006-02-17 14:23:45.000000000 -0800
-+++ linux-2.6.16-rc4/fs/reiserfs/prints.c	2006-02-23 08:56:17.000000000 -0800
-@@ -143,8 +143,8 @@ static void sprintf_buffer_head(char *bu
- 	char b[BDEVNAME_SIZE];
- 
- 	sprintf(buf,
--		"dev %s, size %d, blocknr %llu, count %d, state 0x%lx, page %p, (%s, %s, %s)",
--		bdevname(bh->b_bdev, b), bh->b_size,
-+		"dev %s, size %ld, blocknr %llu, count %d, state 0x%lx, page %p, (%s, %s, %s)",
-+		bdevname(bh->b_bdev, b), (unsigned long)bh->b_size,
- 		(unsigned long long)bh->b_blocknr, atomic_read(&(bh->b_count)),
- 		bh->b_state, bh->b_page,
- 		buffer_uptodate(bh) ? "UPTODATE" : "!UPTODATE",
-Index: linux-2.6.16-rc4/fs/ocfs2/journal.c
-===================================================================
---- linux-2.6.16-rc4.orig/fs/ocfs2/journal.c	2006-02-17 14:23:45.000000000 -0800
-+++ linux-2.6.16-rc4/fs/ocfs2/journal.c	2006-02-23 08:56:55.000000000 -0800
-@@ -377,12 +377,12 @@ int ocfs2_journal_access(struct ocfs2_jo
- 	BUG_ON(!bh);
- 	BUG_ON(!(handle->flags & OCFS2_HANDLE_STARTED));
- 
--	mlog_entry("bh->b_blocknr=%llu, type=%d (\"%s\"), bh->b_size = %hu\n",
-+	mlog_entry("bh->b_blocknr=%llu, type=%d (\"%s\"), bh->b_size = %lu\n",
- 		   (unsigned long long)bh->b_blocknr, type,
- 		   (type == OCFS2_JOURNAL_ACCESS_CREATE) ?
- 		   "OCFS2_JOURNAL_ACCESS_CREATE" :
- 		   "OCFS2_JOURNAL_ACCESS_WRITE",
--		   bh->b_size);
-+		   (unsigned long)bh->b_size);
- 
- 	/* we can safely remove this assertion after testing. */
- 	if (!buffer_uptodate(bh)) {
+>> +	for (i = 0; init_node_data[i].end_pfn; i++) {
+>> +		unsigned long segment_size;
+>> +		if (init_node_data[i].nid != nid)
+>> +			continue;
+>> +
+>> +		/*
+>> +		 * Check if the end of ZONE_DMA is in this segment of the
+>> +		 * init_node_data
+>> +		 */
+>> +		segment_size = init_node_data[i].end_pfn -
+>> +			init_node_data[i].start_pfn;
+>
+> "segment" is probably a bad term to use here, especially on ppc.
+>
 
---=-af/8jhDqRWJSmxoqODIZ--
+Good point, I forgot that segment has a very different meaning on ppc.
 
+> One other thing, I want to _know_ that variables being compared are in
+> the same units.  When one is called "pages_" something and the other is
+> something "_size", I don't _know_.
+>
+
+chunk_num_pages ?
+
+>> +
+>> +	/* Walk the map again and get the size of the holes */
+>> +	first = 1;
+>> +	zholes_size[ZONE_DMA] = 0;
+>> +	zholes_size[ZONE_EASYRCLM] = 0;
+>> +	for (i = 1; init_node_data[i].end_pfn; i++) {
+>> +		unsigned long hole_size;
+>> +		if (init_node_data[i].nid != nid)
+>> +			continue;
+>> +
+>> +		if (first) {
+>> +			last_end_pfn = init_node_data[i].end_pfn;
+>> +			first = 0;
+>> +			continue;
+>> +		}
+>> +
+>> +		/* Hole found */
+>> +		hole_size = init_node_data[i].start_pfn - last_end_pfn;
+>> +		if (init_node_data[i].start_pfn < start_easyrclm_pfn) {
+>> +			zholes_size[ZONE_DMA] += hole_size;
+>> +		} else {
+>> +			zholes_size[ZONE_EASYRCLM] += hole_size;
+>> +		}
+>> +		last_end_pfn = init_node_data[i].end_pfn;
+>> +	}
+>> +}
+>
+> I'd probably put this loop in another function.  It is pretty
+> self-contained, no?
+>
+
+yep. get_zholes_size() could be split into two functions 
+find_start_easyrclm_pfn() and get_nid_zholes_size(). Would that be pretty 
+clear-cut?
+
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

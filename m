@@ -1,60 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWBWQAn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751506AbWBWQBp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751498AbWBWQAn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 11:00:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751506AbWBWQAn
+	id S1751506AbWBWQBp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 11:01:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbWBWQBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 11:00:43 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:31937 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751501AbWBWQAm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 11:00:42 -0500
-From: Andi Kleen <ak@suse.de>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Subject: Re: Patch to reorder functions in the vmlinux to a defined order
-Date: Thu, 23 Feb 2006 17:00:35 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
-       mingo@elte.hu
-References: <1140700758.4672.51.camel@laptopd505.fenrus.org> <1140707358.4672.67.camel@laptopd505.fenrus.org>
-In-Reply-To: <1140707358.4672.67.camel@laptopd505.fenrus.org>
+	Thu, 23 Feb 2006 11:01:45 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62870 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751506AbWBWQBo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 11:01:44 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH 05/23] proc: Simplify the ownership rules for /proc
+References: <m1oe0yhy1w.fsf@ebiederm.dsl.xmission.com>
+	<m1k6bmhxze.fsf@ebiederm.dsl.xmission.com>
+	<m1fymahxwr.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1bqwyhxua.fsf_-_@ebiederm.dsl.xmission.com>
+	<m17j7mhxs0.fsf_-_@ebiederm.dsl.xmission.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 23 Feb 2006 09:00:30 -0700
+In-Reply-To: <m17j7mhxs0.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
+ Biederman's message of "Thu, 23 Feb 2006 08:58:55 -0700")
+Message-ID: <m13biahxpd.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602231700.36333.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 February 2006 16:09, Arjan van de Ven wrote:
 
-> This patch puts the infrastructure in place to allow for a reordering of
-> functions based inside the vmlinux. The general idea is that it is possible
-> to put all "common" functions into the first 2Mb of the code, so that they
-> are covered by one TLB entry. This as opposed to the current situation where
-> a typical vmlinux covers about 3.5Mb (on x86-64) and thus 2 TLB entries.
-> (This patch depends on the previous patch to pin head.S as first in the order)
+Currently in /proc if the task is dumpable all of files are owned by
+the tasks effective users.  Otherwise the files are owned by root.
+Unless it is the /proc/<tgid>/ or /proc/<tgid>/task/<pid> directory
+in that case we always make the directory owned by the effective user.
 
-I think you would first need to move the code first for that. Currently it starts
-at 1MB, which means 1MB is already wasted of the aligned 2MB TLB entry.
+However the special case for directories is pointless except as a way
+to read the effective user, because the permissions on both of those
+directories are world readable, and executable.
 
-I wouldn't have a problem with moving the 64bit kernel to 2MB though.
+/proc/<tgid>/status provides a much better way to read a processes effecitve
+userid, so it is silly to try to provide that on the directory.
 
-> 
-> I think that to get to a better list we need to invite people to submit
-> their own profiles, and somehow add those all up and base the final list on
-> that. I'm willing to do that effort if this is ends up being the prefered
-> approach. Such an effort probably needs to be repeated like once a year or
-> so to adopt to the changing nature of the kernel.
+So this patch simplifies the code by removing a pointless special case and
+gets us one step closer to being able to remove the hard coded /proc inode
+numbers.
 
-Looks reasonable. 
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 
-Afaik newer gcc can even separate likely and unlikely code into different sections.
-I don't see you trying to handle that. 
 
-Also if you're serious about saving TLBs it might be worth it to prereserve
-some memory near the main kernel mapping for modules (e.g. with a boot option) 
-and load them there. Then they would be covered with the same TLB entry too.
+---
 
--Andi
+ fs/proc/base.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+453d43f2b9e9fee71c23007f1cfe5dbedd9d3790
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 56ca519..c35f340 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -1324,7 +1324,7 @@ static struct inode *proc_pid_make_inode
+ 	ei->type = ino;
+ 	inode->i_uid = 0;
+ 	inode->i_gid = 0;
+-	if (ino == PROC_TGID_INO || ino == PROC_TID_INO || task_dumpable(task)) {
++	if (task_dumpable(task)) {
+ 		inode->i_uid = task->euid;
+ 		inode->i_gid = task->egid;
+ 	}
+@@ -1353,7 +1353,7 @@ static int pid_revalidate(struct dentry 
+ 	struct inode *inode = dentry->d_inode;
+ 	struct task_struct *task = proc_task(inode);
+ 	if (pid_alive(task)) {
+-		if (proc_type(inode) == PROC_TGID_INO || proc_type(inode) == PROC_TID_INO || task_dumpable(task)) {
++		if (task_dumpable(task)) {
+ 			inode->i_uid = task->euid;
+ 			inode->i_gid = task->egid;
+ 		} else {
+-- 
+1.2.2.g709a
+

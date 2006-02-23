@@ -1,89 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbWBWLz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750907AbWBWL5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750892AbWBWLz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 06:55:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbWBWLz5
+	id S1750907AbWBWL5x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 06:57:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbWBWL5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 06:55:57 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:54165 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750717AbWBWLz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 06:55:56 -0500
-Subject: Re: Areca RAID driver remaining items?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: erich <erich@areca.com.tw>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       "\"Christoph Hellwig\"" <hch@infradead.org>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, billion.wu@areca.com.tw, akpm@osdl.org,
-       oliver@neukum.org
-In-Reply-To: <001901c6385e$9aee7d40$b100a8c0@erich2003>
-References: <1140458552.3495.26.camel@mentorng.gurulabs.com>
-	 <20060220182045.GA1634@infradead.org>
-	 <001401c63779$12e49aa0$b100a8c0@erich2003>
-	 <20060222145733.GC16269@infradead.org>
-	 <00dc01c63842$381f9a30$b100a8c0@erich2003>
-	 <1140683157.2972.6.camel@laptopd505.fenrus.org>
-	 <001901c6385e$9aee7d40$b100a8c0@erich2003>
-Content-Type: text/plain
+	Thu, 23 Feb 2006 06:57:52 -0500
+Received: from mx1.suse.de ([195.135.220.2]:7071 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750749AbWBWL5w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 06:57:52 -0500
+From: Andi Kleen <ak@suse.de>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Subject: Re: [Patch 2/3] fast VMA recycling
+Date: Thu, 23 Feb 2006 12:57:46 +0100
+User-Agent: KMail/1.9.1
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <1140686238.2972.30.camel@laptopd505.fenrus.org> <200602231200.42990.ak@suse.de> <43FD9AEF.1040204@linux.intel.com>
+In-Reply-To: <43FD9AEF.1040204@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Date: Thu, 23 Feb 2006 11:59:50 +0000
-Message-Id: <1140695990.19361.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Disposition: inline
+Message-Id: <200602231257.47194.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2006-02-23 at 17:50 +0800, erich wrote:
-> But unfortunately I found some mainboards will hang up if I always enable 
-> this function in my lab.
-> To avoid this issue, I do an option for this case.
+On Thursday 23 February 2006 12:22, Arjan van de Ven wrote:
+> Andi Kleen wrote:
+> >> see voluntary preempt.
+> > 
+> > Only when its time slice is used up 
 > 
-> But  Christoph Hellwig give me comment with it.
+> or if some other thread gets a higher dynamic prio
+> > but then it would sleep a bit later 
+> > in user space. 
+> 
+> ... but that is without the semaphore held! (and that is the entire 
+> point of this patch, move the sleep moments to outside the lock holding 
+> area as much as possible, to reduce lock hold times)
 
+And you verified this happens often in your workload?
 
-Another thing you can also do for many of these cases is to use either
-the PCI or DMI interfaces to identify the problem board and
-automatically set the option as well.
+Anyways, how about adding a down_no_preempt() or similar instead
+that won't voluntarily preempt?
 
-There are two ways to do this. One is 
-
-	struct pci_dev *bridge_dev = pci_get_slot(pdev->bus, PCI_DEVFN(0,0));
-	if(bridge_dev) {
-		if(bridge_dev->subsystem_vendor == 0xXXXX &&
-			bridge_dev->subsystem_device == 0xXXXX)
-			/* Match by svid/sdid for problem boards */
-
-The other is like this
-
-#include <linux/dmi.h>
-
-struct dmi_system_id problem_dmi_table[] = {
-	{
-		.ident = "Broken Board Name 1",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "EvilCorp");
-			DMI_MATCH(DMI_PRODUCTNAME, "Wombat 1000");
-		}
-	}
-	{
-		ditto per board
-	},
-	{ }	/* End of list mark
-};
-
-
-And then
-
-	if (dmi_system_check(problem_dmi_table))
-		disable_msi..
-
-
-The DMI code matches on the DMI strings in the ROM BIOS (the ones dumped
-by 'dmidecode')
-
-
-An example driver using this interface is drivers/char/sonypi.c which
-uses it to make sure it *is* only run on a sony laptop.
-
-Alan
-
+-Andi

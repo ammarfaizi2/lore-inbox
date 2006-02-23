@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751586AbWBWA1n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751605AbWBWA2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751586AbWBWA1n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 19:27:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751590AbWBWA1n
+	id S1751605AbWBWA2d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 19:28:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751607AbWBWA2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 19:27:43 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:59803 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751582AbWBWA1m (ORCPT
+	Wed, 22 Feb 2006 19:28:33 -0500
+Received: from xenotime.net ([66.160.160.81]:41963 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751602AbWBWA2c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 19:27:42 -0500
-Date: Wed, 22 Feb 2006 16:29:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org, y-goto@jp.fujitsu.com
-Subject: Re: [PATCH] refine for_each_pgdat() [1/4] refine for_each_pgdat
-Message-Id: <20060222162951.0e28a9aa.akpm@osdl.org>
-In-Reply-To: <43FCFFC0.1050405@jp.fujitsu.com>
-References: <20060222200402.e1145286.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060222145256.7b84f444.akpm@osdl.org>
-	<43FCFFC0.1050405@jp.fujitsu.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Feb 2006 19:28:32 -0500
+Date: Wed, 22 Feb 2006 16:28:31 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Andrew Morton <akpm@osdl.org>
+cc: Randy Dunlap <randy_d_dunlap@linux.intel.com>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       jgarzik@pobox.com
+Subject: Re: [PATCH 0/13] ACPI objects for SATA/PATA
+In-Reply-To: <20060222162654.31ef25ad.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0602221627160.24281@shark.he.net>
+References: <20060222141238.4d2effa8.randy_d_dunlap@linux.intel.com>
+ <20060222162654.31ef25ad.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+On Wed, 22 Feb 2006, Andrew Morton wrote:
+
+> Randy Dunlap <randy_d_dunlap@linux.intel.com> wrote:
+> >
+> > This patch series is primarily ACPI objects support for SATA/PATA.
+> > It applies to 2.6.16-rc4.
 >
-> Andrew Morton wrote:
-> > It's confusing and asymmetric.  If you have time, it would be nice to later
-> > remove for_each_pgdat() and for_each_cpu() from the kernel altogether, use
-> > for_each_online_cpu(), for_each_possible_cpu(), for_each_online_node(),
-> > for_each_possible_node().
-> > 
-> Okay, I'll rewrite my patch and post new one which represents what you mention.
+> I tried to get these on top of Jeff's current devel tree but gave up at
+> ata-acpi-pata-methods when things got really sticky.
+>
+> So you're rather between a rock and a hard place here.  Perhaps it would be
+> better for you to continue development on top of Jeff's devel tree, and to
+> distribute a copy of git-libata-all.patch along with your patches to your
+> testers.
+>
+> Of course, that puts them on the bleeding edge when all they want to do is
+> to get their power management working, so that's not really suitable
+> either.
 
-Well, only do that if it's appropriate to the context of that patch.
+OK, I'll think about how to attack that...
+Thanks for the info.  I didn't think about you using git-libata*.
+My bad.
 
-I was more thinking that this renaming would be a separate exercise, to be
-done once things in that area calm down a bit.
-
-> BTW, I noticed  refine-for_each_pgdat-remove-pgdat-sorting.patch
-> contains bug. (caller of ia64's insert_pgdat() is not removed...)
-> 
-> so please drop them :(, I'll post new ones to next -mm (with enough test...).
-
-OK..
+-- 
+~Randy

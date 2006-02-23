@@ -1,75 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751700AbWBWJ4Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751637AbWBWKAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751700AbWBWJ4Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 04:56:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751696AbWBWJ4Q
+	id S1751637AbWBWKAS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 05:00:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751703AbWBWKAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 04:56:16 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:41110 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751693AbWBWJ4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 04:56:15 -0500
-Subject: Re: Areca RAID driver remaining items?
-From: Arjan van de Ven <arjan@infradead.org>
-To: erich <erich@areca.com.tw>
-Cc: "\"Christoph Hellwig\"" <hch@infradead.org>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, billion.wu@areca.com.tw,
-       alan@lxorguk.ukuu.org.uk, akpm@osdl.org, oliver@neukum.org
-In-Reply-To: <001901c6385e$9aee7d40$b100a8c0@erich2003>
-References: <1140458552.3495.26.camel@mentorng.gurulabs.com>
-	 <20060220182045.GA1634@infradead.org>
-	 <001401c63779$12e49aa0$b100a8c0@erich2003>
-	 <20060222145733.GC16269@infradead.org>
-	 <00dc01c63842$381f9a30$b100a8c0@erich2003>
-	 <1140683157.2972.6.camel@laptopd505.fenrus.org>
-	 <001901c6385e$9aee7d40$b100a8c0@erich2003>
-Content-Type: text/plain
-Date: Thu, 23 Feb 2006 10:56:08 +0100
-Message-Id: <1140688569.4672.24.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 23 Feb 2006 05:00:18 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:17560 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751637AbWBWKAQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 05:00:16 -0500
+Message-ID: <43FD87A9.1010406@pobox.com>
+Date: Thu, 23 Feb 2006 05:00:09 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Deven Balani <devenbalani@gmail.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       Linux-arm-kernel@lists.arm.linux.org.uk
+Subject: Re: non-PCI based libata-SATA driver
+References: <7a37e95e0602220404y7b82104ch5c3cda087336aed7@mail.gmail.com>	 <1140654191.8672.23.camel@localhost.localdomain> <7a37e95e0602222208i9a7c973vc50ac336fb174024@mail.gmail.com>
+In-Reply-To: <7a37e95e0602222208i9a7c973vc50ac336fb174024@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-23 at 17:50 +0800, erich wrote:
-> Dear Arjan van de Ven,
+Deven Balani wrote:
+>>If you look at http://zeniv.linux.org.uk/~alan/IDE you'll find the PATA
+>>patches I did include some VLB and ISA devices.
 > 
-> The following contex is coming from comment of Christoph Hellwig.
+> Thanks a lot. I'm going through these patches and will get back to you
+> in case of any problem.
 > 
-> - msi should be a module options if at all, but defintitly not
->    a config options
+> I have a SATA Controller that is attached to HSX bus on ARM based
+> chipset. On this side, I'm exploring the feasibilty of coming up with
+> low-level libata-SATA driver (as libata is being said to support
+> generic bus interface). I've gone through the SATA drivers in kernel
+> code but all seem to be PCI specific.
 > 
-> #ifdef CONFIG_SCSI_ARCMSR_MSI
->  if (!pci_enable_msi(pci_device))
->   pACB->acb_flags |= ACB_F_HAVE_MSI;
-> #endif
-> 
-> I make an option config for prevent some mainboards hang up if arcmsr enable 
-> msi function.
-> Areca RAID controller is bridged hardware.
-> There were a lots of mainboards had wrong IRQ routing table issue with it.
-> If somebody meet this issue and people can enable msi function to fix its 
-> hardware bug.
-> But unfortunately I found some mainboards will hang up if I always enable 
-> this function in my lab.
-> To avoid this issue, I do an option for this case.
+> Also, Is there any slight possiblity of doing the same with 2.4.x
+> kernels (by patching the kernel or whatever)?
 
+non-PCI works quite easily under 2.6.x, because libata core uses the 
+generic DMA mapping lib.  It's already confirmed to work on at least one 
+other ARM embedded chipset (sorry can't give more detail).
 
-yes the reason for making this optional is clear, and Christoph also
-understands that.
+2.4.x is a lot of work to do non-PCI, largely because you have to deal 
+with the lack of a generic DMA interface.  2.4.x libata is hardcoded to 
+use PCI DMA mapping.
 
-However the idea that Christoph is proposing is to not make it a compile
-time option, but a runtime option. Compile-time is not very flexible,
-especially not for linux distributions. Making it a module option means
-it becomes runtime behavior, and the user can load the module like
+	Jeff
 
-modprobe aerca msi=0
-
-and msi gets turned off. No need to recompile anything! That has many
-advantages over a more inflexible (from the user view) compiletime-only
-option.
 
 

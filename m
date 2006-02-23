@@ -1,56 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751740AbWBWQuZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbWBWQwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751740AbWBWQuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 11:50:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751741AbWBWQuY
+	id S1751436AbWBWQwO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 11:52:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751742AbWBWQwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 11:50:24 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48535 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751740AbWBWQuW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 11:50:22 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: [PATCH 01/23] tref: Implement task references.
-References: <m1oe0yhy1w.fsf@ebiederm.dsl.xmission.com>
-	<m1k6bmhxze.fsf@ebiederm.dsl.xmission.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 23 Feb 2006 09:49:07 -0700
-In-Reply-To: <m1k6bmhxze.fsf@ebiederm.dsl.xmission.com> (Eric W. Biederman's
- message of "Thu, 23 Feb 2006 08:54:29 -0700")
-Message-ID: <m1mzgidnr0.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 23 Feb 2006 11:52:14 -0500
+Received: from penguin.cohaesio.net ([212.97.129.34]:6113 "EHLO
+	mail.cohaesio.net") by vger.kernel.org with ESMTP id S1751436AbWBWQwO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 11:52:14 -0500
+Subject: [PATCH] Let DAC960 supply entropy to random pool
+From: "Anders K. Pedersen" <akp@cohaesio.com>
+To: Dave Olien <dmo@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-Heq8ZNakql8FZMedkwcH"
+Organization: Cohaesio A/S
+Message-Id: <1140713078.16199.25.camel@homer.cohaesio.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 23 Feb 2006 17:44:38 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com (Eric W. Biederman) writes:
 
-> Holding a reference to a task_struct pins about 10K of low memory even
-> after that task has exited.  Which seems to be at 1 or 2 orders of
-> mangnitude more memory than any other data structure in the kernel.
-> Not holding a reference to a task_struct and you risk problems with
-> pid wrap around.
->
-> Even worse because we allow session and process group leaders to exit
-> there is no task_struct you can hold onto to prevent pid wrap around
-> problems for those kinds of structures.
->
-> The task_ref is an small intermediate data structure that other
-> structures can point, that solves these problems.  A task_ref will
-> always point at the first user of a pid value or contain a NULL
-> pointer if there are no longer any users of that pid.
+--=-Heq8ZNakql8FZMedkwcH
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I forgot to note that there is a correctness dependence on an my
-kill switch_exec_pids patch.  Without that task_refs will
-stop being able to track a pid when we pass it on to
-a new process in de_thread.
+Hello,
 
-I built this patchset against Linus latest kernel and not -mm so I think
-I may have one or two trivial conflicts with Olegs changes as
-well.  In particular I have some changes to unhash_process() that Oleg
-has removed, but simply removing that hunch should be all the resolution
-that is needed.  Hopefully that won't be a problem..
+We have a couple of servers with Mylex RAID controllers (handled by the
+DAC960 block device driver). There's normally no keyboard or mouse
+attached, and neither the DAC960 nor the NIC driver (e100) provides
+entropy to the random pool, so it was impossible to get any data from
+/dev/random.
 
-Eric
+The patch below lets the DAC960 IRQ provide entropy to the random pool,
+and after applying this (to 2.6.15.4), /dev/random is able to provide
+data on these servers. I fear, that my mailer may line wrap the patch,
+so it is also attached to this mail.
+
+--- drivers/block/DAC960.c~	2006-02-23 16:34:47.000000000 +0100
++++ drivers/block/DAC960.c	2006-02-23 16:34:47.000000000 +0100
+@@ -3024,7 +3024,7 @@ DAC960_DetectController(struct pci_dev *
+      Acquire shared access to the IRQ Channel.
+   */
+   IRQ_Channel = PCI_Device->irq;
+-  if (request_irq(IRQ_Channel, InterruptHandler, SA_SHIRQ,
++  if (request_irq(IRQ_Channel, InterruptHandler,
+SA_SHIRQ|SA_SAMPLE_RANDOM,
+ 		      Controller->FullModelName, Controller) < 0)
+   {
+ 	DAC960_Error("Unable to acquire IRQ Channel %d for Controller at\n",
+
+-- 
+Med venlig hilsen - Best regards
+
+Anders K. Pedersen
+Network Engineer
+
+--=-Heq8ZNakql8FZMedkwcH
+Content-Disposition: attachment; filename=DAC960.random.patch
+Content-Type: text/x-patch; name=DAC960.random.patch; charset=ISO-8859-15
+Content-Transfer-Encoding: base64
+
+LS0tIGRyaXZlcnMvYmxvY2svREFDOTYwLmN+CTIwMDYtMDItMjMgMTY6MzQ6NDcuMDAwMDAwMDAw
+ICswMTAwDQorKysgZHJpdmVycy9ibG9jay9EQUM5NjAuYwkyMDA2LTAyLTIzIDE2OjM0OjQ3LjAw
+MDAwMDAwMCArMDEwMA0KQEAgLTMwMjQsNyArMzAyNCw3IEBAIERBQzk2MF9EZXRlY3RDb250cm9s
+bGVyKHN0cnVjdCBwY2lfZGV2ICoNCiAgICAgIEFjcXVpcmUgc2hhcmVkIGFjY2VzcyB0byB0aGUg
+SVJRIENoYW5uZWwuDQogICAqLw0KICAgSVJRX0NoYW5uZWwgPSBQQ0lfRGV2aWNlLT5pcnE7DQot
+ICBpZiAocmVxdWVzdF9pcnEoSVJRX0NoYW5uZWwsIEludGVycnVwdEhhbmRsZXIsIFNBX1NISVJR
+LA0KKyAgaWYgKHJlcXVlc3RfaXJxKElSUV9DaGFubmVsLCBJbnRlcnJ1cHRIYW5kbGVyLCBTQV9T
+SElSUXxTQV9TQU1QTEVfUkFORE9NLA0KIAkJICAgICAgQ29udHJvbGxlci0+RnVsbE1vZGVsTmFt
+ZSwgQ29udHJvbGxlcikgPCAwKQ0KICAgew0KIAlEQUM5NjBfRXJyb3IoIlVuYWJsZSB0byBhY3F1
+aXJlIElSUSBDaGFubmVsICVkIGZvciBDb250cm9sbGVyIGF0XG4iLA0K
+
+--=-Heq8ZNakql8FZMedkwcH--

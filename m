@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWBWRrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWBWRrc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932101AbWBWRrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 12:47:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWBWRrQ
+	id S932084AbWBWRrc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 12:47:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbWBWRrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 12:47:16 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:48088 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932101AbWBWRrN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 12:47:13 -0500
-Subject: Re: Red Hat ES4 GPL Issues?
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-Cc: Nick Warne <nick@linicks.net>, Chris Adams <cmadams@hiwaay.net>,
+	Thu, 23 Feb 2006 12:47:31 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:8632 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932084AbWBWRra
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 12:47:30 -0500
+Message-ID: <43FDF52C.6020407@zytor.com>
+Date: Thu, 23 Feb 2006 09:47:24 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Benjamin LaHaise <bcrl@kvack.org>
+CC: "David S. Miller" <davem@davemloft.net>, klibc@zytor.com,
        linux-kernel@vger.kernel.org
-In-Reply-To: <43FDFBDE.2040304@wolfmountaingroup.com>
-References: <43FCFDC6.9090109@soleranetworks.com>
-	 <20060223145920.GA1311407@hiwaay.net>
-	 <7c3341450602230831m1265e49g@mail.gmail.com>
-	 <1140713030.4672.75.camel@laptopd505.fenrus.org>
-	 <43FDFBDE.2040304@wolfmountaingroup.com>
-Content-Type: text/plain
-Date: Thu, 23 Feb 2006 18:47:08 +0100
-Message-Id: <1140716828.4672.80.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Subject: Re: sys_mmap2 on different architectures
+References: <43FCDB8A.5060100@zytor.com> <20060223001411.GA20487@kvack.org> <20060222.164347.12864037.davem@davemloft.net> <20060223173907.GF27682@kvack.org>
+In-Reply-To: <20060223173907.GF27682@kvack.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-23 at 11:15 -0700, Jeff V. Merkey wrote:
-> Arjan van de Ven wrote:
+Benjamin LaHaise wrote:
+> On Wed, Feb 22, 2006 at 04:43:47PM -0800, David S. Miller wrote:
 > 
-> >>But anyway, what has this thread to do with the kernel?
-> >>    
-> >>
-> >
-> >
-> >since when does something need to be on-topic for Jeff Merkey to post to
-> >lkml ? ;-)
-> >
-> >  
-> >
+>>Aha, that part I didn't catch.  Thanks for the clarification
+>>Ben.
+>>
+>>I wonder why we did things that way with a fixed shift...
 > 
-> I got the RPM's and located them from an earlier responder to the post.  
-> It was just disturbing
-> that RedHat does ont include the sources when you install from binary -- 
-> which they always have
-> before. 
+> 
+> Without that trick, we'd have needed an extra parameter for the syscall 
+> on x86, which is already at the maximum number of registers with 6 
+> arguments.  This was easier than changing the syscall ABI. =-)
 > 
 
-you forgot to download the cd images labeled "source".
-What's the problem???
+Well, there is always the trick of making it a pointer.  It was needed 
+for pselect() anyway.  A real sys_mmap64 would definitely have been 
+cleaner, and will be needed to deal with the 16 TB barrier anyway :)
 
-> I am glad Red Hat is still distributing the code, but I am disappointed 
-> they are no longer
-> including it in the base RPM install.
+I personally think the S390 people had the right idea... once you run 
+out of registers, just make it a defined part of the ABI that we pass in 
+a single pointer to all the arguments.
 
-oh you don't mean the src.rpm but the full kernel source code installed?
-That's explained in the release notes; it's 2 shell commands to create
-it, and it's in a way silly to make an exception for the kernel here
-compared to all other software. And CD real estate on the binary cd's is
-scarse as well. 
-
-
+	-hpa

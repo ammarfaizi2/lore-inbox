@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWBWU2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbWBWUbJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbWBWU2d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 15:28:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWBWU2c
+	id S932118AbWBWUbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 15:31:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWBWUbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 15:28:32 -0500
-Received: from mipsfw.mips-uk.com ([194.74.144.146]:53009 "EHLO
-	bacchus.dhis.org") by vger.kernel.org with ESMTP id S932107AbWBWU2c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 15:28:32 -0500
-Date: Thu, 23 Feb 2006 20:26:55 +0000
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] flags parameter for linkat
-Message-ID: <20060223202655.GA24243@linux-mips.org>
-References: <200602231410.k1NEAMk1021578@devserv.devel.redhat.com>
+	Thu, 23 Feb 2006 15:31:08 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:45704 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S932118AbWBWUbI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 15:31:08 -0500
+Date: Thu, 23 Feb 2006 15:26:06 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Greg KH <gregkh@suse.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, Gabor Gombas <gombasg@sztaki.hu>,
+       "Theodore Ts'o" <tytso@mit.edu>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Kay Sievers <kay.sievers@suse.de>,
+       penberg@cs.helsinki.fi, bunk@stusta.de, rml@novell.com,
+       linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+Subject: Re: 2.6.16-rc4: known regressions
+Message-ID: <20060223202606.GB30329@kvack.org>
+References: <Pine.LNX.4.64.0602211631310.30245@g5.osdl.org> <Pine.LNX.4.64.0602211700580.30245@g5.osdl.org> <20060222112158.GB26268@thunk.org> <20060222154820.GJ16648@ca-server1.us.oracle.com> <20060222162533.GA30316@thunk.org> <20060222173354.GJ14447@boogie.lpds.sztaki.hu> <20060222185923.GL16648@ca-server1.us.oracle.com> <20060222191832.GA14638@suse.de> <1140636588.2979.66.camel@laptopd505.fenrus.org> <20060222194024.GA15703@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200602231410.k1NEAMk1021578@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060222194024.GA15703@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 23, 2006 at 09:10:22AM -0500, Ulrich Drepper wrote:
-
-> I'm currently at the POSIX meeting and one thing covered was the
-> incompatibility of Linux's link() with the POSIX definition.  The
-> difference is the treatment of symbolic links in the destination
-> name.  Linux does not follow symlinks, POSIX requires it does.
+On Wed, Feb 22, 2006 at 11:40:24AM -0800, Greg KH wrote:
+> I totally agree.  Distros are changing into two different groups these
+> days:
+> 	- everything tied together and intregrated nicely for a specific
+> 	  kernel version, userspace tool versions, etc.
+> 	- flexible and works with multiple kernel versions, different
+> 	  userspace tools, etc.
 > 
-> Even somebody thinks this is a good default behavior we cannot
-> change this because it would break the ABI.  But the fact remains
-> that some application might want this behavior.
-> 
-> We have one chance to help implementing this without breaking the
-> behavior.  For this we could use the new linkat interface which
-> would need a new flags parameter.  If the new parameter is
-> AT_SYMLINK_FOLLOW the new behavior could be invoked.
-> 
-> I do not want to introduce such a patch now.  But we could add the
-> parameter now, just don't use it.  The patch below would do this.
-> Can we get this late patch applied before the release more or less
-> fixes the syscall API?
+> Distros in the first category are the "enterprise" releases (RHEL, SLES,
+> etc.), as well as some consumer oriented distros (SuSE, Ubuntu, Fedora
+> possibly.)
 
-The number of arguments changes, so below patch would be needed for
-32-bit MIPS.
+That is a completely unreasonable position.  It is a requirement for those 
+of us working on a variety of problems to be able to use new kernels on 
+the "Enterprise" distributions in the market, as you have to be able to 
+compare regressions and performance.  Swapping out all of userland just 
+because hotplug can't get it's act together is *NOT* an option.
 
-  Ralf
-
-Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
-
-diff --git a/arch/mips/kernel/scall32-o32.S b/arch/mips/kernel/scall32-o32.S
-index d83e033..2f2dc54 100644
---- a/arch/mips/kernel/scall32-o32.S
-+++ b/arch/mips/kernel/scall32-o32.S
-@@ -626,7 +626,7 @@ einval:	li	v0, -EINVAL
- 	sys	sys_fstatat64		4
- 	sys	sys_unlinkat		3
- 	sys	sys_renameat		4	/* 4295 */
--	sys	sys_linkat		4
-+	sys	sys_linkat		5
- 	sys	sys_symlinkat		3
- 	sys	sys_readlinkat		4
- 	sys	sys_fchmodat		3
+		-ben
+-- 
+"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
+and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.

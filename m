@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWBWUZe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWBWU0z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932108AbWBWUZe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 15:25:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWBWUZe
+	id S932110AbWBWU0z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 15:26:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWBWU0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 15:25:34 -0500
-Received: from edu.joroinen.fi ([194.89.68.130]:14487 "EHLO edu.joroinen.fi")
-	by vger.kernel.org with ESMTP id S932108AbWBWUZd (ORCPT
+	Thu, 23 Feb 2006 15:26:55 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:19871 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932110AbWBWU0y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 15:25:33 -0500
-Date: Thu, 23 Feb 2006 22:25:33 +0200
-From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
-To: Oliver Joa <oliver@j-o-a.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: promise sata 300 TX4 and Samsung HD (SP2004C) -> Sector errors
-Message-ID: <20060223202533.GU16512@edu.joroinen.fi>
-References: <Pine.LNX.4.63.0602221247380.2270@majestix.gallier.de> <Pine.LNX.4.63.0602230924410.4554@majestix.gallier.de> <20060223202312.GT16512@edu.joroinen.fi>
+	Thu, 23 Feb 2006 15:26:54 -0500
+Date: Thu, 23 Feb 2006 15:26:39 -0500
+From: Dave Jones <davej@redhat.com>
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+Subject: Re: Patch to reorder functions in the vmlinux to a defined order
+Message-ID: <20060223202638.GD6213@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Rene Herman <rene.herman@keyaccess.nl>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+References: <1140700758.4672.51.camel@laptopd505.fenrus.org> <1140707358.4672.67.camel@laptopd505.fenrus.org> <200602231700.36333.ak@suse.de> <1140713001.4672.73.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0602230902230.3771@g5.osdl.org> <43FE0B9A.40209@keyaccess.nl> <Pine.LNX.4.64.0602231133110.3771@g5.osdl.org> <43FE1764.6000300@keyaccess.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060223202312.GT16512@edu.joroinen.fi>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <43FE1764.6000300@keyaccess.nl>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 23, 2006 at 10:23:12PM +0200, Pasi Kärkkäinen wrote:
-> On Thu, Feb 23, 2006 at 09:26:54AM +0100, Oliver Joa wrote:
-> > Hi,
-> > 
-> > On Wed, 22 Feb 2006, Oliver Joa wrote:
-> > 
-> > >Hi,
-> > >
-> > >i have a brandnew Promise SATA 300 TX4 Controller and 2 Samsung HD
-> > >(SP2004C). I am using Linux 2.6.15 and also tried 2.6.15.4 with
-> > >sata_promise-driver. I get sector-errors:
-> > 
-> > [...]
-> > 
-> > It seems to be that it is not working. I want to buy a other controller. 
-> > Which one do you recommend for linux. I would like to have a cheap one 
-> > with good driver support. Any idea?
-> > 
-> > Thanks a lot
-> > 
-> 
-> When I searched for PCI SATA controllers some time ago, I found out Promise SATA
-> 300 was best supported in Linux. sata_promise driver is marked as "production" 
-> in the sata status pages.
-> 
-> Most of the other PCI SATA controllers are based on marvell chipset, but the
-> Linux driver for marvell is still beta :(
-> 
-> I'm successfully using Promise SATA 300 with Seagate drives, no problems so
-> far. *knocking wood*
-> 
+On Thu, Feb 23, 2006 at 09:13:24PM +0100, Rene Herman wrote:
+ > Linus Torvalds wrote:
+ > 
+ > >If you want to boot a 4MB machine with the suggested patch, you'd 
+ > >have to enable CONFIG_EMBEDDED (something you'd likely want to do 
+ > >anyway, for 4M machine), and turn the physical start address back
+ > >down to 1MB.
+ > 
+ > Okay. I suppose the only other option is to make "physical_start" a 
+ > variable passed in by the bootloader so that it could make a runtime 
+ > decision? Ie, place us at min(top_of_mem, 4G) if it cared to. I just 
+ > grepped for PHYSICAL_START and this didn't look _too_ bad.
+ > 
+ > I'm out of my league here though -- if I remember correctly from some 
+ > reading of the early bootcode I once did, the kernel set up some 
+ > temporary tables first to only cover the first few MB? If so, then I 
+ > guess it would be a significant change.
+ > 
+ > Seems a bit cleaner though than just hardcoding the address.
 
-http://linux-ata.org/sata-status.html
+the kdump people were looking at making the kernel runtime relocatable
+at one point, which with my distro-vendor hat on, would be useful
+as it'd mean we could use the same kernel image for normal boot, and
+also for the 'kdump kernel'  (Right now, we ship another set of
+kernels for each arch with a different PHYSICAL_START).
+(You wouldn't believe how much grief we get from the installer folks
+ for adding another set of kernel images to the ISOs).
 
-And yes, there is of cource sil3124 chipset, but it is also beta..
+I think that work stalled a while back though.
 
--- Pasi
-       
-                                   ^
-                                .     .
-                                 Linux
-                              /    -    \
-                             Choice.of.the
-                           .Next.Generation.
+		Dave
+

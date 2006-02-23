@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751506AbWBWQBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751522AbWBWQD3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751506AbWBWQBp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 11:01:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbWBWQBp
+	id S1751522AbWBWQD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 11:03:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbWBWQDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 11:01:45 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62870 "EHLO
+	Thu, 23 Feb 2006 11:03:19 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:64918 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751506AbWBWQBo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 11:01:44 -0500
+	id S1751510AbWBWQDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 11:03:17 -0500
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>
 Subject: [PATCH 05/23] proc: Simplify the ownership rules for /proc
@@ -17,11 +17,12 @@ References: <m1oe0yhy1w.fsf@ebiederm.dsl.xmission.com>
 	<m1fymahxwr.fsf_-_@ebiederm.dsl.xmission.com>
 	<m1bqwyhxua.fsf_-_@ebiederm.dsl.xmission.com>
 	<m17j7mhxs0.fsf_-_@ebiederm.dsl.xmission.com>
+	<m13biahxpd.fsf_-_@ebiederm.dsl.xmission.com>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 23 Feb 2006 09:00:30 -0700
-In-Reply-To: <m17j7mhxs0.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
- Biederman's message of "Thu, 23 Feb 2006 08:58:55 -0700")
-Message-ID: <m13biahxpd.fsf_-_@ebiederm.dsl.xmission.com>
+Date: Thu, 23 Feb 2006 09:02:09 -0700
+In-Reply-To: <m13biahxpd.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
+ Biederman's message of "Thu, 23 Feb 2006 09:00:30 -0700")
+Message-ID: <m1y802gj26.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii

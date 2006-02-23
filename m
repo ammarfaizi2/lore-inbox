@@ -1,61 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751797AbWBWWhe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbWBWWmd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751797AbWBWWhe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 17:37:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751798AbWBWWhe
+	id S1751304AbWBWWmd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 17:42:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751774AbWBWWmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 17:37:34 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:21657 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751797AbWBWWhd (ORCPT
+	Thu, 23 Feb 2006 17:42:33 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:32650 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1751304AbWBWWmd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 17:37:33 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Thu, 23 Feb 2006 23:37:30 +0100
-User-Agent: KMail/1.9.1
-Cc: Nigel Cunningham <ncunningham@cyclades.com>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
-       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602230944.26253.rjw@sisk.pl> <20060223121707.GP13621@elf.ucw.cz>
-In-Reply-To: <20060223121707.GP13621@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Feb 2006 17:42:33 -0500
+Date: Thu, 23 Feb 2006 17:37:29 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Andrew Morton <akpm@osdl.org>, sekharan@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Avoid calling down_read and down_write during startup
+Message-ID: <20060223223729.GE30329@kvack.org>
+References: <20060223110350.49c8b869.akpm@osdl.org> <Pine.LNX.4.44L0.0602231728300.4579-100000@iolanthe.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602232337.31075.rjw@sisk.pl>
+In-Reply-To: <Pine.LNX.4.44L0.0602231728300.4579-100000@iolanthe.rowland.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Feb 23, 2006 at 05:36:56PM -0500, Alan Stern wrote:
+> This patch (as660) changes the registration and unregistration routines 
+> for blocking notifier chains.  During system startup, when task switching 
+> is illegal, the routines will avoid calling down_write().
 
-On Thursday 23 February 2006 13:17, Pavel Machek wrote:
-> > > Ok, I have no problems with visions.
-> > > 
-> > > > I think we should try to get the pagecache stuff right first anyway.
-> > > 
-> > > Are you sure it is worth doing? I mean... it only helps on small
-> > > machines, no?
-> > > 
-> > > OTOH having it for benchmarks will be nice, and perhaps we could use
-> > > that kind it to speed up boot and similar things... 
-> > 
-> > Currently some people can't suspend with the mainline code because it cannot
-> > free as much memory as needed on their boxes.  I think we should care for them
-> > too.
-> 
-> But saving pagecache will not help them *at all*!
-> 
-> [Because pagecache is freeable, anyway, so it will be freed. Now... I
-> have seen some problems where free_some_memory did not free enough,
-> and schedule()/retry helped a bit... that probably should be fixed.]
+Why is that necessary?  The down_write() will immediately succeed as no 
+other process can possibly be holding the lock when the system is booting, 
+so the special casing doesn't fix anything.
 
-It seems I need to understand correctly what the difference between what
-we do and what Nigel does is.  I thought the Nigel's approach was to save
-some cache pages to disk first and use the memory occupied by them to
-store the image data.  If so, is the page cache involved in that or something
-else?
-
-Rafael
+		-ben
+-- 
+"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
+and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.

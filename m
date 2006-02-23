@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbWBWMRW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbWBWM21@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751087AbWBWMRW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 07:17:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWBWMRV
+	id S1751081AbWBWM21 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 07:28:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWBWM21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 07:17:21 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:15753 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1751087AbWBWMRV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 07:17:21 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Thu, 23 Feb 2006 13:15:53 +0100
-To: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] portable Makefiles (was: CD writing in future Linux 
- (stirring up a hornets' nest))
-Message-ID: <43FDA779.nailFHQ21G57C@burner>
-References: <43EB7BBA.nailIFG412CGY@burner>
- <200602171502.20268.dhazelton@enter.net>
- <43F9D771.nail4AL36GWSG@burner>
- <200602201302.05347.dhazelton@enter.net>
- <43FAE10F.nailD121QL6LN@burner>
- <20060221101644.GA19643@merlin.emma.line.org>
- <43FAF2FA.nailD12BW90DH@burner>
- <20060221114625.GA29439@merlin.emma.line.org>
- <43FC68C1.nailEC711MJAV@burner>
- <20060222140528.GB13283@merlin.emma.line.org>
-In-Reply-To: <20060222140528.GB13283@merlin.emma.line.org>
-User-Agent: nail 11.2 8/15/04
+	Thu, 23 Feb 2006 07:28:27 -0500
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:57942 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751081AbWBWM21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 07:28:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=LTXS31KXUViXSDKolO2YMjFnpig1Sc3/N/CPdSpKKq6O5bXAeq+3aQ5LpZEDHQHYFxnkWSaB34O+jdb7VbNF37Bt5oiiMz8qDwIUUs1jX0+WZzHYkT3AVUoYT0J4ajnqPr9DyzDma/lt4YR0HMpg+2eP5vC491+GP5bZp802amI=  ;
+Message-ID: <43FDA8DD.2000500@yahoo.com.au>
+Date: Thu, 23 Feb 2006 23:21:49 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Emmanuel Pacaud <emmanuel.pacaud@univ-poitiers.fr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: isolcpus weirdness
+References: <1140614487.13155.20.camel@localhost.localdomain>
+In-Reply-To: <1140614487.13155.20.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree <matthias.andree@gmx.de> wrote:
+Emmanuel Pacaud wrote:
+> Hi,
+> 
+> When specifying isolcpus kernel parameters, isolated cpu is always the
+> same, not the one I asked for.
+> 
+> I'm working with a dual xeon machine, with linux kernel 2.6.15
+> (unpatched, from kernel.org), hyperthreading desactivated (number of cpu
+> = 2). I've tried to isolate cpu1, using isolcpus, but I always end with
+> cpu0 isolated, even with isolcpus=1. With invalid isolcpus argument
+> (cpuid > 1), no cpu is isolated, which is ok.
+> 
+> You'll find below content of /proc/version, /proc/cpuinfo, the output of
+> dmesg, and a snapshot of top when running 3 cpuburn processes.
+> 
+> What's wrong ?
+> 
 
-> Joerg Schilling schrieb am 2006-02-22:
->
-> > > - run Solaris' /usr/{ccs,xpg4}/bin/make
-> > >   to find out if your Makefile is portable
-> > 
-> > Solaris make does not write useful error messages in case of non-portable 
-> > makefiles.
->
-> Sun Microsystems do not advertise their make tool as Makefile
-> portability validator.  Note the difference: each tool is held to its
-> own standards.
+If you have 2 CPUs, and "isolate" one of them, the other is isolated
+from it. Ie. there is no difference between isolating one or the other,
+the net result is that they are isolated from each other.
 
-I do not advertize smake as makefile validator either.
-
-It would help a lot, if people on LKML would not repeatedly impute me things I 
-never said....
-
-
-Smake helps to find non-portable code, this is something completely different!
-
-Jörg
+This means that the scheduler will never automatically move a task
+running on an isolated CPU to another CPU. You have to move all the
+tasks manually, for example by using cpu affinity.
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

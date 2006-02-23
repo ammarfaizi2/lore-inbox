@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWBWXUL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWBWX0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932126AbWBWXUL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 18:20:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWBWXUL
+	id S932124AbWBWX0U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 18:26:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWBWX0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 18:20:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:23009 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932124AbWBWXUJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 18:20:09 -0500
-Date: Thu, 23 Feb 2006 15:19:54 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Rene Herman <rene.herman@keyaccess.nl>
-cc: Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-Subject: Re: Patch to reorder functions in the vmlinux to a defined order
-In-Reply-To: <43FE1764.6000300@keyaccess.nl>
-Message-ID: <Pine.LNX.4.64.0602231517400.3771@g5.osdl.org>
-References: <1140700758.4672.51.camel@laptopd505.fenrus.org> 
- <1140707358.4672.67.camel@laptopd505.fenrus.org>  <200602231700.36333.ak@suse.de>
- <1140713001.4672.73.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0602230902230.3771@g5.osdl.org>
- <43FE0B9A.40209@keyaccess.nl> <Pine.LNX.4.64.0602231133110.3771@g5.osdl.org>
- <43FE1764.6000300@keyaccess.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 23 Feb 2006 18:26:19 -0500
+Received: from smtp13.wanadoo.fr ([193.252.22.54]:41696 "EHLO
+	smtp13.wanadoo.fr") by vger.kernel.org with ESMTP id S932124AbWBWX0T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 18:26:19 -0500
+X-ME-UUID: 20060223232618138.21BC8700008F@mwinf1307.wanadoo.fr
+Date: Fri, 24 Feb 2006 00:26:14 +0100
+From: Vincent Kergonna <vincent.kergonna@wanadoo.fr>
+To: Asfand Yar Qazi <email@asfandyar.cjb.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Changing the scheduler at runtime
+Message-Id: <20060224002614.00c514bc.vincent.kergonna@wanadoo.fr>
+In-Reply-To: <43FE0872.4080807@asfandyar.cjb.net>
+References: <43FE0872.4080807@asfandyar.cjb.net>
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.8.11; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 23 Feb 2006 19:09:38 +0000
+Asfand Yar Qazi <email@asfandyar.cjb.net> wrote:
 
-
-On Thu, 23 Feb 2006, Rene Herman wrote:
+> Hi,
 > 
-> Okay. I suppose the only other option is to make "physical_start" a variable
-> passed in by the bootloader so that it could make a runtime decision? Ie,
-> place us at min(top_of_mem, 4G) if it cared to. I just grepped for
-> PHYSICAL_START and this didn't look _too_ bad.
+> I compiled all the schedulers into the kernel - but I can't find how to change
+> the one to be used at runtime.  Can you help me?  Or can it only be set at
+> boot-time (in which case, how?)  Thanks.
 
-No can do. You'd have to make the kernel relocatable, and do load-time 
-fixups. Very invasive.
+Here is the answer you are looking for: http://kerneltrap.org/node/3851
 
-It's certainly _possible_, but it's a whole new stage in the boot, one 
-that we've never done before.
+> 
+> Thanks
+> 
+> -- 
+> To reply, take of all ZIGs !!
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-		Linus

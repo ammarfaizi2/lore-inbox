@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWBWQtB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751739AbWBWQs7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750801AbWBWQtB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 11:49:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751738AbWBWQtB
+	id S1751739AbWBWQs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 11:48:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751738AbWBWQs7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 11:49:01 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:6333 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750801AbWBWQtA (ORCPT
+	Thu, 23 Feb 2006 11:48:59 -0500
+Received: from ns2.suse.de ([195.135.220.15]:24776 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750801AbWBWQs6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 11:49:00 -0500
-Date: Thu, 23 Feb 2006 08:48:43 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
+	Thu, 23 Feb 2006 11:48:58 -0500
+From: Andi Kleen <ak@suse.de>
 To: Arjan van de Ven <arjan@linux.intel.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ak@suse.de,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
 Subject: Re: Patch to reorder functions in the vmlinux to a defined order
-In-Reply-To: <1140707358.4672.67.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.64.0602230843020.3771@g5.osdl.org>
-References: <1140700758.4672.51.camel@laptopd505.fenrus.org>
- <1140707358.4672.67.camel@laptopd505.fenrus.org>
+Date: Thu, 23 Feb 2006 17:48:50 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       mingo@elte.hu
+References: <1140700758.4672.51.camel@laptopd505.fenrus.org> <200602231700.36333.ak@suse.de> <1140713001.4672.73.camel@laptopd505.fenrus.org>
+In-Reply-To: <1140713001.4672.73.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602231748.50610.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 23 Feb 2006, Arjan van de Ven wrote:
+On Thursday 23 February 2006 17:43, Arjan van de Ven wrote:
+> On Thu, 2006-02-23 at 17:00 +0100, Andi Kleen wrote:
+> > On Thursday 23 February 2006 16:09, Arjan van de Ven wrote:
+> > 
+> > > This patch puts the infrastructure in place to allow for a reordering of
+> > > functions based inside the vmlinux. The general idea is that it is possible
+> > > to put all "common" functions into the first 2Mb of the code, so that they
+> > > are covered by one TLB entry. This as opposed to the current situation where
+> > > a typical vmlinux covers about 3.5Mb (on x86-64) and thus 2 TLB entries.
+> > > (This patch depends on the previous patch to pin head.S as first in the order)
+> > 
+> > I think you would first need to move the code first for that. Currently it starts
+> > at 1MB, which means 1MB is already wasted of the aligned 2MB TLB entry.
+> > 
+> > I wouldn't have a problem with moving the 64bit kernel to 2MB though.
 > 
-> I think that to get to a better list we need to invite people to submit
-> their own profiles, and somehow add those all up and base the final list on
-> that. I'm willing to do that effort if this is ends up being the prefered
-> approach. Such an effort probably needs to be repeated like once a year or
-> so to adopt to the changing nature of the kernel.
+> that was easy since it's a Config entry already ;)
 
-I suspect we need architecture-specific profiles.
 
-For example, on x86(-64), memcpy() is mostly inlined for the interesting 
-cases. That's not always so. Other architectures will have things like the 
-page copying and clearing as _the_ hottest functions. Same goes for 
-architecture-specific things like context switching etc, that have 
-different names on different architectures.
+I assume you boot tested it?
 
-So putting the profile data in scripts/ doesn't sound very good.
-
-That said, this certainly seems simple enough. I'd like to hear about 
-actual performance improvements with it before I'd apply anything like 
-this.
-
-Also, since it's quite possible that being dense in the I$ is more of an 
-issue than being dense in the TLB (especially since almost everybody has 
-super-pages for kernel TLB entries and thus uses just a single entry - or 
-maybe a couple - for the kernel), it would probably make sense to try to 
-take calling patterns into account some way.
-
-That's true of TLB usage too (in the absense of super-pages), of course.
-
-But numbers talk.
-
-		Linus
+-Andi

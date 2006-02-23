@@ -1,86 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbWBWSQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbWBWSQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750840AbWBWSQF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 13:16:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWBWSQF
+	id S1750908AbWBWSQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 13:16:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751067AbWBWSQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 13:16:05 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:35302 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750840AbWBWSQE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 13:16:04 -0500
-Subject: Re: [PATCH 4/7] ppc64 - Specify amount of kernel memory at boot
-	time
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.64.0602231740410.24093@skynet.skynet.ie>
-References: <20060217141552.7621.74444.sendpatchset@skynet.csn.ul.ie>
-	 <20060217141712.7621.49906.sendpatchset@skynet.csn.ul.ie>
-	 <1140196618.21383.112.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0602211445160.4335@skynet.skynet.ie>
-	 <1140543359.8693.32.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0602221625100.2801@skynet.skynet.ie>
-	 <1140712969.8697.33.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0602231646530.24093@skynet.skynet.ie>
-	 <1140716304.8697.53.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0602231740410.24093@skynet.skynet.ie>
-Content-Type: text/plain
-Date: Thu, 23 Feb 2006 10:15:55 -0800
-Message-Id: <1140718555.8697.73.camel@localhost.localdomain>
+	Thu, 23 Feb 2006 13:16:28 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:61600 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750908AbWBWSQ1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 13:16:27 -0500
+Subject: Re: [dm-devel] Re: [PATCH] User-configurable HDIO_GETGEO for dm
+	volumes
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
+To: Alasdair G Kergon <agk@redhat.com>
+Cc: device-mapper development <dm-devel@redhat.com>,
+       Chris McDermott <lcm@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060223135639.GK31641@agk.surrey.redhat.com>
+References: <43F38D83.3040702@us.ibm.com>
+	 <20060217151650.GC12173@agk.surrey.redhat.com>
+	 <43F6718E.2000908@us.ibm.com>
+	 <20060222223240.GI31641@agk.surrey.redhat.com>
+	 <1140655617.3300.14.camel@localhost.localdomain>
+	 <20060223135639.GK31641@agk.surrey.redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-71EWMkp8uf99Y+4Curub"
+Date: Thu, 23 Feb 2006 10:16:24 -0800
+Message-Id: <1140718584.10148.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.5.91 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-23 at 18:01 +0000, Mel Gorman wrote:
-> On Thu, 23 Feb 2006, Dave Hansen wrote:
-> > OK, back to the hapless system admin using kernelcore. They have a
-> > 4-node system with 2GB of RAM in each node for 8GB total.  They use
-> > kernelcore=1GB.  They end up with 4x1GB ZONE_DMA and 4x1GB
-> > ZONE_EASYRCLM.  Perfect.  You can safely remove 4GB of RAM.
-> >
-> > Now, imagine that the machine has been heavily used for a while, there
-> > is only 1 node's memory available, but CPUs are available in the same
-> > places as before.  So, you start up your partition again have 8GB of
-> > memory in one node.  Same kernelcore=1GB option.  You get 1x7GB ZONE_DMA
-> > and 1x1GB ZONE_EASYRCLM.  I'd argue this is going to be a bit of a
-> > surprise to the poor admin.
-> >
-> 
-> That sort of surprise is totally unacceptable but the behaviour of 
-> kernelcore needs to be consistent on both the x86 and the ppc (any any 
-> other ar. How about;
-> 
-> 1. kernelcore=X determines the total amount of memory for !ZONE_EASYRCLM
->     (be it ZONE_DMA, ZONE_NORMAL or ZONE_HIGHMEM)
 
-Sounds reasonable.  But, if you're going to do that, should we just make
-it the opposite and explicitly be easy_reclaim_mem=?  Do we want the
-limit to be set as "I need this much kernel memory", or "I want this
-much removable memory".  I dunno.
+--=-71EWMkp8uf99Y+4Curub
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> 2. For every node that can have ZONE_EASYRCLM, split the kernelcore across
->     the nodes as a percentage of the node size
-> 
->     Example: 4 nodes, 1 GiB each, kernelcore=512MB
->  		node 0 ZONE_DMA = 128MB
->  		node 1 ZONE_DMA = 128MB
->  		node 2 ZONE_DMA = 128MB
->  		node 3 ZONE_DMA = 128MB
-> 
->  	    2 nodes, 3GiB and 1GIB, kernelcore=512MB
->  		node 0 ZONE_DMA = 384
->  		node 1 ZONE_DMA = 128
-> 
-> It gets a bit more complex on NUMA for x86 because ZONE_NORMAL is 
-> involved but the idea would essentially be the same.
+On Thu, 2006-02-23 at 13:56 +0000, Alasdair G Kergon wrote:
 
-Yes, chopping it up seems like the right thing (or as close as we can
-get) to me.  
+> My copy of the sd(4) man page says of that ioctl:
+>=20
+>     The information returned in the parameter is the disk
+>     geometry of the drive as understood by DOS!   This geometry is not
+>     the physical geometry of the drive.  It is used when constructing the
+>     drive's partition table, however, and is needed for convenient
+>     operation of fdisk(1), efdisk(1), and lilo(1).  If the geometry
+>     information is not available, zero will be returned for all of the
+>     parameters.
+> =20
+> Is there a preferred alternative specification?
 
--- Dave
+Hm... in light of that, I'll acquiesce that 0/0/0 is fine by me, and no
+other behavior is necessary.
+
+--D
+
+--=-71EWMkp8uf99Y+4Curub
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.1 (GNU/Linux)
+
+iD8DBQBD/fv4a6vRYYgWQuURAq7vAKC1m8pWPSlMfpr51lb2vCsC7x+eJwCgnWt2
+FiGqWBC6ZOjAwVyj5Cf9yMY=
+=ujkO
+-----END PGP SIGNATURE-----
+
+--=-71EWMkp8uf99Y+4Curub--
 

@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751069AbWBWSZ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbWBWS2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751069AbWBWSZ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 13:25:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWBWSZ5
+	id S1751181AbWBWS2L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 13:28:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWBWS2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 13:25:57 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:6272 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751069AbWBWSZ5 (ORCPT
+	Thu, 23 Feb 2006 13:28:11 -0500
+Received: from ns.suse.de ([195.135.220.2]:53900 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751181AbWBWS2I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 13:25:57 -0500
-Date: Thu, 23 Feb 2006 10:25:48 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Arjan van de Ven <arjan@intel.linux.com>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, akpm@osdl.org
-Subject: Re: [Patch 3/3] prepopulate/cache cleared pages
-Message-Id: <20060223102548.17ce2184.pj@sgi.com>
-In-Reply-To: <1140686994.4672.4.camel@laptopd505.fenrus.org>
-References: <1140686238.2972.30.camel@laptopd505.fenrus.org>
-	<1140686994.4672.4.camel@laptopd505.fenrus.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 23 Feb 2006 13:28:08 -0500
+From: Andi Kleen <ak@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Patch to reorder functions in the vmlinux to a defined order
+Date: Thu, 23 Feb 2006 19:13:54 +0100
+User-Agent: KMail/1.9.1
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, mingo@elte.hu
+References: <1140700758.4672.51.camel@laptopd505.fenrus.org> <200602231820.50384.ak@suse.de> <1140716051.4952.4.camel@localhost.localdomain>
+In-Reply-To: <1140716051.4952.4.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602231913.54806.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a random idea, offered with little real understanding
-of what's going on ...
+On Thursday 23 February 2006 18:34, Alan Cox wrote:
+> On Iau, 2006-02-23 at 18:20 +0100, Andi Kleen wrote:
+> > BTW I have been also pondering some time to really trust e820 and not
+> > forcibly reserve 640K-1MB on 64bit.  That code was inherited from i386,
+> > but probably never made too much sense
+> 
+> Depends if you want your boot video stuff to work, and vga space, and
+> also how the ISA hole is used, some chipsets seem to use the RAM that
+> would be there remapped elsewhere as SMM ram.
 
-  Instead of a per-task clear page, how about a per-cpu clear page,
-  or short queue of clear pages?
+e820 should report that.
 
-  This lets the number of clear pages be throttled to whatever
-  is worth it.  And it handles such cases as a few threads using
-  the clear pages rapidly, while many other threads don't need any,
-  with a much higher "average usefulness" per clear page (meaning
-  the average time a cleared page sits around wasting memory prior
-  to its being used is much shorter.)
+I would hope that e820 is correct on modern systems.
 
-  Some locking would still be needed, but per-cpu locking is
-  a separate, quicker beast than something like mmap_sem.
+Ok it would be a test - if it causes too much collational damage it could be undone.
 
-Mind you, I am not commenting one way or the other on whether any
-of this is a good idea.  Not my expertise ...
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+-Andi

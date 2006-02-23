@@ -1,98 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751803AbWBWXTX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWBWXUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751803AbWBWXTX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 18:19:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751810AbWBWXTX
+	id S932126AbWBWXUL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 18:20:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWBWXUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 18:19:23 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:62857 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1751803AbWBWXTW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 18:19:22 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Fri, 24 Feb 2006 09:16:15 +1000
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@suse.cz>, Dmitry Torokhov <dtor_core@ameritech.net>,
-       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
-       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060223121707.GP13621@elf.ucw.cz> <200602232337.31075.rjw@sisk.pl>
-In-Reply-To: <200602232337.31075.rjw@sisk.pl>
+	Thu, 23 Feb 2006 18:20:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:23009 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932124AbWBWXUJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 18:20:09 -0500
+Date: Thu, 23 Feb 2006 15:19:54 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Rene Herman <rene.herman@keyaccess.nl>
+cc: Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+Subject: Re: Patch to reorder functions in the vmlinux to a defined order
+In-Reply-To: <43FE1764.6000300@keyaccess.nl>
+Message-ID: <Pine.LNX.4.64.0602231517400.3771@g5.osdl.org>
+References: <1140700758.4672.51.camel@laptopd505.fenrus.org> 
+ <1140707358.4672.67.camel@laptopd505.fenrus.org>  <200602231700.36333.ak@suse.de>
+ <1140713001.4672.73.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0602230902230.3771@g5.osdl.org>
+ <43FE0B9A.40209@keyaccess.nl> <Pine.LNX.4.64.0602231133110.3771@g5.osdl.org>
+ <43FE1764.6000300@keyaccess.nl>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5984913.fOseBdtqi8";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602240916.20854.ncunningham@cyclades.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart5984913.fOseBdtqi8
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-On Friday 24 February 2006 08:37, Rafael J. Wysocki wrote:
-> Hi,
->
-> On Thursday 23 February 2006 13:17, Pavel Machek wrote:
-> > > > Ok, I have no problems with visions.
-> > > >
-> > > > > I think we should try to get the pagecache stuff right first
-> > > > > anyway.
-> > > >
-> > > > Are you sure it is worth doing? I mean... it only helps on small
-> > > > machines, no?
-> > > >
-> > > > OTOH having it for benchmarks will be nice, and perhaps we could use
-> > > > that kind it to speed up boot and similar things...
-> > >
-> > > Currently some people can't suspend with the mainline code because it
-> > > cannot free as much memory as needed on their boxes.  I think we shou=
-ld
-> > > care for them too.
-> >
-> > But saving pagecache will not help them *at all*!
-> >
-> > [Because pagecache is freeable, anyway, so it will be freed. Now... I
-> > have seen some problems where free_some_memory did not free enough,
-> > and schedule()/retry helped a bit... that probably should be fixed.]
->
-> It seems I need to understand correctly what the difference between what
-> we do and what Nigel does is.  I thought the Nigel's approach was to save
-> some cache pages to disk first and use the memory occupied by them to
-> store the image data.  If so, is the page cache involved in that or
-> something else?
 
-You're right. The only point I would query is that I'm not sure on terminol=
-ogy=20
-=2D whether 'page cache' =3D=3D LRU. In case there's any difference, I'll s=
-ay that=20
-I treat pages on the active and inactive LRU lists separately, saving them =
-to=20
-disk first and using the memory occupied by them for the atomic copy (with=
-=20
-the exception, of course, of pages belonging to processes such as userui -=
-=20
-these are made part of the atomic copy and not overwritten).
+On Thu, 23 Feb 2006, Rene Herman wrote:
+> 
+> Okay. I suppose the only other option is to make "physical_start" a variable
+> passed in by the bootloader so that it could make a runtime decision? Ie,
+> place us at min(top_of_mem, 4G) if it cared to. I just grepped for
+> PHYSICAL_START and this didn't look _too_ bad.
 
-Regards,
+No can do. You'd have to make the kernel relocatable, and do load-time 
+fixups. Very invasive.
 
-Nigel
+It's certainly _possible_, but it's a whole new stage in the boot, one 
+that we've never done before.
 
---nextPart5984913.fOseBdtqi8
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD/kJEN0y+n1M3mo0RAjU7AJ4gws/MlPSqvcinhS8ENKdsM2viBACfUhlm
-UVKDj29C+oZ6zxGu8G1LUCU=
-=VVl7
------END PGP SIGNATURE-----
-
---nextPart5984913.fOseBdtqi8--
+		Linus

@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751767AbWBWUn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWBWUsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751767AbWBWUn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 15:43:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751523AbWBWUn0
+	id S932114AbWBWUsR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 15:48:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751523AbWBWUsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 15:43:26 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:61320 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1751367AbWBWUnZ (ORCPT
+	Thu, 23 Feb 2006 15:48:17 -0500
+Received: from smtp.enter.net ([216.193.128.24]:39696 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S1751504AbWBWUsQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 15:43:25 -0500
-Date: Thu, 23 Feb 2006 15:38:26 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: john@johnmccutchan.com, holt@sgi.com, linux-kernel@vger.kernel.org,
-       rml@novell.com, arnd@arndb.de, hch@lst.de
-Subject: Re: udevd is killing file write performance.
-Message-ID: <20060223203826.GC30329@kvack.org>
-References: <20060222134250.GE20786@lnx-holt.americas.sgi.com> <1140626903.13461.5.camel@localhost.localdomain> <20060222175030.GB30556@lnx-holt.americas.sgi.com> <1140648776.1729.5.camel@localhost.localdomain> <20060222151223.5c9061fd.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 23 Feb 2006 15:48:16 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Subject: Re: [OT] portable Makefiles (was: CD writing in future Linux   (stirring up a hornets' nest))
+Date: Thu, 23 Feb 2006 15:36:35 -0500
+User-Agent: KMail/1.8.1
+Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org
+References: <43EB7BBA.nailIFG412CGY@burner> <200602231042.01649.dhazelton@enter.net> <43FDE93C.nailFWR5TE4FT@burner>
+In-Reply-To: <43FDE93C.nailFWR5TE4FT@burner>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060222151223.5c9061fd.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200602231536.35532.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 03:12:23PM -0800, Andrew Morton wrote:
-> It's not a terribly bad hack - it's just poor-man's hashing, and it's
-> reasonably well-suited to the sorts of machines and workloads which we
-> expect will hit this problem.
+On Thursday 23 February 2006 11:56, Joerg Schilling wrote:
+> "D. Hazelton" <dhazelton@enter.net> wrote:
+> > > Smake helps to find non-portable code, this is something completely
+> > > different!
+> >
+> > Umm - Joerg, you just stepped on your own toes there. A makefile
+> > validator does exactly that - helps people find non-portable code. You're
+> > fighting a losing battle when you claim one thing then say something that
+> > proves it false.
+>
+> Wrong: a CD box with Suse or Redhat Linux may act as a door stop.
+>
+> Does this make it a doorstop?
 
-The dnotify/inotify wakeups are a problem, namely because the implementation 
-is braindead: it makes the wrong part of the interface fast (setting up 
-notify entries) at the expense of making the rest of the kernel slow (adding 
-locks to read()/write()).  read() and write() are incredibly hot paths in 
-the kernel and should be optimized at the expense of dnotify and inotify, 
-which are uncommon operations.
+If you decide to use it as such, yes. I have actually done such in the past, 
+since I needed to find some use for the box once the media was removed.
 
-		-ben
--- 
-"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
-and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.
+And anyway, you did state, as pointed out by someone else, that "smake may be 
+used as a Makefile validator" Since you advertise such a fact - that it works 
+as a Makefile validator - does that not make it such?
+
+I realize you'll just deny it and don't know why I bother even looking in the 
+folder your mails get sorted into. Maybe I just have a masochistic streak...
+
+DRH

@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWBWU0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWBWU2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbWBWU0z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 15:26:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWBWU0z
+	id S932107AbWBWU2d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 15:28:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWBWU2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 15:26:55 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:19871 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932110AbWBWU0y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 15:26:54 -0500
-Date: Thu, 23 Feb 2006 15:26:39 -0500
-From: Dave Jones <davej@redhat.com>
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-Subject: Re: Patch to reorder functions in the vmlinux to a defined order
-Message-ID: <20060223202638.GD6213@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Rene Herman <rene.herman@keyaccess.nl>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-References: <1140700758.4672.51.camel@laptopd505.fenrus.org> <1140707358.4672.67.camel@laptopd505.fenrus.org> <200602231700.36333.ak@suse.de> <1140713001.4672.73.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0602230902230.3771@g5.osdl.org> <43FE0B9A.40209@keyaccess.nl> <Pine.LNX.4.64.0602231133110.3771@g5.osdl.org> <43FE1764.6000300@keyaccess.nl>
+	Thu, 23 Feb 2006 15:28:32 -0500
+Received: from mipsfw.mips-uk.com ([194.74.144.146]:53009 "EHLO
+	bacchus.dhis.org") by vger.kernel.org with ESMTP id S932107AbWBWU2c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 15:28:32 -0500
+Date: Thu, 23 Feb 2006 20:26:55 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] flags parameter for linkat
+Message-ID: <20060223202655.GA24243@linux-mips.org>
+References: <200602231410.k1NEAMk1021578@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43FE1764.6000300@keyaccess.nl>
+In-Reply-To: <200602231410.k1NEAMk1021578@devserv.devel.redhat.com>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 23, 2006 at 09:13:24PM +0100, Rene Herman wrote:
- > Linus Torvalds wrote:
- > 
- > >If you want to boot a 4MB machine with the suggested patch, you'd 
- > >have to enable CONFIG_EMBEDDED (something you'd likely want to do 
- > >anyway, for 4M machine), and turn the physical start address back
- > >down to 1MB.
- > 
- > Okay. I suppose the only other option is to make "physical_start" a 
- > variable passed in by the bootloader so that it could make a runtime 
- > decision? Ie, place us at min(top_of_mem, 4G) if it cared to. I just 
- > grepped for PHYSICAL_START and this didn't look _too_ bad.
- > 
- > I'm out of my league here though -- if I remember correctly from some 
- > reading of the early bootcode I once did, the kernel set up some 
- > temporary tables first to only cover the first few MB? If so, then I 
- > guess it would be a significant change.
- > 
- > Seems a bit cleaner though than just hardcoding the address.
+On Thu, Feb 23, 2006 at 09:10:22AM -0500, Ulrich Drepper wrote:
 
-the kdump people were looking at making the kernel runtime relocatable
-at one point, which with my distro-vendor hat on, would be useful
-as it'd mean we could use the same kernel image for normal boot, and
-also for the 'kdump kernel'  (Right now, we ship another set of
-kernels for each arch with a different PHYSICAL_START).
-(You wouldn't believe how much grief we get from the installer folks
- for adding another set of kernel images to the ISOs).
+> I'm currently at the POSIX meeting and one thing covered was the
+> incompatibility of Linux's link() with the POSIX definition.  The
+> difference is the treatment of symbolic links in the destination
+> name.  Linux does not follow symlinks, POSIX requires it does.
+> 
+> Even somebody thinks this is a good default behavior we cannot
+> change this because it would break the ABI.  But the fact remains
+> that some application might want this behavior.
+> 
+> We have one chance to help implementing this without breaking the
+> behavior.  For this we could use the new linkat interface which
+> would need a new flags parameter.  If the new parameter is
+> AT_SYMLINK_FOLLOW the new behavior could be invoked.
+> 
+> I do not want to introduce such a patch now.  But we could add the
+> parameter now, just don't use it.  The patch below would do this.
+> Can we get this late patch applied before the release more or less
+> fixes the syscall API?
 
-I think that work stalled a while back though.
+The number of arguments changes, so below patch would be needed for
+32-bit MIPS.
 
-		Dave
+  Ralf
 
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+
+diff --git a/arch/mips/kernel/scall32-o32.S b/arch/mips/kernel/scall32-o32.S
+index d83e033..2f2dc54 100644
+--- a/arch/mips/kernel/scall32-o32.S
++++ b/arch/mips/kernel/scall32-o32.S
+@@ -626,7 +626,7 @@ einval:	li	v0, -EINVAL
+ 	sys	sys_fstatat64		4
+ 	sys	sys_unlinkat		3
+ 	sys	sys_renameat		4	/* 4295 */
+-	sys	sys_linkat		4
++	sys	sys_linkat		5
+ 	sys	sys_symlinkat		3
+ 	sys	sys_readlinkat		4
+ 	sys	sys_fchmodat		3

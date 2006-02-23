@@ -1,75 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbWBWE0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWBWE21@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbWBWE0h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 23:26:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWBWE0h
+	id S1751000AbWBWE21 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 23:28:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbWBWE20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 23:26:37 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:64422 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750824AbWBWE0g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 23:26:36 -0500
-Message-ID: <43FD3971.7070703@us.ibm.com>
-Date: Wed, 22 Feb 2006 22:26:25 -0600
-From: Anthony Liguori <aliguori@us.ibm.com>
-User-Agent: Mail/News 1.5 (X11/20060213)
+	Wed, 22 Feb 2006 23:28:26 -0500
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:32191 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750826AbWBWE20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 23:28:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=l7TuMXkfZ6851wjIjKLcTGz2WtFClTOEmJCbGdPwhLuqRYEt8kyGYh3PVSnEgyBrWtGCaxCqjoT81leiknmCLsKiIvAlNpCsm9fV0/ZPKWeDxmrMeiwDCSM4gI/f0GZeGTjSWJtzqbwSqr6I5EuwcGdMS35MdbrUum14O8ISx2s=  ;
+Message-ID: <43FD39E6.7050701@yahoo.com.au>
+Date: Thu, 23 Feb 2006 15:28:22 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: "Mike D. Day" <ncmike@us.ibm.com>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Dave Hansen <haveblue@us.ibm.com>, xen-devel@lists.xensource.com,
-       lkml <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
-Subject: Re: [ PATCH 2.6.16-rc3-xen 3/3] sysfs: export Xen	hypervisor	attributes
- to sysfs
-References: <43FB2642.7020109@us.ibm.com>	 <1140542130.8693.18.camel@localhost.localdomain>	 <20060222123250.GB9295@osiris.boeblingen.de.ibm.com>	 <43FC5B1D.5040901@us.ibm.com>	 <1140612969.2979.20.camel@laptopd505.fenrus.org>	 <43FC61C4.30002@us.ibm.com>	 <20060222131918.GC9295@osiris.boeblingen.de.ibm.com>	 <43FC6A86.90901@us.ibm.com> <1140616911.2979.22.camel@laptopd505.fenrus.org>
-In-Reply-To: <1140616911.2979.22.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Joel Schopp <jschopp@austin.ibm.com>
+CC: Nick Piggin <npiggin@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+Subject: Re: [RFC][patch] mm: single pcp lists
+References: <20060222143217.GI15546@wotan.suse.de> <43FCE394.9010502@austin.ibm.com>
+In-Reply-To: <43FCE394.9010502@austin.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Wed, 2006-02-22 at 08:43 -0500, Mike D. Day wrote:
->   
->> Heiko Carstens wrote:
->>     
->>> On Wed, Feb 22, 2006 at 08:06:12AM -0500, Mike D. Day wrote:
->>>
->>> If it's not needed, why include it at all?
->>>       
->> Sorry for not being clear. It *is* needed for control tools and agents 
->> running in the privileged domain. 
->>     
->
-> but again those tools and agents *already* have a way of talking to the
-> hypervisor themselves. Why can't they just first ask this info? Why does
-> that need to be in the kernel, in unswappable memory?
->   
-Hypercalls have to be done in ring 0 for security reasons)  There has to 
-be some kernel interface for making hypercalls.
+Joel Schopp wrote:
+>> -struct per_cpu_pages {
+>> +struct per_cpu_pageset {
+>> +    struct list_head list;    /* the list of pages */
+>>      int count;        /* number of pages in the list */
+>> +    int cold_count;        /* number of cold pages in the list */
+>>      int high;        /* high watermark, emptying needed */
+>>      int batch;        /* chunk size for buddy add/remove */
+>> -    struct list_head list;    /* the list of pages */
+>> -};
+> 
+> 
+> Any particular reason to move the list_head to the front?
+> 
 
-The current interface is a ioctl() on a /proc file (which is awful).  
-The ioctl just pretty much passes 5 word arguments to the hypervisor.  
-It was suggested previously here that a hypercall pass-through interface 
-isn't the right approach.  One suggestion that came up was a syscall 
-interface.
+Nothing particular. I think it was for alignment at one stage
+before cold_count was added.
 
-Also, there are some kernel-level drivers, like the memory ballooning 
-driver, that only exist in the kernel.  Controlling the balloon driver 
-requires some sort of interface.  That was the original point of this 
-effort (since it's currently exposed as a /proc file).  I think it's 
-quite clear that the balloon driver should expose itself through sysfs 
-but I'm not personally convinced that this information (hypervisor 
-version information) ought to be exposed in sysfs.
-
-Regards,
-
-Anthony Liguori
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->   
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,57 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751709AbWBWKKt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751680AbWBWKPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751709AbWBWKKt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 05:10:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751710AbWBWKKt
+	id S1751680AbWBWKPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 05:15:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751706AbWBWKPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 05:10:49 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:27587 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751706AbWBWKKr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 05:10:47 -0500
-Date: Thu, 23 Feb 2006 02:09:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alok Kataria <alok.kataria@calsoftinc.com>
-Cc: penberg@cs.helsinki.fi, clameter@engr.sgi.com, manfred@colorfullife.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: slab: Remove SLAB_NO_REAP option
-Message-Id: <20060223020957.478d4cc1.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.63.0602231502380.7798@localhost.localdomain>
-References: <Pine.LNX.4.63.0602231502380.7798@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 23 Feb 2006 05:15:16 -0500
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:35488 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S1751680AbWBWKPO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 05:15:14 -0500
+Subject: Re: [Patch 2/3] fast VMA recycling
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200602231105.30581.ak@suse.de>
+References: <1140686238.2972.30.camel@laptopd505.fenrus.org>
+	 <200602231042.53696.ak@suse.de>
+	 <1140688131.4672.21.camel@laptopd505.fenrus.org>
+	 <200602231105.30581.ak@suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Thu, 23 Feb 2006 11:15:06 +0100
+Message-Id: <1140689706.4672.28.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alok Kataria <alok.kataria@calsoftinc.com> wrote:
->
->  On Thu, 2006-02-23 at 14:18, Pekka Enberg wrote:
->  On 2/23/06, Alok Kataria <alok.kataria@calsoftinc.com> wrote:
->  > > There can be some caches which are not used quite often, kmem_cache 
->  > > for instance. Now from performance perspective having SLAB_NO_REAP for 
->  > > such caches is good.
->  >
->  > Yeah, kmem_cache sounds like a realistic user, but I am wondering if
->  > it makes any sense for anyone else to use it?
->  >
->  Right, thats why my question still is why do these iscsi & ocfs  cache 
->  have this flag set.
+On Thu, 2006-02-23 at 11:05 +0100, Andi Kleen wrote:
+> On Thursday 23 February 2006 10:48, Arjan van de Ven wrote:
+> > On Thu, 2006-02-23 at 10:42 +0100, Andi Kleen wrote:
+> > > On Thursday 23 February 2006 10:30, Arjan van de Ven wrote:
+> > > > This patch adds a per task-struct cache of a free vma. 
+> > > > 
+> > > > In normal operation, it is a really common action during userspace mmap 
+> > > > or malloc to first allocate a vma, and then find out that it can be merged,
+> > > > and thus free it again. In fact this is the case roughly 95% of the time.
+> > > > 
+> > > > In addition, this patch allows code to "prepopulate" the cache, and
+> > > > this is done as example for the x86_64 mmap codepath. The advantage of this
+> > > > prepopulation is that the memory allocation (which is a sleeping operation
+> > > > due to the GFP_KERNEL flag, potentially causing either a direct sleep or a 
+> > > > voluntary preempt sleep) will happen before the mmap_sem is taken, and thus 
+> > > > reduces lock hold time (and thus the contention potential)
+> > > 
+> > > The slab fast path doesn't sleep. 
+> > 
+> > it does via might_sleep()
+> 
+> Hmm? That shouldn't sleep.
 
-I'm sure there's no good reason.
+see voluntary preempt.
 
->  If we are sure that the flag is still required, we can use the patch 
->  below.
 
-I'm very much hoping that it is not needed.  Would prefer to just toss the
-whole thing away.
+> If it takes any time in a real workload then it should move into DEBUG_KERNEL
+> too. But I doubt it. Something with your analysis is wrong.
 
-What's it supposed to do anyway?  Keep wholly-unused pages hanging about in
-each slab cache?  If so, it may well be a net loss - it'd be better to push
-those pages back into the page allocator so they can get reused for
-something else while they're possibly still in-cache.  Similarly, it's
-better to fall back to the page allocator for a new slab page because
-that's more likely to give us a cache-hot one.
+well I'm seeing contention; and this is one of the things that can be
+moved out of the lock easily, and especially given the high recycle rate
+of these things... looks worth it to me.
 
-I'm convinced, anyway ;)
+
+
+> P.S.: Your email address bounces.
+
+sorry about that; made a typo when trying to figure out how to set up
+non-corrupting patches lkml
+

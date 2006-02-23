@@ -1,64 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751422AbWBWA7M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751626AbWBWA7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751422AbWBWA7M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 19:59:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbWBWA7M
+	id S1751626AbWBWA7q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 19:59:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751625AbWBWA7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 19:59:12 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:39657 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751422AbWBWA7K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 19:59:10 -0500
-Message-ID: <43FD08D8.70300@zytor.com>
-Date: Wed, 22 Feb 2006 16:59:04 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: bcrl@kvack.org, klibc@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: sys_mmap2 on different architectures
-References: <43FCDB8A.5060100@zytor.com>	<20060223001411.GA20487@kvack.org> <20060222.164347.12864037.davem@davemloft.net>
-In-Reply-To: <20060222.164347.12864037.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 22 Feb 2006 19:59:46 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:63907 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751470AbWBWA7p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 19:59:45 -0500
+Date: Wed, 22 Feb 2006 17:01:42 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: maule@sgi.com, linuxppc64-dev@ozlabs.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, tony.luck@intel.com, gregkh@suse.de
+Subject: Re: Altix SN2 2.6.16-rc1-mm5 build breakage (was:  msi support)
+Message-Id: <20060222170142.497eaac3.akpm@osdl.org>
+In-Reply-To: <20060222165009.6493e6a1.pj@sgi.com>
+References: <20060119194647.12213.44658.14543@lnx-maule.americas.sgi.com>
+	<20060119194702.12213.16524.93275@lnx-maule.americas.sgi.com>
+	<20060203201441.194be500.pj@sgi.com>
+	<20060203202531.27d685fa.akpm@osdl.org>
+	<20060203202742.1e514fcc.akpm@osdl.org>
+	<20060222165009.6493e6a1.pj@sgi.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> From: Benjamin LaHaise <bcrl@kvack.org>
-> Date: Wed, 22 Feb 2006 19:14:11 -0500
+Paul Jackson <pj@sgi.com> wrote:
+>
+> Your broken-out/series file (2.6.16-rc4-mm1) has the lines:
 > 
-> 
->>The sys_mmap2() ABI is that the page shift is always fixed to whatever 
->>page size is reasonable for the architecture, typically 2^12.  The syscall 
->>should never be exposed as mmap2(), only as the large file size version 
->>of mmap() (aka mmap64()).  The other consideration is that it should not 
->>be implemented in 64 bit ABIs, as those machines should be using a 64 bit 
->>native mmap().  Does that clear things up a bit?  Cheers,
-> 
-> 
-> Aha, that part I didn't catch.  Thanks for the clarification
-> Ben.
-> 
-> I wonder why we did things that way with a fixed shift...
+>     # Need this when gregkh-pci-altix-msi-support.patch comes back
+>     #gregkh-pci-altix-msi-support-git-ia64-fix.patch
 
-Except the above doesn't seem to match reality on anything other than 
-SPARC, and the architectures where the shift is 12 anyway because that's 
-the only pagesize supported.
-
-On the other hand, sys32_mmap2 on SPARC64 matches the SPARC32 sys_mmap2 
-in that the shift is hard-coded to 12:
-
-         .globl          sys32_mmap2
-sys32_mmap2:
-         sethi           %hi(sys_mmap), %g1
-         jmpl            %g1 + %lo(sys_mmap), %g0
-          sllx           %o5, 12, %o5
-
-
-At this point, I'm more than willing to treat SPARC as a special case, 
-but I really want to know what the rules actually _ARE_ as opposed to 
-what they are supposed to be (which they clearly are not.)
-
-	-hpa
+Bah.   I resurrected it, thanks.

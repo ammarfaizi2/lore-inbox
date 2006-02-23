@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751657AbWBWIsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751662AbWBWIut@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751657AbWBWIsg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 03:48:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751662AbWBWIsg
+	id S1751662AbWBWIut (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 03:50:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751665AbWBWIut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 03:48:36 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:17556 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751657AbWBWIsf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 03:48:35 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Thu, 23 Feb 2006 09:33:35 +0100
-User-Agent: KMail/1.9.1
-Cc: Nigel Cunningham <ncunningham@cyclades.com>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
-       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602231011.44889.ncunningham@cyclades.com> <20060223003300.GL13621@elf.ucw.cz>
-In-Reply-To: <20060223003300.GL13621@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 23 Feb 2006 03:50:49 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:37531 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751659AbWBWIus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 03:50:48 -0500
+Subject: Re: Red Hat ES4 GPL Issues?
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Jeff V. Merkey" <jmerkey@soleranetworks.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <43FCFDC6.9090109@soleranetworks.com>
+References: <43FCFDC6.9090109@soleranetworks.com>
+Content-Type: text/plain
+Date: Thu, 23 Feb 2006 09:50:46 +0100
+Message-Id: <1140684646.2972.14.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602230933.36391.rjw@sisk.pl>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thursday 23 February 2006 01:33, Pavel Machek wrote:
-> > > > > > The fact that we use page flags to store some suspend/resume-related
-> > > > > > information is a big disadvantage in my view, and I'd like to get rid
-> > > > > > of that in the future.  In principle we could use a bitmap, or rather
-> > > > > > two of them, to store the same information independently of the page
-> > > > > > flags, and if we use bitmaps for this purpose, we can use them also
-> > > > > > instead of PBEs.
-> > > > >
-> > > > > Well, we "only" use 2 bits... :-).
-> > > >
-> > > > In my view the problem is this adds constraints that other people have to
-> > > > take into account.  Not a good thing if avoidable IMHO.
-> > >
-> > > Well, I hope that swsusp development will move to userland in future
-> > >
-> > > :-).
-> > 
-> > I don't get your point. I mean, we're talking about flags that record what 
-> > pages are going to be in the image, be atomically copied and so on. Are you 
-> > planning on trying to export the free page information and the like to 
-> > userspace too, along with atomic copy code?
+On Wed, 2006-02-22 at 17:11 -0700, Jeff V. Merkey wrote:
+> I have been working on 2.6.9 kernels with red hat ES4 series 
+> distributions (we purchased and have a license).  I noticed that the ES4 
+> series kernels
+> which support NPTL libs no longer provide the source code with the 
+> distribution (the installed kernels sources point to empty source trees 
+> which
+> only contain makefiles).   I have discovered we have to use our Red Hat 
+> Network account in order to download the Source RPMs
+> (which are in fact provided).
 > 
-> No, certainly not.
-> 
-> Rafael said something like "being limited is bad, because it makes it
-> hard to change in-kernel snapshoting code". My reply was something
-> like "I hope people will stop changing in-kernel swsusp code, and hack
-> userland instead".
+> We got the distro via electronic fullfilment, so we did not get the 
+> SRPMS CD iso images by default.  
 
-Actually I meant all of the other users of page flags.  If we didn't use page
-flags, they would be less constrained in what they're doing.
+that sounds wrong; these ISOs are just there as well for download where
+you downloaded the binary ones. 
 
-Greetings,
-Rafael
+
+> I am curious if Red Hat views requiring people subscribing to RHN as a 
+> requirement to obtain source code is in conflict with the GPL. 
+
+I doubt they do; you need the same subscription to get the binaries in
+the first place, and when you get the binaries the sources are in the
+same location. For all intents and purposes that is "sources come with
+the binaries". If you select to be cheap and only download half, that's
+your problem ;-)
+
+
+In addition, Red Hat also publishes the src.rpms on their FTP site, even
+though the GPL does not require them to do so. But just to be nice. 
+
+
+I think you're talking out of the place the sun don't shine this time
+sir ;-)
+
 

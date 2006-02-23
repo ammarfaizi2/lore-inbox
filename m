@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751789AbWBWWrN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751800AbWBWWyR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751789AbWBWWrN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 17:47:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751798AbWBWWrN
+	id S1751800AbWBWWyR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 17:54:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751802AbWBWWyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 17:47:13 -0500
-Received: from pat.uio.no ([129.240.130.16]:4025 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751789AbWBWWrM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 17:47:12 -0500
-Subject: Re: NFS Still broken in 2.6.x?
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Bryan Fink <bfink@eventmonitor.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43FE1CAD.3050806@eventmonitor.com>
-References: <43FE1CAD.3050806@eventmonitor.com>
-Content-Type: text/plain
-Date: Thu, 23 Feb 2006 17:47:03 -0500
-Message-Id: <1140734824.7963.38.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Thu, 23 Feb 2006 17:54:17 -0500
+Received: from sccrmhc14.comcast.net ([63.240.77.84]:1719 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S1751800AbWBWWyR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 17:54:17 -0500
+Message-ID: <43FE3D16.3000707@comcast.net>
+Date: Thu, 23 Feb 2006 17:54:14 -0500
+From: Ed Sweetman <safemode@comcast.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Boot <bootc@bootc.net>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: libata PATA drivers patch for 2.6.16-rc4
+References: <1140445182.26526.1.camel@localhost.localdomain>	 <43FD347B.6030802@comcast.net> <1140707265.4332.6.camel@localhost.localdomain> <43FDF6F0.6000006@bootc.net>
+In-Reply-To: <43FDF6F0.6000006@bootc.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.879, required 12,
-	autolearn=disabled, AWL 1.12, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-23 at 15:35 -0500, Bryan Fink wrote:
-> Hi All.  I'm running into a bit of trouble with NFS on 2.6.  I see that
-> at least Trond thought, mid-January, that "The readahead algorithm has
-> been broken in 2.6.x for at least the past 6 months." (
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0601.2/0559.html) Anyone
-> know if that has been fixed?
+With this patchset (ide2) i'm able to boot.  I'm still unable to fixate 
+cds, however.  Even with the patchset from Garzik that was posted 
+before.  Though, with Garzik's patch, i recieve no errors in dmesg 
+output.  Prior to Garzik's patch i recieved this error when fixating discs.
 
-No it hasn't been fixed. ...and no, this is not a problem that only
-affects NFS: it just happens to give a more noticeable performance
-impact due to the larger latency of NFS over a 100Mbps link.
 
-I will get round to this, but the general opacity of the current
-readahead code has been a bit of a put-off in the face of other NFS
-problems.
+Feb 22 17:37:23 psuedomode kernel: Assertion failed! qc->n_elem > 
+0,drivers/scsi/libata-core.c,ata_fill_sg,line=2586
 
-Cheers,
-  Trond
+
+(yes i know psuedo is spelled wrong)
+
+Chris Boot wrote:
+
+> Alan Cox wrote:
+>
+>> On Mer, 2006-02-22 at 23:05 -0500, Ed Sweetman wrote:
+>>
+>>> With this patch set and the attached config.  Nvidia Nforce4 chipset 
+>>> from asus A8N-E with pata and sata enabled (no ide drivers) I get 
+>>> the following error i copied by hand (half assed) during bootup.
+>>>
+>>> Process Swapper  "lots of addresses"
+>>
+>>
+>> Thanks for all the reports on the oops on boot. I was able to duplicate
+>> it and fix the dumb bug that caused it.
+>>
+>> New patch (2.6.16-rc4-ide2)
+>>
+>>     http://zeniv.linux.org.uk/~alan/IDE
+>
+>
+> -ide2 fixes my boot-time oops as well, cheers.
+>
+> Chris
+>
+
+
 

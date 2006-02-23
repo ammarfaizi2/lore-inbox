@@ -1,220 +1,174 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWBWSn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbWBWSpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751229AbWBWSn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 13:43:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWBWSn0
+	id S1751265AbWBWSpR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 13:45:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWBWSpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 13:43:26 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:11908 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751229AbWBWSn0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 13:43:26 -0500
-Date: Thu, 23 Feb 2006 10:43:11 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: akpm@osdl.org
-cc: alokk@calsoftinc.com, manfred@colorfullife.com,
-       Pekka Enberg <penberg@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Slab: Node rotor for freeing alien caches and remote per cpu pages.
-Message-ID: <Pine.LNX.4.64.0602231036480.13184@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 23 Feb 2006 13:45:17 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:13538 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751265AbWBWSpN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 13:45:13 -0500
+Subject: Re: [PATCH] change b_size to size_t
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Andrew Morton <akpm@osdl.org>, Nathan Scott <nathans@sgi.com>,
+       christoph <hch@lst.de>, mcao@us.ibm.com,
+       lkml <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>
+In-Reply-To: <20060223172925.GD27682@kvack.org>
+References: <1140470487.22756.12.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060222151216.GA22946@lst.de>
+	 <1140627510.22756.81.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060222165942.GA25167@lst.de> <20060223014004.GA900@frodo>
+	 <20060222175923.784ce5de.akpm@osdl.org>
+	 <1140712093.22756.106.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060223163204.GA27682@kvack.org>
+	 <1140715738.22756.125.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060223172925.GD27682@kvack.org>
+Content-Type: text/plain
+Date: Thu, 23 Feb 2006 10:46:27 -0800
+Message-Id: <1140720387.22756.137.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The cache reaper currently tries to free all alien caches and all remote
-per cpu pages in each pass of cache_reap. For a machines with large number
-of nodes (such as Altix) this may lead to sporadic delays of around ~10ms.
-Interrupts are disabled while reclaiming creating unacceptable delays.
+On Thu, 2006-02-23 at 12:29 -0500, Benjamin LaHaise wrote:
+> On Thu, Feb 23, 2006 at 09:28:58AM -0800, Badari Pulavarty wrote:
+> > How about doing this ? Change b_state to u32 and change b_size
+> > to "size_t". This way, we don't increase the overall size of
+> > the structure on 64-bit machines. Isn't it ?
+> 
+> I was thinking of that too, but that doesn't work with the bit operations 
+> on big endian machines (which require unsigned long).  Oh well, I guess 
+> that even with adding an extra 8 bytes on x86-64 we're still at the 96 
+> bytes, or 92 bytes if the atomic_t is put at the end of the struct.
+> 
+> 		-ben
 
-This patch changes that behavior by adding a per cpu reap_node variable.
-Instead of attempting to free all caches, we free only one alien cache
-and the per cpu pages from one remote node. That reduces the time
-spend in cache_reap. However, doing so will lengthen the time it takes to
-completely drain all remote per cpu pagesets and all alien caches. The
-time needed will grow with the number of nodes in the system. All caches
-are drained when they overflow their respective capacity. So the
-drawback here is only that a bit of memory may be wasted for awhile 
-longer.
-
-Details:
-
-1. Rename drain_remote_pages to drain_node_pages to allow the specification
-   of the node to drain of pcp pages.
-
-2. Add additional functions init_reap_node, next_reap_node for NUMA
-   that manage a per cpu reap_node counter.
-
-3. Add a reap_alien function that reaps only from the current reap_node.
+Okay. Here is the final version (hopefully). I moved atomic_t to
+end of the structure. I still see 96-bytes for x86-64 also :(
 
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+buffer_head        40425  40760     96   40    1 : tunables  120   60
+8 : slabdata   1019   1019      0
 
-Index: linux-2.6.16-rc4/include/linux/gfp.h
+Thanks,
+Badari
+
+Increase the size of the buffer_head b_size field for 64 bit
+platforms.  Update some old and moldy comments in and around
+the structure as well.
+
+The b_size increase allows us to perform larger mappings and
+allocations for large I/O requests from userspace, which tie
+in with other changes allowing the get_block_t() interface to
+map multiple blocks at once.
+
+Signed-off-by: Nathan Scott <nathans@sgi.com>
+Signed-off-by: Badari Pulavary <pbadari@us.ibm.com>
+
+Index: linux-2.6.16-rc4/include/linux/buffer_head.h
 ===================================================================
---- linux-2.6.16-rc4.orig/include/linux/gfp.h	2006-02-17 14:23:45.000000000 -0800
-+++ linux-2.6.16-rc4/include/linux/gfp.h	2006-02-23 09:34:19.000000000 -0800
-@@ -157,9 +157,9 @@ extern void FASTCALL(free_cold_page(stru
+--- linux-2.6.16-rc4.orig/include/linux/buffer_head.h	2006-02-17
+14:23:45.000000000 -0800
++++ linux-2.6.16-rc4/include/linux/buffer_head.h	2006-02-23
+10:15:33.000000000 -0800
+@@ -46,25 +46,28 @@ struct address_space;
+ typedef void (bh_end_io_t)(struct buffer_head *bh, int uptodate);
  
- void page_alloc_init(void);
- #ifdef CONFIG_NUMA
--void drain_remote_pages(void);
-+void drain_node_pages(int node);
- #else
--static inline void drain_remote_pages(void) { };
-+static inline void drain_node_pages(int node) { };
- #endif
- 
- #endif /* __LINUX_GFP_H */
-Index: linux-2.6.16-rc4/mm/page_alloc.c
-===================================================================
---- linux-2.6.16-rc4.orig/mm/page_alloc.c	2006-02-17 14:23:45.000000000 -0800
-+++ linux-2.6.16-rc4/mm/page_alloc.c	2006-02-23 09:34:19.000000000 -0800
-@@ -590,21 +590,20 @@ static int rmqueue_bulk(struct zone *zon
- }
- 
- #ifdef CONFIG_NUMA
--/* Called from the slab reaper to drain remote pagesets */
--void drain_remote_pages(void)
-+/*
-+ * Called from the slab reaper to drain pagesets on a particular node that
-+ * belong to the currently executing processor.
-+ */
-+void drain_node_pages(int nodeid)
- {
--	struct zone *zone;
--	int i;
-+	int i, z;
- 	unsigned long flags;
- 
- 	local_irq_save(flags);
--	for_each_zone(zone) {
-+	for (z = 0; z < MAX_NR_ZONES; z++) {
-+		struct zone *zone = NODE_DATA(nodeid)->node_zones + z;
- 		struct per_cpu_pageset *pset;
- 
--		/* Do not drain local pagesets */
--		if (zone->zone_pgdat->node_id == numa_node_id())
--			continue;
--
- 		pset = zone_pcp(zone, smp_processor_id());
- 		for (i = 0; i < ARRAY_SIZE(pset->pcp); i++) {
- 			struct per_cpu_pages *pcp;
-Index: linux-2.6.16-rc4/mm/slab.c
-===================================================================
---- linux-2.6.16-rc4.orig/mm/slab.c	2006-02-17 14:23:45.000000000 -0800
-+++ linux-2.6.16-rc4/mm/slab.c	2006-02-23 10:20:16.000000000 -0800
-@@ -789,6 +789,54 @@ static void __slab_error(const char *fun
- 	dump_stack();
- }
- 
-+#ifdef CONFIG_NUMA
-+/*
-+ * Special reaping functions for NUMA systems called from cache_reap().
-+ * These take care of doing round robin flushing of alien caches (containing
-+ * objects freed on different nodes from which they were allocated) and the
-+ * flushing of remote pcps by calling drain_node_pages.
-+ */
-+static DEFINE_PER_CPU(unsigned long, reap_node);
-+
-+static void init_reap_node(int cpu)
-+{
-+	int node;
-+
-+	node = next_node(cpu_to_node(cpu), node_online_map);
-+	if (node >= MAX_NUMNODES)
-+		node = 0;
-+
-+	__get_cpu_var(reap_node) = node;
-+}
-+
-+static void next_reap_node(void)
-+{
-+	int node = __get_cpu_var(reap_node);
-+
-+	/*
-+	 * Also drain per cpu pages on remote zones
-+	 */
-+	if (node != numa_node_id())
-+		drain_node_pages(node);
-+
-+	node = next_node(node, node_online_map);
-+	if (unlikely(node >= MAX_NUMNODES)) {
-+		node = first_node(node_online_map);
-+		/*
-+		 * If the node_online_map is empty (early boot) then
-+		 * only use node zero.
-+		*/
-+		if (node >= MAX_NUMNODES)
-+			node = 0;
-+	}
-+	__get_cpu_var(reap_node) = node;
-+}
-+
-+#else
-+#define init_reap_node(cpu) do { } while (0)
-+#define next_reap_node(void) do { } while (0)
-+#endif
-+
  /*
-  * Initiate the reap timer running on the target CPU.  We run at around 1 to 2Hz
-  * via the workqueue/eventd.
-@@ -806,6 +854,7 @@ static void __devinit start_cpu_timer(in
- 	 * at that time.
- 	 */
- 	if (keventd_up() && reap_work->func == NULL) {
-+		init_reap_node(cpu);
- 		INIT_WORK(reap_work, cache_reap, NULL);
- 		schedule_delayed_work_on(cpu, reap_work, HZ + 3 * cpu);
+- * Keep related fields in common cachelines.  The most commonly
+accessed
+- * field (b_state) goes at the start so the compiler does not generate
+- * indexed addressing for it.
++ * Historically, a buffer_head was used to map a single block
++ * within a page, and of course as the unit of I/O through the
++ * filesystem and block layers.  Nowadays the basic I/O unit
++ * is the bio, and buffer_heads are used for extracting block
++ * mappings (via a get_block_t call), for tracking state within
++ * a page (via a page_mapping) and for wrapping bio submission
++ * for backward compatibility reasons (e.g. submit_bh).
+  */
+ struct buffer_head {
+-	/* First cache line: */
+ 	unsigned long b_state;		/* buffer state bitmap (see above) */
+ 	struct buffer_head *b_this_page;/* circular list of page's buffers */
+ 	struct page *b_page;		/* the page this bh is mapped to */
+-	atomic_t b_count;		/* users using this block */
+-	u32 b_size;			/* block size */
+ 
+-	sector_t b_blocknr;		/* block number */
+-	char *b_data;			/* pointer to data block */
++	sector_t b_blocknr;		/* start block number */
++	size_t b_size;			/* size of mapping */
++	char *b_data;			/* pointer to data within the page */
+ 
+ 	struct block_device *b_bdev;
+ 	bh_end_io_t *b_end_io;		/* I/O completion */
+  	void *b_private;		/* reserved for b_end_io */
+ 	struct list_head b_assoc_buffers; /* associated with another mapping
+*/
++	atomic_t b_count;		/* users using this buffer_head */
+ };
+ 
+ /*
+Index: linux-2.6.16-rc4/fs/buffer.c
+===================================================================
+--- linux-2.6.16-rc4.orig/fs/buffer.c	2006-02-17 14:23:45.000000000
+-0800
++++ linux-2.6.16-rc4/fs/buffer.c	2006-02-23 08:55:18.000000000 -0800
+@@ -432,7 +432,8 @@ __find_get_block_slow(struct block_devic
+ 		printk("__find_get_block_slow() failed. "
+ 			"block=%llu, b_blocknr=%llu\n",
+ 			(unsigned long long)block, (unsigned long long)bh->b_blocknr);
+-		printk("b_state=0x%08lx, b_size=%u\n", bh->b_state, bh->b_size);
++		printk("b_state=0x%08lx, b_size=%lu\n", bh->b_state,
++				(unsigned long)bh->b_size);
+ 		printk("device blocksize: %d\n", 1 << bd_inode->i_blkbits);
  	}
-@@ -884,6 +933,23 @@ static void __drain_alien_cache(struct k
- 	}
- }
+ out_unlock:
+Index: linux-2.6.16-rc4/fs/reiserfs/prints.c
+===================================================================
+--- linux-2.6.16-rc4.orig/fs/reiserfs/prints.c	2006-02-17
+14:23:45.000000000 -0800
++++ linux-2.6.16-rc4/fs/reiserfs/prints.c	2006-02-23 08:56:17.000000000
+-0800
+@@ -143,8 +143,8 @@ static void sprintf_buffer_head(char *bu
+ 	char b[BDEVNAME_SIZE];
  
-+/*
-+ * Called from cache_reap() to regularly drain alien caches round robin.
-+ */
-+static void reap_alien(struct kmem_cache *cachep, struct kmem_list3 *l3)
-+{
-+	int node = __get_cpu_var(reap_node);
-+
-+	if (l3->alien) {
-+		struct array_cache *ac = l3->alien[node];
-+		if (ac && ac->avail) {
-+			spin_lock_irq(&ac->lock);
-+			__drain_alien_cache(cachep, ac, node);
-+			spin_unlock_irq(&ac->lock);
-+		}
-+	}
-+}
-+
- static void drain_alien_cache(struct kmem_cache *cachep, struct array_cache **alien)
- {
- 	int i = 0;
-@@ -902,6 +968,7 @@ static void drain_alien_cache(struct kme
- #else
+ 	sprintf(buf,
+-		"dev %s, size %d, blocknr %llu, count %d, state 0x%lx, page %p, (%s,
+%s, %s)",
+-		bdevname(bh->b_bdev, b), bh->b_size,
++		"dev %s, size %ld, blocknr %llu, count %d, state 0x%lx, page %p, (%s,
+%s, %s)",
++		bdevname(bh->b_bdev, b), (unsigned long)bh->b_size,
+ 		(unsigned long long)bh->b_blocknr, atomic_read(&(bh->b_count)),
+ 		bh->b_state, bh->b_page,
+ 		buffer_uptodate(bh) ? "UPTODATE" : "!UPTODATE",
+Index: linux-2.6.16-rc4/fs/ocfs2/journal.c
+===================================================================
+--- linux-2.6.16-rc4.orig/fs/ocfs2/journal.c	2006-02-17
+14:23:45.000000000 -0800
++++ linux-2.6.16-rc4/fs/ocfs2/journal.c	2006-02-23 08:56:55.000000000
+-0800
+@@ -377,12 +377,12 @@ int ocfs2_journal_access(struct ocfs2_jo
+ 	BUG_ON(!bh);
+ 	BUG_ON(!(handle->flags & OCFS2_HANDLE_STARTED));
  
- #define drain_alien_cache(cachep, alien) do { } while (0)
-+#define reap_alien(cachep, l3) do { } while (0)
+-	mlog_entry("bh->b_blocknr=%llu, type=%d (\"%s\"), bh->b_size = %hu\n",
++	mlog_entry("bh->b_blocknr=%llu, type=%d (\"%s\"), bh->b_size = %lu\n",
+ 		   (unsigned long long)bh->b_blocknr, type,
+ 		   (type == OCFS2_JOURNAL_ACCESS_CREATE) ?
+ 		   "OCFS2_JOURNAL_ACCESS_CREATE" :
+ 		   "OCFS2_JOURNAL_ACCESS_WRITE",
+-		   bh->b_size);
++		   (unsigned long)bh->b_size);
  
- static inline struct array_cache **alloc_alien_cache(int node, int limit)
- {
-@@ -3494,8 +3561,7 @@ static void cache_reap(void *unused)
- 		check_irq_on();
- 
- 		l3 = searchp->nodelists[numa_node_id()];
--		if (l3->alien)
--			drain_alien_cache(searchp, l3->alien);
-+		reap_alien(searchp, l3);
- 		spin_lock_irq(&l3->list_lock);
- 
- 		drain_array_locked(searchp, cpu_cache_get(searchp), 0,
-@@ -3545,8 +3611,8 @@ static void cache_reap(void *unused)
- 	}
- 	check_irq_on();
- 	mutex_unlock(&cache_chain_mutex);
--	drain_remote_pages();
- 	/* Setup the next iteration */
-+	next_reap_node();
- 	schedule_delayed_work(&__get_cpu_var(reap_work), REAPTIMEOUT_CPUC);
- }
- 
+ 	/* we can safely remove this assertion after testing. */
+ 	if (!buffer_uptodate(bh)) {
+
+

@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751756AbWBWRaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751765AbWBWRcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751756AbWBWRaq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 12:30:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751766AbWBWRap
+	id S1751765AbWBWRcO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 12:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751766AbWBWRcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 12:30:45 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:7385 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1751756AbWBWRap (ORCPT
+	Thu, 23 Feb 2006 12:32:14 -0500
+Received: from fsmlabs.com ([168.103.115.128]:44246 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1751765AbWBWRcN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 12:30:45 -0500
+	Thu, 23 Feb 2006 12:32:13 -0500
+X-ASG-Debug-ID: 1140715931-8613-40-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Thu, 23 Feb 2006 09:36:43 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Arjan van de Ven <arjan@linux.intel.com>
+cc: linux-kernel@vger.kernel.org, ak@suse.de, torvalds@osdl.org, akpm@osdl.org,
+       mingo@elte.hu
+X-ASG-Orig-Subj: Re: Patch to reorder functions in the vmlinux to a defined order
 Subject: Re: Patch to reorder functions in the vmlinux to a defined order
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, mingo@elte.hu
-In-Reply-To: <200602231820.50384.ak@suse.de>
+In-Reply-To: <1140707358.4672.67.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.64.0602230933080.1579@montezuma.fsmlabs.com>
 References: <1140700758.4672.51.camel@laptopd505.fenrus.org>
-	 <1140713001.4672.73.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0602230902230.3771@g5.osdl.org>
-	 <200602231820.50384.ak@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 23 Feb 2006 17:34:11 +0000
-Message-Id: <1140716051.4952.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+ <1140707358.4672.67.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.9111
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2006-02-23 at 18:20 +0100, Andi Kleen wrote:
-> BTW I have been also pondering some time to really trust e820 and not
-> forcibly reserve 640K-1MB on 64bit.  That code was inherited from i386,
-> but probably never made too much sense
+On Thu, 23 Feb 2006, Arjan van de Ven wrote:
 
-Depends if you want your boot video stuff to work, and vga space, and
-also how the ISA hole is used, some chipsets seem to use the RAM that
-would be there remapped elsewhere as SMM ram.
+> This patch puts the infrastructure in place to allow for a reordering of
+> functions based inside the vmlinux. The general idea is that it is possible
+> to put all "common" functions into the first 2Mb of the code, so that they
+> are covered by one TLB entry. This as opposed to the current situation where
+> a typical vmlinux covers about 3.5Mb (on x86-64) and thus 2 TLB entries.
+> (This patch depends on the previous patch to pin head.S as first in the order)
 
-Alan
-
+Hello Arjan,
+	Assuming that functions defined in an object file are related and 
+hence benefit from cache spatial locality, doesn't this affect this 
+greatly? It would seem that with regards to the kernel image on x86, (2MB) 
+TLB usage isn't as scarce a resource as icache.

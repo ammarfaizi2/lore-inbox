@@ -1,63 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWBWNVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWBWN2T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751347AbWBWNVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 08:21:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWBWNVP
+	id S1751387AbWBWN2T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 08:28:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWBWN2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 08:21:15 -0500
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:63095 "HELO
-	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751347AbWBWNVP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 08:21:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=aRyp6DPIxL/T7Q5yx6AvI/hpOr9D7+Ef0ess2M3eqfZuwVukXQmgii4IYXKaDHNE5XFLCgCuuOKfggpkQIa2i3WjYtD6EwMoBQQqZTOOLF10aK1y5qPiJlqdKXylAP1iYZhlTJIaPCi5d0MPnDtxGWcvdAbz82LiYVyBU3g2UkQ=  ;
-Message-ID: <43FDB55E.7090607@yahoo.com.au>
-Date: Fri, 24 Feb 2006 00:15:10 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 23 Feb 2006 08:28:19 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:19861 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751387AbWBWN2S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 08:28:18 -0500
+To: Kir Kolyshkin <kir@openvz.org>
+Cc: devel@openvz.org, Kirill Korotaev <dev@sw.ru>,
+       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       Andrey Savochkin <saw@sawoct.com>, alan@lxorguk.ukuu.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mrmacman_g4@mac.com, Linus Torvalds <torvalds@osdl.org>,
+       frankeh@watson.ibm.com, serue@us.ibm.com,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Subject: Re: [Devel] Re: Which of the virtualization approaches is more
+ suitable for kernel?
+References: <43F9E411.1060305@sw.ru>
+	<20060220161247.GE18841@MAIL.13thfloor.at> <43FB3937.408@sw.ru>
+	<20060221235024.GD20204@MAIL.13thfloor.at>
+	<43FC3853.9030508@openvz.org>
+	<m1zmkjjty6.fsf@ebiederm.dsl.xmission.com>
+	<43FDA46E.2000705@openvz.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 23 Feb 2006 06:25:26 -0700
+In-Reply-To: <43FDA46E.2000705@openvz.org> (Kir Kolyshkin's message of "Thu,
+ 23 Feb 2006 15:02:54 +0300")
+Message-ID: <m11wxujjg9.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@intel.linux.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [Patch 3/3] prepopulate/cache cleared pages
-References: <1140686238.2972.30.camel@laptopd505.fenrus.org> <200602231041.00566.ak@suse.de> <20060223124152.GA4008@elte.hu> <200602231406.43899.ak@suse.de>
-In-Reply-To: <200602231406.43899.ak@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Thursday 23 February 2006 13:41, Ingo Molnar wrote:
-> 
-> 
->>What Arjan did is quite nifty, as it moves the page clearing out from 
->>under the mmap_sem-held critical section.
-> 
-> 
-> So that was the point not the rescheduling under lock? Or both?
-> 
-> BTW since it touches your area of work you could comment what
-> you think about not using voluntary preempt points for fast sleep locks
-> like I later proposed.
-> 
-> 
->>How that is achieved is really  
->>secondary, it's pretty clear that it could be done in some nicer way.
-> 
-> 
-> Great we agree then.
-> 
+Kir Kolyshkin <kir@openvz.org> writes:
 
-I'm worried about the situation where we allocate but don't use the
-new page: it blows quite a bit of cache. Then, when we do get around
-to using it, it will be cold(er).
+> Eric W. Biederman wrote:
+>>>Back to the topic. If you (or somebody else) wants to see the real size of
+>>>things, take a look at broken-out patch set, available from
+>>>http://download.openvz.org/kernel/broken-out/. Here (2.6.15-025stab014.1
+> kernel)
+>>>we see that it all boils down to:
+>> Thanks.  This is the first indication I have seen that you even have
+>> broken-out patches.
+>
+> When Kirill Korovaev announced OpenVZ patch set on LKML (two times -- 
+> initially and for 2.6.15), he gave the links to the broken-out patch set, both
+> times.
+Hmm.  I guess I just missed it.
 
-Good to see someone trying to improve this area, though.
+>> Why those aren't in your source rpms is beyond me.
+>
+> That reflects our internal organization: we have a core virtualization team
+> which comes up with a core patch (combining all the stuff), and a maintenance
+> team which can add some extra patches (driver updates, some bugfixes). So that
+> extra patches comes up as a separate patches in src.rpms, while virtualization
+> stuff comes up as a single patch. That way it is easier for our maintainters
+> group.
+>
+> Sure we understand this is not convenient for developers who want to look at our
+> code -- and thus we provide broken-out kernel patch sets from time to time (not
+> for every release, as it requires some effort from Kirill, who is really buzy
+> anyway). So, if you want this for a specific kernel -- just ask.
+>
+> I understand that this might look strange, but again, this reflects our internal
+> development structure.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+There is something this brings up.  Currently OpenVZ seems to be a
+project where you guys do the work and release the source under the
+GPL.  Making it technically an open source project.  However at the
+development level it does not appear to be a community project, at
+least at the developer level.
+
+There is nothing wrong with not doing involving the larger community
+in the development, but what it does mean is that largely as a
+developer OpenVZ is uninteresting to me.
+
+>> Shakes head.  You have a patch in broken-out that is 817K.  Do you really
+>> maintain it this way as one giant patch?
+>
+> In that version I took (025stab014) it was indeed as one big patch, and I
+> believe Kirill maintains it that way.
+>
+> Previous kernel version (025stab012) was more fine-grained, take a look at
+> http://download.openvz.org/kernel/broken-out/2.6.15-025stab012.1
+
+Looks a little better yes.  This actually surprises me because my
+past experience is that usually well focused patches are easier
+to forward port as they usually have fewer collisions and those
+collisions are usually easier to resolve.
+
+Eric

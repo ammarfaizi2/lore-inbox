@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751788AbWBWWLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751790AbWBWWM4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751788AbWBWWLP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 17:11:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751789AbWBWWLP
+	id S1751790AbWBWWM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 17:12:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751791AbWBWWM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 17:11:15 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:29109 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751788AbWBWWLO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 17:11:14 -0500
-Date: Thu, 23 Feb 2006 14:11:10 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, davem@davemloft.net
-Subject: time_interpolator: Use readq_relaxed() instead of readq().
-Message-ID: <Pine.LNX.4.64.0602231409110.14640@schroedinger.engr.sgi.com>
+	Thu, 23 Feb 2006 17:12:56 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:33208 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751790AbWBWWM4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 17:12:56 -0500
+Date: Thu, 23 Feb 2006 17:12:51 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Greg KH <greg@kroah.com>
+cc: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Move pci_dev_put outside a spinlock
+Message-ID: <Pine.LNX.4.44L0.0602231710110.4579-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On some platforms readq performs additional work to make sure I/O is done in
-a coherent way. This is not needed for time retrieval as done by the time interpolator.
-So we can use readq_relaxed instead which will improve performance.
+Greg:
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+This patch (as659) fixes a might_sleep problem in the PCI core, by moving 
+a call to pci_dev_put() outside the scope of a spinlock.
 
-Index: linux-2.6.16-rc4/kernel/timer.c
+Alan Stern
+
+
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+
+---
+
+Maybe this has already been fixed; if so the fix isn't in your 
+development tree for 2.6.16-rc4.
+
+Index: usb-2.6/drivers/pci/search.c
 ===================================================================
---- linux-2.6.16-rc4.orig/kernel/timer.c	2006-02-17 14:23:45.000000000 -0800
-+++ linux-2.6.16-rc4/kernel/timer.c	2006-02-23 14:03:02.000000000 -0800
-@@ -1351,10 +1351,10 @@ static inline u64 time_interpolator_get_
- 			return x();
- 
- 		case TIME_SOURCE_MMIO64	:
--			return readq((void __iomem *) time_interpolator->addr);
-+			return readq_relaxed((void __iomem *) time_interpolator->addr);
- 
- 		case TIME_SOURCE_MMIO32	:
--			return readl((void __iomem *) time_interpolator->addr);
-+			return readl_relaxed((void __iomem *) time_interpolator->addr);
- 
- 		default: return get_cycles();
+--- usb-2.6.orig/drivers/pci/search.c
++++ usb-2.6/drivers/pci/search.c
+@@ -246,9 +246,9 @@ pci_get_subsys(unsigned int vendor, unsi
  	}
+ 	dev = NULL;
+ exit:
+-	pci_dev_put(from);
+ 	dev = pci_dev_get(dev);
+ 	spin_unlock(&pci_bus_lock);
++	pci_dev_put(from);
+ 	return dev;
+ }
+ 
+

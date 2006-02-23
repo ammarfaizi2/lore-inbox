@@ -1,50 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWBWROd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751749AbWBWRPM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932234AbWBWROd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 12:14:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbWBWROd
+	id S1751749AbWBWRPM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 12:15:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751751AbWBWRPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 12:14:33 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:31934 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751441AbWBWROc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 12:14:32 -0500
-Date: Thu, 23 Feb 2006 18:14:29 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Mapping to 0x0
-In-Reply-To: <Pine.LNX.4.61.0602220920060.10177@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.61.0602231811320.1279@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0602221504120.11432@yvahk01.tjqt.qr>
- <Pine.LNX.4.61.0602220920060.10177@chaos.analogic.com>
+	Thu, 23 Feb 2006 12:15:12 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:10400 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751749AbWBWRPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 12:15:10 -0500
+Date: Thu, 23 Feb 2006 12:15:09 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andrew Morton <akpm@osdl.org>
+cc: sekharan@us.ibm.com, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Register atomic_notifiers in atomic context
+In-Reply-To: <20060222182601.1d628a01.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44L0.0602231145300.5204-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> int main(void) {
->>    int fd   = open("badcode.bin", O_RDONLY);
->      int fd   = open("/dev/mem", O_RDWR);
->
->>    mmap(NULL, 4096, PROT_READ | PROT_EXEC, MAP_FIXED, fd, 0);
->> }
->>
->No. In your demo code, page 0 gets memory-mapped into user space.
->This allows user-mode code to access the first page of memory
->and even read/write offset 0, still in user mode, with the
->root privs that allowed you access to that page in the
->first place.
+On Wed, 22 Feb 2006, Andrew Morton wrote:
 
-Only root can map to 0x0?
+> See, we avoid doing down_write() if the lock is uncontended.  And x86_64's
+> uncontended down_write() unconditionally enables interrupts.
 
->Everything you do, is still in user-mode.
->You just own some physical memory that the kernel didn't
->care about anyway.
+Not just x86_64; that's part of the general rw-semaphore implementation in
+lib/rwsem-spinlock.c.  down_write() and down_read() always enable
+interrupts, whether contended or not.
 
-So you can't accidentally call a place in userspace from kernel context?
-(Including the case where set_fs(USER_DS) was used.)
+>  This evaded
+> notice because might_sleep() warnings are disabled early in boot due to
+> various horrid things.
+> 
+> Maybe we should enable the might_sleep() warnings because of this nasty
+> rwsem trap.  We tried to do that a couple of weeks ago but we needed a pile
+> of nasty workarounds to avoid false positives.
 
+The situation is prone to bugs.  Special-case situations (like not
+allowing task switching during system start-up) are always hard to handle.
 
-Jan Engelhardt
--- 
+> Applying this:
+> 
+> --- 25/kernel/sys.c~notifier-sleep-debug-update	2006-02-22 18:23:26.000000000 -0800
+> +++ 25-akpm/kernel/sys.c	2006-02-22 18:25:45.000000000 -0800
+> @@ -249,6 +249,8 @@ int blocking_notifier_chain_register(str
+>  {
+>  	int ret;
+>  
+> +	if (irqs_disabled())
+> +		dump_stack();
+>  	if (!down_write_trylock(&nh->rwsem)) {
+>  		printk(KERN_WARNING "%s\n", __FUNCTION__);
+>  		dump_stack();
+> @@ -276,6 +278,8 @@ int blocking_notifier_chain_unregister(s
+>  {
+>  	int ret;
+>  
+> +	if (irqs_disabled())
+> +		dump_stack();
+>  	if (!down_write_trylock(&nh->rwsem)) {
+>  		printk(KERN_WARNING "%s\n", __FUNCTION__);
+>  		dump_stack();
+> @@ -310,6 +314,8 @@ int blocking_notifier_call_chain(struct 
+>  {
+>  	int ret;
+>  
+> +	if (irqs_disabled())
+> +		dump_stack();
+>  	if (!down_read_trylock(&nh->rwsem)) {
+>  		printk(KERN_WARNING "%s\n", __FUNCTION__);
+>  		dump_stack();
+> _
+> 
+> Gives:
+
+... a bunch of calls to register_cpu_notifier and __exit_idle ...
+
+> We're using blocking notifier chains in places where it's really risky, such as
+> __exit_idle().  Time for a rethink, methinks.
+
+Yes, that was clearly a mistake in the notifier-chain patch.  In x86_64,
+the idle_notifier chain should be atomic, not blocking.  I missed the fact
+that it gets invoked during an interrupt handler.
+
+On the other hand, nothing in the vanilla kernel uses that notifier chain, 
+and there doesn't seem to be any equivalent in other architectures.  
+Perhaps it should just go away entirely?
+
+The calls to register_cpu_notifier are harder.  That chain really does 
+need to be blocking, which means we can't avoid calling down_write.  The 
+only solution I can think of is to use down_write_trylock in the 
+blocking_notifier_chain_register and unregister routines, even though 
+doing that is a crock.
+
+Or else change __down_read and __down_write to use spin_lock_irqsave 
+instead of spin_lock_irq.  What do you think would be best?
+
+> I'd suggest that in further development, you enable might_sleep() in early
+> boot - that would have caught such things..
+
+Not a bad idea.  I presume that removing the "system_state == 
+SYSTEM_RUNNING" test in __might_sleep will have that effect?
+
+Alan Stern
+

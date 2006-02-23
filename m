@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWBWMRg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbWBWMRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbWBWMRg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 07:17:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWBWMRg
+	id S1751087AbWBWMRW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 07:17:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWBWMRV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 07:17:36 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10163 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751091AbWBWMRg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 07:17:36 -0500
-Date: Thu, 23 Feb 2006 13:17:07 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Nigel Cunningham <ncunningham@cyclades.com>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
-       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060223121707.GP13621@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602230031.41217.rjw@sisk.pl> <20060222235639.GK13621@elf.ucw.cz> <200602230944.26253.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602230944.26253.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 23 Feb 2006 07:17:21 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:15753 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1751087AbWBWMRV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 07:17:21 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Thu, 23 Feb 2006 13:15:53 +0100
+To: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] portable Makefiles (was: CD writing in future Linux 
+ (stirring up a hornets' nest))
+Message-ID: <43FDA779.nailFHQ21G57C@burner>
+References: <43EB7BBA.nailIFG412CGY@burner>
+ <200602171502.20268.dhazelton@enter.net>
+ <43F9D771.nail4AL36GWSG@burner>
+ <200602201302.05347.dhazelton@enter.net>
+ <43FAE10F.nailD121QL6LN@burner>
+ <20060221101644.GA19643@merlin.emma.line.org>
+ <43FAF2FA.nailD12BW90DH@burner>
+ <20060221114625.GA29439@merlin.emma.line.org>
+ <43FC68C1.nailEC711MJAV@burner>
+ <20060222140528.GB13283@merlin.emma.line.org>
+In-Reply-To: <20060222140528.GB13283@merlin.emma.line.org>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Matthias Andree <matthias.andree@gmx.de> wrote:
 
-> > Ok, I have no problems with visions.
+> Joerg Schilling schrieb am 2006-02-22:
+>
+> > > - run Solaris' /usr/{ccs,xpg4}/bin/make
+> > >   to find out if your Makefile is portable
 > > 
-> > > I think we should try to get the pagecache stuff right first anyway.
-> > 
-> > Are you sure it is worth doing? I mean... it only helps on small
-> > machines, no?
-> > 
-> > OTOH having it for benchmarks will be nice, and perhaps we could use
-> > that kind it to speed up boot and similar things... 
-> 
-> Currently some people can't suspend with the mainline code because it cannot
-> free as much memory as needed on their boxes.  I think we should care for them
-> too.
+> > Solaris make does not write useful error messages in case of non-portable 
+> > makefiles.
+>
+> Sun Microsystems do not advertise their make tool as Makefile
+> portability validator.  Note the difference: each tool is held to its
+> own standards.
 
-But saving pagecache will not help them *at all*!
+I do not advertize smake as makefile validator either.
 
-[Because pagecache is freeable, anyway, so it will be freed. Now... I
-have seen some problems where free_some_memory did not free enough,
-and schedule()/retry helped a bit... that probably should be fixed.]
+It would help a lot, if people on LKML would not repeatedly impute me things I 
+never said....
 
-								Pavel
+
+Smake helps to find non-portable code, this is something completely different!
+
+Jörg
+
 -- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

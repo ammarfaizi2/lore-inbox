@@ -1,114 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWBWRij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWBWRjm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbWBWRij (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 12:38:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWBWRij
+	id S932288AbWBWRjm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 12:39:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbWBWRjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 12:38:39 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:62342 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932078AbWBWRii
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 12:38:38 -0500
-Subject: Re: [PATCH 4/7] ppc64 - Specify amount of kernel memory at boot
-	time
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.64.0602231646530.24093@skynet.skynet.ie>
-References: <20060217141552.7621.74444.sendpatchset@skynet.csn.ul.ie>
-	 <20060217141712.7621.49906.sendpatchset@skynet.csn.ul.ie>
-	 <1140196618.21383.112.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0602211445160.4335@skynet.skynet.ie>
-	 <1140543359.8693.32.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0602221625100.2801@skynet.skynet.ie>
-	 <1140712969.8697.33.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0602231646530.24093@skynet.skynet.ie>
+	Thu, 23 Feb 2006 12:39:41 -0500
+Received: from wproxy.gmail.com ([64.233.184.205]:65437 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932325AbWBWRjk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 12:39:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=upd16cNjPgEpIIEDXOsWi5UrueStoLH6p4V1ZCBkE+o1/jb7Czu15r6+h+Jhk5U9sNAyBq2TbaQkBaUTu879l1wLLCuPCLvxBeMP7Dg8E9cnps5FT8mLrLQo7HuqQsQa89aMSPru7p82vo5BN8facGCF55ZmYAL+7cI33wxnSKw=
+Subject: Re: [PATCH] change b_size to size_t
+From: Badari Pulavarty <pbadari@gmail.com>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Andrew Morton <akpm@osdl.org>, Nathan Scott <nathans@sgi.com>,
+       christoph <hch@lst.de>, mcao@us.ibm.com,
+       lkml <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>
+In-Reply-To: <1140715738.22756.125.camel@dyn9047017100.beaverton.ibm.com>
+References: <1140470487.22756.12.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060222151216.GA22946@lst.de>
+	 <1140627510.22756.81.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060222165942.GA25167@lst.de> <20060223014004.GA900@frodo>
+	 <20060222175923.784ce5de.akpm@osdl.org>
+	 <1140712093.22756.106.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060223163204.GA27682@kvack.org>
+	 <1140715738.22756.125.camel@dyn9047017100.beaverton.ibm.com>
 Content-Type: text/plain
-Date: Thu, 23 Feb 2006 09:38:24 -0800
-Message-Id: <1140716304.8697.53.camel@localhost.localdomain>
+Date: Thu, 23 Feb 2006 09:40:55 -0800
+Message-Id: <1140716455.22756.131.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-23 at 17:19 +0000, Mel Gorman wrote:
-> On Thu, 23 Feb 2006, Dave Hansen wrote:
-> >> +/* Initialise the size of each zone in a node */
-> >> +void __init zone_sizes_init(unsigned int nid,
-> >> +		unsigned long kernelcore_pages,
-> >> +		unsigned long *zones_size)
-> >
-> > Minor nit territory: set_zone_sizes(), maybe?
-> >
+On Thu, 2006-02-23 at 09:28 -0800, Badari Pulavarty wrote:
+> On Thu, 2006-02-23 at 11:32 -0500, Benjamin LaHaise wrote:
+> > On Thu, Feb 23, 2006 at 08:28:12AM -0800, Badari Pulavarty wrote:
+> > > Here is the updated version of the patch, which changes
+> > > buffer_head.b_size to size_t to support mapping large
+> > > amount of disk blocks (for large IOs).
+> > 
+> > Your patch doesn't seem to be inline, so I can't quote it.  Several 
+> > problems: on 64 bit platforms you introduced 4 bytes of padding into 
+> > buffer_head.  atomic_t only takes up 4 byte, while size_t is 8 byte 
+> > aligned. 
 > 
-> In this case, the choice of name is to match an x86 function that does 
-> something very similar. If one had read through the x86 code and then saw 
-> this function, it would set their expectations of what the code is 
-> intended to do.
-
-x86 is bad.  Try to do better. :)
-
-> per-node. A node goes no ZONE_EASYRCLM pages if it is not large enough to 
-> contain kernelcore_pages. That means that on a system with 2 nodes, 
-> kernelcore=512MB will results in 1024MB of ZONE_DMA in total.
 > 
-> > Also, how do we want to distribute kernelcore memory over each node?
-> > The way it is coded up for now, it will all be sliced out of the first
-> > node.  I'm not sure that's a good thing.
+> Ignore my previous mail.
 > 
-> It gets set in every node.
+> How about doing this ? Change b_state to u32 and change b_size
+> to "size_t". This way, we don't increase the overall size of
+> the structure on 64-bit machines. Isn't it ?
 
-They hypervisor has a memory allocator which it uses to piece out memory
-to various LPARs.  When things like partition memory resizing or reboots
-occur, that memory gets allocated and freed and so forth.
+I hate to correct myself again. But this won't work either.
+If we do this, we can use bit_spin_lock() helpers any more
+to do bh_state manipulation :(
 
-These machines are _also_ NUMA.  Memory can effectively get lumped so
-that you can't always get memory on a single NUMA node.  Because of all
-of the other actions of other partitions, these conditions are always
-changing.  The end result is that the amount of memory which each NUMA
-node has *in* *a* *single* *partition* can theoretically change between
-reboots.
+Yes. Bottom line is, we would increase the size of the structure
+by 8-bytes on 64-bit machines. I don't see any way out of it.
+But this would provide ability to let the filesystems know
+that the we are dealing with large (> 4GB) of IOs (may be they
+can allocated as much as possible contiguously), even if
+we don't really do that big IOs.
 
-OK, back to the hapless system admin using kernelcore.  They have a
-4-node system with 2GB of RAM in each node for 8GB total.  They use
-kernelcore=1GB.  They end up with 4x1GB ZONE_DMA and 4x1GB
-ZONE_EASYRCLM.  Perfect.  You can safely remove 4GB of RAM.
-
-Now, imagine that the machine has been heavily used for a while, there
-is only 1 node's memory available, but CPUs are available in the same
-places as before.  So, you start up your partition again have 8GB of
-memory in one node.  Same kernelcore=1GB option.  You get 1x7GB ZONE_DMA
-and 1x1GB ZONE_EASYRCLM.  I'd argue this is going to be a bit of a
-surprise to the poor admin.
-
-> zones_size[] is what free_area_init() expects to receive so there is not a 
-> lot of room to fiddle with it's meaning without causing more trouble.
-
-It is just passed in there as an argument.  If you can think of a way to
-make it more understandable, change it in your architecture, and send
-the patch for the main one.
-
-> > One other thing, I want to _know_ that variables being compared are in
-> > the same units.  When one is called "pages_" something and the other is
-> > something "_size", I don't _know_.
-> 
-> chunk_num_pages ?
-
-No. :)  The words "chunks" and "clumps" have a bit of a stigma, just
-like the number "3".  Ask Matt Dobson.
-
-num_pages_WHAT?  node_num_pages?  silly_num_pages?
-
-Chunk is pretty meaningless.
-
-> yep. get_zholes_size() could be split into two functions 
-> find_start_easyrclm_pfn() and get_nid_zholes_size(). Would that be pretty 
-> clear-cut?
-
-I think so.
-
--- Dave
+Thanks,
+Badari
 

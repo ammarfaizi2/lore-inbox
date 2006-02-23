@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbWBWOkl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWBWO54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751170AbWBWOkl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 09:40:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWBWOkl
+	id S1751264AbWBWO54 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 09:57:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWBWO54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 09:40:41 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:22416 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751170AbWBWOkl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 09:40:41 -0500
-Message-ID: <43FDC958.7080803@linux.intel.com>
-Date: Thu, 23 Feb 2006 15:40:24 +0100
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Thu, 23 Feb 2006 09:57:56 -0500
+Received: from mail.gmx.de ([213.165.64.20]:48065 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751264AbWBWO5z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 09:57:55 -0500
+X-Authenticated: #428038
+Date: Thu, 23 Feb 2006 15:57:51 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] portable Makefiles (was: CD writing in future Linux (stirring up a hornets' nest))
+Message-ID: <20060223145751.GA24270@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200602171502.20268.dhazelton@enter.net> <43F9D771.nail4AL36GWSG@burner> <200602201302.05347.dhazelton@enter.net> <43FAE10F.nailD121QL6LN@burner> <20060221101644.GA19643@merlin.emma.line.org> <43FAF2FA.nailD12BW90DH@burner> <20060221114625.GA29439@merlin.emma.line.org> <43FC68C1.nailEC711MJAV@burner> <20060222140528.GB13283@merlin.emma.line.org> <43FDA779.nailFHQ21G57C@burner>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Patch to make the head.S-must-be-first-in-vmlinux order explicit
-References: <1140700758.4672.51.camel@laptopd505.fenrus.org> <200602231442.19903.ak@suse.de> <43FDBF55.3060502@linux.intel.com> <200602231514.03001.ak@suse.de>
-In-Reply-To: <200602231514.03001.ak@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43FDA779.nailFHQ21G57C@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Thursday 23 February 2006 14:57, Arjan van de Ven wrote:
-> 
->>> (or at least
->>> it shouldn't), but arch/x86_64/boot/compressed/head.S
->>> seems to have the entry address hardcoded. Perhaps you can just change this
->>> to pass in the right address?
->> the issue is that the address will be a link time thing, which means 
->> lots of complexity.
-> 
-> bzImage image should be only generated after vmlinux is done 
-> and then the address should be available with a simple grep in System.map
->
+Joerg Schilling schrieb am 2006-02-23:
 
-ok I'll look into this and see if the result is reasonable
+> I do not advertize smake as makefile validator either.
 
+In your message from Monday 10:44 Central European Time you advertise
+smake as warning about most non-portable constructs...
+
+-- 
+Matthias Andree

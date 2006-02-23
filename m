@@ -1,74 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbWBWAu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030347AbWBWAwx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750980AbWBWAu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 19:50:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751614AbWBWAu0
+	id S1030347AbWBWAwx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 19:52:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030348AbWBWAwx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 19:50:26 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:14742 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750980AbWBWAuZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 19:50:25 -0500
-Date: Wed, 22 Feb 2006 16:50:09 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: maule@sgi.com, linuxppc64-dev@ozlabs.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, tony.luck@intel.com, gregkh@suse.de
-Subject: Re: Altix SN2 2.6.16-rc1-mm5 build breakage (was:  msi support)
-Message-Id: <20060222165009.6493e6a1.pj@sgi.com>
-In-Reply-To: <20060203202742.1e514fcc.akpm@osdl.org>
-References: <20060119194647.12213.44658.14543@lnx-maule.americas.sgi.com>
-	<20060119194702.12213.16524.93275@lnx-maule.americas.sgi.com>
-	<20060203201441.194be500.pj@sgi.com>
-	<20060203202531.27d685fa.akpm@osdl.org>
-	<20060203202742.1e514fcc.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 22 Feb 2006 19:52:53 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:10247 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1030347AbWBWAwx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 19:52:53 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: spinlock __raw_spin_unlock : comment disagrees with Wikipedia article
+Date: Wed, 22 Feb 2006 16:51:46 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKKEMGKEAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Wed, 22 Feb 2006 16:48:18 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Wed, 22 Feb 2006 16:48:19 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 3, Andrew wrote:
-> Actually, gregkh-pci-altix-msi-support-git-ia64-fix.patch fix`es
-> git-ia64.patch when gregkh-pci-altix-msi-support.patch
 
-Is it time to reinsert that patch?
+    The code for __raw_spin_unlock contains the following comment:
 
-My ia64 sn build fails again, complaining:
+/*
+ * __raw_spin_unlock based on writing $1 to the low byte.
+ * This method works. Despite all the confusion.
+ * (except on PPro SMP or if we are using OOSTORE, so we use xchgb there)
+ * (PPro errata 66, 92)
+ */
 
+    Yet the Wikipedia article on spinlocks says:
 
-===========================
-  CC      arch/ia64/sn/pci/tioce_provider.o
-arch/ia64/sn/pci/tioce_provider.c:720:46: macro "ATE_MAKE" requires 3 arguments, but only 2 given
-===========================
+http://en.wikipedia.org/wiki/Spinlock
+"In theory, spin_unlock could use an unlocked MOV instead of the locked
+XCHG, however some processors (notably, some Cyrix processors and some
+revisions of the Intel Pentium III) will do the wrong thing and data
+protected by the lock could be corrupted."
 
+    Does anyone know for sure who is right? I assume if the Linux kernel was
+wrong, it would probably be blowing up by now. Or does it rely on something
+that isn't guaranteed but happens to work on all current hardware? Or
+perhaps it's some kind of very rare issue. What is the source for the
+comment about "some revisions of the Intel Pentium II"? Does one know?
 
-Your broken-out/series file (2.6.16-rc4-mm1) has the lines:
+    Is 'movb' okay, but perhaps some other type of instructions might not
+work, such as a 32-bit operation?
 
-    # Need this when gregkh-pci-altix-msi-support.patch comes back
-    #gregkh-pci-altix-msi-support-git-ia64-fix.patch
-
-I guess that is this patch below, which fixes my sn build just fine.
-Holler if you need it as a proper patch.
-
-
---- 2.6.16-rc4-mm1.orig/arch/ia64/sn/pci/tioce_provider.c       2006-02-22 16:21:52.054985166 -0800
-+++ 2.6.16-rc4-mm1/arch/ia64/sn/pci/tioce_provider.c    2006-02-22 16:31:21.594755653 -0800
-@@ -717,7 +717,7 @@ tioce_reserve_m32(struct tioce_kernel *c
-        while (ate_index <= last_ate) {
-                u64 ate;
-
--               ate = ATE_MAKE(0xdeadbeef, ps);
-+               ate = ATE_MAKE(0xdeadbeef, ps, 0);
-                ce_kern->ce_ate3240_shadow[ate_index] = ate;
-                tioce_mmr_storei(ce_kern, &ce_mmr->ce_ure_ate3240[ate_index],
-                                 ate);
+    DS
 
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

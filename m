@@ -1,116 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWBWXj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWBWXoa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932128AbWBWXj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 18:39:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWBWXj2
+	id S932130AbWBWXoa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 18:44:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbWBWXoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 18:39:28 -0500
-Received: from lucidpixels.com ([66.45.37.187]:37817 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S932128AbWBWXj1 (ORCPT
+	Thu, 23 Feb 2006 18:44:30 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62893 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932130AbWBWXo3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 18:39:27 -0500
-Date: Thu, 23 Feb 2006 18:39:23 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34
-To: Mark Lord <lkml@rtr.ca>
-cc: David Greaves <david@dgreaves.com>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>
-Subject: Re: LibPATA code issues / 2.6.15.4
-In-Reply-To: <200602141300.37118.lkml@rtr.ca>
-Message-ID: <Pine.LNX.4.64.0602231838420.3374@p34>
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com>
- <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 23 Feb 2006 18:44:29 -0500
+Date: Fri, 24 Feb 2006 00:44:03 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
+       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Message-ID: <20060223234403.GF1662@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602232337.31075.rjw@sisk.pl> <20060223230439.GC1662@elf.ucw.cz> <200602240927.51338.ncunningham@cyclades.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602240927.51338.ncunningham@cyclades.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have reproduced the error with the patched kernel!
+Hi!
 
-Here it is:
+> > > > [Because pagecache is freeable, anyway, so it will be freed. Now... I
+> > > > have seen some problems where free_some_memory did not free enough,
+> > > > and schedule()/retry helped a bit... that probably should be fixed.]
+> > >
+> > > It seems I need to understand correctly what the difference between what
+> > > we do and what Nigel does is.  I thought the Nigel's approach was to save
+> > > some cache pages to disk first and use the memory occupied by them to
+> > > store the image data.  If so, is the page cache involved in that or
+> > > something else?
+> >
+> > I believe Nigel only saves pages that could have been freed anyway
+> > during phase1. Nigel, correct me here... suspend2 should work on same
+> > class of machines swsusp can, but will be able to save caches on
+> > machines where swsusp can not save any.
+> 
+> I'm not used to thinking in these terms :). It would be normally be right, 
+> except that there will be some LRU pages that will never be freed. These 
+> would allow suspend2 to work in some (not many) cases where swsusp can't. 
+> It's been ages since I did the intensive testing on the image preparation 
+> code, but I think that if we free as much memory as we can, we will always 
+> still have at least a few hundred LRU pages left. That's not much, but on 
+> machines with less ram, it might make the difference in a greater percentage 
+> of cases (compared to machines with more ram)?
 
-[263864.109854] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
-0xb/00/00
-[263864.109861] ata3: status=0x51 { DriveReady SeekComplete Error }
-[263864.109866] ata3: error=0x04 { DriveStatusError }
-
-Here is how I got it to error:
-
-$ for i in `seq 1 1000`; do dd if=/dev/zero of=file.$i bs=1M count=$i; 
-done
-
-Now, how to fix? :)
-
-On Tue, 14 Feb 2006, Mark Lord wrote:
-
-> On Tuesday 14 February 2006 12:12, Justin Piszcz wrote:
->> I would like to try the patch too, if available.
->
-> Something like this:  (for 2.6.16-rc3-git2, but should be okay on 2.6.15 also).
->
-> Untested:  include the original SCSI opcode in printk's for libata SCSI errors,
-> to help understand where the errors are coming from.
->
-> Signed-Off-By:  Mark Lord <mlord@pobox.com>
->
-> --- linux/drivers/scsi/libata-scsi.c.orig	2006-02-12 19:27:25.000000000 -0500
-> +++ linux/drivers/scsi/libata-scsi.c	2006-02-14 12:54:17.000000000 -0500
-> @@ -420,6 +420,7 @@
->  *	@sk: the sense key we'll fill out
->  *	@asc: the additional sense code we'll fill out
->  *	@ascq: the additional sense code qualifier we'll fill out
-> + *	@opcode: the original SCSI command opcode byte
->  *
->  *	Converts an ATA error into a SCSI error.  Fill out pointers to
->  *	SK, ASC, and ASCQ bytes for later use in fixed or descriptor
-> @@ -429,7 +430,7 @@
->  *	spin_lock_irqsave(host_set lock)
->  */
-> void ata_to_sense_error(unsigned id, u8 drv_stat, u8 drv_err, u8 *sk, u8 *asc,
-> -			u8 *ascq)
-> +			u8 *ascq, u8 opcode)
-> {
-> 	int i;
->
-> @@ -508,8 +509,8 @@
-> 		}
-> 	}
-> 	/* No error?  Undecoded? */
-> -	printk(KERN_WARNING "ata%u: no sense translation for status: 0x%02x\n",
-> -	       id, drv_stat);
-> +	printk(KERN_WARNING "ata%u: no sense translation for op=0x%02x status: 0x%02x\n",
-> +	       id, opcode, drv_stat);
->
-> 	/* For our last chance pick, use medium read error because
-> 	 * it's much more common than an ATA drive telling you a write
-> @@ -520,8 +521,8 @@
-> 	*ascq = 0x04; /*  "auto-reallocation failed" */
->
->  translate_done:
-> -	printk(KERN_ERR "ata%u: translated ATA stat/err 0x%02x/%02x to "
-> -	       "SCSI SK/ASC/ASCQ 0x%x/%02x/%02x\n", id, drv_stat, drv_err,
-> +	printk(KERN_ERR "ata%u: translated op=0x%02x ATA stat/err 0x%02x/%02x to "
-> +	       "SCSI SK/ASC/ASCQ 0x%x/%02x/%02x\n", id, opcode, drv_stat, drv_err,
-> 	       *sk, *asc, *ascq);
-> 	return;
-> }
-> @@ -562,7 +563,7 @@
-> 	 */
-> 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
-> 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
-> -				   &sb[1], &sb[2], &sb[3]);
-> +				   &sb[1], &sb[2], &sb[3], cmd->cmnd[0]);
-> 		sb[1] &= 0x0f;
-> 	}
->
-> @@ -637,7 +638,7 @@
-> 	 */
-> 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
-> 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
-> -				   &sb[2], &sb[12], &sb[13]);
-> +				   &sb[2], &sb[12], &sb[13], cmd->cmnd[0]);
-> 		sb[2] &= 0x0f;
-> 	}
->
->
+Well, pages in LRU should be user pages, and therefore freeable,
+AFAICT. It is possible that there's something wrong with freeing in
+swsusp1...
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

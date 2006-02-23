@@ -1,67 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbWBWFDt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWBWFFU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbWBWFDt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 00:03:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWBWFDt
+	id S1751267AbWBWFFU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 00:05:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWBWFFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 00:03:49 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42896 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751267AbWBWFDs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 00:03:48 -0500
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: Ulrich Drepper <drepper@gmail.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>,
-       Paul Jackson <pj@sgi.com>, Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 0/6] lightweight robust futexes: -V4
-References: <20060221084631.GA5506@elte.hu>
-	<20060221092338.GV24295@devserv.devel.redhat.com>
-	<a36005b50602210826i567effabsd4b43da9804db86d@mail.gmail.com>
-	<20060221163710.GX24295@devserv.devel.redhat.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 22 Feb 2006 22:01:51 -0700
-In-Reply-To: <20060221163710.GX24295@devserv.devel.redhat.com> (Jakub
- Jelinek's message of "Tue, 21 Feb 2006 11:37:10 -0500")
-Message-ID: <m18xs24qio.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 23 Feb 2006 00:05:20 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:64654
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751267AbWBWFFT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 00:05:19 -0500
+Date: Wed, 22 Feb 2006 21:05:25 -0800
+From: Greg KH <greg@kroah.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] driver core: better reference counting for klists
+Message-ID: <20060223050525.GA8046@kroah.com>
+References: <Pine.LNX.4.44L0.0601261415140.4713-100000@iolanthe.rowland.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0601261415140.4713-100000@iolanthe.rowland.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jakub Jelinek <jakub@redhat.com> writes:
+On Thu, Jan 26, 2006 at 03:17:02PM -0500, Alan Stern wrote:
+> Greg:
+> 
+> This is a revised version (as641b) of the earlier patch that James 
+> Bottomley didn't like.  It goes in the direction of eliminating 
+> klist_remove entirely.  (One more patch is still needed...)
+> 
+> 	Add an is_registered flag to struct device, so that drivers
+> 	won't get bound to a device after it is gone.
+> 
+> 	When unregistering a driver, use the drv->unloaded completion
+> 	to wait for the device_driver structure to be removed from
+> 	the bus's klist instead of using klist_remove.  This also
+> 	eliminates the need for the klist_drivers_get method.  (It's
+> 	not a violation of the refcounting credo, because we have to
+> 	wait in any case for the driver to be completely idle before 
+> 	driver_unregister can return.)
+> 
+> 	Likewise, the klist_devices_get and klist_devices_put methods
+> 	in drivers.c aren't needed, because we always have to wait for
+> 	a device to be completely removed from its driver's klist.  In
+> 	fact, this is the last remaining usage of klist_remove.
+> 
+> 	Move the call to a klist's put method outside the scope of the
+> 	spinlock (i.e., move it from klist_release to klist_del and
+> 	klist_next).
+> 
+> The one unpalatable aspect of this patch is that it adds a new single-bit 
+> flag to struct device, thereby increasing the structure's size by at least 
+> 4 bytes.
+> 
+> Alan Stern
+> 
+> 
+> 
+> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+> 
+> ---
+> 
+> Index: usb-2.6/drivers/base/dd.c
+> ===================================================================
+> --- usb-2.6.orig/drivers/base/dd.c
+> +++ usb-2.6/drivers/base/dd.c
+> @@ -72,6 +72,8 @@ int driver_probe_device(struct device_dr
+>  {
+>  	int ret = 0;
+>  
+> +	if (!device_is_registered(dev))
+> +		return -ENODEV;
+>  	if (drv->bus->match && !drv->bus->match(dev, drv))
+>  		goto Done;
+>  
+> Index: usb-2.6/drivers/base/bus.c
+> ===================================================================
+> --- usb-2.6.orig/drivers/base/bus.c
+> +++ usb-2.6/drivers/base/bus.c
+> @@ -367,6 +367,7 @@ int bus_add_device(struct device * dev)
+>  
+>  	if (bus) {
+>  		pr_debug("bus %s: add device %s\n", bus->name, dev->bus_id);
+> +		dev->is_registered = 1;
+>  		device_attach(dev);
+>  		klist_add_tail(&dev->knode_bus, &bus->klist_devices);
+>  		error = device_add_attrs(bus, dev);
+> @@ -393,7 +394,8 @@ void bus_remove_device(struct device * d
+>  		sysfs_remove_link(&dev->kobj, "bus");
+>  		sysfs_remove_link(&dev->bus->devices.kobj, dev->bus_id);
+>  		device_remove_attrs(dev->bus, dev);
+> -		klist_remove(&dev->knode_bus);
+> +		klist_del(&dev->knode_bus);
+> +		dev->is_registered = 0;
 
-> On Tue, Feb 21, 2006 at 08:26:05AM -0800, Ulrich Drepper wrote:
->> > The `len' argument (or really revision of the structure if really needed)
->> > can be encoded in the structure, as in:
->> > struct robust_list_head {
->> >        struct robust_list list;
->> >        short robust_list_head_len; /* or robust_list_head_version ? */
->> >        short futex_offset;
->> >        struct robust_list __user *list_op_pending;
->> > };
->> > or with long futex_offset, but using say upper 8 bits of the field as
->> > version or length.
->> 
->> I know you want to save SPARC but this kind of overloading I don't
->> really like.  If you need special treatment of the futex value make
->> this explicit and arch-dependent.
->
-> This had nothing to do with SPARC actually, I only wanted to avoid
-> passing two extra arguments to clone rather than one.  But if you think
-> CLONE_CHILD_SETROBUST is unnecessary, so be it and the combined
-> set_tid_robust_address call can have tidptr, robustptr and robustlen
-> arguments.
+Don't we have a race between these two lines?  How is that protected?
 
-Not to be dense.  But can you actually measure the syscall overhead
-you are trying to optimize out?
+thanks,
 
-Especially where Ulrich was starting to ask for something that reminded
-me of posix_spawn, I get a little nervous.  My gut feel is that 2
-simple cheap syscalls, are comparable to one very configurable syscall.
-
-I don't count cycles regularly so I don't know for certain, but lets
-at least look before we leap.
-
-Eric
+greg k-h

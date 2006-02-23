@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWBWUsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWBWUxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932114AbWBWUsR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 15:48:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751523AbWBWUsR
+	id S932120AbWBWUxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 15:53:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751564AbWBWUxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 15:48:17 -0500
-Received: from smtp.enter.net ([216.193.128.24]:39696 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S1751504AbWBWUsQ (ORCPT
+	Thu, 23 Feb 2006 15:53:25 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47314 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751504AbWBWUxY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 15:48:16 -0500
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: [OT] portable Makefiles (was: CD writing in future Linux   (stirring up a hornets' nest))
-Date: Thu, 23 Feb 2006 15:36:35 -0500
-User-Agent: KMail/1.8.1
-Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org
-References: <43EB7BBA.nailIFG412CGY@burner> <200602231042.01649.dhazelton@enter.net> <43FDE93C.nailFWR5TE4FT@burner>
-In-Reply-To: <43FDE93C.nailFWR5TE4FT@burner>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Feb 2006 15:53:24 -0500
+Date: Thu, 23 Feb 2006 21:53:09 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>, tiwai@suse.de, vojtech@suse.cz
+Subject: es1371 sound problems
+Message-ID: <20060223205309.GA2045@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602231536.35532.dhazelton@enter.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 February 2006 11:56, Joerg Schilling wrote:
-> "D. Hazelton" <dhazelton@enter.net> wrote:
-> > > Smake helps to find non-portable code, this is something completely
-> > > different!
-> >
-> > Umm - Joerg, you just stepped on your own toes there. A makefile
-> > validator does exactly that - helps people find non-portable code. You're
-> > fighting a losing battle when you claim one thing then say something that
-> > proves it false.
->
-> Wrong: a CD box with Suse or Redhat Linux may act as a door stop.
->
-> Does this make it a doorstop?
+Hi!
 
-If you decide to use it as such, yes. I have actually done such in the past, 
-since I needed to find some use for the box once the media was removed.
+After problems with SB Live!, I tried getting another PCI card:
 
-And anyway, you did state, as pointed out by someone else, that "smake may be 
-used as a Makefile validator" Since you advertise such a fact - that it works 
-as a Makefile validator - does that not make it such?
+0000:03:03.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev
+02)
 
-I realize you'll just deny it and don't know why I bother even looking in the 
-folder your mails get sorted into. Maybe I just have a masochistic streak...
+no luck :-(. Now, this is quite a strange machine (dual core), but
+does anyone have any clues? I tried OSS driver, and it did not work,
+so I went back to ALSA:
 
-DRH
+Advanced Linux Sound Architecture Driver Version 1.0.11rc2 (Wed Jan 04
+08:57:20 2006 UTC).
+input: PS/2 Generic Mouse as /class/input/input3
+reset at 0x220 failed!!!
+es18xx: [0x220] ESS chip not found
+reset at 0x240 failed!!!
+es18xx: [0x240] ESS chip not found
+reset at 0x260 failed!!!
+es18xx: [0x260] ESS chip not found
+reset at 0x280 failed!!!
+es18xx: [0x280] ESS chip not found
+ACPI: PCI Interrupt 0000:03:02.1[A] -> GSI 18 (level, low) -> IRQ 17
+acpi_bus-0201 [11] bus_set_power         : Device is not power
+manageable
+ACPI: PCI Interrupt 0000:03:03.0[A] -> GSI 19 (level, low) -> IRQ 19
+es1371: codec read timeout at 0x3014 [0x40000000]
+es1371: codec read timeout at 0x3014 [0x40000000]
+codec write timeout at 0x3014 [0x40000000]
+codec write timeout at 0x3014 [0x40000000]
+es1371: codec read timeout at 0x3014 [0x40000000]
+es1371: codec read timeout at 0x3014 [0x40000000]
+es1371: codec read timeout at 0x3014 [0x40000000]
+es1371: codec read timeout at 0x3014 [0x40000000]
+es1371: codec read timeout at 0x3014 [0x40000000]
+AC'97 0 access is not valid [0x0], removing mixer.
+acpi_bus-0201 [11] bus_set_power         : Device is not power
+manageable
+ACPI: PCI interrupt for device 0000:03:03.0 disabled
+ENS1371: probe of 0000:03:03.0 failed with error -5
+ALSA device list:
+  #1: Brooktree Bt878 at 0xd0001000, irq 17
+oprofile: using timer interrupt.
+
+                                                                Pavel
+
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWBWO70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751389AbWBWPD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751266AbWBWO70 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 09:59:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWBWO70
+	id S1751389AbWBWPD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 10:03:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751406AbWBWPD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 09:59:26 -0500
-Received: from bee.hiwaay.net ([216.180.54.11]:47091 "EHLO bee.hiwaay.net")
-	by vger.kernel.org with ESMTP id S1751266AbWBWO7Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 09:59:25 -0500
-Date: Thu, 23 Feb 2006 08:59:20 -0600
-From: Chris Adams <cmadams@hiwaay.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Red Hat ES4 GPL Issues?
-Message-ID: <20060223145920.GA1311407@hiwaay.net>
+	Thu, 23 Feb 2006 10:03:27 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:25311 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751389AbWBWPD1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 10:03:27 -0500
+Subject: Re: libata PATA drivers patch for 2.6.16-rc4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ed Sweetman <safemode@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43FD347B.6030802@comcast.net>
+References: <1140445182.26526.1.camel@localhost.localdomain>
+	 <43FD347B.6030802@comcast.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 23 Feb 2006 15:07:45 +0000
+Message-Id: <1140707265.4332.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43FCFDC6.9090109@soleranetworks.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Once upon a time, Jeff V. Merkey <jmerkey@soleranetworks.com> said:
->We got the distro via electronic fullfilment, so we did not get the 
->SRPMS CD iso images by default.  This was a deviation from how Red Hat
->normally distributes source code with their Linux distro.
+On Mer, 2006-02-22 at 23:05 -0500, Ed Sweetman wrote:
+> With this patch set and the attached config.  Nvidia Nforce4 chipset 
+> from asus A8N-E with pata and sata enabled (no ide drivers) I get the 
+> following error i copied by hand (half assed) during bootup.
+> 
+> Process Swapper  "lots of addresses"
 
-You had the opportunity to download the SRPMS ISOs at the same time you
-downloaded the binary ISOs; you chose not to.  That is no different than
-how any of the distributions handle things (Red Hat has always had the
-binary and source ISOs available at the same location).
+Thanks for all the reports on the oops on boot. I was able to duplicate
+it and fix the dumb bug that caused it.
 
-Also, Red Hat goes above and beyond with their source distribution; the
-GPL only requires them to distribute source to their customers (those
-that get the binaries), but Red Hat distributes all the RHEL source RPMs
-freely on their FTP site as well as on the FTP sites of many mirrors
-(that's also how they distribute debuginfo packages).
+New patch (2.6.16-rc4-ide2)
 
-ftp://ftp.redhat.com/pub/redhat/linux/enterprise/
-
--- 
-Chris Adams <cmadams@hiwaay.net>
-Systems and Network Administrator - HiWAAY Internet Services
-I don't speak for anybody but myself - that's enough trouble.
+	http://zeniv.linux.org.uk/~alan/IDE

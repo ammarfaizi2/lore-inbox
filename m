@@ -1,74 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbWBWRzd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbWBWSAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932379AbWBWRzd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 12:55:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWBWRzd
+	id S932380AbWBWSAP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 13:00:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWBWSAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 12:55:33 -0500
-Received: from mail.kroah.org ([69.55.234.183]:56036 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932380AbWBWRzb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 12:55:31 -0500
-Date: Thu, 23 Feb 2006 09:52:42 -0800
-From: Greg KH <gregkh@suse.de>
-To: Martin Bligh <mbligh@mbligh.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, Gabor Gombas <gombasg@sztaki.hu>,
-       "Theodore Ts'o" <tytso@mit.edu>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Kay Sievers <kay.sievers@suse.de>,
-       penberg@cs.helsinki.fi, bunk@stusta.de, rml@novell.com,
-       linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-Subject: Re: 2.6.16-rc4: known regressions
-Message-ID: <20060223175242.GA32750@suse.de>
-References: <Pine.LNX.4.64.0602211700580.30245@g5.osdl.org> <20060222112158.GB26268@thunk.org> <20060222154820.GJ16648@ca-server1.us.oracle.com> <20060222162533.GA30316@thunk.org> <20060222173354.GJ14447@boogie.lpds.sztaki.hu> <20060222185923.GL16648@ca-server1.us.oracle.com> <20060222191832.GA14638@suse.de> <1140636588.2979.66.camel@laptopd505.fenrus.org> <20060222194024.GA15703@suse.de> <43FDF10E.3030001@mbligh.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43FDF10E.3030001@mbligh.org>
-User-Agent: Mutt/1.5.11
+	Thu, 23 Feb 2006 13:00:15 -0500
+Received: from baldrick.bootc.net ([83.142.228.48]:42730 "EHLO
+	baldrick.bootc.net") by vger.kernel.org with ESMTP id S932380AbWBWSAN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 13:00:13 -0500
+Message-ID: <43FDF82A.5050201@bootc.net>
+Date: Thu, 23 Feb 2006 18:00:10 +0000
+From: Chris Boot <bootc@bootc.net>
+User-Agent: Mail/News 1.5 (X11/20060114)
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: MD Raid 6: poor algorithm choice?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 23, 2006 at 09:29:50AM -0800, Martin Bligh wrote:
-> >I totally agree.  Distros are changing into two different groups these
-> >days:
-> >	- everything tied together and intregrated nicely for a specific
-> >	  kernel version, userspace tool versions, etc.
-> >	- flexible and works with multiple kernel versions, different
-> >	  userspace tools, etc.
-> >
-> >Distros in the first category are the "enterprise" releases (RHEL, SLES,
-> >etc.), as well as some consumer oriented distros (SuSE, Ubuntu, Fedora
-> >possibly.)
-> >
-> >More flexible distros that handle different kernel versions are Gentoo,
-> >Debian, and probably Fedora.
-> >
-> >And this is a natural progression as people try to provide a more
-> >complete "solution" for users.
-> >
-> >When people to complain that they can't run a "kernel-of-the-day" on
-> >their "enterprise" distro, they are not realizing that that distro was
-> >just not developed to support that kind of thing at all.
-> >
-> >So, in short, if you are going to do kernel development, pick a distro
-> >that handles different kernel versions.  Likewise, if you are doing
-> >userspace development (X.org, HAL, KDE, Gnome, etc.) you pick a distro
-> >that allows you to change that level of the stack.
-> 
-> That sort of thing is going to make distros incredibly reluctant to 
-> update kernels, which just encourages them to operate inside their own
-> fiefdoms, rather than working together with mainline, which is what we
-> want.
+Hi all,
 
-They are very reluctant to upgrade kernels today, for released versions
-of the distro, and so they backport kernel fixes and security updates to
-that older kernel, just like all of the packages in a distro.  That's
-they way they work.
+[4295106.360000] raid6: int32x1    714 MB/s
+[4295106.381000] raid6: int32x2    742 MB/s
+[4295106.403000] raid6: int32x4    632 MB/s
+[4295106.429000] raid6: int32x8    523 MB/s
+[4295106.453000] raid6: mmxx1     1476 MB/s
+[4295106.474000] raid6: mmxx2     2500 MB/s
+[4295106.500000] raid6: sse1x1    1375 MB/s
+[4295106.521000] raid6: sse1x2    2339 MB/s
+[4295106.524000] raid6: using algorithm sse1x2 (2339 MB/s)
+[4295106.531000] md: raid6 personality registered for level 6
 
-But they work together with mainline as they need it for their _next_
-release that happens again in 6 months or so, with the updated kernel
-and everything else.
+I just loaded the raid6 module for fun (might end up using it one day), and I 
+was surprised at its choice of algorithm. By the messages above, I would have 
+assumed it would choose the mmxx2 algorithm at 2500 MB/s instead of sse1x2 at 
+the slightly slower 2339 MB/s. This is probably entirely expected behaviour, but 
+why?
 
-thanks,
+Cheers,
+Chris
 
-greg k-h
+-- 
+Chris Boot
+bootc@bootc.net
+http://www.bootc.net/

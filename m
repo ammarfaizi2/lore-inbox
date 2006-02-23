@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWBWNbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbWBWNdc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbWBWNbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 08:31:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbWBWNbZ
+	id S1751219AbWBWNdc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 08:33:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWBWNdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 08:31:25 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:41616 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751213AbWBWNbY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 08:31:24 -0500
-Date: Thu, 23 Feb 2006 14:29:54 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andi Kleen <ak@suse.de>, Arjan van de Ven <arjan@intel.linux.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [Patch 3/3] prepopulate/cache cleared pages
-Message-ID: <20060223132954.GA16074@elte.hu>
-References: <1140686238.2972.30.camel@laptopd505.fenrus.org> <200602231041.00566.ak@suse.de> <20060223124152.GA4008@elte.hu> <200602231406.43899.ak@suse.de> <43FDB55E.7090607@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 23 Feb 2006 08:33:32 -0500
+Received: from wproxy.gmail.com ([64.233.184.196]:52442 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751219AbWBWNdb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 08:33:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=G8ShurncjypPZGclOwsUbnarnVGx9qVXKDiD0MRnRNMzt4CkYPEgHA3q5tq29knWvJ02Ltqzq+mBF556njdkVIAtjENNyW5Z9jq1nOEV+feMeozW/k0sX+GzMmHxyJ8nZtl41xgXdnJ+e2jqfLCpKSK7Ip7ucxPrCrWeMoLvWLs=
+Message-ID: <f69849430602230533s451e3be3oe47c92320e09a1f@mail.gmail.com>
+Date: Thu, 23 Feb 2006 05:33:31 -0800
+From: "kernel coder" <lhrkernelcoder@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Programmed IDE transfer size
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <43FDB55E.7090607@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.3
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.3 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi,
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+I'm working on an ide driver.Whenever a DMA read operation is
+started,i never recieve the DMA interrupt.The staus register at offset
+00h shows value ' 0 ',which means that the descriptor table specified
+a smaller buffer size than the programmed IDE transfer size.
+But occassionaly i recieved the DMA interrupt.
 
-> I'm worried about the situation where we allocate but don't use the 
-> new page: it blows quite a bit of cache. Then, when we do get around 
-> to using it, it will be cold(er).
+Actually this driver works well on another board.On that board
+whenever i reduced the buffer size in physical region descriptor table
+to less than the current size in the PRDT table,i again got the same
+error.
 
-couldnt the new pte be flipped in atomically via cmpxchg? That way we 
-could do the page clearing close to where we are doing it now, but 
-without holding the mmap_sem.
+I think this confirms that whenever we give smaller size in PRDT than
+the programmed IDE transfer size,status register shows ' 0 ' value.
 
-to solve the pte races we could use a bit in the [otherwise empty] pte 
-to signal "this pte can be flipped in from now on", which bit would 
-automatically be cleared if mprotect() or munmap() is called over that 
-range (without any extra changes to those codepaths). (in the rare case 
-if the cmpxchg() fails, we go into a slowpath that drops the newly 
-allocated page, re-lookups the vma and the pte, etc.)
+Please tell me where in kernel that programmed IDE transfer size is
+being set.The transfer size in PRDT on the other board(on which driver
+shows no problem) varied from 4k to 1k ,which means it is changed
+frequently.
 
-	Ingo
+shahzad

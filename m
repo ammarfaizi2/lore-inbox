@@ -1,64 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751675AbWBWJd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751672AbWBWJkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751675AbWBWJd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 04:33:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751674AbWBWJd5
+	id S1751672AbWBWJkl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 04:40:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751670AbWBWJkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 04:33:57 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7440 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751082AbWBWJd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 04:33:56 -0500
-Date: Thu, 23 Feb 2006 09:33:48 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Kumar Gala <galak@kernel.crashing.org>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: what's a platform device?
-Message-ID: <20060223093348.GB6248@flint.arm.linux.org.uk>
-Mail-Followup-To: Kumar Gala <galak@kernel.crashing.org>,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0602221517370.21264-100000@gate.crashing.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0602221517370.21264-100000@gate.crashing.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 23 Feb 2006 04:40:40 -0500
+Received: from inbox2.nyi.net ([64.147.100.114]:12742 "HELO inbox2.nyi.net")
+	by vger.kernel.org with SMTP id S1751078AbWBWJkk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 04:40:40 -0500
+Date: Thu, 23 Feb 2006 15:05:45 +0530 (IST)
+From: Alok Kataria <alok.kataria@calsoftinc.com>
+X-X-Sender: alok.kataria@localhost.localdomain
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+cc: Christoph Lameter <clameter@engr.sgi.com>, akpm@osdl.org,
+       manfred@colorfullife.com, linux-kernel@vger.kernel.org
+Subject: Re: slab: Remove SLAB_NO_REAP option
+Message-ID: <Pine.LNX.4.63.0602231502380.7798@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 03:47:40PM -0600, Kumar Gala wrote:
-> The situation I have is an FPGA connected over PCI.  The FPGA implements
-> various device functionality (serial ports, I2C controller, IR, etc.) as a
-> single PCI device/function.  The FPGA breaks any notion of a true PCI
-> device, it uses PCI as a device interconnect more than anything else.
+On Thu, 2006-02-23 at 14:18, Pekka Enberg wrote:
+On 2/23/06, Alok Kataria <alok.kataria@calsoftinc.com> wrote:
+> > There can be some caches which are not used quite often, kmem_cache 
+> > for instance. Now from performance perspective having SLAB_NO_REAP for 
+> > such caches is good.
+>
+> Yeah, kmem_cache sounds like a realistic user, but I am wondering if
+> it makes any sense for anyone else to use it?
+>
+Right, thats why my question still is why do these iscsi & ocfs  cache 
+have this flag set.
 
-We have at least one example where we have a single PCI function
-containing more than one type of functionality which are the parallel
-port and serial cards [*].  Normally, the different types of
-functionality are accessible via different BARs which at least gives
-some logical separation.
+If we are sure that the flag is still required, we can use the patch 
+below.
 
-It's not really a good model because you have to have a special PCI
-probe driver to register the various functionalities with the subsystems
-rather than using the generic 8250_pci and parport_pci drivers directly.
-Also it can have problems if you want to have (eg) serial built-in and
-i2c as a module.
+> If you're not using a
+> cache that often, perhaps we're better off using kmalloc() instead?
+>
 
-The alternative as Greg points out is to implement a pseudo bus_type, but
-I start to worry about the overhead associated with doing so.
+Right.
 
-Given the choice between a small PCI "probe" driver for a small number
-of functionalities and a complete driver model infrastructure, I'd
-prefer the former over the latter.
+Thanks & Regards,
+Alok
 
+--
+As pointed by Christoph, there is a problem with SLAB_NO_REAP flag. If set 
+then the recovery of objects from alien caches is switched off.
+Objects not freed on the same node where they were initially
+allocated will only be reused if a certain amount of objects
+accumulates from one alien node (not very likely) or if the cache is
+explicitly shrunk.
+This patch facilitates draining of the alien caches irrespective of the value
+of SLAB_NO_REAP flag.
 
-* - I'm slightly biased here because it seems I've ended up "owning" the
-    serial parts of parport_serial, though I don't want to admit that in
-    public.  (damn, I just did!)  I think that, provided the subsystems
-    are sanely written such that there is very little or no code
-    duplication, this method is as good as any other method.
+Signed-off-by: Alok N Kataria <alok.kataria@calsoftinc.com>
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Index: linux-2.6.16-rc4-git5/mm/slab.c
+===================================================================
+--- linux-2.6.16-rc4-git5.orig/mm/slab.c	2006-02-23 01:09:49.000000000 -0800
++++ linux-2.6.16-rc4-git5/mm/slab.c	2006-02-23 01:12:54.000000000 -0800
+@@ -3488,14 +3488,15 @@ static void cache_reap(void *unused)
+
+  		searchp = list_entry(walk, struct kmem_cache, next);
+
+-		if (searchp->flags & SLAB_NO_REAP)
+-			goto next;
+-
+  		check_irq_on();
+
+  		l3 = searchp->nodelists[numa_node_id()];
+  		if (l3->alien)
+  			drain_alien_cache(searchp, l3->alien);
++
++		if (searchp->flags & SLAB_NO_REAP)
++			goto next;
++
+  		spin_lock_irq(&l3->list_lock);
+
+  		drain_array_locked(searchp, cpu_cache_get(searchp), 0,

@@ -1,65 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWBWXda@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWBWXj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbWBWXda (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 18:33:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWBWXda
+	id S932128AbWBWXj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 18:39:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWBWXj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 18:33:30 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:6660 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932127AbWBWXda (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 18:33:30 -0500
-Date: Fri, 24 Feb 2006 00:33:28 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Dave Jones <davej@redhat.com>, Dmitry Torokhov <dtor_core@ameritech.net>,
-       davej@codemonkey.org.uk, Zwane Mwaikambo <zwane@commfireservices.com>,
-       Samuel Masham <samuel.masham@gmail.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, cpufreq@lists.linux.org.uk
-Subject: Re: Status of X86_P4_CLOCKMOD?
-Message-ID: <20060223233328.GB3674@stusta.de>
-References: <20060214152218.GI10701@stusta.de> <20060223195937.GA5087@stusta.de> <20060223204110.GE6213@redhat.com> <200602240016.00317.ak@suse.de>
+	Thu, 23 Feb 2006 18:39:28 -0500
+Received: from lucidpixels.com ([66.45.37.187]:37817 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S932128AbWBWXj1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 18:39:27 -0500
+Date: Thu, 23 Feb 2006 18:39:23 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: Mark Lord <lkml@rtr.ca>
+cc: David Greaves <david@dgreaves.com>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>
+Subject: Re: LibPATA code issues / 2.6.15.4
+In-Reply-To: <200602141300.37118.lkml@rtr.ca>
+Message-ID: <Pine.LNX.4.64.0602231838420.3374@p34>
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com>
+ <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602240016.00317.ak@suse.de>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 24, 2006 at 12:15:59AM +0100, Andi Kleen wrote:
-> On Thursday 23 February 2006 21:41, Dave Jones wrote:
->...
-> > As to the difference of EMBEDDED.. on 32bit, there's a lot more
-> > systems without speedstep/powernow, so it makes more sense to
-> > make it more widely available.  Nearly all AMD64/EM64T have
-> > some form of speed-scaling which is more effective than p4-clockmod,
-> > which is why I assume it's set that way.
-> >
-> > Andi can probably confirm the thinking on that one, as I think
-> > he added it when x86-64 first started supporting cpufreq.
-> 
-> It should IMHO depend on EMBEDDED on i386 too because
-> the uses are extremly specialized (if there are any) and most users setting it 
-> probably set it by mistake because they misunderstand it.
+I have reproduced the error with the patched kernel!
 
-EMBEDDED is the wrong option, since the semantics of embedded is "show 
-more options to allow additional space savings". It is not and should 
-not be abused as an option to hide random options from users.
+Here it is:
 
-Currently, EXPERIMENTAL is nearer to what suits X86_P4_CLOCKMOD, and it 
-seems we really need an ADVANCED_USER option for such options.
+[263864.109854] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[263864.109861] ata3: status=0x51 { DriveReady SeekComplete Error }
+[263864.109866] ata3: error=0x04 { DriveStatusError }
 
-> -Andi
+Here is how I got it to error:
 
-cu
-Adrian
+$ for i in `seq 1 1000`; do dd if=/dev/zero of=file.$i bs=1M count=$i; 
+done
 
--- 
+Now, how to fix? :)
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+On Tue, 14 Feb 2006, Mark Lord wrote:
 
+> On Tuesday 14 February 2006 12:12, Justin Piszcz wrote:
+>> I would like to try the patch too, if available.
+>
+> Something like this:  (for 2.6.16-rc3-git2, but should be okay on 2.6.15 also).
+>
+> Untested:  include the original SCSI opcode in printk's for libata SCSI errors,
+> to help understand where the errors are coming from.
+>
+> Signed-Off-By:  Mark Lord <mlord@pobox.com>
+>
+> --- linux/drivers/scsi/libata-scsi.c.orig	2006-02-12 19:27:25.000000000 -0500
+> +++ linux/drivers/scsi/libata-scsi.c	2006-02-14 12:54:17.000000000 -0500
+> @@ -420,6 +420,7 @@
+>  *	@sk: the sense key we'll fill out
+>  *	@asc: the additional sense code we'll fill out
+>  *	@ascq: the additional sense code qualifier we'll fill out
+> + *	@opcode: the original SCSI command opcode byte
+>  *
+>  *	Converts an ATA error into a SCSI error.  Fill out pointers to
+>  *	SK, ASC, and ASCQ bytes for later use in fixed or descriptor
+> @@ -429,7 +430,7 @@
+>  *	spin_lock_irqsave(host_set lock)
+>  */
+> void ata_to_sense_error(unsigned id, u8 drv_stat, u8 drv_err, u8 *sk, u8 *asc,
+> -			u8 *ascq)
+> +			u8 *ascq, u8 opcode)
+> {
+> 	int i;
+>
+> @@ -508,8 +509,8 @@
+> 		}
+> 	}
+> 	/* No error?  Undecoded? */
+> -	printk(KERN_WARNING "ata%u: no sense translation for status: 0x%02x\n",
+> -	       id, drv_stat);
+> +	printk(KERN_WARNING "ata%u: no sense translation for op=0x%02x status: 0x%02x\n",
+> +	       id, opcode, drv_stat);
+>
+> 	/* For our last chance pick, use medium read error because
+> 	 * it's much more common than an ATA drive telling you a write
+> @@ -520,8 +521,8 @@
+> 	*ascq = 0x04; /*  "auto-reallocation failed" */
+>
+>  translate_done:
+> -	printk(KERN_ERR "ata%u: translated ATA stat/err 0x%02x/%02x to "
+> -	       "SCSI SK/ASC/ASCQ 0x%x/%02x/%02x\n", id, drv_stat, drv_err,
+> +	printk(KERN_ERR "ata%u: translated op=0x%02x ATA stat/err 0x%02x/%02x to "
+> +	       "SCSI SK/ASC/ASCQ 0x%x/%02x/%02x\n", id, opcode, drv_stat, drv_err,
+> 	       *sk, *asc, *ascq);
+> 	return;
+> }
+> @@ -562,7 +563,7 @@
+> 	 */
+> 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
+> 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
+> -				   &sb[1], &sb[2], &sb[3]);
+> +				   &sb[1], &sb[2], &sb[3], cmd->cmnd[0]);
+> 		sb[1] &= 0x0f;
+> 	}
+>
+> @@ -637,7 +638,7 @@
+> 	 */
+> 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
+> 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
+> -				   &sb[2], &sb[12], &sb[13]);
+> +				   &sb[2], &sb[12], &sb[13], cmd->cmnd[0]);
+> 		sb[2] &= 0x0f;
+> 	}
+>
+>

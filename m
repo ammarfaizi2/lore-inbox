@@ -1,58 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWBWN54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbWBWOBp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbWBWN54 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 08:57:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWBWN54
+	id S1751244AbWBWOBp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 09:01:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWBWOBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 08:57:56 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:23192 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751241AbWBWN5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 08:57:55 -0500
-Message-ID: <43FDBF55.3060502@linux.intel.com>
-Date: Thu, 23 Feb 2006 14:57:41 +0100
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Thu, 23 Feb 2006 09:01:45 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:45482 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751244AbWBWOBo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 09:01:44 -0500
+Message-ID: <43FDBFFF.7010201@openvz.org>
+Date: Thu, 23 Feb 2006 17:00:31 +0300
+From: Kir Kolyshkin <kir@openvz.org>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Patch to make the head.S-must-be-first-in-vmlinux order explicit
-References: <1140700758.4672.51.camel@laptopd505.fenrus.org> <200602231442.19903.ak@suse.de>
-In-Reply-To: <200602231442.19903.ak@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Kir Kolyshkin <kir@openvz.org>, devel@openvz.org,
+       Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
+       Rik van Riel <riel@redhat.com>, Andrey Savochkin <saw@sawoct.com>,
+       alan@lxorguk.ukuu.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mrmacman_g4@mac.com, Linus Torvalds <torvalds@osdl.org>,
+       frankeh@watson.ibm.com, serue@us.ibm.com,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Subject: Re: [Devel] Re: Which of the virtualization approaches is more suitable
+ for kernel?
+References: <43F9E411.1060305@sw.ru>	<20060220161247.GE18841@MAIL.13thfloor.at> <43FB3937.408@sw.ru>	<20060221235024.GD20204@MAIL.13thfloor.at>	<43FC3853.9030508@openvz.org>	<m1zmkjjty6.fsf@ebiederm.dsl.xmission.com>	<43FDA46E.2000705@openvz.org> <m11wxujjg9.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m11wxujjg9.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Thursday 23 February 2006 14:19, Arjan van de Ven wrote:
->> This patch puts the code from head.S in a special .bootstrap.text
->> section.
+Eric W. Biederman wrote:
+
+>>That reflects our internal organization: we have a core virtualization team
+>>which comes up with a core patch (combining all the stuff), and a maintenance
+>>team which can add some extra patches (driver updates, some bugfixes). So that
+>>extra patches comes up as a separate patches in src.rpms, while virtualization
+>>stuff comes up as a single patch. That way it is easier for our maintainters
+>>group.
 >>
->> I'm working on a patch to reorder the functions in the kernel (I'll post
->> that later), but for x86-64 at least the kernel bootstrap requires that the
->> head.S functions are on the very first page/pages of the kernel text. This
->> is understandable since the bootstrap is complex enough already and not a
->> problem at all, it just means they aren't allowed to be reordered. This
->> patch puts these special functions into a separate section to document this,
->> and to guarantee this in the light of possibly reordering the rest later.
+>>Sure we understand this is not convenient for developers who want to look at our
+>>code -- and thus we provide broken-out kernel patch sets from time to time (not
+>>for every release, as it requires some effort from Kirill, who is really buzy
+>>anyway). So, if you want this for a specific kernel -- just ask.
 >>
->> (So this patch doesn't fix a bug per se, but makes things more robust by
->> making the order of these functions explicit)
-> 
-> I don't think the 64bit kernel code requires this actually
+>>I understand that this might look strange, but again, this reflects our internal
+>>development structure.
+>>    
+>>
+>
+>There is something this brings up.  Currently OpenVZ seems to be a
+>project where you guys do the work and release the source under the
+>GPL.  Making it technically an open source project.  However at the
+>development level it does not appear to be a community project, at
+>least at the developer level.
+>
+>There is nothing wrong with not doing involving the larger community
+>in the development, but what it does mean is that largely as a
+>developer OpenVZ is uninteresting to me.
+>  
+>
+I though that first thing that makes particular technology interesting 
+or otherwise appealing to developers is the technology itself, i.e. is 
+it interesting, appealing, innovative and superior, is it tomorrow today 
+and so on. From that point, OpenVZ is pretty much interesting. From the 
+point of openness -- well, you might be right, there's still something 
+we could do.
 
-It didn't boot at first until I fixed this ;)
+I understand it should work both ways -- we should provide easier ways 
+to access the code, to contribute etc. Still, I see little to no 
+interest of contributing to OpenVZ kernel. Probably this is because of 
+high entry level, probably it is because we are not yet open enough or so.
 
-> (or at least
-> it shouldn't), but arch/x86_64/boot/compressed/head.S
-> seems to have the entry address hardcoded. Perhaps you can just change this
-> to pass in the right address?
+Any way, I would love to hear any comments/suggestions of how we can 
+improve this situation from our side (and let me express hope you will 
+improve it from yours:)).
 
-the issue is that the address will be a link time thing, which means 
-lots of complexity. and it's only a handful of functions, so pinning 
-these few explicitly looked to me like the best simple solution (eg 
-anything else will be fragile and failures in this area are near 
-impossible to debug, even when it'll work now complexity means it may 
-fail in the future ;( )
-
+Regards,
+  Kir.

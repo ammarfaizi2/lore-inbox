@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751617AbWBWQSA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751619AbWBWQTw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751617AbWBWQSA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 11:18:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751618AbWBWQSA
+	id S1751619AbWBWQTw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 11:19:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751621AbWBWQTw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 11:18:00 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16279 "EHLO
+	Thu, 23 Feb 2006 11:19:52 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:18327 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751604AbWBWQR7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 11:17:59 -0500
+	id S1751619AbWBWQTv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 11:19:51 -0500
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH 13/23] proc: Close the race of a process dying durning
- lookup.
+Subject: [PATCH 14/23] proc: Make PROC_NUMBUF the buffer size for holding a
+ integers as strings.
 References: <m1oe0yhy1w.fsf@ebiederm.dsl.xmission.com>
 	<m1k6bmhxze.fsf@ebiederm.dsl.xmission.com>
 	<m1fymahxwr.fsf_-_@ebiederm.dsl.xmission.com>
@@ -26,11 +26,12 @@ References: <m1oe0yhy1w.fsf@ebiederm.dsl.xmission.com>
 	<m1d5heginy.fsf_-_@ebiederm.dsl.xmission.com>
 	<m18xs2gikb.fsf_-_@ebiederm.dsl.xmission.com>
 	<m14q2qgigc.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1zmkif3t8.fsf_-_@ebiederm.dsl.xmission.com>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 23 Feb 2006 09:16:51 -0700
-In-Reply-To: <m14q2qgigc.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
- Biederman's message of "Thu, 23 Feb 2006 09:15:15 -0700")
-Message-ID: <m1zmkif3t8.fsf_-_@ebiederm.dsl.xmission.com>
+Date: Thu, 23 Feb 2006 09:18:44 -0700
+In-Reply-To: <m1zmkif3t8.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
+ Biederman's message of "Thu, 23 Feb 2006 09:16:51 -0700")
+Message-ID: <m1vev6f3q3.fsf_-_@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -38,177 +39,138 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-proc_lookup and task exiting are not synchronized, although some of the
-previous code may have suggested that.  Every time before we reuse a dentry
-namei.c calls d_op->derevalidate which prevents us from reusing a stale
-dcache entry.  Unfortunately it does not prevent us from returning a stale
-dcache entry.  This race has been explicitly plugged in proc_pid_lookup
-but there is nothing to confine it to just that proc lookup function.
-
-So to prevent the race I call revalidate explictily in all of the
-proc lookup functions after I call d_add, and report an error if
-the revalidate does not succeed.
-
-Years ago Al Viro did something similar but those changes got lost in
-the churn.
+Currently in /proc at several different places we define buffers to
+hold a process id, or a file descriptor .  In most of them we use
+either a hard coded number or a different define.  Modify them all to
+use PROC_NUMBUF, so the code has a chance of being maintained. 
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 
 
 ---
 
- fs/proc/base.c |   54 +++++++++++++++++++++++++++++-------------------------
- 1 files changed, 29 insertions(+), 25 deletions(-)
+ fs/proc/base.c |   30 +++++++++++++++---------------
+ 1 files changed, 15 insertions(+), 15 deletions(-)
 
-aea0459c7bef967ce3345449db5183d4b2dafefe
+43e5ec3ac1c2badfd746bc7f17f60235dfde549f
 diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 9fab7fe..36cddda 100644
+index 36cddda..1ab12e5 100644
 --- a/fs/proc/base.c
 +++ b/fs/proc/base.c
-@@ -1340,6 +1340,7 @@ static struct dentry *proc_lookupfd(stru
+@@ -181,6 +181,9 @@ enum pid_directory_inos {
+ 	PROC_TID_FD_DIR = 0x8000,	/* 0x8000-0xffff */
+ };
+ 
++/* Worst case buffer size needed for holding an integer. */
++#define PROC_NUMBUF 10
++
+ struct pid_entry {
+ 	int type;
+ 	int len;
+@@ -725,12 +728,12 @@ static ssize_t oom_adjust_read(struct fi
+ 				size_t count, loff_t *ppos)
  {
- 	struct task_struct *task = proc_task(dir);
- 	unsigned fd = name_to_int(dentry);
-+	struct dentry *result = ERR_PTR(-ENOENT);
- 	struct file * file;
+ 	struct task_struct *task = proc_task(file->f_dentry->d_inode);
+-	char buffer[8];
++	char buffer[PROC_NUMBUF];
+ 	size_t len;
+ 	int oom_adjust = task->oomkilladj;
+ 	loff_t __ppos = *ppos;
+ 
+-	len = sprintf(buffer, "%i\n", oom_adjust);
++	len = snprintf(buffer, sizeof(buffer), "%i\n", oom_adjust);
+ 	if (__ppos >= len)
+ 		return 0;
+ 	if (count > len-__ppos)
+@@ -745,14 +748,14 @@ static ssize_t oom_adjust_write(struct f
+ 				size_t count, loff_t *ppos)
+ {
+ 	struct task_struct *task = proc_task(file->f_dentry->d_inode);
+-	char buffer[8], *end;
++	char buffer[PROC_NUMBUF], *end;
+ 	int oom_adjust;
+ 
+ 	if (!capable(CAP_SYS_RESOURCE))
+ 		return -EPERM;
+-	memset(buffer, 0, 8);
+-	if (count > 6)
+-		count = 6;
++	memset(buffer, 0, sizeof(buffer));
++	if (count > sizeof(buffer) - 1)
++		count = sizeof(buffer) - 1;
+ 	if (copy_from_user(buffer, buf, count))
+ 		return -EFAULT;
+ 	oom_adjust = simple_strtol(buffer, &end, 0);
+@@ -1037,8 +1040,6 @@ static struct inode_operations proc_pid_
+ 	.follow_link	= proc_pid_follow_link
+ };
+ 
+-#define NUMBUF 10
+-
+ static int proc_readfd(struct file * filp, void * dirent, filldir_t filldir)
+ {
+ 	struct dentry *dentry = filp->f_dentry;
+@@ -1046,7 +1047,7 @@ static int proc_readfd(struct file * fil
+ 	struct task_struct *p = proc_task(inode);
+ 	unsigned int fd, tid, ino;
+ 	int retval;
+-	char buf[NUMBUF];
++	char buf[PROC_NUMBUF];
  	struct files_struct * files;
- 	struct inode *inode;
-@@ -1374,15 +1375,18 @@ static struct dentry *proc_lookupfd(stru
- 	ei->op.proc_get_link = proc_fd_link;
- 	dentry->d_op = &tid_fd_dentry_operations;
- 	d_add(dentry, inode);
--	return NULL;
-+	/* Close the race of the process dying before we return the dentry */
-+	if (tid_fd_revalidate(dentry, NULL))
-+		result = NULL;
-+out:
-+	return result;
+ 	struct fdtable *fdt;
  
- out_unlock2:
- 	rcu_read_unlock();
- 	put_files_struct(files);
- out_unlock:
- 	iput(inode);
--out:
--	return ERR_PTR(-ENOENT);
-+	goto out;
- }
+@@ -1082,7 +1083,7 @@ static int proc_readfd(struct file * fil
+ 					continue;
+ 				rcu_read_unlock();
  
- static int proc_task_readdir(struct file * filp, void * dirent, filldir_t filldir);
-@@ -1482,12 +1486,12 @@ static struct dentry *proc_pident_lookup
- 					 struct pid_entry *ents)
+-				j = NUMBUF;
++				j = PROC_NUMBUF;
+ 				i = fd;
+ 				do {
+ 					j--;
+@@ -1091,7 +1092,7 @@ static int proc_readfd(struct file * fil
+ 				} while (i);
+ 
+ 				ino = fake_ino(tid, PROC_TID_FD_DIR + fd);
+-				if (filldir(dirent, buf+j, NUMBUF-j, fd+2, ino, DT_LNK) < 0) {
++				if (filldir(dirent, buf+j, PROC_NUMBUF-j, fd+2, ino, DT_LNK) < 0) {
+ 					rcu_read_lock();
+ 					break;
+ 				}
+@@ -1757,14 +1758,14 @@ static struct inode_operations proc_tid_
+ static int proc_self_readlink(struct dentry *dentry, char __user *buffer,
+ 			      int buflen)
  {
- 	struct inode *inode;
--	int error;
-+	struct dentry *error;
- 	struct task_struct *task = proc_task(dir);
- 	struct pid_entry *p;
- 	struct proc_inode *ei;
- 
--	error = -ENOENT;
-+	error = ERR_PTR(-ENOENT);
- 	inode = NULL;
- 
- 	if (!pid_alive(task))
-@@ -1502,7 +1506,7 @@ static struct dentry *proc_pident_lookup
- 	if (!p->name)
- 		goto out;
- 
--	error = -EINVAL;
-+	error = ERR_PTR(-EINVAL);
- 	inode = proc_pid_make_inode(dir->i_sb, task, p->type);
- 	if (!inode)
- 		goto out;
-@@ -1663,14 +1667,16 @@ static struct dentry *proc_pident_lookup
- 		default:
- 			printk("procfs: impossible type (%d)",p->type);
- 			iput(inode);
--			return ERR_PTR(-EINVAL);
-+			error = ERR_PTR(-EINVAL);
-+			goto out;
- 	}
- 	dentry->d_op = &pid_dentry_operations;
- 	d_add(dentry, inode);
--	return NULL;
--
-+	/* Close the race of the process dying before we return the dentry */
-+	if (pid_revalidate(dentry, NULL))
-+		error = NULL;
- out:
--	return ERR_PTR(error);
-+	return error;
+-	char tmp[30];
++	char tmp[PROC_NUMBUF];
+ 	sprintf(tmp, "%d", current->tgid);
+ 	return vfs_readlink(dentry,buffer,buflen,tmp);
  }
  
- static struct dentry *proc_tgid_base_lookup(struct inode *dir, struct dentry *dentry, struct nameidata *nd){
-@@ -1846,6 +1852,7 @@ out:
- /* SMP-safe */
- struct dentry *proc_pid_lookup(struct inode *dir, struct dentry * dentry, struct nameidata *nd)
+ static void *proc_self_follow_link(struct dentry *dentry, struct nameidata *nd)
  {
-+	struct dentry *result = ERR_PTR(-ENOENT);
- 	struct task_struct *task;
- 	struct inode *inode;
- 	struct proc_inode *ei;
-@@ -1879,12 +1886,9 @@ struct dentry *proc_pid_lookup(struct in
- 		goto out;
- 
- 	inode = proc_pid_make_inode(dir->i_sb, task, PROC_TGID_INO);
-+	if (!inode)
-+		goto out_put_task;
- 
--
--	if (!inode) {
--		put_task_struct(task);
--		goto out;
--	}
- 	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
- 	inode->i_op = &proc_tgid_base_inode_operations;
- 	inode->i_fop = &proc_tgid_base_operations;
-@@ -1898,21 +1902,20 @@ struct dentry *proc_pid_lookup(struct in
- 	dentry->d_op = &pid_dentry_operations;
- 
- 	d_add(dentry, inode);
--	if (!pid_alive(task)) {
--		d_drop(dentry);
--		shrink_dcache_parent(dentry);
--		goto out;
--	}
-+	/* Close the race of the process dying before we return the dentry */
-+	if (pid_revalidate(dentry, NULL))
-+		result = NULL;
- 
-+out_put_task:
- 	put_task_struct(task);
--	return NULL;
- out:
--	return ERR_PTR(-ENOENT);
-+	return result;
- }
- 
- /* SMP-safe */
- static struct dentry *proc_task_lookup(struct inode *dir, struct dentry * dentry, struct nameidata *nd)
+-	char tmp[30];
++	char tmp[PROC_NUMBUF];
+ 	sprintf(tmp, "%d", current->tgid);
+ 	return ERR_PTR(vfs_follow_link(nd,tmp));
+ }	
+@@ -1798,7 +1799,7 @@ static struct inode_operations proc_self
+ void proc_flush_task(struct task_struct *task)
  {
-+	struct dentry *result = ERR_PTR(-ENOENT);
- 	struct task_struct *task;
- 	struct task_struct *leader = proc_task(dir);
- 	struct inode *inode;
-@@ -1950,13 +1953,14 @@ static struct dentry *proc_task_lookup(s
- 	dentry->d_op = &pid_dentry_operations;
+ 	struct dentry *dentry, *leader, *dir;
+-	char buf[30];
++	char buf[PROC_NUMBUF];
+ 	struct qstr name;
  
- 	d_add(dentry, inode);
-+	/* Close the race of the process dying before we return the dentry */
-+	if (pid_revalidate(dentry, NULL))
-+		result = NULL;
- 
--	put_task_struct(task);
--	return NULL;
- out_drop_task:
- 	put_task_struct(task);
- out:
--	return ERR_PTR(-ENOENT);
-+	return result;
+ 	name.name = buf;
+@@ -1963,7 +1964,6 @@ out:
+ 	return result;
  }
  
- #define PROC_NUMBUF 10
+-#define PROC_NUMBUF 10
+ #define PROC_MAXPIDS 20
+ 
+ /*
 -- 
 1.2.2.g709a
 

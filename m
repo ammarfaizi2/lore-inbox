@@ -1,90 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWBWXar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWBWXda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932125AbWBWXar (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 18:30:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWBWXar
+	id S932127AbWBWXda (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 18:33:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWBWXda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 18:30:47 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:19631 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S932125AbWBWXaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 18:30:46 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Fri, 24 Feb 2006 09:27:45 +1000
-User-Agent: KMail/1.9.1
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
-       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602232337.31075.rjw@sisk.pl> <20060223230439.GC1662@elf.ucw.cz>
-In-Reply-To: <20060223230439.GC1662@elf.ucw.cz>
+	Thu, 23 Feb 2006 18:33:30 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:6660 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932127AbWBWXda (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 18:33:30 -0500
+Date: Fri, 24 Feb 2006 00:33:28 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Dave Jones <davej@redhat.com>, Dmitry Torokhov <dtor_core@ameritech.net>,
+       davej@codemonkey.org.uk, Zwane Mwaikambo <zwane@commfireservices.com>,
+       Samuel Masham <samuel.masham@gmail.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, cpufreq@lists.linux.org.uk
+Subject: Re: Status of X86_P4_CLOCKMOD?
+Message-ID: <20060223233328.GB3674@stusta.de>
+References: <20060214152218.GI10701@stusta.de> <20060223195937.GA5087@stusta.de> <20060223204110.GE6213@redhat.com> <200602240016.00317.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2794757.nZ9vu5GrKm";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602240927.51338.ncunningham@cyclades.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602240016.00317.ak@suse.de>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2794757.nZ9vu5GrKm
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-Hi.
-
-On Friday 24 February 2006 09:04, Pavel Machek wrote:
-> > > [Because pagecache is freeable, anyway, so it will be freed. Now... I
-> > > have seen some problems where free_some_memory did not free enough,
-> > > and schedule()/retry helped a bit... that probably should be fixed.]
+On Fri, Feb 24, 2006 at 12:15:59AM +0100, Andi Kleen wrote:
+> On Thursday 23 February 2006 21:41, Dave Jones wrote:
+>...
+> > As to the difference of EMBEDDED.. on 32bit, there's a lot more
+> > systems without speedstep/powernow, so it makes more sense to
+> > make it more widely available.  Nearly all AMD64/EM64T have
+> > some form of speed-scaling which is more effective than p4-clockmod,
+> > which is why I assume it's set that way.
 > >
-> > It seems I need to understand correctly what the difference between what
-> > we do and what Nigel does is.  I thought the Nigel's approach was to sa=
-ve
-> > some cache pages to disk first and use the memory occupied by them to
-> > store the image data.  If so, is the page cache involved in that or
-> > something else?
->
-> I believe Nigel only saves pages that could have been freed anyway
-> during phase1. Nigel, correct me here... suspend2 should work on same
-> class of machines swsusp can, but will be able to save caches on
-> machines where swsusp can not save any.
+> > Andi can probably confirm the thinking on that one, as I think
+> > he added it when x86-64 first started supporting cpufreq.
+> 
+> It should IMHO depend on EMBEDDED on i386 too because
+> the uses are extremly specialized (if there are any) and most users setting it 
+> probably set it by mistake because they misunderstand it.
 
-I'm not used to thinking in these terms :). It would be normally be right,=
-=20
-except that there will be some LRU pages that will never be freed. These=20
-would allow suspend2 to work in some (not many) cases where swsusp can't.=20
-It's been ages since I did the intensive testing on the image preparation=20
-code, but I think that if we free as much memory as we can, we will always=
-=20
-still have at least a few hundred LRU pages left. That's not much, but on=20
-machines with less ram, it might make the difference in a greater percentag=
-e=20
-of cases (compared to machines with more ram)?
+EMBEDDED is the wrong option, since the semantics of embedded is "show 
+more options to allow additional space savings". It is not and should 
+not be abused as an option to hide random options from users.
 
-If there were other pages that could be safely included in this set, we cou=
-ld=20
-perhaps make more cases where suspend2 could work but swsusp couldn't. LRU=
-=20
-was low hanging fruit, and I didn't bother looking beyond it.
+Currently, EXPERIMENTAL is nearer to what suits X86_P4_CLOCKMOD, and it 
+seems we really need an ADVANCED_USER option for such options.
 
-Nigel
+> -Andi
 
---nextPart2794757.nZ9vu5GrKm
-Content-Type: application/pgp-signature
+cu
+Adrian
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+-- 
 
-iD8DBQBD/kT3N0y+n1M3mo0RAvM9AJ9M9AO8PbdczvuAtsQdnIFyWXbuNwCgsPKz
-l7PyODFNU04cWwq0eVPu5ZM=
-=IGrw
------END PGP SIGNATURE-----
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
---nextPart2794757.nZ9vu5GrKm--

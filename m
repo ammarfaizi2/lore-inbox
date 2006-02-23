@@ -1,39 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbWBWUIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751787AbWBWUId@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750941AbWBWUIM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 15:08:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751784AbWBWUIM
+	id S1751787AbWBWUId (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 15:08:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751786AbWBWUId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 15:08:12 -0500
-Received: from liaag2ab.mx.compuserve.com ([149.174.40.153]:30694 "EHLO
-	liaag2ab.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750941AbWBWUIL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 15:08:11 -0500
-Date: Thu, 23 Feb 2006 15:02:13 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [Patch 3/3] prepopulate/cache cleared pages
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@intel.linux.com>,
-       Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200602231506_MC3-1-B923-212B@compuserve.com>
+	Thu, 23 Feb 2006 15:08:33 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:41988 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1751787AbWBWUIc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 15:08:32 -0500
+Message-ID: <43FE1615.6060008@shadowen.org>
+Date: Thu, 23 Feb 2006 20:07:49 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+Subject: Re: Patch to reorder functions in the vmlinux to a defined order
+References: <1140700758.4672.51.camel@laptopd505.fenrus.org>  <1140707358.4672.67.camel@laptopd505.fenrus.org>  <200602231700.36333.ak@suse.de> <1140713001.4672.73.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0602230902230.3771@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602230902230.3771@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <200602231406.43899.ak@suse.de>
+Linus Torvalds wrote:
 
-On Thu, 23 Feb 2006 at 14:06:43 +0100, Andi Kleen wrote:
-> e.g. you might notice that a lot of patches from new contributors
-> go smoother into x86-64 than into i386.
+> Does anybody want to run benchmarks? (Totally untested, may not boot, 
+> might physically accost your pets for all I know).
 
- That's because, strangely enough, i386 doesn't have an official maintainer.
+Will throw this into the nightly tests and see what pops out.
 
--- 
-Chuck
-"Equations are the Devil's sentences."  --Stephen Colbert
-
+-apw

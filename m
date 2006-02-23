@@ -1,63 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWBWVk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWBWVxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWBWVk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 16:40:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751774AbWBWVkz
+	id S932117AbWBWVxm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 16:53:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751782AbWBWVxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 16:40:55 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42406 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751780AbWBWVkz (ORCPT
+	Thu, 23 Feb 2006 16:53:42 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:43441 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751775AbWBWVxl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 16:40:55 -0500
-Date: Thu, 23 Feb 2006 22:40:03 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Kristen Accardi <kristen.c.accardi@intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       pcihpd-discuss@lists.sourceforge.net, greg@kroah.com,
-       len.brown@intel.com, muneda.takahiro@jp.fujitsu.com
-Subject: Re: [patch 0/3] New dock patches
-Message-ID: <20060223214003.GB1662@elf.ucw.cz>
-References: <1140636081.32574.18.camel@whizzy> <20060223210525.GA1735@elf.ucw.cz> <1140730882.11750.33.camel@whizzy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1140730882.11750.33.camel@whizzy>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 23 Feb 2006 16:53:41 -0500
+Date: Thu, 23 Feb 2006 13:53:21 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: akpm@osdl.org
+cc: alokk@calsoftinc.com, manfred@colorfullife.com,
+       Pekka Enberg <penberg@gmail.com>, linux-kernel@vger.kernel.org,
+       Ravikiran G Thirumalai <kiran@scalex86.org>
+Subject: Re: Slab: Node rotor for freeing alien caches and remote per cpu
+ pages.
+In-Reply-To: <Pine.LNX.4.64.0602231036480.13184@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.64.0602231352430.14987@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0602231036480.13184@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Fix two issues in the patch as suggested by Kiran:
 
-> > I tested the new version from today... it works okay. It produces some
-> > weird messages:
-> > 
-> > acpiphp: Slot [4294967295] registered
-> > ACPI Exception (acpi_bus-0072): AE_NOT_FOUND, No context for object
-> > [c1d081e8] [20060210]
-> > PCI: Found IBM Dock II Cardbus Bridge applying quirk
-> > PCI: Found IBM Dock II Cardbus Bridge applying quirk
-> > PCI: Transparent bridge - 0000:02:03.0
-> > PCI: Bus #0c (-#0f) is hidden behind transparent bridge #02 (-#0b)
-> > Please report the result to linux-kernel to fix this permanently
-> > PCI: Bus #10 (-#13) is hidden behind transparent bridge #02 (-#0b)
-> > Please report the result to linux-kernel to fix this permanently
-> > ACPI Exception (acpi_bus-0072): AE_NOT_FOUND, No context for object
-> > [c1d02368] [20060210]
-> > 
-> > Could the code be fixed not to start numbering slots from -1?
-> > 
-> > 								Pavel
-> 
-> Yeah, the problem is that laptops don't implement _SUN, which is used
-> for the slot numbering by the existing acpiphp code.  So the slot number
-> will read -1 if _SUN is missing.  I'm not sure if 0 is a valid slot
-> number, and I wasn't sure if that would make sense either.  I think that
-> I'm going to have to provide a separate user space interface to the dock
-> anyway, since we now know that it's possible to have a dock station that
-> has no pci slots at all.
+1. next_node() cannot return a node number >MAX_NUMNODES. So use ==
 
-I'd certainly say that 0 is better slot number then -1... If it is
-easy to make it 0 instead of -1, please change it.
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+2. Node online map should not be empty during bootup so we can
+   skip the code that I added to deal with that situation.
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.16-rc4/mm/slab.c
+===================================================================
+--- linux-2.6.16-rc4.orig/mm/slab.c	2006-02-23 10:20:16.000000000 -0800
++++ linux-2.6.16-rc4/mm/slab.c	2006-02-23 13:28:34.000000000 -0800
+@@ -803,7 +803,7 @@ static void init_reap_node(int cpu)
+ 	int node;
+ 
+ 	node = next_node(cpu_to_node(cpu), node_online_map);
+-	if (node >= MAX_NUMNODES)
++	if (node == MAX_NUMNODES)
+ 		node = 0;
+ 
+ 	__get_cpu_var(reap_node) = node;
+@@ -820,15 +820,8 @@ static void next_reap_node(void)
+ 		drain_node_pages(node);
+ 
+ 	node = next_node(node, node_online_map);
+-	if (unlikely(node >= MAX_NUMNODES)) {
++	if (unlikely(node >= MAX_NUMNODES))
+ 		node = first_node(node_online_map);
+-		/*
+-		 * If the node_online_map is empty (early boot) then
+-		 * only use node zero.
+-		*/
+-		if (node >= MAX_NUMNODES)
+-			node = 0;
+-	}
+ 	__get_cpu_var(reap_node) = node;
+ }
+ 
+

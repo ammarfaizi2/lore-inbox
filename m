@@ -1,84 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751447AbWBWPiS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbWBWPlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751447AbWBWPiS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 10:38:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWBWPiS
+	id S1751462AbWBWPlg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 10:41:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751463AbWBWPlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 10:38:18 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:52111 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751447AbWBWPiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 10:38:18 -0500
-Date: Thu, 23 Feb 2006 10:38:13 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Greg KH <greg@kroah.com>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] driver core: better reference counting for klists
-In-Reply-To: <20060223050525.GA8046@kroah.com>
-Message-ID: <Pine.LNX.4.44L0.0602231019530.5204-100000@iolanthe.rowland.org>
+	Thu, 23 Feb 2006 10:41:36 -0500
+Received: from smtp.enter.net ([216.193.128.24]:14096 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S1751462AbWBWPlf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 10:41:35 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Subject: Re: [OT] portable Makefiles (was: CD writing in future Linux  (stirring up a hornets' nest))
+Date: Thu, 23 Feb 2006 10:42:01 -0500
+User-Agent: KMail/1.8.1
+Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org
+References: <43EB7BBA.nailIFG412CGY@burner> <20060222140528.GB13283@merlin.emma.line.org> <43FDA779.nailFHQ21G57C@burner>
+In-Reply-To: <43FDA779.nailFHQ21G57C@burner>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602231042.01649.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Feb 2006, Greg KH wrote:
+On Thursday 23 February 2006 07:15, Joerg Schilling wrote:
+> Matthias Andree <matthias.andree@gmx.de> wrote:
+> > Joerg Schilling schrieb am 2006-02-22:
+> > > > - run Solaris' /usr/{ccs,xpg4}/bin/make
+> > > >   to find out if your Makefile is portable
+> > >
+> > > Solaris make does not write useful error messages in case of
+> > > non-portable makefiles.
+> >
+> > Sun Microsystems do not advertise their make tool as Makefile
+> > portability validator.  Note the difference: each tool is held to its
+> > own standards.
+>
+> I do not advertize smake as makefile validator either.
+>
+> It would help a lot, if people on LKML would not repeatedly impute me
+> things I never said....
+>
+>
+> Smake helps to find non-portable code, this is something completely
+> different!
 
-> > Index: usb-2.6/drivers/base/dd.c
-> > ===================================================================
-> > --- usb-2.6.orig/drivers/base/dd.c
-> > +++ usb-2.6/drivers/base/dd.c
-> > @@ -72,6 +72,8 @@ int driver_probe_device(struct device_dr
-> >  {
-> >     int ret = 0;
-> >     
-> > +   if (!device_is_registered(dev))
-> > +           return -ENODEV;
-> >     if (drv->bus->match && !drv->bus->match(dev, drv))
-> >             goto Done;
-> >     
-> > Index: usb-2.6/drivers/base/bus.c
-> > ===================================================================
-> > --- usb-2.6.orig/drivers/base/bus.c
-> > +++ usb-2.6/drivers/base/bus.c
-> > @@ -367,6 +367,7 @@ int bus_add_device(struct device * dev)
-> >  
-> >  	if (bus) {
-> >  		pr_debug("bus %s: add device %s\n", bus->name, dev->bus_id);
-> > +		dev->is_registered = 1;
-> >  		device_attach(dev);
-> >  		klist_add_tail(&dev->knode_bus, &bus->klist_devices);
-> >  		error = device_add_attrs(bus, dev);
-> > @@ -393,7 +394,8 @@ void bus_remove_device(struct device * d
-> >  		sysfs_remove_link(&dev->kobj, "bus");
-> >  		sysfs_remove_link(&dev->bus->devices.kobj, dev->bus_id);
-> >  		device_remove_attrs(dev->bus, dev);
-> > -		klist_remove(&dev->knode_bus);
-> > +		klist_del(&dev->knode_bus);
-> > +		dev->is_registered = 0;
-> 
-> Don't we have a race between these two lines?  How is that protected?
+Umm - Joerg, you just stepped on your own toes there. A makefile validator 
+does exactly that - helps people find non-portable code. You're fighting a 
+losing battle when you claim one thing then say something that proves it 
+false.
 
-Are you referring to the two lines that set dev->is_registered?  There is 
-no direct protection.  However, one line is in bus_add_device() and the 
-other is in bus_remove_device(); I've been assuming that any code 
-responsible for adding and removing devices is serialized.  That is, it 
-won't ever try to remove a device before that device has been completely 
-added.
-
-If that assumption isn't true, there are undoubtedly many other similar 
-problems throughout the driver core.  Like the calls to sysfs_create_link 
-in bus_add_device and sysfs_remove_link in bus_remove_device.
-
-Or maybe you're referring to the device_is_registered() test in 
-driver_probe_device().  That's synchronized with the call to 
-device_release_driver() in bus_remove_device(), just below the portion you 
-quoted, because both routines hold dev->sem.  So even if the probe routine 
-fails to see that the device has been unregistered, we are guaranteed that 
-device_release_driver will unbind the device.
-
-If you're referring to two other lines, which lines are they?
-
-Alan Stern
+DRH
 

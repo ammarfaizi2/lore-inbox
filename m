@@ -1,92 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbWBWAml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030339AbWBWAns@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030319AbWBWAml (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 19:42:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030339AbWBWAml
+	id S1030339AbWBWAns (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 19:43:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbWBWAns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 19:42:41 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:63623 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1030319AbWBWAmk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 19:42:40 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Thu, 23 Feb 2006 10:39:39 +1000
-User-Agent: KMail/1.9.1
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
-       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602231011.44889.ncunningham@cyclades.com> <20060223003300.GL13621@elf.ucw.cz>
-In-Reply-To: <20060223003300.GL13621@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1335736.imWXiEuIWH";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Wed, 22 Feb 2006 19:43:48 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:38540
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030339AbWBWAnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 19:43:47 -0500
+Date: Wed, 22 Feb 2006 16:43:47 -0800 (PST)
+Message-Id: <20060222.164347.12864037.davem@davemloft.net>
+To: bcrl@kvack.org
+Cc: hpa@zytor.com, klibc@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: sys_mmap2 on different architectures
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060223001411.GA20487@kvack.org>
+References: <43FCDB8A.5060100@zytor.com>
+	<20060223001411.GA20487@kvack.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602231039.45507.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1335736.imWXiEuIWH
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+From: Benjamin LaHaise <bcrl@kvack.org>
+Date: Wed, 22 Feb 2006 19:14:11 -0500
 
-Hi.
+> The sys_mmap2() ABI is that the page shift is always fixed to whatever 
+> page size is reasonable for the architecture, typically 2^12.  The syscall 
+> should never be exposed as mmap2(), only as the large file size version 
+> of mmap() (aka mmap64()).  The other consideration is that it should not 
+> be implemented in 64 bit ABIs, as those machines should be using a 64 bit 
+> native mmap().  Does that clear things up a bit?  Cheers,
 
-On Thursday 23 February 2006 10:33, Pavel Machek wrote:
-> Hi!
->
-> > > > > > The fact that we use page flags to store some
-> > > > > > suspend/resume-related information is a big disadvantage in my
-> > > > > > view, and I'd like to get rid of that in the future.  In
-> > > > > > principle we could use a bitmap, or rather two of them, to store
-> > > > > > the same information independently of the page flags, and if we
-> > > > > > use bitmaps for this purpose, we can use them also instead of
-> > > > > > PBEs.
-> > > > >
-> > > > > Well, we "only" use 2 bits... :-).
-> > > >
-> > > > In my view the problem is this adds constraints that other people
-> > > > have to take into account.  Not a good thing if avoidable IMHO.
-> > >
-> > > Well, I hope that swsusp development will move to userland in future
-> > >
-> > > :-).
-> >
-> > I don't get your point. I mean, we're talking about flags that record
-> > what pages are going to be in the image, be atomically copied and so on.
-> > Are you planning on trying to export the free page information and the
-> > like to userspace too, along with atomic copy code?
->
-> No, certainly not.
->
-> Rafael said something like "being limited is bad, because it makes it
-> hard to change in-kernel snapshoting code". My reply was something
-> like "I hope people will stop changing in-kernel swsusp code, and hack
-> userland instead".
->
-> Atomic copy code has to stay with kernel: it needs disabled
-> interrupts, access to all the RAM, etc. It screams "kernel code".
+Aha, that part I didn't catch.  Thanks for the clarification
+Ben.
 
-Good to know. I was afraid you were losing the plot for a minute there :)
-
-Nigel
-
---nextPart1335736.imWXiEuIWH
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD/QRRN0y+n1M3mo0RAqWNAJwKEfDT8JgKZ6ivBjBWCI/uej/RyACfdI/4
-odOZ2rH15cjVZb3WhduBI9U=
-=OmJG
------END PGP SIGNATURE-----
-
---nextPart1335736.imWXiEuIWH--
+I wonder why we did things that way with a fixed shift...

@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751561AbWBWAWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751572AbWBWAYr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751561AbWBWAWw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 19:22:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751542AbWBWAWw
+	id S1751572AbWBWAYr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 19:24:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751582AbWBWAYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 19:22:52 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:15493 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751492AbWBWAWv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 19:22:51 -0500
-Message-ID: <43FD0057.6030607@zytor.com>
-Date: Wed, 22 Feb 2006 16:22:47 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@kvack.org>
-CC: klibc@zytor.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: sys_mmap2 on different architectures
-References: <43FCDB8A.5060100@zytor.com> <20060223001411.GA20487@kvack.org>
-In-Reply-To: <20060223001411.GA20487@kvack.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 22 Feb 2006 19:24:47 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:9883 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751542AbWBWAYq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 19:24:46 -0500
+Date: Wed, 22 Feb 2006 16:26:54 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Randy Dunlap <randy_d_dunlap@linux.intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [PATCH 0/13] ACPI objects for SATA/PATA
+Message-Id: <20060222162654.31ef25ad.akpm@osdl.org>
+In-Reply-To: <20060222141238.4d2effa8.randy_d_dunlap@linux.intel.com>
+References: <20060222141238.4d2effa8.randy_d_dunlap@linux.intel.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise wrote:
-> 
-> The sys_mmap2() ABI is that the page shift is always fixed to whatever 
-> page size is reasonable for the architecture, typically 2^12.  The syscall 
-> should never be exposed as mmap2(), only as the large file size version 
-> of mmap() (aka mmap64()).  The other consideration is that it should not 
-> be implemented in 64 bit ABIs, as those machines should be using a 64 bit 
-> native mmap().  Does that clear things up a bit?  Cheers,
-> 
+Randy Dunlap <randy_d_dunlap@linux.intel.com> wrote:
+>
+> This patch series is primarily ACPI objects support for SATA/PATA.
+> It applies to 2.6.16-rc4.
 
-That was the theory, but that doesn't seem to be actually what's 
-implemented.  At least on MIPS and PPC, where page size is variable (to 
-the best of my knowledge), the shift seems to be whatever PAGE_SIZE the 
-kernel was compiled with.  On the other hand, that's apparently what's 
-implemented on SPARC (with the fixed offset of 12.)
+I tried to get these on top of Jeff's current devel tree but gave up at
+ata-acpi-pata-methods when things got really sticky.
 
-	-hpa
+So you're rather between a rock and a hard place here.  Perhaps it would be
+better for you to continue development on top of Jeff's devel tree, and to
+distribute a copy of git-libata-all.patch along with your patches to your
+testers.
+
+Of course, that puts them on the bleeding edge when all they want to do is
+to get their power management working, so that's not really suitable
+either.
 

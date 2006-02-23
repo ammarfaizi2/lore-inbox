@@ -1,69 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751778AbWBWT7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbWBWUIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751778AbWBWT7k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 14:59:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751780AbWBWT7k
+	id S1750941AbWBWUIM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 15:08:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751784AbWBWUIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 14:59:40 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35345 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751778AbWBWT7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 14:59:39 -0500
-Date: Thu, 23 Feb 2006 20:59:37 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>, davej@codemonkey.org.uk,
-       Zwane Mwaikambo <zwane@commfireservices.com>
-Cc: Samuel Masham <samuel.masham@gmail.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, cpufreq@lists.linux.org.uk
-Subject: Status of X86_P4_CLOCKMOD?
-Message-ID: <20060223195937.GA5087@stusta.de>
-References: <20060214152218.GI10701@stusta.de> <20060222024438.GI20204@MAIL.13thfloor.at> <20060222031001.GC4661@stusta.de> <200602212220.05642.dtor_core@ameritech.net>
+	Thu, 23 Feb 2006 15:08:12 -0500
+Received: from liaag2ab.mx.compuserve.com ([149.174.40.153]:30694 "EHLO
+	liaag2ab.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1750941AbWBWUIL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 15:08:11 -0500
+Date: Thu, 23 Feb 2006 15:02:13 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [Patch 3/3] prepopulate/cache cleared pages
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@intel.linux.com>,
+       Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200602231506_MC3-1-B923-212B@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200602212220.05642.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 21, 2006 at 10:20:04PM -0500, Dmitry Torokhov wrote:
-> On Tuesday 21 February 2006 22:10, Adrian Bunk wrote:
-> > On Wed, Feb 22, 2006 at 03:44:38AM +0100, Herbert Poetzl wrote:
-> > > 
-> > >  config X86_P4_CLOCKMOD
-> > > 	depends on EMBEDDED
-> > 
-> > This one is an x86_64 only issue, and yes, it's wrong.
-> 
-> That's for P4, not X86_64... And since P4 clock modulation does not provide
-> almost any energy savings it was "hidden" under embedded.
+In-Reply-To: <200602231406.43899.ak@suse.de>
 
-But the EMBEDDED dependency is only on x86_64:
+On Thu, 23 Feb 2006 at 14:06:43 +0100, Andi Kleen wrote:
+> e.g. you might notice that a lot of patches from new contributors
+> go smoother into x86-64 than into i386.
 
-arch/i386/kernel/cpu/cpufreq/Kconfig:
-config X86_P4_CLOCKMOD
-        tristate "Intel Pentium 4 clock modulation"
-        select CPU_FREQ_TABLE
-        help
-
-arch/x86_64/kernel/cpufreq/Kconfig:
-config X86_P4_CLOCKMOD
-        tristate "Intel Pentium 4 clock modulation"
-        depends on EMBEDDED
-        help
-
-And if the option is mostly useless, what is it good for?
-
-> Dmitry
-
-cu
-Adrian
+ That's because, strangely enough, i386 doesn't have an official maintainer.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Chuck
+"Equations are the Devil's sentences."  --Stephen Colbert
 

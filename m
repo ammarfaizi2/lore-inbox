@@ -1,110 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbWBWJbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751063AbWBWJbd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751083AbWBWJbc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 04:31:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751063AbWBWJbP
+	id S1751063AbWBWJbd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 04:31:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbWBWJbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 04:31:15 -0500
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:6370 "EHLO
+	Thu, 23 Feb 2006 04:31:13 -0500
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:5602 "EHLO
 	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S1751060AbWBWJbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1751063AbWBWJbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 23 Feb 2006 04:31:09 -0500
-Subject: [Patch 2/3] fast VMA recycling
+Subject: [Patch 3/3] prepopulate/cache cleared pages
 From: Arjan van de Ven <arjan@intel.linux.com>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, ak@suse.de
+Cc: ak@suse.de, akpm@osdl.org
 In-Reply-To: <1140686238.2972.30.camel@laptopd505.fenrus.org>
 References: <1140686238.2972.30.camel@laptopd505.fenrus.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Thu, 23 Feb 2006 10:30:29 +0100
-Message-Id: <1140687029.4672.8.camel@laptopd505.fenrus.org>
+Date: Thu, 23 Feb 2006 10:29:54 +0100
+Message-Id: <1140686994.4672.4.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a per task-struct cache of a free vma. 
+This patch adds an entry for a cleared page to the task struct. The main
+purpose of this patch is to be able to pre-allocate and clear a page in a
+pagefault scenario before taking any locks (esp mmap_sem),
+opportunistically. Allocating+clearing a page is an very expensive 
+operation that currently increases lock hold times quite bit (in a threaded 
+environment that allocates/use/frees memory on a regular basis, this leads
+to contention).
 
-In normal operation, it is a really common action during userspace mmap 
-or malloc to first allocate a vma, and then find out that it can be merged,
-and thus free it again. In fact this is the case roughly 95% of the time.
+This is probably the most controversial patch of the 3, since there is
+a potential to take up 1 page per thread in this cache. In practice it's
+not as bad as it sounds (a large degree of the pagefaults are anonymous 
+and thus immediately use up the page). One could argue "let the VM reap
+these" but that has a few downsides; it increases locking needs but more,
+clearing a page is relatively expensive, if the VM reaps the page again
+in case it wasn't needed, the work was just wasted.
 
-In addition, this patch allows code to "prepopulate" the cache, and
-this is done as example for the x86_64 mmap codepath. The advantage of this
-prepopulation is that the memory allocation (which is a sleeping operation
-due to the GFP_KERNEL flag, potentially causing either a direct sleep or a 
-voluntary preempt sleep) will happen before the mmap_sem is taken, and thus 
-reduces lock hold time (and thus the contention potential)
-
-The cache is only allowed to be accessed for "current", and not from IRQ
-context. This allows for lockless access, making it a cheap cache.
-
-One could argue that this should be a generic slab feature (the preloading) but
-that only gives some of the gains and not all, and vma's are small creatures,
-with a high "recycling" rate in typical cases.
 
 Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
 
 ---
- arch/x86_64/kernel/sys_x86_64.c |    2 +
- include/linux/mm.h              |    2 +
- include/linux/sched.h           |    2 +
- kernel/exit.c                   |    4 +++
- kernel/fork.c                   |    2 +
- mm/mmap.c                       |   50 ++++++++++++++++++++++++++++++++--------
- 6 files changed, 52 insertions(+), 10 deletions(-)
+ arch/x86_64/mm/fault.c |    2 ++
+ include/linux/mm.h     |    1 +
+ include/linux/sched.h  |    1 +
+ kernel/exit.c          |    4 ++++
+ kernel/fork.c          |    1 +
+ mm/mempolicy.c         |   37 +++++++++++++++++++++++++++++++++++++
+ 6 files changed, 46 insertions(+)
 
-Index: linux-work/arch/x86_64/kernel/sys_x86_64.c
+Index: linux-work/arch/x86_64/mm/fault.c
 ===================================================================
---- linux-work.orig/arch/x86_64/kernel/sys_x86_64.c
-+++ linux-work/arch/x86_64/kernel/sys_x86_64.c
-@@ -55,6 +55,8 @@ asmlinkage long sys_mmap(unsigned long a
- 		if (!file)
- 			goto out;
- 	}
+--- linux-work.orig/arch/x86_64/mm/fault.c
++++ linux-work/arch/x86_64/mm/fault.c
+@@ -375,6 +375,8 @@ asmlinkage void __kprobes do_page_fault(
+ 		goto bad_area_nosemaphore;
+ 
+  again:
++	prepare_cleared_page();
 +
-+	prepopulate_vma();
- 	down_write(&current->mm->mmap_sem);
- 	error = do_mmap_pgoff(file, addr, len, prot, flags, off >> PAGE_SHIFT);
- 	up_write(&current->mm->mmap_sem);
+ 	/* When running in the kernel we expect faults to occur only to
+ 	 * addresses in user space.  All other faults represent errors in the
+ 	 * kernel and should generate an OOPS.  Unfortunatly, in the case of an
 Index: linux-work/include/linux/mm.h
 ===================================================================
 --- linux-work.orig/include/linux/mm.h
 +++ linux-work/include/linux/mm.h
-@@ -1051,6 +1051,8 @@ int shrink_slab(unsigned long scanned, g
- void drop_pagecache(void);
+@@ -1052,6 +1052,7 @@ void drop_pagecache(void);
  void drop_slab(void);
  
-+extern void prepopulate_vma(void);
-+
+ extern void prepopulate_vma(void);
++extern void prepopulate_cleared_page(void);
+ 
  extern int randomize_va_space;
  
- #endif /* __KERNEL__ */
 Index: linux-work/include/linux/sched.h
 ===================================================================
 --- linux-work.orig/include/linux/sched.h
 +++ linux-work/include/linux/sched.h
-@@ -838,6 +838,8 @@ struct task_struct {
- /* VM state */
+@@ -839,6 +839,7 @@ struct task_struct {
  	struct reclaim_state *reclaim_state;
  
-+	struct vm_area_struct *free_vma_cache;  /* keep 1 free vma around as cache */
-+
+ 	struct vm_area_struct *free_vma_cache;  /* keep 1 free vma around as cache */
++	struct page *cleared_page;		/* optionally keep 1 cleared page around */
+ 
  	struct dentry *proc_dentry;
  	struct backing_dev_info *backing_dev_info;
- 
 Index: linux-work/kernel/exit.c
 ===================================================================
 --- linux-work.orig/kernel/exit.c
 +++ linux-work/kernel/exit.c
-@@ -878,6 +878,10 @@ fastcall NORET_TYPE void do_exit(long co
- 	 */
- 	mutex_debug_check_no_locks_held(tsk);
+@@ -882,6 +882,10 @@ fastcall NORET_TYPE void do_exit(long co
+ 		kmem_cache_free(vm_area_cachep, tsk->free_vma_cache);
+ 	tsk->free_vma_cache = NULL;
  
-+	if (tsk->free_vma_cache)
-+		kmem_cache_free(vm_area_cachep, tsk->free_vma_cache);
-+	tsk->free_vma_cache = NULL;
++	if (tsk->cleared_page)
++		__free_page(tsk->cleared_page);
++	tsk->cleared_page = NULL;
 +
  	/* PF_DEAD causes final put_task_struct after we schedule. */
  	preempt_disable();
@@ -113,141 +108,67 @@ Index: linux-work/kernel/fork.c
 ===================================================================
 --- linux-work.orig/kernel/fork.c
 +++ linux-work/kernel/fork.c
-@@ -179,6 +179,8 @@ static struct task_struct *dup_task_stru
- 	/* One for us, one for whoever does the "release_task()" (usually parent) */
+@@ -180,6 +180,7 @@ static struct task_struct *dup_task_stru
  	atomic_set(&tsk->usage,2);
  	atomic_set(&tsk->fs_excl, 0);
-+	tsk->free_vma_cache = NULL;
-+
+ 	tsk->free_vma_cache = NULL;
++	tsk->cleared_page = NULL;
+ 
  	return tsk;
  }
- 
-Index: linux-work/mm/mmap.c
+Index: linux-work/mm/mempolicy.c
 ===================================================================
---- linux-work.orig/mm/mmap.c
-+++ linux-work/mm/mmap.c
-@@ -65,6 +65,36 @@ int sysctl_overcommit_ratio = 50;	/* def
- int sysctl_max_map_count __read_mostly = DEFAULT_MAX_MAP_COUNT;
- atomic_t vm_committed_space = ATOMIC_INIT(0);
+--- linux-work.orig/mm/mempolicy.c
++++ linux-work/mm/mempolicy.c
+@@ -1231,6 +1231,13 @@ alloc_page_vma(gfp_t gfp, struct vm_area
+ {
+ 	struct mempolicy *pol = get_vma_policy(current, vma, addr);
  
-+
-+static void free_vma(struct vm_area_struct *vma)
-+{
-+	struct vm_area_struct *oldvma;
-+
-+	oldvma = current->free_vma_cache;
-+	current->free_vma_cache = vma;
-+	if (oldvma)
-+		kmem_cache_free(vm_area_cachep, oldvma);
-+}
-+
-+static struct vm_area_struct *alloc_vma(void)
-+{
-+	if (current->free_vma_cache)  {
-+		struct vm_area_struct *vma;
-+		vma = current->free_vma_cache;
-+		current->free_vma_cache = NULL;
-+		return vma;
++	if ( (gfp & __GFP_ZERO) && current->cleared_page) {
++		struct page *addr;
++		addr = current->cleared_page;
++		current->cleared_page = NULL;
++		return addr;
 +	}
-+	return kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
-+}
 +
-+void prepopulate_vma(void)
-+{
-+	if (!current->free_vma_cache)
-+		current->free_vma_cache =
-+			kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
-+}
-+
-+
- /*
-  * Check that a process has enough memory to allocate a new virtual
-  * mapping. 0 means there is enough memory for the allocation to
-@@ -206,7 +236,7 @@ static struct vm_area_struct *remove_vma
- 	if (vma->vm_file)
- 		fput(vma->vm_file);
- 	mpol_free(vma_policy(vma));
--	kmem_cache_free(vm_area_cachep, vma);
-+	free_vma(vma);
- 	return next;
+ 	cpuset_update_task_memory_state();
+ 
+ 	if (unlikely(pol->policy == MPOL_INTERLEAVE)) {
+@@ -1242,6 +1249,36 @@ alloc_page_vma(gfp_t gfp, struct vm_area
+ 	return __alloc_pages(gfp, 0, zonelist_policy(gfp, pol));
  }
  
-@@ -593,7 +623,7 @@ again:			remove_next = 1 + (end > next->
- 			fput(file);
- 		mm->map_count--;
- 		mpol_free(vma_policy(next));
--		kmem_cache_free(vm_area_cachep, next);
-+		free_vma(next);
- 		/*
- 		 * In mprotect's case 6 (see comments on vma_merge),
- 		 * we must remove another next too. It would clutter
-@@ -1048,7 +1078,7 @@ munmap_back:
- 	 * specific mapper. the address has already been validated, but
- 	 * not unmapped, but the maps are removed from the list.
- 	 */
--	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
-+	vma = alloc_vma();
- 	if (!vma) {
- 		error = -ENOMEM;
- 		goto unacct_error;
-@@ -1113,7 +1143,7 @@ munmap_back:
- 			fput(file);
- 		}
- 		mpol_free(vma_policy(vma));
--		kmem_cache_free(vm_area_cachep, vma);
-+		free_vma(vma);
- 	}
- out:	
- 	mm->total_vm += len >> PAGE_SHIFT;
-@@ -1140,7 +1170,7 @@ unmap_and_free_vma:
- 	unmap_region(mm, vma, prev, vma->vm_start, vma->vm_end);
- 	charged = 0;
- free_vma:
--	kmem_cache_free(vm_area_cachep, vma);
-+	free_vma(vma);
- unacct_error:
- 	if (charged)
- 		vm_unacct_memory(charged);
-@@ -1711,7 +1741,7 @@ int split_vma(struct mm_struct * mm, str
- 	if (mm->map_count >= sysctl_max_map_count)
- 		return -ENOMEM;
- 
--	new = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
-+	new = alloc_vma();
- 	if (!new)
- 		return -ENOMEM;
- 
-@@ -1727,7 +1757,7 @@ int split_vma(struct mm_struct * mm, str
- 
- 	pol = mpol_copy(vma_policy(vma));
- 	if (IS_ERR(pol)) {
--		kmem_cache_free(vm_area_cachep, new);
-+		free_vma(new);
- 		return PTR_ERR(pol);
- 	}
- 	vma_set_policy(new, pol);
-@@ -1904,7 +1934,7 @@ unsigned long do_brk(unsigned long addr,
- 	/*
- 	 * create a vma struct for an anonymous mapping
- 	 */
--	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
-+	vma = alloc_vma();
- 	if (!vma) {
- 		vm_unacct_memory(len >> PAGE_SHIFT);
- 		return -ENOMEM;
-@@ -2024,12 +2054,12 @@ struct vm_area_struct *copy_vma(struct v
- 		    vma_start < new_vma->vm_end)
- 			*vmap = new_vma;
- 	} else {
--		new_vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
-+		new_vma = alloc_vma();
- 		if (new_vma) {
- 			*new_vma = *vma;
- 			pol = mpol_copy(vma_policy(vma));
- 			if (IS_ERR(pol)) {
--				kmem_cache_free(vm_area_cachep, new_vma);
-+				free_vma(new_vma);
- 				return NULL;
- 			}
- 			vma_set_policy(new_vma, pol);
++
++/**
++ *	prepare_cleared_page - populate the per-task zeroed-page cache
++ *
++ *	This function populates the per-task cache with one zeroed page
++ *	(if there wasn't one already)
++ *	The idea is that this (expensive) clearing is done before any
++ *	locks are taken, speculatively, and that when the page is actually
++ *	needed under a lock, it is ready for immediate use
++ */
++
++void prepare_cleared_page(void)
++{
++	struct mempolicy *pol = current->mempolicy;
++
++	if (current->cleared_page)
++		return;
++
++	cpuset_update_task_memory_state();
++
++	if (!pol)
++		pol = &default_policy;
++	if (pol->policy == MPOL_INTERLEAVE)
++		current->cleared_page = alloc_page_interleave(
++			GFP_HIGHUSER | __GFP_ZERO, 0, interleave_nodes(pol));
++	current->cleared_page = __alloc_pages(GFP_USER | __GFP_ZERO,
++			0, zonelist_policy(GFP_USER, pol));
++}
++
++
+ /**
+  * 	alloc_pages_current - Allocate pages.
+  *
 

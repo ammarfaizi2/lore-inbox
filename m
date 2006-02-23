@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbWBWA0F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751586AbWBWA1n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751015AbWBWA0F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 19:26:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751578AbWBWA0F
+	id S1751586AbWBWA1n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 19:27:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751590AbWBWA1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 19:26:05 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:21950 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751015AbWBWA0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 19:26:03 -0500
-Subject: Re: [PATCH 9/13] ATA ACPI: check SATA/PATA more carefully
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Randy Dunlap <randy_d_dunlap@linux.intel.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
-       akpm@osdl.org, jgarzik@pobox.com
-In-Reply-To: <20060222140008.3832951a.randy_d_dunlap@linux.intel.com>
-References: <20060222133241.595a8509.randy_d_dunlap@linux.intel.com>
-	 <20060222140008.3832951a.randy_d_dunlap@linux.intel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 23 Feb 2006 00:30:04 +0000
-Message-Id: <1140654604.8672.29.camel@localhost.localdomain>
+	Wed, 22 Feb 2006 19:27:43 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:59803 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751582AbWBWA1m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 19:27:42 -0500
+Date: Wed, 22 Feb 2006 16:29:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org, y-goto@jp.fujitsu.com
+Subject: Re: [PATCH] refine for_each_pgdat() [1/4] refine for_each_pgdat
+Message-Id: <20060222162951.0e28a9aa.akpm@osdl.org>
+In-Reply-To: <43FCFFC0.1050405@jp.fujitsu.com>
+References: <20060222200402.e1145286.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060222145256.7b84f444.akpm@osdl.org>
+	<43FCFFC0.1050405@jp.fujitsu.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2006-02-22 at 14:00 -0800, Randy Dunlap wrote:
-> +	if (ap->legacy_mode) {
->  		err = pata_get_dev_handle(dev, &dev_handle, &pcidevfn);
->  		if (err < 0) {
->  			if (ata_msg_probe(ap))
+KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+>
+> Andrew Morton wrote:
+> > It's confusing and asymmetric.  If you have time, it would be nice to later
+> > remove for_each_pgdat() and for_each_cpu() from the kernel altogether, use
+> > for_each_online_cpu(), for_each_possible_cpu(), for_each_online_node(),
+> > for_each_possible_node().
+> > 
+> Okay, I'll rewrite my patch and post new one which represents what you mention.
 
-ap->legacy mode tells you if one of a subset of PCI controllers is in
-native or legacy compatibility mode. It tells you nothing about whether
-the controller is SATA or PATA. In fact it may even be both at once as
-there may be a SATA bridge on one channel in some configurations. The
-field is also meaningless for PCI controllers that are not class IDE.
+Well, only do that if it's appropriate to the context of that patch.
 
-The cable type field will tell you in some situations if we are PATA or
-SATA but we actually don't always know at the moment. We probably have
-the info for 99.9% of cases if needed it just isnt ap->legacy_mode, its
-cable type plus the PATA/SATA bridge knobbling check.
+I was more thinking that this renaming would be a separate exercise, to be
+done once things in that area calm down a bit.
 
-Alan
+> BTW, I noticed  refine-for_each_pgdat-remove-pgdat-sorting.patch
+> contains bug. (caller of ia64's insert_pgdat() is not removed...)
+> 
+> so please drop them :(, I'll post new ones to next -mm (with enough test...).
+
+OK..

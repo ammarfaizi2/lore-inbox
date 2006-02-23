@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWBWXxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWBWXx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932141AbWBWXxH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 18:53:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWBWXxH
+	id S932148AbWBWXx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 18:53:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWBWXx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 18:53:07 -0500
-Received: from smtpq1.groni1.gr.home.nl ([213.51.130.200]:14214 "EHLO
-	smtpq1.groni1.gr.home.nl") by vger.kernel.org with ESMTP
-	id S932141AbWBWXxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 18:53:05 -0500
-Message-ID: <43FE4B00.8080205@keyaccess.nl>
-Date: Fri, 24 Feb 2006 00:53:36 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Thu, 23 Feb 2006 18:53:57 -0500
+Received: from mx1.suse.de ([195.135.220.2]:27572 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932148AbWBWXx4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 18:53:56 -0500
+From: Andi Kleen <ak@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: Status of X86_P4_CLOCKMOD?
+Date: Fri, 24 Feb 2006 00:55:30 +0100
+User-Agent: KMail/1.9.1
+Cc: Dave Jones <davej@redhat.com>, Dmitry Torokhov <dtor_core@ameritech.net>,
+       davej@codemonkey.org.uk, Zwane Mwaikambo <zwane@commfireservices.com>,
+       Samuel Masham <samuel.masham@gmail.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, cpufreq@lists.linux.org.uk
+References: <20060214152218.GI10701@stusta.de> <200602240016.00317.ak@suse.de> <20060223233328.GB3674@stusta.de>
+In-Reply-To: <20060223233328.GB3674@stusta.de>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-Subject: Re: Patch to reorder functions in the vmlinux to a defined order
-References: <1140700758.4672.51.camel@laptopd505.fenrus.org>  <1140707358.4672.67.camel@laptopd505.fenrus.org>  <200602231700.36333.ak@suse.de> <1140713001.4672.73.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0602230902230.3771@g5.osdl.org> <43FE0B9A.40209@keyaccess.nl> <Pine.LNX.4.64.0602231133110.3771@g5.osdl.org> <43FE1764.6000300@keyaccess.nl> <Pine.LNX.4.64.0602231517400.3771@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0602231517400.3771@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Content-Disposition: inline
+Message-Id: <200602240055.30603.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Friday 24 February 2006 00:33, Adrian Bunk wrote:
 
-> On Thu, 23 Feb 2006, Rene Herman wrote:
+> EMBEDDED is the wrong option, since the semantics of embedded is "show
+> more options to allow additional space savings". It is not and should
+> not be abused as an option to hide random options from users.
 
->> Okay. I suppose the only other option is to make "physical_start" a variable
->> passed in by the bootloader so that it could make a runtime decision? Ie,
->> place us at min(top_of_mem, 4G) if it cared to. I just grepped for
->> PHYSICAL_START and this didn't look _too_ bad.
-> 
-> No can do. You'd have to make the kernel relocatable, and do load-time 
-> fixups. Very invasive.
+I disagree. And I originally added most EMBEDDED users to the kernel.
+The purpose I added it for was to hide options that only useful
+for a very limited userbase but cause big or subtle trouble when set
+wrong. P4_CLOCKMOD clearly qualifies.
 
-Yes, that wasn't too smart. I believe in principe most of it _could_ be 
-done via some pagetable trickery though, with the kernel still at a 
-fixed virtual address?
+-Andi
 
-Rene.

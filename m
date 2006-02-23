@@ -1,59 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751058AbWBWMHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbWBWMHP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751058AbWBWMHi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 07:07:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbWBWMHi
+	id S1751061AbWBWMHP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 07:07:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751067AbWBWMHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 07:07:38 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:3273 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751058AbWBWMHh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 07:07:37 -0500
-Subject: Re: Areca RAID driver remaining items?
-From: Arjan van de Ven <arjan@infradead.org>
-To: erich <erich@areca.com.tw>
-Cc: "\"\"Christoph Hellwig\"\"" <hch@infradead.org>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       billion.wu@areca.com.tw, alan@lxorguk.ukuu.org.uk, akpm@osdl.org,
-       oliver@neukum.org
-In-Reply-To: <005a01c6386f$84b30d50$b100a8c0@erich2003>
-References: <1140458552.3495.26.camel@mentorng.gurulabs.com>
-	 <20060220182045.GA1634@infradead.org>
-	 <001401c63779$12e49aa0$b100a8c0@erich2003>
-	 <20060222145733.GC16269@infradead.org>
-	 <00dc01c63842$381f9a30$b100a8c0@erich2003>
-	 <1140683157.2972.6.camel@laptopd505.fenrus.org>
-	 <001901c6385e$9aee7d40$b100a8c0@erich2003>
-	 <1140688569.4672.24.camel@laptopd505.fenrus.org>
-	 <005a01c6386f$84b30d50$b100a8c0@erich2003>
+	Thu, 23 Feb 2006 07:07:15 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:17901 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751042AbWBWMHN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 07:07:13 -0500
+Subject: Re: 2.6.16-rc4-mm1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <43FC8290.8070408@ums.usu.ru>
+References: <20060220042615.5af1bddc.akpm@osdl.org>
+	 <43FC6B8F.4060601@ums.usu.ru>  <43FC8290.8070408@ums.usu.ru>
 Content-Type: text/plain
-Date: Thu, 23 Feb 2006 13:07:32 +0100
-Message-Id: <1140696452.4672.43.camel@laptopd505.fenrus.org>
+Content-Transfer-Encoding: 7bit
+Date: Thu, 23 Feb 2006 12:10:58 +0000
+Message-Id: <1140696659.19361.13.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-23 at 19:51 +0800, erich wrote:
-> If Linux can not assurent the contingous memory space allocating of 
-> "dma_alloc_coherent" .
+On Mer, 2006-02-22 at 20:26 +0500, Alexander E. Patrakov wrote: 
+> btw this also counts as snd-fm801 test). It is still slow because of 
+> improper MWDMA2 setting (libata still doesn't know that master and slave 
+> can use different DMA speeds on via pata).
 
-coherent memory is guaranteed to be in the "lower" 32 bit of memory!
-So that is good news, I think you are just fine.
-
-[Exception is that you can say that you are ok with a bigger mask for
-this type of memory, but just don't do that if you're not]
-
-
-> When arcmsr get a physical ccb address from areca's firmware.
-> Does linux has any functions for converting of  "bus to virtual" ?
-
-not without using pools. You would have to search the list of memory you
-gave it to find that out.
-
-(USB has a similar problem, afaik they solved it with pools)
-
+The libata and pata_via in -mm are a bit out of date. The current libata
+patch and driver for 2.6.16-rc4 knows how to do per device modes.
 

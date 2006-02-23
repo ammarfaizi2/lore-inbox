@@ -1,100 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWBWPRg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWBWP1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751339AbWBWPRg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 10:17:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751406AbWBWPRg
+	id S1751336AbWBWP1m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 10:27:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbWBWP1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 10:17:36 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:60594 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751339AbWBWPRg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 10:17:36 -0500
-Date: Thu, 23 Feb 2006 10:17:22 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: "Frank Ch. Eigler" <fche@redhat.com>
-cc: linux-kernel@vger.kernel.org, etsman@cs.huji.ac.il
-Subject: Re: Static instrumentation, was Re: RFC: klogger: kernel tracing
- and logging tool
-In-Reply-To: <y0mbqwze1p8.fsf@ton.toronto.redhat.com>
-Message-ID: <Pine.LNX.4.58.0602230942210.27901@gandalf.stny.rr.com>
-References: <43FC8261.9000207@gmail.com> <y0mbqwze1p8.fsf@ton.toronto.redhat.com>
+	Thu, 23 Feb 2006 10:27:42 -0500
+Received: from xenotime.net ([66.160.160.81]:28344 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751336AbWBWP1l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 10:27:41 -0500
+Date: Thu, 23 Feb 2006 07:27:41 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+cc: "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc4-mm1
+In-Reply-To: <43FD7C49.10302@ums.usu.ru>
+Message-ID: <Pine.LNX.4.58.0602230727050.18778@shark.he.net>
+References: <20060220042615.5af1bddc.akpm@osdl.org> <43FC6B8F.4060601@ums.usu.ru>
+ <20060222225325.10a71472.rdunlap@xenotime.net> <43FD7C49.10302@ums.usu.ru>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 23 Feb 2006, Alexander E. Patrakov wrote:
 
-
-On Wed, 22 Feb 2006, Frank Ch. Eigler wrote:
-
+> Randy.Dunlap wrote:
+> > On Wed, 22 Feb 2006 18:47:59 +0500 Alexander E. Patrakov wrote:
+> >> zcat: stdin: decompression OK, trailing garbage ignored
+> >
+> > No other output?  what $ARCH?
 >
-> Yoav Etsion <etsman@gmail.com> writes:
+> No other output, the arch is i386, userspace is Debian Sarge.
 >
-> > [...]  I've developed a kernel logging tool called
-> > Klogger: http://www.cs.huji.ac.il/~etsman/klogger
-> > In some senses, it is similar to the LTT [...]
+> > What did the .config file contain?  was it correct?
 >
-> It seems like several projects would benefit from markers being
-> inserted into key kernel code paths for purposes of tracing / probing.
+> The end result was correct. The problematic kernel image (with the
+> config in it) can be accessed at:
 >
-> Both LTTng and klogger have macros that expand to largish inline
-> function calls that appear to cause a noticeable amount of work even
-> for tracing requests are not actually active.  (klogger munges
-> interrupts, gets timestamps, before ever testing whether logging was
-> requested; lttng similar; icache bloat in both cases.)
+> http://ums.usu.ru/~patrakov/vmlinuz-2.6.16-rc3-mm1-home
 >
-> In other words, even in the inactive state, tracing markers like those
-> of klogger and ltt impose some performance disruption.  Assuming that
-> detailed tracing / probing would be a useful facility to have
-> available, are there any other factors that block adoption of such
-> markers in official kernels?  In other words, if they could go "fast
-> enough", especially in the inactive case, would you start placing them
-> into your code?
+> (please notify when I can erase it)
+
+I have it, so you can erase it...
+
+> > so is the only problem the zcat warning message?
 >
+> Yes.
 >
+> > I tested extract-ikconfig several times without errors (on 2.6.16-rc4-mm1).
+>
+> I will dig more into the problem today. Reverting extract-ikconfig-*
+> patches didn't help.
 
-Have you taken a look at my logdev utility.  I usually use something like
-the macro of this:
-
-edprint("print my var %08lx", var);
-
-which is defined as:
-
-#ifdef CONFIG_LOGDEV
-#  define LOGDEV(x,y...) logdev_##x(y)
-#  define LOGTFPRINT(x...) do { if (atomic_read(&logdev_print_enabled)) \
-     LOGDEV(print_time_func,__FUNCTION__,__LINE__,x); } while(0)
-
-#  define _edprint(x,y...) do { \
-    LOGTFPRINT(x "%s\n", y);} } while(0)
-#  define edprint(x...) _edprint(x,"")
-
-#else
-
-#  define LOGTFPRINT(x...) do {} while(0)
-#  define edprint(x...) do {} while(0)
-
-#endif
-
-
-This is just an idea of what is done.  This crazy macros are used because
-I also have the logdev as a module, and if it is not compiled in, the
-LOGTFPRINT turns into a spinlock holder  to safely load and unload
-it.  I haven't used the module version in a few years, so I probably
-should get rid of that feature.
-
-Anyway, the atomic variable logdev_print_enabled is checked before doing
-anything else, so it doesn't invade the code too much when disabled.  And
-of course has no affect when not configured.
-
-It also has ways to store everything binary.  The function name is saved
-as a pointer and my read utility (which I don't know if I uploaded the
-latest) does a mmap of /dev/mem to find the actual name. If you don't have
-root, then it miss out, but the utility doesn't crash, it just doesn't
-show the name.
-
- http://www.kihontech.com/logdev
-
--- Steve
-
+Thanks.
+-- 
+~Randy

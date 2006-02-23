@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWBWODc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWBWOF6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbWBWODc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 09:03:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWBWODc
+	id S1751250AbWBWOF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 09:05:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWBWOF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 09:03:32 -0500
-Received: from lappc-f057.in2p3.fr ([134.158.97.63]:56775 "EHLO
-	lappc-f057.in2p3.fr") by vger.kernel.org with ESMTP
-	id S1751249AbWBWODc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 09:03:32 -0500
-Subject: Re: isolcpus weirdness
-From: Emmanuel Pacaud <emmanuel.pacaud@univ-poitiers.fr>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43FDB910.1080402@yahoo.com.au>
-References: <1140614487.13155.20.camel@localhost.localdomain>
-	 <43FDA8DD.2000500@yahoo.com.au>
-	 <1140700054.8314.44.camel@localhost.localdomain>
-	 <43FDB910.1080402@yahoo.com.au>
-Content-Type: text/plain; charset=utf-8
-Date: Thu, 23 Feb 2006 15:03:14 +0100
-Message-Id: <1140703394.8314.59.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.91 
-Content-Transfer-Encoding: 8bit
+	Thu, 23 Feb 2006 09:05:57 -0500
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:908
+	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id S1751250AbWBWOF5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 09:05:57 -0500
+Date: Thu, 23 Feb 2006 06:05:45 -0800
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
+Subject: Re: 2.6.15-rt17
+Message-ID: <20060223140545.GA30327@gnuppy.monkey.org>
+References: <20060221155548.GA30146@elte.hu> <20060223134928.GA30170@gnuppy.monkey.org> <20060223135350.GA20638@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060223135350.GA20638@elte.hu>
+User-Agent: Mutt/1.5.11+cvs20060126
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le vendredi 24 février 2006 à 00:30 +1100, Nick Piggin a écrit :
-> Emmanuel Pacaud wrote: 
-> > There's a difference between isolated cpus and other cpus: by default,
-> > there's almost no activity on isolated ones. That's what I want to be
-> > able to do.
-> > 
+On Thu, Feb 23, 2006 at 02:53:50PM +0100, Ingo Molnar wrote:
+> * Bill Huey <billh@gnuppy.monkey.org> wrote:
+> > SLAB you say ? What's going on with this error ?
+> > undefined reference to `slab_spin_unlock_irqrestore'
 > 
-> Nothing in kernel-parameters.txt says there will be almost no activity
-> on them. 
+> find the fix from S???bastien Dugu??? below.
 
-isolcpus=   [KNL,SMP] Isolate CPUs from the general scheduler.
-+         Format: <cpu number>, ..., <cpu number>
-+         This option can be used to specify one or more CPUs
-+         to isolate from the general SMP balancing and scheduling
-+         algorithms.
+I recreate the fix since it was obvious and this new version fixes the previous
+SLAB related crash in -rt16. Looking good.
 
-If a cpu is isolated from general SMP balancing and scheduling algorithm
-(I know this isolation is not complete), there will be no activity on
-it, no ? Unless one explicitely move one process on this cpu.
-
-At least, that's what I've seen with my 2.6.15 vanilla kernel with
-hyperthreading activated, or with distribution supplied kernel
-(Scientific linux 4).  With these kernels, with isolcpus=n, there's
-almost no activity on cpun.
-
-My problem is I'm not able to obtain this behaviour with a kernel.org
-2.6.15 kernel, when HT is disabled, either in BIOS, kernel config or
-acpi=off parameter.
-
-
-	Emmanuel.
-
-(FWIW, I'm working on a RTAI setup. Use of isolcpus in the context of a
-realtime setup is explained in their ISOLCPUS document:
-
-http://cvs.gna.org/cvsweb/vulcano/README.ISOLCPUS?rev=1.6;cvsroot=rtai
-)
+bill
 

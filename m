@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751770AbWBWTqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751768AbWBWTrj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751770AbWBWTqq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 14:46:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751769AbWBWTqq
+	id S1751768AbWBWTrj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 14:47:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751769AbWBWTri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 14:46:46 -0500
-Received: from watts.utsl.gen.nz ([202.78.240.73]:45989 "EHLO mail.utsl.gen.nz")
-	by vger.kernel.org with ESMTP id S1751767AbWBWTqp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 14:46:45 -0500
-Message-ID: <43FE1110.1030707@vilain.net>
-Date: Fri, 24 Feb 2006 08:46:24 +1300
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Thu, 23 Feb 2006 14:47:38 -0500
+Received: from smtpq1.groni1.gr.home.nl ([213.51.130.200]:46992 "EHLO
+	smtpq1.groni1.gr.home.nl") by vger.kernel.org with ESMTP
+	id S1751768AbWBWTri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 14:47:38 -0500
+Message-ID: <43FE1171.80305@keyaccess.nl>
+Date: Thu, 23 Feb 2006 20:48:01 +0100
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Xin Zhao <uszhaoxin@gmail.com>, Arjan van de Ven <arjan@infradead.org>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: question about possibility of data loss in Ext2/3 file system
-References: <4ae3c140602221356x15015171h5aa4a3d7bb6034e0@mail.gmail.com> <1140645651.2979.79.camel@laptopd505.fenrus.org> <4ae3c140602221434v6ec583a7yf04df5fa7a4948fc@mail.gmail.com> <20060223045836.GC9645@thunk.org>
-In-Reply-To: <20060223045836.GC9645@thunk.org>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+Subject: Re: Patch to reorder functions in the vmlinux to a defined order
+References: <1140700758.4672.51.camel@laptopd505.fenrus.org>	 <1140707358.4672.67.camel@laptopd505.fenrus.org>	 <200602231700.36333.ak@suse.de>	 <1140713001.4672.73.camel@laptopd505.fenrus.org>	 <Pine.LNX.4.64.0602230902230.3771@g5.osdl.org>	 <43FE0B9A.40209@keyaccess.nl> <1140723289.4952.10.camel@localhost.localdomain>
+In-Reply-To: <1140723289.4952.10.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Ts'o wrote:
->>Also, the scheme you mentioned is just for new file creation. What
->>will happen if I want to update an existing file? Say, I open file A,
->>seek to offset 5000, write 4096 bytes, and then close. Do you know how
->>ext2/3 handle this situation?
-> If you have a power failure right after the close, the data could be
-> lost.  This is true for pretty much all Unix filesystems, for
-> performance reasons.  If you care about the data hitting disk, the
-> application must use fsync().  
+Alan Cox wrote:
 
-I always liked Sun's approach to this in Online Disk Suite - journal at 
-the block device level rather than the FS / application level. 
-Something I haven't seen from the Linux md-utils or DM.
+> On Iau, 2006-02-23 at 20:23 +0100, Rene Herman wrote:
 
-Sam.
+>> Does 16MB still work? Gets the kernel out of the old ZONE_DMA. I suppose 
+>> not many people are really using that anyway anymore these days, but if 
+>> no downsides maybe?
+> 
+> Certainly the PAE kernel might as well do that and the AMD64 if it
+> doesn't already. There are complications however getting above 16MB
+> because 16bit protected mode (and maybe the BIOS helpers - I need to
+> check that) can't hit it.
+
+INT 15/AH=0x87 (move from low to high) on a 386+ should work, according 
+to the documentation I have... Is PM16 used anywhere?
+
+> We also used to have people DMAing into static kernel buffers in older
+> days but hopefully that habit is now dead and gone because modules
+> sorted most of it out.
+
+Good method to flush out any possible remaining users :-)
+
+Rene.
+

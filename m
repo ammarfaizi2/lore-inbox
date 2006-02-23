@@ -1,83 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751762AbWBWR1o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWBWR3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751762AbWBWR1o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 12:27:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751757AbWBWR1o
+	id S932077AbWBWR3x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 12:29:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751757AbWBWR3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 12:27:44 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:50903 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751762AbWBWR1n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 12:27:43 -0500
-Subject: Re: [PATCH] change b_size to size_t
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Andrew Morton <akpm@osdl.org>, Nathan Scott <nathans@sgi.com>,
-       christoph <hch@lst.de>, mcao@us.ibm.com,
-       lkml <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>
-In-Reply-To: <20060223163204.GA27682@kvack.org>
-References: <1140470487.22756.12.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060222151216.GA22946@lst.de>
-	 <1140627510.22756.81.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060222165942.GA25167@lst.de> <20060223014004.GA900@frodo>
-	 <20060222175923.784ce5de.akpm@osdl.org>
-	 <1140712093.22756.106.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060223163204.GA27682@kvack.org>
-Content-Type: text/plain
-Date: Thu, 23 Feb 2006 09:28:58 -0800
-Message-Id: <1140715738.22756.125.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Thu, 23 Feb 2006 12:29:53 -0500
+Received: from dvhart.com ([64.146.134.43]:45478 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1751756AbWBWR3w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 12:29:52 -0500
+Message-ID: <43FDF10E.3030001@mbligh.org>
+Date: Thu, 23 Feb 2006 09:29:50 -0800
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, Gabor Gombas <gombasg@sztaki.hu>,
+       "Theodore Ts'o" <tytso@mit.edu>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Kay Sievers <kay.sievers@suse.de>,
+       penberg@cs.helsinki.fi, bunk@stusta.de, rml@novell.com,
+       linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+Subject: Re: 2.6.16-rc4: known regressions
+References: <20060221162104.6b8c35b1.akpm@osdl.org> <Pine.LNX.4.64.0602211631310.30245@g5.osdl.org> <Pine.LNX.4.64.0602211700580.30245@g5.osdl.org> <20060222112158.GB26268@thunk.org> <20060222154820.GJ16648@ca-server1.us.oracle.com> <20060222162533.GA30316@thunk.org> <20060222173354.GJ14447@boogie.lpds.sztaki.hu> <20060222185923.GL16648@ca-server1.us.oracle.com> <20060222191832.GA14638@suse.de> <1140636588.2979.66.camel@laptopd505.fenrus.org> <20060222194024.GA15703@suse.de>
+In-Reply-To: <20060222194024.GA15703@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-23 at 11:32 -0500, Benjamin LaHaise wrote:
-> On Thu, Feb 23, 2006 at 08:28:12AM -0800, Badari Pulavarty wrote:
-> > Here is the updated version of the patch, which changes
-> > buffer_head.b_size to size_t to support mapping large
-> > amount of disk blocks (for large IOs).
+> I totally agree.  Distros are changing into two different groups these
+> days:
+> 	- everything tied together and intregrated nicely for a specific
+> 	  kernel version, userspace tool versions, etc.
+> 	- flexible and works with multiple kernel versions, different
+> 	  userspace tools, etc.
 > 
-> Your patch doesn't seem to be inline, so I can't quote it.  Several 
-> problems: on 64 bit platforms you introduced 4 bytes of padding into 
-> buffer_head.  atomic_t only takes up 4 byte, while size_t is 8 byte 
-> aligned. 
+> Distros in the first category are the "enterprise" releases (RHEL, SLES,
+> etc.), as well as some consumer oriented distros (SuSE, Ubuntu, Fedora
+> possibly.)
+> 
+> More flexible distros that handle different kernel versions are Gentoo,
+> Debian, and probably Fedora.
+> 
+> And this is a natural progression as people try to provide a more
+> complete "solution" for users.
+> 
+> When people to complain that they can't run a "kernel-of-the-day" on
+> their "enterprise" distro, they are not realizing that that distro was
+> just not developed to support that kind of thing at all.
+> 
+> So, in short, if you are going to do kernel development, pick a distro
+> that handles different kernel versions.  Likewise, if you are doing
+> userspace development (X.org, HAL, KDE, Gnome, etc.) you pick a distro
+> that allows you to change that level of the stack.
 
+That sort of thing is going to make distros incredibly reluctant to 
+update kernels, which just encourages them to operate inside their own
+fiefdoms, rather than working together with mainline, which is what we
+want.
 
-Ignore my previous mail.
+Moreover, its' not just the big distros. It's every corporation with a
+product based around Linux, which are far more numerous and smaller
+operations. We *have* to encourage these people to work with us, else
+we end up not getting bug fixes back upstream from them etc.
 
-How about doing this ? Change b_state to u32 and change b_size
-to "size_t". This way, we don't increase the overall size of
-the structure on 64-bit machines. Isn't it ?
+That means giving them stable, consistent userspace<->kernel APIs.
 
-Thanks,
-Badari
-
-
-struct buffer_head {
-        u32 b_state;                    /* buffer state bitmap (see
-above) */
-        atomic_t b_count;               /* users using this buffer_head
-*/
-        struct buffer_head *b_this_page;/* circular list of page's
-buffers */
-        struct page *b_page;            /* the page this bh is mapped to
-*/
-        size_t b_size;                  /* size of mapping */
-
-        sector_t b_blocknr;             /* start block number */
-        char *b_data;                   /* pointer to data within the
-page */
-
-        struct block_device *b_bdev;
-        bh_end_io_t *b_end_io;          /* I/O completion */
-        void *b_private;                /* reserved for b_end_io */
-        struct list_head b_assoc_buffers; /* associated with another
-mapping */
-};
-
-
-Thanks,
-Badari
-
+M.

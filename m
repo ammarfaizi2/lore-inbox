@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751745AbWBWRJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWBWROd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751745AbWBWRJL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 12:09:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbWBWRJK
+	id S932234AbWBWROd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 12:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbWBWROd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 12:09:10 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:48066 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751745AbWBWRJI (ORCPT
+	Thu, 23 Feb 2006 12:14:33 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:31934 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751441AbWBWROc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 12:09:08 -0500
-Date: Thu, 23 Feb 2006 09:08:59 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Arjan van de Ven <arjan@linux.intel.com>
-cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       mingo@elte.hu
-Subject: Re: Patch to reorder functions in the vmlinux to a defined order
-In-Reply-To: <1140713001.4672.73.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.64.0602230902230.3771@g5.osdl.org>
-References: <1140700758.4672.51.camel@laptopd505.fenrus.org> 
- <1140707358.4672.67.camel@laptopd505.fenrus.org>  <200602231700.36333.ak@suse.de>
- <1140713001.4672.73.camel@laptopd505.fenrus.org>
+	Thu, 23 Feb 2006 12:14:32 -0500
+Date: Thu, 23 Feb 2006 18:14:29 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Mapping to 0x0
+In-Reply-To: <Pine.LNX.4.61.0602220920060.10177@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.61.0602231811320.1279@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0602221504120.11432@yvahk01.tjqt.qr>
+ <Pine.LNX.4.61.0602220920060.10177@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> int main(void) {
+>>    int fd   = open("badcode.bin", O_RDONLY);
+>      int fd   = open("/dev/mem", O_RDWR);
+>
+>>    mmap(NULL, 4096, PROT_READ | PROT_EXEC, MAP_FIXED, fd, 0);
+>> }
+>>
+>No. In your demo code, page 0 gets memory-mapped into user space.
+>This allows user-mode code to access the first page of memory
+>and even read/write offset 0, still in user mode, with the
+>root privs that allowed you access to that page in the
+>first place.
+
+Only root can map to 0x0?
+
+>Everything you do, is still in user-mode.
+>You just own some physical memory that the kernel didn't
+>care about anyway.
+
+So you can't accidentally call a place in userspace from kernel context?
+(Including the case where set_fs(USER_DS) was used.)
 
 
-On Thu, 23 Feb 2006, Arjan van de Ven wrote:
-> > 
-> > I think you would first need to move the code first for that. Currently it starts
-> > at 1MB, which means 1MB is already wasted of the aligned 2MB TLB entry.
-> > 
-> > I wouldn't have a problem with moving the 64bit kernel to 2MB though.
-> 
-> that was easy since it's a Config entry already ;)
-
-Btw, the "low TLB entry" for the direct-mapped case can't be used as a 
-hugetlb page anyway, due to the MMU splitting it up due to the special 
-MTRR regions, if I recall correctly.
-
-So this is probably a bigger performance win than just the difference 
-between using one or two TLB entries.
-
-The same should be true on x86, btw. Where we should use a physical start 
-address of 4MB for best performance.
-
-Does anybody want to run benchmarks? (Totally untested, may not boot, 
-might physically accost your pets for all I know).
-
-		Linus
-
----
-diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
-index 0afec85..d2b1df8 100644
---- a/arch/i386/Kconfig
-+++ b/arch/i386/Kconfig
-@@ -715,7 +715,7 @@ config PHYSICAL_START
- 	hex "Physical address where the kernel is loaded" if (EMBEDDED || CRASH_DUMP)
- 
- 	default "0x1000000" if CRASH_DUMP
--	default "0x100000"
-+	default "0x400000"
- 	help
- 	  This gives the physical address where the kernel is loaded. Normally
- 	  for regular kernels this value is 0x100000 (1MB). But in the case
+Jan Engelhardt
+-- 

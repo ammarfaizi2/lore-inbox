@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbWBWRmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbWBWRn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932330AbWBWRmY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 12:42:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbWBWRmY
+	id S1030297AbWBWRn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 12:43:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbWBWRn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 12:42:24 -0500
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:40678 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S932330AbWBWRmY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 12:42:24 -0500
-From: Francesco Biscani <biscani@pd.astro.it>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: libata PATA drivers patch for 2.6.16-rc4
-Date: Thu, 23 Feb 2006 18:42:01 +0100
-User-Agent: KMail/1.9.1
-Cc: Ed Sweetman <safemode@comcast.net>, linux-kernel@vger.kernel.org
-References: <1140445182.26526.1.camel@localhost.localdomain> <43FD347B.6030802@comcast.net> <1140707265.4332.6.camel@localhost.localdomain>
-In-Reply-To: <1140707265.4332.6.camel@localhost.localdomain>
+	Thu, 23 Feb 2006 12:43:59 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:31198 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932354AbWBWRn6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 12:43:58 -0500
+Message-ID: <43FDF457.50502@zytor.com>
+Date: Thu, 23 Feb 2006 09:43:51 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200602231842.02176.biscani@pd.astro.it>
+To: Ralf Baechle <ralf@linux-mips.org>
+CC: Paul Mackerras <paulus@samba.org>, klibc@zytor.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: sys_mmap2 on different architectures
+References: <43FCDB8A.5060100@zytor.com> <17405.9318.991684.872546@cargo.ozlabs.ibm.com> <43FD2D96.7030600@zytor.com> <20060223173216.GA20322@linux-mips.org>
+In-Reply-To: <20060223173216.GA20322@linux-mips.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 February 2006 16:07, Alan Cox wrote:
-> Thanks for all the reports on the oops on boot. I was able to duplicate
-> it and fix the dumb bug that caused it.
->
-> New patch (2.6.16-rc4-ide2)
->
-> 	http://zeniv.linux.org.uk/~alan/IDE
+Ralf Baechle wrote:
+> 
+> A variable which happens to be fixed to 12 in practice.  As explained by
+> Ben the API is only relevant to 32-bit kernels and afaik PAGE_SHIFT
+> other than 12 has only been successfully been tested on 64-bit kernels.
+> 
 
-Hello Alan,
+No, that's not correct.  This API is relevant to 32-bit *USERSPACE*.  If 
+you support 32-bit userspace on a 64-bit kernel, it applies to 64-bit 
+kernels, too.
 
-the latest patch has not solved the performance problems on my laptop's Ali 
-chipset. Just to let you know....
-
-Thanks,
-
-  Francesco
-
--- 
-Dr. Francesco Biscani
-Dipartimento di Astronomia
-Università di Padova
-biscani@pd.astro.it
+	-hpa

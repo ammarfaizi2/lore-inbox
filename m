@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbWBWSQ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWBWSVN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750908AbWBWSQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 13:16:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751067AbWBWSQ2
+	id S1751121AbWBWSVN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 13:21:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWBWSVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 13:16:28 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:61600 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750908AbWBWSQ1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 13:16:27 -0500
-Subject: Re: [dm-devel] Re: [PATCH] User-configurable HDIO_GETGEO for dm
-	volumes
-From: "Darrick J. Wong" <djwong@us.ibm.com>
-Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
-To: Alasdair G Kergon <agk@redhat.com>
-Cc: device-mapper development <dm-devel@redhat.com>,
-       Chris McDermott <lcm@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060223135639.GK31641@agk.surrey.redhat.com>
-References: <43F38D83.3040702@us.ibm.com>
-	 <20060217151650.GC12173@agk.surrey.redhat.com>
-	 <43F6718E.2000908@us.ibm.com>
-	 <20060222223240.GI31641@agk.surrey.redhat.com>
-	 <1140655617.3300.14.camel@localhost.localdomain>
-	 <20060223135639.GK31641@agk.surrey.redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-71EWMkp8uf99Y+4Curub"
-Date: Thu, 23 Feb 2006 10:16:24 -0800
-Message-Id: <1140718584.10148.2.camel@localhost.localdomain>
+	Thu, 23 Feb 2006 13:21:13 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:62471 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751121AbWBWSVM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 13:21:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=lJ/x6z1k6+eHt1O7+zDZVziYheQhpGpVOdDn7sXxhzKKRw95GpZpAvqYkMPP7/iA0+InV6eBQqg2q75M7YCuf4/KVnL4acN0Fz4EpUVzRObCVEHMR0ToQqDgZF+5EAoBfZ4L6/A0GU+JC7nRMBc/Puj5W8kKmTs/+6BRjwoQ8yA=
+Date: Thu, 23 Feb 2006 21:21:07 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: "Alexander E. Patrakov" <patrakov@ums.usu.ru>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: zcat: stdin: decompression OK (was: Re: 2.6.16-rc4-mm1)
+Message-ID: <20060223182107.GB7803@mipter.zuzino.mipt.ru>
+References: <20060220042615.5af1bddc.akpm@osdl.org> <43FC6B8F.4060601@ums.usu.ru> <20060222225325.10a71472.rdunlap@xenotime.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.91 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060222225325.10a71472.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 22, 2006 at 10:53:25PM -0800, Randy.Dunlap wrote:
+> On Wed, 22 Feb 2006 18:47:59 +0500 Alexander E. Patrakov wrote:
+> > Unfortunately, I lost my .config from the old kernel, so I attempted the
+> > following:
+> >
+> > cd scripts
+> > make binoffset
+> > cd ..
+> > scripts/extract-ikconfig /boot/vmlinuz-2.6.16-rc3-mm1-home >.config
+> >
+> > This results in:
+> >
+> > zcat: stdin: decompression OK, trailing garbage ignored
+>
+> No other output?  what $ARCH?
+> What did the .config file contain?  was it correct?
+> so is the only problem the zcat warning message?
+>
+> I tested extract-ikconfig several times without errors (on 2.6.16-rc4-mm1).
 
---=-71EWMkp8uf99Y+4Curub
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Since I can reproduce it, Randy, what version do you use? 1.3.5-r8 here
+from Gentoo.
 
-On Thu, 2006-02-23 at 13:56 +0000, Alasdair G Kergon wrote:
-
-> My copy of the sd(4) man page says of that ioctl:
->=20
->     The information returned in the parameter is the disk
->     geometry of the drive as understood by DOS!   This geometry is not
->     the physical geometry of the drive.  It is used when constructing the
->     drive's partition table, however, and is needed for convenient
->     operation of fdisk(1), efdisk(1), and lilo(1).  If the geometry
->     information is not available, zero will be returned for all of the
->     parameters.
-> =20
-> Is there a preferred alternative specification?
-
-Hm... in light of that, I'll acquiesce that 0/0/0 is fine by me, and no
-other behavior is necessary.
-
---D
-
---=-71EWMkp8uf99Y+4Curub
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-
-iD8DBQBD/fv4a6vRYYgWQuURAq7vAKC1m8pWPSlMfpr51lb2vCsC7x+eJwCgnWt2
-FiGqWBC6ZOjAwVyj5Cf9yMY=
-=ujkO
------END PGP SIGNATURE-----
-
---=-71EWMkp8uf99Y+4Curub--
+At least, we can trivially shut it up.
 

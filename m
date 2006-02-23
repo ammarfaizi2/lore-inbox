@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbWBWJAq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751636AbWBWJKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751003AbWBWJAq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 04:00:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751630AbWBWJAq
+	id S1751636AbWBWJKm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 04:10:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751638AbWBWJKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 04:00:46 -0500
-Received: from fnoeppeil48.netpark.at ([217.175.205.176]:64778 "EHLO
-	roarinelk.homelinux.net") by vger.kernel.org with ESMTP
-	id S1751003AbWBWJAq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 04:00:46 -0500
-Date: Thu, 23 Feb 2006 10:00:43 +0100
-From: Manuel Lauss <mano@roarinelk.homelinux.net>
-To: Fabio Comolli <fabio.comolli@gmail.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>, mdharm-usb@one-eyed-alien.net,
-       usb-storage@lists.one-eyed-alien.net,
-       linux-usb-users@lists.sourceforge.net
-Subject: Re: Problems with USB MMC/SD card reader
-Message-ID: <20060223090043.GA28761@roarinelk.homelinux.net>
-References: <b637ec0b0602230042s1736ed73lb54022a3dae70a0d@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b637ec0b0602230042s1736ed73lb54022a3dae70a0d@mail.gmail.com>
-User-Agent: Mutt/1.5.8i
+	Thu, 23 Feb 2006 04:10:41 -0500
+Received: from relay4.usu.ru ([194.226.235.39]:37598 "EHLO relay4.usu.ru")
+	by vger.kernel.org with ESMTP id S1751636AbWBWJKk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 04:10:40 -0500
+Message-ID: <43FD7C49.10302@ums.usu.ru>
+Date: Thu, 23 Feb 2006 14:11:37 +0500
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc4-mm1
+References: <20060220042615.5af1bddc.akpm@osdl.org>	<43FC6B8F.4060601@ums.usu.ru> <20060222225325.10a71472.rdunlap@xenotime.net>
+In-Reply-To: <20060222225325.10a71472.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.33.1.0; VDF: 6.33.1.20; host: usu2.usu.ru)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-> logical block 248367
-> Feb 23 08:44:22 kepler kernel: sd 2:0:0:0: SCSI error: return code = 0x8000002
-> Feb 23 08:44:22 kepler kernel: sdb: Current: sense key=0x3
-> Feb 23 08:44:22 kepler kernel:     ASC=0x11 ASCQ=0x0
-> Feb 23 08:44:22 kepler kernel: Info fld=0x1e5271
-> Feb 23 08:44:22 kepler kernel: end_request: I/O error, dev sdb, sector 1987185
-> Feb 23 08:44:22 kepler kernel: Buffer I/O error on device sdb1,
-> logical block 248367
-> -------------------
-> Kernel is vanilla 2.6.16-rc4; output of /proc/bus/usb/devices and
+Randy.Dunlap wrote:
+> On Wed, 22 Feb 2006 18:47:59 +0500 Alexander E. Patrakov wrote:
+>> zcat: stdin: decompression OK, trailing garbage ignored
+> 
+> No other output?  what $ARCH?
 
-> .config are attached.
+No other output, the arch is i386, userspace is Debian Sarge.
 
-wild guess: enable the CONFIG_SCSI_MULTI_LUN config option.
+> What did the .config file contain?  was it correct?
+
+The end result was correct. The problematic kernel image (with the 
+config in it) can be accessed at:
+
+http://ums.usu.ru/~patrakov/vmlinuz-2.6.16-rc3-mm1-home
+
+(please notify when I can erase it)
+
+> so is the only problem the zcat warning message?
+
+Yes.
+
+> I tested extract-ikconfig several times without errors (on 2.6.16-rc4-mm1).
+
+I will dig more into the problem today. Reverting extract-ikconfig-* 
+patches didn't help.
 
 -- 
- ml.
-
-
+Alexander E. Patrakov

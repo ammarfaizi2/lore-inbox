@@ -1,82 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751786AbWBWUNC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWBWUM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751786AbWBWUNC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 15:13:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbWBWUNB
+	id S932071AbWBWUM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 15:12:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751784AbWBWUM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 15:13:01 -0500
-Received: from silver.veritas.com ([143.127.12.111]:57921 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751784AbWBWUNA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 15:13:00 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.02,141,1139212800"; 
-   d="scan'208"; a="34813799:sNHT25653596"
-Date: Thu, 23 Feb 2006 20:13:38 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "'David Gibson'" <david@gibson.dropbear.id.au>
-cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: IA64 non-contiguous memory space bugs
-In-Reply-To: <20060222234949.GB25108@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0602231956560.12069@goblin.wat.veritas.com>
-References: <200602220132.k1M1Vxg09552@unix-os.sc.intel.com>
- <200602220151.k1M1pqg09761@unix-os.sc.intel.com> <20060222022558.GE23574@localhost.localdomain>
- <Pine.LNX.4.61.0602221546040.9885@goblin.wat.veritas.com>
- <20060222234949.GB25108@localhost.localdomain>
+	Thu, 23 Feb 2006 15:12:57 -0500
+Received: from smtpq2.groni1.gr.home.nl ([213.51.130.201]:40120 "EHLO
+	smtpq2.groni1.gr.home.nl") by vger.kernel.org with ESMTP
+	id S1751780AbWBWUM4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 15:12:56 -0500
+Message-ID: <43FE1764.6000300@keyaccess.nl>
+Date: Thu, 23 Feb 2006 21:13:24 +0100
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 23 Feb 2006 20:12:59.0034 (UTC) FILETIME=[8A7D47A0:01C638B5]
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+Subject: Re: Patch to reorder functions in the vmlinux to a defined order
+References: <1140700758.4672.51.camel@laptopd505.fenrus.org>  <1140707358.4672.67.camel@laptopd505.fenrus.org>  <200602231700.36333.ak@suse.de> <1140713001.4672.73.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0602230902230.3771@g5.osdl.org> <43FE0B9A.40209@keyaccess.nl> <Pine.LNX.4.64.0602231133110.3771@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602231133110.3771@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Feb 2006, 'David Gibson' wrote:
-> 
-> Consider a HPAGE_SIZE hugepage VMA starting at 4GB, and a normal page
-> VMA starting at (4GB-PAGE_SIZE).  This situation is possible on
-> powerpc, and is_hugepage_only_range(4GB-PAGE_SIZE, HPAGE_SIZE) will
-> (and must) return true.  Therefore the free_pgtables() logic will call
-> hugetlb_free_pgd_range() across the normal page VMA.
+Linus Torvalds wrote:
 
-Thanks for your patience, I eventually got it.  Although (amused to
-observe my own incomprehension) I couldn't actually understand your
-explanation at all, realized it myself overnight, read again what
-you'd written, and then found that you had explained it very well.
+> If you want to boot a 4MB machine with the suggested patch, you'd 
+> have to enable CONFIG_EMBEDDED (something you'd likely want to do 
+> anyway, for 4M machine), and turn the physical start address back
+> down to 1MB.
 
-Yes, I was wrong to use HPAGE_SIZE in that way in free_pgtables,
-and it ought to go to the trouble of testing the real end-addr 
-(if we keep using is_hugepage_only_range there at all).  Though
-it's nothing urgent while your hugetlb_free_pgd_range happens to
-be the same as your free_pgd_range, right?  Is that changing soon?
+Okay. I suppose the only other option is to make "physical_start" a 
+variable passed in by the bootloader so that it could make a runtime 
+decision? Ie, place us at min(top_of_mem, 4G) if it cared to. I just 
+grepped for PHYSICAL_START and this didn't look _too_ bad.
 
-May I plead the extenuating circumstance, that the powerpc
-is_hugepage_only_range means something quite different from the ia64?
-The ia64 one means "within a hugepage-only range" but the powerpc one
-means "overlaps a hugepage-only range"; I don't know which came first,
-and is_hugepage_only_range isn't very descriptive of either (though
-matches the ia64 case much better).
+I'm out of my league here though -- if I remember correctly from some 
+reading of the early bootcode I once did, the kernel set up some 
+temporary tables first to only cover the first few MB? If so, then I 
+guess it would be a significant change.
 
-(That is, I think from the "touch" naming, and from your description,
-that the powerpc one means "overlaps".  After a few minutes, I gave
-up trying to decipher exactly what LOW_ESID_MASK and HTLB_AREA_MASK
-end up doing, and take your superior knowledge on trust.)
+Seems a bit cleaner though than just hardcoding the address.
 
-While is_hugepage_only_range means different things to different
-architectures, I guess it'd best be avoided in common code.  That use
-in get_unmapped_area: powerpc gets it right, but ia64 gets it wrong?
-But I didn't notice a change to that line (or the ia64 implementaton
-thereof) in your original patch.
+> That's one reason I didn't make it 16MB. A 4MB machine is pretty damn
+> embedded these days (you'd want to enable EMBEDDED just to turn off
+> some other things that make the kernel bigger), but I can imagine
+> that real people run Linux/x86 in 16MB as long as they don't run X.
 
-> I can see two ways of fixing this.  The quick, hacky fix is to use
-> is_vm_hugetlb_page(), and work around the problems by having
-> hugetlb_free_pgd_range() be identical to free_pgd_range() in most
-> cases.
+My 386 is happy with its current 16M (it can't cache all of the 32M I 
+can physically put in), used to be happy with 8M, and used to boot with 
+4M... ofcourse, although it's not very embedded (you should see it) it's 
+also not very "real" in that sense ;-)
 
-I don't see that as hacky.  I did point out that is_vm_hugetlb_page
-will miss out on some coalescence, but that can't be a big deal for
-what are already huge areas (the optimization was intended for many
-tiny adjacent areas).
+Love the machine to death, though...
 
-Hugh
+Rene.

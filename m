@@ -1,49 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWBWRzA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWBWRym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932100AbWBWRzA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 12:55:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWBWRzA
+	id S932365AbWBWRym (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 12:54:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWBWRym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 12:55:00 -0500
-Received: from baldrick.bootc.net ([83.142.228.48]:5785 "EHLO
-	baldrick.bootc.net") by vger.kernel.org with ESMTP id S932100AbWBWRy7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 12:54:59 -0500
-Message-ID: <43FDF6F0.6000006@bootc.net>
-Date: Thu, 23 Feb 2006 17:54:56 +0000
-From: Chris Boot <bootc@bootc.net>
-User-Agent: Mail/News 1.5 (X11/20060114)
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: libata PATA drivers patch for 2.6.16-rc4
-References: <1140445182.26526.1.camel@localhost.localdomain>	 <43FD347B.6030802@comcast.net> <1140707265.4332.6.camel@localhost.localdomain>
-In-Reply-To: <1140707265.4332.6.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Feb 2006 12:54:42 -0500
+Received: from [217.147.92.49] ([217.147.92.49]:4740 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S932365AbWBWRyl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 12:54:41 -0500
+Date: Thu, 23 Feb 2006 17:53:29 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: dtor_core@ameritech.net, linux-input@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Extra keycodes
+Message-ID: <20060223175328.GA25482@srcf.ucam.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Mer, 2006-02-22 at 23:05 -0500, Ed Sweetman wrote:
->> With this patch set and the attached config.  Nvidia Nforce4 chipset 
->> from asus A8N-E with pata and sata enabled (no ide drivers) I get the 
->> following error i copied by hand (half assed) during bootup.
->>
->> Process Swapper  "lots of addresses"
-> 
-> Thanks for all the reports on the oops on boot. I was able to duplicate
-> it and fix the dumb bug that caused it.
-> 
-> New patch (2.6.16-rc4-ide2)
-> 
-> 	http://zeniv.linux.org.uk/~alan/IDE
+Hi,
 
--ide2 fixes my boot-time oops as well, cheers.
-
-Chris
+Several laptops have keys that are intended to show battery status. In 
+order to present a consistent view to userspace, it would be nice to 
+have a standard keycode to map them to. linux/input.h doesn't currently 
+provide anything appropriate. What's the correct way of allocating 
+another keycode?
 
 -- 
-Chris Boot
-bootc@bootc.net
-http://www.bootc.net/
+Matthew Garrett | mjg59@srcf.ucam.org

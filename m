@@ -1,93 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751504AbWBWVMQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751783AbWBWVOg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751504AbWBWVMQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 16:12:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751773AbWBWVMQ
+	id S1751783AbWBWVOg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 16:14:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751784AbWBWVOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 16:12:16 -0500
-Received: from liaag1ac.mx.compuserve.com ([149.174.40.29]:61421 "EHLO
-	liaag1ac.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751504AbWBWVMQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 16:12:16 -0500
-Date: Thu, 23 Feb 2006 16:10:01 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [Patch 3/3] prepopulate/cache cleared pages
-To: Arjan van de Ven <arjan@intel.linux.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Message-ID: <200602231611_MC3-1-B91D-9C03@compuserve.com>
+	Thu, 23 Feb 2006 16:14:36 -0500
+Received: from zproxy.gmail.com ([64.233.162.199]:48697 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751783AbWBWVOf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 16:14:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PVJ76TpAVCTofjJCgFaOdZbkbqdFaQoATh0DoMOQ0Kb5yUzduaa5TmBUuDuYVPdnY13gMUJfzhaGz1bPWr0Wyjhf0tW6I5DnJt3ycUvP9dapf6CyyrcDRR5SHvg4pLC/rL4C58gEjKfWUzrLKjvd88McGuvlTtm8KxUuvIJd3nY=
+Message-ID: <29495f1d0602231314m6ea84f85wc2792c1b6b7c4715@mail.gmail.com>
+Date: Thu, 23 Feb 2006 13:14:34 -0800
+From: "Nish Aravamudan" <nish.aravamudan@gmail.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Subject: Re: ~5x greater CPU load for a networked application when using 2.6.15-rt15-smp vs. 2.6.12-1.1390_FC4
+Cc: "Gautam H Thaker" <gthaker@atl.lmco.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060223210844.GA26701@elte.hu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
+References: <43FE134C.6070600@atl.lmco.com> <20060223205851.GA24321@elte.hu>
+	 <29495f1d0602231306o55d759d5v9600b070a4b485e3@mail.gmail.com>
+	 <20060223210844.GA26701@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <1140686994.4672.4.camel@laptopd505.fenrus.org>
+On 2/23/06, Ingo Molnar <mingo@elte.hu> wrote:
+>
+> * Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
+>
+> > Would it make more sense to compare 2.6.15 and 2.6.15-rt17, as opposed
+> > to 2.6.12-1.1390_FC4 and 2.6.15-rt17? Seems like the closer the two
+> > kernels are, the easier it will be to isolate the differences.
+>
+> good point. I'd expect there to be similar 'top' output, but still worth
+> doing for comparable results.
 
-On Thu, 23 Feb 2006 at 10:29:54 +0100, Arjan van de Ven wrote:
+I'd also expect little difference (hopefully) -- although there's
+always an off-chance something big changed somewhere and the problem
+was fixed in mainline. Just makes the comparison clearer.
 
-> Index: linux-work/mm/mempolicy.c
-> ===================================================================
-> --- linux-work.orig/mm/mempolicy.c
-> +++ linux-work/mm/mempolicy.c
-> @@ -1231,6 +1231,13 @@ alloc_page_vma(gfp_t gfp, struct vm_area
->  {
->       struct mempolicy *pol = get_vma_policy(current, vma, addr);
->  
-> +     if ( (gfp & __GFP_ZERO) && current->cleared_page) {
-> +             struct page *addr;
-> +             addr = current->cleared_page;
-> +             current->cleared_page = NULL;
-> +             return addr;
-> +     }
-> +
->       cpuset_update_task_memory_state();
->  
->       if (unlikely(pol->policy == MPOL_INTERLEAVE)) {
-> @@ -1242,6 +1249,36 @@ alloc_page_vma(gfp_t gfp, struct vm_area
->       return __alloc_pages(gfp, 0, zonelist_policy(gfp, pol));
->  }
->  
-> +
-> +/**
-> + *   prepare_cleared_page - populate the per-task zeroed-page cache
-> + *
-> + *   This function populates the per-task cache with one zeroed page
-> + *   (if there wasn't one already)
-> + *   The idea is that this (expensive) clearing is done before any
-> + *   locks are taken, speculatively, and that when the page is actually
-> + *   needed under a lock, it is ready for immediate use
-> + */
-> +
-> +void prepare_cleared_page(void)
-> +{
-> +     struct mempolicy *pol = current->mempolicy;
-> +
-> +     if (current->cleared_page)
-> +             return;
-> +
-> +     cpuset_update_task_memory_state();
-> +
-> +     if (!pol)
-> +             pol = &default_policy;
-> +     if (pol->policy == MPOL_INTERLEAVE)
-> +             current->cleared_page = alloc_page_interleave(
-> +                     GFP_HIGHUSER | __GFP_ZERO, 0, interleave_nodes(pol));
-
-======> else ???
-
-> +     current->cleared_page = __alloc_pages(GFP_USER | __GFP_ZERO,
-> +                     0, zonelist_policy(GFP_USER, pol));
-> +}
-> +
-> +
->  /**
->   *   alloc_pages_current - Allocate pages.
->   *
-
--- 
-Chuck
-"Equations are the Devil's sentences."  --Stephen Colbert
-
+Thanks,
+Nish

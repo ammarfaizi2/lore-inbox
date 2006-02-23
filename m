@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751637AbWBWKAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751702AbWBWKBB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751637AbWBWKAS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 05:00:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751703AbWBWKAS
+	id S1751702AbWBWKBB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 05:01:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751703AbWBWKBB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 05:00:18 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:17560 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751637AbWBWKAQ (ORCPT
+	Thu, 23 Feb 2006 05:01:01 -0500
+Received: from mail14.syd.optusnet.com.au ([211.29.132.195]:60119 "EHLO
+	mail14.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751701AbWBWKBA convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 05:00:16 -0500
-Message-ID: <43FD87A9.1010406@pobox.com>
-Date: Thu, 23 Feb 2006 05:00:09 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Thu, 23 Feb 2006 05:01:00 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Emmanuel Pacaud <emmanuel.pacaud@univ-poitiers.fr>
+Subject: Re: isolcpus weirdness
+Date: Thu, 23 Feb 2006 21:00:45 +1100
+User-Agent: KMail/1.9.1
+Cc: Frederik Deweerdt <deweerdt@free.fr>, linux-kernel@vger.kernel.org
+References: <1140614487.13155.20.camel@localhost.localdomain> <20060222211817.GA13488@silenus.home.res> <1140688532.8314.10.camel@localhost.localdomain>
+In-Reply-To: <1140688532.8314.10.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Deven Balani <devenbalani@gmail.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       Linux-arm-kernel@lists.arm.linux.org.uk
-Subject: Re: non-PCI based libata-SATA driver
-References: <7a37e95e0602220404y7b82104ch5c3cda087336aed7@mail.gmail.com>	 <1140654191.8672.23.camel@localhost.localdomain> <7a37e95e0602222208i9a7c973vc50ac336fb174024@mail.gmail.com>
-In-Reply-To: <7a37e95e0602222208i9a7c973vc50ac336fb174024@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200602232100.46551.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Deven Balani wrote:
->>If you look at http://zeniv.linux.org.uk/~alan/IDE you'll find the PATA
->>patches I did include some VLB and ISA devices.
-> 
-> Thanks a lot. I'm going through these patches and will get back to you
-> in case of any problem.
-> 
-> I have a SATA Controller that is attached to HSX bus on ARM based
-> chipset. On this side, I'm exploring the feasibilty of coming up with
-> low-level libata-SATA driver (as libata is being said to support
-> generic bus interface). I've gone through the SATA drivers in kernel
-> code but all seem to be PCI specific.
-> 
-> Also, Is there any slight possiblity of doing the same with 2.4.x
-> kernels (by patching the kernel or whatever)?
+On Thursday 23 February 2006 20:55, Emmanuel Pacaud wrote:
+> Le mercredi 22 février 2006 à 22:18 +0100, Frederik Deweerdt a écrit :
+> > On Wed, Feb 22, 2006 at 02:21:27PM +0100, Emmanuel Pacaud wrote:
+> > > What's wrong ?
+> >
+> > Are you able to reproduce the same behaviour after disabling HT in
+> > the kernel config?
+>
+> I think HT is disabled in kernel config, since I only see 2 cpus.
+>
+> In fact, I've tried to enable HT, but did'nt succeed. HT is enabled in
+> BIOS, but I'm not sure about exact things I must set at kernel config
+> level for hyperthreading. I've tried to set/unset CONFIG_SCHED_SMT, but
+> that changes nothing (no hyperthreading, isolated cpu is always cpu0).
+>
+> Here's attached my config file.
 
-non-PCI works quite easily under 2.6.x, because libata core uses the 
-generic DMA mapping lib.  It's already confirmed to work on at least one 
-other ARM embedded chipset (sorry can't give more detail).
+CONFIG_ACPI is not set
 
-2.4.x is a lot of work to do non-PCI, largely because you have to deal 
-with the lack of a generic DMA interface.  2.4.x libata is hardcoded to 
-use PCI DMA mapping.
+You need ACPI to enumerate hyperthread siblings. That's why HT never gets 
+enabled for you.
 
-	Jeff
-
-
-
+Cheers,
+Con

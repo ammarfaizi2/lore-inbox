@@ -1,48 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751469AbWBWAFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbWBWAOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751469AbWBWAFo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 19:05:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWBWAFo
+	id S1751479AbWBWAOk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 19:14:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbWBWAOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 19:05:44 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:46526 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750899AbWBWAFo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 19:05:44 -0500
-Message-ID: <43FCFC53.20505@zytor.com>
-Date: Wed, 22 Feb 2006 16:05:39 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 22 Feb 2006 19:14:40 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:1930 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S1751479AbWBWAOk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 19:14:40 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Date: Thu, 23 Feb 2006 10:11:39 +1000
+User-Agent: KMail/1.9.1
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
+       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602230031.41217.rjw@sisk.pl> <20060222235639.GK13621@elf.ucw.cz>
+In-Reply-To: <20060222235639.GK13621@elf.ucw.cz>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: klibc@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: sys_mmap2 on different architectures
-References: <43FCDB8A.5060100@zytor.com> <20060222.135430.44726149.davem@davemloft.net>
-In-Reply-To: <20060222.135430.44726149.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart114077821.NTvfepT8ZO";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200602231011.44889.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> 
-> Right.
-> 
-> On sparc32 we had the issue where we had a 8K page size
-> platform (sun4) and the rest were using 4K page size.
-> 
-> I can't even think why we do that fixed shift actually.  I think Jakub
-> Jalinek thought this might be a way to make applications assuming
-> 4K page size work on the 8K page size machines.
-> 
-> I'm going to say that you can feel free to fix this to use PAGE_SHIFT
-> correctly all the time.  Applications should be calling getpagesize()
-> and not assume what that value might be.
-> 
+--nextPart114077821.NTvfepT8ZO
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Okay, what I'll do is that I'll hard-code 12 on i386, SPARC and ARM; on 
-other architectures I'll use getpagesize().  Of course, on 64-bit 
-architectures this is not an issue; there I just call sys_mmap.
+Hi.
 
-	-hpa
+On Thursday 23 February 2006 09:56, Pavel Machek wrote:
+> > > > The fact that we use page flags to store some suspend/resume-related
+> > > > information is a big disadvantage in my view, and I'd like to get r=
+id
+> > > > of that in the future.  In principle we could use a bitmap, or rath=
+er
+> > > > two of them, to store the same information independently of the page
+> > > > flags, and if we use bitmaps for this purpose, we can use them also
+> > > > instead of PBEs.
+> > >
+> > > Well, we "only" use 2 bits... :-).
+> >
+> > In my view the problem is this adds constraints that other people have =
+to
+> > take into account.  Not a good thing if avoidable IMHO.
+>
+> Well, I hope that swsusp development will move to userland in future
+>
+> :-).
+
+I don't get your point. I mean, we're talking about flags that record what=
+=20
+pages are going to be in the image, be atomically copied and so on. Are you=
+=20
+planning on trying to export the free page information and the like to=20
+userspace too, along with atomic copy code?
+
+Regards,
+
+Nigel
+
+--nextPart114077821.NTvfepT8ZO
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBD/P3AN0y+n1M3mo0RAiTGAJ412InDqlp0Is22PMc7ydyLG+8SpwCfWUHm
+b/fS2ZNV4OmNU4V7CSOtheI=
+=9NNN
+-----END PGP SIGNATURE-----
+
+--nextPart114077821.NTvfepT8ZO--

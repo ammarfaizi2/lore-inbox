@@ -1,44 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751488AbWBWAT2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751559AbWBWATu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751488AbWBWAT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 19:19:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751536AbWBWAT1
+	id S1751559AbWBWATu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 19:19:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751584AbWBWATt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 19:19:27 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:24777 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751488AbWBWATX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 19:19:23 -0500
-Message-ID: <43FCFFC0.1050405@jp.fujitsu.com>
-Date: Thu, 23 Feb 2006 09:20:16 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, y-goto@jp.fujitsu.com
-Subject: Re: [PATCH] refine for_each_pgdat() [1/4] refine for_each_pgdat
-References: <20060222200402.e1145286.kamezawa.hiroyu@jp.fujitsu.com> <20060222145256.7b84f444.akpm@osdl.org>
-In-Reply-To: <20060222145256.7b84f444.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 22 Feb 2006 19:19:49 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:37045 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751001AbWBWATq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 19:19:46 -0500
+Subject: Re: PANIC: sata_sil on 2.6.16-rc4-ide1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chris Boot <bootc@bootc.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <B7FF9C61-95ED-4495-971F-D55AAAA2F0F5@bootc.net>
+References: <B7FF9C61-95ED-4495-971F-D55AAAA2F0F5@bootc.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Thu, 23 Feb 2006 00:24:01 +0000
+Message-Id: <1140654241.8672.25.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> It's confusing and asymmetric.  If you have time, it would be nice to later
-> remove for_each_pgdat() and for_each_cpu() from the kernel altogether, use
-> for_each_online_cpu(), for_each_possible_cpu(), for_each_online_node(),
-> for_each_possible_node().
+On Mer, 2006-02-22 at 23:53 +0000, Chris Boot wrote:
+> Hi all,
 > 
-Okay, I'll rewrite my patch and post new one which represents what you mention.
+> I upgraded from 2.6.16-rc2-ide2 to 2.6.16-rc4-ide1 and suffered the  
+> panic pasted below. Needless to say this all worked fine with the  
+> previous kernel (and some). I have two Seagate 250GB drives connected  
+> to the controller (a PCI Adaptec 1205SA). I'm testing -ide so I don't  
+> have the whole IDE layer just for my rarely used DVD-RW on my VIA PATA.
 
-BTW, I noticed  refine-for_each_pgdat-remove-pgdat-sorting.patch
-contains bug. (caller of ia64's insert_pgdat() is not removed...)
-
-so please drop them :(, I'll post new ones to next -mm (with enough test...).
-
-Thanks,
--- Kame
-
-
+Do you see the same crash on 2.6.16-rc4 without the IDE diff ?
 

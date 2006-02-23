@@ -1,73 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWBWEWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWBWERs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750785AbWBWEWM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 23:22:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWBWEWM
+	id S1750783AbWBWERs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 23:17:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWBWERs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 23:22:12 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:5217 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1750785AbWBWEWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 23:22:11 -0500
-In-Reply-To: <200602222129.31700.mbuesch@freenet.de>
-References: <200602222129.31700.mbuesch@freenet.de>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-X-Gpgmail-State: !signed
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <7A04DCF5-C5CF-46E2-A133-A7743BD83B17@kernel.crashing.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Michael Buesch <mbuesch@freenet.de>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: PowerPC: Sleeping function called from invalid context at emulate_instruction()
-Date: Wed, 22 Feb 2006 22:22:17 -0600
-To: Paul Mackerras <paulus@samba.org>
-X-Mailer: Apple Mail (2.746.2)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 22 Feb 2006 23:17:48 -0500
+Received: from thunk.org ([69.25.196.29]:61386 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1750783AbWBWERr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 23:17:47 -0500
+Date: Wed, 22 Feb 2006 23:17:08 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Martin Bligh <mbligh@mbligh.org>
+Cc: David Zeuthen <david@fubar.dk>, Linus Torvalds <torvalds@osdl.org>,
+       Kay Sievers <kay.sievers@suse.de>,
+       Pekka J Enberg <penberg@cs.Helsinki.FI>, Greg KH <gregkh@suse.de>,
+       Adrian Bunk <bunk@stusta.de>, Robert Love <rml@novell.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       John Stultz <johnstul@us.ibm.com>
+Subject: Re: 2.6.16-rc4: known regressions
+Message-ID: <20060223041707.GA9645@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Martin Bligh <mbligh@mbligh.org>, David Zeuthen <david@fubar.dk>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kay Sievers <kay.sievers@suse.de>,
+	Pekka J Enberg <penberg@cs.Helsinki.FI>, Greg KH <gregkh@suse.de>,
+	Adrian Bunk <bunk@stusta.de>, Robert Love <rml@novell.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	John Stultz <johnstul@us.ibm.com>
+References: <20060219145442.GA4971@stusta.de> <1140383653.11403.8.camel@localhost> <20060220010205.GB22738@suse.de> <1140562261.11278.6.camel@localhost> <20060221225718.GA12480@vrfy.org> <Pine.LNX.4.58.0602220905330.12374@sbz-30.cs.Helsinki.FI> <20060222152743.GA22281@vrfy.org> <Pine.LNX.4.64.0602220737170.30245@g5.osdl.org> <1140625103.21517.18.camel@daxter.boston.redhat.com> <43FC9C13.7040109@mbligh.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43FC9C13.7040109@mbligh.org>
+User-Agent: Mutt/1.5.11+cvs20060126
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 22, 2006 at 09:14:59AM -0800, Martin Bligh wrote:
+> >But I realize these changes are important because it's progress and back
+> >in 2.6.0 things were horribly broken for at least desktop workloads [1].
+> >It also makes me release note that newer HAL releases require newer
+> >kernel and udev releases and that's alright. In fact it's perfectly
+> >fine. We get users to upgrade to the latest and greatest and we keep
+> >making good progress. That's open source at it's finest I think.
+> 
+> If it's all that fragile, surely it just means that someone picked the
+> wrong point at which to try to form the API abstraction?
+> 
+> Frankly, that seems to be the issue behind a lot of these problems -
+> people decide to shove stuff into userspace for some religions reason, 
+> without thinking about the API implications at all.
 
-On Feb 22, 2006, at 2:29 PM, Michael Buesch wrote:
+Martin has hit the nail on the head.
 
-> Hi,
->
-> On a powerPC 32bit, I got the following debugging assertion failure:
->
-> [  733.209827] Debug: sleeping function called from invalid context  
-> at arch/powerpc/kernel/traps.c:697
-> [  733.210682] in_atomic():0, irqs_disabled():1
-> [  733.211347] Call Trace:
-> [  733.211969] [D6023EB0] [C0007F84] show_stack+0x58/0x174  
-> (unreliable)
-> [  733.212765] [D6023EE0] [C0022C34] __might_sleep+0xbc/0xd0
-> [  733.213523] [D6023EF0] [C000D158] program_check_exception 
-> +0x1d8/0x4fc
-> [  733.214309] [D6023F40] [C000E744] ret_from_except_full+0x0/0x4c
-> [  733.215076] --- Exception: 700 at 0x102a7100
-> [  733.215785]     LR = 0xdb9ef04
->
-> It is caused by the line
-> if (get_user(instword, (u32 __user *)(regs->nip)))
-> in arch/powerpc/kernel/traps.c:emulate_instruction()
->
-> I am not sure, if this is an indication for a bug, or just false  
-> alarm.
-> In case of false alarm, the debugging message should be made quiet
-> somehow, though.
+There is currently a religion going on in some circles (we see it in
+the uswsusp vs suspend2 debate) which states that moving functionality
+to userspace is always better because it makes the kernel "simpler".
+Well, maybe.  To the extent that we move policy to userspace, that is
+(usually) goodness, but we have to weigh the resulting _interface_
+complexity.  When you take a piece of work and split it up between the
+kernel and userspace, by definition there will have to be some kind of
+interface between the kernel and the userspace code.  
 
-Paul,
+Some people assume the only thing that makes up the interface is
+syscalls, ioctl's, and fnctls, but that's not true; /proc and /sys are
+interfaces too.  And as Linus has stated, once we introduce an
+interface, that's it; we have to maintain it forever.  No gratuitous
+changes.  If that is too hard, because we can imagine potential
+changes that might require us to change the interface, or painful
+backwards compatibility kludges to maintain the old interface for at
+least 12 months --- then maybe it was a bad idea to move certain
+pieces of functionality into userspace in the first place.
 
-Last time this was brought up we left it wondering why you had made  
-program_check_exception() run with interrupts disabled.  Any further  
-ideas on that one?
+> We don't have a sane way to package all the userspace crud together
+> with the microkernel that people are turning Linux into. Either people
+> quit pretending that divesting things to userspace is a solution to all
+> hard problems, or we create a packaging / bundling mechanism for all
+> this shite. Frankly, I prefer the former, but whichever ... it's
+> getting insane.
 
-- kumar
+Precisely.  These days, using initrd is an exercise in pain, and
+wasted time; anything goes wrong, and there is no recovery whatsoever,
+except a reboot back to a working setup, and if you have multiple SCSI
+drivers, a 5-10 minute wait for the boot to cycle.  So I don't use it.
+And if there is functionality that requires initrd's, as a general
+rule I don't use it, and I don't test it.  And if it's just me being
+stupid, then everyone can ignore me.  But if it's many people then
+maybe folks should start considering that we either need to make
+initrd more robust, and probably start bundling initrd setup's into
+the kernel, or we should start reconsidering the whole plan of moving
+more and more into initrd in the first place.
+
+'						- Ted

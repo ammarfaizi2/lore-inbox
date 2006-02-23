@@ -1,71 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751515AbWBWQDR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751532AbWBWQFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751515AbWBWQDR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 11:03:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbWBWQDR
+	id S1751532AbWBWQFV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 11:05:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751523AbWBWQFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 11:03:17 -0500
-Received: from smtpauth02.mail.atl.earthlink.net ([209.86.89.62]:27825 "EHLO
-	smtpauth02.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
-	id S1751515AbWBWQDQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 11:03:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=dk20050327; d=mindspring.com;
-  b=VXEjO5ay4YgjQhP0XmzgfkdF00PSMuWG+g92dowlp6IfoGos+eeUvb+MqvOnJvNu;
-  h=Date:From:To:Cc:Subject:Message-ID:Reply-To:Mail-Followup-To:References:Mime-Version:Content-Type:Content-Disposition:In-Reply-To:Errors-To:X-PGP-RSA-Key:X-PGP-RSA-Fingerprint:X-PGP-DSS-Key:X-PGP-DSS-Fingerprint:X-URL:User-Agent:X-ELNK-Trace:X-Originating-IP;
-Date: Thu, 23 Feb 2006 10:02:38 -0600
-From: Tim Walberg <twalberg@mindspring.com>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: herbert@13thfloor.at, matthias.andree@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: [OT] portable Makefiles (was: CD writing in future Linux (stirring up a hornets' nest))
-Message-ID: <20060223160238.GA31520@mindspring.com>
-Reply-To: Tim Walberg <twalberg@mindspring.com>
-Mail-Followup-To: Tim Walberg <twalberg@mindspring.com>,
-	Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	herbert@13thfloor.at, matthias.andree@gmx.de,
-	linux-kernel@vger.kernel.org
-References: <200602171502.20268.dhazelton@enter.net> <43F9D771.nail4AL36GWSG@burner> <200602201302.05347.dhazelton@enter.net> <43FAE10F.nailD121QL6LN@burner> <20060221101644.GA19643@merlin.emma.line.org> <43FAF2FA.nailD12BW90DH@burner> <20060221114625.GA29439@merlin.emma.line.org> <43FC68C1.nailEC711MJAV@burner> <20060223081257.GA28833@MAIL.13thfloor.at> <43FDD944.nailFUE21NE9H@burner>
-Mime-Version: 1.0
+	Thu, 23 Feb 2006 11:05:21 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:1431 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751510AbWBWQFT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 11:05:19 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH 06/23] proc: Replace proc_inode.type with proc_inode.fd
+References: <m1oe0yhy1w.fsf@ebiederm.dsl.xmission.com>
+	<m1k6bmhxze.fsf@ebiederm.dsl.xmission.com>
+	<m1fymahxwr.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1bqwyhxua.fsf_-_@ebiederm.dsl.xmission.com>
+	<m17j7mhxs0.fsf_-_@ebiederm.dsl.xmission.com>
+	<m13biahxpd.fsf_-_@ebiederm.dsl.xmission.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 23 Feb 2006 09:04:08 -0700
+In-Reply-To: <m13biahxpd.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
+ Biederman's message of "Thu, 23 Feb 2006 09:00:30 -0700")
+Message-ID: <m1u0aqgiyv.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43FDD944.nailFUE21NE9H@burner>
-X-PGP-RSA-Key: 0x0C8BA2FD at www.pgp.com (pgp.ai.mit.edu)
-X-PGP-RSA-Fingerprint: FC08 4026 8A62 C72F 90A9 FA33 6EEA 542D
-X-PGP-DSS-Key: 0x6DAB2566 at www.pgp.com (pgp.ai.mit.edu)
-X-PGP-DSS-Fingerprint: 4E1B CD33 46D0 F383 1579  1CCA C3E5 9C8F 6DAB 2566
-X-URL: http://www.mindspring.com/~twalberg
-User-Agent: Mutt/1.5.9i
-X-ELNK-Trace: 51223d6fa76962de9c7f779228e2f6aeda0071232e20db4d8c28260e047739d43f64625752a043e4350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 69.3.103.64
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02/23/2006 16:48 +0100, Joerg Schilling wrote:
->>	Herbert Poetzl <herbert@13thfloor.at> wrote:
->>	
->>	> On Wed, Feb 22, 2006 at 02:36:01PM +0100, Joerg Schilling wrote:
->>	> > ??? smake _is_ a real world make program and if you rate POSIX compliance
->>	> > and portability, it will outstrip all other known make programs.
->>	>
->>	> does anybody (except for the author, of course) use
->>	> smake for building their stuff? just curious ..
->>	
->>	Many people use smake on platforms where there is no other
->>	sufficiently compliant make program.
->>	
->>	As GNU make incorrectly states to run on many plaforms, there are 
->>	a lot of people who suffer from the fact that GNU make is not maintained
->>	since > 6 years.
->>	
 
-Hmmm... from the GNU Make web page:
+The sole renaming use of proc_inode.type is to discover the file descriptor
+number, so just store the file descriptor number instead of deriving it
+from the inode type.  This removes any /proc limits on the maximum number
+of file descriptors, and clears the path to make the hard coded /proc
+inode numbers go away.
 
-	Version 3.80 (stable) released on 2002-10-04 00:00:00.000
-
-Seems to me that's slightly less than 6 years, but then I was never
-that great at math... Maybe I missed something....
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 
 
+---
 
+ fs/proc/base.c          |    6 +++---
+ fs/proc/inode.c         |    2 +-
+ fs/proc/internal.h      |    4 ++--
+ include/linux/proc_fs.h |    2 +-
+ 4 files changed, 7 insertions(+), 7 deletions(-)
+
+7c7a69a8f4291176a595da2c8046ddef15bc6135
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index c35f340..8357c52 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -290,7 +290,7 @@ static int proc_fd_link(struct inode *in
+ 	struct task_struct *task = proc_task(inode);
+ 	struct files_struct *files;
+ 	struct file *file;
+-	int fd = proc_type(inode) - PROC_TID_FD_DIR;
++	int fd = proc_fd(inode);
+ 
+ 	files = get_files_struct(task);
+ 	if (files) {
+@@ -1321,7 +1321,6 @@ static struct inode *proc_pid_make_inode
+ 	 */
+ 	get_task_struct(task);
+ 	ei->task = task;
+-	ei->type = ino;
+ 	inode->i_uid = 0;
+ 	inode->i_gid = 0;
+ 	if (task_dumpable(task)) {
+@@ -1371,7 +1370,7 @@ static int tid_fd_revalidate(struct dent
+ {
+ 	struct inode *inode = dentry->d_inode;
+ 	struct task_struct *task = proc_task(inode);
+-	int fd = proc_type(inode) - PROC_TID_FD_DIR;
++	int fd = proc_fd(inode);
+ 	struct files_struct *files;
+ 
+ 	files = get_files_struct(task);
+@@ -1478,6 +1477,7 @@ static struct dentry *proc_lookupfd(stru
+ 	if (!inode)
+ 		goto out;
+ 	ei = PROC_I(inode);
++	ei->fd = fd;
+ 	files = get_files_struct(task);
+ 	if (!files)
+ 		goto out_unlock;
+diff --git a/fs/proc/inode.c b/fs/proc/inode.c
+index 075d3e9..8f532d7 100644
+--- a/fs/proc/inode.c
++++ b/fs/proc/inode.c
+@@ -95,7 +95,7 @@ static struct inode *proc_alloc_inode(st
+ 	if (!ei)
+ 		return NULL;
+ 	ei->task = NULL;
+-	ei->type = 0;
++	ei->fd = 0;
+ 	ei->op.proc_get_link = NULL;
+ 	ei->pde = NULL;
+ 	inode = &ei->vfs_inode;
+diff --git a/fs/proc/internal.h b/fs/proc/internal.h
+index 95a1cf3..8ea21d3 100644
+--- a/fs/proc/internal.h
++++ b/fs/proc/internal.h
+@@ -46,7 +46,7 @@ static inline struct task_struct *proc_t
+ 	return PROC_I(inode)->task;
+ }
+ 
+-static inline int proc_type(struct inode *inode)
++static inline int proc_fd(struct inode *inode)
+ {
+-	return PROC_I(inode)->type;
++	return PROC_I(inode)->fd;
+ }
+diff --git a/include/linux/proc_fs.h b/include/linux/proc_fs.h
+index aa6322d..cab152d 100644
+--- a/include/linux/proc_fs.h
++++ b/include/linux/proc_fs.h
+@@ -247,7 +247,7 @@ extern void kclist_add(struct kcore_list
+ 
+ struct proc_inode {
+ 	struct task_struct *task;
+-	int type;
++	int fd;
+ 	union {
+ 		int (*proc_get_link)(struct inode *, struct dentry **, struct vfsmount **);
+ 		int (*proc_read)(struct task_struct *task, char *page);
 -- 
-twalberg@mindspring.com
+1.2.2.g709a
+

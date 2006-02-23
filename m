@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751556AbWBWATW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751488AbWBWAT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751556AbWBWATW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Feb 2006 19:19:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751536AbWBWATW
+	id S1751488AbWBWAT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Feb 2006 19:19:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751536AbWBWAT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Feb 2006 19:19:22 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:24284 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1751488AbWBWATW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Feb 2006 19:19:22 -0500
-Date: Wed, 22 Feb 2006 19:14:11 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: klibc@zytor.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: sys_mmap2 on different architectures
-Message-ID: <20060223001411.GA20487@kvack.org>
-References: <43FCDB8A.5060100@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43FCDB8A.5060100@zytor.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 22 Feb 2006 19:19:27 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:24777 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751488AbWBWATX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Feb 2006 19:19:23 -0500
+Message-ID: <43FCFFC0.1050405@jp.fujitsu.com>
+Date: Thu, 23 Feb 2006 09:20:16 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, y-goto@jp.fujitsu.com
+Subject: Re: [PATCH] refine for_each_pgdat() [1/4] refine for_each_pgdat
+References: <20060222200402.e1145286.kamezawa.hiroyu@jp.fujitsu.com> <20060222145256.7b84f444.akpm@osdl.org>
+In-Reply-To: <20060222145256.7b84f444.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 01:45:46PM -0800, H. Peter Anvin wrote:
-> I've looked through the code for sys_mmap2 on several architectures, and 
-> it looks like some architectures plays by the "shift is always 12" rule, 
->  e.g. SPARC, and some expect userspace to actually obtain the page 
-> size, e.g. PowerPC and MIPS.  On some architectures, e.g. x86 and ARM, 
-> the point is moot since PAGE_SIZE is always 2^12.
+Andrew Morton wrote:
+> It's confusing and asymmetric.  If you have time, it would be nice to later
+> remove for_each_pgdat() and for_each_cpu() from the kernel altogether, use
+> for_each_online_cpu(), for_each_possible_cpu(), for_each_online_node(),
+> for_each_possible_node().
+> 
+Okay, I'll rewrite my patch and post new one which represents what you mention.
 
-The sys_mmap2() ABI is that the page shift is always fixed to whatever 
-page size is reasonable for the architecture, typically 2^12.  The syscall 
-should never be exposed as mmap2(), only as the large file size version 
-of mmap() (aka mmap64()).  The other consideration is that it should not 
-be implemented in 64 bit ABIs, as those machines should be using a 64 bit 
-native mmap().  Does that clear things up a bit?  Cheers,
+BTW, I noticed  refine-for_each_pgdat-remove-pgdat-sorting.patch
+contains bug. (caller of ia64's insert_pgdat() is not removed...)
 
-		-ben
--- 
-"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
-and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.
+so please drop them :(, I'll post new ones to next -mm (with enough test...).
+
+Thanks,
+-- Kame
+
+
+

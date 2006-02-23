@@ -1,35 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751454AbWBWTHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751533AbWBWTM2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751454AbWBWTHz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 14:07:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751504AbWBWTHy
+	id S1751533AbWBWTM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 14:12:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbWBWTM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 14:07:54 -0500
-Received: from outmail1.freedom2surf.net ([194.106.33.237]:28303 "EHLO
-	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S1751454AbWBWTHy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 14:07:54 -0500
-Message-ID: <43FE0872.4080807@asfandyar.cjb.net>
-Date: Thu, 23 Feb 2006 19:09:38 +0000
-From: Asfand Yar Qazi <email@asfandyar.cjb.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060217)
+	Thu, 23 Feb 2006 14:12:28 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:44724 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751345AbWBWTM1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 14:12:27 -0500
+Message-ID: <43FE0904.3020900@redhat.com>
+Date: Thu, 23 Feb 2006 14:12:04 -0500
+From: Wendy Cheng <wcheng@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Changing the scheduler at runtime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: suparna@in.ibm.com
+CC: linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][WIP] DIO simplification and AIO-DIO stability
+References: <20060223072955.GA14244@in.ibm.com>
+In-Reply-To: <20060223072955.GA14244@in.ibm.com>
+Content-Type: multipart/mixed;
+ boundary="------------090806030901060506060802"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------090806030901060506060802
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I compiled all the schedulers into the kernel - but I can't find how to change
-the one to be used at runtime.  Can you help me?  Or can it only be set at
-boot-time (in which case, how?)  Thanks.
+Suparna Bhattacharya wrote:
 
-Thanks
+>http://www.kernel.org/pub/linux/kernel/people/suparna/DIO-simplify.txt
+>(also inlined below)
+>  
+>
+Hi, Suparna,
+                                                                                
 
--- 
-To reply, take of all ZIGs !!
+It would be nice to ensure that the lock sequence will not cause issues 
+for out-of-tree external kernel modules (e.g. cluster files System) that 
+require extra locking for various purposes. We've found several 
+deadlocks issues in Global File System (GFS) Direct IO path due to lock 
+order enforced by VFS layer:
+                                                                                
 
+1) In sys_ftruncate()->do_truncate(), VFS layer grabs
+  * i_sem
+  * then i_alloc_sem (i_mutex)
+  * then call filesystem's setattr().
+                                                                                
+
+2) In Direct IO read, VFS layer calls
+  * filesystem's direct_IO()
+  * grabs i_sem (i_mutex)
+  * followed by i_alloc_sem.
+
+In our case, both gfs_setattr() and gfs_direct_IO() need its own 
+(global) locks to synchronize inter-nodes (and inter-processes) control 
+structures access but gfs_direct_IO later ends up in 
+__blockdev_direct_IO path that deadlocks with i_sem (i_mutex) and 
+i_alloc_sem.
+                                                                                
+
+A new DIO flag is added into our distribution (2.6.9 based) to work 
+around the problem by moving the inode semaphore acquiring within 
+__blockdev_direct_IO() (patch attached) into GFS code path (so lock 
+order can be re-arranged). The new lock granularity is not ideal but it 
+gets us out of this deadlock.
+
+We havn't had a chance to go thru your mail (and patch) in details yet 
+but would like bring up this issue earlier before it gets messy.
+                                                                                                                                                             
+
+-- Wendy
+
+
+
+--------------090806030901060506060802
+Content-Type: text/plain;
+ name="linux-2.6.9-dio-gfs-locking.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.6.9-dio-gfs-locking.patch"
+
+--- linux-2.6.9-22.EL/include/linux/fs.h	2005-12-07 12:43:55.000000000 -0500
++++ linux.truncate/include/linux/fs.h	2005-12-02 00:25:22.000000000 -0500
+@@ -1509,7 +1509,8 @@ ssize_t __blockdev_direct_IO(int rw, str
+ 	int lock_type);
+ 
+ enum {
+-	DIO_LOCKING = 1, /* need locking between buffered and direct access */
++	DIO_CLUSTER_LOCKING = 0, /* allow (cluster) fs handle its own locking */
++	DIO_LOCKING,     /* need locking between buffered and direct access */
+ 	DIO_NO_LOCKING,  /* bdev; no locking at all between buffered/direct */
+ 	DIO_OWN_LOCKING, /* filesystem locks buffered and direct internally */
+ };
+@@ -1541,6 +1542,15 @@ static inline ssize_t blockdev_direct_IO
+ 				nr_segs, get_blocks, end_io, DIO_OWN_LOCKING);
+ }
+ 
++static inline ssize_t blockdev_direct_IO_cluster_locking(int rw, struct kiocb *iocb,
++	struct inode *inode, struct block_device *bdev, const struct iovec *iov,
++	loff_t offset, unsigned long nr_segs, get_blocks_t get_blocks,
++	dio_iodone_t end_io)
++{
++	return __blockdev_direct_IO(rw, iocb, inode, bdev, iov, offset,
++			nr_segs, get_blocks, end_io, DIO_CLUSTER_LOCKING);
++}
++
+ extern struct file_operations generic_ro_fops;
+ 
+ #define special_file(m) (S_ISCHR(m)||S_ISBLK(m)||S_ISFIFO(m)||S_ISSOCK(m))
+--- linux-2.6.9-22.EL/fs/direct-io.c	2005-11-09 17:26:02.000000000 -0500
++++ linux.truncate/fs/direct-io.c	2005-12-07 12:27:17.000000000 -0500
+@@ -515,7 +515,7 @@ static int get_more_blocks(struct dio *d
+ 			fs_count++;
+ 
+ 		create = dio->rw == WRITE;
+-		if (dio->lock_type == DIO_LOCKING) {
++		if ((dio->lock_type == DIO_LOCKING) || (dio->lock_type == DIO_CLUSTER_LOCKING)) {
+ 			if (dio->block_in_file < (i_size_read(dio->inode) >>
+ 							dio->blkbits))
+ 				create = 0;
+@@ -1183,9 +1183,16 @@ __blockdev_direct_IO(int rw, struct kioc
+ 	 * For regular files using DIO_OWN_LOCKING,
+ 	 *	neither readers nor writers take any locks here
+ 	 *	(i_sem is already held and release for writers here)
++	 * The DIO_CLUSTER_LOCKING allows (cluster) filesystem manages its own
++	 *	locking (bypassing i_sem and i_alloc_sem handling within
++	 *	__blockdev_direct_IO()).
+ 	 */
++
+ 	dio->lock_type = dio_lock_type;
+-	if (dio_lock_type != DIO_NO_LOCKING) {
++	if (dio_lock_type == DIO_CLUSTER_LOCKING)
++		goto cluster_skip_locking;
++
++	if (dio_lock_type != DIO_NO_LOCKING) { 
+ 		if (rw == READ) {
+ 			struct address_space *mapping;
+ 
+@@ -1205,6 +1212,9 @@ __blockdev_direct_IO(int rw, struct kioc
+ 		if (dio_lock_type == DIO_LOCKING)
+ 			down_read(&inode->i_alloc_sem);
+ 	}
++
++cluster_skip_locking:
++
+ 	/*
+ 	 * For file extending writes updating i_size before data
+ 	 * writeouts complete can expose uninitialized blocks. So
+
+--------------090806030901060506060802--

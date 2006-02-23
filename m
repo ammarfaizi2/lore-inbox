@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbWBWHrA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbWBWHyV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750934AbWBWHrA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 02:47:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750922AbWBWHq7
+	id S1750922AbWBWHyV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 02:54:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750956AbWBWHyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 02:46:59 -0500
-Received: from nproxy.gmail.com ([64.233.182.195]:13847 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750729AbWBWHq6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 02:46:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=eULiP9Heu4i3Z66zgFNxlDFmAk6cW9DJQyXyoYmzBiV/Lkb5qT5qf5oS86HVe0lmj6UGZNyLROd5A9fXoQo3IBmR9cJOpXYDV03fXAomLR03vzfG6Lyc/N5aK0Ybu0/tRwWcH+DJbSzxTLvX6NwZfnFDt2pI+d4Us5a+xMF0XFE=
-Message-ID: <84144f020602222346m70a41867vd2387fbfc2cfe547@mail.gmail.com>
-Date: Thu, 23 Feb 2006 09:46:44 +0200
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Christoph Lameter" <clameter@engr.sgi.com>
-Subject: Re: slab: Remove SLAB_NO_REAP option
-Cc: akpm@osdl.org, alokk@calsoftinc.com, manfred@colorfullife.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0602221428510.30219@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
+	Thu, 23 Feb 2006 02:54:20 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:19098 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750884AbWBWHyU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 02:54:20 -0500
+Date: Wed, 22 Feb 2006 23:35:21 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       tglx@linutronix.de, arjan@infradead.org
+Subject: Re: [patch 4/6] lightweight robust futexes: compat
+Message-Id: <20060222233521.743e60cb.akpm@osdl.org>
+In-Reply-To: <20060222225457.90a35cf8.pj@sgi.com>
+References: <20060221084655.GE5506@elte.hu>
+	<20060222225457.90a35cf8.pj@sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0602221428510.30219@schroedinger.engr.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On 2/23/06, Christoph Lameter <clameter@engr.sgi.com> wrote:
-> SLAB_NO_REAP is documented as an option that will cause this slab
-> not to be reaped under memory pressure. However, that is not what
-> happens. The only thing that SLAB_NO_REAP controls at the moment
-> is the reclaim of the unused slab elements that were allocated in
-> batch in cache_reap(). Cache_reap() is run every few seconds
-> independently of memory pressure.
+Paul Jackson <pj@sgi.com> wrote:
 >
-> Could we remove the whole thing? Its only used by three slabs
-> anyways and I cannot find a reason for having this option.
+> kernel/built-in.o(.text+0x54782): In function `compat_sys_get_robust_list':
+>  kernel/futex_compat.c:92: undefined reference to `ptr_to_compat'
 
-Looks good, and I have been meaning to do this myself as well.
+Yup.  Ingo has sent through fixes for the four missing architectures
+(uploads them to hot-fixes).  Here's ia64:
 
-Acked-by: Pekka Enberg <penberg@cs.helsinki.fi>
+include/asm-ia64/compat.h
+--- devel/include/asm-ia64/compat.h~ia64-add-ptr-to-compatpatch	2006-02-21 17:00:33.000000000 -0800
++++ devel-akpm/include/asm-ia64/compat.h	2006-02-21 17:00:33.000000000 -0800
+@@ -189,6 +189,12 @@ compat_ptr (compat_uptr_t uptr)
+ 	return (void __user *) (unsigned long) uptr;
+ }
+ 
++static inline compat_uptr_t
++ptr_to_compat(void __user *uptr)
++{
++	return (u32)(unsigned long)uptr;
++}
++
+ static __inline__ void __user *
+ compat_alloc_user_space (long len)
+ {
+_
 
-P.S. Please use penberg@cs.helsinki.fi, not the gmail one. Thanks.
-
-                               Pekka

@@ -1,56 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751732AbWBWQkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751460AbWBWQmZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751732AbWBWQkM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 11:40:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751692AbWBWQkL
+	id S1751460AbWBWQmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 11:42:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWBWQmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 11:40:11 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:51087 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751452AbWBWQkK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 11:40:10 -0500
-Subject: Re: [PATCH] change b_size to size_t
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Nathan Scott <nathans@sgi.com>,
-       christoph <hch@lst.de>, mcao@us.ibm.com,
-       lkml <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>
-In-Reply-To: <1140712093.22756.106.camel@dyn9047017100.beaverton.ibm.com>
-References: <1140470487.22756.12.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060222151216.GA22946@lst.de>
-	 <1140627510.22756.81.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060222165942.GA25167@lst.de> <20060223014004.GA900@frodo>
-	 <20060222175923.784ce5de.akpm@osdl.org>
-	 <1140712093.22756.106.camel@dyn9047017100.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Thu, 23 Feb 2006 10:40:07 -0600
-Message-Id: <1140712807.9975.24.camel@kleikamp.austin.ibm.com>
+	Thu, 23 Feb 2006 11:42:25 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:37357 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1751460AbWBWQmY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 11:42:24 -0500
+Date: Thu, 23 Feb 2006 11:37:24 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Arjan van de Ven <arjan@intel.linux.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
+Subject: Re: [Patch 2/3] fast VMA recycling
+Message-ID: <20060223163724.GB27682@kvack.org>
+References: <1140686238.2972.30.camel@laptopd505.fenrus.org> <1140687029.4672.8.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1140687029.4672.8.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-23 at 08:28 -0800, Badari Pulavarty wrote:
-> Index: linux-2.6.16-rc4/fs/buffer.c
-> ===================================================================
-> --- linux-2.6.16-rc4.orig/fs/buffer.c   2006-02-17 14:23:45.000000000 -0800
-> +++ linux-2.6.16-rc4/fs/buffer.c        2006-02-23 08:19:15.000000000 -0800
-> @@ -432,7 +432,7 @@ __find_get_block_slow(struct block_devic
->                 printk("__find_get_block_slow() failed. "
->                         "block=%llu, b_blocknr=%llu\n",
->                         (unsigned long long)block, (unsigned long long)bh->b_blocknr);
-> -               printk("b_state=0x%08lx, b_size=%u\n", bh->b_state, bh->b_size);
-> +               printk("b_state=0x%08lx, b_size=%llu\n", bh->b_state,                                   (unsigned long long)bh->b_size);
+On Thu, Feb 23, 2006 at 10:30:29AM +0100, Arjan van de Ven wrote:
+> One could argue that this should be a generic slab feature (the preloading) but
+> that only gives some of the gains and not all, and vma's are small creatures,
+> with a high "recycling" rate in typical cases.
 
-Wrapping at 80 columns, it looks right, but you've got a long line in
-here.
+I think this is wrong, and far too narrow in useful scope to be merged.  
+It's unnecessary bloat of task_struct and if this is really a problem, then 
+there is a [performance] bug in the slab allocator.  Please at least provide 
+the slab statistics for what is going on, as the workload might well be 
+thrashing the creation and destruction of slabs, which would be a much better 
+thing to fix.
 
->                 printk("device blocksize: %d\n", 1 << bd_inode->i_blkbits);
->         }
-> 
--- 
-David Kleikamp
-IBM Linux Technology Center
-
+		-ben

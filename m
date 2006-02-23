@@ -1,107 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751796AbWBWWg6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751797AbWBWWhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751796AbWBWWg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 17:36:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751797AbWBWWg6
+	id S1751797AbWBWWhe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 17:37:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751798AbWBWWhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 17:36:58 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:31369 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751796AbWBWWg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 17:36:58 -0500
-Date: Thu, 23 Feb 2006 17:36:56 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Andrew Morton <akpm@osdl.org>
-cc: sekharan@us.ibm.com, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Avoid calling down_read and down_write during startup
-In-Reply-To: <20060223110350.49c8b869.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44L0.0602231728300.4579-100000@iolanthe.rowland.org>
+	Thu, 23 Feb 2006 17:37:34 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:21657 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751797AbWBWWhd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 17:37:33 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Date: Thu, 23 Feb 2006 23:37:30 +0100
+User-Agent: KMail/1.9.1
+Cc: Nigel Cunningham <ncunningham@cyclades.com>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
+       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602230944.26253.rjw@sisk.pl> <20060223121707.GP13621@elf.ucw.cz>
+In-Reply-To: <20060223121707.GP13621@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602232337.31075.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch (as660) changes the registration and unregistration routines 
-for blocking notifier chains.  During system startup, when task switching 
-is illegal, the routines will avoid calling down_write().
+Hi,
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-
----
-
-On Thu, 23 Feb 2006, Andrew Morton wrote:
-
-> Alan Stern <stern@rowland.harvard.edu> wrote:
-> >
-> >  The calls to register_cpu_notifier are harder.  That chain really does 
-> >  need to be blocking
-> 
-> Why?
-
-Because its callouts invoke blocking functions.  For example,
-drivers/base/topology.c:topology_cpu_callback() calls
-sysfs_create_group().  In drivers/cpufreq/cpufreq.c,
-cpufreq_cpu_callback() calls cpufreq_add_dev(), which does kzalloc with
-GFP_KERNEL.
-
-> > which means we can't avoid calling down_write.  The 
-> >  only solution I can think of is to use down_write_trylock in the 
-> >  blocking_notifier_chain_register and unregister routines, even though 
-> >  doing that is a crock.
+On Thursday 23 February 2006 13:17, Pavel Machek wrote:
+> > > Ok, I have no problems with visions.
+> > > 
+> > > > I think we should try to get the pagecache stuff right first anyway.
+> > > 
+> > > Are you sure it is worth doing? I mean... it only helps on small
+> > > machines, no?
+> > > 
+> > > OTOH having it for benchmarks will be nice, and perhaps we could use
+> > > that kind it to speed up boot and similar things... 
 > > 
-> >  Or else change __down_read and __down_write to use spin_lock_irqsave 
-> >  instead of spin_lock_irq.  What do you think would be best?
+> > Currently some people can't suspend with the mainline code because it cannot
+> > free as much memory as needed on their boxes.  I think we should care for them
+> > too.
 > 
-> Nothing's pretty.  Perhaps look at system_state and not do any locking at all
-> in early boot?
+> But saving pagecache will not help them *at all*!
+> 
+> [Because pagecache is freeable, anyway, so it will be freed. Now... I
+> have seen some problems where free_some_memory did not free enough,
+> and schedule()/retry helped a bit... that probably should be fixed.]
 
-Okay.  Here's a patch to do that.  It only affects the registration 
-routines; the actual call-out function still acquires the lock.  That's 
-because (1) I didn't want to add extra overhead to a frequently-used 
-routine, and (2) if this notifier chain gets called while interrupts are 
-disabled then there's something badly wrong.
+It seems I need to understand correctly what the difference between what
+we do and what Nigel does is.  I thought the Nigel's approach was to save
+some cache pages to disk first and use the memory occupied by them to
+store the image data.  If so, is the page cache involved in that or something
+else?
 
-Combined with the previous patch, maybe you'll find that everything works
-perfectly now...  :-)
-
-Please revert those two debugging patches (the one I sent you and the one 
-you wrote) before applying this.
-
-Alan Stern
-
-Index: usb-2.6/kernel/sys.c
-===================================================================
---- usb-2.6.orig/kernel/sys.c
-+++ usb-2.6/kernel/sys.c
-@@ -249,6 +249,14 @@ int blocking_notifier_chain_register(str
- {
- 	int ret;
- 
-+	/*
-+	 * This code gets used during boot-up, when task switching is
-+	 * not yet working and interrupts must remain disabled.  At
-+	 * such times we must not call down_write().
-+	 */
-+	if (unlikely(system_state == SYSTEM_BOOTING))
-+		return notifier_chain_register(&nh->head, n);
-+
- 	down_write(&nh->rwsem);
- 	ret = notifier_chain_register(&nh->head, n);
- 	up_write(&nh->rwsem);
-@@ -272,6 +280,14 @@ int blocking_notifier_chain_unregister(s
- {
- 	int ret;
- 
-+	/*
-+	 * This code gets used during boot-up, when task switching is
-+	 * not yet working and interrupts must remain disabled.  At
-+	 * such times we must not call down_write().
-+	 */
-+	if (unlikely(system_state == SYSTEM_BOOTING))
-+		return notifier_chain_unregister(&nh->head, n);
-+
- 	down_write(&nh->rwsem);
- 	ret = notifier_chain_unregister(&nh->head, n);
- 	up_write(&nh->rwsem);
-
+Rafael

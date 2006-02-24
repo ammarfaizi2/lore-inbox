@@ -1,66 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWBXP4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWBXP6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932282AbWBXP4v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 10:56:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbWBXP4v
+	id S932283AbWBXP6w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 10:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWBXP6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 10:56:51 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:61093 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932282AbWBXP4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 10:56:50 -0500
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-Subject: Re: Patch to reorder functions in the vmlinux to a defined order
-References: <1140700758.4672.51.camel@laptopd505.fenrus.org>
-	<1140707358.4672.67.camel@laptopd505.fenrus.org>
-	<200602231700.36333.ak@suse.de>
-	<1140713001.4672.73.camel@laptopd505.fenrus.org>
-	<Pine.LNX.4.64.0602230902230.3771@g5.osdl.org>
-	<43FE0B9A.40209@keyaccess.nl>
-	<Pine.LNX.4.64.0602231133110.3771@g5.osdl.org>
-	<43FE1764.6000300@keyaccess.nl>
-	<Pine.LNX.4.64.0602231517400.3771@g5.osdl.org>
-	<43FE4B00.8080205@keyaccess.nl>
-	<m1r75s3kfi.fsf@ebiederm.dsl.xmission.com>
-	<43FF26A8.9070600@keyaccess.nl>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 24 Feb 2006 08:55:21 -0700
-In-Reply-To: <43FF26A8.9070600@keyaccess.nl> (Rene Herman's message of "Fri,
- 24 Feb 2006 16:30:48 +0100")
-Message-ID: <m17j7kda52.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Fri, 24 Feb 2006 10:58:52 -0500
+Received: from dvhart.com ([64.146.134.43]:34215 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S932283AbWBXP6w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 10:58:52 -0500
+Message-ID: <43FF2D38.2020602@mbligh.org>
+Date: Fri, 24 Feb 2006 07:58:48 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>
+Subject: Problems for IBM x440 in 2.6.16-rc4-mm1 and -mm2 (PCI?)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rene Herman <rene.herman@keyaccess.nl> writes:
+OK, mainline is fine, but -mm won't boot:
 
-> Eric W. Biederman wrote:
->
->> The page table trickery is actually the more invasive approach.  I
->> believe for 32 bit kernels the real problem is giving up the identity
->> mapping of low memory.
->
-> Yes, you probably don't want to have to specialcase anything there.
->
->> Short of the moving the kernel to end of the address space where
->> vmalloc and the fixmaps are now I don't think there is a reasonable
->> chunk of the address space we can use.
->
-> To my handwaving ears end of the address space sounds very good though. Is there
-> currently any pressure on VMALLOC_RESERVE (128M)? Teaching the linker appears to
-> be a matter of changing __KERNEL_START. That leaves actually mapping ourselves
-> there, and... more invasiveness?
+mainline boot log:
 
-__pa stops working on kernel addresses.
+http://test.kernel.org/23745/debug/console.log
+(-git7)
 
-> I saw you say you already have some actual relocating patches though?
+-mm boot log:
+http://test.kernel.org/23752/debug/console.log
 
-Yes.  Will post them later today, after I get them rebased against a recent
-kernel.
+It seems to find no PCI devices at all, and I note that when they first
+seem to diverge, we get:
 
-Eric
+PCI: Probing PCI hardware
+PCI quirk: region 0440-044f claimed by vt82c686 SMB
+PCI->APIC IRQ transform: 0000:00:03.0[A] -> IRQ 39
+PCI->APIC IRQ transform: 0000:00:04.0[A] -> IRQ 16
+PCI->APIC IRQ transform: 0000:00:05.2[D] -> IRQ 47
+PCI->APIC IRQ transform: 0000:00:05.3[D] -> IRQ 47
+Setting up standard PCI resources
+
+Instead of:
+
+PCI: Probing PCI hardware
+PCI quirk: region 0440-044f claimed by vt82c686 SMB
+PCI: Discovered peer bus 01
+PCI: Discovered peer bus 02
+PCI: Discovered peer bus 05
+PCI: Discovered peer bus 07
+PCI: Discovered peer bus 09
+PCI: Discovered peer bus 0c
+PCI quirk: region 0440-044f claimed by vt82c686 SMB
+PCI: Discovered peer bus 0d
+PCI: Discovered peer bus 0e
+PCI: Discovered peer bus 11
+PCI: Discovered peer bus 13
+PCI: Discovered peer bus 15
+PCI->APIC IRQ transform: 0000:00:03.0[A] -> IRQ 39
+PCI->APIC IRQ transform: 0000:00:04.0[A] -> IRQ 16
+PCI->APIC IRQ transform: 0000:00:05.2[D] -> IRQ 47
+PCI->APIC IRQ transform: 0000:00:05.3[D] -> IRQ 47
+PCI->APIC IRQ transform: 0000:01:03.0[A] -> IRQ 40
+PCI->APIC IRQ transform: 0000:01:03.1[B] -> IRQ 41
+PCI->APIC IRQ transform: 0000:01:04.0[A] -> IRQ 42
+PCI->APIC IRQ transform: 0000:02:02.0[A] -> IRQ 55
+PCI->APIC IRQ transform: 0000:0c:04.0[A] -> IRQ 118
+PCI->APIC IRQ transform: 0000:0d:03.0[A] -> IRQ 142
+PCI->APIC IRQ transform: 0000:0d:03.1[B] -> IRQ 143
+PCI->APIC IRQ transform: 0000:0d:04.0[A] -> IRQ 144
+

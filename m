@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWBXSiw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbWBXSmM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932397AbWBXSiw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 13:38:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWBXSiw
+	id S932421AbWBXSmM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 13:42:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWBXSmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 13:38:52 -0500
-Received: from hera.kernel.org ([140.211.167.34]:39137 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932397AbWBXSiv (ORCPT
+	Fri, 24 Feb 2006 13:42:12 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:58020 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S932421AbWBXSmL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 13:38:51 -0500
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: Kernel assertion in net/ipv4/tcp.c
-Date: Fri, 24 Feb 2006 10:38:18 -0800
-Organization: OSDL
-Message-ID: <20060224103818.46510a15@localhost.localdomain>
-References: <20060123102805.6bd39bcc@HAL2000>
-	<20060224095350.GA5111@kruemel.my-eitzenberger.de>
-	<20060224144342.186243cc@HAL2000>
+	Fri, 24 Feb 2006 13:42:11 -0500
+Date: Fri, 24 Feb 2006 13:37:04 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Andrew Morton <akpm@osdl.org>, sekharan@us.ibm.com,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Avoid calling down_read and down_write during startup
+Message-ID: <20060224183704.GA9384@kvack.org>
+References: <20060224164415.GA7999@kvack.org> <Pine.LNX.4.44L0.0602241255240.5177-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1140806294 307 10.8.0.54 (24 Feb 2006 18:38:14 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Fri, 24 Feb 2006 18:38:14 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0602241255240.5177-100000@iolanthe.rowland.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Feb 2006 14:43:42 +0100
-Florian Engelhardt <f.engelhardt@21torr.com> wrote:
+On Fri, Feb 24, 2006 at 12:59:18PM -0500, Alan Stern wrote:
+> It does on architectures where smp_read_barrier_depends() expands into
+> something nontrivial.  Maybe that doesn't include any of the machines
+> you're interested in.
 
-> On Fri, 24 Feb 2006 10:53:50 +0100
-> Holger Eitzenberger <holger@my-eitzenberger.de> wrote:
-> 
-> > On Mon, Jan 23, 2006 at 10:28:05AM +0100, Florian Engelhardt wrote:
-> > 
-> > > Linux www 2.6.14-gentoo-r2 #4 SMP Mon Nov 28 10:35:23 CET 2005 i686
-> > > Intel(R) Xeon(TM) CPU 3.20GHz GenuineIntel GNU/Linux
-> > > 
-> > > I have a Marvell Yukon Ethernet card inside.
-> > > 
-> > > And i have some trouble with it (see the attached log file).
-> > > I get tons of error messages in my kern.log, all the same:
-> > > Jan 15 11:11:20 www kernel: KERNEL: assertion (flags & MSG_PEEK)
-> > > failed at net/ipv4/tcp.c (1171)
-> > 
-> > Hi,
-> > 
-> > I see similar errors here on several boxes, all with Marvel chipsets
-> > and sk98lin.  Do you use sk98lin or skge/sky2?
-> 
-> Hi,
-> 
-> we are using sk98lin driver.
-> 
-> Kind regards
-> 
-> Flo
+Which includes all of about 1, I think -- alpha.  In other words, it's 
+free.
 
-Is this a new error (did it happen with older kernels)?
+> > > The atomic chains are a different matter.  The ones that don't run in NMI 
+> > > context could use an rw-spinlock for protection, allowing them also to 
+> > > avoid memory barriers while going through the list.  The notifier chains 
+> > > that do run in NMI don't have this luxury.  Fortunately I don't think 
+> > > there are very many of them.
+> > 
+> > A read lock is a memory barrier.  That's why I'm opposed to using non-rcu 
+> > style locking for them.
+> 
+> But RCU-style locking can't be used in situations where the reader may 
+> block.  So it's not possible to use it with blocking notifier chains.
 
-Does it go away if you turn receive checksum offload off?
+Then we shouldn't have non-atomic notifier chains in performance critical 
+codepaths.  The original implementation's hooks into critical paths held 
+these characteristics.  If that property has been broken, please fix it 
+instead of adding more locking.
+
+		-ben
+-- 
+"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
+and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.

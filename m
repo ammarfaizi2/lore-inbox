@@ -1,115 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932615AbWBXW2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932616AbWBXW3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932615AbWBXW2I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 17:28:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbWBXW2H
+	id S932616AbWBXW3h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 17:29:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932618AbWBXW3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 17:28:07 -0500
-Received: from ozlabs.org ([203.10.76.45]:65240 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932615AbWBXW2G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 17:28:06 -0500
-From: Michael Ellerman <michael@ellerman.id.au>
-Reply-To: michael@ellerman.id.au
-To: linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH] powerpc: Fix mem= cmdline handling on arch/powerpc for !MULTIPLATFORM
-Date: Sat, 25 Feb 2006 09:27:32 +1100
-User-Agent: KMail/1.8.3
-Cc: Kumar Gala <galak@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0602241054090.2981-100000@gate.crashing.org>
-In-Reply-To: <Pine.LNX.4.44.0602241054090.2981-100000@gate.crashing.org>
+	Fri, 24 Feb 2006 17:29:37 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:20108 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932616AbWBXW3g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 17:29:36 -0500
+Message-ID: <43FF88E6.6020603@linux.intel.com>
+Date: Fri, 24 Feb 2006 16:29:58 -0600
+From: James Ketrenos <jketreno@linux.intel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20051004
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart13277966.5RCjuinqP1";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: NetDev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: [Announce] Intel PRO/Wireless 3945ABG Network Connection
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602250927.36954.michael@ellerman.id.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart13277966.5RCjuinqP1
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Intel is pleased to announce the launch of an open source project to
+support the Intel PRO/Wireless 3945ABG Network Connection mini-PCI
+express adapter (IPW3945).
 
-Hi Kumar,
+The project is hosted at http://ipw3945.sourceforge.net.  A development
+mailing list is available (linked from the top of the IPW3945 project
+page.)  You can find the current development release for the adapter by
+following the links on the project home page.
 
-On Sat, 25 Feb 2006 03:54, Kumar Gala wrote:
-> mem=3D command line option was being ignored in arch/powerpc if we were n=
-ot
-> a CONFIG_MULTIPLATFORM (which is handled via prom_init stub). The initial
-> command line extraction and parsing needed to be moved earlier in the boot
-> process and have code to actual parse mem=3D and do something about it.
+A stable [end user targetted] version is not yet available. Those
+interested in using the development version should review
+the notice linked to from the project page.  A stable version should
+be available in the next few weeks.
 
-> @@ -1004,6 +991,41 @@ static int __init early_init_dt_scan_cho
->                 crashk_res.end =3D crashk_res.start + *lprop - 1;
->  #endif
->
-> +	/* Retreive command line */
-> + 	p =3D of_get_flat_dt_prop(node, "bootargs", &l);
-> +	if (p !=3D NULL && l > 0)
-> +		strlcpy(cmd_line, p, min((int)l, COMMAND_LINE_SIZE));
-> +
-> +#ifdef CONFIG_CMDLINE
-> +	if (l =3D=3D 0 || (l =3D=3D 1 && (*p) =3D=3D 0))
-> +		strlcpy(cmd_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
-> +#endif /* CONFIG_CMDLINE */
-> +
-> +	DBG("Command line is: %s\n", cmd_line);
-> +
-> +	if (strstr(cmd_line, "mem=3D")) {
-> +		char *p, *q;
-> +		unsigned long maxmem =3D 0;
-> +
-> +		for (q =3D cmd_line; (p =3D strstr(q, "mem=3D")) !=3D 0; ) {
-> +			q =3D p + 4;
-> +			if (p > cmd_line && p[-1] !=3D ' ')
-> +				continue;
-> +			maxmem =3D simple_strtoul(q, &q, 0);
-> +			if (*q =3D=3D 'k' || *q =3D=3D 'K') {
-> +				maxmem <<=3D 10;
-> +				++q;
-> +			} else if (*q =3D=3D 'm' || *q =3D=3D 'M') {
-> +				maxmem <<=3D 20;
-> +				++q;
-> +			} else if (*q =3D=3D 'g' || *q =3D=3D 'G') {
-> +				maxmem <<=3D 30;
-> +				++q;
-> +			}
-> +		}
-> +		memory_limit =3D maxmem;
-> +	}
-> +
+Aside from a form factor change (our prior wireless cards were mini PCI
+while this one is mini PCI express), this project has also changed the
+division of work between what occurs on the adapter and what the host is
+responsible for performing.  The microcode and hardware provide lower
+level MAC services (timings, backoffs, transmit queue management, etc.)
+The host is responsible for middle and upper layer MAC services.
 
-Why not make the mem=3D parsing an early_param() handler and then call=20
-parse_early_param() here?
+As a result of this change, some of the capabilities currently required
+to be provided on the host include enforcement of regulatory limits for
+the radio transmitter (radio calibration, transmit power, valid
+channels, 802.11h, etc.)  In order to meet the requirements of all
+geographies into which our adapters ship (over 100 countries) we have
+placed the regulatory enforcement logic into a user space daemon that
+we provide as a binary under the same license agreement as the
+microcode.  We provide that binary pre-compiled as both a 32-bit and
+64-bit application.  The daemon utilizes a sysfs interface exposed by
+the driver in order to communicate with the hardware and configure the
+required regulatory parameters.
 
-And I think a switch would be easier to read for the K/M/G handling.
+Those familiar with our prior projects may be pleased with the changes
+we have made with the license agreement for binary portions of this new
+project.  We were able to provide a more easily understood agreement
+for the binary components required for the adapter to function.  While
+this new license still restricts against reverse engineering and
+modification, it has been changed to allow easier redistribution.  You
+can find the terms of the agreement accessible from the microcode
+and daemon download page linked to from the project site.
 
-cheers
+The current development snapshot contains backward compatibility code
+to allow the driver to work in older kernels.  We will be removing 
+that code prior to submitting the driver for inclusion in the kernel.
 
-=2D-=20
-Michael Ellerman
-IBM OzLabs
+Thanks,
+James
 
-wwweb: http://michael.ellerman.id.au
-phone: +61 2 6212 1183 (tie line 70 21183)
-
-We do not inherit the earth from our ancestors,
-we borrow it from our children. - S.M.A.R.T Person
-
---nextPart13277966.5RCjuinqP1
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD/4hYdSjSd0sB4dIRArQ/AKC368q4DSgCr+MJiQNqMATvRtJ3rwCfbl54
-Gywv3o2JGw65e+zsRaJssgo=
-=hWGX
------END PGP SIGNATURE-----
-
---nextPart13277966.5RCjuinqP1--

@@ -1,40 +1,58 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1946015AbWBCWfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932123AbWBXJFu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946015AbWBCWfu (ORCPT <rfc822;akpm@zip.com.au>);
-	Fri, 3 Feb 2006 17:35:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946016AbWBCWfu
+	id S932123AbWBXJFu (ORCPT <rfc822;akpm@zip.com.au>);
+	Fri, 24 Feb 2006 04:05:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWBXJFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 17:35:50 -0500
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:29071 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP
-	id S1946015AbWBCWft (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 17:35:49 -0500
-Date: Fri, 3 Feb 2006 23:35:46 +0100 (CET)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: Roger Heflin <rheflin@atipa.com>
-cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: Cynbe ru Taren [cynbe@muq.org]
-In-Reply-To: <EXCHG2003qmSvux4Jf7000011f8@EXCHG2003.microtech-ks.com>
-Message-ID: <Pine.LNX.4.60.0602032333360.27709@kepler.fjfi.cvut.cz>
-References: <EXCHG2003qmSvux4Jf7000011f8@EXCHG2003.microtech-ks.com>
+	Fri, 24 Feb 2006 04:05:49 -0500
+Received: from [200.55.143.11] ([200.55.143.11]:19984 "EHLO smtp1.upr.edu.cu")
+	by vger.kernel.org with ESMTP id S932123AbWBXJFs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 04:05:48 -0500
+Message-ID: <2076.10.2.80.201.1140776036.squirrel@correo.upr.edu.cu>
+Date: Fri, 24 Feb 2006 05:13:56 -0500 (CST)
+Subject: 
+From: "Rogel Miguez" <rogel@ext.upr.edu.cu>
+To: webmaster@kernel.org
+Reply-To: rogel@ext.upr.edu.cu
+User-Agent: SquirrelMail/1.4.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Feb 2006, Roger Heflin wrote:
+That I should make?
+I have problems with the compiled kernel:
+I compiled the kernel 2.6.13.4
+with make allnocoonfig,
+with make allyesconfig,
+with make defconfig,
+the LILO is generated automatically
 
-> Guys,
-> 
-> Each reply I post to this list gets me an email from this
-> person wanting me to confirm that the email is not spam.
-> 
-> Does this happen to everyone else, and if so can we just
+and when I restart the computer, it shows me the following error:
 
-Yes, it happens here as well. :(
 
-And thouth I think it should probably be enough to confirm once, I don't 
-care and delete the messages instead. It is a problem of the guy, if he 
-wants to get our (at least my) messages, he should disable this behaviour.
+kernel panic - not syncing : VFS : Unable to mount root fs on
+unknown-block (0,0)
 
-Martin
+
+Rogel
+-------------------------
+Que debo hacer?
+Tengo problemas con el kernel compilado:
+Yo compilé el kernel 2.6.13.4
+con make allnocoonfig,
+con make allyesconfig,
+con make defconfig,
+se genera el LILO automaticamente
+
+y cuando reinicio la computadora, me muestra el siguiente error.
+
+kernel panic - not syncing : VFS : Unable to mount root fs on
+unknown-block (0,0)
+
+Rogel
+

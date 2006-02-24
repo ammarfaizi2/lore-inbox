@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbWBXV0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932537AbWBXV3a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932521AbWBXV0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 16:26:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932523AbWBXV0Q
+	id S932537AbWBXV3a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 16:29:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbWBXV3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 16:26:16 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:7561 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932521AbWBXV0P convert rfc822-to-8bit
+	Fri, 24 Feb 2006 16:29:30 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:29157 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932537AbWBXV33 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 16:26:15 -0500
+	Fri, 24 Feb 2006 16:29:29 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=TKztiz/wdCa4S02G6x3bK0SdYBDg2yqNhpP2Guabs+WF3wH7I4k9QI6TsR0E0yR0C4wERiuSbUzR48sElxGiP+qtwprZDD+gZ10SC2HLmQDmTqy89zMxeg0DVaJNvrb8blE8MxnbqbE2w3zWnc+DsrVQLUAFmx78X4vL/ytGy6o=
-Message-ID: <305c16960602241326j35b71447g6540fa7f252b7e0e@mail.gmail.com>
-Date: Fri, 24 Feb 2006 18:26:14 -0300
-From: "Matheus Izvekov" <mizvekov@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: IT8212 ide controller problem
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=SaziXI3eP1nXjTq0LsAzB/Wy1ewausASVhLMFx4JrxWyr418s5lqAEW0WFDEpnF2hvd9xX8zodFCtxf6ra1+sUykP4f+z7Zzrw+gLp05B8YkJ6LSYcB4RtAEk2qgmyMSefgm1B/9c/Cvcj/FCsyevlHXPc5C1bRccfuolwQYyHY=
+Message-ID: <9a8748490602241329i1200a95docdbfd17da7ee0cbb@mail.gmail.com>
+Date: Fri, 24 Feb 2006 22:29:28 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: gene.heskett@verizononline.net
+Subject: Re: Weird login, possibly related to rootkit Q
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200602241610.08952.gene.heskett@verizon.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
+References: <200602230121.08670.gene.heskett@verizon.net>
+	 <20060224190409.GB9384@kvack.org>
+	 <200602241610.08952.gene.heskett@verizon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+On 2/24/06, Gene Heskett <gene.heskett@verizon.net> wrote:
+> On Friday 24 February 2006 14:04, Benjamin LaHaise wrote:
+> >On Thu, Feb 23, 2006 at 01:21:07AM -0500, Gene Heskett wrote:
+> >> So we did a reinstall (rh9) without formatting because there was a
+> >> lot of non-replaceable data on it.  This also saved the logs, but
+> >> they are obviously not a lot of help when about 5 hours is missing
+> >> at about the time everything went to hell.
+> >
+> >Let's get this straight: your old Linux distro got rooted, so you
+> > installed an old Linux distro that no longer gets security updates to
+> > replace it. Why is that kernel related?  Sounds more like pebkac.
+>
+> The version of php in the newer distros is not backards compatible and
+> breaks most of the scripts used by the web page server (this box is its
+> database) and that would require a lengthy rewrite of the php stuff on
+> both machines, so the re-install of rh9 was the perceived easiest way
+> out.  Its a commercial business whose web page gets 20k+ hits a day &
+> downtime shouldn't be extended 2-3 days while re-writeing all of that
+> as it took around 2 weeks to do it all originally.  Then at the end of
+> the install, we edited the yum.conf to use the legacy servers and let
+> it install/upgrade everything, a Gigabyte or so.
+>
+> Had the php for say FC4 been backwards compatible, then obviously we
+> would have taken a different path.  I don't think the yum.conf had been
+> updated or installed even before this, and apt-get had, with its old
+> paths in its config, also quit working quite some time back.
+>
 
-As of kernel 2.6.15.4, i get this during bootup:
+ehh, how about
 
-IT8212: chipset revision 17
-it821x: controller in smart mode.
-IT8212: 100% native mode on irq 193
-    ide2: BM-DMA at 0xac00-0xac07, BIOS settings: hde:pio, hdf:pio
-    ide3: BM-DMA at 0xac08-0xac0f, BIOS settings: hdg:pio, hdh:pio
-Probing IDE interface ide2...
-Probing IDE interface ide3...
-hdg: ST320410A, ATA DISK drive
-hdg: Performing identify fixups.
-ide3 at 0xa400-0xa407,0xa802 on irq 193
-hdg: max request size: 128KiB
-hdg: 39102336 sectors (20020 MB) w/2048KiB Cache, CHS=38792/16/63, BUG
-hdg: cache flushes not supported
- hdg:hdg: recal_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: recal_intr: error=0x04 { DriveStatusError }
-ide: failed opcode was: unknown
- hdg1
+1. Install newer up-to-date distro
+2. install custom build old version of PHP.
 
-This error doesnt happens if the same hd is connected to another ide
-controller on the same machine.
-Otherwise everything is fine, i have dma working at reasonable speed.
+still quick way to get going and you'd get the bennefit of lots of
+fixes in the distro (even if your PHP would still be quite old)...
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

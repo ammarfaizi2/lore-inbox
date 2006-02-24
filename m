@@ -1,73 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932616AbWBXW3h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWBXWbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932616AbWBXW3h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 17:29:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932618AbWBXW3h
+	id S932454AbWBXWbM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 17:31:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932469AbWBXWbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 17:29:37 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:20108 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932616AbWBXW3g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 17:29:36 -0500
-Message-ID: <43FF88E6.6020603@linux.intel.com>
-Date: Fri, 24 Feb 2006 16:29:58 -0600
-From: James Ketrenos <jketreno@linux.intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20051004
-X-Accept-Language: en-us, en
+	Fri, 24 Feb 2006 17:31:12 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:28538 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S932454AbWBXWbM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 17:31:12 -0500
+Date: Fri, 24 Feb 2006 14:30:46 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Steven Whitehouse <swhiteho@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GFS2 Filesystem [13/16]
+Message-ID: <20060224223046.GS8083@ca-server1.us.oracle.com>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
+	Steven Whitehouse <swhiteho@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <1140793524.6400.734.camel@quoit.chygwyn.com> <20060222185059.GC2633@ucw.cz>
 MIME-Version: 1.0
-To: NetDev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org
-Subject: [Announce] Intel PRO/Wireless 3945ABG Network Connection
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060222185059.GC2633@ucw.cz>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Intel is pleased to announce the launch of an open source project to
-support the Intel PRO/Wireless 3945ABG Network Connection mini-PCI
-express adapter (IPW3945).
+On Wed, Feb 22, 2006 at 06:50:59PM +0000, Pavel Machek wrote:
+> > --- a/fs/Kconfig
+> > +++ b/fs/Kconfig
+> > @@ -883,8 +884,6 @@ config CONFIGFS_FS
+> >  	  Both sysfs and configfs can and should exist together on the
+> >  	  same system. One is not a replacement for the other.
+> >  
+> > -	  If unsure, say N.
+> > -
+> 
+> Why? Most users probably still want configfs_fs=N.
 
-The project is hosted at http://ipw3945.sourceforge.net.  A development
-mailing list is available (linked from the top of the IPW3945 project
-page.)  You can find the current development release for the adapter by
-following the links on the project home page.
+	What version is this patch against?  This line was removed from
+mainline a while ago.
+	As to why it was removed, the discussion happened back then.
+Basically, if something requires CONFIGFS_FS (eg, OCFS2) and is a
+module, then a user is asked whether they want configfs as a module or
+built-in.  Text saying "say N" is completely incorrect there.
 
-A stable [end user targetted] version is not yet available. Those
-interested in using the development version should review
-the notice linked to from the project page.  A stable version should
-be available in the next few weeks.
+Joel
 
-Aside from a form factor change (our prior wireless cards were mini PCI
-while this one is mini PCI express), this project has also changed the
-division of work between what occurs on the adapter and what the host is
-responsible for performing.  The microcode and hardware provide lower
-level MAC services (timings, backoffs, transmit queue management, etc.)
-The host is responsible for middle and upper layer MAC services.
+-- 
 
-As a result of this change, some of the capabilities currently required
-to be provided on the host include enforcement of regulatory limits for
-the radio transmitter (radio calibration, transmit power, valid
-channels, 802.11h, etc.)  In order to meet the requirements of all
-geographies into which our adapters ship (over 100 countries) we have
-placed the regulatory enforcement logic into a user space daemon that
-we provide as a binary under the same license agreement as the
-microcode.  We provide that binary pre-compiled as both a 32-bit and
-64-bit application.  The daemon utilizes a sysfs interface exposed by
-the driver in order to communicate with the hardware and configure the
-required regulatory parameters.
+"If the human brain were so simple we could understand it, we would
+ be so simple that we could not."
+	- W. A. Clouston
 
-Those familiar with our prior projects may be pleased with the changes
-we have made with the license agreement for binary portions of this new
-project.  We were able to provide a more easily understood agreement
-for the binary components required for the adapter to function.  While
-this new license still restricts against reverse engineering and
-modification, it has been changed to allow easier redistribution.  You
-can find the terms of the agreement accessible from the microcode
-and daemon download page linked to from the project site.
-
-The current development snapshot contains backward compatibility code
-to allow the driver to work in older kernels.  We will be removing 
-that code prior to submitting the driver for inclusion in the kernel.
-
-Thanks,
-James
-
+Joel Becker
+Principal Software Developer
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

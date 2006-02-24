@@ -1,49 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750902AbWBXLE4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWBXLAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750902AbWBXLE4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 06:04:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbWBXLE4
+	id S1750730AbWBXLAV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 06:00:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWBXLAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 06:04:56 -0500
-Received: from moutng.kundenserver.de ([212.227.126.177]:36060 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750808AbWBXLEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 06:04:55 -0500
-Date: Fri, 24 Feb 2006 10:53:50 +0100
-From: Holger Eitzenberger <holger@my-eitzenberger.de>
-To: Florian Engelhardt <f.engelhardt@21torr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel assertion in net/ipv4/tcp.c
-Message-ID: <20060224095350.GA5111@kruemel.my-eitzenberger.de>
-Mail-Followup-To: Florian Engelhardt <f.engelhardt@21torr.com>,
-	linux-kernel@vger.kernel.org
-References: <20060123102805.6bd39bcc@HAL2000>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 24 Feb 2006 06:00:21 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:30108 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750730AbWBXLAU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 06:00:20 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Date: Fri, 24 Feb 2006 11:58:07 +0100
+User-Agent: KMail/1.9.1
+Cc: Nigel Cunningham <ncunningham@cyclades.com>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
+       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602240927.51338.ncunningham@cyclades.com> <20060223234403.GF1662@elf.ucw.cz>
+In-Reply-To: <20060223234403.GF1662@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060123102805.6bd39bcc@HAL2000>
-User-Agent: Mutt/1.5.9i
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:8548cd0e00552bb75411ff34ad15700a
+Message-Id: <200602241158.08306.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 23, 2006 at 10:28:05AM +0100, Florian Engelhardt wrote:
-
-> Linux www 2.6.14-gentoo-r2 #4 SMP Mon Nov 28 10:35:23 CET 2005 i686
-> Intel(R) Xeon(TM) CPU 3.20GHz GenuineIntel GNU/Linux
-> 
-> I have a Marvell Yukon Ethernet card inside.
-> 
-> And i have some trouble with it (see the attached log file).
-> I get tons of error messages in my kern.log, all the same:
-> Jan 15 11:11:20 www kernel: KERNEL: assertion (flags & MSG_PEEK) failed
-> at net/ipv4/tcp.c (1171)
-
 Hi,
 
-I see similar errors here on several boxes, all with Marvel chipsets and
-sk98lin.  Do you use sk98lin or skge/sky2?
+On Friday 24 February 2006 00:44, Pavel Machek wrote:
+> > > > > [Because pagecache is freeable, anyway, so it will be freed. Now... I
+> > > > > have seen some problems where free_some_memory did not free enough,
+> > > > > and schedule()/retry helped a bit... that probably should be fixed.]
+> > > >
+> > > > It seems I need to understand correctly what the difference between what
+> > > > we do and what Nigel does is.  I thought the Nigel's approach was to save
+> > > > some cache pages to disk first and use the memory occupied by them to
+> > > > store the image data.  If so, is the page cache involved in that or
+> > > > something else?
+> > >
+> > > I believe Nigel only saves pages that could have been freed anyway
+> > > during phase1. Nigel, correct me here... suspend2 should work on same
+> > > class of machines swsusp can, but will be able to save caches on
+> > > machines where swsusp can not save any.
+> > 
+> > I'm not used to thinking in these terms :). It would be normally be right, 
+> > except that there will be some LRU pages that will never be freed. These 
+> > would allow suspend2 to work in some (not many) cases where swsusp can't. 
+> > It's been ages since I did the intensive testing on the image preparation 
+> > code, but I think that if we free as much memory as we can, we will always 
+> > still have at least a few hundred LRU pages left. That's not much, but on 
+> > machines with less ram, it might make the difference in a greater percentage 
+> > of cases (compared to machines with more ram)?
+> 
+> Well, pages in LRU should be user pages, and therefore freeable,
+> AFAICT. It is possible that there's something wrong with freeing in
+> swsusp1...
 
-Thanks.  /holger
+Well, if all of the pages that Nigel saves before snapshot are freeable in
+theory, there evidently is something wrong with freeing in swsusp, as we
+have a testcase in which the user was unable to suspend with swsusp due
+to the lack of memory and could suspend with suspend2.
 
+However, the only thing in swsusp_shrink_memory() that may be wrong
+is we return -ENOMEM as soon as shrink_all_memory() returns 0.
+Namely, if shrink_all_memory() can return 0 prematurely (ie. "there still are
+some freeable pages, but they could not be freed in _this_ call"), we should
+continue until it returns 0 twice in a row (or something like that).  If this
+doesn't help, we'll have to fix shrink_all_memory() I'm afraid.
 
+Greetings,
+Rafael

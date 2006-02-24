@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWBXR1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWBXRdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbWBXR1M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 12:27:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbWBXR1M
+	id S932399AbWBXRdG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 12:33:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWBXRdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 12:27:12 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:36756 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932395AbWBXR1L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 12:27:11 -0500
-Date: Fri, 24 Feb 2006 09:26:51 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Rene Herman <rene.herman@keyaccess.nl>,
-       Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-Subject: Re: Patch to reorder functions in the vmlinux to a defined order
-In-Reply-To: <m17j7kda52.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <Pine.LNX.4.64.0602240925170.3771@g5.osdl.org>
-References: <1140700758.4672.51.camel@laptopd505.fenrus.org>
- <1140707358.4672.67.camel@laptopd505.fenrus.org> <200602231700.36333.ak@suse.de>
- <1140713001.4672.73.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0602230902230.3771@g5.osdl.org>
- <43FE0B9A.40209@keyaccess.nl> <Pine.LNX.4.64.0602231133110.3771@g5.osdl.org>
- <43FE1764.6000300@keyaccess.nl> <Pine.LNX.4.64.0602231517400.3771@g5.osdl.org>
- <43FE4B00.8080205@keyaccess.nl> <m1r75s3kfi.fsf@ebiederm.dsl.xmission.com>
- <43FF26A8.9070600@keyaccess.nl> <m17j7kda52.fsf@ebiederm.dsl.xmission.com>
+	Fri, 24 Feb 2006 12:33:06 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:40461 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932399AbWBXRdF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 12:33:05 -0500
+Date: Fri, 24 Feb 2006 18:33:03 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Dave Jones <davej@redhat.com>, Dmitry Torokhov <dtor_core@ameritech.net>,
+       davej@codemonkey.org.uk, Zwane Mwaikambo <zwane@commfireservices.com>,
+       Samuel Masham <samuel.masham@gmail.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, cpufreq@lists.linux.org.uk
+Subject: Re: Status of X86_P4_CLOCKMOD?
+Message-ID: <20060224173303.GE3674@stusta.de>
+References: <20060214152218.GI10701@stusta.de> <200602240055.30603.ak@suse.de> <20060224023937.GC3674@stusta.de> <200602240342.04573.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602240342.04573.ak@suse.de>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 24 Feb 2006, Eric W. Biederman wrote:
->
-> > To my handwaving ears end of the address space sounds very good though. Is there
-> > currently any pressure on VMALLOC_RESERVE (128M)? Teaching the linker appears to
-> > be a matter of changing __KERNEL_START. That leaves actually mapping ourselves
-> > there, and... more invasiveness?
+On Fri, Feb 24, 2006 at 03:42:02AM +0100, Andi Kleen wrote:
+> On Friday 24 February 2006 03:39, Adrian Bunk wrote:
 > 
-> __pa stops working on kernel addresses.
+> > We need an additional option for such cases, but overloading EMBEDDED 
+> > with more than one meaning is definitely not a good idea.
+> 
+> I think it works just fine.
 
-That's not the issue.
+It works in the way that users don't see this option.
 
-The real issue is the _physical_ address. Nothing else matters.
+Both for this purpose, BROKEN or even simply removing the option would 
+work equally well...
 
-If the TLB splitting on the fixed MTRRs is an issue, it depends entirely 
-on what physical address the kernel resides in, and the virtual address is 
-totally inconsequential.
+> -Andi
 
-So playing games with virtual mapping has absolutely no upsides, and it 
-definitely has downsides.
+cu
+Adrian
 
-		Linus
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

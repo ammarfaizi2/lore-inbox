@@ -1,77 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWBXRRw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWBXRYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbWBXRRw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 12:17:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWBXRRw
+	id S932396AbWBXRYv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 12:24:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWBXRYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 12:17:52 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:32148 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932154AbWBXRRv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 12:17:51 -0500
-Subject: Re: [PATCH 0/3] map multiple blocks in get_block() and
-	mpage_readpages()
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: christoph <hch@lst.de>
-Cc: mcao@us.ibm.com, akpm@osdl.org, lkml <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>, vs@namesys.com,
-       zam@namesys.com
-In-Reply-To: <20060222151216.GA22946@lst.de>
-References: <1140470487.22756.12.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060222151216.GA22946@lst.de>
+	Fri, 24 Feb 2006 12:24:51 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:52149 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932393AbWBXRYu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 12:24:50 -0500
+Subject: Re: [Pcihpd-discuss] Re: [patch 2/3] acpiphp: add dock event
+	handling
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: MUNEDA Takahiro <muneda.takahiro@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       pcihpd-discuss@lists.sourceforge.net, greg@kroah.com,
+       len.brown@intel.com, pavel@ucw.cz
+In-Reply-To: <87acchz3n6.wl%muneda.takahiro@jp.fujitsu.com>
+References: <20060223195022.747891000@intel.com>
+	 <1140724577.11750.17.camel@whizzy>
+	 <87acchz3n6.wl%muneda.takahiro@jp.fujitsu.com>
 Content-Type: text/plain
-Date: Fri, 24 Feb 2006 09:19:08 -0800
-Message-Id: <1140801549.22756.195.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
+Date: Fri, 24 Feb 2006 09:29:37 -0800
+Message-Id: <1140802177.2085.4.camel@whizzy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-OriginalArrivalTime: 24 Feb 2006 17:24:14.0765 (UTC) FILETIME=[225E2DD0:01C63967]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-02-22 at 16:12 +0100, christoph wrote:
-..
-> Thanks Badari, with that interface changes the mpage_readpage changes
-> look a lot nicer than my original version.  I'd like to second
-> the request to put it into -mm. 
+On Fri, 2006-02-24 at 15:12 +0900, MUNEDA Takahiro wrote:
+> At Thu, 23 Feb 2006 11:56:17 -0800,
+> Kristen Accardi <kristen.c.accardi@intel.com> wrote:
+> > 
+> > @@ -828,11 +862,21 @@ static int acpiphp_bus_add(struct acpiph
+> >  		dbg("no parent device, assuming NULL\n");
+> >  		pdevice = NULL;
+> >  	}
+> > +	if (!acpi_bus_get_device(func->handle, &device)) {
+> > +		dbg("bus exists... trim\n");
+> > +		/* this shouldn't be in here, so remove
+> > +		 * the bus then re-add it...
+> > +		 */
+> > +		ret_val = acpi_bus_trim(device, 1);
+> > +		dbg("acpi_bus_trim return %x\n", ret_val);
+> > +	}
+> >  	ret_val = acpi_bus_add(&device, pdevice, func->handle,
+> > -			ACPI_BUS_TYPE_DEVICE);
+> > -	if (ret_val)
+> > -		dbg("cannot add bridge to acpi list\n");
+> > -
+> > +		ACPI_BUS_TYPE_DEVICE);
+> > +	if (ret_val) {
+> > +		dbg("error adding bus, %x\n",
+> > +			-ret_val);
+> > +		goto acpiphp_bus_add_out;
+> > +	}
+> >  	/*
+> >  	 * try to start anyway.  We could have failed to add
+> >  	 * simply because this bus had previously been added
 > 
-> And if the namesys folks could try out whether this works for their
-> reiser4 requirements it'd be nice.  If you have an even faster
-> ->readpages I'd be interested in that secrete souce receipe for
-> further improvement to mpage_readpages.
+> Hi Kristen,
+> 
+> Why don't you call acpi_bus_trim() when the device is
+> removed. This time, eject_dock() or disable_device()?
+> So you don't need to call acpi_bus_trim() as error case.
+> 
+> Thanks,
+> MUNE
+> 
 
-I don't have any secret receipes, but I was thinking of re-organizing
-the code a little. Complexity is due to "confused" case and 
-"blocksize < pagesize" cases + going in-and-out of the worker routine
-with stored state.
+MUNE,
+I added this because I found that in some laptops the dsdt reported a
+bus present that wasn't actually, so the bus would be added at boot
+time, but the PRT not read if the laptop was booted undocked.  Initially
+I tried to get a handle to the existing bus, and then if the bus already
+was added, just call acpi_bus_start() - but this did not cause the PRT
+to be read in this case - the only thing that worked for me was to
+remove the bus and readd it.  If there's a better way to handle this,
+I'd appreciate the suggestion.  
 
-I am thinking of having a "fast path" which doesn't deal with any
-of those and "slow" path to deal with all that non-sense.
-Something like ..
-
-mpage_readpages()
-{
-	if (block-size < page-size)
-		slow_path;
-
-	while (nr-pages) {
-		if (get_block(bh)) 
-			slow_path;
-		if (uptodate(bh))
-			slow_path;
-		while (bh.b_size) {
-			if (not contig)
-				submit bio();
-			add all the pages we can to bio();
-			bh.b_size -= size-of-pages-added;
-			nr_pages -= count-of-pages-added;
-		}
-
-	}
-}
-
-slow_path is going to be slow & ugly. How important is to handle
-1k, 2k filesystems efficiently ? Should I try ?
-	
-Thanks,
-Badari
+Kristen
 

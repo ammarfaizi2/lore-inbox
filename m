@@ -1,69 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWBYG7R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWBYHGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932419AbWBYG7R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 01:59:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWBYG7Q
+	id S932406AbWBYHGc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 02:06:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWBYHGc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 01:59:16 -0500
-Received: from ihug-mail.icp-qv1-irony4.iinet.net.au ([203.59.1.198]:36172
-	"EHLO mail-ihug.icp-qv1-irony4.iinet.net.au") by vger.kernel.org
-	with ESMTP id S932378AbWBYG7P (ORCPT
+	Sat, 25 Feb 2006 02:06:32 -0500
+Received: from mail.kroah.org ([69.55.234.183]:8359 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932406AbWBYHGb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 01:59:15 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.02,145,1139155200"; 
-   d="scan'208"; a="626317469:sNHT385531682"
-Message-ID: <44000036.7070403@eyal.emu.id.au>
-Date: Sat, 25 Feb 2006 17:59:02 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Milan Kupcevic <milan@physics.harvard.edu>
-CC: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au, torvalds@osdl.org
-Subject: Re: [PATCH] sata_promise: Port enumeration order - SATA 150 TX4,
- SATA 300 TX4
-References: <43FFAE3D.7010002@physics.harvard.edu>
-In-Reply-To: <43FFAE3D.7010002@physics.harvard.edu>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 25 Feb 2006 02:06:31 -0500
+Date: Thu, 23 Feb 2006 19:40:07 -0800
+From: Greg KH <gregkh@suse.de>
+To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+Cc: Neil Brown <neilb@suse.de>, Alasdair Kergon <agk@redhat.com>,
+       Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org,
+       device-mapper development <dm-devel@redhat.com>
+Subject: Re: [PATCH 1/3] sysfs representation of stacked devices (common) (rev.2)
+Message-ID: <20060224034007.GA2769@suse.de>
+References: <43FC8C00.5020600@ce.jp.nec.com> <43FC8D8C.1060904@ce.jp.nec.com> <20060222184853.GB13638@suse.de> <43FCE40A.1010206@ce.jp.nec.com> <20060222222846.GA14249@suse.de> <43FE09E1.4080907@ce.jp.nec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43FE09E1.4080907@ce.jp.nec.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Milan Kupcevic wrote:
-> From: Milan Kupcevic <milan@physics.harvard.edu>
+On Thu, Feb 23, 2006 at 02:15:45PM -0500, Jun'ichi Nomura wrote:
+> Hello Greg,
 > 
-> Fix Promise SATAII 150 TX4 (PDC40518) and Promise SATA 300 TX4
-> (PDC40718-GP) wrong port enumeration order that makes it (nearly)
-> impossible to deal with boot problems using two or more drives.
+> >>>>+/* This is a mere directory in sysfs. No methods are needed. */
+> >>>>+static struct kobj_type bd_holder_ktype = {
+> >>>>+	.release	= NULL,
+> >>>>+	.sysfs_ops	= NULL,
+> >>>>+	.default_attrs	= NULL,
+> >>>>+};
+> >>>
+> >>>That doesn't look right.  You always need a release function.
 > 
-> Signed-off-by: Milan Kupcevic <milan@physics.harvard.edu>
-> ---
+> I updated the patch based your comments.
+> Could you take a look at this version whether there's
+> any problematic use of sysfs/kobjects?
 > 
-> The current kernel driver assumes:
-> 
-> port 1 - scsi3
-> port 2 - scsi1
-> port 3 - scsi0
-> port 4 - scsi2
+>   - I removed embedded child-kobjects from struct block_device
+>     and struct gendisk which I added in my previous patch.
+>     Kobject registration occurs when gendisk or hd_struct is
+>     registered. Release function of the kobject type is added.
+>   - Reference counting of kobjects is done in much symmetric
+>     manner than before.
+>   - Added bd_claim_by_disk/bd_release_from_disk inline functions
+>     to help proper reference counting.
 
-I totally agree with the fact that the Linux driver gets the ports wrong
-when compared to the BIOS, Windows and surely contradicts the port
-numbers printed on the board. I doubt we all got samples on the one
-bad batch...
+Looks great, only one comment:
 
-It *is* a real problem and if the solution is correct then I support it.
+> --- linux-2.6.16-rc4/fs/partitions/check.c	2006-02-17 17:23:45.000000000 -0500
+> +++ linux-2.6.16-rc4/fs/partitions/check.c	2006-02-22 23:18:06.000000000 -0500
+> @@ -297,6 +297,56 @@ struct kobj_type ktype_part = {
+>  	.sysfs_ops	= &part_sysfs_ops,
+>  };
+>  
+> +static void dir_release(struct kobject *kobj)
+> +{
+> +	kfree(kobj);
+> +}
+> +
+> +static struct kobj_type dir_ktype = {
+> +	.release	= dir_release,
+> +	.sysfs_ops	= NULL,
+> +	.default_attrs	= NULL,
+> +};
+> +
+> +static inline struct kobject *add_dir(struct kobject *parent, const char *name)
+> +{
+> +	struct kobject *k;
+> +
+> +	if (!parent)
+> +		return NULL;
+> +
+> +	k = kmalloc(sizeof(*k), GFP_KERNEL);
+> +	if (!k)
+> +		return NULL;
+> +
+> +	memset(k, 0, sizeof(*k));
+> +	k->parent = parent;
+> +	k->ktype = &dir_ktype;
+> +	kobject_set_name(k, name);
+> +	kobject_register(k);
+> +
+> +	return k;
+> +}
 
-Maybe we need a quick feedback from current users: do you guys find
-that the ports are detected as they are labelled (white silk screen)
-on the board or do they show up out of order (as listed above by
-Milan)?
+This code looks good enough that we should add it to the core kobject
+code, don't you think?  Also, you might use kzalloc instead of kmalloc
+here.
 
--- 
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
-	attach .zip as .dat
+thanks,
+
+greg k-h

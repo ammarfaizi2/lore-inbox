@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbWBXH56@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbWBXIDh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750916AbWBXH56 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 02:57:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbWBXH56
+	id S1750954AbWBXIDh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 03:03:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbWBXIDh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 02:57:58 -0500
-Received: from natnoddy.rzone.de ([81.169.145.166]:10451 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S1750805AbWBXH55
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 02:57:57 -0500
-From: Wolfgang Hoffmann <woho@woho.de>
-Reply-To: woho@woho.de
-To: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [git patches] net driver fixes
-Date: Fri, 24 Feb 2006 08:59:22 +0100
-User-Agent: KMail/1.8
-Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-References: <20060224052214.GA14586@havoc.gtf.org>
-In-Reply-To: <20060224052214.GA14586@havoc.gtf.org>
+	Fri, 24 Feb 2006 03:03:37 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:22229 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750954AbWBXIDg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 03:03:36 -0500
+Date: Fri, 24 Feb 2006 09:03:28 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Nish Aravamudan <nish.aravamudan@gmail.com>,
+       Gautam H Thaker <gthaker@atl.lmco.com>, linux-kernel@vger.kernel.org
+Subject: Re: ~5x greater CPU load for a networked application when using
+ 2.6.15-rt15-smp vs. 2.6.12-1.1390_FC4
+In-Reply-To: <20060223210844.GA26701@elte.hu>
+Message-ID: <Pine.LNX.4.61.0602240902580.16630@yvahk01.tjqt.qr>
+References: <43FE134C.6070600@atl.lmco.com> <20060223205851.GA24321@elte.hu>
+ <29495f1d0602231306o55d759d5v9600b070a4b485e3@mail.gmail.com>
+ <20060223210844.GA26701@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602240859.23062.woho@woho.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 February 2006 06:22, Jeff Garzik wrote:
-> Please pull from 'upstream-fixes' branch of
-> master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
+>> Would it make more sense to compare 2.6.15 and 2.6.15-rt17, as opposed 
+>> to 2.6.12-1.1390_FC4 and 2.6.15-rt17? Seems like the closer the two 
+>> kernels are, the easier it will be to isolate the differences.
 >
-> [...]
-> Stephen Hemminger:
->       sky2: yukon-ec-u chipset initialization
->       sky2: limit coalescing values to ring size
->       sky2: poke coalescing timer to fix hang
->       sky2: force early transmit status
->       sky2: use device iomem to access PCI config
->       sky2: close race on IRQ mask update.
->[...]
+>good point. I'd expect there to be similar 'top' output, but still worth 
+>doing for comparable results.
+>
+I have seen this before too (with earlier -rt's), when MPlayer jumped from 
+1.8% to about 10%. Maybe because it's using the rtc at 1024 Hz?
 
-Thanks for the update.
 
-Still I'm seeing reproducable hangs with this version of sky2 (as reported in 
-bugzilla 6084 and discussed on netdev).
-
-Stephen, if there is anything I can do to narrow down my hangs a bit more 
-systematically, please let me know, I'd be happy to help.
-
-Wolfgang
+Jan Engelhardt
+-- 

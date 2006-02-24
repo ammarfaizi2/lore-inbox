@@ -1,38 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWBXQsr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWBXQtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932221AbWBXQsr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 11:48:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWBXQsr
+	id S932298AbWBXQtE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 11:49:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbWBXQtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 11:48:47 -0500
-Received: from ns1.suse.de ([195.135.220.2]:3976 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932221AbWBXQsr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 11:48:47 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: Patch to reorder functions in the vmlinux to a defined order
-Date: Fri, 24 Feb 2006 17:48:38 +0100
-User-Agent: KMail/1.9.1
-Cc: Rene Herman <rene.herman@keyaccess.nl>, Linus Torvalds <torvalds@osdl.org>,
-       Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, mingo@elte.hu
-References: <1140700758.4672.51.camel@laptopd505.fenrus.org> <43FF26A8.9070600@keyaccess.nl> <m17j7kda52.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m17j7kda52.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Feb 2006 11:49:04 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:39832 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S932376AbWBXQtC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 11:49:02 -0500
+Date: Fri, 24 Feb 2006 09:49:01 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Missing piece from as659
+Message-ID: <20060224164901.GQ28587@parisc-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602241748.39949.ak@suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 February 2006 16:55, Eric W. Biederman wrote:
-> there, and... more invasiveness?
-> 
-> __pa stops working on kernel addresses.
 
-x86-64 always had this problem and it's not very hard to handle with a simple ?:
+Alan, you didn't cc the pci mailing list on the original patch.
+http://www.ussg.iu.edu/hypermail/linux/kernel/0602.2/2673.html
 
--Andi
+You only fix pci_get_subsys; pci_get_class has the same bug.
+
+If it is a bug, of course.  It's not clear to me whether it's permissible
+to call pci_dev_put under a spinlock or not.  That boils down to whether
+kobject ->release methods can sleep or not.  That isn't documented in
+Documentation/kobject.txt and I rather think it should be.

@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWBXTJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbWBXTJl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932425AbWBXTJF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 14:09:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWBXTJF
+	id S932429AbWBXTJl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 14:09:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWBXTJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 14:09:05 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:5541 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S932425AbWBXTJE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 14:09:04 -0500
-Date: Fri, 24 Feb 2006 14:04:09 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Weird login, possibly related to rootkit Q
-Message-ID: <20060224190409.GB9384@kvack.org>
-References: <200602230121.08670.gene.heskett@verizon.net>
+	Fri, 24 Feb 2006 14:09:41 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:34519 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932431AbWBXTJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 14:09:40 -0500
+Date: Fri, 24 Feb 2006 19:09:38 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Arjan van de Ven <arjan@intel.linux.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, mingo@elte.hu
+Subject: Re: [Patch 2/3] fast VMA recycling
+Message-ID: <20060224190938.GA6351@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andi Kleen <ak@suse.de>, Arjan van de Ven <arjan@intel.linux.com>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+References: <1140686238.2972.30.camel@laptopd505.fenrus.org> <1140688131.4672.21.camel@laptopd505.fenrus.org> <20060224185231.GB5816@infradead.org> <200602242005.17087.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200602230121.08670.gene.heskett@verizon.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200602242005.17087.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 23, 2006 at 01:21:07AM -0500, Gene Heskett wrote:
-> So we did a reinstall (rh9) without formatting because there was a lot 
-> of non-replaceable data on it.  This also saved the logs, but they are 
-> obviously not a lot of help when about 5 hours is missing at about the 
-> time everything went to hell.
+On Fri, Feb 24, 2006 at 08:05:16PM +0100, Andi Kleen wrote:
+> I think voluntary preempt is generally a good idea, but we should make it optional
+> for down() since it can apparently cause bad side effects (like holding 
+> semaphores/mutexes for too long) 
+> 
+> There would be two possible ways: 
+> 
+> have default mutex_lock()/down() do a might_sleep()
+> with preemption and have a separate variant that doesn't preempt
+> or have the default non preempt and a separate variant
+> that does preempt.
 
-Let's get this straight: your old Linux distro got rooted, so you installed 
-an old Linux distro that no longer gets security updates to replace it.  
-Why is that kernel related?  Sounds more like pebkac.
+better remove the stupid cond_resched() from might_sleep which from it's
+naming already is a debug thing and add it to those places where it makes
+sense.
 
-		-ben
--- 
-"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
-and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.

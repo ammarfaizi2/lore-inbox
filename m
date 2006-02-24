@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbWBXUux@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbWBXU4g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932490AbWBXUux (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 15:50:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWBXUuE
+	id S932493AbWBXU4g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 15:56:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932439AbWBXU4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 15:50:04 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:16434 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932437AbWBXUt7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 15:49:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-disposition:content-type:content-transfer-encoding:message-id;
-        b=W+G5P1h8zVZClKHc9rualcFLuf72TJD6ac4/Zi/hjXds/a/hKKYRlRoo2Ufpn1W0AWeaBgRk5nIBtqVi6t1YwxfP4oSAzUdednIhFJ/Brn2IdLPm/kxx8axAyc1nskfr+kqsBHDQuuzTArt94UYERmf+HvVsz9ZjkUgnD+tGtjI=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 13/13] trivial typos in Documentation/cputopology.txt
-Date: Fri, 24 Feb 2006 21:50:16 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Trivial Patch Monkey <trivial@kernel.org>,
-       Zhang Yanmin <yanmin.zhang@intel.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>
-MIME-Version: 1.0
+	Fri, 24 Feb 2006 15:56:36 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29198 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932493AbWBXU4f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 15:56:35 -0500
+Date: Fri, 24 Feb 2006 20:56:26 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] inflate pt1: refactor boot-time inflate code
+Message-ID: <20060224205626.GB28855@flint.arm.linux.org.uk>
+Mail-Followup-To: Matt Mackall <mpm@selenic.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <1.399206195@selenic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602242150.16838.jesper.juhl@gmail.com>
+In-Reply-To: <1.399206195@selenic.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 24, 2006 at 02:12:15PM -0600, Matt Mackall wrote:
+> This is a refactored version of the lib/inflate.c:
+> 
+> - clean up some really ugly code
+> - clean up atrocities like '#include "../../../lib/inflate.c"'
+> - drop a ton of cut and paste code from the kernel boot
+> - move towards making the boot decompressor pluggable
+> - move towards unifying the multiple inflate implementations
+> - save space
+> 
+> I'm sending this out in three batches. This first batch is core
+> clean-ups without arch-specific changes.
+> 
+> (This work was sponsored in part by the CE Linux Forum.)
 
-Fix a few trivial mistakes in Documentation/cputopology.txt
+ISTR something like this was posted months back, but I don't remember
+what the status of it was.  Hence, I might be repeating myself in this
+reply, but I feel it's better to mention this than not to.
 
+There's a comment at the top of arch/arm/boot/compressed/misc.c which
+describes the use of the inflate code on ARM - for the kernel it's a
+special case where the decompressor is run from ROM.
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+There's also another twist to it though - our relocatable zImage
+requires us to build all files in the executable part of zImage
+without _any_ static variables.  If there's one or more static
+variables, this feature breaks horribly (and silently in the non-
+relocated cases.)
 
- Documentation/cputopology.txt |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2.6.16-rc4-mm2-orig/Documentation/cputopology.txt	2006-02-18 02:08:36.000000000 +0100
-+++ linux-2.6.16-rc4-mm2/Documentation/cputopology.txt	2006-02-24 19:42:46.000000000 +0100
-@@ -1,5 +1,5 @@
- 
--Export cpu topology info by sysfs. Items (attributes) are similar
-+Export cpu topology info via sysfs. Items (attributes) are similar
- to /proc/cpuinfo.
- 
- 1) /sys/devices/system/cpu/cpuX/topology/physical_package_id:
-@@ -12,7 +12,7 @@ represent the thread siblings to cpu X i
- represent the thread siblings to cpu X in the same physical package;
- 
- To implement it in an architecture-neutral way, a new source file,
--driver/base/topology.c, is to export the 5 attributes.
-+drivers/base/topology.c, is to export the 4 attributes.
- 
- If one architecture wants to support this feature, it just needs to
- implement 4 defines, typically in file include/asm-XXX/topology.h.
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

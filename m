@@ -1,139 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWBXLjK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWBXLxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbWBXLjK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 06:39:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWBXLjK
+	id S1750815AbWBXLxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 06:53:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWBXLxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 06:39:10 -0500
-Received: from mout0.freenet.de ([194.97.50.131]:22184 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S932171AbWBXLjJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 06:39:09 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: Mapping to 0x0
-Date: Fri, 24 Feb 2006 12:37:21 +0100
-User-Agent: KMail/1.8.3
-References: <Pine.LNX.4.61.0602221504120.11432@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0602221504120.11432@yvahk01.tjqt.qr>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Message-Id: <200602241237.21628.mbuesch@freenet.de>
-Content-Type: multipart/signed;
-  boundary="nextPart1882606.SQ8eM5HN5T";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Feb 2006 06:53:09 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:64646 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750738AbWBXLxI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 06:53:08 -0500
+Date: Fri, 24 Feb 2006 17:23:14 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Wendy Cheng <wcheng@redhat.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][WIP] DIO simplification and AIO-DIO stability
+Message-ID: <20060224115314.GA23318@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20060223072955.GA14244@in.ibm.com> <43FE0904.3020900@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43FE0904.3020900@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1882606.SQ8eM5HN5T
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_x/u/DaGR+CrMDP1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi Wendy,
 
---Boundary-01=_x/u/DaGR+CrMDP1
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thu, Feb 23, 2006 at 02:12:04PM -0500, Wendy Cheng wrote:
+> Suparna Bhattacharya wrote:
+> 
+> >http://www.kernel.org/pub/linux/kernel/people/suparna/DIO-simplify.txt
+> >(also inlined below)
+> > 
+> >
+> Hi, Suparna,
+>                                                                                
+> 
+> It would be nice to ensure that the lock sequence will not cause issues 
+> for out-of-tree external kernel modules (e.g. cluster files System) that 
+> require extra locking for various purposes. We've found several 
+> deadlocks issues in Global File System (GFS) Direct IO path due to lock 
+> order enforced by VFS layer:
+>                                                                                
+> 
+> 1) In sys_ftruncate()->do_truncate(), VFS layer grabs
+>  * i_sem
+>  * then i_alloc_sem (i_mutex)
+>  * then call filesystem's setattr().
+>                                                                                
+> 
+> 2) In Direct IO read, VFS layer calls
+>  * filesystem's direct_IO()
+>  * grabs i_sem (i_mutex)
+>  * followed by i_alloc_sem.
+> 
+> In our case, both gfs_setattr() and gfs_direct_IO() need its own 
+> (global) locks to synchronize inter-nodes (and inter-processes) control 
+> structures access but gfs_direct_IO later ends up in 
+> __blockdev_direct_IO path that deadlocks with i_sem (i_mutex) and 
+> i_alloc_sem.
+>                                                                                
+> 
+> A new DIO flag is added into our distribution (2.6.9 based) to work 
+> around the problem by moving the inode semaphore acquiring within 
+> __blockdev_direct_IO() (patch attached) into GFS code path (so lock 
+> order can be re-arranged). The new lock granularity is not ideal but it 
+> gets us out of this deadlock.
 
-On Wednesday 22 February 2006 15:10, you wrote:
-> The mmap() usually succeeds and maps something at address 0x00000000. Now=
-=20
-> what if the kernel would try to execute this (of course badly programmed)=
-=20
-> code in the context of this very process?
->=20
->     int (*callback)(int xyz) =3D NULL;
->     callback();
->=20
-> Would not be the badcode be executed with kernel privileges?
+Could you help me understand in a little more detail why DIO_OWN_LOCKING
+does not work for you ? Is the releasing of i_sem during READ a problem ?
+Doesn't holding i_sem for the entire duration of IO for read slow down
+concurrent DIO reads to different parts of the file ?
 
-I am playing around with it.
-I did the attached code. It is a usermode program, which tries to map NULL,
-and a kernel module, which calls a NULL pointer.
-The file badcode.bin contains an i386 ud2 instruction.
-When loading the kernel module, while the usermode program is executing,
-I get the usual NULL pointer dereference oops:
+> 
+> We havn't had a chance to go thru your mail (and patch) in details yet 
+> but would like bring up this issue earlier before it gets messy.
+>                                                                                                                                                             
+One of the things I wanted to achieve in the proposal was to avoid
+the need for these various locking mode flag checks in the DIO code,
+leaving it to the higher level to just select the right entry points,
+i.e. the _nolock or lock versions of generic_file_aio_write et al.
+Would appreciate your thoughts on this, once you've had a chance to
+go throught it.
 
-Calling NULL pointer...
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-00000000
-*pde =3D 00000000
-Oops: 0000 [#1]
-SMP=20
-Modules linked in: kernel nvidia video battery fan button thermal processor=
- ac nfs lockd sunrpc ath_pci ath_rate_sample wlan ath_hal usbhid tuner tvau=
-dio msp3400 bttv video_buf firmware_class btcx_risc tveeprom ehci_hcd uhci_=
-hcd usbcore intel_agp agpgart ext2
-CPU:    0
-EIP:    0060:[<00000000>]    Tainted: P      VLI
-EFLAGS: 00010246   (2.6.15)=20
-EIP is at rest_init+0x3feffd68/0x20
-eax: 00000000   ebx: f8bb6280   ecx: 00000000   edx: 00000206
-esi: b7faf000   edi: f0435000   ebp: f0435000   esp: f0435fa0
-ds: 007b   es: 007b   ss: 0068
-Process insmod (pid: 6290, threadinfo=3Df0435000 task=3Df71d3030)
-Stack: f8bb600e f8bb6020 c0130bc1 0804b018 b7faf000 08048514 c01026e3 0804b=
-018=20
-       000008bb 0804b008 b7faf000 08048514 bfbc17e8 00000080 0000007b c0100=
-07b=20
-       00000080 ffffe410 00000073 00000246 bfbc1770 0000007b 5a5a5a5a a55a5=
-a5a=20
-Call Trace:
- [<f8bb600e>] null_init+0xe/0x20 [kernel]
- [<c0130bc1>] sys_init_module+0xe4/0x1f7
- [<c01026e3>] sysenter_past_esp+0x54/0x75
-Code:  Bad EIP value.
+Regards
+Suparna
 
-Either this really does not work, or I am doing something wrong. :)
-Should I try to call the mmap syscall directly?
-I can try this on ppc32, too.
+> 
+> -- Wendy
+> 
+> 
 
-=2D-=20
-Greetings Michael.
+> --- linux-2.6.9-22.EL/include/linux/fs.h	2005-12-07 12:43:55.000000000 -0500
+> +++ linux.truncate/include/linux/fs.h	2005-12-02 00:25:22.000000000 -0500
+> @@ -1509,7 +1509,8 @@ ssize_t __blockdev_direct_IO(int rw, str
+>  	int lock_type);
+>  
+>  enum {
+> -	DIO_LOCKING = 1, /* need locking between buffered and direct access */
+> +	DIO_CLUSTER_LOCKING = 0, /* allow (cluster) fs handle its own locking */
+> +	DIO_LOCKING,     /* need locking between buffered and direct access */
+>  	DIO_NO_LOCKING,  /* bdev; no locking at all between buffered/direct */
+>  	DIO_OWN_LOCKING, /* filesystem locks buffered and direct internally */
+>  };
+> @@ -1541,6 +1542,15 @@ static inline ssize_t blockdev_direct_IO
+>  				nr_segs, get_blocks, end_io, DIO_OWN_LOCKING);
+>  }
+>  
+> +static inline ssize_t blockdev_direct_IO_cluster_locking(int rw, struct kiocb *iocb,
+> +	struct inode *inode, struct block_device *bdev, const struct iovec *iov,
+> +	loff_t offset, unsigned long nr_segs, get_blocks_t get_blocks,
+> +	dio_iodone_t end_io)
+> +{
+> +	return __blockdev_direct_IO(rw, iocb, inode, bdev, iov, offset,
+> +			nr_segs, get_blocks, end_io, DIO_CLUSTER_LOCKING);
+> +}
+> +
+>  extern struct file_operations generic_ro_fops;
+>  
+>  #define special_file(m) (S_ISCHR(m)||S_ISBLK(m)||S_ISFIFO(m)||S_ISSOCK(m))
+> --- linux-2.6.9-22.EL/fs/direct-io.c	2005-11-09 17:26:02.000000000 -0500
+> +++ linux.truncate/fs/direct-io.c	2005-12-07 12:27:17.000000000 -0500
+> @@ -515,7 +515,7 @@ static int get_more_blocks(struct dio *d
+>  			fs_count++;
+>  
+>  		create = dio->rw == WRITE;
+> -		if (dio->lock_type == DIO_LOCKING) {
+> +		if ((dio->lock_type == DIO_LOCKING) || (dio->lock_type == DIO_CLUSTER_LOCKING)) {
+>  			if (dio->block_in_file < (i_size_read(dio->inode) >>
+>  							dio->blkbits))
+>  				create = 0;
+> @@ -1183,9 +1183,16 @@ __blockdev_direct_IO(int rw, struct kioc
+>  	 * For regular files using DIO_OWN_LOCKING,
+>  	 *	neither readers nor writers take any locks here
+>  	 *	(i_sem is already held and release for writers here)
+> +	 * The DIO_CLUSTER_LOCKING allows (cluster) filesystem manages its own
+> +	 *	locking (bypassing i_sem and i_alloc_sem handling within
+> +	 *	__blockdev_direct_IO()).
+>  	 */
+> +
+>  	dio->lock_type = dio_lock_type;
+> -	if (dio_lock_type != DIO_NO_LOCKING) {
+> +	if (dio_lock_type == DIO_CLUSTER_LOCKING)
+> +		goto cluster_skip_locking;
+> +
+> +	if (dio_lock_type != DIO_NO_LOCKING) { 
+>  		if (rw == READ) {
+>  			struct address_space *mapping;
+>  
+> @@ -1205,6 +1212,9 @@ __blockdev_direct_IO(int rw, struct kioc
+>  		if (dio_lock_type == DIO_LOCKING)
+>  			down_read(&inode->i_alloc_sem);
+>  	}
+> +
+> +cluster_skip_locking:
+> +
+>  	/*
+>  	 * For file extending writes updating i_size before data
+>  	 * writeouts complete can expose uninitialized blocks. So
 
---Boundary-01=_x/u/DaGR+CrMDP1
-Content-Type: application/x-tbz;
-  name="nulltest.tar.bz2"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="nulltest.tar.bz2"
 
-QlpoOTFBWSZTWdinPMwAA0l/i824gBBed/+/v+//9P////8AICAAAAQACFADvnd2Z2O0dsu1YMkE
-00BNT0yYo0Mp4mkNAPSA0NGTQAND1B6hp6g0gCZU9pTzUgNGgAADRk0MgAAAAGgCU0RGkTT0Joaj
-1NPSekANDQDQB6g0Boeo0GgAcNDRk0aNGmhkZDCAMgBkGmgAAZAyAJFIxCU80p+qZkeqfqj1NB6m
-gNAANAaAGgAAGkvCjd3PI9e8NG9NDqaQO2FggFsaKhsRsBWziRhFt3SRMRmQxJQRiANQYMY2in96
-f0MyrRwc6LEFZY6k9BMVUKuho4u3P5ut92bSapb6a1aSKKhw4JGL+rIUiC5yHEG1g+j0hOaY6UKQ
-c6GCq7AQ3zW1eVd4DR2bSvvve8gcyJHKxOa5gj/vPOtaTQu6Pw380vUkeQLNbMnW+8XYVK+I964a
-paFiMu6JNsnIQJcyTSTl8fcls57HJtgRrbrHCJnRPBOzWmQ9mHqY8fHc5d8iMpjGg2NNs8LEEtcm
-gxIwWC1EBZpp24z6iJWAne52GAmx5RhGEqyitFprV0mPMy+S0SKMeRkbw4mtpQo6LCUga+/sAhfi
-KTCAI9m6X+/aSURDQxEkp16NxyRGXeYbfUJKBiw0/Nnrto6JPNRWxgCJqIdhZ7K7RilbtdQUknRM
-lK8EMPCGInNBS4x2+vsZV8smW+bDZk0IzK+ZHbFWzHYXWW8oR7hWcLA+3ouhUfURLgq2jcZk+fYV
-3O2N+D3qDJiM+hzOcJp5Wu0j7FaXoQWj61qThaiT8bDXlFWfK2Rq6qJlT2nMIxzBM+mRhReRGSyY
-wjW2BMDRKLtrSwQS+OtSxNGLwjwnC4X6tgFAgjAZp2YmzhVItaBJLGWX3tgTgpO8wbj3YVSMv9Pg
-HVKiOSgjxH0TeRp5fXi1ce6nCExqqt0URIgcCgI1Z8+9tnkYot0XCATykCCNUqa3tmfAzpAq2kkL
-ZcoN9ArsgElByoEkEHwNLFRA/pRBU0PzKBAXqsOwamCd1buxlo2wrOL7cv8yATQWayijPY6HGsOl
-6gcbTYQJxdNLaRTKPhs1WSZQiaiBHdg7R3UMm1ZbQXEPFD79YG4iiJ6hRBJgiDEItgCKCvzsZxiF
-GIpAsowK1UMIgxohSipBlwx5Vssfhiq4Yr3JphjXhndxampTTa/+gkneQsKYIJmlDMQBYexZJlXZ
-bv68Wv+URCk5kt22I1V05QEZiMZysbsGKLOfjxq7q0NcmWwSYUNUwtoRVU7EXpZKNU9rEXGETlCZ
-uhWsIAmOAnCHZi9aYoSIi4izBPkqQ9dxpxzVEIGlAULKhrOy94RLV1poNnFwRFSC229QWlnA3kSL
-s5rLCGsXLMiwsGOI9PKEl/xdyRThQkNinPMw
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 
---Boundary-01=_x/u/DaGR+CrMDP1--
-
---nextPart1882606.SQ8eM5HN5T
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD/u/xlb09HEdWDKgRAp8iAJ9+ivKGHU6AMBke0/X6oO5taS+8EQCgsvHz
-P5/mYKRD2aHOsfEHcq5G0Fw=
-=Sj9m
------END PGP SIGNATURE-----
-
---nextPart1882606.SQ8eM5HN5T--

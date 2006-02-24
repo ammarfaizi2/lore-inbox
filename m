@@ -1,55 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932570AbWBXDFf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWBXDSS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932570AbWBXDFf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 22:05:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751825AbWBXDFf
+	id S1750795AbWBXDSS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 22:18:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbWBXDSS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 22:05:35 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:43492 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751824AbWBXDFe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 22:05:34 -0500
-Message-Id: <200602240305.k1O35Ng06352@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'David Gibson'" <david@gibson.dropbear.id.au>
-Cc: "'Hugh Dickins'" <hugh@veritas.com>, "Luck, Tony" <tony.luck@intel.com>,
-       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] fix ia64 hugetlb_free_pgd_range
-Date: Thu, 23 Feb 2006 19:05:23 -0800
+	Thu, 23 Feb 2006 22:18:18 -0500
+Received: from 220-130-178-143.HINET-IP.hinet.net ([220.130.178.143]:7677 "EHLO
+	areca.com.tw") by vger.kernel.org with ESMTP id S1750738AbWBXDSR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 22:18:17 -0500
+Message-ID: <006101c638f0$f6583440$b100a8c0@erich2003>
+From: "erich" <erich@areca.com.tw>
+To: "erich" <erich@areca.com.tw>
+Cc: "\"Christoph Hellwig\"" <hch@infradead.org>, <linux-scsi@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, <billion.wu@areca.com.tw>,
+       <alan@lxorguk.ukuu.org.uk>, <akpm@osdl.org>, <oliver@neukum.org>
+Subject: Re: Areca RAID driver remaining items?
+Date: Fri, 24 Feb 2006 11:18:17 +0800
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+	format=flowed;
+	charset="big5";
+	reply-type=response
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcY47MRp5LfDB6lgR92PAZRVPsgfNQAAKflA
-In-Reply-To: <20060224024431.GC28368@localhost.localdomain>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.3790.1830
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
+X-OriginalArrivalTime: 24 Feb 2006 03:14:06.0531 (UTC) FILETIME=[5F175930:01C638F0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson wrote on Thursday, February 23, 2006 6:45 PM
-> However... I suspect in fact that the transformations should be
-> unconditional.
+Dear Arjan van de Ven,
+I had  misconstruction with
+>> [Exception is that you can say that you are ok with a bigger mask for
+>> this type of memory, but just don't do that if you're not]
 
-No, that won't be correct.
+it should be "pci_set_consistent_dma_mask(pdev, DMA_32BIT_MASK)."
+
+Best Regards
+Erich Chen
+
+----- Original Message ----- 
+From: "erich" <erich@areca.com.tw>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Cc: """"Christoph Hellwig"""" <hch@infradead.org>; 
+<linux-scsi@vger.kernel.org>; <linux-kernel@vger.kernel.org>; 
+<billion.wu@areca.com.tw>; <alan@lxorguk.ukuu.org.uk>; <akpm@osdl.org>; 
+<oliver@neukum.org>
+Sent: Friday, February 24, 2006 10:08 AM
+Subject: Re: Areca RAID driver remaining items?
 
 
-> The whole address scaling thing that ia64 does for
-> hugepages is extremely confusing, but since floor and ceiling are just
-> used for bounds checking on the inner functions, shouldn't they be
-> transformed to the same scale as addr and end, even if that's not
-> actually a true address (hugepage or otherwise).
-
-Think of multiple page size support, the way we do it on ia64 is
-effective have different PAGE_SHIFT for normal page and hugetlb
-page.  Normal page has page shift of 14 bits (of 16K page size).
-Hugetlb page has page shift of 28 bits (of 256MB page size).
-For any address, regardless whether it is normal/hugetlb page,
-they all have full 3 level (or 4 level page table).  So for hugetlb
-address, pgd/pud/pmd/pte index are off by (28-14) bits compare
-to normal page.  We just transform the address so all the generic
-code can be applied.  It's sort of selling you a wood looking
-vinyl car stick shift.
-
-- Ken
+> Dear Arjan van de Ven,
+>
+> I would keep dma_alloc_coherent usage.
+>
+>> [Exception is that you can say that you are ok with a bigger mask for
+>> this type of memory, but just don't do that if you're not]
+>
+> Should I remove "pci_set_dma_mask(pci_device, DMA_64BIT_MASK)" for this 
+> case?
+>
+> Best Regards
+> Erich Chen
+>
+> ----- Original Message ----- 
+> From: "Arjan van de Ven" <arjan@infradead.org>
+> To: "erich" <erich@areca.com.tw>
+> Cc: """Christoph Hellwig""" <hch@infradead.org>; 
+> <linux-scsi@vger.kernel.org>; <linux-kernel@vger.kernel.org>; 
+> <billion.wu@areca.com.tw>; <alan@lxorguk.ukuu.org.uk>; <akpm@osdl.org>; 
+> <oliver@neukum.org>
+> Sent: Thursday, February 23, 2006 8:07 PM
+> Subject: Re: Areca RAID driver remaining items?
+>
+>
+>> On Thu, 2006-02-23 at 19:51 +0800, erich wrote:
+>>> If Linux can not assurent the contingous memory space allocating of
+>>> "dma_alloc_coherent" .
+>>
+>> coherent memory is guaranteed to be in the "lower" 32 bit of memory!
+>> So that is good news, I think you are just fine.
+>>
+>> [Exception is that you can say that you are ok with a bigger mask for
+>> this type of memory, but just don't do that if you're not]
+>>
+>>
+>>> When arcmsr get a physical ccb address from areca's firmware.
+>>> Does linux has any functions for converting of  "bus to virtual" ?
+>>
+>> not without using pools. You would have to search the list of memory you
+>> gave it to find that out.
+>>
+>> (USB has a similar problem, afaik they solved it with pools)
+>>
+>>
+> 
 

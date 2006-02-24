@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWBXSJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWBXSMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932411AbWBXSJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 13:09:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWBXSJ3
+	id S932415AbWBXSMq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 13:12:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWBXSMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 13:09:29 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:33664 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932411AbWBXSJ2 (ORCPT
+	Fri, 24 Feb 2006 13:12:46 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:17570 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932263AbWBXSMp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 13:09:28 -0500
-Date: Fri, 24 Feb 2006 19:09:26 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Martin Mares <mj@ucw.cz>
-cc: Asfand Yar Qazi <ay0106@qazi.f2s.com>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 'vga=' parameter wierdness
-In-Reply-To: <mj+md-20060224.101038.705.atrey@ucw.cz>
-Message-ID: <Pine.LNX.4.61.0602241904570.3694@yvahk01.tjqt.qr>
-References: <43FC1624.8090607@qazi.f2s.com> <200602221130.13872.vda@ilport.com.ua>
- <43FC54B8.7070706@qazi.f2s.com> <mj+md-20060222.121130.6225.albireo@ucw.cz>
- <43FC574A.4000100@qazi.f2s.com> <Pine.LNX.4.61.0602240832150.16363@yvahk01.tjqt.qr>
- <mj+md-20060224.101038.705.atrey@ucw.cz>
+	Fri, 24 Feb 2006 13:12:45 -0500
+Date: Fri, 24 Feb 2006 10:11:25 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Rene Herman <rene.herman@keyaccess.nl>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+Subject: Re: Patch to reorder functions in the vmlinux to a defined order
+In-Reply-To: <43FF48F2.70508@keyaccess.nl>
+Message-ID: <Pine.LNX.4.64.0602241007360.22647@g5.osdl.org>
+References: <1140700758.4672.51.camel@laptopd505.fenrus.org>
+ <1140707358.4672.67.camel@laptopd505.fenrus.org> <200602231700.36333.ak@suse.de>
+ <1140713001.4672.73.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0602230902230.3771@g5.osdl.org>
+ <43FE0B9A.40209@keyaccess.nl> <Pine.LNX.4.64.0602231133110.3771@g5.osdl.org>
+ <43FE1764.6000300@keyaccess.nl> <Pine.LNX.4.64.0602231517400.3771@g5.osdl.org>
+ <43FE4B00.8080205@keyaccess.nl> <m1r75s3kfi.fsf@ebiederm.dsl.xmission.com>
+ <43FF26A8.9070600@keyaccess.nl> <m17j7kda52.fsf@ebiederm.dsl.xmission.com>
+ <Pine.LNX.4.64.0602240925170.3771@g5.osdl.org> <43FF48F2.70508@keyaccess.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > You're right.  I thought '0164' was octal - 0 prefix.
->> >
->> Quite misleading. This should be fixed.
->
->What fix do you propose?
->
-That /^0[xX][0-9a-fA-F]+$/ is required to interpret $_ as a hexadecimal 
-number, that /^0[0-7]+$/ is required to interpret it as an octal,
-and everything else for a normal decimal number.
-IOW, using strtol(my_vga_string, NULL, 0) everywhere (GRUB, as well as the 
-"vga selector" in the kernel).
-And making sure the vga selector (i.e. when booting with 
-vga=ask) always prefix numbers with 0x when they are supposed to be in 
-hexadecimal, i.e. e.g.
-  for(i=0; ...) 
-      printf("%#x   %dx%d\n", i, vga_modes[i].width, vga_modes[i].height);
-instead of currently
-      printf("%x    %dx%d\n", ...)
 
 
+On Fri, 24 Feb 2006, Rene Herman wrote:
+> 
+> The notion was that having a fixed virtual mapping of the kernel would allow
+> it to be loaded anywhere physically without needing to do actual address
+> fixups.
 
-Jan Engelhardt
--- 
+Even that doesn't much help. You'd still need to fix up the actual 
+addresses.
+
+Why? The virtual remapping is limited to 4MB chunks in order to be able to 
+remap using large pages (2MB in PAE mode). At which point there is no 
+advantage: you might as well just hardcode the default address to 4MB like 
+my trivial one-liner did (with an option for EMBEDDED people to link it 
+lower).
+
+So if the point is that we want to use the same binary for both machines 
+with less than 4M and for bigger machines, you can't remap the kernel, 
+unless you start using individual pages, at which point you've destroyed 
+the biggest reason for doing this in the first place - since your TLB 
+behaviour will suck.
+
+		Linus

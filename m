@@ -1,25 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWBXARY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWBXAYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932216AbWBXARY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 19:17:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWBXARY
+	id S932233AbWBXAYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 19:24:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWBXAYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 19:17:24 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:14979 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932216AbWBXARW (ORCPT
+	Thu, 23 Feb 2006 19:24:16 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:35972 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932233AbWBXAYP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 19:17:22 -0500
-Date: Thu, 23 Feb 2006 16:16:31 -0800
+	Thu, 23 Feb 2006 19:24:15 -0500
+Date: Thu, 23 Feb 2006 16:14:14 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: stern@rowland.harvard.edu, sekharan@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Avoid calling down_read and down_write during startup
-Message-Id: <20060223161631.6f8fa41d.akpm@osdl.org>
-In-Reply-To: <20060223223729.GE30329@kvack.org>
-References: <20060223110350.49c8b869.akpm@osdl.org>
-	<Pine.LNX.4.44L0.0602231728300.4579-100000@iolanthe.rowland.org>
-	<20060223223729.GE30329@kvack.org>
+To: john@johnmccutchan.com
+Cc: holt@sgi.com, linux-kernel@vger.kernel.org, rml@novell.com, arnd@arndb.de,
+       hch@lst.de
+Subject: Re: udevd is killing file write performance.
+Message-Id: <20060223161414.3b771e73.akpm@osdl.org>
+In-Reply-To: <1140651662.2985.2.camel@localhost.localdomain>
+References: <20060222134250.GE20786@lnx-holt.americas.sgi.com>
+	<1140626903.13461.5.camel@localhost.localdomain>
+	<20060222175030.GB30556@lnx-holt.americas.sgi.com>
+	<1140648776.1729.5.camel@localhost.localdomain>
+	<20060222151223.5c9061fd.akpm@osdl.org>
+	<1140651662.2985.2.camel@localhost.localdomain>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,17 +30,38 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise <bcrl@kvack.org> wrote:
+John McCutchan <john@johnmccutchan.com> wrote:
 >
-> On Thu, Feb 23, 2006 at 05:36:56PM -0500, Alan Stern wrote:
->  > This patch (as660) changes the registration and unregistration routines 
->  > for blocking notifier chains.  During system startup, when task switching 
->  > is illegal, the routines will avoid calling down_write().
+> ...
+> > 
+> > I have a bad feeling about this one.  It'd be nice to have an exact
+> > understanding of the problen source, but if it's just lots of traffic on
+> > ->d_lock we're kinda stuck.  I don't expect we'll run off and RCUify
+> > d_parent or turn d_lock into a seq_lock or anything liek that.
+> > 
+> > Then again, maybe making d_lock an rwlock _will_ help - if this workload is
+> > also hitting tree_lock (Robin?) and we're not seeing suckiness due to that
+> > then perhaps the rwlock is magically helping.
+> > 
+> > 
+> > > instead of your hack.
+> > 
+> > It's not a terribly bad hack - it's just poor-man's hashing, and it's
+> > reasonably well-suited to the sorts of machines and workloads which we
+> > expect will hit this problem.
+> > 
 > 
->  Why is that necessary?  The down_write() will immediately succeed as no 
->  other process can possibly be holding the lock when the system is booting, 
->  so the special casing doesn't fix anything.
+> If this is as good as it gets, here is a patch (totally untested).
+> 
+> ...
+> @@ -538,7 +537,7 @@
+>  	struct dentry *parent;
+>  	struct inode *inode;
+>  
+> -	if (!atomic_read (&inotify_watches))
+> +	if (!atomic_read (&dentry->d_sb->s_inotify_watches))
+>  		return;
+>  
 
-down_write() unconditionally (and reasonably) does local_irq_enable() in
-the uncontended case.  And enabling local interrupts early in boot can
-cause crashes.
+What happens here if we're watching a mointpoint - the parent is on a
+different fs?

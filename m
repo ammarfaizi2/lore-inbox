@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbWBXTkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbWBXTic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932438AbWBXTkO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 14:40:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWBXTkN
+	id S932442AbWBXTic (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 14:38:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWBXTic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 14:40:13 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:305 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932438AbWBXTkM convert rfc822-to-8bit
+	Fri, 24 Feb 2006 14:38:32 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:65471 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S932436AbWBXTib
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 14:40:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MzwVg6JlWm7nz0yBVUb/spHJLVmwTVbSy3ilJv0blhoN/frRypxTCn7TDB37+5ZJDFTBrIC/5zI9O3qBMxVwTu0Hjd34GTT5tpf81ZVXci7krw7XlqZThDU1AyQok0FsQqgjri8GrgpK8p5LaEVmj02lVunlonkfSTW5SnX+Mwk=
-Message-ID: <9a8748490602241140m2be74e81icdc46a843821f0f3@mail.gmail.com>
-Date: Fri, 24 Feb 2006 20:40:11 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Alistair John Strachan" <s0348365@sms.ed.ac.uk>
-Subject: Re: [PATCH] x86_64 stack trace cleanup
-Cc: "Andi Kleen" <ak@suse.de>, "Andres Salomon" <dilinger@debian.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200602241925.17997.s0348365@sms.ed.ac.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 24 Feb 2006 14:38:31 -0500
+Date: Fri, 24 Feb 2006 12:38:30 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       erich <erich@areca.com.tw>, Arjan van de Ven <arjan@infradead.org>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       billion.wu@areca.com.tw, akpm@osdl.org, oliver@neukum.org
+Subject: Re: Areca RAID driver remaining items?
+Message-ID: <20060224193830.GR28587@parisc-linux.org>
+References: <1140458552.3495.26.camel@mentorng.gurulabs.com> <20060220182045.GA1634@infradead.org> <001401c63779$12e49aa0$b100a8c0@erich2003> <20060222145733.GC16269@infradead.org> <00dc01c63842$381f9a30$b100a8c0@erich2003> <1140683157.2972.6.camel@laptopd505.fenrus.org> <001901c6385e$9aee7d40$b100a8c0@erich2003> <1140695990.19361.8.camel@localhost.localdomain> <20060224165647.GA4176@infradead.org> <Pine.LNX.4.58.0602240858180.7894@shark.he.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1140777679.5073.17.camel@localhost.localdomain>
-	 <1140780552.5073.26.camel@localhost.localdomain>
-	 <200602241322.28389.ak@suse.de>
-	 <200602241925.17997.s0348365@sms.ed.ac.uk>
+In-Reply-To: <Pine.LNX.4.58.0602240858180.7894@shark.he.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/24/06, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> On Friday 24 February 2006 12:22, Andi Kleen wrote:
-> > On Friday 24 February 2006 12:29, Andres Salomon wrote:
-> > > That would be nice.  Unfortunately, I'm trying to figure out why my dual
-> > > opteron box likes to push the load up to 15 and then hang while doing
-> > > i/o to the 3ware 9500S-8 card.  Looks like the load/d-state processes
-> > > are caused by a whole lot (well, MAX_PDFLUSH_THREADS) of pdflush
-> > > processes spinning on base->lock in lock_timer_base(); not sure if
-> > > that's intentional or not, but it seems rather odd.  Whether the hanging
-> > > is related to the high load remains to be seen.
-> >
-> > Sounds like some timer handler is broken. You have to find out which
-> > one it is.
-> >
-> > > I don't see why this is a problem.  Other architectures have done this
-> > > for ages, without problems.  I suspect most people get their backtraces
-> > > from either serial console or logs, as copying them down from the screen
-> > > or taking a picture of the panic is a rather large pain.  It seems like
-> > > you're penalizing everyone for a few select use cases.
-> >
-> > People submitting jpegs of photographed oopses or even badly scribbled
-> > down oopses is quite common. Serial consoles are only used by a small
-> > elite.
->
-> I agree, I've had to report using a JPEG file on multiple occasions, because
-> my mainboard has no serial ports. However, if you're using a 1280x1024
-> vesafb, which is supported by most systems, you can get a lot of lines on
-> screen at once..
->
+On Fri, Feb 24, 2006 at 09:03:47AM -0800, Randy.Dunlap wrote:
+> On Fri, 24 Feb 2006, Christoph Hellwig wrote:
+> > Please avoid that unless really nessecary.  I doubt there's boards where
+> > MSI would only be broken with the areca card but not with other MSI-capable
+> > ones.  If a board or chipset is generally broken vs MSI it should be
+> > added to the global MSI blacklist.  It's probably be nice to have a global
+> > nomsi boot option instead of one in every driver aswell..
+> 
+> http://www.xenotime.net/linux/patches/pci_nomsi.patch adds a
+> global boot option to disable MSI interrupt assignments.
 
-true, but still, if you have two columns of output you get even more
-lines on-screen (and in the cases where the oops os long that's IMHO a
-good thing).
+I like it.  How about adding pci=nomsi instead of pci_nomsi?
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+--- drivers/pci/pci.c   4 Feb 2006 04:51:55 -0000       1.28
++++ drivers/pci/pci.c   24 Feb 2006 19:33:25 -0000
+@@ -900,8 +900,12 @@ static int __devinit pci_setup(char *str
+                if (k)
+                        *k++ = 0;
+                if (*str && (str = pcibios_setup(str)) && *str) {
+-                       /* PCI layer options should be handled here */
+-                       printk(KERN_ERR "PCI: Unknown option `%s'\n", str);
++                       if (!strcmp(str, "nomsi")) {
++                               pci_msi_enable = 0;
++                       } else {
++                               printk(KERN_ERR "PCI: Unknown option `%s'\n",
++                                               str);
++                       }
+                }
+                str = k;
+        }
+

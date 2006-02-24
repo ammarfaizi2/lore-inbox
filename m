@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbWBXBtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWBXBxd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932506AbWBXBtu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 20:49:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932520AbWBXBtu
+	id S932286AbWBXBxd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 20:53:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWBXBxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 20:49:50 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:5598 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932506AbWBXBtt (ORCPT
+	Thu, 23 Feb 2006 20:53:33 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:17377 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932286AbWBXBxc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 20:49:49 -0500
-Date: Thu, 23 Feb 2006 20:49:47 -0500
+	Thu, 23 Feb 2006 20:53:32 -0500
+Date: Thu, 23 Feb 2006 20:53:22 -0500
 From: Dave Jones <davej@redhat.com>
-To: dtor_core@ameritech.net
+To: Andi Kleen <ak@suse.de>
 Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: multimedia keys on dell inspiron 8200s.
-Message-ID: <20060224014947.GA17397@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, dtor_core@ameritech.net,
+Subject: Re: Suppress APIC errors on UP x86-64.
+Message-ID: <20060224015322.GG23471@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
 	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060224014228.GB16089@redhat.com> <200602240245.30161.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200602240245.30161.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We've been carrying this patch in Fedora for way too long.
-So long, I've forgotten a lot of the history.
+On Fri, Feb 24, 2006 at 02:45:29AM +0100, Andi Kleen wrote:
+ > On Friday 24 February 2006 02:42, Dave Jones wrote:
+ > > Quite a few UP x86-64 laptops print APIC error 40's repeatedly
+ > > when they run an SMP kernel (And Fedora doesn't ship a UP x86-64 kernel
+ > > any more).  We can suppress this as there's not really anything we
+ > > can do about them.
+ > 
+ > No we need to fix the APIC errors, not hide them.
 
-Aparently, it makes multimedia buttons on Dell Inspiron 8200's
-produce keycodes.  The only reference to this I found was
-at http://linux.siprell.com/, but I don't know if that's its origin.
+What do you need to fix them ?  I've got one laptop here that
+is affected, and there's a few other examples with dmesg's
+in Red Hat bugzilla that I can trawl.
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+		Dave
 
---- linux-2.6/drivers/input/keyboard/atkbd.c~	2005-04-16 12:45:00.000000000 -0400
-+++ linux-2.6/drivers/input/keyboard/atkbd.c	2005-04-16 12:46:28.000000000 -0400
-@@ -90,13 +90,13 @@ static unsigned char atkbd_set2_keycode[
- 	 82, 83, 80, 76, 77, 72,  1, 69, 87, 78, 81, 74, 55, 73, 70, 99,
- 
- 	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
--	217,100,255,  0, 97,165,  0,  0,156,  0,  0,  0,  0,  0,  0,125,
--	173,114,  0,113,  0,  0,  0,126,128,  0,  0,140,  0,  0,  0,127,
-+	217,100,255,  0, 97,165,196,  0,156,  0,  0,  0,  0,  0,197,125,
-+	173,114,  0,113,  0,  0,198,126,128,  0,  0,140,  0,  0,  0,127,
- 	159,  0,115,  0,164,  0,  0,116,158,  0,150,166,  0,  0,  0,142,
- 	157,  0,  0,  0,  0,  0,  0,  0,155,  0, 98,  0,  0,163,  0,  0,
- 	226,  0,  0,  0,  0,  0,  0,  0,  0,255, 96,  0,  0,  0,143,  0,
- 	  0,  0,  0,  0,  0,  0,  0,  0,  0,107,  0,105,102,  0,  0,112,
--	110,111,108,112,106,103,  0,119,  0,118,109,  0, 99,104,119,  0,
-+	110,111,108,112,106,103,195,119,  0,118,109,  0, 99,104,119,  0,
- 
- 	  0,  0,  0, 65, 99,
- #endif

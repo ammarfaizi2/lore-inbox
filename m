@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbWBXXue@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWBXXwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964801AbWBXXue (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 18:50:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbWBXXue
+	id S964803AbWBXXwf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 18:52:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWBXXwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 18:50:34 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:6038 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964801AbWBXXue (ORCPT
+	Fri, 24 Feb 2006 18:52:34 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:32772 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S964803AbWBXXwe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 18:50:34 -0500
-Date: Fri, 24 Feb 2006 15:52:37 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Steven Whitehouse <swhiteho@redhat.com>
-Cc: teigland@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: GFS2 Filesystem [0/16]
-Message-Id: <20060224155237.7ab0c56e.akpm@osdl.org>
-In-Reply-To: <1140792511.6400.707.camel@quoit.chygwyn.com>
-References: <1140792511.6400.707.camel@quoit.chygwyn.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 24 Feb 2006 18:52:34 -0500
+Date: Sat, 25 Feb 2006 00:52:27 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc4-mm2
+Message-ID: <20060224235227.GA9975@mars.ravnborg.org>
+References: <20060224031002.0f7ff92a.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060224031002.0f7ff92a.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Whitehouse <swhiteho@redhat.com> wrote:
->
-> The following 16 patches make up the GFS2 filesystem as contained in the
-> git tree at:
+On Fri, Feb 24, 2006 at 03:10:02AM -0800, Andrew Morton wrote:
 > 
-> http://www.kernel.org/git/?p=linux/kernel/git/steve/gfs2-2.6.git;a=summary
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc4/2.6.16-rc4-mm2/
 > 
-> Please consider GFS2 for inclusion in your -mm series of kernel patches.
+> - Sam's new section-mismatch warning code detects 358 errors in my alpha
+>   build, and a quick sampling indicates that they're real.  Once this hits
+>   mainline things will get somewhat messy.
+To put credits right I just ported the functionality of the two scripts
+developed by Keith Owens (reference_init.pl and reference_discarded.pl)
+to modpost so the check is run each time moduels are build. All errors
+introduced in the process are mine.
+The scripts are kept for now so one can double check.
 
-Once the various review comments are sorted out I'd prefer that both DLM
-and GFS be maintained by you in your git tree (like OCFS2 prior to and
-after merge).
+I had in mind to fix some of the easier ones but work is hindering it
+atm.
 
-That's the most convenient thing for both you and me.  It has the downside
-that putting things into git trees tends to hide them from view.  And GFS
-needs a lot of viewing before it can proceed further.  That's an ongoing
-problem with the git trees.
+For now it gives a warning when a drivers uses module_parm_array() and
+uses __initdata for parameters. This is a false warning - at least if
+sysfs attribute is '0'. Hope to look into this later.
 
-So, in a way, maintaining DLM and GFS in git trees as I suggest is likely
-to retard an upstream merge.   But it would be more convenient.
-
-Helpful, aren't I?
+	Sam

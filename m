@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWBXQPG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWBXQQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932314AbWBXQPG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 11:15:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWBXQPG
+	id S932317AbWBXQQs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 11:16:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWBXQQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 11:15:06 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:32698 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932312AbWBXQPE (ORCPT
+	Fri, 24 Feb 2006 11:16:47 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:27354 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932317AbWBXQQr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 11:15:04 -0500
-Message-ID: <43FF3055.914C25CA@tv-sign.ru>
-Date: Fri, 24 Feb 2006 19:12:05 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Bryan Fink <bfink@eventmonitor.com>,
-       linux-kernel@vger.kernel.org, Ram Pai <linuxram@us.ibm.com>,
-       Steven Pratt <slpratt@austin.ibm.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: NFS Still broken in 2.6.x?
-References: <43FF24AF.63527544@tv-sign.ru>
+	Fri, 24 Feb 2006 11:16:47 -0500
+Date: Fri, 24 Feb 2006 17:16:31 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+Subject: Re: es1371 sound problems
+Message-ID: <20060224161631.GB1925@elf.ucw.cz>
+References: <20060223205309.GA2045@elf.ucw.cz> <s5h1wxtdmri.wl%tiwai@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <s5h1wxtdmri.wl%tiwai@suse.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov wrote:
+Hi!
+
+> I've seen similar messages in some reports but haven't figured out the
+> cause yet.
 > 
-> Afaics, this problem was resolved a long ago.
-> 
-> The patch below should fix this problem. Does it?
+> To be sure, could you check the patch below, making the wait time in
+> codec acceessor longer?
+> Also, try to build ens1371 driver as a module.
 
-Forgot to mention, this patch was tested,
+Tried that... only msleep() hunks did apply, but that should be only
+more conservative, AFAICT. It took looong time to boot (my fault,
+should have used 50, not 0xa000 or how much is that), but same result
+as before. I tried loading it as a module, but same problem :-(.
 
-Steven Pratt wrote:
->
-> This is the patch I think we should apply.  Running tiobench with 4k 
-> request size, 4GB working set, 256 threads and a 2MB max_readahead (to 
-> help induce thrashing) on a 1GB 8way machine, throughput of sequential 
-> IO increased from 50MB/sec to 92MB/sec on a 5disk raid0 array.  Tests 
-> with smaller max_readaheads and smaller thread counts were all withing 
-> the noise range of the benchmark, which is to be expected.
+								Pavel
 
-Oleg.
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

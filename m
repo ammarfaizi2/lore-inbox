@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWBXMzK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbWBXM6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750819AbWBXMzK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 07:55:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWBXMzK
+	id S1750879AbWBXM6g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 07:58:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750875AbWBXM6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 07:55:10 -0500
-Received: from silver.veritas.com ([143.127.12.111]:37235 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1750819AbWBXMzJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 07:55:09 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
+	Fri, 24 Feb 2006 07:58:36 -0500
+Received: from gold.veritas.com ([143.127.12.110]:40580 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1750822AbWBXM6f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 07:58:35 -0500
 X-IronPort-AV: i="4.02,143,1139212800"; 
-   d="scan'208"; a="34870394:sNHT24168216"
-Date: Fri, 24 Feb 2006 12:55:39 +0000 (GMT)
+   d="scan'208"; a="56077666:sNHT29435128"
+Date: Fri, 24 Feb 2006 12:59:06 +0000 (GMT)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andi Kleen <ak@suse.de>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Arjan van de Ven <arjan@intel.linux.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [Patch 3/3] prepopulate/cache cleared pages
-In-Reply-To: <200602241333.16190.ak@suse.de>
-Message-ID: <Pine.LNX.4.61.0602241252010.17767@goblin.wat.veritas.com>
-References: <1140686238.2972.30.camel@laptopd505.fenrus.org>
- <20060224064912.GB7243@elte.hu> <43FEAF52.80705@yahoo.com.au>
- <200602241333.16190.ak@suse.de>
+To: Alan Cox <alan@redhat.com>
+cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk, mchehab@infradead.org, akpm@osdl.org
+Subject: Re: + add-cpia2-camera-support.patch added to -mm tree
+In-Reply-To: <20060224111656.GA3136@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.61.0602241256150.17767@goblin.wat.veritas.com>
+References: <200602240049.k1O0nuQn023548@shell0.pdx.osdl.net>
+ <1140772015.2874.14.camel@laptopd505.fenrus.org> <20060224111656.GA3136@devserv.devel.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 24 Feb 2006 12:55:08.0310 (UTC) FILETIME=[8A54AB60:01C63941]
+X-OriginalArrivalTime: 24 Feb 2006 12:58:35.0342 (UTC) FILETIME=[05BB3EE0:01C63942]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Feb 2006, Andi Kleen wrote:
-> On Friday 24 February 2006 08:01, Nick Piggin wrote:
-> > 
-> > Yeah, as I said above, the newly allocated page is fine, it is the
-> > page table pages I'm worried about.
+On Fri, 24 Feb 2006, Alan Cox wrote:
+> On Fri, Feb 24, 2006 at 10:06:55AM +0100, Arjan van de Ven wrote:
+> > you are adding rvmalloc copy number 14; seems you own the task to make
+> > it generic now ;)
+> > Also I thought SetPageReserved and friends are deprecated :)
 > 
-> page tables are easy because we zero them on free (as a side effect
-> of all the pte_clears)
+> Heading that way, which is fine by me.
 
-But once the page table is freed, it's likely to get used for something
-else, whether for another page table or something different doesn't 
-matter: this mm can no longer blindly mess with the entries within in.
-
-Nick's point is that it's mmap_sem (or mm_users 0) guarding against
-the page table being freed.
+Just go with what you have: one day one of us will come along and
+vanish all those rvmallocs and SetPageReserveds; but until that day
+it's easiest for everyone if you continue with your rvmalloc #14.
 
 Hugh

@@ -1,79 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbWBXGWL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932685AbWBXG1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750965AbWBXGWL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 01:22:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750978AbWBXGWL
+	id S932685AbWBXG1G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 01:27:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932709AbWBXG1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 01:22:11 -0500
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:50833 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750965AbWBXGWK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 01:22:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=x8aolsSXCkhHOq0NWFYn/OUiqeQfV3r3sifC42NQPFxPzLl95evPVJKl7xYOIt7pZk7qEyWC4p/n4EQUHP7Dwwa+34TuOHIynIE56Jx+cJLJul/GYmRZYvfYuZAtIJ6hrM4Yltv0CrHx04LbjjJiS971/ynmx4TDgIL7X1htjVU=  ;
-Message-ID: <43FEA60E.5040607@yahoo.com.au>
-Date: Fri, 24 Feb 2006 17:22:06 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Gibson <dwg@au1.ibm.com>
-CC: William Lee Irwin <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: RFC: Block reservation for hugetlbfs
-References: <20060221022124.GA18535@localhost.localdomain> <43FA94B3.4040904@yahoo.com.au> <20060221233950.GB20872@localhost.localdomain> <43FBB292.1000304@yahoo.com.au> <20060222021106.GB23574@localhost.localdomain> <43FBD5D5.5020706@yahoo.com.au> <20060224041154.GF28368@localhost.localdomain>
-In-Reply-To: <20060224041154.GF28368@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Feb 2006 01:27:06 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:2981 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932685AbWBXG1D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 01:27:03 -0500
+Date: Fri, 24 Feb 2006 07:25:33 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nathan Lynch <ntl@pobox.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] softlockup detection vs. cpu hotplug
+Message-ID: <20060224062533.GA1431@elte.hu>
+References: <20060224003146.GJ3293@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060224003146.GJ3293@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson wrote:
-> On Wed, Feb 22, 2006 at 02:09:09PM +1100, Nick Piggin wrote:
 
->>I mean a new core mm lock depenency (ie. lru_lock -> tree_lock).
->>
->>But I must have been smoking something last night: for the life
->>of me I can't see why I thought there was already a hugetlb_lock
->>-> lru_lock dependency in there...?!
->>
->>So I retract my statement. What you have there seems OK.
-> 
-> 
-> Sadly, you weren't smoking something, and it's not OK.  As akpm
-> pointed out later, the lru_lock dependecy is via __free_pages() which
-> is called from update_and_free_page() with hugetlb_lock held.
-> 
+* Nathan Lynch <ntl@pobox.com> wrote:
 
-You're either thinking of zone->lock, or put_page/page_cache_release.
-The former is happy to nest inside anything because it is confined to
-page_alloc. The latter AFAIKS is not called from inside the hugepage
-lock.
+> @@ -86,10 +92,15 @@ static int watchdog(void * __bind_cpu)
+>  	 */
+>  	while (!kthread_should_stop()) {
+>  		msleep_interruptible(1000);
+> -		touch_softlockup_watchdog();
+> +		/* When our cpu is offlined the watchdog thread can
+> +		 * get migrated before it is stopped.
+> +		 */
+> +		preempt_disable();
+> +		if (likely(smp_processor_id() == bind_cpu))
+> +			touch_softlockup_watchdog();
+> +		preempt_enable();
+> +		__set_current_state(TASK_RUNNING);
+>  	}
+> -	__set_current_state(TASK_RUNNING);
+> -
+>  	return 0;
+>  }
+>  
 
-> 
->>>Also, any thoughts on whether I need i_lock or i_mutex or something
->>>else would be handy..
->>
->>I'm not much of an fs guy. How come you don't use i_size?
-> 
-> 
-> i_size is already used for a hard limit on the file size - faulting a
-> page beyond i_size will SIGBUS, whereas faulting a page beyond
-> i_blocks just isn't guaranteed.  In particular, we always extend
-> i_size when makiing a new mapping, whereas we only extend i_blocks
-> (and thus reserve pages) on a SHARED mapping (because space is being
-> guaranteed for things in the mapping, not for a random processes
-> MAP_PRIVATE copy).
-> 
+the above change is unnecessary: there is absolutely no harm from a 
+migrated watchdog thread touching another CPU's timestamp for a short 
+amount of time. [Furtermore, why doesnt the hotplug CPU code use the 
+kthread_should_stop() mechanism to gracefully stop per-CPU threads, 
+instead of migrating unsuspecting threads and putting ugly hooks into 
+every such thread?]
 
-Oh OK I misread how you're using it. I thought you wanted to be
-able to guarantee the whole thing would be guaranteed.
+the other fix (to touch before bringing the CPU up) looks OK, but it's 
+simpler to initialize it via the oneliner below. Andrew, this is what 
+i'd suggest to do for v2.6.16. [i'll send an updated softirq-rework 
+patch in the next mail.]
 
-The other thing you might be able to do is use hugetlbfs inode
-private data so you don't have to overload vfs things?
+	Ingo
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+------
+
+fix from Nathan Lynch: initialize the softlockup timestamp of freshly 
+brought up CPUs with jiffies.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- kernel/softlockup.c.orig
++++ kernel/softlockup.c
+@@ -110,6 +110,7 @@ cpu_callback(struct notifier_block *nfb,
+ 			printk("watchdog for %i failed\n", hotcpu);
+ 			return NOTIFY_BAD;
+ 		}
++  		per_cpu(timestamp, hotcpu) = jiffies;
+   		per_cpu(watchdog_task, hotcpu) = p;
+ 		kthread_bind(p, hotcpu);
+  		break;

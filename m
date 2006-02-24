@@ -1,77 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWBXOM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbWBXOSa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751049AbWBXOM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 09:12:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbWBXOM6
+	id S1751050AbWBXOSa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 09:18:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbWBXOSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 09:12:58 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51364 "EHLO
+	Fri, 24 Feb 2006 09:18:30 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54948 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751041AbWBXOM6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 09:12:58 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Rene Herman <rene.herman@keyaccess.nl>,
-       Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-Subject: Re: Patch to reorder functions in the vmlinux to a defined order
+	id S1750881AbWBXOSa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 09:18:30 -0500
+To: Arjan van de Ven <arjan@linux.intel.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Patch to make the head.S-must-be-first-in-vmlinux order
+ explicit
 References: <1140700758.4672.51.camel@laptopd505.fenrus.org>
-	<1140707358.4672.67.camel@laptopd505.fenrus.org>
-	<200602231700.36333.ak@suse.de>
-	<1140713001.4672.73.camel@laptopd505.fenrus.org>
-	<Pine.LNX.4.64.0602230902230.3771@g5.osdl.org>
-	<43FE0B9A.40209@keyaccess.nl>
-	<Pine.LNX.4.64.0602231133110.3771@g5.osdl.org>
-	<43FE1764.6000300@keyaccess.nl>
-	<Pine.LNX.4.64.0602231517400.3771@g5.osdl.org>
+	<200602231442.19903.ak@suse.de> <43FDBF55.3060502@linux.intel.com>
+	<200602231514.03001.ak@suse.de>
+	<m11wxs50ki.fsf@ebiederm.dsl.xmission.com>
+	<43FF0FE5.8040300@linux.intel.com>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 24 Feb 2006 07:11:25 -0700
-In-Reply-To: <Pine.LNX.4.64.0602231517400.3771@g5.osdl.org> (Linus
- Torvalds's message of "Thu, 23 Feb 2006 15:19:54 -0800 (PST)")
-Message-ID: <m1wtfk3kz6.fsf@ebiederm.dsl.xmission.com>
+Date: Fri, 24 Feb 2006 07:17:13 -0700
+In-Reply-To: <43FF0FE5.8040300@linux.intel.com> (Arjan van de Ven's message
+ of "Fri, 24 Feb 2006 14:53:41 +0100")
+Message-ID: <m1irr4deom.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+Arjan van de Ven <arjan@linux.intel.com> writes:
 
-> On Thu, 23 Feb 2006, Rene Herman wrote:
->> 
->> Okay. I suppose the only other option is to make "physical_start" a variable
->> passed in by the bootloader so that it could make a runtime decision? Ie,
->> place us at min(top_of_mem, 4G) if it cared to. I just grepped for
->> PHYSICAL_START and this didn't look _too_ bad.
+> Eric W. Biederman wrote:
+>> Andi Kleen <ak@suse.de> writes:
+>>
+>>> On Thursday 23 February 2006 14:57, Arjan van de Ven wrote:
+>>>
+>>>>> (or at least
+>>>>> it shouldn't), but arch/x86_64/boot/compressed/head.S
+>>>>> seems to have the entry address hardcoded. Perhaps you can just change this
+>>>>> to pass in the right address?
+>>>> the issue is that the address will be a link time thing, which means lots of
+>>>> complexity.
+>>> bzImage image should be only generated after vmlinux is done and then the
+>>> address should be available with a simple grep in System.map
+>> Andi it is more than that.  At least it was last I payed attention.
+>> There are symbols like stext that various things depend on being early,
+>> at least last time I looked.  So while it is doable it requires some
+>> careful looking.
+>
+> _stext and such are very easy. That is actually not a real variable just a
+> linker script thing, and since the reordering works on the linker script level
+> that's already taken care of ;-)
 
-Well the way to accomplish that is to just load the kernel there and
-have it sort itself out.  It would take a rev of the boot protocol
-to let the bootloader know it was possible though.
+It is currently a symbol defined in head.S though.  Not hard to fix
+but the point is that there are a few subtle things.
 
-> No can do. You'd have to make the kernel relocatable, and do load-time 
-> fixups. Very invasive.
+> I've looked some yesterday at generating this at runtime, and haven't found a
+> clean enough solution yet (esp one that doesn't break kdump); I'll keep poking
+> at it for a bit more though....
 
-Not really. With the linker able to generate the relocations you can
-do it outside of most of the kernel where we have the decompressor.  
-
-Relocating a kernel is fundamentally an architecture dependent thing,
-relocations can't work at all on x86-64 for example because of the narrow
-window of virtual addresses it needs to run at.
-
-I only haven't submitted the patches because I was too busy stabilizing
-the reboot path last time I had time to be working in this area.
-
-After I get some sleep I will dust off my patches and see how
-it goes.  x86-64 will probably have regressed but...
-
-> It's certainly _possible_, but it's a whole new stage in the boot, one 
-> that we've never done before.
-
-It isn't that new.  There has been interest in this area from the
-people working on the  kdump stuff for a long you don't require
-options under CONFIG_EMBEDDED to build a kernel for capturing a crash
-dump. 
-
-CONFIG_PHYSICAL_START was supposed be the simple interim solution
-until we could get relocation patches sorted out and merged.
+I suspect the easy way to do this is to put a variable with the start location
+either at the very start or the very end of the data that gets compressed that
+has the address to jump to.  Once we uncompressed the data we can lookup
+the pointer and jump to it.
 
 Eric

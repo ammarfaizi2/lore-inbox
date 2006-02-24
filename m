@@ -1,77 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbWBXTFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWBXTJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932420AbWBXTFi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 14:05:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbWBXTFi
+	id S932425AbWBXTJF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 14:09:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWBXTJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 14:05:38 -0500
-Received: from ns2.suse.de ([195.135.220.15]:58248 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932420AbWBXTFh (ORCPT
+	Fri, 24 Feb 2006 14:09:05 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:5541 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S932425AbWBXTJE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 14:05:37 -0500
-From: Andi Kleen <ak@suse.de>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [Patch 2/3] fast VMA recycling
-Date: Fri, 24 Feb 2006 20:05:16 +0100
-User-Agent: KMail/1.9.1
-Cc: Arjan van de Ven <arjan@intel.linux.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, mingo@elte.hu
-References: <1140686238.2972.30.camel@laptopd505.fenrus.org> <1140688131.4672.21.camel@laptopd505.fenrus.org> <20060224185231.GB5816@infradead.org>
-In-Reply-To: <20060224185231.GB5816@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Feb 2006 14:09:04 -0500
+Date: Fri, 24 Feb 2006 14:04:09 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Weird login, possibly related to rootkit Q
+Message-ID: <20060224190409.GB9384@kvack.org>
+References: <200602230121.08670.gene.heskett@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602242005.17087.ak@suse.de>
+In-Reply-To: <200602230121.08670.gene.heskett@verizon.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 February 2006 19:52, Christoph Hellwig wrote:
-> On Thu, Feb 23, 2006 at 10:48:50AM +0100, Arjan van de Ven wrote:
-> > On Thu, 2006-02-23 at 10:42 +0100, Andi Kleen wrote:
-> > > On Thursday 23 February 2006 10:30, Arjan van de Ven wrote:
-> > > > This patch adds a per task-struct cache of a free vma. 
-> > > > 
-> > > > In normal operation, it is a really common action during userspace mmap 
-> > > > or malloc to first allocate a vma, and then find out that it can be merged,
-> > > > and thus free it again. In fact this is the case roughly 95% of the time.
-> > > > 
-> > > > In addition, this patch allows code to "prepopulate" the cache, and
-> > > > this is done as example for the x86_64 mmap codepath. The advantage of this
-> > > > prepopulation is that the memory allocation (which is a sleeping operation
-> > > > due to the GFP_KERNEL flag, potentially causing either a direct sleep or a 
-> > > > voluntary preempt sleep) will happen before the mmap_sem is taken, and thus 
-> > > > reduces lock hold time (and thus the contention potential)
-> > > 
-> > > The slab fast path doesn't sleep. 
-> > 
-> > it does via might_sleep()
-> 
-> so turn of the voluntary preempt bullshit. 
+On Thu, Feb 23, 2006 at 01:21:07AM -0500, Gene Heskett wrote:
+> So we did a reinstall (rh9) without formatting because there was a lot 
+> of non-replaceable data on it.  This also saved the logs, but they are 
+> obviously not a lot of help when about 5 hours is missing at about the 
+> time everything went to hell.
 
-I think voluntary preempt is generally a good idea, but we should make it optional
-for down() since it can apparently cause bad side effects (like holding 
-semaphores/mutexes for too long) 
+Let's get this straight: your old Linux distro got rooted, so you installed 
+an old Linux distro that no longer gets security updates to replace it.  
+Why is that kernel related?  Sounds more like pebkac.
 
-There would be two possible ways: 
-
-have default mutex_lock()/down() do a might_sleep()
-with preemption and have a separate variant that doesn't preempt
-or have the default non preempt and a separate variant
-that does preempt. 
-
-I think I would prefer the later because for preemption 
-it probably makes often more sense to do the preemption
-on the up() not the down.
-
-On the other hand one could argue that it's safer to only
-change it for mmap_sem, which would suggest a special variant
-without preemption and keep the current default.
-
-Actually the non preempt variants probably should still have a might_sleep() 
-for debugging, but in a variant that doesn't do preemption (might_sleep_no_preempt()?) 
-
-Ingo, what do you think?
-
--Andi
+		-ben
+-- 
+"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
+and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.

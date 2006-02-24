@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWBXQOw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWBXQPG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932290AbWBXQOw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 11:14:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWBXQOw
+	id S932314AbWBXQPG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 11:15:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWBXQPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 11:14:52 -0500
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:30114 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S932290AbWBXQOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 11:14:51 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Fri, 24 Feb 2006 16:07:05 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: [PATCH 1/5] NTFS: Fix a potential overflow by casting (index + 1)
- to s64
-In-Reply-To: <Pine.LNX.4.64.0602241559150.2136@hermes-2.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.64.0602241605210.2136@hermes-2.csi.cam.ac.uk>
-References: <Pine.LNX.4.64.0602241559150.2136@hermes-2.csi.cam.ac.uk>
+	Fri, 24 Feb 2006 11:15:06 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:32698 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932312AbWBXQPE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 11:15:04 -0500
+Message-ID: <43FF3055.914C25CA@tv-sign.ru>
+Date: Fri, 24 Feb 2006 19:12:05 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>, Bryan Fink <bfink@eventmonitor.com>,
+       linux-kernel@vger.kernel.org, Ram Pai <linuxram@us.ibm.com>,
+       Steven Pratt <slpratt@austin.ibm.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: NFS Still broken in 2.6.x?
+References: <43FF24AF.63527544@tv-sign.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NTFS: Fix a potential overflow by casting (index + 1) to s64 before doing a
-      left shift using PAGE_CACHE_SHIFT in fs/ntfs/file.c.  Thanks to Andrew
-      Morton pointing this out to.
+Oleg Nesterov wrote:
+> 
+> Afaics, this problem was resolved a long ago.
+> 
+> The patch below should fix this problem. Does it?
 
-Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+Forgot to mention, this patch was tested,
 
----
+Steven Pratt wrote:
+>
+> This is the patch I think we should apply.  Running tiobench with 4k 
+> request size, 4GB working set, 256 threads and a 2MB max_readahead (to 
+> help induce thrashing) on a 1GB 8way machine, throughput of sequential 
+> IO increased from 50MB/sec to 92MB/sec on a 5disk raid0 array.  Tests 
+> with smaller max_readaheads and smaller thread counts were all withing 
+> the noise range of the benchmark, which is to be expected.
 
-Best regards,
-
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
- fs/ntfs/file.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-3c6af7fa787f21f8873a050568ed892312899eb5
-diff --git a/fs/ntfs/file.c b/fs/ntfs/file.c
-index 7275338..c73c886 100644
---- a/fs/ntfs/file.c
-+++ b/fs/ntfs/file.c
-@@ -248,7 +248,7 @@ do_non_resident_extend:
- 		 * enough to make ntfs_writepage() work.
- 		 */
- 		write_lock_irqsave(&ni->size_lock, flags);
--		ni->initialized_size = (index + 1) << PAGE_CACHE_SHIFT;
-+		ni->initialized_size = (s64)(index + 1) << PAGE_CACHE_SHIFT;
- 		if (ni->initialized_size > new_init_size)
- 			ni->initialized_size = new_init_size;
- 		write_unlock_irqrestore(&ni->size_lock, flags);
--- 
-1.2.3.g9821
+Oleg.

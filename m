@@ -1,82 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWBXAEP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWBXAD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932161AbWBXAEP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 19:04:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWBXAEO
+	id S932155AbWBXAD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 19:03:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWBXAD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 19:04:14 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:30809 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932157AbWBXAEM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 19:04:12 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-	b=AQduLHbzAOaRP87pe4cy5+3eegq3zhSjIlcHE4uzioeMg53QYb366FjzWEM9yd8OZ
-	IROhiXyrwysAnHr8eKNPA==
-Message-ID: <43FE4D62.4050409@google.com>
-Date: Thu, 23 Feb 2006 16:03:46 -0800
-From: Markus Gutschke <markus@google.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Debian/1.7.12-0ubuntu05.04
-X-Accept-Language: en
+	Thu, 23 Feb 2006 19:03:57 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:17032 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932155AbWBXAD4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 19:03:56 -0500
+Message-ID: <43FE4DB5.5050904@ce.jp.nec.com>
+Date: Thu, 23 Feb 2006 19:05:09 -0500
+From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: torvalds@g5.osdl.org
-Subject: ptrace.c change in 2.6.15 (?) breaks code for listing threads
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: device-mapper development <dm-devel@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] dm missing bdput/thaw_bdev at removal
+Content-Type: multipart/mixed;
+ boundary="------------010607050004060606030302"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was recently informed by a user of google-perftools.sf.net, that 
-current Linux kernels no longer allow perftools (and related code, such 
-as goog-coredumper.sf.net) to list threads in a running application.
+This is a multi-part message in MIME format.
+--------------010607050004060606030302
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 
-I tracked the problem down to this changelist:
+Hello,
 
---- 5b8dd98a230e442c1ec46adc968acb60dfdb74ae
-+++ b88d4186cd7ac2733c3adf231d5b4daa4e14b0a9
-@@ -155,7 +155,7 @@ int ptrace_attach(struct task_struct *ta
-  	retval = -EPERM;
-  	if (task->pid <= 1)
-  		goto bad;
--	if (task == current)
-+	if (task->tgid == current->tgid)
-  		goto bad;
-  	/* the same process cannot be attached many times */
-  	if (task->ptrace & PT_PTRACED)
+The following script stalls at the 2nd suspend.
+It's because bdput() isn't called for the suspended_bdev.
 
-I believe, if I interpret the data on kernel.org correctly, this change 
-was made by Linus and shipped with 2.6.15.
+So the inode with bd_mount_sem held is just reused
+in the next mapped_device device.
+Then dm_suspend will try to freeze_bdev and wait forever.
 
-Both perftools and coredumper need to locate all threads in the active 
-application in order to work. As libpthread has had changing and poorly 
-documented APIs to get this information, and as our intent is to support 
-all kernel versions and all libc versions, we resorted to ptracing any 
-process that is suspected to be one of our threads in order to determine 
-if it actually is. This has the added benefit of finding *all* threads 
-(including ones not managed by libpthread) and of temporarily suspending 
-them, so that we have a stable memory image that we can inspect. Think 
-of both tools as something like a lightweight in-process debugger.
+Attached patch fixes this problem.
 
-Obviously, special care has to be taken to not ptrace our own thread, 
-and to avoid any library calls that could deadlock.
+------------------------------------------------------------
+#!/bin/sh -x
 
-Before the patch, attaching ptrace to my own threads was a valid 
-operation. With this new patch, I can no longer do that.
+map=a
+while true; do
+  dmsetup create $map --notable
+  dmsetup suspend $map
+  dmsetup remove $map
+done
+------------------------------------------------------------
 
-I'd be happy to consider alternative approaches (which might be cleaner, 
-anyway) to list and suspend all of the threads in my application. But 
-before I do that I would like to ask if there is any chance the 
-restrictions imposed with this patch could be lifted. It would certainly 
-make my life easier if Linux continued to allow processes to ptrace 
-themselves -- as far as I have been able to test it, this feature has 
-been working ever since Linux first supported threads and only broke 
-very recently.
+-- 
+Jun'ichi Nomura, NEC Solutions (America), Inc.
 
+--------------010607050004060606030302
+Content-Type: text/x-patch;
+ name="dm-missing-bdput.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="dm-missing-bdput.patch"
 
-Markus
+Need to unfreeze and release bdev
+otherwise the bdev inode with inconsistent state is reused later
+and cause problem.
 
-P.S.: I usually read LKML as archived on the web, so please cc me on any 
-responses, if you want me to see your answer quickly. Thanks.
+Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
 
+--- linux-2.6.15.orig/drivers/md/dm.c	2006-02-23 18:28:23.000000000 -0500
++++ linux-2.6.15/drivers/md/dm.c	2006-02-23 18:29:04.000000000 -0500
+@@ -812,6 +812,10 @@ static struct mapped_device *alloc_dev(u
+ 
+ static void free_dev(struct mapped_device *md)
+ {
++	if (md->suspended_bdev) {
++		thaw_bdev(md->suspended_bdev, NULL);
++		bdput(md->suspended_bdev);
++	}
+ 	free_minor(md->disk->first_minor);
+ 	mempool_destroy(md->tio_pool);
+ 	mempool_destroy(md->io_pool);
+
+--------------010607050004060606030302--

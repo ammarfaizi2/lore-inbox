@@ -1,35 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWBXQtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWBXQtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932298AbWBXQtE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 11:49:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbWBXQtE
+	id S932292AbWBXQtT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 11:49:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWBXQtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 11:49:04 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:39832 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S932376AbWBXQtC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 11:49:02 -0500
-Date: Fri, 24 Feb 2006 09:49:01 -0700
-From: Matthew Wilcox <matthew@wil.cx>
+	Fri, 24 Feb 2006 11:49:19 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:12963 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S932292AbWBXQtR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 11:49:17 -0500
+Date: Fri, 24 Feb 2006 11:44:15 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
 To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Missing piece from as659
-Message-ID: <20060224164901.GQ28587@parisc-linux.org>
+Cc: Andrew Morton <akpm@osdl.org>, sekharan@us.ibm.com,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Avoid calling down_read and down_write during startup
+Message-ID: <20060224164415.GA7999@kvack.org>
+References: <20060224151510.GC7101@kvack.org> <Pine.LNX.4.44L0.0602241135450.5177-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.44L0.0602241135450.5177-100000@iolanthe.rowland.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 24, 2006 at 11:44:23AM -0500, Alan Stern wrote:
+> In that case you should be worried not about acquiring and releasing the 
+> rwsem at the beginning and end of blocking_notifier_call_chain; you should 
+> be worried about all the RCU serialization in the core 
+> notifier_call_chain routine.
 
-Alan, you didn't cc the pci mailing list on the original patch.
-http://www.ussg.iu.edu/hypermail/linux/kernel/0602.2/2673.html
+RCU doesn't synchronize readers.
 
-You only fix pci_get_subsys; pci_get_class has the same bug.
+> The atomic chains are a different matter.  The ones that don't run in NMI 
+> context could use an rw-spinlock for protection, allowing them also to 
+> avoid memory barriers while going through the list.  The notifier chains 
+> that do run in NMI don't have this luxury.  Fortunately I don't think 
+> there are very many of them.
 
-If it is a bug, of course.  It's not clear to me whether it's permissible
-to call pci_dev_put under a spinlock or not.  That boils down to whether
-kobject ->release methods can sleep or not.  That isn't documented in
-Documentation/kobject.txt and I rather think it should be.
+A read lock is a memory barrier.  That's why I'm opposed to using non-rcu 
+style locking for them.
+
+		-ben
+-- 
+"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
+and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.

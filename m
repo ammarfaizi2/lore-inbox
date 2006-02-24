@@ -1,35 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWBXMva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWBXMzK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbWBXMva (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 07:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWBXMva
+	id S1750819AbWBXMzK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 07:55:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWBXMzK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 07:51:30 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:4793 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750816AbWBXMv3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 07:51:29 -0500
-Date: Fri, 24 Feb 2006 04:50:44 -0800
-From: Andrew Morton <akpm@osdl.org>
+	Fri, 24 Feb 2006 07:55:10 -0500
+Received: from silver.veritas.com ([143.127.12.111]:37235 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1750819AbWBXMzJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 07:55:09 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="4.02,143,1139212800"; 
+   d="scan'208"; a="34870394:sNHT24168216"
+Date: Fri, 24 Feb 2006 12:55:39 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andi Kleen <ak@suse.de>
-Cc: dilinger@debian.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86_64 stack trace cleanup
-Message-Id: <20060224045044.07fc5921.akpm@osdl.org>
-In-Reply-To: <200602241147.03041.ak@suse.de>
-References: <1140777679.5073.17.camel@localhost.localdomain>
-	<200602241147.03041.ak@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Arjan van de Ven <arjan@intel.linux.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [Patch 3/3] prepopulate/cache cleared pages
+In-Reply-To: <200602241333.16190.ak@suse.de>
+Message-ID: <Pine.LNX.4.61.0602241252010.17767@goblin.wat.veritas.com>
+References: <1140686238.2972.30.camel@laptopd505.fenrus.org>
+ <20060224064912.GB7243@elte.hu> <43FEAF52.80705@yahoo.com.au>
+ <200602241333.16190.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 24 Feb 2006 12:55:08.0310 (UTC) FILETIME=[8A54AB60:01C63941]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> I can offer you a deal though: if you fix VGA scrollback to have
->  at least 1000 lines by default we can change the oops formatting too.
+On Fri, 24 Feb 2006, Andi Kleen wrote:
+> On Friday 24 February 2006 08:01, Nick Piggin wrote:
+> > 
+> > Yeah, as I said above, the newly allocated page is fine, it is the
+> > page table pages I'm worried about.
+> 
+> page tables are easy because we zero them on free (as a side effect
+> of all the pte_clears)
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc4/2.6.16-rc4-mm2/broken-out/vgacon-add-support-for-soft-scrollback.patch
+But once the page table is freed, it's likely to get used for something
+else, whether for another page table or something different doesn't 
+matter: this mm can no longer blindly mess with the entries within in.
 
-Problem is, scrollback doesn't work after panic().  I don't know why..
+Nick's point is that it's mmap_sem (or mm_users 0) guarding against
+the page table being freed.
+
+Hugh

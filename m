@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWBXAQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWBXARY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932210AbWBXAQw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 19:16:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWBXAQw
+	id S932216AbWBXARY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 19:17:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWBXARY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 19:16:52 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:41346 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932210AbWBXAQv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 19:16:51 -0500
-Date: Thu, 23 Feb 2006 16:19:51 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: Jonas Bofjall <jonas@gazonk.org>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: [stable] reiserfs problem with 2.6.15.[234]
-Message-ID: <20060224001951.GT3883@sorel.sous-sol.org>
-References: <Pine.LNX.4.58.0602240105590.14689@gazonk.org>
+	Thu, 23 Feb 2006 19:17:24 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:14979 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932216AbWBXARW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 19:17:22 -0500
+Date: Thu, 23 Feb 2006 16:16:31 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: stern@rowland.harvard.edu, sekharan@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Avoid calling down_read and down_write during startup
+Message-Id: <20060223161631.6f8fa41d.akpm@osdl.org>
+In-Reply-To: <20060223223729.GE30329@kvack.org>
+References: <20060223110350.49c8b869.akpm@osdl.org>
+	<Pine.LNX.4.44L0.0602231728300.4579-100000@iolanthe.rowland.org>
+	<20060223223729.GE30329@kvack.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0602240105590.14689@gazonk.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jonas Bofjall (jonas@gazonk.org) wrote:
-> The fix that enables the ReiserFS mount options causes my machine (whose
-> root filesystem is on reiserfs) to instantly reboot. No idea why, I
-> suspect some mount option enabled by default causes problems, but other
-> machines with similar configurations seems unaffected.
+Benjamin LaHaise <bcrl@kvack.org> wrote:
+>
+> On Thu, Feb 23, 2006 at 05:36:56PM -0500, Alan Stern wrote:
+>  > This patch (as660) changes the registration and unregistration routines 
+>  > for blocking notifier chains.  During system startup, when task switching 
+>  > is illegal, the routines will avoid calling down_write().
 > 
-> I'll take my problem to the reiserfs list, I just wanted to give you an
-> indication that even that oh-so-simple-bugfix can cause trouble.
+>  Why is that necessary?  The down_write() will immediately succeed as no 
+>  other process can possibly be holding the lock when the system is booting, 
+>  so the special casing doesn't fix anything.
 
-Thanks for the note.  It's known, and fixed for next -stable release
-(and already fixed in Linus' tree).
-
-thanks,
--chris
+down_write() unconditionally (and reasonably) does local_irq_enable() in
+the uncontended case.  And enabling local interrupts early in boot can
+cause crashes.

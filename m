@@ -1,57 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWBXQFD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbWBXQIV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750757AbWBXQFD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 11:05:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbWBXQFD
+	id S1751039AbWBXQIV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 11:08:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbWBXQIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 11:05:03 -0500
-Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:9669 "EHLO
-	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1750757AbWBXQFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 11:05:01 -0500
+	Fri, 24 Feb 2006 11:08:20 -0500
+Received: from ppsw-7.csi.cam.ac.uk ([131.111.8.137]:19918 "EHLO
+	ppsw-7.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751025AbWBXQIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 11:08:20 -0500
 X-Cam-SpamDetails: Not scanned
 X-Cam-AntiVirus: No virus found
 X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Fri, 24 Feb 2006 16:04:38 +0000 (GMT)
+Date: Fri, 24 Feb 2006 16:08:10 +0000 (GMT)
 From: Anton Altaparmakov <aia21@cam.ac.uk>
 To: Linus Torvalds <torvalds@osdl.org>
 cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: [2.6-git] NTFS: Release 2.1.26
-Message-ID: <Pine.LNX.4.64.0602241559150.2136@hermes-2.csi.cam.ac.uk>
+Subject: [PATCH 2/5] NTFS: We have struct kmem_cache now so use it instead
+ of the typedef.
+In-Reply-To: <Pine.LNX.4.64.0602241605210.2136@hermes-2.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.64.0602241607280.2136@hermes-2.csi.cam.ac.uk>
+References: <Pine.LNX.4.64.0602241559150.2136@hermes-2.csi.cam.ac.uk>
+ <Pine.LNX.4.64.0602241605210.2136@hermes-2.csi.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, please pull from
+NTFS: We have struct kmem_cache now so use it instead of the typedef.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/aia21/ntfs-2.6.git
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
-This is the next NTFS update containing some minor bugfixes and support 
-for larger sector sizes (encountered on a 6TiB RAID array) and for invalid 
-flags in the attribute list attribute of the $Secure system file 
-(encountered on a Windows XP laptop).
+---
 
-Please apply.  Thanks!
+ fs/ntfs/ntfs.h  |   10 +++++-----
+ fs/ntfs/super.c |   12 ++++++------
+ 2 files changed, 11 insertions(+), 11 deletions(-)
 
-Diffstat:
-
- Documentation/filesystems/ntfs.txt |    6 +
- fs/ntfs/ChangeLog                  |   36 ++++--
- fs/ntfs/Makefile                   |    2
- fs/ntfs/aops.c                     |   18 +--
- fs/ntfs/file.c                     |   11 --
- fs/ntfs/inode.c                    |   49 +++++++--
- fs/ntfs/layout.h                   |   26 +++-
- fs/ntfs/mft.c                      |    8 -
- fs/ntfs/ntfs.h                     |   10 -
- fs/ntfs/super.c                    |  201 ++++++++++++++++++++++++-------------
- fs/ntfs/upcase.c                   |   10 -
- fs/ntfs/volume.h                   |   29 ++---
- 12 files changed, 263 insertions(+), 143 deletions(-)
-
-I am sending the changesets as actual patches generated using git
-format-patch for non-git users in follow up emails (in reply to this one).
+64419d93a5906600af5817ad0cae3c6ecf7fb389
+diff --git a/fs/ntfs/ntfs.h b/fs/ntfs/ntfs.h
+index 446b501..653d2a5 100644
+--- a/fs/ntfs/ntfs.h
++++ b/fs/ntfs/ntfs.h
+@@ -50,11 +50,11 @@ typedef enum {
+ /* Global variables. */
+ 
+ /* Slab caches (from super.c). */
+-extern kmem_cache_t *ntfs_name_cache;
+-extern kmem_cache_t *ntfs_inode_cache;
+-extern kmem_cache_t *ntfs_big_inode_cache;
+-extern kmem_cache_t *ntfs_attr_ctx_cache;
+-extern kmem_cache_t *ntfs_index_ctx_cache;
++extern struct kmem_cache *ntfs_name_cache;
++extern struct kmem_cache *ntfs_inode_cache;
++extern struct kmem_cache *ntfs_big_inode_cache;
++extern struct kmem_cache *ntfs_attr_ctx_cache;
++extern struct kmem_cache *ntfs_index_ctx_cache;
+ 
+ /* The various operations structs defined throughout the driver files. */
+ extern struct address_space_operations ntfs_aops;
+diff --git a/fs/ntfs/super.c b/fs/ntfs/super.c
+index c3a3f1a..e9c0d80 100644
+--- a/fs/ntfs/super.c
++++ b/fs/ntfs/super.c
+@@ -2987,14 +2987,14 @@ err_out_now:
+  * strings of the maximum length allowed by NTFS, which is NTFS_MAX_NAME_LEN
+  * (255) Unicode characters + a terminating NULL Unicode character.
+  */
+-kmem_cache_t *ntfs_name_cache;
++struct kmem_cache *ntfs_name_cache;
+ 
+ /* Slab caches for efficient allocation/deallocation of inodes. */
+-kmem_cache_t *ntfs_inode_cache;
+-kmem_cache_t *ntfs_big_inode_cache;
++struct kmem_cache *ntfs_inode_cache;
++struct kmem_cache *ntfs_big_inode_cache;
+ 
+ /* Init once constructor for the inode slab cache. */
+-static void ntfs_big_inode_init_once(void *foo, kmem_cache_t *cachep,
++static void ntfs_big_inode_init_once(void *foo, struct kmem_cache *cachep,
+ 		unsigned long flags)
+ {
+ 	ntfs_inode *ni = (ntfs_inode *)foo;
+@@ -3008,8 +3008,8 @@ static void ntfs_big_inode_init_once(voi
+  * Slab caches to optimize allocations and deallocations of attribute search
+  * contexts and index contexts, respectively.
+  */
+-kmem_cache_t *ntfs_attr_ctx_cache;
+-kmem_cache_t *ntfs_index_ctx_cache;
++struct kmem_cache *ntfs_attr_ctx_cache;
++struct kmem_cache *ntfs_index_ctx_cache;
+ 
+ /* Driver wide semaphore. */
+ DECLARE_MUTEX(ntfs_lock);
+-- 
+1.2.3.g9821
 
 Best regards,
 

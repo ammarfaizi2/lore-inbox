@@ -1,57 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWBXQoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWBXQsr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932072AbWBXQoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 11:44:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbWBXQoZ
+	id S932221AbWBXQsr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 11:48:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWBXQsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 11:44:25 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:10965 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932072AbWBXQoZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 11:44:25 -0500
-Date: Fri, 24 Feb 2006 11:44:23 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Benjamin LaHaise <bcrl@kvack.org>
-cc: Andrew Morton <akpm@osdl.org>, <sekharan@us.ibm.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Avoid calling down_read and down_write during startup
-In-Reply-To: <20060224151510.GC7101@kvack.org>
-Message-ID: <Pine.LNX.4.44L0.0602241135450.5177-100000@iolanthe.rowland.org>
+	Fri, 24 Feb 2006 11:48:47 -0500
+Received: from ns1.suse.de ([195.135.220.2]:3976 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932221AbWBXQsr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 11:48:47 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: Patch to reorder functions in the vmlinux to a defined order
+Date: Fri, 24 Feb 2006 17:48:38 +0100
+User-Agent: KMail/1.9.1
+Cc: Rene Herman <rene.herman@keyaccess.nl>, Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, mingo@elte.hu
+References: <1140700758.4672.51.camel@laptopd505.fenrus.org> <43FF26A8.9070600@keyaccess.nl> <m17j7kda52.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m17j7kda52.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602241748.39949.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Feb 2006, Benjamin LaHaise wrote:
-
-> On Fri, Feb 24, 2006 at 10:04:23AM -0500, Alan Stern wrote:
-> > What do you think of the two suggestions in my previous message?
+On Friday 24 February 2006 16:55, Eric W. Biederman wrote:
+> there, and... more invasiveness?
 > 
-> Even if the read version of the lock only touches a cacheline local to 
-> the cpu, you'd still have to use the lock prefix to allow for correctness 
-> when a writer comes along.  It is not cacheline bouncing that worries me, 
-> it is serialising instructions and memory barriers as those hurt immensely 
-> when the data is in the cache.  I've been looking at a lot of profiles on 
-> P4s of late, and every single locked instruction is painful as it means 
-> all of the memory ordering rules come into play.  Neither suggestion 
-> addresses that overhead that has been introduced.
+> __pa stops working on kernel addresses.
 
-In that case you should be worried not about acquiring and releasing the 
-rwsem at the beginning and end of blocking_notifier_call_chain; you should 
-be worried about all the RCU serialization in the core 
-notifier_call_chain routine.
+x86-64 always had this problem and it's not very hard to handle with a simple ?:
 
-In fact, that could be changed for blocking notifier chains.  Since we own 
-the readlock, we know that the list won't get changed while we're using 
-it.  So the blocking version of the call-chain routine could avoid using 
-the RCU dereferencing mechanism.
-
-The atomic chains are a different matter.  The ones that don't run in NMI 
-context could use an rw-spinlock for protection, allowing them also to 
-avoid memory barriers while going through the list.  The notifier chains 
-that do run in NMI don't have this luxury.  Fortunately I don't think 
-there are very many of them.
-
-Alan Stern
-
+-Andi

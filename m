@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbWBXNx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbWBXOFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751036AbWBXNx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 08:53:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbWBXNx6
+	id S1751046AbWBXOFb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 09:05:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbWBXOFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 08:53:58 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:37514 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751034AbWBXNx6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 08:53:58 -0500
-Message-ID: <43FF0FE5.8040300@linux.intel.com>
-Date: Fri, 24 Feb 2006 14:53:41 +0100
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Patch to make the head.S-must-be-first-in-vmlinux order explicit
-References: <1140700758.4672.51.camel@laptopd505.fenrus.org>	<200602231442.19903.ak@suse.de> <43FDBF55.3060502@linux.intel.com>	<200602231514.03001.ak@suse.de> <m11wxs50ki.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m11wxs50ki.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Feb 2006 09:05:31 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:63939 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S1750881AbWBXOFb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 09:05:31 -0500
+Date: Fri, 24 Feb 2006 07:05:26 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: aziro aziroff <aziro.linux.adm@gmail.com>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [JNI FCE-3210-C 32-bit PCI-to-Fibre Channel HBA]Driver for linux kernel 2.4 and/or 2.6?
+Message-ID: <20060224140526.GM28587@parisc-linux.org>
+References: <f30adcc00602240157w7104c598qe7fffa2dcbee6105@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f30adcc00602240157w7104c598qe7fffa2dcbee6105@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> Andi Kleen <ak@suse.de> writes:
+On Fri, Feb 24, 2006 at 11:57:45AM +0200, aziro aziroff wrote:
+> I looking for linux driver for one old JNI Fibre Channel (FC) host bus adapter
+> model: FCE-3210 "32-bit" PCI-to-Fibre Channel HBA (1999/2000).
+> I ask google and nothing about driver donload link, just comment and
+> broken links:)
+> http://www.exquip.com/products/storage/hostbusadapters.php?view=250
 > 
->> On Thursday 23 February 2006 14:57, Arjan van de Ven wrote:
->>
->>>> (or at least
->>>> it shouldn't), but arch/x86_64/boot/compressed/head.S
->>>> seems to have the entry address hardcoded. Perhaps you can just change this
->>>> to pass in the right address?
->>> the issue is that the address will be a link time thing, which means 
->>> lots of complexity.
->> bzImage image should be only generated after vmlinux is done 
->> and then the address should be available with a simple grep in System.map
-> 
-> Andi it is more than that.  At least it was last I payed attention.
-> There are symbols like stext that various things depend on being early,
-> at least last time I looked.  So while it is doable it requires some
-> careful looking.
+> I read that Red Hat Linux 6.0, 6.1 support JNI FCE-3210, but no
+> information about kernels 2.4 and 2.6?!
 
-_stext and such are very easy. That is actually not a real variable just 
-a linker script thing, and since the reordering works on the linker 
-script level that's already taken care of ;-)
-
-I've looked some yesterday at generating this at runtime, and haven't 
-found a clean enough solution yet (esp one that doesn't break kdump); 
-I'll keep poking at it for a bit more though....
+You're out of luck; it seems JNI never published source code, only a
+binary module for ancient versions of Red Hat.  I suggest you get a
+Qlogic, Emulex or LSI FC card instead as all three drivers are actively
+supported by their respective hardware vendor.

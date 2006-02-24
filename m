@@ -1,107 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932635AbWBXXBR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932638AbWBXXO7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932635AbWBXXBR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 18:01:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932636AbWBXXBR
+	id S932638AbWBXXO7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 18:14:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932640AbWBXXO7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 18:01:17 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:27285 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S932635AbWBXXBQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 18:01:16 -0500
-Date: Sat, 25 Feb 2006 00:01:15 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Kirill Korotaev <dev@sw.ru>, Linus Torvalds <torvalds@osdl.org>,
-       Rik van Riel <riel@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       devel@openvz.org, Andrey Savochkin <saw@sawoct.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Stanislav Protassov <st@sw.ru>,
-       serue@us.ibm.com, frankeh@watson.ibm.com, clg@fr.ibm.com,
-       haveblue@us.ibm.com, mrmacman_g4@mac.com, alan@lxorguk.ukuu.org.uk,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Which of the virtualization approaches is more suitable for kernel?
-Message-ID: <20060224230114.GA12575@MAIL.13thfloor.at>
-Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
-	Kirill Korotaev <dev@sw.ru>, Linus Torvalds <torvalds@osdl.org>,
-	Rik van Riel <riel@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	devel@openvz.org, Andrey Savochkin <saw@sawoct.com>,
-	Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-	Stanislav Protassov <st@sw.ru>, serue@us.ibm.com,
-	frankeh@watson.ibm.com, clg@fr.ibm.com, haveblue@us.ibm.com,
-	mrmacman_g4@mac.com, alan@lxorguk.ukuu.org.uk,
-	Andrew Morton <akpm@osdl.org>
-References: <43F9E411.1060305@sw.ru> <m1oe0wbfed.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1oe0wbfed.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.6i
+	Fri, 24 Feb 2006 18:14:59 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:31899 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S932638AbWBXXO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 18:14:58 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Date: Sat, 25 Feb 2006 09:11:49 +1000
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dtor_core@ameritech.net>,
+       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
+       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060224131206.GB1717@elf.ucw.cz> <200602242122.53763.rjw@sisk.pl>
+In-Reply-To: <200602242122.53763.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1308693.kVXBhGNn0U";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200602250911.54850.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 24, 2006 at 02:44:42PM -0700, Eric W. Biederman wrote:
-> Kirill Korotaev <dev@sw.ru> writes:
-> 
-> > Linus, Andrew,
+--nextPart1308693.kVXBhGNn0U
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+Hi.
+
+On Saturday 25 February 2006 06:22, Rafael J. Wysocki wrote:
+> On Friday 24 February 2006 14:12, Pavel Machek wrote:
+> > On P=E1 24-02-06 11:58:07, Rafael J. Wysocki wrote:
+> > > On Friday 24 February 2006 00:44, Pavel Machek wrote:
+> > > > > > > > [Because pagecache is freeable, anyway, so it will be freed.
+> > > > > > > > Now... I have seen some problems where free_some_memory did
+> > > > > > > > not free enough, and schedule()/retry helped a bit... that
+> > > > > > > > probably should be fixed.]
+> > > > > > >
+> > > > > > > It seems I need to understand correctly what the difference
+> > > > > > > between what we do and what Nigel does is.  I thought the
+> > > > > > > Nigel's approach was to save some cache pages to disk first a=
+nd
+> > > > > > > use the memory occupied by them to store the image data.  If
+> > > > > > > so, is the page cache involved in that or something else?
+> > > > > >
+> > > > > > I believe Nigel only saves pages that could have been freed
+> > > > > > anyway during phase1. Nigel, correct me here... suspend2 should
+> > > > > > work on same class of machines swsusp can, but will be able to
+> > > > > > save caches on machines where swsusp can not save any.
+> > > > >
+> > > > > I'm not used to thinking in these terms :). It would be normally =
+be
+> > > > > right, except that there will be some LRU pages that will never be
+> > > > > freed. These would allow suspend2 to work in some (not many) cases
+> > > > > where swsusp can't. It's been ages since I did the intensive
+> > > > > testing on the image preparation code, but I think that if we free
+> > > > > as much memory as we can, we will always still have at least a few
+> > > > > hundred LRU pages left. That's not much, but on machines with less
+> > > > > ram, it might make the difference in a greater percentage of cases
+> > > > > (compared to machines with more ram)?
+> > > >
+> > > > Well, pages in LRU should be user pages, and therefore freeable,
+> > > > AFAICT. It is possible that there's something wrong with freeing in
+> > > > swsusp1...
+> > >
+> > > Well, if all of the pages that Nigel saves before snapshot are freeab=
+le
+> > > in theory, there evidently is something wrong with freeing in swsusp,
+> > > as we have a testcase in which the user was unable to suspend with
+> > > swsusp due to the lack of memory and could suspend with suspend2.
+> > >
+> > > However, the only thing in swsusp_shrink_memory() that may be wrong
+> > > is we return -ENOMEM as soon as shrink_all_memory() returns 0.
+> > > Namely, if shrink_all_memory() can return 0 prematurely (ie. "there
+> > > still are some freeable pages, but they could not be freed in _this_
+> > > call"), we should continue until it returns 0 twice in a row (or
+> > > something like that).  If this doesn't help, we'll have to fix
+> > > shrink_all_memory() I'm afraid.
 > >
-> > We need your help on what virtualization approach you would accept
-> > to mainstream (if any) and where we should go.
-> >
-> > If to drop VPID virtualization which caused many disputes, we
-> > actually have the one virtualization solution, but 2 approaches for
-> > it. Which one will go depends on the goals and your approval any
-> > way.
-> 
-> My apologies for not replying sooner.
-> 
-> > From the looks of previous replies I think we have some valid
-> > commonalities that we can focus on.
-> 
-> Largely we all agree that to applications things should look exactly
-> as they do now. Currently we do not agree on management interfaces.
+> > I did try shrink_all_memory() five times, with .5 second delay between
+> > them, and it freed more memory at later tries.
 >
-> We seem to have much more agreement on everything except pids, so
-> discussing some of the other pieces looks worth while.
-> 
-> So I propose we the patches to solve the problem into three categories.
-> - General cleanups that simplify or fix problems now, but have
->   a major advantage for our work.
-> - The kernel internal implementation of the various namespaces
->   without an interface to create new ones.
-> - The new interfaces for how we create and control containers/namespaces.
+> I wonder if the delays are essential or if so, whether they may be shorter
+> than .5 sec.
+>
+> > Sometimes it even freed 0 pages at the first try.
+> >
+> > I did not push the patch because
+> >
+> > 1) it was way too ugly
+>
+> I think I can do something like that in swsusp_shrink_memory() and it
+> won't be very ugly.
+>
+> > 2) shrink_all_memory() should be fixed. It should not really return if
+> > there are more pages freeable.
+>
+> Well, that would be a long-run solution.  However, until it's fixed we can
+> use a workaround IMHO. ;-)
 
-proposal accepted on my side
+Isn't trying to free as much memory as you can the wrong solution anyway? I=
+=20
+mean, that only means that the poor system has more pages to fault back in =
+at=20
+resume time, before the user can even begin to think about doing anything=20
+useful. You might be able to say "Every machine that suspend2 works on,=20
+swsusp works on", but the later will be a pretty sad definition of works!
 
-> This should allow the various approach to start sharing code, getting
-> progressively closer to each other until we have an implementation we
-> can agree is ready to go into Linus's kernel. Plus that will allow us
-> to have our technical flame wars without totally stopping progress.
-> 
-> We can start on a broad front, looking at several different things.
-> But I suggest the first thing we all look at is SYSVIPC. It is
-> currently a clearly recognized namespace in the kernel so the scope is
-> well defined. SYSVIPC is just complicated enough to have a non-trivial
-> implementation while at the same time being simple enough that we can
-> go through the code in exhausting detail. Getting the group dynamics
-> working properly.
+Regards,
 
-okay, sounds good ...
+Nigel
 
-> Then we can as a group look at networking, pids, and the other pieces.
-> 
-> But I do think it is important that we take the problem in pieces
-> because otherwise it is simply to large to review properly.
+--nextPart1308693.kVXBhGNn0U
+Content-Type: application/pgp-signature
 
-definitely
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-best,
-Herbert
+iD8DBQBD/5K6N0y+n1M3mo0RAl3TAJ9f+Zm2dPvlqD9opoCXLoehjIZ82ACeM8hj
++yVKfy1+I6/ZdOyxWxK8ryk=
+=Cc9y
+-----END PGP SIGNATURE-----
 
-> Eric
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--nextPart1308693.kVXBhGNn0U--

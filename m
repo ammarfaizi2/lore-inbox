@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWBXXcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWBXXeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbWBXXcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 18:32:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWBXXcZ
+	id S964797AbWBXXeu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 18:34:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbWBXXeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 18:32:25 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:49903 "EHLO
-	pd5mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S964782AbWBXXcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 18:32:24 -0500
-Date: Fri, 24 Feb 2006 17:31:20 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Drastic Slowdown of 'fseek()' Calls From 2.4 to 2.6 -- VMM Change?
-In-reply-to: <5JRJO-6Al-7@gated-at.bofh.it>
-To: Marr <marr@flex.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <43FF9748.9010603@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <5JRJO-6Al-7@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Fri, 24 Feb 2006 18:34:50 -0500
+Received: from mail.gurulabs.com ([67.137.148.7]:57835 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S964784AbWBXXet (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 18:34:49 -0500
+Subject: Re: [Announce] Intel PRO/Wireless 3945ABG Network Connection
+From: Dax Kelson <dax@gurulabs.com>
+To: James Ketrenos <jketreno@linux.intel.com>
+Cc: NetDev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <43FF88E6.6020603@linux.intel.com>
+References: <43FF88E6.6020603@linux.intel.com>
+Content-Type: text/plain
+Date: Fri, 24 Feb 2006 16:34:50 -0700
+Message-Id: <1140824090.3475.56.camel@mentorng.gurulabs.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marr wrote:
-> Clearly, the 2.4.31 results are speedy because the whole 4MB file has been 
-> cached.
+On Fri, 2006-02-24 at 16:29 -0600, James Ketrenos wrote:
+> Intel is pleased to announce the launch of an open source project to
+> support the Intel PRO/Wireless 3945ABG Network Connection mini-PCI
+> express adapter (IPW3945).
 
-I don't think this is clear at all. The entire file should always be 
-cached, not doing this would be insane.
+Cool!
 
-> What I cannot figure out is this: what has changed in 2.6.x kernels to cause 
-> the performance to degrade so drastically?!?
+>   In order to meet the requirements of all
+> geographies into which our adapters ship (over 100 countries) we have
+> placed the regulatory enforcement logic into a user space daemon that
+> we provide as a binary under the same license agreement as the
+> microcode.  We provide that binary pre-compiled as both a 32-bit and
+> 64-bit application.  The daemon utilizes a sysfs interface exposed by
+> the driver in order to communicate with the hardware and configure the
+> required regulatory parameters.
 
-fseek() is a C library call, not a system call itself - there may be 
-something that glibc is doing differently. Are you using the same glibc 
-version with both kernels?
+It was exciting to watch the "centrino" wireless cards go from the least
+supported cards in the Linux to the near the best G and A cards from a
+feature and licensing stand point (modulo the firmware restart issues).
 
-Just from this program it could be something else entirely that explains 
-the difference in speed, like the random number generator..
+I have a ipw2200 and have recommended it and now the ipw2915 to anyone
+who has asked (myself and ipw2xxx using co-workers have taught thousands
+of students and decision makers in Linux classes worldwide).
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+It is very disappointing to see this binary user space daemon (that must
+run as root, presumably to write into /sys/) requirement. I recognize
+that it is a better poison than a binary kernel module.
+
+At the point when I'm in the market for a mini-PCI express wireless
+adapter I hope there are other cards available that don't require any
+kernel or userland binary pieces. I'll vote with my wallet so to speak.
+
+Dax Kelson
+Guru Labs
 

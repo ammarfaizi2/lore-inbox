@@ -1,50 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932497AbWBXWdA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932624AbWBXWnm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932497AbWBXWdA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 17:33:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932500AbWBXWdA
+	id S932624AbWBXWnm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 17:43:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932625AbWBXWnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 17:33:00 -0500
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:44252 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S932497AbWBXWc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 17:32:59 -0500
-From: Grant Coady <gcoady@gmail.com>
-To: Bryan Fink <bfink@eventmonitor.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel@vger.kernel.org
-Subject: Re: NFS Still broken in 2.6.x?
-Date: Sat, 25 Feb 2006 09:32:50 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <l32vv1pfjr5n9eeuouqu7n23r7lu4p1njn@4ax.com>
-References: <43FE1CAD.3050806@eventmonitor.com>	<1140734824.7963.38.camel@lade.trondhjem.org> <20060224041435.733b4f0d.akpm@osdl.org> <43FF31E4.2000705@eventmonitor.com>
-In-Reply-To: <43FF31E4.2000705@eventmonitor.com>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 24 Feb 2006 17:43:42 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:21030 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S932624AbWBXWnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 17:43:42 -0500
+In-Reply-To: <200602250927.36954.michael@ellerman.id.au>
+References: <Pine.LNX.4.44.0602241054090.2981-100000@gate.crashing.org> <200602250927.36954.michael@ellerman.id.au>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+X-Gpgmail-State: !signed
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <815A460C-BAB0-4770-8357-68136D31EDC3@kernel.crashing.org>
+Cc: linuxppc-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [PATCH] powerpc: Fix mem= cmdline handling on arch/powerpc for !MULTIPLATFORM
+Date: Fri, 24 Feb 2006 16:43:50 -0600
+To: michael@ellerman.id.au
+X-Mailer: Apple Mail (2.746.2)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Feb 2006 11:18:44 -0500, Bryan Fink <bfink@eventmonitor.com> wrote:
 
->Hi again. I just found some new, very interesting information. Until 
->just a few minutes ago, I hadn't realized that one could change the I/O 
->scheduler at runtime. Looking into it, my system was using "cfq", and I 
->have three other options, "noop", "anticipatory", and "deadline". I've 
->now run tests using all three of the other schedulers, and they all 
->bring performance back up to the level I had with kernel 2.4. So, either 
->NFS is incompatible with cfq, or cfq has some issues that show very 
->vividly when used with NFS (or, I suppose, I just have my system tuned 
->wrong for use with cfq).
+On Feb 24, 2006, at 4:27 PM, Michael Ellerman wrote:
 
-I run NFS for ages -- all linux boxen here mount a shared export from 
-localnet controller box to get source + patches.
+> Hi Kumar,
+>
+> On Sat, 25 Feb 2006 03:54, Kumar Gala wrote:
+>> mem= command line option was being ignored in arch/powerpc if we  
+>> were not
+>> a CONFIG_MULTIPLATFORM (which is handled via prom_init stub). The  
+>> initial
+>> command line extraction and parsing needed to be moved earlier in  
+>> the boot
+>> process and have code to actual parse mem= and do something about it.
+>
+>> @@ -1004,6 +991,41 @@ static int __init early_init_dt_scan_cho
+>>                 crashk_res.end = crashk_res.start + *lprop - 1;
+>>  #endif
+>>
+>> +	/* Retreive command line */
+>> + 	p = of_get_flat_dt_prop(node, "bootargs", &l);
+>> +	if (p != NULL && l > 0)
+>> +		strlcpy(cmd_line, p, min((int)l, COMMAND_LINE_SIZE));
+>> +
+>> +#ifdef CONFIG_CMDLINE
+>> +	if (l == 0 || (l == 1 && (*p) == 0))
+>> +		strlcpy(cmd_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
+>> +#endif /* CONFIG_CMDLINE */
+>> +
+>> +	DBG("Command line is: %s\n", cmd_line);
+>> +
+>> +	if (strstr(cmd_line, "mem=")) {
+>> +		char *p, *q;
+>> +		unsigned long maxmem = 0;
+>> +
+>> +		for (q = cmd_line; (p = strstr(q, "mem=")) != 0; ) {
+>> +			q = p + 4;
+>> +			if (p > cmd_line && p[-1] != ' ')
+>> +				continue;
+>> +			maxmem = simple_strtoul(q, &q, 0);
+>> +			if (*q == 'k' || *q == 'K') {
+>> +				maxmem <<= 10;
+>> +				++q;
+>> +			} else if (*q == 'm' || *q == 'M') {
+>> +				maxmem <<= 20;
+>> +				++q;
+>> +			} else if (*q == 'g' || *q == 'G') {
+>> +				maxmem <<= 30;
+>> +				++q;
+>> +			}
+>> +		}
+>> +		memory_limit = maxmem;
+>> +	}
+>> +
+>
+> Why not make the mem= parsing an early_param() handler and then call
+> parse_early_param() here?
 
-Only have 'deadline' installed on 2.6 kernels -- not seen any problems 
-with NFS here (apart from back when I had data corruption due a faulty 
-memory stick).
+This would put constraints on the early_param()'s that I dont think  
+we should impose.
 
-Grant.
+> And I think a switch would be easier to read for the K/M/G handling.
+
+I should probably use memparse() now that I've found it :)
+
+- k

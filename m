@@ -1,60 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWBXXmm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWBXXor@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964799AbWBXXmm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 18:42:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWBXXmm
+	id S964800AbWBXXor (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 18:44:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbWBXXor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 18:42:42 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:34199 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964799AbWBXXml (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 18:42:41 -0500
-Date: Fri, 24 Feb 2006 15:42:30 -0800 (PST)
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
-X-X-Sender: jbrandeb@lindenhurst-2.jf.intel.com
-To: marcelo.tosatti@cyclades.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.4.32-pre2] build fix: auto_fs4 changes broke ppc64 build
-Message-ID: <Pine.LNX.4.64.0602241536040.26029@lindenhurst-2.jf.intel.com>
-ReplyTo: "Jesse Brandeburg" <jesse.brandeburg@intel.com>
+	Fri, 24 Feb 2006 18:44:47 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27818 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S964800AbWBXXoq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 18:44:46 -0500
+To: Greg KH <gregkh@suse.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, Gabor Gombas <gombasg@sztaki.hu>,
+       "Theodore Ts'o" <tytso@mit.edu>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Kay Sievers <kay.sievers@suse.de>,
+       penberg@cs.helsinki.fi, bunk@stusta.de, rml@novell.com,
+       linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+Subject: Re: 2.6.16-rc4: known regressions
+References: <20060221162104.6b8c35b1.akpm@osdl.org>
+	<Pine.LNX.4.64.0602211631310.30245@g5.osdl.org>
+	<Pine.LNX.4.64.0602211700580.30245@g5.osdl.org>
+	<20060222112158.GB26268@thunk.org>
+	<20060222154820.GJ16648@ca-server1.us.oracle.com>
+	<20060222162533.GA30316@thunk.org>
+	<20060222173354.GJ14447@boogie.lpds.sztaki.hu>
+	<20060222185923.GL16648@ca-server1.us.oracle.com>
+	<20060222191832.GA14638@suse.de>
+	<1140636588.2979.66.camel@laptopd505.fenrus.org>
+	<20060222194024.GA15703@suse.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 24 Feb 2006 16:42:26 -0700
+In-Reply-To: <20060222194024.GA15703@suse.de> (Greg KH's message of "Wed, 22
+ Feb 2006 11:40:24 -0800")
+Message-ID: <m1k6bk2ujh.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a couple of #include statements verified to fix the compile
-for ppc64 and probably will fix the compile on parisc.  I just noticed
-parisc had the same problem.  ppc64 would not build without this fix.
+Greg KH <gregkh@suse.de> writes:
 
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+> On Wed, Feb 22, 2006 at 08:29:48PM +0100, Arjan van de Ven wrote:
+>> On Wed, 2006-02-22 at 11:18 -0800, Greg KH wrote:
+>> > What about trying a stock 2.6.6 or so kernel?  Does that work
+>> > differently from 2.6.15?
+>> 
+>> ... however it's very much designed only for the kernel that comes with
+>> it (with "it's" I mean all the userspace infrastructure); all the
+>> changes and additions since 2.6.9 aren't incorporated so you probably
+>> really want new alsa, new initscripts, new mkinitrd, new
+>> module-init-tools. some because of abi changes since 2.6.9, others
+>> because the kernel grew capabilities that are really needed for "nice"
+>> behavior.
 
----
+Not being able to take advantage of the latest whizz bang features
+sound sane.  Kernel ABI changes do not sound sane.
 
-  arch/parisc/kernel/ioctl32.c |    1 +
-  arch/ppc64/kernel/ioctl32.c  |    1 +
-  2 files changed, 2 insertions(+), 0 deletions(-)
+> I totally agree.  Distros are changing into two different groups these
+> days:
+> 	- everything tied together and intregrated nicely for a specific
+> 	  kernel version, userspace tool versions, etc.
+> 	- flexible and works with multiple kernel versions, different
+> 	  userspace tools, etc.
+>
+> And this is a natural progression as people try to provide a more
+> complete "solution" for users.
 
-diff --git a/arch/parisc/kernel/ioctl32.c b/arch/parisc/kernel/ioctl32.c
-index 8e12397..7b52a77 100644
---- a/arch/parisc/kernel/ioctl32.c
-+++ b/arch/parisc/kernel/ioctl32.c
-@@ -35,6 +35,7 @@
-  #include <linux/cdrom.h>
-  #include <linux/loop.h>
-  #include <linux/auto_fs.h>
-+#include <linux/auto_fs4.h>
-  #include <linux/devfs_fs.h>
-  #include <linux/tty.h>
-  #include <linux/vt_kern.h>
-diff --git a/arch/ppc64/kernel/ioctl32.c b/arch/ppc64/kernel/ioctl32.c
-index 1cc4c39..53546b9 100644
---- a/arch/ppc64/kernel/ioctl32.c
-+++ b/arch/ppc64/kernel/ioctl32.c
-@@ -49,6 +49,7 @@
-  #include <linux/cdrom.h>
-  #include <linux/loop.h>
-  #include <linux/auto_fs.h>
-+#include <linux/auto_fs4.h>
-  #include <linux/devfs_fs.h>
-  #include <linux/tty.h>
-  #include <linux/vt_kern.h>
+Huh? I can understand it from the rational of a support contract, 
+limiting the number of possibilities you have to deal with.  Beyond
+that it just seems ludicrous.  If something is relied up by user
+space it should be stable enough that you can upgrade your kernel.
+
+It should be a case of not-supported but it ``should'' work.  So
+anyone who is competent enough to do kernel development should 
+have no problem getting things going.
+
+> When people to complain that they can't run a "kernel-of-the-day" on
+> their "enterprise" distro, they are not realizing that that distro was
+> just not developed to support that kind of thing at all.
+
+Which is a really bad tack to take.  It seriously forks the kernel
+debugging and testing efforts.  Even with a distro that only wants
+to support one kernel if people are having kernel hardware interaction
+problems I will still suggest that they upgrade their kernel to
+see if the problems are fixed in the newer kernels.  If there are
+user space glitches but the drivers work, there are a lot more people
+who can fix user space than can fix the kernel.
+
+The historic rule is that if you need to know what needs to be changed
+you read through Documentation/Changes.  If your distro has something
+older you probably need to upgrade if not you don't.
+
+> So, in short, if you are going to do kernel development, pick a distro
+> that handles different kernel versions.  Likewise, if you are doing
+> userspace development (X.org, HAL, KDE, Gnome, etc.) you pick a distro
+> that allows you to change that level of the stack.
+
+But this applies to kernel debugging so having a distro that is tied
+intimately to their kernel is a problem for anyone running on recent
+hardware.
+
+Eric

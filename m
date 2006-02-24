@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932603AbWBXWHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932605AbWBXWNJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932603AbWBXWHW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 17:07:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbWBXWHW
+	id S932605AbWBXWNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 17:13:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932606AbWBXWNJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 17:07:22 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:19673 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP id S932603AbWBXWHW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 17:07:22 -0500
-Date: Fri, 24 Feb 2006 17:07:21 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [PATCH 0/7] inflate pt1: refactor boot-time inflate code
-In-reply-to: <1.399206195@selenic.com>
-X-X-Sender: nico@localhost.localdomain
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.64.0602241654480.31162@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <1.399206195@selenic.com>
+	Fri, 24 Feb 2006 17:13:09 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:50410 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932605AbWBXWNI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 17:13:08 -0500
+Date: Fri, 24 Feb 2006 14:15:05 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: MIke Galbraith <efault@gmx.de>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, kernel@kolivas.org,
+       pwil3058@bigpond.net.au, nickpiggin@yahoo.com.au,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Subject: Re: [patch 2.6.16-rc4-mm1]  Task Throttling V14
+Message-Id: <20060224141505.41b1a627.akpm@osdl.org>
+In-Reply-To: <1140812981.8713.35.camel@homer>
+References: <1140183903.14128.77.camel@homer>
+	<1140812981.8713.35.camel@homer>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Feb 2006, Matt Mackall wrote:
+MIke Galbraith <efault@gmx.de> wrote:
+>
+> Not many comments came back, zero actually.
+>
 
-> This is a refactored version of the lib/inflate.c:
-> 
-> - clean up some really ugly code
-> - clean up atrocities like '#include "../../../lib/inflate.c"'
-> - drop a ton of cut and paste code from the kernel boot
-> - move towards making the boot decompressor pluggable
-> - move towards unifying the multiple inflate implementations
-> - save space
+That's because everyone's terribly busy chasing down those final bugs so we
+get a really great 2.6.16 release (heh, I kill me).
 
-Could you also make sure that there is no non-const global variables 
-whatsoever in there?  The idea is that on ARM the decompressor was once 
-made to be executable directly from flash so the deflated kernel image 
-would be stored at its final location in ram directly without first 
-copying zImage nor any .data to ram in order to execute it.  This is a 
-significant boot time saving (which I think CE Linux is interested in) 
-while still preserving a compressed kernel in flash.
+I'm a bit reluctant to add changes like this until we get the smpnice stuff
+settled down and validated.  I guess that means once Ken's run all his
+performance tests across it.
 
-Currently:
-
-$ size lib/zlib_inflate/zlib_inflate.o
-   text    data     bss     dec     hex filename
-  11868      68       0   11936    2ea0 lib/zlib_inflate/zlib_inflate.o
-
-Since this code is probably reentrant already, global variables are most 
-probably read-only and declaring them const will store their content 
-into .rodata which should be accounted as text above.
-
-Having an empty .data section is the easiest way to be sure the kernel 
-decompressor can actually execute from flash without subtle bugs due to 
-the enforced read-only nature of global variables.
-
-
-Nicolas
+Of course, if Ken does his testing with just mainline+smpnice then any
+coupling becomes less of a problem.  But I would like to see some feedback
+from the other sched developers first.

@@ -1,147 +1,226 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWBXBK4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbWBXBKz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbWBXBK4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 20:10:56 -0500
+	id S932327AbWBXBKz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 20:10:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWBXBKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Thu, 23 Feb 2006 20:10:55 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:33764 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932336AbWBXBKy
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:50376 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S932327AbWBXBKy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 23 Feb 2006 20:10:54 -0500
-Subject: Re: [BUG -rt] -rt16 hang w/ realtime thread test
-From: john stultz <johnstul@us.ibm.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <1139882031.28536.135.camel@cog.beaverton.ibm.com>
-References: <1139626674.28536.30.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.58.0602111033400.13041@gandalf.stny.rr.com>
-	 <1139882031.28536.135.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Thu, 23 Feb 2006 17:10:51 -0800
-Message-Id: <1140743451.1271.73.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+X-ORBL: [67.117.73.34]
+Date: Thu, 23 Feb 2006 17:10:45 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Russell King <linux@arm.linux.org.uk>, Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCH] Fix next_timer_interrupt() for hrtimer
+Message-ID: <20060224011044.GE4578@atomide.com>
+References: <20060224002653.GC4578@atomide.com> <1140741472.1271.64.camel@cog.beaverton.ibm.com> <20060224004049.GD4578@atomide.com> <1140742207.1271.67.camel@cog.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="AbQceqfdZEv+FvjW"
+Content-Disposition: inline
+In-Reply-To: <1140742207.1271.67.camel@cog.beaverton.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-13 at 17:53 -0800, john stultz wrote:
-> On Sat, 2006-02-11 at 10:34 -0500, Steven Rostedt wrote:
-> > On Fri, 10 Feb 2006, john stultz wrote:
+
+--AbQceqfdZEv+FvjW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+* john stultz <johnstul@us.ibm.com> [060223 16:50]:
+> On Thu, 2006-02-23 at 16:40 -0800, Tony Lindgren wrote:
+> > * john stultz <johnstul@us.ibm.com> [060223 16:37]:
+> > > On Thu, 2006-02-23 at 16:26 -0800, Tony Lindgren wrote:
+> > > > +	tv = ktime_to_timespec(event);
+> > > > +
+> > > > +	/* Assume read xtime_lock is held, so we can't use getnstimeofday() */
+> > > > +	sec = xtime.tv_sec;
+> > > > +	nsec = xtime.tv_nsec;
+> > > > +	while (unlikely(nsec >= NSEC_PER_SEC)) {
+> > > > +		nsec -= NSEC_PER_SEC;
+> > > > +		++sec;
+> > > > +	}
+> > > > +	tv.tv_sec = sec;
+> > > > +	tv.tv_nsec = nsec;
+> > > 
+> > > Er, I think you should be able to nest readers. Thus getnstimeofday()
+> > > should be safe to call. Or is the comment wrong and you are assuming a
+> > > write lock is held?
 > > 
-> > > Hey Ingo,
-> > > 	I've been hunting a report that lower priority realtime threads are not
-> > > preempting higher priority realtime threads. However, in generating test
-> > > cases, I found I was locking the system quite frequently.
-> > >
-> > > The attached test runs to completion on 2.6.15, but with 2.6.15-rt16, it
-> > > hangs the box. It could very well be a test issue, but I'm not sure I
-> > > see where the problem is.
-> > >
-> > 
-> > Hi John,
-> > 
-> > Have you turned on nmi_watchdog and softlockup detect?  Just so we can see
-> > where it is hung.
+> > Oops, it's a write lock as next_timer_interrupt gets called from
+> > arch/*/time.c.
 > 
-> Ugh. Ok, I think I've found the issue.
-> 
-> The systems I'm testing w/ all use the ACPI PM timer for the
-> clocksource. On a whim I forced the TSC to be used and the hang went
-> away.
-> 
-> It appears the issue is that the ACPI PM wraps every ~5 seconds.  Since
-> the test takes longer the 5 seconds to run, the
-> timeofday_periodic_hook() function gets starved and we never accumulate
-> time. Then as the counter wraps, time starts wrapping thus timers do not
-> expire and the test never completes, effectively hanging the box.
-> 
-> I believe this issue was hit before back when cycle_t was 32bits long,
-> thus causing the TSC to wrap every ~4seconds on a 1Ghz box.
-> 
-> So whats the solution here? Do we need to do something to
-> timeofday_periodic_hook is guaranteed to run with some frequency? Or is
-> the test just bunk because realtime threads must give up the cpu in
-> order for the kernel to function?
+> Also the above code just overwrites tv. 
 
-So without any suggestions, I created a terrible hack that tries to
-avoid this issue. Maybe it will spur some discussion. :)
-
-Basically, we set a flag value every time timeofday_periodic_hook() is
-run, then every HZ ticks (1 second), we call
-timeofday_ensure_correctness() which checks that flag variable to make
-sure the periodic_hook has been called in that second. If it has been
-called clear the flag and wait another second, otherwise directly call
-timeofday_periodic_hook().
-
-This has worked around the starvation in my tests, but I really doubt
-its the right solution.
-
-Any other ideas or thoughts?
-
-thanks
--john
-
-diff -ru 2.6-rt/kernel/time/clockevents.c rttest/kernel/time/clockevents.c
---- 2.6-rt/kernel/time/clockevents.c	2006-02-22 17:31:03.000000000 -0600
-+++ rttest/kernel/time/clockevents.c	2006-02-23 19:24:25.000000000 -0600
-@@ -94,8 +94,15 @@
- /*
-  * Handle tick
-  */
-+extern void timeofday_ensure_correctness(void);
-+
- static void handle_tick(struct pt_regs *regs)
- {
-+	static atomic_t tick_ctr;
-+	atomic_inc(&tick_ctr);
-+	if(!(atomic_read(&tick_ctr)%HZ))
-+		timeofday_ensure_correctness();
-+
- 	write_seqlock(&xtime_lock);
- 	do_timer(regs);
- 	write_sequnlock(&xtime_lock);
-diff -ru 2.6-rt/kernel/time/timeofday.c rttest/kernel/time/timeofday.c
---- 2.6-rt/kernel/time/timeofday.c	2006-02-22 17:31:03.000000000 -0600
-+++ rttest/kernel/time/timeofday.c	2006-02-23 19:50:16.000000000 -0600
-@@ -487,6 +487,9 @@
+That's a bug from clean-up... Actually I just shrunk the
+ktime_to_jiffies(), see below.
  
- device_initcall(timeofday_init_device);
- 
-+/* hack for periodic hook starvation */
-+unsigned long recently_run;
-+
- /**
-  * timeofday_periodic_hook - Does periodic update of timekeeping values.
-  * @unused:	unused value
-@@ -514,6 +517,8 @@
- 	struct clocksource old_clock;
- 	static nsec_t second_check;
- 
-+	set_bit(0,&recently_run);
-+
- 	write_seqlock_irqsave(&system_time_lock, flags);
- 
- 	/* read time source & calc time since last call: */
-@@ -626,6 +631,17 @@
- 		jiffies + 1 + msecs_to_jiffies(PERIODIC_INTERVAL_MS));
+> Do you intend instead to add xtime to tv? 
+
+No, just get current time in ktime. But turns out tv is not
+needed at all :)
+
+Tony
+
+--AbQceqfdZEv+FvjW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename=patch-hrtimer-dyntick
+
+This patch adds support for hrtimer to next_timer_interrupt()
+and fixes current breakage.
+
+Function next_timer_interrupt() got broken with a recent patch
+6ba1b91213e81aa92b5cf7539f7d2a94ff54947c as sys_nanosleep() was
+moved to hrtimer. This broke things as next_timer_interrupt()
+did not check hrtimer tree for next event.
+
+Function next_timer_interrupt() is needed with dyntick
+(CONFIG_NO_IDLE_HZ, VST) implementations, as the system can
+be in idle when next hrtimer event was supposed to happen.
+At least ARM and S390 currently use next_timer_interrupt(). 
+
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+
+Index: linux-omap-dev/kernel/hrtimer.c
+===================================================================
+--- linux-omap-dev.orig/kernel/hrtimer.c	2006-02-23 16:19:47.000000000 -0800
++++ linux-omap-dev/kernel/hrtimer.c	2006-02-23 17:04:23.000000000 -0800
+@@ -505,6 +505,80 @@
+ 	return rem;
  }
  
-+/* If timeofday_periodic_hook might be starved, call this at least
-+ * once a second from interrupt context to ensure things run properly.
++#ifdef CONFIG_NO_IDLE_HZ
++
++/**
++ * hrtimer_get_next - get next hrtimer to expire
++ *
++ * @bases:	ktimer base array
 + */
-+void timeofday_ensure_correctness(void)
++static inline struct hrtimer * hrtimer_get_next(struct hrtimer_base *bases)
 +{
-+	if (!test_bit(0,&recently_run))
-+		timeofday_periodic_hook(0);
-+	else
-+		clear_bit(0, &recently_run);
++	unsigned long flags;
++	struct hrtimer *timer = NULL;
++	int i;
++
++	for (i = 0; i < MAX_HRTIMER_BASES; i++) {
++		struct hrtimer_base *base;
++		struct hrtimer *cur;
++
++		base = &bases[i];
++		spin_lock_irqsave(&base->lock, flags);
++		cur = rb_entry(base->first, struct hrtimer, node);
++		spin_unlock_irqrestore(&base->lock, flags);
++
++		if (cur == NULL)
++			continue;
++
++		if (timer == NULL || cur->expires.tv64 < timer->expires.tv64)
++			timer = cur;
++	}
++
++	return timer;
 +}
 +
++/**
++ * ktime_to_jiffies - converts ktime to jiffies
++ *
++ * @event:	ktime event to be converted
++ *
++ * Caller must take care xtime locking.
++ */
++static inline unsigned long ktime_to_jiffies(const ktime_t event)
++{
++	ktime_t now, delta;
++	struct timespec tv;
++
++	now = timespec_to_ktime(xtime);
++	delta = ktime_sub(event, now);
++	tv = ktime_to_timespec(delta);
++
++	return jiffies - 1 + timespec_to_jiffies(&tv);
++}
++
++/**
++ * hrtimer_next_jiffie - get next hrtimer event in jiffies
++ *
++ * Called from next_timer_interrupt() to get the next hrtimer event.
++ * Eventually we should change next_timer_interrupt() to return
++ * results in nanoseconds instead of jiffies. Caller must host xtime_lock.
++ */
++int hrtimer_next_jiffie(unsigned long *next_jiffie)
++{
++	struct hrtimer_base *base = __get_cpu_var(hrtimer_bases);
++	struct hrtimer * timer;
++
++	timer = hrtimer_get_next(base);
++	if (timer == NULL)
++		return -EAGAIN;
++
++	*next_jiffie = ktime_to_jiffies(timer->expires);
++
++	return 0;
++}
++
++#endif
++
  /**
-  * timeofday_is_continuous - check to see if timekeeping is free running
-  */
+  * hrtimer_init - initialize a timer to the given clock
+  *
+Index: linux-omap-dev/kernel/timer.c
+===================================================================
+--- linux-omap-dev.orig/kernel/timer.c	2006-02-23 16:19:47.000000000 -0800
++++ linux-omap-dev/kernel/timer.c	2006-02-23 16:19:47.000000000 -0800
+@@ -478,6 +478,7 @@
+ }
+ 
+ #ifdef CONFIG_NO_IDLE_HZ
++
+ /*
+  * Find out when the next timer event is due to happen. This
+  * is used on S/390 to stop all activity when a cpus is idle.
+@@ -489,9 +490,15 @@
+ 	struct list_head *list;
+ 	struct timer_list *nte;
+ 	unsigned long expires;
++	unsigned long hr_expires = jiffies + 10 * HZ;	/* Anything far ahead */
+ 	tvec_t *varray[4];
+ 	int i, j;
+ 
++	/* Look for timer events in hrtimer. */
++	if ((hrtimer_next_jiffie(&hr_expires) == 0)
++		&& (time_before(hr_expires, jiffies + 2)))
++			return hr_expires;
++
+ 	base = &__get_cpu_var(tvec_bases);
+ 	spin_lock(&base->t_base.lock);
+ 	expires = base->timer_jiffies + (LONG_MAX >> 1);
+@@ -542,6 +549,10 @@
+ 		}
+ 	}
+ 	spin_unlock(&base->t_base.lock);
++
++	if (time_before(hr_expires, expires))
++		expires = hr_expires;
++
+ 	return expires;
+ }
+ #endif
+Index: linux-omap-dev/include/linux/hrtimer.h
+===================================================================
+--- linux-omap-dev.orig/include/linux/hrtimer.h	2006-02-23 16:19:43.000000000 -0800
++++ linux-omap-dev/include/linux/hrtimer.h	2006-02-23 16:19:47.000000000 -0800
+@@ -115,6 +115,7 @@
+ /* Query timers: */
+ extern ktime_t hrtimer_get_remaining(const struct hrtimer *timer);
+ extern int hrtimer_get_res(const clockid_t which_clock, struct timespec *tp);
++extern int hrtimer_next_jiffie(unsigned long *next_jiffie);
+ 
+ static inline int hrtimer_active(const struct hrtimer *timer)
+ {
 
-
+--AbQceqfdZEv+FvjW--

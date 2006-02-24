@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751812AbWBXBib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbWBXBlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751812AbWBXBib (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 20:38:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751813AbWBXBib
+	id S932159AbWBXBlV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 20:41:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWBXBlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 20:38:31 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:44500 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751812AbWBXBia (ORCPT
+	Thu, 23 Feb 2006 20:41:21 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:9431 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932159AbWBXBlU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 20:38:30 -0500
-Date: Thu, 23 Feb 2006 20:38:29 -0500
+	Thu, 23 Feb 2006 20:41:20 -0500
+Date: Thu, 23 Feb 2006 20:41:12 -0500
 From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: x86 microcode driver vs hotplug CPUs.
-Message-ID: <20060224013829.GA15764@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
+To: ak@suse.de
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Make SMP x86-64 kernels boot on more UP systems.
+Message-ID: <20060224014112.GA16089@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, ak@suse.de,
 	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,58 +24,26 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This driver loops over 'num_online_cpus', but it doesn't account
-for holes in the online map created by offlined cpus, and assumes
-that the cpu numbers stay linear.
+Should someone boot an SMP kernel on UP hardware on some systems,
+strange things happen, such as..
+
+SMP: Allowing 0 CPUs.
+
+We blow up shortly afterwards.
 
 Signed-off-by: Dave Jones <davej@redhat.com>
 
---- linux-2.6.15.noarch/arch/i386/kernel/microcode.c~	2006-02-18 14:41:09.000000000 -0500
-+++ linux-2.6.15.noarch/arch/i386/kernel/microcode.c	2006-02-18 14:45:42.000000000 -0500
-@@ -250,8 +250,8 @@ static int find_matching_ucodes (void) 
- 			error = -EINVAL;
- 			goto out;
- 		}
--		
--		for (cpu_num = 0; cpu_num < num_online_cpus(); cpu_num++) {
-+
-+		for_each_online_cpu(cpu_num) {
- 			struct ucode_cpu_info *uci = ucode_cpu_info + cpu_num;
- 			if (uci->err != MC_NOTFOUND) /* already found a match or not an online cpu*/
- 				continue;
-@@ -293,7 +293,7 @@ static int find_matching_ucodes (void) 
- 					error = -EFAULT;
- 					goto out;
- 				}
--				for (cpu_num = 0; cpu_num < num_online_cpus(); cpu_num++) {
-+				for_each_online_cpu(cpu_num) {
- 					struct ucode_cpu_info *uci = ucode_cpu_info + cpu_num;
- 					if (uci->err != MC_NOTFOUND) /* already found a match or not an online cpu*/
- 						continue;
-@@ -304,7 +304,9 @@ static int find_matching_ucodes (void) 
- 			}
- 		}
- 		/* now check if any cpu has matched */
--		for (cpu_num = 0, allocated_flag = 0, sum = 0; cpu_num < num_online_cpus(); cpu_num++) {
-+		allocated_flag = 0;
-+		sum = 0;
-+		for_each_online_cpu(cpu_num) {
- 			if (ucode_cpu_info[cpu_num].err == MC_MARKED) { 
- 				struct ucode_cpu_info *uci = ucode_cpu_info + cpu_num;
- 				if (!allocated_flag) {
-@@ -415,12 +415,12 @@ static int do_microcode_update (void)
- 	}
+--- linux-2.6.15.noarch/arch/x86_64/kernel/smpboot.c~	2006-02-20 21:59:56.000000000 -0500
++++ linux-2.6.15.noarch/arch/x86_64/kernel/smpboot.c	2006-02-20 22:01:57.000000000 -0500
+@@ -975,6 +975,11 @@ __init void prefill_possible_map(void)
+ 	if (possible > NR_CPUS) 
+ 		possible = NR_CPUS;
  
- out_free:
--	for (i = 0; i < num_online_cpus(); i++) {
-+	for_each_online_cpu(i) {
- 		if (ucode_cpu_info[i].mc) {
- 			int j;
- 			void *tmp = ucode_cpu_info[i].mc;
- 			vfree(tmp);
--			for (j = i; j < num_online_cpus(); j++) {
-+			for_each_online_cpu(j) {
- 				if (ucode_cpu_info[j].mc == tmp)
- 					ucode_cpu_info[j].mc = NULL;
- 			}
-
++	if (possible == 0) {	/* Could be SMP kernel on UP hw with broken BIOS */
++		possible = 1;
++		printk (KERN_DEBUG "BIOS never enumerated boot CPU, fixing.\n");
++	}
++
+ 	printk(KERN_INFO "SMP: Allowing %d CPUs, %d hotplug CPUs\n",
+ 		possible,
+ 	        max_t(int, possible - num_processors, 0));

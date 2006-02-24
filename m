@@ -1,49 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbWBXTJl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbWBXTOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932429AbWBXTJl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 14:09:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWBXTJl
+	id S932428AbWBXTOt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 14:14:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbWBXTOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 14:09:41 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:34519 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932431AbWBXTJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 14:09:40 -0500
-Date: Fri, 24 Feb 2006 19:09:38 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Arjan van de Ven <arjan@intel.linux.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, mingo@elte.hu
-Subject: Re: [Patch 2/3] fast VMA recycling
-Message-ID: <20060224190938.GA6351@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andi Kleen <ak@suse.de>, Arjan van de Ven <arjan@intel.linux.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-References: <1140686238.2972.30.camel@laptopd505.fenrus.org> <1140688131.4672.21.camel@laptopd505.fenrus.org> <20060224185231.GB5816@infradead.org> <200602242005.17087.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 24 Feb 2006 14:14:49 -0500
+Received: from mx3.mail.ru ([194.67.23.149]:2136 "EHLO mx3.mail.ru")
+	by vger.kernel.org with ESMTP id S932428AbWBXTOt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 14:14:49 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: "Ghost" devices in /sys/firmware/edd
+Date: Fri, 24 Feb 2006 22:14:34 +0300
+User-Agent: KMail/1.9.1
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200602242005.17087.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200602242214.46290.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 24, 2006 at 08:05:16PM +0100, Andi Kleen wrote:
-> I think voluntary preempt is generally a good idea, but we should make it optional
-> for down() since it can apparently cause bad side effects (like holding 
-> semaphores/mutexes for too long) 
-> 
-> There would be two possible ways: 
-> 
-> have default mutex_lock()/down() do a might_sleep()
-> with preemption and have a separate variant that doesn't preempt
-> or have the default non preempt and a separate variant
-> that does preempt.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-better remove the stupid cond_resched() from might_sleep which from it's
-naming already is a debug thing and add it to those places where it makes
-sense.
+I have single drive hda; still EDD shows valid and the _same_ MBR signature 
+for all possible 16 drives:
 
+{pts/0}% cat /sys/firmware/edd/*/mbr_*
+0x7fca3a0a
+0x7fca3a0a
+0x7fca3a0a
+0x7fca3a0a
+0x7fca3a0a
+0x7fca3a0a
+0x7fca3a0a
+0x7fca3a0a
+0x7fca3a0a
+0x7fca3a0a
+0x7fca3a0a
+0x7fca3a0a
+0x7fca3a0a
+0x7fca3a0a
+0x7fca3a0a
+0x7fca3a0a
+
+other attributes are correctly present for the drive 0x80 only.
+
+Not being expert in x86 assembly, but comparing main loops for signature and 
+other info:
+
+signature:
+        int     $0x13
+        sti                     # work around buggy BIOSes
+        popw    %dx
+        popw    %es
+        popw    %bx
+        jc      edd_mbr_sig_done                # on failure, we're done.
+
+extended EDD info:
+
+edd_check_ext:
+        movb    $CHECKEXTENSIONSPRESENT, %ah    # Function 41
+        movw    $EDDMAGIC1, %bx                 # magic
+        int     $0x13                           # make the call
+        jc      edd_done                        # no more BIOS devices
+
+Is it possible that carry flag is cleared between return from int 0x13 and 
+querying for it in the former case? This would perfectly explain that EDD 
+does not notice failure of reading sector and simply copies the same 
+signature from the very first drive.
+
+- -andrey
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.1 (GNU/Linux)
+
+iD8DBQFD/1smR6LMutpd94wRAncjAJ0b9wLmKK9V2bc93ghAIUa7dY5VWQCfZ8BP
+aiT8y5TX3DE05ZN8wfnfg7E=
+=uB1I
+-----END PGP SIGNATURE-----

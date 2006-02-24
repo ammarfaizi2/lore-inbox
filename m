@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932559AbWBXCSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbWBXC1D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932559AbWBXCSe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 21:18:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932520AbWBXCSe
+	id S932568AbWBXC1D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 21:27:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbWBXC1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 21:18:34 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:8367 "EHLO
-	pd5mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S932558AbWBXCSd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 21:18:33 -0500
-Date: Thu, 23 Feb 2006 20:17:33 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Mapping to 0x0
-In-reply-to: <5J30B-8wi-7@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <43FE6CBD.50607@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <5J30B-8wi-7@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Thu, 23 Feb 2006 21:27:03 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:16785 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932568AbWBXC1B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 21:27:01 -0500
+Date: Thu, 23 Feb 2006 18:25:37 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+cc: Andrew Morton <akpm@osdl.org>, alokk@calsoftinc.com,
+       manfred@colorfullife.com, penberg@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Slab: Node rotor for freeing alien caches and remote per cpu
+ pages.
+In-Reply-To: <20060224012815.GB5589@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0602231823340.18354@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0602231036480.13184@schroedinger.engr.sgi.com>
+ <20060223113331.6b345e1b.akpm@osdl.org> <Pine.LNX.4.64.0602231140140.13899@schroedinger.engr.sgi.com>
+ <20060224012815.GB5589@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
-> The mmap() usually succeeds and maps something at address 0x00000000. Now 
-> what if the kernel would try to execute this (of course badly programmed) 
-> code in the context of this very process?
-> 
->     int (*callback)(int xyz) = NULL;
->     callback();
-> 
-> Would not be the badcode be executed with kernel privileges?
+On Thu, 23 Feb 2006, Ravikiran G Thirumalai wrote:
 
-I'm not sure, but I would suspect it might, yes, at least on some 
-platforms and configurations. However, this unlikely to be a serious 
-problem, since any kernel code that executed a callback method which 
-could be a NULL without checking for that would blow up the system in 
-the vast majority of cases where nothing was mapped at address 0.
+> Actually, all cpus on the node share the alien_cache, and the alien_cache is
+> one per remote node (for the cachep).  So currently each cpu on the node 
+> drains the same alien_cache onto all the remote nodes in the per-cpu eventd.  
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Right. So we could optimize that.
 
+> What is probably very expensive here at drain_alien_cache is free_block 
+> getting called from the foreign node, and freeing remote pages.
+> We have a patch-set here to drop-in the alien objects from the current node to 
+> the respective alien node's drop box, and that drop box will be cleared
+> locally (so that freeing happens locally).  This would happen off cache_reap. 
+> (I was holding from posting it because akpm complained about slab.c 
+
+Could you show us the patch?
+
+> Round robin might still be useful for drain_alien_cache with that approach, 
+> but maybe init_reap_node should initialize the per-cpu reap_node with a skew
+> for cpus on the same node (so all cpus of a node do not drain to the same 
+> foreign node when the eventd runs?)
+
+Good idea.

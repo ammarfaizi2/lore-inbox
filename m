@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWBXOYV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWBXOYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbWBXOYV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 09:24:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWBXOYV
+	id S932157AbWBXOYa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 09:24:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932158AbWBXOYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 09:24:21 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:63396 "EHLO
+	Fri, 24 Feb 2006 09:24:30 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:63908 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932146AbWBXOYU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 09:24:20 -0500
+	id S932157AbWBXOY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 09:24:29 -0500
 To: Rene Herman <rene.herman@keyaccess.nl>
 Cc: Linus Torvalds <torvalds@osdl.org>,
        Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
@@ -25,11 +25,11 @@ References: <1140700758.4672.51.camel@laptopd505.fenrus.org>
 	<Pine.LNX.4.64.0602231517400.3771@g5.osdl.org>
 	<43FE4B00.8080205@keyaccess.nl>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 24 Feb 2006 07:23:04 -0700
 In-Reply-To: <43FE4B00.8080205@keyaccess.nl> (Rene Herman's message of "Fri,
  24 Feb 2006 00:53:36 +0100")
-Message-ID: <m1slq83kfr.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+Date: Fri, 24 Feb 2006 07:23:13 -0700
+Message-ID: <m1r75s3kfi.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org

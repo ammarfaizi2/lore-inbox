@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbWBXVag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932564AbWBXVgt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932547AbWBXVag (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 16:30:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWBXVaf
+	id S932564AbWBXVgt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 16:36:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbWBXVgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 16:30:35 -0500
-Received: from dsl093-016-182.msp1.dsl.speakeasy.net ([66.93.16.182]:58804
-	"EHLO cinder.waste.org") by vger.kernel.org with ESMTP
-	id S932547AbWBXVae (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 16:30:34 -0500
-Date: Fri, 24 Feb 2006 15:30:34 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/7] inflate pt1: refactor boot-time inflate code
-Message-ID: <20060224213034.GC13116@waste.org>
-References: <1.399206195@selenic.com> <20060224205626.GB28855@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060224205626.GB28855@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 24 Feb 2006 16:36:49 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:60127 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932564AbWBXVgs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 16:36:48 -0500
+Date: Fri, 24 Feb 2006 13:36:05 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Collins <paul@briny.ondioline.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kjournald keeps reference to namespace
+Message-Id: <20060224133605.7a8e86ca.akpm@osdl.org>
+In-Reply-To: <873bi88n0s.fsf@briny.internal.ondioline.org>
+References: <20060218013547.GA32706@MAIL.13thfloor.at>
+	<20060217175428.7ce7b26f.akpm@osdl.org>
+	<20060218033031.GB32706@MAIL.13thfloor.at>
+	<873bi88n0s.fsf@briny.internal.ondioline.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 24, 2006 at 08:56:26PM +0000, Russell King wrote:
-> On Fri, Feb 24, 2006 at 02:12:15PM -0600, Matt Mackall wrote:
-> > This is a refactored version of the lib/inflate.c:
-> > 
-> > - clean up some really ugly code
-> > - clean up atrocities like '#include "../../../lib/inflate.c"'
-> > - drop a ton of cut and paste code from the kernel boot
-> > - move towards making the boot decompressor pluggable
-> > - move towards unifying the multiple inflate implementations
-> > - save space
-> > 
-> > I'm sending this out in three batches. This first batch is core
-> > clean-ups without arch-specific changes.
-> > 
-> > (This work was sponsored in part by the CE Linux Forum.)
+Paul Collins <paul@briny.ondioline.org> wrote:
+>
+>  Herbert Poetzl <herbert@13thfloor.at> writes:
 > 
-> ISTR something like this was posted months back, but I don't remember
-> what the status of it was.  Hence, I might be repeating myself in this
-> reply, but I feel it's better to mention this than not to.
+>  > On Fri, Feb 17, 2006 at 05:54:28PM -0800, Andrew Morton wrote:
+>  >> I think it'd be better to convert ext3 to use the kthread API which
+>  >> appears to accidentally not have this problem, because such threads
+>  >> are parented by keventd, which were parented by init.
+>  >
+>  > sounds like a plan!
 > 
-> There's a comment at the top of arch/arm/boot/compressed/misc.c which
-> describes the use of the inflate code on ARM - for the kernel it's a
-> special case where the decompressor is run from ROM.
-> 
-> There's also another twist to it though - our relocatable zImage
-> requires us to build all files in the executable part of zImage
-> without _any_ static variables.  If there's one or more static
-> variables, this feature breaks horribly (and silently in the non-
-> relocated cases.)
+>  Here's my attempt at such a conversion.  Since jbd doesn't seem to
+>  want to collect an exit status, I didn't bother with kthread_stop().
 
-I think I addressed all those issues last time around, and none of
-them should be present in this batch anyway. But it's possible I've
-missed something. If you'd like, I can send the whole set to you for
-testing.
+Ah.  I already did something similar. 
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc4/2.6.16-rc4-mm2/broken-out/jbd-convert-kjournald-to-kthread-api.patch
 
--- 
-Mathematics is the supreme nostalgia of our time.
+>  I got overexcited and also embedded the journal device in the process
+>  name, but that's probably useless churn.  Looks nice in pstree though:
+> 
+>       |-kthread-+-kblockd/0
+>       |         |-khubd
+>       |         |-2*[pdflush]
+>       |         |-aio/0
+>       |         |-v9fs/0
+>       |         |-cqueue/0
+>       |         |-kfand
+>       |         |-kcryptd/0
+>       |         |-kjournald/3:3
+>       |         |-kjournald/3:8
+>       |         |-kjournald/3:4
+>       |         |-kjournald/3:5
+>       |         `-kjournald/254:1
+
+We only have 15 chars for that string - the final one you have there is on
+the raggedy edge.

@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWBXUrv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbWBXUs2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751102AbWBXUrv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 15:47:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWBXUrf
+	id S932480AbWBXUs2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 15:48:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWBXUs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 15:47:35 -0500
-Received: from zproxy.gmail.com ([64.233.162.194]:40153 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751103AbWBXUrR (ORCPT
+	Fri, 24 Feb 2006 15:48:27 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:28256 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932480AbWBXUsW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 15:47:17 -0500
+	Fri, 24 Feb 2006 15:48:22 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:mime-version:content-disposition:content-type:content-transfer-encoding:message-id;
-        b=e9BMxPWquCHdQH4ywNtbRKxFY2lbMgcZ4w8eUYDtz2Vf2clb4Tns/pYDMCLxa9mKm6NJl9k/t1LFq3IIY9b9t0aJXRa3PDFBJ/JP+WdaCbtCeKnH+qAQKqY57GrGURcsYIklfDkkR3mCRyOs2OcFzluwmdZhwCa4TXzjYq8T8n0=
+        b=Ke9fhiVd/g4IxQxULoMhiY4lU1EUqWaHjBSk0wKseczX0aIEAiXX6fzw8+VwmdWEne/m0aNgkMJlcKIdUxzjQcxIYhvHyu6IrOzCTdoei0vWv+O9prKlPNUobMg3rLelDhmu7X64vlx5bVJSKqfKFoDEdEVatuxevUnL+15qS3c=
 From: Jesper Juhl <jesper.juhl@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 04/13] don't NULL-check vfree argument in pdaudiocf_pcm
-Date: Fri, 24 Feb 2006 21:47:33 +0100
+Subject: [PATCH 08/13] NE2000 Kconfig help entry improvement
+Date: Fri, 24 Feb 2006 21:48:35 +0100
 User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Jaroslav Kysela <perex@suse.cz>,
+Cc: linux-kernel@vger.kernel.org, Ged Haywood <ged@jubileegroup.co.uk>,
        Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602242147.33636.jesper.juhl@gmail.com>
+Message-Id: <200602242148.36075.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Don't check pointers passed to vfree for null in pdaudiocf_pcm.c
+  Improve reference to PCI NE2K support in ISA NE2K documentation.
+  Original 2.4 patch From: Ged Haywood <ged@jubileegroup.co.uk>
 
 
-Signed-off-by: Jesper Juhl <Jesper.Juhl@Gmail.Com>
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 ---
 
- sound/pcmcia/pdaudiocf/pdaudiocf_pcm.c |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
+ drivers/net/Kconfig |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
 
---- linux-2.6.16-rc4-mm2-orig/sound/pcmcia/pdaudiocf/pdaudiocf_pcm.c	2006-02-18 02:09:12.000000000 +0100
-+++ linux-2.6.16-rc4-mm2/sound/pcmcia/pdaudiocf/pdaudiocf_pcm.c	2006-02-24 20:40:58.000000000 +0100
-@@ -66,10 +66,9 @@ static int snd_pcm_alloc_vmalloc_buffer(
- static int snd_pcm_free_vmalloc_buffer(struct snd_pcm_substream *subs)
- {
- 	struct snd_pcm_runtime *runtime = subs->runtime;
--	if (runtime->dma_area) {
--		vfree(runtime->dma_area);
--		runtime->dma_area = NULL;
--	}
-+
-+	vfree(runtime->dma_area);
-+	runtime->dma_area = NULL;
- 	return 0;
- }
+--- linux-2.6.16-rc4-mm2-orig/drivers/net/Kconfig	2006-02-24 19:25:37.000000000 +0100
++++ linux-2.6.16-rc4-mm2/drivers/net/Kconfig	2006-02-24 20:44:41.000000000 +0100
+@@ -1087,7 +1087,8 @@ config NE2000
+ 	  without a specific driver are compatible with NE2000.
  
+ 	  If you have a PCI NE2000 card however, say N here and Y to "PCI
+-	  NE2000 support", above. If you have a NE2000 card and are running on
++	  NE2000 and clone support" under "EISA, VLB, PCI and on board
++	  controllers" below. If you have a NE2000 card and are running on
+ 	  an MCA system (a bus system used on some IBM PS/2 computers and
+ 	  laptops), say N here and Y to "NE/2 (ne2000 MCA version) support",
+ 	  below.
+
 
 

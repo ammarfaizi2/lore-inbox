@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWBXAuT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWBXBAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932104AbWBXAuT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 19:50:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbWBXAuS
+	id S932246AbWBXBAF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 20:00:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWBXBAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 19:50:18 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:61096 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932104AbWBXAuR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 19:50:17 -0500
-Subject: Re: [PATCH] Fix next_timer_interrupt() for hrtimer
-From: john stultz <johnstul@us.ibm.com>
-To: Tony Lindgren <tony@atomide.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Russell King <linux@arm.linux.org.uk>, Con Kolivas <kernel@kolivas.org>
-In-Reply-To: <20060224004049.GD4578@atomide.com>
-References: <20060224002653.GC4578@atomide.com>
-	 <1140741472.1271.64.camel@cog.beaverton.ibm.com>
-	 <20060224004049.GD4578@atomide.com>
-Content-Type: text/plain
-Date: Thu, 23 Feb 2006 16:50:07 -0800
-Message-Id: <1140742207.1271.67.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 23 Feb 2006 20:00:05 -0500
+Received: from mail14.syd.optusnet.com.au ([211.29.132.195]:46747 "EHLO
+	mail14.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932246AbWBXBAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 20:00:04 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [PATCH] sched: smpnice -- apply review suggestions
+Date: Fri, 24 Feb 2006 11:59:27 +1100
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, npiggin@suse.de,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       John Hawkes <hawkes@sgi.com>
+References: <43FD0CA8.6060701@bigpond.net.au>
+In-Reply-To: <43FD0CA8.6060701@bigpond.net.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602241159.28292.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-23 at 16:40 -0800, Tony Lindgren wrote:
-> * john stultz <johnstul@us.ibm.com> [060223 16:37]:
-> > On Thu, 2006-02-23 at 16:26 -0800, Tony Lindgren wrote:
-> > > +	tv = ktime_to_timespec(event);
-> > > +
-> > > +	/* Assume read xtime_lock is held, so we can't use getnstimeofday() */
-> > > +	sec = xtime.tv_sec;
-> > > +	nsec = xtime.tv_nsec;
-> > > +	while (unlikely(nsec >= NSEC_PER_SEC)) {
-> > > +		nsec -= NSEC_PER_SEC;
-> > > +		++sec;
-> > > +	}
-> > > +	tv.tv_sec = sec;
-> > > +	tv.tv_nsec = nsec;
-> > 
-> > Er, I think you should be able to nest readers. Thus getnstimeofday()
-> > should be safe to call. Or is the comment wrong and you are assuming a
-> > write lock is held?
-> 
-> Oops, it's a write lock as next_timer_interrupt gets called from
-> arch/*/time.c.
+On Thursday 23 February 2006 12:15, Peter Williams wrote:
+> This patch applies the suggestions made by Con Kolivas for improving the
+> smpnice code.
+>
+> The non cosmetic part of the patch addresses the fact the mapping from
+> nice values to task load weights for negative nice values does not match
+> the implied CPU allocations in the function task_timeslice().  As
+> suggested by Con the mapping function now uses the time slice
+> information directly (via a slightly modified interface).
 
-Also the above code just overwrites tv. 
+Looks good to me.
 
-Do you intend instead to add xtime to tv? 
-
-thanks
--john
-
-
+> Signed-off-by: Peter Williams <pwil3058@bigpond.com.au>
+Signed-off-by: Con Kolivas <kernel@kolivas.org>

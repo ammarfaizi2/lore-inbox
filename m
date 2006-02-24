@@ -1,71 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWBXJ0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWBXJaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbWBXJ0G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 04:26:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbWBXJ0F
+	id S932147AbWBXJaA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 04:30:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWBXJaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 04:26:05 -0500
-Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:12455 "HELO
-	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932140AbWBXJ0E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 04:26:04 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=mDw3th75KRsOldUU3ys0NGmmyuXEZ9/+zXgsnQCJGOGvIsltjAKaAeAt6huJw9TniFqSk1QlPrdMC9oZZ2STk4iA5QHgICyXUNRCqYbKWytI+GNcOVEPUpv7/T42bXS46p9Cfv0e6MV1mWw1gMXXfQ38CohtsoTPCLvZqqfaQ48=  ;
-Message-ID: <43FED128.1030500@yahoo.com.au>
-Date: Fri, 24 Feb 2006 20:26:00 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Fri, 24 Feb 2006 04:30:00 -0500
+Received: from mail.phnxsoft.com ([195.227.45.4]:45574 "EHLO
+	posthamster.phnxsoft.com") by vger.kernel.org with ESMTP
+	id S932147AbWBXJaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 04:30:00 -0500
+Message-ID: <43FED1FF.8050103@imap.cc>
+Date: Fri, 24 Feb 2006 10:29:35 +0100
+From: Tilman Schmidt <tilman@imap.cc>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.8) Gecko/20050511
+X-Accept-Language: de, en, fr
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
-       Arjan van de Ven <arjan@intel.linux.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [Patch 3/3] prepopulate/cache cleared pages
-References: <1140686238.2972.30.camel@laptopd505.fenrus.org>	 <200602231041.00566.ak@suse.de> <20060223124152.GA4008@elte.hu>	 <200602231406.43899.ak@suse.de> <43FDB55E.7090607@yahoo.com.au>	 <20060223132954.GA16074@elte.hu>  <43FEA97D.2000609@yahoo.com.au> <1140772543.2874.20.camel@laptopd505.fenrus.org>
-In-Reply-To: <1140772543.2874.20.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org, hjlipp@web.de
+Subject: Re: [PATCH] reduce syslog clutter
+References: <43FE40CD.3060803@imap.cc> <20060224060505.GA19111@kroah.com>
+In-Reply-To: <20060224060505.GA19111@kroah.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig19971CBDBCC780FB0332C2EE"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->>Arjan, just to get an idea of your workload: obviously it is a mix of
->>read and write on the mmap_sem (read only will not really benefit from
->>reducing lock width because cacheline transfers will still be there).
-> 
-> 
-> yeah it's threads that each allocate, use and then free memory with
-> mmap()
-> 
-> 
->>Is it coming from brk() from the allocator? Someone told me a while ago
->>that glibc doesn't have a decent amount of hysteresis in its allocator
->>and tends to enter the kernel quite a lot... that might be something
->>to look into.
-> 
-> 
-> we already are working on that angle; I just posted the kernel stuff as
-> a side effect basically 
-> 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig19971CBDBCC780FB0332C2EE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-OK.
+Hello Greg,
 
-[aside]
-Actually I have a scalability improvement for rwsems, that moves the
-actual task wakeups out from underneath the rwsem spinlock in the up()
-paths. This was useful exactly on a mixed read+write workload on mmap_sem.
+thanks for your comments.
+Greg KH wrote:
+> On Fri, Feb 24, 2006 at 12:10:05AM +0100, Tilman Schmidt wrote:
+>> The current versions of the err() / info() / warn() syslog macros
+>> insert __FILE__ at the beginning of the message, which expands to
+>> the complete path name of the source file within the kernel tree.
+>
+> Note, this is the usb usage, you might want to post this on the
+> linux-usb-devel mailing list :)
 
-The difference was quite large for the "generic rwsem" algorithm because
-it uses the spinlock in fastpaths a lot more than the xadd algorithm. I
-think x86-64 uses the former, which is what I presume you're testing with?
+Ok.
 
-Obviously this is a slightly different issue from the one you're trying to
-address here, but I'll dig out patch when I get some time and you can see
-if it helps.
+>> With the following patch, when used in a module, they'll insert the
+>> module name instead, which is significantly shorter and also tends to
+>> be more useful to users trying to make sense of a particular message.
+>>
+>> The patch also adds macros for the KERN_NOTICE severity level which
+>> was so far uncatered for.
+>
+> Does anyone want to use it?
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Yes, me. :-)
+
+In fact, they are being used in the Gigaset drivers which are currently
+in the process of being submitted for inclusion in the kernel tree, but
+their definitions are in the driver specific header file
+drivers/isdn/gigaset/gigaset.h, although they really belong with
+their brothers and sisters in usb.h / device.h.
+
+> I suggest splitting this up into two different patches.
+
+Ok.
+
+Regards
+Tilman
+
+--
+Tilman Schmidt                    E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Ungeöffnet mindestens haltbar bis: (siehe Rückseite)
+
+--------------enig19971CBDBCC780FB0332C2EE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFD/tIHMdB4Whm86/kRAh8AAJ90FT1HZIzvYTqSwiibacWszodWdwCeJMV9
+8cA++CRSHMIjE8uoHp0Mw3w=
+=XtMp
+-----END PGP SIGNATURE-----
+
+--------------enig19971CBDBCC780FB0332C2EE--

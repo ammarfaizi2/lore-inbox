@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWBXBpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWBXBpg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932223AbWBXBpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 20:45:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbWBXBpZ
+	id S932377AbWBXBpg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 20:45:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbWBXBpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 20:45:25 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:21682 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932223AbWBXBpY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 20:45:24 -0500
-Message-Id: <200602240145.k1O1jEg05475@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'David Gibson'" <david@gibson.dropbear.id.au>,
-       "'Hugh Dickins'" <hugh@veritas.com>, "Luck, Tony" <tony.luck@intel.com>
-Cc: <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [patch] fix ia64 hugetlb_free_pgd_range
-Date: Thu, 23 Feb 2006 17:45:14 -0800
+	Thu, 23 Feb 2006 20:45:36 -0500
+Received: from ns1.suse.de ([195.135.220.2]:962 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932377AbWBXBpf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 20:45:35 -0500
+From: Andi Kleen <ak@suse.de>
+To: Dave Jones <davej@redhat.com>
+Subject: Re: Make SMP x86-64 kernels boot on more UP systems.
+Date: Fri, 24 Feb 2006 02:45:00 +0100
+User-Agent: KMail/1.9.1
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060224014112.GA16089@redhat.com>
+In-Reply-To: <20060224014112.GA16089@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcY41y6fwRCNtdgVQDm9X59Q/+P3CAAAQTiwAAJZmlA=
-In-Reply-To: 
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Disposition: inline
+Message-Id: <200602240245.01417.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've looked at hugetlb_free_pgd_range() right side up, right side
-down, up side up, up side down.  And it just doesn't look correct
-to me at all.
+On Friday 24 February 2006 02:41, Dave Jones wrote:
+> Should someone boot an SMP kernel on UP hardware on some systems,
+> strange things happen, such as..
 
-In that function, we do address transformation before calling
-free_pgd_range, so the generic function can traverse to right set
-of page table page.  There is no need to do any range check.
-
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
-
---- ./arch/ia64/mm/hugetlbpage.c.orig	2006-02-23 18:21:28.202422392 -0800
-+++ ./arch/ia64/mm/hugetlbpage.c	2006-02-23 18:26:28.256129654 -0800
-@@ -125,9 +125,9 @@ void hugetlb_free_pgd_range(struct mmu_g
+Boot logs?
  
- 	addr = htlbpage_to_page(addr);
- 	end  = htlbpage_to_page(end);
--	if (is_hugepage_only_range(tlb->mm, floor, HPAGE_SIZE))
-+	if (REGION_NUMBER(floor) == RGN_HPAGE)
- 		floor = htlbpage_to_page(floor);
--	if (is_hugepage_only_range(tlb->mm, ceiling, HPAGE_SIZE))
-+	if (REGION_NUMBER(ceiling) == RGN_HPAGE)
- 		ceiling = htlbpage_to_page(ceiling);
- 
- 	free_pgd_range(tlb, addr, end, floor, ceiling);
+> SMP: Allowing 0 CPUs.
+> 
+> We blow up shortly afterwards.
+> 
+> Signed-off-by: Dave Jones <davej@redhat.com>
+> 
+> --- linux-2.6.15.noarch/arch/x86_64/kernel/smpboot.c~	2006-02-20 21:59:56.000000000 -0500
+> +++ linux-2.6.15.noarch/arch/x86_64/kernel/smpboot.c	2006-02-20 22:01:57.000000000 -0500
+> @@ -975,6 +975,11 @@ __init void prefill_possible_map(void)
+>  	if (possible > NR_CPUS) 
+>  		possible = NR_CPUS;
+>  
+> +	if (possible == 0) {	/* Could be SMP kernel on UP hw with broken BIOS */
+> +		possible = 1;
+> +		printk (KERN_DEBUG "BIOS never enumerated boot CPU, fixing.\n");
+> +	}
 
+It's the wrong place to handle this. Better would be in mpparse.c
 
+-Andi

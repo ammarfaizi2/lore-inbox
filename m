@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWBXMWe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWBXMdc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbWBXMWe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 07:22:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWBXMWe
+	id S932156AbWBXMdc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 07:33:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWBXMdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 07:22:34 -0500
-Received: from mx2.suse.de ([195.135.220.15]:38548 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932133AbWBXMWd (ORCPT
+	Fri, 24 Feb 2006 07:33:32 -0500
+Received: from mx2.suse.de ([195.135.220.15]:53913 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932156AbWBXMdb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 07:22:33 -0500
+	Fri, 24 Feb 2006 07:33:31 -0500
 From: Andi Kleen <ak@suse.de>
-To: Andres Salomon <dilinger@debian.org>
-Subject: Re: [PATCH] x86_64 stack trace cleanup
-Date: Fri, 24 Feb 2006 13:22:27 +0100
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [Patch 3/3] prepopulate/cache cleared pages
+Date: Fri, 24 Feb 2006 13:33:15 +0100
 User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <1140777679.5073.17.camel@localhost.localdomain> <200602241147.03041.ak@suse.de> <1140780552.5073.26.camel@localhost.localdomain>
-In-Reply-To: <1140780552.5073.26.camel@localhost.localdomain>
+Cc: Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@intel.linux.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <1140686238.2972.30.camel@laptopd505.fenrus.org> <20060224064912.GB7243@elte.hu> <43FEAF52.80705@yahoo.com.au>
+In-Reply-To: <43FEAF52.80705@yahoo.com.au>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200602241322.28389.ak@suse.de>
+Message-Id: <200602241333.16190.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 February 2006 12:29, Andres Salomon wrote:
+On Friday 24 February 2006 08:01, Nick Piggin wrote:
 
-> That would be nice.  Unfortunately, I'm trying to figure out why my dual
-> opteron box likes to push the load up to 15 and then hang while doing
-> i/o to the 3ware 9500S-8 card.  Looks like the load/d-state processes
-> are caused by a whole lot (well, MAX_PDFLUSH_THREADS) of pdflush
-> processes spinning on base->lock in lock_timer_base(); not sure if
-> that's intentional or not, but it seems rather odd.  Whether the hanging
-> is related to the high load remains to be seen.
+> 
+> Yeah, as I said above, the newly allocated page is fine, it is the
+> page table pages I'm worried about.
 
-Sounds like some timer handler is broken. You have to find out which
-one it is.
- 
+page tables are easy because we zero them on free (as a side effect
+of all the pte_clears)
 
-> I don't see why this is a problem.  Other architectures have done this
-> for ages, without problems.  I suspect most people get their backtraces
-> from either serial console or logs, as copying them down from the screen
-> or taking a picture of the panic is a rather large pain.  It seems like
-> you're penalizing everyone for a few select use cases.
+I did a experimental hack some time ago to set a new struct page
+flag when a page is known to be zeroed on freeing and use that for 
+a GFP_ZERO allocation (basically skip the clear_page when that
+flag was set)
 
-People submitting jpegs of photographed oopses or even badly scribbled
-down oopses is quite common. Serial consoles are only used by a small
-elite.
+The idea was to generalize the old page table reuse caches which
+Ingo removed at some point.
+
+It only works of course if the allocations and freeing
+of page tables roughly matches up. In theory on could have
+split the lists of the buddy allocator too into zero/non
+zero pages to increase the hit rate, but I didn't attempt this.
+
+I unfortunately don't remember the outcome, dropped it for some reason. 
 
 -Andi
+

@@ -1,66 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751810AbWBXCfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751816AbWBXCgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751810AbWBXCfY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 21:35:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751813AbWBXCfY
+	id S1751816AbWBXCgh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 21:36:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751815AbWBXCgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 21:35:24 -0500
-Received: from web31605.mail.mud.yahoo.com ([68.142.198.151]:25484 "HELO
-	web31605.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751810AbWBXCfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 21:35:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=fMozqfMEmlIXfNJTjY2UupXKwddKuncRNmpoomi04lSmtufmzUbFTaV8eah6XWs263jcE3Q8J41XeIK5Tm+A/Rx9mXTrorXNiBgD7t6BEyMvZLEEgf+3ARY3oDW55oHdiXHYMZNzWv4cyuygubz8CpjuL8CrB5rsfuXVLPW88WI=  ;
-Message-ID: <20060224023522.43019.qmail@web31605.mail.mud.yahoo.com>
-Date: Thu, 23 Feb 2006 18:35:22 -0800 (PST)
-From: Mohit Jaggi <jaggi_mohit@yahoo.com>
-Subject: latency measurements on 2.4.21 (EL 3.0) on SMP (4-cpu)
-To: linux-kernel@vger.kernel.org
+	Thu, 23 Feb 2006 21:36:37 -0500
+Received: from 220-130-178-142.HINET-IP.hinet.net ([220.130.178.142]:22749
+	"EHLO areca.com.tw") by vger.kernel.org with ESMTP id S1751813AbWBXCgg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 21:36:36 -0500
+Message-ID: <005901c638eb$2811c100$b100a8c0@erich2003>
+From: "erich" <erich@areca.com.tw>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "\"Arjan van de Ven\"" <arjan@infradead.org>,
+       "\"\"Christoph Hellwig\"\"" <hch@infradead.org>,
+       <linux-scsi@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <billion.wu@areca.com.tw>, <akpm@osdl.org>, <oliver@neukum.org>
+References: <1140458552.3495.26.camel@mentorng.gurulabs.com> <20060220182045.GA1634@infradead.org> <001401c63779$12e49aa0$b100a8c0@erich2003> <20060222145733.GC16269@infradead.org> <00dc01c63842$381f9a30$b100a8c0@erich2003> <1140683157.2972.6.camel@laptopd505.fenrus.org> <001901c6385e$9aee7d40$b100a8c0@erich2003> <1140695990.19361.8.camel@localhost.localdomain>
+Subject: Re: Areca RAID driver remaining items?
+Date: Fri, 24 Feb 2006 10:36:44 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	format=flowed;
+	charset="big5";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.3790.1830
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
+X-OriginalArrivalTime: 24 Feb 2006 02:32:33.0265 (UTC) FILETIME=[90FD2610:01C638EA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks,
-I am testing a PCI card that accelerates and offloads
-certain functions. I have a multi-threaded real-time
-priority (SCHED_FIFO) process to send data to the card
-and receive the results. Sending is done by a an
-ingress thread(priority=25) and receiving is handled
-by an egress thread(priority=35). Using affinity calls
-I have made sure that they run concurrently on two
-different CPUs. My goal is get the lowest possible
-latency from the card. I am measuring it using the
-delta of the values returned by gettimeofday() from
-ingress thread just before I send the data to the card
-and from egress thread just after I receive it. 
-While trying various scenarios I noticed that if the
-ingress thread send a few messages and then sleeps for
-time 't' using usleep(t), then depending on 't' I see
-that the latency measured as described above is
-different. For example, for t=20k I observe latency of
-around 20ms. If I use t=50k I observe 60ms. For 40k  I
-see 40ms. Since my delta is not counting this sleep I
-find this behaviour quite surprising. I would
-appreciate if anyone can venture an explanation.
+Dear Alan Cox,
 
-I have been trying to find out how gettimeofday()
-works on SMP linux. Any pointers?
+This is good idea to make black list to prevent system hang up with MSI 
+function.
+But arcmsr need  to come up against none specific mainboards.
+The case at my lab have same chipset but different maker.
 
-Is there a catch to using real-time priority processes
-that I should be aware of? Because the latency
-measurements I am doing are of the order of
-microseconds I believe I have to have real time
-scheduling otherwise time-slicing which is of the
-order of milliseconds will mess it up.
+Best Regards
+Erich Chen
 
-Thanks,
-Mohit.
+----- Original Message ----- 
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: "erich" <erich@areca.com.tw>
+Cc: "Arjan van de Ven" <arjan@infradead.org>; ""Christoph Hellwig"" 
+<hch@infradead.org>; <linux-scsi@vger.kernel.org>; 
+<linux-kernel@vger.kernel.org>; <billion.wu@areca.com.tw>; <akpm@osdl.org>; 
+<oliver@neukum.org>
+Sent: Thursday, February 23, 2006 7:59 PM
+Subject: Re: Areca RAID driver remaining items?
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+
+> On Iau, 2006-02-23 at 17:50 +0800, erich wrote:
+>> But unfortunately I found some mainboards will hang up if I always enable
+>> this function in my lab.
+>> To avoid this issue, I do an option for this case.
+>>
+>> But  Christoph Hellwig give me comment with it.
+>
+>
+> Another thing you can also do for many of these cases is to use either
+> the PCI or DMI interfaces to identify the problem board and
+> automatically set the option as well.
+>
+> There are two ways to do this. One is
+>
+> struct pci_dev *bridge_dev = pci_get_slot(pdev->bus, PCI_DEVFN(0,0));
+> if(bridge_dev) {
+> if(bridge_dev->subsystem_vendor == 0xXXXX &&
+> bridge_dev->subsystem_device == 0xXXXX)
+> /* Match by svid/sdid for problem boards */
+>
+> The other is like this
+>
+> #include <linux/dmi.h>
+>
+> struct dmi_system_id problem_dmi_table[] = {
+> {
+> .ident = "Broken Board Name 1",
+> .matches = {
+> DMI_MATCH(DMI_SYS_VENDOR, "EvilCorp");
+> DMI_MATCH(DMI_PRODUCTNAME, "Wombat 1000");
+> }
+> }
+> {
+> ditto per board
+> },
+> { } /* End of list mark
+> };
+>
+>
+> And then
+>
+> if (dmi_system_check(problem_dmi_table))
+> disable_msi..
+>
+>
+> The DMI code matches on the DMI strings in the ROM BIOS (the ones dumped
+> by 'dmidecode')
+>
+>
+> An example driver using this interface is drivers/char/sonypi.c which
+> uses it to make sure it *is* only run on a sony laptop.
+>
+> Alan
+> 
+

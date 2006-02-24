@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751607AbWBXAlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWBXAuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751607AbWBXAlN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 19:41:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751639AbWBXAlN
+	id S932104AbWBXAuT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 19:50:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbWBXAuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 19:41:13 -0500
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:57223 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP
-	id S1751607AbWBXAlM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 19:41:12 -0500
-X-ORBL: [67.117.73.34]
-Date: Thu, 23 Feb 2006 16:40:49 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: john stultz <johnstul@us.ibm.com>
+	Thu, 23 Feb 2006 19:50:18 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:61096 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932104AbWBXAuR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 19:50:17 -0500
+Subject: Re: [PATCH] Fix next_timer_interrupt() for hrtimer
+From: john stultz <johnstul@us.ibm.com>
+To: Tony Lindgren <tony@atomide.com>
 Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
        Martin Schwidefsky <schwidefsky@de.ibm.com>,
        Russell King <linux@arm.linux.org.uk>, Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH] Fix next_timer_interrupt() for hrtimer
-Message-ID: <20060224004049.GD4578@atomide.com>
-References: <20060224002653.GC4578@atomide.com> <1140741472.1271.64.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1140741472.1271.64.camel@cog.beaverton.ibm.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060224004049.GD4578@atomide.com>
+References: <20060224002653.GC4578@atomide.com>
+	 <1140741472.1271.64.camel@cog.beaverton.ibm.com>
+	 <20060224004049.GD4578@atomide.com>
+Content-Type: text/plain
+Date: Thu, 23 Feb 2006 16:50:07 -0800
+Message-Id: <1140742207.1271.67.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* john stultz <johnstul@us.ibm.com> [060223 16:37]:
-> On Thu, 2006-02-23 at 16:26 -0800, Tony Lindgren wrote:
-> > +	tv = ktime_to_timespec(event);
-> > +
-> > +	/* Assume read xtime_lock is held, so we can't use getnstimeofday() */
-> > +	sec = xtime.tv_sec;
-> > +	nsec = xtime.tv_nsec;
-> > +	while (unlikely(nsec >= NSEC_PER_SEC)) {
-> > +		nsec -= NSEC_PER_SEC;
-> > +		++sec;
-> > +	}
-> > +	tv.tv_sec = sec;
-> > +	tv.tv_nsec = nsec;
+On Thu, 2006-02-23 at 16:40 -0800, Tony Lindgren wrote:
+> * john stultz <johnstul@us.ibm.com> [060223 16:37]:
+> > On Thu, 2006-02-23 at 16:26 -0800, Tony Lindgren wrote:
+> > > +	tv = ktime_to_timespec(event);
+> > > +
+> > > +	/* Assume read xtime_lock is held, so we can't use getnstimeofday() */
+> > > +	sec = xtime.tv_sec;
+> > > +	nsec = xtime.tv_nsec;
+> > > +	while (unlikely(nsec >= NSEC_PER_SEC)) {
+> > > +		nsec -= NSEC_PER_SEC;
+> > > +		++sec;
+> > > +	}
+> > > +	tv.tv_sec = sec;
+> > > +	tv.tv_nsec = nsec;
+> > 
+> > Er, I think you should be able to nest readers. Thus getnstimeofday()
+> > should be safe to call. Or is the comment wrong and you are assuming a
+> > write lock is held?
 > 
-> Er, I think you should be able to nest readers. Thus getnstimeofday()
-> should be safe to call. Or is the comment wrong and you are assuming a
-> write lock is held?
+> Oops, it's a write lock as next_timer_interrupt gets called from
+> arch/*/time.c.
 
-Oops, it's a write lock as next_timer_interrupt gets called from
-arch/*/time.c.
+Also the above code just overwrites tv. 
 
-Tony
+Do you intend instead to add xtime to tv? 
+
+thanks
+-john
+
+

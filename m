@@ -1,76 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWBXKE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbWBXKFv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbWBXKE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 05:04:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWBXKE1
+	id S932173AbWBXKFv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 05:05:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWBXKFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 05:04:27 -0500
-Received: from mta-gw1.infomaniak.ch ([84.16.68.86]:12269 "EHLO
-	mta-gw1.infomaniak.ch") by vger.kernel.org with ESMTP
-	id S932146AbWBXKE0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 05:04:26 -0500
-In-Reply-To: <20060224025759.GA14027@redhat.com>
-References: <200601050223.k052Ngu2003866@hera.kernel.org> <20060224025759.GA14027@redhat.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: multipart/mixed; boundary=Apple-Mail-8--740522272
-Message-Id: <5698750A-4231-4500-B060-B06165E5C0FD@brownhat.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>
-From: Daniele Venzano <venza@brownhat.org>
-Subject: Re: [PATCH] Add Wake on LAN support to sis900 (2)
-Date: Fri, 24 Feb 2006 11:03:54 +0100
-To: Jeff Garzik <jgarzik@pobox.com>, netdev@vger.kernel.org
-X-Mailer: Apple Mail (2.746.2)
-X-Antivirus: Dr.Web (R) for Mail Servers on mta-spa1 host
-X-Antivirus-Code: 100000
+	Fri, 24 Feb 2006 05:05:50 -0500
+Received: from posthamster.phnxsoft.com ([195.227.45.4]:62215 "EHLO
+	posthamster.phnxsoft.com") by vger.kernel.org with ESMTP
+	id S932173AbWBXKFu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 05:05:50 -0500
+Message-ID: <43FEDA79.3010505@imap.cc>
+Date: Fri, 24 Feb 2006 11:05:45 +0100
+From: Tilman Schmidt <tilman@imap.cc>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.8) Gecko/20050511
+X-Accept-Language: de, en, fr
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+CC: hjlipp@web.de
+Subject: [PATCH] add macros notice(), dev_notice()
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig8AA1E99671EC421D64BA22DE"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig8AA1E99671EC421D64BA22DE
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
 
---Apple-Mail-8--740522272
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	delsp=yes;
-	format=flowed
+Both usb.h and device.h have collections of convenience macros for
+printk() with the KERN_ERR, KERN_WARNING, and KERN_NOTICE severity
+levels. This patch adds macros for the KERN_NOTICE level which was
+so far uncatered for.
 
-Attached you find the patch that fixes two bugs in the WoL  
-implementation of sis900. The first causes hangs on some system on  
-driver load, the second causes troubles when disabling WoL support.  
-Both fixes are one liner and really simple. Patch is against latest  
-netdev-2.6 tree.
+These macros already exist privately in drivers/isdn/gigaset/gigaset.h
+(currently in the process of being submitted for the kernel tree)
+but they really belong with their brothers and sisters in
+include/linux/{device,usb}.h.
 
-Signed-off-by: Lennert Buytenhek <buytenh@wantstofly.org>
-Signed-off-by: Daniele Venzano <venza@brownhat.org>
+Signed-off-by: Tilman Schmidt <tilman@imap.cc>
+---
+
+ device.h |    2 ++
+ usb.h    |    2 ++
+ 2 files changed, 4 insertions(+)
+
+diff -ru linux-2.6.16-rc4-patch-splitpoint/include/linux/device.h linux-2.6.16-rc4/include/linux/device.h
+--- linux-2.6.16-rc4-patch-splitpoint/include/linux/device.h	2006-02-24 10:36:10.000000000 +0100
++++ linux-2.6.16-rc4/include/linux/device.h	2006-02-23 23:28:00.000000000 +0100
+@@ -424,6 +424,8 @@
+ 	dev_printk(KERN_INFO , dev , format , ## arg)
+ #define dev_warn(dev, format, arg...)		\
+ 	dev_printk(KERN_WARNING , dev , format , ## arg)
++#define dev_notice(dev, format, arg...)		\
++	dev_printk(KERN_NOTICE , dev , format , ## arg)
+
+ /* Create alias, so I can be autoloaded. */
+ #define MODULE_ALIAS_CHARDEV(major,minor) \
+diff -ru linux-2.6.16-rc4-patch-splitpoint/include/linux/usb.h linux-2.6.16-rc4/include/linux/usb.h
+--- linux-2.6.16-rc4-patch-splitpoint/include/linux/usb.h	2006-02-24 10:37:53.000000000 +0100
++++ linux-2.6.16-rc4/include/linux/usb.h	2006-02-23 23:30:35.000000000 +0100
+@@ -1216,6 +1216,8 @@
+ 	THIS_MODULE ? THIS_MODULE->name : __FILE__ , ## arg)
+ #define warn(format, arg...) printk(KERN_WARNING "%s: " format "\n" , \
+ 	THIS_MODULE ? THIS_MODULE->name : __FILE__ , ## arg)
++#define notice(format, arg...) printk(KERN_NOTICE "%s: " format "\n" , \
++	THIS_MODULE ? THIS_MODULE->name : __FILE__ , ## arg)
 
 
---Apple-Mail-8--740522272
-Content-Transfer-Encoding: 7bit
-Content-Type: application/octet-stream;
-	x-unix-mode=0644;
-	name="sis900_wol_fix.diff"
-Content-Disposition: attachment;
-	filename=sis900_wol_fix.diff
+ #endif  /* __KERNEL__ */
 
---- new/drivers/net/sis900.c.old	2006-02-24 10:46:06.000000000 +0100
-+++ new/drivers/net/sis900.c	2006-02-24 09:57:57.000000000 +0100
-@@ -540,7 +540,7 @@ static int __devinit sis900_probe(struct
- 	printk("%2.2x.\n", net_dev->dev_addr[i]);
- 
- 	/* Detect Wake on Lan support */
--	ret = inl(CFGPMC & PMESP);
-+	ret = (inl(net_dev->base_addr + CFGPMC) & PMESP) >> 27;
- 	if (netif_msg_probe(sis_priv) && (ret & PME_D3C) == 0)
- 		printk(KERN_INFO "%s: Wake on LAN only available from suspend to RAM.", net_dev->name);
- 
-@@ -2040,7 +2040,7 @@ static int sis900_set_wol(struct net_dev
- 
- 	if (wol->wolopts == 0) {
- 		pci_read_config_dword(sis_priv->pci_dev, CFGPMCSR, &cfgpmcsr);
--		cfgpmcsr |= ~PME_EN;
-+		cfgpmcsr &= ~PME_EN;
- 		pci_write_config_dword(sis_priv->pci_dev, CFGPMCSR, cfgpmcsr);
- 		outl(pmctrl_bits, pmctrl_addr);
- 		if (netif_msg_wol(sis_priv))
+--
+Tilman Schmidt                          E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Ungeöffnet mindestens haltbar bis: (siehe Rückseite)
 
---Apple-Mail-8--740522272--
+
+
+
+--------------enig8AA1E99671EC421D64BA22DE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFD/tp5MdB4Whm86/kRAn8PAJ9U1JartaKNkav3psP65kygFACfNwCfVFjj
+IMN8SlFikCgRK1AS/RFrJKQ=
+=sQqQ
+-----END PGP SIGNATURE-----
+
+--------------enig8AA1E99671EC421D64BA22DE--

@@ -1,54 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932633AbWBXXBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932635AbWBXXBR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932633AbWBXXBe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 18:01:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932636AbWBXXBd
+	id S932635AbWBXXBR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 18:01:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932636AbWBXXBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 18:01:33 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:29634 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932633AbWBXXBd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 18:01:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JKv7EOAgSeHwq8Qb1UC/CEtC6LA6QCLGYxQ/NXMNIHaEo9pGhyaFpL7M7S12uNCL31C4aUk8V2lavG0aLiGyJ6df0PWd15CBViWsc3UChs7t+W8C5y/GcE9ireTSE2Ua7F+sLtBVJW9upf9wWUwXCzXALY2qtZL9FU1qVBLEZVo=
-Message-ID: <9a8748490602241501q550488baqad63df65f4dd8623@mail.gmail.com>
-Date: Sat, 25 Feb 2006 00:01:32 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-Subject: Re: [PATCH 12/13] "const static" vs "static const" in nfs4
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Kendrick Smith" <kmsmith@umich.edu>, "Andy Adamson" <andros@umich.edu>,
-       neilb@cse.unsw.edu.au
-In-Reply-To: <1140821964.3615.95.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 24 Feb 2006 18:01:17 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:27285 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S932635AbWBXXBQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 18:01:16 -0500
+Date: Sat, 25 Feb 2006 00:01:15 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Kirill Korotaev <dev@sw.ru>, Linus Torvalds <torvalds@osdl.org>,
+       Rik van Riel <riel@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       devel@openvz.org, Andrey Savochkin <saw@sawoct.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Stanislav Protassov <st@sw.ru>,
+       serue@us.ibm.com, frankeh@watson.ibm.com, clg@fr.ibm.com,
+       haveblue@us.ibm.com, mrmacman_g4@mac.com, alan@lxorguk.ukuu.org.uk,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Which of the virtualization approaches is more suitable for kernel?
+Message-ID: <20060224230114.GA12575@MAIL.13thfloor.at>
+Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
+	Kirill Korotaev <dev@sw.ru>, Linus Torvalds <torvalds@osdl.org>,
+	Rik van Riel <riel@redhat.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	devel@openvz.org, Andrey Savochkin <saw@sawoct.com>,
+	Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+	Stanislav Protassov <st@sw.ru>, serue@us.ibm.com,
+	frankeh@watson.ibm.com, clg@fr.ibm.com, haveblue@us.ibm.com,
+	mrmacman_g4@mac.com, alan@lxorguk.ukuu.org.uk,
+	Andrew Morton <akpm@osdl.org>
+References: <43F9E411.1060305@sw.ru> <m1oe0wbfed.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200602242149.42735.jesper.juhl@gmail.com>
-	 <1140821964.3615.95.camel@lade.trondhjem.org>
+In-Reply-To: <m1oe0wbfed.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/24/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> On Fri, 2006-02-24 at 21:49 +0100, Jesper Juhl wrote:
-> > My previous "const static" vs "static const" cleanup missed a single case,
-> > patch below takes care of it.
+On Fri, Feb 24, 2006 at 02:44:42PM -0700, Eric W. Biederman wrote:
+> Kirill Korotaev <dev@sw.ru> writes:
+> 
+> > Linus, Andrew,
 > >
+> > We need your help on what virtualization approach you would accept
+> > to mainstream (if any) and where we should go.
+> >
+> > If to drop VPID virtualization which caused many disputes, we
+> > actually have the one virtualization solution, but 2 approaches for
+> > it. Which one will go depends on the goals and your approval any
+> > way.
+> 
+> My apologies for not replying sooner.
+> 
+> > From the looks of previous replies I think we have some valid
+> > commonalities that we can focus on.
+> 
+> Largely we all agree that to applications things should look exactly
+> as they do now. Currently we do not agree on management interfaces.
 >
-> I can shepherd that in for 2.6.17 (unless Andrew wants to make it a
-> 2.6.16 priority?).
->
+> We seem to have much more agreement on everything except pids, so
+> discussing some of the other pieces looks worth while.
+> 
+> So I propose we the patches to solve the problem into three categories.
+> - General cleanups that simplify or fix problems now, but have
+>   a major advantage for our work.
+> - The kernel internal implementation of the various namespaces
+>   without an interface to create new ones.
+> - The new interfaces for how we create and control containers/namespaces.
 
-No need for that. It's just something that ICC complains about
-"storage class not being first" - gcc doesn't care.
+proposal accepted on my side
 
-2.6.17 is fine, no need to rush that one.
+> This should allow the various approach to start sharing code, getting
+> progressively closer to each other until we have an implementation we
+> can agree is ready to go into Linus's kernel. Plus that will allow us
+> to have our technical flame wars without totally stopping progress.
+> 
+> We can start on a broad front, looking at several different things.
+> But I suggest the first thing we all look at is SYSVIPC. It is
+> currently a clearly recognized namespace in the kernel so the scope is
+> well defined. SYSVIPC is just complicated enough to have a non-trivial
+> implementation while at the same time being simple enough that we can
+> go through the code in exhausting detail. Getting the group dynamics
+> working properly.
 
-Just a small thing that might as well be done :)
+okay, sounds good ...
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+> Then we can as a group look at networking, pids, and the other pieces.
+> 
+> But I do think it is important that we take the problem in pieces
+> because otherwise it is simply to large to review properly.
+
+definitely
+
+best,
+Herbert
+
+> Eric
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,226 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbWBXBKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbWBXBOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932327AbWBXBKz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 20:10:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWBXBKz
+	id S932353AbWBXBOV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 20:14:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbWBXBOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 20:10:55 -0500
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:50376 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S932327AbWBXBKy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 20:10:54 -0500
-X-ORBL: [67.117.73.34]
-Date: Thu, 23 Feb 2006 17:10:45 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Russell King <linux@arm.linux.org.uk>, Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH] Fix next_timer_interrupt() for hrtimer
-Message-ID: <20060224011044.GE4578@atomide.com>
-References: <20060224002653.GC4578@atomide.com> <1140741472.1271.64.camel@cog.beaverton.ibm.com> <20060224004049.GD4578@atomide.com> <1140742207.1271.67.camel@cog.beaverton.ibm.com>
+	Thu, 23 Feb 2006 20:14:21 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:6620 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932343AbWBXBOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 20:14:20 -0500
+Message-Id: <200602240114.k1O1E4g05231@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'David Gibson'" <david@gibson.dropbear.id.au>,
+       "Hugh Dickins" <hugh@veritas.com>
+Cc: <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: IA64 non-contiguous memory space bugs
+Date: Thu, 23 Feb 2006 17:14:03 -0800
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="AbQceqfdZEv+FvjW"
-Content-Disposition: inline
-In-Reply-To: <1140742207.1271.67.camel@cog.beaverton.ibm.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcY41y6fwRCNtdgVQDm9X59Q/+P3CAAAQTiw
+In-Reply-To: <20060224001146.GC25101@localhost.localdomain>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Gibson wrote on Thursday, February 23, 2006 4:12 PM
+> It doesn't really mean different things - "touches a hugepage
+> exclusive area" is the correct semantic, the ia64 implementation
+> doesn't quite encode that, but is equivalent for valid address
+> ranges.  (though I wonder if that's another bug associated with by
+> task-region-max patch, without that patch invalid address ranges can
+> slip through, so maybe it's possible on ia64 to create a normalpage VM
+> with its start in the address space gap and its end in the hugepage
+> region, ouch).
 
---AbQceqfdZEv+FvjW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This is getting complicated that my little brain hurts.  There has been
+so many iterations that the semantic is ambiguous.  If the semantic is
+decided to be "overlap", then 
 
-* john stultz <johnstul@us.ibm.com> [060223 16:50]:
-> On Thu, 2006-02-23 at 16:40 -0800, Tony Lindgren wrote:
-> > * john stultz <johnstul@us.ibm.com> [060223 16:37]:
-> > > On Thu, 2006-02-23 at 16:26 -0800, Tony Lindgren wrote:
-> > > > +	tv = ktime_to_timespec(event);
-> > > > +
-> > > > +	/* Assume read xtime_lock is held, so we can't use getnstimeofday() */
-> > > > +	sec = xtime.tv_sec;
-> > > > +	nsec = xtime.tv_nsec;
-> > > > +	while (unlikely(nsec >= NSEC_PER_SEC)) {
-> > > > +		nsec -= NSEC_PER_SEC;
-> > > > +		++sec;
-> > > > +	}
-> > > > +	tv.tv_sec = sec;
-> > > > +	tv.tv_nsec = nsec;
-> > > 
-> > > Er, I think you should be able to nest readers. Thus getnstimeofday()
-> > > should be safe to call. Or is the comment wrong and you are assuming a
-> > > write lock is held?
-> > 
-> > Oops, it's a write lock as next_timer_interrupt gets called from
-> > arch/*/time.c.
-> 
-> Also the above code just overwrites tv. 
+It will break arch/ia64/mm/hugetlbpage.c:hugetlb_free_pgd_range():
 
-That's a bug from clean-up... Actually I just shrunk the
-ktime_to_jiffies(), see below.
- 
-> Do you intend instead to add xtime to tv? 
+        if (is_hugepage_only_range(tlb->mm, floor, HPAGE_SIZE))
+                floor = htlbpage_to_page(floor);
+        if (is_hugepage_only_range(tlb->mm, ceiling, HPAGE_SIZE))
+                ceiling = htlbpage_to_page(ceiling);
 
-No, just get current time in ktime. But turns out tv is not
-needed at all :)
+And it will break horribly bad because hugetlbpage_to_page does
+"magic" address transformation.
 
-Tony
+- Ken
 
---AbQceqfdZEv+FvjW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename=patch-hrtimer-dyntick
-
-This patch adds support for hrtimer to next_timer_interrupt()
-and fixes current breakage.
-
-Function next_timer_interrupt() got broken with a recent patch
-6ba1b91213e81aa92b5cf7539f7d2a94ff54947c as sys_nanosleep() was
-moved to hrtimer. This broke things as next_timer_interrupt()
-did not check hrtimer tree for next event.
-
-Function next_timer_interrupt() is needed with dyntick
-(CONFIG_NO_IDLE_HZ, VST) implementations, as the system can
-be in idle when next hrtimer event was supposed to happen.
-At least ARM and S390 currently use next_timer_interrupt(). 
-
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-
-Index: linux-omap-dev/kernel/hrtimer.c
-===================================================================
---- linux-omap-dev.orig/kernel/hrtimer.c	2006-02-23 16:19:47.000000000 -0800
-+++ linux-omap-dev/kernel/hrtimer.c	2006-02-23 17:04:23.000000000 -0800
-@@ -505,6 +505,80 @@
- 	return rem;
- }
- 
-+#ifdef CONFIG_NO_IDLE_HZ
-+
-+/**
-+ * hrtimer_get_next - get next hrtimer to expire
-+ *
-+ * @bases:	ktimer base array
-+ */
-+static inline struct hrtimer * hrtimer_get_next(struct hrtimer_base *bases)
-+{
-+	unsigned long flags;
-+	struct hrtimer *timer = NULL;
-+	int i;
-+
-+	for (i = 0; i < MAX_HRTIMER_BASES; i++) {
-+		struct hrtimer_base *base;
-+		struct hrtimer *cur;
-+
-+		base = &bases[i];
-+		spin_lock_irqsave(&base->lock, flags);
-+		cur = rb_entry(base->first, struct hrtimer, node);
-+		spin_unlock_irqrestore(&base->lock, flags);
-+
-+		if (cur == NULL)
-+			continue;
-+
-+		if (timer == NULL || cur->expires.tv64 < timer->expires.tv64)
-+			timer = cur;
-+	}
-+
-+	return timer;
-+}
-+
-+/**
-+ * ktime_to_jiffies - converts ktime to jiffies
-+ *
-+ * @event:	ktime event to be converted
-+ *
-+ * Caller must take care xtime locking.
-+ */
-+static inline unsigned long ktime_to_jiffies(const ktime_t event)
-+{
-+	ktime_t now, delta;
-+	struct timespec tv;
-+
-+	now = timespec_to_ktime(xtime);
-+	delta = ktime_sub(event, now);
-+	tv = ktime_to_timespec(delta);
-+
-+	return jiffies - 1 + timespec_to_jiffies(&tv);
-+}
-+
-+/**
-+ * hrtimer_next_jiffie - get next hrtimer event in jiffies
-+ *
-+ * Called from next_timer_interrupt() to get the next hrtimer event.
-+ * Eventually we should change next_timer_interrupt() to return
-+ * results in nanoseconds instead of jiffies. Caller must host xtime_lock.
-+ */
-+int hrtimer_next_jiffie(unsigned long *next_jiffie)
-+{
-+	struct hrtimer_base *base = __get_cpu_var(hrtimer_bases);
-+	struct hrtimer * timer;
-+
-+	timer = hrtimer_get_next(base);
-+	if (timer == NULL)
-+		return -EAGAIN;
-+
-+	*next_jiffie = ktime_to_jiffies(timer->expires);
-+
-+	return 0;
-+}
-+
-+#endif
-+
- /**
-  * hrtimer_init - initialize a timer to the given clock
-  *
-Index: linux-omap-dev/kernel/timer.c
-===================================================================
---- linux-omap-dev.orig/kernel/timer.c	2006-02-23 16:19:47.000000000 -0800
-+++ linux-omap-dev/kernel/timer.c	2006-02-23 16:19:47.000000000 -0800
-@@ -478,6 +478,7 @@
- }
- 
- #ifdef CONFIG_NO_IDLE_HZ
-+
- /*
-  * Find out when the next timer event is due to happen. This
-  * is used on S/390 to stop all activity when a cpus is idle.
-@@ -489,9 +490,15 @@
- 	struct list_head *list;
- 	struct timer_list *nte;
- 	unsigned long expires;
-+	unsigned long hr_expires = jiffies + 10 * HZ;	/* Anything far ahead */
- 	tvec_t *varray[4];
- 	int i, j;
- 
-+	/* Look for timer events in hrtimer. */
-+	if ((hrtimer_next_jiffie(&hr_expires) == 0)
-+		&& (time_before(hr_expires, jiffies + 2)))
-+			return hr_expires;
-+
- 	base = &__get_cpu_var(tvec_bases);
- 	spin_lock(&base->t_base.lock);
- 	expires = base->timer_jiffies + (LONG_MAX >> 1);
-@@ -542,6 +549,10 @@
- 		}
- 	}
- 	spin_unlock(&base->t_base.lock);
-+
-+	if (time_before(hr_expires, expires))
-+		expires = hr_expires;
-+
- 	return expires;
- }
- #endif
-Index: linux-omap-dev/include/linux/hrtimer.h
-===================================================================
---- linux-omap-dev.orig/include/linux/hrtimer.h	2006-02-23 16:19:43.000000000 -0800
-+++ linux-omap-dev/include/linux/hrtimer.h	2006-02-23 16:19:47.000000000 -0800
-@@ -115,6 +115,7 @@
- /* Query timers: */
- extern ktime_t hrtimer_get_remaining(const struct hrtimer *timer);
- extern int hrtimer_get_res(const clockid_t which_clock, struct timespec *tp);
-+extern int hrtimer_next_jiffie(unsigned long *next_jiffie);
- 
- static inline int hrtimer_active(const struct hrtimer *timer)
- {
-
---AbQceqfdZEv+FvjW--

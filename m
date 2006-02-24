@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWBXIec@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWBXIeb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932109AbWBXIec (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 03:34:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbWBXIec
+	id S932088AbWBXIeb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 03:34:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbWBXIeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 03:34:32 -0500
-Received: from mta-gw2.infomaniak.ch ([84.16.68.87]:50111 "EHLO
-	mta-gw2.infomaniak.ch") by vger.kernel.org with ESMTP
-	id S932109AbWBXIec (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 03:34:32 -0500
-In-Reply-To: <20060224025759.GA14027@redhat.com>
-References: <200601050223.k052Ngu2003866@hera.kernel.org> <20060224025759.GA14027@redhat.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <43D870D4-441C-4B85-AEA9-BB08C5079C4D@brownhat.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, jreiser@BitWagon.com
-Content-Transfer-Encoding: 7bit
-From: Daniele Venzano <venza@brownhat.org>
-Subject: Re: [PATCH] Add Wake on LAN support to sis900 (2)
-Date: Fri, 24 Feb 2006 09:34:08 +0100
-To: Dave Jones <davej@redhat.com>
-X-Mailer: Apple Mail (2.746.2)
-X-Antivirus: Dr.Web (R) for Mail Servers on mta-spa2 host
-X-Antivirus-Code: 100000
+	Fri, 24 Feb 2006 03:34:31 -0500
+Received: from smtp3.pp.htv.fi ([213.243.153.36]:11679 "EHLO smtp3.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S932088AbWBXIea (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 03:34:30 -0500
+Date: Fri, 24 Feb 2006 10:34:26 +0200
+From: Paul Mundt <lethal@linux-sh.org>
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
+       zanussi@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] sysfs: relay channel buffers as sysfs attributes
+Message-ID: <20060224083426.GA3385@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Maneesh Soni <maneesh@in.ibm.com>, Greg KH <greg@kroah.com>,
+	Christoph Hellwig <hch@infradead.org>, zanussi@us.ibm.com,
+	linux-kernel@vger.kernel.org
+References: <20060219210733.GA3682@linux-sh.org> <20060219210757.GB3682@linux-sh.org> <20060223105934.GA6884@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060223105934.GA6884@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il giorno 24/feb/06, alle ore 03:57, Dave Jones ha scritto:
+On Thu, Feb 23, 2006 at 04:29:35PM +0530, Maneesh Soni wrote:
+> On Sun, Feb 19, 2006 at 11:07:57PM +0200, Paul Mundt wrote:
+> > +	dentry = lookup_one_len(filename, parent, strlen(filename));
+> 
+> lookup_one_len() needs parent's i_mutex.
+> 
+Good catch, thanks.
 
-> The patch below applied on Jan 5th causes some systems to no longer  
-> boot.
-> See https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=179601
-> for details.
-I'm aware of the problem (found by Lennert Buytenhek, bugzilla:  
-5977). Obviously the patch I made was lost or I just forgot to send  
-it away. In a few minutes I hope to send the patch, I have to check  
-that it still applies.
+> > +	if (IS_ERR(dentry))
+> > +		sysfs_hash_and_remove(parent, filename);
+> 
+> Also wondering if you have considered the case of -EEXIST?
+> 
+How is that going to happen? The line before we do sysfs_add_file(), and
+if that errors out, then we never make it to lookup_one_len().
 
-Thanks.
---
-Daniele Venzano
-http://www.brownhat.org
-
+The IS_ERR() check is pretty superfluous anyways, perhaps it makes more
+sense just to remove it and the sysfs_hash_and_remove() reference
+entirely.

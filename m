@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWBXUt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbWBXUux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932479AbWBXUt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 15:49:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWBXUtb
+	id S932490AbWBXUux (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 15:50:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWBXUuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 15:49:31 -0500
-Received: from pproxy.gmail.com ([64.233.166.180]:33054 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932437AbWBXUtL (ORCPT
+	Fri, 24 Feb 2006 15:50:04 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:16434 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932437AbWBXUt7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 15:49:11 -0500
+	Fri, 24 Feb 2006 15:49:59 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:mime-version:content-disposition:content-type:content-transfer-encoding:message-id;
-        b=RTciKMy+IvGqixu9NazYhY+wTMB5xch1yVukTEcnUrmgeoM5qYWgx/fVWSfIKmE3Yw9zzvWqJEYkRIGNie30qSvzr2iaJFWAtlfoUHB8uJpOYDlm7+WdhWfXdvmuQsfvfTlcrQVhOiQW1t1M4wddba8h/zXeJ0Gl8ExbQH8i1x4=
+        b=W+G5P1h8zVZClKHc9rualcFLuf72TJD6ac4/Zi/hjXds/a/hKKYRlRoo2Ufpn1W0AWeaBgRk5nIBtqVi6t1YwxfP4oSAzUdednIhFJ/Brn2IdLPm/kxx8axAyc1nskfr+kqsBHDQuuzTArt94UYERmf+HvVsz9ZjkUgnD+tGtjI=
 From: Jesper Juhl <jesper.juhl@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 11/13] fix signed vs unsigned in nmi watchdog
-Date: Fri, 24 Feb 2006 21:49:24 +0100
+Subject: [PATCH 13/13] trivial typos in Documentation/cputopology.txt
+Date: Fri, 24 Feb 2006 21:50:16 +0100
 User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+Cc: linux-kernel@vger.kernel.org, Trivial Patch Monkey <trivial@kernel.org>,
+       Zhang Yanmin <yanmin.zhang@intel.com>,
        Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602242149.24767.jesper.juhl@gmail.com>
+Message-Id: <200602242150.16838.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Fix "signed vs unsigned" in nmi_watchdog_tick.
+Fix a few trivial mistakes in Documentation/cputopology.txt
 
 
 Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 ---
 
- arch/i386/kernel/nmi.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
+ Documentation/cputopology.txt |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
---- linux-2.6.16-rc4-mm2-orig/arch/i386/kernel/nmi.c	2006-02-24 19:25:29.000000000 +0100
-+++ linux-2.6.16-rc4-mm2/arch/i386/kernel/nmi.c	2006-02-24 20:55:32.000000000 +0100
-@@ -557,7 +557,8 @@ void nmi_watchdog_tick (struct pt_regs *
- 	 * always switch the stack NMI-atomically, it's safe to use
- 	 * smp_processor_id().
- 	 */
--	int sum, cpu = smp_processor_id();
-+	unsigned int sum;
-+	int cpu = smp_processor_id();
+--- linux-2.6.16-rc4-mm2-orig/Documentation/cputopology.txt	2006-02-18 02:08:36.000000000 +0100
++++ linux-2.6.16-rc4-mm2/Documentation/cputopology.txt	2006-02-24 19:42:46.000000000 +0100
+@@ -1,5 +1,5 @@
  
- 	sum = per_cpu(irq_stat, cpu).apic_timer_irqs;
+-Export cpu topology info by sysfs. Items (attributes) are similar
++Export cpu topology info via sysfs. Items (attributes) are similar
+ to /proc/cpuinfo.
  
-
+ 1) /sys/devices/system/cpu/cpuX/topology/physical_package_id:
+@@ -12,7 +12,7 @@ represent the thread siblings to cpu X i
+ represent the thread siblings to cpu X in the same physical package;
+ 
+ To implement it in an architecture-neutral way, a new source file,
+-driver/base/topology.c, is to export the 5 attributes.
++drivers/base/topology.c, is to export the 4 attributes.
+ 
+ If one architecture wants to support this feature, it just needs to
+ implement 4 defines, typically in file include/asm-XXX/topology.h.
 
 

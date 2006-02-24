@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbWBXXUN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932642AbWBXXUM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964772AbWBXXUN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 18:20:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964770AbWBXXUN
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 18:20:13 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:61584 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932641AbWBXXUM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S932642AbWBXXUM (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 24 Feb 2006 18:20:12 -0500
-Date: Fri, 24 Feb 2006 15:22:16 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: linux-kernel@vger.kernel.org, apw@shadowen.org
-Subject: Re: Problems for IBM x440 in 2.6.16-rc4-mm1 and -mm2 (PCI?)
-Message-Id: <20060224152216.2ed60306.akpm@osdl.org>
-In-Reply-To: <43FF2D38.2020602@mbligh.org>
-References: <43FF2D38.2020602@mbligh.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932643AbWBXXUM
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 24 Feb 2006 18:20:12 -0500
+Received: from zproxy.gmail.com ([64.233.162.206]:43760 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932642AbWBXXUK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 18:20:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aXFsmWImFniypXptxRzWShSAnvq0F9OscMvzHWEaNUEkxhaFDo977OSUC91pU7/jGFzI9xaA9oO5HgdzXybDx4pim/JZ/XdbzaKimMFmEikCNxd+RR5w6ZwP+f2RfCEEGXxDElRSqEMBEZOv+IjASvnLHbqOpAw9euDcSL+3ngY=
+Message-ID: <9a8748490602241520u4b09bef0p34feffc3ecebed31@mail.gmail.com>
+Date: Sat, 25 Feb 2006 00:20:09 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Al Viro" <viro@ftp.linux.org.uk>
+Subject: Re: [PATCH 12/13] "const static" vs "static const" in nfs4
+Cc: "Trond Myklebust" <trond.myklebust@fys.uio.no>,
+       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Kendrick Smith" <kmsmith@umich.edu>, "Andy Adamson" <andros@umich.edu>,
+       neilb@cse.unsw.edu.au
+In-Reply-To: <20060224231749.GH27946@ftp.linux.org.uk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200602242149.42735.jesper.juhl@gmail.com>
+	 <1140821964.3615.95.camel@lade.trondhjem.org>
+	 <9a8748490602241501q550488baqad63df65f4dd8623@mail.gmail.com>
+	 <20060224231749.GH27946@ftp.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@mbligh.org> wrote:
+On 2/25/06, Al Viro <viro@ftp.linux.org.uk> wrote:
+> On Sat, Feb 25, 2006 at 12:01:32AM +0100, Jesper Juhl wrote:
+> > No need for that. It's just something that ICC complains about
+> > "storage class not being first" - gcc doesn't care.
 >
-> OK, mainline is fine, but -mm won't boot:
-> 
-> mainline boot log:
-> 
-> http://test.kernel.org/23745/debug/console.log
-> (-git7)
-> 
-> -mm boot log:
-> http://test.kernel.org/23752/debug/console.log
-> 
-> It seems to find no PCI devices at all, and I note that when they first
-> seem to diverge, we get:
-> 
-> PCI: Probing PCI hardware
-> PCI quirk: region 0440-044f claimed by vt82c686 SMB
-> PCI->APIC IRQ transform: 0000:00:03.0[A] -> IRQ 39
-> PCI->APIC IRQ transform: 0000:00:04.0[A] -> IRQ 16
-> PCI->APIC IRQ transform: 0000:00:05.2[D] -> IRQ 47
-> PCI->APIC IRQ transform: 0000:00:05.3[D] -> IRQ 47
-> Setting up standard PCI resources
-> 
-> Instead of:
-> 
-> PCI: Probing PCI hardware
-> PCI quirk: region 0440-044f claimed by vt82c686 SMB
-> PCI: Discovered peer bus 01
-> PCI: Discovered peer bus 02
-> PCI: Discovered peer bus 05
-> PCI: Discovered peer bus 07
+> Neither does C99, so ICC really should either STFU or make that warning
+> independent from the rest and possible to turn off...
+>
 
-Does reverting gregkh-pci-pci-device-ensure-sysdata-initialised.patch help,
-or does it just take you back to the bug which that fixed?
+I agree.
+
+But, it's harmless to change, and a patch is already in mainline a
+while back that changes all occourences except this one (i simly
+forgot one), so might as well get the last one and then it's a
+non-issue.
+
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

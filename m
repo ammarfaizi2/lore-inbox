@@ -1,52 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbWBXBO4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWBXBRs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932367AbWBXBO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 20:14:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbWBXBOz
+	id S932369AbWBXBRs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 20:17:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWBXBRr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 20:14:55 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:50831 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932367AbWBXBOy (ORCPT
+	Thu, 23 Feb 2006 20:17:47 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:31199 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932369AbWBXBRq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 20:14:54 -0500
-Date: Thu, 23 Feb 2006 17:13:36 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: suparna@in.ibm.com, sct@redhat.com, mason@suse.com,
-       linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
-       kenneth.w.chen@intel.com, linux-kernel@vger.kernel.org,
-       sonny@burdell.org
-Subject: Re: [RFC][WIP] DIO simplification and AIO-DIO stability
-Message-Id: <20060223171336.7b412efc.akpm@osdl.org>
-In-Reply-To: <1140741566.22756.170.camel@dyn9047017100.beaverton.ibm.com>
-References: <20060223072955.GA14244@in.ibm.com>
-	<1140741566.22756.170.camel@dyn9047017100.beaverton.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Feb 2006 20:17:46 -0500
+Date: Thu, 23 Feb 2006 17:17:28 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: alokk@calsoftinc.com, manfred@colorfullife.com, penberg@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Slab: Node rotor for freeing alien caches and remote per cpu
+ pages.
+In-Reply-To: <20060223165959.7b4310e4.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0602231716300.17963@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0602231036480.13184@schroedinger.engr.sgi.com>
+ <20060223165959.7b4310e4.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
->
-> I am still trying to understand the whole proposal to give you better
->  feedback. But, my gut feeling is - its not going to be any more simpler
->  than what we have today :(
-> 
+On Thu, 23 Feb 2006, Andrew Morton wrote:
 
-Yes, that's my general reaction as well.  That code's solving a complex and
-messy problem, so it got complex and messy.
+> Should it be testing populated_zone() in there?
 
-Of course, a reimplementation might certainly end up faster, cleaner,
-better.  A throw-away-and-reimplement exercise often has that result, but
-mainly because on the second time the reimplementors understand the full
-scope of the problem at the outset rather than at the end.  So this time
-around, as you imply, we'd need to get a full problem description and set
-of testcases collected.
-
-That code does a _lot_ of stuff.  Fortunately, It's basically all in
-direct-io.c and that file exports a single function.  So it's possible that
-a reimplmentation could tick along alongside the existing implementation and
-ideally, it's just a matter of changing one entry in each filesystem's a_ops.
-
+setup_pageset() is called for all zones for each cpu. So all pcps
+of online nodes should be initialized properly.

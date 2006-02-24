@@ -1,46 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbWBXSFO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbWBXSIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932408AbWBXSFO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 13:05:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbWBXSFO
+	id S932413AbWBXSIa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 13:08:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWBXSIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 13:05:14 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:13456
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932408AbWBXSFM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 13:05:12 -0500
-Date: Fri, 24 Feb 2006 10:04:52 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Matthew Wilcox <matthew@wil.cx>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: Missing piece from as659
-Message-ID: <20060224180452.GA26821@kroah.com>
-References: <20060224164901.GQ28587@parisc-linux.org> <Pine.LNX.4.44L0.0602241246150.5177-100000@iolanthe.rowland.org>
+	Fri, 24 Feb 2006 13:08:30 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:35002 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932409AbWBXSI3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 13:08:29 -0500
+Subject: Re: [RFC][WIP] DIO simplification and AIO-DIO stability
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: suparna@in.ibm.com
+Cc: Zach Brown <zach.brown@oracle.com>, akpm@osdl.org, sct@redhat.com,
+       mason@suse.com, linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-aio@kvack.org, kenneth.w.chen@intel.com,
+       lkml <linux-kernel@vger.kernel.org>, sonny@burdell.org
+In-Reply-To: <20060224111239.GA2180@in.ibm.com>
+References: <20060223072955.GA14244@in.ibm.com>
+	 <43FE5F84.4000001@oracle.com>  <20060224111239.GA2180@in.ibm.com>
+Content-Type: text/plain
+Date: Fri, 24 Feb 2006 10:09:41 -0800
+Message-Id: <1140804586.22756.205.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0602241246150.5177-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 24, 2006 at 12:53:01PM -0500, Alan Stern wrote:
-> On Fri, 24 Feb 2006, Matthew Wilcox wrote:
-> > http://www.ussg.iu.edu/hypermail/linux/kernel/0602.2/2673.html
-> > If it is a bug, of course.  It's not clear to me whether it's permissible
-> > to call pci_dev_put under a spinlock or not.  That boils down to whether
-> > kobject ->release methods can sleep or not.  That isn't documented in
-> > Documentation/kobject.txt and I rather think it should be.
+On Fri, 2006-02-24 at 16:42 +0530, Suparna Bhattacharya wrote:
+> On Thu, Feb 23, 2006 at 05:21:08PM -0800, Zach Brown wrote:
+> > Suparna Bhattacharya wrote:
+> > 
+> > > A recent AIO-DIO bug reported by Kenneth Chen, came very close
+> > > to being the proverbial last straw for me.
+> > 
+> > Me too, though I found out about it from a different path.  Our QA guys
+> > were pulling drives under load and it got stuck.  Trying to fix that bug
+> > (io error setting dio->result to -EIO stops finished_one_bio() from
+> > calling aio_complete()) without introducing other regressions involved
+> > an incredible amount of squinting and head scratching.  In wandering
+> > around I found what seem to be other additional bugs:
+> > 
+> > - errors that hit after dio->result is sampled in the buffered fallback
+> > case are lost.  dio->result should be checked again after waiting.
+> > 
+> > - a few paths try to do arithmetic with dio->result assuming it's the
+> > number of bytes transferred when it could be -EIO.
 > 
-> It is a bug, but it has been ignored up until recently.  Within the last 
-> month or two, Greg added a might_sleep() call to put_device().  It 
-> wouldn't hurt to do the same thing to kobject_put(), or maybe just 
-> kobject_release().
+> Yes there is a race in the way dio->result is used both by completion
+> path and the post submission path.
+> 
+> > 
+> > - the AIO path seems to forget to check dio->page_errors, but I didn't
+> > look very hard to see what that means.
+> > 
+> > - the AIO bio completion paths don't populate dio->bio_list so reaping
+> > doesn't happen in the AIO issuing case.. maybe that's intentional?
+> 
+> It is intentional. The async case operates differently in that it
+> doesn't need/use the reaping logic at all. It just submits the entire
+> IO outright, without the pipelining sophistication of the original
+> synchronous DIO code. That's yet another point of divergence between
+> AIO and synchronous path, perhaps it would have been simpler if both
+> followed the same logic.
+> 
+> > 
+> > > It would be quite pointless (and painful!), if the rewrite ends up becoming
+> > > just as tricky and error prone as before. Such a patch will need a very
+> > > close critical review by many sharp eyes, to avoid disrupting the current
+> > > state of stability.
+> > 
+> > So, I'm all for wringing the current bugs and confusion out of the
+> > current code.  But the words "a patch" and "rewrite" terrify me.  It
+> 
+> Perhaps I shouldn't have used the term rewrite. The proposal retains
+> much of the current core logic, but mainly alters the way we
+> serialise vs concurrent buffered IO, and other pain points. But it
+> would certainly be more than incremental patches to fix individual
+> problems.
 
-kobject_put() will not necessarily sleep, it's only the device_put that
-will, due to the locking in the driver core.
+Yes. locking and error handling desperately needs a re-write, especially
+keeping AIO in mind. I would love to see "kicking back to buffered mode"
+completely go away. If Ken and Zach are willing to provide help on
+looking over & testing error handling cases (with pulling drives :)), 
+I have no problem with re-write :)
 
-thanks,
+Thanks,
+Badari
 
-greg k-h

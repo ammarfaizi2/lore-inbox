@@ -1,882 +1,239 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbWBXPAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWBXPBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbWBXPAY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 10:00:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWBXPAX
+	id S932222AbWBXPBT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 10:01:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbWBXPBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 10:00:23 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:19082 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932219AbWBXPAV (ORCPT
+	Fri, 24 Feb 2006 10:01:19 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:28811 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932222AbWBXPBS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 10:00:21 -0500
-Subject: GFS2 Filesystem [12/16]
+	Fri, 24 Feb 2006 10:01:18 -0500
+Subject: GFS2 Filesystem [13/16]
 From: Steven Whitehouse <swhiteho@redhat.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Organization: Red Hat (UK) Ltd
-Date: Fri, 24 Feb 2006 15:04:22 +0000
-Message-Id: <1140793462.6400.732.camel@quoit.chygwyn.com>
+Date: Fri, 24 Feb 2006 15:05:24 +0000
+Message-Id: <1140793524.6400.734.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 12/16] GFS2: 
+[PATCH 13/16] GFS2: 
 
-Mount/umount routines and GFS2's sysfs interface.
+This hooks GFS2 into the kernel's build system. It also adds some
+documentation. Note that the dlm has been moved to be under
+fs/dlm as per Ingo Molnar's suggestion. This patch series doesn't
+include the dlm however as its already in both -mm and the git
+tree containing GFS2 at kernel.org.
 
 
 Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
 Signed-off-by: David Teigland <teigland@redhat.com>
 
 
- fs/gfs2/mount.c |  211 ++++++++++++++++++++
- fs/gfs2/mount.h |   15 +
- fs/gfs2/sys.c   |  578 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- fs/gfs2/sys.h   |   24 ++
- 4 files changed, 828 insertions(+)
+ Documentation/filesystems/gfs2.txt |   44 +++++++++++++++++++++++++++++++++++
+ fs/Kconfig                         |    6 ++--
+ fs/Makefile                        |    2 +
+ fs/gfs2/Kconfig                    |   46 +++++++++++++++++++++++++++++++++++++
+ fs/gfs2/Makefile                   |   42 +++++++++++++++++++++++++++++++++
+ 5 files changed, 137 insertions(+), 3 deletions(-)
 
+--- a/fs/Kconfig
++++ b/fs/Kconfig
+@@ -323,6 +323,7 @@ config FS_POSIX_ACL
+ 	default n
+ 
+ source "fs/xfs/Kconfig"
++source "fs/gfs2/Kconfig"
+ 
+ config OCFS2_FS
+ 	tristate "OCFS2 file system support (EXPERIMENTAL)"
+@@ -883,8 +884,6 @@ config CONFIGFS_FS
+ 	  Both sysfs and configfs can and should exist together on the
+ 	  same system. One is not a replacement for the other.
+ 
+-	  If unsure, say N.
+-
+ endmenu
+ 
+ menu "Miscellaneous filesystems"
+@@ -1327,7 +1326,7 @@ config UFS_FS
+ 
+ config UFS_FS_WRITE
+ 	bool "UFS file system write support (DANGEROUS)"
+-	depends on UFS_FS && EXPERIMENTAL
++	depends on UFS_FS && EXPERIMENTAL && BROKEN
+ 	help
+ 	  Say Y here if you want to try writing to UFS partitions. This is
+ 	  experimental, so you should back up your UFS partitions beforehand.
+@@ -1830,6 +1829,7 @@ source "fs/partitions/Kconfig"
+ endmenu
+ 
+ source "fs/nls/Kconfig"
++source "fs/dlm/Kconfig"
+ 
+ endmenu
+ 
+--- a/fs/Makefile
++++ b/fs/Makefile
+@@ -48,6 +48,7 @@ obj-$(CONFIG_SYSFS)		+= sysfs/
+ obj-y				+= devpts/
+ 
+ obj-$(CONFIG_PROFILING)		+= dcookies.o
++obj-$(CONFIG_DLM)		+= dlm/
+  
+ # Do not add any filesystems before this line
+ obj-$(CONFIG_REISERFS_FS)	+= reiserfs/
+@@ -103,3 +104,4 @@ obj-$(CONFIG_HPPFS)		+= hppfs/
+ obj-$(CONFIG_DEBUG_FS)		+= debugfs/
+ obj-$(CONFIG_CONFIGFS_FS)	+= configfs/
+ obj-$(CONFIG_OCFS2_FS)		+= ocfs2/
++obj-$(CONFIG_GFS2_FS)           += gfs2/
 --- /dev/null
-+++ b/fs/gfs2/sys.c
-@@ -0,0 +1,578 @@
-+/*
-+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
-+ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
-+ *
-+ * This copyrighted material is made available to anyone wishing to use,
-+ * modify, copy, or redistribute it subject to the terms and conditions
-+ * of the GNU General Public License v.2.
-+ */
-+
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include <linux/spinlock.h>
-+#include <linux/completion.h>
-+#include <linux/buffer_head.h>
-+#include <linux/module.h>
-+#include <linux/kobject.h>
-+#include <asm/semaphore.h>
-+#include <asm/uaccess.h>
-+
-+#include "gfs2.h"
-+#include "lm.h"
-+#include "sys.h"
-+#include "super.h"
-+#include "glock.h"
-+#include "quota.h"
-+
-+char *gfs2_sys_margs;
-+spinlock_t gfs2_sys_margs_lock;
-+
-+static ssize_t id_show(struct gfs2_sbd *sdp, char *buf)
-+{
-+	return sprintf(buf, "%s\n", sdp->sd_vfs->s_id);
-+}
-+
-+static ssize_t fsname_show(struct gfs2_sbd *sdp, char *buf)
-+{
-+	return sprintf(buf, "%s\n", sdp->sd_fsname);
-+}
-+
-+static ssize_t freeze_show(struct gfs2_sbd *sdp, char *buf)
-+{
-+	unsigned int count;
-+
-+	mutex_lock(&sdp->sd_freeze_lock);
-+	count = sdp->sd_freeze_count;
-+	mutex_unlock(&sdp->sd_freeze_lock);
-+
-+	return sprintf(buf, "%u\n", count);
-+}
-+
-+static ssize_t freeze_store(struct gfs2_sbd *sdp, const char *buf, size_t len)
-+{
-+	ssize_t ret = len;
-+	int error = 0;
-+	int n = simple_strtol(buf, NULL, 0);
-+
-+	if (!capable(CAP_SYS_ADMIN))
-+		return -EACCES;
-+
-+	switch (n) {
-+	case 0:
-+		gfs2_unfreeze_fs(sdp);
-+		break;
-+	case 1:
-+		error = gfs2_freeze_fs(sdp);
-+		break;
-+	default:
-+		ret = -EINVAL;
-+	}
-+
-+	if (error)
-+		fs_warn(sdp, "freeze %d error %d", n, error);
-+
-+	return ret;
-+}
-+
-+static ssize_t withdraw_show(struct gfs2_sbd *sdp, char *buf)
-+{
-+	unsigned int b = test_bit(SDF_SHUTDOWN, &sdp->sd_flags);
-+	return sprintf(buf, "%u\n", b);
-+}
-+
-+static ssize_t withdraw_store(struct gfs2_sbd *sdp, const char *buf, size_t len)
-+{
-+	if (!capable(CAP_SYS_ADMIN))
-+		return -EACCES;
-+
-+	if (simple_strtol(buf, NULL, 0) != 1)
-+		return -EINVAL;
-+
-+	gfs2_lm_withdraw(sdp,
-+		"GFS2: fsid=%s: withdrawing from cluster at user's request\n",
-+		sdp->sd_fsname);
-+	return len;
-+}
-+
-+static ssize_t statfs_sync_store(struct gfs2_sbd *sdp, const char *buf,
-+				 size_t len)
-+{
-+	if (!capable(CAP_SYS_ADMIN))
-+		return -EACCES;
-+
-+	if (simple_strtol(buf, NULL, 0) != 1)
-+		return -EINVAL;
-+
-+	gfs2_statfs_sync(sdp);
-+	return len;
-+}
-+
-+static ssize_t shrink_store(struct gfs2_sbd *sdp, const char *buf, size_t len)
-+{
-+	if (!capable(CAP_SYS_ADMIN))
-+		return -EACCES;
-+
-+	if (simple_strtol(buf, NULL, 0) != 1)
-+		return -EINVAL;
-+
-+	gfs2_gl_hash_clear(sdp, NO_WAIT);
-+	return len;
-+}
-+
-+static ssize_t quota_sync_store(struct gfs2_sbd *sdp, const char *buf,
-+				size_t len)
-+{
-+	if (!capable(CAP_SYS_ADMIN))
-+		return -EACCES;
-+
-+	if (simple_strtol(buf, NULL, 0) != 1)
-+		return -EINVAL;
-+
-+	gfs2_quota_sync(sdp);
-+	return len;
-+}
-+
-+static ssize_t quota_refresh_user_store(struct gfs2_sbd *sdp, const char *buf,
-+					size_t len)
-+{
-+	uint32_t id;
-+
-+	if (!capable(CAP_SYS_ADMIN))
-+		return -EACCES;
-+
-+	id = simple_strtoul(buf, NULL, 0);
-+
-+	gfs2_quota_refresh(sdp, 1, id);
-+	return len;
-+}
-+
-+static ssize_t quota_refresh_group_store(struct gfs2_sbd *sdp, const char *buf,
-+					 size_t len)
-+{
-+	uint32_t id;
-+
-+	if (!capable(CAP_SYS_ADMIN))
-+		return -EACCES;
-+
-+	id = simple_strtoul(buf, NULL, 0);
-+
-+	gfs2_quota_refresh(sdp, 0, id);
-+	return len;
-+}
-+
-+struct gfs2_attr {
-+	struct attribute attr;
-+	ssize_t (*show)(struct gfs2_sbd *, char *);
-+	ssize_t (*store)(struct gfs2_sbd *, const char *, size_t);
-+};
-+
-+#define GFS2_ATTR(name, mode, show, store) \
-+static struct gfs2_attr gfs2_attr_##name = __ATTR(name, mode, show, store)
-+
-+GFS2_ATTR(id,                  0444, id_show,       NULL);
-+GFS2_ATTR(fsname,              0444, fsname_show,   NULL);
-+GFS2_ATTR(freeze,              0644, freeze_show,   freeze_store);
-+GFS2_ATTR(shrink,              0200, NULL,          shrink_store);
-+GFS2_ATTR(withdraw,            0644, withdraw_show, withdraw_store);
-+GFS2_ATTR(statfs_sync,         0200, NULL,          statfs_sync_store);
-+GFS2_ATTR(quota_sync,          0200, NULL,          quota_sync_store);
-+GFS2_ATTR(quota_refresh_user,  0200, NULL,          quota_refresh_user_store);
-+GFS2_ATTR(quota_refresh_group, 0200, NULL,          quota_refresh_group_store);
-+
-+static struct attribute *gfs2_attrs[] = {
-+	&gfs2_attr_id.attr,
-+	&gfs2_attr_fsname.attr,
-+	&gfs2_attr_freeze.attr,
-+	&gfs2_attr_shrink.attr,
-+	&gfs2_attr_withdraw.attr,
-+	&gfs2_attr_statfs_sync.attr,
-+	&gfs2_attr_quota_sync.attr,
-+	&gfs2_attr_quota_refresh_user.attr,
-+	&gfs2_attr_quota_refresh_group.attr,
-+	NULL,
-+};
-+
-+static ssize_t gfs2_attr_show(struct kobject *kobj, struct attribute *attr,
-+			      char *buf)
-+{
-+	struct gfs2_sbd *sdp = container_of(kobj, struct gfs2_sbd, sd_kobj);
-+	struct gfs2_attr *a = container_of(attr, struct gfs2_attr, attr);
-+	return a->show ? a->show(sdp, buf) : 0;
-+}
-+
-+static ssize_t gfs2_attr_store(struct kobject *kobj, struct attribute *attr,
-+			       const char *buf, size_t len)
-+{
-+	struct gfs2_sbd *sdp = container_of(kobj, struct gfs2_sbd, sd_kobj);
-+	struct gfs2_attr *a = container_of(attr, struct gfs2_attr, attr);
-+	return a->store ? a->store(sdp, buf, len) : len;
-+}
-+
-+static struct sysfs_ops gfs2_attr_ops = {
-+	.show  = gfs2_attr_show,
-+	.store = gfs2_attr_store,
-+};
-+
-+static struct kobj_type gfs2_ktype = {
-+	.default_attrs = gfs2_attrs,
-+	.sysfs_ops     = &gfs2_attr_ops,
-+};
-+
-+static struct kset gfs2_kset = {
-+	.subsys = &fs_subsys,
-+	.kobj   = {.name = "gfs2",},
-+	.ktype  = &gfs2_ktype,
-+};
-+
-+/*
-+ * display struct lm_lockstruct fields
-+ */
-+
-+struct lockstruct_attr {
-+	struct attribute attr;
-+	ssize_t (*show)(struct gfs2_sbd *, char *);
-+};
-+
-+#define LOCKSTRUCT_ATTR(name, fmt)                                          \
-+static ssize_t name##_show(struct gfs2_sbd *sdp, char *buf)                 \
-+{                                                                           \
-+	return sprintf(buf, fmt, sdp->sd_lockstruct.ls_##name);             \
-+}                                                                           \
-+static struct lockstruct_attr lockstruct_attr_##name = __ATTR_RO(name)
-+
-+LOCKSTRUCT_ATTR(jid,      "%u\n");
-+LOCKSTRUCT_ATTR(first,    "%u\n");
-+LOCKSTRUCT_ATTR(lvb_size, "%u\n");
-+LOCKSTRUCT_ATTR(flags,    "%d\n");
-+
-+static struct attribute *lockstruct_attrs[] = {
-+	&lockstruct_attr_jid.attr,
-+	&lockstruct_attr_first.attr,
-+	&lockstruct_attr_lvb_size.attr,
-+	&lockstruct_attr_flags.attr,
-+	NULL
-+};
-+
-+/*
-+ * display struct gfs2_args fields
-+ */
-+
-+struct args_attr {
-+	struct attribute attr;
-+	ssize_t (*show)(struct gfs2_sbd *, char *);
-+};
-+
-+#define ARGS_ATTR(name, fmt)                                                \
-+static ssize_t name##_show(struct gfs2_sbd *sdp, char *buf)                 \
-+{                                                                           \
-+	return sprintf(buf, fmt, sdp->sd_args.ar_##name);                   \
-+}                                                                           \
-+static struct args_attr args_attr_##name = __ATTR_RO(name)
-+
-+ARGS_ATTR(lockproto,       "%s\n");
-+ARGS_ATTR(locktable,       "%s\n");
-+ARGS_ATTR(hostdata,        "%s\n");
-+ARGS_ATTR(spectator,       "%d\n");
-+ARGS_ATTR(ignore_local_fs, "%d\n");
-+ARGS_ATTR(localcaching,    "%d\n");
-+ARGS_ATTR(localflocks,     "%d\n");
-+ARGS_ATTR(debug,           "%d\n");
-+ARGS_ATTR(upgrade,         "%d\n");
-+ARGS_ATTR(num_glockd,      "%u\n");
-+ARGS_ATTR(posix_acl,       "%d\n");
-+ARGS_ATTR(quota,           "%u\n");
-+ARGS_ATTR(suiddir,         "%d\n");
-+ARGS_ATTR(data,            "%d\n");
-+
-+/* one oddball doesn't fit the macro mold */
-+static ssize_t noatime_show(struct gfs2_sbd *sdp, char *buf)
-+{
-+	return sprintf(buf, "%d\n", !!test_bit(SDF_NOATIME, &sdp->sd_flags));
-+}
-+static struct args_attr args_attr_noatime = __ATTR_RO(noatime);
-+
-+static struct attribute *args_attrs[] = {
-+	&args_attr_lockproto.attr,
-+	&args_attr_locktable.attr,
-+	&args_attr_hostdata.attr,
-+	&args_attr_spectator.attr,
-+	&args_attr_ignore_local_fs.attr,
-+	&args_attr_localcaching.attr,
-+	&args_attr_localflocks.attr,
-+	&args_attr_debug.attr,
-+	&args_attr_upgrade.attr,
-+	&args_attr_num_glockd.attr,
-+	&args_attr_posix_acl.attr,
-+	&args_attr_quota.attr,
-+	&args_attr_suiddir.attr,
-+	&args_attr_data.attr,
-+	&args_attr_noatime.attr,
-+	NULL
-+};
-+
-+/*
-+ * display counters from superblock
-+ */
-+
-+struct counters_attr {
-+	struct attribute attr;
-+	ssize_t (*show)(struct gfs2_sbd *, char *);
-+};
-+
-+#define COUNTERS_ATTR(name, fmt)                                            \
-+static ssize_t name##_show(struct gfs2_sbd *sdp, char *buf)                 \
-+{                                                                           \
-+	return sprintf(buf, fmt, (unsigned int)atomic_read(&sdp->sd_##name)); \
-+}                                                                           \
-+static struct counters_attr counters_attr_##name = __ATTR_RO(name)
-+
-+COUNTERS_ATTR(glock_count,      "%u\n");
-+COUNTERS_ATTR(glock_held_count, "%u\n");
-+COUNTERS_ATTR(inode_count,      "%u\n");
-+COUNTERS_ATTR(reclaimed,        "%u\n");
-+
-+static struct attribute *counters_attrs[] = {
-+	&counters_attr_glock_count.attr,
-+	&counters_attr_glock_held_count.attr,
-+	&counters_attr_inode_count.attr,
-+	&counters_attr_reclaimed.attr,
-+	NULL
-+};
-+
-+/*
-+ * get and set struct gfs2_tune fields
-+ */
-+
-+static ssize_t quota_scale_show(struct gfs2_sbd *sdp, char *buf)
-+{
-+	return sprintf(buf, "%u %u\n", sdp->sd_tune.gt_quota_scale_num,
-+				       sdp->sd_tune.gt_quota_scale_den);
-+}
-+
-+static ssize_t quota_scale_store(struct gfs2_sbd *sdp, const char *buf,
-+				 size_t len)
-+{
-+	struct gfs2_tune *gt = &sdp->sd_tune;
-+	unsigned int x, y;
-+
-+	if (!capable(CAP_SYS_ADMIN))
-+		return -EACCES;
-+
-+	if (sscanf(buf, "%u %u", &x, &y) != 2 || !y)
-+		return -EINVAL;
-+
-+	spin_lock(&gt->gt_spin);
-+	gt->gt_quota_scale_num = x;
-+	gt->gt_quota_scale_den = y;
-+	spin_unlock(&gt->gt_spin);
-+	return len;
-+}
-+
-+static ssize_t tune_set(struct gfs2_sbd *sdp, unsigned int *field,
-+			int check_zero, const char *buf, size_t len)
-+{
-+	struct gfs2_tune *gt = &sdp->sd_tune;
-+	unsigned int x;
-+
-+	if (!capable(CAP_SYS_ADMIN))
-+		return -EACCES;
-+
-+	x = simple_strtoul(buf, NULL, 0);
-+
-+	if (check_zero && !x)
-+		return -EINVAL;
-+
-+	spin_lock(&gt->gt_spin);
-+	*field = x;
-+	spin_unlock(&gt->gt_spin);
-+	return len;
-+}
-+
-+struct tune_attr {
-+	struct attribute attr;
-+	ssize_t (*show)(struct gfs2_sbd *, char *);
-+	ssize_t (*store)(struct gfs2_sbd *, const char *, size_t);
-+};
-+
-+#define TUNE_ATTR_3(name, show, store)                                        \
-+static struct tune_attr tune_attr_##name = __ATTR(name, 0644, show, store)
-+
-+#define TUNE_ATTR_2(name, store)                                              \
-+static ssize_t name##_show(struct gfs2_sbd *sdp, char *buf)                   \
-+{                                                                             \
-+	return sprintf(buf, "%u\n", sdp->sd_tune.gt_##name);                  \
-+}                                                                             \
-+TUNE_ATTR_3(name, name##_show, store)
-+
-+#define TUNE_ATTR(name, check_zero)                                           \
-+static ssize_t name##_store(struct gfs2_sbd *sdp, const char *buf, size_t len)\
-+{                                                                             \
-+	return tune_set(sdp, &sdp->sd_tune.gt_##name, check_zero, buf, len);  \
-+}                                                                             \
-+TUNE_ATTR_2(name, name##_store)
-+
-+#define TUNE_ATTR_DAEMON(name, process)                                       \
-+static ssize_t name##_store(struct gfs2_sbd *sdp, const char *buf, size_t len)\
-+{                                                                             \
-+	ssize_t r = tune_set(sdp, &sdp->sd_tune.gt_##name, 1, buf, len);      \
-+	wake_up_process(sdp->sd_##process);                                   \
-+	return r;                                                             \
-+}                                                                             \
-+TUNE_ATTR_2(name, name##_store)
-+
-+TUNE_ATTR(ilimit, 0);
-+TUNE_ATTR(ilimit_tries, 0);
-+TUNE_ATTR(ilimit_min, 0);
-+TUNE_ATTR(demote_secs, 0);
-+TUNE_ATTR(incore_log_blocks, 0);
-+TUNE_ATTR(log_flush_secs, 0);
-+TUNE_ATTR(jindex_refresh_secs, 0);
-+TUNE_ATTR(quota_warn_period, 0);
-+TUNE_ATTR(quota_quantum, 0);
-+TUNE_ATTR(atime_quantum, 0);
-+TUNE_ATTR(max_readahead, 0);
-+TUNE_ATTR(complain_secs, 0);
-+TUNE_ATTR(reclaim_limit, 0);
-+TUNE_ATTR(prefetch_secs, 0);
-+TUNE_ATTR(statfs_slow, 0);
-+TUNE_ATTR(new_files_jdata, 0);
-+TUNE_ATTR(new_files_directio, 0);
-+TUNE_ATTR(quota_simul_sync, 1);
-+TUNE_ATTR(quota_cache_secs, 1);
-+TUNE_ATTR(max_atomic_write, 1);
-+TUNE_ATTR(stall_secs, 1);
-+TUNE_ATTR(entries_per_readdir, 1);
-+TUNE_ATTR(greedy_default, 1);
-+TUNE_ATTR(greedy_quantum, 1);
-+TUNE_ATTR(greedy_max, 1);
-+TUNE_ATTR(statfs_quantum, 1);
-+TUNE_ATTR_DAEMON(scand_secs, scand_process);
-+TUNE_ATTR_DAEMON(recoverd_secs, recoverd_process);
-+TUNE_ATTR_DAEMON(logd_secs, logd_process);
-+TUNE_ATTR_DAEMON(quotad_secs, quotad_process);
-+TUNE_ATTR_DAEMON(inoded_secs, inoded_process);
-+TUNE_ATTR_3(quota_scale, quota_scale_show, quota_scale_store);
-+
-+static struct attribute *tune_attrs[] = {
-+	&tune_attr_ilimit.attr,
-+	&tune_attr_ilimit_tries.attr,
-+	&tune_attr_ilimit_min.attr,
-+	&tune_attr_demote_secs.attr,
-+	&tune_attr_incore_log_blocks.attr,
-+	&tune_attr_log_flush_secs.attr,
-+	&tune_attr_jindex_refresh_secs.attr,
-+	&tune_attr_quota_warn_period.attr,
-+	&tune_attr_quota_quantum.attr,
-+	&tune_attr_atime_quantum.attr,
-+	&tune_attr_max_readahead.attr,
-+	&tune_attr_complain_secs.attr,
-+	&tune_attr_reclaim_limit.attr,
-+	&tune_attr_prefetch_secs.attr,
-+	&tune_attr_statfs_slow.attr,
-+	&tune_attr_quota_simul_sync.attr,
-+	&tune_attr_quota_cache_secs.attr,
-+	&tune_attr_max_atomic_write.attr,
-+	&tune_attr_stall_secs.attr,
-+	&tune_attr_entries_per_readdir.attr,
-+	&tune_attr_greedy_default.attr,
-+	&tune_attr_greedy_quantum.attr,
-+	&tune_attr_greedy_max.attr,
-+	&tune_attr_statfs_quantum.attr,
-+	&tune_attr_scand_secs.attr,
-+	&tune_attr_recoverd_secs.attr,
-+	&tune_attr_logd_secs.attr,
-+	&tune_attr_quotad_secs.attr,
-+	&tune_attr_inoded_secs.attr,
-+	&tune_attr_quota_scale.attr,
-+	&tune_attr_new_files_jdata.attr,
-+	&tune_attr_new_files_directio.attr,
-+	NULL
-+};
-+
-+static struct attribute_group lockstruct_group = {
-+	.name = "lockstruct",
-+	.attrs = lockstruct_attrs
-+};
-+
-+static struct attribute_group counters_group = {
-+	.name = "counters",
-+	.attrs = counters_attrs
-+};
-+
-+static struct attribute_group args_group = {
-+	.name = "args",
-+	.attrs = args_attrs
-+};
-+
-+static struct attribute_group tune_group = {
-+	.name = "tune",
-+	.attrs = tune_attrs
-+};
-+
-+int gfs2_sys_fs_add(struct gfs2_sbd *sdp)
-+{
-+	int error;
-+
-+	sdp->sd_kobj.kset = &gfs2_kset;
-+	sdp->sd_kobj.ktype = &gfs2_ktype;
-+
-+	error = kobject_set_name(&sdp->sd_kobj, "%s", sdp->sd_table_name);
-+	if (error)
-+		goto fail;
-+
-+	error = kobject_register(&sdp->sd_kobj);
-+	if (error)
-+		goto fail;
-+
-+	error = sysfs_create_group(&sdp->sd_kobj, &lockstruct_group);
-+	if (error)
-+		goto fail_reg;
-+
-+	error = sysfs_create_group(&sdp->sd_kobj, &counters_group);
-+	if (error)
-+		goto fail_lockstruct;
-+
-+	error = sysfs_create_group(&sdp->sd_kobj, &args_group);
-+	if (error)
-+		goto fail_counters;
-+
-+	error = sysfs_create_group(&sdp->sd_kobj, &tune_group);
-+	if (error)
-+		goto fail_args;
-+
-+	return 0;
-+
-+ fail_args:
-+	sysfs_remove_group(&sdp->sd_kobj, &args_group);
-+ fail_counters:
-+	sysfs_remove_group(&sdp->sd_kobj, &counters_group);
-+ fail_lockstruct:
-+	sysfs_remove_group(&sdp->sd_kobj, &lockstruct_group);
-+ fail_reg:
-+	kobject_unregister(&sdp->sd_kobj);
-+ fail:
-+	return error;
-+}
-+
-+void gfs2_sys_fs_del(struct gfs2_sbd *sdp)
-+{
-+	sysfs_remove_group(&sdp->sd_kobj, &tune_group);
-+	sysfs_remove_group(&sdp->sd_kobj, &args_group);
-+	sysfs_remove_group(&sdp->sd_kobj, &counters_group);
-+	sysfs_remove_group(&sdp->sd_kobj, &lockstruct_group);
-+	kobject_unregister(&sdp->sd_kobj);
-+}
-+
-+int gfs2_sys_init(void)
-+{
-+	gfs2_sys_margs = NULL;
-+	spin_lock_init(&gfs2_sys_margs_lock);
-+	return kset_register(&gfs2_kset);
-+}
-+
-+void gfs2_sys_uninit(void)
-+{
-+	kfree(gfs2_sys_margs);
-+	kset_unregister(&gfs2_kset);
-+}
++++ b/fs/gfs2/Makefile
+@@ -0,0 +1,42 @@
++obj-$(CONFIG_GFS2_FS) += gfs2.o
++gfs2-y := \
++	acl.o \
++	bits.o \
++	bmap.o \
++	daemon.o \
++	dir.o \
++	eaops.o \
++	eattr.o \
++	glock.o \
++	glops.o \
++	inode.o \
++	lm.o \
++	log.o \
++	lops.o \
++	locking.o \
++	lvb.o \
++	main.o \
++	meta_io.o \
++	mount.o \
++	ondisk.o \
++	ops_address.o \
++	ops_dentry.o \
++	ops_export.o \
++	ops_file.o \
++	ops_fstype.o \
++	ops_inode.o \
++	ops_super.o \
++	ops_vm.o \
++	page.o \
++	quota.o \
++	recovery.o \
++	rgrp.o \
++	super.o \
++	sys.o \
++	trans.o \
++	unlinked.o \
++	util.o
++
++obj-$(CONFIG_GFS2_FS_LOCKING_NOLOCK) += locking/nolock/
++obj-$(CONFIG_GFS2_FS_LOCKING_DLM) += locking/dlm/
 +
 --- /dev/null
-+++ b/fs/gfs2/sys.h
-@@ -0,0 +1,24 @@
-+/*
-+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
-+ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
-+ *
-+ * This copyrighted material is made available to anyone wishing to use,
-+ * modify, copy, or redistribute it subject to the terms and conditions
-+ * of the GNU General Public License v.2.
-+ */
++++ b/fs/gfs2/Kconfig
+@@ -0,0 +1,46 @@
++config GFS2_FS
++        tristate "GFS2 file system support"
++	default m
++	depends on EXPERIMENTAL
++        select FS_POSIX_ACL
++        select SYSFS
++        help
++        A cluster filesystem.
 +
-+#ifndef __SYS_DOT_H__
-+#define __SYS_DOT_H__
++        Allows a cluster of computers to simultaneously use a block device
++        that is shared between them (with FC, iSCSI, NBD, etc...).  GFS reads
++        and writes to the block device like a local filesystem, but also uses
++        a lock module to allow the computers coordinate their I/O so
++        filesystem consistency is maintained.  One of the nifty features of
++        GFS is perfect consistency -- changes made to the filesystem on one
++        machine show up immediately on all other machines in the cluster.
 +
-+/* Allow args to be passed to GFS2 when using an initial ram disk */
-+extern char *gfs2_sys_margs;
-+extern spinlock_t gfs2_sys_margs_lock;
++	To use the GFS2 filesystem, you will need to enable one or more of
++	the below locking modules. Documentation and utilities for GFS2 can
++	be found here: http://sources.redhat.com/cluster/gfs/
 +
-+int gfs2_sys_fs_add(struct gfs2_sbd *sdp);
-+void gfs2_sys_fs_del(struct gfs2_sbd *sdp);
++config GFS2_FS_LOCKING_NOLOCK
++	tristate "GFS2 \"nolock\" locking module"
++	depends on GFS2_FS
++	help
++	Single node locking module for GFS2.
 +
-+int gfs2_sys_init(void);
-+void gfs2_sys_uninit(void);
++	Use this module if you want to use GFS2 on a single node without
++	its clustering features. You can still take advantage of the
++	large file support, and upgrade to running a full cluster later on
++	if required.
 +
-+#endif /* __SYS_DOT_H__ */
++	If you will only be using GFS2 in cluster mode, you do not need this
++	module.
 +
---- /dev/null
-+++ b/fs/gfs2/mount.c
-@@ -0,0 +1,211 @@
-+/*
-+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
-+ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
-+ *
-+ * This copyrighted material is made available to anyone wishing to use,
-+ * modify, copy, or redistribute it subject to the terms and conditions
-+ * of the GNU General Public License v.2.
-+ */
++config GFS2_FS_LOCKING_DLM
++	tristate "GFS2 DLM locking module"
++	depends on GFS2_FS
++	select DLM
++	help
++	Multiple node locking module for GFS2
 +
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include <linux/spinlock.h>
-+#include <linux/completion.h>
-+#include <linux/buffer_head.h>
-+#include <asm/semaphore.h>
-+
-+#include "gfs2.h"
-+#include "mount.h"
-+#include "sys.h"
-+
-+/**
-+ * gfs2_mount_args - Parse mount options
-+ * @sdp:
-+ * @data:
-+ *
-+ * Return: errno
-+ */
-+
-+int gfs2_mount_args(struct gfs2_sbd *sdp, char *data_arg, int remount)
-+{
-+	struct gfs2_args *args = &sdp->sd_args;
-+	char *data = data_arg;
-+	char *options, *o, *v;
-+	int error = 0;
-+
-+	if (!remount) {
-+		/*  If someone preloaded options, use those instead  */
-+		spin_lock(&gfs2_sys_margs_lock);
-+		if (gfs2_sys_margs) {
-+			data = gfs2_sys_margs;
-+			gfs2_sys_margs = NULL;
-+		}
-+		spin_unlock(&gfs2_sys_margs_lock);
-+
-+		/*  Set some defaults  */
-+		args->ar_num_glockd = GFS2_GLOCKD_DEFAULT;
-+		args->ar_quota = GFS2_QUOTA_DEFAULT;
-+		args->ar_data = GFS2_DATA_DEFAULT;
-+	}
-+
-+	/* Split the options into tokens with the "," character and
-+	   process them */
-+
-+	for (options = data; (o = strsep(&options, ",")); ) {
-+		if (!*o)
-+			continue;
-+
-+		v = strchr(o, '=');
-+		if (v)
-+			*v++ = 0;
-+
-+		if (!strcmp(o, "lockproto")) {
-+			if (!v)
-+				goto need_value;
-+			if (remount && strcmp(v, args->ar_lockproto))
-+				goto cant_remount;
-+			strncpy(args->ar_lockproto, v, GFS2_LOCKNAME_LEN);
-+			args->ar_lockproto[GFS2_LOCKNAME_LEN - 1] = 0;
-+		}
-+
-+		else if (!strcmp(o, "locktable")) {
-+			if (!v)
-+				goto need_value;
-+			if (remount && strcmp(v, args->ar_locktable))
-+				goto cant_remount;
-+			strncpy(args->ar_locktable, v, GFS2_LOCKNAME_LEN);
-+			args->ar_locktable[GFS2_LOCKNAME_LEN - 1] = 0;
-+		}
-+
-+		else if (!strcmp(o, "hostdata")) {
-+			if (!v)
-+				goto need_value;
-+			if (remount && strcmp(v, args->ar_hostdata))
-+				goto cant_remount;
-+			strncpy(args->ar_hostdata, v, GFS2_LOCKNAME_LEN);
-+			args->ar_hostdata[GFS2_LOCKNAME_LEN - 1] = 0;
-+		}
-+
-+		else if (!strcmp(o, "spectator")) {
-+			if (remount && !args->ar_spectator)
-+				goto cant_remount;
-+			args->ar_spectator = 1;
-+			sdp->sd_vfs->s_flags |= MS_RDONLY;
-+		}
-+
-+		else if (!strcmp(o, "ignore_local_fs")) {
-+			if (remount && !args->ar_ignore_local_fs)
-+				goto cant_remount;
-+			args->ar_ignore_local_fs = 1;
-+		}
-+
-+		else if (!strcmp(o, "localflocks")) {
-+			if (remount && !args->ar_localflocks)
-+				goto cant_remount;
-+			args->ar_localflocks = 1;
-+		}
-+
-+		else if (!strcmp(o, "localcaching")) {
-+			if (remount && !args->ar_localcaching)
-+				goto cant_remount;
-+			args->ar_localcaching = 1;
-+		}
-+
-+		else if (!strcmp(o, "debug"))
-+			args->ar_debug = 1;
-+
-+		else if (!strcmp(o, "nodebug"))
-+			args->ar_debug = 0;
-+
-+		else if (!strcmp(o, "upgrade")) {
-+			if (remount && !args->ar_upgrade)
-+				goto cant_remount;
-+			args->ar_upgrade = 1;
-+		}
-+
-+		else if (!strcmp(o, "num_glockd")) {
-+			unsigned int x;
-+			if (!v)
-+				goto need_value;
-+			sscanf(v, "%u", &x);
-+			if (remount && x != args->ar_num_glockd)
-+				goto cant_remount;
-+			if (!x || x > GFS2_GLOCKD_MAX) {
-+				fs_info(sdp, "0 < num_glockd <= %u  (not %u)\n",
-+				        GFS2_GLOCKD_MAX, x);
-+				error = -EINVAL;
-+				break;
-+			}
-+			args->ar_num_glockd = x;
-+		}
-+
-+		else if (!strcmp(o, "acl")) {
-+			args->ar_posix_acl = 1;
-+			sdp->sd_vfs->s_flags |= MS_POSIXACL;
-+		}
-+
-+		else if (!strcmp(o, "noacl")) {
-+			args->ar_posix_acl = 0;
-+			sdp->sd_vfs->s_flags &= ~MS_POSIXACL;
-+		}
-+
-+		else if (!strcmp(o, "quota")) {
-+			if (!v)
-+				goto need_value;
-+			if (!strcmp(v, "off"))
-+				args->ar_quota = GFS2_QUOTA_OFF;
-+			else if (!strcmp(v, "account"))
-+				args->ar_quota = GFS2_QUOTA_ACCOUNT;
-+			else if (!strcmp(v, "on"))
-+				args->ar_quota = GFS2_QUOTA_ON;
-+			else {
-+				fs_info(sdp, "invalid value for quota\n");
-+				error = -EINVAL;
-+				break;
-+			}
-+		}
-+
-+		else if (!strcmp(o, "suiddir"))
-+			args->ar_suiddir = 1;
-+
-+		else if (!strcmp(o, "nosuiddir"))
-+			args->ar_suiddir = 0;
-+
-+		else if (!strcmp(o, "data")) {
-+			if (!v)
-+				goto need_value;
-+			if (!strcmp(v, "writeback"))
-+				args->ar_data = GFS2_DATA_WRITEBACK;
-+			else if (!strcmp(v, "ordered"))
-+				args->ar_data = GFS2_DATA_ORDERED;
-+			else {
-+				fs_info(sdp, "invalid value for data\n");
-+				error = -EINVAL;
-+				break;
-+			}
-+		}
-+
-+		else {
-+			fs_info(sdp, "unknown option: %s\n", o);
-+			error = -EINVAL;
-+			break;
-+		}
-+	}
-+
-+	if (error)
-+		fs_info(sdp, "invalid mount option(s)\n");
-+
-+	if (data != data_arg)
-+		kfree(data);
-+
-+	return error;
-+
-+ need_value:
-+	fs_info(sdp, "need value for option %s\n", o);
-+	return -EINVAL;
-+
-+ cant_remount:
-+	fs_info(sdp, "can't remount with option %s\n", o);
-+	return -EINVAL;
-+}
++	Most users of GFS2 will require this module. It provides the locking
++	interface between GFS2 and the DLM, which is required to use GFS2
++	in a cluster environment.
 +
 --- /dev/null
-+++ b/fs/gfs2/mount.h
-@@ -0,0 +1,15 @@
-+/*
-+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
-+ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
-+ *
-+ * This copyrighted material is made available to anyone wishing to use,
-+ * modify, copy, or redistribute it subject to the terms and conditions
-+ * of the GNU General Public License v.2.
-+ */
++++ b/Documentation/filesystems/gfs2.txt
+@@ -0,0 +1,44 @@
++Global File System
++------------------
 +
-+#ifndef __MOUNT_DOT_H__
-+#define __MOUNT_DOT_H__
++http://sources.redhat.com/cluster/
 +
-+int gfs2_mount_args(struct gfs2_sbd *sdp, char *data_arg, int remount);
++GFS is a cluster file system. It allows a cluster of computers to
++simultaneously use a block device that is shared between them (with FC,
++iSCSI, NBD, etc).  GFS reads and writes to the block device like a local
++file system, but also uses a lock module to allow the computers coordinate
++their I/O so file system consistency is maintained.  One of the nifty
++features of GFS is perfect consistency -- changes made to the file system
++on one machine show up immediately on all other machines in the cluster.
 +
-+#endif /* __MOUNT_DOT_H__ */
++GFS uses interchangable inter-node locking mechanisms.  Different lock
++modules can plug into GFS and each file system selects the appropriate
++lock module at mount time.  Lock modules include:
++
++  lock_nolock -- allows gfs to be used as a local file system
++
++  lock_dlm -- uses a distributed lock manager (dlm) for inter-node locking
++  The dlm is found at linux/fs/dlm/
++
++In addition to interfacing with an external locking manager, a gfs lock
++module is responsible for interacting with external cluster management
++systems.  Lock_dlm depends on user space cluster management systems found
++at the URL above.
++
++To use gfs as a local file system, no external clustering systems are
++needed, simply:
++
++  $ mkfs -t gfs2 -p lock_nolock -j 1 /dev/block_device
++  $ mount -t gfs2 /dev/block_device /dir
++
++GFS2 is not on-disk compatible with previous versions of GFS.
++
++The following man pages can be found at the URL above:
++  gfs2_mkfs	to make a filesystem
++  gfs2_fsck	to repair a filesystem
++  gfs2_grow	to expand a filesystem online
++  gfs2_jadd	to add journals to a filesystem online
++  gfs2_tool	to manipulate, examine and tune a filesystem
++  gfs2_quota	to examine and change quota values in a filesystem
++  mount.gfs2	to find mount options
++
 
 

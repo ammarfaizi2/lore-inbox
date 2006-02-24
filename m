@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWBXP0g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWBXPaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932266AbWBXP0g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 10:26:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWBXP0g
+	id S932256AbWBXPaW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 10:30:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbWBXPaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 10:26:36 -0500
-Received: from outmail1.freedom2surf.net ([194.106.33.237]:61363 "EHLO
-	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S932272AbWBXP0f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 10:26:35 -0500
-Message-ID: <43FF2611.5050508@asfandyar.cjb.net>
-Date: Fri, 24 Feb 2006 15:28:17 +0000
-From: Asfand Yar Qazi <email@asfandyar.cjb.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060217)
-X-Accept-Language: en-us, en
+	Fri, 24 Feb 2006 10:30:22 -0500
+Received: from smtpq2.tilbu1.nb.home.nl ([213.51.146.201]:50402 "EHLO
+	smtpq2.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
+	id S932256AbWBXPaW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 10:30:22 -0500
+Message-ID: <43FF26A8.9070600@keyaccess.nl>
+Date: Fri, 24 Feb 2006 16:30:48 +0100
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: Vincent Kergonna <vincent.kergonna@wanadoo.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Changing the scheduler at runtime
-References: <43FE0872.4080807@asfandyar.cjb.net> <20060224002614.00c514bc.vincent.kergonna@wanadoo.fr>
-In-Reply-To: <20060224002614.00c514bc.vincent.kergonna@wanadoo.fr>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+Subject: Re: Patch to reorder functions in the vmlinux to a defined order
+References: <1140700758.4672.51.camel@laptopd505.fenrus.org>	<1140707358.4672.67.camel@laptopd505.fenrus.org>	<200602231700.36333.ak@suse.de>	<1140713001.4672.73.camel@laptopd505.fenrus.org>	<Pine.LNX.4.64.0602230902230.3771@g5.osdl.org>	<43FE0B9A.40209@keyaccess.nl>	<Pine.LNX.4.64.0602231133110.3771@g5.osdl.org>	<43FE1764.6000300@keyaccess.nl>	<Pine.LNX.4.64.0602231517400.3771@g5.osdl.org>	<43FE4B00.8080205@keyaccess.nl> <m1r75s3kfi.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1r75s3kfi.fsf@ebiederm.dsl.xmission.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vincent Kergonna wrote:
-> On Thu, 23 Feb 2006 19:09:38 +0000
-> Asfand Yar Qazi <email@asfandyar.cjb.net> wrote:
-> 
-> 
->>Hi,
->>
->>I compiled all the schedulers into the kernel - but I can't find how to change
->>the one to be used at runtime.  Can you help me?  Or can it only be set at
->>boot-time (in which case, how?)  Thanks.
-> 
-> 
-> Here is the answer you are looking for: http://kerneltrap.org/node/3851
-> 
-> 
->>Thanks
->>
+Eric W. Biederman wrote:
 
-Thanks
+> The page table trickery is actually the more invasive approach.  I
+> believe for 32 bit kernels the real problem is giving up the identity
+> mapping of low memory.
+
+Yes, you probably don't want to have to specialcase anything there.
+
+> Short of the moving the kernel to end of the address space where
+> vmalloc and the fixmaps are now I don't think there is a reasonable
+> chunk of the address space we can use.
+
+To my handwaving ears end of the address space sounds very good though. 
+Is there currently any pressure on VMALLOC_RESERVE (128M)? Teaching the 
+linker appears to be a matter of changing __KERNEL_START. That leaves 
+actually mapping ourselves there, and... more invasiveness?
+
+I saw you say you already have some actual relocating patches though?
+
+Rene.

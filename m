@@ -1,71 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932600AbWBXWGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932603AbWBXWHW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932600AbWBXWGF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 17:06:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932602AbWBXWGF
+	id S932603AbWBXWHW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 17:07:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbWBXWHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 17:06:05 -0500
-Received: from dsl093-016-182.msp1.dsl.speakeasy.net ([66.93.16.182]:17832
-	"EHLO cinder.waste.org") by vger.kernel.org with ESMTP
-	id S932600AbWBXWGE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 17:06:04 -0500
-Date: Fri, 24 Feb 2006 16:06:08 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: John Reiser <jreiser@BitWagon.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/7] inflate pt1: cleanup Huffman table code
-Message-ID: <20060224220608.GE13116@waste.org>
-References: <6.399206195@selenic.com> <43FF8005.5070700@BitWagon.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43FF8005.5070700@BitWagon.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 24 Feb 2006 17:07:22 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:19673 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP id S932603AbWBXWHW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 17:07:22 -0500
+Date: Fri, 24 Feb 2006 17:07:21 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: [PATCH 0/7] inflate pt1: refactor boot-time inflate code
+In-reply-to: <1.399206195@selenic.com>
+X-X-Sender: nico@localhost.localdomain
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Message-id: <Pine.LNX.4.64.0602241654480.31162@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <1.399206195@selenic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 24, 2006 at 01:52:05PM -0800, John Reiser wrote:
-> > Index: 2.6.16-rc4-inflate/lib/inflate.c
-> > ===================================================================
-> > --- 2.6.16-rc4-inflate.orig/lib/inflate.c	2006-02-22 17:16:07.000000000 -0600
-> > +++ 2.6.16-rc4-inflate/lib/inflate.c	2006-02-22 17:16:08.000000000 -0600
-> > @@ -117,12 +117,12 @@
-> >     an unused code.  If a code with e == 99 is looked up, this implies an
-> >     error in the data. */
-> >  struct huft {
-> > -	u8 e;			/* number of extra bits or operation */
-> > -	u8 b;			/* number of bits in this code or subcode */
-> >  	union {
-> > -		u16 n;		/* literal, length base, or distance base */
-> > -		struct huft *t;	/* pointer to next level of table */
-> > -	} v;
-> > +		u16 val; /* literal, length base, or distance base */
-> > +		struct huft *next; /* pointer to next level of table */
-> > +	};
-> > +	u8 extra; /* number of extra bits or operation */
-> > +	u8 bits; /* number of bits in this code or subcode */
-> >  };
+On Fri, 24 Feb 2006, Matt Mackall wrote:
+
+> This is a refactored version of the lib/inflate.c:
 > 
-> How aggressive do you want to be?  About 3.7 years ago in
-> http://freshmeat.net/projects/gzip_x86/  I published:
-> -----
-> typedef unsigned short huft_ndx;  /* index>>1 */
-> struct huft {
->   uch e;                /* number of extra bits or operation */
->   uch b;                /* number of bits in this code or subcode */
->   union {
->     ush n;              /* literal, length base, or distance base */
->     huft_ndx t;         /* index>>1 of next level of table */
->   } v;
-> };
-> -----
-> which makes 4==sizeof(struct huft) and enables manipulation by 32-bit
-> fetch, exposing 'e' [extra] and 'b' [bits] in x86 byte registers
-> for fewer shift-and-mask operations.  The struct huft can be managed
-> as a stack of maximum length 1014.
+> - clean up some really ugly code
+> - clean up atrocities like '#include "../../../lib/inflate.c"'
+> - drop a ton of cut and paste code from the kernel boot
+> - move towards making the boot decompressor pluggable
+> - move towards unifying the multiple inflate implementations
+> - save space
 
-Interesting. The current stuff is mostly obvious cleanups, but I'd
-consider something like that after I get the current queue merged.
+Could you also make sure that there is no non-const global variables 
+whatsoever in there?  The idea is that on ARM the decompressor was once 
+made to be executable directly from flash so the deflated kernel image 
+would be stored at its final location in ram directly without first 
+copying zImage nor any .data to ram in order to execute it.  This is a 
+significant boot time saving (which I think CE Linux is interested in) 
+while still preserving a compressed kernel in flash.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Currently:
+
+$ size lib/zlib_inflate/zlib_inflate.o
+   text    data     bss     dec     hex filename
+  11868      68       0   11936    2ea0 lib/zlib_inflate/zlib_inflate.o
+
+Since this code is probably reentrant already, global variables are most 
+probably read-only and declaring them const will store their content 
+into .rodata which should be accounted as text above.
+
+Having an empty .data section is the easiest way to be sure the kernel 
+decompressor can actually execute from flash without subtle bugs due to 
+the enforced read-only nature of global variables.
+
+
+Nicolas

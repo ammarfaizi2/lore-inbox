@@ -1,36 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWBXL7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWBXMEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWBXL7O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 06:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWBXL7O
+	id S932086AbWBXMEo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 07:04:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWBXMEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 06:59:14 -0500
-Received: from corky.net ([212.150.53.130]:43738 "EHLO zebday.corky.net")
-	by vger.kernel.org with ESMTP id S1750746AbWBXL7N (ORCPT
+	Fri, 24 Feb 2006 07:04:44 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:6575 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932086AbWBXMEo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 06:59:13 -0500
-Message-ID: <43FF0357.3010106@corky.net>
-Date: Fri, 24 Feb 2006 13:00:07 +0000
-From: Just Marc <marc@corky.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: mirrors@mirrormonster.com
-Subject: Re: 3ware 9550SX-ML16 controller weird pci bus parity errors
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 24 Feb 2006 07:04:44 -0500
+Date: Fri, 24 Feb 2006 04:04:00 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Ph. Marek" <philipp.marek@bmlv.gv.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ramfs and directory modification time
+Message-Id: <20060224040400.2f093523.akpm@osdl.org>
+In-Reply-To: <200602231405.04091.philipp.marek@bmlv.gv.at>
+References: <200602231405.04091.philipp.marek@bmlv.gv.at>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-AV-Checked: ClamAV using ClamSMTP on CorKy.NeT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've also been experiencing similar PCI parity error prints lately on
-fairly recent hardware, shortly after the prints show up the syscam
-sometimes just locks up without further prints / panics, running recent
-kernels -- 2.6.14+. 
+"Ph. Marek" <philipp.marek@bmlv.gv.at> wrote:
+>
+> I believe that I found a problem regarding ramfs and directory modification 
+>  times.
+> 
+> 
+> 
+>  Observe:
+>  	$ /tmp# mkdir newdir
+>  	$ /tmp# mount -t ramfs none newdir
+>  	$ /tmp# cd newdir/
+>  	$ /tmp/newdir# mkdir sub
+>  	$ /tmp/newdir# cd sub
+>  	$ /tmp/newdir/sub# ls -la --full-time
+>  	total 0
+>  	drwxr-xr-x 2 root root 0 2006-02-23 14:01:37.573655160 +0100 .
+>  	drwxr-xr-x 3 root root 0 2006-02-23 14:01:33.221316816 +0100 ..
+>  	$ /tmp/newdir/sub# touch a-new-file
+>  	$ /tmp/newdir/sub# ls -la --full-time
+>  	total 0
+>  	drwxr-xr-x 2 root root 0 2006-02-23 14:01:37.573655160 +0100 .
+>  	drwxr-xr-x 3 root root 0 2006-02-23 14:01:33.221316816 +0100 ..
+>  	-rw-r--r-- 1 root root 0 2006-02-23 14:01:48.019067216 +0100 a-new-file
+> 
+>  On a tmpfs or other (disk-based) filesystems (ext3) it works correctly.
 
-Can anyone please shed some light on what can cause such errors, how can
-they be debugged / addressed?
+Yes, bug.  Thanks.
 
-Marc
+
+--- devel/fs/ramfs/inode.c~ramfs-update-dir-mtime-and-ctime	2006-02-24 03:53:46.000000000 -0800
++++ devel-akpm/fs/ramfs/inode.c	2006-02-24 03:54:29.000000000 -0800
+@@ -27,6 +27,7 @@
+ #include <linux/fs.h>
+ #include <linux/pagemap.h>
+ #include <linux/highmem.h>
++#include <linux/time.h>
+ #include <linux/init.h>
+ #include <linux/string.h>
+ #include <linux/smp_lock.h>
+@@ -104,6 +105,7 @@ ramfs_mknod(struct inode *dir, struct de
+ 		d_instantiate(dentry, inode);
+ 		dget(dentry);	/* Extra count - pin the dentry in core */
+ 		error = 0;
++		dir->i_mtime = dir->i_ctime = CURRENT_TIME_SEC;
+ 	}
+ 	return error;
+ }
+_
+

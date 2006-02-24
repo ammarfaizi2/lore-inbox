@@ -1,319 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWBXPDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbWBXPDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932229AbWBXPDd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 10:03:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWBXPDd
+	id S932228AbWBXPDM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 10:03:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWBXPDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 10:03:33 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:53646 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932229AbWBXPDc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 10:03:32 -0500
-Subject: GFS2 Filesystem [15/16]
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
+	Fri, 24 Feb 2006 10:03:12 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:2728 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932228AbWBXPDK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 10:03:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dQsc84tS88VcqsjZZ9yX3Qgzaeu+5lUR5WiRagFgrWFzeX1yFf2byy6w8HJLi5FMoUMUelO20TtR+BpjbqXNuUEzC1sRqWsRTv88Eaz3Vwy9IgUBaYvvvJ9W5ts0Yu+8JLUp7MNn9DCwaYUi7OL2ZFnmuKHT3WgjBnBPgwGFWwY=
+Message-ID: <5be025980602240703w30a9581bm4fe8ccf9cbc80076@mail.gmail.com>
+Date: Fri, 24 Feb 2006 10:03:04 -0500
+From: "Wei Hu" <glegoo@gmail.com>
+To: "Rogan Dawes" <discard@dawes.za.net>
+Subject: Re: Looking for a file monitor
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Fri, 24 Feb 2006 15:07:42 +0000
-Message-Id: <1140793662.6400.738.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <43FEC9EC.7080902@dawes.za.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <5be025980602232351k3f6182bbqed5ea54079193953@mail.gmail.com>
+	 <43FEC9EC.7080902@dawes.za.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 15/16] GFS2: 
+>
+> It looks to me like you could use an LD_PRELOAD'ed library to monitor
+> such events?
 
-The "nolock" locking module provides locking services for single node
-GFS2 set ups and is also useful for testing.
+That's a good idea.
+Is there an existing tool, or do I need to write a system call wrapper?
 
+>
+> Alternatively, consider something like the honeynet monitoring kernel
+> monitor module, perhaps.
 
+Could you give more information here?
+I'm not familiar with honeynet, thanks.
 
-Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
-
-
- fs/gfs2/locking/nolock/Makefile |    3 
- fs/gfs2/locking/nolock/main.c   |  268 ++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 271 insertions(+)
-
---- /dev/null
-+++ b/fs/gfs2/locking/nolock/main.c
-@@ -0,0 +1,268 @@
-+/*
-+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
-+ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
-+ *
-+ * This copyrighted material is made available to anyone wishing to use,
-+ * modify, copy, or redistribute it subject to the terms and conditions
-+ * of the GNU General Public License v.2.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/types.h>
-+#include <linux/fs.h>
-+#include <linux/smp_lock.h>
-+
-+#include "../../lm_interface.h"
-+
-+struct nolock_lockspace {
-+	unsigned int nl_lvb_size;
-+};
-+
-+struct lm_lockops nolock_ops;
-+
-+static int nolock_mount(char *table_name, char *host_data,
-+			lm_callback_t cb, lm_fsdata_t *fsdata,
-+			unsigned int min_lvb_size, int flags,
-+			struct lm_lockstruct *lockstruct,
-+			struct kobject *fskobj)
-+{
-+	char *c;
-+	unsigned int jid;
-+	struct nolock_lockspace *nl;
-+
-+	/* If there is a "jid=" in the hostdata, return that jid.
-+	   Otherwise, return zero. */
-+
-+	c = strstr(host_data, "jid=");
-+	if (!c)
-+		jid = 0;
-+	else {
-+		c += 4;
-+		sscanf(c, "%u", &jid);
-+	}
-+
-+	nl = kmalloc(sizeof(struct nolock_lockspace), GFP_KERNEL);
-+	if (!nl)
-+		return -ENOMEM;
-+
-+	memset(nl, 0, sizeof(struct nolock_lockspace));
-+	nl->nl_lvb_size = min_lvb_size;
-+
-+	lockstruct->ls_jid = jid;
-+	lockstruct->ls_first = 1;
-+	lockstruct->ls_lvb_size = min_lvb_size;
-+	lockstruct->ls_lockspace = (lm_lockspace_t *)nl;
-+	lockstruct->ls_ops = &nolock_ops;
-+	lockstruct->ls_flags = LM_LSFLAG_LOCAL;
-+
-+	return 0;
-+}
-+
-+static void nolock_others_may_mount(lm_lockspace_t *lockspace)
-+{
-+}
-+
-+static void nolock_unmount(lm_lockspace_t *lockspace)
-+{
-+	struct nolock_lockspace *nl = (struct nolock_lockspace *)lockspace;
-+	kfree(nl);
-+}
-+
-+static void nolock_withdraw(lm_lockspace_t *lockspace)
-+{
-+}
-+
-+/**
-+ * nolock_get_lock - get a lm_lock_t given a descripton of the lock
-+ * @lockspace: the lockspace the lock lives in
-+ * @name: the name of the lock
-+ * @lockp: return the lm_lock_t here
-+ *
-+ * Returns: 0 on success, -EXXX on failure
-+ */
-+
-+static int nolock_get_lock(lm_lockspace_t *lockspace, struct lm_lockname *name,
-+			   lm_lock_t **lockp)
-+{
-+	*lockp = (lm_lock_t *)lockspace;
-+	return 0;
-+}
-+
-+/**
-+ * nolock_put_lock - get rid of a lock structure
-+ * @lock: the lock to throw away
-+ *
-+ */
-+
-+static void nolock_put_lock(lm_lock_t *lock)
-+{
-+}
-+
-+/**
-+ * nolock_lock - acquire a lock
-+ * @lock: the lock to manipulate
-+ * @cur_state: the current state
-+ * @req_state: the requested state
-+ * @flags: modifier flags
-+ *
-+ * Returns: A bitmap of LM_OUT_*
-+ */
-+
-+static unsigned int nolock_lock(lm_lock_t *lock, unsigned int cur_state,
-+				unsigned int req_state, unsigned int flags)
-+{
-+	return req_state | LM_OUT_CACHEABLE;
-+}
-+
-+/**
-+ * nolock_unlock - unlock a lock
-+ * @lock: the lock to manipulate
-+ * @cur_state: the current state
-+ *
-+ * Returns: 0
-+ */
-+
-+static unsigned int nolock_unlock(lm_lock_t *lock, unsigned int cur_state)
-+{
-+	return 0;
-+}
-+
-+static void nolock_cancel(lm_lock_t *lock)
-+{
-+}
-+
-+/**
-+ * nolock_hold_lvb - hold on to a lock value block
-+ * @lock: the lock the LVB is associated with
-+ * @lvbp: return the lm_lvb_t here
-+ *
-+ * Returns: 0 on success, -EXXX on failure
-+ */
-+
-+static int nolock_hold_lvb(lm_lock_t *lock, char **lvbp)
-+{
-+	struct nolock_lockspace *nl = (struct nolock_lockspace *)lock;
-+	int error = 0;
-+
-+	*lvbp = kmalloc(nl->nl_lvb_size, GFP_KERNEL);
-+	if (*lvbp)
-+		memset(*lvbp, 0, nl->nl_lvb_size);
-+	else
-+		error = -ENOMEM;
-+
-+	return error;
-+}
-+
-+/**
-+ * nolock_unhold_lvb - release a LVB
-+ * @lock: the lock the LVB is associated with
-+ * @lvb: the lock value block
-+ *
-+ */
-+
-+static void nolock_unhold_lvb(lm_lock_t *lock, char *lvb)
-+{
-+	kfree(lvb);
-+}
-+
-+/**
-+ * nolock_sync_lvb - sync out the value of a lvb
-+ * @lock: the lock the LVB is associated with
-+ * @lvb: the lock value block
-+ *
-+ */
-+
-+static void nolock_sync_lvb(lm_lock_t *lock, char *lvb)
-+{
-+}
-+
-+static int nolock_plock_get(lm_lockspace_t *lockspace, struct lm_lockname *name,
-+			    struct file *file, struct file_lock *fl)
-+{
-+	struct file_lock *tmp;
-+
-+	lock_kernel();
-+	tmp = posix_test_lock(file, fl);
-+	fl->fl_type = F_UNLCK;
-+	if (tmp)
-+		memcpy(fl, tmp, sizeof(struct file_lock));
-+	unlock_kernel();
-+
-+	return 0;
-+}
-+
-+static int nolock_plock(lm_lockspace_t *lockspace, struct lm_lockname *name,
-+			struct file *file, int cmd, struct file_lock *fl)
-+{
-+	int error;
-+	lock_kernel();
-+	error = posix_lock_file_wait(file, fl);
-+	unlock_kernel();
-+	return error;
-+}
-+
-+static int nolock_punlock(lm_lockspace_t *lockspace, struct lm_lockname *name,
-+			  struct file *file, struct file_lock *fl)
-+{
-+	int error;
-+	lock_kernel();
-+	error = posix_lock_file_wait(file, fl);
-+	unlock_kernel();
-+	return error;
-+}
-+
-+static void nolock_recovery_done(lm_lockspace_t *lockspace, unsigned int jid,
-+				 unsigned int message)
-+{
-+}
-+
-+struct lm_lockops nolock_ops = {
-+	.lm_proto_name = "lock_nolock",
-+	.lm_mount = nolock_mount,
-+	.lm_others_may_mount = nolock_others_may_mount,
-+	.lm_unmount = nolock_unmount,
-+	.lm_withdraw = nolock_withdraw,
-+	.lm_get_lock = nolock_get_lock,
-+	.lm_put_lock = nolock_put_lock,
-+	.lm_lock = nolock_lock,
-+	.lm_unlock = nolock_unlock,
-+	.lm_cancel = nolock_cancel,
-+	.lm_hold_lvb = nolock_hold_lvb,
-+	.lm_unhold_lvb = nolock_unhold_lvb,
-+	.lm_sync_lvb = nolock_sync_lvb,
-+	.lm_plock_get = nolock_plock_get,
-+	.lm_plock = nolock_plock,
-+	.lm_punlock = nolock_punlock,
-+	.lm_recovery_done = nolock_recovery_done,
-+	.lm_owner = THIS_MODULE,
-+};
-+
-+int __init init_nolock(void)
-+{
-+	int error;
-+
-+	error = gfs_register_lockproto(&nolock_ops);
-+	if (error) {
-+		printk("lock_nolock: can't register protocol: %d\n", error);
-+		return error;
-+	}
-+
-+	printk("Lock_Nolock (built %s %s) installed\n", __DATE__, __TIME__);
-+	return 0;
-+}
-+
-+void __exit exit_nolock(void)
-+{
-+	gfs_unregister_lockproto(&nolock_ops);
-+}
-+
-+module_init(init_nolock);
-+module_exit(exit_nolock);
-+
-+MODULE_DESCRIPTION("GFS Nolock Locking Module");
-+MODULE_AUTHOR("Red Hat, Inc.");
-+MODULE_LICENSE("GPL");
-+
---- /dev/null
-+++ b/fs/gfs2/locking/nolock/Makefile
-@@ -0,0 +1,3 @@
-+obj-$(CONFIG_GFS2_FS) += lock_nolock.o
-+lock_nolock-y := main.o
-+
-
-
+>
+> Rogan
+>

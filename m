@@ -1,76 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWBXLAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750895AbWBXLKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbWBXLAV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 06:00:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWBXLAV
+	id S1750895AbWBXLKT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 06:10:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbWBXLKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 06:00:21 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:30108 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750730AbWBXLAU (ORCPT
+	Fri, 24 Feb 2006 06:10:18 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:39328 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750895AbWBXLKR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 06:00:20 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Fri, 24 Feb 2006 11:58:07 +0100
-User-Agent: KMail/1.9.1
-Cc: Nigel Cunningham <ncunningham@cyclades.com>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
-       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602240927.51338.ncunningham@cyclades.com> <20060223234403.GF1662@elf.ucw.cz>
-In-Reply-To: <20060223234403.GF1662@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 24 Feb 2006 06:10:17 -0500
+Date: Fri, 24 Feb 2006 03:09:35 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mark Rustad <mrustad@mac.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.16-rc4 edac oops
+Message-Id: <20060224030935.22c19f99.akpm@osdl.org>
+In-Reply-To: <6B9658D7-1522-4936-9492-FED2DFD38D2A@mac.com>
+References: <Pine.LNX.4.64.0602171438050.916@g5.osdl.org>
+	<6B9658D7-1522-4936-9492-FED2DFD38D2A@mac.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602241158.08306.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Mark Rustad <mrustad@mac.com> wrote:
+>
+> I find that I sometimes get a non-fatal oops during boot with the  
+>  7520 EDAC stuff in place. 
 
-On Friday 24 February 2006 00:44, Pavel Machek wrote:
-> > > > > [Because pagecache is freeable, anyway, so it will be freed. Now... I
-> > > > > have seen some problems where free_some_memory did not free enough,
-> > > > > and schedule()/retry helped a bit... that probably should be fixed.]
-> > > >
-> > > > It seems I need to understand correctly what the difference between what
-> > > > we do and what Nigel does is.  I thought the Nigel's approach was to save
-> > > > some cache pages to disk first and use the memory occupied by them to
-> > > > store the image data.  If so, is the page cache involved in that or
-> > > > something else?
-> > >
-> > > I believe Nigel only saves pages that could have been freed anyway
-> > > during phase1. Nigel, correct me here... suspend2 should work on same
-> > > class of machines swsusp can, but will be able to save caches on
-> > > machines where swsusp can not save any.
-> > 
-> > I'm not used to thinking in these terms :). It would be normally be right, 
-> > except that there will be some LRU pages that will never be freed. These 
-> > would allow suspend2 to work in some (not many) cases where swsusp can't. 
-> > It's been ages since I did the intensive testing on the image preparation 
-> > code, but I think that if we free as much memory as we can, we will always 
-> > still have at least a few hundred LRU pages left. That's not much, but on 
-> > machines with less ram, it might make the difference in a greater percentage 
-> > of cases (compared to machines with more ram)?
-> 
-> Well, pages in LRU should be user pages, and therefore freeable,
-> AFAICT. It is possible that there's something wrong with freeing in
-> swsusp1...
+Could you send a trace which hasn't been passed through ksymoops please?
 
-Well, if all of the pages that Nigel saves before snapshot are freeable in
-theory, there evidently is something wrong with freeing in swsusp, as we
-have a testcase in which the user was unable to suspend with swsusp due
-to the lack of memory and could suspend with suspend2.
+Make sure that CONFIG_KALLSYMS is set - the kernel internally does all that
+decoding now.
 
-However, the only thing in swsusp_shrink_memory() that may be wrong
-is we return -ENOMEM as soon as shrink_all_memory() returns 0.
-Namely, if shrink_all_memory() can return 0 prematurely (ie. "there still are
-some freeable pages, but they could not be freed in _this_ call"), we should
-continue until it returns 0 twice in a row (or something like that).  If this
-doesn't help, we'll have to fix shrink_all_memory() I'm afraid.
-
-Greetings,
-Rafael

@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWBXOWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWBXOYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751066AbWBXOWV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 09:22:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbWBXOWV
+	id S932146AbWBXOYV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 09:24:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWBXOYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 09:22:21 -0500
-Received: from rs27.luxsci.com ([66.216.127.24]:17879 "EHLO rs27.luxsci.com")
-	by vger.kernel.org with ESMTP id S1751064AbWBXOWU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 09:22:20 -0500
-Message-ID: <43FF16B7.9060407@eventmonitor.com>
-Date: Fri, 24 Feb 2006 09:22:47 -0500
-From: Bryan Fink <bfink@eventmonitor.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
+	Fri, 24 Feb 2006 09:24:21 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:63396 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932146AbWBXOYU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 09:24:20 -0500
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+Subject: Re: Patch to reorder functions in the vmlinux to a defined order
+References: <1140700758.4672.51.camel@laptopd505.fenrus.org>
+	<1140707358.4672.67.camel@laptopd505.fenrus.org>
+	<200602231700.36333.ak@suse.de>
+	<1140713001.4672.73.camel@laptopd505.fenrus.org>
+	<Pine.LNX.4.64.0602230902230.3771@g5.osdl.org>
+	<43FE0B9A.40209@keyaccess.nl>
+	<Pine.LNX.4.64.0602231133110.3771@g5.osdl.org>
+	<43FE1764.6000300@keyaccess.nl>
+	<Pine.LNX.4.64.0602231517400.3771@g5.osdl.org>
+	<43FE4B00.8080205@keyaccess.nl>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 24 Feb 2006 07:23:04 -0700
+In-Reply-To: <43FE4B00.8080205@keyaccess.nl> (Rene Herman's message of "Fri,
+ 24 Feb 2006 00:53:36 +0100")
+Message-ID: <m1slq83kfr.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: NFS Still broken in 2.6.x?
-References: <43FE1CAD.3050806@eventmonitor.com>	 <1140734824.7963.38.camel@lade.trondhjem.org>	 <20060224041435.733b4f0d.akpm@osdl.org> <1140788198.3615.3.camel@lade.trondhjem.org>
-In-Reply-To: <1140788198.3615.3.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+Rene Herman <rene.herman@keyaccess.nl> writes:
 
->On Fri, 2006-02-24 at 04:14 -0800, Andrew Morton wrote:
->  
+> Linus Torvalds wrote:
 >
->>Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
->>    
->>
->>>On Thu, 2006-02-23 at 15:35 -0500, Bryan Fink wrote:
->>> > Hi All.  I'm running into a bit of trouble with NFS on 2.6.  I see that
->>> > at least Trond thought, mid-January, that "The readahead algorithm has
->>> > been broken in 2.6.x for at least the past 6 months." (
->>> > http://www.ussg.iu.edu/hypermail/linux/kernel/0601.2/0559.html) Anyone
->>> > know if that has been fixed?
->>>
->>> No it hasn't been fixed. ...and no, this is not a problem that only
->>> affects NFS: it just happens to give a more noticeable performance
->>> impact due to the larger latency of NFS over a 100Mbps link.
->>>      
->>>
->>iirc, last time we went round this loop Ram and I were unable to reproduce it.
->>
->>Does anyone have a testcase?
->>    
->>
+>> On Thu, 23 Feb 2006, Rene Herman wrote:
 >
->Yes. A dead simple one
+>>> Okay. I suppose the only other option is to make "physical_start" a variable
+>>> passed in by the bootloader so that it could make a runtime decision? Ie,
+>>> place us at min(top_of_mem, 4G) if it cared to. I just grepped for
+>>> PHYSICAL_START and this didn't look _too_ bad.
+>> No can do. You'd have to make the kernel relocatable, and do load-time
+>> fixups. Very invasive.
 >
->run iozone in sequential read mode on a tcp link w/ rsize == 32k
->  
->
-I'm sure Trond's testcase is much more useful, but for reference, I 
-thought I'd add that I've been doing my testing with a simple "dd 
-if=/nfsmount/file of=/dev/null bs=32k".  /nfsmount/file is usually 2.5-3 
-GB, which makes the difference between NFS servers long enough that I 
-feel safe throwing a "time" in front of the whole command.  That is, the 
-difference is nowhere near millisecond resolution (it's nearer a 
-minute), so I like to start the test and then walk away to do other things.
+> Yes, that wasn't too smart. I believe in principe most of it _could_ be done via
+> some pagetable trickery though, with the kernel still at a fixed virtual
+> address?
 
-Interesting that it's not an NFS-only bug.  I assumed it was when I 
-logged into each server so I could run "dd if=file of=/dev/null bs=32k" 
-locally.  When I did that, both servers gave roughly the same speed.  
-Sorry I left this bit out of my first email.  I assume this example only 
-illustrates how opaque the code around this problem truly is.
+The page table trickery is actually the more invasive approach.  I believe
+for 32 bit kernels the real problem is giving up the identity mapping of
+low memory.  Short of the moving the kernel to end of the address space
+where vmalloc and the fixmaps are now I don't think there is a reasonable chunk
+of the address space we can use.
 
-Thanks very much for the help.
-
--Bryan
-
+Eric

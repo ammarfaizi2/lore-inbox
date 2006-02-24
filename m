@@ -1,60 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbWBXJab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWBXJdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbWBXJab (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 04:30:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWBXJab
+	id S932153AbWBXJdu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 04:33:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWBXJdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 04:30:31 -0500
-Received: from liaag1ae.mx.compuserve.com ([149.174.40.31]:4839 "EHLO
-	liaag1ae.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932160AbWBXJaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 04:30:30 -0500
-Date: Fri, 24 Feb 2006 03:15:36 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH] Add Wake on LAN support to sis900 (2)
-To: Dave Jones <davej@redhat.com>
-Cc: Daniele Venzano <venza@brownhat.org>, Jeff Garzik <jgarzik@pobox.com>,
-       John Reiser <jreiser@bitwagon.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200602240317_MC3-1-B92E-70BC@compuserve.com>
+	Fri, 24 Feb 2006 04:33:50 -0500
+Received: from usmimesweeper.bluearc.com ([63.203.197.133]:25861 "EHLO
+	us-mimesweeper.terastack.bluearc.com") by vger.kernel.org with ESMTP
+	id S932153AbWBXJdt convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 04:33:49 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: adding swap workarounds oom - was: Re: Out of Memory: Killed process 16498 (java).
+Date: Fri, 24 Feb 2006 09:33:47 -0000
+Message-ID: <89E85E0168AD994693B574C80EDB9C2703758E34@uk-email.terastack.bluearc.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: adding swap workarounds oom - was: Re: Out of Memory: Killed process 16498 (java).
+Thread-Index: AcY3tTGs2uHEkSlTTbKxWVzA7jqhGAAuGH6gAC1lqwA=
+From: "Andy Chittenden" <AChittenden@bluearc.com>
+To: "Jens Axboe" <axboe@suse.de>
+Cc: "Anton Altaparmakov" <aia21@cam.ac.uk>, "Andrew Morton" <akpm@osdl.org>,
+       <davej@redhat.com>, <linux-kernel@vger.kernel.org>,
+       <lwoodman@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060224025759.GA14027@redhat.com>
+Jens
 
-On Thu, 23 Feb 2006 at 21:57:59 -0500, Dave Jones wrote:
-> The patch below applied on Jan 5th causes some systems to no longer boot.
-> See https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=179601
-> for details.
-> 
-> Thanks go to John Reiser for his debugging with git bisect
-> to narrow this one down.
-> ...
-> > --- a/drivers/net/sis900.c
-> > +++ b/drivers/net/sis900.c
-> ...
-> > @@ -538,6 +539,11 @@ static int __devinit sis900_probe(struct
-> >             printk("%2.2x:", (u8)net_dev->dev_addr[i]);
-> >     printk("%2.2x.\n", net_dev->dev_addr[i]);
-> >  
-> > +   /* Detect Wake on Lan support */
-> > +   ret = inl(CFGPMC & PMESP);
-
- What is this?  It appears to be doing 'inl(0)'.
-
-> > +   if (netif_msg_probe(sis_priv) && (ret & PME_D3C) == 0)
-> > +           printk(KERN_INFO "%s: Wake on LAN only available from suspend to RAM.", net_dev->name);
-> > +
-> >     return 0;
-> >  
-> >   err_unmap_rx:
+So was that output from dmesg useful? Any other info you need?
 
 -- 
-Chuck
-"Equations are the Devil's sentences."  --Stephen Colbert
-
+Andy, BlueArc Engineering
+ 

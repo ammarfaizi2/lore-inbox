@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWBXSyD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWBXTAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbWBXSyD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 13:54:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWBXSyD
+	id S932274AbWBXTAF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 14:00:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWBXTAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 13:54:03 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:62118 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932426AbWBXSyB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 13:54:01 -0500
-Date: Fri, 24 Feb 2006 18:53:56 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Badri Pillai <badri@ii-consult.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Martin Drab <drab@kepler.fjfi.cvut.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM [ATI fglrx 2.6.15 put_page BUG]
-Message-ID: <20060224185356.GC5816@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Badri Pillai <badri@ii-consult.com>,
-	Hugh Dickins <hugh@veritas.com>,
-	Martin Drab <drab@kepler.fjfi.cvut.cz>,
-	linux-kernel@vger.kernel.org
-References: <43E34662.1000704@ii-consult.com> <Pine.LNX.4.61.0602031340350.11546@goblin.wat.veritas.com> <43FD93E4.8010405@ii-consult.com>
+	Fri, 24 Feb 2006 14:00:05 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:40394 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932274AbWBXTAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 14:00:04 -0500
+Date: Fri, 24 Feb 2006 12:56:32 -0600
+From: Robin Holt <holt@sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, John McCutchan <john@johnmccutchan.com>,
+       holt@sgi.com, linux-kernel@vger.kernel.org, rml@novell.com,
+       arnd@arndb.de, hch@lst.de, Dipankar Sarma <dipankar@in.ibm.com>
+Subject: Re: udevd is killing file write performance.
+Message-ID: <20060224185632.GB343@lnx-holt.americas.sgi.com>
+References: <20060222134250.GE20786@lnx-holt.americas.sgi.com> <1140626903.13461.5.camel@localhost.localdomain> <20060222175030.GB30556@lnx-holt.americas.sgi.com> <1140648776.1729.5.camel@localhost.localdomain> <20060222151223.5c9061fd.akpm@osdl.org> <1140651662.2985.2.camel@localhost.localdomain> <20060223161425.4388540e.akpm@osdl.org> <20060224054724.GA8593@johnmccutchan.com> <20060223220053.2f7a977e.akpm@osdl.org> <43FEB0BF.6080403@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43FD93E4.8010405@ii-consult.com>
+In-Reply-To: <43FEB0BF.6080403@yahoo.com.au>
 User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 23, 2006 at 11:52:20AM +0100, Badri Pillai wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Fri, Feb 24, 2006 at 06:07:43PM +1100, Nick Piggin wrote:
+> Attached is a first implementation of what was my idea then of how
+> to solve it... note it is pretty rough and I never got around to doing
+> much testing of it.
 > 
-> 
-> Hi all,
-> 
-> Thanks again for prompt replies.
-> 
-> To be honest, due to time factor I couldn't try the patches.
-> 
-> But the latest?? 8.22.5 Linux driver from ATI works fine
-> with 2.6.15.2.
+> Basically: moves work out of inotify event time and to inotify attach
+> /detach time while staying out of the core VFS.
 
-Please don't report bugs in the broken and illegal ATI drivers here, thanks.
+The customer called and said they had tried with udevd running and this
+patch applied.  They said the problem is gone.
 
+Thanks,
+Robin Holt

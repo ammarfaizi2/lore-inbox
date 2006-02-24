@@ -1,105 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbWBXVWO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbWBXVZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932508AbWBXVWO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 16:22:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbWBXVWO
+	id S932510AbWBXVZp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 16:25:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbWBXVZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 16:22:14 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:11334 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932508AbWBXVWO (ORCPT
+	Fri, 24 Feb 2006 16:25:45 -0500
+Received: from tetsuo.zabbo.net ([207.173.201.20]:44218 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S932510AbWBXVZo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 16:22:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=CSNNKFcNhU9AiA/kgigtf1nQA6Wwm3QUZlY6c/xGx12DXNJ78D4VmexwsJft5WrCutdKFm0eVvQ18nqlUbk2E2M/I9W1jGjCUWzyBrtB3DCrn+G0gq/uksrqY+6nhGe5b9bIexGx2HvMdBPTf5Slq9hPCsA1SvzkMka2jLKB53E=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: "Zach Brown" <zab@zabbo.net>
-Subject: Re: [PATCH 07/13] maestro3 vfree NULL check fixup
-Date: Fri, 24 Feb 2006 22:22:31 +0100
-User-Agent: KMail/1.9.1
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200602242148.27855.jesper.juhl@gmail.com> <200602242217.21180.jesper.juhl@gmail.com> <9a8748490602241318y69966ce6yc0907e89af559978@mail.gmail.com>
-In-Reply-To: <9a8748490602241318y69966ce6yc0907e89af559978@mail.gmail.com>
+	Fri, 24 Feb 2006 16:25:44 -0500
+Message-ID: <43FF79CE.8050800@zabbo.net>
+Date: Fri, 24 Feb 2006 13:25:34 -0800
+From: Zach Brown <zab@zabbo.net>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 07/13] maestro3 vfree NULL check fixup
+References: <200602242148.27855.jesper.juhl@gmail.com> <200602242217.21180.jesper.juhl@gmail.com> <9a8748490602241318y69966ce6yc0907e89af559978@mail.gmail.com> <200602242222.31659.jesper.juhl@gmail.com>
+In-Reply-To: <200602242222.31659.jesper.juhl@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602242222.31659.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 February 2006 22:18, Jesper Juhl wrote:
-> On 2/24/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> > On Friday 24 February 2006 22:09, Zach Brown wrote:
-> > > Jesper Juhl wrote:
-> > > > vfree() checks for NULL, no need to do it explicitly.
-> > >
-> > > >  static void free_dsp_suspendmem(struct m3_card *card)
-> > > >  {
-> > > > -   if(card->suspend_mem)
-> > > > -       vfree(card->suspend_mem);
-> > > > +    vfree(card->suspend_mem);
-> > > >  }
-> > >
-> > > eh, I'd just get rid of the helper and call vfree() from both sites.
-> > >
-> > makes perfect sense, I just looked for vfree use - should have checked more
-> > in-depth.
-> >
-[snip]
-> Arrgh, I'm an idiot. That patch is wrong.
-> 
-> Sorry, updated patch in 2 min.
-> 
 
-Don't check pointers for NULL before calling vfree and get rid
-of a pointless helper function in sound/oss/maestro3.c
+> Don't check pointers for NULL before calling vfree and get rid
+> of a pointless helper function in sound/oss/maestro3.c
 
+Nice work, thanks.
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- sound/oss/maestro3.c |   10 ++--------
- 1 files changed, 2 insertions(+), 8 deletions(-)
-
---- linux-2.6.16-rc4-mm2-orig/sound/oss/maestro3.c	2006-02-24 19:25:49.000000000 +0100
-+++ linux-2.6.16-rc4-mm2/sound/oss/maestro3.c	2006-02-24 22:19:48.000000000 +0100
-@@ -2582,15 +2582,9 @@ static int alloc_dsp_suspendmem(struct m
- 
-     return 0;
- }
--static void free_dsp_suspendmem(struct m3_card *card)
--{
--   if(card->suspend_mem)
--       vfree(card->suspend_mem);
--}
- 
- #else
- #define alloc_dsp_suspendmem(args...) 0
--#define free_dsp_suspendmem(args...) 
- #endif
- 
- /*
-@@ -2717,7 +2711,7 @@ out:
-     if(ret) {
-         if(card->iobase)
-             release_region(pci_resource_start(pci_dev, 0), pci_resource_len(pci_dev, 0));
--        free_dsp_suspendmem(card);
-+        vfree(card->suspend_mem);
-         if(card->ac97) {
-             unregister_sound_mixer(card->ac97->dev_mixer);
-             kfree(card->ac97);
-@@ -2760,7 +2754,7 @@ static void m3_remove(struct pci_dev *pc
-         }
- 
-         release_region(card->iobase, 256);
--        free_dsp_suspendmem(card);
-+        vfree(card->suspend_mem);
-         kfree(card);
-     }
-     devs = NULL;
-
-
-
+Acked-by: Zach Brown <zab@zabbo.net>

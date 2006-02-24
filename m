@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbWBXM6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbWBXNAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750879AbWBXM6g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 07:58:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750875AbWBXM6g
+	id S1750945AbWBXNAs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 08:00:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWBXNAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 07:58:36 -0500
-Received: from gold.veritas.com ([143.127.12.110]:40580 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1750822AbWBXM6f (ORCPT
+	Fri, 24 Feb 2006 08:00:48 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:58275 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750943AbWBXNAr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 07:58:35 -0500
-X-IronPort-AV: i="4.02,143,1139212800"; 
-   d="scan'208"; a="56077666:sNHT29435128"
-Date: Fri, 24 Feb 2006 12:59:06 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Alan Cox <alan@redhat.com>
-cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk, mchehab@infradead.org, akpm@osdl.org
-Subject: Re: + add-cpia2-camera-support.patch added to -mm tree
-In-Reply-To: <20060224111656.GA3136@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.61.0602241256150.17767@goblin.wat.veritas.com>
-References: <200602240049.k1O0nuQn023548@shell0.pdx.osdl.net>
- <1140772015.2874.14.camel@laptopd505.fenrus.org> <20060224111656.GA3136@devserv.devel.redhat.com>
+	Fri, 24 Feb 2006 08:00:47 -0500
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] x86_64 stack trace cleanup
+Date: Fri, 24 Feb 2006 14:00:41 +0100
+User-Agent: KMail/1.9.1
+Cc: dilinger@debian.org, linux-kernel@vger.kernel.org
+References: <1140777679.5073.17.camel@localhost.localdomain> <200602241147.03041.ak@suse.de> <20060224045044.07fc5921.akpm@osdl.org>
+In-Reply-To: <20060224045044.07fc5921.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 24 Feb 2006 12:58:35.0342 (UTC) FILETIME=[05BB3EE0:01C63942]
+Content-Disposition: inline
+Message-Id: <200602241400.42432.ak@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Feb 2006, Alan Cox wrote:
-> On Fri, Feb 24, 2006 at 10:06:55AM +0100, Arjan van de Ven wrote:
-> > you are adding rvmalloc copy number 14; seems you own the task to make
-> > it generic now ;)
-> > Also I thought SetPageReserved and friends are deprecated :)
+On Friday 24 February 2006 13:50, Andrew Morton wrote:
+> Andi Kleen <ak@suse.de> wrote:
+> >
+> > I can offer you a deal though: if you fix VGA scrollback to have
+> >  at least 1000 lines by default we can change the oops formatting too.
 > 
-> Heading that way, which is fine by me.
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc4/2.6.16-rc4-mm2/broken-out/vgacon-add-support-for-soft-scrollback.patch
 
-Just go with what you have: one day one of us will come along and
-vanish all those rvmallocs and SetPageReserveds; but until that day
-it's easiest for everyone if you continue with your rvmalloc #14.
+Once that is in and works we can consider changing the oopses.
 
-Hugh
+> Problem is, scrollback doesn't work after panic().  I don't know why..
+
+Someone claimed it was related to the panic keyboard blinking.  Never verified 
+though. But without it working we still can't change the oops.
+
+-Andi
+ 

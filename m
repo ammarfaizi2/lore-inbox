@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbWBXBRm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWBXBVS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932370AbWBXBRm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 20:17:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWBXBRm
+	id S932373AbWBXBVS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 20:21:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbWBXBVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 20:17:42 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:28579
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932346AbWBXBRl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 20:17:41 -0500
-Date: Thu, 23 Feb 2006 17:17:46 -0800 (PST)
-Message-Id: <20060223.171746.81607534.davem@davemloft.net>
-To: lcapitulino@mandriva.com.br
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       robert.olsson@its.uu.se
-Subject: Re: [PATCH 00/01] pktgen: Lindent run.
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060123134419.efc0c80e.lcapitulino@mandriva.com.br>
-References: <20060123134419.efc0c80e.lcapitulino@mandriva.com.br>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 23 Feb 2006 20:21:18 -0500
+Received: from tetsuo.zabbo.net ([207.173.201.20]:56736 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S932363AbWBXBVR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 20:21:17 -0500
+Message-ID: <43FE5F84.4000001@oracle.com>
+Date: Thu, 23 Feb 2006 17:21:08 -0800
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: suparna@in.ibm.com
+Cc: akpm@osdl.org, sct@redhat.com, mason@suse.com,
+       linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
+       kenneth.w.chen@intel.com, pbadari@us.ibm.com,
+       linux-kernel@vger.kernel.org, sonny@burdell.org
+Subject: Re: [RFC][WIP] DIO simplification and AIO-DIO stability
+References: <20060223072955.GA14244@in.ibm.com>
+In-Reply-To: <20060223072955.GA14244@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-Date: Mon, 23 Jan 2006 13:44:19 -0200
+Suparna Bhattacharya wrote:
 
-> 
->  This patch is not in-lined because it's 120K bytes long, you can found it at:
-> 
-> http://www.cpu.eti.br/patches/pktgen_lindent_1.patch
+> A recent AIO-DIO bug reported by Kenneth Chen, came very close
+> to being the proverbial last straw for me.
 
-Not found:
+Me too, though I found out about it from a different path.  Our QA guys
+were pulling drives under load and it got stuck.  Trying to fix that bug
+(io error setting dio->result to -EIO stops finished_one_bio() from
+calling aio_complete()) without introducing other regressions involved
+an incredible amount of squinting and head scratching.  In wandering
+around I found what seem to be other additional bugs:
 
-davem@sunset:~/src/GIT/net-2.6.17$ wget http://www.cpu.eti.br/patches/pktgen_lindent_1.patch
---17:16:50--  http://www.cpu.eti.br/patches/pktgen_lindent_1.patch
-           => `pktgen_lindent_1.patch'
-Resolving www.cpu.eti.br... 209.59.143.183
-Connecting to www.cpu.eti.br|209.59.143.183|:80... connected.
-HTTP request sent, awaiting response... 404 Not Found
-17:16:50 ERROR 404: Not Found.
+- errors that hit after dio->result is sampled in the buffered fallback
+case are lost.  dio->result should be checked again after waiting.
 
-Anyways, can you please regenerate these 4 patches against
-net-2.6.17, as I put in Arthur's race fix and it will certainly
-conflict with these.
+- a few paths try to do arithmetic with dio->result assuming it's the
+number of bytes transferred when it could be -EIO.
 
-Sorry for taking so long to get to this :-(
+- the AIO path seems to forget to check dio->page_errors, but I didn't
+look very hard to see what that means.
+
+- the AIO bio completion paths don't populate dio->bio_list so reaping
+doesn't happen in the AIO issuing case.. maybe that's intentional?
+
+> It would be quite pointless (and painful!), if the rewrite ends up becoming
+> just as tricky and error prone as before. Such a patch will need a very
+> close critical review by many sharp eyes, to avoid disrupting the current
+> state of stability.
+
+So, I'm all for wringing the current bugs and confusion out of the
+current code.  But the words "a patch" and "rewrite" terrify me.  It
+seems much more prudent to make progress with incremental patches that
+can be tested and reviewed.  Especially if that is tied to writing tests
+as changes are made.
+
+Let me think harder about the specific proposals..
+
+- z

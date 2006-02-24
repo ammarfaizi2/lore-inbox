@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbWBXS0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWBXSiw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932417AbWBXS0J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 13:26:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbWBXS0J
+	id S932397AbWBXSiw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 13:38:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWBXSiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 13:26:09 -0500
-Received: from albireo.ucw.cz ([84.242.65.108]:59013 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S932417AbWBXS0I (ORCPT
+	Fri, 24 Feb 2006 13:38:52 -0500
+Received: from hera.kernel.org ([140.211.167.34]:39137 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932397AbWBXSiv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 13:26:08 -0500
-Date: Fri, 24 Feb 2006 19:26:09 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Asfand Yar Qazi <ay0106@qazi.f2s.com>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 'vga=' parameter wierdness
-Message-ID: <mj+md-20060224.181909.23160.albireo@ucw.cz>
-References: <43FC1624.8090607@qazi.f2s.com> <200602221130.13872.vda@ilport.com.ua> <43FC54B8.7070706@qazi.f2s.com> <mj+md-20060222.121130.6225.albireo@ucw.cz> <43FC574A.4000100@qazi.f2s.com> <Pine.LNX.4.61.0602240832150.16363@yvahk01.tjqt.qr> <mj+md-20060224.101038.705.atrey@ucw.cz> <Pine.LNX.4.61.0602241904570.3694@yvahk01.tjqt.qr> <mj+md-20060224.181006.23057.albireo@ucw.cz> <Pine.LNX.4.61.0602241915380.3694@yvahk01.tjqt.qr>
+	Fri, 24 Feb 2006 13:38:51 -0500
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: Kernel assertion in net/ipv4/tcp.c
+Date: Fri, 24 Feb 2006 10:38:18 -0800
+Organization: OSDL
+Message-ID: <20060224103818.46510a15@localhost.localdomain>
+References: <20060123102805.6bd39bcc@HAL2000>
+	<20060224095350.GA5111@kruemel.my-eitzenberger.de>
+	<20060224144342.186243cc@HAL2000>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0602241915380.3694@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1140806294 307 10.8.0.54 (24 Feb 2006 18:38:14 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Fri, 24 Feb 2006 18:38:14 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >However, this would change meaning of numbers entered at the video mode
-> >prompt (with vga=ask), which doesn't look good.
-> >
-> Add a warning ;-)
+On Fri, 24 Feb 2006 14:43:42 +0100
+Florian Engelhardt <f.engelhardt@21torr.com> wrote:
 
-Well, the same thing can be said about the vga= parameter in LILO and GRUB :-)
+> On Fri, 24 Feb 2006 10:53:50 +0100
+> Holger Eitzenberger <holger@my-eitzenberger.de> wrote:
+> 
+> > On Mon, Jan 23, 2006 at 10:28:05AM +0100, Florian Engelhardt wrote:
+> > 
+> > > Linux www 2.6.14-gentoo-r2 #4 SMP Mon Nov 28 10:35:23 CET 2005 i686
+> > > Intel(R) Xeon(TM) CPU 3.20GHz GenuineIntel GNU/Linux
+> > > 
+> > > I have a Marvell Yukon Ethernet card inside.
+> > > 
+> > > And i have some trouble with it (see the attached log file).
+> > > I get tons of error messages in my kern.log, all the same:
+> > > Jan 15 11:11:20 www kernel: KERNEL: assertion (flags & MSG_PEEK)
+> > > failed at net/ipv4/tcp.c (1171)
+> > 
+> > Hi,
+> > 
+> > I see similar errors here on several boxes, all with Marvel chipsets
+> > and sk98lin.  Do you use sk98lin or skge/sky2?
+> 
+> Hi,
+> 
+> we are using sk98lin driver.
+> 
+> Kind regards
+> 
+> Flo
 
-I think that the kernel documentation (svga.txt) is pretty clear and explicit
-on the meaning of the numbers and I don't see any reasons to change the
-behavior of the mode selector.
+Is this a new error (did it happen with older kernels)?
 
-What IMHO needs updating is the documentation on the vga parameter in LILO
-and GRUB docs, which doesn't explain well what's going on.
-
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-"A semicolon. Another line ends in the dance of camel." -- Kabir Ahuja
+Does it go away if you turn receive checksum offload off?

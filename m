@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWBXRxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWBXR4j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbWBXRxE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 12:53:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWBXRxE
+	id S932405AbWBXR4j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 12:56:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWBXR4j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 12:53:04 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:65208 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1750912AbWBXRxD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 12:53:03 -0500
-Date: Fri, 24 Feb 2006 12:53:01 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Matthew Wilcox <matthew@wil.cx>
-cc: Greg KH <greg@kroah.com>, <linux-pci@atrey.karlin.mff.cuni.cz>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Missing piece from as659
-In-Reply-To: <20060224164901.GQ28587@parisc-linux.org>
-Message-ID: <Pine.LNX.4.44L0.0602241246150.5177-100000@iolanthe.rowland.org>
+	Fri, 24 Feb 2006 12:56:39 -0500
+Received: from smtpq2.tilbu1.nb.home.nl ([213.51.146.201]:12517 "EHLO
+	smtpq2.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
+	id S932405AbWBXR4i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 12:56:38 -0500
+Message-ID: <43FF48F2.70508@keyaccess.nl>
+Date: Fri, 24 Feb 2006 18:57:06 +0100
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@osdl.org>
+CC: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Arjan van de Ven <arjan@linux.intel.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+Subject: Re: Patch to reorder functions in the vmlinux to a defined order
+References: <1140700758.4672.51.camel@laptopd505.fenrus.org> <1140707358.4672.67.camel@laptopd505.fenrus.org> <200602231700.36333.ak@suse.de> <1140713001.4672.73.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0602230902230.3771@g5.osdl.org> <43FE0B9A.40209@keyaccess.nl> <Pine.LNX.4.64.0602231133110.3771@g5.osdl.org> <43FE1764.6000300@keyaccess.nl> <Pine.LNX.4.64.0602231517400.3771@g5.osdl.org> <43FE4B00.8080205@keyaccess.nl> <m1r75s3kfi.fsf@ebiederm.dsl.xmission.com> <43FF26A8.9070600@keyaccess.nl> <m17j7kda52.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0602240925170.3771@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602240925170.3771@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Feb 2006, Matthew Wilcox wrote:
+Linus Torvalds wrote:
 
-> Alan, you didn't cc the pci mailing list on the original patch.
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0602.2/2673.html
+> The real issue is the _physical_ address. Nothing else matters.
+> 
+> If the TLB splitting on the fixed MTRRs is an issue, it depends entirely 
+> on what physical address the kernel resides in, and the virtual address is 
+> totally inconsequential.
+> 
+> So playing games with virtual mapping has absolutely no upsides, and it 
+> definitely has downsides.
 
-This seems to be a blind spot of mine.  Yours is the second complaint in 
-two days about patches I failed to CC to the appropriate 
-maintainer/mailing-list...
+The notion was that having a fixed virtual mapping of the kernel would 
+allow it to be loaded anywhere physically without needing to do actual 
+address fixups. The bootloader could then for example at runtime decide 
+to load the kernel at 16MB if the machine had enough memory available, 
+to free up ZONE_DMA. Or not do that if running on a <= 16MB machine.
 
-> You only fix pci_get_subsys; pci_get_class has the same bug.
+Or the kdump "host" kernel would make that decission, as it seems the 
+want is shared with them. Eric Biederman said that fixups aren't that 
+bad though...
 
-Please submit a similar bugfix for pci_get_class, then.  I just noticed 
-the log messages from pci_get_subsys because that's the routine that 
-happened to run on the machine I was testing.
-
-> If it is a bug, of course.  It's not clear to me whether it's permissible
-> to call pci_dev_put under a spinlock or not.  That boils down to whether
-> kobject ->release methods can sleep or not.  That isn't documented in
-> Documentation/kobject.txt and I rather think it should be.
-
-It is a bug, but it has been ignored up until recently.  Within the last 
-month or two, Greg added a might_sleep() call to put_device().  It 
-wouldn't hurt to do the same thing to kobject_put(), or maybe just 
-kobject_release().
-
-Alan Stern
+Rene.
 

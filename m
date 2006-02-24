@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbWBXKrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750902AbWBXLE4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750882AbWBXKrM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 05:47:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbWBXKrL
+	id S1750902AbWBXLE4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 06:04:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbWBXLE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 05:47:11 -0500
-Received: from ns1.suse.de ([195.135.220.2]:10137 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750882AbWBXKrJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 05:47:09 -0500
-From: Andi Kleen <ak@suse.de>
-To: Andres Salomon <dilinger@debian.org>
-Subject: Re: [PATCH] x86_64 stack trace cleanup
-Date: Fri, 24 Feb 2006 11:47:02 +0100
-User-Agent: KMail/1.9.1
+	Fri, 24 Feb 2006 06:04:56 -0500
+Received: from moutng.kundenserver.de ([212.227.126.177]:36060 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750808AbWBXLEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 06:04:55 -0500
+Date: Fri, 24 Feb 2006 10:53:50 +0100
+From: Holger Eitzenberger <holger@my-eitzenberger.de>
+To: Florian Engelhardt <f.engelhardt@21torr.com>
 Cc: linux-kernel@vger.kernel.org
-References: <1140777679.5073.17.camel@localhost.localdomain>
-In-Reply-To: <1140777679.5073.17.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Subject: Re: Kernel assertion in net/ipv4/tcp.c
+Message-ID: <20060224095350.GA5111@kruemel.my-eitzenberger.de>
+Mail-Followup-To: Florian Engelhardt <f.engelhardt@21torr.com>,
+	linux-kernel@vger.kernel.org
+References: <20060123102805.6bd39bcc@HAL2000>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602241147.03041.ak@suse.de>
+In-Reply-To: <20060123102805.6bd39bcc@HAL2000>
+User-Agent: Mutt/1.5.9i
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:8548cd0e00552bb75411ff34ad15700a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 February 2006 11:41, Andres Salomon wrote:
-> Hi,
+On Mon, Jan 23, 2006 at 10:28:05AM +0100, Florian Engelhardt wrote:
+
+> Linux www 2.6.14-gentoo-r2 #4 SMP Mon Nov 28 10:35:23 CET 2005 i686
+> Intel(R) Xeon(TM) CPU 3.20GHz GenuineIntel GNU/Linux
 > 
-> This patch cleans up the clutter of x86_64 stack traces, making the
-> output closer to what i386 and sparc64 stack traces look like.  It uses
-> print_symbol instead of resolving the symbols manually, and prints one
-> frame per line instead of displaying multiple frames per line.  I left
-> the other stuff in the stack dump alone; this affects only the frame
-> list.
+> I have a Marvell Yukon Ethernet card inside.
 > 
-> I know this has been brought up before
-> (http://www.uwsg.iu.edu/hypermail/linux/kernel/0602.0/2238.html,
-> although I noticed a slight problem w/ that patch, as __print_symbol
-> returns void); however, for people that don't spend all their time
-> looking at x86_64 backtraces, I think this consistency shouldn't be
-> scoffed at.  When you switch back and forth between different archs,
-> x86_64's backtrace is cluttered and confusing in comparison.
+> And i have some trouble with it (see the attached log file).
+> I get tons of error messages in my kern.log, all the same:
+> Jan 15 11:11:20 www kernel: KERNEL: assertion (flags & MSG_PEEK) failed
+> at net/ipv4/tcp.c (1171)
 
-If the formatting of the oopses is  your only problem you are a 
-lucky man.
+Hi,
 
-The problem is your new format uses more screen estate, which is precious
-after an oops because the VGA scrollback is so small.
-That is why i rejected the earlier attempts at changing this.
+I see similar errors here on several boxes, all with Marvel chipsets and
+sk98lin.  Do you use sk98lin or skge/sky2?
 
-I can offer you a deal though: if you fix VGA scrollback to have
-at least 1000 lines by default we can change the oops formatting too.
+Thanks.  /holger
 
--Andi
+

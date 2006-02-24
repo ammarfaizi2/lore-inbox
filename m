@@ -1,75 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWBXP6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWBXQFD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbWBXP6w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 10:58:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWBXP6w
+	id S1750757AbWBXQFD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 11:05:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbWBXQFD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 10:58:52 -0500
-Received: from dvhart.com ([64.146.134.43]:34215 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S932283AbWBXP6w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 10:58:52 -0500
-Message-ID: <43FF2D38.2020602@mbligh.org>
-Date: Fri, 24 Feb 2006 07:58:48 -0800
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Fri, 24 Feb 2006 11:05:03 -0500
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:9669 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1750757AbWBXQFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 11:05:01 -0500
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Fri, 24 Feb 2006 16:04:38 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: [2.6-git] NTFS: Release 2.1.26
+Message-ID: <Pine.LNX.4.64.0602241559150.2136@hermes-2.csi.cam.ac.uk>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>
-Subject: Problems for IBM x440 in 2.6.16-rc4-mm1 and -mm2 (PCI?)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, mainline is fine, but -mm won't boot:
+Hi Linus, please pull from
 
-mainline boot log:
+git://git.kernel.org/pub/scm/linux/kernel/git/aia21/ntfs-2.6.git
 
-http://test.kernel.org/23745/debug/console.log
-(-git7)
+This is the next NTFS update containing some minor bugfixes and support 
+for larger sector sizes (encountered on a 6TiB RAID array) and for invalid 
+flags in the attribute list attribute of the $Secure system file 
+(encountered on a Windows XP laptop).
 
--mm boot log:
-http://test.kernel.org/23752/debug/console.log
+Please apply.  Thanks!
 
-It seems to find no PCI devices at all, and I note that when they first
-seem to diverge, we get:
+Diffstat:
 
-PCI: Probing PCI hardware
-PCI quirk: region 0440-044f claimed by vt82c686 SMB
-PCI->APIC IRQ transform: 0000:00:03.0[A] -> IRQ 39
-PCI->APIC IRQ transform: 0000:00:04.0[A] -> IRQ 16
-PCI->APIC IRQ transform: 0000:00:05.2[D] -> IRQ 47
-PCI->APIC IRQ transform: 0000:00:05.3[D] -> IRQ 47
-Setting up standard PCI resources
+ Documentation/filesystems/ntfs.txt |    6 +
+ fs/ntfs/ChangeLog                  |   36 ++++--
+ fs/ntfs/Makefile                   |    2
+ fs/ntfs/aops.c                     |   18 +--
+ fs/ntfs/file.c                     |   11 --
+ fs/ntfs/inode.c                    |   49 +++++++--
+ fs/ntfs/layout.h                   |   26 +++-
+ fs/ntfs/mft.c                      |    8 -
+ fs/ntfs/ntfs.h                     |   10 -
+ fs/ntfs/super.c                    |  201 ++++++++++++++++++++++++-------------
+ fs/ntfs/upcase.c                   |   10 -
+ fs/ntfs/volume.h                   |   29 ++---
+ 12 files changed, 263 insertions(+), 143 deletions(-)
 
-Instead of:
+I am sending the changesets as actual patches generated using git
+format-patch for non-git users in follow up emails (in reply to this one).
 
-PCI: Probing PCI hardware
-PCI quirk: region 0440-044f claimed by vt82c686 SMB
-PCI: Discovered peer bus 01
-PCI: Discovered peer bus 02
-PCI: Discovered peer bus 05
-PCI: Discovered peer bus 07
-PCI: Discovered peer bus 09
-PCI: Discovered peer bus 0c
-PCI quirk: region 0440-044f claimed by vt82c686 SMB
-PCI: Discovered peer bus 0d
-PCI: Discovered peer bus 0e
-PCI: Discovered peer bus 11
-PCI: Discovered peer bus 13
-PCI: Discovered peer bus 15
-PCI->APIC IRQ transform: 0000:00:03.0[A] -> IRQ 39
-PCI->APIC IRQ transform: 0000:00:04.0[A] -> IRQ 16
-PCI->APIC IRQ transform: 0000:00:05.2[D] -> IRQ 47
-PCI->APIC IRQ transform: 0000:00:05.3[D] -> IRQ 47
-PCI->APIC IRQ transform: 0000:01:03.0[A] -> IRQ 40
-PCI->APIC IRQ transform: 0000:01:03.1[B] -> IRQ 41
-PCI->APIC IRQ transform: 0000:01:04.0[A] -> IRQ 42
-PCI->APIC IRQ transform: 0000:02:02.0[A] -> IRQ 55
-PCI->APIC IRQ transform: 0000:0c:04.0[A] -> IRQ 118
-PCI->APIC IRQ transform: 0000:0d:03.0[A] -> IRQ 142
-PCI->APIC IRQ transform: 0000:0d:03.1[B] -> IRQ 143
-PCI->APIC IRQ transform: 0000:0d:04.0[A] -> IRQ 144
+Best regards,
 
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

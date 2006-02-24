@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751824AbWBXEEH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751841AbWBXEGU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751824AbWBXEEH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 23:04:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751837AbWBXEEH
+	id S1751841AbWBXEGU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 23:06:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751840AbWBXEGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 23:04:07 -0500
-Received: from mx1.rowland.org ([192.131.102.7]:7949 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S1751824AbWBXEED (ORCPT
+	Thu, 23 Feb 2006 23:06:20 -0500
+Received: from ozlabs.org ([203.10.76.45]:57996 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751838AbWBXEGT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 23:04:03 -0500
-Date: Thu, 23 Feb 2006 23:04:02 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Andi Kleen <ak@suse.de>
-cc: sekharan@us.ibm.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] The idle notifier chain should be atomic
-In-Reply-To: <200602240427.27441.ak@suse.de>
-Message-ID: <Pine.LNX.4.44L0.0602232300250.21298-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 23 Feb 2006 23:06:19 -0500
+Date: Fri, 24 Feb 2006 15:05:43 +1100
+From: "'David Gibson'" <david@gibson.dropbear.id.au>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Hugh Dickins'" <hugh@veritas.com>, "Luck, Tony" <tony.luck@intel.com>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] fix ia64 hugetlb_free_pgd_range
+Message-ID: <20060224040543.GE28368@localhost.localdomain>
+Mail-Followup-To: 'David Gibson' <david@gibson.dropbear.id.au>,
+	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+	'Hugh Dickins' <hugh@veritas.com>,
+	"Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20060224024431.GC28368@localhost.localdomain> <200602240305.k1O35Ng06352@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602240305.k1O35Ng06352@unix-os.sc.intel.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Feb 2006, Andi Kleen wrote:
-
-> On Friday 24 February 2006 04:24, Alan Stern wrote:
->  
-> > In do_IRQ() there's a call to exit_idle(), which calls __exit_idle(), 
-> > which runs the idle_notifier call chain.  Surely you're not saying that we 
-> > can do a down_read() in this pathway?
+On Thu, Feb 23, 2006 at 07:05:23PM -0800, Chen, Kenneth W wrote:
+> David Gibson wrote on Thursday, February 23, 2006 6:45 PM
+> > However... I suspect in fact that the transformations should be
+> > unconditional.
 > 
-> No, but not because it's in an interrupt but because sleeping in the idle
-> task is illegal.
+> No, that won't be correct.
 
-Well, either reason is sufficient justification for making idle_notifier 
-an atomic chain.
+But I don't see how not transforming them sometimes can be correct.
+Suppose 'floor' is only a little way below 'addr' - addr will be
+shifted down, but floor won't, so floor may now be above addr, which
+will cause weird results.
 
-> > And actually the chain's type doesn't seem to make much difference, since
-> > at the moment there's nothing in the vanilla kernel that registers for the
-> > idle_notifier chain.
-> 
-> Will come eventually.
+Afaict the *only* thing floor and ceiling are used for is bounds
+checking the address range we're examining.  How can that ever be
+right if one address has been scaled down, but the other hasn't.
 
-Will that be just for x86_64 or for all architectures?
-
-Alan Stern
-
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson
